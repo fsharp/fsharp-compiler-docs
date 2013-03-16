@@ -99,7 +99,7 @@ type internal UntypedParseResults =
 [<Sealed>]
 type (* internal *) UntypedParseInfo internal (parsed:UntypedParseResults) = 
 
-    member internal scope.ParseTree =
+    member (*internal*) scope.ParseTree =
         match parsed with
         | { Input=x } -> x
 

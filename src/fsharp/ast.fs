@@ -10,7 +10,7 @@
 // You must not remove this notice, or any other, from this software.
 //----------------------------------------------------------------------------
 
-module internal Microsoft.FSharp.Compiler.Ast
+module (*internal*) Microsoft.FSharp.Compiler.Ast
 
 open System.Collections.Generic
 open Internal.Utilities
@@ -2071,29 +2071,29 @@ type LexBuffer<'Char> with
     member lexbuf.LexemeRange  = mkSynRange lexbuf.StartPos lexbuf.EndPos
 
 /// Get the range corresponding to the result of a grammar rule while it is being reduced
-let lhs (parseState: IParseState) = 
+let internal lhs (parseState: IParseState) = 
     let p1 = parseState.ResultStartPosition
     let p2 = parseState.ResultEndPosition
     mkSynRange p1 p2
 
 /// Get the range covering two of the r.h.s. symbols of a grammar rule while it is being reduced
-let rhs2 (parseState: IParseState) i j = 
+let internal rhs2 (parseState: IParseState) i j = 
     let p1 = parseState.InputStartPosition i
     let p2 = parseState.InputEndPosition j
     mkSynRange p1 p2
 
 /// Get the range corresponding to one of the r.h.s. symbols of a grammar rule while it is being reduced
-let rhs parseState i = rhs2 parseState i i 
+let internal rhs parseState i = rhs2 parseState i i 
 
 type IParseState with 
-    member x.GetSynArgNameGenerator() = 
+    member internal x.GetSynArgNameGenerator() = 
         let key = "SynArgNameGenerator"
         let bls = x.LexBuffer.BufferLocalStore
         if not (bls.ContainsKey key) then  
             bls.[key] <- box (SynArgNameGenerator())
         bls.[key] :?> SynArgNameGenerator
 
-    member x.ResetSynArgNameGenerator() = x.GetSynArgNameGenerator().Reset()
+    member internal x.ResetSynArgNameGenerator() = x.GetSynArgNameGenerator().Reset()
 
 
 /// XmlDoc F# lexer/parser state, held in the BufferLocalStore for the lexer.

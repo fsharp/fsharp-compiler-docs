@@ -10,7 +10,7 @@
 // You must not remove this notice, or any other, from this software.
 //----------------------------------------------------------------------------
 
-module internal Microsoft.FSharp.Compiler.AbstractIL.IL
+module (*internal*) Microsoft.FSharp.Compiler.AbstractIL.IL
 
 #nowarn "49"
 #nowarn "343" // The type 'ILAssemblyRef' implements 'System.IComparable' explicitly but provides no corresponding override for 'Object.Equals'.

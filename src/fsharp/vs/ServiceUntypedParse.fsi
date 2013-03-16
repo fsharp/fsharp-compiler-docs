@@ -36,7 +36,7 @@ type internal UntypedParseResults =
 
 [<Sealed>]
 type (* internal *) UntypedParseInfo = 
-    member internal ParseTree : Ast.ParsedInput option
+    member (*internal*) ParseTree : Ast.ParsedInput option
     /// Notable parse info for ParameterInfo at a given location
     member internal FindNoteworthyParamInfoLocations : line:int * col:int -> NoteworthyParamInfoLocations option
     /// Name of the file for which this information were created

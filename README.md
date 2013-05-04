@@ -1,3 +1,14 @@
+This fork of the F# compiler contains minor modifications in visibility to allow refactoring, 
+editing, and other tools to have access to the full F# AST and parser.  I hope to keep a stable 
+and documented fork of the main compiler that allows various tools to share this common code.  
+
+The tools that will be using this shortly will be: 
+
+[Fantomas](https://github.com/dungpa/fantomas)  
+[Fsharp-Refactor](https://github.com/Lewix/fsharp-refactor)  
+[FSharpbinding](https://github.com/fsharp/fsharpbinding)
+
+- - -
 This is the F# compiler, core library and core tools (open source edition). It uses the Apache 2.0 license.
 
 The `master` branch is for the latest version of F# (currently F# 3.0).

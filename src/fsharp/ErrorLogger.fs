@@ -10,7 +10,7 @@
 // You must not remove this notice, or any other, from this software.
 //----------------------------------------------------------------------------
 
-module internal Microsoft.FSharp.Compiler.ErrorLogger
+module (*internal*) Microsoft.FSharp.Compiler.ErrorLogger
 
 
 open Internal.Utilities

@@ -2,8 +2,13 @@
 namespace Microsoft.FSharp
 open System.Reflection
 
+#if COMPILEREDITOR
+[<assembly:AssemblyDescription("FSharp.Compiler.Editor.dll")>]
+[<assembly:AssemblyTitle("FSharp.Compiler.Editor.dll")>]
+#else
 [<assembly:AssemblyDescription("FSharp.Compiler.dll")>]
 [<assembly:AssemblyTitle("FSharp.Compiler.dll")>]
+#endif
 [<assembly:AssemblyCopyright("\169 Microsoft Corporation and other contributors.  Apache 2.0 License.")>]
 [<assembly:AssemblyProduct("F# (open source edition)")>]
 

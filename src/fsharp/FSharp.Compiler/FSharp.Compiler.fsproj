@@ -32,6 +32,10 @@
   <!-- MonoDevelop likes these here to recognise the configurations -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' " />
+  <PropertyGroup Condition="'$(COMPILEREDITOR)'=='true'">
+     <DefineConstants>$(DefineConstants);COMPILEREDITOR</DefineConstants>
+     <AssemblyName>FSharp.Compiler.Editor</AssemblyName>
+  </PropertyGroup>
   <ItemGroup>
     <FsSrGen Include="..\FSComp.txt">
       <Link>FSComp.txt</Link>

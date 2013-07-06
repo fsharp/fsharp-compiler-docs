@@ -1,8 +1,50 @@
-This fork of the F# compiler contains minor modifications in visibility to allow refactoring, 
-editing, and other tools to have access to the full F# AST and parser.  I hope to keep a stable 
-and documented fork of the main compiler that allows various tools to share this common code.  
+###F# Compiler Editor
+This fork of the F# compiler contains minor modifications in visibility to allow refactoring editing
+and other tools to have access to the full F# AST and parser.  The main aim is to have a stable and 
+documented fork of the main compiler that allows various tools to share this common code.  
 
-The tools that will be using this shortly will be: 
+###Nuget
+There is currently a [nuget package](https://nuget.org/packages/FSharp.Compiler.Editor/) that you can install as follows:  
+
+Using the nuget package manager in windows: 
+```
+PM> Install-Package FSharp.Compiler.Editor
+```
+Or from the nuget console on Osx etc:  
+```
+nuget install FSharp.Compiler.Editor
+```
+
+###Building
+If you want to build this yourself then you can follow these instructions:
+
+```
+git clone git@github.com:7sharp9/fsharp.git FSharp.Compiler.Editor -b CompilerEditor
+cd Fsharp.Compiler.Editor
+```
+
+Now follow the usual configuration instructions as below:  
+####Linux
+```
+./autogen.sh
+make
+```
+####Osx
+```
+./autogen.sh --prefix=/Library/Frameworks/Mono.framework/Versions/Current/
+make
+```
+
+Now build the compiler with the **COMPILEREDITOR** flag set
+
+```
+cd src
+xbuild  /p:Configuration=Release /p:COMPILEREDITOR=true fsharp-compiler-build.proj
+```
+
+The output will be located at `FSharp.Compiler.Editor/lib/release/4.0/FSharp.Compiler.Editor.dll`
+
+The tools that will hopefully be using this shortly: 
 
 [Fantomas](https://github.com/dungpa/fantomas)  
 [Fsharp-Refactor](https://github.com/Lewix/fsharp-refactor)  

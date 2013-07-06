@@ -15,8 +15,8 @@
         <tags>fsharp compiler editing refactoring</tags>
     </metadata>
     <files>
-        <file src="/../lib/release/4.0/FSharp.Compiler.Editor.dll" target="lib/net40/FSharp.Compiler.Editor.dll" />
-        <file src="/../lib/release/4.0/FSharp.Compiler.Editor.dll.mdb" target="lib/net40/FSharp.Compiler.Editor.dll.mdb" />
-        <file src="/../lib/release/4.0/FSharp.Compiler.Editor.xml" target="lib/net40/FSharp.Compiler.Editor.xml" />
+        <file src="lib/release/4.0/FSharp.Compiler.Editor.dll" target="lib/net40/FSharp.Compiler.Editor.dll" />
+        <file src="lib/release/4.0/FSharp.Compiler.Editor.dll.mdb" target="lib/net40/FSharp.Compiler.Editor.dll.mdb" />
+        <file src="lib/release/4.0/FSharp.Compiler.Editor.xml" target="lib/net40/FSharp.Compiler.Editor.xml" />
     </files>
 </package>

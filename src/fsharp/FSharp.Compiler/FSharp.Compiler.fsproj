@@ -57,7 +57,7 @@
     <FsYacc Include="..\pars.fsy">
       <Module>Microsoft.FSharp.Compiler.Parser</Module>
       <Open>Microsoft.FSharp.Compiler</Open>
-      <OtherFlags>--internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
+      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
       <Link>pars.fsy</Link>
     </FsYacc>
     <FsYacc Include="..\..\absil\ilpars.fsy">

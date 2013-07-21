@@ -38,7 +38,7 @@ type internal UntypedParseResults =
 type (* internal *) UntypedParseInfo = 
     member (*internal*) ParseTree : Ast.ParsedInput option
     /// Notable parse info for ParameterInfo at a given location
-    member internal FindNoteworthyParamInfoLocations : line:int * col:int -> NoteworthyParamInfoLocations option
+    member (* internal *) FindNoteworthyParamInfoLocations : line:int * col:int -> NoteworthyParamInfoLocations option
     /// Name of the file for which this information were created
     member internal FileName                       : string
     /// Get declared items and the selected item at the specified location
@@ -47,7 +47,7 @@ type (* internal *) UntypedParseInfo =
     member internal ValidateBreakpointLocation : Position -> Range option
     /// When these files change then the build is invalid
     member internal DependencyFiles : unit -> string list
-    internal new : parsed:UntypedParseResults -> UntypedParseInfo
+    (* internal *) new : parsed:UntypedParseResults -> UntypedParseInfo
 
 /// Information about F# source file names
 module internal SourceFile =
@@ -81,7 +81,7 @@ type internal CompletionContext =
 
 
 // implementation details used by other code in the compiler    
-module internal UntypedParseInfoImpl =
+module (* internal *) UntypedParseInfoImpl =
     open Microsoft.FSharp.Compiler.Ast
     val GetUntypedParseResults : UntypedParseInfo -> UntypedParseResults
     val TryFindExpressionASTLeftOfDotLeftOfCursor : int * int * ParsedInput option -> (pos * bool) option

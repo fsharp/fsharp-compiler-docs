@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>FSharp.Compiler.Editor</id>
-        <version>1.0.5</version>
+        <version>1.0.6</version>
         <title>F# Compiler Editor</title>
         <authors>Dave Thomas, Anh-Dung Phan</authors>
         <owners />
@@ -11,7 +11,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <summary>The compiler editor assembly for creating refactoring and editing tools for F# programming language</summary>
         <description>This fork of the F# compiler contains minor modifications in visibility to allow refactoring, editing, and other tools to have access to the full F# AST and parser.</description>
-        <releaseNotes>Exposed Parser module, DeclarationSet, IParseState, ParseErrorContext and Tables.  Which are required for the F# binding(Parsing and Tooltips)</releaseNotes>
+        <releaseNotes>Exposed AST Traversal module to allow for easier AST traversal rather than duplicating traversal mechanism.  Also opened up the UntypedParseInfoImpl for access to island and parameter completion functions.  Also added UntypedParseInfo's constructor to allow usage of functions in the UntypedParseInfoImpl module.</releaseNotes>
         <copyright>Copyright 2013</copyright>
         <tags>fsharp compiler editing refactoring</tags>
     </metadata>

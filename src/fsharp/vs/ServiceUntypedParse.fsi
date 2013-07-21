@@ -42,7 +42,7 @@ type (* internal *) UntypedParseInfo =
     /// Name of the file for which this information were created
     member internal FileName                       : string
     /// Get declared items and the selected item at the specified location
-    member internal GetNavigationItems             : unit -> NavigationItems
+    member (* internal *) GetNavigationItems             : unit -> NavigationItems
     /// Return the inner-most range associated with a possible breakpoint location
     member internal ValidateBreakpointLocation : Position -> Range option
     /// When these files change then the build is invalid

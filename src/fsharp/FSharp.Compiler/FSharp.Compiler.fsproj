@@ -32,6 +32,10 @@
   <!-- MonoDevelop likes these here to recognise the configurations -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' " />
+  <PropertyGroup Condition="'$(COMPILEREDITOR)'=='true'">
+     <DefineConstants>$(DefineConstants);COMPILEREDITOR</DefineConstants>
+     <AssemblyName>FSharp.Compiler.Editor</AssemblyName>
+  </PropertyGroup>
   <ItemGroup>
     <FsSrGen Include="..\FSComp.txt">
       <Link>FSComp.txt</Link>
@@ -53,7 +57,7 @@
     <FsYacc Include="..\pars.fsy">
       <Module>Microsoft.FSharp.Compiler.Parser</Module>
       <Open>Microsoft.FSharp.Compiler</Open>
-      <OtherFlags>--internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
+      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
       <Link>pars.fsy</Link>
     </FsYacc>
     <FsYacc Include="..\..\absil\ilpars.fsy">

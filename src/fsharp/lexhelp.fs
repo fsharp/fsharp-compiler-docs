@@ -13,7 +13,7 @@
 // Helper functions for the F# lexer lex.mll
 
 
-module internal Microsoft.FSharp.Compiler.Lexhelp
+module (*internal*) Microsoft.FSharp.Compiler.Lexhelp
 
 open System.Text
 open Internal.Utilities

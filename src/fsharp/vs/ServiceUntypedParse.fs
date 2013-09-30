@@ -71,7 +71,7 @@ type internal RecordContext =
     | Constructor of string // typename
     | New of CompletionPath
 
-type internal CompletionContext = 
+type (* internal *) CompletionContext = 
     // completion context cannot be determined due to errors
     | Invalid
     // completing something after the inherit keyword
@@ -85,7 +85,7 @@ type internal CompletionContext =
 //----------------------------------------------------------------------------
 
 [<NoEquality; NoComparison>]
-type internal UntypedParseResults = 
+type (* internal *) UntypedParseResults = 
   { // Error infos
     Errors : ErrorInfo[]
     // Untyped AST
@@ -97,15 +97,15 @@ type internal UntypedParseResults =
     }
 
 [<Sealed>]
-type (* internal *) UntypedParseInfo internal (parsed:UntypedParseResults) = 
+type (* internal *) UntypedParseInfo (* internal *) (parsed:UntypedParseResults) = 
 
-    member internal scope.ParseTree =
+    member (*internal*) scope.ParseTree =
         match parsed with
         | { Input=x } -> x
 
     member internal scope.Results = parsed
 
-    member internal scope.FindNoteworthyParamInfoLocations(line,col) = 
+    member (* internal *) scope.FindNoteworthyParamInfoLocations(line,col) = 
         match parsed with
         | { Input=Some(input) } -> 
             // Why don't we traverse the AST under a syncop?  We don't need to, because the AST is an _immutable_ DU of DUs of ints and strings and whatnot.  And a SyncOp really does slow it down in practice.
@@ -396,7 +396,7 @@ type (* internal *) UntypedParseInfo internal (parsed:UntypedParseResults) =
         // This does not need to be run on the background thread
         scope.ValidateBreakpointLocationImpl(pos)
 
-module internal UntypedParseInfoImpl =
+module (* internal *) UntypedParseInfoImpl =
     let GetUntypedParseResults (upi : UntypedParseInfo) = upi.Results
 
     let GetRangeOfExprLeftOfDot(line,col,parseTreeOpt) =

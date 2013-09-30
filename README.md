@@ -6,12 +6,12 @@ Modified clone of F# compiler exposing additional functionality for editing clie
 This repo should be identical to 'fsharp' except where:
 
     - Changes for building FSharp.Compiler.Editor.dll
-	- Changes for publishing the nuget package for FSharp.Compiler.Editor
-	- Changes to compiler source code to expose new functionality
-	- Additions to compiler source code which improve the API for the use of F# editing clients
-	- Additions to compiler source code which add new functionality used by all F# editing clients
-	- These additions to this README.md
-	- Additions to the LICENCE file to record contributors, changes etc.
+  - Changes for publishing the nuget package for FSharp.Compiler.Editor
+  - Changes to compiler source code to expose new functionality
+  - Additions to compiler source code which improve the API for the use of F# editing clients
+  - Additions to compiler source code which add new functionality used by all F# editing clients
+  - These additions to this README.md
+  - Additions to the LICENCE file to record contributors, changes etc.
 
 
 =============================================================================================
@@ -223,4 +223,3 @@ You can then go to the relevant directory and run `build.bat` and `run.bat`.
 F# compiler sources dropped by Microsoft are available from [fsharppowerpack.codeplex.com](http://fsharppowerpack.codeplex.com).
 
 Uses bootstrapping libraries, tools and F# compiler. The `lib/bootstrap/X.0` directories contain mono-built libraries, compiler and tools that can be used to bootstrap a build. You can also supply your own via the `--with-bootstrap` option.
-

@@ -1,0 +1,38 @@
+NAME=fsc-proto
+ASSEMBLY = $(NAME).exe
+
+srcdir := @abs_srcdir@/
+
+include @abs_top_builddir@/config.make
+
+CONFIG=proto
+
+FSC=$(bootstrapdir)fsc.exe
+
+FLAGS += --target:exe
+
+DEFINES += \
+	--define:BUILDING_PROTO \
+	--define:BUILDING_WITH_LKG \
+	--define:COMPILER \
+	--define:NO_STRONG_NAMES
+
+REFERENCES += \
+	-r:$(bootstrapdir)FSharp.Core.dll \
+	-r:$(outdir)FSharp.Compiler-proto.dll \
+	-r:$(monogacdirXX)/System.Runtime.Remoting.dll \
+	-r:$(monogacdirXX)/System.Windows.Forms.dll
+
+sources = \
+	../fscmain.fs
+
+do-proto: do-4-0 $(protodir)FSharp.Core.dll
+
+clean: clean-4-0
+
+include $(topdir)/src/fsharp/targets.make
+
+# We need the bootstrap's FSharp.Core to run the proto
+$(protodir)FSharp.Core.dll: $(bootstrapdir)FSharp.Core.dll
+	@-mkdir $(protodir)
+	cp -p $(bootstrapdir)FSharp.Core.dll $(protodir)FSharp.Core.dll

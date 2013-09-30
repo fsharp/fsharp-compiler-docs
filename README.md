@@ -3,7 +3,15 @@ FSharp.Compiler.Editing
 
 Modified clone of F# compiler exposing additional functionality for editing clients
 
-TODO - more here
+This repo should be identical to 'fsharp' except where:
+
+    - Changes for building FSharp.Compiler.Editor.dll
+	- Changes for publishing the nuget package for FSharp.Compiler.Editor
+	- Changes to compiler source code to expose new functionality
+	- Additions to compiler source code which improve the API for the use of F# editing clients
+	- Additions to compiler source code which add new functionality used by all F# editing clients
+	- These additions to this README.md
+	- Additions to the LICENCE file to record contributors, changes etc.
 
 
 =============================================================================================

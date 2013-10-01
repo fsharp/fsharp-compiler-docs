@@ -1,24 +1,33 @@
 FSharp.Compiler.Editing
 =======================
 
-Modified clone of F# compiler exposing additional functionality for editing clients
+Modified clone of F# compiler exposing additional functionality for editing clients.
 
-This repo should be identical to 'fsharp' except where:
+This fork of the F# compiler contains minor modifications in visibility to allow refactoring editing
+and other tools to have access to the full F# AST and parser.  The main aim is to have a stable and 
+documented fork of the main compiler that allows various tools to share this common code.  
+
+This repo should be _identical_ to 'fsharp' except:
 
   - Changes for building FSharp.Compiler.Editor.dll, notably
       - Change the assembly name
 	  - Only build FSharp.Compiler.Editor.dll
 	  - No bootstrap or proto compiler is used - an installed F# compiler is assumed
+
   - Files for publishing the nuget package for FSharp.Compiler.Editor
+
   - Changes to compiler source code to expose new functionality
+
   - Additions to compiler source code which improve the API for the use of F# editing clients
+
   - Additions to compiler source code which add new functionality used by all F# editing clients
+
   - These additions to this README.md
+
   - Additions to the LICENCE file to record contributors, changes etc.
 
-This fork of the F# compiler contains minor modifications in visibility to allow refactoring editing
-and other tools to have access to the full F# AST and parser.  The main aim is to have a stable and 
-documented fork of the main compiler that allows various tools to share this common code.  
+If language or compiler addiitons are committed to fsharp/fsharp, they should be merged into this repo and a new nuget
+package released.
 
 ###Nuget
 There is currently a [nuget package](https://nuget.org/packages/FSharp.Compiler.Editor/) that you can install as follows:  
@@ -36,11 +45,11 @@ nuget install FSharp.Compiler.Editor
 If you want to build this yourself then you can follow these instructions:
 
 ```
-git clone git@github.com:7sharp9/fsharp.git FSharp.Compiler.Editor -b CompilerEditor
+git clone https://github.com/fsharp/FSharp.Compiler.Editor
 cd Fsharp.Compiler.Editor
 ```
 
-Now follow the usual configuration instructions as below, building the compiler with the **COMPILEREDITOR** flag set
+Now follow the build instructions below.
 ####Linux
 ```
 ./autogen.sh
@@ -60,11 +69,15 @@ make
 
 The output will be located at `lib/release/4.0/FSharp.Compiler.Editor.dll`
 
+###Clients
+
 The known tools that use this component are:
 
-[Fantomas](https://github.com/dungpa/fantomas)  
-[Fsharp-Refactor](https://github.com/Lewix/fsharp-refactor)  
-[FSharpbinding](https://github.com/fsharp/fsharpbinding)
+* [Fantomas](https://github.com/dungpa/fantomas)  
+* [Fsharp-Refactor](https://github.com/Lewix/fsharp-refactor)  
+* [FSharpbinding](https://github.com/fsharp/fsharpbinding)
+
+If you modify this component it is polite to check that these tools all build after your modifications.
 
 
 =============================================================================================

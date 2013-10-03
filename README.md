@@ -1,9 +1,12 @@
-FSharp.Compiler.Editing
+FSharp.Compiler.Service
 =======================
 
-Modified clone of F# compiler exposing additional functionality for editing clients.
+Modified clone of F# compiler exposing additional functionality for editing clients and embedding F# as a service.
 
-This fork of the F# compiler contains minor modifications in visibility to allow refactoring editing
+## FSharp.Compiler.Editor
+
+At the moment, the main component is `FSharp.Compiler.Editor.dll`.
+It contains minor modifications in visibility to allow refactoring editing
 and other tools to have access to the full F# AST and parser.  The main aim is to have a stable and 
 documented fork of the main compiler that allows various tools to share this common code.  
 

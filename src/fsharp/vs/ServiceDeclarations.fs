@@ -225,7 +225,7 @@ module internal ItemDescriptionsImpl =
     /// Work out the likely source file for an item
     let fileNameOfItem (g:TcGlobals) qualProjectDir (m:range) h =
         let file = m.FileName 
-        dprintf "file stored in metadata is '%s'\n" file
+        if verbose then dprintf "file stored in metadata is '%s'\n" file
         if not (FileSystem.IsPathRootedShim file) then 
             match (ccuOfItem g h) with 
             | Some ccu -> 

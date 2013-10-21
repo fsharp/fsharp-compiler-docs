@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>FSharp.Compiler.Editor</id>
-        <version>1.0.7</version>
+        <version>1.0.8</version>
         <title>F# Compiler Editor</title>
         <authors>Dave Thomas, Anh-Dung Phan</authors>
         <owners />
         <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
-        <projectUrl>https://github.com/7sharp9/fsharp</projectUrl>
+        <projectUrl>https://github.com/fsharp/FSharp.Compiler.Service</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <summary>The compiler editor assembly for creating refactoring and editing tools for F# programming language</summary>
         <description>This fork of the F# compiler contains minor modifications in visibility to allow refactoring, editing, and other tools to have access to the full F# AST and parser.</description>

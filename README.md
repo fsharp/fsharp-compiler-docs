@@ -49,7 +49,7 @@ If you want to build this yourself then you can follow these instructions:
 
 ```
 git clone https://github.com/fsharp/FSharp.Compiler.Editor
-cd Fsharp.Compiler.Editor
+cd FSharp.Compiler.Editor
 ```
 
 Now follow the build instructions below.

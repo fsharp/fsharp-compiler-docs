@@ -1,12 +1,102 @@
-This is the F# compiler, core library and core tools (open edition). It uses the Apache 2.0 license.
+FSharp.Compiler.Service
+=======================
 
-The `master` branch is for the latest version of F# (currently F# 3.1).
+Modified clone of F# compiler exposing additional functionality for editing clients and embedding F# as a service.
+
+## FSharp.Compiler.Editor
+
+At the moment, the main component is `FSharp.Compiler.Editor.dll`.
+It contains minor modifications in visibility to allow refactoring editing
+and other tools to have access to the full F# AST and parser.  The main aim is to have a stable and 
+documented fork of the main compiler that allows various tools to share this common code.  
+
+This repo should be _identical_ to 'fsharp' except:
+
+  - Changes for building FSharp.Compiler.Editor.dll, notably
+      - Change the assembly name
+    - Only build FSharp.Compiler.Editor.dll
+    - No bootstrap or proto compiler is used - an installed F# compiler is assumed
+
+  - Files for publishing the nuget package for FSharp.Compiler.Editor
+
+  - Changes to compiler source code to expose new functionality
+
+  - Additions to compiler source code which improve the API for the use of F# editing clients
+
+  - Additions to compiler source code which add new functionality used by all F# editing clients
+
+  - These additions to this README.md
+
+  - Additions to the LICENCE file to record contributors, changes etc.
+
+If language or compiler addiitons are committed to fsharp/fsharp, they should be merged into this repo and a new nuget
+package released.
+
+###Nuget
+There is currently a [nuget package](https://nuget.org/packages/FSharp.Compiler.Editor/) that you can install as follows:  
+
+Using the nuget package manager in windows: 
+```
+PM> Install-Package FSharp.Compiler.Editor
+```
+Or from the nuget console on Osx etc:  
+```
+nuget install FSharp.Compiler.Editor
+```
+
+###Building
+If you want to build this yourself then you can follow these instructions:
+
+```
+git clone https://github.com/fsharp/FSharp.Compiler.Editor
+cd FSharp.Compiler.Editor
+```
+
+Now follow the build instructions below.
+####Linux
+```
+./autogen.sh
+make
+```
+####Osx
+```
+./autogen.sh --prefix=/Library/Frameworks/Mono.framework/Versions/Current/
+make
+```
+
+###Windows
+
+```
+.\build.bat
+```
+
+The output will be located at `lib/release/4.0/FSharp.Compiler.Editor.dll`
+
+###Clients
+
+The known tools that use this component are:
+
+* [Fantomas](https://github.com/dungpa/fantomas)  
+* [Fsharp-Refactor](https://github.com/Lewix/fsharp-refactor)  
+* [FSharpbinding](https://github.com/fsharp/fsharpbinding)
+
+If you modify this component it is polite to check that these tools all build after your modifications.
+
+
+=============================================================================================
+Original README from F# Compiler begins below
+=============================================================================================
+
+
+This is the F# compiler, core library and core tools (open source edition). It uses the Apache 2.0 license.
+
+The `master` branch is for the latest version of F# (currently F# 3.0).
 
 To bootstrap the compiler, binaries built from an earlier version of this project are used.
 
 ## Requirements
 
-Requires mono 3.0 or higher.
+Requires mono 2.9 or higher.  Prefer Mono 3.0.
 
 On OSX, requires automake 2.69. To install from [homebrew](http://mxcl.github.com/homebrew):
 ```
@@ -19,7 +109,7 @@ brew install automake
 ### On Linux and other Unix systems:
 The usual:
 ```
-./autogen.sh --prefix=/usr
+./autogen.sh
 make
 sudo make install
 ```
@@ -36,36 +126,23 @@ sudo make install
 ```
 By default that makes optimized binaries. To make debug, use ```make CONFIG=debug```
 
-### On Windows, using msbuild
-
-If you have only VS2012 or VS2013 installed, and not VS2010, you'll need to install the F# 2.0 Runtime (http://www.microsoft.com/en-us/download/details.aspx?id=13450).
-
-Build using:
-```
-build.bat
-```
-This build the proto compiler, then the library, then the final compiler.
-
-You can also build these independently using:
+### On Windows, using msbuild (e.g.. if .NET is installed) 
+If you have only VS2012 installed, and not VS2010, you'll need to install the F# 2.0 Runtime (http://www.microsoft.com/en-us/download/details.aspx?id=13450)
 ```
 cd src
 msbuild fsharp-proto-build.proj
-msbuild fsharp-library-build.proj /p:TargetFramework=net40 /p:Configuration=Release
-msbuild fsharp-compiler-build.proj /p:TargetFramework=net40 /p:Configuration=Release
+ngen install ..\lib\proto\4.0\fsc-proto.exe (optional)
+msbuild fsharp-library-build.proj /p:Configuration=Release
+msbuild fsharp-compiler-build.proj /p:Configuration=Release
 ```
-
-You can also build the FSharp.Core for .NET 2.0, Xamarin Android, Xamarin iOS, 
-Portable Profile47 (net45+sl5+win8), Portable Profile88 (net4+sl4+wp71+win8), XNA 4.0 for Xbox 360, 
-Silverlight 5.0 and Windows Phone 7.1,  profiles:
+You can also build the FSharp.Core for .NET 2.0, Mono 2.1, MonoTouch, Silverlight 5.0, Windows Phone 7.1, Portable Profile47 (net45+sl5+win8), Portable Profile88 (net4+sl4+wp71+win8) and XNA 4.0 for Xbox 360 profiles:
 ```
 msbuild fsharp-library-build.proj /p:TargetFramework=net20 /p:Configuration=Release
+msbuild fsharp-library-build.proj /p:TargetFramework=mono21 /p:Configuration=Release
+msbuild fsharp-library-build.proj /p:TargetFramework=monotouch /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=portable-net45+sl5+win8 /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=portable-net4+sl4+wp71+win8 /p:Configuration=Release
-msbuild fsharp-library-build.proj /p:TargetFramework=portable-windows8+net45 /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=sl5 /p:Configuration=Release
-
-msbuild fsharp-library-build.proj /p:TargetFramework=monodroid /p:Configuration=Release
-msbuild fsharp-library-build.proj /p:TargetFramework=monotouch /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=wp7 /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=net40-xna40-xbox360 /p:Configuration=Release
 ```
@@ -75,22 +152,6 @@ msbuild fsharp-library-build.proj /p:TargetFramework=sl5-compiler  /p:Configurat
 msbuild fsharp-compiler-build.proj /p:TargetFramework=sl5-compiler /p:Configuration=Release
 ```
 Change to ``` /p:Configuration=Debug``` for debug binaries.
-
-Add ``` /p:FSharpCoreBackVersion=3.0``` to build a back version of FSharp.Core.dll with a 
-version number suitable for use when building libaries that have usable with both F# 3.0 and F 3.1 libraries.
-```
-msbuild fsharp-library-build.proj /p:TargetFramework=net20 /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-msbuild fsharp-library-build.proj /p:TargetFramework=net40 /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-msbuild fsharp-library-build.proj /p:TargetFramework=portable-net45+sl5+win8 /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-msbuild fsharp-library-build.proj /p:TargetFramework=portable-net4+sl4+wp71+win8 /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-msbuild fsharp-library-build.proj /p:TargetFramework=portable-windows8+net45 /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-msbuild fsharp-library-build.proj /p:TargetFramework=sl5 /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-
-msbuild fsharp-library-build.proj /p:TargetFramework=monodroid /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-msbuild fsharp-library-build.proj /p:TargetFramework=monotouch /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-msbuild fsharp-library-build.proj /p:TargetFramework=wp7 /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-msbuild fsharp-library-build.proj /p:TargetFramework=net40-xna40-xbox360 /p:Configuration=Release /p:FSharpCoreBackVersion=3.0
-```
 
 ### On Windows, using xbuild (e.g. if no .NET is installed and only Mono 3.0 is installed):
 
@@ -167,57 +228,8 @@ Open `all-vs2012.sln`, and edit in modes Debug or Release. The compiler takes a 
 can be a bit invasive to the work flow, so it's normally better to do the actual compilation from 
 the command line, see above.
 
-Historically it is difficult to edit the compiler with Xamarin Studio or MonoDevelop because of bugs in loading the hand-edited project files and targets used in the F# compiler build. These are generally in the process of being fixed, your mileage will vary.
-
-### Running Compiler and Library tests 
-
-#### On Linux
-
-Only a subset of the tests are currently enabled.
-
-After building and installing, run
-```
-cd tests/fsharp/core
-./run-all.sh
-```
-
-#### On Windows
-
-There are language tests under `tests\fsharp\core`. The test apparatus is primitive and unfortunately uses batch 
-Set up a shell (release mode)
-
-```
-cd tests
-run40.bat   
-ngen install ..\lib\release\fsc.exe
-ngen install ..\lib\release\fsi.exe
-```
-Run the tests:
-```
-.\build-and-run.bat
-```
-Look in build-and-run.log. The results file will contain one entry for each test directory, plus any reported errors.
-
-```
-tests\fsharp\core
-tests\fsharp\core\queriesCustomQueryOps
-tests\fsharp\core\queriesLeafExpressionConvert
-tests\fsharp\core\queriesNullableOperators
-tests\fsharp\core\queriesOverIEnumerable
-...
-```
-
-Some tests for LINQ queries require SQL Server be installed. A failing test will look like this:
-
-```
-ERRORLEVEL=1: in tests\fsharp\core\csfromfs\build.bat
-```
-
-You can then go to the relevant directory and run `build.bat` and `run.bat`.
-
-
-
-
+The F# support in MonoDevelop uses an in-process background compiler. On the Mac this causes pausing garbage
+collections to kick in which makes editing the compiler in MonoDevelop awkward.
 
 ### Building F# Core Unit Tests for .NET 4.x (optional)
 
@@ -246,20 +258,37 @@ lib\debug\4.0\fsc.exe hello.fs
 hello.exe
 ```
 
+### Running Compiler tests (on Windows)
+
+There are language tests under `tests\fsharp\core`. The test apparatus is primitive and unfortunately uses batch files. You can run these on Windows using:
+
+```
+cd ..\tests\fsharp\core
+..\..\build-and-run-all-installed-ilx-configs.bat results.log
+```
+
+The results file will contain one entry for each test directory, plus any reported errors.
+
+```
+tests\fsharp\core
+tests\fsharp\core\queriesCustomQueryOps
+tests\fsharp\core\queriesLeafExpressionConvert
+tests\fsharp\core\queriesNullableOperators
+tests\fsharp\core\queriesOverIEnumerable
+...
+```
+
+Some tests for LINQ queries require SQL Server be installed. A failing test will look like this:
+
+```
+ERRORLEVEL=1: in tests\fsharp\core\csfromfs\build.bat
+```
+
+You can then go to the relevant directory and run `build.bat` and `run.bat`.
+
 
 ## History 
 
 F# compiler sources dropped by Microsoft are available from [fsharppowerpack.codeplex.com](http://fsharppowerpack.codeplex.com).
 
 Uses bootstrapping libraries, tools and F# compiler. The `lib/bootstrap/X.0` directories contain mono-built libraries, compiler and tools that can be used to bootstrap a build. You can also supply your own via the `--with-bootstrap` option.
-
-
-### Wheezy build
-
-vagrant up
-vagrant ssh
-cd /vagrant
-sudo apt-get install dos2unix autoconf
-./autogen.sh --prefix=/usr
-make
-sudo make install

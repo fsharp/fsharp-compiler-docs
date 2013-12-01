@@ -67,7 +67,7 @@ type internal DeclarationSet =
     // Implementation details used by other code in the compiler    
     static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * items:Item list * syncop:((unit->unit)->unit) * checkAlive:(unit -> bool) -> DeclarationSet
     static member internal Error : message:string -> DeclarationSet
-    static member internal Empty : DeclarationSet
+    static member (*internal*) Empty : DeclarationSet
 
 
 module internal TestHooks =

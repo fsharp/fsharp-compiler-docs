@@ -13,7 +13,7 @@
 
 
 
-module internal Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
+module (*internal*) Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
 #nowarn "1178" // The struct, record or union type 'internal_instr_extension' is not structurally comparable because the type
 
 

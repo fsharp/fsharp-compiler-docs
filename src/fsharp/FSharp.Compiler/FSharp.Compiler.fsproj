@@ -37,6 +37,9 @@
     <FsSrGen Include="..\FSComp.txt">
       <Link>FSComp.txt</Link>
     </FsSrGen>
+    <Compile Include="obj\debug\4.0\FSComp.fs">
+      <Link>FSComp.fs</Link>
+    </Compile>
     <EmbeddedResource Include="..\FSStrings.resx">
       <Link>FSStrings.resx</Link>
     </EmbeddedResource>
@@ -495,6 +498,15 @@
     </Compile>
     <Compile Include="..\vs\SimpleServices.fs">
       <Link>SimpleServices.fs</Link>
+    </Compile>
+    <FsSrGen Include="..\fsi\FSIstrings.txt">
+      <Link>FSIstrings.txt</Link>
+    </FsSrGen>
+    <Compile Include="obj\debug\4.0\FSIstrings.fs">
+      <Link>FSIstrings.fs</Link>
+    </Compile>
+    <Compile Include="..\fsi\fsi.fs">
+      <Link>fsi.fs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

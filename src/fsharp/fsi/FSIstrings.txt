@@ -47,3 +47,4 @@ fsiUnexpectedThreadAbortException,"- Unexpected ThreadAbortException (Ctrl-C) du
 fsiFailedToResolveAssembly,"Failed to resolve assembly '%s'"
 fsiBindingSessionTo,"Binding session to '%s'..."
 fsiProductName,"F# Interactive for F# 3.0 %s"
+#tmp

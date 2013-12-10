@@ -988,35 +988,10 @@ module MainModuleBuilder =
             [ for file in tcConfig.embedResources do
                  let name,bytes,pub = 
                      let lower = String.lowercase file
-                     if List.exists (Filename.checkSuffix lower) [".resx"]  then
-#if SILVERLIGHT
-                         failwith "resx files not supported as legacy compiler inputs"
-#else
-                         let file = tcConfig.ResolveSourceFile(rangeStartup,file,tcConfig.implicitIncludeDir)
-                         let outfile = (file |> Filename.chopExtension) + ".resources"
-                         
-                         let readResX(f:string) = 
-                             use rsxr = new System.Resources.ResXResourceReader(f)
-                             rsxr 
-                             |> Seq.cast 
-                             |> Seq.toList
-                             |> List.map (fun (d:System.Collections.DictionaryEntry) -> (d.Key :?> string), d.Value)
-                         let writeResources((r:(string * obj) list),(f:string)) = 
-                             use writer = new System.Resources.ResourceWriter(f)
-                             r |> List.iter (fun (k,v) -> writer.AddResource(k,v))
-                         writeResources(readResX(file),outfile);
-                         let file,name,pub = TcConfigBuilder.SplitCommandLineResourceInfo outfile
-                         let file = tcConfig.ResolveSourceFile(rangeStartup,file,tcConfig.implicitIncludeDir)
-                         let bytes = FileSystem.ReadAllBytesShim file
-                         FileSystem.FileDelete outfile
-                         name,bytes,pub
-#endif
-                     else
-
-                         let file,name,pub = TcConfigBuilder.SplitCommandLineResourceInfo file
-                         let file = tcConfig.ResolveSourceFile(rangeStartup,file,tcConfig.implicitIncludeDir)
-                         let bytes = FileSystem.ReadAllBytesShim file
-                         name,bytes,pub
+                     let file,name,pub = TcConfigBuilder.SplitCommandLineResourceInfo file
+                     let file = tcConfig.ResolveSourceFile(rangeStartup,file,tcConfig.implicitIncludeDir)
+                     let bytes = FileSystem.ReadAllBytesShim file
+                     name,bytes,pub
                  yield { Name=name; 
                          Location=ILResourceLocation.Local (fun () -> bytes); 
                          Access=pub; 

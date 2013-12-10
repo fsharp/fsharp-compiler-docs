@@ -148,6 +148,7 @@ module internal Flags =
         elif loggingStdOut then 
             Trace.Log <- initialLoggingGUITypes
             Trace.Out <- System.Console.Out
+#if LOGGING_GUI
         elif loggingGUI then 
             let f = new System.Windows.Forms.Form(Visible=true,TopMost=true,Width=600,Height=600)
             let memoryText = new System.Windows.Forms.TextBox(Text = "?? Kb", Width = 200)
@@ -190,6 +191,7 @@ module internal Flags =
             setDiagnosticsChannel(Some(log));
             Trace.Log <- if initialLoggingGUITypes <> null then initialLoggingGUITypes else ""
             Trace.Out <- log
+#endif
         else 
             // Would be nice to leave this at whatever channel was originally assigned.
             // This currently defeats NUnit's ability to capture logging output.

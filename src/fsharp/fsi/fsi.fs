@@ -755,8 +755,10 @@ let internal SetServerCodePages(fsiOptions: FsiCommandLineOptions) =
         for pause in [10;50;100;1000;2000;10000] do 
             if not !successful then 
                 Thread.Sleep(pause);
+#if LOGGING_GUI
         if not !successful then 
             System.Windows.Forms.MessageBox.Show(FSIstrings.SR.fsiConsoleProblem()) |> ignore
+#endif
 #endif
 
 
@@ -2362,7 +2364,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
     member x.LCID = fsiOptions.FsiLCID
 
     /// A host calls this to report an unhandled exception in a standard way, e.g. an exception on the GUI thread gets printed to stderr
-    member x.ReportUnhandledException(exn) = 
+    member x.ReportUnhandledException(exn:exn) = 
              fsiConfig.EventLoopInvoke (
                 fun () ->          
                     fprintfn fsiConsoleOutput.Error "%s" (exn.ToString())

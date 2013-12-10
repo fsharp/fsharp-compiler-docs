@@ -653,17 +653,6 @@ Some other NuGET monikers to support in the future, see http://docs.nuget.org/do
   <Tailcalls>false</Tailcalls>
   </PropertyGroup>
 
-  <!-- Always qualify the IntermediateOutputPath by the TargetFramework if any exists -->
-  <PropertyGroup>
-    <IntermediateOutputPath>obj\$(ConfigurationOutputDirectory)\$(TargetFrameworkOutputDirectory)\</IntermediateOutputPath>
-  </PropertyGroup>
-
-  <!-- Build with LKG compiler (location is determined by Microsoft.FSharp.Targets). The output compiler has suffix "-proto" -->
-  <PropertyGroup Condition=" '$(BuildWith)' == 'LKG'">
-    <FsBuildSuffix>-proto</FsBuildSuffix>
-    <OutputPath>$(FSharpSourcesRoot)\..\lib\$(ConfigurationOutputDirectory)\$(TargetFrameworkOutputDirectory)</OutputPath>
-  </PropertyGroup>
-
   <!-- Build with prototype compiler (location is given by settings below). The output is the final bootstrapped compiler -->
   <PropertyGroup Condition=" '$(BuildWith)' == ''">
     <!-- Don't do this for FSharp.Compiler.Editor.dll -->

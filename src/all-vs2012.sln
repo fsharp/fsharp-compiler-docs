@@ -8,9 +8,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		source-build-version = source-build-version
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Compiler", "fsharp\FSharp.Compiler\FSharp.Compiler.fsproj", "{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Compiler.Service", "fsharp\FSharp.Compiler.Service\FSharp.Compiler.Service.fsproj", "{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Fsi", "fsharp\fsi\Fsi.fsproj", "{D0E98C0D-490B-4C61-9329-0862F6E87645}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3} = {2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

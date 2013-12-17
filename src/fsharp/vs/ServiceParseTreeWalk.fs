@@ -24,7 +24,7 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
 
-module internal AstTraversal =
+module (*internal*) AstTraversal =
     // treat ranges as though they are half-open: [,)
     let rangeContainsPosLeftEdgeInclusive (m1:range) p =
         if posEq m1.Start m1.End then
@@ -139,7 +139,7 @@ module internal AstTraversal =
 
     /// traverse an implementation file walking all the way down to SynExpr or TypeAbbrev at a particular location
     ///
-    let internal Traverse(line, col, parseTree, visitor:AstVisitorBase<'T>) =
+    let (*internal*) Traverse(line, col, parseTree, visitor:AstVisitorBase<'T>) =
         let pos = Pos.fromVS line col  // line was 0-based, need 1-based
         let pick x = pick pos line col x
         let rec traverseSynModuleDecl path (decl:SynModuleDecl) =

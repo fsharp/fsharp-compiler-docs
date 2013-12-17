@@ -68,13 +68,13 @@ type IPartialEqualityComparer<'T> =
 type iDeclarationSet = int
 
 /// Describe a comment as either a block of text or a file+signature reference into an intellidoc file.
-type internal XmlComment =
+type (*internal*) XmlComment =
     | XmlCommentNone
     | XmlCommentText of string
     | XmlCommentSignature of (*File and Signature*) string * string
 
 /// A single data tip display element
-type internal DataTipElement = 
+type (*internal*) DataTipElement = 
     | DataTipElementNone
     /// A single type, method, etc with comment.
     | DataTipElement of (* text *) string * XmlComment
@@ -86,7 +86,7 @@ type internal DataTipElement =
 /// Information for building a data tip box.
 //
 // Note: this type does not hold any handles to compiler data structure.
-type internal DataTipText = 
+type (*internal*) DataTipText = 
     /// A list of data tip elements to display.
     | DataTipText of DataTipElement list  
 

@@ -21,7 +21,7 @@ open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
 
 [<Sealed>]
-type internal NoteworthyParamInfoLocations(longId : string list, longIdStartLocation : int*int, longIdEndLocation : int*int, openParenLocation : int*int, 
+type (*internal*) NoteworthyParamInfoLocations(longId : string list, longIdStartLocation : int*int, longIdEndLocation : int*int, openParenLocation : int*int, 
                                            tupleEndLocations : (int*int)[], isThereACloseParen : bool, namedParamNames : string[]) =
     let namedParamNames =
         if (tupleEndLocations.Length = namedParamNames.Length) then

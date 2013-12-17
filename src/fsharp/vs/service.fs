@@ -258,7 +258,7 @@ module internal Params =
 /// A single method for Intellisense completion
 [<NoEquality; NoComparison>]
 // Note: instances of this type do not hold any references to any compiler resources.
-type internal Method = 
+type (*internal*) Method = 
     { 
         Description: DataTipText
         Type: string
@@ -346,7 +346,7 @@ type MethodOverloads( name: string, unsortedMethods: Method[] ) =
 //--------------------------------------------------------------------------
 
 [<RequireQualifiedAccess>]
-type internal FindDeclFailureReason = 
+type (*internal*) FindDeclFailureReason = 
     // generic reason: no particular information about error
     | Unknown
     // source code file is not available
@@ -357,7 +357,7 @@ type internal FindDeclFailureReason =
     | ProvidedMember of string
 
 [<NoEquality; NoComparison>]
-type internal FindDeclResult = 
+type (*internal*) FindDeclResult = 
     /// declaration not found + reason
     | DeclNotFound of FindDeclFailureReason
     /// found declaration; return (position-in-file, name-of-file)
@@ -1557,7 +1557,7 @@ module internal Parser =
         ReportUnexpectedException(e)
         reraise()
 
-type internal UnresolvedReferencesSet = 
+type (*internal*) UnresolvedReferencesSet = 
     val private set : System.Collections.Generic.HashSet<Build.UnresolvedAssemblyReference>
     new(unresolved) = {set = System.Collections.Generic.HashSet(unresolved, HashIdentity.Structural)}
 
@@ -1751,13 +1751,13 @@ module internal DebuggerEnvironment =
         
     
 [<NoComparison>]
-type internal TypeCheckAnswer =
+type (*internal*) TypeCheckAnswer =
     | NoAntecedant
     | Aborted
     | TypeCheckSucceeded of TypeCheckResults   
         
 /// This file has become eligible to be re-typechecked.
-type internal NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
+type (*internal*) NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
         
 // Identical to _VSFILECHANGEFLAGS in vsshell.idl
 type internal DependencyChangeCode =
@@ -1770,7 +1770,7 @@ type internal DependencyChangeCode =
 
 /// Callback that indicates whether a requested result has become obsolete.    
 [<NoComparison;NoEquality>]
-type internal IsResultObsolete = 
+type (*internal*) IsResultObsolete = 
     | IsResultObsolete of (unit->bool)
 
         

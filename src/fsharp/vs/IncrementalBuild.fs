@@ -1003,7 +1003,7 @@ type ErrorInfo = {
             e.Message    
             
     /// Decompose a warning or error into parts: position, severity, message
-    static member internal CreateFromExceptionAndAdjustEof(exn,warn,trim:bool,fallbackRange:range, (linesCount:int, lastLength:int)) = 
+    static member (*internal*) CreateFromExceptionAndAdjustEof(exn,warn,trim:bool,fallbackRange:range, (linesCount:int, lastLength:int)) = 
         let r = ErrorInfo.CreateFromException(exn,warn,trim,fallbackRange)
                 
         // Adjust to make sure that errors reported at Eof are shown at the linesCount        
@@ -1016,7 +1016,7 @@ type ErrorInfo = {
             if echange then { r with EndLine = endline; EndColumn = 1 + lastLength } else r
 
     /// Decompose a warning or error into parts: position, severity, message
-    static member internal CreateFromException(exn,warn,trim:bool,fallbackRange:range) = 
+    static member (*internal*) CreateFromException(exn,warn,trim:bool,fallbackRange:range) = 
         let m = match RangeOfError exn with Some m -> m | None -> fallbackRange 
         let (s1:int),(s2:int) = Pos.toVS m.Start
         let (s3:int),(s4:int) = Pos.toVS (if trim then m.Start else m.End)

@@ -8,11 +8,11 @@ open Microsoft.FSharp.Compiler.Build
 
 
 [<RequireQualifiedAccess>]
-type internal Severity = 
+type (*internal*) Severity = 
     | Warning 
     | Error
 
-type internal ErrorInfo = 
+type (*internal*) ErrorInfo = 
     { FileName:string
       StartLine:int
       EndLine:int

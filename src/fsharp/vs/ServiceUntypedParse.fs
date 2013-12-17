@@ -71,7 +71,7 @@ type internal RecordContext =
     | Constructor of string // typename
     | New of CompletionPath
 
-type internal CompletionContext = 
+type (*internal*) CompletionContext = 
     // completion context cannot be determined due to errors
     | Invalid
     // completing something after the inherit keyword
@@ -85,7 +85,7 @@ type internal CompletionContext =
 //----------------------------------------------------------------------------
 
 [<NoEquality; NoComparison>]
-type internal UntypedParseResults = 
+type (*internal*) UntypedParseResults = 
   { // Error infos
     Errors : ErrorInfo[]
     // Untyped AST
@@ -97,7 +97,7 @@ type internal UntypedParseResults =
     }
 
 [<Sealed>]
-type internal UntypedParseInfo(parsed:UntypedParseResults) = 
+type (*internal*) UntypedParseInfo(parsed:UntypedParseResults) = 
 
     member scope.ParseTree =
         match parsed with
@@ -395,7 +395,7 @@ type internal UntypedParseInfo(parsed:UntypedParseResults) =
         // This does not need to be run on the background thread
         scope.ValidateBreakpointLocationImpl(pos)
 
-module internal UntypedParseInfoImpl =
+module (*internal*) UntypedParseInfoImpl =
     let GetUntypedParseResults (upi : UntypedParseInfo) = upi.Results
 
     let GetRangeOfExprLeftOfDot(line,col,parseTreeOpt) =

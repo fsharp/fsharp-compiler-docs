@@ -10,7 +10,7 @@
 //----------------------------------------------------------------------------
 /// The "unlinked" view of .NET metadata and code.  Central to 
 ///  to Abstract IL library
-module internal Microsoft.FSharp.Compiler.AbstractIL.IL 
+module (*internal*) Microsoft.FSharp.Compiler.AbstractIL.IL 
 
 open Internal.Utilities
 open System.Collections.Generic

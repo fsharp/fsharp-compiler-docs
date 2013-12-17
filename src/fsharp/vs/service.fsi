@@ -20,7 +20,7 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open System.Collections.Generic
 
-type internal Param = 
+type (*internal*) Param = 
     { Name: string
       CanonicalTypeTextForSorting: string
       Display: string
@@ -28,7 +28,7 @@ type internal Param =
 
 [<NoEquality; NoComparison>]
 // Note: this type does not hold any handles to compiler data structure.
-type internal Method = 
+type (*internal*) Method = 
     { Description : DataTipText
       Type: string
       Parameters: Param[]
@@ -37,12 +37,12 @@ type internal Method =
 
 [<Sealed>]
 // Note: this type does not hold any handles to compiler data structure. All data has been pre-formatted.
-type internal MethodOverloads = 
+type (*internal*) MethodOverloads = 
     member Name: string
     member Methods: Method[] 
 
 [<RequireQualifiedAccess>]
-type internal FindDeclFailureReason = 
+type (*internal*) FindDeclFailureReason = 
     // generic reason: no particular information about error
     | Unknown
     // source code file is not available
@@ -53,7 +53,7 @@ type internal FindDeclFailureReason =
     | ProvidedMember of string
 
 [<NoEquality; NoComparison>]
-type internal FindDeclResult = 
+type (*internal*) FindDeclResult = 
     /// declaration not found + reason
     | DeclNotFound of FindDeclFailureReason
     /// found declaration; return (position-in-file, name-of-file)
@@ -65,7 +65,7 @@ type internal NamesWithResidue = Names * string
 [<Sealed>]
 /// A handle to the results of TypeCheckSource.  
 /// A live object of this type keeps the background corresponding background builder (and type providers) alive (through reference-counting)
-type internal TypeCheckResults =
+type (*internal*) TypeCheckResults =
     /// The errors returned by parsing a source file
     member Errors : ErrorInfo[]
 
@@ -91,7 +91,7 @@ type internal TypeCheckResults =
 type internal UnresolvedReferencesSet = class end
 
 /// A set of key information for the language service's internal caches of project/script build information for a particular source file
-type internal CheckOptions = 
+type (*internal*) CheckOptions = 
     { 
       // Note that this may not reduce to just the project directory, because there may be two projects in the same directory.
       ProjectFileName: string
@@ -128,7 +128,7 @@ module internal DebuggerEnvironment =
     
 /// This file has become eligible to be re-typechecked.
 /// This notifies the language service that it needs to set the dirty flag on files whose typecheck antecedents have changed.
-type internal NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
+type (*internal*) NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
         
 /// Identical to _VSFILECHANGEFLAGS in vsshell.idl
 type internal DependencyChangeCode =
@@ -140,19 +140,19 @@ type internal DependencyChangeCode =
     
 /// Callback that indicates whether a requested result has become obsolete.    
 [<NoComparison;NoEquality>]
-type internal IsResultObsolete = 
+type (*internal*) IsResultObsolete = 
     | IsResultObsolete of (unit->bool)
 
 /// The result of calling TypeCheckResult including the possibility of abort and background compiler not caught up.
 [<NoComparison>]
-type internal TypeCheckAnswer =
+type (*internal*) TypeCheckAnswer =
     | NoAntecedant
     | Aborted // because result was obsolete
     | TypeCheckSucceeded of TypeCheckResults    
 
 [<Sealed>]
 [<AutoSerializable(false)>]      
-type internal InteractiveChecker =
+type (*internal*) InteractiveChecker =
     /// Create an instance of an InteractiveChecker.  Currently resources are not reclaimed.
     static member Create : NotifyFileTypeCheckStateIsDirty -> InteractiveChecker
 

@@ -70,9 +70,9 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.GetDescription() = description()
 
     /// Represents the results of type checking
-    type TypeCheckResults internal (info: Microsoft.FSharp.Compiler.SourceCodeServices.UntypedParseInfo,
-                                    results:Microsoft.FSharp.Compiler.SourceCodeServices.TypeCheckResults,
-                                    source: string[]) = 
+    type TypeCheckResults (*internal*) (info: Microsoft.FSharp.Compiler.SourceCodeServices.UntypedParseInfo,
+                                        results:Microsoft.FSharp.Compiler.SourceCodeServices.TypeCheckResults,
+                                        source: string[]) = 
 
         let identToken = Microsoft.FSharp.Compiler.Parser.tagOfToken (Microsoft.FSharp.Compiler.Parser.IDENT "")
         let hasChangedSinceLastTypeCheck _ = false

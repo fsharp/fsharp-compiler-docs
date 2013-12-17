@@ -28,7 +28,7 @@ open Microsoft.FSharp.Compiler.Tastops
 /// Describe a comment as either a block of text or a file+signature reference into an intellidoc file.
 //
 // Note: instances of this type do not hold any references to any compiler resources.
-type internal XmlComment =
+type (*internal*) XmlComment =
     | XmlCommentNone
     | XmlCommentText of string
     | XmlCommentSignature of (*File:*) string * (*Signature:*)string
@@ -36,7 +36,7 @@ type internal XmlComment =
 /// A single data tip display element
 //
 // Note: instances of this type do not hold any references to any compiler resources.
-type internal DataTipElement = 
+type (*internal*) DataTipElement = 
     | DataTipElementNone
     /// A single type, method, etc with comment.
     | DataTipElement of (* text *) string * XmlComment
@@ -48,26 +48,26 @@ type internal DataTipElement =
 /// Information for building a data tip box.
 //
 // Note: instances of this type do not hold any references to any compiler resources.
-type internal DataTipText = 
+type (*internal*) DataTipText = 
     /// A list of data tip elements to display.
     | DataTipText of DataTipElement list  
     
 [<Sealed>]
 // Note: this type holds a weak reference to compiler resources. 
-type internal Declaration =
+type (*internal*) Declaration =
     member Name : string
     member DescriptionText : DataTipText
     member Glyph : int
     
 [<Sealed>]
 // Note: this type holds a weak reference to compiler resources. 
-type internal DeclarationSet =
+type (*internal*) DeclarationSet =
     member Items : Declaration[]
 
     // Implementation details used by other code in the compiler    
     static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * items:Item list * syncop:((unit->unit)->unit) * checkAlive:(unit -> bool) -> DeclarationSet
     static member internal Error : message:string -> DeclarationSet
-    static member internal Empty : DeclarationSet
+    static member (*internal*) Empty : DeclarationSet
 
 
 module internal TestHooks =

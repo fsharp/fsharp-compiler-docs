@@ -10,7 +10,7 @@
 //----------------------------------------------------------------------------
 
 
-module internal Microsoft.FSharp.Compiler.Lexhelp
+module (*internal*) Microsoft.FSharp.Compiler.Lexhelp
 
 open Internal.Utilities
 open Internal.Utilities.Text
@@ -70,6 +70,6 @@ exception internal IndentationProblem of string * Range.range
 module Keywords = 
     val internal KeywordOrIdentifierToken : lexargs -> UnicodeLexing.Lexbuf -> string -> Parser.token
     val internal IdentifierToken : lexargs -> UnicodeLexing.Lexbuf -> string -> Parser.token
-    val internal QuoteIdentifierIfNeeded : string -> string
+    val (*internal*) QuoteIdentifierIfNeeded : string -> string
     val mutable internal permitFsharpKeywords : bool 
     val keywordNames : string list

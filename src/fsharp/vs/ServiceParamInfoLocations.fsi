@@ -19,7 +19,7 @@ namespace Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler 
 
 [<Sealed>]
-type internal NoteworthyParamInfoLocations =
+type (*internal*) NoteworthyParamInfoLocations =
     member LongId : string list
     member LongIdStartLocation : int * int
     member LongIdEndLocation : int * int

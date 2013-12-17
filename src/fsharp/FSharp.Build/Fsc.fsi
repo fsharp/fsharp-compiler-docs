@@ -52,4 +52,6 @@ type Fsc = class
              member Win32ManifestFile : string with get,set
              member SubsystemVersion : string with get,set
              member HighEntropyVA : bool with get,set
+             member TargetProfile : string with get,set
+             member SqmSessionGuid : string with get,set
            end

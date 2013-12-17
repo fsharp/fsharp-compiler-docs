@@ -14,8 +14,8 @@ This repo should be _identical_ to 'fsharp' except:
 
   - Changes for building FSharp.Compiler.Editor.dll, notably
       - Change the assembly name
-	  - Only build FSharp.Compiler.Editor.dll
-	  - No bootstrap or proto compiler is used - an installed F# compiler is assumed
+    - Only build FSharp.Compiler.Editor.dll
+    - No bootstrap or proto compiler is used - an installed F# compiler is assumed
 
   - Files for publishing the nuget package for FSharp.Compiler.Editor
 

@@ -24,7 +24,7 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
 
-module (* internal *) AstTraversal =
+module (*internal*) AstTraversal =
     // treat ranges as though they are half-open: [,)
     let rangeContainsPosLeftEdgeInclusive (m1:range) p =
         if posEq m1.Start m1.End then
@@ -139,7 +139,7 @@ module (* internal *) AstTraversal =
 
     /// traverse an implementation file walking all the way down to SynExpr or TypeAbbrev at a particular location
     ///
-    let (* internal *) Traverse(line, col, parseTree, visitor:AstVisitorBase<'T>) =
+    let (*internal*) Traverse(line, col, parseTree, visitor:AstVisitorBase<'T>) =
         let pos = Pos.fromVS line col  // line was 0-based, need 1-based
         let pick x = pick pos line col x
         let rec traverseSynModuleDecl path (decl:SynModuleDecl) =
@@ -373,11 +373,15 @@ module (* internal *) AstTraversal =
                     |> pick expr
                 | SynExpr.DotIndexedGet(synExpr, synExprList, _range, _range2) -> 
                     [yield dive synExpr synExpr.Range traverseSynExpr
-                     yield! synExprList |> List.map (fun x -> dive x x.Range traverseSynExpr)]
+                     for synExpr in synExprList do 
+                         for x in synExpr.Exprs do 
+                             yield dive x x.Range traverseSynExpr]
                     |> pick expr
                 | SynExpr.DotIndexedSet(synExpr, synExprList, synExpr2, _, _range, _range2) -> 
                     [yield dive synExpr synExpr.Range traverseSynExpr
-                     yield! synExprList |> List.map (fun x -> dive x x.Range traverseSynExpr) 
+                     for synExpr in synExprList do 
+                         for x in synExpr.Exprs do 
+                             yield dive x x.Range traverseSynExpr
                      yield dive synExpr2 synExpr2.Range traverseSynExpr]
                     |> pick expr
                 | SynExpr.JoinIn(synExpr1, _range, synExpr2, _range2) -> 

@@ -9,6 +9,6 @@ val internal runFromCommandLineToImportingAssemblies : (string -> unit) * string
 #if NO_COMPILER_BACKEND
 #else
 /// fsc.exe calls this
-val mainCompile : argv : string[] * bannerAlreadyPrinted : bool * exiter : Exiter * createErrorLogger:(TcConfigBuilder -> ErrorLogger) -> unit
+val mainCompile : argv : string[] * bannerAlreadyPrinted : bool * exiter : Exiter -> unit
 
 #endif

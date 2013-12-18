@@ -4,17 +4,17 @@
 // --------------------------------------------------------------------------------------
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "FSharp.ProjectTemplate.dll" ]
+let referenceBinaries = [ "FSharp.Interactive.Service.dll" ] // TODO: This crashes metadata reader :-( "FSharp.Compiler.Service.dll"
 // Web site location for the generated documentation
-let website = "http://pblasucci.github.io/FSharp.FSharp.ProjectScaffold"
+let website = "http://fsharp.github.io/FSharp.Compiler.Service"
 
 // Specify more information about your project
 let info =
-  [ "project-name", "FSharp.ProjectScaffold"
-    "project-author", "Your Name"
-    "project-summary", "A short summary of your project"
-    "project-github", "http://github.com/pblasucci/fsharp-project-scaffold"
-    "project-nuget", "http://nuget.com/packages/FSharp.ProjectScaffold" ]
+  [ "project-name", "F# Compiler Services"
+    "project-author", "Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek"
+    "project-summary", "F# compiler services for creating IDE tools, language extensions and for F# embedding"
+    "project-github", "http://github.com/fsharp/FSharp.Compiler.Service"
+    "project-nuget", "http://nuget.com/packages/FSharp.Compiler.Service" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below
@@ -43,12 +43,12 @@ let root = "file://" + (__SOURCE_DIRECTORY__ @@ "../output")
 #endif
 
 // Paths with template/source/output locations
-let bin = __SOURCE_DIRECTORY__ @@ "../../bin"
-let content = __SOURCE_DIRECTORY__ @@ "../content"
-let output = __SOURCE_DIRECTORY__ @@ "../output"
-let files = __SOURCE_DIRECTORY__ @@ "../files"
-let templates = __SOURCE_DIRECTORY__ @@ "templates"
-let formatting = __SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting.2.1.6/"
+let bin         = __SOURCE_DIRECTORY__ @@ "../../bin"
+let content     = __SOURCE_DIRECTORY__ @@ "../content"
+let output      = __SOURCE_DIRECTORY__ @@ "../output"
+let files       = __SOURCE_DIRECTORY__ @@ "../files"
+let templates   = __SOURCE_DIRECTORY__ @@ "templates"
+let formatting  = __SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting.2.2.6-beta/"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 
 // Where to look for *.csproj templates (in this order)
@@ -84,3 +84,4 @@ let buildDocumentation () =
 copyFiles()
 buildDocumentation()
 buildReference()
+

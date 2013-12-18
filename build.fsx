@@ -15,7 +15,7 @@ open Fake.AssemblyInfoFile
 // --------------------------------------------------------------------------------------
 
 let project = "FSharp.Compiler.Service"
-let authors = ["Dave Thomas, Anh-Dung Phan, Tomas Petricek"]
+let authors = ["Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek"]
 let summary = "F# compiler services for creating IDE tools, language extensions and for F# embedding"
 let description = """
   The F# compiler services package contains a custom build of the F# compiler that

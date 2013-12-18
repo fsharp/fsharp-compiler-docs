@@ -5,7 +5,7 @@ F# Compiler Services
 The F# compiler services package contains a custom build of the F# compiler that
 exposes additional functionality for implementing F# language bindings, additional
 tools based on the compiler or refactoring tools. The package also includes F# 
-interactive service that can be used for embedding F# scripting into your applications."""
+interactive service that can be used for embedding F# scripting into your applications.
 
 <div class="row">
   <div class="span1"></div>
@@ -21,7 +21,10 @@ interactive service that can be used for embedding F# scripting into your applic
 More content
 ------------
 
-Goes here
+ * [F# Language tokenizer](tokenizer.html)
+ * [Processing untyped AST](untypedtree.html)
+ * [Using editor (IDE) services](editor.html)
+ * [Embedding F# interactive](interactive.html)
  
 Contributing and copyright
 --------------------------

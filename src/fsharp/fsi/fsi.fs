@@ -74,6 +74,14 @@ let internal exit (_ : int) = ()
 #endif
 
 //----------------------------------------------------------------------------
+// For the FSI as a service methods...
+//----------------------------------------------------------------------------
+
+type FSharpValue(res, typ) = 
+  member x.ReflectionValue = res
+  member x.ReflectionType = typ
+
+//----------------------------------------------------------------------------
 // Hardbinding dependencies should we NGEN fsi.exe
 //----------------------------------------------------------------------------
 
@@ -537,6 +545,10 @@ type internal FsiCommandLineOptions(argv: string[], tcConfigB, fsiConsoleOutput:
          // Private options, related to diagnostics around console probing 
          CompilerOption("probeconsole","", OptionSwitch (fun flag -> probeToSeeIfConsoleWorks <- flag=On), None, None); // "Probe to see if Console looks functional");
          CompilerOption("peekahead","", OptionSwitch (fun flag -> peekAheadOnConsoleToPermitTyping <- flag=On), None, None); // "Probe to see if Console looks functional");
+
+         // Disables interaction (to be used by libraries embedding FSI only!)
+         CompilerOption("noninteractive","", OptionUnit (fun () -> interact <-  false), None, None);     
+
         ])
       ]
 
@@ -814,6 +826,12 @@ type internal FsiConsoleInput(fsiOptions: FsiCommandLineOptions, inReader: TextR
 // FsiDynamicCompilerState
 //----------------------------------------------------------------------------
 
+type internal FsiInteractionStepStatus = 
+    | CtrlC 
+    | EndOfFile 
+    | Completed of option<FSharpValue>
+    | CompletedWithReportedError of option<exn>
+
 [<AutoSerializable(false)>]
 [<NoEquality; NoComparison>]
 type internal FsiDynamicCompilerState =
@@ -1062,10 +1080,15 @@ type internal FsiDynamicCompiler
                  istate.ilxGenerator.ClearGeneratedValue (valuePrinter.GetEvaluationContext istate.emEnv, prevVal.Deref)
              | _ -> ()
              prevIt <- Some vref
-        | _ -> ()
+
+             //
+             let optValue = istate.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(istate.emEnv), vref.Deref);
+             match optValue with
+             | Some (res, typ) -> istate, Completed(Some(FSharpValue(res, typ)))
+             | _ -> istate, Completed None
 
         // Return the interactive state.
-        istate
+        | _ -> istate, Completed None
 
     // Construct the code that saves the 'it' value into the 'SaveIt' register.
     member __.BuildItBinding (expr: SynExpr) =
@@ -1594,16 +1617,6 @@ type internal FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon,
         else
           str
 
-    let CreateLexerForLexBuffer (sourceFileName, lexbuf) =
-
-        Lexhelp.resetLexbufPos sourceFileName lexbuf;
-        let skip = true  // don't report whitespace from lexer 
-        let defines = "INTERACTIVE"::tcConfigB.conditionalCompilationDefines
-        let lexargs = mkLexargs (sourceFileName,defines, interactiveInputLightSyntaxStatus, lexResourceManager, ref [], errorLogger) 
-        let tokenizer = Lexfilter.LexFilter(interactiveInputLightSyntaxStatus, tcConfigB.compilingFslib, Lexer.token lexargs skip, lexbuf)
-        tokenizer
-
-
     // Create a new lexer to read stdin 
     member __.CreateStdinLexer () =
         let lexbuf = 
@@ -1626,24 +1639,25 @@ type internal FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon,
 #endif                
 
         fsiStdinSyphon.Reset();
-        CreateLexerForLexBuffer (Lexhelp.stdinMockFilename, lexbuf)
+        __.CreateLexerForLexBuffer (Lexhelp.stdinMockFilename, lexbuf)
 
     // Create a new lexer to read an "included" script file
     member __.CreateIncludedScriptLexer sourceFileName =
         let lexbuf = UnicodeLexing.UnicodeFileAsLexbuf(sourceFileName,tcConfigB.inputCodePage,(*retryLocked*)false)  
-        CreateLexerForLexBuffer (sourceFileName, lexbuf)
+        __.CreateLexerForLexBuffer (sourceFileName, lexbuf)
+
+    member __.CreateLexerForLexBuffer(sourceFileName, lexbuf) =
+        Lexhelp.resetLexbufPos sourceFileName lexbuf;
+        let skip = true  // don't report whitespace from lexer 
+        let defines = "INTERACTIVE"::tcConfigB.conditionalCompilationDefines
+        let lexargs = mkLexargs (sourceFileName,defines, interactiveInputLightSyntaxStatus, lexResourceManager, ref [], errorLogger) 
+        let tokenizer = Lexfilter.LexFilter(interactiveInputLightSyntaxStatus, tcConfigB.compilingFslib, Lexer.token lexargs skip, lexbuf)
+        tokenizer
 
 //----------------------------------------------------------------------------
 // Process one parsed interaction.  This runs on the GUI thread.
 // It might be simpler if it ran on the parser thread.
 //----------------------------------------------------------------------------
-
-type internal FsiInteractionStepStatus = 
-    | CtrlC 
-    | EndOfFile 
-    | Completed 
-    | CompletedWithReportedError
-
 
 type internal FsiInteractionProcessor
                             (tcConfigB, 
@@ -1656,14 +1670,14 @@ type internal FsiInteractionProcessor
                              fsiStdinLexerProvider : FsiStdinLexerProvider,
                              lexResourceManager : LexResourceManager) = 
 
-    let InteractiveCatch f istate = 
+    let InteractiveCatch (f:_ -> _ * FsiInteractionStepStatus) istate = 
         try
             // reset error count 
             errorLogger.ResetErrorCount();  
             f istate
         with  e ->
             stopProcessingRecovery e range0;
-            istate,CompletedWithReportedError
+            istate,CompletedWithReportedError(Some e)
 
 
     let rangeStdin = rangeN Lexhelp.stdinMockFilename 0
@@ -1706,18 +1720,18 @@ type internal FsiInteractionProcessor
             None
 
     /// Execute a single parsed interaction. Called on the GUI/execute/main thread.
-    let ExecInteraction (exitViaKillThread:bool, tcConfig:TcConfig, istate, action:ParsedFsiInteraction) =
+    let ExecInteraction (exitViaKillThread:bool, tcConfig:TcConfig, istate, action:ParsedFsiInteraction) : FsiDynamicCompilerState * FsiInteractionStepStatus =
         istate |> InteractiveCatch (fun istate -> 
             match action with 
             | IDefns ([  ],_) ->
-                istate,Completed
+                istate,Completed None
             | IDefns ([  SynModuleDecl.DoExpr(_,expr,_)],_) ->
-                fsiDynamicCompiler.EvalParsedExpression  (istate, expr), Completed           
+                fsiDynamicCompiler.EvalParsedExpression(istate, expr)
             | IDefns (defs,_) -> 
-                fsiDynamicCompiler.EvalParsedDefinitions (istate, true, false, defs), Completed
+                fsiDynamicCompiler.EvalParsedDefinitions (istate, true, false, defs),Completed None
 
             | IHash (ParsedHashDirective("load",sourceFiles,m),_) -> 
-                fsiDynamicCompiler.EvalSourceFiles (istate, m, sourceFiles, lexResourceManager),Completed
+                fsiDynamicCompiler.EvalSourceFiles (istate, m, sourceFiles, lexResourceManager),Completed None
 
             | IHash (ParsedHashDirective(("reference" | "r"),[path],m),_) -> 
                 let resolutions,istate = fsiDynamicCompiler.EvalRequireReference istate m path 
@@ -1725,56 +1739,56 @@ type internal FsiInteractionProcessor
                     let format = if fsiOptions.IsInteractiveServer then FSIstrings.SR.fsiDidAHashrWithLockWarning(ar.resolvedPath) else FSIstrings.SR.fsiDidAHashr(ar.resolvedPath)
                     fsiConsoleOutput.uprintnfnn "%s" format
                     )
-                istate,Completed
+                istate,Completed None
 
             | IHash (ParsedHashDirective("I",[path],m),_) -> 
                 tcConfigB.AddIncludePath (m,path, tcConfig.implicitIncludeDir)
                 fsiConsoleOutput.uprintnfnn "%s" (FSIstrings.SR.fsiDidAHashI(tcConfig.MakePathAbsolute path));
-                istate,Completed
+                istate,Completed None
 
             | IHash (ParsedHashDirective("cd",[path],m),_) ->
                 ChangeDirectory path m;
-                istate,Completed
+                istate,Completed None
 
             | IHash (ParsedHashDirective("silentCd",[path],m),_) ->
                 ChangeDirectory path m;
                 fsiConsolePrompt.SkipNext(); (* "silent" directive *)
-                istate,Completed                  
+                istate,Completed None                  
 
             | IHash (ParsedHashDirective("time",[],_),_) -> 
                 if istate.timing then
                     fsiConsoleOutput.uprintnfnn "%s" (FSIstrings.SR.fsiTurnedTimingOff())
                 else
                     fsiConsoleOutput.uprintnfnn "%s" (FSIstrings.SR.fsiTurnedTimingOn())
-                {istate with timing = not istate.timing},Completed
+                {istate with timing = not istate.timing},Completed None
 
             | IHash (ParsedHashDirective("time",[("on" | "off") as v],_),_) -> 
                 if v <> "on" then
                     fsiConsoleOutput.uprintnfnn "%s" (FSIstrings.SR.fsiTurnedTimingOff())
                 else
                     fsiConsoleOutput.uprintnfnn "%s" (FSIstrings.SR.fsiTurnedTimingOn())
-                {istate with timing = (v = "on")},Completed
+                {istate with timing = (v = "on")},Completed None
 
             | IHash (ParsedHashDirective("nowarn",numbers,m),_) -> 
                 List.iter (fun (d:string) -> tcConfigB.TurnWarningOff(m,d)) numbers;
-                istate,Completed
+                istate,Completed None
 
             | IHash (ParsedHashDirective("terms",[],_),_) -> 
                 tcConfigB.showTerms <- not tcConfig.showTerms; 
-                istate,Completed
+                istate,Completed None
 
             | IHash (ParsedHashDirective("types",[],_),_) -> 
                 fsiOptions.ShowTypes <- not fsiOptions.ShowTypes; 
-                istate,Completed
+                istate,Completed None
 
     #if DEBUG
             | IHash (ParsedHashDirective("ilcode",[],_m),_) -> 
                 fsiOptions.ShowILCode <- not fsiOptions.ShowILCode; 
-                istate,Completed
+                istate,Completed None
 
             | IHash (ParsedHashDirective("info",[],_m),_) -> 
                 PrintOptionInfo tcConfigB
-                istate,Completed         
+                istate,Completed None         
     #endif
 
 #if SILVERLIGHT
@@ -1788,11 +1802,11 @@ type internal FsiInteractionProcessor
 
             | IHash (ParsedHashDirective("help",[],_),_) ->
                 fsiOptions.ShowHelp();
-                istate,Completed
+                istate,Completed None
 
             | IHash (ParsedHashDirective(c,arg,_),_) -> 
                 fsiConsoleOutput.uprintfn "%s" (FSIstrings.SR.fsiInvalidDirective(c, String.concat " " arg));  // REVIEW: uprintnfnn - like other directives above
-                istate,Completed  (* REVIEW: cont = CompletedWithReportedError *)
+                istate,Completed None  (* REVIEW: cont = CompletedWithReportedError *)
         )
 
     /// Execute a single parsed interaction which may contain multiple items to be executed
@@ -1800,7 +1814,7 @@ type internal FsiInteractionProcessor
     /// 
     /// #directive comes through with other definitions as a SynModuleDecl.HashDirective.
     /// We split these out for individual processing.
-    let rec ExecInteractions (exitViaKillThread, tcConfig, istate, action:ParsedFsiInteraction option) =
+    let rec ExecInteractions (exitViaKillThread, tcConfig, istate, action:ParsedFsiInteraction option) (lastResult:option<FsiInteractionStepStatus>) =
         let action,nextAction = 
             match action with
             | None                                      -> None  ,None
@@ -1823,23 +1837,24 @@ type internal FsiInteractionProcessor
 
                 Some (IDefns(defsA,m)),Some (IDefns(defsB,m))
 
-        match action with
-          | None -> assert(nextAction.IsNone); istate,Completed
-          | Some action ->
+        match action, lastResult with
+          | None, Some(prev) -> assert(nextAction.IsNone); istate, prev
+          | None, _ -> assert(nextAction.IsNone); istate,Completed None
+          | Some action, _ ->
               let istate,cont = ExecInteraction (exitViaKillThread, tcConfig, istate, action)
               match cont with
-                | Completed                  -> ExecInteractions (exitViaKillThread, tcConfig, istate, nextAction)
-                | CompletedWithReportedError -> istate,CompletedWithReportedError  (* drop nextAction on error *)
-                | EndOfFile                  -> istate,Completed                   (* drop nextAction on EOF *)
-                | CtrlC                      -> istate,CtrlC                       (* drop nextAction on CtrlC *)
+                | Completed res                -> ExecInteractions (exitViaKillThread, tcConfig, istate, nextAction) (Some cont)
+                | CompletedWithReportedError e -> istate,CompletedWithReportedError e            (* drop nextAction on error *)
+                | EndOfFile                    -> istate, defaultArg lastResult (Completed None) (* drop nextAction on EOF *)
+                | CtrlC                        -> istate,CtrlC                                   (* drop nextAction on CtrlC *)
 
     /// Execute a single parsed interaction on the parser/execute thread.
-    let MainThreadProcessParsedInteraction (exitViaKillThread, action, istate) =         
+    let MainThreadProcessAction action istate =         
         try 
             let tcConfig = TcConfig.Create(tcConfigB,validate=false)
 #if SILVERLIGHT
             Microsoft.FSharp.Silverlight.ResumeThread(Threading.Thread.CurrentThread.ManagedThreadId)
-            ExecInteractions (exitViaKillThread, tcConfig, istate, action)
+            action tcConfig istate
         with
         | :? ThreadAbortException ->
            (istate,CtrlC)
@@ -1849,7 +1864,7 @@ type internal FsiInteractionProcessor
 #else                                   
             if !progress then fprintfn fsiConsoleOutput.Out "In MainThreadProcessParsedInteraction...";                  
             fsiInterruptController.InterruptAllowed <- InterruptCanRaiseException;
-            let res = ExecInteractions (exitViaKillThread, tcConfig, istate, action)
+            let res = action tcConfig istate
             fsiInterruptController.InterruptRequest <- NoRequest;
             fsiInterruptController.InterruptAllowed <- InterruptIgnored;
             res
@@ -1863,8 +1878,22 @@ type internal FsiInteractionProcessor
            fsiInterruptController.InterruptRequest <- NoRequest;
            fsiInterruptController.InterruptAllowed <- InterruptIgnored;
            stopProcessingRecovery e range0;
-           istate,CompletedWithReportedError
+           istate,CompletedWithReportedError(Some e)
 #endif
+
+    let MainThreadProcessParsedInteraction (exitViaKillThread, action, istate) = 
+      istate |> MainThreadProcessAction (fun tcConfig istate ->
+        ExecInteractions (exitViaKillThread, tcConfig, istate, action) None)
+
+    let ParseExpression(tokenizer:Lexfilter.LexFilter) =
+        reusingLexbufForParsing tokenizer.LexBuffer (fun () ->
+            let ast = Parser.typedSeqExprEOF tokenizer.Lexer tokenizer.LexBuffer
+            ast )
+  
+    member x.MainThreadProcessParsedExpression expr istate = 
+      istate |> InteractiveCatch (fun istate ->
+        istate |> MainThreadProcessAction (fun tcConfig istate ->
+          fsiDynamicCompiler.EvalParsedExpression(istate, expr)  )) 
 
 
     /// Parse then process one parsed interaction.  
@@ -1922,14 +1951,14 @@ type internal FsiInteractionProcessor
                 let tokenizer = fsiStdinLexerProvider.CreateIncludedScriptLexer sourceFile
                 let rec run istate =
                     let istate,cont = processor.ParseAndProcessAndEvalOneInteractionFromLexbuf (exitViaKillThread, (fun f istate -> f istate), istate, tokenizer)
-                    if cont = Completed then run istate else istate,cont 
+                    match cont with Completed _ -> run istate | _ -> istate,cont 
 
                 let istate,cont = run istate 
 
                 match cont with
-                | Completed -> failwith "EvalIncludedScript: Completed expected to have relooped"
-                | CompletedWithReportedError -> istate,CompletedWithReportedError
-                | EndOfFile -> istate,Completed // here file-EOF is normal, continue required 
+                | Completed _ -> failwith "EvalIncludedScript: Completed expected to have relooped"
+                | CompletedWithReportedError e -> istate,CompletedWithReportedError e
+                | EndOfFile -> istate,Completed None// here file-EOF is normal, continue required 
                 | CtrlC     -> istate,CtrlC
           )
 
@@ -1942,10 +1971,10 @@ type internal FsiInteractionProcessor
             // Catch errors on a per-file basis, so results/bindings from pre-error files can be kept.
             let istate,cont = InteractiveCatch (fun istate -> processor.EvalIncludedScript (exitViaKillThread, istate, sourceFile, rangeStdin)) istate
             match cont with
-              | Completed                  -> processor.EvalIncludedScripts (istate, exitViaKillThread, moreSourceFiles)
-              | CompletedWithReportedError -> istate // do not process any more files              
-              | CtrlC                      -> istate // do not process any more files 
-              | EndOfFile                  -> assert false; istate // This is unexpected. EndOfFile is replaced by Completed in the called function 
+              | Completed _                  -> processor.EvalIncludedScripts (istate, exitViaKillThread, moreSourceFiles)
+              | CompletedWithReportedError _ -> istate // do not process any more files              
+              | CtrlC                        -> istate // do not process any more files 
+              | EndOfFile                    -> assert false; istate // This is unexpected. EndOfFile is replaced by Completed in the called function 
 
 
     member processor.LoadInitialFiles (exitViaKillThread, istate) =
@@ -1960,7 +1989,7 @@ type internal FsiInteractionProcessor
                     if isScript1 then 
                         processor.EvalIncludedScripts (istate, exitViaKillThread, sourceFiles)
                     else 
-                        istate |> InteractiveCatch (fun istate -> fsiDynamicCompiler.EvalSourceFiles(istate, rangeStdin, sourceFiles, lexResourceManager), Completed) |> fst 
+                        istate |> InteractiveCatch (fun istate -> fsiDynamicCompiler.EvalSourceFiles(istate, rangeStdin, sourceFiles, lexResourceManager), Completed None) |> fst 
                 consume istate rest 
 
         let istate = consume istate fsiOptions.SourceFiles
@@ -1972,9 +2001,29 @@ type internal FsiInteractionProcessor
     /// Send a dummy interaction through F# Interactive, to ensure all the most common code generation paths are 
     /// JIT'ed and ready for use.
     member processor.LoadDummyInteraction istate =
-        istate |> InteractiveCatch (fun istate ->  fsiDynamicCompiler.EvalParsedDefinitions (istate, true, false, []), Completed) |> fst
+        istate |> InteractiveCatch (fun istate ->  fsiDynamicCompiler.EvalParsedDefinitions (istate, true, false, []), Completed None) |> fst
         
     member processor.FsiOptions = fsiOptions
+
+    member x.ParseAndProcessAndEvalOneExpressionFromLexbuf(istate, tokenizer) =
+        istate |> InteractiveCatch(fun istate ->
+          let expr = ParseExpression(tokenizer) 
+          x.MainThreadProcessParsedExpression expr istate )
+
+    member x.ParseAndProcessAndEvalOneInteractionFromLexbuf(istate, tokenizer) =
+        istate |> InteractiveCatch(fun istate ->
+          let expr = ParseInteraction(tokenizer) 
+          MainThreadProcessParsedInteraction (true, expr, istate) )
+
+    member x.EvalInteraction(istate, sourceText, sourceFile) =
+      let lexbuf = UnicodeLexing.StringAsLexbuf(sourceText)
+      let tokenizer = fsiStdinLexerProvider.CreateLexerForLexBuffer(sourceFile, lexbuf)
+      x.ParseAndProcessAndEvalOneInteractionFromLexbuf(istate, tokenizer)
+
+    member x.EvalExpression(istate, sourceText, sourceFile) =
+      let lexbuf = UnicodeLexing.StringAsLexbuf(sourceText)
+      let tokenizer = fsiStdinLexerProvider.CreateLexerForLexBuffer(sourceFile, lexbuf)
+      x.ParseAndProcessAndEvalOneExpressionFromLexbuf(istate, tokenizer)
 
 //----------------------------------------------------------------------------
 // GUI runCodeOnMainThread
@@ -2118,7 +2167,7 @@ let internal StartStdinReadAndProcessThread
                                    fsiInteractionProcessor : FsiInteractionProcessor,
                                    exitViaKillThread) = 
     if !progress then fprintfn fsiConsoleOutput.Out "creating stdinReaderThread";
-    let cont = ref Completed 
+    let cont = ref (Completed None)
     let tokenizerRef = ref (fsiStdinLexerProvider.CreateStdinLexer())
     let culture = Thread.CurrentThread.CurrentUICulture
 
@@ -2144,7 +2193,7 @@ let internal StartStdinReadAndProcessThread
                   // mainForm.Invoke to pipe a message back through the form's main event loop. (The message 
                   // is a delegate to execute on the main Thread)
                   //
-                  while (!cont = CompletedWithReportedError || !cont = Completed || !cont = CtrlC) do
+                  while (match !cont with CompletedWithReportedError _ | Completed _ | CtrlC -> true | _ -> false) do
                       if (!cont = CtrlC) then 
                           tokenizerRef := fsiStdinLexerProvider.CreateStdinLexer();
 
@@ -2155,7 +2204,7 @@ let internal StartStdinReadAndProcessThread
                                   SetCurrentUICultureForThread lcid;
                                   f istate) // FSI error logging on switched to thread
                           with _ -> 
-                              (istate,Completed)
+                              (istate,Completed None)
                               
                       let istateNew,contNew = 
                           fsiInteractionProcessor.ParseAndProcessAndEvalOneInteractionFromLexbuf (exitViaKillThread, runCodeOnMainThread, !istateRef, !tokenizerRef)   
@@ -2583,7 +2632,27 @@ type FsiEvaluationSession (argv:string[], inReader:TextReader, outWriter:TextWri
         // to be explicitly kept alive.
         GC.KeepAlive fsiInterruptController.EventHandlers
 
-   
+    member internal x.CommitResult(istate, result) =
+      match result with
+      | FsiInteractionStepStatus.CtrlC -> failwith "Interrupted"
+      | FsiInteractionStepStatus.EndOfFile -> failwith "End of input"
+      | FsiInteractionStepStatus.Completed res -> 
+          istateRef := istate
+          res
+      | FsiInteractionStepStatus.CompletedWithReportedError(Some e) ->
+          raise (System.Exception("Evaluation failed", e))
+      | FsiInteractionStepStatus.CompletedWithReportedError(None) ->                  
+          failwith "Failed, no error text reported"
+
+    member x.EvalExpression(sourceText) = 
+      use unwind = ErrorLogger.PushThreadBuildPhaseUntilUnwind(ErrorLogger.BuildPhase.Interactive)
+      let istate, status = fsiInteractionProcessor.EvalExpression(istateRef.Value, sourceText, "input.fsx")
+      x.CommitResult(istate, status)
+
+    member x.EvalInteraction(sourceText) : unit =
+      use unwind = ErrorLogger.PushThreadBuildPhaseUntilUnwind(ErrorLogger.BuildPhase.Interactive)
+      let istate, status = fsiInteractionProcessor.EvalInteraction(istateRef.Value, sourceText, "input.fsx")
+      x.CommitResult(istate, status) |> ignore
 
 let MainMain (argv:string[]) = 
     ignore argv

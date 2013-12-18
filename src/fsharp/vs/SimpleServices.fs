@@ -174,6 +174,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                     member x.ErrorSinkImpl(exn) = errorSink false exn
                     member x.ErrorCount = errors |> Seq.filter (fun e -> e.Severity = Severity.Error) |> Seq.length }
 
+(*
             let loggerProvider = 
                 { new ErrorLoggerProvider() with
                     member log.CreateErrorLoggerThatQuitsAfterMaxErrors(tcConfigBuilder, exiter) = errorLogger }
@@ -190,6 +191,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                     1
         
             errors.ToArray(), result
+*)
+            failwith "whatever?"
 
         /// Compiles to a dynamic assembly usinng the given flags.  Any source files names 
         /// are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not

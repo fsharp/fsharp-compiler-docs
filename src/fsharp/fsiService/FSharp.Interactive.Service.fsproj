@@ -20,11 +20,11 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>..\..\..\lib\debug\4.0\</OutputPath>
+    <OutputPath>..\..\..\bin</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\fsiService.XML</DocumentationFile>
+    <DocumentationFile>..\..\..\bin\FSharp.Interactive.Service.xml</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
     <OtherFlags>--keyfile:../test.snk</OtherFlags>
   </PropertyGroup>
@@ -32,20 +32,14 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\bin</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\fsiService.XML</DocumentationFile>
+    <DocumentationFile>..\..\..\bin\FShrp.Interactive.Service.xml</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Compiler.Interactive.Settings">
-      <HintPath>..\..\..\lib\debug\4.0\FSharp.Compiler.Interactive.Settings.dll</HintPath>
-    </Reference>
-    <Reference Include="FSharp.Compiler.Server.Shared">
-      <HintPath>..\..\..\lib\debug\4.0\FSharp.Compiler.Server.Shared.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\..\..\lib\debug\4.0\FSharp.Core.dll</HintPath>
     </Reference>
@@ -80,6 +74,16 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FSharp.Compiler.Interactive.Settings\FSharp.Compiler.Interactive.Settings.fsproj">
+      <Name>FSharp.Compiler.Interactive.Settings</Name>
+      <Project>{649fa588-f02e-457c-9fcf-87e46407481e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FSharp.Compiler.Server.Shared\FSharp.Compiler.Server.Shared.fsproj">
+      <Name>FSharp.Compiler.Server.Shared</Name>
+      <Project>{d5870cf0-ed51-4cbc-b3d7-6f56da84ac06}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\FSharp.Compiler\FSharp.Compiler.fsproj">
       <Name>FSharp.Compiler</Name>
       <Project>{2e4d67b4-522d-4cf7-97e4-ba940f0b18f3}</Project>

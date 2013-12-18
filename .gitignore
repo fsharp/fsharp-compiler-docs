@@ -62,3 +62,4 @@ src/fsharp/fsiAnyCpu/FSIstrings.resx
 bin
 packages
 docs/output
+*.bak

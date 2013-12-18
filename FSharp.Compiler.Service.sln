@@ -9,6 +9,15 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Compiler.Server.Shar
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Compiler.Interactive.Settings", "src\fsharp\FSharp.Compiler.Interactive.Settings\FSharp.Compiler.Interactive.Settings.fsproj", "{649FA588-F02E-457C-9FCF-87E46407481E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{B6B68AE6-E7A4-4D43-9B34-FFA74BFE192B}"
+	ProjectSection(SolutionItems) = preProject
+		build.fsx = build.fsx
+		README.md = README.md
+		RELEASE_NOTES.md = RELEASE_NOTES.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{83FEE492-6701-4E59-9184-16B1D30E91F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

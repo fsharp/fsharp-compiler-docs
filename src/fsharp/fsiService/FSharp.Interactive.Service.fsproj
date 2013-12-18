@@ -57,7 +57,10 @@
     <EmbeddedResource Include="..\fsi\FSIstrings.resx">
       <Link>FSIstrings.resx</Link>
     </EmbeddedResource>
-    <Compile Include="..\..\assemblyinfo\assemblyinfo.fsi.exe.fs">
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
+      <Link>assemblyinfo.shared.fs</Link>
+    </Compile>
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Interactive.Service.dll.fs">
       <Link>assemblyinfo.fsi.exe.fs</Link>
     </Compile>
     <Compile Include="..\InternalCollections.fsi">

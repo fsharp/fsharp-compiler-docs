@@ -21,6 +21,9 @@
     <FsSrGen Include="..\FSInteractiveSettings.txt">
       <Link>FSInteractiveSettings.txt</Link>
     </FsSrGen>
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
+      <Link>assemblyinfo.shared.fs</Link>
+    </Compile>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Interactive.Settings.dll.fs">
       <Link>Utilities/assemblyinfo.FSharp.Compiler.Interactive.Settings.dll.fs</Link>
     </Compile>

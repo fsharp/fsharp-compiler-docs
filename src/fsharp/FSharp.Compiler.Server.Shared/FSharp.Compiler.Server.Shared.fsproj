@@ -18,6 +18,9 @@
     <FsSrGen Include="..\fsiserver\FSServerShared.txt">
       <Link>FSServerShared.txt</Link>
     </FsSrGen>
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
+      <Link>assemblyinfo.shared.fs</Link>
+    </Compile>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Server.Shared.dll.fs">
       <Link>assemblyinfo.FSharp.Compiler.Server.Shared.dll.fs</Link>
     </Compile>

@@ -22,6 +22,9 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' " />
   <ItemGroup>
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
+      <Link>assemblyinfo.shared.fs</Link>
+    </Compile>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.dll.fs">
       <Link>assemblyinfo.FSharp.Compiler.dll.fs</Link>
     </Compile>

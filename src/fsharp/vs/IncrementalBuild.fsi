@@ -14,15 +14,15 @@ type (*internal*) Severity =
 
 type (*internal*) ErrorInfo = 
     { FileName:string
-      StartLine:int
-      EndLine:int
+      StartLine:Line0
+      EndLine:Line0
       StartColumn:int
       EndColumn:int
       Severity:Severity
       Message:string
       Subcategory:string }
-    static member CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * (int*int) -> ErrorInfo
-    static member CreateFromException : PhasedError * bool * bool * range -> ErrorInfo
+    static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * (Line0*int) -> ErrorInfo
+    static member internal CreateFromException : PhasedError * bool * bool * range -> ErrorInfo
 
 // implementation details used by other code in the compiler    
 [<Sealed>]

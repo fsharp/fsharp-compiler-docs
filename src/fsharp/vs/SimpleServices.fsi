@@ -1,8 +1,27 @@
+//----------------------------------------------------------------------------
+// Copyright (c) 2002-2012 Microsoft Corporation. 
+//
+// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// By using this source code in any fashion, you are agreeing to be bound 
+// by the terms of the Apache License, Version 2.0.
+//
+// You must not remove this notice, or any other, from this software.
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+// SimpleSourceCodeServices API to the compiler is a simplified service for parsing,
+// type checking, intellisense and compilation.
+//----------------------------------------------------------------------------
+
 namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
     open System.IO
     open Microsoft.FSharp.Compiler
+    open Microsoft.FSharp.Compiler.Range
     open Microsoft.FSharp.Compiler.SourceCodeServices
+
+    // TODO: make xmlCommentRetriever a parameter of the service
 
     /// Represents a declaration returned by GetDeclarations
     [<Class>]
@@ -20,16 +39,16 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member Errors : ErrorInfo[]
 
         /// Get the declarations at the given code location.
-        member GetDeclarations : line: int * col: int * names: Names * residue: string * ?xmlCommentRetriever : (string * string -> string) -> Async<Declaration[]>
+        member GetDeclarations : line: Line0 * col: int * qualifyingNames: string list * partialName: string * ?xmlCommentRetriever : (string * string -> string) -> Async<Declaration[]>
 
         /// Get the Visual Studio F1-help keyword for the item at the given position
-        member GetF1Keyword : line: int * col: int * names: Names -> string option
+        member GetF1Keyword : line: Line0 * col: int * names: string list -> string option
 
         /// Get the data tip text at the given position
-        member GetDataTipText: line: int * col: int * names: Names * ?xmlCommentRetriever : (string * string -> string) -> string
+        member GetDataTipText: line: Line0 * col: int * names: string list * ?xmlCommentRetriever : (string * string -> string) -> string
 
         /// Get the location of the declaration at the given position
-        member GetDeclarationLocation: line: int * col: int * names: Names * isDecl: bool -> FindDeclResult
+        member GetDeclarationLocation: line: Line0 * col: int * names: string list * isDecl: bool -> FindDeclResult
 
         /// Get the full type checking results 
         member FullResults : Microsoft.FSharp.Compiler.SourceCodeServices.TypeCheckResults
@@ -40,19 +59,19 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         new : unit -> SimpleSourceCodeServices
 
         /// Tokenize a single line, returning token information and a tokenization state represented by an integer
-        member TokenizeLine: line: string * state: int64 -> TokenInformation[] * int64 
+        member TokenizeLine: line:string * state:int64 -> TokenInformation[] * int64 
 
         /// Tokenize an entire file, line by line
-        member TokenizeFile: source: string -> TokenInformation[][] 
+        member TokenizeFile: source:string -> TokenInformation[][] 
 
         /// Return information about matching braces in a single file.
-        member MatchBraces: filename: string * source: string -> (Range * Range) [] 
+        member MatchBraces: filename:string * source:string -> (Range01 * Range01) [] 
 
         /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
         member TypeCheckScript: filename:string * source:string * otherFlags:string[] -> TypeCheckResults
 
         /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
-        member Compile: argv: string[] -> ErrorInfo[] * int
+        member Compile: argv:string[] -> ErrorInfo[] * int
 
         /// Compiles to a dynamic assembly usinng the given flags.  Any source files names 
         /// are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not

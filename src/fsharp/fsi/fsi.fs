@@ -55,6 +55,7 @@ open Microsoft.FSharp.Compiler.TypeChecker
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Infos
 open Microsoft.FSharp.Compiler.Tastops
+open Microsoft.FSharp.Compiler.Nameres
 open Microsoft.FSharp.Compiler.Opt
 open Microsoft.FSharp.Compiler.Env
 open Microsoft.FSharp.Compiler.Build
@@ -719,6 +720,7 @@ type internal FsiCommandLineOptions(fsiConfig: FsiEvaluationSessionHostConfig, a
 
 /// Set the current ui culture for the current thread.
 let internal SetCurrentUICultureForThread (lcid : int option) =
+    let culture = Thread.CurrentThread.CurrentUICulture
     match lcid with
     | Some n -> Thread.CurrentThread.CurrentUICulture <- 
 #if SILVERLIGHT    
@@ -727,6 +729,7 @@ let internal SetCurrentUICultureForThread (lcid : int option) =
                                                 new CultureInfo(n)
 #endif                                                                                                
     | None -> ()
+    { new IDisposable with member x.Dispose() = Thread.CurrentThread.CurrentUICulture <- culture }
 
 
 //----------------------------------------------------------------------------
@@ -1084,7 +1087,7 @@ type internal FsiDynamicCompiler
         let tcState = istate.tcState 
         { istate with tcState = tcState.NextStateAfterIncrementalFragment(tcEnvAtEndOfLastInput) }
       
-     
+
     /// Evaluate the given expression and produce a new interactive state.
     member fsiDynamicCompiler.EvalParsedExpression (istate, expr: SynExpr) =
         let tcConfig = TcConfig.Create (tcConfigB, validate=false)
@@ -1219,55 +1222,48 @@ type internal FsiDynamicCompiler
         } 
 
 
-type internal FsiIntellisenseProvider(tcGlobals, tcImports: TcImports) = 
+type internal FsiIntellisenseProvider(tcConfigB, tcGlobals, tcImports: TcImports) = 
 
     let rangeStdin = rangeN Lexhelp.stdinMockFilename 0
 
-    //----------------------------------------------------------------------------
-    // FsiIntellisense - v1 - identifier completion - namedItemInEnvL
-    //----------------------------------------------------------------------------
+    let context (istate:FsiDynamicCompilerState) =
+        let tcConfig = TcConfig.Create(tcConfigB,validate=false)
+        let tcState = istate.tcState
+        let amap = tcImports.GetImportMap()
+        let infoReader = new Infos.InfoReader(tcGlobals,amap)
+        let ncenv = new Nameres.NameResolver(tcGlobals,amap,infoReader,Nameres.FakeInstantiationGenerator)
+        let ad = tcState.TcEnvFromImpls.AccessRights
+        let nenv = tcState.TcEnvFromImpls.NameEnv
+        tcConfig,tcState,amap,infoReader,ncenv,ad,nenv
 
-    member __.CompletionsForPartialLID istate (prefix:string) =
+    /// Experiment: provide a way of resolving identifiers
+    ///
+    /// Evaluate the given expression and produce a new interactive state.
+    member __.TryResolveItem (istate:FsiDynamicCompilerState, lid: Ast.LongIdent) =
+        let _tcConfig,_tcState,_amap,_infoReader,ncenv,ad,nenv = context istate
+        let item, _m, _rest, _after = Nameres.ResolveLongIdentAsExprAndComputeRange Nameres.TcResultsSink.NoSink ncenv rangeStdin ad nenv TypeNameResolutionInfo.Default lid 
+        item
+
+    member __.CompletionsForPartialLID (istate, prefix:string) =
         let lid,stem =
             if prefix.IndexOf(".",StringComparison.Ordinal) >= 0 then
-                let parts = prefix.Split(Array.ofList ['.'])
+                let parts = prefix.Split('.')
                 let n = parts.Length
                 Array.sub parts 0 (n-1) |> Array.toList,parts.[n-1]
             else
                 [],prefix   
-        let tcState = istate.tcState (* folded through now? *)
-
-        let amap = tcImports.GetImportMap()
-        let infoReader = new Infos.InfoReader(tcGlobals,amap)
-        let ncenv = new Nameres.NameResolver(tcGlobals,amap,infoReader,Nameres.FakeInstantiationGenerator)
-        // Note: for the accessor domain we should use (AccessRightsOfEnv tcState.TcEnvFromImpls)
-        let ad = Infos.AccessibleFromSomeFSharpCode
-        let nItems = Nameres.ResolvePartialLongIdent ncenv tcState.TcEnvFromImpls.NameEnv (ConstraintSolver.IsApplicableMethApprox tcGlobals amap rangeStdin) rangeStdin ad lid false
+        let _tcConfig,_tcState,amap,_infoReader,ncenv,ad,nenv = context istate
+        let nItems = Nameres.ResolvePartialLongIdent ncenv nenv (ConstraintSolver.IsApplicableMethApprox tcGlobals amap rangeStdin) rangeStdin ad lid false
         let names  = nItems |> List.map (fun d -> d.DisplayName tcGlobals) 
-        let names  = names |> List.filter (fun (name:string) -> name.StartsWith(stem,StringComparison.Ordinal)) 
+        let names  = names |> List.filter (fun name -> name.StartsWith(stem,StringComparison.Ordinal)) 
         names
 
-#if FSI_SERVER_INTELLISENSE
-    //----------------------------------------------------------------------------
-    // FsiIntellisense (posible feature for v2) - GetDeclarations
-    //----------------------------------------------------------------------------
-
-    member __.FsiGetDeclarations istate (text:string) (names:string[]) =
-        try
-          let tcConfig = TcConfig.Create(tcConfigB,validate=false)
-          Microsoft.FSharp.Compiler.SourceCodeServices.FsiIntelisense.getDeclarations
-            (tcConfig,
-             tcGlobals,
-             tcImports,
-             istate.tcState) 
-            text 
-            names
-        with
-          e ->
-            System.Windows.Forms.MessageBox.Show("FsiGetDeclarations: throws:\n" ^ e.ToString()) |> ignore;
-            [| |]
-
-#endif
+    /// Experiment: provide a typechecking fragments against the current F# interactive context
+    member __.TypeCheckScriptFragment (istate, text:string) =
+        let tcConfig,tcState,_amap,_infoReader,_ncenv,_ad,_nenv = context istate
+        let loadClosure = None
+        let tcStateChecker = Microsoft.FSharp.Compiler.SourceCodeServices.TcStateChecker(tcConfig, tcGlobals, tcImports, tcState, loadClosure)
+        tcStateChecker.TypeCheckScriptFragment(text)
 
 //----------------------------------------------------------------------------
 // ctrl-c handling
@@ -1307,14 +1303,21 @@ type internal FsiInterruptController(fsiOptions : FsiCommandLineOptions,
     let mutable killThreadRequest = NoRequest
     let mutable ctrlEventHandlers = [] : NativeMethods.ControlEventHandler list 
     let mutable ctrlEventActions  = [] : (unit -> unit) list 
+    let mutable exitViaKillThread = false
 
     let mutable posixReinstate = (fun () -> ())
 
+    member __.Exit() = 
+        if exitViaKillThread then 
+            killThreadRequest <- ExitRequest
+            Thread.Sleep(1000)
+        exit 0
+
     member __.FsiInterruptStdinState with get () = stdinInterruptState and set v = stdinInterruptState <- v
 
-    member __.InterruptRequest with set req = killThreadRequest <- req
+    member __.ClearInterruptRequest() = killThreadRequest <- NoRequest
     
-    member __.InterruptAllowed with get () = interruptAllowed and set v = interruptAllowed <- v
+    member __.InterruptAllowed with set v = interruptAllowed <- v
     
     member __.Interrupt() = ctrlEventActions |> List.iter (fun act -> act())
     
@@ -1333,14 +1336,14 @@ type internal FsiInterruptController(fsiOptions : FsiCommandLineOptions,
         // Hence we actually start up the killer thread within the handler. 
         try 
             let raiseCtrlC() = 
-                SetCurrentUICultureForThread fsiOptions.FsiLCID
+                use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
                 fprintf fsiConsoleOutput.Error "%s" (FSIstrings.SR.fsiInterrupt());
                 stdinInterruptState <- StdinEOFPermittedBecauseCtrlCRecentlyPressed;
                 if (interruptAllowed = InterruptCanRaiseException) then 
                     killThreadRequest <- ThreadAbortRequest;
                     let killerThread = 
                         new Thread(new ThreadStart(fun () ->
-                            SetCurrentUICultureForThread fsiOptions.FsiLCID
+                            use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
                             // sleep long enough to allow ControlEventHandler handler on main thread to return 
                             // Also sleep to give computations a bit of time to terminate 
                             Thread.Sleep(pauseMilliseconds);
@@ -1356,7 +1359,7 @@ type internal FsiInterruptController(fsiOptions : FsiCommandLineOptions,
             ctrlEventHandlers <- ctrlEventHandler :: ctrlEventHandlers;
             ctrlEventActions  <- raiseCtrlC       :: ctrlEventActions;
             let _resultOK = NativeMethods.SetConsoleCtrlHandler(ctrlEventHandler,true)
-            false // don't exit via kill thread
+            exitViaKillThread <- false // don't exit via kill thread
         with e -> 
             if !progress then fprintfn fsiConsoleOutput.Error "Failed to install ctrl-c handler using Windows technique - trying to install one using Unix signal handling...";
             // UNIX TECHNIQUE: We start up a killer thread, and it watches the mutable reference location.    
@@ -1380,7 +1383,7 @@ type internal FsiInterruptController(fsiOptions : FsiCommandLineOptions,
                 register();
                 let killerThread = 
                     new Thread(new ThreadStart(fun () ->
-                        SetCurrentUICultureForThread fsiOptions.FsiLCID
+                        use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
                         while true do 
                             //fprintf fsiConsoleOutput.Error "\n- kill thread loop...\n"; errorWriter.Flush();  
                             Thread.Sleep(pauseMilliseconds*2);
@@ -1408,13 +1411,14 @@ type internal FsiInterruptController(fsiOptions : FsiCommandLineOptions,
                         done),Name="ControlCAbortAlternativeThread") 
                 killerThread.IsBackground <- true;
                 killerThread.Start();
-                true // exit via kill thread to workaround block-on-exit bugs with Mono once a CtrlC has been pressed
+                // exit via kill thread to workaround block-on-exit bugs with Mono once a CtrlC has been pressed
+                exitViaKillThread <- true 
               with e -> 
                 fprintf fsiConsoleOutput.Error  "%s" (FSIstrings.SR.fsiCouldNotInstallCtrlCHandler(e.Message))
-                false
+                exitViaKillThread <- false
             | Choice2Of2 e ->
               fprintf fsiConsoleOutput.Error  "%s" (FSIstrings.SR.fsiCouldNotInstallCtrlCHandler(e.Message))
-              false  
+              exitViaKillThread <- false  
 
 
     member x.PosixInvoke(n:int) = 
@@ -1648,6 +1652,7 @@ type internal FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon,
         let tokenizer = Lexfilter.LexFilter(interactiveInputLightSyntaxStatus, tcConfigB.compilingFslib, Lexer.token lexargs skip, lexbuf)
         tokenizer
 
+    member __.ConsoleInput = fsiConsoleInput
 
     // Create a new lexer to read stdin 
     member __.CreateStdinLexer () =
@@ -1678,6 +1683,11 @@ type internal FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon,
         let lexbuf = UnicodeLexing.UnicodeFileAsLexbuf(sourceFileName,tcConfigB.inputCodePage,(*retryLocked*)false)  
         CreateLexerForLexBuffer (sourceFileName, lexbuf)
 
+    // Create a new lexer to read a string
+    member __.CreateStringLexer (sourceFileName, source) =
+        let lexbuf = UnicodeLexing.StringAsLexbuf(source)  
+        CreateLexerForLexBuffer (sourceFileName, lexbuf)
+
 //----------------------------------------------------------------------------
 // Process one parsed interaction.  This runs on the GUI thread.
 // It might be simpler if it ran on the parser thread.
@@ -1691,7 +1701,8 @@ type internal FsiInteractionStepStatus =
 
 
 type internal FsiInteractionProcessor
-                            (tcConfigB, 
+                            (fsiConfig: FsiEvaluationSessionHostConfig, 
+                             tcConfigB, 
                              errorLogger : ErrorLoggerThatStopsOnFirstError, 
                              fsiOptions: FsiCommandLineOptions,
                              fsiDynamicCompiler: FsiDynamicCompiler,
@@ -1699,8 +1710,22 @@ type internal FsiInteractionProcessor
                              fsiConsoleOutput : FsiConsoleOutput,
                              fsiInterruptController : FsiInterruptController,
                              fsiStdinLexerProvider : FsiStdinLexerProvider,
-                             lexResourceManager : LexResourceManager) = 
+                             lexResourceManager : LexResourceManager,
+                             initialInteractiveState) = 
 
+    let mutable currState = initialInteractiveState
+    let mutable queueAgent = None
+
+    let runCodeOnEventLoop f istate = 
+        try 
+            fsiConfig.EventLoopInvoke (fun () -> 
+                // FSI error logging on switched to thread
+                InstallErrorLoggingOnThisThread errorLogger
+                use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
+                f istate) 
+        with _ -> 
+            (istate,Completed)
+                              
     let InteractiveCatch f istate = 
         try
             // reset error count 
@@ -1723,10 +1748,10 @@ type internal FsiInteractionProcessor
 
 
     /// Parse one interaction. Called on the parser thread.
-    let ParseInteraction (tokenizer:Lexfilter.LexFilter) =   
+    let parseInteraction (tokenizer:Lexfilter.LexFilter) =   
         let lastToken = ref Parser.ELSE // Any token besides SEMICOLON_SEMICOLON will do for initial value 
         try 
-            if !progress then fprintfn fsiConsoleOutput.Out "In ParseInteraction...";
+            if !progress then fprintfn fsiConsoleOutput.Out "In parseInteraction...";
 
             let input = 
                 Lexhelp.reusingLexbufForParsing tokenizer.LexBuffer (fun () -> 
@@ -1737,7 +1762,7 @@ type internal FsiInteractionProcessor
                     Parser.interaction lexerWhichSavesLastToken tokenizer.LexBuffer)
             Some input
         with e ->
-            if !progress then fprintfn fsiConsoleOutput.Out "Error in ParseInteraction: %s" (e.ToString())
+            if !progress then fprintfn fsiConsoleOutput.Out "Error in parseInteraction: %s" (e.ToString())
             // On error, consume tokens until to ;; or EOF.
             // Caveat: Unless the error parse ended on ;; - so check the lastToken returned by the lexer function.
             // Caveat: What if this was a look-ahead? That's fine! Since we need to skip to the ;; anyway.     
@@ -1750,8 +1775,11 @@ type internal FsiInteractionProcessor
             stopProcessingRecovery e range0;    
             None
 
+    let parseInteractionSimple (tokenizer:Lexfilter.LexFilter) =   
+        Parser.interaction tokenizer.Lexer tokenizer.LexBuffer
+
     /// Execute a single parsed interaction. Called on the GUI/execute/main thread.
-    let ExecInteraction (exitViaKillThread:bool, tcConfig:TcConfig, istate, action:ParsedFsiInteraction) =
+    let executeParsedInteraction (tcConfig:TcConfig, istate, action:ParsedFsiInteraction) =
         istate |> InteractiveCatch (fun istate -> 
             match action with 
             | IDefns ([  ],_) ->
@@ -1825,10 +1853,7 @@ type internal FsiInteractionProcessor
 #if SILVERLIGHT
 #else         
             | IHash (ParsedHashDirective(("q" | "quit"),[],_),_) -> 
-                if exitViaKillThread then 
-                    fsiInterruptController.InterruptRequest <- ExitRequest;
-                    Thread.Sleep(1000)
-                exit 0;                
+                fsiInterruptController.Exit()
 #endif
 
             | IHash (ParsedHashDirective("help",[],_),_) ->
@@ -1845,7 +1870,7 @@ type internal FsiInteractionProcessor
     /// 
     /// #directive comes through with other definitions as a SynModuleDecl.HashDirective.
     /// We split these out for individual processing.
-    let rec ExecInteractions (exitViaKillThread, tcConfig, istate, action:ParsedFsiInteraction option) =
+    let rec execParsedInteractions (tcConfig, istate, action) =
         let action,nextAction = 
             match action with
             | None                                      -> None  ,None
@@ -1871,20 +1896,20 @@ type internal FsiInteractionProcessor
         match action with
           | None -> assert(nextAction.IsNone); istate,Completed
           | Some action ->
-              let istate,cont = ExecInteraction (exitViaKillThread, tcConfig, istate, action)
+              let istate,cont = executeParsedInteraction (tcConfig, istate, action)
               match cont with
-                | Completed                  -> ExecInteractions (exitViaKillThread, tcConfig, istate, nextAction)
+                | Completed                  -> execParsedInteractions (tcConfig, istate, nextAction)
                 | CompletedWithReportedError -> istate,CompletedWithReportedError  (* drop nextAction on error *)
                 | EndOfFile                  -> istate,Completed                   (* drop nextAction on EOF *)
                 | CtrlC                      -> istate,CtrlC                       (* drop nextAction on CtrlC *)
 
     /// Execute a single parsed interaction on the parser/execute thread.
-    let MainThreadProcessParsedInteraction (exitViaKillThread, action, istate) =         
+    let mainThreadExecParsedInteractions (action, istate) =         
         try 
             let tcConfig = TcConfig.Create(tcConfigB,validate=false)
 #if SILVERLIGHT
             Microsoft.FSharp.Silverlight.ResumeThread(Threading.Thread.CurrentThread.ManagedThreadId)
-            ExecInteractions (exitViaKillThread, tcConfig, istate, action)
+            execParsedInteractions (tcConfig, istate, action)
         with
         | :? ThreadAbortException ->
            (istate,CtrlC)
@@ -1892,20 +1917,20 @@ type internal FsiInteractionProcessor
            stopProcessingRecovery e range0;
            istate,CompletedWithReportedError
 #else                                   
-            if !progress then fprintfn fsiConsoleOutput.Out "In MainThreadProcessParsedInteraction...";                  
+            if !progress then fprintfn fsiConsoleOutput.Out "In mainThreadExecParsedInteractions...";                  
             fsiInterruptController.InterruptAllowed <- InterruptCanRaiseException;
-            let res = ExecInteractions (exitViaKillThread, tcConfig, istate, action)
-            fsiInterruptController.InterruptRequest <- NoRequest;
+            let res = execParsedInteractions (tcConfig, istate, action)
+            fsiInterruptController.ClearInterruptRequest()
             fsiInterruptController.InterruptAllowed <- InterruptIgnored;
             res
         with
         | :? ThreadAbortException ->
-           fsiInterruptController.InterruptRequest <- NoRequest;
+           fsiInterruptController.ClearInterruptRequest()
            fsiInterruptController.InterruptAllowed <- InterruptIgnored;
            (try Thread.ResetAbort() with _ -> ());
            (istate,CtrlC)
         |  e ->
-           fsiInterruptController.InterruptRequest <- NoRequest;
+           fsiInterruptController.ClearInterruptRequest()
            fsiInterruptController.InterruptAllowed <- InterruptIgnored;
            stopProcessingRecovery e range0;
            istate,CompletedWithReportedError
@@ -1920,8 +1945,9 @@ type internal FsiInteractionProcessor
     /// until execution has competed on the GUI thread.
     ///
     /// During processing of startup scripts, this runs on the main thread.
-
-    member __.ParseAndProcessAndEvalOneInteractionFromLexbuf (exitViaKillThread, runCodeOnMainThread, istate:FsiDynamicCompilerState, tokenizer:Lexfilter.LexFilter) =
+    ///
+    /// This is blocking: it reads until one chunk of input have been received, unless IsPastEndOfStream is true
+    member __.ParseAndExecOneSetOfInteractionsFromLexbuf (runCodeOnMainThread, istate:FsiDynamicCompilerState, tokenizer:Lexfilter.LexFilter) =
 
         if tokenizer.LexBuffer.IsPastEndOfStream then 
             let stepStatus = 
@@ -1939,23 +1965,25 @@ type internal FsiInteractionProcessor
 
             fsiConsolePrompt.Print();
             istate |> InteractiveCatch (fun istate -> 
-                if !progress then fprintfn fsiConsoleOutput.Out "entering ParseInteraction...";
+                if !progress then fprintfn fsiConsoleOutput.Out "entering parseInteraction...";
 
                 // Parse the interaction. When FSI.EXE is waiting for input from the console the 
                 // parser thread is blocked somewhere deep this call. 
-                let action  = ParseInteraction tokenizer
+                let action  = parseInteraction tokenizer
 
-                if !progress then fprintfn fsiConsoleOutput.Out "returned from ParseInteraction...calling runCodeOnMainThread...";
+                if !progress then fprintfn fsiConsoleOutput.Out "returned from parseInteraction...calling runCodeOnMainThread...";
 
                 // After we've unblocked and got something to run we switch 
                 // over to the run-thread (e.g. the GUI thread) 
-                let res = istate  |> runCodeOnMainThread (fun istate -> MainThreadProcessParsedInteraction (exitViaKillThread, action, istate)) 
+                let res = istate  |> runCodeOnMainThread (fun istate -> mainThreadExecParsedInteractions (action, istate)) 
 
                 if !progress then fprintfn fsiConsoleOutput.Out "Just called runCodeOnMainThread, res = %O..." res;
                 res)
         
+    member __.CurrentState = currState
+
     /// Perform an "include" on a script file (i.e. a script file specified on the command line)
-    member processor.EvalIncludedScript (exitViaKillThread, istate, sourceFile, m) =
+    member processor.EvalIncludedScript (istate, sourceFile, m) =
         let tcConfig = TcConfig.Create(tcConfigB, validate=false)
         // Resolve the filename to an absolute filename
         let sourceFile = tcConfig.ResolveSourceFile(m,sourceFile,tcConfig.implicitIncludeDir) 
@@ -1966,7 +1994,7 @@ type internal FsiInteractionProcessor
               // We repeatedly parse and process these, until an error occurs.
                 let tokenizer = fsiStdinLexerProvider.CreateIncludedScriptLexer sourceFile
                 let rec run istate =
-                    let istate,cont = processor.ParseAndProcessAndEvalOneInteractionFromLexbuf (exitViaKillThread, (fun f istate -> f istate), istate, tokenizer)
+                    let istate,cont = processor.ParseAndExecOneSetOfInteractionsFromLexbuf ((fun f istate -> f istate), istate, tokenizer)
                     if cont = Completed then run istate else istate,cont 
 
                 let istate,cont = run istate 
@@ -1980,20 +2008,20 @@ type internal FsiInteractionProcessor
 
 
     /// Load the source files, one by one. Called on the main thread.
-    member processor.EvalIncludedScripts (istate, exitViaKillThread, sourceFiles) =
+    member processor.EvalIncludedScripts (istate, sourceFiles) =
       match sourceFiles with
         | [] -> istate
         | sourceFile :: moreSourceFiles ->
             // Catch errors on a per-file basis, so results/bindings from pre-error files can be kept.
-            let istate,cont = InteractiveCatch (fun istate -> processor.EvalIncludedScript (exitViaKillThread, istate, sourceFile, rangeStdin)) istate
+            let istate,cont = InteractiveCatch (fun istate -> processor.EvalIncludedScript (istate, sourceFile, rangeStdin)) istate
             match cont with
-              | Completed                  -> processor.EvalIncludedScripts (istate, exitViaKillThread, moreSourceFiles)
+              | Completed                  -> processor.EvalIncludedScripts (istate, moreSourceFiles)
               | CompletedWithReportedError -> istate // do not process any more files              
               | CtrlC                      -> istate // do not process any more files 
               | EndOfFile                  -> assert false; istate // This is unexpected. EndOfFile is replaced by Completed in the called function 
 
 
-    member processor.LoadInitialFiles (exitViaKillThread, istate) =
+    member processor.LoadInitialFiles () =
         /// Consume initial source files in chunks of scripts or non-scripts
         let rec consume istate sourceFiles =
             match sourceFiles with
@@ -2003,25 +2031,142 @@ type internal FsiInteractionProcessor
                 let sourceFiles = List.map fst sourceFiles 
                 let istate = 
                     if isScript1 then 
-                        processor.EvalIncludedScripts (istate, exitViaKillThread, sourceFiles)
+                        processor.EvalIncludedScripts (istate, sourceFiles)
                     else 
                         istate |> InteractiveCatch (fun istate -> fsiDynamicCompiler.EvalSourceFiles(istate, rangeStdin, sourceFiles, lexResourceManager), Completed) |> fst 
                 consume istate rest 
 
-        let istate = consume istate fsiOptions.SourceFiles
+        currState <- consume currState fsiOptions.SourceFiles
 
         if nonNil fsiOptions.SourceFiles then 
-            fsiConsolePrompt.PrintAhead(); // Seems required. I expected this could be deleted. Why not?
-        istate 
+            fsiConsolePrompt.PrintAhead() // Seems required. I expected this could be deleted. Why not?
 
     /// Send a dummy interaction through F# Interactive, to ensure all the most common code generation paths are 
     /// JIT'ed and ready for use.
-    member processor.LoadDummyInteraction istate =
-        istate |> InteractiveCatch (fun istate ->  fsiDynamicCompiler.EvalParsedDefinitions (istate, true, false, []), Completed) |> fst
+    member processor.LoadDummyInteraction() =
+        currState <- currState |> InteractiveCatch (fun istate ->  fsiDynamicCompiler.EvalParsedDefinitions (istate, true, false, []), Completed) |> fst
         
-    member processor.FsiOptions = fsiOptions
+    member processor.CreateQueueAgent() = 
+      queueAgent <- Some <| new MailboxProcessor<_>(fun mbox -> async {
+          while true do
+            let! source, (reply : AsyncReplyChannel<string>) = mbox.Receive()
+            InstallErrorLoggingOnThisThread errorLogger 
+            use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
+            try 
+                let tokenizer = fsiStdinLexerProvider.CreateStringLexer("script.fsx",source)
+
+                // Keep going until EndOfFile on the lexbuffer, or an interrupt, or an error
+                let rec loop() = 
+
+                    let istate = currState
+                    let istateNew,contNew = 
+                        if tokenizer.LexBuffer.IsPastEndOfStream then 
+                            istate,EndOfFile
+                        else 
+                            istate |> InteractiveCatch (fun istate -> 
+                                let action  = parseInteractionSimple tokenizer
+                                let res = istate  |> runCodeOnEventLoop (fun istate -> mainThreadExecParsedInteractions (Some action, istate)) 
+                                res)
+        
+
+                    currState <- istateNew
+                    match contNew with 
+                    | CompletedWithReportedError -> reply.Reply "error"
+                    | EndOfFile -> reply.Reply "ok"
+                    | Completed -> loop()
+                    | CtrlC -> reply.Reply "interrupt"
+
+                loop()
+
+            with e -> stopProcessingRecovery e range0 })
+
+    member processor.StartQueueAgent() = 
+        match queueAgent with 
+        | None -> failwith "queue agent not yet created" 
+        | Some agent -> agent.Start()
+        
+    member processor.ExecuteInteractionAsync(code) = 
+        match queueAgent with 
+        | None -> failwith "queue agent not yet started" 
+        | Some agent -> agent.PostAndAsyncReply(fun c -> (code, c))
+
+    member processor.ExecuteInteraction(code) = 
+        match queueAgent with 
+        | None -> failwith "queue agent not yet started" 
+        | Some agent -> agent.PostAndReply(fun c -> (code, c))
 
 
+    /// Start the background thread used to read the input reader and/or console
+    ///
+    /// This is the main stdin loop, running on the stdinReaderThread.
+    /// 
+    // We run the actual computations for each action on the main GUI thread by using
+    // mainForm.Invoke to pipe a message back through the form's main event loop. (The message 
+    // is a delegate to execute on the main Thread)
+    //
+    member processor.StartStdinReadAndProcessThread () = 
+
+        if !progress then fprintfn fsiConsoleOutput.Out "creating stdinReaderThread";
+
+        let stdinReaderThread = 
+            new Thread(new ThreadStart(fun () ->
+                InstallErrorLoggingOnThisThread errorLogger // FSI error logging on stdinReaderThread, e.g. parse errors.
+                use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
+                try 
+                  try 
+                      let initialTokenizer = fsiStdinLexerProvider.CreateStdinLexer()
+                      if !progress then fprintfn fsiConsoleOutput.Out "READER: stdin thread started...";
+
+                      // Delay until we've peeked the input or read the entire first line
+                      fsiStdinLexerProvider.ConsoleInput.WaitForInitialConsoleInput()
+                  
+                      if !progress then fprintfn fsiConsoleOutput.Out "READER: stdin thread got first line...";
+
+                      // Keep going until EndOfFile on the inReader or console
+                      let rec loop currTokenizer = 
+
+                          let istateNew,contNew = 
+                              processor.ParseAndExecOneSetOfInteractionsFromLexbuf (runCodeOnEventLoop, currState, currTokenizer)   
+
+                          currState <- istateNew
+
+                          match contNew with 
+                          | EndOfFile -> ()
+                          | CtrlC -> loop (fsiStdinLexerProvider.CreateStdinLexer())   // After each interrupt, restart to a brand new tokenizer
+                          | CompletedWithReportedError | Completed -> loop currTokenizer
+
+                      loop initialTokenizer
+
+
+                      if !progress then fprintfn fsiConsoleOutput.Out "- READER: Exiting stdinReaderThread";  
+
+                    with e -> stopProcessingRecovery e range0
+
+                finally 
+                    if !progress then fprintfn fsiConsoleOutput.Out "- READER: Exiting process because of failure/exit on  stdinReaderThread";  
+#if SILVERLIGHT
+#else                                
+                    // REVIEW: On some flavors of Mono, calling exit may freeze the process if we're using the WinForms event handler
+                    // Basically, on Mono 2.6.3, the GUI thread may be left dangling on exit.  At that point:
+                    //   -- System.Environment.Exit will cause the process to hang
+                    //   -- Calling Application.Exit() will leave the GUI thread up and running, creating a Zombie process
+                    //   -- Calling Abort() on the Main thread or the GUI thread will have no effect, and the process will remain hung
+                    // Also, even the the GUI thread is up and running, the WinForms event loop will be listed as closed
+                    // In this case, killing the process is harmless, since we've already cleaned up after ourselves and FSI is responding
+                    // to an error.  (CTRL-C is handled elsewhere.) 
+                    // We'll only do this if we're running on Mono, "--gui" is specified and our input is piped in from stdin, so it's still
+                    // fairly constrained.
+                    if runningOnMono && fsiOptions.Gui then
+                        System.Environment.ExitCode <- 1
+                        Process.GetCurrentProcess().Kill()
+                    else
+                        exit 1
+#endif                  
+
+            ),Name="StdinReaderThread")
+
+        if !progress then fprintfn fsiConsoleOutput.Out "MAIN: starting stdin thread..."
+        stdinReaderThread.Start()
 
 //----------------------------------------------------------------------------
 // Server mode:
@@ -2040,7 +2185,7 @@ let internal SpawnInteractiveServer
                             fsiConsoleOutput:  FsiConsoleOutput) =   
     //printf "Spawning fsi server on channel '%s'" !fsiServerName;
     SpawnThread "ServerThread" (fun () ->
-         SetCurrentUICultureForThread fsiOptions.FsiLCID
+         use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
          try
              fsiConfig.StartServer(fsiOptions.FsiServerName)
          with e ->
@@ -2050,94 +2195,11 @@ let internal SpawnInteractiveServer
 
 
 
-let internal StartStdinReadAndProcessThread
-                                  (fsiConfig: FsiEvaluationSessionHostConfig, 
-                                   lcid, istateRef, errorLogger, 
-                                   fsiConsoleInput: FsiConsoleInput, 
-                                   fsiConsoleOutput: FsiConsoleOutput,
-                                   fsiStdinLexerProvider: FsiStdinLexerProvider, 
-                                   fsiInteractionProcessor : FsiInteractionProcessor,
-                                   exitViaKillThread) = 
-    if !progress then fprintfn fsiConsoleOutput.Out "creating stdinReaderThread";
-    let cont = ref Completed 
-    let tokenizerRef = ref (fsiStdinLexerProvider.CreateStdinLexer())
-    let culture = Thread.CurrentThread.CurrentUICulture
-
-    let stdinReaderThread = 
-        new Thread(new ThreadStart(fun () ->
-            InstallErrorLoggingOnThisThread errorLogger // FSI error logging on stdinReaderThread, e.g. parse errors.
-            SetCurrentUICultureForThread lcid
-            try
-               try 
-                  if !progress then fprintfn fsiConsoleOutput.Out "READER: stdin thread started...";
-
-                  // Delay until we've peeked the input or read the entire first line
-                  fsiConsoleInput.WaitForInitialConsoleInput()
-                  
-                  if !progress then fprintfn fsiConsoleOutput.Out "READER: stdin thread got first line...";
-
-                  // The main stdin loop, running on the stdinReaderThread.
-                  // 
-                  // The function 'ParseAndProcessAndEvalOneInteractionFromLexbuf' is blocking: it reads stdin 
-                  // until one or more real chunks of input have been received. 
-                  //
-                  // We run the actual computations for each action on the main GUI thread by using
-                  // mainForm.Invoke to pipe a message back through the form's main event loop. (The message 
-                  // is a delegate to execute on the main Thread)
-                  //
-                  while (!cont = CompletedWithReportedError || !cont = Completed || !cont = CtrlC) do
-                      if (!cont = CtrlC) then 
-                          tokenizerRef := fsiStdinLexerProvider.CreateStdinLexer();
-
-                      let runCodeOnMainThread f istate = 
-                          try 
-                              fsiConfig.EventLoopInvoke (fun () -> 
-                                  InstallErrorLoggingOnThisThread errorLogger; 
-                                  SetCurrentUICultureForThread lcid;
-                                  f istate) // FSI error logging on switched to thread
-                          with _ -> 
-                              (istate,Completed)
-                              
-                      let istateNew,contNew = 
-                          fsiInteractionProcessor.ParseAndProcessAndEvalOneInteractionFromLexbuf (exitViaKillThread, runCodeOnMainThread, !istateRef, !tokenizerRef)   
-
-                      istateRef := istateNew; 
-                      cont := contNew;
-                      if !progress then fprintfn fsiConsoleOutput.Out "READER: cont = %O" !cont;
-
-                  if !progress then fprintfn fsiConsoleOutput.Out "- READER: Exiting stdinReaderThread";  
-
-                with e -> stopProcessingRecovery e range0;
-
-            finally 
-                // Reset the Culture code
-                Thread.CurrentThread.CurrentCulture <- culture
-                if !progress then fprintfn fsiConsoleOutput.Out "- READER: Exiting process because of failure/exit on  stdinReaderThread";  
-                // REVIEW: On some flavors of Mono, calling exit may freeze the process if we're using the WinForms event handler
-                // Basically, on Mono 2.6.3, the GUI thread may be left dangling on exit.  At that point:
-                //   -- System.Environment.Exit will cause the process to hang
-                //   -- Calling Application.Exit() will leave the GUI thread up and running, creating a Zombie process
-                //   -- Calling Abort() on the Main thread or the GUI thread will have no effect, and the process will remain hung
-                // Also, even the the GUI thread is up and running, the WinForms event loop will be listed as closed
-                // In this case, killing the process is harmless, since we've already cleaned up after ourselves and FSI is responding
-                // to an error.  (CTRL-C is handled elsewhere.) 
-                // We'll only do this if we're running on Mono, "--gui" is specified and our input is piped in from stdin, so it's still
-                // fairly constrained.
-#if SILVERLIGHT
-#else                                
-                if runningOnMono && fsiInteractionProcessor.FsiOptions.Gui then
-                    System.Environment.ExitCode <- 1
-                    Process.GetCurrentProcess().Kill()
-                else
-                    exit 1
-#endif                  
-
-        ),Name="StdinReaderThread")
-    // stdinReaderThread.IsBackground <- true; 
-    if !progress then fprintfn fsiConsoleOutput.Out "MAIN: starting stdin thread...";
-    stdinReaderThread.Start();
 
 
+/// Repeatedly drive the event loop (e.g. Application.Run()) but catching ThreadAbortException and re-running.
+///
+/// This gives us a last chance to catch an abort on the main execution thread.
 let internal DriveFsiEventLoop (fsiConfig: FsiEvaluationSessionHostConfig, fsiConsoleOutput: FsiConsoleOutput) = 
     let rec runLoop() = 
         if !progress then fprintfn fsiConsoleOutput.Out "GUI thread runLoop";
@@ -2164,7 +2226,7 @@ let internal DriveFsiEventLoop (fsiConfig: FsiEvaluationSessionHostConfig, fsiCo
         if !progress then fprintfn fsiConsoleOutput.Out "MAIN:  exited event loop...";
         if restart then runLoop() 
 
-    runLoop();
+    runLoop()
 
 
 /// The primary type, representing a full F# Interactive session, reading from the given
@@ -2355,13 +2417,15 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
     
     /// This reference cell holds the most recent interactive state 
     let initialInteractiveState = fsiDynamicCompiler.GetInitialInteractiveState ()
-    let istateRef = ref initialInteractiveState
       
     let fsiStdinLexerProvider = FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon, fsiConsoleInput, fsiConsoleOutput, fsiOptions, lexResourceManager, errorLogger)
 
-    let fsiIntellisenseProvider = FsiIntellisenseProvider(tcGlobals, tcImports)
+    let fsiIntellisenseProvider = FsiIntellisenseProvider(tcConfigB, tcGlobals, tcImports)
 
-    let fsiInteractionProcessor = FsiInteractionProcessor(tcConfigB, errorLogger, fsiOptions, fsiDynamicCompiler, fsiConsolePrompt, fsiConsoleOutput, fsiInterruptController, fsiStdinLexerProvider, lexResourceManager) 
+    let fsiInteractionProcessor = FsiInteractionProcessor(fsiConfig, tcConfigB, errorLogger, fsiOptions, fsiDynamicCompiler, fsiConsolePrompt, fsiConsoleOutput, fsiInterruptController, fsiStdinLexerProvider, lexResourceManager, initialInteractiveState) 
+
+    // Creating early allows us to receive requests before we start to process them
+    do fsiInteractionProcessor.CreateQueueAgent()
 
     /// Load the dummy interaction, load the initial files, and,
     /// if interacting, start the background thread to read the standard input.
@@ -2369,7 +2433,11 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 
     /// A host calls this to get the completions for a long identifier, e.g. in the console
     member x.GetCompletions(longIdent) = 
-        fsiIntellisenseProvider.CompletionsForPartialLID !istateRef longIdent  |> Seq.ofList
+        fsiIntellisenseProvider.CompletionsForPartialLID (fsiInteractionProcessor.CurrentState, longIdent)  |> Seq.ofList
+
+
+    member x.TypeCheckScriptFragment(code) = 
+        fsiIntellisenseProvider.TypeCheckScriptFragment (fsiInteractionProcessor.CurrentState, code)  
 
     /// A host calls this to determine if the --gui parameter is active
     member x.IsGui = fsiOptions.Gui 
@@ -2442,22 +2510,31 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
                             reraise()
                 )
 
+    member x.ExecuteInteraction(code) = fsiInteractionProcessor.ExecuteInteraction(code)
+    member x.ExecuteInteractionAsync(code) = fsiInteractionProcessor.ExecuteInteractionAsync(code)
+
     /// Performs these steps:
     ///    - Load the dummy interaction, if any
     ///    - Set up exception handling, if any
     ///    - Load the initial files, if any
     ///    - Start the background thread to read the standard input, if any
     ///    - Sit in the GUI event loop indefinitely, if needed
+    ///
+    /// This method only returns after "exit". The method repeatedly calls the event loop and
+    /// the thread may be subject to Thread.Abort() signals if Interrupt() is used, giving rise 
+    /// to internal ThreadAbortExceptions.
+    ///
+    /// A background thread is started by this thread to read from the inReader and/or console reader.
 
     [<CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2004:RemoveCallsToGCKeepAlive")>]
     member x.Run() = 
 #if SILVERLIGHT 
-      let _ = fsiInterruptController.InstallKillThread(Thread.CurrentThread, 100)
-      let istate = initialInteractiveState
+      // Request that ThreadAbort interrupts be performed on this (current) thread
+      fsiInterruptController.InstallKillThread(Thread.CurrentThread, 100)
       fsi.EventLoop <- Microsoft.FSharp.Compiler.Interactive.RuntimeHelpers.GetSimpleEventLoop()
-      let istate = fsiInteractionProcessor.LoadInitialFiles(false, istate)
-      istateRef := istate
-      StartStdinReadAndProcessThread(fsiConfig, fsiOptions.FsiLCID, istateRef, errorLogger, fsiConsoleInput, fsiConsoleOutput, fsiStdinLexerProvider, fsiInteractionProcessor, true)
+      fsiInteractionProcessor.LoadInitialFiles()
+      fsiInteractionProcessor.StartQueueAgent()
+      fsiInteractionProcessor.StartStdinReadAndProcessThread ()            
 
       DriveFsiEventLoop (fsiConfig, fsiConsoleOutput )
 #else        
@@ -2472,31 +2549,32 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 
             if !progress then fprintfn fsiConsoleOutput.Out "Run: Interact..."
             // page in the type check env 
-            istateRef := fsiInteractionProcessor.LoadDummyInteraction !istateRef
+            fsiInteractionProcessor.LoadDummyInteraction()
             if !progress then fprintfn fsiConsoleOutput.Out "MAIN: InstallKillThread!";
             
             // Compute how long to pause before a ThreadAbort is actually executed.
             // A somewhat arbitrary choice.
             let pauseMilliseconds = (if fsiOptions.Gui then 400 else 100)
 
-            let exitViaKillThread = fsiInterruptController.InstallKillThread(Thread.CurrentThread, pauseMilliseconds) 
+            // Request that ThreadAbort interrupts be performed on this (current) thread
+            fsiInterruptController.InstallKillThread(Thread.CurrentThread, pauseMilliseconds) 
             if !progress then fprintfn fsiConsoleOutput.Out "MAIN: got initial state, creating form";
 
             // Route background exceptions to the exception handlers
             AppDomain.CurrentDomain.UnhandledException.Add (fun args -> 
                 match args.ExceptionObject with 
                 | :? System.Exception as err -> x.ReportUnhandledExceptionSafe false err 
-                | _ -> ());
+                | _ -> ())
 
-            istateRef := fsiInteractionProcessor.LoadInitialFiles (exitViaKillThread, !istateRef)
-
-            StartStdinReadAndProcessThread(fsiConfig, fsiOptions.FsiLCID, istateRef, errorLogger, fsiConsoleInput, fsiConsoleOutput, fsiStdinLexerProvider, fsiInteractionProcessor, exitViaKillThread)            
+            fsiInteractionProcessor.LoadInitialFiles()
+            fsiInteractionProcessor.StartQueueAgent()
+            fsiInteractionProcessor.StartStdinReadAndProcessThread()            
 
             DriveFsiEventLoop (fsiConfig, fsiConsoleOutput )
 
         else // not interact
             if !progress then fprintfn fsiConsoleOutput.Out "Run: not interact, loading intitial files..."
-            istateRef := fsiInteractionProcessor.LoadInitialFiles (false, !istateRef)
+            fsiInteractionProcessor.LoadInitialFiles()
             if !progress then fprintfn fsiConsoleOutput.Out "Run: done..."
             exit (min errorLogger.ErrorCount 1)
 

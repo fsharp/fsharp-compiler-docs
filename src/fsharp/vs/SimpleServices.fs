@@ -18,6 +18,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     open System
     open System.IO
     open System.Text
+    open Microsoft.FSharp.Compiler.Range
     open Microsoft.FSharp.Compiler.SourceCodeServices
     open Microsoft.FSharp.Compiler.Driver
     open Microsoft.FSharp.Compiler
@@ -81,29 +82,29 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.Errors = results.Errors
 
         /// Get the declarations at the given code location.
-        member x.GetDeclarations(line, col, names, residue, ?xmlCommentRetriever) =
-            async { let! items = results.GetDeclarations(Some info, (line, col), source.[line], (names, residue), hasChangedSinceLastTypeCheck)
+        member x.GetDeclarations(line:Line0, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
+            async { let! items = results.GetDeclarations(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
                     return [| for i in items.Items -> Declaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
 
         member x.GetRawDeclarations(line, col, names, residue, formatter:DataTipText->string[]) =
-            async { let! items = results.GetDeclarations(Some info, (line, col), source.[line], (names, residue), hasChangedSinceLastTypeCheck)
+            async { let! items = results.GetDeclarations(Some info, line, col, source.[line], names, residue, hasChangedSinceLastTypeCheck)
                     return [| for i in items.Items -> i.Name, (fun() -> formatter i.DescriptionText), i.Glyph |] }
 
         /// Get the Visual Studio F1-help keyword for the item at the given position
         member x.GetF1Keyword(line, col, names) =
-            results.GetF1Keyword((line, col), source.[line], names)
+            results.GetF1Keyword(line, col, source.[int line], names)
 
         /// Get the data tip text at the given position
         member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) =
-            let tip = results.GetDataTipText((line, col), source.[line], names, identToken)
+            let tip = results.GetDataTipText(line, col, source.[int line], names, identToken)
             formatTip tip xmlCommentRetriever
 
         member x.GetRawDataTipText(line, col, names) =
-            results.GetDataTipText((line, col), source.[line], names, identToken)
+            results.GetDataTipText(line, col, source.[line], names, identToken)
 
         /// Get the location of the declaration at the given position
-        member x.GetDeclarationLocation(line: int, col: int, names, isDecl) =
-            results.GetDeclarationLocation((line, col), source.[line], names, identToken, isDecl)
+        member x.GetDeclarationLocation(line, col, names, isDecl) =
+            results.GetDeclarationLocation(line, col, source.[int line], names, identToken, isDecl)
 
         /// Get the full type checking results 
         member x.FullResults = results
@@ -137,7 +138,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             tokens
 
         /// Return information about matching braces in a single file.
-        member x.MatchBraces (filename, source: string) : (Range * Range) [] = 
+        member x.MatchBraces (filename, source: string) : (Range01 * Range01) [] = 
             let options = checker.GetCheckOptionsFromScriptRoot(filename, source, loadTime)
             checker.MatchBraces(filename, source,  options)
 

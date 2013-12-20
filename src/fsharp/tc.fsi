@@ -36,6 +36,7 @@ open System.Collections.Generic
 type TcEnv =
     member DisplayEnv : DisplayEnv
     member NameEnv : Nameres.NameResolutionEnv
+    member AccessRights : AccessorDomain
 
 (* Incremental construction of environments, e.g. for F# Interactive *)
 val internal CreateInitialTcEnv : TcGlobals * ImportMap * range * (CcuThunk * string list * bool) list -> TcEnv 

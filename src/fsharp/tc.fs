@@ -278,6 +278,7 @@ type TcEnv =
     } 
     member tenv.DisplayEnv = tenv.eNameResEnv.DisplayEnv
     member tenv.NameEnv = tenv.eNameResEnv
+    member tenv.AccessRights = tenv.eAccessRights
 
 /// Compute the value of this computed, cached field
 let computeAccessRights eAccessPath eInternalsVisibleCompPaths eFamilyType = 

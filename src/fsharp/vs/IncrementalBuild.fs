@@ -987,8 +987,8 @@ type Severity =
 
 type ErrorInfo = {
     FileName:string
-    StartLine:int
-    EndLine:int
+    StartLine:Line0
+    EndLine:Line0
     StartColumn:int
     EndColumn:int
     Severity:Severity
@@ -997,13 +997,13 @@ type ErrorInfo = {
     override e.ToString()=
         sprintf "%s (%d,%d)-(%d,%d) %s %s %s" 
             e.FileName
-            e.StartLine e.StartColumn e.EndLine e.EndColumn
+            (int e.StartLine) e.StartColumn (int e.EndLine) e.EndColumn
             e.Subcategory
             (if e.Severity=Severity.Warning then "warning" else "error") 
             e.Message    
             
     /// Decompose a warning or error into parts: position, severity, message
-    static member (*internal*) CreateFromExceptionAndAdjustEof(exn,warn,trim:bool,fallbackRange:range, (linesCount:int, lastLength:int)) = 
+    static member internal CreateFromExceptionAndAdjustEof(exn,warn,trim:bool,fallbackRange:range, (linesCount:Line0, lastLength:int)) = 
         let r = ErrorInfo.CreateFromException(exn,warn,trim,fallbackRange)
                 
         // Adjust to make sure that errors reported at Eof are shown at the linesCount        
@@ -1018,8 +1018,8 @@ type ErrorInfo = {
     /// Decompose a warning or error into parts: position, severity, message
     static member (*internal*) CreateFromException(exn,warn,trim:bool,fallbackRange:range) = 
         let m = match RangeOfError exn with Some m -> m | None -> fallbackRange 
-        let (s1:int),(s2:int) = Pos.toVS m.Start
-        let (s3:int),(s4:int) = Pos.toVS (if trim then m.Start else m.End)
+        let s1,s2 = Pos.toZ m.Start
+        let s3,s4 = Pos.toZ (if trim then m.Start else m.End)
         let msg = bufs (fun buf -> OutputPhasedError buf exn false)
         {FileName=m.FileName; StartLine=s1; StartColumn=s2; EndLine=s3; EndColumn=s4; Severity=(if warn then Severity.Warning else Severity.Error); Subcategory=exn.Subcategory(); Message=msg}
         

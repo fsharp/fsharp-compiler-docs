@@ -17,6 +17,7 @@
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
 open Microsoft.FSharp.Compiler 
+open Microsoft.FSharp.Compiler.Range
 
 [<Sealed>]
 type (*internal*) NoteworthyParamInfoLocations =
@@ -30,4 +31,4 @@ type (*internal*) NoteworthyParamInfoLocations =
 
 // implementation details used by other code in the compiler    
 module internal NoteworthyParamInfoLocationsImpl =
-    val internal FindNoteworthyParamInfoLocations : int * int * Ast.ParsedInput -> NoteworthyParamInfoLocations option
+    val internal FindNoteworthyParamInfoLocations : Line0 * int * Ast.ParsedInput -> NoteworthyParamInfoLocations option

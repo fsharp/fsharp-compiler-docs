@@ -133,12 +133,12 @@ type (*internal*) UntypedParseInfo(parsed:UntypedParseResults) =
     member private scope.ValidateBreakpointLocationImpl((line,col)) =
 
         
-        let pos = Pos.fromVS line col
+        let pos = Pos.fromZ line col
         
         // Process let-binding
         let findBreakPoints allowSameLine = 
             let checkRange m = [ if rangeContainsPos m pos || (allowSameLine && m.StartLine = pos.Line) then 
-                                     yield Range.toVS m ]
+                                     yield Range.toZ m ]
             let walkBindSeqPt sp = [ match sp with SequencePointAtBinding m -> yield! checkRange m | _ -> () ]
             let walkForSeqPt sp = [ match sp with SequencePointAtForLoop m -> yield! checkRange m | _ -> () ]
             let walkWhileSeqPt sp = [ match sp with SequencePointAtWhileLoop m -> yield! checkRange m | _ -> () ]
@@ -390,10 +390,10 @@ type (*internal*) UntypedParseInfo(parsed:UntypedParseResults) =
         // This does not need to be run on the background thread
         scope.GetNavigationItemsImpl()
 
-    member scope.ValidateBreakpointLocation(pos:Position) =
+    member scope.ValidateBreakpointLocation(line,col) =
         use t = Trace.Call("SyncOp","ValidateBreakpointLocation", fun _->"")
         // This does not need to be run on the background thread
-        scope.ValidateBreakpointLocationImpl(pos)
+        scope.ValidateBreakpointLocationImpl(line,col)
 
 module (*internal*) UntypedParseInfoImpl =
     let GetUntypedParseResults (upi : UntypedParseInfo) = upi.Results
@@ -402,8 +402,8 @@ module (*internal*) UntypedParseInfoImpl =
         match parseTreeOpt with 
         | None -> None 
         | Some(parseTree) ->
-        let pos = Pos.fromVS line col  // line was 0-based, need 1-based
-        let ResultOfRange range = Range.toVS range
+        let pos = Pos.fromZ line col  // line was 0-based, need 1-based
+        let ResultOfRange range = Range.toZ range
         let CheckLongIdent(longIdent:LongIdent) =
             // find the longest prefix before the "pos" dot
             let mutable r = (List.head longIdent).idRange 
@@ -493,7 +493,7 @@ module (*internal*) UntypedParseInfoImpl =
         match parseTreeOpt with 
         | None -> None 
         | Some(parseTree) ->
-            let pos = Pos.fromVS line col  // line was 0-based, need 1-based
+            let pos = Pos.fromZ line col  // line was 0-based, need 1-based
             let getLidParts (lid : LongIdent) = 
                 lid 
                 |> Seq.takeWhile (fun i -> posGeq pos i.idRange.Start)
@@ -551,7 +551,7 @@ module (*internal*) UntypedParseInfoImpl =
         | None -> None 
         | Some(parseTree) ->
         let dive x = AstTraversal.dive x
-        let pos = Pos.fromVS line col  // line was 0-based, need 1-based
+        let pos = Pos.fromZ line col  // line was 0-based, need 1-based
         let pick x = AstTraversal.pick pos line col x
         let walker = 
             { new AstTraversal.AstVisitorBase<_>() with
@@ -636,7 +636,7 @@ module (*internal*) UntypedParseInfoImpl =
     type TS = AstTraversal.TraverseStep
 
     /// try to determine completion context for the given pair (row, columns)
-    let TryGetCompletionContext (line : int, col : int, untypedParseInfoOpt : UntypedParseInfo option) : CompletionContext option = 
+    let TryGetCompletionContext (line : Line0, col : int, untypedParseInfoOpt : UntypedParseInfo option) : CompletionContext option = 
         let parsedInputOpt =
             match untypedParseInfoOpt with
             | Some upi -> upi.ParseTree
@@ -646,7 +646,7 @@ module (*internal*) UntypedParseInfoImpl =
         | None -> None
         | Some pt -> 
         
-        let pos = Pos.fromVS line col  // line was 0-based, need 1-based
+        let pos = Pos.fromZ line col  // line was 0-based, need 1-based
         
         let parseLid (LongIdentWithDots(lid, dots)) =            
             let rec collect plid (parts : Ident list) (dots : range list) = 

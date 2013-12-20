@@ -50,7 +50,7 @@ module internal NoteworthyParamInfoLocationsImpl =
         | _ -> false
 
     let traverseInput(line,col,parseTree) : NoteworthyParamInfoLocations option =
-        let pos = Pos.fromVS line col  // line was 0-based, need 1-based
+        let pos = Pos.fromZ line col  // line was 0-based, need 1-based
 
         let rec digOutIdentStartEndFromAnApp synExpr =
             // we found it, dig out ident

@@ -10,7 +10,7 @@
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-// API to the compiler as an incremental service for parsing,
+// SourceCodeServices API to the compiler as an incremental service for parsing,
 // type checking and intellisense-like environment-reporting.
 //----------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open System.Collections.Generic
 
-type (*internal*) Param = 
+type Param = 
     { Name: string
       CanonicalTypeTextForSorting: string
       Display: string
@@ -28,7 +28,7 @@ type (*internal*) Param =
 
 [<NoEquality; NoComparison>]
 // Note: this type does not hold any handles to compiler data structure.
-type (*internal*) Method = 
+type Method = 
     { Description : DataTipText
       Type: string
       Parameters: Param[]
@@ -37,12 +37,12 @@ type (*internal*) Method =
 
 [<Sealed>]
 // Note: this type does not hold any handles to compiler data structure. All data has been pre-formatted.
-type (*internal*) MethodOverloads = 
+type MethodOverloads = 
     member Name: string
     member Methods: Method[] 
 
 [<RequireQualifiedAccess>]
-type (*internal*) FindDeclFailureReason = 
+type FindDeclFailureReason = 
     // generic reason: no particular information about error
     | Unknown
     // source code file is not available
@@ -53,7 +53,7 @@ type (*internal*) FindDeclFailureReason =
     | ProvidedMember of string
 
 [<NoEquality; NoComparison>]
-type (*internal*) FindDeclResult = 
+type FindDeclResult = 
     /// declaration not found + reason
     | DeclNotFound of FindDeclFailureReason
     /// found declaration; return (position-in-file, name-of-file)
@@ -65,33 +65,67 @@ type internal NamesWithResidue = Names * string
 [<Sealed>]
 /// A handle to the results of TypeCheckSource.  
 /// A live object of this type keeps the background corresponding background builder (and type providers) alive (through reference-counting)
-type (*internal*) TypeCheckResults =
+type TypeCheckResults =
     /// The errors returned by parsing a source file
     member Errors : ErrorInfo[]
 
     member HasFullTypeCheckInfo: bool
 
     /// Intellisense autocompletions
-    member GetDeclarations                : untypedParseInfoOpt:UntypedParseInfo option * position:Position * lineText:string * names:NamesWithResidue * hasTextChangedSinceLastTypecheck: (obj * Range -> bool) -> Async<DeclarationSet>
+    ///
+    ///   untypedParseInfoOpt: If this is present, it is used to filter declarations based on location in the
+    ///                        parse tree, specifically at 'open' declarations, 'inherit' of class or interface
+    ///                        'record field' locations and r.h.s. of 'range' operator a..b
+    ///   
+    ///   line: the line number where the completion is happening
+    ///
+    ///   colAtEndOfNamesAndResidue: the column number (1-based) at the end of the 'names' text 
+    ///
+    ///   names : A pair giving a cracked long identifier to the left of the position and a "residue" of a partial long identifier to the right
+    ///
+    ///   lineStr : the text of the line where the completion is happening. This is used to make a couple
+    ///             of adhoc corrections to completion accuracy, checking for ".." and adding one to 
+    ///             colAtEndOfNamesAndResidue when lineStr.[colAtEndOfNamesAndResidue] is '.'
+    ///
+    ///   hasTextChangedSinceLastTypecheck: 
+    ///         If text has been used from a captured name resolution from the typecheck, then 
+    ///         callback to the client to check if the text has changed. If it has, then give up
+    ///         and assume that we're going to repeat the operation later on.
+
+    member GetDeclarations                : untypedParseInfoOpt:UntypedParseInfo option * line: Line0 * colAtEndOfNamesAndResidue: int * lineText:string * qualifyingNames: string list * partialName: string * hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<DeclarationSet>
+
     /// Resolve the names at the given location to give a data tip 
-    member GetDataTipText                 : position:Position * lineText:string * names:Names * tokenTag:int -> DataTipText
+    ///
+    ///   tokenTag: Used to discriminate between 'identifiers', 'strings' and others.
+    ///             For strings, an attempt is made to give a tooltip relevant to a #r "..."
+    ///              
+    ///             TODO: this should be replaced by a look into the untyped AST, which gives us this information.
+    member GetDataTipText                 : line:Line0 * colAtEndOfNames:int * lineText:string * names:Names * tokenTag:int -> DataTipText
+
     /// Resolve the names at the given location to give F1 keyword
-    member GetF1Keyword                   : position:Position * lineText:string * names:Names -> string option
+    ///
+    member GetF1Keyword                   : line:Line0 * colAtEndOfNames:int * lineText:string * names:Names -> string option
     /// Resolve the names at the given location to a set of methods
-    member GetMethods                     : position:Position * lineText:string * names:Names option -> MethodOverloads
+    ///
+    member GetMethods                     : line:Line0 * colAtEndOfNames:int * lineText:string * names:Names option -> MethodOverloads
+
     /// Resolve the names at the given location to the declaration location of the corresponding construct
-    member GetDeclarationLocation         : position:Position * lineText:string * names:Names * tokenTag:int * isDeclaration:bool -> FindDeclResult
+    ///
+    ///   tokenTag: Used to discriminate between 'identifiers' and others.
+    ///             If it is not an identifier, no result is given.
+    ///   preferSignature: If false, then make an attempt to go to the implementation (rather than the signature if present)
+    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:Names * tokenTag:int * preferSignature:bool -> FindDeclResult
 
     /// Get any extra colorization info that is available after the typecheck
-    member GetExtraColorizations : unit -> (Range * TokenColorKind)[]
+    member GetExtraColorizations : unit -> (Range01 * TokenColorKind)[]
 
 /// wraps the set of unresolved references providing implementations of Equals\GetHashCode
 /// of this objects of this type can be used as parts of types with generated Equals\GetHashCode
 /// i.e. records or DUs
-type internal UnresolvedReferencesSet = class end
+type UnresolvedReferencesSet = class end
 
 /// A set of key information for the language service's internal caches of project/script build information for a particular source file
-type (*internal*) CheckOptions = 
+type CheckOptions = 
     { 
       // Note that this may not reduce to just the project directory, because there may be two projects in the same directory.
       ProjectFileName: string
@@ -128,37 +162,29 @@ module internal DebuggerEnvironment =
     
 /// This file has become eligible to be re-typechecked.
 /// This notifies the language service that it needs to set the dirty flag on files whose typecheck antecedents have changed.
-type (*internal*) NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
+type NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
         
-/// Identical to _VSFILECHANGEFLAGS in vsshell.idl
-type internal DependencyChangeCode =
-    | NoChange = 0x0
-    | FileChanged = 0x00000001
-    | TimeChanged = 0x00000002
-    | Deleted = 0x00000008
-    | Added = 0x00000010   
-    
 /// Callback that indicates whether a requested result has become obsolete.    
 [<NoComparison;NoEquality>]
-type (*internal*) IsResultObsolete = 
+type IsResultObsolete = 
     | IsResultObsolete of (unit->bool)
 
 /// The result of calling TypeCheckResult including the possibility of abort and background compiler not caught up.
 [<NoComparison>]
-type (*internal*) TypeCheckAnswer =
+type TypeCheckAnswer =
     | NoAntecedant
     | Aborted // because result was obsolete
     | TypeCheckSucceeded of TypeCheckResults    
 
 [<Sealed>]
 [<AutoSerializable(false)>]      
-type (*internal*) InteractiveChecker =
+type InteractiveChecker =
     /// Create an instance of an InteractiveChecker.  Currently resources are not reclaimed.
     static member Create : NotifyFileTypeCheckStateIsDirty -> InteractiveChecker
 
     /// Parse a source code file, returning information about brace matching in the file
     /// Return an enumeration of the matching parethetical tokens in the file
-    member MatchBraces : filename : string * source: string * options: CheckOptions -> (Range * Range)[]
+    member MatchBraces : filename : string * source: string * options: CheckOptions -> (Range01 * Range01)[]
 
     /// Parse a source code file, returning a handle that can be used for obtaining navigation bar information
     /// To get the full information, call 'TypeCheckSource' method on the result
@@ -222,13 +248,11 @@ type (*internal*) InteractiveChecker =
     member NotifyProjectCleaned: options: CheckOptions -> unit    
     
 
-
-
-#if FSI_SERVER_INTELLISENSE
-// These functions determine all declarations, called by fsi.fs for fsi-server requests.
-module internal FsiIntelisense =
-    val getDeclarations : Build.TcConfig * Env.TcGlobals * Build.TcImports * Build.TcState -> string -> string[] -> (string * string * string * int)[]
-#endif
+// An object to typecheck source in a given typechecking environment.
+// Used internally to provide intellisense over F# Interactive.
+type internal TcStateChecker =
+    new : tcConfig: Build.TcConfig * tcGlobals: Env.TcGlobals * tcImports: Build.TcImports * tcState: Build.TcState * loadClosure: Build.LoadClosure option ->  TcStateChecker 
+    member TypeCheckScriptFragment : source:string -> UntypedParseInfo * TypeCheckResults
 
 module internal PrettyNaming =
     val IsIdentifierPartCharacter     : (char -> bool)

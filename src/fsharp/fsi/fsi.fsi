@@ -13,6 +13,7 @@
 module Microsoft.FSharp.Compiler.Interactive.Shell
 
 open System.IO
+open Microsoft.FSharp.Compiler.SourceCodeServices
 
 type public FsiEvaluationSessionHostConfig = 
     /// Called by the evaluation session to ask the host for parameters to format text for output
@@ -89,6 +90,30 @@ type FsiEvaluationSession =
 
     /// A host calls this to get the completions for a long identifier, e.g. in the console
     member GetCompletions : longIdent: string -> seq<string>
+
+    [<Experimental("Experimental")>]
+    /// Execute the code as if it had been entered as one or more interactions, with an
+    /// implicit termination at the end of the input. Stop on first error, discarding the rest
+    /// of the input. Errors are sent to the output writer, a 'true' return value indicates there
+    /// were no errors overall. Parsing is serialized via an agent, and execution is performed on the
+    /// blocked 'Run()' thread.
+    member ExecuteInteraction : code: string -> string
+
+    [<Experimental("Experimental")>]
+    /// As for ExecuteInteraction but async.
+    member ExecuteInteractionAsync : code: string -> Async<string>
+
+    [<Experimental("Experimental")>]
+    /// Typecheck the given script fragment in the type checking context implied by the current state
+    /// of F# Interactive. The results can be used to access intellisense, perform resolutions,
+    /// check brace matching and other information.
+    ///
+    /// TODO: this operation is not yet thread safe, i.e. should not be run concurrently with other operations.
+    /// The same applies to subsequent operations performed on the returned object.
+    ///
+    /// TODO: this operation should really return an object that supports all the operations of the InteractiveChecker
+    /// object, i.e. brace matching, untyped parse trees etc.
+    member TypeCheckScriptFragment : code: string -> UntypedParseInfo * TypeCheckResults
 
     /// A host calls this to determine if the --gui parameter is active
     member IsGui : bool

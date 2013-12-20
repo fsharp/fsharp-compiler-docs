@@ -1,4 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Copyright (c) 2002-2011 Microsoft Corporation. 
+#
+# 
+# 
+# 
+#
+#
+# You must not remove this notice, or any other, from this software.
+-->
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FSharpSourcesRoot>$(MSBuildProjectDirectory)\..\..</FSharpSourcesRoot>
@@ -45,17 +55,17 @@
       <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
       <Link>illex.fsl</Link>
     </FsLex>
-    <FsYacc Include="..\pars.fsy">
-      <Module>Microsoft.FSharp.Compiler.Parser</Module>
-      <Open>Microsoft.FSharp.Compiler</Open>
-      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
-      <Link>pars.fsy</Link>
-    </FsYacc>
     <FsYacc Include="..\..\absil\ilpars.fsy">
       <Module>Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser</Module>
       <Open>Microsoft.FSharp.Compiler.AbstractIL</Open>
       <OtherFlags>--internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
       <Link>ilpars.fsy</Link>
+    </FsYacc>
+    <FsYacc Include="..\pars.fsy">
+      <Module>Microsoft.FSharp.Compiler.Parser</Module>
+      <Open>Microsoft.FSharp.Compiler</Open>
+      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
+      <Link>pars.fsy</Link>
     </FsYacc>
     <Compile Include="..\ExtensibleDumper.fsi">
       <Link>ExtensibleDumper.fsi</Link>
@@ -470,6 +480,9 @@
     <Compile Include="..\vs\IncrementalBuild.fs">
       <Link>Driver/IncrementalBuild.fs</Link>
     </Compile>
+    <Compile Include="..\fsc.fsi">
+      <Link>Driver/fsc.fsi</Link>
+    </Compile>
     <Compile Include="..\fsc.fs">
       <Link>Driver/fsc.fs</Link>
     </Compile>
@@ -522,16 +535,16 @@
       <Link>Service/service.fs</Link>
     </Compile>
     <Compile Include="..\vs\SimpleServices.fsi">
-      <Link>SimpleServices.fsi</Link>
+      <Link>Service/SimpleServices.fsi</Link>
     </Compile>
     <Compile Include="..\vs\SimpleServices.fs">
-      <Link>SimpleServices.fs</Link>
+      <Link>Service/SimpleServices.fs</Link>
     </Compile>
     <Compile Include="..\fsi\fsi.fsi">
-      <Link>fsi.fsi</Link>
+      <Link>Service/fsi.fsi</Link>
     </Compile>
     <Compile Include="..\fsi\fsi.fs">
-      <Link>fsi.fs</Link>
+      <Link>Service/fsi.fs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

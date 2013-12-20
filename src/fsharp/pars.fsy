@@ -518,7 +518,7 @@ hashDirectiveArgs:
 
 interactiveTerminator: 
   | SEMICOLON_SEMICOLON {}
-  | EOF     {}
+  | EOF     { checkEndOfFileError $1 }
 
 /* Represents the sequence of items swallowed in one interaction by F# Interactive */
 /* It is important to make this as large as possible given the chunk of input */

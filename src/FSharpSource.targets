@@ -732,22 +732,10 @@ Some other NuGET monikers to support in the future, see http://docs.nuget.org/do
 
 
   <PropertyGroup>
-    <!-- Hook compilation phase to do custom work -->
-    <CompileDependsOn>ValidateConfiguration;$(CompileDependsOn)</CompileDependsOn>
     <RootNamespace></RootNamespace>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
     <EnsureThereAreNoUnusedFsSrGenResources>false</EnsureThereAreNoUnusedFsSrGenResources>
   </PropertyGroup>
-
-  <Target Name="ValidateConfiguration">
-    <Error
-            Text="Configuration '$(Configuration)' is not one of the supported configurations: Debug, Release, Proto"
-            Condition="'$(Configuration)'!='Release' and '$(Configuration)'!='Debug' and '$(Configuration)'!='Proto'"/>
-    <Error
-            Text="Portable profile '$(TargetFramework)' is not yet supported"
-            Condition="'$(TargetFramework)' == 'portable-windows8+net45'"/>
-
-  </Target>
 
   <Import Project="$(LkgPath)\..\2.0\FSharp.SRGen.targets" />
 </Project>

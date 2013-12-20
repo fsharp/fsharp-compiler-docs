@@ -294,7 +294,7 @@ let runMain argv =
         match exitCodeOpt with 
         | Some exitCode -> exitCode
         | None -> 
-            mainCompile (argv, true, QuitProcessExiter)
+            mainCompile (argv, true, QuitProcessExiter, None)
             0
 
     elif runningOnMono && hasArgument "server" argv then 
@@ -304,7 +304,7 @@ let runMain argv =
         0
         
     else
-        mainCompile (argv, false, QuitProcessExiter)
+        mainCompile (argv, false, QuitProcessExiter, None)
         0
 
 

@@ -174,16 +174,14 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                     member x.ErrorSinkImpl(exn) = errorSink false exn
                     member x.ErrorCount = errors |> Seq.filter (fun e -> e.Severity = Severity.Error) |> Seq.length }
 
-            let loggerProvider = 
-                { new ErrorLoggerProvider() with
-                    member log.CreateErrorLoggerThatQuitsAfterMaxErrors(tcConfigBuilder, exiter) = errorLogger }
+            let loggerProvider (_tcConfigBuilder, _exiter) = errorLogger 
      
             let result = 
                 use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
                 use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
                 let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
                 try 
-                    typecheckAndCompile (argv, true, exiter, loggerProvider); 
+                    mainCompile (argv, true, exiter, Some loggerProvider); 
                     0
                 with e -> 
                     stopProcessingRecovery e Range.range0

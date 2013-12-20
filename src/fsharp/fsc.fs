@@ -77,7 +77,7 @@ open Microsoft.FSharp.Compiler.ExtensionTyping
 //----------------------------------------------------------------------------
 
 /// Create an error logger that counts and prints errors
-let ErrorLoggerThatQuitsAfterMaxErrors (tcConfigB:TcConfigBuilder, exiter : Exiter) = 
+let CreateErrorLoggerThatQuitsAfterMaxErrors (tcConfigB:TcConfigBuilder, exiter : Exiter) = 
 
     let errors = ref 0
     let errorOrWarnings = ref []
@@ -117,8 +117,6 @@ let ErrorLoggerThatQuitsAfterMaxErrors (tcConfigB:TcConfigBuilder, exiter : Exit
             override x.ErrorOrWarningNumbers = !errorOrWarnings
             member x.ErrorCount = !errors  }
 
-let ErrorLoggerInitial (tcConfigB:TcConfigBuilder, exiter : Exiter) = ErrorLoggerThatQuitsAfterMaxErrors(tcConfigB, exiter)
-
 //    val TypeCheck : TcConfig * TcImports * TcGlobals * ErrorLogger * string * NiceNameGenerator * TypeChecker.TcEnv * Input list * Exiter -> 
 //              TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv
 let TypeCheck (tcConfig,tcImports,tcGlobals,errorLogger:ErrorLogger,assemblyName,niceNameGen,tcEnv0,inputs, exiter : Exiter) =
@@ -155,8 +153,8 @@ type DelayAndForwardErrorLogger(exiter : Exiter) =
             if isError then errorLogger.ErrorSink(e) else errorLogger.WarnSink(e)
         // Clear errors just reported. Keep errors count.
         delayed.Clear()
-    member x.ForwardDelayedErrorsAndWarnings(tcConfigB:TcConfigBuilder) = 
-        let errorLogger = ErrorLoggerInitial(tcConfigB, exiter)
+    member x.ForwardDelayedErrorsAndWarnings(tcConfigB:TcConfigBuilder, loggerProvider) = 
+        let errorLogger = loggerProvider(tcConfigB, exiter)
         x.ForwardDelayedErrorsAndWarnings(errorLogger)
     member x.FullErrorCount = !errors
     override x.ErrorOrWarningNumbers = delayed |> Seq.map (fun (err,_) -> GetErrorNumber err) |> Seq.toList
@@ -221,7 +219,8 @@ let getTcImportsFromCommandLine(displayPSTypeProviderSecurityDialogBlockingUI : 
                                 setProcessThreadLocals : TcConfigBuilder -> unit, 
                                 displayBannerIfNeeded : TcConfigBuilder -> unit, 
                                 optimizeForMemory : bool,
-                                exiter : Exiter) 
+                                exiter : Exiter,
+                                loggerProvider : TcConfigBuilder * Exiter -> ErrorLogger) 
                                     : TcGlobals * TcImports * TcImports * Tast.CcuThunk * Tast.TypedAssembly * TypeChecker.TopAttribs * TcConfig * string * string option * string * ErrorLogger
                                     =
     
@@ -286,7 +285,7 @@ let getTcImportsFromCommandLine(displayPSTypeProviderSecurityDialogBlockingUI : 
 #if SQM_SUPPORT
             SqmLoggerWithConfigBuilder tcConfigB delayForFlagsLogger.ErrorOrWarningNumbers
 #endif
-            delayForFlagsLogger.ForwardDelayedErrorsAndWarnings(tcConfigB)
+            delayForFlagsLogger.ForwardDelayedErrorsAndWarnings(tcConfigB, loggerProvider)
             exiter.Exit 1 
     
     tcConfigB.sqmNumOfSourceFiles <- sourceFiles.Length
@@ -302,7 +301,7 @@ let getTcImportsFromCommandLine(displayPSTypeProviderSecurityDialogBlockingUI : 
 #if SQM_SUPPORT
             SqmLoggerWithConfigBuilder tcConfigB delayForFlagsLogger.ErrorOrWarningNumbers
 #endif
-            delayForFlagsLogger.ForwardDelayedErrorsAndWarnings(tcConfigB)
+            delayForFlagsLogger.ForwardDelayedErrorsAndWarnings(tcConfigB, loggerProvider)
             exiter.Exit 1 
                     
     // DecideNames may give "no inputs" error. Abort on error at this point. bug://3911
@@ -310,7 +309,7 @@ let getTcImportsFromCommandLine(displayPSTypeProviderSecurityDialogBlockingUI : 
 #if SQM_SUPPORT
         SqmLoggerWithConfigBuilder tcConfigB delayForFlagsLogger.ErrorOrWarningNumbers
 #endif
-        delayForFlagsLogger.ForwardDelayedErrorsAndWarnings(tcConfigB)
+        delayForFlagsLogger.ForwardDelayedErrorsAndWarnings(tcConfigB, loggerProvider)
         exiter.Exit 1
     
     // If there's a problem building TcConfig, abort    
@@ -321,10 +320,10 @@ let getTcImportsFromCommandLine(displayPSTypeProviderSecurityDialogBlockingUI : 
 #if SQM_SUPPORT
             SqmLoggerWithConfigBuilder tcConfigB delayForFlagsLogger.ErrorOrWarningNumbers
 #endif
-            delayForFlagsLogger.ForwardDelayedErrorsAndWarnings(tcConfigB)
+            delayForFlagsLogger.ForwardDelayedErrorsAndWarnings(tcConfigB, loggerProvider)
             exiter.Exit 1
     
-    let errorLogger = ErrorLoggerThatQuitsAfterMaxErrors(tcConfigB, exiter)
+    let errorLogger = loggerProvider (tcConfigB, exiter)
 
     // Install the global error logger and never remove it. This logger does have all command-line flags considered.
     let _unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
@@ -436,7 +435,8 @@ let runFromCommandLineToImportingAssemblies(displayPSTypeProviderSecurityDialogB
                             tcConfigB.framework<-false
                         ),   
                     true, // optimizeForMemory - want small memory footprint in VS
-                    exiter)
+                    exiter,
+                    CreateErrorLoggerThatQuitsAfterMaxErrors)
 
     // we don't care about the result, we just called 'getTcImportsFromCommandLine' to have the effect of popping up the dialog if the TP is unknown
     ignore(tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger)
@@ -1786,7 +1786,7 @@ let ValidateKeySigningAttributes (tcConfig : TcConfig) tcGlobals topAttrs =
 [<NoEquality; NoComparison>]
 type Args<'a> = Args  of 'a
 
-let main1(argv,bannerAlreadyPrinted,exiter:Exiter) =
+let main1(argv,bannerAlreadyPrinted,exiter:Exiter,loggerProvider) =
 
     // See Bug 735819 
     let lcidFromCodePage = 
@@ -1827,7 +1827,8 @@ let main1(argv,bannerAlreadyPrinted,exiter:Exiter) =
                             Microsoft.FSharp.Compiler.Fscopts.DisplayBannerText tcConfigB
                     ), 
                         false, // optimizeForMemory - fsc.exe can use as much memory as it likes to try to compile as fast as possible
-                        exiter
+                        exiter,
+                        loggerProvider
     )
 
     if tcConfig.typeCheckOnly then exiter.Exit 0
@@ -2036,9 +2037,9 @@ let main4(Args(tcConfig,errorLogger:ErrorLogger,ilGlobals,ilxMainModule,outfile,
     ReportTime tcConfig "Exiting"
 
 
-let mainCompile (argv,bannerAlreadyPrinted,exiter:Exiter) = 
+let mainCompile (argv,bannerAlreadyPrinted,exiter:Exiter,loggerProviderOpt) = 
     // Don's note: "GC of intermediate data is really, really important here"
-    main1 (argv,bannerAlreadyPrinted,exiter) 
+    main1 (argv,bannerAlreadyPrinted,exiter,defaultArg loggerProviderOpt CreateErrorLoggerThatQuitsAfterMaxErrors) 
     |> main2
     |> main2b
     |> main2c

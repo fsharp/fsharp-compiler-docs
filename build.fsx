@@ -155,8 +155,8 @@ Target "All" DoNothing
 "All" 
   ==> "CleanDocs"
   ==> "GenerateDocs"
-  ==> "ReleaseDocs"
   ==> "NuGet"
+  ==> "ReleaseDocs"
   ==> "Release"
 
 RunTargetOrDefault "All"

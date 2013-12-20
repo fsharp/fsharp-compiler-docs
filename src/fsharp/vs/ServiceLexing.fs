@@ -539,7 +539,7 @@ type SingleLineTokenState =
 
 /// Split a line into tokens and attach information about the tokens. This information is used by Visual Studio.
 [<Sealed>]
-type (*internal*) LineTokenizer(lexbuf: UnicodeLexing.Lexbuf, 
+type LineTokenizer(lexbuf: UnicodeLexing.Lexbuf, 
                             maxLength: int option,
                             filename : string, 
                             lexArgsLightOn : lexargs,

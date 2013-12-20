@@ -71,8 +71,11 @@ type public FsiEvaluationSessionHostConfig =
     /// Return true if a 'restart' is required, which is a bit meaningless.
     abstract EventLoopRun : unit -> bool
 
-    /// the host to actually execute code.
+    /// Request that the given operation be run synchronously on the event loop.
     abstract EventLoopInvoke : codeToRun: (unit -> 'T) -> 'T
+
+    /// Schedule a restart for the event loop.
+    abstract EventLoopScheduleRestart : unit -> unit
 
 
 

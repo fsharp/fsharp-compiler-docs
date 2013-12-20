@@ -87,12 +87,12 @@ type ErrorStyle =
     
 
 val RangeOfError : PhasedError -> range option
+val GetErrorNumber : PhasedError -> int
 val SplitRelatedErrors : PhasedError -> PhasedError * PhasedError list
 val OutputPhasedError : StringBuilder -> PhasedError -> bool -> unit
 val SanitizeFileName : filename:string -> implicitIncludeDir:string -> string
 val OutputErrorOrWarning : implicitIncludeDir:string * showFullPaths: bool * flattenErrors: bool * errorStyle: ErrorStyle *  warning:bool -> StringBuilder -> PhasedError -> unit
 val OutputErrorOrWarningContext : prefix:string -> fileLineFunction:(string -> int -> string) -> StringBuilder -> PhasedError -> unit
-
 
 //----------------------------------------------------------------------------
 // Options and configuration
@@ -138,6 +138,12 @@ exception DeprecatedCommandLineOptionNoDescription of string * range
 exception InternalCommandLineOption of string * range
 exception HashLoadedSourceHasIssues of (*warnings*) exn list * (*errors*) exn list * range
 exception HashLoadedScriptConsideredSource of range  
+
+type PrimaryAssembly = 
+    | Mscorlib
+    | NamedMscorlib of string
+    | DotNetCore
+    member Name : string
 
 type AssemblyReference = 
     | AssemblyReference of range * string 
@@ -186,7 +192,7 @@ type VersionFlag =
 
      
 type TcConfigBuilder =
-    { mutable mscorlibAssemblyName: string;
+    { mutable primaryAssembly : PrimaryAssembly;
       mutable autoResolveOpenDirectivesToDlls: bool;
       mutable noFeedback: bool;
       mutable stackReserveSize: int32 option;
@@ -307,8 +313,19 @@ type TcConfigBuilder =
 
       /// If true, indicates all type checking and code generation is in the context of fsi.exe
       isInteractive : bool 
-      isInvalidationSupported : bool }
-    static member CreateNew : defaultFSharpBinariesDir: string * optimizeForMemory: bool * implicitIncludeDir: string * isInteractive: bool * isInvalidationSupported: bool -> TcConfigBuilder
+      isInvalidationSupported : bool 
+      mutable sqmSessionGuid : System.Guid option
+      mutable sqmNumOfSourceFiles : int
+      sqmSessionStartedTime : int64
+      mutable emitDebugInfoInQuotations : bool }
+
+    static member CreateNew : 
+        defaultFSharpBinariesDir: string * 
+        optimizeForMemory: bool * 
+        implicitIncludeDir: string * 
+        isInteractive: bool * 
+        isInvalidationSupported: bool -> TcConfigBuilder
+
     member DecideNames : string list -> outfile: string * pdbfile: string option * assemblyName: string 
     member TurnWarningOff : range * string -> unit
     member TurnWarningOn : range * string -> unit
@@ -324,7 +341,7 @@ type TcConfigBuilder =
 [<Sealed>]
 // Immutable TcConfig
 type TcConfig =
-    member mscorlibAssemblyName: string;
+    member primaryAssembly: PrimaryAssembly
     member autoResolveOpenDirectivesToDlls: bool;
     member noFeedback: bool;
     member stackReserveSize: int32 option;
@@ -346,7 +363,6 @@ type TcConfig =
     member conditionalCompilationDefines: string list;
     member subsystemVersion : int * int
     member useHighEntropyVA : bool
-    
     member referencedDLLs: AssemblyReference list;
     member optimizeForMemory: bool;
     member inputCodePage: int option;
@@ -455,6 +471,11 @@ type TcConfig =
     member ResolveSourceFile : range * string * string -> string
     /// File system query based on TcConfig settings
     member MakePathAbsolute : string -> string
+
+    member sqmSessionGuid : System.Guid option
+    member sqmNumOfSourceFiles : int
+    member sqmSessionStartedTime : int64
+
     static member Create : TcConfigBuilder * validate: bool -> TcConfig
 
     member TargetMscorlibVersion : System.Version
@@ -629,8 +650,6 @@ val TypecheckSingleInputAndFinishEventually :
 val ParseCompilerOptions : (string -> unit) -> CompilerOptionBlock list -> string list -> unit
 val ReportWarning : int -> int list -> int list -> PhasedError -> bool
 val ReportWarningAsError : int -> int list -> int list -> int list -> int list -> bool -> PhasedError -> bool
-
-val highestInstalledNetFrameworkVersionMajorMinor : unit -> System.Version * string
 
 //----------------------------------------------------------------------------
 // #load closure

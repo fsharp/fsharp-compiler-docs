@@ -13,5 +13,5 @@ del /F /S /Q lib\release
 pushd .
 cd .\src
 set ABS_PATH=%CD%
-%MSBUILD% %ABS_PATH%/fsharp-compiler-build.proj /p:TargetFramework=net40 /p:Configuration=Debug
+%MSBUILD% %ABS_PATH%\fsharp-compiler-build.proj /p:TargetFramework=net40 /p:Configuration=Release
 popd

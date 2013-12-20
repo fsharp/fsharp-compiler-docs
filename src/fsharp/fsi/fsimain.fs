@@ -138,6 +138,7 @@ let MainMain argv =
         Console.InputEncoding <- System.Text.Encoding.UTF8 
         Console.OutputEncoding <- System.Text.Encoding.UTF8
 
+
 #if DEBUG  
     if argv |> Array.exists  (fun x -> x = "/pause" || x = "--pause") then 
         Console.WriteLine("Press any key to continue...")
@@ -171,6 +172,7 @@ let MainMain argv =
                 // Connect the configuration through to the 'fsi' Event loop
                 member __.EventLoopRun() = fsi.EventLoop.Run()
                 member __.EventLoopInvoke(f) = fsi.EventLoop.Invoke(f)
+                member __.EventLoopRequestRestart(f) = fsi.EventLoop.RequestRestart(f)
 
                 member __.ConsoleReadLine = 
                 
@@ -228,7 +230,6 @@ let MainMain argv =
 #endif
 
     0
-
 
 
 

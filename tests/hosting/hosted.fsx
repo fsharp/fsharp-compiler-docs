@@ -1,7 +1,6 @@
 
 
-#r @"../../lib/release/4.0/FSharp.Compiler.dll"
-#r @"../../lib/release/4.0/fsiAnyCpu.exe"
+#r @"../../lib/release/4.0/FSharp.Compiler.Service.dll"
 
 open Microsoft.FSharp.Compiler.Interactive.Shell
 

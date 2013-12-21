@@ -521,9 +521,11 @@
     <Compile Include="..\vs\service.fs">
       <Link>Service/service.fs</Link>
     </Compile>
+<!--
     <Compile Include="..\vs\SimpleServices.fs">
       <Link>SimpleServices.fs</Link>
     </Compile>
+-->
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

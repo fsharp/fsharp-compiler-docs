@@ -1,17 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{B6B68AE6-E7A4-4D43-9B34-FFA74BFE192B}"
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
+		nuget\FSharp.Compiler.Service.nuspec = nuget\FSharp.Compiler.Service.nuspec
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{83FEE492-6701-4E59-9184-16B1D30E91F8}"
 	ProjectSection(SolutionItems) = preProject
+		docs\content\devnotes.md = docs\content\devnotes.md
 		docs\content\editor.fsx = docs\content\editor.fsx
-		docs\content\index.fsx = docs\content\index.fsx
+		docs\content\fsharp-readme.md = docs\content\fsharp-readme.md
+		docs\content\index.md = docs\content\index.md
 		docs\content\interactive.fsx = docs\content\interactive.fsx
 		docs\content\tokenizer.fsx = docs\content\tokenizer.fsx
 		docs\content\untypedtree.fsx = docs\content\untypedtree.fsx

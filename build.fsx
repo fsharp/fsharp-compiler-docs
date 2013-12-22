@@ -156,13 +156,13 @@ Target "Release" DoNothing
 
 Target "All" DoNothing
 
-//"Clean"
-//  ==> "RestorePackages"
-//  ==> "AssemblyInfo"
-//  ==> "GenerateFSIStrings"
-//  ==> "Build"
-//  ==> "RunTests"
-//  ==> "All"
+"Clean"
+  ==> "RestorePackages"
+  ==> "AssemblyInfo"
+  ==> "GenerateFSIStrings"
+  ==> "Build"
+  ==> "RunTests"
+  ==> "All"
 
 "All" 
   ==> "CleanDocs"

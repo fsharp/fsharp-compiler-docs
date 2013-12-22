@@ -10,8 +10,8 @@ interactive service that can be used for embedding F# scripting into your applic
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The F# Compiler Services package can be <a href="https://nuget.org/packages/FSharp.Compiler.Services">installed from NuGet</a>:
-      <pre>PM> Install-Package FSharp.Compiler.Services</pre>
+      The F# Compiler Services package can be <a href="https://nuget.org/packages/FSharp.Compiler.Service">installed from NuGet</a>:
+      <pre>PM> Install-Package FSharp.Compiler.Service</pre>
     </div>
   </div>
   <div class="span1"></div>

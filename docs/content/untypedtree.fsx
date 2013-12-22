@@ -22,7 +22,7 @@ file with multiple files. Once you have an instance of `InteractiveChecker`, you
 use it to perform "untyped parse" which is the first step of type-checking. The
 second phase is "typed parse" and is used by [editor services](editor.html).
 
-To use the interactive checker, reference `FSharp.Compiler.Services.dll` and open the
+To use the interactive checker, reference `FSharp.Compiler.Service.dll` and open the
 `SourceCodeServices` namespace:
 *)
 #r "FSharp.Compiler.Service.dll"

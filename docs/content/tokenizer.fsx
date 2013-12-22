@@ -13,7 +13,7 @@ identifier, number, operator, etc.).
 Creating the tokenizer
 ---------------------
 
-To use the tokenizer, reference `FSharp.Compiler.Services.dll` and open the
+To use the tokenizer, reference `FSharp.Compiler.Service.dll` and open the
 `SourceCodeServices` namespace:
 *)
 #r "FSharp.Compiler.Service.dll"

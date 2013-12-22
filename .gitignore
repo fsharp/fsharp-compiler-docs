@@ -63,3 +63,5 @@ bin
 packages
 docs/output
 *.bak
+temp/
+src/fsharp/fsi/FSIStrings.fs

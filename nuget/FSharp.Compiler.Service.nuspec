@@ -16,6 +16,6 @@
       <tags>@tags@</tags>
     </metadata>
     <files>
-      <file src="bin/*" target="lib/net40" />
+      <file src="..\bin\*" target="lib/net40" />
     </files>
 </package>

@@ -51,7 +51,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\fsi\obj\debug\FSIstrings.fs">
+    <Compile Include="..\fsi\FSIstrings.fs">
       <Link>FSIstrings.fs</Link>
     </Compile>
     <EmbeddedResource Include="..\fsi\FSIstrings.resx">

@@ -63,8 +63,19 @@ Target "CleanDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
+Target "GenerateFSIStrings" (fun _ -> 
+    // Generate FSIStrings using the FSSrGen tool
+    execProcess (fun p -> 
+      let dir = __SOURCE_DIRECTORY__ @@ "src/fsharp/fsi"
+      p.Arguments <- "FSIstrings.txt FSIstrings.fs FSIstrings.resx"
+      p.WorkingDirectory <- dir
+      p.FileName <- !! "lib/bootstrap/2.0/fssrgen.exe" |> Seq.head ) TimeSpan.MaxValue
+    |> ignore
+)
+
 Target "Build" (fun _ ->
-    { BaseDirectories = [__SOURCE_DIRECTORY__]
+    // Build the rest of the project
+    { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [project + ".sln" (*; project + ".Tests.sln"*)]
       Excludes = [] } 
     |> MSBuildRelease "" "Rebuild"
@@ -145,12 +156,13 @@ Target "Release" DoNothing
 
 Target "All" DoNothing
 
-"Clean"
-  ==> "RestorePackages"
-  ==> "AssemblyInfo"
-  ==> "Build"
+//"Clean"
+//  ==> "RestorePackages"
+//  ==> "AssemblyInfo"
+//  ==> "GenerateFSIStrings"
+//  ==> "Build"
 //  ==> "RunTests"
-  ==> "All"
+//  ==> "All"
 
 "All" 
   ==> "CleanDocs"

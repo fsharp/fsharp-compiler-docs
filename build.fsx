@@ -161,7 +161,7 @@ Target "All" DoNothing
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
   ==> "Build"
-  ==> "RunTests"
+(*  ==> "RunTests" *)
   ==> "All"
 
 "All" 

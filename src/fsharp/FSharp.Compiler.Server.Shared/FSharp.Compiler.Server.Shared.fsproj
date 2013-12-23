@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FSharpSourcesRoot>$(MSBuildProjectDirectory)\..\..</FSharpSourcesRoot>
@@ -18,6 +18,9 @@
     <FsSrGen Include="..\fsiserver\FSServerShared.txt">
       <Link>FSServerShared.txt</Link>
     </FsSrGen>
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
+      <Link>assemblyinfo.shared.fs</Link>
+    </Compile>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Server.Shared.dll.fs">
       <Link>assemblyinfo.FSharp.Compiler.Server.Shared.dll.fs</Link>
     </Compile>
@@ -29,10 +32,6 @@
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Runtime.Remoting" />
-    <ProjectReference Include="..\FSharp.Core\FSharp.Core.fsproj">
-      <Project>{DED3BBD7-53F4-428A-8C9F-27968E768605}</Project>
-      <Name>FSharp.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(FSharpSourcesRoot)\FSharpSource.targets" />
 </Project>

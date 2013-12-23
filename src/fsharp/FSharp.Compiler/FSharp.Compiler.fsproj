@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FSharpSourcesRoot>$(MSBuildProjectDirectory)\..\..</FSharpSourcesRoot>
@@ -8,7 +8,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <AssemblyName>FSharp.Compiler.Editor</AssemblyName>
+    <AssemblyName>FSharp.Compiler.Service</AssemblyName>
     <DefineConstants>EXTENSIONTYPING;COMPILER;INCLUDE_METADATA_READER;INCLUDE_METADATA_WRITER;EXTENSIBLE_DUMPER;TYPE_PROVIDER_SECURITY;$(DefineConstants)</DefineConstants>
     <DefineConstants>$(DefineConstants);COMPILEREDITOR</DefineConstants>
     <NoWarn>$(NoWarn);44;62;9</NoWarn>
@@ -22,6 +22,9 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' " />
   <ItemGroup>
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
+      <Link>assemblyinfo.shared.fs</Link>
+    </Compile>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.dll.fs">
       <Link>assemblyinfo.FSharp.Compiler.dll.fs</Link>
     </Compile>
@@ -226,10 +229,10 @@
     <Compile Include="..\..\absil\ilsupp.fs">
       <Link>AbsIL/ilsupp.fs</Link>
     </Compile>
-    <Compile Include="ilpars.fs" >
+    <Compile Include="ilpars.fs">
       <Link>AbsIL/ilpars.fs</Link>
     </Compile>
-    <Compile Include="illex.fs" >
+    <Compile Include="illex.fs">
       <Link>AbsIL/illex.fs</Link>
     </Compile>
     <Compile Include="..\..\absil\ilbinary.fsi">
@@ -299,7 +302,7 @@
     <Compile Include="..\ast.fs">
       <Link>ParserAndUntypedAST/ast.fs</Link>
     </Compile>
-    <Compile Include="pars.fs" >
+    <Compile Include="pars.fs">
       <Link>ParserAndUntypedAST/pars.fs</Link>
     </Compile>
     <Compile Include="..\lexhelp.fsi">
@@ -308,7 +311,7 @@
     <Compile Include="..\lexhelp.fs">
       <Link>ParserAndUntypedAST/lexhelp.fs</Link>
     </Compile>
-    <Compile Include="lex.fs" >
+    <Compile Include="lex.fs">
       <Link>ParserAndUntypedAST/lex.fs</Link>
     </Compile>
     <Compile Include="..\lexfilter.fs">
@@ -518,9 +521,11 @@
     <Compile Include="..\vs\service.fs">
       <Link>Service/service.fs</Link>
     </Compile>
+<!--
     <Compile Include="..\vs\SimpleServices.fs">
       <Link>SimpleServices.fs</Link>
     </Compile>
+-->
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

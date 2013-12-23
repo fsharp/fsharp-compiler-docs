@@ -58,3 +58,10 @@ src/fsharp/FSharp.Data.TypeProviders/FSData.resx
 src/fsharp/fsiAnyCpu/FSIstrings.resx
 
 *.nupkg
+
+bin
+packages
+docs/output
+*.bak
+temp/
+src/fsharp/fsi/FSIStrings.fs

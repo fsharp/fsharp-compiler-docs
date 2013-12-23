@@ -12,6 +12,11 @@ types and there are some ambiguities that are resolved only later by the type
 checker. You can also combine the untyped AST information with the API available
 from [editor services](editor.html). 
 
+> **NOTE:** The API used below is experimental and subject to change. In particular, the 
+services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
+This will involve breaking changes to the APIs used for these services.
+
+
 Getting the untyped AST
 -----------------------
 

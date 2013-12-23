@@ -11,6 +11,7 @@
     <AssemblyName>InteractiveService</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Name>InteractiveService</Name>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,12 +39,10 @@
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Interactive.Settings">
       <HintPath>..\..\bin\FSharp.Compiler.Interactive.Settings.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="FSharp.Compiler.Server.Shared">
-      <HintPath>..\..\bin\FSharp.Compiler.Server.Shared.dll</HintPath>
-    </Reference>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\..\lib\debug\4.0\FSharp.Core.dll</HintPath>
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>False</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
@@ -65,7 +64,7 @@
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>
   <Choose>
-    <When Condition="'$(VisualStudioVersion)' == '11.0'">
+    <When Condition="'$(VisualStudioVersion)' == '10.0' OR '$(VisualStudioVersion)' == '11.0'">
       <PropertyGroup>
         <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
       </PropertyGroup>

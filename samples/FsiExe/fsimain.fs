@@ -1,4 +1,9 @@
 //----------------------------------------------------------------------------
+// This sample checks that the standard fsi.exe can be built when using the compiler API
+// through appropriate configuration parameters.
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 // Copyright (c) 2002-2012 Microsoft Corporation. 
 //
 // This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
@@ -10,7 +15,7 @@
 //----------------------------------------------------------------------------
 
 
-module internal Microsoft.FSharp.Compiler.Interactive.Main
+module internal Sample.Microsoft.FSharp.Compiler.Interactive.Main
 
 open System
 open System.Globalization
@@ -18,9 +23,10 @@ open System.IO
 open System.Reflection
 open System.Threading
 open System.Windows.Forms
+
 open Microsoft.FSharp.Compiler.Interactive.Shell
+open Microsoft.FSharp.Compiler.Interactive
 open Microsoft.FSharp.Compiler
-open Internal.Utilities
 
 #nowarn "55"
 
@@ -50,7 +56,7 @@ let WinFormsEventLoop(lcid : int option) =
     let restart = ref false
     { new Microsoft.FSharp.Compiler.Interactive.IEventLoop with
          member x.Run() =  
-             restart := false;
+             restart := false
              Application.Run()
              !restart
          member x.Invoke (f: unit -> 'T) : 'T =   
@@ -74,16 +80,16 @@ let WinFormsEventLoop(lcid : int option) =
                                            try 
                                               // When we get called back, someone may jack our culture
                                               // So we must reset our UI culture every time
-                                              SetCurrentUICultureForThread lcid;
-                                              mainFormInvokeResultHolder := Some(f ());
+                                              SetCurrentUICultureForThread lcid
+                                              mainFormInvokeResultHolder := Some(f ())
                                            finally 
-                                              doneSignal.Set() |> ignore)) |> ignore;
+                                              doneSignal.Set() |> ignore)) |> ignore
 
-                //if !progress then fprintfn outWriter "RunCodeOnWinFormsMainThread: Waiting for completion signal....";
+                //if !progress then fprintfn outWriter "RunCodeOnWinFormsMainThread: Waiting for completion signal...."
                 while not (doneSignal.WaitOne(new TimeSpan(0,0,1),true)) do 
-                    () // if !progress then fprintf outWriter "."; outWriter.Flush()
+                    () // if !progress then fprintf outWriter "." outWriter.Flush()
 
-                //if !progress then fprintfn outWriter "RunCodeOnWinFormsMainThread: Got completion signal, res = %b" (Option.isSome !mainFormInvokeResultHolder);
+                //if !progress then fprintfn outWriter "RunCodeOnWinFormsMainThread: Got completion signal, res = %b" (Option.isSome !mainFormInvokeResultHolder)
                 !mainFormInvokeResultHolder |> Option.get
 
          member x.ScheduleRestart()  =   restart := true; Application.Exit()  }
@@ -94,7 +100,7 @@ let StartServer(fsiServerName) =
     let server =
         {new Server.Shared.FSharpInteractiveServer() with
            member this.Interrupt() = 
-            //printf "FSI-SERVER: received CTRL-C request...\n";
+            //printf "FSI-SERVER: received CTRL-C request...\n"
             try 
                 fsiInterruptController.Interrupt()
             with e -> 
@@ -117,9 +123,8 @@ let internal TrySetUnhandledExceptionMode() =
     let i = ref 0 // stop inlining 
     try 
       Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException) 
-      incr i;incr i;incr i;incr i;incr i;incr i;
     with _ -> 
-      decr i;decr i;decr i;decr i;()
+      decr i;()
 
 #endif // SILVERLIGHT
 
@@ -133,8 +138,7 @@ let MainMain argv =
     // When VFSI is running, set the input/output encoding to UTF8.
     // Otherwise, unicode gets lost during redirection.
     // It is required only under Net4.5 or above (with unicode console feature).
-    if FSharpEnvironment.IsRunningOnNetFx45OrAbove && 
-        argv |> Array.exists (fun x -> x.Contains "fsi-server") then
+    if argv |> Array.exists (fun x -> x.Contains "fsi-server") then
         Console.InputEncoding <- System.Text.Encoding.UTF8 
         Console.OutputEncoding <- System.Text.Encoding.UTF8
 
@@ -143,6 +147,7 @@ let MainMain argv =
     if argv |> Array.exists  (fun x -> x = "/pause" || x = "--pause") then 
         Console.WriteLine("Press any key to continue...")
         Console.ReadKey() |> ignore
+#endif
 
     try
         let console = new Microsoft.FSharp.Compiler.Interactive.ReadLineConsole()
@@ -172,7 +177,7 @@ let MainMain argv =
                 // Connect the configuration through to the 'fsi' Event loop
                 member __.EventLoopRun() = fsi.EventLoop.Run()
                 member __.EventLoopInvoke(f) = fsi.EventLoop.Invoke(f)
-                member __.EventLoopRequestRestart(f) = fsi.EventLoop.RequestRestart(f)
+                member __.EventLoopScheduleRestart() = fsi.EventLoop.ScheduleRestart()
 
                 member __.ConsoleReadLine = 
                 
@@ -224,10 +229,6 @@ let MainMain argv =
         
         fsiSession.Run() 
     with e -> printf "Exception by fsi.exe:\n%+A\n" e
-#else
-    let fsi = FsiEvaluationSession (argv, Console.In, Console.Out, Console.Error)
-    fsi.Run() 
-#endif
 
     0
 

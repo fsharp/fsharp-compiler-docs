@@ -11,6 +11,11 @@ brackets and other functions in F# editors including Visual Studio, Xamarin stud
 Similarly to [the tutorial on using untyped AST](untypedtree.html), we start by 
 getting the `InteractiveChecker` object. 
 
+> **NOTE:** The API used below is experimental and subject to change. In particular, the 
+services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
+This will involve breaking changes to the APIs used for these services.
+
+
 Waiting for type checking results
 ---------------------------------
 
@@ -21,6 +26,7 @@ of `InteractiveChecker`:
 *)
 // Reference F# compiler API
 #r "FSharp.Compiler.Service.dll"
+
 open System
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
@@ -52,34 +58,32 @@ script file or stand-alone F# source code):
 /// Perform type checking on the specified input and 
 /// return asynchronous workflow that eventually returns
 /// the untyped parse info & type check result.
-let parseWithTypeInfo (file, input) = async {
-  // Get context representing a stand-alone (script) file
-  let checkOptions = 
-    checker.GetCheckOptionsFromScriptRoot
-      (file, input, DateTime.Now, [| |])
-  // Perform untyped parsing  (reasonably quick)
-  let untypedRes = 
-    checker.UntypedParse(file, input, checkOptions)
+let parseWithTypeInfo (file, input) = 
+    async { 
+        // Get context representing a stand-alone (script) file
+        let checkOptions = checker.GetCheckOptionsFromScriptRoot(file, input, DateTime.Now, [||])
 
-  // Recursive loop waiting for type-checking result
-  let rec waitForTypeCheck(n) = async {
-    // Get the reuslt for specified file & input
-    // Also specify that result is never invalidated
-    let typedRes = 
-      checker.TypeCheckSource
-        ( untypedRes, file, 0, input, checkOptions, 
-          IsResultObsolete(fun _ -> false), null )
-    // Wait until type checking succeeds (or 100 attempts)
-    match typedRes with
-    | TypeCheckAnswer.TypeCheckSucceeded(res) -> 
-        return untypedRes, res
-    | res when n > 100 -> 
-        return failwithf "Parsing did not finish... (%A)" res
-    | _ -> 
-        do! Async.Sleep(100)
-        return! waitForTypeCheck(n + 1) }
-  // Start the recursive waiting loop
-  return! waitForTypeCheck 0 }
+        // Perform untyped parsing  (reasonably quick)
+        let untypedRes = checker.UntypedParse(file, input, checkOptions)
+        
+        // Recursive loop waiting for type-checking result
+        let rec waitForTypeCheck (n) = 
+            async { 
+                // Get the reuslt for specified file & input
+                // Also specify that result is never invalidated
+                let typedRes = checker.TypeCheckSource(untypedRes, file, 0, input, checkOptions, IsResultObsolete(fun _ -> false), null)
+
+                // Wait until type checking succeeds (or 100 attempts)
+                match typedRes with
+                | TypeCheckAnswer.TypeCheckSucceeded(res) -> return untypedRes, res
+                | res when n > 100 -> return failwithf "Parsing did not finish... (%A)" res
+                | _ -> 
+                    do! Async.Sleep(100)
+                    return! waitForTypeCheck (n + 1)
+            }
+        // Start the recursive waiting loop
+        return! waitForTypeCheck 0
+    }
 
 (**
 To perform type checking, we first need to parse the input using 
@@ -151,7 +155,7 @@ open Microsoft.FSharp.Compiler
 let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
 
 // Get tool tip at the specified location
-let tip = parsed.GetDataTipText((3, 7), inputLines.[1], ["foo"], identToken)
+let tip = parsed.GetDataTipText(3, 7, inputLines.[1], ["foo"], identToken)
 printfn "%A" tip
 (**
 Aside from the location and token kind, the function also requires the current contents of the line
@@ -178,8 +182,7 @@ where we need to perform the completion.
 // Get declarations (autocomplete) for a location
 let decls = 
   parsed.GetDeclarations
-    ( Some untyped, (6, 23), inputLines.[6], 
-      ([], "msg"), fun _ -> false)
+    (Some untyped, 6, 23, inputLines.[6], [], "msg", fun _ -> false)
   |> Async.RunSynchronously
 
 // Print the names of available items
@@ -204,8 +207,7 @@ changes):
 *)
 // Get overloads of the String.Contact method
 let methods = 
-  parsed.GetMethods
-    ((4, 27), inputLines.[4], Some ["String"; "Contat"])
+  parsed.GetMethods(4, 27, inputLines.[4], Some ["String"; "Contat"])
 
 // Print concatenated parameter lists
 for mi in methods.Methods do

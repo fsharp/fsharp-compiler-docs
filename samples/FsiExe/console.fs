@@ -6,7 +6,6 @@ namespace Microsoft.FSharp.Compiler.Interactive
 open System
 open System.Text
 open System.Collections.Generic
-open Internal.Utilities
 
 /// System.Console.ReadKey appears to return an ANSI character (not the expected the unicode character).
 /// When this fix flag is true, this byte is converted to a char using the System.Console.InputEncoding.
@@ -14,12 +13,9 @@ open Internal.Utilities
 /// Fixes to System.Console.ReadKey may break this code around, hence the option here.
 module internal ConsoleOptions =
 
-  // Bug 4254 was fixed in Dev11 (Net4.5), so this flag tracks making this fix up version specific.
-  let fixupRequired = not FSharpEnvironment.IsRunningOnNetFx45OrAbove
-   
-  let fixNonUnicodeSystemConsoleReadKey = ref fixupRequired
+  let fixNonUnicodeSystemConsoleReadKey = false
   let readKeyFixup (c:char) =
-    if !fixNonUnicodeSystemConsoleReadKey then
+    if fixNonUnicodeSystemConsoleReadKey then
       // Assumes the c:char is actually a byte in the System.Console.InputEncoding.
       // Convert it to a Unicode char through the encoding.
       if 0 <= int c && int c <= 255 then
@@ -87,10 +83,7 @@ module internal Utils =
     open Microsoft.FSharp.Core
     open Microsoft.FSharp.Collections
 
-    let guard(f) = 
-        try f() 
-        with e -> 
-             Microsoft.FSharp.Compiler.ErrorLogger.warning(Failure(sprintf "Note: an unexpected exception in fsi.exe readline console support. Consider starting fsi.exe with the --no-readline option and report the stack trace below to the .NET or Mono implementors\n%s\n%s\n" e.Message e.StackTrace));
+    let guard(f) = f() 
 
     // Quick and dirty dirty method lookup for inlined IL
     // In some situations, we can't use ldtoken to obtain a RuntimeMethodHandle, since the method

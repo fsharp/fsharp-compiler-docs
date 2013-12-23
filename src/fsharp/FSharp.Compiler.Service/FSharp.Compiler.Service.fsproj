@@ -11,26 +11,59 @@
 -->
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <FSharpSourcesRoot>$(MSBuildProjectDirectory)\..\..</FSharpSourcesRoot>
-  </PropertyGroup>
-  <Import Project="$(FSharpSourcesRoot)\FSharpSource.Settings.targets" />
-  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <AssemblyName>FSharp.Compiler.Service</AssemblyName>
-    <DefineConstants>EXTENSIONTYPING;COMPILER;INCLUDE_METADATA_READER;INCLUDE_METADATA_WRITER;EXTENSIBLE_DUMPER;TYPE_PROVIDER_SECURITY;$(DefineConstants)</DefineConstants>
-    <DefineConstants>$(DefineConstants);COMPILEREDITOR</DefineConstants>
     <NoWarn>$(NoWarn);44;62;9</NoWarn>
     <ProjectGuid>{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}</ProjectGuid>
     <AllowCrossTargeting>true</AllowCrossTargeting>
-    <TargetFrameworkVersion Condition="'$(TargetFramework)'=='net40'">v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <BaseAddress>0x06800000</BaseAddress>
     <OtherFlags>$(OtherFlags) /warnon:1182</OtherFlags>
+    <Tailcalls>true</Tailcalls>
+    <FsLexUnicode>true</FsLexUnicode>
+    <OtherFlags>$(OtherFlags) --times</OtherFlags>
+    <NoWarn>$(NoWarn);69;65;54;61;75</NoWarn>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\bin\</OutputPath>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5'">$(DefineConstants);FX_ATLEAST_45</DefineConstants>
+    <DefineConstants>CROSS_PLATFORM_COMPILER;$(DefineConstants)</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_ATLEAST_40</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_ATLEAST_35</DefineConstants>
+    <DefineConstants>$(DefineConstants);BE_SECURITY_TRANSPARENT</DefineConstants>
+    <DefineConstants>$(DefineConstants);QUERIES_IN_FSLIB</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_ATLEAST_LINQ</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_BIGINT_CULTURE_PARSE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TYPE_PROVIDER_SECURITY</DefineConstants>
+    <DefineConstants>$(DefineConstants);EXTENSIBLE_DUMPER</DefineConstants>
+    <DefineConstants>$(DefineConstants);INCLUDE_METADATA_WRITER</DefineConstants>
+    <DefineConstants>$(DefineConstants);INCLUDE_METADATA_READER</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
+    <DefineConstants>$(DefineConstants);EXTENSIONTYPING</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILEREDITOR</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LkgPath>..\..\..\lib\bootstrap\2.0</LkgPath>
+    <FsSrGenToolPath>$(LkgPath)</FsSrGenToolPath>
+    <FsLexToolPath>$(LkgPath)</FsLexToolPath>
+    <FsYaccToolPath>$(LkgPath)</FsYaccToolPath>
+    <FsLexToolExe>fslex.exe</FsLexToolExe>
+    <FsYaccToolExe>fsyacc.exe</FsYaccToolExe>
+    <EnsureThereAreNoUnusedFsSrGenResources>false</EnsureThereAreNoUnusedFsSrGenResources>
   </PropertyGroup>
   <!-- MonoDevelop likes these here to recognise the configurations -->
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DefineConstants>DEBUG; $(DefineConstants)</DefineConstants>
+    <Optimize>false</Optimize>
+    <OtherFlags>$(OtherFlags) --no-jit-optimize --jit-tracking</OtherFlags>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">
       <Link>assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
@@ -564,8 +597,21 @@
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="Microsoft.Build.Tasks.v4.0" />
-    <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   </ItemGroup>
-  <Import Project="$(FSharpSourcesRoot)\FSharpSource.targets" />
-  <Import Project="$(LkgPath)\..\2.0\FSharp.PowerPack.targets" />
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '10.0' OR '$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup>
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+  <Import Project="$(LkgPath)\FSharp.SRGen.targets" />
+  <Import Project="$(LkgPath)\FSharp.PowerPack.targets" />
 </Project>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+      <id>@project@</id>
+      <version>@build.number@</version>
+      <authors>@authors@</authors>
+      <owners>@authors@</owners>
+      <licenseUrl>https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE</licenseUrl>
+      <projectUrl>https://github.com/fsharp/FSharp.Compiler.Service</projectUrl>
+      <iconUrl>https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png</iconUrl>
+      <requireLicenseAcceptance>false</requireLicenseAcceptance>
+      <summary>@summary@</summary>
+      <description>@description@</description>
+      <releaseNotes>@releaseNotes@</releaseNotes>
+      <copyright>Copyright 2013</copyright>
+      <tags>@tags@</tags>
+    </metadata>
+    <files>
+      <file src="..\bin\*" target="lib/net40" />
+    </files>
+</package>

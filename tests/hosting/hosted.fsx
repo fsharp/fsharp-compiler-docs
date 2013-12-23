@@ -118,7 +118,7 @@ module InteractiveShellExample =
     let text3 = stdoutStream.Read()
     *)
 
-    session.ExecuteInteraction("let ;;")
+    session.EvalInteraction("let ;;")
 
     // This one can be run synchronously because there is an error in parsing
     let p1 = (session.ExecuteInteractionAsync("let ;;") |> Async.RunSynchronously = "error")

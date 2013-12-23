@@ -79,6 +79,10 @@ type public FsiEvaluationSessionHostConfig =
     abstract EventLoopScheduleRestart : unit -> unit
 
 
+[<Class>]
+type FsiValue = 
+  member ReflectionValue : obj
+  member ReflectionType : System.Type
 
 /// The primary type, representing a full F# Interactive session, reading from the given
 /// text input, writing to the given text output and error writers.
@@ -91,17 +95,18 @@ type FsiEvaluationSession =
     /// A host calls this to get the completions for a long identifier, e.g. in the console
     member GetCompletions : longIdent: string -> seq<string>
 
-    [<Experimental("Experimental")>]
+    /// Execute the code as if it had been entered as one or more interactions, with an
+    /// implicit termination at the end of the input. Stop on first error, discarding the rest
+    /// of the input. Errors are sent to the output writer, a 'true' return value indicates there
+    /// were no errors overall. Execution is performed on the 'Run()' thread.
+    member EvalInteraction : code: string -> unit
+
     /// Execute the code as if it had been entered as one or more interactions, with an
     /// implicit termination at the end of the input. Stop on first error, discarding the rest
     /// of the input. Errors are sent to the output writer, a 'true' return value indicates there
     /// were no errors overall. Parsing is serialized via an agent, and execution is performed on the
-    /// blocked 'Run()' thread.
-    member ExecuteInteraction : code: string -> string
-
-    [<Experimental("Experimental")>]
-    /// As for ExecuteInteraction but async.
-    member ExecuteInteractionAsync : code: string -> Async<string>
+    /// 'Run()' thread.
+    member EvalExpression : code: string -> FsiValue option
 
     [<Experimental("Experimental")>]
     /// Typecheck the given script fragment in the type checking context implied by the current state

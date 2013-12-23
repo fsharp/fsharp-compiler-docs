@@ -35,6 +35,9 @@
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">
       <Link>assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
     </Compile>
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
+      <Link>assemblyinfo.shared.fs</Link>
+    </Compile>
     <FsSrGen Include="..\FSComp.txt">
       <Link>FSComp.txt</Link>
     </FsSrGen>
@@ -239,10 +242,10 @@
     <Compile Include="..\..\absil\ilsupp.fs">
       <Link>AbsIL/ilsupp.fs</Link>
     </Compile>
-    <Compile Include="ilpars.fs" >
+    <Compile Include="ilpars.fs">
       <Link>AbsIL/ilpars.fs</Link>
     </Compile>
-    <Compile Include="illex.fs" >
+    <Compile Include="illex.fs">
       <Link>AbsIL/illex.fs</Link>
     </Compile>
     <Compile Include="..\..\absil\ilbinary.fsi">
@@ -312,7 +315,7 @@
     <Compile Include="..\ast.fs">
       <Link>ParserAndUntypedAST/ast.fs</Link>
     </Compile>
-    <Compile Include="pars.fs" >
+    <Compile Include="pars.fs">
       <Link>ParserAndUntypedAST/pars.fs</Link>
     </Compile>
     <Compile Include="..\lexhelp.fsi">
@@ -321,7 +324,7 @@
     <Compile Include="..\lexhelp.fs">
       <Link>ParserAndUntypedAST/lexhelp.fs</Link>
     </Compile>
-    <Compile Include="lex.fs" >
+    <Compile Include="lex.fs">
       <Link>ParserAndUntypedAST/lex.fs</Link>
     </Compile>
     <Compile Include="..\lexfilter.fs">

@@ -388,7 +388,6 @@ type GetPreciseCompletionListFromExprTypingsResult =
     | Some of (Item list * DisplayEnv * range)
 
 type Names = string list 
-type NamesWithResidue = Names * string 
 
 [<System.Diagnostics.DebuggerDisplay("{DebugToString()}")>]
 type CapturedNameResolution(p:pos, i:Item, io:ItemOccurence, de:DisplayEnv, nre:Nameres.NameResolutionEnv, ad:AccessorDomain, m:range) =

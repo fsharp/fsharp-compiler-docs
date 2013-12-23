@@ -59,8 +59,7 @@ type FindDeclResult =
     /// found declaration; return (position-in-file, name-of-file)
     | DeclFound      of Position * string
      
-type internal Names = string list 
-type internal NamesWithResidue = Names * string 
+type Names = string list 
 
 [<Sealed>]
 /// A handle to the results of TypeCheckSource.  
@@ -92,7 +91,7 @@ type TypeCheckResults =
     ///         callback to the client to check if the text has changed. If it has, then give up
     ///         and assume that we're going to repeat the operation later on.
 
-    member GetDeclarations                : untypedParseInfoOpt:UntypedParseInfo option * line: Line0 * colAtEndOfNamesAndResidue: int * lineText:string * qualifyingNames: string list * partialName: string * hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<DeclarationSet>
+    member GetDeclarations                : untypedParseInfoOpt:UntypedParseInfo option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<DeclarationSet>
 
     /// Resolve the names at the given location to give a data tip 
     ///

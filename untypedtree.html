@@ -43,6 +43,12 @@ types and there are some ambiguities that are resolved only later by the type
 checker. You can also combine the untyped AST information with the API available
 from <a href="editor.html">editor services</a>.</p>
 
+<blockquote>
+  <p><strong>NOTE:</strong> The API used below is experimental and subject to change. In particular, the 
+services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
+This will involve breaking changes to the APIs used for these services.</p>
+</blockquote>
+
 <h2>Getting the untyped AST</h2>
 
 <p>To access the untyped AST, you need to create an instance of <code>InteractiveChecker</code>.
@@ -429,7 +435,7 @@ tutorial.</p>
 <div class="tip" id="fs7">Multiple items<br />union case NotifyFileTypeCheckStateIsDirty.NotifyFileTypeCheckStateIsDirty: (string -&gt; unit) -&gt; NotifyFileTypeCheckStateIsDirty<br /><br />--------------------<br />type NotifyFileTypeCheckStateIsDirty = | NotifyFileTypeCheckStateIsDirty of (string -&gt; unit)<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.NotifyFileTypeCheckStateIsDirty</div>
 <div class="tip" id="fs8">val ignore : value:&#39;T -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Operators.ignore</div>
 <div class="tip" id="fs9">val checker : InteractiveChecker<br /><br />Full name: Untypedtree.checker</div>
-<div class="tip" id="fs10">type InteractiveChecker<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimestamp:DateTime -&gt; CheckOptions<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimestamp:DateTime * otherFlags:string [] -&gt; CheckOptions<br />member GetSlotsCount : options:CheckOptions -&gt; int<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:CheckOptions -&gt; unit<br />member MatchBraces : filename:string * source:string * options:CheckOptions -&gt; (Range * Range) []<br />member NotifyProjectCleaned : options:CheckOptions -&gt; unit<br />member StartBackgroundCompile : options:CheckOptions -&gt; unit<br />member StopBackgroundCompile : unit -&gt; unit<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:CheckOptions -&gt; (UntypedParseInfo * TypeCheckResults * int) option<br />member TypeCheckSource : parsed:UntypedParseInfo * filename:string * fileversion:int * source:string * options:CheckOptions * isResultObsolete:IsResultObsolete * textSnapshotInfo:obj -&gt; TypeCheckAnswer<br />member UntypedParse : filename:string * source:string * options:CheckOptions -&gt; UntypedParseInfo<br />member UntypedParseForSlot : slot:int * options:CheckOptions -&gt; UntypedParseInfo<br />member WaitForBackgroundCompile : unit -&gt; unit<br />static member Create : NotifyFileTypeCheckStateIsDirty -&gt; InteractiveChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker</div>
+<div class="tip" id="fs10">type InteractiveChecker<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimestamp:DateTime -&gt; CheckOptions<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimestamp:DateTime * otherFlags:string [] -&gt; CheckOptions<br />member GetSlotsCount : options:CheckOptions -&gt; int<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:CheckOptions -&gt; unit<br />member MatchBraces : filename:string * source:string * options:CheckOptions -&gt; (Range01 * Range01) []<br />member NotifyProjectCleaned : options:CheckOptions -&gt; unit<br />member StartBackgroundCompile : options:CheckOptions -&gt; unit<br />member StopBackgroundCompile : unit -&gt; unit<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:CheckOptions -&gt; (UntypedParseInfo * TypeCheckResults * int) option<br />member TypeCheckSource : parsed:UntypedParseInfo * filename:string * fileversion:int * source:string * options:CheckOptions * isResultObsolete:IsResultObsolete * textSnapshotInfo:obj -&gt; TypeCheckAnswer<br />member UntypedParse : filename:string * source:string * options:CheckOptions -&gt; UntypedParseInfo<br />member UntypedParseForSlot : slot:int * options:CheckOptions -&gt; UntypedParseInfo<br />member WaitForBackgroundCompile : unit -&gt; unit<br />static member Create : NotifyFileTypeCheckStateIsDirty -&gt; InteractiveChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker</div>
 <div class="tip" id="fs11">static member InteractiveChecker.Create : NotifyFileTypeCheckStateIsDirty -&gt; InteractiveChecker</div>
 <div class="tip" id="fs12">val getUntypedTree : file:string * input:string -&gt; Compiler.Ast.ParsedInput<br /><br />Full name: Untypedtree.getUntypedTree<br /><em><br /><br />&#160;Get untyped tree for a specified input</em></div>
 <div class="tip" id="fs13">val file : string</div>
@@ -537,7 +543,8 @@ tutorial.</p>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive </a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)</li>

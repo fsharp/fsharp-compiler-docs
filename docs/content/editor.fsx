@@ -219,6 +219,97 @@ The code uses the `Display` property to get the annotation for each parameter. T
 such as `arg0: obj` or `params args: obj[]` or `str0: string, str1: string`. We concatenate the parameters
 and print a type annotation with the method name.
 
+## Getting information about the typed assembly (project)
+
+After type checking a file, you can access the inferred signature of the entire assembly up to and including the
+checking of the given file through the `GetPartialAssemblySignature` function of the `TypeCheckResults`.
+
+The full signature information is available for modules, types, attributes, members, values, functions, 
+union cases, record types, units of measure and other F# language constructs.
+
+The typed expression tree is not available via this route (as yet).
+
+*)
+
+
+let input2 = 
+      """
+[<System.CLSCompliant(true)>]
+let foo() = 
+    let msg = String.Concat("Hello"," ","world")
+    if true then 
+        printfn "%s" msg
+
+type C() = 
+    member x.P = 1
+      """
+let untyped2, parsed2 = 
+    parseWithTypeInfo(file, input2)
+    |> Async.RunSynchronously
+
+let partialAssemblySignature = parsed2.GetPartialAssemblySignature() 
+    
+partialAssemblySignature.Entities.Count
+    
+
+(**
+Now get the entity that corresponds to the module containing the code:
+*)
+let moduleEntity = partialAssemblySignature.Entities.[0]
+
+moduleEntity.DisplayName
+
+(**
+Now get the entity that corresponds to the type definition in the code:
+*)
+let classEntity = moduleEntity.NestedEntities.[0]
+
+(**
+Now get the value that corresponds to the function defined in the code:
+*)
+let fnVal = moduleEntity.MembersOrValues.[0]
+
+(**
+Now look around at the properties describing the function:
+*)
+fnVal.Accessibility // TODO
+fnVal.Attributes 
+fnVal.CurriedParameterGroups |> Seq.toArray |> Array.map Seq.toArray
+fnVal.DeclarationLocation
+fnVal.DisplayName
+fnVal.EnclosingEntity.DeclarationLocation
+fnVal.GenericParameters.Count = 0
+fnVal.InlineAnnotation
+fnVal.IsActivePattern = false
+fnVal.IsCompilerGenerated = false
+fnVal.IsDispatchSlot = false
+fnVal.IsExtensionMember = false
+fnVal.IsGetterMethod = false
+fnVal.IsImplicitConstructor = false
+fnVal.IsInstanceMember = false
+fnVal.IsMember = false
+fnVal.IsModuleValueOrMember = true
+fnVal.IsMutable = false
+fnVal.IsSetterMethod = false
+fnVal.IsTypeFunction = false
+
+(**
+Now look at the inferred type of the function:
+*)
+fnVal.FullType // unit -> unit
+fnVal.FullType.IsFunctionType // unit -> unit
+fnVal.FullType.GenericArguments.[0].NamedEntity.DisplayName // unit 
+fnVal.FullType.GenericArguments.[1].NamedEntity.DisplayName // unit 
+
+(**
+Notes: 
+  - If incomplete code is present, some or all of the attirbutes may not be quite as expected.
+  - If some assembly references are missing (which is actually very, very common), then 'IsUnresolved'  may
+    be true on values, members and/or entites related to external assemblies.  You should be sure to make your
+    code robust against IsUnresolved exceptions.
+
+*)
+(**
 Summary
 -------
 

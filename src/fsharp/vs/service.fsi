@@ -62,11 +62,23 @@ type FindDeclResult =
 type Names = string list 
 
 [<Sealed>]
+type TypeCheckOptionsContext =
+    /// Get the assemblies referenced
+    member GetReferencedAssemblies : unit -> FSharpAssembly list
+
+
+[<Sealed>]
 /// A handle to the results of TypeCheckSource.  
 /// A live object of this type keeps the background corresponding background builder (and type providers) alive (through reference-counting)
 type TypeCheckResults =
     /// The errors returned by parsing a source file
     member Errors : ErrorInfo[]
+
+    /// Get a view of the contents of the assembly up to and including the file just checked
+    member GetPartialAssemblySignature : unit -> FSharpAssemblySignature
+
+    /// Get the initial context implied by the CheckOptions (i.e. the command line arguments, #r etc.)
+    member OptionsContext : TypeCheckOptionsContext
 
     member HasFullTypeCheckInfo: bool
 
@@ -196,6 +208,11 @@ type InteractiveChecker =
     /// file.
     member TypeCheckSource : parsed: UntypedParseInfo * filename: string * fileversion: int * source: string * options: CheckOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> TypeCheckAnswer
     
+    // /// Complete typecheck for a complete set of options.
+    // TODO: this is a very useful operation to type check an entire project, without needing to ask for the
+    // checking of any particular file, e.g. for find-all-references, rename refactoring etc.
+    // member TypeCheckAll : options: CheckOptions -> Async<TypeCheckAllResults>
+
     /// For a given script file, get the CheckOptions implied by the #load closure
     member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimestamp : System.DateTime -> CheckOptions
 

@@ -528,6 +528,12 @@
     <Compile Include="..\vs\Reactor.fs">
       <Link>Service/Reactor.fs</Link>
     </Compile>
+    <Compile Include="..\vs\Typed.fsi">
+      <Link>Service/Typed.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\Typed.fs">
+      <Link>Service/Typed.fs</Link>
+    </Compile>
     <Compile Include="..\vs\ServiceLexing.fsi">
       <Link>Service/ServiceLexing.fsi</Link>
     </Compile>

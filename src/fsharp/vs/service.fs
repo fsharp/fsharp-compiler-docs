@@ -412,6 +412,9 @@ type TypeCheckInfo
            g: Env.TcGlobals,
            /// AssemblyName -> IL-Module 
            amap: Import.ImportMap,
+           /// The signature of the assembly being checked, up to and including the current file
+           ccuSig: ModuleOrNamespaceType,
+           tcImports: TcImports,
            /// project directory, or directory containing the file that generated this scope if no project directory given 
            sProjectDir: string ,
            sFile:string,
@@ -1164,6 +1167,11 @@ type TypeCheckInfo
 
       | _ -> FindDeclResult.DeclNotFound FindDeclFailureReason.Unknown
 
+    member scope.GetPartialAssemblySignature() = FSharpAssemblySignature(g,ccuSig)
+
+    member scope.GetReferencedAssemblies() = 
+        [ for x in tcImports.GetImportedAssemblies() do 
+                yield FSharpAssembly(g,x.FSharpViewOfMetadata) ]
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member scope.GetExtraColorizations() = 
@@ -1527,19 +1535,23 @@ module internal Parser =
                     // for the client to claim the result as obsolete and have the typecheck abort.
                     let computation = TypecheckSingleInputAndFinishEventually(checkForErrors,tcConfig, tcImports, tcGlobals, None, TcResultsSink.WithSink sink, tcState, parsedMainInput)
                     match computation |> Eventually.forceWhile (fun () -> not (isResultObsolete())) with
-                    | Some((tcEnvAtEnd,_,_),_) -> Some tcEnvAtEnd
+                    | Some((tcEnvAtEnd,_,typedImplFiles),tcState) -> Some (tcEnvAtEnd, typedImplFiles, tcState)
                     | None -> None // Means 'aborted'
                 with
                 | e ->
                     errorR e
-                    Some(tcState.TcEnvFromSignatures)
+                    Some(tcState.TcEnvFromSignatures, [], tcState)
             
             let errors = errHandler.CollectedErrorsAndWarnings
             
             match tcEnvAtEndOpt with
-            | Some tcEnvAtEnd ->
+            | Some (tcEnvAtEnd, _typedImplFiles, tcState) ->
                 let scope = 
-                    TypeCheckInfo(tcConfig, tcGlobals, amap, projectDir, mainInputFileName, 
+                    TypeCheckInfo(tcConfig, tcGlobals, amap,
+                                tcState.SignatureType, 
+                                tcImports,
+                                //typedImplFiles,
+                                projectDir, mainInputFileName, 
                                 sink.CapturedEnvs, tcEnvAtEnd.NameEnv,
                                 sink.CapturedExprTypings,
                                 sink.CapturedNameResolutions,
@@ -1710,6 +1722,20 @@ type TypeCheckResults(errors: ErrorInfo[], details: (TypeCheckInfo * Incremental
         checkBuilder [| |] (fun (scope, _builder, _reactor) -> 
             scope.GetExtraColorizations())
      
+    member info.GetPartialAssemblySignature() = 
+        use t = Trace.Call("SyncOp","GetPartialAssemblySignature", fun _->sprintf "")
+        checkBuilder Unchecked.defaultof<_> (fun (scope, _builder, _reactor) -> 
+            scope.GetPartialAssemblySignature())
+
+    member info.OptionsContext = TypeCheckOptionsContext(checkBuilder) 
+
+and [<Sealed>] TypeCheckOptionsContext(checkBuilder) =
+
+    /// Get the assemblies referenced
+    member __.GetReferencedAssemblies() = 
+        use t = Trace.Call("SyncOp","GetReferencedAssemblies", fun _->sprintf "")
+        checkBuilder [] (fun (scope, _builder, _reactor) -> 
+            scope.GetReferencedAssemblies()  )
 
 /// Information about the compilation environment    
 module internal CompilerEnvironment =
@@ -1825,7 +1851,6 @@ type BackgroundCompiler(notifyFileTypeCheckStateIsDirty:NotifyFileTypeCheckState
         | None->
             None        
     
-
     /// Helper: do one step of the build for the given options.
     let DoStep(options:CheckOptions) = 
         // Do the step.
@@ -1899,6 +1924,17 @@ type BackgroundCompiler(notifyFileTypeCheckStateIsDirty:NotifyFileTypeCheckState
                Parser.ParseSource (source, true, false, filename, (options.ProjectFileNames |> Array.toList), builder.TcConfig)
                  
             matchPairs)
+
+(*
+    // TODO: this is a very useful operation to type check an entire project, without needing to ask for the
+    // checking of any particular file, e.g. for find-all-references, rename refactoring etc.
+    member bc.TypeCheckAll(options) =
+        reactor.RunAsyncOp (fun () -> 
+            match GetTypeCheckResults(options) with
+            | Some(tcFinalState, tcAttrs, tcEnv, tcImports, tcGlobals) -> 
+                    let res = TypeCheckResults (errors,Some builder, reactorOps)
+                    res)
+*)
 
     /// Type-check the result obtained by parsing
     /// The input should be first parsed using 'UntypedParseImpl'

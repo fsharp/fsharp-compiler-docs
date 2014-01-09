@@ -4867,6 +4867,9 @@ type TcState =
     member x.TcEnvFromSignatures = x.tcsTcSigEnv
     member x.TcEnvFromImpls = x.tcsTcImplEnv
     member x.Ccu = x.tcsCcu
+    member x.SignatureType = 
+      let (RootSigsAndImpls(_rootSigs,_rootImpls,_allSigModulTyp,allImplementedSigModulTyp)) = x.tcsRootSigsAndImpls
+      allImplementedSigModulTyp
  
     member x.NextStateAfterIncrementalFragment(tcEnvAtEndOfLastInput) = 
         { x with tcsTcSigEnv = tcEnvAtEndOfLastInput

@@ -619,11 +619,15 @@ val GetInitialTypecheckerEnv : string option -> range -> TcConfig -> TcImports -
 [<Sealed>]
 type TcState =
     member NiceNameGenerator : Ast.NiceNameGenerator
+    /// The CCU for the asssembly being checked.  The contents of the CCU are only updated at the end of
+    /// a closed set of inputs (TypecheckClosedInputSetFinish).
     member Ccu : CcuThunk
     member TcEnvFromSignatures : TcEnv
     member NextStateAfterIncrementalFragment : TcEnv -> TcState
     member TcEnvFromImpls : TcEnv
-
+    /// The inferred contents of the assembly, containing the signatures of all implemented files.
+    member SignatureType : ModuleOrNamespaceType
+    
 val TypecheckInitialState : 
     range * string * TcConfig * TcGlobals * TcImports * Ast.NiceNameGenerator * TcEnv -> TcState
 

@@ -42,8 +42,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UntypedTree", "samples\Unty
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsiExe", "samples\FsiExe\FsiExe.fsproj", "{F9540CA8-1CE0-4546-A23A-A461E416E95B}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.PowerPack.Metadata", "src\fsharp\FSharp.PowerPack.Metadata\FSharp.PowerPack.Metadata.fsproj", "{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,21 +145,6 @@ Global
 		{F9540CA8-1CE0-4546-A23A-A461E416E95B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F9540CA8-1CE0-4546-A23A-A461E416E95B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F9540CA8-1CE0-4546-A23A-A461E416E95B}.Release|x86.ActiveCfg = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Proto|Any CPU.ActiveCfg = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Proto|Any CPU.Build.0 = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Proto|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Proto|Mixed Platforms.Build.0 = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Proto|x86.ActiveCfg = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

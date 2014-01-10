@@ -62,6 +62,7 @@ open Microsoft.FSharp.Compiler.Build
 open Microsoft.FSharp.Compiler.Lexhelp
 open Microsoft.FSharp.Compiler.Layout
 open Microsoft.FSharp.Compiler.PostTypecheckSemanticChecks
+open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open Internal.Utilities.Collections
 open Internal.Utilities.StructuredFormat
@@ -75,9 +76,10 @@ let internal exit (_ : int) = ()
 // For the FSI as a service methods...
 //----------------------------------------------------------------------------
 
-type FsiValue(res:obj, typ:Type) = 
-  member x.ReflectionValue = res
-  member x.ReflectionType = typ
+type FsiValue(reflectionValue:obj, reflectionType:Type, fsharpType:FSharpType) = 
+  member x.ReflectionValue = reflectionValue
+  member x.ReflectionType = reflectionType
+  member x.FSharpType = fsharpType
 
 //----------------------------------------------------------------------------
 // Hardbinding dependencies should we NGEN fsi.exe
@@ -223,6 +225,7 @@ type public FsiEvaluationSessionHostConfig =
 
     /// Schedule a restart for the event loop.
     abstract EventLoopScheduleRestart : unit -> unit
+
 
 /// Used to print value signatures along with their values, according to the current
 /// set of pretty printers installed in the system, and default printing rules.
@@ -1133,7 +1136,7 @@ type internal FsiDynamicCompiler
              //
              let optValue = istate.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(istate.emEnv), vref.Deref);
              match optValue with
-             | Some (res, typ) -> istate, Completed(Some(FsiValue(res, typ)))
+             | Some (res, typ) -> istate, Completed(Some(FsiValue(res, typ, FSharpType(tcGlobals,vref.Type))))
              | _ -> istate, Completed None
 
         // Return the interactive state.
@@ -1247,7 +1250,7 @@ type internal FsiDynamicCompiler
         } 
 
     member __.CurrentPartialAssemblySignature(istate) = 
-        Microsoft.FSharp.Compiler.SourceCodeServices.FSharpAssemblySignature(istate.tcGlobals,istate.tcState.PartialAssemblySignature)
+        FSharpAssemblySignature(istate.tcGlobals,istate.tcState.PartialAssemblySignature)
 
 //----------------------------------------------------------------------------
 // ctrl-c handling
@@ -2194,7 +2197,7 @@ type internal FsiInteractionProcessor
         let tcConfig = TcConfig.Create(tcConfigB,validate=false)
 
         let loadClosure = None
-        let tcStateChecker = Microsoft.FSharp.Compiler.SourceCodeServices.ParseAndCheckHelper(checker, tcConfig, istate.tcGlobals, istate.tcImports, istate.tcState, loadClosure)
+        let tcStateChecker = ParseAndCheckHelper(checker, tcConfig, istate.tcGlobals, istate.tcImports, istate.tcState, loadClosure)
         tcStateChecker.ParseAndCheckInteraction(text)
 
 (*
@@ -2465,7 +2468,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 
     /// The single, global interactive checker that can be safely used in conjunction with other operations
     /// on the FsiEvaluationSession.  
-    let checker = Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker.Create()
+    let checker = InteractiveChecker.Create()
 
     /// Load the dummy interaction, load the initial files, and,
     /// if interacting, start the background thread to read the standard input.
@@ -2622,9 +2625,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
                 | _ -> ())
 
             fsiInteractionProcessor.LoadInitialFiles()
-(*
-            fsiInteractionProcessor.StartQueueAgent()
-*)
+
             fsiInteractionProcessor.StartStdinReadAndProcessThread()            
 
             DriveFsiEventLoop (fsiConfig, fsiConsoleOutput )
@@ -2639,6 +2640,39 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
         // to be explicitly kept alive.
         GC.KeepAlive fsiInterruptController.EventHandlers
 
+    static member GetDefaultConfiguration(fsiObj:obj) = 
+        let getInstanceProperty (obj:obj) (nm:string) =
+            obj.GetType().InvokeMember(nm,(BindingFlags.GetProperty ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance),null,box obj, [| |]) |> unbox
+
+        let setInstanceProperty (obj:obj) (nm:string) (v:obj) =
+            obj.GetType().InvokeMember(nm,(BindingFlags.SetProperty ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance),null,box obj, [| v |]) |> unbox
+
+        let callInstanceMethod0 (obj:obj) (nm:string) =
+            obj.GetType().InvokeMember(nm,(BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance),null,box obj, [| |]) |> unbox
+
+        let callInstanceMethod1 (obj:obj) (nm:string) (v:obj) =
+            obj.GetType().InvokeMember(nm,(BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance),null,box obj, [| v |]) |> unbox
+
+        // We want to avoid modifying FSharp.Compiler.Interactive.Settings to avoid republishing that DLL.
+        // So we access these via reflection
+        { // Connect the configuration through to the 'fsi' object from FSharp.Compiler.Interactive.Settings
+            new FsiEvaluationSessionHostConfig with 
+              member __.FormatProvider = getInstanceProperty fsiObj "FormatProvider"
+              member __.FloatingPointFormat = getInstanceProperty fsiObj "FloatingPointFormat"
+              member __.AddedPrinters = getInstanceProperty fsiObj "AddedPrinters"
+              member __.ShowDeclarationValues = getInstanceProperty fsiObj "ShowDeclarationValues"
+              member __.ShowIEnumerable = getInstanceProperty fsiObj "ShowIEnumerable"
+              member __.ShowProperties = getInstanceProperty fsiObj "ShowProperties"
+              member __.PrintSize = getInstanceProperty fsiObj "PrintSize"
+              member __.PrintDepth = getInstanceProperty fsiObj "PrintDepth"
+              member __.PrintWidth = getInstanceProperty fsiObj "PrintWidth"
+              member __.PrintLength = getInstanceProperty fsiObj "PrintLength"
+              member __.ReportUserCommandLineArgs with set args = setInstanceProperty fsiObj "CommandLineArgs" args
+              member __.StartServer(fsiServerName) =  failwith "--fsi-server not implemented in the default configuration"
+              member __.EventLoopRun() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop" ) "Run"
+              member __.EventLoopInvoke(f) = callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") "Invoke" f
+              member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") "ScheduleRestart"
+              member __.ConsoleReadLine = None }
 
 
 /// Defines a read-only input stream used to feed content to the hosted F# Interactive dynamic compiler.

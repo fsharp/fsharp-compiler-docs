@@ -37,10 +37,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
         let buildFormatElement isSingle el (sb: StringBuilder) xmlCommentRetriever =
             match el with
-            | DataTipElementNone -> ()
-            | DataTipElement(it, comment) ->
+            | ToolTipElementNone -> ()
+            | ToolTipElement(it, comment) ->
                 sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
-            | DataTipElementGroup(items) ->
+            | ToolTipElementGroup(items) ->
                 let items, msg =
                   if items.Length > 10 then
                     (items |> Seq.take 10 |> List.ofSeq),
@@ -51,16 +51,16 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 for (it, comment) in items do
                   sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
                 if msg <> null then sb.AppendFormat(msg) |> ignore
-            | DataTipElementCompositionError(err) ->
+            | ToolTipElementCompositionError(err) ->
                 sb.Append("Composition error: " + err) |> ignore
 
-        // Convert DataTipText to string
+        // Convert ToolTipText to string
         let formatTip tip xmlCommentRetriever =
             let commentRetriever = defaultArg xmlCommentRetriever (fun _ -> "")
             let sb = new StringBuilder()
             match tip with
-            | DataTipText([single]) -> buildFormatElement true single sb commentRetriever
-            | DataTipText(its) -> for item in its do buildFormatElement false item sb commentRetriever
+            | ToolTipText([single]) -> buildFormatElement true single sb commentRetriever
+            | ToolTipText(its) -> for item in its do buildFormatElement false item sb commentRetriever
             sb.ToString().Trim('\n', '\r')
 
     /// Represents a declaration returned by GetDeclarations
@@ -71,9 +71,9 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.GetDescription() = description()
 
     /// Represents the results of type checking
-    type TypeCheckResults (*internal*) (info: Microsoft.FSharp.Compiler.SourceCodeServices.UntypedParseInfo,
-                                        results:Microsoft.FSharp.Compiler.SourceCodeServices.TypeCheckResults,
-                                        source: string[]) = 
+    type TypeCheckFileResults(info: Microsoft.FSharp.Compiler.SourceCodeServices.UntypedParseInfo,
+                              results:Microsoft.FSharp.Compiler.SourceCodeServices.TypeCheckFileResults,
+                              source: string[]) = 
 
         let identToken = Microsoft.FSharp.Compiler.Parser.tagOfToken (Microsoft.FSharp.Compiler.Parser.IDENT "")
         let hasChangedSinceLastTypeCheck _ = false
@@ -86,7 +86,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             async { let! items = results.GetDeclarations(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
                     return [| for i in items.Items -> Declaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
 
-        member x.GetRawDeclarations(line, col, names, residue, formatter:DataTipText->string[]) =
+        member x.GetRawDeclarations(line, col, names, residue, formatter:ToolTipText->string[]) =
             async { let! items = results.GetDeclarations(Some info, line, col, source.[line], names, residue, hasChangedSinceLastTypeCheck)
                     return [| for i in items.Items -> i.Name, (fun() -> formatter i.DescriptionText), i.Glyph |] }
 
@@ -94,13 +94,17 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.GetF1Keyword(line, col, names) =
             results.GetF1Keyword(line, col, source.[int line], names)
 
+        [<System.Obsolete("This method has been renamed to GetToolTipText")>]
+        member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = 
+            x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever)
+
         /// Get the data tip text at the given position
-        member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) =
-            let tip = results.GetDataTipText(line, col, source.[int line], names, identToken)
+        member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) =
+            let tip = results.GetToolTipText(line, col, source.[int line], names, identToken)
             formatTip tip xmlCommentRetriever
 
-        member x.GetRawDataTipText(line, col, names) =
-            results.GetDataTipText(line, col, source.[line], names, identToken)
+        member x.GetRawToolTipText(line, col, names) =
+            results.GetToolTipText(line, col, source.[line], names, identToken)
 
         /// Get the location of the declaration at the given position
         member x.GetDeclarationLocation(line, col, names, isDecl) =
@@ -112,7 +116,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     /// Provides simple services for checking and compiling F# scripts
     type public SimpleSourceCodeServices() =
 
-        let checker = InteractiveChecker.Create(NotifyFileTypeCheckStateIsDirty(fun _ -> ()))
+        let checker = InteractiveChecker.Create()
         let fileversion = 0
         let loadTime = DateTime.Now
  
@@ -138,26 +142,30 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             tokens
 
         /// Return information about matching braces in a single file.
-        member x.MatchBraces (filename, source: string) : (Range01 * Range01) [] = 
-            let options = checker.GetCheckOptionsFromScriptRoot(filename, source, loadTime)
+        member x.MatchBraces (filename, source: string, otherFlags) : (Range01 * Range01) [] = 
+            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, otherFlags)
             checker.MatchBraces(filename, source,  options)
 
+        [<System.Obsolete("This method has been renamed to ParseAndTypeCheckScript")>]
+        member x.TypeCheckScript (filename, source, otherFlags) = 
+            x.ParseAndTypeCheckScript (filename, source, otherFlags) 
+
         /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
-        member x.TypeCheckScript (filename:string,source:string,otherFlags:string[]) = 
-            let options = checker.GetCheckOptionsFromScriptRoot(filename, source, loadTime, otherFlags)
+        member x.ParseAndTypeCheckScript (filename:string,source:string,otherFlags:string[]) = 
+            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, otherFlags)
             checker.StartBackgroundCompile options
             // wait for the antecedent to appear
             checker.WaitForBackgroundCompile()
             // do an untyped parse
-            let info = checker.UntypedParse(filename, source, options)
+            let info = checker.ParseFileInProject(filename, source, options)
             // do an typecheck
             let textSnapshotInfo = "" // TODO
-            let typedInfo = checker.TypeCheckSource(info, filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo)
+            let typedInfo = checker.TypeCheckFileInProjectIfReady(info, filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo)
             // return the info
             match typedInfo with 
-            | NoAntecedant -> invalidOp "no antecedant"
-            | Aborted -> invalidOp "aborted"
-            | TypeCheckSucceeded res -> TypeCheckResults(info, res, source.Split('\n'))
+            | TypeCheckFileAnswer.NoAntecedant -> invalidOp "no antecedant"
+            | TypeCheckFileAnswer.Aborted -> invalidOp "aborted"
+            | TypeCheckFileAnswer.TypeCheckSucceeded res -> TypeCheckFileResults(info, res, source.Split('\n'))
 
         /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
         member x.Compile (argv: string[])  = 

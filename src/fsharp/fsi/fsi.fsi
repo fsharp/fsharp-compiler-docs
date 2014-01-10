@@ -93,32 +93,55 @@ type FsiEvaluationSession =
     member Interrupt : unit -> unit
 
     /// A host calls this to get the completions for a long identifier, e.g. in the console
+    ///
+    /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+    /// by input from 'stdin'.
     member GetCompletions : longIdent: string -> seq<string>
 
     /// Execute the code as if it had been entered as one or more interactions, with an
     /// implicit termination at the end of the input. Stop on first error, discarding the rest
     /// of the input. Errors are sent to the output writer, a 'true' return value indicates there
     /// were no errors overall. Execution is performed on the 'Run()' thread.
+    ///
+    /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+    /// by input from 'stdin'.
     member EvalInteraction : code: string -> unit
 
     /// Execute the code as if it had been entered as one or more interactions, with an
     /// implicit termination at the end of the input. Stop on first error, discarding the rest
     /// of the input. Errors are sent to the output writer, a 'true' return value indicates there
-    /// were no errors overall. Parsing is serialized via an agent, and execution is performed on the
-    /// 'Run()' thread.
+    /// were no errors overall. Parsing is performed on the current thread, and execution is performed 
+    /// sycnhronously on the 'main' thread.
+    ///
+    /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+    /// by input from 'stdin'.
     member EvalExpression : code: string -> FsiValue option
 
-    [<Experimental("Experimental")>]
+    /// Raised when an interaction is successfully typechecked and executed, resulting in an update to the
+    /// type checking state.  
+    ///
+    /// This event is triggered after parsing and checking, either via input from 'stdin', or via a call to EvalInteraction.
+    member TypeStateUpdated : Event<unit>
+
     /// Typecheck the given script fragment in the type checking context implied by the current state
     /// of F# Interactive. The results can be used to access intellisense, perform resolutions,
     /// check brace matching and other information.
     ///
-    /// TODO: this operation is not yet thread safe, i.e. should not be run concurrently with other operations.
-    /// The same applies to subsequent operations performed on the returned object.
+    /// Operations may be run concurrently with other requests to the InteractiveChecker.
     ///
-    /// TODO: this operation should really return an object that supports all the operations of the InteractiveChecker
-    /// object, i.e. brace matching, untyped parse trees etc.
-    member TypeCheckScriptFragment : code: string -> UntypedParseInfo * TypeCheckResults
+    /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+    /// by input from 'stdin'. 
+    member ParseAndCheckInteraction : code: string -> UntypedParseInfo * TypeCheckFileResults
+
+    /// The single, global interactive checker to use in conjunction with other operations
+    /// on the FsiEvaluationSession.  
+    ///
+    /// If you are using an FsiEvaluationSession in this process, you should only use this InteractiveChecker 
+    /// for additional checking operations.
+    member InteractiveChecker: InteractiveChecker
+
+    /// Get a handle to the resolved view of the current signature of the incrementally generated assembly.
+    member CurrentPartialAssemblySignature : FSharpAssemblySignature
 
     /// A host calls this to determine if the --gui parameter is active
     member IsGui : bool

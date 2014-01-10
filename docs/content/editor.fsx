@@ -222,7 +222,7 @@ and print a type annotation with the method name.
 ## Getting information about the typed assembly (project)
 
 After type checking a file, you can access the inferred signature of the entire assembly up to and including the
-checking of the given file through the `GetPartialAssemblySignature` function of the `TypeCheckResults`.
+checking of the given file through the `PartialAssemblySignature` property of the `TypeCheckResults`.
 
 The full signature information is available for modules, types, attributes, members, values, functions, 
 union cases, record types, units of measure and other F# language constructs.
@@ -247,7 +247,7 @@ let untyped2, parsed2 =
     parseWithTypeInfo(file, input2)
     |> Async.RunSynchronously
 
-let partialAssemblySignature = parsed2.GetPartialAssemblySignature() 
+let partialAssemblySignature = parsed2.PartialAssemblySignature
     
 partialAssemblySignature.Entities.Count
     

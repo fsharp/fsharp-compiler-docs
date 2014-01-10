@@ -129,5 +129,3 @@ type (*internal*) SourceTokenizer =
 module internal TestExpose =     
     val TokenInfo                                    : Parser.token -> (TokenColorKind * TokenCharKind * TriggerClass) 
 
-module internal Flags =
-    val init : unit -> unit

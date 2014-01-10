@@ -886,6 +886,7 @@ type internal FsiDynamicCompilerState =
       emEnv     : ILRuntimeWriter.emEnv
       tcGlobals : Env.TcGlobals
       tcState   : Build.TcState 
+      tcImports   : Build.TcImports
       ilxGenerator : Ilxgen.IlxAssemblyGenerator
       // Why is this not in FsiOptions?
       timing    : bool }
@@ -1240,53 +1241,13 @@ type internal FsiDynamicCompiler
          emEnv     = emEnv;
          tcGlobals = tcGlobals;
          tcState   = tcState;
+         tcImports = tcImports
          ilxGenerator = ilxGenerator;
          timing    = false;
         } 
 
-
-type internal FsiIntellisenseProvider(tcConfigB, tcGlobals, tcImports: TcImports) = 
-
-    let rangeStdin = rangeN Lexhelp.stdinMockFilename 0
-
-    let context (istate:FsiDynamicCompilerState) =
-        let tcConfig = TcConfig.Create(tcConfigB,validate=false)
-        let tcState = istate.tcState
-        let amap = tcImports.GetImportMap()
-        let infoReader = new Infos.InfoReader(tcGlobals,amap)
-        let ncenv = new Nameres.NameResolver(tcGlobals,amap,infoReader,Nameres.FakeInstantiationGenerator)
-        let ad = tcState.TcEnvFromImpls.AccessRights
-        let nenv = tcState.TcEnvFromImpls.NameEnv
-        tcConfig,tcState,amap,infoReader,ncenv,ad,nenv
-
-    /// Experiment: provide a way of resolving identifiers
-    ///
-    /// Evaluate the given expression and produce a new interactive state.
-    member __.TryResolveItem (istate:FsiDynamicCompilerState, lid: Ast.LongIdent) =
-        let _tcConfig,_tcState,_amap,_infoReader,ncenv,ad,nenv = context istate
-        let item, _m, _rest, _after = Nameres.ResolveLongIdentAsExprAndComputeRange Nameres.TcResultsSink.NoSink ncenv rangeStdin ad nenv TypeNameResolutionInfo.Default lid 
-        item
-
-    member __.CompletionsForPartialLID (istate, prefix:string) =
-        let lid,stem =
-            if prefix.IndexOf(".",StringComparison.Ordinal) >= 0 then
-                let parts = prefix.Split('.')
-                let n = parts.Length
-                Array.sub parts 0 (n-1) |> Array.toList,parts.[n-1]
-            else
-                [],prefix   
-        let _tcConfig,_tcState,amap,_infoReader,ncenv,ad,nenv = context istate
-        let nItems = Nameres.ResolvePartialLongIdent ncenv nenv (ConstraintSolver.IsApplicableMethApprox tcGlobals amap rangeStdin) rangeStdin ad lid false
-        let names  = nItems |> List.map (fun d -> d.DisplayName tcGlobals) 
-        let names  = names |> List.filter (fun name -> name.StartsWith(stem,StringComparison.Ordinal)) 
-        names
-
-    /// Experiment: provide a typechecking fragments against the current F# interactive context
-    member __.TypeCheckScriptFragment (istate, text:string) =
-        let tcConfig,tcState,_amap,_infoReader,_ncenv,_ad,_nenv = context istate
-        let loadClosure = None
-        let tcStateChecker = Microsoft.FSharp.Compiler.SourceCodeServices.TcStateChecker(tcConfig, tcGlobals, tcImports, tcState, loadClosure)
-        tcStateChecker.TypeCheckScriptFragment(text)
+    member __.CurrentPartialAssemblySignature(istate) = 
+        Microsoft.FSharp.Compiler.SourceCodeServices.FSharpAssemblySignature(istate.tcGlobals,istate.tcState.PartialAssemblySignature)
 
 //----------------------------------------------------------------------------
 // ctrl-c handling
@@ -1729,6 +1690,8 @@ type internal FsiInteractionProcessor
                              initialInteractiveState) = 
 
     let mutable currState = initialInteractiveState
+    let event = Event<unit>()
+    let setCurrState s = currState <- s; event.Trigger()
     //let mutable queueAgent = None
 
     let runCodeOnEventLoop f istate = 
@@ -1960,8 +1923,11 @@ type internal FsiInteractionProcessor
 
     let parseExpression (tokenizer:Lexfilter.LexFilter) =
         reusingLexbufForParsing tokenizer.LexBuffer (fun () ->
-            let ast = Parser.typedSeqExprEOF tokenizer.Lexer tokenizer.LexBuffer
-            ast )
+            Parser.typedSeqExprEOF tokenizer.Lexer tokenizer.LexBuffer)
+  
+//    let parseType (tokenizer:Lexfilter.LexFilter) =
+//        reusingLexbufForParsing tokenizer.LexBuffer (fun () ->
+//            Parser.typEOF tokenizer.Lexer tokenizer.LexBuffer)
   
     let mainThreadProcessParsedExpression (expr, istate) = 
       istate |> interactiveCatch (fun istate ->
@@ -1973,7 +1939,7 @@ type internal FsiInteractionProcessor
         | FsiInteractionStepStatus.CtrlC -> raise (OperationCanceledException())
         | FsiInteractionStepStatus.EndOfFile -> failwith "End of input"
         | FsiInteractionStepStatus.Completed res -> 
-            currState <- istate
+            setCurrState istate
             res
         | FsiInteractionStepStatus.CompletedWithReportedError e -> 
             raise (System.Exception("Evaluation failed", e))
@@ -2077,7 +2043,7 @@ type internal FsiInteractionProcessor
                         istate |> interactiveCatch (fun istate -> fsiDynamicCompiler.EvalSourceFiles(istate, rangeStdin, sourceFiles, lexResourceManager), Completed None) |> fst 
                 consume istate rest 
 
-        currState <- consume currState fsiOptions.SourceFiles
+        setCurrState (consume currState fsiOptions.SourceFiles)
 
         if nonNil fsiOptions.SourceFiles then 
             fsiConsolePrompt.PrintAhead() // Seems required. I expected this could be deleted. Why not?
@@ -2085,58 +2051,8 @@ type internal FsiInteractionProcessor
     /// Send a dummy interaction through F# Interactive, to ensure all the most common code generation paths are 
     /// JIT'ed and ready for use.
     member __.LoadDummyInteraction() =
-        currState <- currState |> interactiveCatch (fun istate ->  fsiDynamicCompiler.EvalParsedDefinitions (istate, true, false, []), Completed None) |> fst
+        setCurrState (currState |> interactiveCatch (fun istate ->  fsiDynamicCompiler.EvalParsedDefinitions (istate, true, false, []), Completed None) |> fst)
         
-(*
-    member __.CreateQueueAgent() = 
-      queueAgent <- Some <| new MailboxProcessor<_>(fun mbox -> async {
-          while true do
-            let! source, (reply : AsyncReplyChannel<FsiInteractionStepStatus>) = mbox.Receive()
-            InstallErrorLoggingOnThisThread errorLogger 
-            use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
-            try 
-                let tokenizer = fsiStdinLexerProvider.CreateStringLexer("script.fsx",source)
-
-                // Keep going until EndOfFile on the lexbuffer, or an interrupt, or an error
-                let rec loop() = 
-
-                    let istate = currState
-                    let istateNew,contNew = 
-                        if tokenizer.LexBuffer.IsPastEndOfStream then 
-                            istate,EndOfFile
-                        else 
-                            istate |> interactiveCatch (fun istate -> 
-                                let action  = parseInteractionSimple tokenizer
-                                let res = istate  |> runCodeOnEventLoop (fun istate -> mainThreadProcessParsedInteractions (Some action, istate)) 
-                                res)
-
-                    currState <- istateNew
-                    match contNew with 
-                    | CtrlC 
-                    | EndOfFile 
-                    | CompletedWithReportedError _ -> reply.Reply contNew
-                    | Completed _ -> loop()
-
-                loop()
-
-            with e -> stopProcessingRecovery e range0 })
-
-    member __.StartQueueAgent() = 
-        match queueAgent with 
-        | None -> failwith "queue agent not yet created" 
-        | Some agent -> agent.Start()
-        
-    member __.ExecuteInteractionAsync(code) = 
-        match queueAgent with 
-        | None -> failwith "queue agent not yet started" 
-        | Some agent -> agent.PostAndAsyncReply(fun c -> (code, c))
-
-    member __.ExecuteInteraction(code) = 
-        match queueAgent with 
-        | None -> failwith "queue agent not yet started" 
-        | Some agent -> agent.PostAndReply(fun c -> (code, c))
-*)
-
     member __.EvalInteraction(sourceText) =
         use _unwind1 = ErrorLogger.PushThreadBuildPhaseUntilUnwind(ErrorLogger.BuildPhase.Interactive)
         use _unwind2 = ErrorLogger.PushErrorLoggerPhaseUntilUnwind(fun _ -> errorLogger)
@@ -2162,6 +2078,7 @@ type internal FsiInteractionProcessor
             mainThreadProcessParsedExpression (expr, istate))
         |> commitResult
 
+    member __.TypeStateUpdated = event
 
     /// Start the background thread used to read the input reader and/or console
     ///
@@ -2195,7 +2112,7 @@ type internal FsiInteractionProcessor
                           let istateNew,contNew = 
                               processor.ParseAndExecOneSetOfInteractionsFromLexbuf (runCodeOnEventLoop, currState, currTokenizer)   
 
-                          currState <- istateNew
+                          setCurrState istateNew
 
                           match contNew with 
                           | EndOfFile -> ()
@@ -2235,6 +2152,66 @@ type internal FsiInteractionProcessor
 
         if !progress then fprintfn fsiConsoleOutput.Out "MAIN: starting stdin thread..."
         stdinReaderThread.Start()
+
+(*
+    /// Experiment: provide a way of resolving identifiers
+    ///
+    /// Evaluate the given expression and produce a new interactive state.
+    member __.TryResolveExprItem (istate:FsiDynamicCompilerState, lid: Ast.LongIdent) =
+        let tcState = istate.tcState
+        let amap = istate.tcImports.GetImportMap()
+        let infoReader = new Infos.InfoReader(istate.tcGlobals,amap)
+        let ncenv = new Nameres.NameResolver(istate.tcGlobals,amap,infoReader,Nameres.FakeInstantiationGenerator)
+        let ad = tcState.TcEnvFromImpls.AccessRights
+        let nenv = tcState.TcEnvFromImpls.NameEnv
+
+        let item, _m, _rest, _after = Nameres.ResolveLongIdentAsExprAndComputeRange Nameres.TcResultsSink.NoSink ncenv rangeStdin ad nenv TypeNameResolutionInfo.Default lid 
+        item
+*)
+
+    member __.CompletionsForPartialLID (istate, prefix:string) =
+        let lid,stem =
+            if prefix.IndexOf(".",StringComparison.Ordinal) >= 0 then
+                let parts = prefix.Split('.')
+                let n = parts.Length
+                Array.sub parts 0 (n-1) |> Array.toList,parts.[n-1]
+            else
+                [],prefix   
+
+        let tcState = istate.tcState
+        let amap = istate.tcImports.GetImportMap()
+        let infoReader = new Infos.InfoReader(istate.tcGlobals,amap)
+        let ncenv = new Nameres.NameResolver(istate.tcGlobals,amap,infoReader,Nameres.FakeInstantiationGenerator)
+        let ad = tcState.TcEnvFromImpls.AccessRights
+        let nenv = tcState.TcEnvFromImpls.NameEnv
+
+        let nItems = Nameres.ResolvePartialLongIdent ncenv nenv (ConstraintSolver.IsApplicableMethApprox istate.tcGlobals amap rangeStdin) rangeStdin ad lid false
+        let names  = nItems |> List.map (fun d -> d.DisplayName istate.tcGlobals) 
+        let names  = names |> List.filter (fun name -> name.StartsWith(stem,StringComparison.Ordinal)) 
+        names
+
+    member __.ParseAndCheckInteraction (checker, istate, text:string) =
+        let tcConfig = TcConfig.Create(tcConfigB,validate=false)
+
+        let loadClosure = None
+        let tcStateChecker = Microsoft.FSharp.Compiler.SourceCodeServices.ParseAndCheckHelper(checker, tcConfig, istate.tcGlobals, istate.tcImports, istate.tcState, loadClosure)
+        tcStateChecker.ParseAndCheckInteraction(text)
+
+(*
+    /// Experiment: provide a typechecking fragments against the current F# interactive context
+    member __.ParseAndCheckType (checker, istate, sourceText:string) =
+        let loadClosure = None
+        use _unwind1 = ErrorLogger.PushThreadBuildPhaseUntilUnwind(ErrorLogger.BuildPhase.Interactive)
+        use _unwind2 = ErrorLogger.PushErrorLoggerPhaseUntilUnwind(fun _ -> errorLogger)
+        use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
+        let lexbuf = UnicodeLexing.StringAsLexbuf(sourceText)
+        let tokenizer = fsiStdinLexerProvider.CreateLexerForLexBuffer("input.fsx", lexbuf)
+        currState 
+        |> interactiveCatch(fun istate ->
+            parseType tokenizer)
+        |> commitResult
+*)
+
 
 //----------------------------------------------------------------------------
 // Server mode:
@@ -2484,14 +2461,11 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
       
     let fsiStdinLexerProvider = FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon, fsiConsoleInput, fsiConsoleOutput, fsiOptions, lexResourceManager, errorLogger)
 
-    let fsiIntellisenseProvider = FsiIntellisenseProvider(tcConfigB, tcGlobals, tcImports)
-
     let fsiInteractionProcessor = FsiInteractionProcessor(fsiConfig, tcConfigB, errorLogger, fsiOptions, fsiDynamicCompiler, fsiConsolePrompt, fsiConsoleOutput, fsiInterruptController, fsiStdinLexerProvider, lexResourceManager, initialInteractiveState) 
 
-(*
-    // Creating early allows us to receive requests before we start to process them
-    do fsiInteractionProcessor.CreateQueueAgent()
-*)
+    /// The single, global interactive checker that can be safely used in conjunction with other operations
+    /// on the FsiEvaluationSession.  
+    let checker = Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker.Create()
 
     /// Load the dummy interaction, load the initial files, and,
     /// if interacting, start the background thread to read the standard input.
@@ -2499,10 +2473,13 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 
     /// A host calls this to get the completions for a long identifier, e.g. in the console
     member x.GetCompletions(longIdent) = 
-        fsiIntellisenseProvider.CompletionsForPartialLID (fsiInteractionProcessor.CurrentState, longIdent)  |> Seq.ofList
+        fsiInteractionProcessor.CompletionsForPartialLID (fsiInteractionProcessor.CurrentState, longIdent)  |> Seq.ofList
 
-    member x.TypeCheckScriptFragment(code) = 
-        fsiIntellisenseProvider.TypeCheckScriptFragment (fsiInteractionProcessor.CurrentState, code)  
+    member x.ParseAndCheckInteraction(code) = 
+        fsiInteractionProcessor.ParseAndCheckInteraction (checker.ReactorOps, fsiInteractionProcessor.CurrentState, code)  
+
+    member x.CurrentPartialAssemblySignature = 
+        fsiDynamicCompiler.CurrentPartialAssemblySignature (fsiInteractionProcessor.CurrentState)  
 
     /// A host calls this to determine if the --gui parameter is active
     member x.IsGui = fsiOptions.Gui 
@@ -2580,6 +2557,10 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 
     member x.ExecuteInteractionAsync(code) = fsiInteractionProcessor.ExecuteInteractionAsync(code)
 *)
+
+    member x.TypeStateUpdated = fsiInteractionProcessor.TypeStateUpdated
+
+    member x.InteractiveChecker = checker
 
     member x.EvalExpression(sourceText) = 
       fsiInteractionProcessor.EvalExpression(sourceText)

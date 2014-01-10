@@ -4,17 +4,17 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 
 // Create an interactive checker instance (ignore notifications)
-let checker = InteractiveChecker.Create(NotifyFileTypeCheckStateIsDirty ignore)
+let checker = InteractiveChecker.Create()
 
 // ------------------------------------------------------------------
 
 // Get untyped tree for a specified input
 let getUntypedTree (file, input) = 
   // Get compiler options for a single script file
-  let checkOptions = checker.GetCheckOptionsFromScriptRoot(file, input, DateTime.Now, [| |])
+  let checkOptions = checker.GetProjectOptionsFromScriptRoot(file, input, DateTime.Now, [| |])
   // Run the first phase (untyped parsing) of the compiler
 
-  let untypedRes = checker.UntypedParse(file, input, checkOptions)
+  let untypedRes = checker.ParseFileInProject(file, input, checkOptions)
   match untypedRes.ParseTree with
   | Some tree -> tree
   | None -> failwith "Something went wrong during parsing!"

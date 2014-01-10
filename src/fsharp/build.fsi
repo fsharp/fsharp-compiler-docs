@@ -626,7 +626,7 @@ type TcState =
     member NextStateAfterIncrementalFragment : TcEnv -> TcState
     member TcEnvFromImpls : TcEnv
     /// The inferred contents of the assembly, containing the signatures of all implemented files.
-    member SignatureType : ModuleOrNamespaceType
+    member PartialAssemblySignature : ModuleOrNamespaceType
     
 val TypecheckInitialState : 
     range * string * TcConfig * TcGlobals * TcImports * Ast.NiceNameGenerator * TcEnv -> TcState

@@ -742,12 +742,12 @@ and FSharpMemberOrVal(g:TcGlobals,e:FSharpEntity,v:ValRef) =
 
 
 and FSharpType(g:TcGlobals, env:Env, typ:TType) =
-
-    member __.IsNamedType = (match stripTyEqns g typ with TType_app _ | TType_measure (MeasureCon _ | MeasureProd _ | MeasureInv _ | MeasureOne _) -> true | _ -> false)
-    member __.IsTupleType = (match stripTyEqns g typ with TType_tuple _ -> true | _ -> false)
+    new (g:TcGlobals, typ:TType) = FSharpType(g, Env [], typ)
+    member __.IsNamedType = (match stripTyparEqns typ with TType_app _ | TType_measure (MeasureCon _ | MeasureProd _ | MeasureInv _ | MeasureOne _) -> true | _ -> false)
+    member __.IsTupleType = (match stripTyparEqns typ with TType_tuple _ -> true | _ -> false)
 
     member __.NamedEntity = 
-        match stripTyEqns g typ with 
+        match stripTyparEqns typ with 
         | TType_app (tcref,_) -> FSharpEntity(g, tcref) 
         | TType_measure (MeasureCon tcref) ->  FSharpEntity(g, tcref) 
         | TType_measure (MeasureProd _) ->  FSharpEntity(g, g.measureproduct_tcr) 
@@ -756,7 +756,7 @@ and FSharpType(g:TcGlobals, env:Env, typ:TType) =
         | _ -> invalidOp "not a named type"
 
     member __.GenericArguments = 
-        match stripTyEqns g typ with 
+        match stripTyparEqns typ with 
         | TType_app (_,tyargs) 
         | TType_tuple (tyargs) -> (tyargs |> List.map (fun ty -> FSharpType(g, env,ty)) |> makeReadOnlyCollection) 
         | TType_fun(d,r) -> [| FSharpType(g, env,d); FSharpType(g, env,r) |] |> makeReadOnlyCollection
@@ -767,23 +767,23 @@ and FSharpType(g:TcGlobals, env:Env, typ:TType) =
         | _ -> invalidOp "not a named type"
 
 
-    member __.IsFunctionType = (match stripTyEqns g typ with TType_fun _ -> true | _ -> false)
+    member __.IsFunctionType = (match stripTyparEqns typ with TType_fun _ -> true | _ -> false)
 
     member __.IsGenericParameter = 
-        match stripTyEqns g typ with 
+        match stripTyparEqns typ with 
         | TType_var _ -> true 
         | TType_measure (MeasureVar _) -> true 
         | _ -> false
 
     member __.GenericParameter = 
-        match stripTyEqns g typ with 
+        match stripTyparEqns typ with 
         | TType_var tp 
         | TType_measure (MeasureVar tp) -> 
             FSharpGenericParameter (g, env, env.Typars |> Array.find (fun tp2 -> typarRefEq tp tp2)) 
         | _ -> invalidOp "not a generic parameter type"
 
     member __.GenericParameterIndex = 
-        match stripTyEqns g typ with 
+        match stripTyparEqns typ with 
         | TType_var tp 
         | TType_measure (MeasureVar tp) -> 
             env.Typars |> Array.findIndex (fun tp2 -> typarRefEq tp tp2)

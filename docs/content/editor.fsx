@@ -31,9 +31,7 @@ open System
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 // Create an interactive checker instance 
-// (and do not provide file changed notifications)
-let notify = NotifyFileTypeCheckStateIsDirty ignore
-let checker = InteractiveChecker.Create(notify)
+let checker = InteractiveChecker.Create()
 (**
 
 The untyped parse operation is relatively fast, but type checking of F# code can take
@@ -58,24 +56,24 @@ script file or stand-alone F# source code):
 /// Perform type checking on the specified input and 
 /// return asynchronous workflow that eventually returns
 /// the untyped parse info & type check result.
-let parseWithTypeInfo (file, input) = 
+let parseAndTypeCheckFileInProject (file, input) = 
     async { 
         // Get context representing a stand-alone (script) file
-        let checkOptions = checker.GetCheckOptionsFromScriptRoot(file, input, DateTime.Now, [||])
+        let checkOptions = checker.GetProjectOptionsFromScriptRoot(file, input, DateTime.Now, [||])
 
         // Perform untyped parsing  (reasonably quick)
-        let untypedRes = checker.UntypedParse(file, input, checkOptions)
+        let untypedRes = checker.ParseFileInProject(file, input, checkOptions)
         
         // Recursive loop waiting for type-checking result
         let rec waitForTypeCheck (n) = 
             async { 
                 // Get the reuslt for specified file & input
                 // Also specify that result is never invalidated
-                let typedRes = checker.TypeCheckSource(untypedRes, file, 0, input, checkOptions, IsResultObsolete(fun _ -> false), null)
+                let typedRes = checker.TypeCheckFileInProjectIfReady(untypedRes, file, 0, input, checkOptions, IsResultObsolete(fun _ -> false), null)
 
                 // Wait until type checking succeeds (or 100 attempts)
                 match typedRes with
-                | TypeCheckAnswer.TypeCheckSucceeded(res) -> return untypedRes, res
+                | TypeCheckFileAnswer.TypeCheckSucceeded(res) -> return untypedRes, res
                 | res when n > 100 -> return failwithf "Parsing did not finish... (%A)" res
                 | _ -> 
                     do! Async.Sleep(100)
@@ -126,7 +124,7 @@ let input =
 let inputLines = input.Split('\n')
 let file = "/home/user/Test.fsx"
 (**
-Now we can call `parseWithTypeInfo`, synchronously wait for the result (in F# interactive)
+Now we can call `parseAndTypeCheckFileInProject`, synchronously wait for the result (in F# interactive)
 and look at the various operations for working with the result.
 
 Using type checking results
@@ -134,10 +132,10 @@ Using type checking results
 
 Let's now look at some of the API that is exposed by the `TypeCheckResults` type. In general,
 this is the type that lets you implement most of the interesting F# source code editor services.
-First, we call `parseWithTypeInfo` and wait for the asynchronous workflow to complete:
+First, we call `parseAndTypeCheckFileInProject` and wait for the asynchronous workflow to complete:
 *)
-let untyped, parsed = 
-  parseWithTypeInfo(file, input)
+let untyped, typeCheckResults = 
+  parseAndTypeCheckFileInProject(file, input)
   |> Async.RunSynchronously
 (**
 ### Getting tool tip
@@ -155,7 +153,7 @@ open Microsoft.FSharp.Compiler
 let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
 
 // Get tool tip at the specified location
-let tip = parsed.GetDataTipText(3, 7, inputLines.[1], ["foo"], identToken)
+let tip = typeCheckResults.GetToolTipText(3, 7, inputLines.[1], ["foo"], identToken)
 printfn "%A" tip
 (**
 Aside from the location and token kind, the function also requires the current contents of the line
@@ -181,7 +179,7 @@ where we need to perform the completion.
 *)
 // Get declarations (autocomplete) for a location
 let decls = 
-  parsed.GetDeclarations
+  typeCheckResults.GetDeclarations
     (Some untyped, 6, 23, inputLines.[6], [], "msg", fun _ -> false)
   |> Async.RunSynchronously
 
@@ -207,7 +205,7 @@ changes):
 *)
 // Get overloads of the String.Contact method
 let methods = 
-  parsed.GetMethods(4, 27, inputLines.[4], Some ["String"; "Contat"])
+  typeCheckResults.GetMethods(4, 27, inputLines.[4], Some ["String"; "Contat"])
 
 // Print concatenated parameter lists
 for mi in methods.Methods do
@@ -219,7 +217,7 @@ The code uses the `Display` property to get the annotation for each parameter. T
 such as `arg0: obj` or `params args: obj[]` or `str0: string, str1: string`. We concatenate the parameters
 and print a type annotation with the method name.
 
-## Getting information about the typed assembly (project)
+## Getting resolved signature information about the project
 
 After type checking a file, you can access the inferred signature of the entire assembly up to and including the
 checking of the given file through the `PartialAssemblySignature` property of the `TypeCheckResults`.
@@ -243,11 +241,11 @@ let foo() =
 type C() = 
     member x.P = 1
       """
-let untyped2, parsed2 = 
-    parseWithTypeInfo(file, input2)
+let untyped2, typeCheckResults2 = 
+    parseAndTypeCheckFileInProject(file, input2)
     |> Async.RunSynchronously
 
-let partialAssemblySignature = parsed2.PartialAssemblySignature
+let partialAssemblySignature = typeCheckResults2.PartialAssemblySignature
     
 partialAssemblySignature.Entities.Count
     
@@ -272,14 +270,16 @@ let fnVal = moduleEntity.MembersOrValues.[0]
 (**
 Now look around at the properties describing the function:
 *)
-fnVal.Accessibility // TODO
-fnVal.Attributes 
-fnVal.CurriedParameterGroups |> Seq.toArray |> Array.map Seq.toArray
-fnVal.DeclarationLocation
-fnVal.DisplayName
-fnVal.EnclosingEntity.DeclarationLocation
+fnVal.Accessibility.IsPublic = true
+fnVal.Attributes.Count = 1
+fnVal.CurriedParameterGroups.Count = 1
+fnVal.CurriedParameterGroups.[0].Count = 1
+fnVal.DeclarationLocation.StartLine = 3
+fnVal.DisplayName = "foo"
+fnVal.EnclosingEntity.DisplayName = "Test"
+fnVal.EnclosingEntity.DeclarationLocation.StartLine = 1
 fnVal.GenericParameters.Count = 0
-fnVal.InlineAnnotation
+fnVal.InlineAnnotation = FSharpInlineAnnotation.OptionalInline
 fnVal.IsActivePattern = false
 fnVal.IsCompilerGenerated = false
 fnVal.IsDispatchSlot = false
@@ -296,10 +296,9 @@ fnVal.IsTypeFunction = false
 (**
 Now look at the inferred type of the function:
 *)
-fnVal.FullType // unit -> unit
 fnVal.FullType.IsFunctionType // unit -> unit
-fnVal.FullType.GenericArguments.[0].NamedEntity.DisplayName // unit 
-fnVal.FullType.GenericArguments.[1].NamedEntity.DisplayName // unit 
+fnVal.FullType.GenericArguments.[0].NamedEntity.DisplayName = "unit" // unit 
+fnVal.FullType.GenericArguments.[1].NamedEntity.DisplayName = "unit" // unit 
 
 (**
 Notes: 
@@ -313,7 +312,7 @@ Notes:
 Summary
 -------
 
-The `TypeCheckResults` object contains other useful methods that were not covered in this tutorial. You
+The `TypeCheckFileResults` object contains other useful methods that were not covered in this tutorial. You
 can use it to get location of a declaration for a given identifier, additional colorization information
 (the F# 3.1 colorizes computation builder identifiers & query operators) and others.
 

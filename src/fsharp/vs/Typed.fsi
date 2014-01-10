@@ -381,7 +381,7 @@ and [<Class; NoEquality; NoComparison>]
     member DelegateConstraintData : FSharpGenericParameterDelegateConstraint
 
 
-and FSharpInlineAnnotation = 
+and [<RequireQualifiedAccess>] FSharpInlineAnnotation = 
    /// Indictes the value is inlined and compiled code for the function does not exist
    | PsuedoValue 
    /// Indictes the value is inlined but compiled code for the function still exists, e.g. to satisfy interfaces on objects, but that it is also always inlined 
@@ -516,6 +516,8 @@ and [<Class>] FSharpParameter =
 
 
 and [<Class>] FSharpType =
+    /// Internal use only. Create a ground type.
+    internal new : g:TcGlobals * typ:TType -> FSharpType
 
     /// Indicates if the type is constructed using a named entity, including array and byref types
     member IsNamedType : bool

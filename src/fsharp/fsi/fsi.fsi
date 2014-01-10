@@ -36,7 +36,6 @@ type public FsiEvaluationSessionHostConfig =
     abstract PrintWidth : int
     /// Called by the evaluation session to ask the host for parameters to format text for output
     abstract PrintLength : int
-
     /// The evaluation session calls this to report the preferred view of the command line arguments after 
     /// stripping things like "/use:file.fsx", "-r:Foo.dll" etc.
     abstract ReportUserCommandLineArgs : string [] with set
@@ -80,9 +79,14 @@ type public FsiEvaluationSessionHostConfig =
 
 
 [<Class>]
+/// Represents an evaluated F# value
 type FsiValue = 
-  member ReflectionValue : obj
-  member ReflectionType : System.Type
+    /// The value, as an object
+    member ReflectionValue : obj
+    /// The type of the value, from the point of view of the .NET type system
+    member ReflectionType : System.Type
+    /// The type of the value, from the point of view of the F# type system
+    member FSharpType : FSharpType
 
 /// The primary type, representing a full F# Interactive session, reading from the given
 /// text input, writing to the given text output and error writers.
@@ -164,6 +168,9 @@ type FsiEvaluationSession =
 
     member Run : unit -> unit
 
+    /// Get a configuration that uses the 'fsi' object from FSharp.Compiler.Services.Interactive.Settings.dll (or
+    /// an object with identical characteristics) to provide an implementation of the configuration.
+    static member GetDefaultConfiguration: fsiObj: obj -> FsiEvaluationSessionHostConfig
 
 /// Defines a read-only input stream used to feed content to the hosted F# Interactive dynamic compiler.
 [<AllowNullLiteral>]

@@ -25,3 +25,7 @@
 * Added GetDefaultConfiguration to simplify process of configuring FsiEvaluationSession
 * Added TypeStateUpdated event to FsiEvaluationSession
 * Added travis build
+
+#### 0.0.4-alpha - 
+* Added documentation of file system API
+* Reporte errors correctly from ParseAndCheckProject

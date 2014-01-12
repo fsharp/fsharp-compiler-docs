@@ -185,12 +185,11 @@ Notes:
 
 ## Getting symbolic informaion about whole projects
 
-To check whole projects, create a checker, then call `ParseAndCheckProject`. In this case, we just check 
-the "project" for a single script, though by specifying a different "projectOptions" you can create 
+To check whole projects, create a checker, then call `parseAndCheckScript`. In this case, we just check 
+the project for a single script. By specifying a different "projectOptions" you can create 
 a specification of a larger project.
 *)
-
-let ParseAndCheckProject (file, input) = 
+let parseAndCheckScript (file, input) = 
     let projectOptions = checker.GetProjectOptionsFromScriptRoot(file, input)
     checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
 
@@ -201,7 +200,7 @@ Now do it for a particular input:
 let tmpFile = Path.ChangeExtension(System.IO.Path.GetTempFileName() , "fs")
 File.WriteAllText(tmpFile, input2)
 
-let projectResults = ParseAndCheckProject(tmpFile, input2)
+let projectResults = parseAndCheckScript(tmpFile, input2)
 
 
 (**

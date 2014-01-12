@@ -12,11 +12,3 @@
 
 namespace Internal.Utilities.FileSystem
 
-  [<Class>]
-  type internal File =
-      static member SafeExists : filename:string -> bool
-
-  [<Class>]
-  type internal Path =
-      static member IsInvalidDirectory : path:string -> bool
-      static member IsInvalidPath : path:string -> bool

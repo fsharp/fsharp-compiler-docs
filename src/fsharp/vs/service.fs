@@ -1214,7 +1214,7 @@ module internal Parser =
         let lastLineLength = source.Length - source.LastIndexOf("\n",StringComparison.Ordinal) - 1
         lastLine, lastLineLength
          
-    let ReportError (tcConfig:TcConfig, mainInputFileName, fileInfo, (exn, warn)) = 
+    let ReportError (tcConfig:TcConfig, allErrors, mainInputFileName, fileInfo, (exn, warn)) = 
         [ let warn = warn && not (ReportWarningAsError tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn tcConfig.specificWarnAsError tcConfig.specificWarnAsWarn tcConfig.globalWarnAsError exn)                
           if (not warn || ReportWarning tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn exn) then 
             let oneError trim exn = 
@@ -1222,7 +1222,7 @@ module internal Parser =
                   // Not ideal, but it's hard to see what else to do.
                   let fallbackRange = rangeN mainInputFileName 1
                   let ei = ErrorInfo.CreateFromExceptionAndAdjustEof(exn,warn,trim,fallbackRange,fileInfo)
-                  if (ei.FileName=mainInputFileName) || (ei.FileName=Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation) then
+                  if allErrors || (ei.FileName=mainInputFileName) || (ei.FileName=Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation) then
                       yield ei ]
                       
             let mainError,relatedErrors = Build.SplitRelatedErrors exn 
@@ -1230,12 +1230,12 @@ module internal Parser =
             for e in relatedErrors do 
                 yield! oneError true e ]
 
-    let CreateErrorInfos (tcConfig:TcConfig, mainInputFileName, fileInfo, errors) = 
+    let CreateErrorInfos (tcConfig:TcConfig, allErrors, mainInputFileName, fileInfo, errors) = 
         [| for (exn,warn) in errors do 
-              yield! ReportError (tcConfig, mainInputFileName, fileInfo, (exn, warn)) |]
+              yield! ReportError (tcConfig, allErrors, mainInputFileName, fileInfo, (exn, warn)) |]
                             
 
-    /// Error handler for parsing & type checking
+    /// Error handler for parsing & type checking while processing a single file
     type ErrorHandler(reportErrors, mainInputFileName, tcConfig: TcConfig, source: string) =
         let mutable tcConfig = tcConfig
         let errorsAndWarningsCollector = new ResizeArray<_>()
@@ -1256,7 +1256,7 @@ module internal Parser =
                 else exn
             if reportErrors then 
                 let report exn = 
-                    for ei in ReportError (tcConfig, mainInputFileName, fileInfo, (exn, warn)) do
+                    for ei in ReportError (tcConfig, false, mainInputFileName, fileInfo, (exn, warn)) do
                         errorsAndWarningsCollector.Add ei
                         if not warn then 
                             errorCount <- errorCount + 1
@@ -1913,7 +1913,7 @@ type BackgroundCompiler() as self =
             let dependencyFiles = builder.Dependencies 
             //let fileInfo = Parser.GetFileInfoForLastLineErrors source
             let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, filename, fileInfo, parseErrors) |]
+            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, parseErrors) |]
             ParsedFileResults(errors = errors, input = inputOpt, parseHadErrors = false, dependencyFiles = dependencyFiles)
         
     member bc.MatchBraces(filename:string, source, options)=
@@ -1964,8 +1964,8 @@ type BackgroundCompiler() as self =
             let (inputOpt, _, _, untypedErrors) = builder.GetParseResultsForFile filename  
             let (_tcPriorState,_tcImports,_tcGlobals,_tcConfig,tcErrors,_antecedantTimeStamp) = builder.GetTypeCheckResultsAfterFileInProject filename 
             let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-            let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, filename, fileInfo, untypedErrors) |]
-            let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, filename, fileInfo, tcErrors) |]
+            let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, untypedErrors) |]
+            let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, tcErrors) |]
             let untypedParse = ParsedFileResults(errors = untypedErrors, input = inputOpt, parseHadErrors = false, dependencyFiles = builder.Dependencies)
             // TODO: this does not yet return a TypeCheckInfo (scope) usable for intellisense.  The name
             // resolutions would need to be saved in the backgroundd checker. This will be needed for 
@@ -1978,12 +1978,10 @@ type BackgroundCompiler() as self =
     member bc.ParseAndCheckProject(options) =
         reactor.RunAsyncOp <| fun () -> 
             let builder,creationErrors,_ = incrementalBuildersCache.Get(options) 
-            let results = builder.GetTypeCheckResultsAfterLastFileInProject()
-            match results with
-            | (tcState,tcImports,tcGlobals,tcConfig,tcErrors,_antecedantTimeStamp) -> 
-                let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-                let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, "none.fs", fileInfo, tcErrors) |]
-                CheckProjectResults (errors, tcGlobals, tcImports, tcState.PartialAssemblySignature)
+            let (tcState,tcImports,tcGlobals,tcConfig,tcErrors,_antecedantTimeStamp)  = builder.GetTypeCheckResultsAfterLastFileInProject()
+            let fileInfo = (Int32.MaxValue, Int32.MaxValue)
+            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcErrors) |]
+            CheckProjectResults (errors, tcGlobals, tcImports, tcState.PartialAssemblySignature)
 
     member bc.GetProjectOptionsFromScriptRoot(filename, source, ?loadedTimestamp, ?otherFlags, ?useFsiAuxLib) = 
         reactor.RunSyncOp (fun () -> 

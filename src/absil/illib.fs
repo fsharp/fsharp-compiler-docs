@@ -954,62 +954,23 @@ type LayeredMultiMap<'Key,'Value when 'Key : equality and 'Key : comparison>(con
 module Shim =
 
     open System.IO
-    [<AbstractClass>]
-    type FileSystem() = 
-        abstract ReadAllBytesShim: fileName:string -> byte[] 
-        default this.ReadAllBytesShim (fileName:string) = 
-            use stream = this.FileStreamReadShim fileName
-            let len = stream.Length
-            let buf = Array.zeroCreate<byte> (int len)
-            stream.Read(buf, 0, (int len)) |> ignore                                            
-            buf
 
+    type IFileSystem = 
+        abstract ReadAllBytesShim: fileName:string -> byte[] 
         abstract FileStreamReadShim: fileName:string -> System.IO.Stream
         abstract FileStreamCreateShim: fileName:string -> System.IO.Stream
-        abstract GetFullPathShim: fileName:string -> string
         /// Take in a filename with an absolute path, and return the same filename
         /// but canonicalized with respect to extra path separators (e.g. C:\\\\foo.txt) 
         /// and '..' portions
-        abstract SafeGetFullPath: fileName:string -> string
+        abstract GetFullPathShim: fileName:string -> string
         abstract IsPathRootedShim: path:string -> bool
-
-        abstract IsInvalidFilename: filename:string -> bool
+        abstract IsInvalidPathShim: filename:string -> bool
         abstract GetTempPathShim : unit -> string
         abstract GetLastWriteTimeShim: fileName:string -> System.DateTime
         abstract SafeExists: fileName:string -> bool
         abstract FileDelete: fileName:string -> unit
         abstract AssemblyLoadFrom: fileName:string -> System.Reflection.Assembly 
         abstract AssemblyLoad: assemblyName:System.Reflection.AssemblyName -> System.Reflection.Assembly 
-
-#if SILVERLIGHT
-        default this.AssemblyLoadFrom(fileName:string) = 
-              let load() = 
-                  let assemblyPart = System.Windows.AssemblyPart()
-                  let assemblyStream = this.FileStreamReadShim(fileName)
-                  assemblyPart.Load(assemblyStream)
-              if System.Windows.Deployment.Current.Dispatcher.CheckAccess() then 
-                  load() 
-              else
-                  let resultTask = System.Threading.Tasks.TaskCompletionSource<System.Reflection.Assembly>()
-                  System.Windows.Deployment.Current.Dispatcher.BeginInvoke(Action(fun () -> resultTask.SetResult (load()))) |> ignore
-                  resultTask.Task.Result
-
-        default this.AssemblyLoad(assemblyName:System.Reflection.AssemblyName) = 
-            try 
-               System.Reflection.Assembly.Load(assemblyName.FullName)
-            with e -> 
-                this.AssemblyLoadFrom(assemblyName.Name + ".dll")
-#else
-        default this.AssemblyLoadFrom(fileName:string) = 
-#if FX_ATLEAST_40_COMPILER_LOCATION
-            System.Reflection.Assembly.UnsafeLoadFrom fileName
-#else
-            System.Reflection.Assembly.LoadFrom fileName
-#endif
-        default this.AssemblyLoad(assemblyName:System.Reflection.AssemblyName) = System.Reflection.Assembly.Load assemblyName
-#endif
-
-
 #if SILVERLIGHT
     open System.IO.IsolatedStorage
     open System.Windows
@@ -1017,6 +978,32 @@ module Shim =
 
     let mutable FileSystem = 
         { new FileSystem() with 
+            member this.ReadAllBytesShim (fileName:string) = 
+                use stream = this.FileStreamReadShim fileName
+                let len = stream.Length
+                let buf = Array.zeroCreate<byte> (int len)
+                stream.Read(buf, 0, (int len)) |> ignore                                            
+                buf
+
+
+            member this.AssemblyLoadFrom(fileName:string) = 
+                  let load() = 
+                      let assemblyPart = System.Windows.AssemblyPart()
+                      let assemblyStream = this.FileStreamReadShim(fileName)
+                      assemblyPart.Load(assemblyStream)
+                  if System.Windows.Deployment.Current.Dispatcher.CheckAccess() then 
+                      load() 
+                  else
+                      let resultTask = System.Threading.Tasks.TaskCompletionSource<System.Reflection.Assembly>()
+                      System.Windows.Deployment.Current.Dispatcher.BeginInvoke(Action(fun () -> resultTask.SetResult (load()))) |> ignore
+                      resultTask.Task.Result
+
+            member this.AssemblyLoad(assemblyName:System.Reflection.AssemblyName) = 
+                try 
+                   System.Reflection.Assembly.Load(assemblyName.FullName)
+                with e -> 
+                    this.AssemblyLoadFrom(assemblyName.Name + ".dll")
+
             member __.FileStreamReadShim (fileName:string) = 
                 match Application.GetResourceStream(System.Uri(fileName,System.UriKind.Relative)) with 
                 | null -> IsolatedStorageFile.GetUserStoreForApplication().OpenFile(fileName, System.IO.FileMode.Open) :> System.IO.Stream 
@@ -1027,9 +1014,18 @@ module Shim =
 
             member __.GetFullPathShim (fileName:string) = fileName
             member __.IsPathRootedShim (pathName:string) = true
-            member __.SafeGetFullPath (fileName:string) = fileName
-            member __.IsInvalidFilename(filename:string) = 
-                String.IsNullOrEmpty(filename) || filename.IndexOfAny(System.IO.Path.GetInvalidPathChars()) <> -1
+            member __.GetFullPathShim (fileName:string) = fileName
+            member __.IsInvalidPathShim(path:string) = 
+                let isInvalidPath(p:string) = 
+                    String.IsNullOrEmpty(p) || p.IndexOfAny(System.IO.Path.GetInvalidPathChars()) <> -1
+
+                let isInvalidDirectory(d:string) = 
+                    d=null || d.IndexOfAny(Path.GetInvalidPathChars()) <> -1
+
+                isInvalidPath (path) || 
+                let directory = Path.GetDirectoryName(path)
+                let filename = Path.GetFileName(path)
+                isInvalidDirectory(directory) || isInvalidPath(filename)
 
             member __.GetTempPathShim() = "." 
 
@@ -1050,19 +1046,33 @@ module Shim =
 #else
 
     let mutable FileSystem = 
-        { new FileSystem() with 
-            override __.ReadAllBytesShim (fileName:string) = File.ReadAllBytes fileName
+        { new IFileSystem with 
+            member __.AssemblyLoadFrom(fileName:string) = 
+    #if FX_ATLEAST_40_COMPILER_LOCATION
+                System.Reflection.Assembly.UnsafeLoadFrom fileName
+    #else
+                System.Reflection.Assembly.LoadFrom fileName
+    #endif
+            member __.AssemblyLoad(assemblyName:System.Reflection.AssemblyName) = System.Reflection.Assembly.Load assemblyName
+
+            member __.ReadAllBytesShim (fileName:string) = File.ReadAllBytes fileName
             member __.FileStreamReadShim (fileName:string) = new FileStream(fileName,FileMode.Open,FileAccess.Read,FileShare.ReadWrite)  :> Stream
             member __.FileStreamCreateShim (fileName:string) = new FileStream(fileName,FileMode.Create,FileAccess.Write,FileShare.Read ,0x1000,false) :> Stream
             member __.GetFullPathShim (fileName:string) = System.IO.Path.GetFullPath fileName
-            member __.SafeGetFullPath (fileName:string) = 
-                //System.Diagnostics.Debug.Assert(Path.IsPathRooted(fileName), sprintf "SafeGetFullPath: '%s' is not absolute" fileName)
-                Path.GetFullPath fileName
 
             member __.IsPathRootedShim (path:string) = Path.IsPathRooted path
 
-            member __.IsInvalidFilename(filename:string) = 
-                String.IsNullOrEmpty(filename) || filename.IndexOfAny(Path.GetInvalidFileNameChars()) <> -1
+            member __.IsInvalidPathShim(path:string) = 
+                let isInvalidPath(p:string) = 
+                    String.IsNullOrEmpty(p) || p.IndexOfAny(System.IO.Path.GetInvalidPathChars()) <> -1
+
+                let isInvalidDirectory(d:string) = 
+                    d=null || d.IndexOfAny(Path.GetInvalidPathChars()) <> -1
+
+                isInvalidPath (path) || 
+                let directory = Path.GetDirectoryName(path)
+                let filename = Path.GetFileName(path)
+                isInvalidDirectory(directory) || isInvalidPath(filename)
 
             member __.GetTempPathShim() = System.IO.Path.GetTempPath()
 

@@ -33,29 +33,3 @@ open System
 open System.IO
 open System.Diagnostics
 
-type internal File() =
-    static member SafeExists filename = FileSystem.SafeExists filename
-    //static member SafeNewFileStream(filename:string,mode:FileMode,access:FileAccess,share:FileShare) = 
-    //    FileSystem new FileStream(filename,mode,access,share) 
-
-type internal Path() =
-
-    static member IsInvalidDirectory(path:string) = 
-        path=null || path.IndexOfAny(Path.GetInvalidPathChars()) <> -1
-
-    static member IsInvalidPath(path:string) = 
-        if String.IsNullOrEmpty(path) then true
-        else 
-            if path.IndexOfAny(Path.GetInvalidPathChars()) <> - 1 then
-                true // broken out into branch for ease of setting break points
-            else 
-                let directory = Path.GetDirectoryName(path)
-                let filename = Path.GetFileName(path)
-                if Path.IsInvalidDirectory(directory) then
-                    true 
-                elif FileSystem.IsInvalidFilename(filename) then
-                    true
-                else
-                    false 
-
-

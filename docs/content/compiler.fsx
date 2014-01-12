@@ -80,3 +80,4 @@ let errors2, exitCode2, dynAssembly2 = scs.CompileToDynamicAssembly([| "-o"; fn3
 Passing 'Some' for the 'execute' parameter executes  the initiatlization code for the assembly.
 *)
 let errors3, exitCode3, dynAssembly3 = scs.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |],Some(stdout,stderr))
+

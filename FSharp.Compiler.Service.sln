@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{83FEE492-6
 	ProjectSection(SolutionItems) = preProject
 		docs\content\devnotes.md = docs\content\devnotes.md
 		docs\content\editor.fsx = docs\content\editor.fsx
+		docs\content\filesystem.fsx = docs\content\filesystem.fsx
 		docs\content\fsharp-readme.md = docs\content\fsharp-readme.md
 		docs\content\index.md = docs\content\index.md
 		docs\content\interactive.fsx = docs\content\interactive.fsx

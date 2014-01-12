@@ -35,5 +35,7 @@ type ILResource with
 /// The F# project system calls this to pop up type provider security dialog if needed.
 val internal runFromCommandLineToImportingAssemblies : (string -> unit) * string[] * string * string * Exiter -> unit
 
+/// Proccess the given set of command line arguments
+val internal ProcessCommandLineFlags : TcConfigBuilder * argv:string[] -> string list
 
 #endif

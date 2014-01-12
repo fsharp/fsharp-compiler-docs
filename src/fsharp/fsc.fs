@@ -205,6 +205,31 @@ let abortOnError (errorLogger:ErrorLogger, _tcConfig:TcConfig, exiter : Exiter) 
 #endif
         exiter.Exit 1 
 
+let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder, argv) =
+    let inputFilesRef   = ref ([] : string list)
+    let collect name = 
+        let lower = String.lowercase name
+        if List.exists (Filename.checkSuffix lower) [".resx"]  then
+            warning(Error(FSComp.SR.fscResxSourceFileDeprecated name,rangeStartup))
+            tcConfigB.AddEmbeddedResource name
+        else
+            inputFilesRef := name :: !inputFilesRef
+    let abbrevArgs = abbrevFlagSet tcConfigB true
+    
+    // This is where flags are interpreted by the command line fsc.exe.
+    ParseCompilerOptions collect (GetCoreFscCompilerOptions tcConfigB) (List.tail (PostProcessCompilerArgs abbrevArgs argv))
+    let inputFiles = List.rev !inputFilesRef
+
+    (* step - get dll references *)
+    let dllFiles,sourceFiles = List.partition Filename.isDll inputFiles
+    match dllFiles with
+    | [] -> ()
+    | h::_ -> errorR (Error(FSComp.SR.fscReferenceOnCommandLine(h),rangeStartup))
+
+    dllFiles |> List.iter (fun f->tcConfigB.AddReferencedAssemblyByPath(rangeStartup,f))
+    sourceFiles
+          
+
 // The project system needs to be able to somehow crack open assemblies to look for type providers in order to pop up the security dialog when necessary when a user does 'Build'.
 // Rather than have the PS re-code that logic, it re-uses the existing code in the very front end of the compiler that parses the command-line and imports the referenced assemblies.
 // This code used to be in fsc.exe.  The PS only references FSharp.LanguageService.Compiler, so this code moved from fsc.exe to FS.C.S.dll so that the PS can re-use it.
@@ -242,19 +267,10 @@ let getTcImportsFromCommandLine(displayPSTypeProviderSecurityDialogBlockingUI : 
         // The ParseCompilerOptions function calls imperative function to process "real" args
         // Rather than start processing, just collect names, then process them. 
         try 
-            let inputFilesRef   = ref ([] : string list)
-            let collect name = 
-                let lower = String.lowercase name
-                if List.exists (Filename.checkSuffix lower) [".resx"]  then
-                    warning(Error(FSComp.SR.fscResxSourceFileDeprecated name,rangeStartup))
-                    tcConfigB.AddEmbeddedResource name
-                else
-                    inputFilesRef := name :: !inputFilesRef
-            let abbrevArgs = abbrevFlagSet tcConfigB true
-    
-            // This is where flags are interpreted by the command line fsc.exe.
-            ParseCompilerOptions collect (GetCoreFscCompilerOptions tcConfigB) (List.tail (PostProcessCompilerArgs abbrevArgs argv))
-            let inputFiles = List.rev !inputFilesRef
+
+            let sourceFiles = ProcessCommandLineFlags (tcConfigB, argv)
+          
+            let sourceFiles = AdjustForScriptCompile(tcConfigB,sourceFiles,lexResourceManager)                     
 
 #if SILVERLIGHT
 #else
@@ -263,18 +279,8 @@ let getTcImportsFromCommandLine(displayPSTypeProviderSecurityDialogBlockingUI : 
             | Some _ -> ()
             | None -> tcConfigB.lcid <- lcidFromCodePage
 #endif
-
             setProcessThreadLocals(tcConfigB)
 
-            (* step - get dll references *)
-            let dllFiles,sourceFiles = List.partition Filename.isDll inputFiles
-            match dllFiles with
-            | [] -> ()
-            | h::_ -> errorR (Error(FSComp.SR.fscReferenceOnCommandLine(h),rangeStartup))
-
-            dllFiles |> List.iter (fun f->tcConfigB.AddReferencedAssemblyByPath(rangeStartup,f))
-          
-            let sourceFiles = AdjustForScriptCompile(tcConfigB,sourceFiles,lexResourceManager)                     
             sourceFiles
 
         with 
@@ -1986,7 +1992,7 @@ let main3(Args(tcConfig,errorLogger:ErrorLogger,staticLinker,ilGlobals,ilxMainMo
 let main4(Args(tcConfig,errorLogger:ErrorLogger,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter)) = 
     ReportTime tcConfig "Write .NET Binary"
     use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Output)    
-    let pdbfile = pdbfile |> Option.map Path.GetFullPath
+    let pdbfile = pdbfile |> Option.map FileSystem.GetFullPathShim
     match dynamicAssemblyCreator with 
     | None -> FileWriter.EmitIL (tcConfig,ilGlobals,errorLogger,outfile,pdbfile,ilxMainModule,signingInfo,exiter)
     | Some da -> da (tcConfig,ilGlobals,errorLogger,outfile,pdbfile,ilxMainModule,signingInfo); 

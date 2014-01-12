@@ -35,10 +35,17 @@ The libraries contain additional public API that can be used, but is not documen
    parameter information etc. These functions are useful for implementing F# support for editors
    and for getting some type information for F# code.
 
+ * [**Working with signatures, types, and resolved symbols**](symbols.html) - many services related to type checking
+   return resolved symbols, representing inferred types, and the signatures of whole assemblies. 
+  
  * [**Hosted F# interactive**](interactive.html) - allows calling F# interactive as a .NET library
    from your .NET code. You can use this API to embed F# as a scripting language in your projects.
  
  * [**Hosting the F# compiler**](compiler.html) - allows you to embed calls to the F# compiler.
+  
+ * [**File system API**](filesystem.html) - the `FSharp.Compiler.Service` component has a global variable
+   representing the file system. By setting this variable you can host the compiler in situations where a file system
+   is not available.
   
 > **NOTE:** The services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
 This will involve breaking changes to the APIs used for these services.

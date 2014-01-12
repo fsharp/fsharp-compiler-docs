@@ -16,6 +16,8 @@
       <tags>@tags@</tags>
     </metadata>
     <files>
-      <file src="..\bin\*" target="lib/net40" />
+      <file src="..\bin\FSharp.Compiler.Service.dll" target="lib/net40" />
+      <file src="..\bin\FSharp.Compiler.Service.xml" target="lib/net40" />
+      <file src="..\bin\FSharp.Compiler.Service.pdb" target="lib/net40" />
     </files>
 </package>

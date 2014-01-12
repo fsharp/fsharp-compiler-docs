@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------------------
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "FSharp.Interactive.Service.dll" ] // TODO: This crashes metadata reader :-( "FSharp.Compiler.Service.dll"
+let referenceBinaries = [ "FSharp.Compiler.Service.dll" ] 
 // Web site location for the generated documentation
 let website = "http://fsharp.github.io/FSharp.Compiler.Service"
 

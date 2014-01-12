@@ -18,7 +18,5 @@ For more information about the project, see:
 Build Status
 ------------
 
-## Build status
-
 Head (branch ``master``), Mono 3.x, OSX + some unit tests (Travis) [![Build Status](https://travis-ci.org/fsharp/FSharp.Compiler.Service.png?branch=master)](https://travis-ci.org/fsharp/FSharp.Compiler.Service/branches)
 

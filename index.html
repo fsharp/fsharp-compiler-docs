@@ -66,9 +66,14 @@ and various simple processing tasks.</p></li>
 <li><p><a href="editor.html"><strong>Using editor (IDE) services</strong></a> - expose functionality for auto-completion, tool-tips,
 parameter information etc. These functions are useful for implementing F# support for editors
 and for getting some type information for F# code.</p></li>
+<li><p><a href="symbols.html"><strong>Working with signatures, types, and resolved symbols</strong></a> - many services related to type checking
+return resolved symbols, representing inferred types, and the signatures of whole assemblies.</p></li>
 <li><p><a href="interactive.html"><strong>Hosted F# interactive</strong></a> - allows calling F# interactive as a .NET library
 from your .NET code. You can use this API to embed F# as a scripting language in your projects.</p></li>
 <li><p><a href="compiler.html"><strong>Hosting the F# compiler</strong></a> - allows you to embed calls to the F# compiler.</p></li>
+<li><p><a href="filesystem.html"><strong>File system API</strong></a> - the <code>FSharp.Compiler.Service</code> component has a global variable
+representing the file system. By setting this variable you can host the compiler in situations where a file system
+is not available.</p></li>
 </ul>
 
 <blockquote>
@@ -113,6 +118,7 @@ is available under the <a href="https://github.com/fsharp/FSharp.Compiler.Servic
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)</li>

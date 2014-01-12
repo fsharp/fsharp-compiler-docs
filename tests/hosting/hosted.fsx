@@ -1,6 +1,6 @@
 
 
-#r @"../../lib/debug/FSharp.Compiler.Service.dll"
+#r @"../../bin/FSharp.Compiler.Service.dll"
 #nowarn "57"
 
 module SimpleTokenizeExample = 
@@ -189,7 +189,5 @@ module InteractiveShellExample =
     complete "System.Console.W"
     complete "System.Console.WriteLine"
 
-// GetDeclarations 
-//    If UntypedParseInfoImpl.TryGetCompletionContext Invalid then None
 
 

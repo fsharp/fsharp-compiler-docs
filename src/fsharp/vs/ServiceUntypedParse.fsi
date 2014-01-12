@@ -21,21 +21,8 @@ open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.ErrorLogger
 open System.Collections.Generic
 
-// implementation details used by other code in the compiler    
-[<NoEquality; NoComparison>]
-type (*internal*) UntypedParseResults = 
-  { // Error infos
-    Errors : ErrorInfo[]
-    // Untyped AST
-    Input : Ast.ParsedInput option
-    // Do not report errors from the type checker
-    ParseHadErrors : bool
-    // When these files change then the build is invalid
-    DependencyFiles : string list
-    }
-
 [<Sealed>]
-type UntypedParseInfo = 
+type ParsedFileResults = 
     member ParseTree : Ast.ParsedInput option
     /// Notable parse info for ParameterInfo at a given location
     member FindNoteworthyParamInfoLocations : line:Line0 * col:int -> NoteworthyParamInfoLocations option
@@ -46,9 +33,15 @@ type UntypedParseInfo =
     /// Return the inner-most range associated with a possible breakpoint location
     member ValidateBreakpointLocation : line:Line0 * col:int -> Range01 option
     /// When these files change then the build is invalid
-    member DependencyFiles : unit -> string list
+    member DependencyFiles : string list
 
-    internal new : parsed:UntypedParseResults -> UntypedParseInfo
+    /// Get the errors and warnings for the parse
+    member Errors : ErrorInfo[]
+
+    /// Indicates if any errors occured during the parse
+    member ParseHadErrors : bool
+
+    internal new : errors : ErrorInfo[] * input : Ast.ParsedInput option * parseHadErrors : bool * dependencyFiles : string list -> ParsedFileResults
 
 /// Information about F# source file names
 module internal SourceFile =
@@ -80,13 +73,12 @@ type internal CompletionContext =
 
 
 // implementation details used by other code in the compiler    
-module (*internal*) UntypedParseInfoImpl =
+module (*internal*) UntypedParseImpl =
     open Microsoft.FSharp.Compiler.Ast
-    val GetUntypedParseResults : UntypedParseInfo -> UntypedParseResults
     val TryFindExpressionASTLeftOfDotLeftOfCursor : Line0 * int * ParsedInput option -> (pos * bool) option
     val GetRangeOfExprLeftOfDot : Line0 * int * ParsedInput option -> ((Line0*int) * (Line0*int)) option
     val TryFindExpressionIslandInPosition : Line0 * int * ParsedInput option -> string option
-    val TryGetCompletionContext : Line0 * int * UntypedParseInfo option -> CompletionContext option
+    val TryGetCompletionContext : Line0 * int * ParsedFileResults option -> CompletionContext option
 
 // implementation details used by other code in the compiler    
 module internal SourceFileImpl =

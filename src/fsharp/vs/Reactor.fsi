@@ -32,6 +32,10 @@ module internal Reactor =
         /// Block while performing and operation. Restart the most recent build afterward.
         member RunSyncOp : (unit -> 'T) -> 'T
 
+    // TODO: For all AsyncOps: if the operation gets cancelled, the background thread and Reactor don't abandon their work,
+    // even when it is ultimately an Eventually<_> compuation which could easily be abandoned, or an IncrementalBuild.Eval
+    // operation which can be halted part way through.
+
         /// Start an operation and return an async handle to its result. 
         member RunAsyncOp : (unit -> 'T) -> Async<'T>
 

@@ -21,219 +21,350 @@ open System.Collections.Generic
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.Range
 
-/// Represents one parameter for one overload in a method overload set
+/// Represents one parameter for one method (or other item) in a group. 
 [<Sealed>]
-type MethodOverloadsParam = 
-    member Name: string
+type MethodGroupItemParameter = 
+
+    /// The name of the parameter.
+    member ParameterName: string
+
+    /// A key that can be used for sorting the parameters, used to help sort overloads.
     member CanonicalTypeTextForSorting: string
+
+    /// The text to display for the parameter including its name, its type and visual indicators of other
+    /// information such as whether it is optional.
     member Display: string
+
+    /// The descriptive help text to display for the parameter.
     member Description: string
 
-/// Represents one overload in a method overload set
+    [<Obsolete("This member has been renamed to 'ParameterName'")>]
+    member Name: string
+
+/// Represents one method (or other item) in a method group. The item may represent either a method or 
+/// a single, non-overloaded item such as union case or a named function value.
 [<Sealed>]
-type MethodOverloadsItem = 
+type MethodGroupItem = 
+
+    /// The formatted description text for the method (or other item)
     member Description : ToolTipText
-    member Type: string
-    member Parameters: MethodOverloadsParam[]
-    /// Indicates that this not really a method, but actually a static arguments list, like TP<42,"foo"> ?
+
+    /// The formatted type text for the method (or other item)
+    member TypeText: string
+
+    /// The parameters of the method in the overload set
+    member Parameters: MethodGroupItemParameter[]
+
+    /// Indicates that this not really a method, but actually a static arguments list, like TP<42,"foo">
     member IsStaticArguments: bool
 
-/// Represents a method overload set
+    [<Obsolete("This member has been renamed to 'TypeText'")>]
+    member Type: string
+
+/// Represents a group of methods (or other items) returned by GetMethods.  
 [<Sealed>]
-type MethodOverloads = 
+type MethodGroup = 
+    /// The shared name of the methods (or other items) in the group
+    member MethodName: string
+
+    /// The methods (or other items) in the group
+    member Methods: MethodGroupItem[] 
+
+    [<Obsolete("This member has been renamed to 'MethodName'")>]
     member Name: string
-    member Methods: MethodOverloadsItem[] 
 
 /// Represents the reason why the GetDeclarationLocation operation failed.
 [<RequireQualifiedAccess>]
 type FindDeclFailureReason = 
-    // generic reason: no particular information about error
+
+    /// Generic reason: no particular information about error
     | Unknown
-    // source code file is not available
+
+    /// Source code file is not available
     | NoSourceCode
-    // trying to find declaration of ProvidedType without TypeProviderDefinitionLocationAttribute
+
+    /// Trying to find declaration of ProvidedType without TypeProviderDefinitionLocationAttribute
+
     | ProvidedType of string
-    // trying to find declaration of ProvidedMember without TypeProviderDefinitionLocationAttribute
+
+    /// Trying to find declaration of ProvidedMember without TypeProviderDefinitionLocationAttribute
     | ProvidedMember of string
 
 /// Represents the result of the GetDeclarationLocation operation.
-[<NoEquality; NoComparison; RequireQualifiedAccess>]
+[<RequireQualifiedAccess>]
 type FindDeclResult = 
-    /// declaration not found + reason
+    /// Indicates a declaration location was not found, with an additional reason
     | DeclNotFound of FindDeclFailureReason
-    /// found declaration; return (position-in-file, name-of-file)
+    /// Indicates a declaration location was found, giving the position-in-file and name-of-file
     | DeclFound      of Position * string
      
-/// Represents the checking context implied by the ProjectOptions (i.e. the command line arguments, #r etc.)
+/// Represents the checking context implied by the ProjectOptions 
 [<Sealed>]
-type TypeCheckContext =
-    /// Get the assemblies referenced
+type ProjectContext =
+    /// Get the resolution and full contents of the assemblies referenced by the project options
     member GetReferencedAssemblies : unit -> FSharpAssembly list
 
 
+/// A handle to the results of CheckFileInProject.
 [<Sealed>]
-/// A handle to the results of TypeCheckFileInProject.  
-/// A live object of this type keeps the background corresponding background builder (and type providers) alive (through reference-counting)
-type TypeCheckFileResults =
-    /// The errors returned by parsing a source file
+type CheckFileResults =
+    /// The errors returned by parsing a source file.
     member Errors : ErrorInfo[]
 
     /// Get a view of the contents of the assembly up to and including the file just checked
     member PartialAssemblySignature : FSharpAssemblySignature
 
-    /// Get the context implied by the ProjectOptions (i.e. the command line arguments, #r etc.)
-    member TypeCheckContext : TypeCheckContext
+    /// Get the resolution of the ProjectOptions 
+    member ProjectContext : ProjectContext
 
+    /// Indicates whether type checking successfully occured with some results returned. If false, indicates that 
+    /// an unrecoverable error in earlier checking/parsing/resolution steps.
     member HasFullTypeCheckInfo: bool
 
-    /// Intellisense autocompletions
+    /// <summary>Get the items for a declaration list</summary>
     ///
-    ///   untypedParseInfoOpt: If this is present, it is used to filter declarations based on location in the
-    ///                        parse tree, specifically at 'open' declarations, 'inherit' of class or interface
-    ///                        'record field' locations and r.h.s. of 'range' operator a..b
-    ///   
-    ///   line: the line number where the completion is happening
-    ///
-    ///   colAtEndOfNamesAndResidue: the column number (1-based) at the end of the 'names' text 
-    ///
-    ///   names : A pair giving a cracked long identifier to the left of the position and a "residue" of a partial long identifier to the right
-    ///
-    ///   lineStr : the text of the line where the completion is happening. This is used to make a couple
-    ///             of adhoc corrections to completion accuracy, checking for ".." and adding one to 
-    ///             colAtEndOfNamesAndResidue when lineStr.[colAtEndOfNamesAndResidue] is '.'
-    ///
-    ///   hasTextChangedSinceLastTypecheck: 
-    ///         If text has been used from a captured name resolution from the typecheck, then 
-    ///         callback to the client to check if the text has changed. If it has, then give up
-    ///         and assume that we're going to repeat the operation later on.
+    /// <param name="ParsedFileResultsOpt">
+    ///    If this is present, it is used to filter declarations based on location in the
+    ///    parse tree, specifically at 'open' declarations, 'inherit' of class or interface
+    ///    'record field' locations and r.h.s. of 'range' operator a..b
+    /// </param>
+    /// <param name="line">The line number where the completion is happening</param>
+    /// <param name="colAtEndOfNamesAndResidue">The column number (1-based) at the end of the 'names' text </param>
+    /// <param name="qualifyingNames">The long identifier to the left of the '.'</param>
+    /// <param name="partialName">The residue of a partial long identifier to the right of the '.'</param>
+    /// <param name="lineStr">The residue of a partial long identifier to the right of the '.'</param>
+    /// <param name="lineText">
+    ///    The text of the line where the completion is happening. This is only used to make a couple
+    ///    of adhoc corrections to completion accuracy (e.g. checking for "..")
+    /// </param>
+    /// <param name="hasTextChangedSinceLastTypecheck">
+    ///    If text has been used from a captured name resolution from the typecheck, then 
+    ///    callback to the client to check if the text has changed. If it has, then give up
+    ///    and assume that we're going to repeat the operation later on.
+    /// </param>
 
-    member GetDeclarations                : untypedParseInfoOpt:UntypedParseInfo option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<DeclarationSet>
+    member GetDeclarations                : ParsedFileResultsOpt:ParsedFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<DeclarationSet>
 
-    /// Resolve the names at the given location to give a formatted tool tip 
+    /// <summary>Compute a formatted tooltip for the given location</summary>
     ///
-    ///   tokenTag: Used to discriminate between 'identifiers', 'strings' and others.
-    ///             For strings, an attempt is made to give a tooltip relevant to a #r "..."
-    ///              
-    ///             TODO: this should be replaced by a look into the untyped AST, which gives us this information.
-
+    /// <param name="line">The line number where the information is being requested.</param>
+    /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
+    /// <param name="lineText">The text of the line where the information is being requested.</param>
+    /// <param name="names">The identifiers at the location where the information is being requested.</param>
+    /// <param name="tokenTag">Used to discriminate between 'identifiers', 'strings' and others. For strings, an attempt is made to give a tooltip for a #r "..." location.</param>
     member GetToolTipText                 : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
 
     [<Obsolete("This method has been renamed to GetToolTipText")>]
     member GetDataTipText                 : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
 
-    /// Resolve the names at the given location to give F1 keyword
+    /// <summary>Compute the Visual Studio F1-help key identifier for the given location, based on name resolution results</summary>
     ///
+    /// <param name="line">The line number where the information is being requested.</param>
+    /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
+    /// <param name="lineText">The text of the line where the information is being requested.</param>
+    /// <param name="names">The identifiers at the location where the information is being requested.</param>
     member GetF1Keyword                   : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> string option
-    /// Resolve the names at the given location to a set of methods
-    ///
-    member GetMethods                     : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list option -> MethodOverloads
 
-    /// Resolve the names at the given location to the declaration location of the corresponding construct
+    /// <summary>Compute a set of method overloads to show in a dialog relevant to the given code location.</summary>
     ///
-    ///   tokenTag: Used to discriminate between 'identifiers' and others.
-    ///             If it is not an identifier, no result is given.
-    ///   preferSignature: If false, then make an attempt to go to the implementation (rather than the signature if present)
+    /// <param name="line">The line number where the information is being requested.</param>
+    /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
+    /// <param name="lineText">The text of the line where the information is being requested.</param>
+    /// <param name="names">The identifiers at the location where the information is being requested.</param>
+    member GetMethods                     : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list option -> MethodGroup
+
+    /// <summary>Resolve the names at the given location to the declaration location of the corresponding construct.</summary>
+    ///
+    /// <param name="line">The line number where the information is being requested.</param>
+    /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
+    /// <param name="lineText">The text of the line where the information is being requested.</param>
+    /// <param name="names">The identifiers at the location where the information is being requested.</param>
+    /// <param name="tokenTag">Used to discriminate between 'identifiers' and others. If it is not an identifier, no result is given.</param>
+    /// <param name="preferSignature">If false, then make an attempt to go to the implementation (rather than the signature if present).</param>
     member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * preferSignature:bool -> FindDeclResult
 
-    /// Get any extra colorization info that is available after the typecheck
+    /// <summary>Get any extra colorization info that is available after the typecheck</summary>
     member GetExtraColorizations : unit -> (Range01 * TokenColorKind)[]
 
-/// wraps the set of unresolved references providing implementations of Equals\GetHashCode
-/// of this objects of this type can be used as parts of types with generated Equals\GetHashCode
-/// i.e. records or DUs
+/// A handle to the results of CheckFileInProject.
+[<Sealed>]
+type CheckProjectResults =
+    /// The errors returned by processing the project
+    member Errors : ErrorInfo[]
+
+    /// Get a view of the overall contents of the assembly 
+    member AssemblySignature : FSharpAssemblySignature
+
+    /// Get the resolution of the ProjectOptions 
+    member ProjectContext : ProjectContext
+
+
+/// <summary>Unused in this API</summary>
 type UnresolvedReferencesSet = class end
 
-/// A set of information describing a project or script build configuration.
+/// <summary>A set of information describing a project or script build configuration.</summary>
 type ProjectOptions = 
     { 
       // Note that this may not reduce to just the project directory, because there may be two projects in the same directory.
       ProjectFileName: string
+      /// The files in the project
       ProjectFileNames: string[]
+      /// The command line argument options for the project
       ProjectOptions: string[]
-      /// When true, the typechecking environment is known a priori to be incomplete. 
-      /// This can happen, for example, when a .fs file is opened outside of a project.
-      /// It may be appropriate, then, to not show error messages related to type checking
-      /// since they will just be noise.
+      /// When true, the typechecking environment is known a priori to be incomplete, for
+      /// example when a .fs file is opened outside of a project. In this case, the number of error 
+      /// messages reported is reduced.
       IsIncompleteTypeCheckEnvironment : bool
       /// When true, use the reference resolution rules for scripts rather than the rules for compiler.
       UseScriptResolutionRules : bool
-      /// Timestamp of project/script load
+      /// Timestamp of project/script load, used to differentiate between different instances of a project load.
+      /// This ensures that a complete reload of the project or script type checking
+      /// context occurs on project or script unload/reload.
       LoadTime : DateTime
+      /// Unused in this API and should be 'None'
       UnresolvedReferences : UnresolvedReferencesSet option
     }
          
           
-/// Information about the compilation environment    
-module CompilerEnvironment =
-    /// These are the names of assemblies that should be referenced for .fs or .fsi files that
-    /// are not asscociated with a project.
-    val DefaultReferencesForOrphanSources : string list
-    /// Return the compilation defines that should be used when editing the given file.
-    val GetCompilationDefinesForEditing : filename : string * compilerFlags : string list -> string list
-    /// Return true if this is a subcategory of error or warning message that the language service can emit
-    val IsCheckerSupportedSubcategory : string -> bool
-
-/// Information about the debugging environment
-module internal DebuggerEnvironment =
-    /// Return the language ID, which is the expression evaluator id that the
-    /// debugger will use.
-    val GetLanguageID : unit -> Guid
-    
 /// Callback which can be used by the host to indicate to the checker that a requested result has become obsolete,
 /// e.g. because of typing by the user in the editor window. This can be used to marginally increase accuracy
 /// of intellisense results in some situations.
-[<NoComparison;NoEquality>]
 type IsResultObsolete = 
     | IsResultObsolete of (unit->bool)
 
 /// The result of calling TypeCheckResult including the possibility of abort and background compiler not caught up.
-[<NoComparison; RequireQualifiedAccess>]
-type TypeCheckFileAnswer =
+[<RequireQualifiedAccess>]
+type CheckFileAnswer =
     | NoAntecedant
     | Aborted // because result was obsolete
-    | TypeCheckSucceeded of TypeCheckFileResults    
+    | Succeeded of CheckFileResults    
 
 [<Sealed; AutoSerializable(false)>]      
 type InteractiveChecker =
     /// Create an instance of an InteractiveChecker.  Currently resources are not reclaimed.
     static member Create : unit -> InteractiveChecker
 
-    /// Parse a source code file, returning information about brace matching in the file
-    /// Return an enumeration of the matching parethetical tokens in the file
+    /// <summary>
+    ///   Parse a source code file, returning information about brace matching in the file.
+    ///   Return an enumeration of the matching parethetical tokens in the file.
+    /// </summary>
+    ///
+    /// <param name="filename">The filename for the file, used to help caching of results.</param>
+    /// <param name="source">The full source for the file.</param>
+    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
     member MatchBraces : filename : string * source: string * options: ProjectOptions -> (Range01 * Range01)[]
 
-    /// Parse a source code file, returning a handle that can be used for obtaining navigation bar information
-    /// To get the full information, call 'TypeCheckFileInProject' method on the result
-    member ParseFileInProject : filename: string * source: string * options: ProjectOptions -> UntypedParseInfo        
-
-    /// Typecheck a source code file, returning a handle to the results of the parse including
-    /// the reconstructed types in the file.
+    /// <summary>
+    /// <para>Parse a source code file, returning a handle that can be used for obtaining navigation bar information
+    /// To get the full information, call 'CheckFileInProject' method on the result</para>
+    /// <para>All files except the one being checked are read from the FileSystem API</para>
+    /// </summary>
     ///
-    /// Return NoAntecedent if the background builder is not yet done prepring the type check context for the 
+    /// <param name="filename">The filename for the file.</param>
+    /// <param name="source">The full source for the file.</param>
+    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
+    member ParseFileInProject : filename: string * source: string * options: ProjectOptions -> ParsedFileResults        
+
+    /// <summary>
+    /// <para>Check a source code file, returning a handle to the results of the parse including
+    /// the reconstructed types in the file.</para>
+    ///
+    /// <para>All files except the one being checked are read from the FileSystem API</para>
+    /// <para>Note: returns NoAntecedent if the background builder is not yet done prepring the type check context for the 
     /// file (e.g. loading references and parsing/checking files in the project that this file depends upon). 
     /// In this case, the caller can either retry, or wait for FileTypeCheckStateIsDirty to be raised for this file.
-    member TypeCheckFileInProjectIfReady : parsed: UntypedParseInfo * filename: string * fileversion: int * source: string * options: ProjectOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> TypeCheckFileAnswer
+    /// </para>
+    /// </summary>
+    ///
+    /// <param name="parsed">The results of ParseFileInProject for this file.</param>
+    /// <param name="filename">The name of the file in the project whose source is being checked.</param>
+    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
+    /// <param name="source">The full source for the file.</param>
+    /// <param name="options">The options for the project or script.</param>
+    /// <param name="isResultObsolete">
+    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
+    //      source code in the editor. Type checking is abandoned when this returns 'true'.
+    /// </param>
+    /// <param name="textSnapshotInfo">
+    ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
+    ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 
+    ///     can be used to marginally increase accuracy of intellisense results in some situations.
+    /// </param>
+    ///
+    member CheckFileInProjectIfReady : parsed: ParsedFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> CheckFileAnswer
 
-    // /// Complete typecheck for a complete set of options.
-    // member TypeCheckProject : options: ProjectOptions -> Async<TypeCheckProjectResults>
+    /// <summary>
+    /// <para>Check a source code file, returning a handle to the results of the parse including
+    /// the reconstructed types in the file.</para>
+    /// </para>
+    /// <para>All files except the one being checked are read from the FileSystem API</para>
+    /// </summary>
+    ///
+    /// <param name="parsed">The results of ParseFileInProject for this file.</param>
+    /// <param name="filename">The name of the file in the project whose source is being checked.</param>
+    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
+    /// <param name="source">The full source for the file.</param>
+    /// <param name="options">The options for the project or script.</param>
+    /// <param name="isResultObsolete">
+    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
+    //      source code in the editor. Type checking is abandoned when this returns 'true'.
+    /// </param>
+    /// <param name="textSnapshotInfo">
+    ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
+    ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 
+    ///     can be used to marginally increase accuracy of intellisense results in some situations.
+    /// </param>
+    ///
+    member CheckFileInProject : parsed: ParsedFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<CheckFileAnswer>
 
-    /// For a given script file, get the ProjectOptions implied by the #load closure. Optional 'otherFlags'
-    member GetProjectOptionsFromScriptRoot : filename : string * source : string * loadedTimeStamp : DateTime * otherFlags : string[] -> ProjectOptions
+    /// <summary>
+    /// <para>Parse and typecheck all files in a project.</para>
+    /// <para>All files are read from the FileSystem API</para>
+    /// </summary>
+    ///
+    /// <param name="options">The options for the project or script.</param>
+    member ParseAndCheckProject : options: ProjectOptions -> Async<CheckProjectResults>
+
+    /// <summary>
+    /// <para>For a given script file, get the ProjectOptions implied by the #load closure.</para>
+    /// <para>All files are read from the FileSystem API, except the file being checked.</para>
+    /// </summary>
+    ///
+    /// <param name="filename">Used to differentiate between scripts, to consider each script a separate project.
+    /// Also used in formatted error messages.</param>
+    ///
+    /// <param name="loadedTimeStamp">Indicates when the script was loaded into the editing environment,
+    /// so that an 'unload' and 'reload' action will cause the script to be considered as a new project,
+    /// so that references are re-resolved.</param>
+    member GetProjectOptionsFromScriptRoot : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> ProjectOptions
         
-#if NO_QUICK_SEARCH_HELPERS // only used in QuickSearch prototype
-#else
-    /// For QuickSearch index - not used by VS2008/VS2010/VS11
-    member GetSlotsCount : options : ProjectOptions -> int
-    /// For QuickSearch index - not used by VS2008/VS2010/VS11
-    member UntypedParseForSlot : slot:int * options : ProjectOptions -> UntypedParseInfo
-#endif // QUICK_SEARCH
+    /// <summary>
+    /// <para>Like ParseFileInProject, but uses results from the background builder.</para>
+    /// <para>All files are read from the FileSystem API, including the file being checked.</para>
+    /// </summary>
+    ///
+    /// <param name="filename">The filename for the file.</param>
+    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
+    [<Experimental("This method gets results from the background compiler, which checks w.r.t. the file system. It will eventually be useful for editing clients if they adjust the file system API to reflect current buffer contents of all files.")>]
+    member GetBackgroundParseResultsForFileInProject : filename : string * options : ProjectOptions -> Async<ParsedFileResults>
 
-    /// Try to get recent type check results for a file. This may arbitrarily refuse to return any
-    /// results if the InteractiveChecker would like a chance to recheck the file, in which case
-    /// ParseFileInProject and TypeCheckFileInProject should be called. If the source of the file
-    /// has changed the results returned by this function may be out of date, though may
+    /// <summary>
+    /// <para>Like ParseFileInProject, but uses the existing results from the background builder.</para>
+    /// <para>All files are read from the FileSystem API, including the file being checked.</para>
+    /// </summary>
+    ///
+    /// <param name="filename">The filename for the file.</param>
+    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
+    [<Experimental("This method gets results from the background compiler, which checks w.r.t. the file system. The CheckFileResults returned by this method do not yet return useful intellisense results. It will eventually be useful for editing clients if they adjust the file system API to reflect current buffer contents of all files.")>]
+    member GetBackgroundCheckResultsForFileInProject : filename : string * options : ProjectOptions -> Async<ParsedFileResults * CheckFileResults>
+
+    /// <summary>
+    /// Try to get type check results for a file. This looks up the results of recent type checks of the
+    /// same file, regardless of contents. The version tag specified in the original check of the file is returned.
+    /// If the source of the file has changed the results returned by this function may be out of date, though may
     /// still be usable for generating intellsense menus and information.
-    member TryGetRecentTypeCheckResultsForFile : filename: string * options:ProjectOptions -> (UntypedParseInfo * TypeCheckFileResults * (*version*)int) option
+    /// <summary>
+    member TryGetRecentTypeCheckResultsForFile : filename: string * options:ProjectOptions -> (ParsedFileResults * CheckFileResults * (*version*)int) option
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.
@@ -279,10 +410,10 @@ type InteractiveChecker =
     member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimeStamp : DateTime * otherFlags: string[] -> ProjectOptions
 
     [<Obsolete("This member has been renamed to ParseFileInProject")>]
-    member UntypedParse : filename: string * source: string * options: ProjectOptions -> UntypedParseInfo        
+    member UntypedParse : filename: string * source: string * options: ProjectOptions -> ParsedFileResults        
 
-    [<Obsolete("This member has been renamed to TypeCheckFileInProjectIfReady")>]
-    member TypeCheckSource : parsed: UntypedParseInfo * filename: string * fileversion: int * source: string * options: ProjectOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> TypeCheckFileAnswer
+    [<Obsolete("This member has been renamed to CheckFileInProjectIfReady")>]
+    member TypeCheckSource : parsed: ParsedFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> CheckFileAnswer
     
 // For internal use only 
 and internal IReactorOperations = 
@@ -293,9 +424,26 @@ and internal IReactorOperations =
 
 // An object to typecheck source in a given typechecking environment.
 // Used internally to provide intellisense over F# Interactive.
-type internal ParseAndCheckHelper =
-    internal new : ops: IReactorOperations * tcConfig: Build.TcConfig * tcGlobals: Env.TcGlobals * tcImports: Build.TcImports * tcState: Build.TcState * loadClosure: Build.LoadClosure option ->  ParseAndCheckHelper 
-    member internal ParseAndCheckInteraction : source:string -> UntypedParseInfo * TypeCheckFileResults
+type internal FsiInteractiveChecker =
+    internal new : ops: IReactorOperations * tcConfig: Build.TcConfig * tcGlobals: Env.TcGlobals * tcImports: Build.TcImports * tcState: Build.TcState * loadClosure: Build.LoadClosure option ->  FsiInteractiveChecker 
+    member internal ParseAndCheckInteraction : source:string -> ParsedFileResults * CheckFileResults
+
+/// Information about the compilation environment    
+module CompilerEnvironment =
+    /// These are the names of assemblies that should be referenced for .fs or .fsi files that
+    /// are not asscociated with a project.
+    val DefaultReferencesForOrphanSources : string list
+    /// Return the compilation defines that should be used when editing the given file.
+    val GetCompilationDefinesForEditing : filename : string * compilerFlags : string list -> string list
+    /// Return true if this is a subcategory of error or warning message that the language service can emit
+    val IsCheckerSupportedSubcategory : string -> bool
+
+/// Information about the debugging environment
+module DebuggerEnvironment =
+    /// Return the language ID, which is the expression evaluator id that the
+    /// debugger will use.
+    val GetLanguageID : unit -> Guid
+    
 
 /// A set of helpers related to naming of identifiers
 module PrettyNaming =
@@ -306,17 +454,23 @@ module PrettyNaming =
     val FormatAndOtherOverloadsString : int -> string
 
 
-[<Obsolete("This type has been renamed to MethodOverloadsParam")>]
-type Param = MethodOverloadsParam
+[<Obsolete("This type has been renamed to MethodGroupItemParameter")>]
+type Param = MethodGroupItemParameter
 
-[<Obsolete("This type has been renamed to MethodOverloadsItem")>]
-type Method = MethodOverloadsItem
+[<Obsolete("This type has been renamed to MethodGroupItem")>]
+type Method = MethodGroupItem
 
 [<Obsolete("This type has been renamed to ProjectOptions")>]
 type CheckOptions = ProjectOptions
 
-[<Obsolete("This type has been renamed to TypeCheckFileAnswer")>]
-type TypeCheckAnswer = TypeCheckFileAnswer
+[<Obsolete("This type has been renamed to CheckFileAnswer")>]
+type TypeCheckAnswer = CheckFileAnswer
+
+[<Obsolete("This type has been renamed to CheckFileResults")>]
+type TypeCheckResults = CheckFileResults
+
+[<Obsolete("This type has been renamed to ParsedFileResults")>]
+type UntypedParseInfo = ParsedFileResults
 
 [<Obsolete("NotifyFileTypeCheckStateIsDirty has been replaced by the FileTypeCheckStateIsDirty event on the InteractiveChecker type")>]
 type NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)

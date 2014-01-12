@@ -1265,6 +1265,7 @@ module internal IncrementalFSharpBuild =
         let tcConfigP = TcConfigProvider.Constant(tcConfig)
         let importsInvalidated = new Event<string>()
         let beforeTypeCheckFile = new Event<_>()
+        let afterProjectTypeCheck = new Event<_>()
 
         // Resolve assemblies and create the framework TcImports. This is done when constructing the
         // builder itself, rather than as an incremental task. This caches a level of "system" references. No type providers are 
@@ -1514,7 +1515,7 @@ module internal IncrementalFSharpBuild =
             let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnv, (Option.get acc.topAttribs), acc.typedImplFiles)
             let (tcEnvAtEndOfLastFile,topAttrs,mimpls),tcState = TypecheckMultipleInputsFinish (results,finalAcc.tcState)
             let tcState,tassembly = TypecheckClosedInputSetFinish (mimpls,tcState)
-            tcState, topAttrs, tassembly, tcEnvAtEndOfLastFile, finalAcc.tcImports, finalAcc.tcGlobals, finalAcc.tcConfig
+            tcState, topAttrs, tassembly, tcEnvAtEndOfLastFile, finalAcc
 
         // END OF BUILD TASK FUNCTIONS
         // ---------------------------------------------------------------------------------------------            
@@ -1575,6 +1576,11 @@ module internal IncrementalFSharpBuild =
         // This is the intial representation of progress through the build, i.e. we have made no progress.
         let mutable partialBuild = buildDescription.GetInitialPartialBuild (buildInputs, [])
 
+        let EvalAndKeepOutput output = 
+            let newPartialBuild = IncrementalBuild.Eval output partialBuild
+            partialBuild <- newPartialBuild
+            newPartialBuild
+
         member this.IncrementUsageCount() = 
             assertNotDisposed() 
             referenceCount  <- referenceCount  + 1
@@ -1590,8 +1596,9 @@ module internal IncrementalFSharpBuild =
 
         member __.TcConfig = tcConfig
         member __.BeforeTypeCheckFile = beforeTypeCheckFile.Publish
+        member __.AfterProjectTypeCheck = afterProjectTypeCheck.Publish
         member __.ImportedCcusInvalidated = importsInvalidated.Publish
-        member __.Dependencies = fileDependencies
+        member __.Dependencies = fileDependencies |> List.map (fun x -> x.Filename)
 #if EXTENSIONTYPING
         member __.ThereAreLiveTypeProviders = 
             let liveTPs =
@@ -1606,28 +1613,59 @@ module internal IncrementalFSharpBuild =
         member __.Step () =  
             match IncrementalBuild.Step "TypeCheckingStates" partialBuild with 
             | None -> 
+                afterProjectTypeCheck.Trigger()
                 false
             | Some newPartialBuild -> 
                 partialBuild <- newPartialBuild
                 true
     
-        member __.GetAntecedentTypeCheckResultsBySlot slotOfFile = 
+        member ib.GetTypeCheckResultsBeforeFileInProjectIfReady filename = 
+            let slotOfFile = ib.GetSlotOfFileName filename
             let result = 
                 match slotOfFile with
                 | (*first file*) 0 -> GetScalarResult<TypeCheckAccumulator>("InitialTcAcc",partialBuild)
                 | _ -> GetVectorResultBySlot<TypeCheckAccumulator>("TypeCheckingStates",slotOfFile-1,partialBuild)  
         
             match result with
-            | Some({tcState=tcState; tcGlobals=tcGlobals; tcConfig=tcConfig; tcImports=tcImports; errors=errors},timestamp) ->
-                Some(tcState,tcImports,tcGlobals,tcConfig,errors,timestamp)
+            | Some(tcAcc,timestamp) ->
+                Some(tcAcc.tcState,tcAcc.tcImports,tcAcc.tcGlobals,tcAcc.tcConfig,tcAcc.errors,timestamp)
             | _->None
         
-        member __.TypeCheck() = 
-            let newPartialBuild = IncrementalBuild.Eval "FinalizeTypeCheck" partialBuild
-            partialBuild <- newPartialBuild
-            match GetScalarResult<Build.TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv * Build.TcImports * Env.TcGlobals * Build.TcConfig>("FinalizeTypeCheck",partialBuild) with
-            | Some((tcState,topAttribs,typedAssembly,tcEnv,tcImports,tcGlobals,tcConfig),_) -> tcState,topAttribs,typedAssembly,tcEnv,tcImports,tcGlobals,tcConfig
-            | None -> failwith "Build was not evaluated."
+        // TODO: This evaluates the whole type checking for the whole project,when only the
+        // results for one file are requested.
+        member ib.GetTypeCheckResultsBeforeFileInProject filename = 
+            let slotOfFile = ib.GetSlotOfFileName filename
+            ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile
+
+        member ib.GetTypeCheckResultsAfterFileInProject filename = 
+            let slotOfFile = ib.GetSlotOfFileName filename + 1
+            ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile
+
+        member ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile = 
+            let result = 
+                match slotOfFile with
+                | (*first file*) 0 -> 
+                    let build = EvalAndKeepOutput "InitialTcAcc" 
+                    GetScalarResult<TypeCheckAccumulator>("InitialTcAcc",build)
+                | _ -> 
+                    // PROBLEM: This evaluates the whole type checking for the whole project,when only the
+                    // results for one file are requested.
+                    let build = EvalAndKeepOutput "TypeCheckingStates" 
+                    GetVectorResultBySlot<TypeCheckAccumulator>("TypeCheckingStates",slotOfFile-1,build)  
+        
+            match result with
+            | Some(tcAcc,timestamp) -> (tcAcc.tcState,tcAcc.tcImports,tcGlobals,tcAcc.tcConfig,tcAcc.errors,timestamp)
+            | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
+
+        member b.GetTypeCheckResultsAfterLastFileInProject () = 
+            b.GetTypeCheckResultsBeforeSlotInProject(b.GetSlotsCount()) 
+
+        member __.GetTypeCheckResultsForProject() = 
+            let build = EvalAndKeepOutput "FinalizeTypeCheck" 
+            match GetScalarResult<Build.TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv * TypeCheckAccumulator>("FinalizeTypeCheck",build) with
+            | Some((tcState,topAttribs,typedAssembly,tcEnv,tcAcc),_) -> 
+                tcState,topAttribs,typedAssembly,tcEnv,tcAcc.tcImports,tcAcc.tcGlobals,tcAcc.tcConfig,tcAcc.errors
+            | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
         
         member __.GetSlotOfFileName(filename:string) =
             // Get the slot of the given file and force it to build.
@@ -1638,26 +1676,24 @@ module internal IncrementalFSharpBuild =
                 result
             GetSlotByInput("FileNames",(rangeStartup,filename,false),partialBuild,CompareFileNames)
         
-#if NO_QUICK_SEARCH_HELPERS // only used in QuickSearch prototype
-#else
         member __.GetSlotsCount () =
-          let expr = GetExprByName(partialBuild,"FileNames")
-          let id = BuildRuleExpr.GetId(expr)
-          match partialBuild.Results.TryFind(id) with
-          | Some(VectorResult vr) -> vr.Size
-          | _ -> failwith "Cannot know sizes"
+            let expr = GetExprByName(partialBuild,"FileNames")
+            let id = BuildRuleExpr.GetId(expr)
+            match partialBuild.Results.TryFind(id) with
+            | Some(VectorResult vr) -> vr.Size
+            | _ -> failwith "Failed to find sizes"
       
-        member this.GetParseResultsBySlot slot =
-          let result = GetVectorResultBySlot<Ast.ParsedInput option * Range.range * string>("ParseTrees",slot,partialBuild)  
-          match result with
-          | Some ((inputOpt,range,fileName), _) -> inputOpt, range, fileName
-          | None -> 
-                let newPartialBuild = IncrementalBuild.Eval "ParseTrees" partialBuild
-                partialBuild <- newPartialBuild
-                this.GetParseResultsBySlot slot
+        member ib.GetParseResultsForFile filename =
+            let slotOfFile = ib.GetSlotOfFileName filename
+            let get(build) = GetVectorResultBySlot<Ast.ParsedInput option * Range.range * string * (PhasedError * bool) list>("ParseTrees",slotOfFile,build)  
+            match get(partialBuild) with
+            | Some (results, _) -> results
+            | None -> 
+                let build = EvalAndKeepOutput "ParseTrees" 
+                match get(build) with
+                | Some (results, _) -> results
+                | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
         
-#endif // 
-
             //------------------------------------------------------------------------------------
             // CreateIncrementalBuilder (for background type checking). Note that fsc.fs also
             // creates an incremental builder used by the command line compiler.
@@ -1760,10 +1796,5 @@ module internal IncrementalFSharpBuild =
                         errorLogger, false // please discard implementation results
                         )
                                  
-            Trace.PrintLine("IncrementalBuild", fun () -> sprintf "CreateIncrementalBuilder: %A" builder.Dependencies)
-    #if DEBUG
-            builder.Dependencies|> List.iter (fun df -> System.Diagnostics.Debug.Assert(FileSystem.IsPathRootedShim(df.Filename), sprintf "dependency file was not absolute: '%s'" df.Filename))
-    #endif
-
             (builder, errorScope.ErrorsAndWarnings)
 

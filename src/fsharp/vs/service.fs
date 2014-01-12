@@ -73,7 +73,9 @@ module EnvMisc =
 //--------------------------------------------------------------------------
 
 [<Sealed>]
-type MethodOverloadsParam(name: string, canonicalTypeTextForSorting: string, display: string, description: string) = 
+type MethodGroupItemParameter(name: string, canonicalTypeTextForSorting: string, display: string, description: string) = 
+    member __.ParameterName = name
+    [<Obsolete("This member has been renamed to 'ParameterName'")>]
     member __.Name = name
     member __.CanonicalTypeTextForSorting = canonicalTypeTextForSorting
     member __.Display = display
@@ -90,7 +92,7 @@ module internal Params =
         NicePrint.stringOfTy denv strippedType
 
     let ParamOfRecdField g denv f decription =
-        MethodOverloadsParam(
+        MethodGroupItemParameter(
           name = f.rfield_id.idText,
           canonicalTypeTextForSorting = printCanonicalizedTypeName g denv f.rfield_type,
           display = NicePrint.prettyStringOfTy denv f.rfield_type,
@@ -100,14 +102,6 @@ module internal Params =
     let ParamOfUnionCaseField g denv isGenerated (i : int) f = 
         let description = if isGenerated i f then "" else NicePrint.stringOfParamData denv (ParamData(false, false, NotOptional, Some f.rfield_id.idText, f.rfield_type)) 
         ParamOfRecdField g denv f description
-
-    let ParamOfParamData g denv (ParamData(_isParamArrayArg,_isOutArg,_optArgInfo,nmOpt,pty) as paramData) =
-        MethodOverloadsParam(
-          name = (match nmOpt with None -> "" | Some pn -> pn),
-          canonicalTypeTextForSorting = printCanonicalizedTypeName g denv pty,
-          display = NicePrint.stringOfParamData denv paramData,
-          description = "" 
-        )
 
     // TODO this code is similar to NicePrint.fs:formatParamDataToBuffer, refactor or figure out why different?
     let ParamsOfParamDatas g denv (paramDatas:ParamData list) rty = 
@@ -132,7 +126,7 @@ module internal Params =
         let paramTypeAndRetLs,_ = NicePrint.layoutPrettifiedTypes denv (paramTypes@[rty])
         let paramTypeLs,_ = List.frontAndBack  paramTypeAndRetLs
         (paramNames,paramPrefixes,(paramTypes,paramTypeLs)||>List.zip) |||> List.map3 (fun nm paramPrefix (tau,tyL) -> 
-            MethodOverloadsParam(
+            MethodGroupItemParameter(
               name = nm,
               canonicalTypeTextForSorting = printCanonicalizedTypeName g denv tau,
               display = paramPrefix+(showL tyL),
@@ -143,7 +137,7 @@ module internal Params =
         let ptausL, _ = NicePrint.layoutPrettifiedTypes denv (args@[rtau]) 
         let argsL,_ = List.frontAndBack ptausL 
         let mkParam (tau,tyL) =
-            MethodOverloadsParam(
+            MethodGroupItemParameter(
               name = "",
               canonicalTypeTextForSorting = printCanonicalizedTypeName g denv tau,
               display =  Layout.showL tyL,
@@ -253,7 +247,7 @@ module internal Params =
                     let spKind = NicePrint.stringOfTy denv typ
                     let spName = sp.PUntaint((fun sp -> sp.Name), m)
                     let spOpt = sp.PUntaint((fun sp -> sp.IsOptional), m)
-                    MethodOverloadsParam(
+                    MethodGroupItemParameter(
                       name = spName,
                       canonicalTypeTextForSorting = spKind,
                       display = sprintf "%s%s: %s" (if spOpt then "?" else "") spName spKind,
@@ -266,8 +260,10 @@ module internal Params =
 /// A single method for Intellisense completion
 [<Sealed; NoEquality; NoComparison>]
 // Note: instances of this type do not hold any references to any compiler resources.
-type MethodOverloadsItem(description: ToolTipText, typeText: string, parameters: MethodOverloadsParam[], isStaticArguments: bool) = 
+type MethodGroupItem(description: ToolTipText, typeText: string, parameters: MethodGroupItemParameter[], isStaticArguments: bool) = 
     member __.Description = description
+    member __.TypeText = typeText
+    [<Obsolete("This member has been renamed to 'TypeText'")>]
     member __.Type = typeText
     member __.Parameters = parameters
     // is this not really a method, but actually a static arguments list, like TP<42,"foo"> ?
@@ -279,7 +275,7 @@ type MethodOverloadsItem(description: ToolTipText, typeText: string, parameters:
 // Note: this type does not hold any strong references to any compiler resources, nor does evaluating any of the properties execute any
 // code on the compiler thread.  
 [<Sealed>]
-type MethodOverloads( name: string, unsortedMethods: MethodOverloadsItem[] ) = 
+type MethodGroup( name: string, unsortedMethods: MethodGroupItem[] ) = 
     // BUG 413009 : [ParameterInfo] takes about 3 seconds to move from one overload parameter to another
     // cache allows to avoid recomputing parameterinfo for the same item
 #if FX_ATLEAST_40
@@ -292,19 +288,21 @@ type MethodOverloads( name: string, unsortedMethods: MethodOverloadsItem[] ) =
         |> Array.map (fun meth -> 
             let parms = meth.Parameters
             if parms.Length = 1 && parms.[0].CanonicalTypeTextForSorting="Microsoft.FSharp.Core.Unit" then 
-                MethodOverloadsItem(meth.Description,meth.Type,[||],meth.IsStaticArguments) 
+                MethodGroupItem(meth.Description,meth.TypeText,[||],meth.IsStaticArguments) 
             else 
                 meth)
         // Fix the order of methods, to be stable for unit testing.
         |> Array.sortBy (fun meth -> 
             let parms = meth.Parameters
             parms.Length, (parms |> Array.map (fun p -> p.CanonicalTypeTextForSorting)))
+    [<Obsolete("This member has been renamed to 'MethodName'")>]
     member x.Name = name
+    member x.MethodName = name
     member x.Methods = methods
 
     static member Create(infoReader:InfoReader,m,denv,items:Item list) = 
         let g = infoReader.g
-        if isNil items then new MethodOverloads("", [| |]) else
+        if isNil items then new MethodGroup("", [| |]) else
         let name = items.Head.DisplayName g 
         let getOverloadsForItem item =
 #if FX_ATLEAST_40
@@ -342,7 +340,7 @@ type MethodOverloads( name: string, unsortedMethods: MethodOverloadsItem[] ) =
 
                 let methods = 
                     items |> Array.ofList |> Array.map (fun item -> 
-                        MethodOverloadsItem(
+                        MethodGroupItem(
                           description=ToolTipText [FormatDescriptionOfItem true infoReader m denv item],
                           typeText= (FormatReturnTypeOfItem infoReader m denv item),
                           parameters = Array.ofList (Params.ParamsOfItem infoReader m denv item),
@@ -354,7 +352,7 @@ type MethodOverloads( name: string, unsortedMethods: MethodOverloadsItem[] ) =
                 methods
         let methods = [| for item in items do yield! getOverloadsForItem item |]
 
-        new MethodOverloads(name, methods)
+        new MethodGroup(name, methods)
 
 //----------------------------------------------------------------------------
 // Scopes. 
@@ -371,7 +369,6 @@ type (*internal*) FindDeclFailureReason =
     // trying to find declaration of ProvidedMember without TypeProviderDefinitionLocationAttribute
     | ProvidedMember of string
 
-[<NoEquality; NoComparison>]
 type (*internal*) FindDeclResult = 
     /// declaration not found + reason
     | DeclNotFound of FindDeclFailureReason
@@ -661,7 +658,7 @@ type TypeCheckInfo
 
     /// Looks at the exact expression types at the position to the left of the 
     /// residue then the source when it was typechecked.
-    let GetPreciseCompletionListFromExprTypings(untypedParseInfo:UntypedParseInfo, line, colAtEndOfNames, filterCtors, hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool)) = 
+    let GetPreciseCompletionListFromExprTypings(untypedParse:ParsedFileResults, line, colAtEndOfNames, filterCtors, hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool)) = 
         let endOfExprPos = Pos.fromZ line colAtEndOfNames
         
         let thereWereSomeQuals, quals = GetExprTypingForPosition(endOfExprPos)
@@ -674,9 +671,9 @@ type TypeCheckInfo
                 GetPreciseCompletionListFromExprTypingsResult.None
         | _ ->
             let bestQual, textChanged = 
-                match UntypedParseInfoImpl.GetUntypedParseResults untypedParseInfo with
-                | { Input=Some(input) } -> 
-                    match UntypedParseInfoImpl.GetRangeOfExprLeftOfDot(line,colAtEndOfNames,Some(input)) with   // TODO we say "colAtEndOfNames" everywhere, but that's not really a good name ("foo  .  $" hit Ctrl-Space at $)
+                match untypedParse.ParseTree with
+                | Some(input) -> 
+                    match UntypedParseImpl.GetRangeOfExprLeftOfDot(line,colAtEndOfNames,Some(input)) with   // TODO we say "colAtEndOfNames" everywhere, but that's not really a good name ("foo  .  $" hit Ctrl-Space at $)
                     | Some( ((sl,sc),_) as exprRange) ->
                         if hasTextChangedSinceLastTypecheck(textSnapshotInfo, exprRange) then
                             None, true // typecheck is stale, wait for second-chance IntelliSense to bring up right result
@@ -738,7 +735,7 @@ type TypeCheckInfo
     //
     // The overall aim is to resolve as accurately as possible based on what we know from type inference
     
-    let GetDeclItemsForNamesAtPosition(untypedParseInfoOpt : UntypedParseInfo option,
+    let GetDeclItemsForNamesAtPosition(untypedParseOpt : ParsedFileResults option,
                                        origLongIdentOpt: string list option, residueOpt:string option, line:Line0, lineStr:string, colAtEndOfNamesAndResidue, filterCtors, resolveOverloads, hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool)) = 
 
         let GetBaseClassCandidates (denv : DisplayEnv) = function
@@ -791,7 +788,7 @@ type TypeCheckInfo
 
         let FindRecordFieldsInEnv(plid, residue) = GetClassOrRecordFieldsEnvironmentLookupResolutions(line, loc, plid, residue)
 
-        match UntypedParseInfoImpl.TryGetCompletionContext(line, colAtEndOfNamesAndResidue, untypedParseInfoOpt) with
+        match UntypedParseImpl.TryGetCompletionContext(line, colAtEndOfNamesAndResidue, untypedParseOpt) with
         | Some Invalid -> None
         | Some (CompletionContext.Inherit(InheritanceContext.Class, (plid, _))) ->
             FindInEnv(plid, false) 
@@ -891,7 +888,7 @@ type TypeCheckInfo
             // Try to use the type of the expression on the left to help generate a completion list
             let mutable thereIsADotInvolved = false
             let qualItems = 
-                match untypedParseInfoOpt with
+                match untypedParseOpt with
                 | None -> 
                     // Note, you will get here if the 'reason' is not CompleteWord/MemberSelect/DisplayMemberList, as those are currently the 
                     // only reasons we do a sync parse to have the most precise and likely-to-be-correct-and-up-to-date info.  So for example,
@@ -902,11 +899,11 @@ type TypeCheckInfo
                 | Some(upi) -> 
 
 // See ServiceUntypedParse - GetRangeOfExprLeftOfDot and TryFindExpressionASTLeftOfDotLeftOfCursor are similar, but different, can we refactor commonality?
-//                match UntypedParseInfoImpl.GetRangeOfExprLeftOfDot(line,colAtEndOfNamesAndResidue,upi.ParseTree) with
+//                match UntypedParseImpl.GetRangeOfExprLeftOfDot(line,colAtEndOfNamesAndResidue,upi.ParseTree) with
 //                | Some((_,_),(el,ec)) ->
 //                    thereIsADotInvolved <- true
 //                    GetPreciseCompletionListFromExprTypings(upi, el-1, ec, filterCtors)
-                match UntypedParseInfoImpl.TryFindExpressionASTLeftOfDotLeftOfCursor(line,colAtEndOfNamesAndResidue,upi.ParseTree) with
+                match UntypedParseImpl.TryFindExpressionASTLeftOfDotLeftOfCursor(line,colAtEndOfNamesAndResidue,upi.ParseTree) with
                 | Some(pos,_) ->
                     thereIsADotInvolved <- true
                     GetPreciseCompletionListFromExprTypings(upi, Line.toZ pos.Line, pos.Column, filterCtors, hasTextChangedSinceLastTypecheck)
@@ -967,8 +964,8 @@ type TypeCheckInfo
         | Item.Types _ | Item.ModuleOrNamespaces _ -> true
         | _ -> false
 
-    let filterIntellisenseCompletionsBasedOnParseContext untypedParseInfoOpt line col items = 
-        match untypedParseInfoOpt with
+    let filterIntellisenseCompletionsBasedOnParseContext untypedParseOpt line col items = 
+        match untypedParseOpt with
         | None -> items
         | Some t ->
             // visitor to see if we are in an "open" declaration in the parse tree
@@ -994,15 +991,15 @@ type TypeCheckInfo
             | Some _ ->
                 items |> List.filter (function | Item.ModuleOrNamespaces _ -> true | _ -> false)
 
-    member x.GetDeclarations (untypedParseInfoOpt:UntypedParseInfo option, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) : DeclarationSet =
+    member x.GetDeclarations (untypedParseOpt:ParsedFileResults option, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) : DeclarationSet =
         let isInterfaceFile = SourceFileImpl.IsInterfaceFile sFile
         ErrorScope.Protect 
             Range.range0 
             (fun () -> 
-                match GetDeclItemsForNamesAtPosition(untypedParseInfoOpt, Some qualifyingNames, Some partialName, line, lineStr, colAtEndOfNamesAndResidue, ResolveTypeNamesToCtors, ResolveOverloads.Yes, hasTextChangedSinceLastTypecheck) with
+                match GetDeclItemsForNamesAtPosition(untypedParseOpt, Some qualifyingNames, Some partialName, line, lineStr, colAtEndOfNamesAndResidue, ResolveTypeNamesToCtors, ResolveOverloads.Yes, hasTextChangedSinceLastTypecheck) with
                 | None -> DeclarationSet.Empty  
                 | Some(items,denv,m) -> 
-                    let items = items |> filterIntellisenseCompletionsBasedOnParseContext (untypedParseInfoOpt |> Option.bind (fun x -> x.ParseTree)) line colAtEndOfNamesAndResidue 
+                    let items = items |> filterIntellisenseCompletionsBasedOnParseContext (untypedParseOpt |> Option.bind (fun x -> x.ParseTree)) line colAtEndOfNamesAndResidue 
                     let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
                     DeclarationSet.Create(infoReader,m,denv,items,syncop,checkAlive))
             (fun msg -> DeclarationSet.Error msg)
@@ -1127,15 +1124,15 @@ type TypeCheckInfo
             )    
             (fun _ -> None)
 
-    member scope.GetMethods (line, lineStr, colAtEndOfNames, namesOpt) : MethodOverloads =
+    member scope.GetMethods (line, lineStr, colAtEndOfNames, namesOpt) : MethodGroup =
         ErrorScope.Protect 
             Range.range0 
             (fun () -> 
                 match GetDeclItemsForNamesAtPosition(None,namesOpt,None,line,lineStr,colAtEndOfNames,ResolveTypeNamesToCtors,ResolveOverloads.No, fun _ -> false) with
-                | None -> MethodOverloads("",[| |])
-                | Some(items,denv,m) -> MethodOverloads.Create(infoReader,m,denv,items))
+                | None -> MethodGroup("",[| |])
+                | Some(items,denv,m) -> MethodGroup.Create(infoReader,m,denv,items))
             (fun msg -> 
-                MethodOverloads(msg,[| |]))
+                MethodGroup(msg,[| |]))
 
     member scope.GetDeclarationLocation (line : Line0, lineStr : string, idx : int, names : Names, tag : tokenId, isDecl : bool) : FindDeclResult =
       match tag with
@@ -1209,6 +1206,35 @@ type TypeCheckInfo
 
 module internal Parser = 
 
+        // We'll need number of lines for adjusting error messages at EOF
+    let GetFileInfoForLastLineErrors (source: string) = 
+        // number of lines in the source file
+        let lastLine = Line.assertZeroBasedLine (source |> Seq.sumBy (fun c -> if c = '\n' then 1 else 0))
+        // length of the last line
+        let lastLineLength = source.Length - source.LastIndexOf("\n",StringComparison.Ordinal) - 1
+        lastLine, lastLineLength
+         
+    let ReportError (tcConfig:TcConfig, mainInputFileName, fileInfo, (exn, warn)) = 
+        [ let warn = warn && not (ReportWarningAsError tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn tcConfig.specificWarnAsError tcConfig.specificWarnAsWarn tcConfig.globalWarnAsError exn)                
+          if (not warn || ReportWarning tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn exn) then 
+            let oneError trim exn = 
+                [ // We use the first line of the file as a fallbackRange for reporting unexpected errors.
+                  // Not ideal, but it's hard to see what else to do.
+                  let fallbackRange = rangeN mainInputFileName 1
+                  let ei = ErrorInfo.CreateFromExceptionAndAdjustEof(exn,warn,trim,fallbackRange,fileInfo)
+                  if (ei.FileName=mainInputFileName) || (ei.FileName=Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation) then
+                      yield ei ]
+                      
+            let mainError,relatedErrors = Build.SplitRelatedErrors exn 
+            yield! oneError false mainError
+            for e in relatedErrors do 
+                yield! oneError true e ]
+
+    let CreateErrorInfos (tcConfig:TcConfig, mainInputFileName, fileInfo, errors) = 
+        [| for (exn,warn) in errors do 
+              yield! ReportError (tcConfig, mainInputFileName, fileInfo, (exn, warn)) |]
+                            
+
     /// Error handler for parsing & type checking
     type ErrorHandler(reportErrors, mainInputFileName, tcConfig: TcConfig, source: string) =
         let mutable tcConfig = tcConfig
@@ -1216,12 +1242,7 @@ module internal Parser =
         let mutable errorCount = 0
          
         // We'll need number of lines for adjusting error messages at EOF
-        let fileInfo = 
-             // number of lines in the source file
-             let lastLine = Line.assertZeroBasedLine (source |> Seq.sumBy (fun c -> if c = '\n' then 1 else 0))
-             // length of the last line
-             let lastLineLength = source.Length - source.LastIndexOf("\n",StringComparison.Ordinal) - 1
-             lastLine, lastLineLength
+        let fileInfo = GetFileInfoForLastLineErrors source
          
         // This function gets called whenever an error happens during parsing or checking
         let errorSink warn (exn:PhasedError) = 
@@ -1235,22 +1256,11 @@ module internal Parser =
                 else exn
             if reportErrors then 
                 let report exn = 
-                    let warn = warn && not (ReportWarningAsError tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn tcConfig.specificWarnAsError tcConfig.specificWarnAsWarn tcConfig.globalWarnAsError exn)                
-                    if (not warn || ReportWarning tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn exn) then 
-                        let oneError trim exn = 
-                            // We use the first line of the file as a fallbackRange for reporting unexpected errors.
-                            // Not ideal, but it's hard to see what else to do.
-                            let fallbackRange = rangeN mainInputFileName 1
-                            let ei = ErrorInfo.CreateFromExceptionAndAdjustEof(exn,warn,trim,fallbackRange,fileInfo)
-                            if (ei.FileName=mainInputFileName) || (ei.FileName=Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation) then
-                                Trace.PrintLine("UntypedParseAux", fun _ -> sprintf "Reporting one error: %s\n" (ei.ToString()))
-                                errorsAndWarningsCollector.Add ei
-                                if not warn then 
-                                    errorCount <- errorCount + 1
+                    for ei in ReportError (tcConfig, mainInputFileName, fileInfo, (exn, warn)) do
+                        errorsAndWarningsCollector.Add ei
+                        if not warn then 
+                            errorCount <- errorCount + 1
                       
-                        let mainError,relatedErrors = Build.SplitRelatedErrors exn 
-                        oneError false mainError
-                        List.iter (oneError true) relatedErrors
                 match exn with
 #if EXTENSIONTYPING
                 | {Exception = (:? TypeProviderError as tpe)} ->
@@ -1286,10 +1296,10 @@ module internal Parser =
         Trace.PrintLine("CompilerServices", fun _ -> sprintf "Unexpected error %s\n" (exn.ToString()))
                 
 
-    /// ParseSource builds all the information necessary to report errors, match braces and build scopes 
+    /// ParseOneFile builds all the information necessary to report errors, match braces and build scopes 
     ///
     /// projectSourceFiles is only used to compute isLastCompiland, and is ignored if Build.IsScript(mainInputFileName)  is true.
-    let ParseSource (source: string, matchBracesOnly: bool, reportErrors: bool, mainInputFileName: string, projectSourceFiles: string list, tcConfig: TcConfig) =
+    let ParseOneFile (source: string, matchBracesOnly: bool, reportErrors: bool, mainInputFileName: string, projectSourceFiles: string[], tcConfig: TcConfig) =
 
       try 
           Trace.PrintLine("CompilerServices", fun _ -> sprintf "Service.parseSource %s, matchBraces = %b, reportErrors = %b" mainInputFileName matchBracesOnly reportErrors)
@@ -1367,7 +1377,7 @@ module internal Parser =
                         let isLastCompiland = 
                             tcConfig.target.IsExe && 
                             projectSourceFiles.Length >= 1 && 
-                            System.String.Compare(List.last projectSourceFiles,mainInputFileName,StringComparison.CurrentCultureIgnoreCase)=0
+                            System.String.Compare(projectSourceFiles.[projectSourceFiles.Length-1],mainInputFileName,StringComparison.CurrentCultureIgnoreCase)=0
                         let isLastCompiland = isLastCompiland || Build.IsScript(mainInputFileName)  
 
                         let parseResult = ParseInput(lexfun,errHandler.ErrorLogger,lexbuf,None,mainInputFileName,isLastCompiland)
@@ -1429,12 +1439,13 @@ module internal Parser =
         member x.CapturedMethodGroupResolutions = capturedMethodGroupResolutions
 
 
+
     /// Indicates if the type check got aborted because it is no longer relevant.
     type TypeCheckAborted = Yes | No 
 
     // Type check a single file against an initial context, gleaning both errors and intellisense information.
-    let TypeCheckFileInProject
-          (parseResult: ParsedInput option,
+    let TypeCheckOneFile
+          (untypedParse: ParsedFileResults,
            source: string,
            mainInputFileName: string,
            projectFileName: string,
@@ -1446,14 +1457,14 @@ module internal Parser =
            // These are the errors and warnings seen by the background compiler for the entire antecedant 
            backgroundErrors: (PhasedError * bool) list,    
            syncop: (unit->unit)->unit,
+           // Used by 'DeclarationSet' to check the IncrementalBuilder is still alive.
            checkAlive : (unit -> bool),
            isResultObsolete: unit->bool,
-           parseHadErrors : bool,
            textSnapshotInfo : obj) = 
       try
         let projectDir = Filename.directoryName (if projectFileName = "" then mainInputFileName else projectFileName)
-        Trace.PrintLine("CompilerServices", fun _ -> sprintf "Parser.TypeCheckFileInProject %s, projectDir = %s" mainInputFileName projectDir)
-        match parseResult with 
+        Trace.PrintLine("CompilerServices", fun _ -> sprintf "Parser.TypeCheckOneFile %s, projectDir = %s" mainInputFileName projectDir)
+        match untypedParse.ParseTree with 
         // When processing the following cases, we don't need to type-check
         | None -> 
             [| |], None, TypeCheckAborted.Yes
@@ -1547,7 +1558,7 @@ module internal Parser =
             let amap = tcImports.GetImportMap()
             let tcEnvAtEndOpt =
                 try
-                    let checkForErrors() = (parseHadErrors || errHandler.ErrorCount > 0)
+                    let checkForErrors() = (untypedParse.ParseHadErrors || errHandler.ErrorCount > 0)
                     // Typecheck is potentially a long running operation. We chop it up here with an Eventually continuation and, at each slice, give a chance
                     // for the client to claim the result as obsolete and have the typecheck abort.
                     let computation = TypecheckSingleInputAndFinishEventually(checkForErrors,tcConfig, tcImports, tcGlobals, None, TcResultsSink.WithSink sink, tcState, parsedMainInput)
@@ -1650,12 +1661,40 @@ type IReactorOperations =
     abstract SyncOp: Reactor.Operation -> unit
     abstract RunSyncOp: (unit -> 'T) -> 'T
 
+type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
+
+    /// Get the assemblies referenced
+    member __.GetReferencedAssemblies() = assemblies
+
+
 [<Sealed>]
 /// A live object of this type keeps the background corresponding background builder (and type providers) alive (through reference-counting).
 //
 // There is an important property of all the objects returned by the methods of this type: they do not require 
 // the corresponding background builder to be alive. That is, they are simply plain-old-data through pre-formatting of all result text.
-type TypeCheckFileResults(errors: ErrorInfo[], details: (TypeCheckInfo * IncrementalFSharpBuild.IncrementalBuilder option * IReactorOperations) option ) =
+type CheckProjectResults(errors: ErrorInfo[], tcGlobals: TcGlobals, tcImports: TcImports, ccuSig) =
+
+    member info.Errors = errors
+
+    member info.AssemblySignature =  FSharpAssemblySignature(tcGlobals,ccuSig)
+
+    member info.ProjectContext = 
+        let assemblies = 
+            [ for x in tcImports.GetImportedAssemblies() do 
+                yield FSharpAssembly(tcGlobals,x.FSharpViewOfMetadata) ]
+        ProjectContext(assemblies) 
+
+    /// Get the assemblies referenced
+    member __.GetReferencedAssemblies() = 
+        [ for x in tcImports.GetImportedAssemblies() do 
+                yield FSharpAssembly(tcGlobals,x.FSharpViewOfMetadata) ]
+
+[<Sealed>]
+/// A live object of this type keeps the background corresponding background builder (and type providers) alive (through reference-counting).
+//
+// There is an important property of all the objects returned by the methods of this type: they do not require 
+// the corresponding background builder to be alive. That is, they are simply plain-old-data through pre-formatting of all result text.
+type CheckFileResults(errors: ErrorInfo[], details: (TypeCheckInfo * IncrementalFSharpBuild.IncrementalBuilder option * IReactorOperations) option ) =
 
     // This may be None initially, or may be set to None when the object is disposed or finalized
     let mutable details = details
@@ -1699,13 +1738,14 @@ type TypeCheckFileResults(errors: ErrorInfo[], details: (TypeCheckInfo * Increme
     member info.HasFullTypeCheckInfo = details.IsSome
     
     /// Intellisense autocompletions
-    member info.GetDeclarations(untypedParseInfoOpt:UntypedParseInfo option, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) = 
+    member info.GetDeclarations(untypedParseOpt:ParsedFileResults option, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
+        let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
         checkBuilder (async.Return DeclarationSet.Empty) (fun (scope, builderOpt, reactor) -> 
             async { // Ensure the builder doesn't get released while running GetDeclarations asynchronously. In synchronous operations,
-                    // the builder is kept alive at least because the TypeCheckFileResults object itself is alive (note it is almsot certain to 
+                    // the builder is kept alive at least because the CheckFileResults object itself is alive (note it is almsot certain to 
                     // be alive for other reasons too anyway, e.g. in the incrementalBuildersCache).
                     use _unwind = match builderOpt with Some builder -> builder.IncrementUsageCount() | None -> { new System.IDisposable with member __.Dispose() = () }
-                    return! reactor.RunAsyncOp(fun () -> scope.GetDeclarations(untypedParseInfoOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))  
+                    return! reactor.RunAsyncOp(fun () -> scope.GetDeclarations(untypedParseOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))  
                   })
 
     member info.GetDataTipText(line, colAtEndOfNames, lineStr, names, tokenTag) = 
@@ -1728,7 +1768,7 @@ type TypeCheckFileResults(errors: ErrorInfo[], details: (TypeCheckInfo * Increme
 
     // Resolve the names at the given location to a set of methods
     member info.GetMethods(line, colAtEndOfNames,lineStr:string,names:Names option) =
-        let dflt = MethodOverloads("",[| |])
+        let dflt = MethodGroup("",[| |])
         checkBuilder dflt (fun (scope, _builder, reactor) -> 
             reactor.RunSyncOp (fun () -> scope.GetMethods (line, lineStr, colAtEndOfNames, names)))
             
@@ -1747,68 +1787,28 @@ type TypeCheckFileResults(errors: ErrorInfo[], details: (TypeCheckInfo * Increme
         checkBuilder Unchecked.defaultof<_> (fun (scope, _builder, _reactor) -> 
             scope.PartialAssemblySignature())
 
-    member info.TypeCheckContext = TypeCheckContext(checkBuilder) 
-
-and [<Sealed>] TypeCheckContext(checkBuilder) =
-
-    /// Get the assemblies referenced
-    member __.GetReferencedAssemblies() = 
-        checkBuilder [] (fun (scope, _builder, _reactor) -> 
-            scope.GetReferencedAssemblies()  )
-
-/// Information about the compilation environment    
-module CompilerEnvironment =
-    /// These are the names of assemblies that should be referenced for .fs, .ml, .fsi, .mli files that
-    /// are not asscociated with a project
-    let DefaultReferencesForOrphanSources = DefaultBasicReferencesForOutOfProjectSources
+    member info.ProjectContext = 
+        let assemblies = 
+            checkBuilder [] (fun (scope, _builder, _reactor) -> 
+                scope.GetReferencedAssemblies()  )
+        ProjectContext(assemblies)
     
-    /// Publish compiler-flags parsing logic. Must be fast because its used by the colorizer.
-    let GetCompilationDefinesForEditing(filename:string, compilerFlags : string list) =
-        let defines = ref(SourceFileImpl.AdditionalDefinesForUseInEditor(filename))
-        let MatchAndExtract(flag:string,prefix:string) =
-            if flag.StartsWith(prefix) then 
-                let sub = flag.Substring(prefix.Length)
-                let trimmed = sub.Trim()
-                defines := trimmed :: !defines
-        let rec QuickParseDefines = function
-            | hd :: tail ->
-               MatchAndExtract(hd,"-d:")
-               MatchAndExtract(hd,"--define:")
-               QuickParseDefines tail
-            | _ -> ()
-        QuickParseDefines compilerFlags
-        !defines
-            
-    /// Return true if this is a subcategory of error or warning message that the language service can emit
-    let IsCheckerSupportedSubcategory(subcategory:string) =
-        // Beware: This code logic is duplicated in DocumentTask.cs in the language service
-        PhasedError.IsSubcategoryOfCompile(subcategory)
+//----------------------------------------------------------------------------
+// BackgroundCompiler
+//
 
-/// Information about the debugging environment
-module internal DebuggerEnvironment =
-    /// Return the language ID, which is the expression evaluator id that the
-    /// debugger will use.
-    let GetLanguageID() =
-#if SILVERLIGHT
-        System.Guid(0xAB4F38C9, 0xB6E6s, 0x43bas, 0xBEuy, 0x3Buy, 0x58uy, 0x08uy, 0x0Buy, 0x2Cuy, 0xCCuy, 0xE3uy)
-#else
-        System.Guid(0xAB4F38C9u, 0xB6E6us, 0x43baus, 0xBEuy, 0x3Buy, 0x58uy, 0x08uy, 0x0Buy, 0x2Cuy, 0xCCuy, 0xE3uy)
-#endif
-        
-    
 [<NoComparison>]
-type (*internal*) TypeCheckFileAnswer =
+type (*internal*) CheckFileAnswer =
     | NoAntecedant
     | Aborted
-    | TypeCheckSucceeded of TypeCheckFileResults   
+    | Succeeded of CheckFileResults   
         
-/// This file has become eligible to be re-typechecked.
-type (*internal*) NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
-        
+
 /// Callback that indicates whether a requested result has become obsolete.    
 [<NoComparison;NoEquality>]
 type (*internal*) IsResultObsolete = 
     | IsResultObsolete of (unit->bool)
+
 
         
 // There is only one instance of this type, held in InteractiveChecker
@@ -1816,6 +1816,7 @@ type BackgroundCompiler() as self =
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.reactor: The one and only Reactor
     let reactor = Reactor.Reactor()
     let fileTypeCheckStateIsDirty = Event<string>()
+    let afterProjectTypeCheck = Event<unit>()
 
     let reactorOps = 
         { new IReactorOperations with 
@@ -1854,6 +1855,7 @@ type BackgroundCompiler() as self =
         // This indicates to the UI that the file type check state is dirty. If the file is open and visible then 
         // the UI will sooner or later request a typecheck of the file, recording errors and intellisense information.
         builder.BeforeTypeCheckFile.Add (fun msg -> fileTypeCheckStateIsDirty.Trigger msg)
+        builder.AfterProjectTypeCheck.Add (fun () -> afterProjectTypeCheck.Trigger ())
 
         (builder, errorsAndWarnings, decrement)
 
@@ -1869,154 +1871,138 @@ type BackgroundCompiler() as self =
                  onDiscard = (fun (_, _, decrement) -> decrement.Dispose()))
 
     
-    /// Helper: get the antecedant typecheck state for the give file (in the options). Return none if not available.        
-    let GetAntecendantResultWithoutSideEffects(filename:string, options:ProjectOptions) = 
-        match incrementalBuildersCache.GetAvailable options with
-        | Some(builder, createErrors, _) ->
-            let slotOfFile = builder.GetSlotOfFileName(filename)
-            Some (builder, createErrors, builder.GetAntecedentTypeCheckResultsBySlot slotOfFile)
-        | None->
-            None        
     
-    /// Helper: do one step of the build for the given options.
-    let DoStep(options:ProjectOptions) = 
-        // Do the step.
-        let builder,_,_ = incrementalBuildersCache.Get(options)
-        if builder.Step() then 
-            Trace.PrintLine("ChangeEvents", fun _ -> sprintf "ProjectOptions(%s) now maps to Build(%s)" (options.ToString()) (builder.ToString()))
-            true
-        else
-            false
+    let MakeTypeCheckFileResults(options:ProjectOptions, builder, scopeOpt, creationErrors, parseErrors, tcErrors) = 
+        let errors = 
+            [| yield! creationErrors 
+               yield! parseErrors
+               if options.IsIncompleteTypeCheckEnvironment then 
+                    yield! Seq.truncate maxTypeCheckErrorsOutOfProjectContext tcErrors
+               else 
+                    yield! tcErrors |]
+                
+        let details = scopeOpt |> Option.map (fun scope -> (scope, Some builder, reactorOps))
+        CheckFileResults (errors,details)
+
+    let MakeTypeCheckFileAnswer(aborted, options:ProjectOptions, builder, scopeOpt, creationErrors, parseErrors, tcErrors) = 
+        match aborted with 
+        | Parser.TypeCheckAborted.Yes  ->  Aborted                
+        | Parser.TypeCheckAborted.No -> Succeeded(MakeTypeCheckFileResults(options, builder, scopeOpt, creationErrors, parseErrors, tcErrors))
 
 
     /// Parses the source file and returns untyped AST
-    member bc.ParseFileInProject(filename:string, source,options:ProjectOptions)=
-        use t = Trace.Call("SyncOp","ParseFileInProject", fun _->"")
-        reactor.RunSyncOp (fun () -> 
-            Trace.PrintLine("CompilerServices", fun _ -> "Service.UntypedParseImpl")
-            use t = Trace.CallByThreadNamed("Reactor", "UntypedParseImpl", "ThreadPool", fun _->"")  
+    member bc.ParseFileInProject(filename:string, source,options:ProjectOptions) =
+        reactor.RunSyncOp <| fun () -> 
         
 #if TYPE_PROVIDER_SECURITY
             ExtensionTyping.GlobalsTheLanguageServiceCanPoke.theMostRecentFileNameWeChecked <- Some filename
 #endif
-            let builder,_,_ = incrementalBuildersCache.Get(options) // Q: Whis it it ok to ignore createErrors in the build cache? A: These errors will be appended into the typecheck results
+            let builder,_,_ = incrementalBuildersCache.Get(options) // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
             
             // Do the parsing.
-            // REVIEW: _matchPairs is being ignored here
             let parseErrors, _matchPairs, inputOpt, anyErrors = 
-               Parser.ParseSource (source, false, true, filename, (options.ProjectFileNames |> Array.toList), builder.TcConfig)
+               Parser.ParseOneFile (source, false, true, filename, options.ProjectFileNames, builder.TcConfig)
                  
-            // Strip everything but the file name.
-            let dependencyFiles = builder.Dependencies |> List.map (fun dep->dep.Filename)
-
-            UntypedParseInfo(parsed = { Errors = parseErrors 
-                                        Input = inputOpt
-                                        ParseHadErrors = anyErrors
-                                        DependencyFiles = dependencyFiles})) 
+            ParsedFileResults(parseErrors, inputOpt, anyErrors, builder.Dependencies )
      
-#if NO_QUICK_SEARCH_HELPERS // only used in QuickSearch prototype
-#else
-    member bc.UntypedParseForSlot(slot,options) =
-        use t = Trace.Call("SyncOp","UntypedParseForSlot", fun _->"")
-        reactor.RunSyncOp (fun () -> 
-            Trace.PrintLine("CompilerServices", fun _ -> "Service.UntypedParseForSlotImpl")
-            use t = Trace.CallByThreadNamed("Reactor", "UntypedParseImpl", "ThreadPool", fun _->"")  
-            let builder,_,_= incrementalBuildersCache.Get(options)
-            let inputOpt,_,_ = builder.GetParseResultsBySlot slot            
-            Trace.PrintLine("ChangeEvents", fun _ -> sprintf "ProjectOptions(%s) now maps to Build(%s)" (options.ToString()) (builder.ToString()))
-            // Strip everything but the file name.
-            let dependencyFiles = builder.Dependencies |> List.map (fun dep->dep.Filename)
+    /// Fetch the parse information from the background compiler (which checks w.r.t. the FileSystem API)
+    member bc.GetBackgroundParseResultsForFileInProject(filename, options) =
+        reactor.RunAsyncOp <| fun () -> 
+            let builder, creationErrors, _= incrementalBuildersCache.Get(options)
+            let inputOpt,_,_,parseErrors = builder.GetParseResultsForFile filename            
+            let dependencyFiles = builder.Dependencies 
+            //let fileInfo = Parser.GetFileInfoForLastLineErrors source
+            let fileInfo = (Int32.MaxValue, Int32.MaxValue)
+            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, filename, fileInfo, parseErrors) |]
+            ParsedFileResults(errors = errors, input = inputOpt, parseHadErrors = false, dependencyFiles = dependencyFiles)
         
-            UntypedParseInfo(parsed = { Errors = [| |] 
-                                        Input = inputOpt
-                                        ParseHadErrors = false
-                                        DependencyFiles = dependencyFiles})) 
-        
-    member bc.GetSlotsCount(options) =
-        use t = Trace.Call("SyncOp","GetSlotsCount", fun _->"")
-        reactor.RunSyncOp (fun () -> 
-            Trace.PrintLine("CompilerServices", fun _ -> "Service.GetSlotsCountImpl")
-            use t = Trace.CallByThreadNamed("Reactor", "GetSlotsCountImpl", "ThreadPool", fun _->"")  
-            let builder,_,_ = incrementalBuildersCache.Get options
-            builder.GetSlotsCount ())
-#endif // QUICK_SEARCH
-     
-    member bc.MatchBraces(filename:string, source,options)=
-        use t = Trace.Call("SyncOp","MatchBraces", fun _->"")
-        reactor.RunSyncOp (fun () -> 
-            Trace.PrintLine("CompilerServices", fun _ -> "Service.MatchBracesImpl")
-            use t = Trace.CallByThreadNamed("Reactor", "MatchBracesImpl", "ThreadPool", fun _->"")  
+    member bc.MatchBraces(filename:string, source, options)=
+        reactor.RunSyncOp <| fun () -> 
             let builder,_,_ = incrementalBuildersCache.Get(options)
-            // Do the parsing.
             let _parseErrors, matchPairs, _inputOpt, _anyErrors = 
-               Parser.ParseSource (source, true, false, filename, (options.ProjectFileNames |> Array.toList), builder.TcConfig)
+               Parser.ParseOneFile (source, true, false, filename, options.ProjectFileNames, builder.TcConfig)
                  
-            matchPairs)
+            matchPairs
 
-(*
-    member bc.TypeCheckAll(options) =
-        reactor.RunAsyncOp (fun () -> 
-            match GetTypeCheckResults(options) with
-            | Some(tcFinalState, tcAttrs, tcEnv, tcImports, tcGlobals) -> 
-                    let res = TypeCheckFileResults (errors,Some builder, reactorOps)
-                    res)
-*)
-
-    /// Type-check the result obtained by parsing
-    /// The input should be first parsed using 'UntypedParseImpl'
-    member bc.TypeCheckFileInProjectIfReady(parseResult,filename:string,source,options,isResultObsolete:unit->bool,textSnapshotInfo)=
-        use t = Trace.Call("SyncOp","TypeCheckFileInProjectIfReady", fun _->"")
-        reactor.RunSyncOp (fun () -> 
-            use t = Trace.CallByThreadNamed("Reactor", "TypeCheckSourceImpl", "ThreadPool", fun _->"")  
+    /// Type-check the result obtained by parsing, but only if the antecedent type checking context is available. 
+    member bc.CheckFileInProjectIfReady(untypedParse:ParsedFileResults,filename,source,options,isResultObsolete,textSnapshotInfo) =
+        reactor.RunSyncOp <| fun () -> 
+            match incrementalBuildersCache.GetAvailable options with
+            | Some(builder, creationErrors, _) ->
+            
+                match builder.GetTypeCheckResultsBeforeFileInProjectIfReady filename with 
+                | Some(tcPriorState,tcImports,tcGlobals,tcConfig,backgroundErrors,_antecedantTimeStamp) -> 
         
-            match GetAntecendantResultWithoutSideEffects(filename,options) with
-            | Some(builder,createErrors,Some(tcPriorState,tcImports,tcGlobals,tcConfig,backgroundErrors,_antecedantTimeStamp)) -> 
-        
-                // Get additional script #load closure information if applicable.
-                // For scripts, this will have been recorded by GetProjectOptionsFromScriptRoot.
-                let loadClosure = scriptClosure.TryGet options 
-        
-                let parseHadErrors = parseResult.ParseHadErrors 
-
-                // Run the type checking.
-                let tcErrors, scopeOpt, aborted = 
-                    Parser.TypeCheckFileInProject(parseResult.Input,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                                  loadClosure,backgroundErrors,reactor.SyncOp,(fun () -> builder.IsAlive),isResultObsolete,parseHadErrors,textSnapshotInfo)
-
-                if aborted = Parser.TypeCheckAborted.No then                           
-                                                    
-                    // Append all the errors together.
-                    let errors = 
-                        [| yield! createErrors 
-                           yield! parseResult.Errors
-                           if options.IsIncompleteTypeCheckEnvironment then 
-                               yield! Seq.truncate maxTypeCheckErrorsOutOfProjectContext tcErrors
-                           else 
-                               yield! tcErrors |]
+                    // Get additional script #load closure information if applicable.
+                    // For scripts, this will have been recorded by GetProjectOptionsFromScriptRoot.
+                    let loadClosure = scriptClosure.TryGet options 
                 
-                    let res = TypeCheckFileResults (errors,(match scopeOpt with None -> None | Some scope -> Some (scope, Some builder, reactorOps)))   
-                    TypeCheckSucceeded res
-                else Aborted                
-            | _ -> 
-                // Either the builder did not exist or the antecedent to the slot was not ready. Return 'None'.
-                // The caller will send a request for a background build of this project. This
-                // will create the builder and notify the UI when the antecedent to the slot is ready. 
-                NoAntecedant)
+                    // Run the type checking.
+                    let tcErrors, scopeOpt, aborted = 
+                        Parser.TypeCheckOneFile(untypedParse,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
+                                                loadClosure,backgroundErrors,reactor.SyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
 
-    member bc.GetProjectOptionsFromScriptRoot(filename, source, loadedTimestamp, otherFlags) = 
+                    MakeTypeCheckFileAnswer(aborted, options, builder, scopeOpt, creationErrors, untypedParse.Errors, tcErrors)
+                | None -> NoAntecedant
+            | None -> NoAntecedant
+
+    /// Type-check the result obtained by parsing. Force the evaluation of the antecedent type checking context if needed.
+    member bc.CheckFileInProject(untypedParse:ParsedFileResults,filename,source,options,isResultObsolete,textSnapshotInfo) =
+        reactor.RunAsyncOp <| fun () -> 
+            let builder,creationErrors,_ = incrementalBuildersCache.Get(options) 
+            let (tcPriorState,tcImports,tcGlobals,tcConfig,backgroundErrors,_antecedantTimeStamp) = builder.GetTypeCheckResultsBeforeFileInProject filename 
+            let loadClosure = scriptClosure.TryGet options 
+            let tcErrors, scopeOpt, aborted = 
+                Parser.TypeCheckOneFile(untypedParse,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
+                                        loadClosure,backgroundErrors,reactor.SyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+            MakeTypeCheckFileAnswer(aborted, options, builder, scopeOpt, creationErrors, untypedParse.Errors, tcErrors)
+
+    /// Fetch the check information from the background compiler (which checks w.r.t. the FileSystem API)
+    member bc.GetBackgroundCheckResultsForFileInProject(filename,options) =
+        reactor.RunAsyncOp <| fun () -> 
+            let (builder, creationErrors, _) = incrementalBuildersCache.Get options 
+            let (inputOpt, _, _, untypedErrors) = builder.GetParseResultsForFile filename  
+            let (_tcPriorState,_tcImports,_tcGlobals,_tcConfig,tcErrors,_antecedantTimeStamp) = builder.GetTypeCheckResultsAfterFileInProject filename 
+            let fileInfo = (Int32.MaxValue, Int32.MaxValue)
+            let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, filename, fileInfo, untypedErrors) |]
+            let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, filename, fileInfo, tcErrors) |]
+            let untypedParse = ParsedFileResults(errors = untypedErrors, input = inputOpt, parseHadErrors = false, dependencyFiles = builder.Dependencies)
+            // TODO: this does not yet return a TypeCheckInfo (scope) usable for intellisense.  The name
+            // resolutions would need to be saved in the backgroundd checker. This will be needed for 
+            // FindAllReferences etc. in any case.
+            let scopeOpt = None
+            let typedResults = MakeTypeCheckFileResults(options, builder, scopeOpt, creationErrors, untypedParse.Errors, tcErrors)
+            (untypedParse, typedResults)
+
+    /// Parse and typecheck the whole project.
+    member bc.ParseAndCheckProject(options) =
+        reactor.RunAsyncOp <| fun () -> 
+            let builder,creationErrors,_ = incrementalBuildersCache.Get(options) 
+            let results = builder.GetTypeCheckResultsAfterLastFileInProject()
+            match results with
+            | (tcState,tcImports,tcGlobals,tcConfig,tcErrors,_antecedantTimeStamp) -> 
+                let fileInfo = (Int32.MaxValue, Int32.MaxValue)
+                let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, "none.fs", fileInfo, tcErrors) |]
+                CheckProjectResults (errors, tcGlobals, tcImports, tcState.PartialAssemblySignature)
+
+    member bc.GetProjectOptionsFromScriptRoot(filename, source, ?loadedTimestamp, ?otherFlags, ?useFsiAuxLib) = 
         reactor.RunSyncOp (fun () -> 
             // REVIEW: Opportunity to cache by filename, version?
             // REVIEW: Opportunity to save script 'input' which is about to be generated including children.
-            let fas = LoadClosure.ComputeClosureOfSourceText(filename, source, CodeContext.Editing, new Lexhelp.LexResourceManager())
-            let baseFlags =  ["--noframework"; "--warn:3"]  @ Array.toList otherFlags
-            let references = fas.References |> List.map (fun r->"-r:" + fst r)
-            let nowarns = fas.NoWarns |> List.map (fun (code,_)->"--nowarn:" + code)
-            let allFlags = baseFlags @ references @ nowarns @ Array.toList otherFlags
+            let useFsiAuxLib = defaultArg useFsiAuxLib true
+            let otherFlags = defaultArg otherFlags [| |]
+            let loadedTimestamp = defaultArg loadedTimestamp DateTime.MaxValue // Not 'now', we don't want to force reloading
+            let fas = LoadClosure.ComputeClosureOfSourceText(filename, source, CodeContext.Editing, useFsiAuxLib, new Lexhelp.LexResourceManager())
+            let allFlags = 
+                [| yield "--noframework"; yield "--warn:3"; yield! otherFlags
+                   for r in fas.References do yield "-r:" + fst r
+                   for (code,_) in fas.NoWarns do yield "--nowarn:" + code
+                   yield! otherFlags |]
             let co = 
                 {
                     ProjectFileName = filename + ".fsproj" // Make a name that is unique in this directory.
-                    ProjectFileNames = fas.SourceFiles |> List.map(fun s->fst s) |> List.toArray
-                    ProjectOptions = allFlags |> List.toArray
+                    ProjectFileNames = fas.SourceFiles |> List.map fst |> List.toArray
+                    ProjectOptions = allFlags 
                     IsIncompleteTypeCheckEnvironment = false
                     UseScriptResolutionRules = true 
                     LoadTime = loadedTimestamp
@@ -2026,19 +2012,15 @@ type BackgroundCompiler() as self =
             co)
             
     member bc.InvalidateConfiguration(options : ProjectOptions) =
-        use t = Trace.Call("SyncOp","InvalidateConfiguration", fun _->"")
-        reactor.AsyncOp (fun () -> 
-            use t = Trace.Call("ChangeEvents","InvalidateBuildCacheEntry", fun _ -> sprintf "Received notification to invalidate build for options: %A" options)
+        reactor.AsyncOp <| fun () -> 
             match incrementalBuildersCache.GetAvailable options with
             | None -> ()
             | Some (_oldBuilder, _, _) ->
                     // We do not need to decrement here - the onDiscard function is called each time an entry is pushed out of the build cache,
                     // including by SetAlternate.
-                    Trace.PrintLine("ChangeEvents", fun _ -> "Refreshing configuration")
                     let builderB, errorsB, decrementB = CreateOneIncrementalBuilder options
-                    Trace.PrintLine("ChangeEvents", fun _ -> sprintf "ProjectOptions(%s) now maps to Build(%s)" (options.ToString()) (builderB.ToString()))
-                    incrementalBuildersCache.SetAlternate(options, (builderB, errorsB, decrementB)))
-        reactor.StartBuilding(fun () -> DoStep options) 
+                    incrementalBuildersCache.SetAlternate(options, (builderB, errorsB, decrementB))
+        bc.StartBuilding(options)
 
     member bc.NotifyProjectCleaned(options : ProjectOptions) =
         match incrementalBuildersCache.GetAvailable options with
@@ -2055,9 +2037,10 @@ type BackgroundCompiler() as self =
         use t = Trace.Call("SyncOp","InvalidateAll", fun _->"")
         reactor.AsyncOp (fun () -> incrementalBuildersCache.Clear())
 
-
     member bc.StartBuilding(options) =
-        reactor.StartBuilding(fun () -> DoStep options) 
+        reactor.StartBuilding(fun () -> 
+            let builder,_,_ = incrementalBuildersCache.Get(options)
+            builder.Step() )
 
     member bc.StopBuilding() =
         reactor.StopBuilding() 
@@ -2068,6 +2051,11 @@ type BackgroundCompiler() as self =
 
     member bc.ReactorOps  = reactorOps
     member bc.FileTypeCheckStateIsDirty = fileTypeCheckStateIsDirty.Publish
+
+//----------------------------------------------------------------------------
+// InteractiveChecker
+//
+
 
 [<Sealed>]
 [<AutoSerializable(false)>]
@@ -2094,7 +2082,7 @@ type InteractiveChecker() =
         backgroundCompiler.MatchBraces(filename,source,options)
     
     /// Parse a source code file, returning an information about the untyped results
-    /// and the results needed for further processing using 'TypeCheckFileInProject'
+    /// and the results needed for further processing using 'CheckFileInProject'
     let ComputeUntypedParse(filename: string, source, options) =
         Trace.PrintLine("CompilerServices", fun () -> sprintf "ParseFileInProject, FileName = %s\n  " filename) 
         foregroundParseCount <- foregroundParseCount + 1
@@ -2115,8 +2103,9 @@ type InteractiveChecker() =
     ///    - the source for the file may have changed
     
     let typeCheckLookup = 
-        AgedLookup<string * ProjectOptions,UntypedParseInfo * TypeCheckFileResults *int>(keepStrongly=recentForgroundTypeCheckLookupSize,
-                                                                                   areSame=fun (x,y)->x=y) 
+        AgedLookup<string * ProjectOptions,ParsedFileResults * CheckFileResults *int>
+            (keepStrongly=recentForgroundTypeCheckLookupSize,
+             areSame=fun (x,y)->x=y) 
 
     /// Instantiate an interactive checker.    
     static member Create() = new InteractiveChecker()
@@ -2127,16 +2116,11 @@ type InteractiveChecker() =
     member ic.ParseFileInProject(filename, source, options) =
         untypedCheckMru.Get((filename, source, options))
         
-#if NO_QUICK_SEARCH_HELPERS // only used in QuickSearch prototype
-#else
-    member ic.GetSlotsCount options =
-        Trace.PrintLine("CompilerServices", fun () -> sprintf "GetSlotsCount, ProjectName = %s\n  " options.ProjectFileName)         
-        backgroundCompiler.GetSlotsCount(options)
+    member ic.GetBackgroundParseResultsForFileInProject (filename,options) =
+        backgroundCompiler.GetBackgroundParseResultsForFileInProject(filename,options)
         
-    member ic.UntypedParseForSlot (slot,options) =
-        Trace.PrintLine("CompilerServices", fun () -> sprintf "UntypedParseForSlot, ProjectName = %s, slot = %d\n  " options.ProjectFileName slot)         
-        backgroundCompiler.UntypedParseForSlot(slot,options)
-#endif // QUICK_SEARCH
+    member ic.GetBackgroundCheckResultsForFileInProject (filename,options) =
+        backgroundCompiler.GetBackgroundCheckResultsForFileInProject(filename,options)
         
     /// Try to get recent approximate type check results for a file. 
     member ic.TryGetRecentTypeCheckResultsForFile(filename: string, options:ProjectOptions) =
@@ -2174,26 +2158,40 @@ type InteractiveChecker() =
     member ic.NotifyProjectCleaned(options: ProjectOptions) =
         backgroundCompiler.NotifyProjectCleaned options
               
-    /// TypeCheck a source code file, returning a handle to the results of the 
-    /// parse including the reconstructed types in the file.
-    member ic.TypeCheckFileInProjectIfReady(parsed:UntypedParseInfo, filename:string, fileVersion:int, source:string, options:ProjectOptions, IsResultObsolete(isResultObsolete), textSnapshotInfo:obj) =        
-        Trace.PrintLine("CompilerServices", fun () -> sprintf "TypeCheckFileInProject, FileName = %s\n  " filename) 
-        let answer = backgroundCompiler.TypeCheckFileInProjectIfReady(UntypedParseInfoImpl.GetUntypedParseResults parsed,filename,source,options,isResultObsolete,textSnapshotInfo)
+    member ic.RecordTypeCheckFileInProjectResults(filename,options,untypedParse,fileVersion,answer) =        
         match answer with 
-        | Aborted
-        | NoAntecedant ->
+        | Aborted| NoAntecedant -> 
             backgroundCompiler.StartBuilding(options) 
-            answer
-        | TypeCheckSucceeded typedResults -> 
+        | Succeeded typedResults -> 
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
-            typeCheckLookup.Put((filename,options),(parsed,typedResults,fileVersion))            
-            // JAF: Why don't we kick the backgroundCompiler off here like we do for Aborted and NoAntecedant? 
-            // Because we expect the second half of the request (GetMethods or whatever) soon and would like that to have a chance to start that request quickly
-            answer
+            typeCheckLookup.Put((filename,options),(untypedParse,typedResults,fileVersion))            
+
+    /// Typecheck a source code file, returning a handle to the results of the 
+    /// parse including the reconstructed types in the file.
+    member ic.CheckFileInProjectIfReady(untypedParse:ParsedFileResults, filename:string, fileVersion:int, source:string, options:ProjectOptions, ?isResultObsolete, ?textSnapshotInfo:obj) =        
+        let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
+        let textSnapshotInfo = defaultArg textSnapshotInfo null
+        let answer = backgroundCompiler.CheckFileInProjectIfReady(untypedParse,filename,source,options,isResultObsolete,textSnapshotInfo)
+        ic.RecordTypeCheckFileInProjectResults(filename,options,untypedParse,fileVersion,answer)
+        answer
             
+    /// Typecheck a source code file, returning a handle to the results of the 
+    /// parse including the reconstructed types in the file.
+    member ic.CheckFileInProject(untypedParse:ParsedFileResults, filename:string, fileVersion:int, source:string, options:ProjectOptions, ?isResultObsolete, ?textSnapshotInfo:obj) =        
+        let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
+        let textSnapshotInfo = defaultArg textSnapshotInfo null
+        async {
+            let! answer = backgroundCompiler.CheckFileInProject(untypedParse,filename,source,options,isResultObsolete,textSnapshotInfo)
+            ic.RecordTypeCheckFileInProjectResults(filename,options,untypedParse,fileVersion,answer)
+            return answer 
+        }
+            
+    member ic.ParseAndCheckProject(options) =
+        backgroundCompiler.ParseAndCheckProject(options)
+
     /// For a given script file, get the ProjectOptions implied by the #load closure
-    member ic.GetProjectOptionsFromScriptRoot(filename : string, source : string, loadedTimestamp : DateTime, otherFlags) :  ProjectOptions = 
-        backgroundCompiler.GetProjectOptionsFromScriptRoot(filename,source,loadedTimestamp, otherFlags)
+    member ic.GetProjectOptionsFromScriptRoot(filename, source, ?loadedTimestamp, ?otherFlags, ?useFsiAuxLib) :  ProjectOptions = 
+        backgroundCompiler.GetProjectOptionsFromScriptRoot(filename,source,?loadedTimestamp=loadedTimestamp, ?otherFlags=otherFlags, ?useFsiAuxLib=useFsiAuxLib)
         
     /// Begin background parsing the given project.
     member ic.StartBackgroundCompile(options) = backgroundCompiler.StartBuilding(options) 
@@ -2218,84 +2216,112 @@ type InteractiveChecker() =
           
     // Obsolete
     member bc.UntypedParse(filename, source, options) = bc.ParseFileInProject(filename, source, options)
-    member bc.TypeCheckSource(parseResult, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo:obj) = bc.TypeCheckFileInProjectIfReady(parseResult, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo)
+    member bc.TypeCheckSource(untypedParse, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo:obj) = bc.CheckFileInProjectIfReady(untypedParse, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo)
     member ic.GetCheckOptionsFromScriptRoot(filename, source, loadedTimestamp) = ic.GetProjectOptionsFromScriptRoot(filename, source, loadedTimestamp, [| |]) 
     member ic.GetCheckOptionsFromScriptRoot(filename, source, loadedTimestamp, otherFlags) = ic.GetProjectOptionsFromScriptRoot(filename, source, loadedTimestamp, otherFlags) 
 
 
 
-type ParseAndCheckHelper(reactorOps: IReactorOperations, tcConfig, tcGlobals, tcImports, tcState, loadClosure) =
+type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, tcImports, tcState, loadClosure) =
 
     member __.ParseAndCheckInteraction (source) =
 
         let mainInputFileName = "stdin.fsx" 
         // Note: projectSourceFiles is only used to compute isLastCompiland, and is ignored if Build.IsScript(mainInputFileName) is true (which it is in this case).
-        let projectSourceFiles = []
-        let parseErrors, _matchPairs, inputOpt, anyErrors = Parser.ParseSource (source, false, true, mainInputFileName, projectSourceFiles, tcConfig)
-        //let dependencyFiles = builder.Dependencies |> List.map (fun dep->dep.Filename)
-        let dependencyFiles = []
-        let untypedParseInfo = 
-                UntypedParseInfo(parsed = { Errors = parseErrors 
-                                            Input = inputOpt
-                                            ParseHadErrors = anyErrors
-                                            DependencyFiles = dependencyFiles})
+        let projectSourceFiles = [| |]
+        let parseErrors, _matchPairs, inputOpt, anyErrors = Parser.ParseOneFile (source, false, true, mainInputFileName, projectSourceFiles, tcConfig)
+        let dependencyFiles = [] // interactions have no dependencies
+        let untypedParse = ParsedFileResults(parseErrors, inputOpt, parseHadErrors = anyErrors, dependencyFiles = dependencyFiles)
 
         let backgroundErrors = []
         let tcErrors, scopeOpt, aborted = 
-            Parser.TypeCheckFileInProject(inputOpt,source,mainInputFileName,"project",tcConfig,tcGlobals,tcImports,  tcState,
-                                    loadClosure,backgroundErrors,reactorOps.SyncOp,(fun () -> true),(fun _ -> false),anyErrors,box 17856)
+            Parser.TypeCheckOneFile(untypedParse,source,mainInputFileName,"project",tcConfig,tcGlobals,tcImports,  tcState,
+                                    loadClosure,backgroundErrors,reactorOps.SyncOp,(fun () -> true),(fun _ -> false),box 17856)
 
         if aborted = Parser.TypeCheckAborted.No then                           
-            let errors = 
-                [|  yield! parseErrors
-                    yield! tcErrors |]
-            let typeCheckResults = TypeCheckFileResults (errors,(match scopeOpt with None -> None | Some scope -> Some (scope, None, reactorOps)))   
-            untypedParseInfo, typeCheckResults
-
+            let errors = [|  yield! parseErrors; yield! tcErrors |]
+            let typeCheckResults = CheckFileResults (errors,(match scopeOpt with None -> None | Some scope -> Some (scope, None, reactorOps)))   
+            untypedParse, typeCheckResults
         else 
             failwith "unexpected aborted"
                 
-    member __.ParseAndCheckType (source) =
+//----------------------------------------------------------------------------
+// CompilerEnvironment, DebuggerEnvironment
+//
 
-        let mainInputFileName = "stdin.fsx" 
-        // Note: projectSourceFiles is only used to compute isLastCompiland, and is ignored if Build.IsScript(mainInputFileName) is true (which it is in this case).
-        let projectSourceFiles = []
-        let parseErrors, _matchPairs, inputOpt, anyErrors = Parser.ParseSource (source, false, true, mainInputFileName, projectSourceFiles, tcConfig)
-        //let dependencyFiles = builder.Dependencies |> List.map (fun dep->dep.Filename)
-        let dependencyFiles = []
-        let untypedParseInfo = 
-                UntypedParseInfo(parsed = { Errors = parseErrors 
-                                            Input = inputOpt
-                                            ParseHadErrors = anyErrors
-                                            DependencyFiles = dependencyFiles})
 
-        let backgroundErrors = []
-        let tcErrors, scopeOpt, aborted = 
-            Parser.TypeCheckFileInProject(inputOpt,source,mainInputFileName,"project",tcConfig,tcGlobals,tcImports,  tcState,
-                                    loadClosure,backgroundErrors,reactorOps.SyncOp,(fun () -> true),(fun _ -> false),anyErrors,box 17856)
+/// Information about the compilation environment    
+module CompilerEnvironment =
+    /// These are the names of assemblies that should be referenced for .fs, .ml, .fsi, .mli files that
+    /// are not asscociated with a project
+    let DefaultReferencesForOrphanSources = DefaultBasicReferencesForOutOfProjectSources
+    
+    /// Publish compiler-flags parsing logic. Must be fast because its used by the colorizer.
+    let GetCompilationDefinesForEditing(filename:string, compilerFlags : string list) =
+        let defines = ref(SourceFileImpl.AdditionalDefinesForUseInEditor(filename))
+        let MatchAndExtract(flag:string,prefix:string) =
+            if flag.StartsWith(prefix) then 
+                let sub = flag.Substring(prefix.Length)
+                let trimmed = sub.Trim()
+                defines := trimmed :: !defines
+        let rec QuickParseDefines = function
+            | hd :: tail ->
+               MatchAndExtract(hd,"-d:")
+               MatchAndExtract(hd,"--define:")
+               QuickParseDefines tail
+            | _ -> ()
+        QuickParseDefines compilerFlags
+        !defines
+            
+    /// Return true if this is a subcategory of error or warning message that the language service can emit
+    let IsCheckerSupportedSubcategory(subcategory:string) =
+        // Beware: This code logic is duplicated in DocumentTask.cs in the language service
+        PhasedError.IsSubcategoryOfCompile(subcategory)
 
-        if aborted = Parser.TypeCheckAborted.No then                           
-            let errors = 
-                [|  yield! parseErrors
-                    yield! tcErrors |]
-            let typeCheckResults = TypeCheckFileResults (errors,(match scopeOpt with None -> None | Some scope -> Some (scope, None, reactorOps)))   
-            untypedParseInfo, typeCheckResults
-
-        else 
-            failwith "unexpected aborted"
-                
-
+/// Information about the debugging environment
+module DebuggerEnvironment =
+    /// Return the language ID, which is the expression evaluator id that the
+    /// debugger will use.
+    let GetLanguageID() =
+#if SILVERLIGHT
+        System.Guid(0xAB4F38C9, 0xB6E6s, 0x43bas, 0xBEuy, 0x3Buy, 0x58uy, 0x08uy, 0x0Buy, 0x2Cuy, 0xCCuy, 0xE3uy)
+#else
+        System.Guid(0xAB4F38C9u, 0xB6E6us, 0x43baus, 0xBEuy, 0x3Buy, 0x58uy, 0x08uy, 0x0Buy, 0x2Cuy, 0xCCuy, 0xE3uy)
+#endif
+        
 module PrettyNaming =
     let IsIdentifierPartCharacter     x = Microsoft.FSharp.Compiler.PrettyNaming.IsIdentifierPartCharacter x
     let IsLongIdentifierPartCharacter x = Microsoft.FSharp.Compiler.PrettyNaming.IsLongIdentifierPartCharacter x
     let GetLongNameFromString         x = Microsoft.FSharp.Compiler.PrettyNaming.SplitNamesForILPath x
     let FormatAndOtherOverloadsString remainingOverloads = FSComp.SR.typeInfoOtherOverloads(remainingOverloads)
-        
-type Param = MethodOverloadsParam
-type Method = MethodOverloadsItem
-type CheckOptions = ProjectOptions
-type TypeCheckAnswer = TypeCheckFileAnswer
 
+//----------------------------------------------------------------------------
+// Obsolete
+//
+
+        
+[<Obsolete("This type has been renamed to MethodGroupItemParameter")>]
+type Param = MethodGroupItemParameter
+
+[<Obsolete("This type has been renamed to MethodGroupItem")>]
+type Method = MethodGroupItem
+
+[<Obsolete("This type has been renamed to ProjectOptions")>]
+type CheckOptions = ProjectOptions
+
+[<Obsolete("This type has been renamed to CheckFileAnswer")>]
+type TypeCheckAnswer = CheckFileAnswer
+
+[<Obsolete("This type has been renamed to CheckFileResults")>]
+type TypeCheckResults = CheckFileResults
+
+[<Obsolete("This type has been renamed to ParsedFileResults")>]
+type UntypedParseInfo = ParsedFileResults
+
+/// This file has become eligible to be re-typechecked.
+[<Obsolete("NotifyFileTypeCheckStateIsDirty has been replaced by the FileTypeCheckStateIsDirty event on the InteractiveChecker type")>]
+type NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
+        
 
 #if EXTENSIBLE_DUMPER
 #if DEBUG

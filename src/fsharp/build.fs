@@ -1573,15 +1573,15 @@ let SystemAssemblies (primaryAssembly, mscorlibVersion: System.Version, primaryA
 //
 // REVIEW: it isn't clear if there is any negative effect
 // of leaving an assembly off this list.
-let BasicReferencesForScriptLoadClosure = 
+let BasicReferencesForScriptLoadClosure(useFsiAuxLib) = 
 #if SILVERLIGHT
     ["mscorlib.dll"; GetFSharpCoreLibraryName()+".dll"  ] @ // Need to resolve these explicitly so they will be found in the reference assemblies directory which is where the .xml files are.
     [ for x in DefaultBasicReferencesForOutOfProjectSources -> x + ".dll" ] @ 
-    [ GetFsiLibraryName()+".dll"  ]
+    [ if useFsiAuxLib then yield GetFsiLibraryName()+".dll"  ]
 #else
     ["mscorlib"; GetFSharpCoreLibraryName () ] @ // Need to resolve these explicitly so they will be found in the reference assemblies directory which is where the .xml files are.
     DefaultBasicReferencesForOutOfProjectSources @ 
-    [ GetFsiLibraryName () ]
+    [ if useFsiAuxLib then yield GetFsiLibraryName () ]
 #endif
 
 let (++) x s = x @ [s]
@@ -4616,13 +4616,13 @@ module private ScriptPreprocessClosure =
         ParseOneInputLexbuf (tcConfig,lexResourceManager,defines,lexbuf,filename,isLastCompiland,errorLogger) 
           
     /// Create a TcConfig for load closure starting from a single .fsx file
-    let CreateScriptSourceTcConfig(filename:string,codeContext) =  
+    let CreateScriptSourceTcConfig(filename:string,codeContext,useFsiAuxLib) =  
         let projectDir = Path.GetDirectoryName(filename)
         let isInteractive = (codeContext = CodeContext.Evaluation)
         let isInvalidationSupported = (codeContext = CodeContext.Editing)
         
         let tcConfigB = TcConfigBuilder.CreateNew(Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value, true (* optimize for memory *), projectDir, isInteractive, isInvalidationSupported) 
-        BasicReferencesForScriptLoadClosure |> List.iter(fun f->tcConfigB.AddReferencedAssemblyByPath(range0,f)) // Add script references
+        BasicReferencesForScriptLoadClosure(useFsiAuxLib) |> List.iter(fun f->tcConfigB.AddReferencedAssemblyByPath(range0,f)) // Add script references
         tcConfigB.resolutionEnvironment <-
             match codeContext with 
             | CodeContext.Editing -> MSBuildResolver.DesigntimeLike
@@ -4777,8 +4777,8 @@ module private ScriptPreprocessClosure =
         
     /// Given source text, find the full load closure
     /// Used from service.fs, when editing a script file
-    let GetFullClosureOfScriptSource(filename,source,codeContext,lexResourceManager:Lexhelp.LexResourceManager) = 
-        let tcConfig = CreateScriptSourceTcConfig(filename,codeContext)
+    let GetFullClosureOfScriptSource(filename,source,codeContext,useFsiAuxLib,lexResourceManager:Lexhelp.LexResourceManager) = 
+        let tcConfig = CreateScriptSourceTcConfig(filename,codeContext,useFsiAuxLib)
         let protoClosure = [SourceFile(filename,range0,source)]
         let finalClosure,tcConfig = FindClosureDirectives(protoClosure,tcConfig,codeContext,lexResourceManager)
         GetLoadClosure(filename,finalClosure,tcConfig,codeContext)
@@ -4793,9 +4793,9 @@ module private ScriptPreprocessClosure =
 
 type LoadClosure with
     // Used from service.fs, when editing a script file
-    static member ComputeClosureOfSourceText(filename:string,source:string,codeContext,lexResourceManager:Lexhelp.LexResourceManager) : LoadClosure = 
+    static member ComputeClosureOfSourceText(filename:string,source:string,codeContext,useFsiAuxLib,lexResourceManager:Lexhelp.LexResourceManager) : LoadClosure = 
         use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)
-        ScriptPreprocessClosure.GetFullClosureOfScriptSource(filename,source,codeContext,lexResourceManager)
+        ScriptPreprocessClosure.GetFullClosureOfScriptSource(filename,source,codeContext,useFsiAuxLib,lexResourceManager)
 
     /// Used from fsi.fs and fsc.fs, for #load and command line.
     /// The resulting references are then added to a TcConfig.

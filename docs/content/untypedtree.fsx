@@ -43,9 +43,8 @@ need to create `InteractiveChecker` - the constructor takes an argument that
 can be used to notify the checker about file changes (which we ignore).
 
 *)
-// Create an interactive checker instance (ignore notifications)
-let notify = NotifyFileTypeCheckStateIsDirty ignore
-let checker = InteractiveChecker.Create(notify)
+// Create an interactive checker instance 
+let checker = InteractiveChecker.Create()
 (**
 
 To get the AST, we define a function that takes file name and the source code
@@ -58,11 +57,10 @@ return the `ParseTree` property:
 *)
 /// Get untyped tree for a specified input
 let getUntypedTree (file, input) = 
-  // Get compiler options for a single script file
-  let checkOptions = 
-    checker.GetCheckOptionsFromScriptRoot(file, input, DateTime.Now, [| |])
+  // Get compiler options for the 'project' implied by a single script file
+  let projectOptions = checker.GetProjectOptionsFromScriptRoot(file, input)
   // Run the first phase (untyped parsing) of the compiler
-  let untypedRes = checker.UntypedParse(file, input, checkOptions)
+  let untypedRes = checker.ParseFileInProject(file, input, projectOptions)
   match untypedRes.ParseTree with
   | Some tree -> tree
   | None -> failwith "Something went wrong during parsing!"

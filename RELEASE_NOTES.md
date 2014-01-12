@@ -24,3 +24,4 @@
 * Added ParseAndCheckProject to SourceCodeServices API. This will eventually return "whole project" information such as symbol tables.
 * Added GetDefaultConfiguration to simplify process of configuring FsiEvaluationSession
 * Added TypeStateUpdated event to FsiEvaluationSession
+* Added travis build

@@ -169,13 +169,13 @@ module internal ExtensionTyping =
                 let partiallyCanonicalizedFileName = partiallyCanonicalizeFileName status.FileName
                 match status with
                 | TypeProviderApprovalStatus.NotTrusted(_) -> 
-                    if Path.IsInvalidPath(partiallyCanonicalizedFileName) then 
+                    if FileSystem.IsInvalidPathShim(partiallyCanonicalizedFileName) then 
                         assert(false)
                         false, ""
                     else
                         true, "NOT_TRUSTED "+partiallyCanonicalizedFileName
                 | TypeProviderApprovalStatus.Trusted(_) -> 
-                    if Path.IsInvalidPath(partiallyCanonicalizedFileName) then 
+                    if FileSystem.IsInvalidPathShim(partiallyCanonicalizedFileName) then 
                         assert(false)
                         false, ""
                     else

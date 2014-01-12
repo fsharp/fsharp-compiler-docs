@@ -4543,7 +4543,7 @@ let writeBinaryAndReportMappings (outfile, ilg, pdbfile: string option, signer: 
             reportTime showTimes "Generate PDB Info";
             
           // Now we have the debug data we can go back and fill in the debug directory in the image 
-            let fs2 = new FileStream(outfile, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 0x1000, false)
+            let fs2 = FileSystem.FileStreamCreateShim(outfile)
             let os2 = new BinaryWriter(fs2)
             try 
                 // write the IMAGE_DEBUG_DIRECTORY 

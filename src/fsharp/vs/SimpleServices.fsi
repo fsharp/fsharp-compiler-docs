@@ -46,8 +46,8 @@ type CheckFileResults =
     member GetToolTipText: line:Line0 * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> string
 
     /// Get the location of the declaration at the given position
-    member GetDeclarationLocation: line:Line0 * col:int * names:string list * isDecl:bool
-         -> FindDeclResult
+    member GetDeclarationLocation: line:Line0 * col:int * names:string list * isDecl:bool -> FindDeclResult
+
     /// Get the full type checking results 
     member FullResults: Microsoft.FSharp.Compiler.SourceCodeServices.CheckFileResults
 
@@ -55,15 +55,14 @@ type CheckFileResults =
     member GetDataTipText: line:Line0 * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> string
 
 
-/// Provides simple services for checking and compiling F# scripts
+/// Provides simpler version of services for checking and compiling F# scripts
 type SimpleSourceCodeServices = 
 
     /// Create a singleton global isntance for checking and compiling F# scripts
     new: unit -> SimpleSourceCodeServices
 
     /// Tokenize a single line, returning token information and a tokenization state represented by an integer
-    member TokenizeLine: line:string * state:int64
-         -> TokenInformation [] * int64
+    member TokenizeLine: line:string * state:int64 -> TokenInformation [] * int64
 
     /// Tokenize an entire file, line by line
     member TokenizeFile: source:string -> TokenInformation [] []
@@ -84,8 +83,7 @@ type SimpleSourceCodeServices =
     /// If the 'execute' parameter is given the entry points for the code are executed and 
     /// the given TextWriters are used for the stdout and stderr streams respectively. In this 
     /// case, a global setting is modified during the execution.
-    member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option
-         -> ErrorInfo [] * int * System.Reflection.Assembly option
+    member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option -> ErrorInfo [] * int * System.Reflection.Assembly option
             
     [<System.Obsolete("This method has been renamed to ParseAndCheckScript")>] 
     member TypeCheckScript: filename:string * source:string * otherFlags:string [] -> CheckFileResults

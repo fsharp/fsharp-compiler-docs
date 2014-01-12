@@ -1551,7 +1551,7 @@ module internal IncrementalFSharpBuild =
             let unresolvedFileDependencies = 
                 unresolvedReferences
                 |> List.map (function Microsoft.FSharp.Compiler.Build.UnresolvedAssemblyReference(referenceText, _) -> referenceText)
-                |> List.filter(fun referenceText->not(Path.IsInvalidPath(referenceText))) // Exclude things that are definitely not a file name
+                |> List.filter(fun referenceText->not(FileSystem.IsInvalidPathShim(referenceText))) // Exclude things that are definitely not a file name
                 |> List.map(fun referenceText -> if FileSystem.IsPathRootedShim(referenceText) then referenceText else System.IO.Path.Combine(projectDirectory,referenceText))
                 |> List.map (fun file->{Filename =  file; ExistenceDependency = true; IncrementalBuildDependency = true })
             let resolvedFileDependencies = 

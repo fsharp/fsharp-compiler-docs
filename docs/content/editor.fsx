@@ -205,6 +205,106 @@ This may be a more appropriate for implementing editor support.
 
 *)
 
+(**
+
+Checking a project 
+------------------
+
+*)
+
+open System.IO
+
+let base1 = Path.GetTempFileName()
+let fileName1 = Path.ChangeExtension(base1, ".fs")
+let base2 = Path.GetTempFileName()
+let fileName2 = Path.ChangeExtension(base2, ".fs")
+let dll = Path.ChangeExtension(base2, ".dll")
+let proj = Path.ChangeExtension(base2, ".fsproj")
+
+File.WriteAllText(fileName1, """
+module M
+
+type C() = 
+   member x.P = 1
+
+let x = 3 + 4
+""")
+
+File.WriteAllText(fileName2, """
+module N
+
+type D1() = 
+   member x.P = M.x
+
+type D2() = 
+   member x.P = M.x
+
+let y = 3 + 4
+
+// Generate a warning
+let y2 = match 1 with 1 -> 1
+""")
+
+let projectOptions = 
+    let allFlags = 
+        [| yield "--simpleresolution" 
+           yield "--simpleresolution" 
+           yield "--noframework" 
+           yield "--noframework" 
+           yield "--debug:full" 
+           yield "--define:DEBUG" 
+           yield "--optimize-" 
+           yield "--out:" + dll 
+           yield "--doc:test.xml" 
+           yield "--warn:3" 
+           yield "--fullpaths" 
+           yield "--flaterrors" 
+           yield "--target:library" 
+           for r in [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" 
+                      @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" 
+                      @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" 
+                      @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"] do 
+                 yield "-r:" + r |]
+ 
+    { ProjectFileName = proj // A name that is unique to this project
+      ProjectFileNames = [| fileName1; fileName2 |]
+      ProjectOptions = allFlags 
+      IsIncompleteTypeCheckEnvironment = false
+      UseScriptResolutionRules = true 
+      LoadTime = System.DateTime.Now 
+      UnresolvedReferences = None }
+
+(**
+Now check individual files in the project context: 
+*)
+
+let untypedParse1 = checker.ParseFileInProject(fileName1, File.ReadAllText(fileName1), projectOptions) 
+let untypedParse2 = checker.ParseFileInProject(fileName2, File.ReadAllText(fileName2), projectOptions) 
+let typedParse1 = checker.CheckFileInProject(untypedParse1, fileName1, 0, File.ReadAllText(fileName1), projectOptions)  |> Async.RunSynchronously
+let typedParse2 = checker.CheckFileInProject(untypedParse2, fileName2, 0, File.ReadAllText(fileName2), projectOptions)  |> Async.RunSynchronously
+
+(**
+In this case, we checked the same file contents as are
+already saved on disk - however you can also use this API to check new file contents from the editor.
+The "prior type checking state" used for checking these updated contents will be based on the files
+saved on disk - see also the [File System Tutorial](filesystem.html)
+
+You can also check the entire project (using the files saved on disk):
+*)
+
+let results = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
+results.Errors.Length // 1
+results.Errors.[0].Message.Contains("Incomplete pattern matches on this expression") // yes it does
+results.Errors.[0].StartLine // 12
+results.Errors.[0].EndLine // 12
+results.Errors.[0].StartColumn // 15
+results.Errors.[0].EndColumn // 16
+
+[ for x in results.AssemblySignature.Entities -> x.DisplayName ] // ["N"; "M"]
+[ for x in results.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] // ["D1"; "D2"]
+[ for x in results.AssemblySignature.Entities.[1].NestedEntities -> x.DisplayName ] // ["C"]
+[ for x in results.AssemblySignature.Entities.[0].MembersOrValues -> x.DisplayName ] // ["y"; "y2"]
+
 (*
 Summary
 -------

@@ -23,6 +23,8 @@ type TempFile(ext, contents) =
         member x.Dispose() = try File.Delete tmpFile with _ -> ()
     member x.Name = tmpFile
 
+#nowarn "57"
+
 let getBackgroundParseResultsForScriptText (input) = 
     use file =  new TempFile("fsx", input)
     let checkOptions = checker.GetProjectOptionsFromScriptRoot(file.Name, input)

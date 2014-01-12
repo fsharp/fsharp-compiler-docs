@@ -40,8 +40,7 @@ and F# interactive as services.</p>
 
 <h2>Components</h2>
 
-<p>At the moment, the two main components are <code>FSharp.Compiler.Service.dll</code> and
-<code>FSharp.Interactive.Service.dll</code>. The first one contains minor modifications in visibility 
+<p>There is one component, <code>FSharp.Compiler.Service.dll</code>. The first one contains minor modifications in visibility 
 to allow refactoring editing and other tools to have access to the full F# AST and parser.
 The main aim is to have a stable and documented fork of the main compiler that allows various 
 tools to share this common code.</p>
@@ -58,18 +57,13 @@ modifications to the source code of <code>fsi.exe</code> that adds <code>EvalExp
 <li>Only build <code>FSharp.Compiler.Service.dll</code></li>
 <li><p>No bootstrap or proto compiler is used - an installed F# compiler is assumed</p></li>
 </ul></li>
-<li>Changes for building <code>FSharp.Interactive.Service.dll</code>, notably
-<ul>
-<li><p>New project <code>FSharp.Interactive.Service.fsproj</code> that references relevant files
-from <code>fsi.exe</code> source code.</p></li>
-</ul></li>
 <li><p>Build script using FAKE that builds everything, produces NuGet package and 
 generates documentation, files for publising NuGet packages etc.
 (following <a href="https://github.com/fsprojects/FSharp.ProjectScaffold">F# project scaffold</a>)</p></li>
 <li><p>Changes to compiler source code to expose new functionality; Changes to the
 F# Interactive service to implement the evaluation functions.</p></li>
 <li><p>Additions to compiler source code which improve the API for the use of F# editing clients</p></li>
-<li><p>Additions to compiler source code which add new functionality used by all F# editing clients</p></li>
+<li><p>Additions to compiler source code which add new functionality to the compiler service API</p></li>
 </ul>
 
 <p>If language or compiler addiitons are committed to <code>fsharp/fsharp</code>, they should be merged into 
@@ -90,16 +84,15 @@ GitHub, which only works if you have access to the GitHub repository).</p>
 
 <h2>Clients</h2>
 
-<p>The known tools that use this component are:</p>
+<p>Some of the known tools that use this component are:</p>
 
 <ul>
 <li><a href="https://github.com/dungpa/fantomas">Fantomas</a> - F# code formatting tool</li>
 <li><a href="https://github.com/Lewix/fsharp-refactor">Fsharp-Refactor</a> - Refactoring for F#</li>
 <li><a href="https://github.com/fsharp/fsharpbinding">FSharpbinding</a> - Xamarin studio bindings</li>
 <li><a href="http://fssnip.net/">F# Snippets web site</a> - smart F# pastebin</li>
+<li><a href="https://github.com/BayardRock/FSharpWebIntellisense/">F# ACE Code Editor</a> - F# editing on the web</li>
 </ul>
-
-<p>If you modify this component it is polite to check that these tools all build after your modifications.</p>
 
 
         </div>

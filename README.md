@@ -14,3 +14,9 @@ For more information about the project, see:
  * [F# Compiler Service documentation](http://fsharp.github.io/FSharp.Compiler.Service/)
  * [FSharp.Compiler.Service package on NuGet](https://www.nuget.org/packages/FSharp.Compiler.Service)
  * [Developer notes explain the project structure](http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html)
+
+Build Status
+------------
+
+Head (branch ``master``), Mono 3.x, OSX + some unit tests (Travis) [![Build Status](https://travis-ci.org/fsharp/FSharp.Compiler.Service.png?branch=master)](https://travis-ci.org/fsharp/FSharp.Compiler.Service/branches)
+

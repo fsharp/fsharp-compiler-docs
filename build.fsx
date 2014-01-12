@@ -78,24 +78,23 @@ Target "Build" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [project + ".sln" (*; project + ".Tests.sln"*)]
       Excludes = [] } 
-    |> MSBuildRelease "" "Rebuild"
+    |> MSBuildRelease "" "Build"
     |> Log "AppBuild-Output: "
 )
 
+
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
-(*
+
 Target "RunTests" (fun _ ->
     let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
     let nunitPath = sprintf "packages/NUnit.Runners.%s/Tools" nunitVersion
     ActivateFinalTarget "CloseTestRunner"
 
-    { BaseDirectories = [__SOURCE_DIRECTORY__]
-      Includes = testAssemblies
-      Excludes = [] } 
-    |> Scan
+    ["bin/FSharp.Compiler.Service.Tests.dll"]
     |> NUnit (fun p ->
         { p with
+            Framework = "v4.0.30319"
             ToolPath = nunitPath
             DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
@@ -105,7 +104,7 @@ Target "RunTests" (fun _ ->
 FinalTarget "CloseTestRunner" (fun _ ->  
     ProcessHelper.killProcess "nunit-agent.exe"
 )
-*)
+
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
@@ -154,17 +153,23 @@ Target "Release" DoNothing
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
+Target "Prepare" DoNothing
+Target "PrepareRelease" DoNothing
 Target "All" DoNothing
 
 "Clean"
   ==> "RestorePackages"
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
-  ==> "Build"
-(*  ==> "RunTests" *)
+  ==> "Prepare"
+
+"Build"
+  ==> "RunTests" 
   ==> "All"
 
-"All" 
+"Clean" ==> "PrepareRelease"
+"All" ==> "PrepareRelease"
+"PrepareRelease" 
   ==> "CleanDocs"
   ==> "GenerateDocs"
   ==> "NuGet"

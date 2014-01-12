@@ -38,29 +38,27 @@ type public FsiEvaluationSessionHostConfig =
     abstract PrintLength : int
     /// The evaluation session calls this to report the preferred view of the command line arguments after 
     /// stripping things like "/use:file.fsx", "-r:Foo.dll" etc.
-    abstract ReportUserCommandLineArgs : string [] with set
+    abstract ReportUserCommandLineArgs : string [] -> unit
 
 
-    /// The evaluation session calls this to ask the host for the special console reader. 
-    /// Returning 'Some' indicates a console is to be used, so some special rules apply.
+    ///<summary>
+    /// <para>Indicate a special console "readline" reader for the evaluation session, if any.</para><para> </para>
     ///
-    /// A "console" gets used if 
-    ///     --readline- is specified (the default on Windows + .NET); and 
-    ///     not --fsi-server (which should always be combined with --readline-); and 
-    ///     ConsoleReadLine() returns a Some
+    /// <para>A "console" gets used if --readline is specified (the default on Windows + .NET); and --fsi-server is  not
+    /// given (always combine with --readline-), and OptionalConsoleReadLine is given.
+    /// When a console is used, special rules apply to "peekahead", which allows early typing on the console.
+    /// Peekahead happens if --peekahead- is not specified (the default).
+    /// In this case, a prompt is printed early, a background thread is created and 
+    /// the OptionalConsoleReadLine is used to read the first line.
+    /// If a console is not used, then inReader.Peek() is called early instead.
+    /// </para><para> </para>
     ///
-    /// "Peekahead" occurs if --peekahead- is not specified (i.e. it is the default):
-    ///     - If a console is being used then 
-    ///         - a prompt is printed early 
-    ///         - a background thread is created 
-    ///         - the ConsoleReadLine() callback is used to read the first line
-    ///     - Otherwise call inReader.Peek()
-    ///
-    /// Further lines are read as follows:
-    ///     - If a console is being used then use ConsoleReadLine()
-    ///     - Otherwise use inReader.ReadLine()
+    /// <para>Further lines are read using OptionalConsoleReadLine().
+    /// If not provided, lines are read using inReader.ReadLine().</para>
+    /// <para> </para>
+    ///</summary>
 
-    abstract ConsoleReadLine : (unit -> string) option 
+    abstract OptionalConsoleReadLine : (unit -> string) option 
 
     /// The evaluation session calls this at an appropriate point in the startup phase if the --fsi-server parameter was given
     abstract StartServer : fsiServerName:string -> unit
@@ -76,6 +74,9 @@ type public FsiEvaluationSessionHostConfig =
 
     /// Schedule a restart for the event loop.
     abstract EventLoopScheduleRestart : unit -> unit
+
+    /// Implicitly reference FSharp.Compiler.Interactive.Settings.dll
+    abstract UseFsiAuxLib : bool 
 
 
 [<Class>]
@@ -125,7 +126,7 @@ type FsiEvaluationSession =
     /// type checking state.  
     ///
     /// This event is triggered after parsing and checking, either via input from 'stdin', or via a call to EvalInteraction.
-    member TypeStateUpdated : Event<unit>
+    member TypeStateUpdated : IEvent<unit>
 
     /// Typecheck the given script fragment in the type checking context implied by the current state
     /// of F# Interactive. The results can be used to access intellisense, perform resolutions,
@@ -135,7 +136,7 @@ type FsiEvaluationSession =
     ///
     /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
     /// by input from 'stdin'. 
-    member ParseAndCheckInteraction : code: string -> UntypedParseInfo * TypeCheckFileResults
+    member ParseAndCheckInteraction : code: string -> ParsedFileResults * CheckFileResults
 
     /// The single, global interactive checker to use in conjunction with other operations
     /// on the FsiEvaluationSession.  
@@ -168,7 +169,7 @@ type FsiEvaluationSession =
 
     member Run : unit -> unit
 
-    /// Get a configuration that uses the 'fsi' object from FSharp.Compiler.Services.Interactive.Settings.dll (or
+    /// Get a configuration that uses the 'fsi' object from FSharp.Compiler.Interactive.Settings.dll (or
     /// an object with identical characteristics) to provide an implementation of the configuration.
     static member GetDefaultConfiguration: fsiObj: obj -> FsiEvaluationSessionHostConfig
 

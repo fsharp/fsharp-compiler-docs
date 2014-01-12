@@ -32,7 +32,7 @@ type Declaration =
 
 /// Represents the results of type checking
 [<Class>]
-type TypeCheckFileResults = 
+type CheckFileResults = 
     /// Return the errors resulting from the type-checking
     member Errors: ErrorInfo []
 
@@ -49,7 +49,7 @@ type TypeCheckFileResults =
     member GetDeclarationLocation: line:Line0 * col:int * names:string list * isDecl:bool
          -> FindDeclResult
     /// Get the full type checking results 
-    member FullResults: Microsoft.FSharp.Compiler.SourceCodeServices.TypeCheckFileResults
+    member FullResults: Microsoft.FSharp.Compiler.SourceCodeServices.CheckFileResults
 
     [<System.Obsolete("This method has been renamed to GetToolTipText")>] 
     member GetDataTipText: line:Line0 * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> string
@@ -69,10 +69,10 @@ type SimpleSourceCodeServices =
     member TokenizeFile: source:string -> TokenInformation [] []
 
     /// Return information about matching braces in a single file.
-    member MatchBraces: filename:string * source:string * otherFlags:string [] -> (Range01 * Range01) []
+    member MatchBraces: filename:string * source:string * ?otherFlags:string [] -> (Range01 * Range01) []
 
     /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
-    member ParseAndTypeCheckScript: filename:string * source:string * otherFlags:string [] -> TypeCheckFileResults
+    member ParseAndCheckScript: filename:string * source:string * ?otherFlags:string [] -> CheckFileResults
 
     /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
     member Compile: argv:string [] -> ErrorInfo [] * int
@@ -87,5 +87,5 @@ type SimpleSourceCodeServices =
     member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option
          -> ErrorInfo [] * int * System.Reflection.Assembly option
             
-    [<System.Obsolete("This method has been renamed to ParseAndTypeCheckScript")>] 
-    member TypeCheckScript: filename:string * source:string * otherFlags:string [] -> TypeCheckFileResults
+    [<System.Obsolete("This method has been renamed to ParseAndCheckScript")>] 
+    member TypeCheckScript: filename:string * source:string * otherFlags:string [] -> CheckFileResults

@@ -113,15 +113,6 @@ module internal IncrementalFSharpBuild =
   val GetCurrentIncrementalBuildEventNum : unit -> int
 
 
-  type FileDependency = {
-        // Name of the file
-        Filename : string
-        // If true, then deletion or creation of this file should trigger an entirely fresh build
-        ExistenceDependency : bool
-        // If true, then changing this file should trigger an incremental rebuild
-        IncrementalBuildDependency : bool
-      }    
-    
   type IncrementalBuilder = 
       new : tcConfig : Build.TcConfig * projectDirectory : string * assemblyName : string * niceNameGen : Microsoft.FSharp.Compiler.Ast.NiceNameGenerator *
             lexResourceManager : Microsoft.FSharp.Compiler.Lexhelp.LexResourceManager * sourceFiles : string list * ensureReactive : bool *
@@ -143,35 +134,53 @@ module internal IncrementalFSharpBuild =
       /// used by VS). 
       member BeforeTypeCheckFile : IEvent<string>
 
+      /// Raised just after the whole project has finished type checking. At this point, accessing the
+      /// overall analysis results for the project will be quick.
+      member AfterProjectTypeCheck : IEvent<unit>
+
       /// Raised when a type provider invalidates the build.
       member ImportedCcusInvalidated : IEvent<string>
 
       /// The list of files the build depends on
-      member Dependencies : FileDependency list
+      member Dependencies : string list
 #if EXTENSIONTYPING
       /// Whether there are any 'live' type providers that may need a refresh when a project is Cleaned
       member ThereAreLiveTypeProviders : bool
 #endif
-      /// Perform one step in the F# build.
+      /// Perform one step in the F# build (type-checking only, the type check is not finalized)
       member Step : unit -> bool
 
-      /// Ensure that the given file has been typechecked.
-      /// Get the preceding typecheck state of a slot, allow stale results.
-      member GetAntecedentTypeCheckResultsBySlot :
-        int -> (Build.TcState * Build.TcImports * Microsoft.FSharp.Compiler.Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list * System.DateTime) option
+      /// Get the preceding typecheck state of a slot. Return None if the result is not available.
+      /// This is a quick operation.
+      member GetTypeCheckResultsBeforeFileInProjectIfReady: filename:string -> (Build.TcState * Build.TcImports * Microsoft.FSharp.Compiler.Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list * System.DateTime) option
 
-      /// Get the final typecheck result. Only allowed when 'generateTypedImplFiles' was set on Create, otherwise the TypedAssembly will have not implementations.
-      member TypeCheck : unit -> Build.TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv * Build.TcImports * Env.TcGlobals * Build.TcConfig
+      /// Get the preceding typecheck state of a slot. Compute the entire type check of the project up
+      /// to the necessary point if the result is not available. This may be a long-running operation.
+      ///
+      // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
+      member GetTypeCheckResultsBeforeFileInProject : filename:string -> (Build.TcState * Build.TcImports * Microsoft.FSharp.Compiler.Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list * System.DateTime) 
 
-      /// Attempts to find the slot of the given input file name. Throws an exception if it couldn't find it.    
-      member GetSlotOfFileName : string -> int
- 
-#if NO_QUICK_SEARCH_HELPERS // only used in QuickSearch prototype
-#else
-      /// Get the number of slots on the vector of parse results
-      member GetSlotsCount : unit -> int
+      /// Get the typecheck state after checking a file. Compute the entire type check of the project up
+      /// to the necessary point if the result is not available. This may be a long-running operation.
+      ///
+      // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
+      member GetTypeCheckResultsAfterFileInProject : filename:string -> (Build.TcState * Build.TcImports * Microsoft.FSharp.Compiler.Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list * System.DateTime) 
+
+      /// Get the typecheck result after the end of the last file. The typecheck of the project is not 'completed'.
+      /// This may be a long-running operation.
+      ///
+      // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
+      member GetTypeCheckResultsAfterLastFileInProject : unit -> (Build.TcState * Build.TcImports * Microsoft.FSharp.Compiler.Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list * System.DateTime) 
+
+      /// Get the final typecheck result. If 'generateTypedImplFiles' was set on Create then the TypedAssembly will contain implementations.
+      /// This may be a long-running operation.
+      ///
+      // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
+      member GetTypeCheckResultsForProject : unit -> Build.TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv * Build.TcImports * Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list 
+
       /// Await the untyped parse results for a particular slot in the vector of parse results.
-      member GetParseResultsBySlot : int -> Ast.ParsedInput option * Range.range * string 
-#endif // QUICK_SEARCH
+      ///
+      /// This may be a marginally long-running operation (parses are relatively quick, only one file needs to be parsed)
+      member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * bool) list
 
       static member CreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder * ErrorInfo list

@@ -71,8 +71,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.GetDescription() = description()
 
     /// Represents the results of type checking
-    type TypeCheckFileResults(info: Microsoft.FSharp.Compiler.SourceCodeServices.UntypedParseInfo,
-                              results:Microsoft.FSharp.Compiler.SourceCodeServices.TypeCheckFileResults,
+    type CheckFileResults(info: Microsoft.FSharp.Compiler.SourceCodeServices.ParsedFileResults,
+                              results:Microsoft.FSharp.Compiler.SourceCodeServices.CheckFileResults,
                               source: string[]) = 
 
         let identToken = Microsoft.FSharp.Compiler.Parser.tagOfToken (Microsoft.FSharp.Compiler.Parser.IDENT "")
@@ -142,30 +142,37 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             tokens
 
         /// Return information about matching braces in a single file.
-        member x.MatchBraces (filename, source: string, otherFlags) : (Range01 * Range01) [] = 
-            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, otherFlags)
+        member x.MatchBraces (filename, source: string, ?otherFlags) : (Range01 * Range01) [] = 
+            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, ?otherFlags=otherFlags)
             checker.MatchBraces(filename, source,  options)
 
-        [<System.Obsolete("This method has been renamed to ParseAndTypeCheckScript")>]
+        [<System.Obsolete("This method has been renamed to ParseAndCheckScript")>]
         member x.TypeCheckScript (filename, source, otherFlags) = 
-            x.ParseAndTypeCheckScript (filename, source, otherFlags) 
+            x.ParseAndCheckScript (filename, source, otherFlags) 
 
         /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
-        member x.ParseAndTypeCheckScript (filename:string,source:string,otherFlags:string[]) = 
-            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, otherFlags)
+        member x.ParseAndCheckScript (filename, source, ?otherFlags) = 
+            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, ?otherFlags=otherFlags)
             checker.StartBackgroundCompile options
             // wait for the antecedent to appear
             checker.WaitForBackgroundCompile()
             // do an untyped parse
-            let info = checker.ParseFileInProject(filename, source, options)
+            let untypedParse = checker.ParseFileInProject(filename, source, options)
             // do an typecheck
             let textSnapshotInfo = "" // TODO
-            let typedInfo = checker.TypeCheckFileInProjectIfReady(info, filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo)
+            let typedInfo = checker.CheckFileInProjectIfReady(untypedParse, filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo)
             // return the info
             match typedInfo with 
-            | TypeCheckFileAnswer.NoAntecedant -> invalidOp "no antecedant"
-            | TypeCheckFileAnswer.Aborted -> invalidOp "aborted"
-            | TypeCheckFileAnswer.TypeCheckSucceeded res -> TypeCheckFileResults(info, res, source.Split('\n'))
+            | CheckFileAnswer.NoAntecedant -> invalidOp "no antecedant, compilation unexpectedly was not ready"
+            | CheckFileAnswer.Aborted -> invalidOp "aborted"
+            | CheckFileAnswer.Succeeded res -> CheckFileResults(untypedParse, res, source.Split('\n'))
+
+(*
+        /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
+        member x.ParseAndCheckProject (filename:string,source:string,otherFlags:string[]) = 
+            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, otherFlags)
+            checker.ParseAndCheckProject(options)
+*)
 
         /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
         member x.Compile (argv: string[])  = 

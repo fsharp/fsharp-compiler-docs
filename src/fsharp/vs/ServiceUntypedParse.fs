@@ -61,17 +61,17 @@ type InheritanceOrigin =
     | Interface
     | Unknown
 
-type internal InheritanceContext = 
+type InheritanceContext = 
     | Class
     | Interface
     | Unknown
 
-type internal RecordContext =
+type RecordContext =
     | CopyOnUpdate of range * CompletionPath // range of copy-expr + current field
     | Constructor of string // typename
     | New of CompletionPath
 
-type (*internal*) CompletionContext = 
+type CompletionContext = 
     // completion context cannot be determined due to errors
     | Invalid
     // completing something after the inherit keyword
@@ -84,30 +84,18 @@ type (*internal*) CompletionContext =
 // Untyped scope
 //----------------------------------------------------------------------------
 
-[<NoEquality; NoComparison>]
-type (*internal*) UntypedParseResults = 
-  { // Error infos
-    Errors : ErrorInfo[]
-    // Untyped AST
-    Input : ParsedInput option
-    // Do not report errors from the type checker
-    ParseHadErrors : bool
-    /// When these files change then the build is invalid
-    DependencyFiles : string list
-    }
-
 [<Sealed>]
-type (*internal*) UntypedParseInfo(parsed:UntypedParseResults) = 
+type ParsedFileResults(errors : ErrorInfo[], input : Ast.ParsedInput option, parseHadErrors : bool, dependencyFiles : string list) = 
 
-    member scope.ParseTree =
-        match parsed with
-        | { Input=x } -> x
+    member scope.Errors = errors
 
-    member scope.Results = parsed
+    member scope.ParseHadErrors = parseHadErrors
+
+    member scope.ParseTree = input
 
     member scope.FindNoteworthyParamInfoLocations(line,col) = 
-        match parsed with
-        | { Input=Some(input) } -> 
+        match input with
+        | Some(input) -> 
             // Why don't we traverse the AST under a syncop?  We don't need to, because the AST is an _immutable_ DU of DUs of ints and strings and whatnot.  And a SyncOp really does slow it down in practice.
             //let result = ref None
             //syncop (fun () -> result := Some(AstHelpers.FindNoteworthyParamInfoLocations(line,col,input)))
@@ -121,7 +109,7 @@ type (*internal*) UntypedParseInfo(parsed:UntypedParseResults) =
             Range.range0 
             (fun () -> 
                 use t = Trace.Call("CompilerServices", "GetNavigationItems", fun _ -> "")
-                match parsed.Input with
+                match input with
                 | Some(ParsedInput.ImplFile(ParsedImplFileInput(_modname,_isScript,_qualName,_pragmas,_hashDirectives,modules,_isLastCompiland))) ->
                     NavigationImpl.getNavigationFromImplFile modules 
                 | Some(ParsedInput.SigFile(ParsedSigFileInput(_modname,_qualName,_pragmas,_hashDirectives,_modules))) ->
@@ -357,7 +345,7 @@ type (*internal*) UntypedParseInfo(parsed:UntypedParseResults) =
             let walkImplFile (modules:SynModuleOrNamespace list) =
                 [ for x in modules do yield! walkModule x ]
                      
-            match parsed.Input with
+            match input with
             | Some(ParsedInput.ImplFile(ParsedImplFileInput(_,_,_,_,_,modules,_))) -> walkImplFile modules 
             | _ -> []
  
@@ -375,11 +363,10 @@ type (*internal*) UntypedParseInfo(parsed:UntypedParseResults) =
             (fun _msg -> None)   
             
     /// When these files appear or disappear the configuration for the current project is invalidated.
-    member scope.DependencyFiles() : string list =
-        parsed.DependencyFiles
+    member scope.DependencyFiles = dependencyFiles
                     
     member scope.FileName =
-      match parsed.Input with
+      match input with
       | Some(ParsedInput.ImplFile(ParsedImplFileInput(modname, _, _, _, _, _, _))) 
       | Some(ParsedInput.SigFile(ParsedSigFileInput(modname, _, _, _, _))) -> modname
       | _ -> ""
@@ -395,8 +382,7 @@ type (*internal*) UntypedParseInfo(parsed:UntypedParseResults) =
         // This does not need to be run on the background thread
         scope.ValidateBreakpointLocationImpl(line,col)
 
-module (*internal*) UntypedParseInfoImpl =
-    let GetUntypedParseResults (upi : UntypedParseInfo) = upi.Results
+module (*internal*) UntypedParseImpl =
 
     let GetRangeOfExprLeftOfDot(line,col,parseTreeOpt) =
         match parseTreeOpt with 
@@ -636,9 +622,9 @@ module (*internal*) UntypedParseInfoImpl =
     type TS = AstTraversal.TraverseStep
 
     /// try to determine completion context for the given pair (row, columns)
-    let TryGetCompletionContext (line : Line0, col : int, untypedParseInfoOpt : UntypedParseInfo option) : CompletionContext option = 
+    let TryGetCompletionContext (line: Line0, col: int, untypedParseOpt: ParsedFileResults option) : CompletionContext option = 
         let parsedInputOpt =
-            match untypedParseInfoOpt with
+            match untypedParseOpt with
             | Some upi -> upi.ParseTree
             | None -> None
 

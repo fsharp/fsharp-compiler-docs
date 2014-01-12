@@ -6,8 +6,7 @@ and F# interactive as services.
 
 ## Components
 
-At the moment, the two main components are `FSharp.Compiler.Service.dll` and
-`FSharp.Interactive.Service.dll`. The first one contains minor modifications in visibility 
+There is one component, `FSharp.Compiler.Service.dll`. The first one contains minor modifications in visibility 
 to allow refactoring editing and other tools to have access to the full F# AST and parser.
 The main aim is to have a stable and documented fork of the main compiler that allows various 
 tools to share this common code.  
@@ -22,10 +21,6 @@ This repo should be _identical_ to 'fsharp' except:
     - Only build `FSharp.Compiler.Service.dll`
     - No bootstrap or proto compiler is used - an installed F# compiler is assumed
 
-  - Changes for building `FSharp.Interactive.Service.dll`, notably
-    - New project `FSharp.Interactive.Service.fsproj` that references relevant files
-      from `fsi.exe` source code. 
-
   - Build script using FAKE that builds everything, produces NuGet package and 
     generates documentation, files for publising NuGet packages etc.
     (following [F# project scaffold](https://github.com/fsprojects/FSharp.ProjectScaffold))
@@ -35,7 +30,7 @@ This repo should be _identical_ to 'fsharp' except:
 
   - Additions to compiler source code which improve the API for the use of F# editing clients
 
-  - Additions to compiler source code which add new functionality used by all F# editing clients
+  - Additions to compiler source code which add new functionality to the compiler service API
 
 If language or compiler addiitons are committed to `fsharp/fsharp`, they should be merged into 
 this repo and a new NuGet package released.
@@ -56,11 +51,11 @@ GitHub, which only works if you have access to the GitHub repository).
 
 ## Clients
 
-The known tools that use this component are:
+Some of the known tools that use this component are:
 
  * [Fantomas](https://github.com/dungpa/fantomas) - F# code formatting tool
  * [Fsharp-Refactor](https://github.com/Lewix/fsharp-refactor) - Refactoring for F#
  * [FSharpbinding](https://github.com/fsharp/fsharpbinding) - Xamarin studio bindings
  * [F# Snippets web site](http://fssnip.net/) - smart F# pastebin
+ * [F# ACE Code Editor](https://github.com/BayardRock/FSharpWebIntellisense/) - F# editing on the web
 
-If you modify this component it is polite to check that these tools all build after your modifications.

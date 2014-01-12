@@ -114,11 +114,6 @@ module internal Utilities =
         ty.InvokeMember(name, (BindingFlags.InvokeMethod ||| BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.NonPublic), null, null, Array.ofList args,Globalization.CultureInfo.InvariantCulture)
 #endif
 
-    let callGenericStaticMethod (ty:Type) name tyargs args =
-        let m = ty.GetMethod(name,(BindingFlags.InvokeMethod ||| BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.NonPublic)) 
-        let m = m.MakeGenericMethod(Array.ofList tyargs) 
-        m.Invoke(null,Array.ofList args)
-
     let ignoreAllErrors f = try f() with _ -> ()
 
 
@@ -187,7 +182,7 @@ type public FsiEvaluationSessionHostConfig =
 
     /// The evaluation session calls this to report the preferred view of the command line arguments after 
     /// stripping things like "/use:file.fsx", "-r:Foo.dll" etc.
-    abstract ReportUserCommandLineArgs : string [] with set
+    abstract ReportUserCommandLineArgs : string [] -> unit
 
 
     /// The evaluation session calls this to ask the host for the special console reader. 
@@ -196,20 +191,20 @@ type public FsiEvaluationSessionHostConfig =
     /// A "console" gets used if 
     ///     --readline- is specified (the default on Windows + .NET); and 
     ///     not --fsi-server (which should always be combined with --readline-); and 
-    ///     ConsoleReadLine() returns a Some
+    ///     OptionalConsoleReadLine() returns a Some
     ///
     /// "Peekahead" occurs if --peekahead- is not specified (i.e. it is the default):
     ///     - If a console is being used then 
     ///         - a prompt is printed early 
     ///         - a background thread is created 
-    ///         - the ConsoleReadLine() callback is used to read the first line
+    ///         - the OptionalConsoleReadLine() callback is used to read the first line
     ///     - Otherwise call inReader.Peek()
     ///
     /// Further lines are read as follows:
-    ///     - If a console is being used then use ConsoleReadLine()
+    ///     - If a console is being used then use OptionalConsoleReadLine()
     ///     - Otherwise use inReader.ReadLine()
 
-    abstract ConsoleReadLine : (unit -> string) option 
+    abstract OptionalConsoleReadLine : (unit -> string) option 
 
     /// The evaluation session calls this at an appropriate point in the startup phase if the --fsi-server parameter was given
     abstract StartServer : fsiServerName:string -> unit
@@ -225,6 +220,9 @@ type public FsiEvaluationSessionHostConfig =
 
     /// Schedule a restart for the event loop.
     abstract EventLoopScheduleRestart : unit -> unit
+
+    /// Implicitly reference FSharp.Compiler.Interactive.Settings.dll
+    abstract UseFsiAuxLib : bool
 
 
 /// Used to print value signatures along with their values, according to the current
@@ -680,7 +678,7 @@ type internal FsiCommandLineOptions(fsiConfig: FsiEvaluationSessionHostConfig, a
             | [] -> argv.[0] 
             | _  -> fst (List.head (List.rev sourceFiles) )
         let args = Array.ofList (firstArg :: explicitArgs) 
-        fsiConfig.ReportUserCommandLineArgs <- args
+        fsiConfig.ReportUserCommandLineArgs args
 
 
     //----------------------------------------------------------------------------
@@ -824,7 +822,7 @@ type internal FsiConsoleInput(fsiConfig: FsiEvaluationSessionHostConfig, fsiOpti
         // The "console.fs" code does a limited form of "TAB-completion".
         // Currently, it turns on if it looks like we have a console.
         if fsiOptions.EnableConsoleKeyProcessing then
-            fsiConfig.ConsoleReadLine
+            fsiConfig.OptionalConsoleReadLine
         else
             None
 #endif
@@ -2081,7 +2079,7 @@ type internal FsiInteractionProcessor
             mainThreadProcessParsedExpression (expr, istate))
         |> commitResult
 
-    member __.TypeStateUpdated = event
+    member __.TypeStateUpdated = event.Publish
 
     /// Start the background thread used to read the input reader and/or console
     ///
@@ -2197,23 +2195,8 @@ type internal FsiInteractionProcessor
         let tcConfig = TcConfig.Create(tcConfigB,validate=false)
 
         let loadClosure = None
-        let tcStateChecker = ParseAndCheckHelper(checker, tcConfig, istate.tcGlobals, istate.tcImports, istate.tcState, loadClosure)
-        tcStateChecker.ParseAndCheckInteraction(text)
-
-(*
-    /// Experiment: provide a typechecking fragments against the current F# interactive context
-    member __.ParseAndCheckType (checker, istate, sourceText:string) =
-        let loadClosure = None
-        use _unwind1 = ErrorLogger.PushThreadBuildPhaseUntilUnwind(ErrorLogger.BuildPhase.Interactive)
-        use _unwind2 = ErrorLogger.PushErrorLoggerPhaseUntilUnwind(fun _ -> errorLogger)
-        use _scope = SetCurrentUICultureForThread fsiOptions.FsiLCID
-        let lexbuf = UnicodeLexing.StringAsLexbuf(sourceText)
-        let tokenizer = fsiStdinLexerProvider.CreateLexerForLexBuffer("input.fsx", lexbuf)
-        currState 
-        |> interactiveCatch(fun istate ->
-            parseType tokenizer)
-        |> commitResult
-*)
+        let fsiInteractiveChecker = FsiInteractiveChecker(checker, tcConfig, istate.tcGlobals, istate.tcImports, istate.tcState, loadClosure)
+        fsiInteractiveChecker.ParseAndCheckInteraction(text)
 
 
 //----------------------------------------------------------------------------
@@ -2325,7 +2308,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
                                                     isInvalidationSupported=false)
     let tcConfigP = TcConfigProvider.BasedOnMutableBuilder(tcConfigB)
     do tcConfigB.resolutionEnvironment <- MSBuildResolver.RuntimeLike // See Bug 3608
-    do tcConfigB.useFsiAuxLib <- true
+    do tcConfigB.useFsiAuxLib <- fsiConfig.UseFsiAuxLib
 
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
     do SetOptimizeSwitch tcConfigB On
@@ -2667,12 +2650,13 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
               member __.PrintDepth = getInstanceProperty fsiObj "PrintDepth"
               member __.PrintWidth = getInstanceProperty fsiObj "PrintWidth"
               member __.PrintLength = getInstanceProperty fsiObj "PrintLength"
-              member __.ReportUserCommandLineArgs with set args = setInstanceProperty fsiObj "CommandLineArgs" args
+              member __.ReportUserCommandLineArgs args = setInstanceProperty fsiObj "CommandLineArgs" args
               member __.StartServer(fsiServerName) =  failwith "--fsi-server not implemented in the default configuration"
               member __.EventLoopRun() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop" ) "Run"
               member __.EventLoopInvoke(f) = callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") "Invoke" f
               member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") "ScheduleRestart"
-              member __.ConsoleReadLine = None }
+              member __.UseFsiAuxLib = true
+              member __.OptionalConsoleReadLine = None }
 
 
 /// Defines a read-only input stream used to feed content to the hosted F# Interactive dynamic compiler.

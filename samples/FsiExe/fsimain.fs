@@ -151,36 +151,7 @@ let MainMain argv =
 
     try
         let console = new Microsoft.FSharp.Compiler.Interactive.ReadLineConsole()
-        
-        let fsiConfig = 
-            { // Connect the configuration through to the 'fsi' object
-              new FsiEvaluationSessionHostConfig with 
-                member __.FormatProvider = fsi.FormatProvider
-                member __.FloatingPointFormat = fsi.FloatingPointFormat
-                member __.AddedPrinters = 
-                    ///  fsi.AddedPrinters
-                    typeof<InteractiveSession>.InvokeMember("AddedPrinters",(BindingFlags.GetProperty ||| BindingFlags.NonPublic ||| BindingFlags.Instance),null,box fsi, [| |]) |> unbox
-                member __.ShowDeclarationValues = fsi.ShowDeclarationValues
-                member __.ShowIEnumerable = fsi.ShowIEnumerable
-                member __.ShowProperties = fsi.ShowProperties
-                member __.PrintSize = fsi.PrintSize  
-                member __.PrintDepth = fsi.PrintDepth
-                member __.PrintWidth = fsi.PrintWidth
-                member __.PrintLength = fsi.PrintLength
-                member __.ReportUserCommandLineArgs with set args = fsi.CommandLineArgs <- args
-                member __.StartServer(fsiServerName) = 
-#if HAVE_ACCESS_TO_SERVER_INTERNALS
-                    StartServer(fsiServerName)
-#else
-                    failwith "--fsi-server not implemented in this version of fsi.exe"
-#endif
-                // Connect the configuration through to the 'fsi' Event loop
-                member __.EventLoopRun() = fsi.EventLoop.Run()
-                member __.EventLoopInvoke(f) = fsi.EventLoop.Invoke(f)
-                member __.EventLoopScheduleRestart() = fsi.EventLoop.ScheduleRestart()
-
-                member __.ConsoleReadLine = 
-                
+        let getConsoleReadLine () = 
                    let probeToSeeIfConsoleWorks =
                     //if progress then fprintfn outWriter "probing to see if console works..."
                     try
@@ -198,7 +169,35 @@ let MainMain argv =
                        Some (fun () -> console.ReadLine())
                    else
                        None
-                  }
+        
+        let fsiConfig0 = FsiEvaluationSession.GetDefaultConfiguration(fsi)
+        let fsiConfig = 
+            { // Update the configuration to include 'StartServer' and 'OptionalConsoleReadLine'
+              new FsiEvaluationSessionHostConfig with 
+                member __.FormatProvider = fsiConfig0.FormatProvider
+                member __.FloatingPointFormat = fsiConfig0.FloatingPointFormat
+                member __.AddedPrinters = fsiConfig0.AddedPrinters
+                member __.ShowDeclarationValues = fsiConfig0.ShowDeclarationValues
+                member __.ShowIEnumerable = fsiConfig0.ShowIEnumerable
+                member __.ShowProperties = fsiConfig0.ShowProperties
+                member __.PrintSize = fsiConfig0.PrintSize  
+                member __.PrintDepth = fsiConfig0.PrintDepth
+                member __.PrintWidth = fsiConfig0.PrintWidth
+                member __.PrintLength = fsiConfig0.PrintLength
+                member __.ReportUserCommandLineArgs args = fsiConfig0.ReportUserCommandLineArgs args
+                member __.EventLoopRun() = fsiConfig0.EventLoopRun()
+                member __.EventLoopInvoke(f) = fsiConfig0.EventLoopInvoke(f)
+                member __.EventLoopScheduleRestart() = fsiConfig0.EventLoopScheduleRestart()
+                member __.UseFsiAuxLib = fsiConfig0.UseFsiAuxLib
+
+                member __.StartServer(fsiServerName) = 
+#if HAVE_ACCESS_TO_SERVER_INTERNALS
+                    StartServer(fsiServerName)
+#else
+                    failwith "--fsi-server not implemented in this version of fsi.exe"
+#endif
+                // Connect the configuration through to the 'fsi' Event loop
+                member __.OptionalConsoleReadLine = getConsoleReadLine() }
 
         let fsiSession = FsiEvaluationSession (fsiConfig, argv, Console.In, Console.Out, Console.Error)
         if fsiSession.IsGui then 

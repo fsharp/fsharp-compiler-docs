@@ -1226,7 +1226,7 @@ let CheckEntityDefn cenv env (tycon:Entity) =
         let hashOfImmediateProps = new Dictionary<string,_>()
         for minfo in immediateMeths do
             let nm = minfo.LogicalName
-            let m = (match minfo.ArbitraryValRef with None -> m | Some vref -> vref.DefinitionRange)
+            let m = (match minfo.ArbitraryValRef with None -> m | Some vref -> vref.ImplRange)
             let others = getOtherMethods minfo
             // abstract/default pairs of duplicate methods are OK
             let IsAbstractDefaultPair (x:MethInfo) (y:MethInfo) = 
@@ -1255,7 +1255,7 @@ let CheckEntityDefn cenv env (tycon:Entity) =
 
         for pinfo in immediateProps do
             let nm = pinfo.PropertyName
-            let m = (match pinfo.ArbitraryValRef with None -> m | Some vref -> vref.DefinitionRange)
+            let m = (match pinfo.ArbitraryValRef with None -> m | Some vref -> vref.ImplRange)
             if hashOfImmediateMeths.ContainsKey(nm) then 
                 errorR(Error(FSComp.SR.chkPropertySameNameMethod(nm),m))
             let others = getHash hashOfImmediateProps nm
@@ -1310,7 +1310,7 @@ let CheckEntityDefn cenv env (tycon:Entity) =
             for minfo in immediateMeths do
                 if not minfo.IsDispatchSlot && not minfo.IsVirtual && minfo.IsInstance then
                     let nm = minfo.LogicalName
-                    let m = (match minfo.ArbitraryValRef with None -> m | Some vref -> vref.DefinitionRange)
+                    let m = (match minfo.ArbitraryValRef with None -> m | Some vref -> vref.ImplRange)
                     let parentMethsOfSameName = getHash hashOfAllVirtualMethsInParent nm 
                     let checkForDup erasureFlag (minfo2:MethInfo) = minfo2.IsDispatchSlot && MethInfosEquivByNameAndSig erasureFlag true cenv.g cenv.amap m minfo minfo2
                     match parentMethsOfSameName |> List.tryFind (checkForDup EraseAll) with
@@ -1325,11 +1325,11 @@ let CheckEntityDefn cenv env (tycon:Entity) =
 
                 if minfo.IsDispatchSlot then
                     let nm = minfo.LogicalName
-                    let m = (match minfo.ArbitraryValRef with None -> m | Some vref -> vref.DefinitionRange)
+                    let m = (match minfo.ArbitraryValRef with None -> m | Some vref -> vref.ImplRange)
                     let parentMethsOfSameName = getHash hashOfAllVirtualMethsInParent nm 
                     let checkForDup erasureFlag minfo2 = MethInfosEquivByNameAndSig erasureFlag true cenv.g cenv.amap m minfo minfo2
                     //if minfo.NumArgs.Length > 1 then 
-                    //    warning(Error(sprintf "Abstract methods taking curried arguments Duplicate method. The method '%s' has curried arguments but has the same name as another method in this type. Methods with curried arguments may not be overloaded" nm,(match minfo.ArbitraryValRef with None -> m | Some vref -> vref.DefinitionRange)))
+                    //    warning(Error(sprintf "Abstract methods taking curried arguments Duplicate method. The method '%s' has curried arguments but has the same name as another method in this type. Methods with curried arguments may not be overloaded" nm,(match minfo.ArbitraryValRef with None -> m | Some vref -> vref.ImplRange)))
                     if parentMethsOfSameName |> List.exists (checkForDup EraseAll) then
                         if parentMethsOfSameName |> List.exists (checkForDup EraseNone) then 
                             errorR(Error(FSComp.SR.chkDuplicateMethodInheritedType(nm),m))

@@ -36,18 +36,15 @@ type ColorState =
     | EndLineThenToken = 12
     | TripleQuoteString = 13
     | TripleQuoteStringInComment = 14
-    
     | InitialState = 0 
     
-
-
 /// A line/column pair
-type (*internal*) Position = int * int
+type Position = int * int
 
 /// A start-position/end-position pair
-type (*internal*) Range = Position * Position
+type Range = Position * Position
 
-type (*internal*) TokenColorKind =
+type TokenColorKind =
     | Default = 0
     | Text = 0
     | Keyword = 1
@@ -63,7 +60,7 @@ type (*internal*) TokenColorKind =
     | TypeName = 11
 #endif
     
-type (*internal*) TriggerClass =
+type TriggerClass =
     | None         = 0x00000000
     | MemberSelect = 0x00000001
     | MatchBraces  = 0x00000002
@@ -73,7 +70,7 @@ type (*internal*) TriggerClass =
     | ParamNext    = 0x00000020
     | ParamEnd     = 0x00000040    
     
-type (*internal*) TokenCharKind = 
+type TokenCharKind = 
     | Default     = 0x00000000
     | Text        = 0x00000000
     | Keyword     = 0x00000001
@@ -87,7 +84,7 @@ type (*internal*) TokenCharKind =
     | Comment     = 0x0000000A    
     
 /// Information about a particular token from the tokenizer
-type (*internal*) TokenInformation = 
+type TokenInformation = 
     { /// Left column of the token.
       LeftColumn:int
       /// Right column of the token.

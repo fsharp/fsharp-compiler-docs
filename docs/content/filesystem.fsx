@@ -1,34 +1,17 @@
 (*** hide ***)
 #I "../../bin/"
 (**
-Compiler Services: Virtualzied File System
+Compiler Services: Virtualized File System
 ==========================================
 
 The `FSharp.Compiler.Service` component has a global variable
 representing the file system. By setting this variable you can host the compiler in situations where a file system
 is not available.
   
-> **NOTE:** The API used below is experimental and subject to change. 
-This may involve breaking changes to the APIs used for these services as the
-nuget package is updated.
+> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published.
 *)
 
-(**
-> **NOTE:** Type provider components do not use the virtualized file system. 
-*)
-
-(**
-> **NOTE:** Several operations in the `SourceCodeServices` API accept the contents of a file to parse
-  or check as a parameter, in addition to a file name. In these cases, the file name is only used for
-  error reporting.
-*)
-
-(**  
-> **NOTE:** The compiler service may use MSBuild for assembly resolutions unless `--simpleresolution` is
-  provided. When using the `FileSystem` API you will normally want to specify `--simpleresolution` as one
-  of your compiler flags. Also specify `--noframework`.  You will need to supply explicit resolutions of all
-  referenced .NET assemblies.
-
+(*
 Setting the FileSystem 
 ----------------------
 
@@ -159,5 +142,16 @@ Future iterations on the compiler service implementation may add these to the AP
   - Path.GetFileNameWithoutExtension
   - Path.HasExtension
   - Path.GetRandomFileName (used only in generation compiled win32 resources in assemblies)
+
+**NOTE:** Several operations in the `SourceCodeServices` API accept the contents of a file to parse
+or check as a parameter, in addition to a file name. In these cases, the file name is only used for
+error reporting.
+  
+**NOTE:** Type provider components do not use the virtualized file system. 
+
+**NOTE:** The compiler service may use MSBuild for assembly resolutions unless `--simpleresolution` is
+provided. When using the `FileSystem` API you will normally want to specify `--simpleresolution` as one
+of your compiler flags. Also specify `--noframework`.  You will need to supply explicit resolutions of all
+referenced .NET assemblies.
  
 *)

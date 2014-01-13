@@ -1159,10 +1159,11 @@ module internal IncrementalFSharpBuild =
           tcImports:TcImports
           tcGlobals:TcGlobals
           tcConfig:TcConfig
-          tcEnv: TcEnv
+          tcEnvAtEndOfFile: TcEnv
+          tcResolutions: Nameres.TcResolutions list
           topAttribs:TopAttribs option
           typedImplFiles:TypedImplFile list
-          errors:(PhasedError * bool) list } // errors=true, warnings=false
+          tcErrors:(PhasedError * bool) list } // errors=true, warnings=false
 
     /// Maximum time share for a piece of background work before it should (cooperatively) yield
     /// to enable other requests to be serviced. Yielding means returning a continuation function
@@ -1256,6 +1257,8 @@ module internal IncrementalFSharpBuild =
     // various steps of the process.
     //-----------------------------------------------------------------------------------
 
+    type PartialTypeCheckResults = TcState * TcImports * TcGlobals * TcConfig * TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * DateTime
+
     type IncrementalBuilder(tcConfig : TcConfig, projectDirectory : string, assemblyName, niceNameGen : Ast.NiceNameGenerator, lexResourceManager,
                             sourceFiles:string list, ensureReactive, errorLogger:ErrorLogger, 
                             keepGeneratedTypedAssembly:bool)
@@ -1273,7 +1276,7 @@ module internal IncrementalFSharpBuild =
         let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = GetFrameworkTcImports tcConfig
         
         // Check for the existence of loaded sources and prepend them to the sources list if present.
-        let sourceFiles = tcConfig.GetAvailableLoadedSources() @ (sourceFiles|>List.map(fun s -> rangeStartup,s))
+        let sourceFiles = tcConfig.GetAvailableLoadedSources() @ (sourceFiles |>List.map(fun s -> rangeStartup,s))
 
         // Mark up the source files with an indicator flag indicating if they are the last source file in the project
         let sourceFiles = 
@@ -1442,10 +1445,11 @@ module internal IncrementalFSharpBuild =
                   tcImports=tcImports
                   tcState=tcState0
                   tcConfig=tcConfig
-                  tcEnv=tcEnv0
+                  tcEnvAtEndOfFile=tcEnv0
+                  tcResolutions=[]
                   topAttribs=None
                   typedImplFiles=[]
-                  errors=errorLogger.GetErrors() }   
+                  tcErrors=errorLogger.GetErrors() }   
             tcAcc
                 
         /// This is a build task function that gets placed into the build rules as the computation for a Vector.ScanLeft
@@ -1458,27 +1462,33 @@ module internal IncrementalFSharpBuild =
                 IncrementalBuilderEventsMRU.Add(IBETypechecked filename)
                 let capturingErrorLogger = CompilationErrorLogger("TypeCheckTask", tcConfig, errorLogger)
                 let errorLogger = GetErrorLoggerFilteringByScopedPragmas(false,GetScopedPragmasForInput(input),capturingErrorLogger)
-                let tcAcc = {tcAcc with errors = tcAcc.errors @ parseErrors}
                 let fullComputation = 
                     eventually {
                         Trace.PrintLine("FSharpBackgroundBuild", fun _ -> sprintf "Typechecking %s..." filename)                
                         beforeTypeCheckFile.Trigger filename
-                        let! (tcEnv,topAttribs,typedImplFiles),tcState = 
-                            TypecheckOneInputEventually ((fun () -> errorLogger.ErrorCount > 0),
+
+                        ApplyMetaCommandsFromInputToTcConfig tcConfig (input, Path.GetDirectoryName filename) |> ignore
+                        let sink = Nameres.TcResultsSinkImpl(tcAcc.tcGlobals)
+                        let hadParseErrors = not (List.isEmpty parseErrors)
+
+                        let! (tcEnvAtEndOfFile,topAttribs,typedImplFiles),tcState = 
+                            TypecheckOneInputEventually ((fun () -> hadParseErrors || errorLogger.ErrorCount > 0),
                                                          tcConfig,tcAcc.tcImports,
                                                          tcAcc.tcGlobals,
                                                          None,
-                                                         Nameres.TcResultsSink.NoSink,
+                                                         Nameres.TcResultsSink.WithSink sink,
                                                          tcAcc.tcState,input)
                         
                         /// Only keep the typed interface files when doing a "full" build for fsc.exe, otherwise just throw them away
                         let typedImplFiles = if keepGeneratedTypedAssembly then typedImplFiles else []
+                        let tcResolution = sink.GetTcResolutions()  
                         Trace.PrintLine("FSharpBackgroundBuild", fun _ -> sprintf "done.")
                         return {tcAcc with tcState=tcState 
-                                           tcEnv=tcEnv
+                                           tcEnvAtEndOfFile=tcEnvAtEndOfFile
                                            topAttribs=Some topAttribs
                                            typedImplFiles=typedImplFiles
-                                           errors = tcAcc.errors @ capturingErrorLogger.GetErrors() } 
+                                           tcResolutions=tcAcc.tcResolutions @ [tcResolution]
+                                           tcErrors = tcAcc.tcErrors @ parseErrors @ capturingErrorLogger.GetErrors() } 
                     }
                     
                 // Run part of the Eventually<_> computation until a timeout is reached. If not complete, 
@@ -1494,9 +1504,7 @@ module internal IncrementalFSharpBuild =
                                   // Reinstall the compilation globals each time we start or restart
                                   use unwind = new CompilationGlobalsScope (errorLogger, BuildPhase.TypeCheck, projectDirectory) 
                                   Trace.Print("FSharpBackgroundBuildVerbose", fun _ -> sprintf "continuing %s.\n" filename)
-                                  f()
-                                  (* unwind dispose *)
-                              )
+                                  f())
                                
                     timeSlicedComputation
                 else 
@@ -1512,7 +1520,7 @@ module internal IncrementalFSharpBuild =
             assertNotDisposed()
             Trace.PrintLine("FSharpBackgroundBuildVerbose", fun _ -> sprintf "Finalizing Type Check" )
             let finalAcc = tcStates.[tcStates.Length-1]
-            let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnv, (Option.get acc.topAttribs), acc.typedImplFiles)
+            let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnvAtEndOfFile, (Option.get acc.topAttribs), acc.typedImplFiles)
             let (tcEnvAtEndOfLastFile,topAttrs,mimpls),tcState = TypecheckMultipleInputsFinish (results,finalAcc.tcState)
             let tcState,tassembly = TypecheckClosedInputSetFinish (mimpls,tcState)
             tcState, topAttrs, tassembly, tcEnvAtEndOfLastFile, finalAcc
@@ -1619,7 +1627,7 @@ module internal IncrementalFSharpBuild =
                 partialBuild <- newPartialBuild
                 true
     
-        member ib.GetTypeCheckResultsBeforeFileInProjectIfReady filename = 
+        member ib.GetTypeCheckResultsBeforeFileInProjectIfReady filename : PartialTypeCheckResults option  = 
             let slotOfFile = ib.GetSlotOfFileName filename
             let result = 
                 match slotOfFile with
@@ -1628,7 +1636,7 @@ module internal IncrementalFSharpBuild =
         
             match result with
             | Some(tcAcc,timestamp) ->
-                Some(tcAcc.tcState,tcAcc.tcImports,tcAcc.tcGlobals,tcAcc.tcConfig,tcAcc.errors,timestamp)
+                Some(tcAcc.tcState,tcAcc.tcImports,tcAcc.tcGlobals,tcAcc.tcConfig,tcAcc.tcEnvAtEndOfFile,tcAcc.tcErrors,tcAcc.tcResolutions,timestamp)
             | _->None
         
         // TODO: This evaluates the whole type checking for the whole project,when only the
@@ -1654,17 +1662,17 @@ module internal IncrementalFSharpBuild =
                     GetVectorResultBySlot<TypeCheckAccumulator>("TypeCheckingStates",slotOfFile-1,build)  
         
             match result with
-            | Some(tcAcc,timestamp) -> (tcAcc.tcState,tcAcc.tcImports,tcGlobals,tcAcc.tcConfig,tcAcc.errors,timestamp)
+            | Some(tcAcc,timestamp) -> (tcAcc.tcState,tcAcc.tcImports,tcGlobals,tcAcc.tcConfig,tcAcc.tcEnvAtEndOfFile,tcAcc.tcErrors,tcAcc.tcResolutions,timestamp)
             | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
 
         member b.GetTypeCheckResultsAfterLastFileInProject () = 
             b.GetTypeCheckResultsBeforeSlotInProject(b.GetSlotsCount()) 
 
-        member __.GetTypeCheckResultsForProject() = 
+        member __.GetCheckResultsAndImplementationsForProject() = 
             let build = EvalAndKeepOutput "FinalizeTypeCheck" 
             match GetScalarResult<Build.TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv * TypeCheckAccumulator>("FinalizeTypeCheck",build) with
             | Some((tcState,topAttribs,typedAssembly,tcEnv,tcAcc),_) -> 
-                tcState,topAttribs,typedAssembly,tcEnv,tcAcc.tcImports,tcAcc.tcGlobals,tcAcc.tcConfig,tcAcc.errors
+                tcState,topAttribs,typedAssembly,tcEnv,tcAcc.tcImports,tcAcc.tcGlobals,tcAcc.tcConfig,tcAcc.tcErrors
             | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
         
         member __.GetSlotOfFileName(filename:string) =
@@ -1693,11 +1701,11 @@ module internal IncrementalFSharpBuild =
                 match get(build) with
                 | Some (results, _) -> results
                 | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
-        
-            //------------------------------------------------------------------------------------
-            // CreateIncrementalBuilder (for background type checking). Note that fsc.fs also
-            // creates an incremental builder used by the command line compiler.
-            //-----------------------------------------------------------------------------------
+
+        member __.ProjectFileNames  = sourceFiles  |> List.map (fun (_,f,_) -> f)
+
+        /// CreateIncrementalBuilder (for background type checking). Note that fsc.fs also
+        /// creates an incremental builder used by the command line compiler.
         static member CreateBackgroundBuilderForProjectOptions (scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment) =
     
             // Trap and report warnings and errors from creation.
@@ -1708,7 +1716,7 @@ module internal IncrementalFSharpBuild =
             let resourceManager = new Lexhelp.LexResourceManager() 
 
             /// Create a type-check configuration
-            let tcConfigB = 
+            let tcConfigB, sourceFilesNew = 
                 let defaultFSharpBinariesDir = Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
                     
                 // see also fsc.fs:runFromCommandLineToImportingAssemblies(), as there are many similarities to where the PS creates a tcConfigB
@@ -1727,13 +1735,19 @@ module internal IncrementalFSharpBuild =
                     let define = if useScriptResolutionRules then "INTERACTIVE" else "COMPILED"
                     define::tcConfigB.conditionalCompilationDefines
 
-                // Apply command-line arguments.
-                try
-                    ParseCompilerOptions
-                        (fun _sourceOrDll -> () )
-                        (Fscopts.GetCoreServiceCompilerOptions tcConfigB)
-                        commandLineArgs             
-                with e -> errorRecovery e range0
+                // Apply command-line arguments and collect more source files if they are in the arguments
+                let sourceFilesNew = 
+                    try
+                        let sourceFilesAcc = ResizeArray(sourceFiles)
+                        let collect name = if not (Filename.isDll name) then sourceFilesAcc.Add name
+                        ParseCompilerOptions
+                            collect
+                            (Fscopts.GetCoreServiceCompilerOptions tcConfigB)
+                            commandLineArgs             
+                        sourceFilesAcc |> ResizeArray.toList
+                    with e ->
+                        errorRecovery e range0
+                        sourceFiles
 
 
                 // Never open PDB files for the language service, even if --standalone is specified
@@ -1750,7 +1764,8 @@ module internal IncrementalFSharpBuild =
                     // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
                     System.Diagnostics.Debug.Assert(false, "Language service requires --noframework flag")
                     tcConfigB.framework<-false
-                tcConfigB 
+                tcConfigB, sourceFilesNew
+
             match scriptClosureOptions with
             | Some closure -> 
                 let dllReferences = 
@@ -1771,8 +1786,6 @@ module internal IncrementalFSharpBuild =
             if isIncompleteTypeCheckEnvironment then 
                 tcConfigB.addVersionSpecificFrameworkReferences <- true 
 
-            let _, _, assemblyName = tcConfigB.DecideNames sourceFiles
-        
             let tcConfig = TcConfig.Create(tcConfigB,validate=true)
 
             let niceNameGen = NiceNameGenerator()
@@ -1789,10 +1802,12 @@ module internal IncrementalFSharpBuild =
                       member x.WarnSinkImpl e = warnSink e
                       member x.ErrorSinkImpl e = errorSink e }
 
+            let _, _, assemblyName = tcConfigB.DecideNames sourceFilesNew
+        
             let builder = 
                 new IncrementalBuilder 
                         (tcConfig, projectDirectory, assemblyName, niceNameGen,
-                        resourceManager, sourceFiles, true, // stay reactive
+                        resourceManager, sourceFilesNew, true, // stay reactive
                         errorLogger, false // please discard implementation results
                         )
                                  

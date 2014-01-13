@@ -64,16 +64,16 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             sb.ToString().Trim('\n', '\r')
 
     /// Represents a declaration returned by GetDeclarations
-    type Declaration internal (name: string, description: unit -> string) = 
+    type SimpleDeclaration internal (name: string, description: unit -> string) = 
         /// Get the name of a declaration
         member x.Name = name
         /// Compute the description for a declaration
         member x.GetDescription() = description()
 
     /// Represents the results of type checking
-    type CheckFileResults(info: Microsoft.FSharp.Compiler.SourceCodeServices.ParsedFileResults,
-                              results:Microsoft.FSharp.Compiler.SourceCodeServices.CheckFileResults,
-                              source: string[]) = 
+    type SimpleCheckFileResults(info: Microsoft.FSharp.Compiler.SourceCodeServices.ParseFileResults,
+                                results:Microsoft.FSharp.Compiler.SourceCodeServices.CheckFileResults,
+                                source: string[]) = 
 
         let identToken = Microsoft.FSharp.Compiler.Parser.tagOfToken (Microsoft.FSharp.Compiler.Parser.IDENT "")
         let hasChangedSinceLastTypeCheck _ = false
@@ -84,7 +84,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         /// Get the declarations at the given code location.
         member x.GetDeclarations(line:Line0, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
             async { let! items = results.GetDeclarations(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
-                    return [| for i in items.Items -> Declaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
+                    return [| for i in items.Items -> SimpleDeclaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
 
         member x.GetRawDeclarations(line, col, names, residue, formatter:ToolTipText->string[]) =
             async { let! items = results.GetDeclarations(Some info, line, col, source.[line], names, residue, hasChangedSinceLastTypeCheck)
@@ -143,7 +143,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
         /// Return information about matching braces in a single file.
         member x.MatchBraces (filename, source: string, ?otherFlags) : (Range01 * Range01) [] = 
-            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, ?otherFlags=otherFlags)
+            let options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
             checker.MatchBraces(filename, source,  options)
 
         [<System.Obsolete("This method has been renamed to ParseAndCheckScript")>]
@@ -152,7 +152,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
         /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
         member x.ParseAndCheckScript (filename, source, ?otherFlags) = 
-            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, ?otherFlags=otherFlags)
+          async { 
+            let options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
             checker.StartBackgroundCompile options
             // wait for the antecedent to appear
             checker.WaitForBackgroundCompile()
@@ -160,19 +161,16 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let untypedParse = checker.ParseFileInProject(filename, source, options)
             // do an typecheck
             let textSnapshotInfo = "" // TODO
-            let typedInfo = checker.CheckFileInProjectIfReady(untypedParse, filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo)
+            let! typedInfo = checker.CheckFileInProject(untypedParse, filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo) 
             // return the info
             match typedInfo with 
-            | CheckFileAnswer.NoAntecedant -> invalidOp "no antecedant, compilation unexpectedly was not ready"
-            | CheckFileAnswer.Aborted -> invalidOp "aborted"
-            | CheckFileAnswer.Succeeded res -> CheckFileResults(untypedParse, res, source.Split('\n'))
+            | CheckFileAnswer.Aborted -> return! invalidOp "aborted"
+            | CheckFileAnswer.Succeeded res -> return SimpleCheckFileResults(untypedParse, res, source.Split('\n'))
+          }
 
-(*
-        /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
-        member x.ParseAndCheckProject (filename:string,source:string,otherFlags:string[]) = 
-            let options = checker.GetProjectOptionsFromScriptRoot(filename, source, loadTime, otherFlags)
+        member x.ParseAndCheckProject (projectFileName, argv:string[]) = 
+            let options = checker.GetProjectOptionsFromCommandLineArgs(projectFileName, argv)
             checker.ParseAndCheckProject(options)
-*)
 
         /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
         member x.Compile (argv: string[])  = 

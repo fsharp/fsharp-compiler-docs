@@ -1860,7 +1860,14 @@ and u_tycon_objmodel_data st =
   
 and u_unioncase_spec st = 
     let a,b,c,d,e,f,i = u_tup7 u_rfield_table u_typ u_string u_ident u_attribs u_string u_access st
-    {FieldTable=a; ReturnType=b; CompiledName=c; Id=d; Attribs=e;XmlDoc=XmlDoc.Empty;XmlDocSig=f;Accessibility=i }
+    {FieldTable=a; 
+     ReturnType=b; 
+     CompiledName=c; 
+     Id=d; 
+     Attribs=e;
+     XmlDoc=XmlDoc.Empty;
+     XmlDocSig=f;Accessibility=i; 
+     ImplRangeOpt=None }
     
 and u_exnc_spec_data st = u_entity_spec_data st 
 
@@ -1906,7 +1913,8 @@ and u_recdfield_spec st =
       rfield_fattribs=e2;
       rfield_xmldoc=XmlDoc.Empty;
       rfield_xmldocsig=f; 
-      rfield_access=g }
+      rfield_access=g
+      rfield_impl_range = None }
 
 and u_rfield_table st = MakeRecdFieldsTable (u_list u_recdfield_spec st)
 
@@ -1940,6 +1948,7 @@ and u_entity_spec_data st : EntityData =
       entity_logical_name=x2a;
       entity_compiled_name=x2b;
       entity_range=x2c;
+      entity_impl_range=None;
       entity_pubpath=x3;
       entity_accessiblity=x4a;
       entity_tycon_repr_accessibility=x4b;

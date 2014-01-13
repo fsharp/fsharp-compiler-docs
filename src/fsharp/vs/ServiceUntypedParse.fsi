@@ -22,7 +22,7 @@ open Microsoft.FSharp.Compiler.ErrorLogger
 open System.Collections.Generic
 
 [<Sealed>]
-type ParsedFileResults = 
+type ParseFileResults = 
     member ParseTree : Ast.ParsedInput option
     /// Notable parse info for ParameterInfo at a given location
     member FindNoteworthyParamInfoLocations : line:Line0 * col:int -> NoteworthyParamInfoLocations option
@@ -41,7 +41,7 @@ type ParsedFileResults =
     /// Indicates if any errors occured during the parse
     member ParseHadErrors : bool
 
-    internal new : errors : ErrorInfo[] * input : Ast.ParsedInput option * parseHadErrors : bool * dependencyFiles : string list -> ParsedFileResults
+    internal new : errors : ErrorInfo[] * input : Ast.ParsedInput option * parseHadErrors : bool * dependencyFiles : string list -> ParseFileResults
 
 /// Information about F# source file names
 module internal SourceFile =
@@ -78,7 +78,7 @@ module (*internal*) UntypedParseImpl =
     val TryFindExpressionASTLeftOfDotLeftOfCursor : Line0 * int * ParsedInput option -> (pos * bool) option
     val GetRangeOfExprLeftOfDot : Line0 * int * ParsedInput option -> ((Line0*int) * (Line0*int)) option
     val TryFindExpressionIslandInPosition : Line0 * int * ParsedInput option -> string option
-    val TryGetCompletionContext : Line0 * int * ParsedFileResults option -> CompletionContext option
+    val TryGetCompletionContext : Line0 * int * ParseFileResults option -> CompletionContext option
 
 // implementation details used by other code in the compiler    
 module internal SourceFileImpl =

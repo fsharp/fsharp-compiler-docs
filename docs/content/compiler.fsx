@@ -6,9 +6,7 @@ Hosted Compiler
 
 This tutorial demonstrates how to host the F# compiler.
 
-> **NOTE:** The API used below is experimental and subject to change. In particular, the 
-services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
-This will involve breaking changes to the APIs used for these services.
+> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
 *)
 
 (**

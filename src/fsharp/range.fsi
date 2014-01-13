@@ -127,3 +127,4 @@ module Pos =
 module Range =
     /// Convert a range from one-based line counting (used internally in the F# compiler and in F# error messages) to zero-based line counting (used by Visual Studio)
     val toZ : range -> Range01
+    val toFileZ : range -> string * Range01

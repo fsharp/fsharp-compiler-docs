@@ -433,6 +433,8 @@ module SignatureConformance = begin
 
         and checkTypeDef (aenv: TypeEquivEnv) (implTycon:Tycon) (sigTycon:Tycon) =
             let m = implTycon.Range
+            // Propagate defn location information from implementation to signature . 
+            sigTycon.SetImplRange implTycon.ImplRange
             let err f =  Error(f(implTycon.TypeOrMeasureKind.ToString()), m)
             if implTycon.LogicalName <> sigTycon.LogicalName then  (errorR (err (FSComp.SR.DefinitionsInSigAndImplNotCompatibleNamesDiffer)); false) else
             if implTycon.CompiledName <> sigTycon.CompiledName then  (errorR (err (FSComp.SR.DefinitionsInSigAndImplNotCompatibleNamesDiffer)); false) else
@@ -542,7 +544,7 @@ module SignatureConformance = begin
         and checkVal implModRef (aenv:TypeEquivEnv) (implVal:Val) (sigVal:Val) =
 
             // Propagate defn location information from implementation to signature . 
-            sigVal.SetDefnRange implVal.DefinitionRange
+            sigVal.SetImplRange implVal.ImplRange
 
             let mk_err denv f = ValueNotContained(denv,implModRef,implVal,sigVal,f)
             let err denv f = errorR(mk_err denv f); false
@@ -587,6 +589,7 @@ module SignatureConformance = begin
 
         and checkUnionCase aenv implUnionCase sigUnionCase =
             let err f = errorR(ConstrNotContained(denv,implUnionCase,sigUnionCase,f));false
+            sigUnionCase.ImplRangeOpt <- Some implUnionCase.Range
             if implUnionCase.Id.idText <> sigUnionCase.Id.idText then  err FSComp.SR.ModuleContainsConstructorButNamesDiffer
             elif implUnionCase.RecdFields.Length <> sigUnionCase.RecdFields.Length then err FSComp.SR.ModuleContainsConstructorButDataFieldsDiffer
             elif not (List.forall2 (checkField aenv) implUnionCase.RecdFields sigUnionCase.RecdFields) then err FSComp.SR.ModuleContainsConstructorButTypesOfFieldsDiffer
@@ -595,6 +598,7 @@ module SignatureConformance = begin
 
         and checkField aenv implField sigField =
             let err f = errorR(FieldNotContained(denv,implField,sigField,f)); false
+            sigField.rfield_impl_range <- Some implField.Range
             if implField.rfield_id.idText <> sigField.rfield_id.idText then err FSComp.SR.FieldNotContainedNamesDiffer
             elif isLessAccessible implField.Accessibility sigField.Accessibility then err FSComp.SR.FieldNotContainedAccessibilitiesDiffer
             elif implField.IsStatic <> sigField.IsStatic then err FSComp.SR.FieldNotContainedStaticsDiffer
@@ -855,6 +859,8 @@ module SignatureConformance = begin
 
 
         and checkModuleOrNamespace aenv implModRef sigModRef = 
+            // Propagate defn location information from implementation to signature . 
+            sigModRef.SetImplRange implModRef.ImplRange
             checkModuleOrNamespaceContents implModRef.Range aenv implModRef sigModRef.ModuleOrNamespaceType &&
             checkAttribs aenv implModRef.Attribs sigModRef.Attribs implModRef.Deref.SetAttribs
 

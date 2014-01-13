@@ -350,7 +350,7 @@ let getTcImportsFromCommandLine(displayPSTypeProviderSecurityDialogBlockingUI : 
                                                                 ensureReactive=false, 
                                                                 errorLogger=errorLogger,
                                                                 keepGeneratedTypedAssembly=true)
-            let tcState,topAttribs,typedAssembly,_tcEnv,tcImports,tcGlobals,tcConfig,_errors = builder.GetTypeCheckResultsForProject() 
+            let tcState,topAttribs,typedAssembly,_tcEnvAtEndOfLastFile,tcImports,tcGlobals,tcConfig,_errors = builder.GetCheckResultsAndImplementationsForProject() 
             tcGlobals,tcImports,tcImports,tcState.Ccu,typedAssembly,topAttribs,tcConfig
         else
         

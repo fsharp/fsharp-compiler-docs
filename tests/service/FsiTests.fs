@@ -89,9 +89,9 @@ let ``EvalInteraction parse failure``() =
     |> shouldEqual false  // EvalInteraction doesn't fail for parse failures, it just reports errors.
 
 [<Test>]
-let ``TypeStateUpdated test``() = 
+let ``PartialAssemblySignatureUpdated test``() = 
     let count = ref 0 
-    fsiSession.TypeStateUpdated.Add(fun x -> count := count.Value + 1)
+    fsiSession.PartialAssemblySignatureUpdated.Add(fun x -> count := count.Value + 1)
     count.Value |> shouldEqual 0
     evalInteraction """ let x = 1 """  
     count.Value |> shouldEqual 1

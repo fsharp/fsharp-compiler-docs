@@ -48,7 +48,6 @@ The libraries contain additional public API that can be used, but is not documen
    is not available.
   
 > **NOTE:** The services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
-This will involve breaking changes to the APIs used for these services.
 
 
 Contributing and copyright

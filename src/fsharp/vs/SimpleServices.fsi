@@ -21,23 +21,25 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
+/// Represents a declaration returned by GetDeclarations. Simpler than the one in 'SourceCodeServices' because
+/// it formats the XML content for you (apart from ones read from XML doc files using xmlCommentRetriever)
 // TODO: make xmlCommentRetriever a parameter of the service
-/// Represents a declaration returned by GetDeclarations
 [<Class>]
-type Declaration = 
+type SimpleDeclaration = 
     /// Get the name of a declaration
     member Name: string
     /// Compute the description for a declaration
     member GetDescription: unit -> string
 
-/// Represents the results of type checking
+/// Represents the results of type checking. A mild simplification of SourceCodeService's CheckFileResults.
+/// Normally it is better to use the full CheckFileResults directly, available from 'FullResults'.
 [<Class>]
-type CheckFileResults = 
+type SimpleCheckFileResults = 
     /// Return the errors resulting from the type-checking
     member Errors: ErrorInfo []
 
     /// Get the declarations at the given code location.
-    member GetDeclarations: line:Line0 * col:int * qualifyingNames:string list * partialName:string * ?xmlCommentRetriever:(string * string -> string) -> Async<Declaration []>
+    member GetDeclarations: line:Line0 * col:int * qualifyingNames:string list * partialName:string * ?xmlCommentRetriever:(string * string -> string) -> Async<SimpleDeclaration []>
 
     /// Get the Visual Studio F1-help keyword for the item at the given position
     member GetF1Keyword: line:Line0 * col:int * names:string list -> string option
@@ -71,7 +73,10 @@ type SimpleSourceCodeServices =
     member MatchBraces: filename:string * source:string * ?otherFlags:string [] -> (Range01 * Range01) []
 
     /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
-    member ParseAndCheckScript: filename:string * source:string * ?otherFlags:string [] -> CheckFileResults
+    member ParseAndCheckScript: filename:string * source:string * ?otherFlags:string [] -> Async<SimpleCheckFileResults>
+
+    /// For analysis of a project
+    member ParseAndCheckProject: projectFileName:string * argv:string [] -> Async<CheckProjectResults>
 
     /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
     member Compile: argv:string [] -> ErrorInfo [] * int
@@ -86,4 +91,4 @@ type SimpleSourceCodeServices =
     member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option -> ErrorInfo [] * int * System.Reflection.Assembly option
             
     [<System.Obsolete("This method has been renamed to ParseAndCheckScript")>] 
-    member TypeCheckScript: filename:string * source:string * otherFlags:string [] -> CheckFileResults
+    member TypeCheckScript: filename:string * source:string * otherFlags:string [] -> Async<SimpleCheckFileResults>

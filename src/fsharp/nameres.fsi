@@ -152,10 +152,45 @@ type internal ItemOccurence =
     | UseInAttribute = 3
     | Pattern = 4
   
+type ItemUsageLocation = range * string
+
+[<Class>]
+type internal CapturedNameResolution = 
+    /// line and column
+    member Pos : pos
+    /// Named item
+    member Item : Item
+    member ItemOccurence : ItemOccurence
+    /// Information about printing. For example, should redundant keywords be hidden?
+    member DisplayEnv : DisplayEnv
+    /// Naming environment--for example, currently open namespaces.
+    member NameResolutionEnv : NameResolutionEnv
+    member AccessorDomain : AccessorDomain
+    /// The starting and ending position      
+    member Range : range
+
+[<Class>]
+type internal TcResolutions = 
+    /// Name resolution environments for every interesting region in the file. These regions may
+    /// overlap, in which case the smallest region applicable should be used.
+    member CapturedEnvs : ResizeArray<range * NameResolutionEnv * AccessorDomain>
+    /// Information of exact types found for expressions, that can be to the left of a dot.
+    /// typ - the inferred type for an expression
+    member CapturedExpressionTypings : ResizeArray<pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range>
+    /// Exact name resolutions
+    member CapturedNameResolutions : ResizeArray<CapturedNameResolution>
+    member CapturedMethodGroupResolutions : ResizeArray<CapturedNameResolution>
+    member GetUsesOfSymbol : Item -> range[]
+
 type ITypecheckResultsSink =
     abstract NotifyEnvWithScope   : range * NameResolutionEnv * AccessorDomain -> unit
     abstract NotifyExprHasType    : pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
     abstract NotifyNameResolution : pos * Item * Item * ItemOccurence * DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
+
+type internal TcResultsSinkImpl =
+    new : tcGlobals : TcGlobals -> TcResultsSinkImpl
+    member GetTcResolutions : unit -> TcResolutions
+    interface ITypecheckResultsSink
 
 type TcResultsSink = 
     { mutable CurrentSink : ITypecheckResultsSink option }

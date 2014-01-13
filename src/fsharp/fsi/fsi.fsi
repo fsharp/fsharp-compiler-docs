@@ -126,7 +126,7 @@ type FsiEvaluationSession =
     /// type checking state.  
     ///
     /// This event is triggered after parsing and checking, either via input from 'stdin', or via a call to EvalInteraction.
-    member TypeStateUpdated : IEvent<unit>
+    member PartialAssemblySignatureUpdated : IEvent<unit>
 
     /// Typecheck the given script fragment in the type checking context implied by the current state
     /// of F# Interactive. The results can be used to access intellisense, perform resolutions,
@@ -136,7 +136,7 @@ type FsiEvaluationSession =
     ///
     /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
     /// by input from 'stdin'. 
-    member ParseAndCheckInteraction : code: string -> ParsedFileResults * CheckFileResults
+    member ParseAndCheckInteraction : code: string -> ParseFileResults * CheckFileResults
 
     /// The single, global interactive checker to use in conjunction with other operations
     /// on the FsiEvaluationSession.  

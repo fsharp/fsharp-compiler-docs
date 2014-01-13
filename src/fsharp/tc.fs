@@ -5291,6 +5291,11 @@ and TcExprUndelayed cenv overallTy env tpenv (expr: SynExpr) =
         let finishExpr,tpenv = TcExpr cenv (cenv.g.int_ty) env tpenv finish
         let idv,_ = mkLocal id.idRange  id.idText cenv.g.int_ty
         let envinner = AddLocalVal cenv.tcSink m idv env
+
+        // notify name resolution sink about loop variable
+        let item = Item.Value(mkLocalValRef idv)
+        CallNameResolutionSink cenv.tcSink (idv.Range, env.NameEnv, item, item, ItemOccurence.Binding, env.DisplayEnv, env.eAccessRights)
+        
         let bodyExpr,tpenv = TcStmt cenv envinner tpenv body
         mkFastForLoop  cenv.g (spBind,m,idv,startExpr,dir,finishExpr,bodyExpr), tpenv
         

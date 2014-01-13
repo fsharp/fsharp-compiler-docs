@@ -50,8 +50,8 @@ let checker = InteractiveChecker.Create()
 To get the AST, we define a function that takes file name and the source code
 (the file is only used for location information and does not have to exist).
 We first need to get "interactive checker options" which represents the context.
-For simple tasks, you can use `GetCheckOptionsFromScriptRoot` which infers
-the context for a script file. Then we use the `UntypedParse` method and
+For simple tasks, you can use `GetProjectOptionsFromScriptRoot` which infers
+the context for a script file. Then we use the `ParseFileInProject` method and
 return the `ParseTree` property:
 
 *)

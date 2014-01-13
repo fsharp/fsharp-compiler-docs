@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{83FEE492-6
 		docs\content\fsharp-readme.md = docs\content\fsharp-readme.md
 		docs\content\index.md = docs\content\index.md
 		docs\content\interactive.fsx = docs\content\interactive.fsx
+		docs\content\project.fsx = docs\content\project.fsx
 		docs\content\symbols.fsx = docs\content\symbols.fsx
 		docs\content\tokenizer.fsx = docs\content\tokenizer.fsx
 		docs\content\untypedtree.fsx = docs\content\untypedtree.fsx

@@ -20,7 +20,7 @@ interactive service that can be used for embedding F# scripting into your applic
 Available services
 ------------------
 
-The project currently exposes the following four services that are tested & documented on this page.
+The project currently exposes the following six services that are tested & documented on this page.
 The libraries contain additional public API that can be used, but is not documented here.
 
  * [**F# Language tokenizer**](tokenizer.html) - turns any F# source code into a stream of tokens.
@@ -38,7 +38,7 @@ The libraries contain additional public API that can be used, but is not documen
  * [**Working with signatures, types, and resolved symbols**](symbols.html) - many services related to type checking
    return resolved symbols, representing inferred types, and the signatures of whole assemblies. 
   
- * [**Hosted F# interactive**](interactive.html) - allows calling F# interactive as a .NET library
+ * [**Hosting F# interactive**](interactive.html) - allows calling F# interactive as a .NET library
    from your .NET code. You can use this API to embed F# as a scripting language in your projects.
  
  * [**Hosting the F# compiler**](compiler.html) - allows you to embed calls to the F# compiler.

@@ -357,7 +357,7 @@ type InteractiveChecker =
     member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> ProjectOptions
 
     /// <summary>
-    /// <para>Get the ProjectOptions implied by a set of command line arguments.
+    /// <para>Get the ProjectOptions implied by a set of command line arguments.</para>
     /// </summary>
     ///
     /// <param name="projectFileName">Used to differentiate between projects and for the base directory of the project.</param>

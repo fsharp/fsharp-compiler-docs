@@ -33,7 +33,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 // Create an interactive checker instance 
 let checker = InteractiveChecker.Create()
 (**
-As [previously](untypedtree.html), we use `GetCheckOptionsFromScriptRoot` to get a context 
+As [previously](untypedtree.html), we use `GetProjectOptionsFromScriptRoot` to get a context 
 where the specified input is the only file passed to the compiler (and it is treated as a
 script file or stand-alone F# source code).
 *)
@@ -49,7 +49,9 @@ let parseAndTypeCheckFileInProject (file, input) =
     let untypedRes = checker.ParseFileInProject(file, input, checkOptions)
         
     // Perform type checking
-    let typedRes = checker.CheckFileInProject(untypedRes, file, 0, input, checkOptions) |> Async.RunSynchronously
+    let typedRes = 
+        checker.CheckFileInProject(untypedRes, file, 0, input, checkOptions) 
+        |> Async.RunSynchronously
 
     match typedRes with
     | CheckFileAnswer.Succeeded(res) -> untypedRes, res
@@ -63,7 +65,7 @@ also requires the result of `ParseFileInProject`, so the two functions are often
 together. 
 
 The function returns both the untyped parse result (which we do not use in this
-tutorial), but also a `CheckFileResults` value, which gives us access to all
+tutorial), but also a `CheckFileAnswer` value, which gives us access to all
 the interesting functionality...
 
 Type checking sample source code
@@ -107,7 +109,7 @@ let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input)
 (**
 ### Getting tool tip
 
-To get a tool tip, you can use `GetDataTipText` method. The method takes a line number and character
+To get a tool tip, you can use `GetToolTipText` method. The method takes a line number and character
 offset. Both of the numbers are zero-based. In the sample code, we want to get tooltip for the `foo`
 function that is defined on line 3 (line 0 is blank) and the letter `f` starts at index 7 (the tooltip
 would work anywhere inside the identifier).
@@ -129,7 +131,7 @@ the current long name. For example to get tooltip for the `Random` identifier in
 `System.Random`, you would use location somewhere in the string `Random` and you would pass 
 `["System"; "Random"]` as the `Names` value.
 
-The returned value is of type `DataTipText` which contains a discriminated union `DataTipElement`.
+The returned value is of type `ToolTipText` which contains a discriminated union `ToolTipElement`.
 The union represents different kinds of tool tips that you can get from the compiler.
 
 ### Getting auto-complete lists
@@ -155,7 +157,7 @@ for item in decls.Items do
     printfn " - %s" item.Name
 (**
 When you run the code, you should get a list containing the usual string methods such as 
-`Substring`, `ToUpper`, `ToLower` etc. The fourt argument of `GetDeclarations`, here `([], "msg")`, 
+`Substring`, `ToUpper`, `ToLower` etc. The fourth argument of `GetDeclarations`, here `([], "msg")`, 
 specifies the context for the auto-completion. Here, we want a completion on a complete name
 `msg`, but you could for example use `(["System"; "Collections"], "Generic")` to get a completion list
 for a fully qualified namespace.
@@ -163,9 +165,9 @@ for a fully qualified namespace.
 ### Getting parameter information
 
 The next common feature of editors is to provide information about overloads of a method. In our 
-sample code, we use `String.Contact` which has a number of overloads. We can get the list using
+sample code, we use `String.Concat` which has a number of overloads. We can get the list using
 `GetMethods` operation. As previously, this takes zero-indexed offset of the location that we are
-interested in (here, right at the end of the `String.Contact` identifier) and we also need to provide
+interested in (here, right at the end of the `String.Concat` identifier) and we also need to provide
 the identifier again (so that the compiler can provide up-to-date information when the source code
 changes):
 
@@ -188,7 +190,7 @@ and print a type annotation with the method name.
 
 ## Asynchronous and immediate operations
 
-The astute reader will have noticed that CheckFileInProject is an asynchronous operation.
+The astute reader will have noticed that `CheckFileInProject` is an asynchronous operation.
 This indicates that type checking of F# code can take some time. 
 The F# compiler performs the work in background (automatically) and when
 we call `CheckFileInProject` method, it returns an asynchronous operation.
@@ -196,7 +198,7 @@ we call `CheckFileInProject` method, it returns an asynchronous operation.
 There is also the `CheckFileInProjectIfReady` method. This returns immediately if the
 type checking operation can't be started immediately, e.g. if other files in the project
 are not yet type-checked. In this case, a background worker might choose to do other
-work in the meantime, or give up on type checking the file until the FileTypeCheckStateIsDirty event
+work in the meantime, or give up on type checking the file until the `FileTypeCheckStateIsDirty` event
 is raised.
 
 > The [fsharpbinding](https://github.com/fsharp/fsharpbinding) project has more advanced
@@ -260,10 +262,12 @@ let projectOptions =
            yield "--fullpaths" 
            yield "--flaterrors" 
            yield "--target:library" 
-           for r in [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" 
-                      @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" 
-                      @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" 
-                      @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"] do 
+           let references = 
+             [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" 
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" 
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" 
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"]  
+           for r in references do
                  yield "-r:" + r |]
  
     { ProjectFileName = proj // A name that is unique to this project
@@ -280,8 +284,12 @@ Now check individual files in the project context:
 
 let untypedParse1 = checker.ParseFileInProject(fileName1, File.ReadAllText(fileName1), projectOptions) 
 let untypedParse2 = checker.ParseFileInProject(fileName2, File.ReadAllText(fileName2), projectOptions) 
-let typedParse1 = checker.CheckFileInProject(untypedParse1, fileName1, 0, File.ReadAllText(fileName1), projectOptions)  |> Async.RunSynchronously
-let typedParse2 = checker.CheckFileInProject(untypedParse2, fileName2, 0, File.ReadAllText(fileName2), projectOptions)  |> Async.RunSynchronously
+let typedParse1 = 
+    checker.CheckFileInProject(untypedParse1, fileName1, 0, File.ReadAllText(fileName1), projectOptions) 
+    |> Async.RunSynchronously
+let typedParse2 = 
+    checker.CheckFileInProject(untypedParse2, fileName2, 0, File.ReadAllText(fileName2), projectOptions)
+    |> Async.RunSynchronously
 
 (**
 In this case, we checked the same file contents as are
@@ -305,11 +313,11 @@ results.Errors.[0].EndColumn // 16
 [ for x in results.AssemblySignature.Entities.[1].NestedEntities -> x.DisplayName ] // ["C"]
 [ for x in results.AssemblySignature.Entities.[0].MembersOrValues -> x.DisplayName ] // ["y"; "y2"]
 
-(*
+(**
 Summary
 -------
 
-The `CheckFileResults` object contains other useful methods that were not covered in this tutorial. You
+The `CheckFileAnswer` object contains other useful methods that were not covered in this tutorial. You
 can use it to get location of a declaration for a given identifier, additional colorization information
 (the F# 3.1 colorizes computation builder identifiers & query operators) and others.
 

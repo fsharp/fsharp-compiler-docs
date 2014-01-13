@@ -265,5 +265,6 @@ module Pos =
 
 module Range =
     let toZ (m:range) = Pos.toZ m.Start, Pos.toZ m.End
+    let toFileZ (m:range) = m.FileName, toZ m
 
 

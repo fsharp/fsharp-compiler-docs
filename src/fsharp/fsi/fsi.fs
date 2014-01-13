@@ -2079,7 +2079,7 @@ type internal FsiInteractionProcessor
             mainThreadProcessParsedExpression (expr, istate))
         |> commitResult
 
-    member __.TypeStateUpdated = event.Publish
+    member __.PartialAssemblySignatureUpdated = event.Publish
 
     /// Start the background thread used to read the input reader and/or console
     ///
@@ -2544,7 +2544,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
     member x.ExecuteInteractionAsync(code) = fsiInteractionProcessor.ExecuteInteractionAsync(code)
 *)
 
-    member x.TypeStateUpdated = fsiInteractionProcessor.TypeStateUpdated
+    member x.PartialAssemblySignatureUpdated = fsiInteractionProcessor.PartialAssemblySignatureUpdated
 
     member x.InteractiveChecker = checker
 

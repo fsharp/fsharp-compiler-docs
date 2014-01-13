@@ -10,9 +10,9 @@
 * Renamed DataTip --> ToolTip consistently across all text
 * Renamed CheckOptions --> ProjectOptions
 * Renamed TypeCheckAnswer --> CheckFileAnswer
-* Renamed UntypedParseInfo --> ParsedFileResults
+* Renamed UntypedParseInfo --> ParseFileResults
 * Removed GetCheckOptionsFromScriptRoot member overload in favour of optional argument
-* Renamed GetCheckOptionsFromScriptRoot --> GetProjectOptionsFromScriptRoot
+* Renamed GetCheckOptionsFromScriptRoot --> GetProjectOptionsFromScript
 * Renamed UntypedParse --> ParseFileInProject
 * Renamed TypeCheckSource --> CheckFileInProjectIfReady
 * Added numerous methods to API including CheckFileInProject
@@ -23,7 +23,7 @@
 * Added initial testing in tests/service
 * Added ParseAndCheckProject to SourceCodeServices API. This will eventually return "whole project" information such as symbol tables.
 * Added GetDefaultConfiguration to simplify process of configuring FsiEvaluationSession
-* Added TypeStateUpdated event to FsiEvaluationSession
+* Added PartialAssemblySignatureUpdated event to FsiEvaluationSession
 * Added travis build
 
 #### 0.0.4-alpha - 

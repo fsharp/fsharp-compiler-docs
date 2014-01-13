@@ -108,16 +108,16 @@ module internal ItemDescriptionsImpl =
         isFunTy g tau 
 
      
-    let OutputFullName isDeclInfo ppF fnF os r = 
+    let OutputFullName isDecl ppF fnF os r = 
       // Only display full names in quick info, not declaration text
-      if not isDeclInfo then 
+      if not isDecl then 
         match ppF r with 
         | None -> ()
         | Some _ -> 
             bprintf os "\n\n%s: %s" (FSComp.SR.typeInfoFullName()) (fnF r)
           
     // Format the supertypes and other useful information about a type to a buffer
-    let OutputUsefulTypeInfo _isDeclInfo (_infoReader:InfoReader) _m _denv _os _ty = ()
+    let OutputUsefulTypeInfo _isDecl (_infoReader:InfoReader) _m _denv _os _ty = ()
 #if DISABLED
         if false then 
           ErrorScope.ProtectAndDiscard m (fun () -> 
@@ -147,52 +147,62 @@ module internal ItemDescriptionsImpl =
                     else bprintf os "  %s: %a\n" (FSComp.SR.typeInfoImplements()) bufferL supertyL))
 #endif
            
-    
-    let rangeOfPropInfo (pinfo:PropInfo) =
+    let rangeOfValRef isDecl (vref:ValRef) =
+        if isDecl then vref.Range else vref.ImplRange 
+
+    let rangeOfEntityRef isDecl (eref:EntityRef) =
+        if isDecl then eref.Range else eref.ImplRange 
+   
+    let rangeOfPropInfo isDecl (pinfo:PropInfo) =
         match pinfo with
 #if EXTENSIONTYPING 
         |   ProvidedProp(_,pi,_) -> definitionLocationOfProvidedItem pi
 #endif
-        |   _ -> pinfo.ArbitraryValRef |> Option.map (fun v -> v.Range)
+        |   _ -> pinfo.ArbitraryValRef |> Option.map (rangeOfValRef isDecl)
 
-    let rangeOfMethInfo (minfo:MethInfo) = 
+    let rangeOfMethInfo isDecl (minfo:MethInfo) = 
         match minfo with
 #if EXTENSIONTYPING 
         |   ProvidedMeth(_,mi,_,_) -> definitionLocationOfProvidedItem mi
 #endif
-        |   _ -> minfo.ArbitraryValRef |> Option.map (fun v -> v.Range)
+        |   _ -> minfo.ArbitraryValRef |> Option.map (rangeOfValRef isDecl)
 
-    let rangeOfEventInfo (einfo:EventInfo) = 
+    let rangeOfEventInfo isDecl (einfo:EventInfo) = 
         match einfo with
 #if EXTENSIONTYPING 
         | ProvidedEvent (_,ei,_) -> definitionLocationOfProvidedItem ei
 #endif
-        | _ -> einfo.ArbitraryValRef |> Option.map (fun v -> v.Range)
+        | _ -> einfo.ArbitraryValRef |> Option.map (rangeOfValRef isDecl)
       
     // skip all default generated constructors for structs
     let (|FilterDefaultStructCtors|) ctors =
         ctors |> List.filter (function DefaultStructCtor _ -> false | _ -> true)
 
-    let rec rangeOfItem (g:TcGlobals) isDeclInfo d = 
+    let rec rangeOfItem (g:TcGlobals) isDecl d = 
         match d with
-        | Item.Value vref  | Item.CustomBuilder (_,vref) -> Some (if isDeclInfo then vref.Range else vref.DefinitionRange)
-        | Item.UnionCase ucinfo        -> Some ucinfo.UnionCase.Range
-        | Item.ActivePatternCase apref -> Some apref.ActivePatternVal.Range
+        | Item.Value vref  | Item.CustomBuilder (_,vref) -> Some (rangeOfValRef isDecl vref)
+        | Item.UnionCase ucinfo        -> Some (if isDecl then ucinfo.UnionCase.Range else ucinfo.UnionCase.ImplRange) 
+        | Item.ActivePatternCase apref -> Some (rangeOfValRef isDecl apref.ActivePatternVal)
         | Item.ExnCase tcref           -> Some tcref.Range
-        | Item.RecdField rfinfo        -> Some rfinfo.RecdFieldRef.Range
-        | Item.Event einfo             -> rangeOfEventInfo einfo
+        | Item.RecdField rfinfo        -> Some (if isDecl then rfinfo.RecdFieldRef.Range else rfinfo.RecdFieldRef.ImplRange)
+        | Item.Event einfo             -> rangeOfEventInfo isDecl einfo
         | Item.ILField _               -> None
-        | Item.Property(_,pinfos)      -> rangeOfPropInfo pinfos.Head 
-        | Item.Types(_,(typ :: _))     -> tryNiceEntityRefOfTy typ |> Option.map (fun tcref -> tcref.Range)
-        | Item.CustomOperation (_,_,Some minfo)  -> rangeOfMethInfo minfo
+        | Item.Property(_,pinfos)      -> rangeOfPropInfo isDecl pinfos.Head 
+        | Item.Types(_,typs)     -> typs |> List.tryPick (tryNiceEntityRefOfTy >> Option.map (rangeOfEntityRef isDecl))
+        | Item.CustomOperation (_,_,Some minfo)  -> rangeOfMethInfo isDecl minfo
         | Item.TypeVar _  -> None
-        | Item.ModuleOrNamespaces(modref :: _) -> Some modref.Range
-        | Item.MethodGroup(_,(minfo :: _)) 
-        | Item.CtorGroup(_,FilterDefaultStructCtors(minfo :: _)) -> rangeOfMethInfo minfo
+        | Item.ModuleOrNamespaces(modrefs) -> modrefs |> List.tryPick (rangeOfEntityRef isDecl >> Some)
+        | Item.MethodGroup(_,minfos) 
+        | Item.CtorGroup(_,FilterDefaultStructCtors(minfos)) -> minfos |> List.tryPick (rangeOfMethInfo isDecl)
         | Item.ActivePatternResult(APInfo _,_, _, m) -> Some m
-        | Item.SetterArg (_,item) -> rangeOfItem g isDeclInfo item
+        | Item.SetterArg (_,item) -> rangeOfItem g isDecl item
         | Item.ArgName _ -> None
-        | _ -> None
+        | Item.CustomOperation _ -> None
+        | Item.ImplicitOp _ -> None
+        | Item.NewDef _ -> None
+        | Item.UnqualifiedType _ -> None
+        | Item.DelegateCtor typ 
+        | Item.FakeInterfaceCtor typ -> typ |> tryNiceEntityRefOfTy |> Option.map (rangeOfEntityRef isDecl)
 
     // Provided type definitions do not have a useful F# CCU for the purposes of goto-definition.
     let computeCcuOfTyconRef (tcref:TyconRef) = 
@@ -587,7 +597,7 @@ module internal ItemDescriptionsImpl =
                 else true ) 
          | _ -> true ))
     
-    let SimplerDisplayEnv denv _isDeclInfo = 
+    let SimplerDisplayEnv denv _isDecl = 
         { denv with suppressInlineKeyword=true; 
                     shortConstraints=true; 
                     showConstraintTyparAnnotations=false; 
@@ -596,24 +606,24 @@ module internal ItemDescriptionsImpl =
                     maxMembers=Some EnvMisc2.maxMembers }
 
     /// Output a the description of a language item
-    let rec FormatItemDescriptionToToolTipElement isDeclInfo (infoReader:InfoReader) m denv d = 
+    let rec FormatItemDescriptionToToolTipElement isDecl (infoReader:InfoReader) m denv d = 
         let g = infoReader.g
         let amap = infoReader.amap
-        let denv = SimplerDisplayEnv denv isDeclInfo 
+        let denv = SimplerDisplayEnv denv isDecl 
         match d with
         | Item.ImplicitOp(_, { contents = Some(TraitConstraintSln.FSMethSln(_, vref, _)) }) -> 
             // operator with solution
-            FormatItemDescriptionToToolTipElement isDeclInfo infoReader m denv (Item.Value vref)
+            FormatItemDescriptionToToolTipElement isDecl infoReader m denv (Item.Value vref)
         | Item.Value vref | Item.CustomBuilder (_,vref) ->            
             let text = 
                 bufs (fun os -> 
                     NicePrint.outputQualifiedValOrMember denv os vref.Deref 
-                    OutputFullName isDeclInfo pubpath_of_vref fullDisplayTextOfValRef os vref;
+                    OutputFullName isDecl pubpath_of_vref fullDisplayTextOfValRef os vref;
 
                     // adjust the type in case this is the 'this' pointer stored in a reference cell
                     let ty = StripSelfRefCell(g, vref.BaseOrThisInfo, vref.Type) 
 
-                    OutputUsefulTypeInfo isDeclInfo infoReader m denv os ty)
+                    OutputUsefulTypeInfo isDecl infoReader m denv os ty)
 
             let xml = GetXmlComment (if (valRefInThisAssembly g.compilingFslib vref) then vref.XmlDoc else XmlDoc [||]) infoReader m d 
             ToolTipElement(text, xml)
@@ -659,7 +669,7 @@ module internal ItemDescriptionsImpl =
                     bprintf os "%s %s: " (FSComp.SR.typeInfoActiveRecognizer())
                         apref.Name
                     NicePrint.outputTy denv os ptau 
-                    OutputFullName isDeclInfo pubpath_of_vref fullDisplayTextOfValRef os v)
+                    OutputFullName isDecl pubpath_of_vref fullDisplayTextOfValRef os v)
 
             let xml = GetXmlComment v.XmlDoc infoReader m d 
             ToolTipElement(text, xml)
@@ -668,7 +678,7 @@ module internal ItemDescriptionsImpl =
         | Item.ExnCase ecref -> 
             let text =  bufs (fun os -> 
                 NicePrint.outputExnDef denv os ecref.Deref 
-                OutputFullName isDeclInfo pubpath_of_tcref fullDisplayTextOfExnRef os ecref)
+                OutputFullName isDecl pubpath_of_tcref fullDisplayTextOfExnRef os ecref)
             let xml = GetXmlComment (if (tyconRefUsesLocalXmlDoc g.compilingFslib ecref) then ecref.XmlDoc else XmlDoc [||]) infoReader m d 
             ToolTipElement(text, xml)
 
@@ -816,8 +826,8 @@ module internal ItemDescriptionsImpl =
                     //let width = 100
                     let denv = { denv with shortTypeNames = true  }
                     NicePrint.outputTycon denv infoReader AccessibleFromSomewhere m (* width *) os tcref.Deref;
-                    OutputFullName isDeclInfo pubpath_of_tcref fullDisplayTextOfTyconRef os tcref;
-                    OutputUsefulTypeInfo isDeclInfo infoReader m denv os typ)
+                    OutputFullName isDecl pubpath_of_tcref fullDisplayTextOfTyconRef os tcref;
+                    OutputUsefulTypeInfo isDecl infoReader m denv os typ)
   
             let xml = GetXmlComment (if (tyconRefUsesLocalXmlDoc g.compilingFslib tcref) then tcref.XmlDoc else XmlDoc [||]) infoReader m d 
             ToolTipElement(text, xml)
@@ -860,17 +870,17 @@ module internal ItemDescriptionsImpl =
             ToolTipElement(text, xml)
             
         | Item.SetterArg (_, item) -> 
-            FormatItemDescriptionToToolTipElement isDeclInfo infoReader m denv item
+            FormatItemDescriptionToToolTipElement isDecl infoReader m denv item
         |  _ -> 
             ToolTipElementNone
 
 
     // Format the return type of an item
     let rec FormatItemReturnTypeToBuffer (infoReader:InfoReader) m denv os d = 
-        let isDeclInfo = false
+        let isDecl = false
         let g = infoReader.g
         let amap = infoReader.amap
-        let denv = {SimplerDisplayEnv denv isDeclInfo with useColonForReturnType=true}
+        let denv = {SimplerDisplayEnv denv isDecl with useColonForReturnType=true}
         match d with
         | Item.Value vref | Item.CustomBuilder (_,vref) -> 
             let _, tau = vref.TypeScheme
@@ -1083,9 +1093,9 @@ module internal ItemDescriptionsImpl =
         | Item.ActivePatternResult _ // "let (|Foo|Bar|) = .. Fo$o ..." - no keyword
             ->  None
 
-    let FormatDescriptionOfItem isDeclInfo (infoReader:InfoReader)  m denv d : ToolTipElement = 
+    let FormatDescriptionOfItem isDecl (infoReader:InfoReader)  m denv d : ToolTipElement = 
         ErrorScope.Protect m 
-            (fun () -> FormatItemDescriptionToToolTipElement isDeclInfo infoReader m denv d)
+            (fun () -> FormatItemDescriptionToToolTipElement isDecl infoReader m denv d)
             (fun err -> ToolTipElementCompositionError(err))
         
     let FormatReturnTypeOfItem (infoReader:InfoReader) m denv d = 

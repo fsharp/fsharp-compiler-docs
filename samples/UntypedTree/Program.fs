@@ -11,7 +11,7 @@ let checker = InteractiveChecker.Create()
 // Get untyped tree for a specified input
 let getUntypedTree (file, input) = 
   // Get compiler options for a single script file
-  let checkOptions = checker.GetProjectOptionsFromScriptRoot(file, input)
+  let checkOptions = checker.GetProjectOptionsFromScript(file, input)
   // Run the first phase (untyped parsing) of the compiler
 
   let untypedRes = checker.ParseFileInProject(file, input, checkOptions)

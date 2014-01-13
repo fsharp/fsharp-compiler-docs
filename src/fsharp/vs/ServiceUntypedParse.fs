@@ -85,7 +85,7 @@ type CompletionContext =
 //----------------------------------------------------------------------------
 
 [<Sealed>]
-type ParsedFileResults(errors : ErrorInfo[], input : Ast.ParsedInput option, parseHadErrors : bool, dependencyFiles : string list) = 
+type ParseFileResults(errors : ErrorInfo[], input : Ast.ParsedInput option, parseHadErrors : bool, dependencyFiles : string list) = 
 
     member scope.Errors = errors
 
@@ -622,7 +622,7 @@ module (*internal*) UntypedParseImpl =
     type TS = AstTraversal.TraverseStep
 
     /// try to determine completion context for the given pair (row, columns)
-    let TryGetCompletionContext (line: Line0, col: int, untypedParseOpt: ParsedFileResults option) : CompletionContext option = 
+    let TryGetCompletionContext (line: Line0, col: int, untypedParseOpt: ParseFileResults option) : CompletionContext option = 
         let parsedInputOpt =
             match untypedParseOpt with
             | Some upi -> upi.ParseTree

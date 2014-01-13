@@ -49,6 +49,7 @@
     <Compile Include="EditorTests.fs" />
     <Compile Include="FsiTests.fs" />
     <Compile Include="TokenizerTests.fs" />
+    <Compile Include="FileSystemTests.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
   </ItemGroup>

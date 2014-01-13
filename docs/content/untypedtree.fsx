@@ -12,9 +12,7 @@ types and there are some ambiguities that are resolved only later by the type
 checker. You can also combine the untyped AST information with the API available
 from [editor services](editor.html). 
 
-> **NOTE:** The API used below is experimental and subject to change. In particular, the 
-services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
-This will involve breaking changes to the APIs used for these services.
+> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
 
 
 Getting the untyped AST
@@ -58,10 +56,10 @@ return the `ParseTree` property:
 /// Get untyped tree for a specified input
 let getUntypedTree (file, input) = 
   // Get compiler options for the 'project' implied by a single script file
-  let projectOptions = checker.GetProjectOptionsFromScriptRoot(file, input)
+  let projOptions = checker.GetProjectOptionsFromScript(file, input)
   // Run the first phase (untyped parsing) of the compiler
-  let untypedRes = checker.ParseFileInProject(file, input, projectOptions)
-  match untypedRes.ParseTree with
+  let parseFileResults = checker.ParseFileInProject(file, input, projOptions)
+  match parseFileResults.ParseTree with
   | Some tree -> tree
   | None -> failwith "Something went wrong during parsing!"
 

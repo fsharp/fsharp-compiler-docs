@@ -17,6 +17,19 @@ open Microsoft.FSharp.Compiler.Env
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Range
 
+type [<Class>] FSharpSymbol = 
+    /// Internal use only. 
+    internal new : g:TcGlobals * item:(unit -> Nameres.Item) -> FSharpSymbol
+
+    member internal Item: Nameres.Item
+        
+    /// Get the declaration location for the item
+    member DeclarationLocation: range option
+
+    /// Get the implementation location for the item of it wsa declared in a signature that has an implementation
+    member ImplementationLocation: range option
+
+
 
 [<Class>]
 /// Represents an assembly as seen by the F# language
@@ -30,8 +43,8 @@ type FSharpAssembly =
     /// A hint for the code location for the assembly
     member CodeLocation: string 
       
-    /// The module and type definitions in this assembly 
-    member Entities:  IList<FSharpEntity>
+    /// The contents of the this assembly 
+    member Contents:  FSharpAssemblySignature
 
     /// The file name for the assembly, if any
     member FileName : string option
@@ -56,6 +69,7 @@ and [<Class>] FSharpAssemblySignature =
 
 /// Represents a type definition or module as seen by the F# language
 and [<Class>] FSharpEntity = 
+    inherit FSharpSymbol
 
     //   /// Return the FSharpEntity corresponding to a .NET type
     // static member FromType : System.Type -> FSharpEntity
@@ -90,6 +104,15 @@ and [<Class>] FSharpEntity =
 
     /// Indicates if the entity is a struct or enum
     member IsValueType : bool
+
+    /// Indicates if the entity is a provided type
+    member IsProvided : bool
+
+    /// Indicates if the entity is an erased provided type
+    member IsProvidedAndErased : bool
+
+    /// Indicates if the entity is a generated provided type
+    member IsProvidedAndGenerated : bool
 
     /// Indicates if the entity is an F# module definition
     member IsFSharpModule: bool 
@@ -171,18 +194,14 @@ and [<Class>] FSharpEntity =
       /// Get the declared accessibility of the representation, not taking signatures into account 
     member RepresentationAccessibility: FSharpAccessibility
 
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Equality : FSharpEntity * FSharpEntity -> bool
-
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Inequality : FSharpEntity * FSharpEntity -> bool
-
 and [<Class>] FSharpDelegateSignature =
     member DelegateArguments : IList<string option * FSharpType>
     member DelegateReturnType : FSharpType
 
 /// Represents a union case as seen by the F# language
 and [<Class>] FSharpUnionCase =
+    inherit FSharpSymbol
+
     /// Get the name of the union case 
     member Name: string 
 
@@ -210,14 +229,12 @@ and [<Class>] FSharpUnionCase =
     /// Get the attributes for the case, attached to the generated static method to make instances of the case 
     member Attributes: IList<FSharpAttribute>
 
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Equality : FSharpUnionCase * FSharpUnionCase -> bool
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Inequality : FSharpUnionCase * FSharpUnionCase -> bool
-
 
 /// Represents a record or union case field as seen by the F# language
 and [<Class>] FSharpRecordField =
+
+    inherit FSharpSymbol
+
     /// Is the field declared in F#? 
     member IsMutable: bool
 
@@ -255,11 +272,6 @@ and [<Class>] FSharpRecordField =
       ///  Indicates if the declared visibility of the field, not taking signatures into account 
     member Accessibility: FSharpAccessibility 
 
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Equality : FSharpRecordField * FSharpRecordField -> bool
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Inequality : FSharpRecordField * FSharpRecordField -> bool
-
 /// Indicates the accessibility of an item as seen by the F# language
 and [<Class>] FSharpAccessibility = 
     /// Indicates the item has public accessibility
@@ -272,6 +284,9 @@ and [<Class>] FSharpAccessibility =
     member IsInternal : bool
         
 and [<Class>] FSharpGenericParameter = 
+
+    inherit FSharpSymbol
+
     /// Get the name of the generic parameter 
     member Name: string
     /// Get the range of the generic parameter 
@@ -291,12 +306,6 @@ and [<Class>] FSharpGenericParameter =
        
     /// Get the declared or inferred constraints for the type parameter
     member Constraints: IList<FSharpGenericParameterConstraint> 
-
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Equality : FSharpGenericParameter * FSharpGenericParameter -> bool
-
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Inequality : FSharpGenericParameter * FSharpGenericParameter -> bool
 
 
 /// Represents further information about a member constraint on a generic type parameter
@@ -392,6 +401,9 @@ and [<RequireQualifiedAccess>] FSharpInlineAnnotation =
    | NeverInline 
 
 and [<Class>] FSharpMemberOrVal = 
+
+    inherit FSharpSymbol
+
     member EnclosingEntity : FSharpEntity
     
     /// Get the declaration location of the member or value
@@ -498,21 +510,13 @@ and [<Class>] FSharpMemberOrVal =
       /// How visible is this? 
     member Accessibility : FSharpAccessibility
 
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Equality : FSharpMemberOrVal * FSharpMemberOrVal -> bool
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Inequality : FSharpMemberOrVal * FSharpMemberOrVal -> bool
-
 
 and [<Class>] FSharpParameter =
+
     member Name: string
     member DeclarationLocation : range 
     member Type : FSharpType 
     member Attributes: IList<FSharpAttribute>
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Equality : FSharpParameter * FSharpParameter -> bool
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Inequality : FSharpParameter * FSharpParameter -> bool
 
 
 and [<Class>] FSharpType =
@@ -541,22 +545,13 @@ and [<Class>] FSharpType =
     /// Get the index for a generic parameter type
     member GenericParameterIndex : int
 
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Equality : FSharpType * FSharpType -> bool
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Inequality : FSharpType * FSharpType -> bool
-
-
 
 and [<Class>] FSharpAttribute = 
         
+    /// The type of the attribute
     member AttributeType : FSharpEntity
+    /// The arguments to the constructor for the attribute
     member ConstructorArguments : IList<obj>
+    /// The named arguments for the attribute
     member NamedArguments : IList<string * bool * obj>
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Equality : FSharpAttribute * FSharpAttribute -> bool
-    /// Indicates if two references refer to the same declaration in the same assembly.
-    static member op_Inequality : FSharpAttribute * FSharpAttribute -> bool
-
-
 

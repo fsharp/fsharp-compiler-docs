@@ -9,7 +9,7 @@ open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 let checker = InteractiveChecker.Create()
 
 let parseAndTypeCheckFileInProject (file, input) = 
-    let checkOptions = checker.GetProjectOptionsFromScriptRoot(file, input)
+    let checkOptions = checker.GetProjectOptionsFromScript(file, input)
     let untypedRes = checker.ParseFileInProject(file, input, checkOptions)
     let typedRes = checker.CheckFileInProject(untypedRes, file, 0, input, checkOptions) |> Async.RunSynchronously
     match typedRes with
@@ -27,13 +27,13 @@ type TempFile(ext, contents) =
 
 let getBackgroundParseResultsForScriptText (input) = 
     use file =  new TempFile("fsx", input)
-    let checkOptions = checker.GetProjectOptionsFromScriptRoot(file.Name, input)
+    let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input)
     checker.GetBackgroundParseResultsForFileInProject(file.Name, checkOptions)  |> Async.RunSynchronously
 
 
 let getBackgroundCheckResultsForScriptText (input) = 
     use file =  new TempFile("fsx", input)
-    let checkOptions = checker.GetProjectOptionsFromScriptRoot(file.Name, input)
+    let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input)
     checker.GetBackgroundCheckResultsForFileInProject(file.Name, checkOptions) |> Async.RunSynchronously
 
 

@@ -112,6 +112,7 @@ module internal IncrementalFSharpBuild =
     /// Used for unit testing
   val GetCurrentIncrementalBuildEventNum : unit -> int
 
+  type PartialTypeCheckResults = Build.TcState * Build.TcImports * Env.TcGlobals * Build.TcConfig * TypeChecker.TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * System.DateTime
 
   type IncrementalBuilder = 
       new : tcConfig : Build.TcConfig * projectDirectory : string * assemblyName : string * niceNameGen : Microsoft.FSharp.Compiler.Ast.NiceNameGenerator *
@@ -128,6 +129,9 @@ module internal IncrementalFSharpBuild =
 
       /// The TcConfig passed in to the builder creation.
       member TcConfig : Build.TcConfig
+
+      /// The full set of source files including those from options
+      member ProjectFileNames : string list
 
       /// Raised just before a file is type-checked, to invalidate the state of the file in VS and force VS to request a new direct typecheck of the file.
       /// The incremental builder also typechecks the file (error and intellisense results from the backgroud builder are not
@@ -152,31 +156,31 @@ module internal IncrementalFSharpBuild =
 
       /// Get the preceding typecheck state of a slot. Return None if the result is not available.
       /// This is a quick operation.
-      member GetTypeCheckResultsBeforeFileInProjectIfReady: filename:string -> (Build.TcState * Build.TcImports * Microsoft.FSharp.Compiler.Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list * System.DateTime) option
+      member GetTypeCheckResultsBeforeFileInProjectIfReady: filename:string -> PartialTypeCheckResults option
 
       /// Get the preceding typecheck state of a slot. Compute the entire type check of the project up
       /// to the necessary point if the result is not available. This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsBeforeFileInProject : filename:string -> (Build.TcState * Build.TcImports * Microsoft.FSharp.Compiler.Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list * System.DateTime) 
+      member GetTypeCheckResultsBeforeFileInProject : filename:string -> PartialTypeCheckResults 
 
       /// Get the typecheck state after checking a file. Compute the entire type check of the project up
       /// to the necessary point if the result is not available. This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsAfterFileInProject : filename:string -> (Build.TcState * Build.TcImports * Microsoft.FSharp.Compiler.Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list * System.DateTime) 
+      member GetTypeCheckResultsAfterFileInProject : filename:string -> PartialTypeCheckResults 
 
       /// Get the typecheck result after the end of the last file. The typecheck of the project is not 'completed'.
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsAfterLastFileInProject : unit -> (Build.TcState * Build.TcImports * Microsoft.FSharp.Compiler.Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list * System.DateTime) 
+      member GetTypeCheckResultsAfterLastFileInProject : unit -> PartialTypeCheckResults 
 
       /// Get the final typecheck result. If 'generateTypedImplFiles' was set on Create then the TypedAssembly will contain implementations.
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsForProject : unit -> Build.TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv * Build.TcImports * Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list 
+      member GetCheckResultsAndImplementationsForProject : unit -> Build.TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv * Build.TcImports * Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list 
 
       /// Await the untyped parse results for a particular slot in the vector of parse results.
       ///

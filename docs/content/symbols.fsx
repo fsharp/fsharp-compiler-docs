@@ -6,9 +6,7 @@ Compiler Services: Project analysis services
 
 This tutorial demonstrates how to use the symbol-provision services provided by the F# compiler.
 
-> **NOTE:** The API used below is experimental and subject to change. In particular, the 
-services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
-This will involve breaking changes to the APIs used for these services.
+> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
 
 We start by referencing `FSharp.Compiler.Service.dll`, opening the relevant namespace and creating an instance
 of `InteractiveChecker`:
@@ -30,18 +28,18 @@ Perform type checking on the specified input:
 
 let parseAndTypeCheckSingleFile (file, input) = 
     // Get context representing a stand-alone (script) file
-    let projectOptions = checker.GetProjectOptionsFromScriptRoot(file, input)
+    let projOptions = checker.GetProjectOptionsFromScript(file, input)
 
     // Perform untyped parsing  (reasonably quick)
-    let untypedRes = checker.ParseFileInProject(file, input, projectOptions)
+    let parseFileResults = checker.ParseFileInProject(file, input, projOptions)
         
-    let typedRes = 
-        checker.CheckFileInProject(untypedRes, file, 0, input, projectOptions) 
+    let checkFileResults = 
+        checker.CheckFileInProject(parseFileResults, file, 0, input, projOptions) 
         |> Async.RunSynchronously
 
     // Wait until type checking succeeds (or 100 attempts)
-    match typedRes with
-    | CheckFileAnswer.Succeeded(res) -> untypedRes, res
+    match checkFileResults with
+    | CheckFileAnswer.Succeeded(res) -> parseFileResults, res
     | res -> failwithf "Parsing did not finish... (%A)" res
 
 let file = "/home/user/Test.fsx"
@@ -189,12 +187,12 @@ for ass in typeCheckContext.GetReferencedAssemblies() do
 ## Getting symbolic informaion about whole projects
 
 To check whole projects, create a checker, then call `parseAndCheckScript`. In this case, we just check 
-the project for a single script. By specifying a different "projectOptions" you can create 
+the project for a single script. By specifying a different "projOptions" you can create 
 a specification of a larger project.
 *)
 let parseAndCheckScript (file, input) = 
-    let projectOptions = checker.GetProjectOptionsFromScriptRoot(file, input)
-    checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
+    let projOptions = checker.GetProjectOptionsFromScript(file, input)
+    checker.ParseAndCheckProject(projOptions) |> Async.RunSynchronously
 
 (**
 Now do it for a particular input:

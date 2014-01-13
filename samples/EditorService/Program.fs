@@ -7,7 +7,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 let checker = InteractiveChecker.Create()
 
 let parseWithTypeInfo (file, input) = 
-    let checkOptions = checker.GetProjectOptionsFromScriptRoot(file, input)
+    let checkOptions = checker.GetProjectOptionsFromScript(file, input)
     let untypedRes = checker.ParseFileInProject(file, input, checkOptions)
     
     match checker.CheckFileInProject(untypedRes, file, 0, input, checkOptions) |> Async.RunSynchronously with 

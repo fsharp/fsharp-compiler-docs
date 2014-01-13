@@ -514,6 +514,14 @@ type Entity =
 #endif
         x.Data.entity_range
 
+    /// The range in the implementation, adjusted for an item in a signature
+    member x.ImplRange = 
+        match x.Data.entity_impl_range with 
+        | None -> x.Range
+        | Some r -> r
+
+    member x.SetImplRange m                              = x.Data.entity_impl_range <- Some m
+
     /// A unique stamp for this module, namespace or type definition within the context of this compilation. 
     /// Note that because of signatures, there are situations where in a single compilation the "same" 
     /// module, namespace or type may have two distinct Entity objects that have distinct stamps.
@@ -961,6 +969,10 @@ and
       /// The declaration location for the type constructor 
       entity_range: range
       
+      /// The declaration location for the item in its implementation
+      // MUTABILITY: the signature is adjusted when it is checked
+      mutable entity_impl_range: range option
+      
       /// The declared accessibility of the representation, not taking signatures into account 
       entity_tycon_repr_accessibility: Accessibility
       
@@ -1260,6 +1272,9 @@ and
       mutable XmlDocSig : string;
       /// Name/range of the case 
       Id: Ident; 
+      /// Location of the implementation
+      // MUTABILITY: used when propagating signature attributes into the implementation.
+      mutable ImplRangeOpt : range option
       ///  Indicates the declared visibility of the union constructor, not taking signatures into account 
       Accessibility: Accessibility; 
       /// Attributes, attached to the generated static method to make instances of the case 
@@ -1267,6 +1282,7 @@ and
       mutable Attribs: Attribs; }
 
     member uc.Range = uc.Id.idRange
+    member uc.ImplRange = match uc.ImplRangeOpt with None -> uc.Range | Some m -> m
     member uc.DisplayName = uc.Id.idText
     member uc.RecdFieldsArray = uc.FieldTable.FieldsByIndex 
     member uc.RecdFields = uc.FieldTable.FieldsByIndex |> Array.toList
@@ -1303,11 +1319,15 @@ and
       // MUTABILITY: used when propagating signature attributes into the implementation.
       mutable rfield_fattribs: Attribs; 
       /// Name/declaration-location of the field 
-      rfield_id: Ident }
+      rfield_id: Ident 
+      /// Location of the implementation
+      // MUTABILITY: used when propagating signature attributes into the implementation.
+      mutable rfield_impl_range: range option }
     member v.Accessibility = v.rfield_access
     member v.PropertyAttribs = v.rfield_pattribs
     member v.FieldAttribs = v.rfield_fattribs
     member v.Range = v.rfield_id.idRange
+    member v.ImplRange = match v.rfield_impl_range with None -> v.Range | Some m -> m
     member v.Id = v.rfield_id
     member v.Name = v.rfield_id.idText
     member v.IsCompilerGenerated = v.rfield_secret
@@ -1592,6 +1612,7 @@ and Construct =
             entity_compiled_name=None;
             entity_kind=kind;
             entity_range=m;
+            entity_impl_range=None;
             entity_flags=EntityFlags(usesPrefixDisplay=false, isModuleOrNamespace=false,preEstablishedHasDefaultCtor=false, hasSelfReferentialCtor=false);
             entity_attribs=[]; // fetched on demand via est.fs API
             entity_typars= LazyWithContext.NotLazy [];
@@ -1617,6 +1638,7 @@ and Construct =
           { entity_logical_name=id.idText
             entity_compiled_name=None
             entity_range = id.idRange
+            entity_impl_range = None
             entity_stamp=stamp
             entity_kind=TyparKind.Type
             entity_modul_contents = mtype
@@ -1909,7 +1931,7 @@ and
 
     /// Range of the definition (implementation) of the value, used by Visual Studio 
     /// Updated by mutation when the implementation is matched against the signature. 
-    member x.DefinitionRange            = x.Data.val_defn_range
+    member x.ImplRange            = x.Data.val_defn_range
 
     /// The value of a value or member marked with [<LiteralAttribute>] 
     member x.LiteralValue               = x.Data.val_const
@@ -2218,7 +2240,7 @@ and
     member x.SetIsCompiledAsStaticPropertyWithoutField() = x.Data.val_flags <- x.Data.val_flags.SetIsCompiledAsStaticPropertyWithoutField
     member x.SetValReprInfo info                          = x.Data.val_repr_info <- info
     member x.SetType ty                                  = x.Data.val_type <- ty
-    member x.SetDefnRange m                              = x.Data.val_defn_range <- m
+    member x.SetImplRange m                              = x.Data.val_defn_range <- m
 
     /// Create a new value with empty, unlinked data. Only used during unpickling of F# metadata.
     static member NewUnlinked() : Val  = { Data = nullableSlotEmpty() }
@@ -2556,6 +2578,8 @@ and
     /// Gets the data indicating the compiled representation of a named type or module in terms of Abstract IL data structures.
     member x.CompiledRepresentationForNamedType = x.Deref.CompiledRepresentationForNamedType
     /// The name of the namespace, module or type, possibly with mangling, e.g. List`1, List or FailureException 
+    member x.ImplRange = x.Deref.ImplRange
+    /// The name of the namespace, module or type, possibly with mangling, e.g. List`1, List or FailureException 
     member x.LogicalName = x.Deref.LogicalName
     /// The compiled name of the namespace, module or type, e.g. FSharpList`1, ListModule or FailureException 
     member x.CompiledName = x.Deref.CompiledName
@@ -2799,7 +2823,7 @@ and
     member x.Accessibility              = x.Deref.Accessibility
     member x.ActualParent               = x.Deref.ActualParent
     member x.ApparentParent             = x.Deref.ApparentParent
-    member x.DefinitionRange            = x.Deref.DefinitionRange
+    member x.ImplRange        = x.Deref.ImplRange
     member x.LiteralValue               = x.Deref.LiteralValue
     member x.Id                         = x.Deref.Id
     member x.PropertyName               = x.Deref.PropertyName
@@ -3768,6 +3792,7 @@ type UnionCaseRef with
         | None -> error (InternalUndefinedTyconItem (FSComp.SR.tastUndefinedTyconItemUnionCase, tcref, nm))
     member x.Attribs = x.UnionCase.Attribs
     member x.Range = x.UnionCase.Range
+    member x.ImplRange = x.UnionCase.ImplRange
     member x.Index = 
         let (UCRef(tcref,id)) = x
         try 
@@ -3787,6 +3812,7 @@ type RecdFieldRef with
         | None -> error (InternalUndefinedTyconItem (FSComp.SR.tastUndefinedTyconItemField, tcref, id))
     member x.PropertyAttribs = x.RecdField.PropertyAttribs
     member x.Range = x.RecdField.Range
+    member x.ImplRange = x.RecdField.ImplRange
 
     member x.Index =
         let (RFRef(tcref,id)) = x
@@ -4183,7 +4209,8 @@ let NewUnionCase id nm tys rty attribs docOption access =
       Accessibility=access
       FieldTable = MakeRecdFieldsTable tys
       ReturnType = rty
-      Attribs=attribs } 
+      Attribs=attribs 
+      ImplRangeOpt = None } 
 
 let NewModuleOrNamespaceType mkind tycons vals = 
     ModuleOrNamespaceType(mkind, QueueList.ofList vals, QueueList.ofList tycons)
@@ -4198,6 +4225,7 @@ let NewExn cpath (id:Ident) access repr attribs doc =
         entity_logical_name=id.idText
         entity_compiled_name=None
         entity_range=id.idRange
+        entity_impl_range=None
         entity_exn_info= repr
         entity_tycon_tcaug=TyconAugmentation.Create()
         entity_xmldoc=doc
@@ -4225,7 +4253,8 @@ let NewRecdField  stat konst id ty isMutable isVolatile pattribs fattribs docOpt
       rfield_secret = secret
       rfield_xmldoc = docOption 
       rfield_xmldocsig = ""
-      rfield_id=id }
+      rfield_id=id 
+      rfield_impl_range = None }
 
     
 let NewTycon (cpath, nm, m, access, reprAccess, kind, typars, docOption, usesPrefixDisplay, preEstablishedHasDefaultCtor, hasSelfReferentialCtor, mtyp) =
@@ -4236,6 +4265,7 @@ let NewTycon (cpath, nm, m, access, reprAccess, kind, typars, docOption, usesPre
         entity_compiled_name=None
         entity_kind=kind
         entity_range=m
+        entity_impl_range=None
         entity_flags=EntityFlags(usesPrefixDisplay=usesPrefixDisplay, isModuleOrNamespace=false,preEstablishedHasDefaultCtor=preEstablishedHasDefaultCtor, hasSelfReferentialCtor=hasSelfReferentialCtor)
         entity_attribs=[] // fixed up after
         entity_typars=typars

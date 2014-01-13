@@ -50,6 +50,7 @@
     <Compile Include="FsiTests.fs" />
     <Compile Include="TokenizerTests.fs" />
     <Compile Include="FileSystemTests.fs" />
+    <Compile Include="ProjectAnalysisTests.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
   </ItemGroup>

@@ -294,8 +294,9 @@ type InteractiveChecker =
     member CheckFileInProjectIfReady : parsed: ParsedFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> CheckFileAnswer
 
     /// <summary>
-    /// <para>Check a source code file, returning a handle to the results of the parse including
-    /// the reconstructed types in the file.</para>
+    /// <para>
+    /// Check a source code file, returning a handle to the results of the parse including
+    /// the reconstructed types in the file.
     /// </para>
     /// <para>All files except the one being checked are read from the FileSystem API</para>
     /// </summary>
@@ -363,7 +364,7 @@ type InteractiveChecker =
     /// same file, regardless of contents. The version tag specified in the original check of the file is returned.
     /// If the source of the file has changed the results returned by this function may be out of date, though may
     /// still be usable for generating intellsense menus and information.
-    /// <summary>
+    /// </summary>
     member TryGetRecentTypeCheckResultsForFile : filename: string * options:ProjectOptions -> (ParsedFileResults * CheckFileResults * (*version*)int) option
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.

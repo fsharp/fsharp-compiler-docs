@@ -11,13 +11,19 @@ is not available.
 > **NOTE:** The API used below is experimental and subject to change. 
 This may involve breaking changes to the APIs used for these services as the
 nuget package is updated.
+*)
 
+(**
 > **NOTE:** Type provider components do not use the virtualized file system. 
+*)
 
+(**
 > **NOTE:** Several operations in the `SourceCodeServices` API accept the contents of a file to parse
   or check as a parameter, in addition to a file name. In these cases, the file name is only used for
   error reporting.
-  
+*)
+
+(**  
 > **NOTE:** The compiler service may use MSBuild for assembly resolutions unless `--simpleresolution` is
   provided. When using the `FileSystem` API you will normally want to specify `--simpleresolution` as one
   of your compiler flags. Also specify `--noframework`.  You will need to supply explicit resolutions of all
@@ -66,20 +72,29 @@ let B = File1.A + File1.A"""
             | _ -> defaultFileSystem.ReadAllBytesShim(fileName)
 
         // Implement the service related to temporary paths and file time stamps
-        member __.GetTempPathShim() = defaultFileSystem.GetTempPathShim()
-        member __.GetLastWriteTimeShim(fileName) = defaultFileSystem.GetLastWriteTimeShim(fileName)
-        member __.GetFullPathShim(fileName) = defaultFileSystem.GetFullPathShim(fileName)
-        member __.IsInvalidPathShim(fileName) = defaultFileSystem.IsInvalidPathShim(fileName)
-        member __.IsPathRootedShim(fileName) = defaultFileSystem.IsPathRootedShim(fileName)
+        member __.GetTempPathShim() = 
+            defaultFileSystem.GetTempPathShim()
+        member __.GetLastWriteTimeShim(fileName) = 
+            defaultFileSystem.GetLastWriteTimeShim(fileName)
+        member __.GetFullPathShim(fileName) = 
+            defaultFileSystem.GetFullPathShim(fileName)
+        member __.IsInvalidPathShim(fileName) = 
+            defaultFileSystem.IsInvalidPathShim(fileName)
+        member __.IsPathRootedShim(fileName) = 
+            defaultFileSystem.IsPathRootedShim(fileName)
 
         // Implement the service related to file existence and deletion
-        member __.SafeExists(fileName) = files.ContainsKey(fileName) || defaultFileSystem.SafeExists(fileName)
-        member __.FileDelete(fileName) = defaultFileSystem.FileDelete(fileName)
+        member __.SafeExists(fileName) = 
+            files.ContainsKey(fileName) || defaultFileSystem.SafeExists(fileName)
+        member __.FileDelete(fileName) = 
+            defaultFileSystem.FileDelete(fileName)
 
         // Implement the service related to assembly loading, used to load type providers
         // and for F# interactive.
-        member __.AssemblyLoadFrom(fileName) = defaultFileSystem.AssemblyLoadFrom fileName
-        member __.AssemblyLoad(assemblyName) = defaultFileSystem.AssemblyLoad assemblyName 
+        member __.AssemblyLoadFrom(fileName) = 
+            defaultFileSystem.AssemblyLoadFrom fileName
+        member __.AssemblyLoad(assemblyName) = 
+            defaultFileSystem.AssemblyLoad assemblyName 
 
 let myFileSystem = MyFileSystem()
 Shim.FileSystem <- MyFileSystem() 
@@ -105,10 +120,12 @@ let projectOptions =
            yield "--fullpaths"; 
            yield "--flaterrors"; 
            yield "--target:library"; 
-           for r in [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll"; 
-                      @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll"; 
-                      @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll"; 
-                      @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"] do 
+           let references =
+             [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll"; 
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll"; 
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll"; 
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"]
+           for r in references do 
                  yield "-r:" + r |]
  
     { ProjectFileName = @"c:\mycode\compilation.fsproj" // Make a name that is unique in this directory.

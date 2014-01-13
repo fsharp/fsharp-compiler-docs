@@ -2624,17 +2624,30 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
         GC.KeepAlive fsiInterruptController.EventHandlers
 
     static member GetDefaultConfiguration(fsiObj:obj) = 
+
+        let rec tryFindMember (name : string) (memberType : MemberTypes) (declaringType : Type) =
+            match declaringType.GetMember(name, memberType, BindingFlags.Instance ||| BindingFlags.Public ||| BindingFlags.NonPublic) with
+            | [||] -> declaringType.GetInterfaces() |> Array.tryPick (tryFindMember name memberType)
+            | [|m|] -> Some m
+            | _ -> raise <| new AmbiguousMatchException(sprintf "Ambiguous match for member '%s'" name)
+
         let getInstanceProperty (obj:obj) (nm:string) =
-            obj.GetType().InvokeMember(nm,(BindingFlags.GetProperty ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance),null,box obj, [| |]) |> unbox
+            let p = (tryFindMember nm MemberTypes.Property <| obj.GetType()).Value :?> PropertyInfo
+            p.GetValue(obj, [||]) |> unbox
 
         let setInstanceProperty (obj:obj) (nm:string) (v:obj) =
-            obj.GetType().InvokeMember(nm,(BindingFlags.SetProperty ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance),null,box obj, [| v |]) |> unbox
+            let p = (tryFindMember nm MemberTypes.Property <| obj.GetType()).Value :?> PropertyInfo
+            p.SetValue(obj, v, [||]) |> unbox
 
-        let callInstanceMethod0 (obj:obj) (nm:string) =
-            obj.GetType().InvokeMember(nm,(BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance),null,box obj, [| |]) |> unbox
+        let callInstanceMethod0 (obj:obj) (typeArgs : Type []) (nm:string) =
+            let m = (tryFindMember nm MemberTypes.Method <| obj.GetType()).Value :?> MethodInfo
+            let m = match typeArgs with [||] -> m | _ -> m.MakeGenericMethod(typeArgs)
+            m.Invoke(obj, [||]) |> unbox
 
-        let callInstanceMethod1 (obj:obj) (nm:string) (v:obj) =
-            obj.GetType().InvokeMember(nm,(BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance),null,box obj, [| v |]) |> unbox
+        let callInstanceMethod1 (obj:obj) (typeArgs : Type []) (nm:string) (v:obj) =
+            let m = (tryFindMember nm MemberTypes.Method <| obj.GetType()).Value :?> MethodInfo
+            let m = match typeArgs with [||] -> m | _ -> m.MakeGenericMethod(typeArgs)
+            m.Invoke(obj, [|v|]) |> unbox
 
         // We want to avoid modifying FSharp.Compiler.Interactive.Settings to avoid republishing that DLL.
         // So we access these via reflection
@@ -2652,9 +2665,9 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
               member __.PrintLength = getInstanceProperty fsiObj "PrintLength"
               member __.ReportUserCommandLineArgs args = setInstanceProperty fsiObj "CommandLineArgs" args
               member __.StartServer(fsiServerName) =  failwith "--fsi-server not implemented in the default configuration"
-              member __.EventLoopRun() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop" ) "Run"
-              member __.EventLoopInvoke(f) = callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") "Invoke" f
-              member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") "ScheduleRestart"
+              member __.EventLoopRun() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "Run"   
+              member __.EventLoopInvoke(f : unit -> 'T) =  callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") [|typeof<'T>|] "Invoke" f
+              member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "ScheduleRestart"
               member __.UseFsiAuxLib = true
               member __.OptionalConsoleReadLine = None }
 

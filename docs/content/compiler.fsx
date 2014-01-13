@@ -9,7 +9,9 @@ This tutorial demonstrates how to host the F# compiler.
 > **NOTE:** The API used below is experimental and subject to change. In particular, the 
 services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
 This will involve breaking changes to the APIs used for these services.
+*)
 
+(**
 > **NOTE:** There is a number of options for hosting the F# compiler. The easiest one is to use the 
 `fsc.exe` process and pass arguments. 
 
@@ -74,10 +76,12 @@ You still have to pass the "-o" option to name the output file, but the output f
 
 The 'None' option indicates that the initiatlization code for the assembly is not executed. 
 *)
-let errors2, exitCode2, dynAssembly2 = scs.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |], execute=None)
+let errors2, exitCode2, dynAssembly2 = 
+    scs.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |], execute=None)
 
 (*
 Passing 'Some' for the 'execute' parameter executes  the initiatlization code for the assembly.
 *)
-let errors3, exitCode3, dynAssembly3 = scs.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |],Some(stdout,stderr))
+let errors3, exitCode3, dynAssembly3 = 
+    scs.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |], Some(stdout,stderr))
 

@@ -35,7 +35,9 @@ let parseAndTypeCheckSingleFile (file, input) =
     // Perform untyped parsing  (reasonably quick)
     let untypedRes = checker.ParseFileInProject(file, input, projectOptions)
         
-    let typedRes = checker.CheckFileInProject(untypedRes, file, 0, input, projectOptions) |> Async.RunSynchronously
+    let typedRes = 
+        checker.CheckFileInProject(untypedRes, file, 0, input, projectOptions) 
+        |> Async.RunSynchronously
 
     // Wait until type checking succeeds (or 100 attempts)
     match typedRes with
@@ -173,7 +175,8 @@ for ass in typeCheckContext.GetReferencedAssemblies() do
     
 
 (**
-Notes: 
+**Notes:**
+
   - If incomplete code is present, some or all of the attirbutes may not be quite as expected.
   - If some assembly references are missing (which is actually very, very common), then 'IsUnresolved'  may
     be true on values, members and/or entites related to external assemblies.  You should be sure to make your

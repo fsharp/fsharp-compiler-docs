@@ -1209,8 +1209,8 @@ module internal IncrementalFSharpBuild =
         tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolved
 
 
-    /// An error logger that captures errors and eventually sends a single error or warning for all the errors and warning in a file
-    type CompilationErrorLogger (debugName:string, tcConfig:TcConfig, errorLogger:ErrorLogger) = 
+    /// An error logger that capture errors, filtering them according to warning levels etc.
+    type CompilationErrorLogger (debugName:string, tcConfig:TcConfig) = 
         inherit ErrorLogger("CompilationErrorLogger("+debugName+")")
             
         let warningsSeenInScope = new ResizeArray<_>()
@@ -1220,14 +1220,12 @@ module internal IncrementalFSharpBuild =
             let warn = warn && not (ReportWarningAsError tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn tcConfig.specificWarnAsError tcConfig.specificWarnAsWarn tcConfig.globalWarnAsError exn)                
             if not warn then
                 errorsSeenInScope.Add(exn)
-                errorLogger.ErrorSink(exn)                
             else if ReportWarning tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn exn then 
                 warningsSeenInScope.Add(exn)
-                errorLogger.WarnSink(exn)                    
 
         override x.WarnSinkImpl(exn) = warningOrError true exn
         override x.ErrorSinkImpl(exn) = warningOrError false exn
-        override x.ErrorCount = errorLogger.ErrorCount 
+        override x.ErrorCount = errorsSeenInScope.Count
 
         member x.GetErrors() = 
             let errorsAndWarnings = (errorsSeenInScope |> ResizeArray.toList |> List.map(fun e->e,true)) @ (warningsSeenInScope |> ResizeArray.toList |> List.map(fun e->e,false))
@@ -1260,7 +1258,7 @@ module internal IncrementalFSharpBuild =
     type PartialTypeCheckResults = TcState * TcImports * TcGlobals * TcConfig * TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * DateTime
 
     type IncrementalBuilder(tcConfig : TcConfig, projectDirectory : string, assemblyName, niceNameGen : Ast.NiceNameGenerator, lexResourceManager,
-                            sourceFiles:string list, ensureReactive, errorLogger:ErrorLogger, 
+                            sourceFiles:string list, ensureReactive, 
                             keepGeneratedTypedAssembly:bool)
                =
         //use t = Trace.Call("IncrementalBuildVerbose", "Create", fun _ -> sprintf " tcConfig.includes = %A" tcConfig.includes)
@@ -1293,7 +1291,7 @@ module internal IncrementalFSharpBuild =
         let nonFrameworkAssemblyInputs = 
             // Note we are not calling errorLogger.GetErrors() anywhere for this task. 
             // REVIEW: Consider if this is ok. I believe so, because this is a background build and we aren't currently reporting errors from the background build. 
-            let errorLogger = CompilationErrorLogger("nonFrameworkAssemblyInputs", tcConfig, errorLogger)
+            let errorLogger = CompilationErrorLogger("nonFrameworkAssemblyInputs", tcConfig)
             // Return the disposable object that cleans up
             use _holder = new CompilationGlobalsScope(errorLogger,BuildPhase.Parameter, projectDirectory) 
 
@@ -1352,7 +1350,7 @@ module internal IncrementalFSharpBuild =
         /// parsed inputs. 
         let ParseTask (sourceRange:range,filename:string,isLastCompiland) =
             assertNotDisposed()
-            let errorLogger = CompilationErrorLogger("ParseTask", tcConfig, errorLogger)
+            let errorLogger = CompilationErrorLogger("ParseTask", tcConfig)
             // Return the disposable object that cleans up
             use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parse, projectDirectory)
 
@@ -1374,7 +1372,7 @@ module internal IncrementalFSharpBuild =
         let TimestampReferencedAssemblyTask (_range, filename, originalTimeStamp) =
             assertNotDisposed()
             // Note: we are not calling errorLogger.GetErrors() anywhere. Is this a problem?
-            let errorLogger = CompilationErrorLogger("TimestampReferencedAssemblyTask", tcConfig, errorLogger)
+            let errorLogger = CompilationErrorLogger("TimestampReferencedAssemblyTask", tcConfig)
             // Return the disposable object that cleans up
             use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parameter, projectDirectory) // Parameter because -r reference
 
@@ -1405,7 +1403,7 @@ module internal IncrementalFSharpBuild =
         // Link all the assemblies together and produce the input typecheck accumulator               
         let CombineImportedAssembliesTask _ : TypeCheckAccumulator =
             assertNotDisposed()
-            let errorLogger = CompilationErrorLogger("CombineImportedAssembliesTask", tcConfig, errorLogger)
+            let errorLogger = CompilationErrorLogger("CombineImportedAssembliesTask", tcConfig)
             // Return the disposable object that cleans up
             use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parameter, projectDirectory)
 
@@ -1460,7 +1458,7 @@ module internal IncrementalFSharpBuild =
             match input with 
             | Some input, _sourceRange, filename, parseErrors->
                 IncrementalBuilderEventsMRU.Add(IBETypechecked filename)
-                let capturingErrorLogger = CompilationErrorLogger("TypeCheckTask", tcConfig, errorLogger)
+                let capturingErrorLogger = CompilationErrorLogger("TypeCheckTask", tcConfig)
                 let errorLogger = GetErrorLoggerFilteringByScopedPragmas(false,GetScopedPragmasForInput(input),capturingErrorLogger)
                 let fullComputation = 
                     eventually {
@@ -1706,110 +1704,90 @@ module internal IncrementalFSharpBuild =
 
         /// CreateIncrementalBuilder (for background type checking). Note that fsc.fs also
         /// creates an incremental builder used by the command line compiler.
-        static member CreateBackgroundBuilderForProjectOptions (scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment) =
+        static member TryCreateBackgroundBuilderForProjectOptions (scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment) =
     
-            // Trap and report warnings and errors from creation.
-            use errorScope = new ErrorScope()
+          // Trap and report warnings and errors from creation.
+          use errorScope = new ErrorScope()
+          let builderOpt = 
+             try
 
-            // Create the builder.         
-            // Share intern'd strings across all lexing/parsing
-            let resourceManager = new Lexhelp.LexResourceManager() 
+                // Create the builder.         
+                // Share intern'd strings across all lexing/parsing
+                let resourceManager = new Lexhelp.LexResourceManager() 
 
-            /// Create a type-check configuration
-            let tcConfigB, sourceFilesNew = 
-                let defaultFSharpBinariesDir = Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
+                /// Create a type-check configuration
+                let tcConfigB, sourceFilesNew = 
+                    let defaultFSharpBinariesDir = Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
                     
-                // see also fsc.fs:runFromCommandLineToImportingAssemblies(), as there are many similarities to where the PS creates a tcConfigB
-                let tcConfigB = 
-                    TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, implicitIncludeDir=projectDirectory, 
-                                              optimizeForMemory=true, isInteractive=false, isInvalidationSupported=true) 
-                // The following uses more memory but means we don't take read-exclusions on the DLLs we reference 
-                // Could detect well-known assemblies--ie System.dll--and open them with read-locks 
-                tcConfigB.openBinariesInMemory <- true
-                tcConfigB.resolutionEnvironment 
-                    <- if useScriptResolutionRules 
-                        then MSBuildResolver.DesigntimeLike  
-                        else MSBuildResolver.CompileTimeLike
+                    // see also fsc.fs:runFromCommandLineToImportingAssemblies(), as there are many similarities to where the PS creates a tcConfigB
+                    let tcConfigB = 
+                        TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, implicitIncludeDir=projectDirectory, 
+                                                  optimizeForMemory=true, isInteractive=false, isInvalidationSupported=true) 
+                    // The following uses more memory but means we don't take read-exclusions on the DLLs we reference 
+                    // Could detect well-known assemblies--ie System.dll--and open them with read-locks 
+                    tcConfigB.openBinariesInMemory <- true
+                    tcConfigB.resolutionEnvironment 
+                        <- if useScriptResolutionRules 
+                            then MSBuildResolver.DesigntimeLike  
+                            else MSBuildResolver.CompileTimeLike
                 
-                tcConfigB.conditionalCompilationDefines <- 
-                    let define = if useScriptResolutionRules then "INTERACTIVE" else "COMPILED"
-                    define::tcConfigB.conditionalCompilationDefines
+                    tcConfigB.conditionalCompilationDefines <- 
+                        let define = if useScriptResolutionRules then "INTERACTIVE" else "COMPILED"
+                        define::tcConfigB.conditionalCompilationDefines
 
-                // Apply command-line arguments and collect more source files if they are in the arguments
-                let sourceFilesNew = 
-                    try
-                        let sourceFilesAcc = ResizeArray(sourceFiles)
-                        let collect name = if not (Filename.isDll name) then sourceFilesAcc.Add name
-                        ParseCompilerOptions
-                            collect
-                            (Fscopts.GetCoreServiceCompilerOptions tcConfigB)
-                            commandLineArgs             
-                        sourceFilesAcc |> ResizeArray.toList
-                    with e ->
-                        errorRecovery e range0
-                        sourceFiles
+                    // Apply command-line arguments and collect more source files if they are in the arguments
+                    let sourceFilesNew = 
+                        try
+                            let sourceFilesAcc = ResizeArray(sourceFiles)
+                            let collect name = if not (Filename.isDll name) then sourceFilesAcc.Add name
+                            ParseCompilerOptions
+                                collect
+                                (Fscopts.GetCoreServiceCompilerOptions tcConfigB)
+                                commandLineArgs             
+                            sourceFilesAcc |> ResizeArray.toList
+                        with e ->
+                            errorRecovery e range0
+                            sourceFiles
 
-
-                // Never open PDB files for the language service, even if --standalone is specified
-                tcConfigB.openDebugInformationForLaterStaticLinking <- false
+                    // Never open PDB files for the language service, even if --standalone is specified
+                    tcConfigB.openDebugInformationForLaterStaticLinking <- false
         
-                if tcConfigB.framework then
-                    // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
-                    // If you see a failure here running unittests consider whether it it caused by 
-                    // a mismatched version of Microsoft.Build.Framework. Run unittests under a debugger. If
-                    // you see an old version of Microsoft.Build.*.dll getting loaded it it is likely caused by
-                    // using an old ITask or ITaskItem from some tasks assembly.
-                    // I solved this problem by adding a Unittests.config.dll which has a binding redirect to 
-                    // the current (right now, 4.0.0.0) version of the tasks assembly.
-                    // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
-                    System.Diagnostics.Debug.Assert(false, "Language service requires --noframework flag")
-                    tcConfigB.framework<-false
-                tcConfigB, sourceFilesNew
+                    tcConfigB, sourceFilesNew
 
-            match scriptClosureOptions with
-            | Some closure -> 
-                let dllReferences = 
-                    [for reference in tcConfigB.referencedDLLs do
-                        // If there's (one or more) resolutions of closure references then yield them all
-                        match closure.References  |> List.tryFind (fun (resolved,_)->resolved=reference.Text) with
-                        | Some(resolved,closureReferences) -> 
-                            for closureReference in closureReferences do
-                                yield AssemblyReference(closureReference.originalReference.Range, resolved)
-                        | None -> yield reference]
-                tcConfigB.referencedDLLs<-[]
-                // Add one by one to remove duplicates
-                for dllReference in dllReferences do
-                    tcConfigB.AddReferencedAssemblyByPath(dllReference.Range,dllReference.Text)
-                tcConfigB.knownUnresolvedReferences<-closure.UnresolvedReferences
-            | None -> ()
-            // Make sure System.Numerics is referenced for out-of-project .fs files
-            if isIncompleteTypeCheckEnvironment then 
-                tcConfigB.addVersionSpecificFrameworkReferences <- true 
+                match scriptClosureOptions with
+                | Some closure -> 
+                    let dllReferences = 
+                        [for reference in tcConfigB.referencedDLLs do
+                            // If there's (one or more) resolutions of closure references then yield them all
+                            match closure.References  |> List.tryFind (fun (resolved,_)->resolved=reference.Text) with
+                            | Some(resolved,closureReferences) -> 
+                                for closureReference in closureReferences do
+                                    yield AssemblyReference(closureReference.originalReference.Range, resolved)
+                            | None -> yield reference]
+                    tcConfigB.referencedDLLs<-[]
+                    // Add one by one to remove duplicates
+                    for dllReference in dllReferences do
+                        tcConfigB.AddReferencedAssemblyByPath(dllReference.Range,dllReference.Text)
+                    tcConfigB.knownUnresolvedReferences<-closure.UnresolvedReferences
+                | None -> ()
+                // Make sure System.Numerics is referenced for out-of-project .fs files
+                if isIncompleteTypeCheckEnvironment then 
+                    tcConfigB.addVersionSpecificFrameworkReferences <- true 
 
-            let tcConfig = TcConfig.Create(tcConfigB,validate=true)
+                let tcConfig = TcConfig.Create(tcConfigB,validate=true)
 
-            let niceNameGen = NiceNameGenerator()
+                let niceNameGen = NiceNameGenerator()
         
-            // Sink internal errors and warnings.
-            // Q: Why is it ok to ignore these?
-            // jomof: These are errors from the background build of files the user doesn't see. Squiggles will appear in the editted file via the foreground parse\typecheck
-            let warnSink (exn:PhasedError) = Trace.PrintLine("IncrementalBuild", (exn.ToString >> sprintf "Background warning: %s"))
-            let errorSink (exn:PhasedError) = Trace.PrintLine("IncrementalBuild", (exn.ToString >> sprintf "Background error: %s"))
-
-            let errorLogger =
-                { new ErrorLogger("CreateIncrementalBuilder") with 
-                      member x.ErrorCount=0
-                      member x.WarnSinkImpl e = warnSink e
-                      member x.ErrorSinkImpl e = errorSink e }
-
-            let _, _, assemblyName = tcConfigB.DecideNames sourceFilesNew
+                let _, _, assemblyName = tcConfigB.DecideNames sourceFilesNew
         
-            let builder = 
-                new IncrementalBuilder 
-                        (tcConfig, projectDirectory, assemblyName, niceNameGen,
-                        resourceManager, sourceFilesNew, true, // stay reactive
-                        errorLogger, false // please discard implementation results
-                        )
-                                 
-            (builder, errorScope.ErrorsAndWarnings)
+                let builder = 
+                    new IncrementalBuilder(tcConfig, projectDirectory, assemblyName, niceNameGen,
+                                           resourceManager, sourceFilesNew, ensureReactive=true, 
+                                           keepGeneratedTypedAssembly=false)
+                Some builder
+             with e -> 
+               errorRecoveryNoRange e
+               None
+
+          builderOpt, errorScope.ErrorsAndWarnings
 

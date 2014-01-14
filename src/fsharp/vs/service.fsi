@@ -202,7 +202,7 @@ type CheckProjectResults =
     /// The errors returned by processing the project
     member Errors : ErrorInfo[]
 
-    /// Get a view of the overall contents of the assembly 
+    /// Get a view of the overall contents of the assembly. Only valid to use if HasCriticalErrors is false.
     member AssemblySignature : FSharpAssemblySignature
 
     /// Get the resolution of the ProjectOptions 
@@ -210,6 +210,10 @@ type CheckProjectResults =
 
     /// Get the textual usages that resolved to the given symbol throughout the project
     member GetUsesOfSymbol : symbol:FSharpSymbol -> (string * Range01)[]
+
+    /// Indicates if critical errors existed in the project options
+    member HasCriticalErrors : bool 
+
 
 /// <summary>Unused in this API</summary>
 type UnresolvedReferencesSet 

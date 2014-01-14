@@ -196,12 +196,7 @@ let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2)
 Summary
 -------
 
-The `CheckFileAnswer` object contains other useful methods that were not covered in this tutorial. You
-can use it to get location of a declaration for a given identifier, additional colorization information
-(the F# 3.1 colorizes computation builder identifiers & query operators) and others.
-
-Finally, if you are implementing an editor support for an editor that cannot directly call .NET API,
-you can call many of the methods discussed here via a command line interface that is available in the
-[FSharp.AutoComplete](https://github.com/fsharp/fsharpbinding/tree/master/FSharp.AutoComplete) project.
+As you have seen, the `ParseAndCheckProject` lets you access results of project-wide analysis 
+such as symbol references. To learn more about working with symbols, see [Symbols](symbols.html).
 
 *)

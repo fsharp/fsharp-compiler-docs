@@ -38,6 +38,9 @@ The libraries contain additional public API that can be used, but is not documen
  * [**Working with signatures, types, and resolved symbols**](symbols.html) - many services related to type checking
    return resolved symbols, representing inferred types, and the signatures of whole assemblies. 
   
+ * [**Working with projects project-wide analysis**](project.html) - you can request a check of
+   an entire project, and ask for the results of whole-project analyses such as find-all-references.
+   
  * [**Hosting F# interactive**](interactive.html) - allows calling F# interactive as a .NET library
    from your .NET code. You can use this API to embed F# as a scripting language in your projects.
  

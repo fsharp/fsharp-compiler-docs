@@ -70,6 +70,7 @@ let UseMyFileSystem() =
 
 [<Test>]
 let ``FileSystem compilation test``() = 
+  if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
     use myFileSystem =  UseMyFileSystem()
 
     let projectOptions = 

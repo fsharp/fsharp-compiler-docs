@@ -29,3 +29,7 @@
 #### 0.0.4-alpha - 
 * Added documentation of file system API
 * Reporte errors correctly from ParseAndCheckProject
+
+
+#### 0.0.5-alpha - 
+* Added GetUsesOfSymbol(), FSharpSymbol type, GetSymbolAtLocation(...)

@@ -36,3 +36,10 @@
 
 #### 0.0.6-alpha - 
 * Fix version number
+
+#### 0.0.7-alpha - 
+* Fix docs
+* Make symbols more robust to missing assemblies
+* Be robust to failures on IncrementalBuilder creation
+* Allow use of MSBuild resolution by IncrementalBuilder
+

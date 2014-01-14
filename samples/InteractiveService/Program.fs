@@ -12,7 +12,7 @@ let main (argv) =
     let outStream = new StringWriter(sbOut)
     let errStream = new StringWriter(sbErr)
     
-    let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(fsi)
+    let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
 
     let fsiSession = 
         FsiEvaluationSession

@@ -9,6 +9,7 @@ representing the file system. By setting this variable you can host the compiler
 is not available.
   
 > **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published.
+
 *)
 
 (*
@@ -26,8 +27,8 @@ open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 
 let defaultFileSystem = Shim.FileSystem
 
-let fileName1 = @"c:\mycode\test1.fs" // note, the path doesn' exist
-let fileName2 = @"c:\mycode\test2.fs" // note, the path doesn' exist
+let fileName1 = @"c:\mycode\test1.fs" // note, the path doesn't exist
+let fileName2 = @"c:\mycode\test2.fs" // note, the path doesn't exist
 
 type MyFileSystem() = 
     let file1 = """
@@ -116,7 +117,7 @@ let projectOptions =
       ProjectOptions = allFlags 
       IsIncompleteTypeCheckEnvironment = false
       UseScriptResolutionRules = true 
-      LoadTime = System.DateTime.Now // Not 'now', we don't want to force reloading
+      LoadTime = System.DateTime.Now // Note using 'Now' forces reloading
       UnresolvedReferences = None }
 
 let results = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously

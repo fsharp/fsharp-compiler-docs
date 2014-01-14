@@ -273,7 +273,7 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         let env = Env(entity.TyparsNoRange)
         
         entity.AllFieldsAsList
-        |> List.map (fun x -> FSharpRecordField(g, env, mkRecdFieldRef entity x.Name))
+        |> List.map (fun x -> FSharpRecordField(g, env, RecdFieldData.Recd (mkRecdFieldRef entity x.Name)))
         |> makeReadOnlyCollection
 
     member this.AbbreviatedType   = 
@@ -307,15 +307,46 @@ and FSharpUnionCase(g:TcGlobals, env:Env, v: UnionCaseRef) =
     inherit FSharpSymbol (g, (fun () -> checkEntityIsResolved v.TyconRef
                                         Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))))
 
-    member __.Name = v.UnionCase.DisplayName
-    member __.DeclarationLocation = v.Range
-    member __.UnionCaseFields = v.UnionCase.RecdFields |> List.map (fun r ->  FSharpRecordField(g, env,mkRecdFieldRef v.TyconRef r.Name)) |> List.toArray |> makeReadOnlyCollection
-    member __.ReturnType = FSharpType(g, env, v.ReturnType)
-    member __.CompiledName = v.UnionCase.CompiledName
-    member __.XmlDocSig = v.UnionCase.XmlDocSig
-    member __.XmlDoc = v.UnionCase.XmlDoc |> makeXmlDoc
-    member __.Attributes = v.Attribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
-    member __.Accessibility =  FSharpAccessibility(v.UnionCase.Accessibility)
+    let checkIsResolved() = 
+        checkEntityIsResolved v.TyconRef
+        if v.TryUnionCase.IsNone then 
+            invalidOp (sprintf "The union case '%s' could not be found in the target type" v.CaseName)
+
+    member __.Name = 
+        checkIsResolved()
+        v.UnionCase.DisplayName
+
+    member __.DeclarationLocation = 
+        checkIsResolved()
+        v.Range
+
+    member __.UnionCaseFields = 
+        checkIsResolved()
+        v.UnionCase.RecdFields |> List.mapi (fun i _ ->  FSharpRecordField(g, env, RecdFieldData.Union (v, i))) |> List.toArray |> makeReadOnlyCollection
+
+    member __.ReturnType = 
+        checkIsResolved()
+        FSharpType(g, env, v.ReturnType)
+
+    member __.CompiledName = 
+        checkIsResolved()
+        v.UnionCase.CompiledName
+
+    member __.XmlDocSig = 
+        checkIsResolved()
+        v.UnionCase.XmlDocSig
+
+    member __.XmlDoc = 
+        checkIsResolved()
+        v.UnionCase.XmlDoc |> makeXmlDoc
+
+    member __.Attributes = 
+        checkIsResolved()
+        v.Attribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
+
+    member __.Accessibility =  
+        checkIsResolved()
+        FSharpAccessibility(v.UnionCase.Accessibility)
 
     member private this.V = v
     override this.Equals(other : obj) =
@@ -324,39 +355,97 @@ and FSharpUnionCase(g:TcGlobals, env:Env, v: UnionCaseRef) =
         |   :? FSharpUnionCase as uc -> v === uc.V
         |   _ -> false
     
-    override this.GetHashCode() = (hash (box v))
+    override this.GetHashCode() = hash v.CaseName
 
     override x.ToString() = x.CompiledName
 
 
-and 
-    [<RequireQualifiedAccess>]
-    RecordFieldContainer = Entity of FSharpEntity | UnionCase of FSharpUnionCase
+and RecdFieldData = 
+    | Recd of RecdFieldRef
+    | Union of UnionCaseRef * int
+    member x.RecdField =
+        match x with 
+        | Recd v -> v.RecdField
+        | Union (v,n) -> v.FieldByIndex(n)
 
-and FSharpRecordField(g:TcGlobals, env:Env, v: RecdFieldRef) =
-    inherit FSharpSymbol (g, (fun () -> checkEntityIsResolved v.TyconRef
-                                        Item.RecdField(RecdFieldInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))))
+and FSharpRecordField(g:TcGlobals, env:Env, d: RecdFieldData) =
+    inherit FSharpSymbol (g, (fun () -> 
+             match d with 
+             | Recd v -> 
+                 checkEntityIsResolved v.TyconRef
+                 Item.RecdField(RecdFieldInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))
+             | Union (v,_) -> 
+                 // This is not correct: there is no "Item" for a named union case field
+                 Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))
 
-    member __.IsMutable = v.RecdField.IsMutable
-    member __.XmlDocSig = v.RecdField.XmlDocSig
-    member __.XmlDoc = v.RecdField.XmlDoc |> makeXmlDoc
-    member __.FieldType = FSharpType(g, env, v.RecdField.FormalType)
-    member __.IsStatic = v.RecdField.IsStatic
-    member __.Name = v.RecdField.Name
-    member __.IsCompilerGenerated = v.RecdField.IsCompilerGenerated
-    member __.DeclarationLocation = v.Range
-    member __.FieldAttributes = v.RecdField.FieldAttribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
-    member __.PropertyAttributes = v.PropertyAttribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
-    //member __.LiteralValue = v.Is
-    member __.Accessibility =  FSharpAccessibility(v.RecdField.Accessibility) 
-    member private this.V = v
+             ))
+    let checkIsResolved() = 
+        match d with 
+        | Recd v -> 
+            checkEntityIsResolved v.TyconRef
+            if v.TryRecdField.IsNone then 
+                invalidOp (sprintf "The record field '%s' could not be found in the target type" v.FieldName)
+        | Union (v,_) -> 
+            checkEntityIsResolved v.TyconRef
+            if v.TryUnionCase.IsNone then 
+                invalidOp (sprintf "The union case '%s' could not be found in the target type" v.CaseName)
+
+    member __.IsMutable = 
+        checkIsResolved()
+        d.RecdField.IsMutable
+
+    member __.XmlDocSig = 
+        checkIsResolved()
+        d.RecdField.XmlDocSig
+
+    member __.XmlDoc = 
+        checkIsResolved()
+        d.RecdField.XmlDoc |> makeXmlDoc
+
+    member __.FieldType = 
+        checkIsResolved()
+        FSharpType(g, env, d.RecdField.FormalType)
+
+    member __.IsStatic = 
+        checkIsResolved()
+        d.RecdField.IsStatic
+
+    member __.Name = 
+        checkIsResolved()
+        d.RecdField.Name
+
+    member __.IsCompilerGenerated = 
+        checkIsResolved()
+        d.RecdField.IsCompilerGenerated
+
+    member __.DeclarationLocation = 
+        checkIsResolved()
+        d.RecdField.Range
+
+    member __.FieldAttributes = 
+        checkIsResolved()
+        d.RecdField.FieldAttribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
+
+    member __.PropertyAttributes = 
+        checkIsResolved()
+        d.RecdField.PropertyAttribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
+
+    member __.Accessibility =  
+        checkIsResolved()
+        FSharpAccessibility(d.RecdField.Accessibility) 
+
+    member private this.V = d
     override this.Equals(other : obj) =
         box this === other ||
         match other with
-        |   :? FSharpRecordField as uc -> v === uc.V
+        |   :? FSharpRecordField as uc -> 
+            match d, uc.V with 
+            | Recd r1, Recd r2 -> recdFieldRefOrder.Compare(r1, r2) = 0
+            | Union (u1,n1), Union (u2,n2) -> g.unionCaseRefEq u1 u2 && n1 = n2
+            | _ -> false
         |   _ -> false
 
-    override this.GetHashCode() = hash (box v)
+    override x.GetHashCode() = hash x.Name
     override x.ToString() = "entity " + x.Name
 
 
@@ -723,11 +812,25 @@ and FSharpMemberOrVal(g:TcGlobals,e:FSharpEntity,v:ValRef) =
     override this.ToString() = try  (if v.IsMember then "member " else "val ") + v.DisplayName with _  -> "??"
 
 and FSharpType(g:TcGlobals, env:Env, typ:TType) =
+    let protect f = 
+       ErrorLogger.protectAssemblyExplorationF  (fun () -> invalidOp "The type could not be resolved due to a missing assembly reference") f
+
     new (g:TcGlobals, typ:TType) = FSharpType(g, Env [], typ)
-    member __.IsNamedType = (match stripTyparEqns typ with TType_app _ | TType_measure (MeasureCon _ | MeasureProd _ | MeasureInv _ | MeasureOne _) -> true | _ -> false)
-    member __.IsTupleType = (match stripTyparEqns typ with TType_tuple _ -> true | _ -> false)
+
+    member __.IsNamedType = 
+       protect <| fun () -> 
+         match stripTyparEqns typ with 
+         | TType_app _ | TType_measure (MeasureCon _ | MeasureProd _ | MeasureInv _ | MeasureOne _) -> true 
+         | _ -> false
+
+    member __.IsTupleType = 
+       protect <| fun () -> 
+        match stripTyparEqns typ with 
+        | TType_tuple _ -> true 
+        | _ -> false
 
     member __.NamedEntity = 
+       protect <| fun () -> 
         match stripTyparEqns typ with 
         | TType_app (tcref,_) -> FSharpEntity(g, tcref) 
         | TType_measure (MeasureCon tcref) ->  FSharpEntity(g, tcref) 
@@ -737,6 +840,7 @@ and FSharpType(g:TcGlobals, env:Env, typ:TType) =
         | _ -> invalidOp "not a named type"
 
     member __.GenericArguments = 
+       protect <| fun () -> 
         match stripTyparEqns typ with 
         | TType_app (_,tyargs) 
         | TType_tuple (tyargs) -> (tyargs |> List.map (fun ty -> FSharpType(g, env,ty)) |> makeReadOnlyCollection) 
@@ -747,15 +851,21 @@ and FSharpType(g:TcGlobals, env:Env, typ:TType) =
         | TType_measure (MeasureInv t1) ->  [| FSharpType(g, env,TType_measure t1) |] |> makeReadOnlyCollection
         | _ -> invalidOp "not a named type"
 
-    member __.IsFunctionType = (match stripTyparEqns typ with TType_fun _ -> true | _ -> false)
+    member __.IsFunctionType = 
+       protect <| fun () -> 
+        match stripTyparEqns typ with 
+        | TType_fun _ -> true 
+        | _ -> false
 
     member __.IsGenericParameter = 
+       protect <| fun () -> 
         match stripTyparEqns typ with 
         | TType_var _ -> true 
         | TType_measure (MeasureVar _) -> true 
         | _ -> false
 
     member __.GenericParameter = 
+       protect <| fun () -> 
         match stripTyparEqns typ with 
         | TType_var tp 
         | TType_measure (MeasureVar tp) -> 
@@ -763,6 +873,7 @@ and FSharpType(g:TcGlobals, env:Env, typ:TType) =
         | _ -> invalidOp "not a generic parameter type"
 
     member __.GenericParameterIndex = 
+       protect <| fun () -> 
         match stripTyparEqns typ with 
         | TType_var tp 
         | TType_measure (MeasureVar tp) -> 
@@ -779,7 +890,9 @@ and FSharpType(g:TcGlobals, env:Env, typ:TType) =
 
     override this.GetHashCode() = hash this
 
-    override this.ToString() = "type " + try NicePrint.stringOfTy (DisplayEnv.Empty(g)) typ with _ -> "?"
+    override this.ToString() = 
+       protect <| fun () -> 
+        "type " + NicePrint.stringOfTy (DisplayEnv.Empty(g)) typ 
 
 and FSharpAttribute(g: TcGlobals, attrib) = 
 
@@ -806,16 +919,20 @@ and FSharpAttribute(g: TcGlobals, attrib) =
             | _ -> fail()
         | _ -> fail()
 
-    member __.AttributeType =  FSharpEntity(g, tcref)
+    member __.AttributeType =  
+        checkEntityIsResolved tcref
+        FSharpEntity(g, tcref)
 
     member __.ConstructorArguments = 
+        checkEntityIsResolved tcref
         unnamedArgs |> List.map (fun (AttribExpr(_,e)) -> evalArg e) |> makeReadOnlyCollection
 
     member __.NamedArguments = 
+        checkEntityIsResolved tcref
         propVals |> List.map (fun (AttribNamedArg(nm,_,isField,AttribExpr(_, e))) -> (nm, isField, evalArg e)) |> makeReadOnlyCollection
 
-    member private this.Attrib = attrib
-    override this.ToString() = "attribute " + tcref.CompiledName + "(...)"
+    override this.ToString() = 
+        if entityIsUnresolved tcref then "attribute ???" else "attribute " + tcref.CompiledName + "(...)" 
 
     
 and FSharpParameter(g, env:Env,typ:TType,topArgInfo:ArgReprInfo) = 

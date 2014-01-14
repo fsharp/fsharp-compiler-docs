@@ -76,8 +76,6 @@ let projectOptions =
     checker.GetProjectOptionsFromCommandLineArgs
        (Inputs.projFileName,
         [| yield "--simpleresolution" 
-           yield "--simpleresolution" 
-           yield "--noframework" 
            yield "--noframework" 
            yield "--debug:full" 
            yield "--define:DEBUG" 

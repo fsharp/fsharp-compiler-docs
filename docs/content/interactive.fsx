@@ -48,8 +48,8 @@ let errStream = new StringWriter(sbErr)
 let argv = [| "C:\\fsi.exe" |]
 let allArgs = Array.append argv [|"--noninteractive"|]
 
-let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(fsi)
-let fsi = FsiEvaluationSession(fsiConfig, allArgs, inStream, outStream, errStream)  
+let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
+let fsiSession = FsiEvaluationSession(fsiConfig, allArgs, inStream, outStream, errStream)  
 
 
 
@@ -63,7 +63,7 @@ the returned value (as `obj`) and the statically inferred type of the value:
 *)
 /// Evaluate expression & return the result
 let evalExpression text =
-  match fsi.EvalExpression(text) with
+  match fsiSession.EvalExpression(text) with
   | Some value -> printfn "%A" value.ReflectionValue
   | None -> printfn "Got no result!"
 (**
@@ -74,7 +74,7 @@ and other top-level statements.
 *)
 /// Evaluate interaction & ignore the result
 let evalInteraction text = 
-  fsi.EvalInteraction(text)
+  fsiSession.EvalInteraction(text)
 (**
 The two functions take string as an argument and evaluate (or execute) it as F# code. The code 
 passed to them does not require `;;` at the end. Just enter the code that you want to execute:

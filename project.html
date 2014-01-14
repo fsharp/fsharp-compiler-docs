@@ -409,13 +409,8 @@ in the project are still read from disk, unless you are using the <a href="files
 
 <h2>Summary</h2>
 
-<p>The <code>CheckFileAnswer</code> object contains other useful methods that were not covered in this tutorial. You
-can use it to get location of a declaration for a given identifier, additional colorization information
-(the F# 3.1 colorizes computation builder identifiers &amp; query operators) and others.</p>
-
-<p>Finally, if you are implementing an editor support for an editor that cannot directly call .NET API,
-you can call many of the methods discussed here via a command line interface that is available in the
-<a href="https://github.com/fsharp/fsharpbinding/tree/master/FSharp.AutoComplete">FSharp.AutoComplete</a> project.</p>
+<p>As you have seen, the <code>ParseAndCheckProject</code> lets you access results of project-wide analysis 
+such as symbol references. To learn more about working with symbols, see <a href="symbols.html">Symbols</a>.</p>
 
 <div class="tip" id="fs1">namespace System</div>
 <div class="tip" id="fs2">namespace System.Collections</div>
@@ -460,7 +455,7 @@ you can call many of the methods discussed here via a command line interface tha
 <div class="tip" id="fs41">val allSymbolsInEntities : entities:IList&lt;FSharpEntity&gt; -&gt; FSharpSymbol list<br /><br />Full name: Project.allSymbolsInEntities</div>
 <div class="tip" id="fs42">val entities : IList&lt;FSharpEntity&gt;</div>
 <div class="tip" id="fs43">type IList&lt;&#39;T&gt; =<br />&#160;&#160;member IndexOf : item:&#39;T -&gt; int<br />&#160;&#160;member Insert : index:int * item:&#39;T -&gt; unit<br />&#160;&#160;member Item : int -&gt; &#39;T with get, set<br />&#160;&#160;member RemoveAt : index:int -&gt; unit<br /><br />Full name: System.Collections.Generic.IList&lt;_&gt;</div>
-<div class="tip" id="fs44">type FSharpEntity =<br />&#160;&#160;inherit FSharpSymbol<br />&#160;&#160;member AbbreviatedType : FSharpType<br />&#160;&#160;member Accessibility : FSharpAccessibility<br />&#160;&#160;member Attributes : IList&lt;FSharpAttribute&gt;<br />&#160;&#160;member BaseType : FSharpType<br />&#160;&#160;member CompiledName : string<br />&#160;&#160;member DeclarationLocation : range<br />&#160;&#160;member DeclaredInterfaces : IList&lt;FSharpType&gt;<br />&#160;&#160;member DisplayName : string<br />&#160;&#160;member FSharpDelegateSignature : FSharpDelegateSignature<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpEntity</div>
+<div class="tip" id="fs44">type FSharpEntity =<br />&#160;&#160;inherit FSharpSymbol<br />&#160;&#160;member AbbreviatedType : FSharpType<br />&#160;&#160;member AccessPath : string<br />&#160;&#160;member Accessibility : FSharpAccessibility<br />&#160;&#160;member Attributes : IList&lt;FSharpAttribute&gt;<br />&#160;&#160;member BaseType : FSharpType<br />&#160;&#160;member CompiledName : string<br />&#160;&#160;member DeclarationLocation : range<br />&#160;&#160;member DeclaredInterfaces : IList&lt;FSharpType&gt;<br />&#160;&#160;member DisplayName : string<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpEntity</div>
 <div class="tip" id="fs45">val e : FSharpEntity</div>
 <div class="tip" id="fs46">type FSharpSymbol =<br />&#160;&#160;private new : g:TcGlobals * item:(unit -&gt; Item) -&gt; FSharpSymbol<br />&#160;&#160;member DeclarationLocation : range option<br />&#160;&#160;member ImplementationLocation : range option<br />&#160;&#160;member private Item : Item<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpSymbol</div>
 <div class="tip" id="fs47">property FSharpEntity.MembersOrValues: IList&lt;FSharpMemberOrVal&gt;</div>

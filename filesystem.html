@@ -40,9 +40,10 @@ representing the file system. By setting this variable you can host the compiler
 is not available.</p>
 
 <blockquote>
-  <p><strong>NOTE:</strong> The API used below is experimental and subject to change when later versions of the nuget package are published.
-*)</p>
+  <p><strong>NOTE:</strong> The API used below is experimental and subject to change when later versions of the nuget package are published.</p>
 </blockquote>
+
+<p>*)</p>
 
 <p>(*</p>
 
@@ -127,8 +128,8 @@ is not available.</p>
 
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="i">defaultFileSystem</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 16)" onmouseover="showTip(event, 'fs13', 16)" class="i">Shim</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 17)" onmouseover="showTip(event, 'fs14', 17)" class="i">FileSystem</span>
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="i">fileName1</span> <span class="o">=</span> <span class="s">@&quot;</span><span class="s">c</span><span class="s">:</span><span class="s">\</span><span class="s">mycode</span><span class="s">\</span><span class="s">test1</span><span class="s">.</span><span class="s">fs</span><span class="s">&quot;</span> <span class="c">// note, the path doesn&#39; exist</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="i">fileName2</span> <span class="o">=</span> <span class="s">@&quot;</span><span class="s">c</span><span class="s">:</span><span class="s">\</span><span class="s">mycode</span><span class="s">\</span><span class="s">test2</span><span class="s">.</span><span class="s">fs</span><span class="s">&quot;</span> <span class="c">// note, the path doesn&#39; exist</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="i">fileName1</span> <span class="o">=</span> <span class="s">@&quot;</span><span class="s">c</span><span class="s">:</span><span class="s">\</span><span class="s">mycode</span><span class="s">\</span><span class="s">test1</span><span class="s">.</span><span class="s">fs</span><span class="s">&quot;</span> <span class="c">// note, the path doesn&#39;t exist</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="i">fileName2</span> <span class="o">=</span> <span class="s">@&quot;</span><span class="s">c</span><span class="s">:</span><span class="s">\</span><span class="s">mycode</span><span class="s">\</span><span class="s">test2</span><span class="s">.</span><span class="s">fs</span><span class="s">&quot;</span> <span class="c">// note, the path doesn&#39;t exist</span>
 
 <span class="k">type</span> <span onmouseout="hideTip(event, 'fs17', 20)" onmouseover="showTip(event, 'fs17', 20)" class="i">MyFileSystem</span>() <span class="o">=</span> 
     <span class="k">let</span> <span onmouseout="hideTip(event, 'fs18', 21)" onmouseover="showTip(event, 'fs18', 21)" class="i">file1</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
@@ -257,7 +258,7 @@ is not available.</p>
       <span onmouseout="hideTip(event, 'fs67', 140)" onmouseover="showTip(event, 'fs67', 140)" class="i">ProjectOptions</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs64', 141)" onmouseover="showTip(event, 'fs64', 141)" class="i">allFlags</span> 
       <span class="i">IsIncompleteTypeCheckEnvironment</span> <span class="o">=</span> <span class="k">false</span>
       <span class="i">UseScriptResolutionRules</span> <span class="o">=</span> <span class="k">true</span> 
-      <span class="i">LoadTime</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 142)" onmouseover="showTip(event, 'fs1', 142)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs68', 143)" onmouseover="showTip(event, 'fs68', 143)" class="i">DateTime</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs69', 144)" onmouseover="showTip(event, 'fs69', 144)" class="i">Now</span> <span class="c">// Not &#39;now&#39;, we don&#39;t want to force reloading</span>
+      <span class="i">LoadTime</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 142)" onmouseover="showTip(event, 'fs1', 142)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs68', 143)" onmouseover="showTip(event, 'fs68', 143)" class="i">DateTime</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs69', 144)" onmouseover="showTip(event, 'fs69', 144)" class="i">Now</span> <span class="c">// Note using &#39;Now&#39; forces reloading</span>
       <span class="i">UnresolvedReferences</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs70', 145)" onmouseover="showTip(event, 'fs70', 145)" class="i">None</span> }
 
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs71', 146)" onmouseover="showTip(event, 'fs71', 146)" class="i">results</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs60', 147)" onmouseover="showTip(event, 'fs60', 147)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs72', 148)" onmouseover="showTip(event, 'fs72', 148)" class="i">ParseAndCheckProject</span>(<span onmouseout="hideTip(event, 'fs63', 149)" onmouseover="showTip(event, 'fs63', 149)" class="i">projectOptions</span>) <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs73', 150)" onmouseover="showTip(event, 'fs73', 150)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs74', 151)" onmouseover="showTip(event, 'fs74', 151)" class="i">RunSynchronously</span>

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Compiler Services: Project analysis services
+    <title>Compiler Services: Working with symbols
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
@@ -33,15 +33,16 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>Compiler Services: Project analysis services</h1>
+<h1>Compiler Services: Working with symbols</h1>
 
-<p>This tutorial demonstrates how to use the symbol-provision services provided by the F# compiler.</p>
+<p>This tutorial demonstrates how to work with symbols provided by the F# compiler. See als <a href="project.html">project wide analysis</a>
+for information on symbol references.</p>
 
 <blockquote>
   <p><strong>NOTE:</strong> The API used below is experimental and subject to change when later versions of the nuget package are published</p>
 </blockquote>
 
-<p>We start by referencing <code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
+<p>As usual we start by referencing <code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
 of <code>InteractiveChecker</code>:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -70,7 +71,7 @@ of <code>InteractiveChecker</code>:</p>
 </tr>
 </table>
 
-<p>Perform type checking on the specified input:</p>
+<p>We now perform type checking on the specified input:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
@@ -154,7 +155,7 @@ union cases, record types, units of measure and other F# language constructs.</p
 <span class="s">type</span><span class="s"> </span><span class="s">C</span><span class="s">(</span><span class="s">)</span><span class="s"> </span><span class="s">=</span><span class="s"> </span>
 <span class="s">    </span><span class="s">member</span><span class="s"> </span><span class="s">x</span><span class="s">.</span><span class="s">P</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">1</span>
 <span class="s">      </span><span class="s">&quot;&quot;&quot;</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 45)" onmouseover="showTip(event, 'fs28', 45)" class="i">untyped2</span>, <span onmouseout="hideTip(event, 'fs29', 46)" onmouseover="showTip(event, 'fs29', 46)" class="i">typeCheckResults2</span> <span class="o">=</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 45)" onmouseover="showTip(event, 'fs28', 45)" class="i">parseFileResults</span>, <span onmouseout="hideTip(event, 'fs29', 46)" onmouseover="showTip(event, 'fs29', 46)" class="i">checkFileResults</span> <span class="o">=</span> 
     <span onmouseout="hideTip(event, 'fs10', 47)" onmouseover="showTip(event, 'fs10', 47)" class="i">parseAndTypeCheckSingleFile</span>(<span onmouseout="hideTip(event, 'fs26', 48)" onmouseover="showTip(event, 'fs26', 48)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs27', 49)" onmouseover="showTip(event, 'fs27', 49)" class="i">input2</span>)</pre>
 </td>
 </tr>
@@ -170,7 +171,7 @@ union cases, record types, units of measure and other F# language constructs.</p
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 50)" onmouseover="showTip(event, 'fs30', 50)" class="i">partialAssemblySignature</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 51)" onmouseover="showTip(event, 'fs29', 51)" class="i">typeCheckResults2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 52)" onmouseover="showTip(event, 'fs31', 52)" class="i">PartialAssemblySignature</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 50)" onmouseover="showTip(event, 'fs30', 50)" class="i">partialAssemblySignature</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 51)" onmouseover="showTip(event, 'fs29', 51)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 52)" onmouseover="showTip(event, 'fs31', 52)" class="i">PartialAssemblySignature</span>
     
 <span onmouseout="hideTip(event, 'fs30', 53)" onmouseover="showTip(event, 'fs30', 53)" class="i">partialAssemblySignature</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 54)" onmouseover="showTip(event, 'fs32', 54)" class="i">Entities</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 55)" onmouseover="showTip(event, 'fs33', 55)" class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// one entity</span>
     </pre>
@@ -361,9 +362,9 @@ used in the compilation, called the <code>ProjectContext</code>:</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs73', 163)" onmouseover="showTip(event, 'fs73', 163)" class="i">typeCheckContext</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 164)" onmouseover="showTip(event, 'fs29', 164)" class="i">typeCheckResults2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs74', 165)" onmouseover="showTip(event, 'fs74', 165)" class="i">ProjectContext</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs73', 163)" onmouseover="showTip(event, 'fs73', 163)" class="i">projectContext</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 164)" onmouseover="showTip(event, 'fs29', 164)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs74', 165)" onmouseover="showTip(event, 'fs74', 165)" class="i">ProjectContext</span>
     
-<span class="k">for</span> <span onmouseout="hideTip(event, 'fs75', 166)" onmouseover="showTip(event, 'fs75', 166)" class="i">ass</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs73', 167)" onmouseover="showTip(event, 'fs73', 167)" class="i">typeCheckContext</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs76', 168)" onmouseover="showTip(event, 'fs76', 168)" class="i">GetReferencedAssemblies</span>() <span class="k">do</span>
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs75', 166)" onmouseover="showTip(event, 'fs75', 166)" class="i">ass</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs73', 167)" onmouseover="showTip(event, 'fs73', 167)" class="i">projectContext</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs76', 168)" onmouseover="showTip(event, 'fs76', 168)" class="i">GetReferencedAssemblies</span>() <span class="k">do</span>
     <span class="k">match</span> <span onmouseout="hideTip(event, 'fs75', 169)" onmouseover="showTip(event, 'fs75', 169)" class="i">ass</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs77', 170)" onmouseover="showTip(event, 'fs77', 170)" class="i">FileName</span> <span class="k">with</span> 
     | <span onmouseout="hideTip(event, 'fs78', 171)" onmouseover="showTip(event, 'fs78', 171)" class="i">None</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs79', 172)" onmouseover="showTip(event, 'fs79', 172)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">compilation</span><span class="s"> </span><span class="s">referenced</span><span class="s"> </span><span class="s">an</span><span class="s"> </span><span class="s">assembly</span><span class="s"> </span><span class="s">without</span><span class="s"> </span><span class="s">a</span><span class="s"> </span><span class="s">file</span><span class="s">&quot;</span> 
     | <span onmouseout="hideTip(event, 'fs80', 173)" onmouseover="showTip(event, 'fs80', 173)" class="i">Some</span> <span onmouseout="hideTip(event, 'fs81', 174)" onmouseover="showTip(event, 'fs81', 174)" class="i">s</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs79', 175)" onmouseover="showTip(event, 'fs79', 175)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">compilation</span><span class="s"> </span><span class="s">references</span><span class="s"> </span><span class="s">assembly</span><span class="s"> </span><span class="s">&#39;</span><span class="s">%</span><span class="s">s&#39;</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs81', 176)" onmouseover="showTip(event, 'fs81', 176)" class="i">s</span>
@@ -472,8 +473,8 @@ a specification of a larger project.</p>
 <div class="tip" id="fs25">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
 <div class="tip" id="fs26">val file : string<br /><br />Full name: Symbols.file</div>
 <div class="tip" id="fs27">val input2 : string<br /><br />Full name: Symbols.input2</div>
-<div class="tip" id="fs28">val untyped2 : ParseFileResults<br /><br />Full name: Symbols.untyped2</div>
-<div class="tip" id="fs29">val typeCheckResults2 : CheckFileResults<br /><br />Full name: Symbols.typeCheckResults2</div>
+<div class="tip" id="fs28">val parseFileResults : ParseFileResults<br /><br />Full name: Symbols.parseFileResults</div>
+<div class="tip" id="fs29">val checkFileResults : CheckFileResults<br /><br />Full name: Symbols.checkFileResults</div>
 <div class="tip" id="fs30">val partialAssemblySignature : FSharpAssemblySignature<br /><br />Full name: Symbols.partialAssemblySignature</div>
 <div class="tip" id="fs31">property CheckFileResults.PartialAssemblySignature: FSharpAssemblySignature</div>
 <div class="tip" id="fs32">property FSharpAssemblySignature.Entities: Collections.Generic.IList&lt;FSharpEntity&gt;</div>
@@ -517,7 +518,7 @@ a specification of a larger project.</p>
 <div class="tip" id="fs70">property FSharpEntity.Namespace: string option</div>
 <div class="tip" id="fs71">property FSharpEntity.CompiledName: string</div>
 <div class="tip" id="fs72">val argTy1c : FSharpType<br /><br />Full name: Symbols.argTy1c</div>
-<div class="tip" id="fs73">val typeCheckContext : ProjectContext<br /><br />Full name: Symbols.typeCheckContext</div>
+<div class="tip" id="fs73">val projectContext : ProjectContext<br /><br />Full name: Symbols.projectContext</div>
 <div class="tip" id="fs74">property CheckFileResults.ProjectContext: ProjectContext</div>
 <div class="tip" id="fs75">val ass : FSharpAssembly</div>
 <div class="tip" id="fs76">member ProjectContext.GetReferencedAssemblies : unit -&gt; FSharpAssembly list</div>

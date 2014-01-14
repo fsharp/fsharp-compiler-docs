@@ -93,14 +93,22 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         if entity.IsModuleOrNamespace then entity.DemangledModuleOrNamespaceName
         else entity.DisplayName 
 
-    member __.Namespace = 
+    member __.AccessPath  = 
         checkIsResolved()
         match entity.CompilationPathOpt with 
-        | None -> None 
+        | None -> "global" 
+        | Some (CompPath(_,[])) -> "global" 
+        | Some cp -> buildAccessPath (Some cp)
+    
+    member __.Namespace  = 
+        checkIsResolved()
+        match entity.CompilationPathOpt with 
+        | None -> None
+        | Some (CompPath(_,[])) -> None
         | Some cp when cp.AccessPath |> List.forall (function (_,ModuleOrNamespaceKind.Namespace) -> true | _  -> false) -> 
             Some (buildAccessPath (Some cp))
         | Some _ -> None
-    
+
     member x.QualifiedName = 
         checkIsResolved()
         let fail() = invalidOp (sprintf "the type '%s' does not have a qualified name" x.LogicalName)

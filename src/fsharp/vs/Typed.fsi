@@ -84,7 +84,11 @@ and [<Class>] FSharpEntity =
     /// Get the name of the type or module as displayed in F# code
     member DisplayName: string
 
-    /// Get the namespace containing the type or module, if any
+    /// Get the path used to address the entity (e.g. "Namespace.Module1.NestedModule2.Foo"). Use
+    /// "global" for items not in a namespace.
+    member AccessPath: string 
+
+    /// Get the namespace containing the type or module, if any. Use 'None' for item not in a namespace.
     member Namespace: string option
 
     /// Get the fully qualified name of the type or module

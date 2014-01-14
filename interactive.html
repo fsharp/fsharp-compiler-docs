@@ -107,8 +107,8 @@ F# code that prints:</p>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 23)" onmouseover="showTip(event, 'fs17', 23)" class="i">argv</span> <span class="o">=</span> [| <span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\\</span><span class="s">fsi</span><span class="s">.</span><span class="s">exe</span><span class="s">&quot;</span> |]
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs18', 24)" onmouseover="showTip(event, 'fs18', 24)" class="i">allArgs</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 25)" onmouseover="showTip(event, 'fs19', 25)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 26)" onmouseover="showTip(event, 'fs20', 26)" class="i">append</span> <span onmouseout="hideTip(event, 'fs17', 27)" onmouseover="showTip(event, 'fs17', 27)" class="i">argv</span> [|<span class="s">&quot;</span><span class="s">-</span><span class="s">-</span><span class="s">noninteractive</span><span class="s">&quot;</span>|]
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 28)" onmouseover="showTip(event, 'fs21', 28)" class="i">fsiConfig</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 29)" onmouseover="showTip(event, 'fs22', 29)" class="i">FsiEvaluationSession</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 30)" onmouseover="showTip(event, 'fs23', 30)" class="i">GetDefaultConfiguration</span>(<span onmouseout="hideTip(event, 'fs24', 31)" onmouseover="showTip(event, 'fs24', 31)" class="i">fsi</span>)
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 32)" onmouseover="showTip(event, 'fs25', 32)" class="i">fsi</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 33)" onmouseover="showTip(event, 'fs22', 33)" class="i">FsiEvaluationSession</span>(<span onmouseout="hideTip(event, 'fs21', 34)" onmouseover="showTip(event, 'fs21', 34)" class="i">fsiConfig</span>, <span onmouseout="hideTip(event, 'fs18', 35)" onmouseover="showTip(event, 'fs18', 35)" class="i">allArgs</span>, <span onmouseout="hideTip(event, 'fs12', 36)" onmouseover="showTip(event, 'fs12', 36)" class="i">inStream</span>, <span onmouseout="hideTip(event, 'fs14', 37)" onmouseover="showTip(event, 'fs14', 37)" class="i">outStream</span>, <span onmouseout="hideTip(event, 'fs16', 38)" onmouseover="showTip(event, 'fs16', 38)" class="i">errStream</span>)  </pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 28)" onmouseover="showTip(event, 'fs21', 28)" class="i">fsiConfig</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 29)" onmouseover="showTip(event, 'fs22', 29)" class="i">FsiEvaluationSession</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 30)" onmouseover="showTip(event, 'fs23', 30)" class="i">GetDefaultConfiguration</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 31)" onmouseover="showTip(event, 'fs24', 31)" class="i">fsiSession</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 32)" onmouseover="showTip(event, 'fs22', 32)" class="i">FsiEvaluationSession</span>(<span onmouseout="hideTip(event, 'fs21', 33)" onmouseover="showTip(event, 'fs21', 33)" class="i">fsiConfig</span>, <span onmouseout="hideTip(event, 'fs18', 34)" onmouseover="showTip(event, 'fs18', 34)" class="i">allArgs</span>, <span onmouseout="hideTip(event, 'fs12', 35)" onmouseover="showTip(event, 'fs12', 35)" class="i">inStream</span>, <span onmouseout="hideTip(event, 'fs14', 36)" onmouseover="showTip(event, 'fs14', 36)" class="i">outStream</span>, <span onmouseout="hideTip(event, 'fs16', 37)" onmouseover="showTip(event, 'fs16', 37)" class="i">errStream</span>)  </pre>
 </td>
 </tr>
 </table>
@@ -129,10 +129,10 @@ the returned value (as <code>obj</code>) and the statically inferred type of the
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">/// Evaluate expression &amp; return the result</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 39)" onmouseover="showTip(event, 'fs26', 39)" class="i">evalExpression</span> <span onmouseout="hideTip(event, 'fs27', 40)" onmouseover="showTip(event, 'fs27', 40)" class="i">text</span> <span class="o">=</span>
-  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs25', 41)" onmouseover="showTip(event, 'fs25', 41)" class="i">fsi</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 42)" onmouseover="showTip(event, 'fs28', 42)" class="i">EvalExpression</span>(<span onmouseout="hideTip(event, 'fs27', 43)" onmouseover="showTip(event, 'fs27', 43)" class="i">text</span>) <span class="k">with</span>
-  | <span onmouseout="hideTip(event, 'fs29', 44)" onmouseover="showTip(event, 'fs29', 44)" class="i">Some</span> <span onmouseout="hideTip(event, 'fs30', 45)" onmouseover="showTip(event, 'fs30', 45)" class="i">value</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs31', 46)" onmouseover="showTip(event, 'fs31', 46)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs30', 47)" onmouseover="showTip(event, 'fs30', 47)" class="i">value</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 48)" onmouseover="showTip(event, 'fs32', 48)" class="i">ReflectionValue</span>
-  | <span onmouseout="hideTip(event, 'fs33', 49)" onmouseover="showTip(event, 'fs33', 49)" class="i">None</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs31', 50)" onmouseover="showTip(event, 'fs31', 50)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Got</span><span class="s"> </span><span class="s">no</span><span class="s"> </span><span class="s">result</span><span class="s">!</span><span class="s">&quot;</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 38)" onmouseover="showTip(event, 'fs25', 38)" class="i">evalExpression</span> <span onmouseout="hideTip(event, 'fs26', 39)" onmouseover="showTip(event, 'fs26', 39)" class="i">text</span> <span class="o">=</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs24', 40)" onmouseover="showTip(event, 'fs24', 40)" class="i">fsiSession</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 41)" onmouseover="showTip(event, 'fs27', 41)" class="i">EvalExpression</span>(<span onmouseout="hideTip(event, 'fs26', 42)" onmouseover="showTip(event, 'fs26', 42)" class="i">text</span>) <span class="k">with</span>
+  | <span onmouseout="hideTip(event, 'fs28', 43)" onmouseover="showTip(event, 'fs28', 43)" class="i">Some</span> <span onmouseout="hideTip(event, 'fs29', 44)" onmouseover="showTip(event, 'fs29', 44)" class="i">value</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs30', 45)" onmouseover="showTip(event, 'fs30', 45)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs29', 46)" onmouseover="showTip(event, 'fs29', 46)" class="i">value</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 47)" onmouseover="showTip(event, 'fs31', 47)" class="i">ReflectionValue</span>
+  | <span onmouseout="hideTip(event, 'fs32', 48)" onmouseover="showTip(event, 'fs32', 48)" class="i">None</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs30', 49)" onmouseover="showTip(event, 'fs30', 49)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Got</span><span class="s"> </span><span class="s">no</span><span class="s"> </span><span class="s">result</span><span class="s">!</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table>
@@ -150,8 +150,8 @@ and other top-level statements.</p>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">/// Evaluate interaction &amp; ignore the result</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 51)" onmouseover="showTip(event, 'fs34', 51)" class="i">evalInteraction</span> <span onmouseout="hideTip(event, 'fs27', 52)" onmouseover="showTip(event, 'fs27', 52)" class="i">text</span> <span class="o">=</span> 
-  <span onmouseout="hideTip(event, 'fs25', 53)" onmouseover="showTip(event, 'fs25', 53)" class="i">fsi</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 54)" onmouseover="showTip(event, 'fs35', 54)" class="i">EvalInteraction</span>(<span onmouseout="hideTip(event, 'fs27', 55)" onmouseover="showTip(event, 'fs27', 55)" class="i">text</span>)</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 50)" onmouseover="showTip(event, 'fs33', 50)" class="i">evalInteraction</span> <span onmouseout="hideTip(event, 'fs26', 51)" onmouseover="showTip(event, 'fs26', 51)" class="i">text</span> <span class="o">=</span> 
+  <span onmouseout="hideTip(event, 'fs24', 52)" onmouseover="showTip(event, 'fs24', 52)" class="i">fsiSession</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 53)" onmouseover="showTip(event, 'fs34', 53)" class="i">EvalInteraction</span>(<span onmouseout="hideTip(event, 'fs26', 54)" onmouseover="showTip(event, 'fs26', 54)" class="i">text</span>)</pre>
 </td>
 </tr>
 </table>
@@ -165,8 +165,76 @@ passed to them does not require <code>;;</code> at the end. Just enter the code 
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs26', 56)" onmouseover="showTip(event, 'fs26', 56)" class="i">evalExpression</span> <span class="s">&quot;</span><span class="s">42</span><span class="s">+</span><span class="s">1</span><span class="s">&quot;</span>
-<span onmouseout="hideTip(event, 'fs34', 57)" onmouseover="showTip(event, 'fs34', 57)" class="i">evalInteraction</span> <span class="s">&quot;</span><span class="s">printfn</span><span class="s"> </span><span class="s">\&quot;</span><span class="s">bye</span><span class="s">\&quot;</span><span class="s">&quot;</span></pre>
+<span onmouseout="hideTip(event, 'fs25', 55)" onmouseover="showTip(event, 'fs25', 55)" class="i">evalExpression</span> <span class="s">&quot;</span><span class="s">42</span><span class="s">+</span><span class="s">1</span><span class="s">&quot;</span>
+<span onmouseout="hideTip(event, 'fs33', 56)" onmouseover="showTip(event, 'fs33', 56)" class="i">evalInteraction</span> <span class="s">&quot;</span><span class="s">printfn</span><span class="s"> </span><span class="s">\&quot;</span><span class="s">bye</span><span class="s">\&quot;</span><span class="s">&quot;</span></pre>
+</td>
+</tr>
+</table>
+
+<h2>Type checking in the evaluation context</h2>
+
+<p>Let's assume you have a situation where you would like to typecheck code 
+in the context of the F# Interactive scripting session. For example, you first
+evaluation a declaration:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span onmouseout="hideTip(event, 'fs33', 57)" onmouseover="showTip(event, 'fs33', 57)" class="i">evalInteraction</span> <span class="s">&quot;</span><span class="s">let</span><span class="s"> </span><span class="s">xxx</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">1</span><span class="s"> </span><span class="s">+</span><span class="s"> </span><span class="s">1</span><span class="s">&quot;</span></pre>
+</td>
+</tr>
+</table>
+
+<p>Now you want to typecheck the partially complete code <code>xxx + xx</code></p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 58)" onmouseover="showTip(event, 'fs35', 58)" class="i">parseResults</span>, <span onmouseout="hideTip(event, 'fs36', 59)" onmouseover="showTip(event, 'fs36', 59)" class="i">checkResults</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs24', 60)" onmouseover="showTip(event, 'fs24', 60)" class="i">fsiSession</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs37', 61)" onmouseover="showTip(event, 'fs37', 61)" class="i">ParseAndCheckInteraction</span>(<span class="s">&quot;</span><span class="s">xxx</span><span class="s"> </span><span class="s">+</span><span class="s"> </span><span class="s">xx</span><span class="s">&quot;</span>)</pre>
+</td>
+</tr>
+</table>
+
+<p>The <code>parseResults</code> and <code>checkResults</code> have types <code>ParseFileResults</code> and <code>CheckFileResults</code>
+explained in <a href="editor.html">Editor</a>. You can, for example, look at the type errors in the code:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span onmouseout="hideTip(event, 'fs36', 62)" onmouseover="showTip(event, 'fs36', 62)" class="i">checkResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 63)" onmouseover="showTip(event, 'fs38', 63)" class="i">Errors</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 64)" onmouseover="showTip(event, 'fs39', 64)" class="i">Length</span> <span class="c">// 1</span></pre>
+</td>
+</tr>
+</table>
+
+<p>The code is checked with respect to the logical type context available in the F# interactive session
+based on the declarations executed so far.</p>
+
+<p>You can also request declaration list information, tooltip text and symbol resolution:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 65)" onmouseover="showTip(event, 'fs1', 65)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 66)" onmouseover="showTip(event, 'fs2', 66)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 67)" onmouseover="showTip(event, 'fs3', 67)" class="i">Compiler</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 68)" onmouseover="showTip(event, 'fs40', 68)" class="i">identToken</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 69)" onmouseover="showTip(event, 'fs41', 69)" class="i">Parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 70)" onmouseover="showTip(event, 'fs42', 70)" class="i">tagOfToken</span>(<span onmouseout="hideTip(event, 'fs41', 71)" onmouseover="showTip(event, 'fs41', 71)" class="i">Parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 72)" onmouseover="showTip(event, 'fs43', 72)" class="i">token</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs44', 73)" onmouseover="showTip(event, 'fs44', 73)" class="i">IDENT</span>(<span class="s">&quot;</span><span class="s">&quot;</span>)) 
+<span onmouseout="hideTip(event, 'fs45', 74)" onmouseover="showTip(event, 'fs45', 74)" class="i">checkResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 75)" onmouseover="showTip(event, 'fs46', 75)" class="i">GetToolTipText</span>(<span class="n">0</span>, <span class="n">2</span>, <span class="s">&quot;</span><span class="s">xxx</span><span class="s"> </span><span class="s">+</span><span class="s"> </span><span class="s">xx</span><span class="s">&quot;</span>, [<span class="s">&quot;</span><span class="s">xxx</span><span class="s">&quot;</span>], <span onmouseout="hideTip(event, 'fs40', 76)" onmouseover="showTip(event, 'fs40', 76)" class="i">identToken</span>) <span class="c">// a tooltip</span>
+
+<span onmouseout="hideTip(event, 'fs45', 77)" onmouseover="showTip(event, 'fs45', 77)" class="i">checkResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 78)" onmouseover="showTip(event, 'fs47', 78)" class="i">GetSymbolAtLocation</span>(<span class="n">0</span>, <span class="n">2</span>, <span class="s">&quot;</span><span class="s">xxx</span><span class="s"> </span><span class="s">+</span><span class="s"> </span><span class="s">xx</span><span class="s">&quot;</span>, [<span class="s">&quot;</span><span class="s">xxx</span><span class="s">&quot;</span>]) <span class="c">// symbol xxx</span>
+  </pre>
 </td>
 </tr>
 </table>
@@ -191,15 +259,15 @@ want to use something like this:</p>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="k">try</span> 
-  <span onmouseout="hideTip(event, 'fs26', 58)" onmouseover="showTip(event, 'fs26', 58)" class="i">evalExpression</span> <span class="s">&quot;</span><span class="s">42</span><span class="s"> </span><span class="s">+</span><span class="s"> </span><span class="s">1</span><span class="s">.</span><span class="s">0</span><span class="s">&quot;</span>
-<span class="k">with</span> <span onmouseout="hideTip(event, 'fs36', 59)" onmouseover="showTip(event, 'fs36', 59)" class="i">e</span> <span class="k">-&gt;</span>
-  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs36', 60)" onmouseover="showTip(event, 'fs36', 60)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs37', 61)" onmouseover="showTip(event, 'fs37', 61)" class="i">InnerException</span> <span class="k">with</span>
+  <span onmouseout="hideTip(event, 'fs25', 79)" onmouseover="showTip(event, 'fs25', 79)" class="i">evalExpression</span> <span class="s">&quot;</span><span class="s">42</span><span class="s"> </span><span class="s">+</span><span class="s"> </span><span class="s">1</span><span class="s">.</span><span class="s">0</span><span class="s">&quot;</span>
+<span class="k">with</span> <span onmouseout="hideTip(event, 'fs48', 80)" onmouseover="showTip(event, 'fs48', 80)" class="i">e</span> <span class="k">-&gt;</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs48', 81)" onmouseover="showTip(event, 'fs48', 81)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs49', 82)" onmouseover="showTip(event, 'fs49', 82)" class="i">InnerException</span> <span class="k">with</span>
   | <span class="k">null</span> <span class="k">-&gt;</span> 
-      <span onmouseout="hideTip(event, 'fs31', 62)" onmouseover="showTip(event, 'fs31', 62)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Error</span><span class="s"> </span><span class="s">evaluating</span><span class="s"> </span><span class="s">expression</span><span class="s"> </span><span class="s">(</span><span class="s">%</span><span class="s">s</span><span class="s">)</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs36', 63)" onmouseover="showTip(event, 'fs36', 63)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 64)" onmouseover="showTip(event, 'fs38', 64)" class="i">Message</span>
+      <span onmouseout="hideTip(event, 'fs30', 83)" onmouseover="showTip(event, 'fs30', 83)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Error</span><span class="s"> </span><span class="s">evaluating</span><span class="s"> </span><span class="s">expression</span><span class="s"> </span><span class="s">(</span><span class="s">%</span><span class="s">s</span><span class="s">)</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs48', 84)" onmouseover="showTip(event, 'fs48', 84)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 85)" onmouseover="showTip(event, 'fs50', 85)" class="i">Message</span>
   <span class="c">//| WrappedError(err, _) -&gt; </span>
   <span class="c">//    printfn &quot;Error evaluating expression (Wrapped: %s)&quot; err.Message</span>
   | _ <span class="k">-&gt;</span> 
-      <span onmouseout="hideTip(event, 'fs31', 65)" onmouseover="showTip(event, 'fs31', 65)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Error</span><span class="s"> </span><span class="s">evaluating</span><span class="s"> </span><span class="s">expression</span><span class="s"> </span><span class="s">(</span><span class="s">%</span><span class="s">s</span><span class="s">)</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs36', 66)" onmouseover="showTip(event, 'fs36', 66)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 67)" onmouseover="showTip(event, 'fs38', 67)" class="i">Message</span></pre>
+      <span onmouseout="hideTip(event, 'fs30', 86)" onmouseover="showTip(event, 'fs30', 86)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Error</span><span class="s"> </span><span class="s">evaluating</span><span class="s"> </span><span class="s">expression</span><span class="s"> </span><span class="s">(</span><span class="s">%</span><span class="s">s</span><span class="s">)</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs48', 87)" onmouseover="showTip(event, 'fs48', 87)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 88)" onmouseover="showTip(event, 'fs50', 88)" class="i">Message</span></pre>
 </td>
 </tr>
 </table>
@@ -227,21 +295,33 @@ want to use something like this:</p>
 <div class="tip" id="fs21">val fsiConfig : FsiEvaluationSessionHostConfig<br /><br />Full name: Interactive.fsiConfig</div>
 <div class="tip" id="fs22">Multiple items<br />type FsiEvaluationSession =<br />&#160;&#160;new : fsiConfig:FsiEvaluationSessionHostConfig * argv:string [] * inReader:TextReader * outWriter:TextWriter * errorWriter:TextWriter -&gt; FsiEvaluationSession<br />&#160;&#160;member EvalExpression : code:string -&gt; FsiValue option<br />&#160;&#160;member EvalInteraction : code:string -&gt; unit<br />&#160;&#160;member GetCompletions : longIdent:string -&gt; seq&lt;string&gt;<br />&#160;&#160;member Interrupt : unit -&gt; unit<br />&#160;&#160;member ParseAndCheckInteraction : code:string -&gt; ParseFileResults * CheckFileResults<br />&#160;&#160;member ReportUnhandledException : exn:exn -&gt; unit<br />&#160;&#160;member Run : unit -&gt; unit<br />&#160;&#160;member CurrentPartialAssemblySignature : FSharpAssemblySignature<br />&#160;&#160;member InteractiveChecker : InteractiveChecker<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.Interactive.Shell.FsiEvaluationSession<br /><br />--------------------<br />new : fsiConfig:FsiEvaluationSessionHostConfig * argv:string [] * inReader:TextReader * outWriter:TextWriter * errorWriter:TextWriter -&gt; FsiEvaluationSession</div>
 <div class="tip" id="fs23">static member FsiEvaluationSession.GetDefaultConfiguration : unit -&gt; FsiEvaluationSessionHostConfig<br />static member FsiEvaluationSession.GetDefaultConfiguration : fsiObj:obj -&gt; FsiEvaluationSessionHostConfig</div>
-<div class="tip" id="fs24">val fsi : Compiler.Interactive.InteractiveSession<br /><br />Full name: Microsoft.FSharp.Compiler.Interactive.Settings.fsi</div>
-<div class="tip" id="fs25">val fsi : FsiEvaluationSession<br /><br />Full name: Interactive.fsi</div>
-<div class="tip" id="fs26">val evalExpression : text:string -&gt; unit<br /><br />Full name: Interactive.evalExpression<br /><em><br /><br />&#160;Evaluate expression &amp; return the result</em></div>
-<div class="tip" id="fs27">val text : string</div>
-<div class="tip" id="fs28">member FsiEvaluationSession.EvalExpression : code:string -&gt; FsiValue option</div>
-<div class="tip" id="fs29">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
-<div class="tip" id="fs30">val value : FsiValue</div>
-<div class="tip" id="fs31">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fs32">property FsiValue.ReflectionValue: obj</div>
-<div class="tip" id="fs33">union case Option.None: Option&lt;&#39;T&gt;</div>
-<div class="tip" id="fs34">val evalInteraction : text:string -&gt; unit<br /><br />Full name: Interactive.evalInteraction<br /><em><br /><br />&#160;Evaluate interaction &amp; ignore the result</em></div>
-<div class="tip" id="fs35">member FsiEvaluationSession.EvalInteraction : code:string -&gt; unit</div>
-<div class="tip" id="fs36">val e : exn</div>
-<div class="tip" id="fs37">property Exception.InnerException: exn</div>
-<div class="tip" id="fs38">property Exception.Message: string</div>
+<div class="tip" id="fs24">val fsiSession : FsiEvaluationSession<br /><br />Full name: Interactive.fsiSession</div>
+<div class="tip" id="fs25">val evalExpression : text:string -&gt; unit<br /><br />Full name: Interactive.evalExpression<br /><em><br /><br />&#160;Evaluate expression &amp; return the result</em></div>
+<div class="tip" id="fs26">val text : string</div>
+<div class="tip" id="fs27">member FsiEvaluationSession.EvalExpression : code:string -&gt; FsiValue option</div>
+<div class="tip" id="fs28">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs29">val value : FsiValue</div>
+<div class="tip" id="fs30">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs31">property FsiValue.ReflectionValue: obj</div>
+<div class="tip" id="fs32">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs33">val evalInteraction : text:string -&gt; unit<br /><br />Full name: Interactive.evalInteraction<br /><em><br /><br />&#160;Evaluate interaction &amp; ignore the result</em></div>
+<div class="tip" id="fs34">member FsiEvaluationSession.EvalInteraction : code:string -&gt; unit</div>
+<div class="tip" id="fs35">val parseResults : Compiler.SourceCodeServices.ParseFileResults<br /><br />Full name: Interactive.parseResults</div>
+<div class="tip" id="fs36">val checkResults : Compiler.SourceCodeServices.CheckFileResults<br /><br />Full name: Interactive.checkResults</div>
+<div class="tip" id="fs37">member FsiEvaluationSession.ParseAndCheckInteraction : code:string -&gt; Compiler.SourceCodeServices.ParseFileResults * Compiler.SourceCodeServices.CheckFileResults</div>
+<div class="tip" id="fs38">property Compiler.SourceCodeServices.CheckFileResults.Errors: Compiler.ErrorInfo []</div>
+<div class="tip" id="fs39">property Array.Length: int</div>
+<div class="tip" id="fs40">val identToken : int<br /><br />Full name: Interactive.identToken</div>
+<div class="tip" id="fs41">module Parser<br /><br />from Microsoft.FSharp.Compiler</div>
+<div class="tip" id="fs42">val tagOfToken : t:Parser.token -&gt; int<br /><br />Full name: Microsoft.FSharp.Compiler.Parser.tagOfToken</div>
+<div class="tip" id="fs43">type token =<br />&#160;&#160;| HASH_IF of (range * string * LexerWhitespaceContinuation)<br />&#160;&#160;| HASH_ELSE of (range * string * LexerWhitespaceContinuation)<br />&#160;&#160;| HASH_ENDIF of (range * string * LexerWhitespaceContinuation)<br />&#160;&#160;| COMMENT of LexerWhitespaceContinuation<br />&#160;&#160;| WHITESPACE of LexerWhitespaceContinuation<br />&#160;&#160;| HASH_LINE of LexerWhitespaceContinuation<br />&#160;&#160;| HASH_LIGHT of LexerWhitespaceContinuation<br />&#160;&#160;| INACTIVECODE of LexerWhitespaceContinuation<br />&#160;&#160;| LINE_COMMENT of LexerWhitespaceContinuation<br />&#160;&#160;| STRING_TEXT of LexerWhitespaceContinuation<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.Parser.token</div>
+<div class="tip" id="fs44">union case Parser.token.IDENT: string -&gt; Parser.token</div>
+<div class="tip" id="fs45">val checkResults : SourceCodeServices.CheckFileResults<br /><br />Full name: Interactive.checkResults</div>
+<div class="tip" id="fs46">member SourceCodeServices.CheckFileResults.GetToolTipText : line:Range.Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -&gt; SourceCodeServices.ToolTipText</div>
+<div class="tip" id="fs47">member SourceCodeServices.CheckFileResults.GetSymbolAtLocation : line:Range.Line0 * colAtEndOfNames:int * lineText:string * names:string list -&gt; SourceCodeServices.FSharpSymbol option</div>
+<div class="tip" id="fs48">val e : exn</div>
+<div class="tip" id="fs49">property Exception.InnerException: exn</div>
+<div class="tip" id="fs50">property Exception.Message: string</div>
 
         </div>
         <div class="span3">

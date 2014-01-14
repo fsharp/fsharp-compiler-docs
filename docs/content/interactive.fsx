@@ -82,6 +82,44 @@ passed to them does not require `;;` at the end. Just enter the code that you wa
 evalExpression "42+1"
 evalInteraction "printfn \"bye\""
 
+
+(**
+Type checking in the evaluation context
+------------------
+
+Let's assume you have a situation where you would like to typecheck code 
+in the context of the F# Interactive scripting session. For example, you first
+evaluation a declaration:
+*)
+
+evalInteraction "let xxx = 1 + 1"
+
+(**
+
+Now you want to typecheck the partially complete code `xxx + xx`
+*)
+
+let parseResults, checkResults = fsiSession.ParseAndCheckInteraction("xxx + xx")
+
+(** 
+The `parseResults` and `checkResults` have types `ParseFileResults` and `CheckFileResults`
+explained in [Editor](editor.html). You can, for example, look at the type errors in the code:
+*)
+checkResults.Errors.Length // 1
+
+(** 
+The code is checked with respect to the logical type context available in the F# interactive session
+based on the declarations executed so far.
+
+You can also request declaration list information, tooltip text and symbol resolution:
+*)
+open Microsoft.FSharp.Compiler
+
+let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
+checkResults.GetToolTipText(0, 2, "xxx + xx", ["xxx"], identToken) // a tooltip
+
+checkResults.GetSymbolAtLocation(0, 2, "xxx + xx", ["xxx"]) // symbol xxx
+  
 (**
 Exception handling
 ------------------

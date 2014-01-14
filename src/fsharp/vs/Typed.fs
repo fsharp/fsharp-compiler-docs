@@ -73,7 +73,7 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
     let isFSharp() = 
         match entity with
         | ERefNonLocal(NonLocalEntityRef(ccu, _)) -> not ccu.IsUnresolvedReference && ccu.IsFSharp
-        | _ -> false
+        | _ -> true
 
     let isUnresolved() = entityIsUnresolved entity
     let checkIsResolved() = checkEntityIsResolved entity

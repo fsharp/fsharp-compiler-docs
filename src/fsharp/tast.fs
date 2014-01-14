@@ -3785,6 +3785,7 @@ let (|ValDeref|) (vr :ValRef) = vr.Deref
 exception InternalUndefinedTyconItem of (string * string -> int * string) * TyconRef * string
 
 type UnionCaseRef with 
+    member x.TryUnionCase =  x.TyconRef.TryDeref |> Option.bind (fun tcref -> tcref.GetUnionCaseByName x.CaseName)
     member x.UnionCase = 
         let (UCRef(tcref,nm)) = x
         match tcref.GetUnionCaseByName nm with 
@@ -3805,6 +3806,7 @@ type UnionCaseRef with
     member x.FieldByIndex n = x.UnionCase.FieldTable.FieldByIndex n
 
 type RecdFieldRef with 
+    member x.TryRecdField =  x.TyconRef.TryDeref |> Option.bind (fun tcref -> tcref.GetFieldByName x.FieldName)
     member x.RecdField = 
         let (RFRef(tcref,id)) = x
         match tcref.GetFieldByName id with 

@@ -1,14 +1,15 @@
 (*** hide ***)
 #I "../../bin/"
 (**
-Compiler Services: Project analysis services
+Compiler Services: Working with symbols
 ============================================
 
-This tutorial demonstrates how to use the symbol-provision services provided by the F# compiler.
+This tutorial demonstrates how to work with symbols provided by the F# compiler. See als [project wide analysis](project.html)
+for information on symbol references.
 
 > **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
 
-We start by referencing `FSharp.Compiler.Service.dll`, opening the relevant namespace and creating an instance
+As usual we start by referencing `FSharp.Compiler.Service.dll`, opening the relevant namespace and creating an instance
 of `InteractiveChecker`:
 
 *)
@@ -21,8 +22,10 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 // Create an interactive checker instance 
 let checker = InteractiveChecker.Create()
+
 (**
-Perform type checking on the specified input:
+
+We now perform type checking on the specified input:
 
 *)
 
@@ -69,13 +72,13 @@ let foo(x, y) =
 type C() = 
     member x.P = 1
       """
-let untyped2, typeCheckResults2 = 
+let parseFileResults, checkFileResults = 
     parseAndTypeCheckSingleFile(file, input2)
 
 (**
 Now get the partial assembly signature for the code:
 *)
-let partialAssemblySignature = typeCheckResults2.PartialAssemblySignature
+let partialAssemblySignature = checkFileResults.PartialAssemblySignature
     
 partialAssemblySignature.Entities.Count = 1  // one entity
     
@@ -164,9 +167,9 @@ argTy1c.NamedEntity.CompiledName // "Int32"
 The type checking results for a file also contain information extracted from the project (or script) options
 used in the compilation, called the `ProjectContext`:
 *)
-let typeCheckContext = typeCheckResults2.ProjectContext
+let projectContext = checkFileResults.ProjectContext
     
-for ass in typeCheckContext.GetReferencedAssemblies() do
+for ass in projectContext.GetReferencedAssemblies() do
     match ass.FileName with 
     | None -> printfn "compilation referenced an assembly without a file" 
     | Some s -> printfn "compilation references assembly '%s'" s

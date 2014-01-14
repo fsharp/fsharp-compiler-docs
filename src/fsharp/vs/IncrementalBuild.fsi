@@ -114,11 +114,8 @@ module internal IncrementalFSharpBuild =
 
   type PartialTypeCheckResults = Build.TcState * Build.TcImports * Env.TcGlobals * Build.TcConfig * TypeChecker.TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * System.DateTime
 
+  [<Class>]
   type IncrementalBuilder = 
-      new : tcConfig : Build.TcConfig * projectDirectory : string * assemblyName : string * niceNameGen : Microsoft.FSharp.Compiler.Ast.NiceNameGenerator *
-            lexResourceManager : Microsoft.FSharp.Compiler.Lexhelp.LexResourceManager * sourceFiles : string list * ensureReactive : bool *
-            errorLogger : ErrorLogger * keepGeneratedTypedAssembly:bool
-        -> IncrementalBuilder
 
       /// Increment the usage count on the IncrementalBuilder by 1. Ths initial usage count is 0. The returns an IDisposable which will 
       /// decrement the usage count on the entire build by 1 and dispose if it is no longer used by anyone.
@@ -187,4 +184,4 @@ module internal IncrementalFSharpBuild =
       /// This may be a marginally long-running operation (parses are relatively quick, only one file needs to be parsed)
       member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * bool) list
 
-      static member CreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder * ErrorInfo list
+      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * ErrorInfo list

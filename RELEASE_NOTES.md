@@ -33,3 +33,6 @@
 
 #### 0.0.5-alpha - 
 * Added GetUsesOfSymbol(), FSharpSymbol type, GetSymbolAtLocation(...)
+
+#### 0.0.6-alpha - 
+* Fix version number

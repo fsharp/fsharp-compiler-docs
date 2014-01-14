@@ -169,9 +169,13 @@ type FsiEvaluationSession =
 
     member Run : unit -> unit
 
-    /// Get a configuration that uses the 'fsi' object from FSharp.Compiler.Interactive.Settings.dll (or
-    /// an object with identical characteristics) to provide an implementation of the configuration.
+    /// Get a configuration that uses the 'fsi' object (normally from FSharp.Compiler.Interactive.Settings.dll,
+    /// an object from another DLL with identical characteristics) to provide an implementation of the configuration.
     static member GetDefaultConfiguration: fsiObj: obj -> FsiEvaluationSessionHostConfig
+
+    /// Get a configuration that uses a private inbuilt implementation of the 'fsi' object and does not
+    /// implicitly reference FSharp.Compiler.Interactive.Settings.dll. 
+    static member GetDefaultConfiguration: unit -> FsiEvaluationSessionHostConfig
 
 /// Defines a read-only input stream used to feed content to the hosted F# Interactive dynamic compiler.
 [<AllowNullLiteral>]

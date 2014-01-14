@@ -1578,20 +1578,26 @@ type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
 
 
 [<Sealed>]
-/// A live object of this type keeps the background corresponding background builder (and type providers) alive (through reference-counting).
-//
-// There is an important property of all the objects returned by the methods of this type: they do not require 
-// the corresponding background builder to be alive. That is, they are simply plain-old-data through pre-formatting of all result text.
-type CheckProjectResults(errors: ErrorInfo[], tcGlobals: TcGlobals, tcImports: TcImports, ccuSig, tcResolutions:TcResolutions list, reactorOps: IReactorOperations) =
+// 'details' is an option because the creation of the tcGlobals etc. for the project may have failed.
+type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*ModuleOrNamespaceType*TcResolutions list) option, reactorOps: IReactorOperations) =
+
+    let getDetails() = 
+        match details with 
+        | None -> invalidOp ("The project has no results due to critical errors in the project options. Check the HasCriticalErrors before accessing the detaild results. Errors: " + String.concat "\n" [ for e in errors -> e.Message ])
+        | Some d -> d
 
     member info.Errors = errors
 
-    member info.AssemblySignature =  FSharpAssemblySignature(tcGlobals,ccuSig)
+    member info.HasCriticalErrors = details.IsNone
+
+    member info.AssemblySignature =  
+        let (tcGlobals, _tcImports, ccuSig, _tcResolutions) = getDetails()
+        FSharpAssemblySignature(tcGlobals,ccuSig)
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetUsesOfSymbol(symbol:FSharpSymbol) = 
-        // This probably doesn't need to bee run on the reactor since all data touched by 
-        // GetUsesOfSymbol is immutable.
+        let (_tcGlobals, _tcImports, _ccuSig, tcResolutions) = getDetails()
+        // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
         reactorOps.RunSyncOp(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
             |> Seq.distinct 
@@ -1599,25 +1605,21 @@ type CheckProjectResults(errors: ErrorInfo[], tcGlobals: TcGlobals, tcImports: T
             |> Seq.toArray)
 
     member info.ProjectContext = 
+        let (tcGlobals, tcImports, _ccuSig, _tcResolutions) = getDetails()
         let assemblies = 
             [ for x in tcImports.GetImportedAssemblies() do 
                 yield FSharpAssembly(tcGlobals,x.FSharpViewOfMetadata) ]
         ProjectContext(assemblies) 
-
-    /// Get the assemblies referenced
-    member __.GetReferencedAssemblies() = 
-        [ for x in tcImports.GetImportedAssemblies() do 
-                yield FSharpAssembly(tcGlobals,x.FSharpViewOfMetadata) ]
 
 [<Sealed>]
 /// A live object of this type keeps the background corresponding background builder (and type providers) alive (through reference-counting).
 //
 // There is an important property of all the objects returned by the methods of this type: they do not require 
 // the corresponding background builder to be alive. That is, they are simply plain-old-data through pre-formatting of all result text.
-type CheckFileResults(errors: ErrorInfo[], scopeX: TypeCheckInfo, builderX: IncrementalFSharpBuild.IncrementalBuilder option, reactorOpsX:IReactorOperations) =
+type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, builderX: IncrementalFSharpBuild.IncrementalBuilder option, reactorOpsX:IReactorOperations) =
 
     // This may be None initially, or may be set to None when the object is disposed or finalized
-    let mutable details = Some (scopeX, builderX, reactorOpsX)
+    let mutable details = match scopeOptX with None -> None | Some scopeX -> Some (scopeX, builderX, reactorOpsX)
 
     let decrementer = 
         match details with 
@@ -1759,31 +1761,39 @@ type BackgroundCompiler() as self =
     /// creates an incremental builder used by the command line compiler.
     let CreateOneIncrementalBuilder (options:ProjectOptions) = 
         use t = Trace.Call("Reactor","CreateOneIncrementalBuilder", fun () -> sprintf "options = %+A" options)
-        let builder, errorsAndWarnings = 
+        let builderOpt, errorsAndWarnings = 
             // PROBLEM: This call can currently fail if an error happens while setting up the TcConfig
             // This leaves us completely horked.
-            IncrementalFSharpBuild.IncrementalBuilder.CreateBackgroundBuilderForProjectOptions
+            IncrementalFSharpBuild.IncrementalBuilder.TryCreateBackgroundBuilderForProjectOptions
                   (scriptClosure.TryGet options, Array.toList options.ProjectFileNames, 
                    Array.toList options.ProjectOptions, options.ProjectDirectory, 
                    options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment)
 
         // We're putting the builder in the cache, so increment its count.
-        let decrement = builder.IncrementUsageCount()
-        // Register the behaviour that responds to CCUs being invalidated because of type
-        // provider Invalidate events. This invalidates the configuration in the build.
-        builder.ImportedCcusInvalidated.Add (fun msg -> 
-            System.Diagnostics.Debugger.Log(100, "service", sprintf "A build cache entry is being invalidated because of a : %s" msg)
-            self.InvalidateConfiguration options)
+        let decrement = 
+            match builderOpt with 
+            | None -> { new IDisposable with member x.Dispose() = () }
+            | Some builder ->  builder.IncrementUsageCount()
 
-        // Register the callback called just before a file is typechecked by the background builder (without recording
-        // errors or intellisense information).
-        //
-        // This indicates to the UI that the file type check state is dirty. If the file is open and visible then 
-        // the UI will sooner or later request a typecheck of the file, recording errors and intellisense information.
-        builder.BeforeTypeCheckFile.Add (fileTypeCheckStateIsDirty.Trigger)
-        builder.AfterProjectTypeCheck.Add (fun () -> afterProjectTypeCheck.Trigger options.ProjectFileName)
+        match builderOpt with 
+        | None -> ()
+        | Some builder -> 
 
-        (builder, errorsAndWarnings, decrement)
+            // Register the behaviour that responds to CCUs being invalidated because of type
+            // provider Invalidate events. This invalidates the configuration in the build.
+            builder.ImportedCcusInvalidated.Add (fun msg -> 
+                System.Diagnostics.Debugger.Log(100, "service", sprintf "A build cache entry is being invalidated because of a : %s" msg)
+                self.InvalidateConfiguration options)
+
+            // Register the callback called just before a file is typechecked by the background builder (without recording
+            // errors or intellisense information).
+            //
+            // This indicates to the UI that the file type check state is dirty. If the file is open and visible then 
+            // the UI will sooner or later request a typecheck of the file, recording errors and intellisense information.
+            builder.BeforeTypeCheckFile.Add (fileTypeCheckStateIsDirty.Trigger)
+            builder.AfterProjectTypeCheck.Add (fun () -> afterProjectTypeCheck.Trigger options.ProjectFileName)
+
+        (builderOpt, errorsAndWarnings, decrement)
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.incrementalBuildersCache. This root typically holds more 
     // live information than anything else in the F# Language Service, since it holds up to 3 (buildCacheSize) background project builds
@@ -1797,8 +1807,10 @@ type BackgroundCompiler() as self =
                  onDiscard = (fun (_, _, decrement) -> decrement.Dispose()))
 
     
-    
-    let MakeTypeCheckFileResults(options:ProjectOptions, builder, scope, creationErrors, parseErrors, tcErrors) = 
+    let MakeCheckFileResultsEmpty(creationErrors) = 
+        CheckFileResults (Array.ofList creationErrors,None, None, reactorOps)
+
+    let MakeCheckFileResults(options:ProjectOptions, builder, scope, creationErrors, parseErrors, tcErrors) = 
         let errors = 
             [| yield! creationErrors 
                yield! parseErrors
@@ -1807,12 +1819,12 @@ type BackgroundCompiler() as self =
                else 
                     yield! tcErrors |]
                 
-        CheckFileResults (errors,scope, Some builder, reactorOps)
+        CheckFileResults (errors, Some scope, Some builder, reactorOps)
 
     let MakeTypeCheckFileAnswer(tcFileResult, options:ProjectOptions, builder, creationErrors, parseErrors, tcErrors) = 
         match tcFileResult with 
         | Parser.TypeCheckAborted.Yes  ->  Aborted                
-        | Parser.TypeCheckAborted.No scope -> Succeeded(MakeTypeCheckFileResults(options, builder, scope, creationErrors, parseErrors, tcErrors))
+        | Parser.TypeCheckAborted.No scope -> Succeeded(MakeCheckFileResults(options, builder, scope, creationErrors, parseErrors, tcErrors))
 
 
     /// Parses the source file and returns untyped AST
@@ -1822,8 +1834,10 @@ type BackgroundCompiler() as self =
 #if TYPE_PROVIDER_SECURITY
             ExtensionTyping.GlobalsTheLanguageServiceCanPoke.theMostRecentFileNameWeChecked <- Some filename
 #endif
-            let builder,_,_ = incrementalBuildersCache.Get(options) // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
-            
+            let builderOpt,creationErrors,_ = incrementalBuildersCache.Get(options) // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
+            match builderOpt with
+            | None -> ParseFileResults(List.toArray creationErrors, None, true, [])
+            | Some builder -> 
             // Do the parsing.
             let parseErrors, _matchPairs, inputOpt, anyErrors = 
                Parser.ParseOneFile (source, false, true, filename, builder.ProjectFileNames, builder.TcConfig)
@@ -1833,7 +1847,10 @@ type BackgroundCompiler() as self =
     /// Fetch the parse information from the background compiler (which checks w.r.t. the FileSystem API)
     member bc.GetBackgroundParseResultsForFileInProject(filename, options) =
         reactor.RunAsyncOp <| fun () -> 
-            let builder, creationErrors, _= incrementalBuildersCache.Get(options)
+            let builderOpt, creationErrors, _= incrementalBuildersCache.Get(options)
+            match builderOpt with
+            | None -> ParseFileResults(List.toArray creationErrors, None, true, [])
+            | Some builder -> 
             let inputOpt,_,_,parseErrors = builder.GetParseResultsForFile filename            
             let dependencyFiles = builder.Dependencies 
             //let fileInfo = Parser.GetFileInfoForLastLineErrors source
@@ -1843,7 +1860,10 @@ type BackgroundCompiler() as self =
         
     member bc.MatchBraces(filename:string, source, options)=
         reactor.RunSyncOp <| fun () -> 
-            let builder,_,_ = incrementalBuildersCache.Get(options)
+            let builderOpt,_,_ = incrementalBuildersCache.Get(options)
+            match builderOpt with
+            | None -> [| |]
+            | Some builder -> 
             let _parseErrors, matchPairs, _inputOpt, _anyErrors = 
                Parser.ParseOneFile (source, true, false, filename, builder.ProjectFileNames, builder.TcConfig)
                  
@@ -1853,7 +1873,7 @@ type BackgroundCompiler() as self =
     member bc.CheckFileInProjectIfReady(untypedParse:ParseFileResults,filename,source,options,isResultObsolete,textSnapshotInfo:obj option) =
         reactor.RunSyncOp <| fun () -> 
             match incrementalBuildersCache.GetAvailable options with
-            | Some(builder, creationErrors, _) ->
+            | Some(Some builder, creationErrors, _) ->
             
                 match builder.GetTypeCheckResultsBeforeFileInProjectIfReady filename with 
                 | Some(tcPriorState,tcImports,tcGlobals,tcConfig,_tcEnvAtEnd,backgroundErrors,_tcResolutions,_antecedantTimeStamp) -> 
@@ -1869,12 +1889,15 @@ type BackgroundCompiler() as self =
 
                     Some(MakeTypeCheckFileAnswer(tcFileResult, options, builder, creationErrors, untypedParse.Errors, tcErrors))
                 | None -> None
-            | None -> None
+            | _ -> None
 
     /// Type-check the result obtained by parsing. Force the evaluation of the antecedent type checking context if needed.
     member bc.CheckFileInProject(untypedParse:ParseFileResults,filename,source,options,isResultObsolete,textSnapshotInfo) =
         reactor.RunAsyncOp <| fun () -> 
-            let builder,creationErrors,_ = incrementalBuildersCache.Get(options) 
+            let builderOpt,creationErrors,_ = incrementalBuildersCache.Get(options) 
+            match builderOpt with
+            | None -> CheckFileAnswer.Succeeded (MakeCheckFileResultsEmpty(creationErrors))
+            | Some builder -> 
             let (tcPriorState,tcImports,tcGlobals,tcConfig,_priorEnvAtEnd,priorErrors,_tcResolutions,_antecedantTimeStamp) = builder.GetTypeCheckResultsBeforeFileInProject filename 
             let loadClosure = scriptClosure.TryGet options 
             let tcErrors, tcFileResult = 
@@ -1885,29 +1908,39 @@ type BackgroundCompiler() as self =
     /// Fetch the check information from the background compiler (which checks w.r.t. the FileSystem API)
     member bc.GetBackgroundCheckResultsForFileInProject(filename,options) =
         reactor.RunAsyncOp <| fun () -> 
-            let (builder, creationErrors, _) = incrementalBuildersCache.Get options 
-            let (inputOpt, _, _, untypedErrors) = builder.GetParseResultsForFile filename  
-            let (tcState,tcImports,tcGlobals,tcConfig,tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp) = builder.GetTypeCheckResultsAfterFileInProject filename 
-            let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-            let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, untypedErrors) |]
-            let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, tcErrors) |]
-            let untypedParse = ParseFileResults(errors = untypedErrors, input = inputOpt, parseHadErrors = false, dependencyFiles = builder.Dependencies)
-            let loadClosure = scriptClosure.TryGet options 
-            let scope = 
-                TypeCheckInfo(tcConfig, tcGlobals, tcState.PartialAssemblySignature, tcImports,
-                              options.ProjectFileName, filename, List.last tcResolutions, tcEnvAtEnd.NameEnv,
-                              loadClosure, reactorOps.SyncOp, (fun () -> builder.IsAlive), None)     
-            let typedResults = MakeTypeCheckFileResults(options, builder, scope, creationErrors, untypedParse.Errors, tcErrors)
-            (untypedParse, typedResults)
+            let (builderOpt, creationErrors, _) = incrementalBuildersCache.Get options 
+            match builderOpt with
+            | None -> 
+                let untypedParse = ParseFileResults(Array.ofList creationErrors, None, true, [])
+                let typedResults = MakeCheckFileResultsEmpty(creationErrors)
+                (untypedParse, typedResults)
+            | Some builder -> 
+                let (inputOpt, _, _, untypedErrors) = builder.GetParseResultsForFile filename  
+                let (tcState,tcImports,tcGlobals,tcConfig,tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp) = builder.GetTypeCheckResultsAfterFileInProject filename 
+                let fileInfo = (Int32.MaxValue, Int32.MaxValue)
+                let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, untypedErrors) |]
+                let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, tcErrors) |]
+                let untypedParse = ParseFileResults(errors = untypedErrors, input = inputOpt, parseHadErrors = false, dependencyFiles = builder.Dependencies)
+                let loadClosure = scriptClosure.TryGet options 
+                let scope = 
+                    TypeCheckInfo(tcConfig, tcGlobals, tcState.PartialAssemblySignature, tcImports,
+                                  options.ProjectFileName, filename, List.last tcResolutions, tcEnvAtEnd.NameEnv,
+                                  loadClosure, reactorOps.SyncOp, (fun () -> builder.IsAlive), None)     
+                let typedResults = MakeCheckFileResults(options, builder, scope, creationErrors, untypedParse.Errors, tcErrors)
+                (untypedParse, typedResults)
 
     /// Parse and typecheck the whole project.
     member bc.ParseAndCheckProject(options) =
         reactor.RunAsyncOp <| fun () -> 
-            let builder,creationErrors,_ = incrementalBuildersCache.Get(options) 
-            let (tcState,tcImports,tcGlobals,tcConfig,_tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp)  = builder.GetTypeCheckResultsAfterLastFileInProject()
-            let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcErrors) |]
-            CheckProjectResults (errors, tcGlobals, tcImports, tcState.PartialAssemblySignature, tcResolutions, reactorOps)
+            let builderOpt,creationErrors,_ = incrementalBuildersCache.Get(options) 
+            match builderOpt with 
+            | None -> 
+                CheckProjectResults (Array.ofList creationErrors, None, reactorOps)
+            | Some builder -> 
+                let (tcState,tcImports,tcGlobals,tcConfig,_tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp)  = builder.GetTypeCheckResultsAfterLastFileInProject()
+                let fileInfo = (Int32.MaxValue, Int32.MaxValue)
+                let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcErrors) |]
+                CheckProjectResults (errors, Some(tcGlobals, tcImports, tcState.PartialAssemblySignature, tcResolutions), reactorOps)
 
     member bc.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = 
         reactor.RunSyncOp (fun () -> 
@@ -1949,10 +1982,11 @@ type BackgroundCompiler() as self =
     member bc.NotifyProjectCleaned(options : ProjectOptions) =
         match incrementalBuildersCache.GetAvailable options with
         | None -> ()
-        | Some (incrementalBuilder, _, _) ->
+        | Some (builderOpt, _, _) ->
 #if EXTENSIONTYPING
-            if incrementalBuilder.ThereAreLiveTypeProviders then
-                bc.InvalidateConfiguration(options)
+            builderOpt |> Option.iter (fun builder -> 
+                if builder.ThereAreLiveTypeProviders then
+                    bc.InvalidateConfiguration(options))
 #else
             ()
 #endif
@@ -1962,8 +1996,10 @@ type BackgroundCompiler() as self =
 
     member bc.StartBuilding(options) =
         reactor.StartBuilding(fun () -> 
-            let builder,_,_ = incrementalBuildersCache.Get(options)
-            builder.Step() )
+            let builderOpt,_,_ = incrementalBuildersCache.Get(options)
+            match builderOpt with 
+            | None -> false
+            | Some builder -> builder.Step())
 
     member bc.StopBuilding() =
         reactor.StopBuilding() 
@@ -2172,7 +2208,7 @@ type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, 
         match tcFileResult with 
         | Parser.TypeCheckAborted.No scope ->
             let errors = [|  yield! parseErrors; yield! tcErrors |]
-            let typeCheckResults = CheckFileResults (errors,scope, None, reactorOps)   
+            let typeCheckResults = CheckFileResults (errors,Some scope, None, reactorOps)   
             untypedParse, typeCheckResults
         | _ -> 
             failwith "unexpected aborted"

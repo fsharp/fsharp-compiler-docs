@@ -2623,8 +2623,10 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
         // to be explicitly kept alive.
         GC.KeepAlive fsiInterruptController.EventHandlers
 
-    static member GetDefaultConfiguration(fsiObj:obj) = 
 
+    static member GetDefaultConfiguration(fsiObj:obj) =  FsiEvaluationSession.GetDefaultConfiguration(fsiObj, true)
+    static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) = 
+    
         let rec tryFindMember (name : string) (memberType : MemberTypes) (declaringType : Type) =
             match declaringType.GetMember(name, memberType, BindingFlags.Instance ||| BindingFlags.Public ||| BindingFlags.NonPublic) with
             | [||] -> declaringType.GetInterfaces() |> Array.tryPick (tryFindMember name memberType)
@@ -2668,8 +2670,108 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
               member __.EventLoopRun() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "Run"   
               member __.EventLoopInvoke(f : unit -> 'T) =  callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") [|typeof<'T>|] "Invoke" f
               member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "ScheduleRestart"
-              member __.UseFsiAuxLib = true
+              member __.UseFsiAuxLib = useFsiAuxLib
               member __.OptionalConsoleReadLine = None }
+
+
+//-------------------------------------------------------------------------------
+// If no "fsi" object for the configuration is specified, make the default
+// configuration one which stores the settings in-process 
+
+module BuiltinFsiObjectImpl = 
+    type IEventLoop =
+        abstract Run : unit -> bool
+        abstract Invoke : (unit -> 'T) -> 'T 
+        abstract ScheduleRestart : unit -> unit
+    
+    // An implementation of IEventLoop suitable for the command-line console
+    [<AutoSerializable(false)>]
+    type internal SimpleEventLoop() = 
+        let runSignal = new AutoResetEvent(false)
+        let exitSignal = new AutoResetEvent(false)
+        let doneSignal = new AutoResetEvent(false)
+        let mutable queue = ([] : (unit -> obj) list)
+        let mutable result = (None : obj option)
+        let setSignal(signal : AutoResetEvent) = while not (signal.Set()) do Thread.Sleep(1); done
+        let waitSignal signal = WaitHandle.WaitAll([| (signal :> WaitHandle) |]) |> ignore
+        let waitSignal2 signal1 signal2 = 
+            WaitHandle.WaitAny([| (signal1 :> WaitHandle); (signal2 :> WaitHandle) |])
+        let mutable running = false
+        let mutable restart = false
+        interface IEventLoop with 
+             member x.Run() =  
+                 running <- true;
+                 let rec run() = 
+                     match waitSignal2 runSignal exitSignal with 
+                     | 0 -> 
+                         queue |> List.iter (fun f -> result <- try Some(f()) with _ -> None); 
+                         setSignal doneSignal;
+                         run()
+                     | 1 -> 
+                         running <- false;
+                         restart
+                     | _ -> run()
+                 run();
+             member x.Invoke(f : unit -> 'T) : 'T  = 
+                 queue <- [f >> box];
+                 setSignal runSignal;
+                 waitSignal doneSignal
+                 result.Value |> unbox
+             member x.ScheduleRestart() = 
+                 if running then 
+                     restart <- true;
+                     setSignal exitSignal
+        interface System.IDisposable with 
+             member x.Dispose() =
+                         runSignal.Close();
+                         exitSignal.Close();
+                         doneSignal.Close();
+                     
+
+
+    [<Sealed>]
+    type InteractiveSettings()  = 
+        let mutable evLoop = (new SimpleEventLoop() :> IEventLoop)
+        let mutable showIDictionary = true
+        let mutable showDeclarationValues = true
+        let mutable args = Environment.GetCommandLineArgs()
+        let mutable fpfmt = "g10"
+        let mutable fp = (CultureInfo.InvariantCulture :> System.IFormatProvider)
+        let mutable printWidth = 78
+        let mutable printDepth = 100
+        let mutable printLength = 100
+        let mutable printSize = 10000
+        let mutable showIEnumerable = true
+        let mutable showProperties = true
+        let mutable addedPrinters = []
+
+        member self.FloatingPointFormat with get() = fpfmt and set v = fpfmt <- v
+        member self.FormatProvider with get() = fp and set v = fp <- v
+        member self.PrintWidth  with get() = printWidth and set v = printWidth <- v
+        member self.PrintDepth  with get() = printDepth and set v = printDepth <- v
+        member self.PrintLength  with get() = printLength and set v = printLength <- v
+        member self.PrintSize  with get() = printSize and set v = printSize <- v
+        member self.ShowDeclarationValues with get() = showDeclarationValues and set v = showDeclarationValues <- v
+        member self.ShowProperties  with get() = showProperties and set v = showProperties <- v
+        member self.ShowIEnumerable with get() = showIEnumerable and set v = showIEnumerable <- v
+        member self.ShowIDictionary with get() = showIDictionary and set v = showIDictionary <- v
+        member self.AddedPrinters with get() = addedPrinters and set v = addedPrinters <- v
+        member self.CommandLineArgs with get() = args  and set v  = args <- v
+        member self.AddPrinter(printer : 'T -> string) =
+          addedPrinters <- Choice1Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
+
+        member self.EventLoop
+           with get () = evLoop
+           and set (x:IEventLoop)  = evLoop.ScheduleRestart(); evLoop <- x
+
+        member self.AddPrintTransformer(printer : 'T -> obj) =
+          addedPrinters <- Choice2Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
+    
+    let BuiltinFsiObject = InteractiveSettings()
+
+type FsiEvaluationSession with 
+    static member GetDefaultConfiguration() = 
+        FsiEvaluationSession.GetDefaultConfiguration(BuiltinFsiObjectImpl.BuiltinFsiObject, false)
 
 
 /// Defines a read-only input stream used to feed content to the hosted F# Interactive dynamic compiler.

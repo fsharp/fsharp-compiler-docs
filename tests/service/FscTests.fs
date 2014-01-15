@@ -43,12 +43,18 @@ module FSharp.Compiler.Service.Tests.FscTests
                 raise <| VerificationException(assemblyPath, id, stdOut)
 
 
-    let compileAndVerify isDll (assemblyName : string) (code : string) (dependencies : string list) =
+    type DebugMode =
+        | Off
+        | PdbOnly
+        | Full
+
+    let compileAndVerify isDll debugMode (assemblyName : string) (code : string) (dependencies : string list) =
         let scs = new Microsoft.FSharp.Compiler.SimpleSourceCodeServices.SimpleSourceCodeServices()
         let verifier = new PEVerifier ()
         let tmp = Path.GetTempPath()
         let sourceFile = Path.Combine(tmp, assemblyName + ".fs")
         let outFile = Path.Combine(tmp, assemblyName + if isDll then ".dll" else ".exe")
+        let pdbFile = Path.Combine(tmp, assemblyName + ".pdb")
         do File.WriteAllText(sourceFile, code)
         let args =
             [|
@@ -57,6 +63,15 @@ module FSharp.Compiler.Service.Tests.FscTests
                 yield "fsc.exe"
 
                 if isDll then yield "--target:library"
+
+                match debugMode with
+                | Off -> () // might need to include some switches here
+                | PdbOnly ->
+                    yield "--debug:pdbonly"
+                    yield sprintf "--pdb:%s" pdbFile
+                | Full ->
+                    yield "--debug:full"
+                    yield sprintf "--pdb:%s" pdbFile
 
                 for d in dependencies do
                     yield sprintf "-r:%s" d
@@ -101,7 +116,7 @@ module Foo
     exception E of int * string
 """
 
-        compileAndVerify true "Foo" code [] |> ignore
+        compileAndVerify true PdbOnly "Foo" code [] |> ignore
 
     [<Test>]
     let ``3. Simple FSC executable test`` () =
@@ -112,7 +127,7 @@ module Bar
     let main _ = printfn "Hello, World!" ; 42
 
 """
-        let outFile = compileAndVerify false "Bar" code []
+        let outFile = compileAndVerify false PdbOnly "Bar" code []
 
         use proc = Process.Start(outFile, "")
         while not proc.HasExited do ()

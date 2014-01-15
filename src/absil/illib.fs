@@ -959,6 +959,7 @@ module Shim =
         abstract ReadAllBytesShim: fileName:string -> byte[] 
         abstract FileStreamReadShim: fileName:string -> System.IO.Stream
         abstract FileStreamCreateShim: fileName:string -> System.IO.Stream
+        abstract FileStreamWriteExistingShim: fileName:string -> System.IO.Stream
         /// Take in a filename with an absolute path, and return the same filename
         /// but canonicalized with respect to extra path separators (e.g. C:\\\\foo.txt) 
         /// and '..' portions
@@ -1058,6 +1059,7 @@ module Shim =
             member __.ReadAllBytesShim (fileName:string) = File.ReadAllBytes fileName
             member __.FileStreamReadShim (fileName:string) = new FileStream(fileName,FileMode.Open,FileAccess.Read,FileShare.ReadWrite)  :> Stream
             member __.FileStreamCreateShim (fileName:string) = new FileStream(fileName,FileMode.Create,FileAccess.Write,FileShare.Read ,0x1000,false) :> Stream
+            member __.FileStreamWriteExistingShim (fileName:string) = new FileStream(fileName,FileMode.Open,FileAccess.Write,FileShare.Read ,0x1000,false) :> Stream
             member __.GetFullPathShim (fileName:string) = System.IO.Path.GetFullPath fileName
 
             member __.IsPathRootedShim (path:string) = Path.IsPathRooted path

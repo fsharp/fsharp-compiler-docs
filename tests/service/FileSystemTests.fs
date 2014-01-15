@@ -42,6 +42,9 @@ let B = File1.A + File1.A"""
         member __.FileStreamCreateShim(fileName) = 
             defaultFileSystem.FileStreamCreateShim(fileName)
 
+        member __.FileStreamWriteExistingShim(fileName) = 
+            defaultFileSystem.FileStreamWriteExistingShim(fileName)
+
         member __.ReadAllBytesShim(fileName) = 
             match files.TryGetValue(fileName) with
             | true, text -> Encoding.UTF8.GetBytes(text)

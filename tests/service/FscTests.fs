@@ -73,7 +73,24 @@ module FSharp.Compiler.Service.Tests.FscTests
 
 
     [<Test>]
-    let ``Simple FSC library test`` () =
+    let ``1. PEVerifier sanity check`` () =
+        let verifier = new PEVerifier()
+
+        let fscorlib = typeof<int option>.Assembly
+        verifier.Verify fscorlib.Location
+
+        let junkFile = Path.GetTempFileName()
+        do 
+            File.Copy(fscorlib.Location, junkFile, overwrite = true)
+            use fs = new FileStream(junkFile, FileMode.Open, FileAccess.Write)
+            fs.Seek(50L, SeekOrigin.Begin) |> ignore
+            fs.Write([|1uy..20uy|], 0, 20) 
+
+        Assert.Throws<VerificationException>(fun () -> verifier.Verify junkFile |> ignore) |> ignore
+
+
+    [<Test>]
+    let ``2. Simple FSC library test`` () =
         let code = """
 module Foo
 
@@ -87,7 +104,7 @@ module Foo
         compileAndVerify true "Foo" code [] |> ignore
 
     [<Test>]
-    let ``Simple FSC executable test`` () =
+    let ``3. Simple FSC executable test`` () =
         let code = """
 module Bar
 

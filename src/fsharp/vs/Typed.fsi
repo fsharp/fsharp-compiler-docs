@@ -19,14 +19,17 @@ open Microsoft.FSharp.Compiler.Range
 
 type [<Class>] FSharpSymbol = 
     /// Internal use only. 
-    internal new : g:TcGlobals * item:(unit -> Nameres.Item) -> FSharpSymbol
+    static member internal Create : g:TcGlobals * item:Nameres.Item -> FSharpSymbol
 
     member internal Item: Nameres.Item
         
-    /// Get the declaration location for the item
+    /// Get the declaration location for the symbol
     member DeclarationLocation: range option
 
-    /// Get the implementation location for the item of it wsa declared in a signature that has an implementation
+    /// Gets the short display name for the symbol
+    member DisplayName: string
+
+    /// Get the implementation location for the symbol of it wsa declared in a signature that has an implementation
     member ImplementationLocation: range option
 
 
@@ -408,6 +411,7 @@ and [<Class>] FSharpMemberOrVal =
 
     inherit FSharpSymbol
 
+    /// Get the enclosing entity for the definition
     member EnclosingEntity : FSharpEntity
     
     /// Get the declaration location of the member or value

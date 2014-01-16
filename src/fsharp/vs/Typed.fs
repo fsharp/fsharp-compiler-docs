@@ -58,11 +58,55 @@ type Env(typars : Typar list) =
     let typars = Array.ofList typars
     member __.Typars = typars
 
+[<RequireQualifiedAccess>]
+type FSharpSymbolKind =
+    | None
+    | ModuleDefinition
+    | TypeDefinition
+    | UnionCase
+    | UnionCaseField
+    | RecordCaseField
+    | Property
+    | Event
+    | Method
+    | Constructor
+    | Accessor
+    | Namespace
+    | ModuleValueOrFunction
+    | LocalValueOfFunction
+    | GenericParameter
+        
 // delay the realization of 'item' in case it is unresolved
 type FSharpSymbol(g:TcGlobals, item: (unit -> Item)) =
     member x.DeclarationLocation = ItemDescriptionsImpl.rangeOfItem g true (item())
     member x.ImplementationLocation = ItemDescriptionsImpl.rangeOfItem g false (item())
     member internal x.Item = item()
+    member x.DisplayName = item().DisplayName(g)
+(*
+    member x.Kind = 
+        match item() with 
+        | Item.Value v -> if v.IsModuleBinding then Modu
+        | Item.ActivePatternCase apref -> apref.Name
+        | Item.UnionCase uinfo -> DecompileOpName uinfo.UnionCase.DisplayName
+        | Item.ExnCase tcref -> tcref.LogicalName
+        | Item.RecdField rfinfo -> DecompileOpName rfinfo.RecdField.Name
+        | Item.NewDef id -> id.idText
+        | Item.ILField finfo -> finfo.FieldName
+        | Item.Event einfo -> einfo.EventName
+        | Item.Property(nm,_) -> nm
+        | Item.MethodGroup(nm,_) -> nm
+        | Item.CtorGroup(nm,_) -> DemangleGenericTypeName nm
+        | Item.FakeInterfaceCtor typ 
+        | Item.DelegateCtor typ -> DemangleGenericTypeName (tcrefOfAppTy g typ).LogicalName
+        | Item.Types(nm,_) -> DemangleGenericTypeName nm
+        | Item.TypeVar nm -> nm
+        | Item.ModuleOrNamespaces(modref :: _) ->  modref.DemangledModuleOrNamespaceName
+        | Item.ArgName (id,_)  -> id.idText
+        | Item.SetterArg (id, _) -> id.idText
+        | Item.CustomOperation (customOpName,_,_) -> customOpName
+        | Item.CustomBuilder (nm,_) -> nm
+*)
+        
     override x.ToString() = "symbol " + (try item().DisplayName(g) with _ -> "?")
 
 type FSharpEntity(g:TcGlobals, entity:EntityRef) = 
@@ -70,12 +114,16 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
                                        if entity.IsModule then Item.ModuleOrNamespaces [entity] 
                                        else Item.UnqualifiedType [entity]))
 
-    let isFSharp() = 
+    // If an entity is in an assembly not available to us in the resolution set,
+    // we generally return "false" from predicates like IsClass, since we know
+    // nothing about that type.
+    let isResolvedAndFSharp() = 
         match entity with
         | ERefNonLocal(NonLocalEntityRef(ccu, _)) -> not ccu.IsUnresolvedReference && ccu.IsFSharp
         | _ -> true
 
     let isUnresolved() = entityIsUnresolved entity
+    let isResolved() = not (isUnresolved())
     let checkIsResolved() = checkEntityIsResolved entity
 
     member __.Entity = entity
@@ -128,80 +176,72 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         entity.TyparsNoRange |> List.map (fun tp -> FSharpGenericParameter(g, env,tp)) |> List.toArray |> makeReadOnlyCollection
 
     member __.IsMeasure = 
-        checkIsResolved()
-        (entity.TypeOrMeasureKind = TyparKind.Measure)
+        isResolvedAndFSharp() && (entity.TypeOrMeasureKind = TyparKind.Measure)
 
     member __.IsFSharpModule = 
-        checkIsResolved()
-        isFSharp() && entity.IsModule
+        isResolvedAndFSharp() && entity.IsModule
 
     member __.HasFSharpModuleSuffix = 
-        checkIsResolved()
-        isFSharp() && entity.IsModule && (entity.ModuleOrNamespaceType.ModuleOrNamespaceKind = ModuleOrNamespaceKind.FSharpModuleWithSuffix)
+        isResolvedAndFSharp() && entity.IsModule && (entity.ModuleOrNamespaceType.ModuleOrNamespaceKind = ModuleOrNamespaceKind.FSharpModuleWithSuffix)
 
     member __.IsValueType  = 
-        checkIsResolved()
+        isResolved() &&
         entity.IsStructOrEnumTycon 
 
     member __.IsProvided  = 
-        checkIsResolved()
+        isResolved() &&
         entity.IsProvided
 
     member __.IsProvidedAndErased  = 
-        checkIsResolved()
+        isResolved() &&
         entity.IsProvidedErasedTycon
 
     member __.IsProvidedAndGenerated  = 
-        checkIsResolved()
+        isResolved() &&
         entity.IsProvidedGeneratedTycon
 
     member __.IsClass = 
-        checkIsResolved()
+        isResolved() &&
         match metadataOfTycon entity.Deref with 
         | ProvidedTypeMetadata info -> info.IsClass
         | ILTypeMetadata (_,td) -> (td.tdKind = ILTypeDefKind.Class)
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> entity.Deref.IsFSharpClassTycon
 
     member __.IsInterface = 
-        checkIsResolved()
+        isResolved() &&
         isInterfaceTyconRef entity
 
     member __.IsDelegate = 
-        checkIsResolved()
+        isResolved() &&
         match metadataOfTycon entity.Deref with 
         | ProvidedTypeMetadata info -> info.IsDelegate ()
         | ILTypeMetadata (_,td) -> (td.tdKind = ILTypeDefKind.Delegate)
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> entity.IsFSharpDelegateTycon
 
     member __.IsEnum = 
-        checkIsResolved()
+        isResolved() &&
         entity.IsEnumTycon
     
     member __.IsFSharpExceptionDeclaration = 
-        checkIsResolved()
-        isFSharp() && entity.IsExceptionDecl
+        isResolvedAndFSharp() && entity.IsExceptionDecl
 
     member __.IsUnresolved = 
         isUnresolved()
 
     member __.IsFSharp = 
-        isFSharp()
+        isResolvedAndFSharp()
 
     member __.IsFSharpAbbreviation = 
-        checkIsResolved()
-        isFSharp() && entity.IsTypeAbbrev 
+        isResolvedAndFSharp() && entity.IsTypeAbbrev 
 
     member __.IsFSharpRecord = 
-        checkIsResolved()
-        isFSharp() && entity.IsRecordTycon
+        isResolvedAndFSharp() && entity.IsRecordTycon
 
     member __.IsFSharpUnion = 
-        checkIsResolved()
-        isFSharp() && entity.IsUnionTycon
+        isResolvedAndFSharp() && entity.IsUnionTycon
 
     member __.HasAssemblyCodeRepresentation = 
-        checkIsResolved()
-        isFSharp() && (entity.IsAsmReprTycon || entity.IsMeasureableReprTycon)
+        isResolvedAndFSharp() && (entity.IsAsmReprTycon || entity.IsMeasureableReprTycon)
 
 
     member __.FSharpDelegateSignature =
@@ -215,15 +255,15 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
       
 
     member __.Accessibility = 
-        checkIsResolved()
+        if isUnresolved() then FSharpAccessibility(taccessPublic) else
         FSharpAccessibility(entity.Accessibility) 
 
     member __.RepresentationAccessibility = 
-        checkIsResolved()
+        if isUnresolved() then FSharpAccessibility(taccessPublic) else
         FSharpAccessibility(entity.TypeReprAccessibility)
 
     member this.DeclaredInterfaces = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection [] else
         let env = Env(entity.TyparsNoRange)
         entity.ImmediateInterfaceTypesOfFSharpTycon |> List.map (fun ty -> FSharpType(g, env,ty)) |> makeReadOnlyCollection
 
@@ -235,21 +275,21 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         | Some ty -> FSharpType(g, env,ty)
         
     member __.UsesPrefixDisplay = 
-        checkIsResolved()
-        not (isFSharp()) || entity.Deref.IsPrefixDisplay
+        if isUnresolved() then true else
+        not (isResolvedAndFSharp()) || entity.Deref.IsPrefixDisplay
 
     member this.MembersOrValues = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection[] else
         ((entity.MembersOfFSharpTyconSorted
             |> List.filter (fun v -> 
                  not v.IsOverrideOrExplicitImpl && 
                  not v.Deref.IsClassConstructor)
-            |> List.map (fun v -> FSharpMemberOrVal(g, this, v)))
+            |> List.map (fun v -> FSharpMemberOrVal(g, v)))
         @
             (entity.ModuleOrNamespaceType.AllValsAndMembers
             |> Seq.toList
             |> List.filter (fun v -> v.IsExtensionMember || not v.IsMember) 
-            |> List.map (fun v -> FSharpMemberOrVal(g,this,mkNestedValRef entity v))))
+            |> List.map (fun v -> FSharpMemberOrVal(g,mkNestedValRef entity v))))
                
             |> makeReadOnlyCollection
 
@@ -258,25 +298,25 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         entity.XmlDocSig 
 
     member __.XmlDoc = 
-        checkIsResolved()
+        if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
         entity.XmlDoc |> makeXmlDoc
 
     member __.NestedEntities = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection[] else
         entity.ModuleOrNamespaceType.AllEntities 
         |> QueueList.toList
         |> List.map (fun x -> FSharpEntity(g, entity.MkNestedTyconRef x))
         |> makeReadOnlyCollection
 
     member this.UnionCases = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection[] else
         let env = Env(entity.TyparsNoRange)
         entity.UnionCasesAsRefList
         |> List.map (fun x -> FSharpUnionCase(g, env,x)) 
         |> makeReadOnlyCollection
 
     member this.RecordFields =
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection[] else
 
         let env = Env(entity.TyparsNoRange)
         
@@ -294,7 +334,7 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         | Some ty -> FSharpType(g, env, ty)
 
     member __.Attributes = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection[] else
         entity.Attribs
         |> List.map (fun a -> FSharpAttribute(g, a))
         |> makeReadOnlyCollection
@@ -315,6 +355,8 @@ and FSharpUnionCase(g:TcGlobals, env:Env, v: UnionCaseRef) =
     inherit FSharpSymbol (g, (fun () -> checkEntityIsResolved v.TyconRef
                                         Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))))
 
+    let isUnresolved() = 
+        entityIsUnresolved v.TyconRef || v.TryUnionCase.IsNone 
     let checkIsResolved() = 
         checkEntityIsResolved v.TyconRef
         if v.TryUnionCase.IsNone then 
@@ -329,7 +371,7 @@ and FSharpUnionCase(g:TcGlobals, env:Env, v: UnionCaseRef) =
         v.Range
 
     member __.UnionCaseFields = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection [] else
         v.UnionCase.RecdFields |> List.mapi (fun i _ ->  FSharpRecordField(g, env, RecdFieldData.Union (v, i))) |> List.toArray |> makeReadOnlyCollection
 
     member __.ReturnType = 
@@ -345,15 +387,15 @@ and FSharpUnionCase(g:TcGlobals, env:Env, v: UnionCaseRef) =
         v.UnionCase.XmlDocSig
 
     member __.XmlDoc = 
-        checkIsResolved()
+        if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
         v.UnionCase.XmlDoc |> makeXmlDoc
 
     member __.Attributes = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection [] else
         v.Attribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
 
     member __.Accessibility =  
-        checkIsResolved()
+        if isUnresolved() then FSharpAccessibility(taccessPublic) else
         FSharpAccessibility(v.UnionCase.Accessibility)
 
     member private this.V = v
@@ -387,6 +429,11 @@ and FSharpRecordField(g:TcGlobals, env:Env, d: RecdFieldData) =
                  Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))
 
              ))
+    let isUnresolved() = 
+        match d with 
+        | Recd v -> entityIsUnresolved v.TyconRef || v.TryRecdField.IsNone 
+        | Union (v,_) -> entityIsUnresolved v.TyconRef || v.TryUnionCase.IsNone 
+
     let checkIsResolved() = 
         match d with 
         | Recd v -> 
@@ -399,7 +446,7 @@ and FSharpRecordField(g:TcGlobals, env:Env, d: RecdFieldData) =
                 invalidOp (sprintf "The union case '%s' could not be found in the target type" v.CaseName)
 
     member __.IsMutable = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         d.RecdField.IsMutable
 
     member __.XmlDocSig = 
@@ -407,7 +454,7 @@ and FSharpRecordField(g:TcGlobals, env:Env, d: RecdFieldData) =
         d.RecdField.XmlDocSig
 
     member __.XmlDoc = 
-        checkIsResolved()
+        if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
         d.RecdField.XmlDoc |> makeXmlDoc
 
     member __.FieldType = 
@@ -415,7 +462,7 @@ and FSharpRecordField(g:TcGlobals, env:Env, d: RecdFieldData) =
         FSharpType(g, env, d.RecdField.FormalType)
 
     member __.IsStatic = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         d.RecdField.IsStatic
 
     member __.Name = 
@@ -423,7 +470,7 @@ and FSharpRecordField(g:TcGlobals, env:Env, d: RecdFieldData) =
         d.RecdField.Name
 
     member __.IsCompilerGenerated = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         d.RecdField.IsCompilerGenerated
 
     member __.DeclarationLocation = 
@@ -431,15 +478,15 @@ and FSharpRecordField(g:TcGlobals, env:Env, d: RecdFieldData) =
         d.RecdField.Range
 
     member __.FieldAttributes = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection [] else 
         d.RecdField.FieldAttribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
 
     member __.PropertyAttributes = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection [] else 
         d.RecdField.PropertyAttribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
 
     member __.Accessibility =  
-        checkIsResolved()
+        if isUnresolved() then FSharpAccessibility(taccessPublic) else 
         FSharpAccessibility(d.RecdField.Accessibility) 
 
     member private this.V = d
@@ -641,7 +688,7 @@ and FSharpInlineAnnotation =
    | OptionalInline 
    | NeverInline 
 
-and FSharpMemberOrVal(g:TcGlobals,e:FSharpEntity,v:ValRef) = 
+and FSharpMemberOrVal(g:TcGlobals,v:ValRef) = 
 
     inherit FSharpSymbol (g, (fun () -> Item.Value(v)))
 
@@ -672,14 +719,18 @@ and FSharpMemberOrVal(g:TcGlobals,e:FSharpEntity,v:ValRef) =
         checkIsResolved()
         FSharpType(g, Env(v.Typars),v.TauType)
 
-    member __.EnclosingEntity = e
+    member __.EnclosingEntity = 
+        checkIsResolved()
+        match v.ActualParent with 
+        | ParentNone -> invalidOp "the value or member doesn't have an enclosing entity" 
+        | Parent p -> FSharpEntity(g, p)
 
     member __.IsCompilerGenerated = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.IsCompilerGenerated
 
     member __.InlineAnnotation = 
-        checkIsResolved()
+        if isUnresolved() then FSharpInlineAnnotation.OptionalInline else 
         match v.InlineInfo with 
         | ValInline.PseudoVal -> FSharpInlineAnnotation.PsuedoValue
         | ValInline.Always -> FSharpInlineAnnotation.AlwaysInline
@@ -687,51 +738,51 @@ and FSharpMemberOrVal(g:TcGlobals,e:FSharpEntity,v:ValRef) =
         | ValInline.Never -> FSharpInlineAnnotation.NeverInline
 
     member __.IsMutable = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.IsMutable
 
     member __.IsModuleValueOrMember = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.IsMember || v.IsModuleBinding
 
     member __.IsMember = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.IsMember 
     
     member __.IsDispatchSlot = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.IsDispatchSlot
 
     member __.IsGetterMethod = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         match v.MemberInfo with 
         | None -> false 
         | Some memInfo -> memInfo.MemberFlags.MemberKind = MemberKind.PropertyGet
 
     member __.IsSetterMethod = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         match v.MemberInfo with 
         | None -> false 
         | Some memInfo -> memInfo.MemberFlags.MemberKind = MemberKind.PropertySet
 
     member __.IsInstanceMember = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.IsInstanceMember
 
     member __.IsExtensionMember = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.IsExtensionMember
 
     member __.IsImplicitConstructor = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.IsIncrClassConstructor
     
     member __.IsTypeFunction = 
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.IsTypeFunction
 
     member __.IsActivePattern =  
-        checkIsResolved()
+        if isUnresolved() then false else 
         v.CoreDisplayName |> PrettyNaming.ActivePatternInfoOfValName |> isSome
 
     member __.CompiledName = 
@@ -751,7 +802,7 @@ and FSharpMemberOrVal(g:TcGlobals,e:FSharpEntity,v:ValRef) =
         v.XmlDocSig
 
     member __.XmlDoc = 
-        checkIsResolved()
+        if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
         v.XmlDoc |> makeXmlDoc
 
     member __.CurriedParameterGroups = 
@@ -785,7 +836,7 @@ and FSharpMemberOrVal(g:TcGlobals,e:FSharpEntity,v:ValRef) =
 
 
     member __.Attributes = 
-        checkIsResolved()
+        if isUnresolved() then makeReadOnlyCollection [] else 
         v.Attribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
      
 (*
@@ -805,7 +856,7 @@ and FSharpMemberOrVal(g:TcGlobals,e:FSharpEntity,v:ValRef) =
 
       /// How visible is this? 
     member __.Accessibility = 
-        checkIsResolved()
+        if isUnresolved() then FSharpAccessibility(taccessPublic) else 
         FSharpAccessibility(v.Accessibility)
 
     member private this.V = v
@@ -987,3 +1038,61 @@ type FSharpAssembly internal (g: TcGlobals, ccu: CcuThunk) =
     member __.Contents = FSharpAssemblySignature(g, ccu.Contents.ModuleOrNamespaceType)
                  
     override this.ToString() = this.QualifiedName
+
+type FSharpSymbol with 
+    // TODO: there are several cases where we may need to report more interesting
+    // symbol information below. By default we return a vanilla symbol.
+    static member Create(g, item) : FSharpSymbol = 
+        let dflt = FSharpSymbol(g, (fun () -> item)) 
+        match item with 
+        | Item.Value v -> FSharpMemberOrVal(g, v) :> _
+        | Item.UnionCase uinfo -> FSharpUnionCase(g,Env(uinfo.TyconRef.TyparsNoRange),uinfo.UnionCaseRef) :> _
+        | Item.ExnCase tcref -> FSharpEntity(g, tcref) :>_
+        | Item.RecdField rfinfo -> FSharpRecordField(g,Env(rfinfo.TyconRef.TyparsNoRange),Recd rfinfo.RecdFieldRef) :> _
+        
+        | Item.Event einfo -> 
+            match einfo.ArbitraryValRef with 
+            | Some vref ->  FSharpMemberOrVal(g, vref) :> _
+            | None -> dflt 
+            
+        | Item.Property(_,pinfo :: _) -> 
+            match pinfo.ArbitraryValRef with 
+            | Some vref ->  FSharpMemberOrVal(g, vref) :> _
+            | None -> dflt 
+            
+        | Item.MethodGroup(_,minfo :: _) -> 
+            match minfo.ArbitraryValRef with 
+            | Some vref ->  FSharpMemberOrVal(g, vref) :> _
+            | None -> dflt
+
+        | Item.CtorGroup(_,cinfo :: _) -> 
+            match cinfo.ArbitraryValRef with 
+            | Some vref ->  FSharpMemberOrVal(g, vref) :> _
+            | None -> dflt 
+
+        | Item.DelegateCtor typ -> 
+            FSharpEntity(g, tcrefOfAppTy g typ) :>_ 
+
+        | Item.Types(_,typ :: _) -> 
+            if isAppTy g  typ then FSharpEntity(g, tcrefOfAppTy g typ) :>_  else dflt
+
+        | Item.ModuleOrNamespaces(modref :: _) ->  
+            FSharpEntity(g, modref) :> _
+
+        | Item.SetterArg (_id, item) -> FSharpSymbol.Create(g,item)
+        | Item.CustomOperation (_customOpName,_, Some minfo) -> 
+            match minfo.ArbitraryValRef with 
+            | Some vref ->  FSharpMemberOrVal(g, vref) :> _
+            | None -> dflt
+
+        | Item.CustomBuilder (_,vref) -> 
+            FSharpMemberOrVal(g, vref) :> _
+
+        // TODO: the following don't currently return any interesting subtype
+        | Item.ArgName _  
+        | Item.TypeVar _
+        | Item.ActivePatternCase _
+        | Item.ILField _ 
+        | Item.FakeInterfaceCtor _
+        | Item.NewDef _ -> dflt
+        | _ ->  dflt

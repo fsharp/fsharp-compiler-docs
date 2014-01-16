@@ -2456,9 +2456,12 @@ and NonLocalEntityRef    =
 #endif
             
     /// Try to link a non-local entity reference to an actual entity
-    member nleref.TryDeref = 
+    member nleref.TryDeref(canError) = 
         let (NonLocalEntityRef(ccu,path)) = nleref 
-        ccu.EnsureDerefable(path)
+        if canError then 
+            ccu.EnsureDerefable(path)
+
+        if ccu.IsUnresolvedReference then None else
 
         match NonLocalEntityRef.TryDerefEntityPath(ccu, path, 0, ccu.Contents)  with
         | Some _ as r -> r
@@ -2503,16 +2506,12 @@ and NonLocalEntityRef    =
 
     /// Dereference the nonlocal reference, and raise an error if this fails.
     member nleref.Deref = 
-        match nleref.TryDeref with 
+        match nleref.TryDeref(canError=true) with 
         | Some res -> res
         | None -> 
               errorR (InternalUndefinedItemRef (FSComp.SR.tastUndefinedItemRefModuleNamespace, nleref.DisplayName, nleref.AssemblyName, "<some module on this path>")); 
               raise (KeyNotFoundException())
         
-    /// Try to get the details of the module or namespace fragment referred to by this non-local reference.
-    member nleref.TryModuleOrNamespaceType = 
-        nleref.TryDeref |> Option.map (fun v -> v.ModuleOrNamespaceType) 
-
     /// Get the details of the module or namespace fragment for the entity referred to by this non-local reference.
     member nleref.ModuleOrNamespaceType = 
         nleref.Deref.ModuleOrNamespaceType
@@ -2532,8 +2531,8 @@ and
     member x.PrivateTarget = x.binding
     member x.ResolvedTarget = x.binding
 
-    member private tcr.Resolve() = 
-        let res = tcr.nlr.TryDeref
+    member private tcr.Resolve(canError) = 
+        let res = tcr.nlr.TryDeref(canError)
         match res with 
         | Some r -> 
              tcr.binding <- nullableSlotFull r 
@@ -2545,7 +2544,7 @@ and
     member tcr.Deref = 
         match box tcr.binding with 
         | null ->
-            tcr.Resolve()
+            tcr.Resolve(canError=true)
             match box tcr.binding with 
             | null -> error (InternalUndefinedItemRef (FSComp.SR.tastUndefinedItemRefModuleNamespaceType, String.concat "." tcr.nlr.EnclosingMangledPath, tcr.nlr.AssemblyName, tcr.nlr.LastItemMangledName))
             | _ -> tcr.binding
@@ -2556,7 +2555,7 @@ and
     member tcr.TryDeref = 
         match box tcr.binding with 
         | null -> 
-            tcr.Resolve()
+            tcr.Resolve(canError=false)
             match box tcr.binding with 
             | null -> None
             | _ -> Some tcr.binding

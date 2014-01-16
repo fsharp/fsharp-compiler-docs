@@ -1149,7 +1149,7 @@ type TypeCheckInfo
     member scope.GetSymbolAtLocation (line : Line0, lineStr : string, idx : int, names : Names) =
         match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, idx, ResolveTypeNamesToCtors, ResolveOverloads.Yes, fun _ -> false) with
         | None | Some ([], _, _) -> None
-        | Some (item :: _ , _, _) -> Some (FSharpSymbol(g, (fun () -> item)))
+        | Some (item :: _ , _, _) -> Some (FSharpSymbol.Create(g, item))
 
     member scope.PartialAssemblySignature() = FSharpAssemblySignature(g,ccuSig)
 
@@ -1176,6 +1176,8 @@ type TypeCheckInfo
 #endif
                | _ -> () 
            |]
+    member x.ScopeResolutions = sResolutions
+    member x.CcuSig = ccuSig
 
 module internal Parser = 
 
@@ -2209,7 +2211,8 @@ type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, 
         | Parser.TypeCheckAborted.No scope ->
             let errors = [|  yield! parseErrors; yield! tcErrors |]
             let typeCheckResults = CheckFileResults (errors,Some scope, None, reactorOps)   
-            untypedParse, typeCheckResults
+            let projectResults = CheckProjectResults (errors, Some(tcGlobals, tcImports, scope.CcuSig, [scope.ScopeResolutions]), reactorOps)
+            untypedParse, typeCheckResults, projectResults
         | _ -> 
             failwith "unexpected aborted"
                 

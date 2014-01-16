@@ -40,6 +40,7 @@ module FSharp.Compiler.Service.Tests.FscTests
             use proc = Process.Start(psi)
             let stdOut = proc.StandardOutput.ReadToEnd()
             let stdErr = proc.StandardError.ReadToEnd()
+            while not proc.HasExited do ()
             proc.ExitCode, stdOut, stdErr
 
         member __.Verify(assemblyPath : string) =

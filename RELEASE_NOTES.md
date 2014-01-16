@@ -52,4 +52,4 @@
 * Report more information about symbols returned by GetSymbolAtLocation (through subtypes)
 * Fix typos in docs
 * Return full project results from ParseAndCheckInteraction 
-
+* Be more robust to missing assembly references by default.

@@ -4,10 +4,10 @@
 Compiler Services: Working with symbols
 ============================================
 
-This tutorial demonstrates how to work with symbols provided by the F# compiler. See als [project wide analysis](project.html)
+This tutorial demonstrates how to work with symbols provided by the F# compiler. See also [project wide analysis](project.html)
 for information on symbol references.
 
-> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
+> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published.
 
 As usual we start by referencing `FSharp.Compiler.Service.dll`, opening the relevant namespace and creating an instance
 of `InteractiveChecker`:
@@ -141,14 +141,14 @@ argTy1.NamedEntity.DisplayName // int
 
 (**
 OK, so we got an object representation of the type `int * int -> unit`, and we have seen the first 'int'. We can find out more about the
-type 'int' as follows, determining that it is a named type, which is an F# type abbreviation, `type int = int32`
+type 'int' as follows, determining that it is a named type, which is an F# type abbreviation, `type int = int32`:
 *)
 
 argTy1.IsNamedType
 argTy1.NamedEntity.IsFSharpAbbreviation // "int"
 
 (**
-We can now look at the right-hand-side of the type abbreviation, which is the type `int32`
+We can now look at the right-hand-side of the type abbreviation, which is the type `int32`:
 *)
 
 let argTy1b = argTy1.NamedEntity.AbbreviatedType
@@ -187,7 +187,7 @@ for ass in projectContext.GetReferencedAssemblies() do
 
 (**
 
-## Getting symbolic informaion about whole projects
+## Getting symbolic information about whole projects
 
 To check whole projects, create a checker, then call `parseAndCheckScript`. In this case, we just check 
 the project for a single script. By specifying a different "projOptions" you can create 

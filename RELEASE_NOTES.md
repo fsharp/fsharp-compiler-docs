@@ -45,3 +45,11 @@
 
 #### 0.0.8-alpha - 
 * Fix fsc corrupting assemblies when generating pdb files
+
+#### 0.0.9-alpha - 
+* Fix fsc corrupting assemblies when generating pdb files (really)
+* Give better error messages for missing assemblies
+* Report more information about symbols returned by GetSymbolAtLocation (through subtypes)
+* Fix typos in docs
+* Return full project results from ParseAndCheckInteraction 
+

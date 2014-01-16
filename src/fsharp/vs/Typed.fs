@@ -58,24 +58,6 @@ type Env(typars : Typar list) =
     let typars = Array.ofList typars
     member __.Typars = typars
 
-[<RequireQualifiedAccess>]
-type FSharpSymbolKind =
-    | None
-    | ModuleDefinition
-    | TypeDefinition
-    | UnionCase
-    | UnionCaseField
-    | RecordCaseField
-    | Property
-    | Event
-    | Method
-    | Constructor
-    | Accessor
-    | Namespace
-    | ModuleValueOrFunction
-    | LocalValueOfFunction
-    | GenericParameter
-        
 // delay the realization of 'item' in case it is unresolved
 type FSharpSymbol(g:TcGlobals, item: (unit -> Item)) =
     member x.DeclarationLocation = ItemDescriptionsImpl.rangeOfItem g true (item())

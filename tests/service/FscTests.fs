@@ -9,19 +9,25 @@ module FSharp.Compiler.Service.Tests.FscTests
 
     open NUnit.Framework
 
-    exception VerificationException of assembly:string * errorCode:int * output:string
+    exception VerificationException of (*assembly:*)string * (*errorCode:*)int * (*output:*)string
     with
-        override e.Message = sprintf "Verification of '%s' failed with code %d." e.assembly e.errorCode
+        override e.Message = sprintf "Verification of '%s' failed with code %d." e.Data0 e.Data1
 
-    exception CompilationError of assembly:string * errorCode:int * info:ErrorInfo []
+    exception CompilationError of (*assembly:*)string * (*errorCode:*)int * (*info:*)ErrorInfo []
     with
-        override e.Message = sprintf "Compilation of '%s' failed with code %d (%A)" e.assembly e.errorCode e.info
+        override e.Message = sprintf "Compilation of '%s' failed with code %d (%A)" e.Data0 e.Data1 e.Data2
 
     type PEVerifier () =
 
         static let expectedExitCode = 0
 
-        let verifierPath = ToolLocationHelper.GetPathToDotNetFrameworkSdkFile("peverify.exe", TargetDotNetFrameworkVersion.VersionLatest)
+        let runsOnMono = try System.Type.GetType("Mono.Runtime") <> null with _ -> false
+        let verifierPath, switches =
+            if runsOnMono then
+                "pedump", "--verify all"
+            else
+                let path = ToolLocationHelper.GetPathToDotNetFrameworkSdkFile("peverify.exe", TargetDotNetFrameworkVersion.VersionLatest)
+                path, "/UNIQUE /IL /NOLOGO"
 
         static let execute (fileName : string, arguments : string) =
             let psi = new ProcessStartInfo(fileName, arguments)
@@ -37,10 +43,10 @@ module FSharp.Compiler.Service.Tests.FscTests
             proc.ExitCode, stdOut, stdErr
 
         member __.Verify(assemblyPath : string) =
-            let id,stdOut,_ = execute(verifierPath, sprintf "\"%s\" /UNIQUE /IL /NOLOGO" assemblyPath)
-            if id = expectedExitCode then ()
+            let id,stdOut,stdErr = execute(verifierPath, sprintf "%s \"%s\"" switches assemblyPath)
+            if id = expectedExitCode && String.IsNullOrWhiteSpace stdErr then ()
             else
-                raise <| VerificationException(assemblyPath, id, stdOut)
+                raise <| VerificationException(assemblyPath, id, stdOut + "\n" + stdErr)
 
 
     type DebugMode =
@@ -94,14 +100,8 @@ module FSharp.Compiler.Service.Tests.FscTests
         let fscorlib = typeof<int option>.Assembly
         verifier.Verify fscorlib.Location
 
-        let junkFile = Path.GetTempFileName()
-        do 
-            File.Copy(fscorlib.Location, junkFile, overwrite = true)
-            use fs = new FileStream(junkFile, FileMode.Open, FileAccess.Write)
-            fs.Seek(50L, SeekOrigin.Begin) |> ignore
-            fs.Write([|1uy..20uy|], 0, 20) 
-
-        Assert.Throws<VerificationException>(fun () -> verifier.Verify junkFile |> ignore) |> ignore
+        let nonAssembly = Path.Combine(Directory.GetCurrentDirectory(), typeof<PEVerifier>.Assembly.GetName().Name + ".pdb")
+        Assert.Throws<VerificationException>(fun () -> verifier.Verify nonAssembly |> ignore) |> ignore
 
 
     [<Test>]

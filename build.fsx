@@ -162,14 +162,12 @@ Target "All" DoNothing
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
   ==> "Prepare"
-
-"Build"
+  ==> "Build"
   ==> "RunTests" 
   ==> "All"
 
-"Clean" ==> "PrepareRelease"
-"All" ==> "PrepareRelease"
-"PrepareRelease" 
+"All"
+  ==> "PrepareRelease" 
   ==> "CleanDocs"
   ==> "GenerateDocs"
   ==> "NuGet"

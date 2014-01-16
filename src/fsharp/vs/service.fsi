@@ -466,7 +466,7 @@ and internal IReactorOperations =
 // Used internally to provide intellisense over F# Interactive.
 type internal FsiInteractiveChecker =
     internal new : ops: IReactorOperations * tcConfig: Build.TcConfig * tcGlobals: Env.TcGlobals * tcImports: Build.TcImports * tcState: Build.TcState * loadClosure: Build.LoadClosure option ->  FsiInteractiveChecker 
-    member internal ParseAndCheckInteraction : source:string -> ParseFileResults * CheckFileResults
+    member internal ParseAndCheckInteraction : source:string -> ParseFileResults * CheckFileResults * CheckProjectResults
 
 /// Information about the compilation environment    
 module CompilerEnvironment =

@@ -43,3 +43,5 @@
 * Be robust to failures on IncrementalBuilder creation
 * Allow use of MSBuild resolution by IncrementalBuilder
 
+#### 0.0.8-alpha - 
+* Fix fsc corrupting assemblies when generating pdb files

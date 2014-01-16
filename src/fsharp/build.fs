@@ -1965,6 +1965,8 @@ type TcConfigBuilder =
 
       /// if true - every expression in quotations will be augmented with full debug info (filename, location in file)
       mutable emitDebugInfoInQuotations : bool
+
+      mutable exename : string option
       }
 
 
@@ -2109,6 +2111,7 @@ type TcConfigBuilder =
           sqmNumOfSourceFiles = 0
           sqmSessionStartedTime = System.DateTime.Now.Ticks
           emitDebugInfoInQuotations = false
+          exename = None
         }
 
     member tcConfigB.ResolveSourceFile(m,nm,pathLoadedFrom) = 
@@ -3125,7 +3128,7 @@ let ParseInput (lexer,errorLogger:ErrorLogger,lexbuf:UnicodeLexing.Lexbuf,defaul
     //  - if you have a #line directive, e.g. 
     //        # 1000 "Line01.fs"
     //    then it also asserts.  But these are edge cases that can be fixed later, e.g. in bug 4651.
-    //System.Diagnostics.Debug.Assert(FileSystem.IsPathRootedShim(filename), sprintf "should be absolute: '%s'" filename)
+    //System.Diagnostics.Debug.Assert(System.IO.Path.IsPathRooted(filename), sprintf "should be absolute: '%s'" filename)
     let lower = String.lowercase filename 
     // Delay sending errors and warnings until after the file is parsed. This gives us a chance to scrape the
     // #nowarn declarations for the file

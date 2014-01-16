@@ -369,7 +369,7 @@ type (*internal*) FindDeclFailureReason =
     // trying to find declaration of ProvidedMember without TypeProviderDefinitionLocationAttribute
     | ProvidedMember of string
 
-type (*internal*) FindDeclResult = 
+type FindDeclResult = 
     /// declaration not found + reason
     | DeclNotFound of FindDeclFailureReason
     /// found declaration; return (position-in-file, name-of-file)

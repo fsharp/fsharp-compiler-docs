@@ -86,10 +86,6 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             async { let! items = results.GetDeclarations(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
                     return [| for i in items.Items -> SimpleDeclaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
 
-        member x.GetRawDeclarations(line, col, names, residue, formatter:ToolTipText->string[]) =
-            async { let! items = results.GetDeclarations(Some info, line, col, source.[line], names, residue, hasChangedSinceLastTypeCheck)
-                    return [| for i in items.Items -> i.Name, (fun() -> formatter i.DescriptionText), i.Glyph |] }
-
         /// Get the Visual Studio F1-help keyword for the item at the given position
         member x.GetF1Keyword(line, col, names) =
             results.GetF1Keyword(line, col, source.[int line], names)

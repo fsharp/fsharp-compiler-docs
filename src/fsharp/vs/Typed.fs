@@ -64,31 +64,6 @@ type FSharpSymbol(g:TcGlobals, item: (unit -> Item)) =
     member x.ImplementationLocation = ItemDescriptionsImpl.rangeOfItem g false (item())
     member internal x.Item = item()
     member x.DisplayName = item().DisplayName(g)
-(*
-    member x.Kind = 
-        match item() with 
-        | Item.Value v -> if v.IsModuleBinding then Modu
-        | Item.ActivePatternCase apref -> apref.Name
-        | Item.UnionCase uinfo -> DecompileOpName uinfo.UnionCase.DisplayName
-        | Item.ExnCase tcref -> tcref.LogicalName
-        | Item.RecdField rfinfo -> DecompileOpName rfinfo.RecdField.Name
-        | Item.NewDef id -> id.idText
-        | Item.ILField finfo -> finfo.FieldName
-        | Item.Event einfo -> einfo.EventName
-        | Item.Property(nm,_) -> nm
-        | Item.MethodGroup(nm,_) -> nm
-        | Item.CtorGroup(nm,_) -> DemangleGenericTypeName nm
-        | Item.FakeInterfaceCtor typ 
-        | Item.DelegateCtor typ -> DemangleGenericTypeName (tcrefOfAppTy g typ).LogicalName
-        | Item.Types(nm,_) -> DemangleGenericTypeName nm
-        | Item.TypeVar nm -> nm
-        | Item.ModuleOrNamespaces(modref :: _) ->  modref.DemangledModuleOrNamespaceName
-        | Item.ArgName (id,_)  -> id.idText
-        | Item.SetterArg (id, _) -> id.idText
-        | Item.CustomOperation (customOpName,_,_) -> customOpName
-        | Item.CustomBuilder (nm,_) -> nm
-*)
-        
     override x.ToString() = "symbol " + (try item().DisplayName(g) with _ -> "?")
 
 type FSharpEntity(g:TcGlobals, entity:EntityRef) = 

@@ -35,11 +35,11 @@
           
 <h1>Compiler Services: Working with symbols</h1>
 
-<p>This tutorial demonstrates how to work with symbols provided by the F# compiler. See als <a href="project.html">project wide analysis</a>
+<p>This tutorial demonstrates how to work with symbols provided by the F# compiler. See also <a href="project.html">project wide analysis</a>
 for information on symbol references.</p>
 
 <blockquote>
-  <p><strong>NOTE:</strong> The API used below is experimental and subject to change when later versions of the nuget package are published</p>
+  <p><strong>NOTE:</strong> The API used below is experimental and subject to change when later versions of the nuget package are published.</p>
 </blockquote>
 
 <p>As usual we start by referencing <code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
@@ -301,7 +301,7 @@ more information like the names of the arguments.)</p>
 </table>
 
 <p>OK, so we got an object representation of the type <code>int * int -&gt; unit</code>, and we have seen the first 'int'. We can find out more about the
-type 'int' as follows, determining that it is a named type, which is an F# type abbreviation, <code>type int = int32</code></p>
+type 'int' as follows, determining that it is a named type, which is an F# type abbreviation, <code>type int = int32</code>:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
@@ -315,7 +315,7 @@ type 'int' as follows, determining that it is a named type, which is an F# type 
 </tr>
 </table>
 
-<p>We can now look at the right-hand-side of the type abbreviation, which is the type <code>int32</code></p>
+<p>We can now look at the right-hand-side of the type abbreviation, which is the type <code>int32</code>:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
@@ -382,7 +382,7 @@ be true on values, members and/or entites related to external assemblies.  You s
 code robust against IsUnresolved exceptions.</li>
 </ul>
 
-<h2>Getting symbolic informaion about whole projects</h2>
+<h2>Getting symbolic information about whole projects</h2>
 
 <p>To check whole projects, create a checker, then call <code>parseAndCheckScript</code>. In this case, we just check 
 the project for a single script. By specifying a different "projOptions" you can create 

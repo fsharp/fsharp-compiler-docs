@@ -140,7 +140,7 @@ let ``Test project xxx symbols`` () =
         |> Async.RunSynchronously
 
     let xSymbol = backgroundTypedParse1.GetSymbolAtLocation(8,9,"",["xxx"]).Value
-    xSymbol.ToString() |> shouldEqual "symbol xxx"
+    xSymbol.ToString() |> shouldEqual "val xxx"
 
     let usesOfXSymbol = wholeProjectResults.GetUsesOfSymbol(xSymbol)
     usesOfXSymbol |> shouldEqual [|(Inputs.fileName1, ((6, 4), (6, 7)));

@@ -556,8 +556,6 @@ let mkTcGlobals (compilingFslib,sysCcu,ilg,fslibCcu,directoryToResolveRelativePa
   let varc = NewRigidTypar "c" envRange
   let vard = NewRigidTypar "d" envRange
   let vare = NewRigidTypar "e" envRange
-  let varf = NewRigidTypar "f" envRange
-  let varg = NewRigidTypar "g" envRange
 
   let varaTy = mkTyparTy vara 
   let varbTy = mkTyparTy varb 

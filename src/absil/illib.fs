@@ -972,6 +972,7 @@ module Shim =
         abstract FileDelete: fileName:string -> unit
         abstract AssemblyLoadFrom: fileName:string -> System.Reflection.Assembly 
         abstract AssemblyLoad: assemblyName:System.Reflection.AssemblyName -> System.Reflection.Assembly 
+
 #if SILVERLIGHT
     open System.IO.IsolatedStorage
     open System.Windows

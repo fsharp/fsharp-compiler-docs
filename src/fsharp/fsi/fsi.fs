@@ -552,8 +552,10 @@ type internal FsiCommandLineOptions(fsiConfig: FsiEvaluationSessionHostConfig, a
 #if SILVERLIGHT
             "fsi.exe"
 #else
-            let currentProcess = System.Diagnostics.Process.GetCurrentProcess()
-            Path.GetFileName(currentProcess.MainModule.FileName)
+            match tcConfigB.exename with
+            |Some(s) -> s
+            |None -> let currentProcess = System.Diagnostics.Process.GetCurrentProcess()
+                     Path.GetFileName(currentProcess.MainModule.FileName)
 #endif
 
 
@@ -2772,7 +2774,6 @@ module BuiltinFsiObjectImpl =
 type FsiEvaluationSession with 
     static member GetDefaultConfiguration() = 
         FsiEvaluationSession.GetDefaultConfiguration(BuiltinFsiObjectImpl.BuiltinFsiObject, false)
-
 
 /// Defines a read-only input stream used to feed content to the hosted F# Interactive dynamic compiler.
 [<AllowNullLiteral>]

@@ -37,6 +37,8 @@ let ``Intro test`` () =
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
     let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
 
+    for msg in typeCheckResults.Errors do 
+        printfn "Error: %A" msg
     typeCheckResults.Errors.Length |> shouldEqual 1
 
     // Get tool tip at the specified location

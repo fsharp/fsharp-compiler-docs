@@ -53,3 +53,9 @@
 * Fix typos in docs
 * Return full project results from ParseAndCheckInteraction 
 * Be more robust to missing assembly references by default.
+
+#### 0.0.10-alpha - 
+* Fix bug where 'multiple references to FSharp.Core' was given as error for scripts
+
+#### 0.0.11-alpha - 
+* Add 'IsUnresolved' 

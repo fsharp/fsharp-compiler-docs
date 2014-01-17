@@ -119,7 +119,7 @@ Now look at the inferred signature for the project:
 [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] // ["N"; "M"]
 [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] // ["D1"; "D2"]
 [ for x in wholeProjectResults.AssemblySignature.Entities.[1].NestedEntities -> x.DisplayName ] // ["C"]
-[ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersOrValues -> x.DisplayName ] // ["y"; "y2"]
+[ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] // ["y"; "y2"]
 
 (**
 You can also get all symbols in the project:
@@ -127,7 +127,7 @@ You can also get all symbols in the project:
 let rec allSymbolsInEntities (entities: IList<FSharpEntity>) = 
     [ for e in entities do 
           yield (e :> FSharpSymbol) 
-          for x in e.MembersOrValues do
+          for x in e.MembersFunctionsAndValues do
              yield (x :> FSharpSymbol)
           for x in e.UnionCases do
              yield (x :> FSharpSymbol)

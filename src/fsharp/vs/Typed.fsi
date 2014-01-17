@@ -87,7 +87,7 @@ and [<Class>] FSharpEntity =
     /// Get the name of the type or module as displayed in F# code
     member DisplayName: string
 
-    /// Get the path used to address the entity (e.g. "Namespace.Module1.NestedModule2.Foo"). Use
+    /// Get the path used to address the entity (e.g. "Namespace.Module1.NestedModule2"). Gives
     /// "global" for items not in a namespace.
     member AccessPath: string 
 
@@ -139,6 +139,9 @@ and [<Class>] FSharpEntity =
     /// Indicates if this is a reference to something in an F#-compiled assembly
     member IsFSharp : bool
 
+    /// Indicates if the entity is in an unresolved assembly 
+    member IsUnresolved : bool
+
     /// Indicates if the type definition is a class type
     member IsClass : bool
 
@@ -176,8 +179,10 @@ and [<Class>] FSharpEntity =
     /// Get the base type, if any 
     member BaseType : FSharpType
 
-    /// Get the properties, events and methods of a type definitions, or the values of a module
-    member MembersOrValues : IList<FSharpMemberOrVal>
+    /// Get the properties, events and methods of a type definitions, or the functions and values of a module
+    member MembersFunctionsAndValues : IList<FSharpMemberFunctionOrValue>
+    [<System.Obsolete("Renamed to MembersFunctionsAndValues")>]
+    member MembersOrValues : IList<FSharpMemberFunctionOrValue>
 
     /// Get the modules and types defined in a module, or the nested types of a type
     member NestedEntities : IList<FSharpEntity>
@@ -202,7 +207,10 @@ and [<Class>] FSharpEntity =
     member RepresentationAccessibility: FSharpAccessibility
 
 and [<Class>] FSharpDelegateSignature =
+    /// Get the argument types of the delegate signature
     member DelegateArguments : IList<string option * FSharpType>
+
+    /// Get the return type of the delegate signature
     member DelegateReturnType : FSharpType
 
 /// Represents a union case as seen by the F# language
@@ -235,6 +243,9 @@ and [<Class>] FSharpUnionCase =
 
     /// Get the attributes for the case, attached to the generated static method to make instances of the case 
     member Attributes: IList<FSharpAttribute>
+
+    /// Indicates if the union case is for a type in an unresolved assembly 
+    member IsUnresolved : bool
 
 
 /// Represents a record or union case field as seen by the F# language
@@ -279,6 +290,9 @@ and [<Class>] FSharpRecordField =
       ///  Indicates if the declared visibility of the field, not taking signatures into account 
     member Accessibility: FSharpAccessibility 
 
+    /// Indicates if the record field is for a type in an unresolved assembly 
+    member IsUnresolved : bool
+
 /// Indicates the accessibility of an item as seen by the F# language
 and [<Class>] FSharpAccessibility = 
     /// Indicates the item has public accessibility
@@ -296,6 +310,7 @@ and [<Class>] FSharpGenericParameter =
 
     /// Get the name of the generic parameter 
     member Name: string
+
     /// Get the range of the generic parameter 
     member DeclarationLocation : range 
        
@@ -318,22 +333,40 @@ and [<Class>] FSharpGenericParameter =
 /// Represents further information about a member constraint on a generic type parameter
 and [<Class; NoEquality; NoComparison>] 
     FSharpGenericParameterMemberConstraint = 
+
+    /// Get the types that may be used to satisfy the constraint
     member MemberSources : IList<FSharpType>
+
+    /// Get the name of the method required by the constraint
     member MemberName : string 
+
+    /// Indicates if the the method required by the constraint must be static
     member MemberIsStatic : bool
+
+    /// Get the argument types of the method required by the constraint
     member MemberArgumentTypes : IList<FSharpType>
+
+    /// Get the return type of the method required by the constraint
     member MemberReturnType : FSharpType 
 
 /// Represents further information about a delegate constraint on a generic type parameter
 and [<Class; NoEquality; NoComparison>] 
     FSharpGenericParameterDelegateConstraint = 
+
+    /// Get the tupled argument type required by the constraint
     member DelegateTupledArgumentType : FSharpType
+
+    /// Get the return type required by the constraint
     member DelegateReturnType : FSharpType 
 
-/// Represents further information about a 'defaults-to' constraint on a generic type parameter
+/// Represents further information about a 'defaults to' constraint on a generic type parameter
 and [<Class; NoEquality; NoComparison>] 
     FSharpGenericParameterDefaultsToConstraint = 
+
+    /// Get the priority off the 'defaults to' constraint
     member DefaultsToPriority : int
+
+    /// Get the default type associated with the 'defaults to' constraint
     member DefaultsToTarget : FSharpType
 
 /// Represents a constraint on a generic type parameter
@@ -407,9 +440,13 @@ and [<RequireQualifiedAccess>] FSharpInlineAnnotation =
    /// Indictes the value is never inlined 
    | NeverInline 
 
-and [<Class>] FSharpMemberOrVal = 
+and [<System.Obsolete("Renamed to FSharpMemberFunctionOrValue")>] FSharpMemberOrVal =  FSharpMemberFunctionOrValue
+and [<Class>] FSharpMemberFunctionOrValue = 
 
     inherit FSharpSymbol
+
+    /// Indicates if the member or value is in an unresolved assembly 
+    member IsUnresolved : bool
 
     /// Get the enclosing entity for the definition
     member EnclosingEntity : FSharpEntity
@@ -531,6 +568,15 @@ and [<Class>] FSharpType =
     /// Internal use only. Create a ground type.
     internal new : g:TcGlobals * typ:TType -> FSharpType
 
+    /// Indicates this is a named type in an unresolved assembly 
+    member IsUnresolved : bool
+
+    /// Indicates this is an abbreviation for another type
+    member IsAbbreviation : bool
+
+    /// Get the type for which this is an abbreviation
+    member AbbreviatedType : FSharpType
+
     /// Indicates if the type is constructed using a named entity, including array and byref types
     member IsNamedType : bool
 
@@ -548,18 +594,23 @@ and [<Class>] FSharpType =
 
     /// Indicates if the type is a variable type, whether declared, generalized or an inference type parameter  
     member IsGenericParameter : bool
+
     /// Get the generic parameter data for a generic parameter type
     member GenericParameter : FSharpGenericParameter
-    /// Get the index for a generic parameter type
-    member GenericParameterIndex : int
 
 
 and [<Class>] FSharpAttribute = 
         
     /// The type of the attribute
     member AttributeType : FSharpEntity
+
     /// The arguments to the constructor for the attribute
     member ConstructorArguments : IList<obj>
+
     /// The named arguments for the attribute
     member NamedArguments : IList<string * bool * obj>
+
+    /// Indicates if the attribute type is in an unresolved assembly 
+    member IsUnresolved : bool
+
 

@@ -87,7 +87,7 @@ let inline protectAssemblyExplorationF dflt f =
     try 
        f()
      with 
-        | UnresolvedPathReferenceNoRange _ -> dflt()
+        | UnresolvedPathReferenceNoRange (asmName, path) -> dflt(asmName,path)
         | _ -> reraise()
 
 let inline protectAssemblyExplorationNoReraise dflt1 dflt2 f  = 

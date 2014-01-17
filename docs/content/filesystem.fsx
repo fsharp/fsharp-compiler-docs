@@ -127,8 +127,8 @@ let results = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchrono
 
 results.Errors
 results.AssemblySignature.Entities.Count //2
-results.AssemblySignature.Entities.[0].MembersOrValues.Count //1
-results.AssemblySignature.Entities.[0].MembersOrValues.[0].DisplayName // "B"
+results.AssemblySignature.Entities.[0].MembersFunctionsAndValues.Count //1
+results.AssemblySignature.Entities.[0].MembersFunctionsAndValues.[0].DisplayName // "B"
 
 (**
 Summary

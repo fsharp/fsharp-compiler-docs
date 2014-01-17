@@ -1946,12 +1946,13 @@ type BackgroundCompiler() as self =
 
     member bc.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = 
         reactor.RunSyncOp (fun () -> 
-            // REVIEW: Opportunity to cache by filename, version?
-            // REVIEW: Opportunity to save script 'input' which is about to be generated including children.
+            // Do we add a reference to FSharp.Compiler.Interactive.Settings by default?
             let useFsiAuxLib = defaultArg useFsiAuxLib true
+            // Do we use a "FSharp.Core, 4.3.0.0" reference by default?
             let otherFlags = defaultArg otherFlags [| |]
+            let useMonoResolution = runningOnMono || otherFlags |> Array.exists (fun x -> x = "--simpleresolution")
             let loadedTimeStamp = defaultArg loadedTimeStamp DateTime.MaxValue // Not 'now', we don't want to force reloading
-            let fas = LoadClosure.ComputeClosureOfSourceText(filename, source, CodeContext.Editing, useFsiAuxLib, new Lexhelp.LexResourceManager())
+            let fas = LoadClosure.ComputeClosureOfSourceText(filename, source, CodeContext.Editing, useMonoResolution, useFsiAuxLib, new Lexhelp.LexResourceManager())
             let allFlags = 
                 [| yield "--noframework"; yield "--warn:3"; yield! otherFlags
                    for r in fas.References do yield "-r:" + fst r

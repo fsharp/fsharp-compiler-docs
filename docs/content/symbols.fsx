@@ -98,7 +98,7 @@ let classEntity = moduleEntity.NestedEntities.[0]
 (**
 Now get the value that corresponds to the function defined in the code:
 *)
-let fnVal = moduleEntity.MembersOrValues.[0]
+let fnVal = moduleEntity.MembersFunctionsAndValues.[0]
 
 (**
 Now look around at the properties describing the function value. All fo the following evaluate to `true`:
@@ -216,6 +216,6 @@ let assemblySig = projectResults.AssemblySignature
 assemblySig.Entities.Count = 1  // one entity
 assemblySig.Entities.[0].Namespace  // one entity
 assemblySig.Entities.[0].DisplayName // "Tmp28D0"
-assemblySig.Entities.[0].MembersOrValues.Count // 1 
-assemblySig.Entities.[0].MembersOrValues.[0].DisplayName // "foo" 
+assemblySig.Entities.[0].MembersFunctionsAndValues.Count // 1 
+assemblySig.Entities.[0].MembersFunctionsAndValues.[0].DisplayName // "foo" 
     

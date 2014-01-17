@@ -106,12 +106,12 @@ let ``Test project basic`` () =
     set [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] |> shouldEqual (set ["N"; "M"])
     [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] |> shouldEqual ["D1"; "D2"]
     [ for x in wholeProjectResults.AssemblySignature.Entities.[1].NestedEntities -> x.DisplayName ] |> shouldEqual ["C"]
-    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersOrValues -> x.DisplayName ] |> shouldEqual ["y2"]
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] |> shouldEqual ["y2"]
 
 let rec allSymbolsInEntities (entities: IList<FSharpEntity>) = 
     [ for e in entities do 
           yield (e :> FSharpSymbol) 
-          for x in e.MembersOrValues do
+          for x in e.MembersFunctionsAndValues do
              yield (x :> FSharpSymbol)
           for x in e.UnionCases do
              yield (x :> FSharpSymbol)

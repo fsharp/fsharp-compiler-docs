@@ -1,10 +1,11 @@
-﻿module FSharp.Compiler.Service.Tests.Editor
-
+﻿
 #if INTERACTIVE
 #r "../../bin/FSharp.Compiler.Service.dll"
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
+#else
+module FSharp.Compiler.Service.Tests.Editor
 #endif
 
 open NUnit.Framework
@@ -35,6 +36,8 @@ let ``Intro test`` () =
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
     let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
+
+    typeCheckResults.Errors.Length |> shouldEqual 1
 
     // Get tool tip at the specified location
     let tip = typeCheckResults.GetToolTipText(3, 7, inputLines.[1], ["foo"], identToken)
@@ -108,7 +111,7 @@ let ``Symbols many tests`` () =
 
     let classEntity = moduleEntity.NestedEntities.[0]
 
-    let fnVal = moduleEntity.MembersOrValues.[0]
+    let fnVal = moduleEntity.MembersFunctionsAndValues.[0]
 
     fnVal.Accessibility.IsPublic |> shouldEqual true
     fnVal.Attributes.Count |> shouldEqual 1

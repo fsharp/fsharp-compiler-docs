@@ -20,7 +20,7 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
-#I "../../packages/FSharp.Formatting.2.2.11-beta/lib/net40"
+#I @"C:\GitHub\dsyme\FSharp.Formatting\bin"
 #I "../../packages/RazorEngine.3.3.0/lib/net40/"
 #r "../../packages/Microsoft.AspNet.Razor.2.0.30506.0/lib/net40/System.Web.Razor.dll"
 #r "../../packages/FAKE/tools/FakeLib.dll"
@@ -69,7 +69,7 @@ let buildReference () =
   for lib in referenceBinaries do
     MetadataFormat.Generate
       ( bin @@ lib, output @@ "reference", layoutRoots, 
-        parameters = ("root", root)::info )
+        parameters = ("root", root)::info,publicOnly=true)
 
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
@@ -82,6 +82,6 @@ let buildDocumentation () =
 
 // Generate
 copyFiles()
-buildDocumentation()
 buildReference()
+buildDocumentation()
 

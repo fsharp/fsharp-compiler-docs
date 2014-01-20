@@ -66,10 +66,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">
-      <Link>assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
+      <Link>AssemblyInfo/assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
     </Compile>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
-      <Link>assemblyinfo.shared.fs</Link>
+      <Link>AssemblyInfo/assemblyinfo.shared.fs</Link>
     </Compile>
     <FsSrGen Include="..\FSComp.txt">
       <Link>FSComp.txt</Link>
@@ -104,10 +104,10 @@
       <Link>pars.fsy</Link>
     </FsYacc>
     <Compile Include="..\ExtensibleDumper.fsi">
-      <Link>ExtensibleDumper.fsi</Link>
+      <Link>Diagnostics/ExtensibleDumper.fsi</Link>
     </Compile>
     <Compile Include="..\ExtensibleDumper.fs">
-      <Link>ExtensibleDumper.fs</Link>
+      <Link>Diagnostics/ExtensibleDumper.fs</Link>
     </Compile>
     <Compile Include="..\..\utils\sformat.fsi">
       <Link>ErrorText/sformat.fsi</Link>
@@ -227,7 +227,7 @@
       <Link>ErrorLogging/ErrorLogger.fs</Link>
     </Compile>
     <Compile Include="..\ReferenceResolution.fs">
-      <Link>ReferenceResolution.fs</Link>
+      <Link>ReferenceResolution/ReferenceResolution.fs</Link>
     </Compile>
     <FsLex Include="..\..\absil\illex.fsl">
       <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
@@ -303,10 +303,10 @@
       <Link>AbsIL/ilreflect.fs</Link>
     </Compile>
     <Compile Include="..\..\utils\CompilerLocationUtils.fs">
-      <Link>CompilerLocationUtils.fs</Link>
+      <Link>CompilerUtils/CompilerLocationUtils.fs</Link>
     </Compile>
     <Compile Include="..\PrettyNaming.fs">
-      <Link>PrettyNaming.fs</Link>
+      <Link>CompilerUtils/PrettyNaming.fs</Link>
     </Compile>
     <Compile Include="..\..\ilx\ilxsettings.fs">
       <Link>ILXErase/ilxsettings.fs</Link>

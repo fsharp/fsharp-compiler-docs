@@ -37,9 +37,15 @@ let ``Intro test`` () =
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
     let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
 
+    // We only expect one reported error. However,
+    // on Unix, using filenames like /home/user/Test.fsx gives a second copy of all parse errors due to the
+    // way the load closure for scripts is generated. So this returns two identical errors
+    (match typeCheckResults.Errors.Length with 1 | 2 -> true | _ -> false)  |> shouldEqual true
+
+    // So we check that the messages are the same
     for msg in typeCheckResults.Errors do 
         printfn "Error: %A" msg
-    typeCheckResults.Errors.Length |> shouldEqual 1
+        msg.Message.Contains("Missing qualification after '.'") |> shouldEqual true
 
     // Get tool tip at the specified location
     let tip = typeCheckResults.GetToolTipText(3, 7, inputLines.[1], ["foo"], identToken)

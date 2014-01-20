@@ -4,7 +4,6 @@ module FSharp.Compiler.Service.Tests.FscTests
     open System.Diagnostics
     open System.IO
 
-    open Microsoft.Build.Utilities
     open Microsoft.FSharp.Compiler
 
     open NUnit.Framework
@@ -20,14 +19,33 @@ module FSharp.Compiler.Service.Tests.FscTests
     type PEVerifier () =
 
         static let expectedExitCode = 0
+        static let runsOnMono = try System.Type.GetType("Mono.Runtime") <> null with _ -> false
 
-        let runsOnMono = try System.Type.GetType("Mono.Runtime") <> null with _ -> false
         let verifierPath, switches =
             if runsOnMono then
                 "pedump", "--verify all"
             else
-                let path = ToolLocationHelper.GetPathToDotNetFrameworkSdkFile("peverify.exe", TargetDotNetFrameworkVersion.VersionLatest)
-                path, "/UNIQUE /IL /NOLOGO"
+                let rec tryFindFile (fileName : string) (dir : DirectoryInfo) =
+                    let file = Path.Combine(dir.FullName, fileName)
+                    if File.Exists file then Some file
+                    else
+                        dir.GetDirectories() 
+                        |> Array.sortBy(fun d -> d.Name)
+                        |> Array.rev // order by descending -- get latest version
+                        |> Array.tryPick (tryFindFile fileName)
+
+                let tryGetSdkDir (progFiles : Environment.SpecialFolder) =
+                    let progFilesFolder = Environment.GetFolderPath(progFiles)
+                    let dI = DirectoryInfo(Path.Combine(progFilesFolder, "Microsoft SDKs", "Windows"))
+                    if dI.Exists then Some dI
+                    else None
+
+                match Array.tryPick tryGetSdkDir [| Environment.SpecialFolder.ProgramFiles ; Environment.SpecialFolder.ProgramFilesX86 |] with
+                | None -> failwith "Could not resolve .NET SDK folder."
+                | Some sdkDir ->
+                    match tryFindFile "peverify.exe" sdkDir with
+                    | None -> failwith "Could not locate 'peverify.exe'."
+                    | Some pe -> pe, "/UNIQUE /IL /NOLOGO"
 
         static let execute (fileName : string, arguments : string) =
             let psi = new ProcessStartInfo(fileName, arguments)

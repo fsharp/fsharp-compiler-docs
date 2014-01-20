@@ -80,9 +80,6 @@
     <EmbeddedResource Include="..\FSStrings.resx">
       <Link>FSStrings.resx</Link>
     </EmbeddedResource>
-    <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">
-      <Link>assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
-    </Compile>
     <FsLex Include="..\lex.fsl">
       <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
       <Link>lex.fsl</Link>

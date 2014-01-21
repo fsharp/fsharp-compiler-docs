@@ -29,20 +29,14 @@
     <OutputPath>..\..\..\bin\</OutputPath>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
     <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5'">$(DefineConstants);FX_ATLEAST_45</DefineConstants>
-    <DefineConstants>CROSS_PLATFORM_COMPILER;$(DefineConstants)</DefineConstants>
+    <DefineConstants>$(DefineConstants);CROSS_PLATFORM_COMPILER</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_ATLEAST_40</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_ATLEAST_35</DefineConstants>
     <DefineConstants>$(DefineConstants);BE_SECURITY_TRANSPARENT</DefineConstants>
-    <DefineConstants>$(DefineConstants);QUERIES_IN_FSLIB</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_ATLEAST_LINQ</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_NO_BIGINT_CULTURE_PARSE</DefineConstants>
     <DefineConstants>$(DefineConstants);TYPE_PROVIDER_SECURITY</DefineConstants>
     <DefineConstants>$(DefineConstants);EXTENSIBLE_DUMPER</DefineConstants>
     <DefineConstants>$(DefineConstants);INCLUDE_METADATA_WRITER</DefineConstants>
-    <DefineConstants>$(DefineConstants);INCLUDE_METADATA_READER</DefineConstants>
     <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
     <DefineConstants>$(DefineConstants);EXTENSIONTYPING</DefineConstants>
-    <DefineConstants>$(DefineConstants);COMPILEREDITOR</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
   </PropertyGroup>
@@ -66,10 +60,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">
-      <Link>assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
+      <Link>AssemblyInfo/assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
     </Compile>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
-      <Link>assemblyinfo.shared.fs</Link>
+      <Link>AssemblyInfo/assemblyinfo.shared.fs</Link>
     </Compile>
     <FsSrGen Include="..\FSComp.txt">
       <Link>FSComp.txt</Link>
@@ -80,9 +74,6 @@
     <EmbeddedResource Include="..\FSStrings.resx">
       <Link>FSStrings.resx</Link>
     </EmbeddedResource>
-    <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">
-      <Link>assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
-    </Compile>
     <FsLex Include="..\lex.fsl">
       <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
       <Link>lex.fsl</Link>
@@ -104,10 +95,10 @@
       <Link>pars.fsy</Link>
     </FsYacc>
     <Compile Include="..\ExtensibleDumper.fsi">
-      <Link>ExtensibleDumper.fsi</Link>
+      <Link>Diagnostics/ExtensibleDumper.fsi</Link>
     </Compile>
     <Compile Include="..\ExtensibleDumper.fs">
-      <Link>ExtensibleDumper.fs</Link>
+      <Link>Diagnostics/ExtensibleDumper.fs</Link>
     </Compile>
     <Compile Include="..\..\utils\sformat.fsi">
       <Link>ErrorText/sformat.fsi</Link>
@@ -227,7 +218,7 @@
       <Link>ErrorLogging/ErrorLogger.fs</Link>
     </Compile>
     <Compile Include="..\ReferenceResolution.fs">
-      <Link>ReferenceResolution.fs</Link>
+      <Link>ReferenceResolution/ReferenceResolution.fs</Link>
     </Compile>
     <FsLex Include="..\..\absil\illex.fsl">
       <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
@@ -303,10 +294,10 @@
       <Link>AbsIL/ilreflect.fs</Link>
     </Compile>
     <Compile Include="..\..\utils\CompilerLocationUtils.fs">
-      <Link>CompilerLocationUtils.fs</Link>
+      <Link>CompilerUtils/CompilerLocationUtils.fs</Link>
     </Compile>
     <Compile Include="..\PrettyNaming.fs">
-      <Link>PrettyNaming.fs</Link>
+      <Link>CompilerUtils/PrettyNaming.fs</Link>
     </Compile>
     <Compile Include="..\..\ilx\ilxsettings.fs">
       <Link>ILXErase/ilxsettings.fs</Link>
@@ -595,11 +586,6 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Engine" />
-    <Reference Include="ISymWrapper, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition="'$(TargetFramework)'=='net40'" />
-    <Reference Include="Microsoft.Build" Condition="'$(TargetFramework)'=='net40'" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" Condition="'$(TargetFramework)'=='net40'" />
-    <Reference Include="Microsoft.Build.Tasks.v4.0" Condition="'$(TargetFramework)'=='net40'" />
-    <Reference Include="ISymWrapper, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="Microsoft.Build.Tasks.v4.0" />

@@ -538,7 +538,8 @@ let compilingFsLibFlag (tcConfigB : TcConfigBuilder) =
         CompilerOption("compiling-fslib", tagNone, OptionUnit (fun () -> tcConfigB.compilingFslib <- true; 
                                                                          tcConfigB.TurnWarningOff(rangeStartup,"42"); 
                                                                          ErrorLogger.reportLibraryOnlyFeatures <- false;
-                                                                         IlxSettings.ilxCompilingFSharpCoreLib := true), Some(InternalCommandLineOption("--compiling-fslib", rangeCmdArgs)), None)
+                                                                         use installedContext = tcConfigB.InstallCompilerContextToCurrentThread()
+                                                                         in IlxSettings.ilxCompilingFSharpCoreLib.ThreadLocalValue := true), Some(InternalCommandLineOption("--compiling-fslib", rangeCmdArgs)), None)
 let compilingFsLib20Flag (tcConfigB : TcConfigBuilder) = 
         CompilerOption("compiling-fslib-20", tagNone, OptionString (fun s -> tcConfigB.compilingFslib20 <- Some s; ), Some(InternalCommandLineOption("--compiling-fslib-20", rangeCmdArgs)), None)
 let compilingFsLib40Flag (tcConfigB : TcConfigBuilder) = 

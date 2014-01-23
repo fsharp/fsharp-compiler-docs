@@ -1638,9 +1638,9 @@ val resolveILMethodRef: ILTypeDef -> ILMethodRef -> ILMethodDef
 //     lies.
 // ------------------------------------------------------------------ 
 
-val splitNamespace: string -> string list
+val splitNamespace: (string -> string list)
 
-val splitNamespaceToArray: string -> string[]
+val splitNamespaceToArray: (string -> string[])
 
 /// The splitILTypeName utility helps you split a string representing
 /// a type name into the leading namespace elements (if any), the
@@ -1653,7 +1653,7 @@ val splitILTypeNameWithPossibleStaticArguments: string -> string[] * string
 
 /// splitTypeNameRight is like splitILTypeName except the 
 /// namespace is kept as a whole string, rather than split at dots.
-val splitTypeNameRight: string -> string option * string
+val splitTypeNameRight: (string -> string option * string)
 
 
 val typeNameForGlobalFunctions: string

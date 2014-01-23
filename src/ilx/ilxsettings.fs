@@ -12,6 +12,7 @@
 module internal Microsoft.FSharp.Compiler.AbstractIL.Extensions.ILX.IlxSettings 
 
 open Internal.Utilities
+open Internal.Utilities.Concurrent
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal 
@@ -21,18 +22,18 @@ type IlxCallImplementation =
   | VirtEntriesVirtCode
 
 //++GLOBAL MUTABLE STATE
-let ilxCompilingFSharpCoreLib = ref false
+let ilxCompilingFSharpCoreLib = CompilerThreadContext.InstallResourceFactory(fun () -> ref false)
 
 //++GLOBAL MUTABLE STATE
-let ilxFsharpCoreLibAssemRef = ref (None : ILAssemblyRef option)
+let ilxFsharpCoreLibAssemRef = CompilerThreadContext.InstallResourceFactory(fun () -> ref (None : ILAssemblyRef option))
 
 /// Scope references for FSharp.Core.dll
 let ilxFsharpCoreLibScopeRef () =
-    if !ilxCompilingFSharpCoreLib then 
+    if !ilxCompilingFSharpCoreLib.ThreadLocalValue then 
         ILScopeRef.Local 
     else 
         let assref = 
-            match !ilxFsharpCoreLibAssemRef with 
+            match !ilxFsharpCoreLibAssemRef.ThreadLocalValue with 
             | Some o -> o
             | None -> 
                  // The exact public key token and version used here don't actually matter, or shouldn't.

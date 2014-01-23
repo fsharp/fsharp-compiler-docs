@@ -17,6 +17,7 @@ open System.Text
 open System.IO
 open System.Collections.Generic
 open Internal.Utilities
+open Internal.Utilities.Concurrent
 open Internal.Utilities.Text
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
@@ -1825,6 +1826,7 @@ type TcConfigBuilder =
       mutable openBinariesInMemory: bool; (* false for command line, true for VS *)
       mutable openDebugInformationForLaterStaticLinking: bool; (* only for --standalone *)
       defaultFSharpBinariesDir: string;
+      compilerThreadContext: CompilerThreadContext;
       mutable compilingFslib: bool;
       mutable compilingFslib20: string option;
       mutable compilingFslib40: bool;
@@ -1987,6 +1989,7 @@ type TcConfigBuilder =
           openBinariesInMemory = false;
           openDebugInformationForLaterStaticLinking=false;
           defaultFSharpBinariesDir=defaultFSharpBinariesDir;
+          compilerThreadContext=match CompilerThreadContext.LocalContext with Some ctx -> ctx | None -> CompilerThreadContext.Create();
           compilingFslib=false;
           compilingFslib20=None;
           compilingFslib40=false;
@@ -2223,6 +2226,9 @@ type TcConfigBuilder =
              
     member tcConfigB.RemoveReferencedAssemblyByPath (m,path) =
         tcConfigB.referencedDLLs <- List.filter (fun (ar : AssemblyReference) -> ar <> AssemblyReference(m,path)) tcConfigB.referencedDLLs
+
+
+    member tcConfigB.InstallCompilerContextToCurrentThread () = CompilerThreadContext.InstallContextToCurrentThread tcConfigB.compilerThreadContext
     
     static member SplitCommandLineResourceInfo ri = 
         if String.contains ri ',' then 
@@ -2242,7 +2248,7 @@ type TcConfigBuilder =
             ri,fileNameOfPath ri,ILResourceAccess.Public 
 
 
-let OpenILBinary(filename,optimizeForMemory,openBinariesInMemory,ilGlobalsOpt, pdbPathOption, primaryAssemblyName, noDebugData) = 
+let OpenILBinary(filename,context:CompilerThreadContext,optimizeForMemory,openBinariesInMemory,ilGlobalsOpt, pdbPathOption, primaryAssemblyName, noDebugData) = 
       let ilGlobals   = 
           // ILScopeRef.Local can be used only for primary assembly (mscorlib or System.Runtime) itself
           // Remaining assemblies should be opened using existing ilGlobals (so they can properly locate fundamental types)
@@ -2259,7 +2265,9 @@ let OpenILBinary(filename,optimizeForMemory,openBinariesInMemory,ilGlobalsOpt, p
                       
       // Visual Studio uses OpenILModuleReaderAfterReadingAllBytes for all DLLs to avoid having to dispose of any readers explicitly
       if openBinariesInMemory // && not syslib 
-      then ILBinaryReader.OpenILModuleReaderAfterReadingAllBytes filename opts
+      then
+        use ctxUninstall = CompilerThreadContext.InstallContextToCurrentThread context
+        in ILBinaryReader.OpenILModuleReaderAfterReadingAllBytes filename opts
       else ILBinaryReader.OpenILModuleReader filename opts
 
 #if DEBUG
@@ -2368,7 +2376,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
             let filename = ComputeMakePathAbsolute data.implicitIncludeDir primaryAssemblyFilename
             try 
             
-                let ilReader = OpenILBinary(filename,data.optimizeForMemory,data.openBinariesInMemory,None,None, data.primaryAssembly.Name, data.noDebugData)
+                let ilReader = OpenILBinary(filename, data.compilerThreadContext, data.optimizeForMemory,data.openBinariesInMemory,None,None, data.primaryAssembly.Name, data.noDebugData)
                 try 
                    let ilModule = ilReader.ILModuleDef
                  
@@ -2436,7 +2444,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
         | Some(fslibFilename) ->
             let filename = ComputeMakePathAbsolute data.implicitIncludeDir fslibFilename
             try 
-                let ilReader = OpenILBinary(filename,data.optimizeForMemory,data.openBinariesInMemory,None,None, data.primaryAssembly.Name, data.noDebugData)
+                let ilReader = OpenILBinary(filename,data.compilerThreadContext,data.optimizeForMemory,data.openBinariesInMemory,None,None, data.primaryAssembly.Name, data.noDebugData)
                 try 
                    checkFSharpBinaryCompatWithMscorlib filename ilReader.ILAssemblyRefs ilReader.ILModuleDef.ManifestOfAssembly.Version rangeStartup;
                    let fslibRoot = Path.GetDirectoryName(FileSystem.GetFullPathShim(filename))
@@ -2458,6 +2466,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
     member x.stackReserveSize = data.stackReserveSize
     member x.implicitIncludeDir = data.implicitIncludeDir
     member x.openBinariesInMemory = data.openBinariesInMemory
+    member x.compilerThreadContext = data.compilerThreadContext
     member x.openDebugInformationForLaterStaticLinking = data.openDebugInformationForLaterStaticLinking
     member x.fsharpBinariesDir = fsharpBinariesDirValue
     member x.compilingFslib = data.compilingFslib
@@ -2612,6 +2621,9 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
                 with e -> 
                     errorRecovery e range0; [] 
 #endif
+
+    member tcConfig.InstallCompilerContextToCurrentThread () = 
+        CompilerThreadContext.InstallContextToCurrentThread data.compilerThreadContext
 
     member tcConfig.ComputeLightSyntaxInitialStatus filename = 
         use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parameter)
@@ -3686,7 +3698,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
             else   
                 None
 
-        let ilILBinaryReader = OpenILBinary(filename,tcConfig.optimizeForMemory,tcConfig.openBinariesInMemory,ilGlobalsOpt,pdbPathOption, tcConfig.primaryAssembly.Name, tcConfig.noDebugData)
+        let ilILBinaryReader = OpenILBinary(filename,tcConfig.compilerThreadContext,tcConfig.optimizeForMemory,tcConfig.openBinariesInMemory,ilGlobalsOpt,pdbPathOption, tcConfig.primaryAssembly.Name, tcConfig.noDebugData)
 
         tcImports.AttachDisposeAction(fun _ -> ILBinaryReader.CloseILModuleReader ilILBinaryReader);
         ilILBinaryReader.ILModuleDef, ilILBinaryReader.ILAssemblyRefs
@@ -4101,6 +4113,8 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
 
     member tcImports.RegisterAndPrepareToImportReferencedDll tpApprovalsRef displayPSTypeProviderSecurityDialogBlockingUI (r:AssemblyResolution) : _*(unit -> AvailableImportedAssembly list)=
         CheckDisposed()
+        let tcConfig = tcConfigP.Get()
+        use installedContext = tcConfig.InstallCompilerContextToCurrentThread()
         let m = r.originalReference.Range
         let filename = r.resolvedPath
         let ilModule,ilAssemblyRefs = tcImports.OpenILBinaryModule(filename,m)
@@ -4259,6 +4273,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
     static member BuildFrameworkTcImports (tcConfigP:TcConfigProvider, frameworkDLLs, nonFrameworkDLLs) =
 
         let tcConfig = tcConfigP.Get()
+        use installedContext = tcConfig.InstallCompilerContextToCurrentThread()
         let tcResolutions = TcAssemblyResolutions.BuildFromPriorResolutions(tcConfig,frameworkDLLs,[])
         let tcAltResolutions = TcAssemblyResolutions.BuildFromPriorResolutions(tcConfig,nonFrameworkDLLs,[])
 
@@ -4312,7 +4327,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
                             error(InternalError("BuildFrameworkTcImports: no successful import of "+coreLibraryResolution.resolvedPath,coreLibraryResolution.originalReference.Range))
                     | None -> 
                         error(InternalError(sprintf "BuildFrameworkTcImports: no resolution of '%s'" coreLibraryReference.Text,rangeStartup))
-                IlxSettings.ilxFsharpCoreLibAssemRef := 
+                IlxSettings.ilxFsharpCoreLibAssemRef.ThreadLocalValue := 
                     (let scoref = fslibCcuInfo.ILScopeRef
                      match scoref with
                      | ILScopeRef.Assembly aref             -> Some aref
@@ -4948,6 +4963,10 @@ let TypecheckOneInputEventually
       (checkForErrors , tcConfig:TcConfig, tcImports:TcImports,  
        tcGlobals, prefixPathOpt, tcSink, tcState: TcState, inp: ParsedInput) =
   eventually {
+   // the eventually monad does not implement use bindings
+   // introduce compiler context using try/finally
+   let installedContext = tcConfig.InstallCompilerContextToCurrentThread()
+   try
    try 
       CheckSimulateException(tcConfig)
       let (RootSigsAndImpls(rootSigs,rootImpls,allSigModulTyp,allImplementedSigModulTyp)) = tcState.tcsRootSigsAndImpls
@@ -5065,6 +5084,9 @@ let TypecheckOneInputEventually
    with e -> 
       errorRecovery e range0 
       return (tcState.TcEnvFromSignatures,EmptyTopAttrs,[]),tcState
+
+  // dispose of the thread context
+  finally installedContext.Dispose()
  }
 
 let TypecheckOneInput (checkForErrors, tcConfig, tcImports, tcGlobals, prefixPathOpt) tcState  inp =

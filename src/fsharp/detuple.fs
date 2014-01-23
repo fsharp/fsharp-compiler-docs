@@ -539,7 +539,7 @@ let mkTransform g (f:Val) m tps x1Ntys rty (callPattern,tyfringes: (TType list *
     let tysrN = List.drop tyfringes.Length x1Ntys    (* types for remaining args *)
     let argtys = tys1r @ tysrN
     let fCty  = mkLambdaTy tps argtys rty                  
-    let transformedVal  = mkLocalVal f.Range (globalNng.FreshCompilerGeneratedName (f.LogicalName,f.Range)) fCty topValInfo
+    let transformedVal  = mkLocalVal f.Range (globalNng.ThreadLocalValue.FreshCompilerGeneratedName (f.LogicalName,f.Range)) fCty topValInfo
   (*dprintf "mkTransform: f=%s\n"         (showL (valL f));
     dprintf "mkTransform: tps=%s\n"       (showL (commaListL (List.map typarL tps)));
     dprintf "mkTransform: callPattern=%s\n"        (soCP callPattern);

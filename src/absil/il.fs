@@ -18,6 +18,7 @@ module (*internal*) Microsoft.FSharp.Compiler.AbstractIL.IL
 
 
 open Internal.Utilities
+open Internal.Utilities.Concurrent
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
@@ -75,31 +76,11 @@ let rec splitNamespaceAux (nm:string) =
 
 /// Global State. All namespace splits ever seen
 // ++GLOBAL MUTABLE STATE
-let memoizeNamespaceTable = new Dictionary<string,string list>(10)
-
-//  ++GLOBAL MUTABLE STATE
-let memoizeNamespaceRightTable = new Dictionary<string,string option * string>(100)
-
-
-let splitNamespace nm =
-    let mutable res = Unchecked.defaultof<_>
-    let ok = memoizeNamespaceTable.TryGetValue(nm,&res)
-    if ok then res else
-    let x = splitNamespaceAux nm
-    (memoizeNamespaceTable.[nm] <- x; x)
-
+let splitNamespace = memoize splitNamespaceAux
 let splitNamespaceMemoized nm = splitNamespace nm
 
 // ++GLOBAL MUTABLE STATE
-let memoizeNamespaceArrayTable = 
-    Dictionary<string,string[]>(10)
-
-let splitNamespaceToArray nm =
-    let mutable res = Unchecked.defaultof<_>
-    let ok = memoizeNamespaceArrayTable.TryGetValue(nm,&res)
-    if ok then res else
-    let x = Array.ofList (splitNamespace nm)
-    (memoizeNamespaceArrayTable.[nm] <- x; x)
+let splitNamespaceToArray = memoize (splitNamespace >> Array.ofList)
 
 
 let splitILTypeName (nm:string) = 
@@ -152,12 +133,8 @@ let splitTypeNameRightAux nm =
       Some s1,s2 
     else None, nm
 
-let splitTypeNameRight nm =
-    let mutable res = Unchecked.defaultof<_>
-    let ok = memoizeNamespaceRightTable.TryGetValue(nm,&res)
-    if ok then res else
-    let x = splitTypeNameRightAux nm
-    (memoizeNamespaceRightTable.[nm] <- x; x)
+//  ++GLOBAL MUTABLE STATE
+let splitTypeNameRight = memoize splitTypeNameRightAux
 
 // -------------------------------------------------------------------- 
 // Ordered lists with a lookup table
@@ -2223,15 +2200,9 @@ let mkTryMultiFilterCatchBlock (tryblock, clauses) =
                 fltcode,
                 checkILCode (mkRestrictBlock enter_catch_lab (checkILCode catchblock)))))
 
-
-let new_generator () = 
-    let i = ref 0
-    fun _n -> 
-      incr i; !i
-
 //  ++GLOBAL MUTABLE STATE
-let codeLabelGenerator = (new_generator () : unit -> ILCodeLabel) 
-let generateCodeLabel x  = codeLabelGenerator x
+let codeLabelGenerator = CompilerThreadContext.InstallResourceFactory(fun () -> new UniqueIntGenerator())
+let generateCodeLabel () = codeLabelGenerator.ThreadLocalValue.Next() : ILCodeLabel
 
 let uniqueEntryOfCode c = 
     match entriesOfCode c with 

@@ -24,6 +24,7 @@ open System.IO
 open System.Runtime.InteropServices
 open System.Collections.Generic
 open Internal.Utilities
+open Internal.Utilities.Concurrent
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal 
 #if NO_PDB_READER
@@ -4119,8 +4120,8 @@ let OpenILModuleReader infile opts =
             ClosePdbReader pdb) }
 
 // ++GLOBAL MUTABLE STATE
-let ilModuleReaderCache = 
-    new Internal.Utilities.Collections.AgedLookup<(string * System.DateTime),ILModuleReader>(0, areSame=(fun (x,y) -> x = y))
+let ilModuleReaderCache = CompilerThreadContext.InstallResourceFactory(fun () ->
+    new Internal.Utilities.Collections.AgedLookup<(string * System.DateTime),ILModuleReader>(0, areSame=(fun (x,y) -> x = y)))
 
 
 let OpenILModuleReaderAfterReadingAllBytes infile opts = 
@@ -4133,7 +4134,7 @@ let OpenILModuleReaderAfterReadingAllBytes infile opts =
     let cacheResult = 
         if not succeeded then None // Fall back to uncached.
         else if opts.pdbPath.IsSome then None // can't used a cached entry when reading PDBs, since it makes the returned object IDisposable
-        else ilModuleReaderCache.TryGet(key) 
+        else ilModuleReaderCache.ThreadLocalValue.TryGet(key) 
     match cacheResult with 
     | Some(ilModuleReader) -> ilModuleReader
     | None -> 
@@ -4144,7 +4145,7 @@ let OpenILModuleReaderAfterReadingAllBytes infile opts =
               ilAssemblyRefs = ilAssemblyRefs
               dispose = (fun () -> ClosePdbReader pdb) }
         if isNone pdb && succeeded then 
-            ilModuleReaderCache.Put(key, ilModuleReader)
+            ilModuleReaderCache.ThreadLocalValue.Put(key, ilModuleReader)
         ilModuleReader
 
 let OpenILModuleReaderFromBytes fileNameForDebugOutput bytes opts = 

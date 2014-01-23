@@ -859,7 +859,7 @@ let CreateNewValuesForTLR g tlrS arityM fclassM envPackM =
             let newArgtys = List.map typeOfVal envp.ep_aenvs @ argtys
             mkLambdaTy newTps newArgtys res
         let fHatArity = MakeSimpleArityInfo newTps (envp.ep_aenvs.Length + wf)
-        let fHatName =  globalNng.FreshCompilerGeneratedName(name,m)
+        let fHatName =  globalNng.ThreadLocalValue.FreshCompilerGeneratedName(name,m)
 
         let fHat = mkLocalNameTypeArity f.IsCompilerGenerated m fHatName fHatTy (Some fHatArity)
         fHat

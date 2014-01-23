@@ -3886,7 +3886,7 @@ and GetIlxClosureFreeVars cenv m selfv eenvouter takenNames expr =
         // FSharp 1.0 bug 3404: System.Reflection doesn't like '.' and '`' in type names
         let basenameSafeForUseAsTypename = CleanUpGeneratedTypeName basename
         let suffixmark = expr.Range
-        let cloName = globalStableNameGenerator.GetUniqueCompilerGeneratedName(basenameSafeForUseAsTypename,suffixmark,uniq)
+        let cloName = globalStableNameGenerator.ThreadLocalValue.GetUniqueCompilerGeneratedName(basenameSafeForUseAsTypename,suffixmark,uniq)
         NestedTypeRefForCompLoc eenvouter.cloc cloName
 
     // Collect the free variables of the closure
@@ -5032,7 +5032,7 @@ and GenParams cenv eenv (mspec:ILMethodSpec) (attribs:ArgReprInfo list) (implVal
         let nmOpt,takenNames = 
             match idOpt with 
             | Some id -> 
-                let nm = if takenNames.Contains(id.idText) then globalNng.FreshCompilerGeneratedName (id.idText, id.idRange) else id.idText
+                let nm = if takenNames.Contains(id.idText) then globalNng.ThreadLocalValue.FreshCompilerGeneratedName (id.idText, id.idRange) else id.idText
                 Some nm, takenNames.Add(nm)
             | None -> 
                 None, takenNames

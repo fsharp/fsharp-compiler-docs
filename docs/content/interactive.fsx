@@ -12,8 +12,8 @@ your application.
 > **NOTE:** There is a number of options for embedding F# Interactive. The easiest one is to use the 
 `fsi.exe` process and communicate with it using standard input and standard output. In this
 tutorial, we look at calling F# interactive directly through .NET API. However, if you have
-no control over the input, it is a good idea to run F# interactive in a separate process
-(one reason is that there is no way to handle `StackOverflowException` and so poorly written
+no control over the input, it is a good idea to run F# interactive in a separate process.
+One reason is that there is no way to handle `StackOverflowException` and so a poorly written
 script can terminate the host process.
 
 However, the F# interactive service is still useful, because you might want to wrap it in your

@@ -1416,7 +1416,7 @@ let InstanceMembersNeedSafeInitCheck cenv m thisTy =
         thisTy
         
 let MakeSafeInitField g env m isStatic = 
-    let id = ident(globalNng.FreshCompilerGeneratedName("init",m),m)
+    let id = ident(globalNng.ThreadLocalValue.FreshCompilerGeneratedName("init",m),m)
     let taccess = TAccess [env.eAccessPath]
     NewRecdField isStatic None id g.int_ty true true [] [] XmlDoc.Empty taccess true
 

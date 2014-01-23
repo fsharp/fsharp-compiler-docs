@@ -16,6 +16,7 @@ open System
 open System.Collections.Generic 
 open System.Reflection
 open Internal.Utilities
+open Internal.Utilities.Concurrent
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal 
@@ -42,23 +43,31 @@ open Microsoft.FSharp.Core.CompilerServices
 let verboseStamps = ref false
 #endif
 
-/// Unique name generator for stamps attached to lambdas and object expressions
-type Unique = int64
 //++GLOBAL MUTABLE STATE
-let newUnique = let i = ref 0L in fun () -> i := !i + 1L; !i
+type Unique = int64
 type Stamp = int64
 
+// Typed ASTs have occasional delayed evaluation; 
+// keep unique/stamp generators global but make thread safe
+let uniqueGenerator = new UniqueInt64Generator()
+let stampGenerator = new UniqueInt64Generator()
+
+/// Unique name generator for stamps attached to lambdas and object expressions
+let newUnique () : Unique = uniqueGenerator.Next ()
 /// Unique name generator for stamps attached to to val_specs, tycon_specs etc.
-//++GLOBAL MUTABLE STATE
-let newStamp = let i = ref 0L in fun () -> i := !i + 1L; !i
+let newStamp () : Stamp = stampGenerator.Next()
+
+
+// ++GLOBAL MUTABLE STATE
+
+// Nice name generators are not thread safe and determine generated type names;
+// make thread local
 
 /// A global generator of compiler generated names
-// ++GLOBAL MUTABLE STATE
-let globalNng = NiceNameGenerator()
+let globalNng = CompilerThreadContext.InstallResourceFactory(fun () -> NiceNameGenerator())
 
 /// A global generator of stable compiler generated names
-// ++GLOBAL MUTABLE STATE
-let globalStableNameGenerator = StableNiceNameGenerator ()
+let globalStableNameGenerator = CompilerThreadContext.InstallResourceFactory(fun () -> StableNiceNameGenerator ())
 
 type StampMap<'T> = Map<Stamp,'T>
 
@@ -2199,7 +2208,7 @@ and
         //    
         // However we don't need this for CompilerGenerated members such as the imlpementations of IComparable
         if x.IsCompiledAsTopLevel  && not x.IsMember  && (x.IsCompilerGenerated || not x.IsMemberOrModuleBinding) then 
-            globalStableNameGenerator.GetUniqueCompilerGeneratedName(givenName,x.Range,x.Stamp) 
+            globalStableNameGenerator.ThreadLocalValue.GetUniqueCompilerGeneratedName(givenName,x.Range,x.Stamp) 
         else 
             givenName
 

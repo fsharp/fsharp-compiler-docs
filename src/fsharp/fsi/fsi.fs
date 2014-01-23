@@ -958,6 +958,8 @@ type internal FsiDynamicCompiler
         let ilxGenerator = istate.ilxGenerator
         let tcConfig = TcConfig.Create(tcConfigB,validate=false)
 
+        use installedContext = tcConfig.InstallCompilerContextToCurrentThread()
+
         // Typecheck. The lock stops the type checker running at the same time as the 
         // server intellisense implementation (which is currently incomplete and #if disabled)
         let (tcState:TcState),topCustomAttrs,declaredImpls,tcEnvAtEndOfLastInput =

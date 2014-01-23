@@ -29,6 +29,7 @@ open System.Runtime.CompilerServices
 open System.Text
 open Internal.Utilities
 open Internal.Utilities.Collections
+open Internal.Utilities.Concurrent
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
@@ -1838,7 +1839,7 @@ let main1(argv,bannerAlreadyPrinted,exiter:Exiter,loggerProvider) =
     Args(tcConfig,tcImports,frameworkTcImports,tcGlobals,errorLogger,generatedCcu,outfile,typedAssembly,topAttrs,pdbfile,assemblyName,assemVerFromAttrib,signingInfo,exiter)
 
   
-let main2(Args(tcConfig,tcImports,frameworkTcImports : TcImports,tcGlobals,errorLogger,generatedCcu:CcuThunk,outfile,typedAssembly,topAttrs,pdbfile,assemblyName,assemVerFromAttrib,signingInfo,exiter:Exiter)) = 
+let main2(Args(tcConfig:TcConfig,tcImports,frameworkTcImports : TcImports,tcGlobals,errorLogger,generatedCcu:CcuThunk,outfile,typedAssembly,topAttrs,pdbfile,assemblyName,assemVerFromAttrib,signingInfo,exiter:Exiter)) = 
       
     ReportTime tcConfig ("Encode Interface Data");
 #if DEBUG
@@ -1850,6 +1851,8 @@ let main2(Args(tcConfig,tcImports,frameworkTcImports : TcImports,tcGlobals,error
     if !verboseStamps then 
         dprintf "---------------------- END MAKE EXPORT REMAPPING ------------\n";
 #endif
+
+    use installedContext = tcConfig.InstallCompilerContextToCurrentThread()
     
     let sigDataAttributes,sigDataResources = 
         EncodeInterfaceData(tcConfig,tcGlobals,exportRemapping,errorLogger,generatedCcu,outfile,exiter)
@@ -1896,11 +1899,15 @@ let main2(Args(tcConfig,tcImports,frameworkTcImports : TcImports,tcGlobals,error
     // data structures involved here are so large we can't take the risk.
     Args(tcConfig,tcImports,tcGlobals,errorLogger,generatedCcu,outfile,optimizedImpls,topAttrs,pdbfile,assemblyName, (sigDataAttributes, sigDataResources), generatedOptData,assemVerFromAttrib,signingInfo,metadataVersion,exiter)
 
-let mutable tcImportsCapture = None
-let mutable dynamicAssemblyCreator = None
+// GLOBAL MUTABLE STATE
+let tcImportsCapture = CompilerThreadContext.InstallResourceFactory<(TcImports -> unit) option ref>(fun () -> ref None)
+let dynamicAssemblyCreator = CompilerThreadContext.InstallResourceFactory<(TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option ref>(fun () -> ref None)
+
 let main2b(Args(tcConfig:TcConfig,tcImports,tcGlobals,errorLogger,generatedCcu:CcuThunk,outfile,optimizedImpls,topAttrs,pdbfile,assemblyName,idata,generatedOptData,assemVerFromAttrib,signingInfo,metadataVersion,exiter:Exiter)) = 
   
-    match tcImportsCapture with 
+    use installedContext = tcConfig.InstallCompilerContextToCurrentThread()
+
+    match tcImportsCapture.ThreadLocalValue.Value with 
     | None -> ()
     | Some f -> f tcImports
 
@@ -1919,7 +1926,7 @@ let main2b(Args(tcConfig:TcConfig,tcImports,tcGlobals,errorLogger,generatedCcu:C
     // Note that SerializableAttribute may be relocated in the future but now resides in mscorlib.
     let netFxHasSerializableAttribute = tcImports.SystemRuntimeContainsType "System.SerializableAttribute"
     let codegenResults = 
-        match dynamicAssemblyCreator with
+        match dynamicAssemblyCreator.ThreadLocalValue.Value with
         | None -> GenerateIlxCode (IlWriteBackend, false, false, tcConfig, topAttrs, optimizedImpls, generatedCcu.AssemblyName, netFxHasSerializableAttribute, ilxGenerator)
         | Some _ -> GenerateIlxCode (IlReflectBackend, true, false, tcConfig, topAttrs, optimizedImpls, generatedCcu.AssemblyName, netFxHasSerializableAttribute, ilxGenerator)
 
@@ -1943,8 +1950,9 @@ let main2b(Args(tcConfig:TcConfig,tcImports,tcGlobals,errorLogger,generatedCcu:C
     
     Args (tcConfig,errorLogger,staticLinker,ilGlobals,outfile,pdbfile,ilxMainModule,signingInfo,exiter)
 
-let main2c(Args(tcConfig,errorLogger,staticLinker,ilGlobals,outfile,pdbfile,ilxMainModule,signingInfo,exiter:Exiter)) = 
+let main2c(Args(tcConfig:TcConfig,errorLogger,staticLinker,ilGlobals,outfile,pdbfile,ilxMainModule,signingInfo,exiter:Exiter)) = 
       
+    use installedContext = tcConfig.InstallCompilerContextToCurrentThread()
     use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.IlGen)
     
     ReportTime tcConfig "ILX -> IL (Unions)"; 
@@ -1956,8 +1964,9 @@ let main2c(Args(tcConfig,errorLogger,staticLinker,ilGlobals,outfile,pdbfile,ilxM
     Args(tcConfig,errorLogger,staticLinker,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter)
   
 
-let main3(Args(tcConfig,errorLogger:ErrorLogger,staticLinker,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter:Exiter)) = 
+let main3(Args(tcConfig:TcConfig,errorLogger:ErrorLogger,staticLinker,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter:Exiter)) = 
         
+    use installedContext = tcConfig.InstallCompilerContextToCurrentThread()
     let ilxMainModule =  
         try  staticLinker (ilxMainModule,outfile)
         with e -> 
@@ -1971,11 +1980,12 @@ let main3(Args(tcConfig,errorLogger:ErrorLogger,staticLinker,ilGlobals,ilxMainMo
         
     Args (tcConfig,errorLogger,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter)
 
-let main4(Args(tcConfig,errorLogger:ErrorLogger,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter)) = 
+let main4(Args(tcConfig:TcConfig,errorLogger:ErrorLogger,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter)) = 
     ReportTime tcConfig "Write .NET Binary"
+    use installedContext = tcConfig.InstallCompilerContextToCurrentThread()
     use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Output)    
     let pdbfile = pdbfile |> Option.map FileSystem.GetFullPathShim
-    match dynamicAssemblyCreator with 
+    match dynamicAssemblyCreator.ThreadLocalValue.Value with 
     | None -> FileWriter.EmitIL (tcConfig,ilGlobals,errorLogger,outfile,pdbfile,ilxMainModule,signingInfo,exiter)
     | Some da -> da (tcConfig,ilGlobals,errorLogger,outfile,pdbfile,ilxMainModule,signingInfo); 
 

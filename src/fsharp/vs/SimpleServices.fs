@@ -18,6 +18,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     open System
     open System.IO
     open System.Text
+    open Internal.Utilities.Concurrent
     open Microsoft.FSharp.Compiler.Range
     open Microsoft.FSharp.Compiler.SourceCodeServices
     open Microsoft.FSharp.Compiler.Driver
@@ -217,10 +218,16 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 System.Console.SetError error
 #endif
             | None -> ()
+
+            // need to manually install a compiler context here
+            let ctx = CompilerThreadContext.Create()
+            use installedContext = CompilerThreadContext.InstallContextToCurrentThread ctx 
+
             let tcImportsRef = ref None
             let res = ref None
-            tcImportsCapture <- Some (fun tcImports -> tcImportsRef := Some tcImports)
-            dynamicAssemblyCreator <- 
+
+            tcImportsCapture.ThreadLocalValue := Some (fun tcImports -> tcImportsRef := Some tcImports)
+            dynamicAssemblyCreator.ThreadLocalValue :=
                 Some (fun (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) ->
                     let assemblyBuilder = System.AppDomain.CurrentDomain.DefineDynamicAssembly(System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile),System.Reflection.Emit.AssemblyBuilderAccess.Run)
                     let debugInfo = false
@@ -247,16 +254,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                         if Build.IsReflectedDefinitionsResource resource then 
                             Quotations.Expr.RegisterReflectedDefinitions(assemblyBuilder, moduleBuilder.Name, resource.Bytes);
                     res := Some assemblyBuilder)
-            
 
-            try 
-                let errorsAndWarnings, result = x.Compile otherFlags
-                let assemblyOpt = 
-                    match res.Value with 
-                    | None -> None
-                    | Some a ->  Some (a :> System.Reflection.Assembly)
-                errorsAndWarnings, result, assemblyOpt
-            finally
-                tcImportsCapture <- None
-                dynamicAssemblyCreator <- None
-
+            let errorsAndWarnings, result = x.Compile otherFlags
+            let assemblyOpt = 
+                match res.Value with 
+                | None -> None
+                | Some a ->  Some (a :> System.Reflection.Assembly)
+            errorsAndWarnings, result, assemblyOpt

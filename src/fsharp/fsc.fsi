@@ -1,5 +1,6 @@
 module internal Microsoft.FSharp.Compiler.Driver 
 
+open Internal.Utilities.Concurrent
 open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.ErrorLogger
@@ -19,10 +20,10 @@ val mainCompile : argv : string[] * bannerAlreadyPrinted : bool * exiter : Exite
 type internal SigningInfo = SigningInfo of (* delaysign:*) bool * (*signer:*)  string option * (*container:*) string option
 
 /// A global variable representing a parameter used to configure the compilation service.
-val mutable internal tcImportsCapture: (TcImports -> unit) option
+val internal tcImportsCapture: Resource<(TcImports -> unit) option ref>
 
 /// A global variable representing a parameter used to configure the compilation service.
-val mutable internal dynamicAssemblyCreator: (TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option    
+val internal dynamicAssemblyCreator: Resource<(TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option ref>
 
 type ILResource with 
     /// Read the bytes from a resource local to an assembly

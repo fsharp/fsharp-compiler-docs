@@ -16,6 +16,7 @@ module internal Microsoft.FSharp.Compiler.Build
 
 open System.Text
 open Internal.Utilities
+open Internal.Utilities.Concurrent
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal 
@@ -200,6 +201,7 @@ type TcConfigBuilder =
       mutable openBinariesInMemory: bool;
       mutable openDebugInformationForLaterStaticLinking: bool;
       defaultFSharpBinariesDir: string;
+      compilerThreadContext: CompilerThreadContext;
       mutable compilingFslib: bool;
       mutable compilingFslib20: string option;
       mutable compilingFslib40: bool;
@@ -334,6 +336,7 @@ type TcConfigBuilder =
     member AddReferencedAssemblyByPath : range * string -> unit
     member RemoveReferencedAssemblyByPath : range * string -> unit
     member AddEmbeddedResource : string -> unit
+    member InstallCompilerContextToCurrentThread : unit -> System.IDisposable
     
     static member SplitCommandLineResourceInfo : string -> string * string * ILResourceAccess
 
@@ -350,6 +353,7 @@ type TcConfig =
     member openBinariesInMemory: bool;
     member openDebugInformationForLaterStaticLinking: bool;
     member fsharpBinariesDir: string;
+    member compilerThreadContext: CompilerThreadContext;
     member compilingFslib: bool;
     member compilingFslib20: string option;
     member compilingFslib40: bool;
@@ -472,6 +476,8 @@ type TcConfig =
     member ResolveSourceFile : range * string * string -> string
     /// File system query based on TcConfig settings
     member MakePathAbsolute : string -> string
+    /// installs carried compiler state to current thread
+    member InstallCompilerContextToCurrentThread : unit -> System.IDisposable
 
     member sqmSessionGuid : System.Guid option
     member sqmNumOfSourceFiles : int

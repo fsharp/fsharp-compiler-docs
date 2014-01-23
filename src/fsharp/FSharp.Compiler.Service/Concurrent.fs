@@ -50,7 +50,12 @@
         let mutable count = 0L
         member __.Next() = Interlocked.Increment(&count)
 
-    /// Thread-cotnextual portable dependency injection mechanism
+
+    exception CompilerThreadContextException of string
+    with
+        override e.Message = e.Data0
+
+    /// Thread-contextual, portable dependency injection mechanism
     type CompilerThreadContext private () =
 
         static let mutable factoryCount = 0
@@ -76,13 +81,13 @@
                 if ok then
                     resourceContainer.AddOrUpdate(id, (fun _ -> factory ()), (fun _ value -> value)) :?> 'T
                 else
-                    failwithf "CompilerThreadContext: no factory for resource of type '%O' has been installed." typeof<'T>
+                    raise <| CompilerThreadContextException "internal error."
 
         member private ctx.InstallContextToCurrentThread () =
             let threadState = threadLocalContext.Value
             match threadState.Value with
             | Some ctx' when obj.ReferenceEquals(ctx, ctx') -> { new IDisposable with member __.Dispose() = () }
-            | Some _ -> invalidOp "CompilerThreadContext: a context is already installed on this thread."
+            | Some _ -> raise <| CompilerThreadContextException "a context is already installed on this thread."
             | None ->
                 let _ = Interlocked.Increment &consumingThreads
                 threadState := Some ctx
@@ -99,7 +104,7 @@
 
         static member internal GetResource<'T> id =
             match threadLocalContext.Value.Value with
-            | None -> failwith "CompilerThreadContext: no context is installed on current thread."
+            | None -> raise <| CompilerThreadContextException "no compiler context installed on current thread."
             | Some ctx -> ctx.GetResource<'T> id
 
         static member InstallContextToCurrentThread (ctx : CompilerThreadContext) =

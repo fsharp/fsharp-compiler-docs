@@ -6,6 +6,8 @@ module FSharp.Compiler.Service.Tests.FscTests
 
     open Microsoft.FSharp.Compiler
 
+    open Mono.Cecil
+
     open NUnit.Framework
 
     exception VerificationException of (*assembly:*)string * (*errorCode:*)int * (*output:*)string
@@ -15,6 +17,41 @@ module FSharp.Compiler.Service.Tests.FscTests
     exception CompilationError of (*assembly:*)string * (*errorCode:*)int * (*info:*)ErrorInfo []
     with
         override e.Message = sprintf "Compilation of '%s' failed with code %d (%A)" e.Data0 e.Data1 e.Data2
+
+    // cecil data dump with structural equality
+    // not exhaustive traversal, but at least ensures that closure types do not differ
+    type CecilAssemblyInfo =
+        {
+            FullName : string
+            EntryPoint : string option
+            MetaDataToken : string
+            Methods : Set<string>
+        }
+    with
+        static member OfAssembly(path : string) =
+            let rec walkAssembly (a : AssemblyDefinition) =
+                a.Modules 
+                |> Seq.collect (fun m -> walkTypes m.Types)
+                |> set
+
+            and walkTypes (ts : seq<TypeDefinition>) =
+                seq {
+                    for t in ts do
+                        yield! walkMethods t
+                        yield! walkTypes t.NestedTypes
+                }
+
+            and walkMethods (t : TypeDefinition) =
+                t.Methods |> Seq.map (fun m -> m.ToString())
+
+            let a = AssemblyDefinition.ReadAssembly(path)
+
+            {
+                FullName = a.FullName
+                EntryPoint = match a.EntryPoint with null -> None | m -> Some <| m.ToString()
+                MetaDataToken = a.MetadataToken.ToString()
+                Methods = walkAssembly a
+            }
 
     type PEVerifier () =
 
@@ -80,7 +117,13 @@ module FSharp.Compiler.Service.Tests.FscTests
         let sourceFile = Path.Combine(tmp, assemblyName + ".fs")
         let outFile = Path.Combine(tmp, assemblyName + if isDll then ".dll" else ".exe")
         let pdbFile = Path.Combine(tmp, assemblyName + ".pdb")
-        do File.WriteAllText(sourceFile, code)
+        do
+            let deleteIfExists file = if File.Exists file then File.Delete file
+            deleteIfExists sourceFile
+            deleteIfExists outFile
+            deleteIfExists pdbFile
+            File.WriteAllText(sourceFile, code)
+
         let args =
             [|
                 // fsc parser skips the first argument by default;
@@ -123,19 +166,31 @@ module FSharp.Compiler.Service.Tests.FscTests
         Assert.Throws<VerificationException>(fun () -> verifier.Verify nonAssembly |> ignore) |> ignore
 
 
-    [<Test>]
-    let ``2. Simple FSC library test`` () =
-        let code = """
+    let libCode = """
 module Foo
 
-    let f x = (x,x)
+    let f x y = x + y
 
-    type Foo = class end
+    let g = f 42
+
+    type IFoo = abstract Value : int
+
+    let instance = { new IFoo with member __.Value = 42 }
+
+    type DU =
+        | A
+        | B
+        | C
+        | D of int
 
     exception E of int * string
 """
 
-        compileAndVerify true PdbOnly "Foo" code [] |> ignore
+    [<Test>]
+    let ``2. Simple FSC library test`` () =
+
+        try compileAndVerify true PdbOnly "Foo" libCode [] |> ignore
+        with VerificationException(_,_,out) -> printfn "%A" out ; reraise ()
 
     [<Test>]
     let ``3. Simple FSC executable test`` () =
@@ -151,3 +206,44 @@ module Bar
         use proc = Process.Start(outFile, "")
         while not proc.HasExited do ()
         Assert.AreEqual(proc.ExitCode, 42)
+
+
+    [<Test>]
+    let ``4. Parallel FSC compilation`` () =
+
+        let compileMany (concurrentCompiles : int) =
+            async {
+                let compileOnce i = async { return compileAndVerify true PdbOnly (sprintf "Foo-%d" i) libCode [] }
+                return! Async.Parallel <| Array.init concurrentCompiles compileOnce
+            }
+
+        let files = Async.RunSynchronously <| compileMany 4
+
+        ()
+
+
+    [<Test>]
+    let ``5. Referential Transparency in FSC compiles`` () =
+
+        let compile () = compileAndVerify true PdbOnly "Foo" libCode []
+
+        let lib1 = compile ()
+        let il1 = File.ReadAllBytes(lib1)
+        let data1 = CecilAssemblyInfo.OfAssembly lib1
+        let lib2 = compile ()
+        let lib3 = compile ()
+        let il3 = File.ReadAllBytes(lib3)
+        let data3 = CecilAssemblyInfo.OfAssembly lib3
+
+        Assert.That(il1.Length = il3.Length)
+        Assert.AreEqual(data1, data3)
+
+        let gatherDiffs (bs : byte []) (bs' : byte []) =
+            (bs, bs')
+            ||> Array.zip
+            |> Array.mapi (fun i bs -> i,bs)
+            |> Array.filter (fun (_,(b,b')) -> b <> b')
+
+        let diffs = gatherDiffs il1 il3
+
+        printfn "%A" diffs

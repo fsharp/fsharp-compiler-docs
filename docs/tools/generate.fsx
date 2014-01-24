@@ -14,7 +14,7 @@ let info =
     "project-author", "Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek"
     "project-summary", "F# compiler services for creating IDE tools, language extensions and for F# embedding"
     "project-github", "http://github.com/fsharp/FSharp.Compiler.Service"
-    "project-nuget", "http://nuget.com/packages/FSharp.Compiler.Service" ]
+    "project-nuget", "https://www.nuget.org/packages/FSharp.Compiler.Service" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below

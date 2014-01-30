@@ -20,7 +20,7 @@ interactive service that can be used for embedding F# scripting into your applic
 Available services
 ------------------
 
-The project currently exposes the following six services that are tested & documented on this page.
+The project currently exposes the following services that are tested & documented on this page.
 The libraries contain additional public API that can be used, but is not documented here.
 
  * [**F# Language tokenizer**](tokenizer.html) - turns any F# source code into a stream of tokens.

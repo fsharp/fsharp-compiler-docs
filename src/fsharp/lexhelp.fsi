@@ -47,7 +47,7 @@ val resetLexbufPos : string -> UnicodeLexing.Lexbuf -> unit
 val mkLexargs : 'a * string list * LightSyntaxStatus * LexResourceManager * LexerIfdefStack * ErrorLogger -> lexargs
 val reusingLexbufForParsing : UnicodeLexing.Lexbuf -> (unit -> 'a) -> 'a 
 
-val internal usingLexbufForParsing : UnicodeLexing.Lexbuf * string -> (UnicodeLexing.Lexbuf -> 'a) -> 'a
+val (*internal*) usingLexbufForParsing : UnicodeLexing.Lexbuf * string -> (UnicodeLexing.Lexbuf -> 'a) -> 'a
 val internal defaultStringFinisher : 'a -> 'b -> byte[] -> Parser.token
 val internal callStringFinisher : ('a -> 'b -> byte[] -> 'c) -> AbstractIL.Internal.ByteBuffer -> 'a -> 'b -> 'c
 val internal addUnicodeString : AbstractIL.Internal.ByteBuffer -> string -> unit
@@ -68,8 +68,8 @@ exception internal ReservedKeyword of string * Range.range
 exception internal IndentationProblem of string * Range.range
 
 module Keywords = 
-    val internal KeywordOrIdentifierToken : lexargs -> UnicodeLexing.Lexbuf -> string -> Parser.token
-    val internal IdentifierToken : lexargs -> UnicodeLexing.Lexbuf -> string -> Parser.token
+    val (*internal*) KeywordOrIdentifierToken : lexargs -> UnicodeLexing.Lexbuf -> string -> Parser.token
+    val (*internal*) IdentifierToken : lexargs -> UnicodeLexing.Lexbuf -> string -> Parser.token
     val (*internal*) QuoteIdentifierIfNeeded : string -> string
-    val mutable internal permitFsharpKeywords : bool 
+    val mutable (*internal*) permitFsharpKeywords : bool 
     val keywordNames : string list

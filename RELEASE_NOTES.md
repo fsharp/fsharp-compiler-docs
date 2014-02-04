@@ -59,3 +59,16 @@
 
 #### 0.0.11-alpha - 
 * Add 'IsUnresolved' 
+
+#### 0.0.12-alpha - 
+* Make the parts of the lexer/parser used by 'XmlDoc' tools in F# VS Power tools public
+
+#### 0.0.13-alpha - 
+* Fix #39 - Constructor parameters are mistaken for record fields in classes
+
+#### 0.0.14 - 
+* Update version number as nuget package may not have published properly
+
+#### 0.0.15 - 
+* Update version number as nuget package may not have published properly
+

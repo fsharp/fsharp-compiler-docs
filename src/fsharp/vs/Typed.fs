@@ -271,11 +271,12 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         |> List.map (fun x -> FSharpUnionCase(g, x)) 
         |> makeReadOnlyCollection
 
-    member this.RecordFields =
+    member this.RecordFields = this.FSharpFields
+    member this.FSharpFields =
         if isUnresolved() then makeReadOnlyCollection[] else
 
         entity.AllFieldsAsList
-        |> List.map (fun x -> FSharpRecordField(g,  RecdFieldData.Recd (mkRecdFieldRef entity x.Name)))
+        |> List.map (fun x -> FSharpField(g,  FSharpFieldData.Recd (mkRecdFieldRef entity x.Name)))
         |> makeReadOnlyCollection
 
     member this.AbbreviatedType   = 
@@ -327,7 +328,7 @@ and FSharpUnionCase(g:TcGlobals, v: UnionCaseRef) =
 
     member __.UnionCaseFields = 
         if isUnresolved() then makeReadOnlyCollection [] else
-        v.UnionCase.RecdFields |> List.mapi (fun i _ ->  FSharpRecordField(g, RecdFieldData.Union (v, i))) |> List.toArray |> makeReadOnlyCollection
+        v.UnionCase.RecdFields |> List.mapi (fun i _ ->  FSharpField(g, FSharpFieldData.Union (v, i))) |> List.toArray |> makeReadOnlyCollection
 
     member __.ReturnType = 
         checkIsResolved()
@@ -365,7 +366,7 @@ and FSharpUnionCase(g:TcGlobals, v: UnionCaseRef) =
     override x.ToString() = x.CompiledName
 
 
-and RecdFieldData = 
+and FSharpFieldData = 
     | Recd of RecdFieldRef
     | Union of UnionCaseRef * int
     member x.RecdField =
@@ -373,7 +374,7 @@ and RecdFieldData =
         | Recd v -> v.RecdField
         | Union (v,n) -> v.FieldByIndex(n)
 
-and FSharpRecordField(g:TcGlobals, d: RecdFieldData) =
+and FSharpField(g:TcGlobals, d: FSharpFieldData) =
     inherit FSharpSymbol (g, (fun () -> 
              match d with 
              | Recd v -> 
@@ -406,6 +407,14 @@ and FSharpRecordField(g:TcGlobals, d: RecdFieldData) =
     member __.IsMutable = 
         if isUnresolved() then false else 
         d.RecdField.IsMutable
+
+    member __.IsVolatile = 
+        if isUnresolved() then false else 
+        d.RecdField.IsVolatile
+
+    member __.IsDefaultValue = 
+        if isUnresolved() then false else 
+        d.RecdField.IsZeroInit
 
     member __.XmlDocSig = 
         checkIsResolved()
@@ -451,7 +460,7 @@ and FSharpRecordField(g:TcGlobals, d: RecdFieldData) =
     override this.Equals(other : obj) =
         box this === other ||
         match other with
-        |   :? FSharpRecordField as uc -> 
+        |   :? FSharpField as uc -> 
             match d, uc.V with 
             | Recd r1, Recd r2 -> recdFieldRefOrder.Compare(r1, r2) = 0
             | Union (u1,n1), Union (u2,n2) -> g.unionCaseRefEq u1 u2 && n1 = n2
@@ -459,8 +468,9 @@ and FSharpRecordField(g:TcGlobals, d: RecdFieldData) =
         |   _ -> false
 
     override x.GetHashCode() = hash x.Name
-    override x.ToString() = "entity " + x.Name
+    override x.ToString() = "field " + x.Name
 
+and [<System.Obsolete("Renamed to FSharpField")>] FSharpRecordField = FSharpField
 
 and FSharpAccessibility(a:Accessibility) = 
     let isInternalCompPath x = 
@@ -1013,7 +1023,7 @@ type FSharpSymbol with
         | Item.Value v -> FSharpMemberFunctionOrValue(g, v) :> _
         | Item.UnionCase uinfo -> FSharpUnionCase(g, uinfo.UnionCaseRef) :> _
         | Item.ExnCase tcref -> FSharpEntity(g, tcref) :>_
-        | Item.RecdField rfinfo -> FSharpRecordField(g, Recd rfinfo.RecdFieldRef) :> _
+        | Item.RecdField rfinfo -> FSharpField(g, Recd rfinfo.RecdFieldRef) :> _
         
         | Item.Event einfo -> 
             match einfo.ArbitraryValRef with 

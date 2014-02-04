@@ -168,8 +168,8 @@ Target "All" DoNothing
 
 "All"
   ==> "PrepareRelease" 
-  ==> "CleanDocs"
-  ==> "GenerateDocs"
+//  ==> "CleanDocs"
+//  ==> "GenerateDocs"
   ==> "NuGet"
   ==> "ReleaseDocs"
   ==> "Release"

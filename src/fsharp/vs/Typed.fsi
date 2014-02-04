@@ -148,7 +148,7 @@ and [<Class>] FSharpEntity =
     /// Indicates if the type definition is a delegate type
     member IsDelegate : bool
 
-    /// Indicates if the type definition is a delegate type
+    /// Indicates if the type definition is an interface
     member IsInterface : bool
 
     /// Get the in-memory XML documentation for the entity, used when code is checked in-memory

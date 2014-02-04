@@ -429,7 +429,7 @@ and [<Class; NoEquality; NoComparison>]
 
 and [<RequireQualifiedAccess>] FSharpInlineAnnotation = 
    /// Indictes the value is inlined and compiled code for the function does not exist
-   | PsuedoValue 
+   | PseudoValue
    /// Indictes the value is inlined but compiled code for the function still exists, e.g. to satisfy interfaces on objects, but that it is also always inlined 
    | AlwaysInline 
    /// Indictes the value is optionally inlined 

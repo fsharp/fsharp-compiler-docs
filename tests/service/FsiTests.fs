@@ -38,7 +38,7 @@ let evalExpression text =
 let evalInteraction text = 
   fsiSession.EvalInteraction(text)
 
-// For some reason NUnit doesn't lik running these FsiEvaluationSession tests. We need to work out why.
+// For some reason NUnit doesn't like running these FsiEvaluationSession tests. We need to work out why.
 #if INTERACTIVE
 [<Test>]
 let ``EvalExpression test 1``() = 

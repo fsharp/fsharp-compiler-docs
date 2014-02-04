@@ -148,10 +148,7 @@ and [<Class>] FSharpEntity =
     /// Indicates if the type definition is a delegate type
     member IsDelegate : bool
 
-    /// Indicates if the type definition is a delegate type
-    member IsInterface : bool
-
-    /// Indicates if the type definition is a delegate type
+    /// Indicates if the type definition is an interface
     member IsInterface : bool
 
     /// Get the in-memory XML documentation for the entity, used when code is checked in-memory
@@ -429,7 +426,7 @@ and [<Class; NoEquality; NoComparison>]
 
 and [<RequireQualifiedAccess>] FSharpInlineAnnotation = 
    /// Indictes the value is inlined and compiled code for the function does not exist
-   | PsuedoValue 
+   | PseudoValue
    /// Indictes the value is inlined but compiled code for the function still exists, e.g. to satisfy interfaces on objects, but that it is also always inlined 
    | AlwaysInline 
    /// Indictes the value is optionally inlined 

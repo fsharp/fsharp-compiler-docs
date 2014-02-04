@@ -573,6 +573,9 @@
     <Compile Include="..\vs\SimpleServices.fs">
       <Link>Service/SimpleServices.fs</Link>
     </Compile>
+    <Compile Include="..\fsiserver.fs">
+      <Link>Service/fsiserver.fs</Link>
+    </Compile>
     <Compile Include="..\fsi\fsi.fsi">
       <Link>Service/fsi.fsi</Link>
     </Compile>
@@ -590,6 +593,7 @@
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="Microsoft.Build.Tasks.v4.0" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="System.Runtime.Remoting" />
   </ItemGroup>
   <PropertyGroup>
     <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>

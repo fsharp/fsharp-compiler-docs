@@ -151,9 +151,6 @@ and [<Class>] FSharpEntity =
     /// Indicates if the type definition is a delegate type
     member IsInterface : bool
 
-    /// Indicates if the type definition is a delegate type
-    member IsInterface : bool
-
     /// Get the in-memory XML documentation for the entity, used when code is checked in-memory
     member XmlDoc: IList<string>
 

@@ -184,8 +184,13 @@ and [<Class>] FSharpEntity =
     /// Get the modules and types defined in a module, or the nested types of a type
     member NestedEntities : IList<FSharpEntity>
 
-    /// Get the fields of the class, struct or enum 
-    member RecordFields : IList<FSharpRecordField>
+    /// Get the fields of a record, class, struct or enum from the perspective of the F# language.
+    /// This includes static fields, the 'val' bindings in classes and structs, and the value definitions in enums.
+    /// For classes, the list may include compiler generated fields implied by the use of primary constructors.
+    member FSharpFields : IList<FSharpField>
+
+    [<System.Obsolete("Renamed to FSharpFields")>]
+    member RecordFields : IList<FSharpField>
 
     /// Get the type abbreviated by an F# type abbreviation
     member AbbreviatedType   : FSharpType 
@@ -221,7 +226,7 @@ and [<Class>] FSharpUnionCase =
     member DeclarationLocation : range
 
     /// Get the data carried by the case. 
-    member UnionCaseFields: IList<FSharpRecordField>
+    member UnionCaseFields: IList<FSharpField>
 
     /// Get the type constructed by the case. Normally exactly the type of the enclosing type, sometimes an abbreviation of it 
     member ReturnType: FSharpType
@@ -246,12 +251,25 @@ and [<Class>] FSharpUnionCase =
 
 
 /// Represents a record or union case field as seen by the F# language
-and [<Class>] FSharpRecordField =
+and [<System.Obsolete("Renamed to FSharpField")>] FSharpRecordField = FSharpField
+and [<Class>] FSharpField =
 
     inherit FSharpSymbol
 
-    /// Is the field declared in F#? 
+    /// Indicates if the field is declared 'static'
     member IsMutable: bool
+
+    /// Indicates if the field is declared volatile 
+    member IsVolatile: bool
+
+    /// Indicates if the field declared is declared 'DefaultValue' 
+    member IsDefaultValue: bool
+
+    /// Indicates a static field 
+    member IsStatic: bool
+
+    /// Indicates a compiler generated field, not visible to Intellisense or name resolution 
+    member IsCompilerGenerated: bool
 
     /// Get the in-memory XML documentation for the field, used when code is checked in-memory
     member XmlDoc: IList<string>
@@ -261,12 +279,6 @@ and [<Class>] FSharpRecordField =
 
     /// Get the type of the field, w.r.t. the generic parameters of the enclosing type constructor 
     member FieldType: FSharpType
-
-    /// Indicates a static field 
-    member IsStatic: bool
-
-    /// Indicates a compiler generated field, not visible to Intellisense or name resolution 
-    member IsCompilerGenerated: bool
 
     /// Get the declaration location of the field 
     member DeclarationLocation: range

@@ -640,7 +640,7 @@ and FSharpGenericParameterConstraint(g: TcGlobals, cx : TyparConstraint) =
     override this.ToString() = "<type constraint>"
 
 and FSharpInlineAnnotation = 
-   | PsuedoValue 
+   | PseudoValue
    | AlwaysInline 
    | OptionalInline 
    | NeverInline 
@@ -689,7 +689,7 @@ and FSharpMemberFunctionOrValue(g:TcGlobals,v:ValRef) =
     member __.InlineAnnotation = 
         if isUnresolved() then FSharpInlineAnnotation.OptionalInline else 
         match v.InlineInfo with 
-        | ValInline.PseudoVal -> FSharpInlineAnnotation.PsuedoValue
+        | ValInline.PseudoVal -> FSharpInlineAnnotation.PseudoValue
         | ValInline.Always -> FSharpInlineAnnotation.AlwaysInline
         | ValInline.Optional -> FSharpInlineAnnotation.OptionalInline
         | ValInline.Never -> FSharpInlineAnnotation.NeverInline

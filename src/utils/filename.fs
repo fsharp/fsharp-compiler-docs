@@ -10,7 +10,7 @@
 //----------------------------------------------------------------------------
 
 
-module internal Internal.Utilities.Filename
+module (*internal*) Internal.Utilities.Filename
 
 open System.IO
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 

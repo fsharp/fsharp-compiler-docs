@@ -112,6 +112,14 @@ type FsiEvaluationSession =
     /// by input from 'stdin'.
     member EvalInteraction : code: string -> unit
 
+    /// Execute the given script. Stop on first error, discarding the rest
+    /// of the script. Errors are sent to the output writer, a 'true' return value indicates there
+    /// were no errors overall. Execution is performed on the 'Run()' thread.
+    ///
+    /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+    /// by input from 'stdin'.
+    member EvalScript : filePath: string -> unit
+
     /// Execute the code as if it had been entered as one or more interactions, with an
     /// implicit termination at the end of the input. Stop on first error, discarding the rest
     /// of the input. Errors are sent to the output writer, a 'true' return value indicates there

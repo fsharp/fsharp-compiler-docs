@@ -72,3 +72,6 @@
 #### 0.0.15 - 
 * Update version number as nuget package may not have published properly
 
+#### 0.0.16 - 
+* FsiSesion got a new "EvalScript" method which allows to evaluate .fsx files
+

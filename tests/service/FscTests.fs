@@ -25,6 +25,9 @@ exception
    CompilationError of (*assembly:*)string * (*errorCode:*)int * (*info:*)ErrorInfo []
    with override e.Message = sprintf "Compilation of '%s' failed with code %d (%A)" e.Data0 e.Data1 e.Data2
 
+let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e->  false        
+let pdbExtension = (if runningOnMono then ".mdb" else ".pdb")
+
 type PEVerifier () =
 
     static let expectedExitCode = 0
@@ -88,7 +91,7 @@ let compileAndVerify isDll debugMode (assemblyName : string) (code : string) (de
     let tmp = Path.GetTempPath()
     let sourceFile = Path.Combine(tmp, assemblyName + ".fs")
     let outFile = Path.Combine(tmp, assemblyName + if isDll then ".dll" else ".exe")
-    let pdbFile = Path.Combine(tmp, assemblyName + ".pdb")
+    let pdbFile = Path.Combine(tmp, assemblyName + pdbExtension)
     do File.WriteAllText(sourceFile, code)
     let args =
         [|
@@ -131,7 +134,7 @@ let ``1. PEVerifier sanity check`` () =
     let fscorlib = typeof<int option>.Assembly
     verifier.Verify fscorlib.Location
 
-    let nonAssembly = Path.Combine(Directory.GetCurrentDirectory(), typeof<PEVerifier>.Assembly.GetName().Name + ".pdb")
+    let nonAssembly = Path.Combine(Directory.GetCurrentDirectory(), typeof<PEVerifier>.Assembly.GetName().Name + pdbExtension)
     Assert.Throws<VerificationException>(fun () -> verifier.Verify nonAssembly |> ignore) |> ignore
 
 
@@ -145,6 +148,8 @@ module Foo
     type Foo = class end
 
     exception E of int * string
+
+    printfn "done!" // make the code have some initialization effect
 """
 
     compileAndVerify true PdbOnly "Foo" code [] |> ignore

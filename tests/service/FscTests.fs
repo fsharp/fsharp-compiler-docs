@@ -118,9 +118,10 @@ let compileAndVerify isDll debugMode (assemblyName : string) (code : string) (de
             yield sourceFile
         |]
         
+    printfn "args: %A" args
     let errorInfo, id = scs.Compile args
     for err in errorInfo do 
-       printfn "%A" err
+       printfn "error: %A" err
     Assert.AreEqual (errorInfo.Length, 0)
     if id <> 0 then raise <| CompilationError(assemblyName, id, errorInfo)
     verifier.Verify outFile

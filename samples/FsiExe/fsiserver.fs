@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------------
 // Copyright (c) 2002-2012 Microsoft Corporation. 
 //
 // This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
@@ -9,6 +9,11 @@
 // You must not remove this notice, or any other, from this software.
 //----------------------------------------------------------------------------
 
+//  Warning:
+//  Code taken verbatim from the open source version of FSharp.Compiler.Server.Shared
+//  Do *not* change namespace or server class implementation as this will most likely
+//  break compatibility with Visual Studio.
+//
 
 
 //[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>] // avoid calling the type "Shared" which is keyword in some languages
@@ -35,7 +40,7 @@ open System.Runtime.Remoting
 open System.Runtime.Remoting.Lifetime
 
 [<AbstractClass>]
-type FSharpInteractiveServer() =
+type internal FSharpInteractiveServer() =
     inherit System.MarshalByRefObject()  
     abstract Interrupt       : unit -> unit
 #if FSI_SERVER_INTELLISENSE

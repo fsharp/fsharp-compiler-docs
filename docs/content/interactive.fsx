@@ -82,6 +82,14 @@ passed to them does not require `;;` at the end. Just enter the code that you wa
 evalExpression "42+1"
 evalInteraction "printfn \"bye\""
 
+(**
+The `EvalScript` method allows to evaluate a complete .fsx script.
+*)
+/// Evaluate script & ignore the result
+let evalScript scriptPath = 
+  fsiSession.EvalScript(texscriptPatht)
+
+evalScript "sample.fsx"
 
 (**
 Type checking in the evaluation context

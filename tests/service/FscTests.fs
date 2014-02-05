@@ -105,10 +105,12 @@ let compileAndVerify isDll debugMode (assemblyName : string) (code : string) (de
             | Off -> () // might need to include some switches here
             | PdbOnly ->
                 yield "--debug:pdbonly"
-                yield sprintf "--pdb:%s" pdbFile
+                if not runningOnMono then  // on Mono, the debug file name is not configurable
+                    yield sprintf "--pdb:%s" pdbFile
             | Full ->
                 yield "--debug:full"
-                yield sprintf "--pdb:%s" pdbFile
+                if not runningOnMono then // on Mono, the debug file name is not configurable
+                    yield sprintf "--pdb:%s" pdbFile
 
             for d in dependencies do
                 yield sprintf "-r:%s" d

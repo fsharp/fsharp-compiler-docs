@@ -95,14 +95,13 @@ let WinFormsEventLoop(lcid : int option) =
          member x.ScheduleRestart()  =   restart := true; Application.Exit()  }
 
 
-#if HAVE_ACCESS_TO_SERVER_INTERNALS
-let StartServer(fsiServerName) = 
+let StartServer (fsiSession : FsiEvaluationSession) (fsiServerName) = 
     let server =
         {new Server.Shared.FSharpInteractiveServer() with
            member this.Interrupt() = 
             //printf "FSI-SERVER: received CTRL-C request...\n"
             try 
-                fsiInterruptController.Interrupt()
+                fsiSession.Interrupt()
             with e -> 
                 // Final sanity check! - catch all exns - but not expected 
                 assert false
@@ -110,7 +109,6 @@ let StartServer(fsiServerName) =
         }
 
     Server.Shared.FSharpInteractiveServer.StartServer(fsiServerName,server)
-#endif
 
 //----------------------------------------------------------------------------
 // GUI runCodeOnMainThread
@@ -171,7 +169,8 @@ let MainMain argv =
                        None
         
         let fsiConfig0 = FsiEvaluationSession.GetDefaultConfiguration(fsi)
-        let fsiConfig = 
+        
+        let rec fsiConfig = 
             { // Update the configuration to include 'StartServer' and 'OptionalConsoleReadLine'
               new FsiEvaluationSessionHostConfig with 
                 member __.FormatProvider = fsiConfig0.FormatProvider
@@ -190,16 +189,13 @@ let MainMain argv =
                 member __.EventLoopScheduleRestart() = fsiConfig0.EventLoopScheduleRestart()
                 member __.UseFsiAuxLib = fsiConfig0.UseFsiAuxLib
 
-                member __.StartServer(fsiServerName) = 
-#if HAVE_ACCESS_TO_SERVER_INTERNALS
-                    StartServer(fsiServerName)
-#else
-                    failwith "--fsi-server not implemented in this version of fsi.exe"
-#endif
+                member __.StartServer(fsiServerName) = StartServer fsiSession fsiServerName
+                
                 // Connect the configuration through to the 'fsi' Event loop
                 member __.OptionalConsoleReadLine = getConsoleReadLine() }
 
-        let fsiSession = FsiEvaluationSession (fsiConfig, argv, Console.In, Console.Out, Console.Error)
+        and fsiSession = FsiEvaluationSession (fsiConfig, argv, Console.In, Console.Out, Console.Error)
+
         if fsiSession.IsGui then 
             try 
                 Application.EnableVisualStyles() 

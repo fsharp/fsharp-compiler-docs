@@ -39,6 +39,8 @@
     <DefineConstants>$(DefineConstants);EXTENSIONTYPING</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup>
     <LkgPath>..\..\..\lib\bootstrap\2.0</LkgPath>
@@ -600,4 +602,5 @@
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <Import Project="$(LkgPath)\FSharp.SRGen.targets" />
   <Import Project="$(LkgPath)\FSharp.PowerPack.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>

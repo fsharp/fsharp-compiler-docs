@@ -26,7 +26,7 @@ exception
    with override e.Message = sprintf "Compilation of '%s' failed with code %d (%A)" e.Data0 e.Data1 e.Data2
 
 let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e->  false        
-let pdbExtension = (if runningOnMono then ".mdb" else ".pdb")
+let pdbExtension isDll = (if runningOnMono then (if isDll then ".dll.mdb" else ".exe.mdb") else ".pdb")
 
 type PEVerifier () =
 
@@ -91,7 +91,7 @@ let compileAndVerify isDll debugMode (assemblyName : string) (code : string) (de
     let tmp = Path.GetTempPath()
     let sourceFile = Path.Combine(tmp, assemblyName + ".fs")
     let outFile = Path.Combine(tmp, assemblyName + if isDll then ".dll" else ".exe")
-    let pdbFile = Path.Combine(tmp, assemblyName + pdbExtension)
+    let pdbFile = Path.Combine(tmp, assemblyName + pdbExtension isDll)
     do File.WriteAllText(sourceFile, code)
     let args =
         [|
@@ -134,7 +134,7 @@ let ``1. PEVerifier sanity check`` () =
     let fscorlib = typeof<int option>.Assembly
     verifier.Verify fscorlib.Location
 
-    let nonAssembly = Path.Combine(Directory.GetCurrentDirectory(), typeof<PEVerifier>.Assembly.GetName().Name + pdbExtension)
+    let nonAssembly = Path.Combine(Directory.GetCurrentDirectory(), typeof<PEVerifier>.Assembly.GetName().Name + ".pdb")
     Assert.Throws<VerificationException>(fun () -> verifier.Verify nonAssembly |> ignore) |> ignore
 
 

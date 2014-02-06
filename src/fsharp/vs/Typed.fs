@@ -224,10 +224,8 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         entity.ImmediateInterfaceTypesOfFSharpTycon |> List.map (fun ty -> FSharpType(g, ty)) |> makeReadOnlyCollection
 
     member this.BaseType = 
-        checkIsResolved()
-        match entity.TypeContents.tcaug_super with 
-        | None -> invalidOp "this entity has no base type"
-        | Some ty -> FSharpType(g, ty)
+        checkIsResolved()        
+        entity.TypeContents.tcaug_super |> Option.map (fun ty -> FSharpType(g, ty)) 
         
     member __.UsesPrefixDisplay = 
         if isUnresolved() then true else

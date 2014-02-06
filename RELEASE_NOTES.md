@@ -72,3 +72,5 @@
 #### 0.0.15 - 
 * Update version number as nuget package may not have published properly
 
+#### 0.0.16 - 
+* Make FSharpEntity.BaseType return an option

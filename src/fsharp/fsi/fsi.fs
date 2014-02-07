@@ -2069,6 +2069,11 @@ type internal FsiInteractionProcessor
         |> commitResult
         |> ignore
 
+    member this.EvalScript(scriptPath) =
+        // Todo: this runs the script as expected but errors are displayed one line to far in debugger
+        let sourceText = sprintf "#load \"%s\" " scriptPath
+        this.EvalInteraction sourceText
+
     member __.EvalExpression(sourceText) =
         use _unwind1 = ErrorLogger.PushThreadBuildPhaseUntilUnwind(ErrorLogger.BuildPhase.Interactive)
         use _unwind2 = ErrorLogger.PushErrorLoggerPhaseUntilUnwind(fun _ -> errorLogger)
@@ -2555,6 +2560,9 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 
     member x.EvalInteraction(sourceText) : unit =
       fsiInteractionProcessor.EvalInteraction(sourceText)
+
+    member x.EvalScript(scriptPath) : unit =
+      fsiInteractionProcessor.EvalScript(scriptPath)
 
     /// Performs these steps:
     ///    - Load the dummy interaction, if any

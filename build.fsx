@@ -168,10 +168,12 @@ Target "All" DoNothing
 
 "All"
   ==> "PrepareRelease" 
-//  ==> "CleanDocs"
-//  ==> "GenerateDocs"
   ==> "NuGet"
-  ==> "ReleaseDocs"
   ==> "Release"
+
+"Release"
+  ==> "CleanDocs"
+  ==> "GenerateDocs"
+  ==> "ReleaseDocs"
 
 RunTargetOrDefault "All"

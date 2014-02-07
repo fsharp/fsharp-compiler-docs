@@ -171,7 +171,7 @@ and [<Class>] FSharpEntity =
     member DeclaredInterfaces : IList<FSharpType>  
 
     /// Get the base type, if any 
-    member BaseType : FSharpType
+    member BaseType : FSharpType option
 
     /// Get the properties, events and methods of a type definitions, or the functions and values of a module
     member MembersFunctionsAndValues : IList<FSharpMemberFunctionOrValue>

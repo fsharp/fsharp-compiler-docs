@@ -65,3 +65,12 @@ docs/output
 *.bak
 temp/
 src/fsharp/fsi/FSIStrings.fs
+
+src/fsharp/FSharp.Compiler.Service/FSComp.resx
+src/fsharp/FSharp.Compiler.Service/FSIstrings.resx
+src/fsharp/FSharp.Compiler.Service/illex.fs
+src/fsharp/FSharp.Compiler.Service/ilpars.fs
+src/fsharp/FSharp.Compiler.Service/ilpars.fsi
+src/fsharp/FSharp.Compiler.Service/lex.fs
+src/fsharp/FSharp.Compiler.Service/pars.fs
+src/fsharp/FSharp.Compiler.Service/pars.fsi

@@ -39,6 +39,8 @@ type C() =
 
 let xxx = 3 + 4
 let fff () = xxx + xxx
+
+type CAbbrev = C
     """
     File.WriteAllText(fileName1, fileSource1)
 
@@ -73,6 +75,15 @@ type SaveOptions =
   | DisableFormatting = 1
 
 let enumValue = SaveOptions.DisableFormatting
+
+let (++) x y = x + y
+    
+let c1 = 1 ++ 2
+
+let c2 = 1 ++ 2
+
+let mmmm1 : M.C = new M.C()             // note, these don't count as uses of CAbbrev
+let mmmm2 : M.CAbbrev = new M.CAbbrev() // note, these don't count as uses of C
 
     """
     File.WriteAllText(fileName2, fileSource2)
@@ -140,33 +151,27 @@ let ``Test project basic`` () =
 
     [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] |> shouldEqual ["D1"; "D2"; "D3"; "SaveOptions" ]
 
-    [ for x in wholeProjectResults.AssemblySignature.Entities.[1].NestedEntities -> x.DisplayName ] |> shouldEqual ["C"]
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[1].NestedEntities -> x.DisplayName ] |> shouldEqual ["C"; "CAbbrev"]
 
     set [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] 
-        |> shouldEqual (set ["y2"; "pair2"; "pair1"; "enumValue" ])
+        |> shouldEqual (set ["y2"; "pair2"; "pair1"; "( ++ )"; "c1"; "c2"; "mmmm1"; "mmmm2"; "enumValue" ])
 
 [<Test>]
 let ``Test project all symbols`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
     let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
-    [ for x in allSymbols -> x.ToString() ] 
-      |> shouldEqual 
-         [ "N"; "val y2"; 
-           "val pair2"; 
-           "val pair1";
-           "val enumValue";
-           "D1"; "member ( .ctor )"; "member SomeProperty"; 
-           "D2"; "member ( .ctor )"; "member SomeProperty"; 
-           "D3"; "member ( .ctor )"; "member SomeProperty"; 
-           "field a";
-           "field b";
-           "field x";
-           "SaveOptions";
-           "field value__";
-           "field None";
-           "field DisableFormatting";
-           "M"; "val xxx"; "val fff"; "C"; "member ( .ctor )"; "member P" ]
+    set [ for x in allSymbols -> x.ToString() ] 
+      |> 
+       shouldEqual 
+         (set 
+           ["N"; "val y2"; "val pair2"; "val pair1"; "val enumValue"; "val ( ++ )";
+            "val c1"; "val c2"; "val mmmm1"; "val mmmm2"; "D1"; "member ( .ctor )";
+            "member SomeProperty"; "D2"; "member ( .ctor )"; "member SomeProperty";
+            "D3"; "member ( .ctor )"; "member SomeProperty"; "field a"; "field b";
+            "field x"; "SaveOptions"; "field value__"; "field None";
+            "field DisableFormatting"; "M"; "val xxx"; "val fff"; "C";
+            "member ( .ctor )"; "member P"; "CAbbrev"])
 
 
 [<Test>]
@@ -176,21 +181,12 @@ let ``Test project all symbols excluding compiler generated`` () =
     let allSymbolsNoCompGen = allSymbolsInEntities false wholeProjectResults.AssemblySignature.Entities
     [ for x in allSymbolsNoCompGen -> x.ToString() ] 
       |> shouldEqual 
-         [ "N"; "val y2"; 
-           "val pair2"; 
-           "val pair1";
-           "val enumValue";
-           "D1"; "member ( .ctor )"; "member SomeProperty"; 
-           "D2"; "member ( .ctor )"; "member SomeProperty"; 
-           "D3"; "member ( .ctor )"; "member SomeProperty"; 
-           // These are compiler generated:
-           //"field a";
-           //"field b";
-           "field x";
-           "SaveOptions";
-           "field None";
-           "field DisableFormatting";
-           "M"; "val xxx"; "val fff"; "C"; "member ( .ctor )"; "member P" ]
+              ["N"; "val y2"; "val pair2"; "val pair1"; "val enumValue"; "val ( ++ )";
+               "val c1"; "val c2"; "val mmmm1"; "val mmmm2"; "D1"; "member ( .ctor )";
+               "member SomeProperty"; "D2"; "member ( .ctor )"; "member SomeProperty";
+               "D3"; "member ( .ctor )"; "member SomeProperty"; "field x"; "SaveOptions";
+               "field None"; "field DisableFormatting"; "M"; "val xxx"; "val fff"; "C";
+               "member ( .ctor )"; "member P"; "CAbbrev"]
 
 [<Test>]
 let ``Test project xxx symbols`` () = 
@@ -251,11 +247,20 @@ let ``Test project all uses of all symbols`` () =
                 [|(Inputs.fileName2, ((15, 5), (15, 7)))|]);
                ("member SomeProperty",
                 [|(Inputs.fileName2, ((21, 13), (21, 25)))|]);
+               ("C",
+                  [|(Inputs.fileName1, ((3, 5), (3, 6)));
+                    (Inputs.fileName1, ((9, 15), (9, 16)));
+                    (Inputs.fileName2, ((38, 12), (38, 15)));
+                    (Inputs.fileName2, ((38, 22), (38, 25)))|]);
                ("M",
-                [|(Inputs.fileName1, ((1, 7), (1, 8)));
-                  (Inputs.fileName2, ((6, 28), (6, 29)));
-                  (Inputs.fileName2, ((9, 28), (9, 29)));
-                  (Inputs.fileName2, ((12, 27), (12, 28)))|]);
+                  [|(Inputs.fileName1, ((1, 7), (1, 8)));
+                    (Inputs.fileName2, ((6, 28), (6, 29)));
+                    (Inputs.fileName2, ((9, 28), (9, 29)));
+                    (Inputs.fileName2, ((12, 27), (12, 28)));
+                    (Inputs.fileName2, ((38, 12), (38, 13)));
+                    (Inputs.fileName2, ((38, 22), (38, 23)));
+                    (Inputs.fileName2, ((39, 12), (39, 13)));
+                    (Inputs.fileName2, ((39, 28), (39, 29)))|])
                ("SaveOptions",
                 [|(Inputs.fileName2, ((26, 5), (26, 16)));
                   (Inputs.fileName2, ((30, 16), (30, 27)))|]);
@@ -267,6 +272,18 @@ let ``Test project all uses of all symbols`` () =
                   (Inputs.fileName2, ((30, 16), (30, 45)))|]);
                ("val enumValue",
                 [|(Inputs.fileName2, ((30, 4), (30, 13)))|]);
+               ("val ( ++ )",
+                [|(Inputs.fileName2, ((32, 5), (32, 7)));
+                  (Inputs.fileName2, ((34, 11), (34, 13)));
+                  (Inputs.fileName2, ((36, 11), (36, 13)))|]);
+               ("val c1",
+                [|(Inputs.fileName2, ((34, 4), (34, 6)))|]);
+               ("val c2",
+                [|(Inputs.fileName2, ((36, 4), (36, 6)))|]);
+               ("val mmmm1",
+                [|(Inputs.fileName2, ((38, 4), (38, 9)))|]);
+               ("val mmmm2",
+                [|(Inputs.fileName2, ((39, 4), (39, 9)))|]);
                ("val xxx",
                 [|(Inputs.fileName1, ((6, 4), (6, 7)));
                   (Inputs.fileName1, ((7, 13), (7, 16)));
@@ -276,13 +293,15 @@ let ``Test project all uses of all symbols`` () =
                ("val fff",
                 [|(Inputs.fileName1, ((7, 4), (7, 7)));
                   (Inputs.fileName2, ((9, 28), (9, 33)))|]);
-               ("C",
-                [|(Inputs.fileName1, ((3, 5), (3, 6)))|]);
                ("member ( .ctor )",
                 [|(Inputs.fileName1, ((3, 5), (3, 6)))|]);
                ("member P",
-                [|(Inputs.fileName1, ((4, 13), (4, 14)))|])]
-
+                [|(Inputs.fileName1, ((4, 13), (4, 14)))|])
+               ("CAbbrev",
+                [|(Inputs.fileName1, ((9, 5), (9, 12)));
+                  (Inputs.fileName2, ((39, 12), (39, 21)));
+                  (Inputs.fileName2, ((39, 28), (39, 37)))|])
+              ]
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true

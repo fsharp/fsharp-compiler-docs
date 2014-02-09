@@ -64,8 +64,8 @@ type FSharpSymbol(g:TcGlobals, item: (unit -> Item)) =
     member x.DeclarationLocation = ItemDescriptionsImpl.rangeOfItem g true (item())
     member x.ImplementationLocation = ItemDescriptionsImpl.rangeOfItem g false (item())
     member internal x.Item = item()
-    member x.DisplayName = item().DisplayName(g)
-    override x.ToString() = "symbol " + (try item().DisplayName(g) with _ -> "?")
+    member x.DisplayName = item().DisplayName
+    override x.ToString() = "symbol " + (try item().DisplayName with _ -> "?")
 
 type FSharpEntity(g:TcGlobals, entity:EntityRef) = 
     inherit FSharpSymbol(g, (fun () -> checkEntityIsResolved(entity); 
@@ -121,6 +121,14 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         if entity.IsTypeAbbrev then fail()
         match entity.CompiledRepresentation with 
         | CompiledTypeRepr.ILAsmNamed(tref,_,_) -> tref.QualifiedName
+        | CompiledTypeRepr.ILAsmOpen _ -> fail()
+        
+    member x.FullName = 
+        checkIsResolved()
+        let fail() = invalidOp (sprintf "the type '%s' does not have a qualified name" x.LogicalName)
+        if entity.IsTypeAbbrev then fail()
+        match entity.CompiledRepresentation with 
+        | CompiledTypeRepr.ILAsmNamed(tref,_,_) -> tref.FullName
         | CompiledTypeRepr.ILAsmOpen _ -> fail()
         
 
@@ -239,12 +247,12 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
             |> List.filter (fun v -> 
                  not v.IsOverrideOrExplicitImpl && 
                  not v.Deref.IsClassConstructor)
-            |> List.map (fun v -> FSharpMemberFunctionOrValue(g, v)))
+            |> List.map (fun v -> FSharpMemberFunctionOrValue(g, v, None)))
            @
             (entity.ModuleOrNamespaceType.AllValsAndMembers
             |> Seq.toList
             |> List.filter (fun v -> v.IsExtensionMember || not v.IsMember) 
-            |> List.map (fun v -> FSharpMemberFunctionOrValue(g,mkNestedValRef entity v)))
+            |> List.map (fun v -> FSharpMemberFunctionOrValue(g,mkNestedValRef entity v, None)))
                
          |> makeReadOnlyCollection
  
@@ -654,9 +662,9 @@ and FSharpInlineAnnotation =
    | NeverInline 
 
 and FSharpMemberOrVal = FSharpMemberFunctionOrValue
-and FSharpMemberFunctionOrValue(g:TcGlobals,v:ValRef) = 
+and FSharpMemberFunctionOrValue(g:TcGlobals,v:ValRef, itemOpt) = 
 
-    inherit FSharpSymbol (g, (fun () -> Item.Value(v)))
+    inherit FSharpSymbol (g, (fun () -> defaultArg itemOpt (Item.Value(v))))
 
     let isUnresolved() = v.TryDeref.IsNone
 
@@ -1018,48 +1026,49 @@ type FSharpSymbol with
     static member Create(g, item) : FSharpSymbol = 
         let dflt = FSharpSymbol(g, (fun () -> item)) 
         match item with 
-        | Item.Value v -> FSharpMemberFunctionOrValue(g, v) :> _
+        | Item.Value v -> FSharpMemberFunctionOrValue(g, v, Some item) :> _
         | Item.UnionCase uinfo -> FSharpUnionCase(g, uinfo.UnionCaseRef) :> _
         | Item.ExnCase tcref -> FSharpEntity(g, tcref) :>_
         | Item.RecdField rfinfo -> FSharpField(g, Recd rfinfo.RecdFieldRef) :> _
         
         | Item.Event einfo -> 
             match einfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref) :> _
+            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
             | None -> dflt 
             
         | Item.Property(_,pinfo :: _) -> 
             match pinfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref) :> _
+            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
             | None -> dflt 
             
         | Item.MethodGroup(_,minfo :: _) -> 
             match minfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref) :> _
+            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
             | None -> dflt
 
         | Item.CtorGroup(_,cinfo :: _) -> 
             match cinfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref) :> _
+            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
             | None -> dflt 
 
-        | Item.DelegateCtor typ -> 
-            FSharpEntity(g, tcrefOfAppTy g typ) :>_ 
+        | Item.DelegateCtor (AbbrevOrAppTy tcref) -> 
+            FSharpEntity(g, tcref) :>_ 
 
-        | Item.Types(_,typ :: _) -> 
-            if isAppTy g  typ then FSharpEntity(g, tcrefOfAppTy g typ) :>_  else dflt
+        | Item.Types(_,AbbrevOrAppTy tcref :: _) -> 
+            FSharpEntity(g, tcref) :>_  
 
         | Item.ModuleOrNamespaces(modref :: _) ->  
             FSharpEntity(g, modref) :> _
 
         | Item.SetterArg (_id, item) -> FSharpSymbol.Create(g,item)
+
         | Item.CustomOperation (_customOpName,_, Some minfo) -> 
             match minfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref) :> _
+            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
             | None -> dflt
 
         | Item.CustomBuilder (_,vref) -> 
-            FSharpMemberFunctionOrValue(g, vref) :> _
+            FSharpMemberFunctionOrValue(g, vref, Some item) :> _
 
         // TODO: the following don't currently return any interesting subtype
         | Item.ArgName _  

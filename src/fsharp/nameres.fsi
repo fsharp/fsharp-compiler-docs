@@ -42,6 +42,10 @@ type NameResolver =
 // 
 //------------------------------------------------------------------------- 
 
+/// Detect a use of a nominal type, including type abbreviations.
+/// When reporting symbols, we care about abbreviations, e.g. 'int' and 'int32' count as two separate symbols.
+val (|AbbrevOrAppTy|_|) : TType -> TyconRef option
+
 [<NoEquality; NoComparison; RequireQualifiedAccess>]
 type Item = 
   // These exist in the "eUnqualifiedItems" List.map in the type environment. 
@@ -73,7 +77,7 @@ type Item =
   | ArgName of Ident * TType
   | SetterArg of Ident * Item 
   | UnqualifiedType of TyconRef list
-  member DisplayName : TcGlobals -> string
+  member DisplayName : string
 
 
 [<Sealed>]

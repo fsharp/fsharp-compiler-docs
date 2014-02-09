@@ -75,3 +75,6 @@
 #### 0.0.16 - 
 * Make FSharpEntity.BaseType return an option
 * FsiSesion got a new "EvalScript" method which allows to evaluate .fsx files
+
+#### 0.0.17 - 
+* Improvements to symbol accuracy w.r.t. type abbreviations 

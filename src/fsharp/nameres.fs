@@ -125,6 +125,14 @@ let ActivePatternElemsOfModuleOrNamespace (modref:ModuleOrNamespaceRef) : NameMa
 // Name Resolution Items
 //------------------------------------------------------------------------- 
 
+/// Detect a use of a nominal type, including type abbreviations.
+///
+/// When reporting symbols, we care about abbreviations, e.g. 'int' and 'int32' count as two separate symbols
+let (|AbbrevOrAppTy|_|) (typ: TType) = 
+    match stripTyparEqns typ with 
+    | TType_app (tcref,_) -> Some tcref
+    | _ -> None
+
 // Note: Active patterns are encoded like this:
 //   let (|A|B|) x = if x < 0 then A else B    // A and B are reported as results using 'Item.ActivePatternResult' 
 //   match () with | A | B -> ()               // A and B are reported using 'Item.ActivePatternCase'
@@ -193,7 +201,7 @@ type Item =
         let minfos = minfos |> List.sortBy (fun minfo -> minfo.NumArgs |> List.sum)
         Item.CtorGroup (nm,minfos)
 
-    member d.DisplayName g = 
+    member d.DisplayName = 
         match d with
         | Item.Value v -> v.DisplayName
         | Item.ActivePatternCase apref -> apref.Name
@@ -206,9 +214,10 @@ type Item =
         | Item.Property(nm,_) -> nm
         | Item.MethodGroup(nm,_) -> nm
         | Item.CtorGroup(nm,_) -> DemangleGenericTypeName nm
-        | Item.FakeInterfaceCtor typ 
-        | Item.DelegateCtor typ -> DemangleGenericTypeName (tcrefOfAppTy g typ).LogicalName
+        | Item.FakeInterfaceCtor (AbbrevOrAppTy tcref)
+        | Item.DelegateCtor (AbbrevOrAppTy tcref) -> DemangleGenericTypeName tcref.DisplayName
         | Item.Types(nm,_) -> DemangleGenericTypeName nm
+        | Item.UnqualifiedType(tcref :: _) -> tcref.DisplayName
         | Item.TypeVar nm -> nm
         | Item.ModuleOrNamespaces(modref :: _) ->  modref.DemangledModuleOrNamespaceName
         | Item.ArgName (id,_)  -> id.idText
@@ -1114,14 +1123,17 @@ let (|FSharpMethodUse|_|) (item : Item) =
     | Item.Value(vref) when vref.IsMember -> Some(vref)
     | _ -> None
 
-let (|EntityUse|_|) g (item: Item) = 
+let (|EntityUse|_|) (item: Item) = 
     match item with 
     | Item.UnqualifiedType (tcref:: _) -> Some tcref
     | Item.ExnCase(tcref) -> Some tcref
-    | Item.Types(_, [ty]) 
-    | Item.DelegateCtor(ty) when isAppTy g ty -> Some (tcrefOfAppTy g ty)
-    | Item.FakeInterfaceCtor(ty) when isAppTy g ty -> Some (tcrefOfAppTy g ty)
-    | Item.CtorGroup(_, ctor::_) when isAppTy g ctor.EnclosingType -> Some (tcrefOfAppTy g ctor.EnclosingType)
+    | Item.Types(_, [AbbrevOrAppTy tcref]) 
+    | Item.DelegateCtor(AbbrevOrAppTy tcref) 
+    | Item.FakeInterfaceCtor(AbbrevOrAppTy tcref) -> Some tcref
+    | Item.CtorGroup(_, ctor::_) -> 
+        match ctor.EnclosingType with 
+        | AbbrevOrAppTy tcref -> Some tcref
+        | _ -> None
     | _ -> None
 
 let (|ILEventUse|_|) (item : Item) = 
@@ -1163,7 +1175,7 @@ let unionCaseRefDefnEq g (uc1:UnionCaseRef) (uc2: UnionCaseRef) =
 /// Given the Item 'orig' - returns function 'other : Item -> bool', that will yield true if other and orig represents the same item and false - otherwise
 let ItemsReferToSameDefinition g orig other = 
     match orig, other  with
-    | EntityUse g ty1, EntityUse g ty2 -> tyconRefDefnEq g ty1 ty2
+    | EntityUse ty1, EntityUse ty2 -> tyconRefDefnEq g ty1 ty2
     | Item.TypeVar nm1, Item.TypeVar nm2 -> nm1 = nm2
     | ILPropertyUse(propDef1), ILPropertyUse(propDef2) -> propDef1 === propDef2 
     | ValUse(vref1, idx1), ValUse(vref2, idx2) -> 

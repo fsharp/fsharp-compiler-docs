@@ -1288,7 +1288,7 @@ type DeclarationSet(declarations: Declaration[]) =
                     // Put type ctors after types, sorted by #typars. RemoveDuplicateItems will remove DefaultStructCtors if a type is also reported with this name
                     | Item.CtorGroup (_, (cinfo :: _)) -> 1000 + 10 * (tcrefOfAppTy g cinfo.EnclosingType).TyparsNoRange.Length 
                     | _ -> 0
-                (d.DisplayName g,n))
+                (d.DisplayName,n))
 
         // Remove all duplicates. We've put the types first, so this removes the DelegateCtor and DefaultStructCtor's.
         let items = items |> RemoveDuplicateItems g
@@ -1296,7 +1296,7 @@ type DeclarationSet(declarations: Declaration[]) =
         if verbose then dprintf "service.ml: mkDecls: %d found groups after filtering\n" (List.length items); 
 
         // Group by display name
-        let items = items |> List.groupBy (fun d -> d.DisplayName g) 
+        let items = items |> List.groupBy (fun d -> d.DisplayName) 
 
         // Filter out operators (and list)
         let items = 

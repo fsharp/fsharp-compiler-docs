@@ -303,7 +303,7 @@ type MethodGroup( name: string, unsortedMethods: MethodGroupItem[] ) =
     static member Create(infoReader:InfoReader,m,denv,items:Item list) = 
         let g = infoReader.g
         if isNil items then new MethodGroup("", [| |]) else
-        let name = items.Head.DisplayName g 
+        let name = items.Head.DisplayName 
         let getOverloadsForItem item =
 #if FX_ATLEAST_40
             match methodOverloadsCache.TryGetValue item with
@@ -728,7 +728,7 @@ type TypeCheckInfo
             // Return only items with the specified name
             let filterDeclItemsByResidue residue (items: Item list) = 
                 items |> List.filter (fun item -> 
-                    let n1 =  item.DisplayName g 
+                    let n1 =  item.DisplayName 
                     Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "\nn1 = <<<%s>>>\nn2 = <<<%s>>>\n" n1 residue)
                     if not (f denv item) then false
                     else

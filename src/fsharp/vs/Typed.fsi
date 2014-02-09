@@ -94,6 +94,9 @@ and [<Class>] FSharpEntity =
     /// Get the fully qualified name of the type or module
     member QualifiedName: string 
 
+    /// Get the full name of the type or module
+    member FullName: string 
+
     /// Get the declaration location for the type constructor 
     member DeclarationLocation: range 
 

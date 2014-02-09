@@ -2194,7 +2194,7 @@ type internal FsiInteractionProcessor
         let nenv = tcState.TcEnvFromImpls.NameEnv
 
         let nItems = Nameres.ResolvePartialLongIdent ncenv nenv (ConstraintSolver.IsApplicableMethApprox istate.tcGlobals amap rangeStdin) rangeStdin ad lid false
-        let names  = nItems |> List.map (fun d -> d.DisplayName istate.tcGlobals) 
+        let names  = nItems |> List.map (fun d -> d.DisplayName) 
         let names  = names |> List.filter (fun name -> name.StartsWith(stem,StringComparison.Ordinal)) 
         names
 

@@ -208,7 +208,7 @@ let ``Test project xxx symbols`` () =
                                    (Inputs.fileName2, ((12, 27), (12, 32)))|]
 
 [<Test>]
-let ``Test project all uses of all symbols`` () = 
+let ``Test project all uses of all signature symbols`` () = 
   if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
     let wholeProjectResults = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
     let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
@@ -307,6 +307,84 @@ let ``Test project all uses of all symbols`` () =
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true
 
 [<Test>]
+let ``Test project all uses of all symbols`` () = 
+  if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+    let wholeProjectResults = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
+    let allUsesOfAllSymbols = [ for (s,f,m) in wholeProjectResults.GetAllUsesOfAllSymbols() -> s.DisplayName, (if f = Inputs.fileName1 then "file1" else if f = Inputs.fileName2 then "file2" else "???"), m ]
+    let expected =      
+          [("C", "file1", ((3, 5), (3, 6))); ("( .ctor )", "file1", ((3, 5), (3, 6)));
+           ("P", "file1", ((4, 13), (4, 14))); ("x", "file1", ((4, 11), (4, 12)));
+           ("( + )", "file1", ((6, 12), (6, 13))); ("xxx", "file1", ((6, 4), (6, 7)));
+           ("( + )", "file1", ((7, 17), (7, 18)));
+           ("xxx", "file1", ((7, 13), (7, 16))); ("xxx", "file1", ((7, 19), (7, 22)));
+           ("fff", "file1", ((7, 4), (7, 7))); ("C", "file1", ((9, 15), (9, 16)));
+           ("C", "file1", ((9, 15), (9, 16))); ("C", "file1", ((9, 15), (9, 16)));
+           ("C", "file1", ((9, 15), (9, 16))); ("CAbbrev", "file1", ((9, 5), (9, 12)));
+           ("M", "file1", ((1, 7), (1, 8))); ("D1", "file2", ((5, 5), (5, 7)));
+           ("( .ctor )", "file2", ((5, 5), (5, 7)));
+           ("SomeProperty", "file2", ((6, 13), (6, 25)));
+           ("x", "file2", ((6, 11), (6, 12))); ("M", "file2", ((6, 28), (6, 29)));
+           ("xxx", "file2", ((6, 28), (6, 33))); ("D2", "file2", ((8, 5), (8, 7)));
+           ("( .ctor )", "file2", ((8, 5), (8, 7)));
+           ("SomeProperty", "file2", ((9, 13), (9, 25)));
+           ("x", "file2", ((9, 11), (9, 12))); ("( + )", "file2", ((9, 36), (9, 37)));
+           ("M", "file2", ((9, 28), (9, 29))); ("fff", "file2", ((9, 28), (9, 33)));
+           ("D1", "file2", ((9, 38), (9, 40))); ("M", "file2", ((12, 27), (12, 28)));
+           ("xxx", "file2", ((12, 27), (12, 32))); ("y2", "file2", ((12, 4), (12, 6)));
+           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
+           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
+           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
+           ("int", "file2", ((19, 20), (19, 23)));
+           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
+           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
+           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
+           ("x", "file2", ((19, 16), (19, 17))); ("D3", "file2", ((15, 5), (15, 7)));
+           ("int", "file2", ((15, 10), (15, 13))); ("a", "file2", ((15, 8), (15, 9)));
+           ("( .ctor )", "file2", ((15, 5), (15, 7)));
+           ("SomeProperty", "file2", ((21, 13), (21, 25)));
+           ("( + )", "file2", ((16, 14), (16, 15)));
+           ("a", "file2", ((16, 12), (16, 13))); ("b", "file2", ((16, 8), (16, 9)));
+           ("x", "file2", ((21, 11), (21, 12)));
+           ("( + )", "file2", ((21, 30), (21, 31)));
+           ("a", "file2", ((21, 28), (21, 29))); ("b", "file2", ((21, 32), (21, 33)));
+           ("( + )", "file2", ((23, 25), (23, 26)));
+           ("( + )", "file2", ((23, 21), (23, 22)));
+           ("int32", "file2", ((23, 27), (23, 32)));
+           ("DateTime", "file2", ((23, 40), (23, 48)));
+           ("System", "file2", ((23, 33), (23, 39)));
+           ("Now", "file2", ((23, 33), (23, 52)));
+           ("Ticks", "file2", ((23, 33), (23, 58)));
+           ("( + )", "file2", ((23, 62), (23, 63)));
+           ("pair2", "file2", ((23, 10), (23, 15)));
+           ("pair1", "file2", ((23, 4), (23, 9)));
+           ("None", "file2", ((27, 4), (27, 8)));
+           ("DisableFormatting", "file2", ((28, 4), (28, 21)));
+           ("SaveOptions", "file2", ((26, 5), (26, 16)));
+           ("SaveOptions", "file2", ((30, 16), (30, 27)));
+           ("DisableFormatting", "file2", ((30, 16), (30, 45)));
+           ("enumValue", "file2", ((30, 4), (30, 13)));
+           ("x", "file2", ((32, 9), (32, 10))); ("y", "file2", ((32, 11), (32, 12)));
+           ("( + )", "file2", ((32, 17), (32, 18)));
+           ("x", "file2", ((32, 15), (32, 16))); ("y", "file2", ((32, 19), (32, 20)));
+           ("( ++ )", "file2", ((32, 5), (32, 7)));
+           ("( ++ )", "file2", ((34, 11), (34, 13)));
+           ("c1", "file2", ((34, 4), (34, 6)));
+           ("( ++ )", "file2", ((36, 11), (36, 13)));
+           ("c2", "file2", ((36, 4), (36, 6))); ("M", "file2", ((38, 12), (38, 13)));
+           ("C", "file2", ((38, 12), (38, 15))); ("M", "file2", ((38, 22), (38, 23)));
+           ("C", "file2", ((38, 22), (38, 25))); ("C", "file2", ((38, 22), (38, 25)));
+           ("mmmm1", "file2", ((38, 4), (38, 9)));
+           ("M", "file2", ((39, 12), (39, 13)));
+           ("CAbbrev", "file2", ((39, 12), (39, 21)));
+           ("M", "file2", ((39, 28), (39, 29)));
+           ("CAbbrev", "file2", ((39, 28), (39, 37)));
+           ("C", "file2", ((39, 28), (39, 37)));
+           ("mmmm2", "file2", ((39, 4), (39, 9))); ("N", "file2", ((1, 7), (1, 8)))]
+    set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
+    set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
+    (set expected = set allUsesOfAllSymbols) |> shouldEqual true
+
+[<Test>]
 let ``Test file explicit parse symbols`` () = 
   if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
 
@@ -333,4 +411,39 @@ let ``Test file explicit parse symbols`` () =
                           (Inputs.fileName1, ((7, 19), (7, 22)));
                           (Inputs.fileName2, ((6, 28), (6, 33)));
                           (Inputs.fileName2, ((12, 27), (12, 32)))|]
+
+[<Test>]
+let ``Test file explicit parse all symbols`` () = 
+  if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
+    let parseResults1 = checker.ParseFileInProject(Inputs.fileName1, Inputs.fileSource1, projectOptions) 
+    let parseResults2 = checker.ParseFileInProject(Inputs.fileName2, Inputs.fileSource2, projectOptions) 
+
+    let checkResults1 = 
+        checker.CheckFileInProject(parseResults1, Inputs.fileName1, 0, Inputs.fileSource1, projectOptions) 
+        |> Async.RunSynchronously
+        |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
+
+    let checkResults2 = 
+        checker.CheckFileInProject(parseResults2, Inputs.fileName2, 0, Inputs.fileSource2, projectOptions)
+        |> Async.RunSynchronously
+        |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
+
+    let usesOfSymbols = checkResults1.GetAllUsesOfAllSymbolsInFile()
+    let cleanedUsesOfSymbols = 
+         [ for (s,f,m) in usesOfSymbols -> s.DisplayName, (if f = Inputs.fileName1 then "file1" else if f = Inputs.fileName2 then "file2" else "???"), m ]
+
+    cleanedUsesOfSymbols 
+       |> shouldEqual 
+              [("C", "file1", ((3, 5), (3, 6))); ("( .ctor )", "file1", ((3, 5), (3, 6)));
+               ("P", "file1", ((4, 13), (4, 14))); ("x", "file1", ((4, 11), (4, 12)));
+               ("( + )", "file1", ((6, 12), (6, 13))); ("xxx", "file1", ((6, 4), (6, 7)));
+               ("( + )", "file1", ((7, 17), (7, 18)));
+               ("xxx", "file1", ((7, 13), (7, 16))); ("xxx", "file1", ((7, 19), (7, 22)));
+               ("fff", "file1", ((7, 4), (7, 7))); ("C", "file1", ((9, 15), (9, 16)));
+               ("C", "file1", ((9, 15), (9, 16))); ("C", "file1", ((9, 15), (9, 16)));
+               ("C", "file1", ((9, 15), (9, 16))); ("CAbbrev", "file1", ((9, 5), (9, 12)));
+               ("M", "file1", ((1, 7), (1, 8)))]
+
 

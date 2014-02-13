@@ -78,3 +78,6 @@
 
 #### 0.0.17 - 
 * Improvements to symbol accuracy w.r.t. type abbreviations 
+
+#### 0.0.18 - 
+* Add GetAllUsesOfAllSymbols and GetAllUsesOfAllSymbolsInFile

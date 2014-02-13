@@ -181,7 +181,7 @@ type Item =
     /// Represents the resolution of a name to a custom builder in the F# computation expression syntax
     | CustomBuilder of string * ValRef
     /// Represents the resolution of a name to a type variable
-    | TypeVar of string 
+    | TypeVar of string * Typar
     /// Represents the resolution of a name to a module or namespace
     | ModuleOrNamespaces of Tast.ModuleOrNamespaceRef list
     /// Represents the resolution of a name to an operator
@@ -218,7 +218,7 @@ type Item =
         | Item.DelegateCtor (AbbrevOrAppTy tcref) -> DemangleGenericTypeName tcref.DisplayName
         | Item.Types(nm,_) -> DemangleGenericTypeName nm
         | Item.UnqualifiedType(tcref :: _) -> tcref.DisplayName
-        | Item.TypeVar nm -> nm
+        | Item.TypeVar (nm,_) -> nm
         | Item.ModuleOrNamespaces(modref :: _) ->  modref.DemangledModuleOrNamespaceName
         | Item.ArgName (id,_)  -> id.idText
         | Item.SetterArg (id, _) -> id.idText
@@ -1164,10 +1164,14 @@ let (|ValUse|_|) (item:Item) =
     | _ -> None
 
 let tyconRefDefnEq g (eref1:EntityRef) (eref2: EntityRef) =
-    tyconRefEq g eref1 eref2 || (eref1.ImplRange = eref2.ImplRange && eref1.LogicalName = eref2.LogicalName)
+    tyconRefEq g eref1 eref2 
+    // Signature items considered equal to implementation items
+    || (eref1.ImplRange = eref2.ImplRange && eref1.LogicalName = eref2.LogicalName)
 
 let valRefDefnEq g (vref1:ValRef) (vref2: ValRef) =
-    valRefEq g vref1 vref2 || (vref1.ImplRange = vref2.ImplRange && vref1.LogicalName = vref2.LogicalName)
+    valRefEq g vref1 vref2 
+    // Signature items considered equal to implementation items
+    || (vref1.ImplRange = vref2.ImplRange && vref1.LogicalName = vref2.LogicalName)
 
 let unionCaseRefDefnEq g (uc1:UnionCaseRef) (uc2: UnionCaseRef) =
     uc1.CaseName = uc2.CaseName && tyconRefDefnEq g uc1.TyconRef uc2.TyconRef
@@ -1175,18 +1179,28 @@ let unionCaseRefDefnEq g (uc1:UnionCaseRef) (uc2: UnionCaseRef) =
 /// Given the Item 'orig' - returns function 'other : Item -> bool', that will yield true if other and orig represents the same item and false - otherwise
 let ItemsReferToSameDefinition g orig other = 
     match orig, other  with
-    | EntityUse ty1, EntityUse ty2 -> tyconRefDefnEq g ty1 ty2
-    | Item.TypeVar nm1, Item.TypeVar nm2 -> nm1 = nm2
-    | ILPropertyUse(propDef1), ILPropertyUse(propDef2) -> propDef1 === propDef2 
+    | EntityUse ty1, EntityUse ty2 -> 
+        tyconRefDefnEq g ty1 ty2
+    | Item.TypeVar (nm1,tp1), Item.TypeVar (nm2,tp2) -> 
+        nm1 = nm2 && typarRefEq tp1 tp2
+    | ILPropertyUse(propDef1), ILPropertyUse(propDef2) -> 
+        propDef1 === propDef2 
     | ValUse(vref1, idx1), ValUse(vref2, idx2) -> 
-            idx1 = idx2 && valRefDefnEq g vref1 vref2 || (vref1.ImplRange = vref2.ImplRange && vref1.LogicalName = vref2.LogicalName)
-    | ILMethodUse methodDef1, ILMethodUse methodDef2 -> methodDef1 === methodDef2
-    | ILFieldUse f1, ILFieldUse f2 -> f1 === f2 
-    | UnionCaseUse u1, UnionCaseUse u2 ->  unionCaseRefDefnEq g u1 u2
-    | RecordFieldItem(name1, tcref1), RecordFieldItem(name2, tcref2) -> name1 = name2 && (tyconRefDefnEq g tcref1 tcref2) 
-    | ILEventUse evt1, ILEventUse evt2 -> evt1 === evt2 // reference equality on the object identity of the AbstractIL metadata blobs for the events
+        idx1 = idx2 && valRefDefnEq g vref1 vref2 || 
+        // Signature items considered equal to implementation items
+        (vref1.ImplRange = vref2.ImplRange && vref1.LogicalName = vref2.LogicalName) 
+    | ILMethodUse methodDef1, ILMethodUse methodDef2 -> 
+        methodDef1 === methodDef2
+    | ILFieldUse f1, ILFieldUse f2 -> 
+        f1 === f2 
+    | UnionCaseUse u1, UnionCaseUse u2 ->  
+        unionCaseRefDefnEq g u1 u2
+    | RecordFieldItem(name1, tcref1), RecordFieldItem(name2, tcref2) -> 
+        name1 = name2 && tyconRefDefnEq g tcref1 tcref2
+    | ILEventUse evt1, ILEventUse evt2 -> 
+        evt1 === evt2 
     | Item.ModuleOrNamespaces modrefs1, Item.ModuleOrNamespaces modrefs2 ->
-            modrefs1 |> List.exists (fun modref1 -> modrefs2 |> List.exists (fun r -> tyconRefDefnEq g modref1 r || fullDisplayTextOfModRef modref1 = fullDisplayTextOfModRef r))
+        modrefs1 |> List.exists (fun modref1 -> modrefs2 |> List.exists (fun r -> tyconRefDefnEq g modref1 r || fullDisplayTextOfModRef modref1 = fullDisplayTextOfModRef r))
     | _ -> false
 
 [<System.Diagnostics.DebuggerDisplay("{DebugToString()}")>]
@@ -1220,6 +1234,10 @@ type TcResolutions
         [| for cnr in capturedNameResolutions do
                if protectAssemblyExploration false (fun () -> ItemsReferToSameDefinition g item cnr.Item) then
                   yield cnr.Range |]
+
+    member this.GetAllUsesOfSymbols() = 
+        [| for cnr in capturedNameResolutions do
+              yield (cnr.Item, cnr.Range) |]
 
 /// An accumulator for the results being emitted into the tcSink.
 type TcResultsSinkImpl(g) =

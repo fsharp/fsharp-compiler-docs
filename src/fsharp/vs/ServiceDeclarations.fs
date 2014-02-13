@@ -519,8 +519,8 @@ module internal ItemDescriptionsImpl =
                   fld1 === fld2 // reference equality on the object identity of the AbstractIL metadata blobs for the fields
               | Wrap(Item.CustomOperation (_,_,Some minfo1)), Wrap(Item.CustomOperation (_,_,Some minfo2)) -> 
                     MethInfo.MethInfosUseIdenticalDefinitions minfo1 minfo2
-              | Wrap(Item.TypeVar nm1), Wrap(Item.TypeVar nm2) -> 
-                    (nm1 = nm2)
+              | Wrap(Item.TypeVar (nm1,tp1)), Wrap(Item.TypeVar (nm2,tp2)) -> 
+                    (nm1 = nm2) && typarRefEq tp1 tp2
               | Wrap(Item.ModuleOrNamespaces(modref1 :: _)), Wrap(Item.ModuleOrNamespaces(modref2 :: _)) -> fullDisplayTextOfModRef modref1 = fullDisplayTextOfModRef modref2
               | Wrap(Item.SetterArg(id1,_)), Wrap(Item.SetterArg(id2,_)) -> (id1.idRange, id1.idText) = (id2.idRange, id2.idText)
               | Wrap(Item.MethodGroup(_, meths1)), Wrap(Item.MethodGroup(_, meths2)) -> 
@@ -550,7 +550,7 @@ module internal ItemDescriptionsImpl =
                   else 1010
               | Wrap(Item.ILField(ILFieldInfo(_, fld))) -> 
                   System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode fld // hash on the object identity of the AbstractIL metadata blob for the field
-              | Wrap(Item.TypeVar nm) -> hash nm
+              | Wrap(Item.TypeVar (nm,_tp)) -> hash nm
               | Wrap(Item.CustomOperation (_,_,Some minfo)) -> minfo.ComputeHashCode()
               | Wrap(Item.CustomOperation (_,_,None)) -> 1
               | Wrap(Item.ModuleOrNamespaces(modref :: _)) -> hash (fullDisplayTextOfModRef modref)          

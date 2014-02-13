@@ -495,7 +495,7 @@ and FSharpAccessibility(a:Accessibility) =
 
 and FSharpGenericParameter(g:TcGlobals, v:Typar) = 
 
-    inherit FSharpSymbol (g, (fun () -> Item.TypeVar(v.Name)))
+    inherit FSharpSymbol (g, (fun () -> Item.TypeVar(v.Name, v)))
     member __.Name = v.DisplayName
     member __.DeclarationLocation = v.Range
        

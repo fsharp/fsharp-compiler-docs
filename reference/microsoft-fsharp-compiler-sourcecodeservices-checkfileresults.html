@@ -48,168 +48,184 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2971', 2971)" onmouseover="showTip(event, '2971', 2971)">
+          <code onmouseout="hideTip(event, '3308', 3308)" onmouseover="showTip(event, '3308', 3308)">
             Errors(arg1)
           </code>
-          <div class="tip" id="2971">
+          <div class="tip" id="3308">
             <strong>Signature:</strong>unit -&gt; ErrorInfo []<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>The errors returned by parsing a source file.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1660-1660" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1671-1671" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2972', 2972)" onmouseover="showTip(event, '2972', 2972)">
+          <code onmouseout="hideTip(event, '3309', 3309)" onmouseover="showTip(event, '3309', 3309)">
+            GetAllUsesOfAllSymbolsInFile(arg1)
+          </code>
+          <div class="tip" id="3309">
+            <strong>Signature:</strong>unit -&gt; (FSharpSymbol * string * Range01) []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Get all textual usages of all symbols throughout the file</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1739-1739" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3310', 3310)" onmouseover="showTip(event, '3310', 3310)">
             GetDataTipText(...)
           </code>
-          <div class="tip" id="2972">
+          <div class="tip" id="3310">
             <strong>Signature:</strong>(line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int) -&gt; ToolTipText<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1675-1675" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1686-1686" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2973', 2973)" onmouseover="showTip(event, '2973', 2973)">
+          <code onmouseout="hideTip(event, '3311', 3311)" onmouseover="showTip(event, '3311', 3311)">
             GetDeclarationLocation(...)
           </code>
-          <div class="tip" id="2973">
+          <div class="tip" id="3311">
             <strong>Signature:</strong>(line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * preferSignature:bool) -&gt; FindDeclResult<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1699-1699" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1710-1710" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2974', 2974)" onmouseover="showTip(event, '2974', 2974)">
+          <code onmouseout="hideTip(event, '3312', 3312)" onmouseover="showTip(event, '3312', 3312)">
             GetDeclarationLocation(...)
           </code>
-          <div class="tip" id="2974">
+          <div class="tip" id="3312">
             <strong>Signature:</strong>(line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool) -&gt; FindDeclResult<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Resolve the names at the given location to the declaration location of the corresponding construct.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1702-1702" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1713-1713" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2975', 2975)" onmouseover="showTip(event, '2975', 2975)">
+          <code onmouseout="hideTip(event, '3313', 3313)" onmouseover="showTip(event, '3313', 3313)">
             GetDeclarations(...)
           </code>
-          <div class="tip" id="2975">
+          <div class="tip" id="3313">
             <strong>Signature:</strong>(ParsedFileResultsOpt:ParseFileResults option * line:Line0 * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * ?hasTextChangedSinceLastTypecheck:(obj * Range01 -&gt; bool) option) -&gt; Async&lt;DeclarationSet&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get the items for a declaration list</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1665-1665" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1676-1676" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2976', 2976)" onmouseover="showTip(event, '2976', 2976)">
+          <code onmouseout="hideTip(event, '3314', 3314)" onmouseover="showTip(event, '3314', 3314)">
             GetExtraColorizations(arg1)
           </code>
-          <div class="tip" id="2976">
+          <div class="tip" id="3314">
             <strong>Signature:</strong>unit -&gt; (Range01 * TokenColorKind) []<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get any extra colorization info that is available after the typecheck</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1711-1711" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1722-1722" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2977', 2977)" onmouseover="showTip(event, '2977', 2977)">
+          <code onmouseout="hideTip(event, '3315', 3315)" onmouseover="showTip(event, '3315', 3315)">
             GetF1Keyword(...)
           </code>
-          <div class="tip" id="2977">
+          <div class="tip" id="3315">
             <strong>Signature:</strong>(line:Line0 * colAtEndOfNames:int * lineText:string * names:string list) -&gt; string option<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Compute the Visual Studio F1-help key identifier for the given location, based on name resolution results</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1689-1689" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1700-1700" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2978', 2978)" onmouseover="showTip(event, '2978', 2978)">
+          <code onmouseout="hideTip(event, '3316', 3316)" onmouseover="showTip(event, '3316', 3316)">
             GetMethods(...)
           </code>
-          <div class="tip" id="2978">
+          <div class="tip" id="3316">
             <strong>Signature:</strong>(line:Line0 * colAtEndOfNames:int * lineText:string * names:string list option) -&gt; MethodGroup<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Compute a set of method overloads to show in a dialog relevant to the given code location.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1694-1694" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1705-1705" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2979', 2979)" onmouseover="showTip(event, '2979', 2979)">
+          <code onmouseout="hideTip(event, '3317', 3317)" onmouseover="showTip(event, '3317', 3317)">
             GetSymbolAtLocation(...)
           </code>
-          <div class="tip" id="2979">
+          <div class="tip" id="3317">
             <strong>Signature:</strong>(line:Line0 * colAtEndOfNames:int * lineText:string * names:string list) -&gt; FSharpSymbol option<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Resolve the names at the given location to a symbol.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1707-1707" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1718-1718" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2980', 2980)" onmouseover="showTip(event, '2980', 2980)">
+          <code onmouseout="hideTip(event, '3318', 3318)" onmouseover="showTip(event, '3318', 3318)">
             GetToolTipText(...)
           </code>
-          <div class="tip" id="2980">
+          <div class="tip" id="3318">
             <strong>Signature:</strong>(line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int) -&gt; ToolTipText<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Compute a formatted tooltip for the given location</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1679-1679" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1690-1690" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2981', 2981)" onmouseover="showTip(event, '2981', 2981)">
+          <code onmouseout="hideTip(event, '3319', 3319)" onmouseover="showTip(event, '3319', 3319)">
             HasFullTypeCheckInfo(arg1)
           </code>
-          <div class="tip" id="2981">
+          <div class="tip" id="3319">
             <strong>Signature:</strong>unit -&gt; bool<br />
                       </div>
         </td>
@@ -217,39 +233,39 @@
         <p>Indicates whether type checking successfully occured with some results returned. If false, indicates that 
 an unrecoverable error in earlier checking/parsing/resolution steps.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1662-1662" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1673-1673" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2982', 2982)" onmouseover="showTip(event, '2982', 2982)">
+          <code onmouseout="hideTip(event, '3320', 3320)" onmouseover="showTip(event, '3320', 3320)">
             PartialAssemblySignature(arg1)
           </code>
-          <div class="tip" id="2982">
+          <div class="tip" id="3320">
             <strong>Signature:</strong>unit -&gt; FSharpAssemblySignature<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get a view of the contents of the assembly up to and including the file just checked</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1716-1716" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1727-1727" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2983', 2983)" onmouseover="showTip(event, '2983', 2983)">
+          <code onmouseout="hideTip(event, '3321', 3321)" onmouseover="showTip(event, '3321', 3321)">
             ProjectContext(arg1)
           </code>
-          <div class="tip" id="2983">
+          <div class="tip" id="3321">
             <strong>Signature:</strong>unit -&gt; ProjectContext<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get the resolution of the ProjectOptions</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1721-1721" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1732-1732" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>

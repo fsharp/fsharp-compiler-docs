@@ -1182,7 +1182,7 @@ let ItemsReferToSameDefinition g orig other =
     | EntityUse ty1, EntityUse ty2 -> 
         tyconRefDefnEq g ty1 ty2
     | Item.TypeVar (nm1,tp1), Item.TypeVar (nm2,tp2) -> 
-        nm1 = nm2 && typarRefEq tp1 tp2
+        nm1 = nm2 && not tp1.IsCompilerGenerated && not tp1.IsFromError && tp1.Range = tp2.Range
     | ILPropertyUse(propDef1), ILPropertyUse(propDef2) -> 
         propDef1 === propDef2 
     | ValUse(vref1, idx1), ValUse(vref2, idx2) -> 

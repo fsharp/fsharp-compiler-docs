@@ -82,7 +82,7 @@
 #### 0.0.18 - 
 * Add GetAllUsesOfAllSymbols and GetAllUsesOfAllSymbolsInFile
 
-#### 0.0.18 - 
+#### 0.0.19 - 
 * Change return type of GetAllUsesOfSymbol, GetAllUsesOfAllSymbols and GetAllUsesOfAllSymbolsInFile to FSharpSymbolUse
 * Add symbol uses when an abstract member is implemented.
 

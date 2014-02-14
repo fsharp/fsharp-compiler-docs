@@ -1581,6 +1581,14 @@ type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
 
 
 [<Sealed>]
+type FSharpSymbolUse(symbol:FSharpSymbol, itemOcc, range: range) = 
+    let fileName, rangeZ = Range.toFileZ range
+    member __.Symbol  = symbol
+    member __.IsDefinition = (match itemOcc with ItemOccurence.Binding | ItemOccurence.Pattern -> true | _ -> false)
+    member __.FileName = fileName
+    member __.Range = rangeZ
+
+[<Sealed>]
 // 'details' is an option because the creation of the tcGlobals etc. for the project may have failed.
 type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*ModuleOrNamespaceType*TcResolutions list) option, reactorOps: IReactorOperations) =
 
@@ -1604,18 +1612,18 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*Modul
         reactorOps.RunSyncOp(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
             |> Seq.distinct 
-            |> Seq.map Range.toFileZ 
+            |> Seq.map (fun (itemOcc,m) -> FSharpSymbolUse(symbol, itemOcc, m)) 
             |> Seq.toArray)
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetAllUsesOfAllSymbols() = 
         let (tcGlobals, _tcImports, _ccuSig, tcResolutions) = getDetails()
-        // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
+        // This probably doesn't need to be run on the reactor since all data touched by GetAllUsesOfSymbols is immutable.
         reactorOps.RunSyncOp(fun () -> 
             [| for r in tcResolutions do 
-                  for (item,m) in r.GetAllUsesOfSymbols() do
-                    let file,range = Range.toFileZ m
-                    yield FSharpSymbol.Create(tcGlobals, item),  file, range |]) 
+                  for (item,itemOcc,m) in r.GetAllUsesOfSymbols() do
+                    let symbol = FSharpSymbol.Create(tcGlobals, item)
+                    yield FSharpSymbolUse(symbol, itemOcc, m) |]) 
 
     member info.ProjectContext = 
         let (tcGlobals, tcImports, _ccuSig, _tcResolutions) = getDetails()
@@ -1741,9 +1749,9 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
             checkBuilder [| |] (fun (scope, _builder, reactor) -> 
                 // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
                 reactor.RunSyncOp(fun () -> 
-                    [|    for (item,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
-                            let file,range = Range.toFileZ m
-                            yield FSharpSymbol.Create(scope.TcGlobals, item),  file, range |]))
+                    [|    for (item,itemOcc,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
+                            let symbol = FSharpSymbol.Create(scope.TcGlobals, item)
+                            yield FSharpSymbolUse(symbol,itemOcc, m) |]))
         refs
 
     

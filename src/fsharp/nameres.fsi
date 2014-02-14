@@ -150,11 +150,12 @@ type TypeNameResolutionInfo =
 
 [<RequireQualifiedAccess>]
 type internal ItemOccurence = 
-    | Binding = 0
-    | Use = 1
-    | UseInType = 2
-    | UseInAttribute = 3
-    | Pattern = 4
+    | Binding 
+    | Use 
+    | UseInType 
+    | UseInAttribute 
+    | Pattern 
+    | Implemented 
   
 type ItemUsageLocation = range * string
 
@@ -184,8 +185,8 @@ type internal TcResolutions =
     /// Exact name resolutions
     member CapturedNameResolutions : ResizeArray<CapturedNameResolution>
     member CapturedMethodGroupResolutions : ResizeArray<CapturedNameResolution>
-    member GetUsesOfSymbol : Item -> range[]
-    member GetAllUsesOfSymbols : unit -> (Item * range)[]
+    member GetUsesOfSymbol : Item -> (ItemOccurence * range)[]
+    member GetAllUsesOfSymbols : unit -> (Item * ItemOccurence * range)[]
 
 type ITypecheckResultsSink =
     abstract NotifyEnvWithScope   : range * NameResolutionEnv * AccessorDomain -> unit

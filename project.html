@@ -490,13 +490,13 @@ such as symbol references. To learn more about working with symbols, see <a href
 <div class="tip" id="fs56">member InteractiveChecker.GetBackgroundCheckResultsForFileInProject : filename:string * options:ProjectOptions -&gt; Async&lt;ParseFileResults * CheckFileResults&gt;</div>
 <div class="tip" id="fs57">val xSymbol : FSharpSymbol<br /><br />Full name: Project.xSymbol</div>
 <div class="tip" id="fs58">member CheckFileResults.GetSymbolAtLocation : line:Compiler.Range.Line0 * colAtEndOfNames:int * lineText:string * names:string list -&gt; FSharpSymbol option</div>
-<div class="tip" id="fs59">val usesOfXSymbol : (string * Compiler.Range.Range01) []<br /><br />Full name: Project.usesOfXSymbol</div>
-<div class="tip" id="fs60">member CheckProjectResults.GetUsesOfSymbol : symbol:FSharpSymbol -&gt; (string * Compiler.Range.Range01) []</div>
-<div class="tip" id="fs61">val allUsesOfAllSignatureSymbols : (string * (string * Compiler.Range.Range01) []) list<br /><br />Full name: Project.allUsesOfAllSignatureSymbols</div>
+<div class="tip" id="fs59">val usesOfXSymbol : FSharpSymbolUse []<br /><br />Full name: Project.usesOfXSymbol</div>
+<div class="tip" id="fs60">member CheckProjectResults.GetUsesOfSymbol : symbol:FSharpSymbol -&gt; FSharpSymbolUse []</div>
+<div class="tip" id="fs61">val allUsesOfAllSignatureSymbols : (string * FSharpSymbolUse []) list<br /><br />Full name: Project.allUsesOfAllSignatureSymbols</div>
 <div class="tip" id="fs62">val s : FSharpSymbol</div>
 <div class="tip" id="fs63">Object.ToString() : string</div>
-<div class="tip" id="fs64">val allUsesOfAllSymbols : (FSharpSymbol * string * Compiler.Range.Range01) []<br /><br />Full name: Project.allUsesOfAllSymbols</div>
-<div class="tip" id="fs65">member CheckProjectResults.GetAllUsesOfAllSymbols : unit -&gt; (FSharpSymbol * string * Compiler.Range.Range01) []</div>
+<div class="tip" id="fs64">val allUsesOfAllSymbols : FSharpSymbolUse []<br /><br />Full name: Project.allUsesOfAllSymbols</div>
+<div class="tip" id="fs65">member CheckProjectResults.GetAllUsesOfAllSymbols : unit -&gt; FSharpSymbolUse []</div>
 <div class="tip" id="fs66">val parseResults1 : ParseFileResults<br /><br />Full name: Project.parseResults1</div>
 <div class="tip" id="fs67">member InteractiveChecker.ParseFileInProject : filename:string * source:string * options:ProjectOptions -&gt; ParseFileResults</div>
 <div class="tip" id="fs68">val parseResults2 : ParseFileResults<br /><br />Full name: Project.parseResults2</div>
@@ -508,9 +508,9 @@ such as symbol references. To learn more about working with symbols, see <a href
 <div class="tip" id="fs74">val failwith : message:string -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.failwith</div>
 <div class="tip" id="fs75">val checkResults2 : CheckFileResults<br /><br />Full name: Project.checkResults2</div>
 <div class="tip" id="fs76">val xSymbol2 : FSharpSymbol<br /><br />Full name: Project.xSymbol2</div>
-<div class="tip" id="fs77">val usesOfXSymbol2 : (string * Compiler.Range.Range01) []<br /><br />Full name: Project.usesOfXSymbol2</div>
-<div class="tip" id="fs78">val allUsesOfAllSymbolsInFile1 : (FSharpSymbol * string * Compiler.Range.Range01) []<br /><br />Full name: Project.allUsesOfAllSymbolsInFile1</div>
-<div class="tip" id="fs79">member CheckFileResults.GetAllUsesOfAllSymbolsInFile : unit -&gt; (FSharpSymbol * string * Compiler.Range.Range01) []</div>
+<div class="tip" id="fs77">val usesOfXSymbol2 : FSharpSymbolUse []<br /><br />Full name: Project.usesOfXSymbol2</div>
+<div class="tip" id="fs78">val allUsesOfAllSymbolsInFile1 : FSharpSymbolUse []<br /><br />Full name: Project.allUsesOfAllSymbolsInFile1</div>
+<div class="tip" id="fs79">member CheckFileResults.GetAllUsesOfAllSymbolsInFile : unit -&gt; FSharpSymbolUse []</div>
 
         </div>
         <div class="span3">

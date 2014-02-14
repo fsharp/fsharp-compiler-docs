@@ -121,6 +121,7 @@ let mmmm2 : M.CAbbrev = new M.CAbbrev() // note, these don't count as uses of C
     let fileNames = [fileName1; fileName2]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let cleanFileName a = if a = fileName1 then "file1" else if a = fileName2 then "file2" else "??"
 
 let rec allSymbolsInEntities compGen (entities: IList<FSharpEntity>) = 
     [ for e in entities do 
@@ -215,12 +216,16 @@ let ``Test project1 xxx symbols`` () =
     let xSymbol = backgroundTypedParse1.GetSymbolAtLocation(8,9,"",["xxx"]).Value
     xSymbol.ToString() |> shouldEqual "val xxx"
 
-    let usesOfXSymbol = wholeProjectResults.GetUsesOfSymbol(xSymbol)
-    usesOfXSymbol |> shouldEqual [|(Project1.fileName1, ((6, 4), (6, 7)));
-                                   (Project1.fileName1, ((7, 13), (7, 16)));
-                                   (Project1.fileName1, ((7, 19), (7, 22)));
-                                   (Project1.fileName2, ((6, 28), (6, 33)));
-                                   (Project1.fileName2, ((12, 27), (12, 32)))|]
+    let usesOfXSymbol = 
+        wholeProjectResults.GetUsesOfSymbol(xSymbol) 
+        |> Array.map (fun su -> su.FileName , su.Range)
+        |> Array.map (fun (a,b) -> (if a = Project1.fileName1 then "file1" else if a = Project1.fileName2 then "file2" else "??"), b)
+
+    usesOfXSymbol |> shouldEqual [|("file1", ((6, 4), (6, 7)));
+                                   ("file1", ((7, 13), (7, 16)));
+                                   ("file1", ((7, 19), (7, 22)));
+                                   ("file2", ((6, 28), (6, 33)));
+                                   ("file2", ((12, 27), (12, 32)))|]
 
 [<Test>]
 let ``Test project1 all uses of all signature symbols`` () = 
@@ -229,93 +234,93 @@ let ``Test project1 all uses of all signature symbols`` () =
     let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
     let allUsesOfAllSymbols = 
         [ for s in allSymbols do 
-             yield s.ToString(), wholeProjectResults.GetUsesOfSymbol(s) ]
+             yield s.ToString(), [| for s in wholeProjectResults.GetUsesOfSymbol(s) -> (Project1.cleanFileName s.FileName, s.Range) |] ]
     let expected =      
               [("N",
-                [|(Project1.fileName2, ((1, 7), (1, 8)))|]);
+                [|("file2", ((1, 7), (1, 8)))|]);
                ("field a", [| |]);
                ("field b", [| |]);
                ("field x",
-                [|(Project1.fileName2, ((19, 16), (19, 17)))|]);
+                [|("file2", ((19, 16), (19, 17)))|]);
                ("val pair1",
-                [|(Project1.fileName2, ((23, 4), (23, 9)))|]);
+                [|("file2", ((23, 4), (23, 9)))|]);
                ("val pair2",
-                [|(Project1.fileName2, ((23, 10), (23, 15)))|]);
+                [|("file2", ((23, 10), (23, 15)))|]);
                ("val y2",
-                [|(Project1.fileName2, ((12, 4), (12, 6)))|]);
+                [|("file2", ((12, 4), (12, 6)))|]);
                ("D1",
-                [|(Project1.fileName2, ((5, 5), (5, 7)));
-                  (Project1.fileName2, ((9, 38), (9, 40)))|]);
+                [|("file2", ((5, 5), (5, 7)));
+                  ("file2", ((9, 38), (9, 40)))|]);
                ("member ( .ctor )",
-                [|(Project1.fileName2, ((5, 5), (5, 7)))|]);
+                [|("file2", ((5, 5), (5, 7)))|]);
                ("member SomeProperty",
-                [|(Project1.fileName2, ((6, 13), (6, 25)))|]);
+                [|("file2", ((6, 13), (6, 25)))|]);
                ("D2",
-                [|(Project1.fileName2, ((8, 5), (8, 7)))|]);
+                [|("file2", ((8, 5), (8, 7)))|]);
                ("member ( .ctor )",
-                [|(Project1.fileName2, ((8, 5), (8, 7)))|]);
+                [|("file2", ((8, 5), (8, 7)))|]);
                ("member SomeProperty",
-                [|(Project1.fileName2, ((9, 13), (9, 25)))|]);
+                [|("file2", ((9, 13), (9, 25)))|]);
                ("D3",
-                [|(Project1.fileName2, ((15, 5), (15, 7)))|]);
+                [|("file2", ((15, 5), (15, 7)))|]);
                ("member ( .ctor )",
-                [|(Project1.fileName2, ((15, 5), (15, 7)))|]);
+                [|("file2", ((15, 5), (15, 7)))|]);
                ("member SomeProperty",
-                [|(Project1.fileName2, ((21, 13), (21, 25)))|]);
+                [|("file2", ((21, 13), (21, 25)))|]);
                ("C",
-                  [|(Project1.fileName1, ((3, 5), (3, 6)));
-                    (Project1.fileName1, ((9, 15), (9, 16)));
-                    (Project1.fileName2, ((38, 12), (38, 15)));
-                    (Project1.fileName2, ((38, 22), (38, 25)))|]);
+                  [|("file1", ((3, 5), (3, 6)));
+                    ("file1", ((9, 15), (9, 16)));
+                    ("file2", ((38, 12), (38, 15)));
+                    ("file2", ((38, 22), (38, 25)))|]);
                ("M",
-                  [|(Project1.fileName1, ((1, 7), (1, 8)));
-                    (Project1.fileName2, ((6, 28), (6, 29)));
-                    (Project1.fileName2, ((9, 28), (9, 29)));
-                    (Project1.fileName2, ((12, 27), (12, 28)));
-                    (Project1.fileName2, ((38, 12), (38, 13)));
-                    (Project1.fileName2, ((38, 22), (38, 23)));
-                    (Project1.fileName2, ((39, 12), (39, 13)));
-                    (Project1.fileName2, ((39, 28), (39, 29)))|])
+                  [|("file1", ((1, 7), (1, 8)));
+                    ("file2", ((6, 28), (6, 29)));
+                    ("file2", ((9, 28), (9, 29)));
+                    ("file2", ((12, 27), (12, 28)));
+                    ("file2", ((38, 12), (38, 13)));
+                    ("file2", ((38, 22), (38, 23)));
+                    ("file2", ((39, 12), (39, 13)));
+                    ("file2", ((39, 28), (39, 29)))|])
                ("SaveOptions",
-                [|(Project1.fileName2, ((26, 5), (26, 16)));
-                  (Project1.fileName2, ((30, 16), (30, 27)))|]);
+                [|("file2", ((26, 5), (26, 16)));
+                  ("file2", ((30, 16), (30, 27)))|]);
                ("field value__", [||]);
                ("field None",
-                [|(Project1.fileName2, ((27, 4), (27, 8)))|]);
+                [|("file2", ((27, 4), (27, 8)))|]);
                ("field DisableFormatting",
-                [|(Project1.fileName2, ((28, 4), (28, 21)));
-                  (Project1.fileName2, ((30, 16), (30, 45)))|]);
+                [|("file2", ((28, 4), (28, 21)));
+                  ("file2", ((30, 16), (30, 45)))|]);
                ("val enumValue",
-                [|(Project1.fileName2, ((30, 4), (30, 13)))|]);
+                [|("file2", ((30, 4), (30, 13)))|]);
                ("val ( ++ )",
-                [|(Project1.fileName2, ((32, 5), (32, 7)));
-                  (Project1.fileName2, ((34, 11), (34, 13)));
-                  (Project1.fileName2, ((36, 11), (36, 13)))|]);
+                [|("file2", ((32, 5), (32, 7)));
+                  ("file2", ((34, 11), (34, 13)));
+                  ("file2", ((36, 11), (36, 13)))|]);
                ("val c1",
-                [|(Project1.fileName2, ((34, 4), (34, 6)))|]);
+                [|("file2", ((34, 4), (34, 6)))|]);
                ("val c2",
-                [|(Project1.fileName2, ((36, 4), (36, 6)))|]);
+                [|("file2", ((36, 4), (36, 6)))|]);
                ("val mmmm1",
-                [|(Project1.fileName2, ((38, 4), (38, 9)))|]);
+                [|("file2", ((38, 4), (38, 9)))|]);
                ("val mmmm2",
-                [|(Project1.fileName2, ((39, 4), (39, 9)))|]);
+                [|("file2", ((39, 4), (39, 9)))|]);
                ("val xxx",
-                [|(Project1.fileName1, ((6, 4), (6, 7)));
-                  (Project1.fileName1, ((7, 13), (7, 16)));
-                  (Project1.fileName1, ((7, 19), (7, 22)));
-                  (Project1.fileName2, ((6, 28), (6, 33)));
-                  (Project1.fileName2, ((12, 27), (12, 32)))|]);
+                [|("file1", ((6, 4), (6, 7)));
+                  ("file1", ((7, 13), (7, 16)));
+                  ("file1", ((7, 19), (7, 22)));
+                  ("file2", ((6, 28), (6, 33)));
+                  ("file2", ((12, 27), (12, 32)))|]);
                ("val fff",
-                [|(Project1.fileName1, ((7, 4), (7, 7)));
-                  (Project1.fileName2, ((9, 28), (9, 33)))|]);
+                [|("file1", ((7, 4), (7, 7)));
+                  ("file2", ((9, 28), (9, 33)))|]);
                ("member ( .ctor )",
-                [|(Project1.fileName1, ((3, 5), (3, 6)))|]);
+                [|("file1", ((3, 5), (3, 6)))|]);
                ("member P",
-                [|(Project1.fileName1, ((4, 13), (4, 14)))|])
+                [|("file1", ((4, 13), (4, 14)))|])
                ("CAbbrev",
-                [|(Project1.fileName1, ((9, 5), (9, 12)));
-                  (Project1.fileName2, ((39, 12), (39, 21)));
-                  (Project1.fileName2, ((39, 28), (39, 37)))|])
+                [|("file1", ((9, 5), (9, 12)));
+                  ("file2", ((39, 12), (39, 21)));
+                  ("file2", ((39, 28), (39, 37)))|])
               ]
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
@@ -325,7 +330,7 @@ let ``Test project1 all uses of all signature symbols`` () =
 let ``Test project1 all uses of all symbols`` () = 
   //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
-    let allUsesOfAllSymbols = [ for (s,f,m) in wholeProjectResults.GetAllUsesOfAllSymbols() -> s.DisplayName, (if f = Project1.fileName1 then "file1" else if f = Project1.fileName2 then "file2" else "???"), m ]
+    let allUsesOfAllSymbols = [ for s in wholeProjectResults.GetAllUsesOfAllSymbols() -> s.Symbol.DisplayName, Project1.cleanFileName s.FileName, s.Range ]
     let expected =      
           [("C", "file1", ((3, 5), (3, 6))); ("( .ctor )", "file1", ((3, 5), (3, 6)));
            ("P", "file1", ((4, 13), (4, 14))); ("x", "file1", ((4, 11), (4, 12)));
@@ -418,14 +423,15 @@ let ``Test file explicit parse symbols`` () =
         |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
 
     let xSymbol2 = checkResults1.GetSymbolAtLocation(8,9,"",["xxx"]).Value
-    let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2)
+    let usesOfXSymbol2 = 
+        [| for s in wholeProjectResults.GetUsesOfSymbol(xSymbol2) -> (Project1.cleanFileName s.FileName, s.Range) |] 
 
     usesOfXSymbol2
-         |> shouldEqual [|(Project1.fileName1, ((6, 4), (6, 7)));
-                          (Project1.fileName1, ((7, 13), (7, 16)));
-                          (Project1.fileName1, ((7, 19), (7, 22)));
-                          (Project1.fileName2, ((6, 28), (6, 33)));
-                          (Project1.fileName2, ((12, 27), (12, 32)))|]
+         |> shouldEqual [|("file1", ((6, 4), (6, 7)));
+                          ("file1", ((7, 13), (7, 16)));
+                          ("file1", ((7, 19), (7, 22)));
+                          ("file2", ((6, 28), (6, 33)));
+                          ("file2", ((12, 27), (12, 32)))|]
 
 [<Test>]
 let ``Test file explicit parse all symbols`` () = 
@@ -447,7 +453,7 @@ let ``Test file explicit parse all symbols`` () =
 
     let usesOfSymbols = checkResults1.GetAllUsesOfAllSymbolsInFile()
     let cleanedUsesOfSymbols = 
-         [ for (s,f,m) in usesOfSymbols -> s.DisplayName, (if f = Project1.fileName1 then "file1" else if f = Project1.fileName2 then "file2" else "???"), m ]
+         [ for s in usesOfSymbols -> s.Symbol.DisplayName, Project1.cleanFileName s.FileName, s.Range ]
 
     cleanedUsesOfSymbols 
        |> shouldEqual 
@@ -531,12 +537,14 @@ let ``Test project2 all symbols in signature`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project2.options) |> Async.RunSynchronously
     let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
-    [ for x in allSymbols -> x.ToString() ] |> 
-      shouldEqual 
-        ["M"; "val c"; "val GenericFunction"; "DUWithNormalFields"; "DU1"; "DU2";
-        "D"; "DUWithNamedFields"; "DU"; "GenericClass`1"; "member ( .ctor )";
-        "member GenericMethod"]
-
+    [ for x in allSymbols -> x.ToString() ] 
+       |> shouldEqual 
+              ["M"; "val c"; "val GenericFunction"; "generic parameter T";
+               "DUWithNormalFields"; "DU1"; "field Item1"; "field Item2"; "DU2";
+               "field Item1"; "field Item2"; "D"; "field Item1"; "field Item2";
+               "DUWithNamedFields"; "DU"; "field x"; "field y"; "GenericClass`1";
+               "generic parameter T"; "member ( .ctor )"; "generic parameter T";
+               "member GenericMethod"; "generic parameter T"; "generic parameter U"]
 
 [<Test>]
 let ``Test project2 all uses of all signature symbols`` () = 
@@ -545,7 +553,7 @@ let ``Test project2 all uses of all signature symbols`` () =
     let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
     let allUsesOfAllSymbols = 
         [ for s in allSymbols do 
-             let uses = [ for (f,p) in wholeProjectResults.GetUsesOfSymbol(s) -> (if f = Project2.fileName1 then "file1" else "??"), p ]
+             let uses = [ for s in wholeProjectResults.GetUsesOfSymbol(s) -> (if s.FileName = Project2.fileName1 then "file1" else "??"), s.Range ]
              yield s.ToString(), uses ]
     let expected =      
           [("M", [("file1", ((1, 7), (1, 8)))]);
@@ -595,8 +603,8 @@ let ``Test project2 all uses of all symbols`` () =
   //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
     let wholeProjectResults = checker.ParseAndCheckProject(Project2.options) |> Async.RunSynchronously
     let allUsesOfAllSymbols = 
-        [ for (s,f,m) in wholeProjectResults.GetAllUsesOfAllSymbols() -> 
-            s.DisplayName, (if f = Project2.fileName1 then "file1" else "???"), m ]
+        [ for s in wholeProjectResults.GetAllUsesOfAllSymbols() -> 
+            s.Symbol.DisplayName, (if s.FileName = Project2.fileName1 then "file1" else "???"), s.Range ]
     let expected =      
           [("int", "file1", ((4, 13), (4, 16))); ("int", "file1", ((4, 19), (4, 22)));
            ("int", "file1", ((5, 13), (5, 16))); ("int", "file1", ((5, 19), (5, 22)));
@@ -638,6 +646,221 @@ let ``Test project2 all uses of all symbols`` () =
            ("GenericFunction", "file1", ((22, 4), (22, 19)));
            ("GenericFunction", "file1", ((24, 8), (24, 23)));
            ("M", "file1", ((1, 7), (1, 8)))]
+    set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
+    set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
+    (set expected = set allUsesOfAllSymbols) |> shouldEqual true
+
+//----------------------------------------------------------------------
+
+module Project3 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+
+type IFoo =
+    abstract InterfaceProperty: string
+    abstract InterfaceMethod: methodArg:string -> string
+    [<CLIEvent>]
+    abstract InterfaceEvent: IEvent<int>
+
+[<AbstractClass>]
+type CFoo() =
+    abstract AbstractClassProperty: string
+    abstract AbstractClassMethod: methodArg:string -> string
+    [<CLIEvent>]
+    abstract AbstractClassEvent: IEvent<int>
+
+type CBaseFoo() =
+    let ev = Event<_>()
+    abstract BaseClassProperty: string
+    abstract BaseClassMethod: methodArg:string -> string
+    [<CLIEvent>]
+    abstract BaseClassEvent: IEvent<int>
+    default __.BaseClassProperty = "dflt"
+    default __.BaseClassMethod(m) = m
+    [<CLIEvent>]
+    default __.BaseClassEvent = ev.Publish
+
+type IFooImpl() =
+    let ev = Event<_>()
+    interface IFoo with
+        member this.InterfaceProperty = "v"
+        member this.InterfaceMethod(x) = x
+        [<CLIEvent>]
+        member this.InterfaceEvent = ev.Publish
+
+type CFooImpl() =
+    inherit CFoo()
+    let ev = Event<_>()
+    override this.AbstractClassProperty = "v"
+    override this.AbstractClassMethod(x) = x
+    [<CLIEvent>]
+    override this.AbstractClassEvent = ev.Publish
+
+type CBaseFooImpl() =
+    inherit CBaseFoo()
+    let ev = Event<_>()
+    override this.BaseClassProperty = "v"
+    override this.BaseClassMethod(x) = x
+    [<CLIEvent>]
+    override this.BaseClassEvent = ev.Publish
+
+let IFooImplObjectExpression() =
+    let ev = Event<_>()
+    { new IFoo with
+        member this.InterfaceProperty = "v"
+        member this.InterfaceMethod(x) = x
+        [<CLIEvent>]
+        member this.InterfaceEvent = ev.Publish }
+
+let CFooImplObjectExpression() =
+    let ev = Event<_>()
+    { new CFoo() with
+        override this.AbstractClassProperty = "v"
+        override this.AbstractClassMethod(x) = x
+        [<CLIEvent>]
+        override this.AbstractClassEvent = ev.Publish }
+
+let getP (foo: IFoo) = foo.InterfaceProperty
+let getE (foo: IFoo) = foo.InterfaceEvent
+let getM (foo: IFoo) = foo.InterfaceMethod("d")
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+
+
+[<Test>]
+let ``Test project3 whole project errors`` () = 
+  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project2.options) |> Async.RunSynchronously
+    wholeProjectResults .Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test project3 basic`` () = 
+  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project3.options) |> Async.RunSynchronously
+
+    set [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] |> shouldEqual (set ["M"])
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] 
+        |> shouldEqual ["IFoo"; "CFoo"; "CBaseFoo"; "IFooImpl"; "CFooImpl"; "CBaseFooImpl"]
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] 
+        |> shouldEqual ["IFooImplObjectExpression"; "CFooImplObjectExpression"; "getP"; "getE";"getM"]
+
+[<Test>]
+let ``Test project3 all symbols in signature`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project3.options) |> Async.RunSynchronously
+    let allSymbols = allSymbolsInEntities false wholeProjectResults.AssemblySignature.Entities
+    [ for x in allSymbols -> x.ToString() ] 
+      |> shouldEqual 
+              ["M"; "val IFooImplObjectExpression"; "val CFooImplObjectExpression";
+               "val getP"; "val getE"; "val getM"; "IFoo"; "member InterfaceMethod";
+               "member add_InterfaceEvent"; "member InterfaceEvent";
+               "member InterfaceProperty"; "member remove_InterfaceEvent"; "CFoo";
+               "member ( .ctor )"; "member AbstractClassMethod";
+               "member add_AbstractClassEvent"; "member AbstractClassEvent";
+               "member AbstractClassProperty"; "member remove_AbstractClassEvent";
+               "CBaseFoo"; "member ( .ctor )"; "member BaseClassMethod";
+               "member add_BaseClassEvent"; "member BaseClassEvent";
+               "member BaseClassProperty"; "member remove_BaseClassEvent"; "IFooImpl";
+               "member ( .ctor )"; "CFooImpl"; "member ( .ctor )"; "CBaseFooImpl";
+               "member ( .ctor )"]
+
+
+[<Test>]
+let ``Test project3 all uses of all signature symbols`` () = 
+  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project3.options) |> Async.RunSynchronously
+    let allSymbols = allSymbolsInEntities false wholeProjectResults.AssemblySignature.Entities
+    let allUsesOfAllSymbols = 
+        [ for s in allSymbols do 
+             let uses = [ for s in wholeProjectResults.GetUsesOfSymbol(s) -> (if s.FileName = Project3.fileName1 then "file1" else "??"), s.Range ]
+             yield s.ToString(), uses ]
+    let expected =      
+          [("M", [("file1", ((1, 7), (1, 8)))]);
+           ("val IFooImplObjectExpression", [("file1", ((51, 4), (51, 28)))]);
+           ("val CFooImplObjectExpression", [("file1", ((59, 4), (59, 28)))]);
+           ("val getP", [("file1", ((67, 4), (67, 8)))]);
+           ("val getE", [("file1", ((68, 4), (68, 8)))]);
+           ("val getM", [("file1", ((69, 4), (69, 8)))]);
+           ("IFoo",
+            [("file1", ((3, 5), (3, 9))); ("file1", ((29, 14), (29, 18)));
+             ("file1", ((53, 10), (53, 14))); ("file1", ((67, 15), (67, 19)));
+             ("file1", ((68, 15), (68, 19))); ("file1", ((69, 15), (69, 19)))]);
+           ("member InterfaceMethod",
+            [("file1", ((5, 13), (5, 28))); ("file1", ((55, 20), (55, 35)));
+             ("file1", ((69, 23), (69, 42))); ("file1", ((31, 20), (31, 35)))]);
+           ("member add_InterfaceEvent",
+            [("file1", ((7, 13), (7, 27))); ("file1", ((57, 20), (57, 34)));
+             ("file1", ((68, 23), (68, 41))); ("file1", ((33, 20), (33, 34)))]);
+           ("member InterfaceEvent",
+            [("file1", ((7, 13), (7, 27))); ("file1", ((57, 20), (57, 34)));
+             ("file1", ((33, 20), (33, 34)))]);
+           ("member InterfaceProperty",
+            [("file1", ((4, 13), (4, 30))); ("file1", ((54, 20), (54, 37)));
+             ("file1", ((67, 23), (67, 44))); ("file1", ((30, 20), (30, 37)))]);
+           ("member remove_InterfaceEvent",
+            [("file1", ((7, 13), (7, 27))); ("file1", ((57, 20), (57, 34)));
+             ("file1", ((33, 20), (33, 34)))]);
+           ("CFoo",
+            [("file1", ((10, 5), (10, 9))); ("file1", ((36, 12), (36, 16)));
+             ("file1", ((36, 12), (36, 16))); ("file1", ((61, 10), (61, 14)));
+             ("file1", ((61, 10), (61, 14)))]);
+           ("member ( .ctor )", [("file1", ((10, 5), (10, 9)))]);
+           ("member AbstractClassMethod",
+            [("file1", ((12, 13), (12, 32))); ("file1", ((63, 22), (63, 41)));
+             ("file1", ((39, 18), (39, 37)))]);
+           ("member add_AbstractClassEvent",
+            [("file1", ((14, 13), (14, 31))); ("file1", ((65, 22), (65, 40)));
+             ("file1", ((41, 18), (41, 36)))]);
+           ("member AbstractClassEvent",
+            [("file1", ((14, 13), (14, 31))); ("file1", ((65, 22), (65, 40)));
+             ("file1", ((41, 18), (41, 36)))]);
+           ("member AbstractClassProperty",
+            [("file1", ((11, 13), (11, 34))); ("file1", ((62, 22), (62, 43)));
+             ("file1", ((38, 18), (38, 39)))]);
+           ("member remove_AbstractClassEvent",
+            [("file1", ((14, 13), (14, 31))); ("file1", ((65, 22), (65, 40)));
+             ("file1", ((41, 18), (41, 36)))]);
+           ("CBaseFoo",
+            [("file1", ((16, 5), (16, 13))); ("file1", ((44, 12), (44, 20)));
+             ("file1", ((44, 12), (44, 20)))]);
+           ("member ( .ctor )", [("file1", ((16, 5), (16, 13)))]);
+           ("member BaseClassMethod",
+            [("file1", ((19, 13), (19, 28))); ("file1", ((23, 15), (23, 30)));
+             ("file1", ((47, 18), (47, 33)))]);
+           ("member add_BaseClassEvent",
+            [("file1", ((21, 13), (21, 27))); ("file1", ((25, 15), (25, 29)));
+             ("file1", ((49, 18), (49, 32)))]);
+           ("member BaseClassEvent",
+            [("file1", ((21, 13), (21, 27))); ("file1", ((25, 15), (25, 29)));
+             ("file1", ((49, 18), (49, 32)))]);
+           ("member BaseClassProperty",
+            [("file1", ((18, 13), (18, 30))); ("file1", ((22, 15), (22, 32)));
+             ("file1", ((46, 18), (46, 35)))]);
+           ("member remove_BaseClassEvent",
+            [("file1", ((21, 13), (21, 27))); ("file1", ((25, 15), (25, 29)));
+             ("file1", ((49, 18), (49, 32)))]);
+           ("IFooImpl", [("file1", ((27, 5), (27, 13)))]);
+           ("member ( .ctor )", [("file1", ((27, 5), (27, 13)))]);
+           ("CFooImpl", [("file1", ((35, 5), (35, 13)))]);
+           ("member ( .ctor )", [("file1", ((35, 5), (35, 13)))]);
+           ("CBaseFooImpl", [("file1", ((43, 5), (43, 17)))]);
+           ("member ( .ctor )", [("file1", ((43, 5), (43, 17)))])]
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true

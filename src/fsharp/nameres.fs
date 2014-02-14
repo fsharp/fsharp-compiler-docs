@@ -1066,15 +1066,17 @@ let GetNestedTypesOfType (ad, ncenv:NameResolver, optFilter, staticResInfo, chec
 [<RequireQualifiedAccess>]
 type ItemOccurence = 
     /// This is a binding / declaration of the item
-    | Binding = 0
+    | Binding 
     /// This is a usage of the item 
-    | Use = 1
+    | Use 
     /// This is a usage of a type name in a type
-    | UseInType = 2
+    | UseInType 
     /// This is a usage of a type name in an attribute
-    | UseInAttribute = 3
+    | UseInAttribute 
     /// Inside pattern matching
-    | Pattern = 4
+    | Pattern 
+    /// Abstract slot gets implemented
+    | Implemented
   
 /// location in code where item appears
 type ItemUsageLocation = range * string
@@ -1233,11 +1235,11 @@ type TcResolutions
     member this.GetUsesOfSymbol(item) = 
         [| for cnr in capturedNameResolutions do
                if protectAssemblyExploration false (fun () -> ItemsReferToSameDefinition g item cnr.Item) then
-                  yield cnr.Range |]
+                  yield cnr.ItemOccurence, cnr.Range |]
 
     member this.GetAllUsesOfSymbols() = 
         [| for cnr in capturedNameResolutions do
-              yield (cnr.Item, cnr.Range) |]
+              yield (cnr.Item, cnr.ItemOccurence, cnr.Range) |]
 
 /// An accumulator for the results being emitted into the tcSink.
 type TcResultsSinkImpl(g) =

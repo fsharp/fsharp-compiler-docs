@@ -104,6 +104,16 @@ type ProjectContext =
     /// Get the resolution and full contents of the assemblies referenced by the project options
     member GetReferencedAssemblies : unit -> FSharpAssembly list
 
+[<Sealed>]
+type FSharpSymbolUse = 
+    /// The symbol referenced
+    member Symbol : FSharpSymbol 
+    /// Indicates if the reference a definition for the symbol, either in a signature or implementation
+    member IsDefinition : bool
+    /// The file name the reference occurs in 
+    member FileName: string 
+    /// The range of text representing the reference to the symbol
+    member Range: Range01
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -197,7 +207,7 @@ type CheckFileResults =
     member GetExtraColorizations : unit -> (Range01 * TokenColorKind)[]
 
     /// Get all textual usages of all symbols throughout the file
-    member GetAllUsesOfAllSymbolsInFile : unit -> (FSharpSymbol * string * Range01)[]
+    member GetAllUsesOfAllSymbolsInFile : unit -> FSharpSymbolUse[]
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -212,10 +222,10 @@ type CheckProjectResults =
     member ProjectContext : ProjectContext
 
     /// Get the textual usages that resolved to the given symbol throughout the project
-    member GetUsesOfSymbol : symbol:FSharpSymbol -> (string * Range01)[]
+    member GetUsesOfSymbol : symbol:FSharpSymbol -> FSharpSymbolUse[]
 
     /// Get all textual usages of all symbols throughout the project
-    member GetAllUsesOfAllSymbols : unit -> (FSharpSymbol * string * Range01)[]
+    member GetAllUsesOfAllSymbols : unit -> FSharpSymbolUse[]
 
     /// Indicates if critical errors existed in the project options
     member HasCriticalErrors : bool 

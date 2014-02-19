@@ -18,6 +18,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
 open System.IO
 open Microsoft.FSharp.Compiler
+open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
@@ -80,6 +81,9 @@ type SimpleSourceCodeServices =
 
     /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
     member Compile: argv:string [] -> ErrorInfo [] * int
+    
+    /// TypeCheck and compile provided AST
+    member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool -> ErrorInfo [] * int
 
     /// Compiles to a dynamic assembly usinng the given flags.  Any source files names 
     /// are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not

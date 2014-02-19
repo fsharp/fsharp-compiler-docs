@@ -1,5 +1,6 @@
 module internal Microsoft.FSharp.Compiler.Driver 
 
+open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.ErrorLogger
@@ -12,6 +13,8 @@ open Microsoft.FSharp.Compiler.Build
 #else
 /// fsc.exe calls this
 val mainCompile : argv : string[] * bannerAlreadyPrinted : bool * exiter : Exiter * loggerProvider: (TcConfigBuilder * Exiter -> ErrorLogger) option -> unit
+
+val compileOfAst : assemblyName:string * target:CompilerTarget * targetDll:string * targetPdb:string option * dependencies:string list * exiter:Exiter * inputs:ParsedInput list -> unit
 
 //----------------------------------------------------------------------------
 // Internal helpers used to implement the SimpleCodeServices API

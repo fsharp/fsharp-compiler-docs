@@ -22,6 +22,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     open Microsoft.FSharp.Compiler.SourceCodeServices
     open Microsoft.FSharp.Compiler.Driver
     open Microsoft.FSharp.Compiler
+    open Microsoft.FSharp.Compiler.Ast
     open Microsoft.FSharp.Compiler.ErrorLogger
 
     [<AutoOpen>]
@@ -198,6 +199,38 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                     1
         
             errors.ToArray(), result
+
+        member x.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool) =
+            let errors = ResizeArray<_>()
+
+            let errorSink warn exn = 
+                let mainError,relatedErrors = Build.SplitRelatedErrors exn 
+                let oneError trim e = errors.Add(ErrorInfo.CreateFromException (e, warn, trim, Range.range0))
+                oneError false mainError
+                List.iter (oneError true) relatedErrors
+
+            let errorLogger = 
+                { new ErrorLogger("CompileAPI") with 
+                    member x.WarnSinkImpl(exn) = errorSink true exn
+                    member x.ErrorSinkImpl(exn) = errorSink false exn
+                    member x.ErrorCount = errors |> Seq.filter (fun e -> e.Severity = Severity.Error) |> Seq.length }
+
+            let executable = defaultArg executable true
+            let target = if executable then Build.CompilerTarget.ConsoleExe else Build.CompilerTarget.Dll
+     
+            let result = 
+                use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
+                use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
+                let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
+                try 
+                    compileOfAst (assemblyName, target, outFile, pdbFile, dependencies, exiter, ast); 
+                    0
+                with e -> 
+                    stopProcessingRecovery e Range.range0
+                    1
+
+            errors.ToArray(), result
+
 
         /// Compiles to a dynamic assembly usinng the given flags.  Any source files names 
         /// are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not

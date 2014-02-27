@@ -1266,6 +1266,7 @@ module internal IncrementalFSharpBuild =
         let tcConfigP = TcConfigProvider.Constant(tcConfig)
         let importsInvalidated = new Event<string>()
         let beforeTypeCheckFile = new Event<_>()
+        let afterTypeCheckFile = new Event<_>()
         let afterProjectTypeCheck = new Event<_>()
 
         // Resolve assemblies and create the framework TcImports. This is done when constructing the
@@ -1464,6 +1465,7 @@ module internal IncrementalFSharpBuild =
                     eventually {
                         Trace.PrintLine("FSharpBackgroundBuild", fun _ -> sprintf "Typechecking %s..." filename)                
                         beforeTypeCheckFile.Trigger filename
+                        beforeTypeCheckFile.Trigger filename
 
                         ApplyMetaCommandsFromInputToTcConfig tcConfig (input, Path.GetDirectoryName filename) |> ignore
                         let sink = Nameres.TcResultsSinkImpl(tcAcc.tcGlobals)
@@ -1602,6 +1604,7 @@ module internal IncrementalFSharpBuild =
 
         member __.TcConfig = tcConfig
         member __.BeforeTypeCheckFile = beforeTypeCheckFile.Publish
+        member __.AfterTypeCheckFile = afterTypeCheckFile.Publish
         member __.AfterProjectTypeCheck = afterProjectTypeCheck.Publish
         member __.ImportedCcusInvalidated = importsInvalidated.Publish
         member __.Dependencies = fileDependencies |> List.map (fun x -> x.Filename)

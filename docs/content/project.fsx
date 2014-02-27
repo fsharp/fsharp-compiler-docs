@@ -131,7 +131,7 @@ let rec allSymbolsInEntities (entities: IList<FSharpEntity>) =
              yield (x :> FSharpSymbol)
           for x in e.UnionCases do
              yield (x :> FSharpSymbol)
-          for x in e.RecordFields do
+          for x in e.FSharpFields do
              yield (x :> FSharpSymbol)
           yield! allSymbolsInEntities e.NestedEntities ]
 
@@ -160,9 +160,14 @@ let usesOfXSymbol = wholeProjectResults.GetUsesOfSymbol(xSymbol)
 (**
 You can iterate all the defined symbols in the inferred signature and find where they are used:
 *)
-let allUsesOfAllSymbols = 
+let allUsesOfAllSignatureSymbols = 
     [ for s in allSymbols do 
          yield s.ToString(), wholeProjectResults.GetUsesOfSymbol(s) ]
+
+(**
+You can also look at all the symbols uses in the whole project (including uses of symbols with local scope)
+*)
+let allUsesOfAllSymbols = wholeProjectResults.GetAllUsesOfAllSymbols()
 
 (**
 You can also request checks of updated versions of files within the project (note that the other files 
@@ -189,6 +194,11 @@ Again, you can resolve symbols and ask for references:
 let xSymbol2 = checkResults1.GetSymbolAtLocation(8,9,"",["xxx"]).Value
 let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2)
 
+
+(**
+Or ask for all the symbols uses in the file (including uses of symbols with local scope)
+*)
+let allUsesOfAllSymbolsInFile1 = checkResults1.GetAllUsesOfAllSymbolsInFile()
 
 (**
 Summary

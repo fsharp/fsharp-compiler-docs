@@ -1177,6 +1177,7 @@ type TypeCheckInfo
                | _ -> () 
            |]
     member x.ScopeResolutions = sResolutions
+    member x.TcGlobals = g
     member x.CcuSig = ccuSig
 
 module internal Parser = 
@@ -1580,6 +1581,14 @@ type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
 
 
 [<Sealed>]
+type FSharpSymbolUse(symbol:FSharpSymbol, itemOcc, range: range) = 
+    let fileName, rangeZ = Range.toFileZ range
+    member __.Symbol  = symbol
+    member __.IsDefinition = (match itemOcc with ItemOccurence.Binding | ItemOccurence.Pattern -> true | _ -> false)
+    member __.FileName = fileName
+    member __.Range = rangeZ
+
+[<Sealed>]
 // 'details' is an option because the creation of the tcGlobals etc. for the project may have failed.
 type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*ModuleOrNamespaceType*TcResolutions list) option, reactorOps: IReactorOperations) =
 
@@ -1603,8 +1612,18 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*Modul
         reactorOps.RunSyncOp(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
             |> Seq.distinct 
-            |> Seq.map Range.toFileZ 
+            |> Seq.map (fun (itemOcc,m) -> FSharpSymbolUse(symbol, itemOcc, m)) 
             |> Seq.toArray)
+
+    // Not, this does not have to be a SyncOp, it can be called from any thread
+    member info.GetAllUsesOfAllSymbols() = 
+        let (tcGlobals, _tcImports, _ccuSig, tcResolutions) = getDetails()
+        // This probably doesn't need to be run on the reactor since all data touched by GetAllUsesOfSymbols is immutable.
+        reactorOps.RunSyncOp(fun () -> 
+            [| for r in tcResolutions do 
+                  for (item,itemOcc,m) in r.GetAllUsesOfSymbols() do
+                    let symbol = FSharpSymbol.Create(tcGlobals, item)
+                    yield FSharpSymbolUse(symbol, itemOcc, m) |]) 
 
     member info.ProjectContext = 
         let (tcGlobals, tcImports, _ccuSig, _tcResolutions) = getDetails()
@@ -1723,6 +1742,18 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
             checkBuilder [] (fun (scope, _builder, _reactor) -> 
                 scope.GetReferencedAssemblies()  )
         ProjectContext(assemblies)
+
+    // Not, this does not have to be a SyncOp, it can be called from any thread
+    member info.GetAllUsesOfAllSymbolsInFile() = 
+        let refs = 
+            checkBuilder [| |] (fun (scope, _builder, reactor) -> 
+                // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
+                reactor.RunSyncOp(fun () -> 
+                    [|    for (item,itemOcc,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
+                            let symbol = FSharpSymbol.Create(scope.TcGlobals, item)
+                            yield FSharpSymbolUse(symbol,itemOcc, m) |]))
+        refs
+
     
 //----------------------------------------------------------------------------
 // BackgroundCompiler
@@ -1745,7 +1776,7 @@ type (*internal*) IsResultObsolete =
 type BackgroundCompiler() as self =
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.reactor: The one and only Reactor
     let reactor = Reactor.Reactor()
-    let fileTypeCheckStateIsDirty = Event<string>()
+    let beforeBackgroundFileCheck = Event<string>()
     let afterProjectTypeCheck = Event<string>()
 
     let reactorOps = 
@@ -1792,7 +1823,7 @@ type BackgroundCompiler() as self =
             //
             // This indicates to the UI that the file type check state is dirty. If the file is open and visible then 
             // the UI will sooner or later request a typecheck of the file, recording errors and intellisense information.
-            builder.BeforeTypeCheckFile.Add (fileTypeCheckStateIsDirty.Trigger)
+            builder.BeforeTypeCheckFile.Add (beforeBackgroundFileCheck.Trigger)
             builder.AfterProjectTypeCheck.Add (fun () -> afterProjectTypeCheck.Trigger options.ProjectFileName)
 
         (builderOpt, errorsAndWarnings, decrement)
@@ -2012,7 +2043,7 @@ type BackgroundCompiler() as self =
         reactor.WaitForBackgroundCompile() 
 
     member bc.ReactorOps  = reactorOps
-    member bc.FileTypeCheckStateIsDirty = fileTypeCheckStateIsDirty.Publish
+    member bc.BeforeBackgroundFileCheck = beforeBackgroundFileCheck.Publish
     member bc.ProjectChecked = afterProjectTypeCheck.Publish
 
 //----------------------------------------------------------------------------
@@ -2177,7 +2208,7 @@ type InteractiveChecker() =
     // Publish the ReactorOps from the background compiler for internal use
     member ic.ReactorOps = backgroundCompiler.ReactorOps
 
-    member ic.FileTypeCheckStateIsDirty  = backgroundCompiler.FileTypeCheckStateIsDirty
+    member ic.BeforeBackgroundFileCheck  = backgroundCompiler.BeforeBackgroundFileCheck
     member ic.ProjectChecked = backgroundCompiler.ProjectChecked
 
     static member GlobalForegroundParseCountStatistic = foregroundParseCount
@@ -2189,6 +2220,7 @@ type InteractiveChecker() =
     member ic.GetCheckOptionsFromScriptRoot(filename, source, loadedTimeStamp) = ic.GetProjectOptionsFromScript(filename, source, loadedTimeStamp, [| |]) 
     member ic.GetCheckOptionsFromScriptRoot(filename, source, loadedTimeStamp, otherFlags) = ic.GetProjectOptionsFromScript(filename, source, loadedTimeStamp, otherFlags) 
     member ic.GetProjectOptionsFromScriptRoot(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = ic.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp=loadedTimeStamp, ?otherFlags=otherFlags, ?useFsiAuxLib=useFsiAuxLib)
+    member ic.FileTypeCheckStateIsDirty  = backgroundCompiler.BeforeBackgroundFileCheck
 
 
 

@@ -4064,7 +4064,7 @@ and TcTyparOrMeasurePar optKind cenv (env:TcEnv) newOk tpenv (Typar(id,_,_) as t
         | Some TyparKind.Measure, TyparKind.Type -> error (Error(FSComp.SR.tcExpectedUnitOfMeasureMarkWithAttribute(), id.idRange)); res, tpenv
         | Some TyparKind.Type, TyparKind.Measure -> error (Error(FSComp.SR.tcExpectedTypeParameter(), id.idRange)); res, tpenv
         | _, _ -> 
-            let item = Item.TypeVar(id.idText)
+            let item = Item.TypeVar(id.idText, res)
             CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.UseInType,env.DisplayEnv,env.eAccessRights)
             // record the ' as well for tokenization
             CallNameResolutionSink cenv.tcSink (tp.Range.StartRange,env.NameEnv,item,item,ItemOccurence.UseInType,env.DisplayEnv,env.eAccessRights)
@@ -6130,14 +6130,14 @@ and TcObjectExpr cenv overallTy env tpenv (synObjTy,argopt,binds,extraImpls,mNew
 
             DispatchSlotChecking.CheckOverridesAreAllUsedOnce (env.DisplayEnv, cenv.g, cenv.amap, true, implty, dispatchSlotsKeyed, availPriorOverrides, overrideSpecs)
 
-            DispatchSlotChecking.CheckDispatchSlotsAreImplemented (env.DisplayEnv, cenv.g, cenv.amap, m, false, implty, dispatchSlots, availPriorOverrides, overrideSpecs) |> ignore)
+            DispatchSlotChecking.CheckDispatchSlotsAreImplemented (env.DisplayEnv, cenv.g, cenv.amap, m, env.NameEnv, cenv.tcSink, false, implty, dispatchSlots, availPriorOverrides, overrideSpecs) |> ignore)
         
         // 6c. create the specs of overrides 
         let allTypeImpls = 
           overridesAndVirts |> List.map (fun (m,implty,_,dispatchSlotsKeyed,_,overrides) -> 
               let overrides' = 
                   [ for overrideMeth in overrides do 
-                        let (Override(_,_, id,(mtps,_),_,_,isFakeEventProperty) as ovinfo),(_, thisVal, methodVars, bindingAttribs, bindingBody) = overrideMeth
+                        let (Override(_,_, id,(mtps,_),_,_,isFakeEventProperty,_) as ovinfo),(_, thisVal, methodVars, bindingAttribs, bindingBody) = overrideMeth
                         if not isFakeEventProperty then 
                             let searchForOverride = 
                                 dispatchSlotsKeyed 
@@ -15398,7 +15398,7 @@ let TypecheckOneImplFile
     // NOTE: this is not a great technique if inner signatures are permitted to hide 
     // virtual dispatch slots. 
     conditionallySuppressErrorReporting (checkForErrors()) (fun () ->
-        try implFileTypePriorToSig |> IterTyconsOfModuleOrNamespaceType (FinalTypeDefinitionChecksAtEndOfInferenceScope cenv.infoReader true denvAtEnd)
+        try implFileTypePriorToSig |> IterTyconsOfModuleOrNamespaceType (FinalTypeDefinitionChecksAtEndOfInferenceScope (cenv.infoReader, envAtEnd.NameEnv, cenv.tcSink, true, denvAtEnd))
         with e -> errorRecovery e m)
 
     // Check the value restriction. Only checked if there is no signature.
@@ -15457,7 +15457,7 @@ let TypecheckOneSigFile
     let sigFileType = !mtypeAcc 
     
     if not (checkForErrors()) then  
-        try sigFileType |> IterTyconsOfModuleOrNamespaceType (FinalTypeDefinitionChecksAtEndOfInferenceScope cenv.infoReader false tcEnv.DisplayEnv)
+        try sigFileType |> IterTyconsOfModuleOrNamespaceType (FinalTypeDefinitionChecksAtEndOfInferenceScope(cenv.infoReader, tcEnv.NameEnv, cenv.tcSink, false, tcEnv.DisplayEnv))
         with e -> errorRecovery e qualNameOfFile.Range
 
     return (tcEnv,tcEnv,sigFileType)

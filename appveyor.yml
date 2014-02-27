@@ -1,0 +1,7 @@
+build_script:
+  - cmd: build.cmd nuget
+test: off
+artifacts:
+  - path: bin\*.nupkg
+environment:
+  gitHome: https://github.com/ctaggart

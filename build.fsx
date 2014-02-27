@@ -160,7 +160,7 @@ Target "NuGet" (fun _ ->
             Project = project
             Summary = summary
             Description = description
-            Version = release.NugetVersion
+            Version = nugetVersion
             ReleaseNotes = String.concat " " release.Notes
             Tags = tags
             OutputPath = "bin"
@@ -206,7 +206,7 @@ Target "All" DoNothing
   ==> "GenerateFSIStrings"
   ==> "Prepare"
   ==> "Build"
-  ==> "SourceLink"
+  =?> ("SourceLink", isAppVeyorBuild)
   =?> ("RunTests", isAppVeyorBuild = false) // 3 tests failing on AppVeyor
   ==> "All"
 

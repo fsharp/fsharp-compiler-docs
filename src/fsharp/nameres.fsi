@@ -69,7 +69,7 @@ type Item =
   /// Used to indicate the availability or resolution of a custom query operation such as 'sortBy' or 'where' in computation expression syntax
   | CustomOperation of string * (unit -> string option) * MethInfo option
   | CustomBuilder of string * ValRef
-  | TypeVar of string 
+  | TypeVar of string * Typar
   | ModuleOrNamespaces of Tast.ModuleOrNamespaceRef list
   /// Represents the resolution of a source identifier to an implicit use of an infix operator (+solution if such available)
   | ImplicitOp of Ident * TraitConstraintSln option ref
@@ -150,11 +150,12 @@ type TypeNameResolutionInfo =
 
 [<RequireQualifiedAccess>]
 type internal ItemOccurence = 
-    | Binding = 0
-    | Use = 1
-    | UseInType = 2
-    | UseInAttribute = 3
-    | Pattern = 4
+    | Binding 
+    | Use 
+    | UseInType 
+    | UseInAttribute 
+    | Pattern 
+    | Implemented 
   
 type ItemUsageLocation = range * string
 
@@ -184,7 +185,8 @@ type internal TcResolutions =
     /// Exact name resolutions
     member CapturedNameResolutions : ResizeArray<CapturedNameResolution>
     member CapturedMethodGroupResolutions : ResizeArray<CapturedNameResolution>
-    member GetUsesOfSymbol : Item -> range[]
+    member GetUsesOfSymbol : Item -> (ItemOccurence * range)[]
+    member GetAllUsesOfSymbols : unit -> (Item * ItemOccurence * range)[]
 
 type ITypecheckResultsSink =
     abstract NotifyEnvWithScope   : range * NameResolutionEnv * AccessorDomain -> unit

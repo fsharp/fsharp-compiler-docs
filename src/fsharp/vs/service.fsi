@@ -104,6 +104,16 @@ type ProjectContext =
     /// Get the resolution and full contents of the assemblies referenced by the project options
     member GetReferencedAssemblies : unit -> FSharpAssembly list
 
+[<Sealed>]
+type FSharpSymbolUse = 
+    /// The symbol referenced
+    member Symbol : FSharpSymbol 
+    /// Indicates if the reference a definition for the symbol, either in a signature or implementation
+    member IsDefinition : bool
+    /// The file name the reference occurs in 
+    member FileName: string 
+    /// The range of text representing the reference to the symbol
+    member Range: Range01
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -196,6 +206,9 @@ type CheckFileResults =
     /// <summary>Get any extra colorization info that is available after the typecheck</summary>
     member GetExtraColorizations : unit -> (Range01 * TokenColorKind)[]
 
+    /// Get all textual usages of all symbols throughout the file
+    member GetAllUsesOfAllSymbolsInFile : unit -> FSharpSymbolUse[]
+
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
 type CheckProjectResults =
@@ -209,7 +222,10 @@ type CheckProjectResults =
     member ProjectContext : ProjectContext
 
     /// Get the textual usages that resolved to the given symbol throughout the project
-    member GetUsesOfSymbol : symbol:FSharpSymbol -> (string * Range01)[]
+    member GetUsesOfSymbol : symbol:FSharpSymbol -> FSharpSymbolUse[]
+
+    /// Get all textual usages of all symbols throughout the project
+    member GetAllUsesOfAllSymbols : unit -> FSharpSymbolUse[]
 
     /// Indicates if critical errors existed in the project options
     member HasCriticalErrors : bool 
@@ -432,12 +448,15 @@ type InteractiveChecker =
     /// Notify the host that the logical type checking context for a file has now been updated internally
     /// and that the file has become eligible to be re-typechecked for errors.
     ///
-    /// The event may be raised on a backgrounnd thread.
+    /// The event may be raised on a background thread.
+    member BeforeBackgroundFileCheck : IEvent<string>
+    
+    [<Obsolete("Renamed to BeforeBackgroundFileCheck")>]
     member FileTypeCheckStateIsDirty : IEvent<string>
 
     /// Notify the host that a project has been fully checked in the background (using file contents provided by the file system API)
     ///
-    /// The event may be raised on a backgrounnd thread.
+    /// The event may be raised on a background thread.
     member ProjectChecked : IEvent<string>
 
     // For internal use only 

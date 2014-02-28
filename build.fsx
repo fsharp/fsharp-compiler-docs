@@ -26,8 +26,9 @@ let description = """
   interactive service that can be used for embedding F# scripting into your applications."""
 let tags = "F# fsharp interactive compiler editor"
 
-let gitHome = environVarOrDefault "gitHome" "https://github.com/fsharp"
+let gitHome = "https://github.com/fsharp"
 let gitName = "FSharp.Compiler.Service"
+let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/fsharp"
 //let testAssemblies = ["tests/*/bin/Release/Deedle*Tests*.dll"]
 
 // --------------------------------------------------------------------------------------

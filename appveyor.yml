@@ -4,4 +4,4 @@ test: off
 artifacts:
   - path: bin\*.nupkg
 environment:
-  gitHome: https://github.com/ctaggart
+  gitRaw: https://raw.github.com/ctaggart

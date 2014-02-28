@@ -121,7 +121,7 @@ Target "SourceLink" (fun _ ->
         ++ "src/fsharp/lex.fsl"
         ++ "src/fsharp/pars.fsy"
     proj.VerifyPdbChecksums pdbFiles
-    proj.CreateSrcSrv (sprintf "%s/%s/{0}/%%var2%%" gitHome gitName) repo.Revision (repo.Paths gitFiles)
+    proj.CreateSrcSrv (sprintf "%s/%s/{0}/%%var2%%" gitRaw gitName) repo.Revision (repo.Paths gitFiles)
     Pdbstr.exec proj.OutputFilePdb proj.OutputFilePdbSrcSrv
     #endif
 )

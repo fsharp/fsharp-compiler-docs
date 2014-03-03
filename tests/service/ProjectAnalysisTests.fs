@@ -865,3 +865,82 @@ let ``Test project3 all uses of all signature symbols`` () =
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true
 
+module Project4 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module ActivePatterns 
+
+let (|Even|Odd|) input = if input % 2 = 0 then Even else Odd
+
+let TestNumber input =
+   match input with
+   | Even -> printfn "%d is even" input
+   | Odd -> printfn "%d is odd" input
+
+let (|Float|_|) (str: string) =
+   let mutable floatvalue = 0.0
+   if System.Double.TryParse(str, &floatvalue) then Some(floatvalue)
+   else None
+
+let parseNumeric str =
+   match str with
+   | Float f -> printfn "%f : Floating point" f
+   | _ -> printfn "%s : Not matched." str
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test project4 whole project errors`` () = 
+  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project4.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+[<Test>]
+let ``Test complete active patterns's exact ranges from uses of symbols`` () =
+  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project4.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project4.fileName1, Project4.options) 
+        |> Async.RunSynchronously
+
+    let oddSymbol = backgroundTypedParse1.GetSymbolAtLocation(8,8,"",["Odd"]).Value    
+    oddSymbol.ToString() |> shouldEqual "symbol Odd"
+
+    let usesOfOddSymbol = 
+        wholeProjectResults.GetUsesOfSymbol(oddSymbol) 
+        |> Array.map (fun su -> su.FileName, su.Range)
+        |> Array.map (fun (a,b) -> (if a = Project4.fileName1 then "file1" else "??"), b)    
+    usesOfOddSymbol |> shouldEqual [| ("file1", ((3, 12), (3, 15)));
+                                      ("file1", ((3, 58), (3, 61)));
+                                      ("file1", ((8, 5), (8, 8))); |]
+
+[<Test>]
+let ``Test partial active patterns's exact ranges from uses of symbols`` () =
+  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project4.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project4.fileName1, Project4.options) 
+        |> Async.RunSynchronously    
+
+    let floatSymbol = backgroundTypedParse1.GetSymbolAtLocation(17,10,"",["Float"]).Value    
+    floatSymbol.ToString() |> shouldEqual "symbol Float"
+
+    let usesOfFloatSymbol = 
+        wholeProjectResults.GetUsesOfSymbol(floatSymbol) 
+        |> Array.map (fun su -> su.FileName, su.Range)
+        |> Array.map (fun (a,b) -> (if a = Project4.fileName1 then "file1" else "??"), b)    
+    usesOfFloatSymbol |> shouldEqual [| ("file1", ((10, 5), (10, 10)));
+                                        ("file1", ((17, 5), (17, 10))); |]
+    // Should also return its definition
+    backgroundTypedParse1.GetSymbolAtLocation(10,10,"",["Float"]).IsSome |> shouldEqual true
+
+

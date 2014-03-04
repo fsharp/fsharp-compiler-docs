@@ -149,7 +149,7 @@ let rec allSymbolsInEntities compGen (entities: IList<FSharpEntity>) =
 
 [<Test>]
 let ``Test project1 whole project errors`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     wholeProjectResults .Errors.Length |> shouldEqual 2
     wholeProjectResults.Errors.[1].Message.Contains("Incomplete pattern matches on this expression") |> shouldEqual true // yes it does
@@ -161,7 +161,7 @@ let ``Test project1 whole project errors`` () =
 
 [<Test>]
 let ``Test project1 basic`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
 
@@ -209,7 +209,7 @@ let ``Test project1 all symbols excluding compiler generated`` () =
 [<Test>]
 let ``Test project1 xxx symbols`` () = 
 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
         checker.GetBackgroundCheckResultsForFileInProject(Project1.fileName1, Project1.options) 
@@ -231,7 +231,7 @@ let ``Test project1 xxx symbols`` () =
 
 [<Test>]
 let ``Test project1 all uses of all signature symbols`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
     let allUsesOfAllSymbols = 
@@ -330,7 +330,7 @@ let ``Test project1 all uses of all signature symbols`` () =
 
 [<Test>]
 let ``Test project1 all uses of all symbols`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let allUsesOfAllSymbols = [ for s in wholeProjectResults.GetAllUsesOfAllSymbols() -> s.Symbol.DisplayName, Project1.cleanFileName s.FileName, s.Range ]
     let expected =      
@@ -408,7 +408,7 @@ let ``Test project1 all uses of all symbols`` () =
 
 [<Test>]
 let ``Test file explicit parse symbols`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let parseResults1 = checker.ParseFileInProject(Project1.fileName1, Project1.fileSource1, Project1.options) 
@@ -453,7 +453,7 @@ let ``Test file explicit parse symbols`` () =
 
 [<Test>]
 let ``Test file explicit parse all symbols`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let parseResults1 = checker.ParseFileInProject(Project1.fileName1, Project1.fileSource1, Project1.options) 
@@ -532,14 +532,14 @@ let _ = GenericFunction(3, 4)
 
 [<Test>]
 let ``Test project2 whole project errors`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
     let wholeProjectResults = checker.ParseAndCheckProject(Project2.options) |> Async.RunSynchronously
     wholeProjectResults .Errors.Length |> shouldEqual 0
 
 
 [<Test>]
 let ``Test project2 basic`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project2.options) |> Async.RunSynchronously
 
@@ -566,7 +566,6 @@ let ``Test project2 all symbols in signature`` () =
 
 [<Test>]
 let ``Test project2 all uses of all signature symbols`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
     let wholeProjectResults = checker.ParseAndCheckProject(Project2.options) |> Async.RunSynchronously
     let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
     let allUsesOfAllSymbols = 
@@ -576,11 +575,11 @@ let ``Test project2 all uses of all signature symbols`` () =
     let expected =      
           [("M", [("file1", ((1, 7), (1, 8)))]);
            ("val c", [("file1", ((19, 4), (19, 5))); ("file1", ((20, 8), (20, 9)))]);
-           ("val GenericFunction",[("file1", ((22, 4), (22, 19))); ("file1", ((24, 8), (24, 23)))]);
+           ("val GenericFunction",
+            [("file1", ((22, 4), (22, 19))); ("file1", ((24, 8), (24, 23)))]);
            ("generic parameter T",
-            [("file1", ((22, 30), (22, 32))); 
-             ("file1", ((22, 45), (22, 47))); 
-             ("file1", ((22, 50), (22, 52))); ]);
+            [("file1", ((22, 23), (22, 25))); ("file1", ((22, 30), (22, 32)));
+             ("file1", ((22, 45), (22, 47))); ("file1", ((22, 50), (22, 52)))]);
            ("DUWithNormalFields", [("file1", ((3, 5), (3, 23)))]);
            ("DU1", [("file1", ((4, 6), (4, 9))); ("file1", ((8, 8), (8, 11)))]);
            ("field Item1", [("file1", ((4, 6), (4, 9))); ("file1", ((8, 8), (8, 11)))]);
@@ -602,23 +601,23 @@ let ``Test project2 all uses of all signature symbols`` () =
            ("GenericClass`1",
             [("file1", ((16, 5), (16, 17))); ("file1", ((19, 8), (19, 20)))]);
            ("generic parameter T",
-            [("file1", ((17, 34), (17, 36))); ("file1", ((17, 34), (17, 34)))]);
+            [("file1", ((16, 18), (16, 20))); ("file1", ((17, 34), (17, 36)))]);
            ("member ( .ctor )", [("file1", ((16, 5), (16, 17)))]);
            ("generic parameter T",
-            [("file1", ((17, 34), (17, 36))); ]);
+            [("file1", ((16, 18), (16, 20))); ("file1", ((17, 34), (17, 36)))]);
            ("member GenericMethod",
             [("file1", ((17, 13), (17, 26))); ("file1", ((20, 8), (20, 23)))]);
            ("generic parameter T",
-            [("file1", ((17, 34), (17, 36))); ]);
+            [("file1", ((16, 18), (16, 20))); ("file1", ((17, 34), (17, 36)))]);
            ("generic parameter U",
-            [("file1", ((17, 41), (17, 43))); ])]
+            [("file1", ((17, 27), (17, 29))); ("file1", ((17, 41), (17, 43)))])]
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true
 
 [<Test>]
 let ``Test project2 all uses of all symbols`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
     let wholeProjectResults = checker.ParseAndCheckProject(Project2.options) |> Async.RunSynchronously
     let allUsesOfAllSymbols = 
         [ for s in wholeProjectResults.GetAllUsesOfAllSymbols() -> 
@@ -641,25 +640,23 @@ let ``Test project2 all uses of all symbols`` () =
            ("DU", "file1", ((12, 25), (12, 27)));
            ("DUWithNamedFields", "file1", ((12, 5), (12, 22)));
            ("DU", "file1", ((14, 8), (14, 10))); ("x", "file1", ((14, 11), (14, 12)));
-           ("y", "file1", ((14, 16), (14, 17)));
+           ("y", "file1", ((14, 16), (14, 17))); ("T", "file1", ((16, 18), (16, 20)));
            ("GenericClass", "file1", ((16, 5), (16, 17)));
            ("( .ctor )", "file1", ((16, 5), (16, 17)));
-           ("T", "file1", ((17, 34), (17, 36))); ("T", "file1", ((17, 34), (17, 34)));
-           ("U", "file1", ((17, 41), (17, 43))); ("U", "file1", ((17, 41), (17, 41)));
+           ("U", "file1", ((17, 27), (17, 29))); ("T", "file1", ((17, 34), (17, 36)));
+           ("U", "file1", ((17, 41), (17, 43)));
            ("GenericMethod", "file1", ((17, 13), (17, 26)));
            ("x", "file1", ((17, 11), (17, 12))); ("T", "file1", ((17, 34), (17, 36)));
-           ("T", "file1", ((17, 34), (17, 34))); ("U", "file1", ((17, 41), (17, 43)));
-           ("U", "file1", ((17, 41), (17, 41))); ("u", "file1", ((17, 38), (17, 39)));
+           ("U", "file1", ((17, 41), (17, 43))); ("u", "file1", ((17, 38), (17, 39)));
            ("t", "file1", ((17, 31), (17, 32)));
            ("GenericClass", "file1", ((19, 8), (19, 20)));
            ("int", "file1", ((19, 21), (19, 24))); ("c", "file1", ((19, 4), (19, 5)));
            ("c", "file1", ((20, 8), (20, 9)));
            ("GenericMethod", "file1", ((20, 8), (20, 23)));
            ("int", "file1", ((20, 24), (20, 27)));
-           ("T", "file1", ((22, 30), (22, 32))); ("T", "file1", ((22, 30), (22, 30)));
+           ("T", "file1", ((22, 23), (22, 25))); ("T", "file1", ((22, 30), (22, 32)));
            ("y", "file1", ((22, 27), (22, 28))); ("x", "file1", ((22, 21), (22, 22)));
-           ("T", "file1", ((22, 45), (22, 47))); ("T", "file1", ((22, 45), (22, 45)));
-           ("T", "file1", ((22, 50), (22, 52))); ("T", "file1", ((22, 50), (22, 50)));
+           ("T", "file1", ((22, 45), (22, 47))); ("T", "file1", ((22, 50), (22, 52)));
            ("x", "file1", ((22, 37), (22, 38))); ("y", "file1", ((22, 39), (22, 40)));
            ("GenericFunction", "file1", ((22, 4), (22, 19)));
            ("GenericFunction", "file1", ((24, 8), (24, 23)));
@@ -759,14 +756,14 @@ let getM (foo: IFoo) = foo.InterfaceMethod("d")
 
 [<Test>]
 let ``Test project3 whole project errors`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
     let wholeProjectResults = checker.ParseAndCheckProject(Project3.options) |> Async.RunSynchronously
     wholeProjectResults .Errors.Length |> shouldEqual 0
 
 
 [<Test>]
 let ``Test project3 basic`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project3.options) |> Async.RunSynchronously
 
@@ -801,7 +798,7 @@ let ``Test project3 all symbols in signature`` () =
 
 [<Test>]
 let ``Test project3 all uses of all signature symbols`` () = 
-  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+
     let wholeProjectResults = checker.ParseAndCheckProject(Project3.options) |> Async.RunSynchronously
     let allSymbols = allSymbolsInEntities false wholeProjectResults.AssemblySignature.Entities
     let allUsesOfAllSymbols = 
@@ -972,6 +969,8 @@ let ``Test project4 T symbols`` () =
     tSymbol2.IsSome |> shouldEqual true
     tSymbol2.Value.ToString() |> shouldEqual "generic parameter T"
 
+    tSymbol2.Value.ImplementationLocation.IsSome |> shouldEqual true
+
     let uses = backgroundTypedParse1.GetAllUsesOfAllSymbolsInFile()
     let allUsesOfAllSymbols = 
         [ for s in uses -> s.Symbol.ToString(), (if s.FileName = Project4.fileName1 then "file1" else "??"), s.Range ]
@@ -998,6 +997,8 @@ let ``Test project4 T symbols`` () =
     tSymbol3.IsSome |> shouldEqual true
     tSymbol3.Value.ToString() |> shouldEqual "generic parameter T"
 
+    tSymbol3.Value.ImplementationLocation.IsSome |> shouldEqual true
+
     let usesOfTSymbol2 = 
         wholeProjectResults.GetUsesOfSymbol(tSymbol2.Value) 
         |> Array.map (fun su -> su.FileName , su.Range)
@@ -1017,6 +1018,8 @@ let ``Test project4 T symbols`` () =
     let uSymbol2 = backgroundTypedParse1.GetSymbolAtLocation(5,23,"",["U"])
     uSymbol2.IsSome |> shouldEqual true
     uSymbol2.Value.ToString() |> shouldEqual "generic parameter U"
+
+    uSymbol2.Value.ImplementationLocation.IsSome |> shouldEqual true
 
     let usesOfUSymbol2 = 
         wholeProjectResults.GetUsesOfSymbol(uSymbol2.Value) 

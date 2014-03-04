@@ -190,17 +190,17 @@ module internal ItemDescriptionsImpl =
         | Item.Property(_,pinfos)      -> rangeOfPropInfo isDecl pinfos.Head 
         | Item.Types(_,typs)     -> typs |> List.tryPick (tryNiceEntityRefOfTy >> Option.map (rangeOfEntityRef isDecl))
         | Item.CustomOperation (_,_,Some minfo)  -> rangeOfMethInfo isDecl minfo
-        | Item.TypeVar _  -> None
+        | Item.TypeVar (_,tp)  -> Some tp.Range
         | Item.ModuleOrNamespaces(modrefs) -> modrefs |> List.tryPick (rangeOfEntityRef isDecl >> Some)
         | Item.MethodGroup(_,minfos) 
         | Item.CtorGroup(_,FilterDefaultStructCtors(minfos)) -> minfos |> List.tryPick (rangeOfMethInfo isDecl)
         | Item.ActivePatternResult(APInfo _,_, _, m) -> Some m
         | Item.SetterArg (_,item) -> rangeOfItem g isDecl item
-        | Item.ArgName _ -> None
+        | Item.ArgName (id,_) -> Some id.idRange
         | Item.CustomOperation _ -> None
         | Item.ImplicitOp _ -> None
-        | Item.NewDef _ -> None
-        | Item.UnqualifiedType _ -> None
+        | Item.NewDef id -> Some id.idRange
+        | Item.UnqualifiedType tcrefs -> tcrefs |> List.tryPick (rangeOfEntityRef isDecl >> Some)
         | Item.DelegateCtor typ 
         | Item.FakeInterfaceCtor typ -> typ |> tryNiceEntityRefOfTy |> Option.map (rangeOfEntityRef isDecl)
 

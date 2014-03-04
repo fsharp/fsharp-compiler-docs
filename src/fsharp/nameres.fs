@@ -1184,7 +1184,16 @@ let ItemsReferToSameDefinition g orig other =
     | EntityUse ty1, EntityUse ty2 -> 
         tyconRefDefnEq g ty1 ty2
     | Item.TypeVar (nm1,tp1), Item.TypeVar (nm2,tp2) -> 
-        nm1 = nm2 && not tp1.IsCompilerGenerated && not tp1.IsFromError && tp1.Range = tp2.Range
+        nm1 = nm2 && 
+        (typeEquiv g (mkTyparTy tp1) (mkTyparTy tp2) || 
+         match stripTyparEqns (mkTyparTy tp1), stripTyparEqns (mkTyparTy tp2) with 
+         | TType_var tp1, TType_var tp2 -> 
+            not tp1.IsCompilerGenerated && not tp1.IsFromError && 
+            not tp2.IsCompilerGenerated && not tp2.IsFromError && 
+            tp1.Range = tp2.Range
+         | AbbrevOrAppTy tcref1, AbbrevOrAppTy tcref2 -> 
+            tyconRefDefnEq g tcref1 tcref2
+         | _ -> false)
     | ILPropertyUse(propDef1), ILPropertyUse(propDef2) -> 
         propDef1 === propDef2 
     | ValUse(vref1, idx1), ValUse(vref2, idx2) -> 

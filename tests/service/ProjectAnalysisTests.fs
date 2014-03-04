@@ -127,11 +127,13 @@ let rec allSymbolsInEntities compGen (entities: IList<FSharpEntity>) =
     [ for e in entities do 
           yield (e :> FSharpSymbol) 
           for gp in e.GenericParameters do 
+            if compGen || not gp.IsCompilerGenerated then 
              yield (gp :> FSharpSymbol)
           for x in e.MembersFunctionsAndValues do
              if compGen || not x.IsCompilerGenerated then 
                yield (x :> FSharpSymbol)
              for gp in x.GenericParameters do 
+              if compGen || not gp.IsCompilerGenerated then 
                yield (gp :> FSharpSymbol)
           for x in e.UnionCases do
              yield (x :> FSharpSymbol)
@@ -576,9 +578,9 @@ let ``Test project2 all uses of all signature symbols`` () =
            ("val c", [("file1", ((19, 4), (19, 5))); ("file1", ((20, 8), (20, 9)))]);
            ("val GenericFunction",[("file1", ((22, 4), (22, 19))); ("file1", ((24, 8), (24, 23)))]);
            ("generic parameter T",
-            [("file1", ((22, 30), (22, 32))); ("file1", ((22, 30), (22, 30)));
-             ("file1", ((22, 45), (22, 47))); ("file1", ((22, 45), (22, 45)));
-             ("file1", ((22, 50), (22, 52))); ("file1", ((22, 50), (22, 50)))]);
+            [("file1", ((22, 30), (22, 32))); 
+             ("file1", ((22, 45), (22, 47))); 
+             ("file1", ((22, 50), (22, 52))); ]);
            ("DUWithNormalFields", [("file1", ((3, 5), (3, 23)))]);
            ("DU1", [("file1", ((4, 6), (4, 9))); ("file1", ((8, 8), (8, 11)))]);
            ("field Item1", [("file1", ((4, 6), (4, 9))); ("file1", ((8, 8), (8, 11)))]);
@@ -603,13 +605,13 @@ let ``Test project2 all uses of all signature symbols`` () =
             [("file1", ((17, 34), (17, 36))); ("file1", ((17, 34), (17, 34)))]);
            ("member ( .ctor )", [("file1", ((16, 5), (16, 17)))]);
            ("generic parameter T",
-            [("file1", ((17, 34), (17, 36))); ("file1", ((17, 34), (17, 34)))]);
+            [("file1", ((17, 34), (17, 36))); ]);
            ("member GenericMethod",
             [("file1", ((17, 13), (17, 26))); ("file1", ((20, 8), (20, 23)))]);
            ("generic parameter T",
-            [("file1", ((17, 34), (17, 36))); ("file1", ((17, 34), (17, 34)))]);
+            [("file1", ((17, 34), (17, 36))); ]);
            ("generic parameter U",
-            [("file1", ((17, 41), (17, 43))); ("file1", ((17, 41), (17, 41)))])]
+            [("file1", ((17, 41), (17, 43))); ])]
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true
@@ -758,7 +760,7 @@ let getM (foo: IFoo) = foo.InterfaceMethod("d")
 [<Test>]
 let ``Test project3 whole project errors`` () = 
   //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-    let wholeProjectResults = checker.ParseAndCheckProject(Project2.options) |> Async.RunSynchronously
+    let wholeProjectResults = checker.ParseAndCheckProject(Project3.options) |> Async.RunSynchronously
     wholeProjectResults .Errors.Length |> shouldEqual 0
 
 
@@ -880,4 +882,146 @@ let ``Test project3 all uses of all signature symbols`` () =
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true
+
+//----------------------------------------------------------------------
+
+module Project4 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+
+type Foo<'T>(x : 'T, y : Foo<'T>) = class end
+
+let inline twice(x : ^U, y : ^U) = x + y
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+
+
+[<Test>]
+let ``Test project4 whole project errors`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project4.options) |> Async.RunSynchronously
+    wholeProjectResults .Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test project4 basic`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project4.options) |> Async.RunSynchronously
+
+    set [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] |> shouldEqual (set ["M"])
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] 
+        |> shouldEqual ["Foo"]
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] 
+        |> shouldEqual ["twice"]
+
+[<Test>]
+let ``Test project4 all symbols in signature`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project4.options) |> Async.RunSynchronously
+    let allSymbols = allSymbolsInEntities false wholeProjectResults.AssemblySignature.Entities
+    [ for x in allSymbols -> x.ToString() ] 
+      |> shouldEqual 
+                ["M"; "val twice"; "generic parameter U"; "Foo`1"; "generic parameter T"; "member ( .ctor )"; "generic parameter T"]
+
+
+[<Test>]
+let ``Test project4 all uses of all signature symbols`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project4.options) |> Async.RunSynchronously
+    let allSymbols = allSymbolsInEntities false wholeProjectResults.AssemblySignature.Entities
+    let allUsesOfAllSymbols = 
+        [ for s in allSymbols do 
+             let uses = [ for s in wholeProjectResults.GetUsesOfSymbol(s) -> (if s.FileName = Project4.fileName1 then "file1" else "??"), s.Range ]
+             yield s.ToString(), uses ]
+    let expected =      
+      [("M", [("file1", ((1, 7), (1, 8)))]);
+       ("val twice", [("file1", ((5, 11), (5, 16)))]); ("generic parameter U",  [("file1", ((5, 21), (5, 23))); ("file1", ((5, 29), (5, 31)))]);
+       ("Foo`1", [("file1", ((3, 5), (3, 8))); ("file1", ((3, 25), (3, 28)))]);
+       ("generic parameter T",
+        [("file1", ((3, 9), (3, 11))); ("file1", ((3, 17), (3, 19)));
+         ("file1", ((3, 29), (3, 31)))]);
+       ("member ( .ctor )", [("file1", ((3, 5), (3, 8)))]);
+       ("generic parameter T",
+        [("file1", ((3, 9), (3, 11))); ("file1", ((3, 17), (3, 19)));
+         ("file1", ((3, 29), (3, 31)))])]
+    
+    set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
+    set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
+    (set expected = set allUsesOfAllSymbols) |> shouldEqual true
+
+[<Test>]
+let ``Test project4 T symbols`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project4.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project4.fileName1, Project4.options) 
+        |> Async.RunSynchronously
+
+    let tSymbol2 = backgroundTypedParse1.GetSymbolAtLocation(3,19,"",["T"])
+    tSymbol2.IsSome |> shouldEqual true
+    tSymbol2.Value.ToString() |> shouldEqual "generic parameter T"
+
+    let uses = backgroundTypedParse1.GetAllUsesOfAllSymbolsInFile()
+    let allUsesOfAllSymbols = 
+        [ for s in uses -> s.Symbol.ToString(), (if s.FileName = Project4.fileName1 then "file1" else "??"), s.Range ]
+    allUsesOfAllSymbols |> shouldEqual
+          [("generic parameter T", "file1", ((3, 9), (3, 11)));
+           ("Foo`1", "file1", ((3, 5), (3, 8)));
+           ("generic parameter T", "file1", ((3, 17), (3, 19)));
+           ("Foo`1", "file1", ((3, 25), (3, 28)));
+           ("generic parameter T", "file1", ((3, 29), (3, 31)));
+           ("val y", "file1", ((3, 21), (3, 22)));
+           ("val x", "file1", ((3, 13), (3, 14)));
+           ("member ( .ctor )", "file1", ((3, 5), (3, 8)));
+           ("generic parameter U", "file1", ((5, 21), (5, 23)));
+           ("generic parameter U", "file1", ((5, 29), (5, 31)));
+           ("val y", "file1", ((5, 25), (5, 26)));
+           ("val x", "file1", ((5, 17), (5, 18)));
+           ("val ( + )", "file1", ((5, 37), (5, 38)));
+           ("val x", "file1", ((5, 35), (5, 36)));
+           ("val y", "file1", ((5, 39), (5, 40)));
+           ("val twice", "file1", ((5, 11), (5, 16)));
+           ("M", "file1", ((1, 7), (1, 8)))]
+
+    let tSymbol3 = backgroundTypedParse1.GetSymbolAtLocation(3,11,"",["T"])
+    tSymbol3.IsSome |> shouldEqual true
+    tSymbol3.Value.ToString() |> shouldEqual "generic parameter T"
+
+    let usesOfTSymbol2 = 
+        wholeProjectResults.GetUsesOfSymbol(tSymbol2.Value) 
+        |> Array.map (fun su -> su.FileName , su.Range)
+        |> Array.map (fun (a,b) -> (if a = Project4.fileName1 then "file1" else "??"), b)
+
+    usesOfTSymbol2 |> shouldEqual 
+          [|("file1", ((3, 9), (3, 11))); ("file1", ((3, 17), (3, 19)));
+            ("file1", ((3, 29), (3, 31)))|]
+
+    let usesOfTSymbol3 = 
+        wholeProjectResults.GetUsesOfSymbol(tSymbol3.Value) 
+        |> Array.map (fun su -> su.FileName , su.Range)
+        |> Array.map (fun (a,b) -> (if a = Project4.fileName1 then "file1" else "??"), b)
+
+    usesOfTSymbol3 |> shouldEqual usesOfTSymbol2
+
+    let uSymbol2 = backgroundTypedParse1.GetSymbolAtLocation(5,23,"",["U"])
+    uSymbol2.IsSome |> shouldEqual true
+    uSymbol2.Value.ToString() |> shouldEqual "generic parameter U"
+
+    let usesOfUSymbol2 = 
+        wholeProjectResults.GetUsesOfSymbol(uSymbol2.Value) 
+        |> Array.map (fun su -> su.FileName , su.Range)
+        |> Array.map (fun (a,b) -> (if a = Project4.fileName1 then "file1" else "??"), b)
+
+    usesOfUSymbol2 |> shouldEqual  [|("file1", ((5, 21), (5, 23))); ("file1", ((5, 29), (5, 31)))|]
 

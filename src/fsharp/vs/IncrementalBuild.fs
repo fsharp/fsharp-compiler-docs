@@ -861,10 +861,12 @@ module internal IncrementalBuild =
             | None->None
 
     /// Given an input value, find the corresponding slot.        
-    let GetSlotByInput<'T>(name:string,input:'T,build:PartialBuild,equals:'T->'T->bool) : int = 
+    let TryGetSlotByInput<'T>(name:string,input:'T,build:PartialBuild,equals:'T->'T->bool) : int option = 
         let expr = GetExprByName(build,name)
         let id = BuildRuleExpr.GetId(expr)
-        let resultSet = Option.get ( build.Results.TryFind(id))
+        match build.Results.TryFind(id) with 
+        | None -> None
+        | Some resultSet ->
         match resultSet with 
         | VectorResult rv ->
             let MatchNames acc (slot,result) = 
@@ -874,10 +876,9 @@ module internal IncrementalBuild =
                     if equals o input then Some slot else acc
                 | _ -> acc
             let slotOption = rv.FoldLeft MatchNames None
-            match slotOption with 
-            | Some slot -> slot
-            | _ -> failwith (sprintf "Could not find requested input '%A' named '%s' in set %+A" input name rv)
-        | _ -> failwith (sprintf "Could not find requested input: %A" input)
+            slotOption 
+            // failwith (sprintf "Could not find requested input '%A' named '%s' in set %+A" input name rv)
+        | _ -> None // failwith (sprintf "Could not find requested input: %A" input)
 
     
     // Redeclare functions in the incremental build scope-----------------------------------------------------------------------
@@ -1683,7 +1684,9 @@ module internal IncrementalFSharpBuild =
                        System.String.Compare(f1,f2,StringComparison.CurrentCultureIgnoreCase)=0
                     || System.String.Compare(FileSystem.GetFullPathShim(f1),FileSystem.GetFullPathShim(f2),StringComparison.CurrentCultureIgnoreCase)=0
                 result
-            GetSlotByInput("FileNames",(rangeStartup,filename,false),partialBuild,CompareFileNames)
+            match TryGetSlotByInput("FileNames",(rangeStartup,filename,false),partialBuild,CompareFileNames) with
+            | Some slot -> slot
+            | None -> failwith (sprintf "The file '%s' was not part of the project. Did you call InvalidateConfiguration when the list of files in the project changed?" filename)
         
         member __.GetSlotsCount () =
             let expr = GetExprByName(partialBuild,"FileNames")

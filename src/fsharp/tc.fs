@@ -4066,8 +4066,8 @@ and TcTyparOrMeasurePar optKind cenv (env:TcEnv) newOk tpenv (Typar(id,_,_) as t
         | _, _ -> 
             let item = Item.TypeVar(id.idText, res)
             CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.UseInType,env.DisplayEnv,env.eAccessRights)
-            // record the ' as well for tokenization
-            CallNameResolutionSink cenv.tcSink (tp.Range.StartRange,env.NameEnv,item,item,ItemOccurence.UseInType,env.DisplayEnv,env.eAccessRights)
+            // // record the ' as well for tokenization
+            // CallNameResolutionSink cenv.tcSink (tp.Range.StartRange,env.NameEnv,item,item,ItemOccurence.UseInType,env.DisplayEnv,env.eAccessRights)
             res, tpenv
     let key = id.idText
     match env.eNameResEnv.eTypars.TryFind key with
@@ -4080,23 +4080,27 @@ and TcTyparOrMeasurePar optKind cenv (env:TcEnv) newOk tpenv (Typar(id,_,_) as t
         // OK, this is an implicit declaration of a type parameter 
         // The kind defaults to Type
         let tp' = NewTypar ((match optKind with None -> TyparKind.Type | Some kind -> kind), TyparRigidity.WarnIfNotRigid,tp,false,TyparDynamicReq.Yes,[],false,false)
+        let item = Item.TypeVar(id.idText, tp')
+        CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.UseInType,env.DisplayEnv,env.eAccessRights)
         tp',AddUnscopedTypar key tp' tpenv
 
 and TcTypar cenv env newOk tpenv tp =
     TcTyparOrMeasurePar (Some TyparKind.Type) cenv env newOk tpenv tp
 
-and TcTyparDecl cenv env (TyparDecl(synAttrs,tp)) =
+and TcTyparDecl cenv env (TyparDecl(synAttrs,(Typar(id,_,_) as stp))) =
     let attrs = TcAttributes cenv env AttributeTargets.GenericParameter  synAttrs
     let hasMeasureAttr = HasFSharpAttribute cenv.g cenv.g.attrib_MeasureAttribute attrs
     let hasEqDepAttr = HasFSharpAttribute cenv.g cenv.g.attrib_EqualityConditionalOnAttribute attrs
     let hasCompDepAttr = HasFSharpAttribute cenv.g cenv.g.attrib_ComparisonConditionalOnAttribute attrs
     let attrs = attrs |> List.filter (IsMatchingFSharpAttribute cenv.g cenv.g.attrib_MeasureAttribute >> not)
-    let tp = NewTypar ((if hasMeasureAttr then TyparKind.Measure else TyparKind.Type), TyparRigidity.WarnIfNotRigid,tp,false,TyparDynamicReq.Yes,attrs,hasEqDepAttr,hasCompDepAttr)
+    let tp = NewTypar ((if hasMeasureAttr then TyparKind.Measure else TyparKind.Type), TyparRigidity.WarnIfNotRigid,stp,false,TyparDynamicReq.Yes,attrs,hasEqDepAttr,hasCompDepAttr)
     match TryFindFSharpStringAttribute cenv.g cenv.g.attrib_CompiledNameAttribute attrs with 
     | Some compiledName -> 
         tp.Data.typar_il_name <- Some compiledName
     | None ->  
         ()
+    let item = Item.TypeVar(id.idText, tp)
+    CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.UseInType,env.DisplayEnv,env.eAccessRights)
     tp
     
 

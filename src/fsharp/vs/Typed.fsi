@@ -332,6 +332,9 @@ and [<Class>] FSharpGenericParameter =
     /// Indicates if this is a statically resolved type variable
     member IsSolveAtCompileTime : bool 
 
+    /// Indicates if this is a compiler generated type parameter
+    member IsCompilerGenerated : bool 
+
     /// Get the declared attributes of the type parameter. 
     member Attributes: IList<FSharpAttribute>                      
        

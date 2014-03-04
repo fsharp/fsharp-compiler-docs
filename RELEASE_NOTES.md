@@ -91,4 +91,6 @@
 
 #### 0.0.21 - 
 * Add GetUsesOfSymbolInFile
+* Better symbol resolution results for type parameter symbols
+
 

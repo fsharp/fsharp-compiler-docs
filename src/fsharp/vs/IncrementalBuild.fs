@@ -1765,7 +1765,7 @@ module internal IncrementalFSharpBuild =
                             match closure.References  |> List.tryFind (fun (resolved,_)->resolved=reference.Text) with
                             | Some(resolved,closureReferences) -> 
                                 for closureReference in closureReferences do
-                                    yield AssemblyReference(closureReference.originalReference.Range, resolved)
+                                    yield AssemblyReference(closureReference.originalReference.Range, resolved, None)
                             | None -> yield reference]
                     tcConfigB.referencedDLLs<-[]
                     // Add one by one to remove duplicates

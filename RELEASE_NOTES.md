@@ -89,3 +89,6 @@
 #### 0.0.20 - 
 * Update version number as nuget package may not have published properly
 
+#### 0.0.21 - 
+* Add GetUsesOfSymbolInFile
+

@@ -4100,7 +4100,8 @@ typar:
 staticallyKnownHeadTypar: 
   | INFIX_AT_HAT_OP ident 
     {  if $1 <> "^" then reportParseErrorAt (rhs parseState 1) (FSComp.SR.parsUnexpectedTypeParameter());
-       Typar($2,HeadTypeStaticReq,false) }
+       let id = mkSynId (lhs parseState) ($2).idText
+       Typar(id,HeadTypeStaticReq,false) }
 
   
 

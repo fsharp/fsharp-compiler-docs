@@ -498,6 +498,7 @@ and FSharpGenericParameter(g:TcGlobals, v:Typar) =
     inherit FSharpSymbol (g, (fun () -> Item.TypeVar(v.Name, v)))
     member __.Name = v.DisplayName
     member __.DeclarationLocation = v.Range
+    member __.IsCompilerGenerated = v.IsCompilerGenerated
        
     member __.IsMeasure = (v.Kind = TyparKind.Measure)
     member __.XmlDoc = v.Data.typar_xmldoc |> makeXmlDoc
@@ -1054,6 +1055,7 @@ type FSharpSymbol with
         | Item.DelegateCtor (AbbrevOrAppTy tcref) -> 
             FSharpEntity(g, tcref) :>_ 
 
+        | Item.UnqualifiedType(tcref :: _)  
         | Item.Types(_,AbbrevOrAppTy tcref :: _) -> 
             FSharpEntity(g, tcref) :>_  
 
@@ -1070,11 +1072,24 @@ type FSharpSymbol with
         | Item.CustomBuilder (_,vref) -> 
             FSharpMemberFunctionOrValue(g, vref, Some item) :> _
 
+        | Item.TypeVar (_, tp) ->
+             FSharpGenericParameter(g, tp) :> _
+
         // TODO: the following don't currently return any interesting subtype
         | Item.ArgName _  
-        | Item.TypeVar _
         | Item.ActivePatternCase _
+        | Item.ActivePatternResult _
+        | Item.ImplicitOp _
         | Item.ILField _ 
         | Item.FakeInterfaceCtor _
         | Item.NewDef _ -> dflt
-        | _ ->  dflt
+        // These cases cover unreachable cases
+        | Item.CustomOperation (_, _, None) 
+        | Item.UnqualifiedType []
+        | Item.ModuleOrNamespaces []
+        | Item.Property (_,[])
+        | Item.MethodGroup (_,[])
+        | Item.CtorGroup (_,[])
+        // These cases cover misc. corned cases (non-nominal types)
+        | Item.Types _
+        | Item.DelegateCtor _  -> dflt

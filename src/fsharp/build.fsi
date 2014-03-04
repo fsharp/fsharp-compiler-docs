@@ -146,9 +146,10 @@ type PrimaryAssembly =
     member Name : string
 
 type AssemblyReference = 
-    | AssemblyReference of range * string 
+    | AssemblyReference of range * string  * byte[] option
     member Range : range
     member Text : string
+    member PreResolvedContents : byte[] option
 
 type AssemblyResolution = 
       {/// The original reference to the assembly.

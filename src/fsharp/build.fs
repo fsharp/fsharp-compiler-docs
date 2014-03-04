@@ -1668,9 +1668,10 @@ type VersionFlag =
      
 
 type AssemblyReference = 
-    | AssemblyReference of range * string 
-    member x.Range = (let (AssemblyReference(m,_)) = x in m)
-    member x.Text = (let (AssemblyReference(_,text)) = x in text)
+    | AssemblyReference of range * string * byte[] option
+    member x.Range = (let (AssemblyReference(m,_,_)) = x in m)
+    member x.Text = (let (AssemblyReference(_,text,_)) = x in text)
+    member x.PreResolvedContents = (let (AssemblyReference(_,_,contents)) = x in contents)
     member x.SimpleAssemblyNameIs(name) = 
         (String.Compare(fileNameWithoutExtension x.Text, name, StringComparison.OrdinalIgnoreCase) = 0) ||
         (let text = x.Text.ToLowerInvariant()
@@ -2218,11 +2219,11 @@ type TcConfigBuilder =
     member tcConfigB.AddReferencedAssemblyByPath (m,path) = 
         if FileSystem.IsInvalidPathShim(path) then
             warning(Error(FSComp.SR.buildInvalidAssemblyName(path),m))
-        elif not (List.mem (AssemblyReference(m,path)) tcConfigB.referencedDLLs) then // NOTE: We keep same paths if range is different.
-             tcConfigB.referencedDLLs <- tcConfigB.referencedDLLs ++ AssemblyReference(m,path)
+        elif not (tcConfigB.referencedDLLs  |> List.exists (fun ar2 -> m=ar2.Range && path=ar2.Text)) then // NOTE: We keep same paths if range is different.
+             tcConfigB.referencedDLLs <- tcConfigB.referencedDLLs ++ AssemblyReference(m,path,None)
              
     member tcConfigB.RemoveReferencedAssemblyByPath (m,path) =
-        tcConfigB.referencedDLLs <- List.filter (fun (ar : AssemblyReference) -> ar <> AssemblyReference(m,path)) tcConfigB.referencedDLLs
+        tcConfigB.referencedDLLs <- tcConfigB.referencedDLLs |> List.filter (fun ar-> ar.Range <> m || ar.Text <> path)
     
     static member SplitCommandLineResourceInfo ri = 
         if String.contains ri ',' then 
@@ -2242,7 +2243,7 @@ type TcConfigBuilder =
             ri,fileNameOfPath ri,ILResourceAccess.Public 
 
 
-let OpenILBinary(filename,optimizeForMemory,openBinariesInMemory,ilGlobalsOpt, pdbPathOption, primaryAssemblyName, noDebugData) = 
+let OpenILBinary(filename,preResolvedContents,optimizeForMemory,openBinariesInMemory,ilGlobalsOpt, pdbPathOption, primaryAssemblyName, noDebugData) = 
       let ilGlobals   = 
           // ILScopeRef.Local can be used only for primary assembly (mscorlib or System.Runtime) itself
           // Remaining assemblies should be opened using existing ilGlobals (so they can properly locate fundamental types)
@@ -2258,6 +2259,9 @@ let OpenILBinary(filename,optimizeForMemory,openBinariesInMemory,ilGlobalsOpt, p
                       ILBinaryReader.pdbPath = pdbPathOption; } 
                       
       // Visual Studio uses OpenILModuleReaderAfterReadingAllBytes for all DLLs to avoid having to dispose of any readers explicitly
+      match preResolvedContents with 
+      | Some bytes -> ILBinaryReader.OpenILModuleReaderFromBytes filename bytes opts
+      | None ->
       if openBinariesInMemory // && not syslib 
       then ILBinaryReader.OpenILModuleReaderAfterReadingAllBytes filename opts
       else ILBinaryReader.OpenILModuleReader filename opts
@@ -2274,12 +2278,16 @@ type AssemblyResolution =
       sysdir : bool 
       ilAssemblyRef : ILAssemblyRef option ref
     }
+    member this.PreResolvedContents = this.originalReference.PreResolvedContents
     member this.ILAssemblyRef = 
         match !this.ilAssemblyRef with 
         | Some(assref) -> assref
         | None ->
             let readerSettings : ILBinaryReader.ILReaderOptions = {pdbPath=None;ilGlobals = EcmaILGlobals;optimizeForMemory=false} // ??
-            let reader = ILBinaryReader.OpenILModuleReader this.resolvedPath readerSettings
+            let reader = 
+                match this.PreResolvedContents with 
+                | Some bytes ->   ILBinaryReader.OpenILModuleReaderFromBytes this.resolvedPath bytes readerSettings
+                | None -> ILBinaryReader.OpenILModuleReader this.resolvedPath readerSettings
             try
                 let assRef = mkRefToILAssembly reader.ILModuleDef.ManifestOfAssembly
                 this.ilAssemblyRef := Some(assRef)
@@ -2328,14 +2336,14 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
     let data = { data with pause = data.pause }
 
     let computeKnownDllReference(libraryName) = 
-        let defaultCoreLibraryReference = AssemblyReference(range0,libraryName+".dll")
-        let nameOfDll(AssemblyReference(m,filename) as r) = 
-            let filename = ComputeMakePathAbsolute data.implicitIncludeDir filename
+        let defaultCoreLibraryReference = AssemblyReference(range0,libraryName+".dll",None)
+        let nameOfDll(r:AssemblyReference) = 
+            let filename = ComputeMakePathAbsolute data.implicitIncludeDir r.Text
             if FileSystem.SafeExists(filename) then 
                 r,Some(filename)
             else   
                 // If the file doesn't exist, let reference resolution logic report the error later...
-                defaultCoreLibraryReference, if m=rangeStartup then Some(filename) else None
+                defaultCoreLibraryReference, if r.Range =rangeStartup then Some(filename) else None
         match data.referencedDLLs |> List.filter(fun assemblyReference -> assemblyReference.SimpleAssemblyNameIs libraryName) with
         | [r] -> nameOfDll r
         | [] -> 
@@ -2352,7 +2360,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
         match fileNameOpt with
         | None -> 
             // if FSharp.Core was not provided explicitly - use version that was referenced by compiler
-            AssemblyReference(range0, GetFSharpCoreReferenceUsedByCompiler(data.useMonoResolution)), None
+            AssemblyReference(range0, GetFSharpCoreReferenceUsedByCompiler(data.useMonoResolution), None), None
         | _ -> res
     let primaryAssemblyCcuInitializer = data.primaryAssembly.GetSystemRuntimeInitializer(computeKnownDllReference >> fst)
 
@@ -2368,7 +2376,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
             let filename = ComputeMakePathAbsolute data.implicitIncludeDir primaryAssemblyFilename
             try 
             
-                let ilReader = OpenILBinary(filename,data.optimizeForMemory,data.openBinariesInMemory,None,None, data.primaryAssembly.Name, data.noDebugData)
+                let ilReader = OpenILBinary(filename,None,data.optimizeForMemory,data.openBinariesInMemory,None,None, data.primaryAssembly.Name, data.noDebugData)
                 try 
                    let ilModule = ilReader.ILModuleDef
                  
@@ -2436,7 +2444,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
         | Some(fslibFilename) ->
             let filename = ComputeMakePathAbsolute data.implicitIncludeDir fslibFilename
             try 
-                let ilReader = OpenILBinary(filename,data.optimizeForMemory,data.openBinariesInMemory,None,None, data.primaryAssembly.Name, data.noDebugData)
+                let ilReader = OpenILBinary(filename,None,data.optimizeForMemory,data.openBinariesInMemory,None,None, data.primaryAssembly.Name, data.noDebugData)
                 try 
                    checkFSharpBinaryCompatWithMscorlib filename ilReader.ILAssemblyRefs ilReader.ILModuleDef.ManifestOfAssembly.Version rangeStartup;
                    let fslibRoot = Path.GetDirectoryName(FileSystem.GetFullPathShim(filename))
@@ -2668,12 +2676,30 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
 #endif
         result
         
-    member tcConfig.TryResolveLibWithDirectories (AssemblyReference (m,nm) as r) = 
+    member tcConfig.TryResolveLibWithDirectories (r:AssemblyReference) = 
+        let m,nm = r.Range, r.Text
         use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parameter)
         // Only want to resolve certain extensions (otherwise, 'System.Xml' is ambiguous).
         // MSBuild resolution is limitted to .exe and .dll so do the same here.
         let ext = System.IO.Path.GetExtension(nm)
         let isNetModule = String.Compare(ext,".netmodule",StringComparison.OrdinalIgnoreCase)=0 
+        
+        // See if the language service has already produced the contents of the assembly for us, virtually
+        match r.PreResolvedContents with 
+        | Some _preResolvedAssemblyBytes -> 
+            let resolved = r.Text
+            let sysdir = tcConfig.IsSystemAssembly resolved
+            let fusionName = resolved
+            Some
+                { originalReference = r;
+                  resolvedPath = resolved;
+                  resolvedFrom = Unknown;
+                  fusionName = fusionName;
+                  redist = null;
+                  sysdir = sysdir;
+                  ilAssemblyRef = ref None }
+        | None -> 
+
         if String.Compare(ext,".dll",StringComparison.OrdinalIgnoreCase)=0 
            || String.Compare(ext,".exe",StringComparison.OrdinalIgnoreCase)=0 
            || isNetModule then 
@@ -2706,7 +2732,8 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
             | None -> None
         else None
                 
-    member tcConfig.ResolveLibWithDirectories (AssemblyReference (m,nm)) = 
+    member tcConfig.ResolveLibWithDirectories (r:AssemblyReference) = 
+        let m,nm = r.Range, r.Text
         use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parameter)
         // test for both libraries and executables
         let ext = System.IO.Path.GetExtension(nm)
@@ -2714,13 +2741,13 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
         let isDLL = (String.Compare(ext,".dll",StringComparison.OrdinalIgnoreCase) = 0)
         let isNetModule = (String.Compare(ext,".netmodule",StringComparison.OrdinalIgnoreCase) = 0)
 
-        let nms = 
+        let rs = 
             if isExe || isDLL || isNetModule then
-                [nm]
+                [r]
             else
-                [nm+".dll";nm+".exe";nm+".netmodule"]
+                [AssemblyReference(m,nm+".dll",None);AssemblyReference(m,nm+".exe",None);AssemblyReference(m,nm+".netmodule",None)]
 
-        match (List.tryPick (fun nm -> tcConfig.TryResolveLibWithDirectories(AssemblyReference(m,nm))) nms) with
+        match rs |> List.tryPick tcConfig.TryResolveLibWithDirectories with
         | Some(res) -> res
 
         | None ->
@@ -3277,13 +3304,13 @@ type TcAssemblyResolutions(results : AssemblyResolution list, unresolved : Unres
 
           if tcConfig.framework then 
               for s in DefaultBasicReferencesForOutOfProjectSources do 
-                  yield AssemblyReference(rangeStartup,s+".dll")
+                  yield AssemblyReference(rangeStartup,s+".dll",None)
 
           if tcConfig.framework || tcConfig.addVersionSpecificFrameworkReferences then 
               // For out-of-project context, then always reference some extra DLLs on .NET 4.0 
               if tcConfig.TargetMscorlibVersion.Major >= 4 && not tcConfig.TargetIsSilverlight then 
                   for s in DefaultBasicReferencesForOutOfProjectSources40 do 
-                      yield AssemblyReference(rangeStartup,s+".dll") 
+                      yield AssemblyReference(rangeStartup,s+".dll",None) 
 
           if tcConfig.useFsiAuxLib then 
 #if SILVERLIGHT          
@@ -3291,7 +3318,7 @@ type TcAssemblyResolutions(results : AssemblyResolution list, unresolved : Unres
 #else
               let name = Path.Combine(tcConfig.fsharpBinariesDir, GetFsiLibraryName()+".dll")
 #endif
-              yield AssemblyReference(rangeStartup,name) 
+              yield AssemblyReference(rangeStartup,name,None) 
           yield! tcConfig.referencedDLLs ]
 
     static member SplitNonFoundationalResolutions (tcConfig:TcConfig) =
@@ -3668,7 +3695,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
       
     // Note: the returned binary reader is associated with the tcImports, i.e. when the tcImports are closed 
     // then the reader is closed. 
-    member tcImports.OpenILBinaryModule(filename,m) = 
+    member tcImports.OpenILBinaryModule(filename,preResolvedContents,m) = 
       try
         CheckDisposed()
         let tcConfig = tcConfigP.Get()
@@ -3686,7 +3713,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
             else   
                 None
 
-        let ilILBinaryReader = OpenILBinary(filename,tcConfig.optimizeForMemory,tcConfig.openBinariesInMemory,ilGlobalsOpt,pdbPathOption, tcConfig.primaryAssembly.Name, tcConfig.noDebugData)
+        let ilILBinaryReader = OpenILBinary(filename,preResolvedContents,tcConfig.optimizeForMemory,tcConfig.openBinariesInMemory,ilGlobalsOpt,pdbPathOption, tcConfig.primaryAssembly.Name, tcConfig.noDebugData)
 
         tcImports.AttachDisposeAction(fun _ -> ILBinaryReader.CloseILModuleReader ilILBinaryReader);
         ilILBinaryReader.ILModuleDef, ilILBinaryReader.ILAssemblyRefs
@@ -3706,8 +3733,8 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
             | ILScopeRef.Module modref -> 
                 let key = modref.Name
                 if not (auxModTable.ContainsKey(key)) then
-                    let resolution = tcConfig.ResolveLibWithDirectories(AssemblyReference(m,key))
-                    let ilModule,_ = tcImports.OpenILBinaryModule(resolution.resolvedPath,m)
+                    let resolution = tcConfig.ResolveLibWithDirectories(AssemblyReference(m,key,None))
+                    let ilModule,_ = tcImports.OpenILBinaryModule(resolution.resolvedPath,resolution.PreResolvedContents,m)
                     auxModTable.[key] <- ilModule
                 auxModTable.[key] 
 
@@ -4103,7 +4130,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
         CheckDisposed()
         let m = r.originalReference.Range
         let filename = r.resolvedPath
-        let ilModule,ilAssemblyRefs = tcImports.OpenILBinaryModule(filename,m)
+        let ilModule,ilAssemblyRefs = tcImports.OpenILBinaryModule(filename,r.PreResolvedContents,m)
 
         let ilShortAssemName = GetNameOfILModule ilModule 
         if tcImports.IsAlreadyRegistered ilShortAssemName then 
@@ -4167,7 +4194,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
         let tcConfig = tcConfigP.Get()
         if not lookupOnly && tcConfig.implicitlyResolveAssemblies then 
             let tryFile speculativeFileName = 
-                let foundFile = tcImports.TryResolveAssemblyReference (AssemblyReference (m, speculativeFileName), ResolveAssemblyReferenceMode.Speculative)
+                let foundFile = tcImports.TryResolveAssemblyReference (AssemblyReference (m, speculativeFileName, None), ResolveAssemblyReferenceMode.Speculative)
                 match foundFile with 
                 | OkResult (warns, res) -> 
                      ReportWarnings warns
@@ -4413,7 +4440,7 @@ let RequireDLL (tcImports:TcImports) tcEnv m file =
     let RequireResolved = function
         | ResolvedImportedAssembly(ccuinfo) -> ccuinfo
         | UnresolvedImportedAssembly(assemblyName) -> error(Error(FSComp.SR.buildCouldNotResolveAssemblyRequiredByFile(assemblyName,file),m))
-    let resolutions = CommitOperationResult(tcImports.TryResolveAssemblyReference(AssemblyReference(m,file),ResolveAssemblyReferenceMode.ReportErrors))
+    let resolutions = CommitOperationResult(tcImports.TryResolveAssemblyReference(AssemblyReference(m,file,None),ResolveAssemblyReferenceMode.ReportErrors))
     let dllinfos,ccuinfos = tcImports.RegisterAndImportReferencedAssemblies(None, resolutions)
     let ccuinfos = ccuinfos |> List.map RequireResolved
     let g = tcImports.GetTcGlobals()

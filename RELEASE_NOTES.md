@@ -86,3 +86,6 @@
 * Change return type of GetAllUsesOfSymbol, GetAllUsesOfAllSymbols and GetAllUsesOfAllSymbolsInFile to FSharpSymbolUse
 * Add symbol uses when an abstract member is implemented.
 
+#### 0.0.20 - 
+* Update version number as nuget package may not have published properly
+

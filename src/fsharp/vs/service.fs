@@ -998,7 +998,7 @@ type TypeCheckInfo
             match matches with 
             | resolved::_ // Take the first seen
             | [resolved] -> 
-                let originalReferenceName = match resolved.originalReference with AssemblyReference (_,nm) -> nm
+                let originalReferenceName = resolved.originalReference.Text
                 let resolvedPath = // Don't show the resolved path if it is identical to what was referenced.
                     if originalReferenceName = resolved.resolvedPath then String.Empty
                     else resolved.resolvedPath

@@ -209,6 +209,9 @@ type CheckFileResults =
     /// Get all textual usages of all symbols throughout the file
     member GetAllUsesOfAllSymbolsInFile : unit -> FSharpSymbolUse[]
 
+    /// Get the textual usages that resolved to the given symbol throughout the file
+    member GetUsesOfSymbolInFile : symbol:FSharpSymbol -> FSharpSymbolUse[]
+
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
 type CheckProjectResults =

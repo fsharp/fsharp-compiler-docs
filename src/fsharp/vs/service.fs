@@ -1162,15 +1162,15 @@ type TypeCheckInfo
     member scope.GetExtraColorizations() = 
          [| for cnr in sResolutions.CapturedNameResolutions do  
                match cnr with 
-               /// 'seq' in 'seq { ... }' gets colored as keywords
+               // 'seq' in 'seq { ... }' gets colored as keywords
                | CNR(_, (Item.Value vref), ItemOccurence.Use, _, _, _, m) when valRefEq g g.seq_vref vref -> 
                    yield ((Pos.toZ m.Start, Pos.toZ m.End), TokenColorKind.Keyword) 
-               /// custom builders, custom operations get colored as keywords
+               // custom builders, custom operations get colored as keywords
                | CNR(_, (Item.CustomBuilder _ | Item.CustomOperation _), ItemOccurence.Use, _, _, _, m) -> 
                    yield ((Pos.toZ m.Start, Pos.toZ m.End), TokenColorKind.Keyword) 
 #if COLORIZE_TYPES
-               /// types get colored as types when they occur in syntactic types or custom attributes
-               /// typevariables get colored as types when they occur in syntactic types custom builders, custom operations get colored as keywords
+               // types get colored as types when they occur in syntactic types or custom attributes
+               // typevariables get colored as types when they occur in syntactic types custom builders, custom operations get colored as keywords
                | CNR(_, (Item.TypeVar  _ | Item.Types _ | Item.UnqualifiedType _) , (ItemOccurence.UseInType | ItemOccurence.UseInAttribute), _, _, _, m) -> 
                    yield ((Pos.toZ m.Start, Pos.toZ m.End), TokenColorKind.TypeName) 
 #endif
@@ -1745,14 +1745,20 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetAllUsesOfAllSymbolsInFile() = 
-        let refs = 
-            checkBuilder [| |] (fun (scope, _builder, reactor) -> 
-                // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
-                reactor.RunSyncOp(fun () -> 
-                    [|    for (item,itemOcc,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
-                            let symbol = FSharpSymbol.Create(scope.TcGlobals, item)
-                            yield FSharpSymbolUse(symbol,itemOcc, m) |]))
-        refs
+        checkBuilder [| |] (fun (scope, _builder, reactor) -> 
+            // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
+            reactor.RunSyncOp(fun () -> 
+                [|    for (item,itemOcc,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
+                        let symbol = FSharpSymbol.Create(scope.TcGlobals, item)
+                        yield FSharpSymbolUse(symbol,itemOcc, m) |]))
+
+    // Not, this does not have to be a SyncOp, it can be called from any thread
+    member info.GetUsesOfSymbolInFile(symbol:FSharpSymbol) = 
+        checkBuilder [| |] (fun (scope, _builder, reactor) -> 
+            // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
+            reactor.RunSyncOp(fun () -> 
+                [|    for (itemOcc,m) in scope.ScopeResolutions.GetUsesOfSymbol(symbol.Item) do
+                        yield FSharpSymbolUse(symbol,itemOcc, m) |]))
 
     
 //----------------------------------------------------------------------------

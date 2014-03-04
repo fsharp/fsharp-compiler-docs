@@ -1163,7 +1163,7 @@ type internal FsiDynamicCompiler
         if FileSystem.IsInvalidPathShim(path) then
             error(Error(FSIstrings.SR.fsiInvalidAssembly(path),m))
         // Check the file can be resolved before calling requireDLLReference 
-        let resolutions = tcImports.ResolveAssemblyReference(AssemblyReference(m,path),ResolveAssemblyReferenceMode.ReportErrors)
+        let resolutions = tcImports.ResolveAssemblyReference(AssemblyReference(m,path, None),ResolveAssemblyReferenceMode.ReportErrors)
         tcConfigB.AddReferencedAssemblyByPath(m,path)
         let tcState = istate.tcState 
         let tcEnv,(_dllinfos,ccuinfos) = 
@@ -1506,14 +1506,14 @@ module internal MagicAssemblyResolution =
                let assemblyReferenceTextExe = (simpleAssemName + ".exe") 
                let overallSearchResult =           
                    // OK, try to resolve as a .dll
-                   let searchResult = tcImports.TryResolveAssemblyReference (AssemblyReference(m,assemblyReferenceTextDll),ResolveAssemblyReferenceMode.Speculative)
+                   let searchResult = tcImports.TryResolveAssemblyReference (AssemblyReference(m,assemblyReferenceTextDll,None),ResolveAssemblyReferenceMode.Speculative)
 
                    match searchResult with
                    | OkResult (warns,[r]) -> OkResult (warns, Choice1Of2 r.resolvedPath)
                    | _ -> 
 
                    // OK, try to resolve as a .exe
-                   let searchResult = tcImports.TryResolveAssemblyReference (AssemblyReference(m,assemblyReferenceTextExe),ResolveAssemblyReferenceMode.Speculative)
+                   let searchResult = tcImports.TryResolveAssemblyReference (AssemblyReference(m,assemblyReferenceTextExe,None),ResolveAssemblyReferenceMode.Speculative)
 
                    match searchResult with
                    | OkResult (warns, [r]) -> OkResult (warns, Choice1Of2 r.resolvedPath)

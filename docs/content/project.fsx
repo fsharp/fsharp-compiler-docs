@@ -201,6 +201,13 @@ Or ask for all the symbols uses in the file (including uses of symbols with loca
 let allUsesOfAllSymbolsInFile1 = checkResults1.GetAllUsesOfAllSymbolsInFile()
 
 (**
+Or ask for all the uses of one symbol in one file:
+*)
+let allUsesOfXSymbolInFile1 = checkResults1.GetUsesOfSymbolInFile(xSymbol2)
+
+let allUsesOfXSymbolInFile2 = checkResults2.GetUsesOfSymbolInFile(xSymbol2)
+
+(**
 Summary
 -------
 

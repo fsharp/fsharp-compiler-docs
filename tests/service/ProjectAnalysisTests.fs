@@ -426,12 +426,28 @@ let ``Test file explicit parse symbols`` () =
     let usesOfXSymbol2 = 
         [| for s in wholeProjectResults.GetUsesOfSymbol(xSymbol2) -> (Project1.cleanFileName s.FileName, s.Range) |] 
 
+    let usesOfXSymbol21 = 
+        [| for s in checkResults1.GetUsesOfSymbolInFile(xSymbol2) -> (Project1.cleanFileName s.FileName, s.Range) |] 
+
+    let usesOfXSymbol22 = 
+        [| for s in checkResults2.GetUsesOfSymbolInFile(xSymbol2) -> (Project1.cleanFileName s.FileName, s.Range) |] 
+
     usesOfXSymbol2
          |> shouldEqual [|("file1", ((6, 4), (6, 7)));
                           ("file1", ((7, 13), (7, 16)));
                           ("file1", ((7, 19), (7, 22)));
                           ("file2", ((6, 28), (6, 33)));
                           ("file2", ((12, 27), (12, 32)))|]
+
+    usesOfXSymbol21
+         |> shouldEqual [|("file1", ((6, 4), (6, 7)));
+                          ("file1", ((7, 13), (7, 16)));
+                          ("file1", ((7, 19), (7, 22)))|]
+
+    usesOfXSymbol22
+         |> shouldEqual [|("file2", ((6, 28), (6, 33)));
+                          ("file2", ((12, 27), (12, 32)))|]
+
 
 [<Test>]
 let ``Test file explicit parse all symbols`` () = 

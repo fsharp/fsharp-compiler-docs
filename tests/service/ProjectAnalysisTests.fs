@@ -873,7 +873,7 @@ module Project4 =
     let dllName = Path.ChangeExtension(base2, ".dll")
     let projFileName = Path.ChangeExtension(base2, ".fsproj")
     let fileSource1 = """
-module ActivePatterns 
+module ActivePatternsAndExceptions 
 
 let (|Even|Odd|) input = if input % 2 = 0 then Even else Odd
 
@@ -891,6 +891,11 @@ let parseNumeric str =
    match str with
    | Float f -> printfn "%f : Floating point" f
    | _ -> printfn "%s : Not matched." str
+
+exception Fail of string
+
+let f () =
+    raise (Fail "unknown")
     """
     File.WriteAllText(fileName1, fileSource1)
 
@@ -942,5 +947,24 @@ let ``Test partial active patterns's exact ranges from uses of symbols`` () =
                                         ("file1", ((17, 5), (17, 10))); |]
     // Should also return its definition
     backgroundTypedParse1.GetSymbolAtLocation(10,10,"",["Float"]).IsSome |> shouldEqual true
+
+[<Test>]
+let ``Test symbol usages of exceptions`` () =
+  //if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project4.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project4.fileName1, Project4.options) 
+        |> Async.RunSynchronously    
+
+    let failSymbol = backgroundTypedParse1.GetSymbolAtLocation(23,16,"",["Fail"]).Value    
+    failSymbol.ToString() |> shouldEqual "Fail"
+
+    let usesOfFailSymbol = 
+        wholeProjectResults.GetUsesOfSymbol(failSymbol) 
+        |> Array.map (fun su -> su.FileName, su.Range)
+        |> Array.map (fun (a,b) -> (if a = Project4.fileName1 then "file1" else "??"), b)    
+    usesOfFailSymbol |> shouldEqual [| ("file1", ((21, 10), (21, 14)));
+                                       ("file1", ((23, 11), (23, 15))); |]
+
 
 

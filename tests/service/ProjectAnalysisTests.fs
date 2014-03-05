@@ -179,6 +179,84 @@ let ``Test project1 all symbols`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
+    for s in allSymbols do 
+        s.DeclarationLocation.IsSome |> shouldEqual true
+
+    let allDeclarationLocations = 
+        [ for s in allSymbols -> s.ToString(), s.DeclarationLocation.Value ]
+            |> List.map (fun (s,m) -> s, Project1.cleanFileName  m.FileName, (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn )) //(a,b) -> (Project1.cleanFileName a, b))
+
+    allDeclarationLocations |> shouldEqual
+          [("N", "file2", (2, 7), (2, 8)); ("val y2", "file2", (13, 4), (13, 6));
+           ("val pair2", "file2", (24, 10), (24, 15));
+           ("val pair1", "file2", (24, 4), (24, 9));
+           ("val enumValue", "file2", (31, 4), (31, 13));
+           ("val ( ++ )", "file2", (33, 5), (33, 7));
+           ("val c1", "file2", (35, 4), (35, 6));
+           ("val c2", "file2", (37, 4), (37, 6));
+           ("val mmmm1", "file2", (39, 4), (39, 9));
+           ("val mmmm2", "file2", (40, 4), (40, 9)); 
+           ("D1", "file2", (6, 5), (6, 7));
+           ("member ( .ctor )", "file2", (6, 5), (6, 7));
+           ("member SomeProperty", "file2", (7, 13), (7, 25));
+           ("D2", "file2", (9, 5), (9, 7));
+           ("member ( .ctor )", "file2", (9, 5), (9, 7));
+           ("member SomeProperty", "file2", (10, 13), (10, 25));
+           ("D3", "file2", (16, 5), (16, 7));
+           ("member ( .ctor )", "file2", (16, 5), (16, 7));
+           ("member SomeProperty", "file2", (22, 13), (22, 25));
+           ("field a", "file2", (16, 8), (16, 9));
+           ("field b", "file2", (17, 8), (17, 9));
+           ("field x", "file2", (20, 16), (20, 17));
+           ("SaveOptions", "file2", (27, 5), (27, 16));
+           ("field value__", "file2", (28, 2), (29, 25));
+           ("field None", "file2", (28, 4), (28, 8));
+           ("field DisableFormatting", "file2", (29, 4), (29, 21));
+           ("M", "file1", (2, 7), (2, 8)); ("val xxx", "file1", (7, 4), (7, 7));
+           ("val fff", "file1", (8, 4), (8, 7)); ("C", "file1", (4, 5), (4, 6));
+           ("member ( .ctor )", "file1", (4, 5), (4, 6));
+           ("member P", "file1", (5, 13), (5, 14));
+           ("CAbbrev", "file1", (10, 5), (10, 12))]
+
+    for s in allSymbols do 
+        s.ImplementationLocation.IsSome |> shouldEqual true
+
+    let allImplementationLocations = 
+        [ for s in allSymbols -> s.ToString(), s.ImplementationLocation.Value ]
+            |> List.map (fun (s,m) -> s, Project1.cleanFileName  m.FileName, (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn )) //(a,b) -> (Project1.cleanFileName a, b))
+
+    allImplementationLocations |> shouldEqual
+          [("N", "file2", (2, 7), (2, 8)); ("val y2", "file2", (13, 4), (13, 6));
+           ("val pair2", "file2", (24, 10), (24, 15));
+           ("val pair1", "file2", (24, 4), (24, 9));
+           ("val enumValue", "file2", (31, 4), (31, 13));
+           ("val ( ++ )", "file2", (33, 5), (33, 7));
+           ("val c1", "file2", (35, 4), (35, 6));
+           ("val c2", "file2", (37, 4), (37, 6));
+           ("val mmmm1", "file2", (39, 4), (39, 9));
+           ("val mmmm2", "file2", (40, 4), (40, 9)); 
+           ("D1", "file2", (6, 5), (6, 7));
+           ("member ( .ctor )", "file2", (6, 5), (6, 7));
+           ("member SomeProperty", "file2", (7, 13), (7, 25));
+           ("D2", "file2", (9, 5), (9, 7));
+           ("member ( .ctor )", "file2", (9, 5), (9, 7));
+           ("member SomeProperty", "file2", (10, 13), (10, 25));
+           ("D3", "file2", (16, 5), (16, 7));
+           ("member ( .ctor )", "file2", (16, 5), (16, 7));
+           ("member SomeProperty", "file2", (22, 13), (22, 25));
+           ("field a", "file2", (16, 8), (16, 9));
+           ("field b", "file2", (17, 8), (17, 9));
+           ("field x", "file2", (20, 16), (20, 17));
+           ("SaveOptions", "file2", (27, 5), (27, 16));
+           ("field value__", "file2", (28, 2), (29, 25));
+           ("field None", "file2", (28, 4), (28, 8));
+           ("field DisableFormatting", "file2", (29, 4), (29, 21));
+           ("M", "file1", (2, 7), (2, 8)); ("val xxx", "file1", (7, 4), (7, 7));
+           ("val fff", "file1", (8, 4), (8, 7)); ("C", "file1", (4, 5), (4, 6));
+           ("member ( .ctor )", "file1", (4, 5), (4, 6));
+           ("member P", "file1", (5, 13), (5, 14));
+           ("CAbbrev", "file1", (10, 5), (10, 12))]
+
     set [ for x in allSymbols -> x.ToString() ] 
       |> 
        shouldEqual 
@@ -221,7 +299,7 @@ let ``Test project1 xxx symbols`` () =
     let usesOfXSymbol = 
         wholeProjectResults.GetUsesOfSymbol(xSymbol) 
         |> Array.map (fun su -> su.FileName , su.Range)
-        |> Array.map (fun (a,b) -> (if a = Project1.fileName1 then "file1" else if a = Project1.fileName2 then "file2" else "??"), b)
+        |> Array.map (fun (a,b) -> (Project1.cleanFileName a, b))
 
     usesOfXSymbol |> shouldEqual [|("file1", ((6, 4), (6, 7)));
                                    ("file1", ((7, 13), (7, 16)));

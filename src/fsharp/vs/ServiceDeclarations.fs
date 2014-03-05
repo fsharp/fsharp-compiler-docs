@@ -197,7 +197,7 @@ module internal ItemDescriptionsImpl =
         | Item.ActivePatternResult(APInfo _,_, _, m) -> Some m
         | Item.SetterArg (_,item) -> rangeOfItem g isDecl item
         | Item.ArgName (id,_) -> Some id.idRange
-        | Item.CustomOperation _ -> None
+        | Item.CustomOperation (_,_,implOpt) -> implOpt |> Option.bind (rangeOfMethInfo isDecl)
         | Item.ImplicitOp _ -> None
         | Item.NewDef id -> Some id.idRange
         | Item.UnqualifiedType tcrefs -> tcrefs |> List.tryPick (rangeOfEntityRef isDecl >> Some)

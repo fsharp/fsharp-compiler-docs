@@ -96,4 +96,3 @@
 #### 0.0.22 - 
 * Provide symbol location for type parameters
 
-

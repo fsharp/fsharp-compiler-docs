@@ -706,44 +706,45 @@ let ``Test project2 all uses of all symbols`` () =
         [ for s in wholeProjectResults.GetAllUsesOfAllSymbols() -> 
             s.Symbol.DisplayName, (if s.FileName = Project2.fileName1 then "file1" else "???"), tupsZ s.RangeAlternate ]
     let expected =      
-          [("int", "file1", ((4, 13), (4, 16))); ("int", "file1", ((4, 19), (4, 22)));
-           ("int", "file1", ((5, 13), (5, 16))); ("int", "file1", ((5, 19), (5, 22)));
-           ("int", "file1", ((6, 11), (6, 14))); ("int", "file1", ((6, 17), (6, 20)));
-           ("int", "file1", ((4, 13), (4, 16))); ("int", "file1", ((4, 19), (4, 22)));
-           ("int", "file1", ((5, 13), (5, 16))); ("int", "file1", ((5, 19), (5, 22)));
-           ("int", "file1", ((6, 11), (6, 14))); ("int", "file1", ((6, 17), (6, 20)));
-           ("DU1", "file1", ((4, 6), (4, 9))); ("DU2", "file1", ((5, 6), (5, 9)));
-           ("D", "file1", ((6, 6), (6, 7)));
-           ("DUWithNormalFields", "file1", ((3, 5), (3, 23)));
-           ("DU1", "file1", ((8, 8), (8, 11))); ("DU2", "file1", ((9, 8), (9, 11)));
-           ("D", "file1", ((10, 8), (10, 9))); ("int", "file1", ((12, 35), (12, 38)));
-           ("int", "file1", ((12, 45), (12, 48)));
-           ("int", "file1", ((12, 35), (12, 38)));
-           ("int", "file1", ((12, 45), (12, 48)));
-           ("DU", "file1", ((12, 25), (12, 27)));
-           ("DUWithNamedFields", "file1", ((12, 5), (12, 22)));
-           ("DU", "file1", ((14, 8), (14, 10))); ("x", "file1", ((14, 11), (14, 12)));
-           ("y", "file1", ((14, 16), (14, 17))); ("T", "file1", ((16, 18), (16, 20)));
-           ("GenericClass", "file1", ((16, 5), (16, 17)));
-           ("( .ctor )", "file1", ((16, 5), (16, 17)));
-           ("U", "file1", ((17, 27), (17, 29))); ("T", "file1", ((17, 34), (17, 36)));
-           ("U", "file1", ((17, 41), (17, 43)));
-           ("GenericMethod", "file1", ((17, 13), (17, 26)));
-           ("x", "file1", ((17, 11), (17, 12))); ("T", "file1", ((17, 34), (17, 36)));
-           ("U", "file1", ((17, 41), (17, 43))); ("u", "file1", ((17, 38), (17, 39)));
-           ("t", "file1", ((17, 31), (17, 32)));
-           ("GenericClass", "file1", ((19, 8), (19, 20)));
-           ("int", "file1", ((19, 21), (19, 24))); ("c", "file1", ((19, 4), (19, 5)));
-           ("c", "file1", ((20, 8), (20, 9)));
-           ("GenericMethod", "file1", ((20, 8), (20, 23)));
-           ("int", "file1", ((20, 24), (20, 27)));
-           ("T", "file1", ((22, 23), (22, 25))); ("T", "file1", ((22, 30), (22, 32)));
-           ("y", "file1", ((22, 27), (22, 28))); ("x", "file1", ((22, 21), (22, 22)));
-           ("T", "file1", ((22, 45), (22, 47))); ("T", "file1", ((22, 50), (22, 52)));
-           ("x", "file1", ((22, 37), (22, 38))); ("y", "file1", ((22, 39), (22, 40)));
-           ("GenericFunction", "file1", ((22, 4), (22, 19)));
-           ("GenericFunction", "file1", ((24, 8), (24, 23)));
-           ("M", "file1", ((1, 7), (1, 8)))]
+            [("int", "file1", ((4, 13), (4, 16))); ("int", "file1", ((4, 19), (4, 22)));
+            ("int", "file1", ((5, 13), (5, 16))); ("int", "file1", ((5, 19), (5, 22)));
+            ("int", "file1", ((6, 11), (6, 14))); ("int", "file1", ((6, 17), (6, 20)));
+            ("int", "file1", ((4, 13), (4, 16))); ("int", "file1", ((4, 19), (4, 22)));
+            ("int", "file1", ((5, 13), (5, 16))); ("int", "file1", ((5, 19), (5, 22)));
+            ("int", "file1", ((6, 11), (6, 14))); ("int", "file1", ((6, 17), (6, 20)));
+            ("DU1", "file1", ((4, 6), (4, 9))); ("DU2", "file1", ((5, 6), (5, 9)));
+            ("D", "file1", ((6, 6), (6, 7)));
+            ("DUWithNormalFields", "file1", ((3, 5), (3, 23)));
+            ("DU1", "file1", ((8, 8), (8, 11))); ("DU2", "file1", ((9, 8), (9, 11)));
+            ("D", "file1", ((10, 8), (10, 9))); ("int", "file1", ((12, 35), (12, 38)));
+            ("int", "file1", ((12, 45), (12, 48)));
+            ("int", "file1", ((12, 35), (12, 38)));
+            ("x", "file1", ((12, 31), (12, 32)));
+            ("int", "file1", ((12, 45), (12, 48)));
+            ("y", "file1", ((12, 41), (12, 42))); ("DU", "file1", ((12, 25), (12, 27)));
+            ("DUWithNamedFields", "file1", ((12, 5), (12, 22)));
+            ("DU", "file1", ((14, 8), (14, 10))); ("x", "file1", ((14, 11), (14, 12)));
+            ("y", "file1", ((14, 16), (14, 17))); ("T", "file1", ((16, 18), (16, 20)));
+            ("GenericClass", "file1", ((16, 5), (16, 17)));
+            ("( .ctor )", "file1", ((16, 5), (16, 17)));
+            ("U", "file1", ((17, 27), (17, 29))); ("T", "file1", ((17, 34), (17, 36)));
+            ("U", "file1", ((17, 41), (17, 43)));
+            ("GenericMethod", "file1", ((17, 13), (17, 26)));
+            ("x", "file1", ((17, 11), (17, 12))); ("T", "file1", ((17, 34), (17, 36)));
+            ("U", "file1", ((17, 41), (17, 43))); ("u", "file1", ((17, 38), (17, 39)));
+            ("t", "file1", ((17, 31), (17, 32)));
+            ("GenericClass", "file1", ((19, 8), (19, 20)));
+            ("int", "file1", ((19, 21), (19, 24))); ("c", "file1", ((19, 4), (19, 5)));
+            ("c", "file1", ((20, 8), (20, 9)));
+            ("GenericMethod", "file1", ((20, 8), (20, 23)));
+            ("int", "file1", ((20, 24), (20, 27)));
+            ("T", "file1", ((22, 23), (22, 25))); ("T", "file1", ((22, 30), (22, 32)));
+            ("y", "file1", ((22, 27), (22, 28))); ("x", "file1", ((22, 21), (22, 22)));
+            ("T", "file1", ((22, 45), (22, 47))); ("T", "file1", ((22, 50), (22, 52)));
+            ("x", "file1", ((22, 37), (22, 38))); ("y", "file1", ((22, 39), (22, 40)));
+            ("GenericFunction", "file1", ((22, 4), (22, 19)));
+            ("GenericFunction", "file1", ((24, 8), (24, 23)));
+            ("M", "file1", ((1, 7), (1, 8)))]
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true
@@ -1398,6 +1399,10 @@ module NamedUnionFields
 type A = B of xxx: int * yyy : int
 let b = B(xxx=1, yyy=2)
 
+let x = 
+    match b with
+    // does not find usage here
+    | B (xxx = a; yyy = b) -> ()
     """
     File.WriteAllText(fileName1, fileSource1)
 
@@ -1437,6 +1442,13 @@ let ``Test project 8 all symbols`` () =
             ("parameter xxx", "xxx", "file1", ((5, 10), (5, 13)));
             ("parameter yyy", "yyy", "file1", ((5, 17), (5, 20)));
             ("val b", "b", "file1", ((5, 4), (5, 5)));
+            ("val b", "b", "file1", ((8, 10), (8, 11)));
+            ("parameter xxx", "xxx", "file1", ((10, 9), (10, 12)));
+            ("parameter yyy", "yyy", "file1", ((10, 18), (10, 21)));
+            ("val b", "b", "file1", ((10, 24), (10, 25)));
+            ("val a", "a", "file1", ((10, 15), (10, 16)));
+            ("B", "B", "file1", ((10, 6), (10, 7)));
+            ("val x", "x", "file1", ((7, 4), (7, 5)));
             ("NamedUnionFields", "NamedUnionFields", "file1", ((2, 7), (2, 23)))|]
 
     let arg1symbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Array.pick (fun x -> if x.Symbol.DisplayName = "xxx" then Some x.Symbol else None)
@@ -1445,4 +1457,5 @@ let ``Test project 8 all symbols`` () =
         |> Array.map (fun su -> Option.map tups su.Symbol.DeclarationLocation, Project8.cleanFileName su.FileName, tups su.RangeAlternate)
     arg1uses |> shouldEqual
      [|(Some ((4, 14), (4, 17)), "file1", ((4, 14), (4, 17)));
-       (Some ((4, 14), (4, 17)), "file1", ((5, 10), (5, 13)))|]
+       (Some ((4, 14), (4, 17)), "file1", ((5, 10), (5, 13)));
+       (Some ((4, 14), (4, 17)), "file1", ((10, 9), (10, 12)))|]

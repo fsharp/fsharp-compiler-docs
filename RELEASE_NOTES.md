@@ -116,4 +116,6 @@
 * Fix symbols for named union fields
 * Add FSharpActivePatternCase to refine FSharpSymbol 
 
+#### 0.0.29 - 
+* Fix symbols for named union fields in patterns
 

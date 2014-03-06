@@ -1866,7 +1866,7 @@ let rec ApplyUnionCaseOrExn (makerForUnionCase,makerForExnTag) m cenv env overal
         UnifyTypes cenv env m overallTy cenv.g.exn_ty
         CheckTyconAccessible cenv.amap m ad ecref |> ignore
         let mkf = makerForExnTag(ecref)
-        mkf,recdFieldTysOfExnDefRef ecref, [ for f in (recdFieldsOfExnDefRef ecref) -> f.Name ]
+        mkf,recdFieldTysOfExnDefRef ecref, [ for f in (recdFieldsOfExnDefRef ecref) -> f.Id ]
 
     | Item.UnionCase ucinfo ->   
         let ucref = ucinfo.UnionCaseRef 
@@ -1876,7 +1876,7 @@ let rec ApplyUnionCaseOrExn (makerForUnionCase,makerForExnTag) m cenv env overal
         let inst = mkTyparInst ucref.TyconRef.TyparsNoRange ucinfo.TypeInst
         UnifyTypes cenv env m overallTy gtyp2
         let mkf = makerForUnionCase(ucref,ucinfo.TypeInst)
-        mkf,actualTysOfUnionCaseFields inst ucref, ([ for f in ucref.AllFieldsAsList -> f.Name ])
+        mkf,actualTysOfUnionCaseFields inst ucref, ([ for f in ucref.AllFieldsAsList -> f.Id ])
     | _ -> invalidArg "item" "not a union case or exception reference"
 
 let ApplyUnionCaseOrExnTypes m cenv env overallTy c = 
@@ -4819,7 +4819,7 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
                     // | Case(_, v)
                     let result = Array.zeroCreate nargtys
                     for (id, pat) in pairs do
-                        match List.tryFindIndex ((=)id.idText) argNames with
+                        match argNames |> List.tryFindIndex (fun id2 -> id.idText = id2.idText)  with
                         | None -> 
                             let caseName = 
                                 match item with
@@ -7816,7 +7816,7 @@ and TcItemThen cenv overallTy env tpenv (item,mItem,rest,afterOverloadResolution
               match aparity with 
               | 0 | 1 -> 
                   let mkConstrApp _mArgs = function [arg] -> arg | _ -> error(InternalError("ApplyUnionCaseOrExn",mItem))
-                  mkConstrApp, [ucaseAppTy], apinfo.Names
+                  mkConstrApp, [ucaseAppTy], [ for (s,m) in apinfo.ActiveTagsWithRanges -> mkSynId m s ]
               | _ ->
                   let ucref = mkChoiceCaseRef cenv.g mItem aparity n
                   let _,_,tinst,_ = infoOfTyconRef mItem ucref.TyconRef
@@ -7872,11 +7872,11 @@ and TcItemThen cenv overallTy env tpenv (item,mItem,rest,afterOverloadResolution
                     // so far we've used 1) so we cannot immediately switch to 2) since it will be a definite breaking change.
                     
                     for (_, id, arg) in namedCallerArgs do
-                        match List.tryFindIndex ((=) id.idText) argNames with
+                        match argNames |> List.tryFindIndex (fun id2 -> id.idText = id2.idText) with
                         | Some i -> 
                             if box fittedArgs.[i] = null then
                                 fittedArgs.[i] <- arg
-                                let item = Item.ArgName (id, (List.nth argtys i))   
+                                let item = Item.ArgName (argNames.[i], argtys.[i])   
                                 CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.Use,env.DisplayEnv,ad)
                             else error(Error(FSComp.SR.tcUnionCaseFieldCannotBeUsedMoreThanOnce(id.idText), id.idRange))
                             currentIndex <- SEEN_NAMED_ARGUMENT
@@ -9039,7 +9039,7 @@ and TcMethodApplication
         match assignedArg.NamedArgIdOpt with 
         | None -> ()
         | Some id -> 
-            let item = Item.ArgName (id, assignedArg.CalledArg.CalledArgumentType)
+            let item = Item.ArgName (defaultArg assignedArg.CalledArg.NameOpt id, assignedArg.CalledArg.CalledArgumentType)
             CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.Use,env.DisplayEnv,ad))
 
     let allArgsCoerced = List.map coerce  allArgs
@@ -9399,8 +9399,8 @@ and TcNormalizedBinding declKind (cenv:cenv) env tpenv overallTy safeThisValOpt 
         let apinfoOpt = 
             match NameMap.range nameToPrelimValSchemeMap with 
             | [PrelimValScheme1(id,_,ty,_,_,_,_,_,_,_,_) ] -> 
-                match ActivePatternInfoOfValName id.idText  with 
-                | Some apinfo ->  Some (apinfo,ty, id.idRange)
+                match ActivePatternInfoOfValName id.idText id.idRange  with 
+                | Some apinfo ->  Some (apinfo, ty, id.idRange)
                 | None -> None
             | _ -> None
 
@@ -9410,6 +9410,10 @@ and TcNormalizedBinding declKind (cenv:cenv) env tpenv overallTy safeThisValOpt 
             | Some (apinfo,ty,m) ->
                 if isSome memberFlagsOpt || (not apinfo.IsTotal && apinfo.ActiveTags.Length > 1) then 
                     error(Error(FSComp.SR.tcInvalidActivePatternName(),mBinding))
+
+                apinfo.ActiveTagsWithRanges |> List.iteri (fun i (_tag,tagRange) ->
+                    let item = Item.ActivePatternResult(apinfo, cenv.g.unit_ty, i, tagRange)
+                    CallNameResolutionSink cenv.tcSink (tagRange,env.NameEnv,item,item,ItemOccurence.Binding,env.DisplayEnv,env.eAccessRights))
 
                 ModifyNameResEnv (fun nenv -> AddActivePatternResultTagsToNameEnv apinfo nenv ty m) envinner 
             | None -> 
@@ -10877,9 +10881,16 @@ module TcRecdUnionAndEnumDeclarations = begin
         rfspec
 
 
-    let TcAnonFieldDecl cenv env parent tpenv nm (Field(attribs,isStatic,id,ty,isMutable,xmldoc,vis,m)) =
-        let id = (match id with None -> mkSynId m nm | Some id -> id)
-        TcFieldDecl cenv env parent false tpenv (isStatic,attribs,id,ty,isMutable,xmldoc.ToXmlDoc(),vis,m) 
+    let TcAnonFieldDecl cenv env parent tpenv nm (Field(attribs,isStatic,idOpt,ty,isMutable,xmldoc,vis,m)) =
+        let id = (match idOpt with None -> mkSynId m nm | Some id -> id)
+        let f = TcFieldDecl cenv env parent false tpenv (isStatic,attribs,id,ty,isMutable,xmldoc.ToXmlDoc(),vis,m) 
+        match idOpt with 
+        | None -> ()
+        | Some id -> 
+            let item = Item.ArgName(id, f.FormalType)
+            CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.Binding,env.DisplayEnv,env.AccessRights)
+        f
+
 
     let TcNamedFieldDecl cenv env parent isIncrClass tpenv (Field(attribs,isStatic,id,ty,isMutable,xmldoc,vis,m)) =
         match id with 
@@ -13128,6 +13139,10 @@ module TcExceptionDeclarations = begin
           | TExnFresh _ -> 
               AddAugmentationDeclarations.AddGenericHashAndComparisonDeclarations cenv env scSet seSet exnc
               AddAugmentationDeclarations.AddGenericHashAndComparisonBindings cenv exnc
+
+        let item = Item.ExnCase(mkLocalTyconRef exnc)
+        CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.Binding,env.DisplayEnv,env.eAccessRights)
+
         binds,
         exnc,
         AddLocalExnDefn cenv.tcSink scopem exnc (AddLocalTycons cenv.g cenv.amap scopem [exnc] env)

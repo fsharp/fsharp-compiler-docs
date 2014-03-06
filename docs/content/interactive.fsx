@@ -87,7 +87,7 @@ The `EvalScript` method allows to evaluate a complete .fsx script.
 *)
 /// Evaluate script & ignore the result
 let evalScript scriptPath = 
-  fsiSession.EvalScript(texscriptPatht)
+  fsiSession.EvalScript(scriptPath)
 
 evalScript "sample.fsx"
 
@@ -107,7 +107,7 @@ evalInteraction "let xxx = 1 + 1"
 Now you want to typecheck the partially complete code `xxx + xx`
 *)
 
-let parseResults, checkResults = fsiSession.ParseAndCheckInteraction("xxx + xx")
+let parseResults, checkResults, checkProjectResults = fsiSession.ParseAndCheckInteraction("xxx + xx")
 
 (** 
 The `parseResults` and `checkResults` have types `ParseFileResults` and `CheckFileResults`
@@ -124,9 +124,9 @@ You can also request declaration list information, tooltip text and symbol resol
 open Microsoft.FSharp.Compiler
 
 let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
-checkResults.GetToolTipText(0, 2, "xxx + xx", ["xxx"], identToken) // a tooltip
+checkResults.GetToolTipTextAlternate(1, 2, "xxx + xx", ["xxx"], identToken) // a tooltip
 
-checkResults.GetSymbolAtLocation(0, 2, "xxx + xx", ["xxx"]) // symbol xxx
+checkResults.GetSymbolAtLocationAlternate(1, 2, "xxx + xx", ["xxx"]) // symbol xxx
   
 (**
 Exception handling

@@ -31,13 +31,13 @@ let file = "/home/user/Test.fsx"
 let identToken = Parser.tagOfToken (Parser.token.IDENT(""))
 let untyped, parsed = parseWithTypeInfo (file, input)
 // Get tool tip at the specified location
-let tip = parsed.GetToolTipText(1, 7, inputLines.[1], [ "foo" ], identToken)
+let tip = parsed.GetToolTipTextAlternate(2, 7, inputLines.[1], [ "foo" ], identToken)
 
 printfn "%A" tip
 
 // Get declarations (autocomplete) for a location
 let decls = 
-    parsed.GetDeclarations(Some untyped, 4, 23, inputLines.[4], [], "msg") 
+    parsed.GetDeclarationsAlternate(Some untyped, 5, 23, inputLines.[4], [], "msg") 
     |> Async.RunSynchronously
 
 for item in decls.Items do

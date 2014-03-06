@@ -36,8 +36,8 @@ type (*internal*) DeclarationItem =
     member UniqueName : string
     member Glyph : int
     member Kind : DeclarationItemKind
-    member Range : Range
-    member BodyRange : Range
+    member Range : Range.range
+    member BodyRange : Range.range
     member IsSingleTopLevel : bool
 
 /// Represents top-level declarations (that should be in the type drop-down)

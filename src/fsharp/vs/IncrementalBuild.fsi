@@ -12,16 +12,21 @@ type (*internal*) Severity =
     | Warning 
     | Error
 
+[<Class>]
 type (*internal*) ErrorInfo = 
-    { FileName:string
-      StartLine:Line0
-      EndLine:Line0
-      StartColumn:int
-      EndColumn:int
-      Severity:Severity
-      Message:string
-      Subcategory:string }
-    static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * (Line0*int) -> ErrorInfo
+    member FileName: string
+    member StartLineAlternate:int
+    member EndLineAlternate:int
+    [<System.Obsolete("This member has been replaced by StartLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member StartLine:Line0
+    [<System.Obsolete("This member has been replaced by EndLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member EndLine:Line0
+    member StartColumn:int
+    member EndColumn:int
+    member Severity:Severity
+    member Message:string
+    member Subcategory:string
+    static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * lastPosInFile:(int*int) -> ErrorInfo
     static member internal CreateFromException : PhasedError * bool * bool * range -> ErrorInfo
 
 // implementation details used by other code in the compiler    

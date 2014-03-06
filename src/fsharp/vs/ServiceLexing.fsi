@@ -38,12 +38,6 @@ type ColorState =
     | TripleQuoteStringInComment = 14
     | InitialState = 0 
     
-/// A line/column pair
-type Position = int * int
-
-/// A start-position/end-position pair
-type Range = Position * Position
-
 type TokenColorKind =
     | Default = 0
     | Text = 0

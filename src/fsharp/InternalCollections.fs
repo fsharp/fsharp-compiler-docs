@@ -132,13 +132,6 @@ type internal AgedLookup<'TKey,'TValue>(keepStrongly:int, areSame, ?onStrongDisc
         let newdata,discard = RemoveImpl (data,key)
         AssignWithStrength(newdata,discard)
 
-    member al.MostRecent : ('TKey*'TValue) option=  
-        let data = FilterAndHold()
-        if not data.IsEmpty then 
-           // Non-optimal reverse list to get most recent. Consider an array of option for the data structure.
-           Some(data |> List.rev |> List.head)
-        else None        
-
     member al.Clear() =
        let discards = FilterAndHold()
        AssignWithStrength([], discards)
@@ -185,9 +178,6 @@ type internal MruCache<'TKey,'TValue>(keepStrongly,compute, areSame, ?isStillVal
             else Compute()
         | None -> Compute()
            
-    member bc.MostRecent = 
-        cache.MostRecent
-       
     member bc.SetAlternate(key:'TKey,value:'TValue) = 
         cache.Put(key,value)
        

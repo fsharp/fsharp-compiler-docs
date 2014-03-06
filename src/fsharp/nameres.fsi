@@ -157,7 +157,7 @@ type internal ItemOccurence =
     | Pattern 
     | Implemented 
   
-type ItemUsageLocation = range * string
+val ItemsReferToSameDefinition : TcGlobals -> Item -> Item -> bool
 
 [<Class>]
 type internal CapturedNameResolution = 

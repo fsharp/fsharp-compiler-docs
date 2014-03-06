@@ -569,11 +569,20 @@ and [<Class>] FSharpMemberFunctionOrValue =
 
 
 and [<Class>] FSharpParameter =
-
-    member Name: string
+    inherit FSharpSymbol
+    /// The optional name of the parameter in the F# source code.  
+    member Name: string option
     member DeclarationLocation : range 
     member Type : FSharpType 
     member Attributes: IList<FSharpAttribute>
+
+/// Represents a single case within an active pattern
+and [<Class>] FSharpActivePatternCase =
+    inherit FSharpSymbol
+    /// The name of the active pattern case 
+    member Name: string 
+    /// The location of declaration of the active pattern case 
+    member DeclarationLocation : range 
 
 
 and [<Class>] FSharpType =

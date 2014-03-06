@@ -40,15 +40,15 @@ type DeclarationItemKind =
 [<Sealed>]
 type DeclarationItem(uniqueName : string, name : string, kind : DeclarationItemKind, glyph : int, range : range, bodyRange : range, singleTopLevel:bool) = 
     
-    let range_of_m (m:range) = ((m.StartColumn, m.StartLine), (m.EndColumn, m.EndLine))
+    //let range_of_m (m:range) = ((m.StartColumn, m.StartLine), (m.EndColumn, m.EndLine))
     member x.bodyRange = bodyRange
     
     member x.UniqueName = uniqueName
     member x.Name = name
     member x.Glyph = glyph
     member x.Kind = kind
-    member x.Range = range_of_m range
-    member x.BodyRange = range_of_m bodyRange 
+    member x.Range = range
+    member x.BodyRange = bodyRange 
     member x.IsSingleTopLevel = singleTopLevel
     member x.WithUniqueName(uniqueName : string) =
       DeclarationItem(uniqueName, name, kind, glyph, range, bodyRange, singleTopLevel)

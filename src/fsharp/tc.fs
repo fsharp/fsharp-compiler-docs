@@ -4833,6 +4833,8 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
                                 result.[idx] <- pat
                             | _ ->
                                 error(Error(FSComp.SR.tcUnionCaseFieldCannotBeUsedMoreThanOnce(id.idText), id.idRange))
+                            let item = Item.ArgName(argNames.[idx], argtys.[idx])
+                            CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.Pattern,env.DisplayEnv,env.AccessRights)
                     for i = 0 to nargtys - 1 do
                         if box result.[i] = null then
                             result.[i] <- SynPat.Wild(m.MakeSynthetic())

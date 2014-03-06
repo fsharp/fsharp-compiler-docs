@@ -48,10 +48,10 @@ let ``Intro test`` () =
         msg.Message.Contains("Missing qualification after '.'") |> shouldEqual true
 
     // Get tool tip at the specified location
-    let tip = typeCheckResults.GetToolTipText(3, 7, inputLines.[1], ["foo"], identToken)
+    let tip = typeCheckResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken)
     (sprintf "%A" tip).Replace("\n","") |> shouldEqual """ToolTipText  [ToolTipElement ("val foo : unit -> unitFull name: Test.foo",XmlCommentNone)]"""
     // Get declarations (autocomplete) for a location
-    let decls =  typeCheckResults.GetDeclarations(Some untyped, 6, 23, inputLines.[6], [], "msg", fun _ -> false)|> Async.RunSynchronously
+    let decls =  typeCheckResults.GetDeclarationsAlternate(Some untyped, 7, 23, inputLines.[6], [], "msg", fun _ -> false)|> Async.RunSynchronously
     [ for item in decls.Items -> item.Name ] |> shouldEqual
           ["Chars"; "Clone"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
            "GetEnumerator"; "GetHashCode"; "GetType"; "GetTypeCode"; "IndexOf";
@@ -60,7 +60,7 @@ let ``Intro test`` () =
            "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
            "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"]
     // Get overloads of the String.Concat method
-    let methods = typeCheckResults.GetMethods(4, 27, inputLines.[4], Some ["String"; "Concat"])
+    let methods = typeCheckResults.GetMethodsAlternate(5, 27, inputLines.[4], Some ["String"; "Concat"])
 
     methods.MethodName  |> shouldEqual "Concat"
 
@@ -125,8 +125,10 @@ let ``Symbols many tests`` () =
     fnVal.Attributes.Count |> shouldEqual 1
     fnVal.CurriedParameterGroups.Count |> shouldEqual 1
     fnVal.CurriedParameterGroups.[0].Count |> shouldEqual 2
-    fnVal.CurriedParameterGroups.[0].[0].Name |> shouldEqual "x"
-    fnVal.CurriedParameterGroups.[0].[1].Name |> shouldEqual "y"
+    fnVal.CurriedParameterGroups.[0].[0].Name.IsSome |> shouldEqual true
+    fnVal.CurriedParameterGroups.[0].[1].Name.IsSome |> shouldEqual true
+    fnVal.CurriedParameterGroups.[0].[0].Name.Value |> shouldEqual "x"
+    fnVal.CurriedParameterGroups.[0].[1].Name.Value |> shouldEqual "y"
     fnVal.DeclarationLocation.StartLine |> shouldEqual 3
     fnVal.DisplayName |> shouldEqual "foo"
     fnVal.EnclosingEntity.DisplayName |> shouldEqual "Test"

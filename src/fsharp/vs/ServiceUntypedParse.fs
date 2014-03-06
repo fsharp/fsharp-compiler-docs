@@ -93,14 +93,14 @@ type ParseFileResults(errors : ErrorInfo[], input : Ast.ParsedInput option, pars
 
     member scope.ParseTree = input
 
-    member scope.FindNoteworthyParamInfoLocations(line,col) = 
+    member scope.FindNoteworthyParamInfoLocations(pos) = 
         match input with
         | Some(input) -> 
             // Why don't we traverse the AST under a syncop?  We don't need to, because the AST is an _immutable_ DU of DUs of ints and strings and whatnot.  And a SyncOp really does slow it down in practice.
             //let result = ref None
             //syncop (fun () -> result := Some(AstHelpers.FindNoteworthyParamInfoLocations(line,col,input)))
             //Option.get !result
-            NoteworthyParamInfoLocationsImpl.FindNoteworthyParamInfoLocations(line,col,input)
+            NoteworthyParamInfoLocationsImpl.FindNoteworthyParamInfoLocations(pos,input)
         | _ -> None
     
     /// Get declared items and the selected item at the specified location
@@ -118,15 +118,13 @@ type ParseFileResults(errors : ErrorInfo[], input : Ast.ParsedInput option, pars
                     NavigationImpl.empty )
             (fun _ -> NavigationImpl.empty)   
             
-    member private scope.ValidateBreakpointLocationImpl((line,col)) =
+    member private scope.ValidateBreakpointLocationImpl(pos) =
 
-        
-        let pos = Pos.fromZ line col
         
         // Process let-binding
         let findBreakPoints allowSameLine = 
             let checkRange m = [ if rangeContainsPos m pos || (allowSameLine && m.StartLine = pos.Line) then 
-                                     yield Range.toZ m ]
+                                     yield m ]
             let walkBindSeqPt sp = [ match sp with SequencePointAtBinding m -> yield! checkRange m | _ -> () ]
             let walkForSeqPt sp = [ match sp with SequencePointAtForLoop m -> yield! checkRange m | _ -> () ]
             let walkWhileSeqPt sp = [ match sp with SequencePointAtWhileLoop m -> yield! checkRange m | _ -> () ]
@@ -377,19 +375,17 @@ type ParseFileResults(errors : ErrorInfo[], input : Ast.ParsedInput option, pars
         // This does not need to be run on the background thread
         scope.GetNavigationItemsImpl()
 
-    member scope.ValidateBreakpointLocation(line,col) =
+    member scope.ValidateBreakpointLocation(pos) =
         use t = Trace.Call("SyncOp","ValidateBreakpointLocation", fun _->"")
         // This does not need to be run on the background thread
-        scope.ValidateBreakpointLocationImpl(line,col)
+        scope.ValidateBreakpointLocationImpl(pos)
 
 module (*internal*) UntypedParseImpl =
 
-    let GetRangeOfExprLeftOfDot(line,col,parseTreeOpt) =
+    let GetRangeOfExprLeftOfDot(pos:pos,parseTreeOpt) =
         match parseTreeOpt with 
         | None -> None 
         | Some(parseTree) ->
-        let pos = Pos.fromZ line col  // line was 0-based, need 1-based
-        let ResultOfRange range = Range.toZ range
         let CheckLongIdent(longIdent:LongIdent) =
             // find the longest prefix before the "pos" dot
             let mutable r = (List.head longIdent).idRange 
@@ -400,29 +396,29 @@ module (*internal*) UntypedParseImpl =
                     couldBeBeforeFront <- false
             couldBeBeforeFront, r
 
-        AstTraversal.Traverse(line,col,parseTree, { new AstTraversal.AstVisitorBase<_>() with
+        AstTraversal.Traverse(pos,parseTree, { new AstTraversal.AstVisitorBase<_>() with
         member this.VisitExpr(_path, traverseSynExpr, defaultTraverse, expr) =
             let expr = expr // fix debugger locals
             match expr with
             | SynExpr.LongIdent(_, LongIdentWithDots(longIdent,_), _altNameRefCell, _range) -> 
                 let _,r = CheckLongIdent(longIdent)
-                Some(ResultOfRange r)
+                Some(r)
             | SynExpr.LongIdentSet(LongIdentWithDots(longIdent,_), synExpr, _range) -> 
                 if AstTraversal.rangeContainsPosLeftEdgeInclusive synExpr.Range pos then
                     traverseSynExpr synExpr
                 else
                     let _,r = CheckLongIdent(longIdent)
-                    Some(ResultOfRange r)
+                    Some(r)
             | SynExpr.DotGet(synExpr, _dotm, LongIdentWithDots(longIdent,_), _range) -> 
                 if AstTraversal.rangeContainsPosLeftEdgeInclusive synExpr.Range pos then
                     traverseSynExpr synExpr
                 else
                     let inFront,r = CheckLongIdent(longIdent)
                     if inFront then
-                        Some(ResultOfRange synExpr.Range)
+                        Some(synExpr.Range)
                     else
                         // see comment below for SynExpr.DotSet
-                        Some(ResultOfRange (unionRanges synExpr.Range r))
+                        Some((unionRanges synExpr.Range r))
             | SynExpr.DotSet(synExpr, LongIdentWithDots(longIdent,_), synExpr2, _range) ->
                 if AstTraversal.rangeContainsPosLeftEdgeInclusive synExpr.Range pos then
                     traverseSynExpr synExpr
@@ -431,14 +427,14 @@ module (*internal*) UntypedParseImpl =
                 else
                     let inFront,r = CheckLongIdent(longIdent)
                     if inFront then
-                        Some(ResultOfRange synExpr.Range)
+                        Some(synExpr.Range)
                     else
                         // f(0).X.Y.Z
                         //       ^
                         //      -   r has this value
                         // ----     synExpr.Range has this value
                         // ------   we want this value
-                        Some(ResultOfRange (unionRanges synExpr.Range r))
+                        Some((unionRanges synExpr.Range r))
             | SynExpr.DotNamedIndexedPropertySet(synExpr, LongIdentWithDots(longIdent,_), synExpr2, synExpr3, _range) ->  
                 if AstTraversal.rangeContainsPosLeftEdgeInclusive synExpr.Range pos then
                     traverseSynExpr synExpr
@@ -449,19 +445,19 @@ module (*internal*) UntypedParseImpl =
                 else
                     let inFront,r = CheckLongIdent(longIdent)
                     if inFront then
-                        Some(ResultOfRange synExpr.Range)
+                        Some(synExpr.Range)
                     else
-                        Some(ResultOfRange (unionRanges synExpr.Range r))
+                        Some((unionRanges synExpr.Range r))
             | SynExpr.DiscardAfterMissingQualificationAfterDot(synExpr, _range) ->  // get this for e.g. "bar()."
                 if AstTraversal.rangeContainsPosLeftEdgeInclusive synExpr.Range pos then
                     traverseSynExpr synExpr
                 else
-                    Some(ResultOfRange synExpr.Range) 
+                    Some(synExpr.Range) 
             | SynExpr.FromParseError(synExpr, range) -> 
                 if AstTraversal.rangeContainsPosLeftEdgeInclusive synExpr.Range pos then
                     traverseSynExpr synExpr
                 else
-                    Some(ResultOfRange range) 
+                    Some(range) 
             | SynExpr.App(ExprAtomicFlag.NonAtomic, true, (SynExpr.Ident(ident)), rhs, _) 
                 when ident.idText = "op_ArrayLookup" 
                      && not(AstTraversal.rangeContainsPosLeftEdgeInclusive rhs.Range pos) ->
@@ -469,17 +465,16 @@ module (*internal*) UntypedParseImpl =
                 | None ->
                     // (expr).(expr) is an ML-deprecated array lookup, but we want intellisense on the dot
                     // also want it for e.g. [|arr|].(0)
-                    Some(ResultOfRange expr.Range) 
+                    Some(expr.Range) 
                 | x -> x  // we found the answer deeper somewhere in the lhs
             | _ -> defaultTraverse expr
         })
     
     /// searches for the expression island suitable for the evaluation by the debugger
-    let TryFindExpressionIslandInPosition(line,col,parseTreeOpt) = 
+    let TryFindExpressionIslandInPosition(pos:pos,parseTreeOpt) = 
         match parseTreeOpt with 
         | None -> None 
         | Some(parseTree) ->
-            let pos = Pos.fromZ line col  // line was 0-based, need 1-based
             let getLidParts (lid : LongIdent) = 
                 lid 
                 |> Seq.takeWhile (fun i -> posGeq pos i.idRange.Start)
@@ -518,7 +513,7 @@ module (*internal*) UntypedParseImpl =
                             | _ -> defaultTraverse(expr)
                         else
                             None }
-            AstTraversal.Traverse(line, col, parseTree, walker)
+            AstTraversal.Traverse(pos, parseTree, walker)
 
     // Given a cursor position here:
     //    f(x)   .   iden
@@ -532,13 +527,12 @@ module (*internal*) UntypedParseImpl =
     //      ^
     // would return None
     // TODO would be great to unify this with GetRangeOfExprLeftOfDot above, if possible, as they are similar
-    let TryFindExpressionASTLeftOfDotLeftOfCursor(line,col,parseTreeOpt) =
+    let TryFindExpressionASTLeftOfDotLeftOfCursor(pos,parseTreeOpt) =
         match parseTreeOpt with 
         | None -> None 
         | Some(parseTree) ->
         let dive x = AstTraversal.dive x
-        let pos = Pos.fromZ line col  // line was 0-based, need 1-based
-        let pick x = AstTraversal.pick pos line col x
+        let pick x = AstTraversal.pick pos x
         let walker = 
             { new AstTraversal.AstVisitorBase<_>() with
                 member this.VisitExpr(_path, traverseSynExpr, defaultTraverse, expr) =
@@ -617,12 +611,12 @@ module (*internal*) UntypedParseImpl =
                                 Some(lhs.Range.End, false)
                             | x -> x  // we found the answer deeper somewhere in the lhs
                         | _ -> defaultTraverse(expr) }
-        AstTraversal.Traverse(line, col, parseTree, walker)
+        AstTraversal.Traverse(pos, parseTree, walker)
     
     type TS = AstTraversal.TraverseStep
 
     /// try to determine completion context for the given pair (row, columns)
-    let TryGetCompletionContext (line: Line0, col: int, untypedParseOpt: ParseFileResults option) : CompletionContext option = 
+    let TryGetCompletionContext (pos, untypedParseOpt: ParseFileResults option) : CompletionContext option = 
         let parsedInputOpt =
             match untypedParseOpt with
             | Some upi -> upi.ParseTree
@@ -631,8 +625,6 @@ module (*internal*) UntypedParseImpl =
         match parsedInputOpt with
         | None -> None
         | Some pt -> 
-        
-        let pos = Pos.fromZ line col  // line was 0-based, need 1-based
         
         let parseLid (LongIdentWithDots(lid, dots)) =            
             let rec collect plid (parts : Ident list) (dots : range list) = 
@@ -769,4 +761,4 @@ module (*internal*) UntypedParseImpl =
                             | Some (completionPath) -> getCompletionContextForInheritSynMember (componentInfo, typeDefnKind, completionPath)
                             | None -> Some (CompletionContext.Invalid) // A $ .B -> no completion list
                         | _ -> None }
-        AstTraversal.Traverse(line, col, pt, walker)
+        AstTraversal.Traverse(pos, pt, walker)

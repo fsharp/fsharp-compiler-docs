@@ -1,10 +1,11 @@
-﻿module FSharp.Compiler.Service.Tests.FsiTests
-
+﻿
 #if INTERACTIVE
 #r "../../bin/FSharp.Compiler.Service.dll"
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
+#else
+module FSharp.Compiler.Service.Tests.FsiTests
 #endif
 
 open Microsoft.FSharp.Compiler

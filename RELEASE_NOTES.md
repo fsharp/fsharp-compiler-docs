@@ -96,3 +96,24 @@
 #### 0.0.22 - 
 * Provide symbol location for type parameters
 
+#### 0.0.23 - 
+* Move to one-based line numbering everywhere
+* Provide better symbol information for active patterns
+
+#### 0.0.24 - 
+* Update version number as nuget package may not have published properly
+
+#### 0.0.25 - 
+* Add optional source argument to TryGetRecentTypeCheckResultsForFile to specify that source must match exactly
+
+#### 0.0.26 - 
+* Fix off-by-one in reporting of range for active pattern name
+
+#### 0.0.27 - 
+* Fix exception tag symbol reporting
+
+#### 0.0.28 - 
+* Fix symbols for named union fields
+* Add FSharpActivePatternCase to refine FSharpSymbol 
+
+

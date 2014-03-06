@@ -100,7 +100,7 @@ module internal Params =
         )
     
     let ParamOfUnionCaseField g denv isGenerated (i : int) f = 
-        let description = if isGenerated i f then "" else NicePrint.stringOfParamData denv (ParamData(false, false, NotOptional, Some f.rfield_id.idText, f.rfield_type)) 
+        let description = if isGenerated i f then "" else NicePrint.stringOfParamData denv (ParamData(false, false, NotOptional, Some f.rfield_id, f.rfield_type)) 
         ParamOfRecdField g denv f description
 
     // TODO this code is similar to NicePrint.fs:formatParamDataToBuffer, refactor or figure out why different?
@@ -114,14 +114,14 @@ module internal Params =
                 | Some(nm), true, ptyOpt -> 
                     // detect parameter type, if ptyOpt is None - this is .NET style optional argument
                     let pty = defaultArg ptyOpt pty
-                    nm, (sprintf "?%s:" nm),  pty
+                    nm.idText, (sprintf "?%s:" nm.idText),  pty
                 // Layout an unnamed argument 
                 | None, _,_ -> 
                     "", "", pty
                 // Layout a named argument 
                 | Some nm,_,_ -> 
-                    let prefix = if isParamArrayArg then sprintf "params %s: " nm else sprintf "%s: " nm
-                    nm, prefix,pty)
+                    let prefix = if isParamArrayArg then sprintf "params %s: " nm.idText else sprintf "%s: " nm.idText
+                    nm.idText, prefix,pty)
             |> List.unzip3 
         let paramTypeAndRetLs,_ = NicePrint.layoutPrettifiedTypes denv (paramTypes@[rty])
         let paramTypeLs,_ = List.frontAndBack  paramTypeAndRetLs
@@ -372,8 +372,8 @@ type (*internal*) FindDeclFailureReason =
 type FindDeclResult = 
     /// declaration not found + reason
     | DeclNotFound of FindDeclFailureReason
-    /// found declaration; return (position-in-file, name-of-file)
-    | DeclFound of Position * string
+    /// found declaration
+    | DeclFound of range
 
 
 /// This type is used to describe what was found during the name resolution.
@@ -432,7 +432,7 @@ type TypeCheckInfo
     // Is not keyed on 'Names' collection because this is invariant for the current position in 
     // this unchanged file. Keyed on lineStr though to prevent a change to the currently line
     // being available against a stale scope.
-    let getToolTipTextCache = AgedLookup<Line0*int*string,ToolTipText>(recentForgroundTypeCheckLookupSize,areSame=(fun (x,y) -> x = y))
+    let getToolTipTextCache = AgedLookup<int*int*string,ToolTipText>(recentForgroundTypeCheckLookupSize,areSame=(fun (x,y) -> x = y))
     
     let amap = tcImports.GetImportMap()
     let infoReader = new InfoReader(g,amap)
@@ -512,7 +512,7 @@ type TypeCheckInfo
     /// If 'membersByResidue' is specified, we look for members of the item obtained 
     /// from the name resolution and filter them by the specified residue (?)
     let GetPreciseItemsFromNameResolution(line,colAtEndOfNames,membersByResidue,filterCtors, resolveOverloads, hasTextChangedSinceLastTypecheck) = 
-        let endOfNamesPos = Pos.fromZ line colAtEndOfNames
+        let endOfNamesPos = mkPos line colAtEndOfNames
 
         let quals = 
             (match resolveOverloads with ResolveOverloads.Yes -> sResolutions.CapturedNameResolutions | ResolveOverloads.No -> sResolutions.CapturedMethodGroupResolutions)
@@ -530,7 +530,7 @@ type TypeCheckInfo
             let items = items |> FilterItemsForCtors filterCtors
             if nonNil items then
                 Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "GetPreciseItemsFromNameResolution: Results in %d items!\n" items.Length)
-                if hasTextChangedSinceLastTypecheck(textSnapshotInfo, Range.toZ m) then
+                if hasTextChangedSinceLastTypecheck(textSnapshotInfo, m) then
                     NameResResult.TypecheckStaleAndTextChanged // typecheck is stale, wait for second-chance IntelliSense to bring up right result
                 else
                     f(items, denv, m) 
@@ -628,8 +628,7 @@ type TypeCheckInfo
 
     /// Looks at the exact expression types at the position to the left of the 
     /// residue then the source when it was typechecked.
-    let GetPreciseCompletionListFromExprTypings(untypedParse:ParseFileResults, line, colAtEndOfNames, filterCtors, hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool)) = 
-        let endOfExprPos = Pos.fromZ line colAtEndOfNames
+    let GetPreciseCompletionListFromExprTypings(untypedParse:ParseFileResults, endOfExprPos, filterCtors, hasTextChangedSinceLastTypecheck: (obj * range -> bool)) = 
         
         let thereWereSomeQuals, quals = GetExprTypingForPosition(endOfExprPos)
 
@@ -643,8 +642,8 @@ type TypeCheckInfo
             let bestQual, textChanged = 
                 match untypedParse.ParseTree with
                 | Some(input) -> 
-                    match UntypedParseImpl.GetRangeOfExprLeftOfDot(line,colAtEndOfNames,Some(input)) with   // TODO we say "colAtEndOfNames" everywhere, but that's not really a good name ("foo  .  $" hit Ctrl-Space at $)
-                    | Some( ((sl,sc),_) as exprRange) ->
+                    match UntypedParseImpl.GetRangeOfExprLeftOfDot(endOfExprPos,Some(input)) with   // TODO we say "colAtEndOfNames" everywhere, but that's not really a good name ("foo  .  $" hit Ctrl-Space at $)
+                    | Some( exprRange) ->
                         if hasTextChangedSinceLastTypecheck(textSnapshotInfo, exprRange) then
                             None, true // typecheck is stale, wait for second-chance IntelliSense to bring up right result
                         else
@@ -655,7 +654,7 @@ type TypeCheckInfo
                             let qual = 
                                 quals |> Array.tryFind (fun (_,_,_,_,_,r) -> 
                                                             ignore(r)  // for breakpoint
-                                                            posEq (Pos.fromZ sl sc) r.Start)
+                                                            posEq exprRange.Start r.Start)
                             qual, false
                     | None -> 
                         // TODO In theory I think we should never get to this code path; it would be nice to add an assert.
@@ -678,8 +677,7 @@ type TypeCheckInfo
                 else GetPreciseCompletionListFromExprTypingsResult.None
 
     /// Find items in the best naming environment.
-    let GetEnvironmentLookupResolutions(line,colAtEndOfNamesAndResidue,plid,filterCtors,showObsolete) = 
-        let cursorPos = Pos.fromZ line colAtEndOfNamesAndResidue
+    let GetEnvironmentLookupResolutions(cursorPos,plid,filterCtors,showObsolete) = 
         let (nenv,ad),m = GetBestEnvForPos cursorPos
         let items = Nameres.ResolvePartialLongIdent ncenv nenv (ConstraintSolver.IsApplicableMethApprox g amap m) m ad plid showObsolete
         let items = items |> RemoveDuplicateItems g 
@@ -689,8 +687,7 @@ type TypeCheckInfo
         items, nenv.DisplayEnv, m 
 
     /// Find record fields in the best naming environment.
-    let GetClassOrRecordFieldsEnvironmentLookupResolutions(line,colAtEndOfNamesAndResidue, plid, (_residue : string option)) = 
-        let cursorPos = Pos.fromZ line colAtEndOfNamesAndResidue
+    let GetClassOrRecordFieldsEnvironmentLookupResolutions(cursorPos, plid, (_residue : string option)) = 
         let (nenv, ad),m = GetBestEnvForPos cursorPos
         let items = Nameres.ResolvePartialLongIdentToClassOrRecdFields ncenv nenv m ad plid false
         let items = items |> RemoveDuplicateItems g 
@@ -706,7 +703,7 @@ type TypeCheckInfo
     // The overall aim is to resolve as accurately as possible based on what we know from type inference
     
     let GetDeclItemsForNamesAtPosition(untypedParseOpt : ParseFileResults option,
-                                       origLongIdentOpt: string list option, residueOpt:string option, line:Line0, lineStr:string, colAtEndOfNamesAndResidue, filterCtors, resolveOverloads, hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool)) = 
+                                       origLongIdentOpt: string list option, residueOpt:string option, line:int, lineStr:string, colAtEndOfNamesAndResidue, filterCtors, resolveOverloads, hasTextChangedSinceLastTypecheck: (obj * range -> bool)) = 
 
         let GetBaseClassCandidates (denv : DisplayEnv) = function
             | Item.ModuleOrNamespaces _ -> true
@@ -754,11 +751,11 @@ type TypeCheckInfo
             | atStart when atStart = 0 -> 0
             | otherwise -> otherwise - 1
 
-        let FindInEnv(plid, showObsolete) = GetEnvironmentLookupResolutions(line,loc,plid,filterCtors, showObsolete) 
+        let FindInEnv(plid, showObsolete) = GetEnvironmentLookupResolutions(mkPos line loc,plid,filterCtors, showObsolete) 
 
-        let FindRecordFieldsInEnv(plid, residue) = GetClassOrRecordFieldsEnvironmentLookupResolutions(line, loc, plid, residue)
+        let FindRecordFieldsInEnv(plid, residue) = GetClassOrRecordFieldsEnvironmentLookupResolutions(mkPos line loc, plid, residue)
 
-        match UntypedParseImpl.TryGetCompletionContext(line, colAtEndOfNamesAndResidue, untypedParseOpt) with
+        match UntypedParseImpl.TryGetCompletionContext(mkPos line colAtEndOfNamesAndResidue, untypedParseOpt) with
         | Some Invalid -> None
         | Some (CompletionContext.Inherit(InheritanceContext.Class, (plid, _))) ->
             FindInEnv(plid, false) 
@@ -873,10 +870,10 @@ type TypeCheckInfo
 //                | Some((_,_),(el,ec)) ->
 //                    thereIsADotInvolved <- true
 //                    GetPreciseCompletionListFromExprTypings(upi, el-1, ec, filterCtors)
-                match UntypedParseImpl.TryFindExpressionASTLeftOfDotLeftOfCursor(line,colAtEndOfNamesAndResidue,upi.ParseTree) with
+                match UntypedParseImpl.TryFindExpressionASTLeftOfDotLeftOfCursor(mkPos line colAtEndOfNamesAndResidue,upi.ParseTree) with
                 | Some(pos,_) ->
                     thereIsADotInvolved <- true
-                    GetPreciseCompletionListFromExprTypings(upi, Line.toZ pos.Line, pos.Column, filterCtors, hasTextChangedSinceLastTypecheck)
+                    GetPreciseCompletionListFromExprTypings(upi, pos, filterCtors, hasTextChangedSinceLastTypecheck)
                 | None -> 
                     // Can get here in a case like: if "f xxx yyy" is legal, and we do "f xxx y"
                     // We have no interest in expression typings, those are only useful for dot-completion.  We want to fallback
@@ -934,7 +931,7 @@ type TypeCheckInfo
         | Item.Types _ | Item.ModuleOrNamespaces _ -> true
         | _ -> false
 
-    let filterIntellisenseCompletionsBasedOnParseContext untypedParseOpt line col items = 
+    let filterIntellisenseCompletionsBasedOnParseContext untypedParseOpt (pos:pos) items = 
         match untypedParseOpt with
         | None -> items
         | Some t ->
@@ -950,13 +947,13 @@ type TypeCheckInfo
                                         //     [<Attr$
                                         //     let f() = ()
                                         // inside an attribute on the next item
-                                        let pos = Pos.fromZ line (col-1) // -1 because for e.g. "open System." the dot does not show up in the parse tree
+                                        let pos = mkPos pos.Line (pos.Column - 1) // -1 because for e.g. "open System." the dot does not show up in the parse tree
                                         if rangeContainsPos m pos then  
                                             Some 0
                                         else
                                             None
                                     | _ -> defaultTraverse decl }
-            match AstTraversal.Traverse(line, col, t, visitor) with
+            match AstTraversal.Traverse(pos, t, visitor) with
             | None -> items
             | Some _ ->
                 items |> List.filter (function | Item.ModuleOrNamespaces _ -> true | _ -> false)
@@ -969,13 +966,13 @@ type TypeCheckInfo
                 match GetDeclItemsForNamesAtPosition(untypedParseOpt, Some qualifyingNames, Some partialName, line, lineStr, colAtEndOfNamesAndResidue, ResolveTypeNamesToCtors, ResolveOverloads.Yes, hasTextChangedSinceLastTypecheck) with
                 | None -> DeclarationSet.Empty  
                 | Some(items,denv,m) -> 
-                    let items = items |> filterIntellisenseCompletionsBasedOnParseContext (untypedParseOpt |> Option.bind (fun x -> x.ParseTree)) line colAtEndOfNamesAndResidue 
+                    let items = items |> filterIntellisenseCompletionsBasedOnParseContext (untypedParseOpt |> Option.bind (fun x -> x.ParseTree)) (mkPos line colAtEndOfNamesAndResidue)
                     let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
                     DeclarationSet.Create(infoReader,m,denv,items,syncop,checkAlive))
             (fun msg -> DeclarationSet.Error msg)
             
     member scope.GetReferenceResolutionToolTipText(line,col) : ToolTipText = 
-        let pos = Pos.fromZ line col
+        let pos = mkPos line col
         let lineIfExists(append) =
             if not(String.IsNullOrEmpty(append)) then append.Trim([|' '|])+"\n"
             else ""     
@@ -1104,8 +1101,8 @@ type TypeCheckInfo
             (fun msg -> 
                 MethodGroup(msg,[| |]))
 
-    member scope.GetDeclarationLocation (line : Line0, lineStr : string, idx : int, names : Names, isDecl : bool) : FindDeclResult =
-          match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, idx, ResolveTypeNamesToCtors,ResolveOverloads.Yes, fun _ -> false) with
+    member scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, isDecl) : FindDeclResult =
+          match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, colAtEndOfNames, ResolveTypeNamesToCtors,ResolveOverloads.Yes, fun _ -> false) with
           | None
           | Some ([], _, _) -> FindDeclResult.DeclNotFound FindDeclFailureReason.Unknown
           | Some (item :: _ , _, _) -> 
@@ -1142,12 +1139,12 @@ type TypeCheckInfo
                   let projectDir = Filename.directoryName (if projectFileName = "" then mainInputFileName else projectFileName)
                   let filename = fileNameOfItem g (Some projectDir) itemRange item
                   if FileSystem.SafeExists filename then 
-                      FindDeclResult.DeclFound ((itemRange.StartLine - 1, itemRange.StartColumn), filename)
+                      FindDeclResult.DeclFound (mkRange filename itemRange.Start itemRange.End)
                   else 
                       fail FindDeclFailureReason.NoSourceCode // provided items may have TypeProviderDefinitionLocationAttribute that binds them to some location
 
-    member scope.GetSymbolAtLocation (line : Line0, lineStr : string, idx : int, names : Names) =
-        match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, idx, ResolveTypeNamesToCtors, ResolveOverloads.Yes, fun _ -> false) with
+    member scope.GetSymbolAtLocation (line, lineStr, colAtEndOfNames, names) =
+        match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, colAtEndOfNames, ResolveTypeNamesToCtors, ResolveOverloads.Yes, fun _ -> false) with
         | None | Some ([], _, _) -> None
         | Some (item :: _ , _, _) -> Some (FSharpSymbol.Create(g, item))
 
@@ -1164,15 +1161,15 @@ type TypeCheckInfo
                match cnr with 
                // 'seq' in 'seq { ... }' gets colored as keywords
                | CNR(_, (Item.Value vref), ItemOccurence.Use, _, _, _, m) when valRefEq g g.seq_vref vref -> 
-                   yield ((Pos.toZ m.Start, Pos.toZ m.End), TokenColorKind.Keyword) 
+                   yield (m, TokenColorKind.Keyword) 
                // custom builders, custom operations get colored as keywords
                | CNR(_, (Item.CustomBuilder _ | Item.CustomOperation _), ItemOccurence.Use, _, _, _, m) -> 
-                   yield ((Pos.toZ m.Start, Pos.toZ m.End), TokenColorKind.Keyword) 
+                   yield (m, TokenColorKind.Keyword) 
 #if COLORIZE_TYPES
                // types get colored as types when they occur in syntactic types or custom attributes
                // typevariables get colored as types when they occur in syntactic types custom builders, custom operations get colored as keywords
                | CNR(_, (Item.TypeVar  _ | Item.Types _ | Item.UnqualifiedType _) , (ItemOccurence.UseInType | ItemOccurence.UseInAttribute), _, _, _, m) -> 
-                   yield ((Pos.toZ m.Start, Pos.toZ m.End), TokenColorKind.TypeName) 
+                   yield (m, TokenColorKind.TypeName) 
 #endif
                | _ -> () 
            |]
@@ -1185,7 +1182,7 @@ module internal Parser =
         // We'll need number of lines for adjusting error messages at EOF
     let GetFileInfoForLastLineErrors (source: string) = 
         // number of lines in the source file
-        let lastLine = Line.assertZeroBasedLine (source |> Seq.sumBy (fun c -> if c = '\n' then 1 else 0))
+        let lastLine = (source |> Seq.sumBy (fun c -> if c = '\n' then 1 else 0)) + 1
         // length of the last line
         let lastLineLength = source.Length - source.LastIndexOf("\n",StringComparison.Ordinal) - 1
         lastLine, lastLineLength
@@ -1341,7 +1338,7 @@ module internal Parser =
                             match lexfun lexbuf,stack with 
                             | tok2,((tok1,m1) :: stack') when parenTokensBalance tok1 tok2-> 
                                 if matchBracesOnly then 
-                                    matchPairRef.Add (Range.toZ m1, Range.toZ lexbuf.LexemeRange)
+                                    matchPairRef.Add (m1, lexbuf.LexemeRange)
                                 matchBraces stack'
                             | ((LPAREN | LBRACE | LBRACK | LBRACK_BAR | LQUOTE _ | LBRACK_LESS) as tok),_ -> matchBraces ((tok,lexbuf.LexemeRange) :: stack)
                             | (EOF _ | LEX_FAILURE _),_ -> ()
@@ -1582,11 +1579,11 @@ type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
 
 [<Sealed>]
 type FSharpSymbolUse(symbol:FSharpSymbol, itemOcc, range: range) = 
-    let fileName, rangeZ = Range.toFileZ range
     member __.Symbol  = symbol
     member __.IsDefinition = (match itemOcc with ItemOccurence.Binding | ItemOccurence.Pattern -> true | _ -> false)
-    member __.FileName = fileName
-    member __.Range = rangeZ
+    member __.FileName = range.FileName
+    member __.Range = Range.toZ range
+    member __.RangeAlternate = range
 
 [<Sealed>]
 // 'details' is an option because the creation of the tcGlobals etc. for the project may have failed.
@@ -1681,7 +1678,7 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
     member info.HasFullTypeCheckInfo = details.IsSome
     
     /// Intellisense autocompletions
-    member info.GetDeclarations(untypedParseOpt:ParseFileResults option, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
+    member info.GetDeclarationsAlternate(untypedParseOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
         let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
         checkBuilder (async.Return DeclarationSet.Empty) (fun (scope, builderOpt, reactor) -> 
             async { // Ensure the builder doesn't get released while running GetDeclarations asynchronously. In synchronous operations,
@@ -1691,11 +1688,8 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
                     return! reactor.RunAsyncOp(fun () -> scope.GetDeclarations(untypedParseOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))  
                   })
 
-    member info.GetDataTipText(line, colAtEndOfNames, lineStr, names, tokenTag) = 
-        info.GetToolTipText(line, colAtEndOfNames, lineStr, names, tokenTag)
-
     /// Resolve the names at the given location to give a data tip 
-    member info.GetToolTipText(line, colAtEndOfNames, lineStr, names:Names, tokenTag:int) : ToolTipText = 
+    member info.GetToolTipTextAlternate(line, colAtEndOfNames, lineStr, names, tokenTag) = 
         let dflt = ToolTipText []
         checkBuilder dflt (fun (scope, _builder, reactor) -> 
             match tokenTagToTokenId tokenTag with 
@@ -1705,29 +1699,26 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
                 reactor.RunSyncOp (fun () -> scope.GetReferenceResolutionToolTipText(line, colAtEndOfNames))        
             | _ -> ToolTipText [])
 
-    member info.GetF1Keyword (line,colAtEndOfNames,lineStr,names) : string option =
+    member info.GetF1KeywordAlternate (line, colAtEndOfNames, lineStr, names) =
         checkBuilder None (fun (scope, _builder, reactor) -> 
             reactor.RunSyncOp (fun () -> scope.GetF1Keyword (line, lineStr, colAtEndOfNames, names)))
 
     // Resolve the names at the given location to a set of methods
-    member info.GetMethods(line, colAtEndOfNames,lineStr:string,names:Names option) =
+    member info.GetMethodsAlternate(line, colAtEndOfNames, lineStr, names) =
         let dflt = MethodGroup("",[| |])
         checkBuilder dflt (fun (scope, _builder, reactor) -> 
             reactor.RunSyncOp (fun () -> scope.GetMethods (line, lineStr, colAtEndOfNames, names)))
             
-    member info.GetDeclarationLocation (line, colAtEndOfNames, lineStr:string, names : Names, _tokenTag : int, flag : bool) = 
-        info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, flag) 
-
-    member info.GetDeclarationLocation (line, colAtEndOfNames, lineStr:string, names : Names, flag : bool) = 
+    member info.GetDeclarationLocationAlternate (line, colAtEndOfNames, lineStr, names, flag) = 
         let dflt = FindDeclResult.DeclNotFound FindDeclFailureReason.Unknown
         checkBuilder dflt (fun (scope, _builder, reactor) -> 
             reactor.RunSyncOp (fun () -> scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, flag)))
 
-    member info.GetSymbolAtLocation (line, colAtEndOfNames, lineStr:string, names : Names) = 
+    member info.GetSymbolAtLocationAlternate (line, colAtEndOfNames, lineStr, names) = 
         checkBuilder None (fun (scope, _builder, reactor) -> 
             reactor.RunSyncOp (fun () -> scope.GetSymbolAtLocation (line, lineStr, colAtEndOfNames, names)))
 
-    member info.GetExtraColorizations() = 
+    member info.GetExtraColorizationsAlternate() = 
         use t = Trace.Call("SyncOp","GetExtraColorizations", fun _->sprintf "")
         checkBuilder [| |] (fun (scope, _builder, _reactor) -> 
             scope.GetExtraColorizations())
@@ -1761,6 +1752,35 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
                         yield FSharpSymbolUse(symbol,itemOcc, m) |]))
 
     
+    // Obsolete
+
+    member info.GetDeclarations(untypedParseOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
+        info.GetDeclarationsAlternate(untypedParseOpt, Line.fromZ line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck=(match hasTextChangedSinceLastTypecheck with None -> None | Some f -> Some (fun (a,b) -> f (a, Range.toZ b))))
+
+    member info.GetExtraColorizations() =  
+        info.GetExtraColorizationsAlternate() |> Array.map (fun (a,b) -> (Range.toZ a, b))
+
+    member info.GetToolTipText(line, colAtEndOfNames, lineStr, names, tokenTag) = 
+        info.GetToolTipTextAlternate(Line.fromZ line, colAtEndOfNames, lineStr, names, tokenTag)
+
+    member info.GetDataTipText(line, colAtEndOfNames, lineStr, names, tokenTag) = 
+        info.GetToolTipText(line, colAtEndOfNames, lineStr, names, tokenTag)
+
+    member info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, _tokenTag:int, flag) = 
+        info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, flag) 
+
+    member info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, flag) = 
+        info.GetDeclarationLocationAlternate (Line.fromZ line, colAtEndOfNames, lineStr, names, flag) 
+
+    member info.GetSymbolAtLocation (line, colAtEndOfNames, lineStr, names) = 
+        info.GetSymbolAtLocationAlternate (Line.fromZ line, colAtEndOfNames, lineStr, names) 
+
+    member info.GetF1Keyword (line,colAtEndOfNames,lineStr,names) =
+        info.GetF1KeywordAlternate (Line.fromZ line,colAtEndOfNames,lineStr,names)
+
+    member info.GetMethods (line, colAtEndOfNames,lineStr:string,names:Names option) =
+        info.GetMethodsAlternate(Line.fromZ line, colAtEndOfNames,lineStr,names) 
+
 //----------------------------------------------------------------------------
 // BackgroundCompiler
 //
@@ -2065,6 +2085,7 @@ type InteractiveChecker() =
 
     static let mutable foregroundParseCount = 0
     static let mutable foregroundTypeCheckCount = 0
+    static let globalInstance = InteractiveChecker()
     
     /// Determine whether two sets of sources and parse options are the same.
     let AreSameForParsing((f1: string, s1: string, o1: ProjectOptions), (f2, s2, o2)) =
@@ -2093,22 +2114,29 @@ type InteractiveChecker() =
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.untypedCheckMru. Most recently used cache for parsing files.
     let untypedCheckMru = MruCache<_, _>(untypedCheckMruSize, ComputeUntypedParse, areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true))
 
-    // STATIC ROOT: LanguageServiceState.InteractiveChecker.typeCheckLookup. 
+    // STATIC ROOT: LanguageServiceState.InteractiveChecker.typeCheckLookup 
+    // STATIC ROOT: LanguageServiceState.InteractiveChecker.typeCheckLookup2
     //
-    /// Cache which holds recently seen type-checks, no more than one for each file.
+    /// Cache which holds recently seen type-checks.
     /// This cache may hold out-of-date entries, in two senses
     ///    - there may be a more recent antecedent state available because the background build has made it available
     ///    - the source for the file may have changed
     
     let typeCheckLookup = 
-        AgedLookup<string * ProjectOptions,ParseFileResults * CheckFileResults *int>
+        AgedLookup<string * ProjectOptions, ParseFileResults * CheckFileResults * int>
+            (keepStrongly=recentForgroundTypeCheckLookupSize,
+             areSame=fun (x,y)->x=y) 
+
+    // Also keyed on source. This can only be out of date if the antecedent is out of date
+    let typeCheckLookup2 = 
+        AgedLookup<string * ProjectOptions * string, ParseFileResults * CheckFileResults * int>
             (keepStrongly=recentForgroundTypeCheckLookupSize,
              areSame=fun (x,y)->x=y) 
 
     /// Instantiate an interactive checker.    
     static member Create() = new InteractiveChecker()
 
-    member ic.MatchBraces(filename, source, options) =
+    member ic.MatchBracesAlternate(filename, source, options) =
         braceMatchMru.Get((filename, source, options))
 
     member ic.ParseFileInProject(filename, source, options) =
@@ -2121,12 +2149,10 @@ type InteractiveChecker() =
         backgroundCompiler.GetBackgroundCheckResultsForFileInProject(filename,options)
         
     /// Try to get recent approximate type check results for a file. 
-    member ic.TryGetRecentTypeCheckResultsForFile(filename: string, options:ProjectOptions) =
-        match typeCheckLookup.TryGet((filename,options)) with
-        | Some res -> 
-            Some res
-        | _ -> 
-            None
+    member ic.TryGetRecentTypeCheckResultsForFile(filename: string, options:ProjectOptions, ?source) =
+        match source with 
+        | Some sourceText -> typeCheckLookup2.TryGet((filename,options,sourceText)) 
+        | None -> typeCheckLookup.TryGet((filename,options)) 
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.
@@ -2140,6 +2166,7 @@ type InteractiveChecker() =
     member ic.ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients() =
         ic.InvalidateAll()
         typeCheckLookup.Clear()
+        typeCheckLookup2.Clear()
         braceMatchMru.Clear()
         untypedCheckMru.Clear()
         for i in 0 .. 2 do 
@@ -2156,7 +2183,7 @@ type InteractiveChecker() =
     member ic.NotifyProjectCleaned(options: ProjectOptions) =
         backgroundCompiler.NotifyProjectCleaned options
               
-    member ic.RecordTypeCheckFileInProjectResults(filename,options,untypedParse,fileVersion,answer) =        
+    member ic.RecordTypeCheckFileInProjectResults(filename,options,untypedParse,fileVersion,answer,source) =        
         match answer with 
         | None
         | Some Aborted -> 
@@ -2164,13 +2191,14 @@ type InteractiveChecker() =
         | Some (Succeeded typedResults) -> 
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
             typeCheckLookup.Put((filename,options),(untypedParse,typedResults,fileVersion))            
+            typeCheckLookup2.Put((filename,options,source),(untypedParse,typedResults,fileVersion))            
 
     /// Typecheck a source code file, returning a handle to the results of the 
     /// parse including the reconstructed types in the file.
     member ic.CheckFileInProjectIfReady(untypedParse:ParseFileResults, filename:string, fileVersion:int, source:string, options:ProjectOptions, ?isResultObsolete, ?textSnapshotInfo:obj) =        
         let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
         let answer = backgroundCompiler.CheckFileInProjectIfReady(untypedParse,filename,source,options,isResultObsolete,textSnapshotInfo)
-        ic.RecordTypeCheckFileInProjectResults(filename,options,untypedParse,fileVersion,answer)
+        ic.RecordTypeCheckFileInProjectResults(filename,options,untypedParse,fileVersion,answer,source)
         answer
             
     /// Typecheck a source code file, returning a handle to the results of the 
@@ -2179,7 +2207,7 @@ type InteractiveChecker() =
         let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
         async {
             let! answer = backgroundCompiler.CheckFileInProject(untypedParse,filename,source,options,isResultObsolete,textSnapshotInfo)
-            ic.RecordTypeCheckFileInProjectResults(filename,options,untypedParse,fileVersion,Some answer)
+            ic.RecordTypeCheckFileInProjectResults(filename,options,untypedParse,fileVersion,Some answer,source)
             return answer 
         }
             
@@ -2221,6 +2249,9 @@ type InteractiveChecker() =
     static member GlobalForegroundTypeCheckCountStatistic = foregroundTypeCheckCount
           
     // Obsolete
+    member ic.MatchBraces(filename, source, options) =
+        ic.MatchBracesAlternate(filename, source, options) |> Array.map (fun (a,b) -> Range.toZ a, Range.toZ b)
+
     member bc.UntypedParse(filename, source, options) = bc.ParseFileInProject(filename, source, options)
     member bc.TypeCheckSource(untypedParse, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo:obj) = bc.CheckFileInProjectIfReady(untypedParse, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo)
     member ic.GetCheckOptionsFromScriptRoot(filename, source, loadedTimeStamp) = ic.GetProjectOptionsFromScript(filename, source, loadedTimeStamp, [| |]) 
@@ -2228,7 +2259,7 @@ type InteractiveChecker() =
     member ic.GetProjectOptionsFromScriptRoot(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = ic.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp=loadedTimeStamp, ?otherFlags=otherFlags, ?useFsiAuxLib=useFsiAuxLib)
     member ic.FileTypeCheckStateIsDirty  = backgroundCompiler.BeforeBackgroundFileCheck
 
-
+    static member Instance = globalInstance
 
 type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, tcImports, tcState, loadClosure) =
 

@@ -986,15 +986,19 @@ type Severity =
     | Warning 
     | Error
 
-type ErrorInfo = {
-    FileName:string
-    StartLine:Line0
-    EndLine:Line0
-    StartColumn:int
-    EndColumn:int
-    Severity:Severity
-    Message:string 
-    Subcategory:string } with 
+type ErrorInfo(fileName, s:pos, e:pos, severity: Severity, message: string, subcategory: string) = 
+    member __.StartLine = Line.toZ s.Line
+    member __.StartLineAlternate = s.Line
+    member __.EndLine = Line.toZ e.Line
+    member __.EndLineAlternate = e.Line
+    member __.StartColumn = s.Column
+    member __.EndColumn = e.Column
+    member __.Severity = severity
+    member __.Message = message
+    member __.Subcategory = subcategory
+    member __.FileName = fileName
+    member __.WithStart(newStart) = ErrorInfo(fileName, newStart, e, severity, message, subcategory)
+    member __.WithEnd(newEnd) = ErrorInfo(fileName, s, newEnd, severity, message, subcategory)
     override e.ToString()=
         sprintf "%s (%d,%d)-(%d,%d) %s %s %s" 
             e.FileName
@@ -1004,26 +1008,26 @@ type ErrorInfo = {
             e.Message    
             
     /// Decompose a warning or error into parts: position, severity, message
-    static member internal CreateFromExceptionAndAdjustEof(exn,warn,trim:bool,fallbackRange:range, (linesCount:Line0, lastLength:int)) = 
+    static member (*internal*) CreateFromException(exn,warn,trim:bool,fallbackRange:range) = 
+        let m = match RangeOfError exn with Some m -> m | None -> fallbackRange 
+        let s = m.Start
+        let e = (if trim then m.Start else m.End)
+        let msg = bufs (fun buf -> OutputPhasedError buf exn false)
+        ErrorInfo(m.FileName, s, e, (if warn then Severity.Warning else Severity.Error), msg, exn.Subcategory())
+        
+    /// Decompose a warning or error into parts: position, severity, message
+    static member internal CreateFromExceptionAndAdjustEof(exn,warn,trim:bool,fallbackRange:range, (linesCount:int, lastLength:int)) = 
         let r = ErrorInfo.CreateFromException(exn,warn,trim,fallbackRange)
                 
         // Adjust to make sure that errors reported at Eof are shown at the linesCount        
-        let startline, schange = min (r.StartLine, false) (linesCount, true)
-        let endline,   echange = min (r.EndLine, false)   (linesCount, true)
+        let startline, schange = min (r.StartLineAlternate, false) (linesCount, true)
+        let endline,   echange = min (r.EndLineAlternate, false)   (linesCount, true)
         
         if not (schange || echange) then r
         else
-            let r = if schange then { r with StartLine = startline; StartColumn = lastLength } else r
-            if echange then { r with EndLine = endline; EndColumn = 1 + lastLength } else r
+            let r = if schange then r.WithStart(mkPos startline lastLength) else r
+            if echange then r.WithEnd(mkPos  endline (1 + lastLength)) else r
 
-    /// Decompose a warning or error into parts: position, severity, message
-    static member (*internal*) CreateFromException(exn,warn,trim:bool,fallbackRange:range) = 
-        let m = match RangeOfError exn with Some m -> m | None -> fallbackRange 
-        let s1,s2 = Pos.toZ m.Start
-        let s3,s4 = Pos.toZ (if trim then m.Start else m.End)
-        let msg = bufs (fun buf -> OutputPhasedError buf exn false)
-        {FileName=m.FileName; StartLine=s1; StartColumn=s2; EndLine=s3; EndColumn=s4; Severity=(if warn then Severity.Warning else Severity.Error); Subcategory=exn.Subcategory(); Message=msg}
-        
     
 /// Use to reset error and warning handlers            
 [<Sealed>]

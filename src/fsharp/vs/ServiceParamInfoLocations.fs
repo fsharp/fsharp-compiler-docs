@@ -49,8 +49,7 @@ module internal NoteworthyParamInfoLocationsImpl =
         | SynType.LongIdent _ -> true // NOTE: this is not a static constant, but it is a prefix of incomplete code, e.g. "TP<42,Arg3" is a prefix of "TP<42,Arg3=6>" and Arg3 shows up as a LongId
         | _ -> false
 
-    let traverseInput(line,col,parseTree) : NoteworthyParamInfoLocations option =
-        let pos = Pos.fromZ line col  // line was 0-based, need 1-based
+    let traverseInput(pos,parseTree) : NoteworthyParamInfoLocations option =
 
         let rec digOutIdentStartEndFromAnApp synExpr =
             // we found it, dig out ident
@@ -168,7 +167,7 @@ module internal NoteworthyParamInfoLocationsImpl =
             | SynType.LongIdent(LongIdentWithDots(ids,_)) -> ids |> List.map (fun id -> id.idText)
             | _ -> [""] // TODO type name for other cases, see also unit test named "ParameterInfo.LocationOfParams.AfterQuicklyTyping.CallConstructorViaLongId.Bug94333"
 
-        AstTraversal.Traverse(line,col,parseTree, { new AstTraversal.AstVisitorBase<_>() with
+        AstTraversal.Traverse(pos,parseTree, { new AstTraversal.AstVisitorBase<_>() with
         member this.VisitExpr(_path, traverseSynExpr, defaultTraverse, expr) =
             let expr = expr // fix debug locals
             match expr with
@@ -284,8 +283,8 @@ module internal NoteworthyParamInfoLocationsImpl =
                 else None
         })
 
-    let FindNoteworthyParamInfoLocations(line,col,parseTree) =
-        match traverseInput(line,col,parseTree) with
+    let FindNoteworthyParamInfoLocations(pos,parseTree) =
+        match traverseInput(pos,parseTree) with
         | Some(nwpl) as r-> 
 #if DEBUG
             let ranges = nwpl.LongIdStartLocation :: nwpl.LongIdEndLocation :: nwpl.OpenParenLocation :: (nwpl.TupleEndLocations |> Array.toList)

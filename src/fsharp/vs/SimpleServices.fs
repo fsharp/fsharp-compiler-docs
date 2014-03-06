@@ -82,32 +82,34 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.Errors = results.Errors
 
         /// Get the declarations at the given code location.
-        member x.GetDeclarations(line:Line0, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
-            async { let! items = results.GetDeclarations(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
+        member x.GetDeclarationsAlternate(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
+            async { let! items = results.GetDeclarationsAlternate(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
                     return [| for i in items.Items -> SimpleDeclaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
 
         /// Get the Visual Studio F1-help keyword for the item at the given position
-        member x.GetF1Keyword(line, col, names) =
-            results.GetF1Keyword(line, col, source.[int line], names)
-
-        [<System.Obsolete("This method has been renamed to GetToolTipText")>]
-        member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = 
-            x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever)
+        member x.GetF1KeywordAlternate(line, col, names) =
+            results.GetF1KeywordAlternate(line, col, source.[int line], names)
 
         /// Get the data tip text at the given position
-        member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) =
-            let tip = results.GetToolTipText(line, col, source.[int line], names, identToken)
+        member x.GetToolTipTextAlternate(line, col, names, ?xmlCommentRetriever) =
+            let tip = results.GetToolTipTextAlternate(line, col, source.[int line], names, identToken)
             formatTip tip xmlCommentRetriever
 
-        member x.GetRawToolTipText(line, col, names) =
-            results.GetToolTipText(line, col, source.[line], names, identToken)
-
         /// Get the location of the declaration at the given position
-        member x.GetDeclarationLocation(line, col, names, isDecl) =
-            results.GetDeclarationLocation(line, col, source.[int line], names, identToken, isDecl)
+        member x.GetDeclarationLocationAlternate(line, col, names, isDecl) =
+            results.GetDeclarationLocationAlternate(line, col, source.[int line], names, isDecl)
 
         /// Get the full type checking results 
         member x.FullResults = results
+
+
+        // Obsolete
+        
+        member x.GetF1Keyword(line, col, names) = x.GetF1KeywordAlternate(Line.fromZ line, col, names)
+        member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipTextAlternate(Line.fromZ line, col, names, ?xmlCommentRetriever=xmlCommentRetriever)
+        member x.GetDeclarationLocation(line, col, names, isDecl) = x.GetDeclarationLocationAlternate(Line.fromZ line, col, names, isDecl)
+        member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever)
+        member x.GetDeclarations(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) = x.GetDeclarationsAlternate(Line.fromZ line, col, qualifyingNames, partialName, ?xmlCommentRetriever=xmlCommentRetriever)
 
     /// Provides simple services for checking and compiling F# scripts
     type public SimpleSourceCodeServices() =
@@ -138,7 +140,11 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             tokens
 
         /// Return information about matching braces in a single file.
-        member x.MatchBraces (filename, source: string, ?otherFlags) : (Range01 * Range01) [] = 
+        member x.MatchBracesAlternate (filename, source: string, ?otherFlags) = 
+            let options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
+            checker.MatchBracesAlternate(filename, source,  options)
+
+        member x.MatchBraces (filename, source, ?otherFlags) = 
             let options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
             checker.MatchBraces(filename, source,  options)
 

@@ -89,7 +89,7 @@ module (*internal*) AstTraversal =
     let dive node range project =
         range,(fun() -> project node)
 
-    let pick pos (_line:Line0) _col (outerRange:range) (_debugObj:obj) (diveResults:list<range*_>) =
+    let pick pos (outerRange:range) (_debugObj:obj) (diveResults:list<range*_>) =
         match diveResults with
         | [] -> None
         | _ ->
@@ -132,16 +132,15 @@ module (*internal*) AstTraversal =
         | _ -> 
 #if DEBUG
             assert(false)
-            failwithf "multiple disjoint AST node ranges claimed to contain (%d,%d) from %+A" (int _line) _col _debugObj
+            failwithf "multiple disjoint AST node ranges claimed to contain (%A) from %+A" pos _debugObj
 #else
             None
 #endif
 
     /// traverse an implementation file walking all the way down to SynExpr or TypeAbbrev at a particular location
     ///
-    let (*internal*) Traverse(line, col, parseTree, visitor:AstVisitorBase<'T>) =
-        let pos = Pos.fromZ line col  // line was 0-based, need 1-based
-        let pick x = pick pos line col x
+    let (*internal*) Traverse(pos:pos, parseTree, visitor:AstVisitorBase<'T>) =
+        let pick x = pick pos x
         let rec traverseSynModuleDecl path (decl:SynModuleDecl) =
             let pick = pick decl.Range
             let defaultTraverse m = 

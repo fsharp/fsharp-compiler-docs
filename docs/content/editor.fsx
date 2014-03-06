@@ -102,21 +102,28 @@ this is the type that lets you implement most of the interesting F# source code 
 
 ### Getting a tool tip
 
-To get a tool tip, you can use `GetToolTipText` method. The method takes a line number and character
+To get a tool tip, you can use `GetToolTipTextAlternate` method. The method takes a line number and character
 offset. Both of the numbers are zero-based. In the sample code, we want to get tooltip for the `foo`
 function that is defined on line 3 (line 0 is blank) and the letter `f` starts at index 7 (the tooltip
 would work anywhere inside the identifier).
 
 In addition, the method takes a tag of token which is typically `IDENT`, when getting tooltip for an
 identifier (the other option lets you get tooltip with full assembly location when using `#r "..."`).
+
 *)
 // Get tag of the IDENT token to be used as the last argument
 open Microsoft.FSharp.Compiler
 let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
 
 // Get tool tip at the specified location
-let tip = checkFileResults.GetToolTipText(3, 7, inputLines.[1], ["foo"], identToken)
+let tip = checkFileResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken)
 printfn "%A" tip
+
+(**
+
+> **NOTE:** `GetToolTipTextAlternate` is an alternative name for the old `GetToolTipText`. The old `GetToolTipText` was
+deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  `GetToolTipTextAlternate` will be renamed back to `GetToolTipText`.
+*)
 
 (**
 Aside from the location and token kind, the function also requires the current contents of the line
@@ -135,20 +142,27 @@ This can be called on any identifier or in any scope (in which case you get a li
 in the scope) or immediately after `.` to get a list of members of some object. Here, we get a 
 list of members of the string value `msg`.
 
-To do this, we call `GetDeclarations` with the location of the `.` symbol on the last line 
-(ending with `printfn "%s" msg.`). The offsets are zero-based, so the location is `6, 23`.
+To do this, we call `GetDeclarationsAlternate` with the location of the `.` symbol on the last line 
+(ending with `printfn "%s" msg.`). The offsets are one-based, so the location is `7, 23`.
 We also need to specify a function that says that the text has not changed and the current identifer
 where we need to perform the completion.
 *)
 // Get declarations (autocomplete) for a location
 let decls = 
-    checkFileResults.GetDeclarations
-      (Some parseFileResults, 6, 23, inputLines.[6], [], "msg", fun _ -> false)
+    checkFileResults.GetDeclarationsAlternate
+      (Some parseFileResults, 7, 23, inputLines.[6], [], "msg", fun _ -> false)
     |> Async.RunSynchronously
 
 // Print the names of available items
 for item in decls.Items do
     printfn " - %s" item.Name
+
+(**
+
+> **NOTE:** `v` is an alternative name for the old `GetDeclarations`. The old `GetDeclarations` was
+deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  `GetDeclarationsAlternate` will be renamed back to `GetDeclarations`.
+*)
+
 (**
 When you run the code, you should get a list containing the usual string methods such as 
 `Substring`, `ToUpper`, `ToLower` etc. The fourth argument of `GetDeclarations`, here `([], "msg")`, 
@@ -168,7 +182,7 @@ changes):
 *)
 // Get overloads of the String.Concat method
 let methods = 
-    checkFileResults.GetMethods(4, 27, inputLines.[4], Some ["String"; "Concat"])
+    checkFileResults.GetMethodsAlternate(5, 27, inputLines.[4], Some ["String"; "Concat"])
 
 // Print concatenated parameter lists
 for mi in methods.Methods do

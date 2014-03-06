@@ -108,8 +108,8 @@ Now look at the errors and warnings:
 wholeProjectResults .Errors.Length // 1
 wholeProjectResults.Errors.[0].Message.Contains("Incomplete pattern matches on this expression") // yes it does
 
-wholeProjectResults.Errors.[0].StartLine // 12
-wholeProjectResults.Errors.[0].EndLine // 12
+wholeProjectResults.Errors.[0].StartLineAlternate // 13
+wholeProjectResults.Errors.[0].EndLineAlternate // 13
 wholeProjectResults.Errors.[0].StartColumn // 15
 wholeProjectResults.Errors.[0].EndColumn // 16
 
@@ -150,7 +150,7 @@ let backgroundParseResults1, backgroundTypedParse1 =
 You can now resolve symbols in each file:
 *)
 
-let xSymbol = backgroundTypedParse1.GetSymbolAtLocation(8,9,"",["xxx"]).Value
+let xSymbol = backgroundTypedParse1.GetSymbolAtLocationAlternate(9,9,"",["xxx"]).Value
 
 (**
 For each symbol, you can look up the references to that symbol:
@@ -191,7 +191,7 @@ let checkResults2 =
 Again, you can resolve symbols and ask for references:
 *)
 
-let xSymbol2 = checkResults1.GetSymbolAtLocation(8,9,"",["xxx"]).Value
+let xSymbol2 = checkResults1.GetSymbolAtLocationAlternate(9,9,"",["xxx"]).Value
 let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2)
 
 

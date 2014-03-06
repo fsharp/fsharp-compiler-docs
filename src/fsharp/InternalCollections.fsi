@@ -51,8 +51,6 @@ namespace Internal.Utilities.Collections
     member Remove : key:'TKey -> unit
     /// Set the value for the given key. This value does not have to agree with computed value.           
     member SetAlternate : key:'TKey * value:'TValue -> unit
-    /// Get the most recent item if there is one.
-    member MostRecent : ('TKey * 'TValue) option
 
   [<Sealed>]
   type internal List = 

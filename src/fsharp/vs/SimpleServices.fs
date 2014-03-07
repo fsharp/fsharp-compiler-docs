@@ -175,7 +175,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             checker.ParseAndCheckProject(options)
 
         /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
-        member x.Compile (argv: string[])  = 
+        member x.Compile (argv: string[], tcImportsCapture, dynamicAssemblyCreator)  = 
             let errors = ResizeArray<_>()
 
             let errorSink warn exn = 
@@ -197,13 +197,15 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
                 let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
                 try 
-                    mainCompile (argv, true, exiter, Some loggerProvider); 
+                    mainCompile (argv, true, exiter, Some loggerProvider, tcImportsCapture, dynamicAssemblyCreator); 
                     0
                 with e -> 
                     stopProcessingRecovery e Range.range0
                     1
         
             errors.ToArray(), result
+
+        member x.Compile (argv: string[])  = x.Compile(argv, None, None)
 
         /// Compiles to a dynamic assembly usinng the given flags.  Any source files names 
         /// are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not
@@ -223,10 +225,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 System.Console.SetError error
 #endif
             | None -> ()
-            let tcImportsRef = ref None
+            let tcImportsRef = ref (None: Build.TcImports option)
             let res = ref None
-            tcImportsCapture <- Some (fun tcImports -> tcImportsRef := Some tcImports)
-            dynamicAssemblyCreator <- 
+            let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
+            let dynamicAssemblyCreator = 
                 Some (fun (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) ->
                     let assemblyBuilder = System.AppDomain.CurrentDomain.DefineDynamicAssembly(System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile),System.Reflection.Emit.AssemblyBuilderAccess.Run)
                     let debugInfo = false
@@ -255,14 +257,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                     res := Some assemblyBuilder)
             
 
-            try 
-                let errorsAndWarnings, result = x.Compile otherFlags
-                let assemblyOpt = 
-                    match res.Value with 
-                    | None -> None
-                    | Some a ->  Some (a :> System.Reflection.Assembly)
-                errorsAndWarnings, result, assemblyOpt
-            finally
-                tcImportsCapture <- None
-                dynamicAssemblyCreator <- None
+            let errorsAndWarnings, result = x.Compile (otherFlags, tcImportsCapture, dynamicAssemblyCreator)
+            let assemblyOpt = 
+                match res.Value with 
+                | None -> None
+                | Some a ->  Some (a :> System.Reflection.Assembly)
+            errorsAndWarnings, result, assemblyOpt
 

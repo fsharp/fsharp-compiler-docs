@@ -7,17 +7,17 @@
 module FSharp.Compiler.Service.Tests.ProjectAnalysisTests
 #endif
 
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open NUnit.Framework
 open FsUnit
 open System
 open System.IO
-
-open System
 open System.Collections.Generic
+
+open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
+
+open FSharp.Compiler.Service.Tests.Common
 
 // Create an interactive checker instance 
 let checker = InteractiveChecker.Create()
@@ -27,36 +27,6 @@ let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn
 
 /// Extract range info  and convert to zero-based line  - please don't use this one any more
 let tupsZ (m:Range.range) = (m.StartLine-1, m.StartColumn), (m.EndLine-1, m.EndColumn)
-
-let mkProjectCommandLineArgs (dllName, fileNames) = 
-    [|  yield "--simpleresolution" 
-        yield "--noframework" 
-        yield "--debug:full" 
-        yield "--define:DEBUG" 
-        yield "--optimize-" 
-        yield "--out:" + dllName
-        yield "--doc:test.xml" 
-        yield "--warn:3" 
-        yield "--fullpaths" 
-        yield "--flaterrors" 
-        yield "--target:library" 
-        for x in fileNames do 
-            yield x
-        let references = 
-            if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-                [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" 
-                  @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" 
-                  @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" 
-                  @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"]  
-            else 
-                let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
-                let (++) a b = System.IO.Path.Combine(a,b)
-                [ sysDir ++ "mscorlib.dll" 
-                  sysDir ++ "System.dll" 
-                  sysDir ++ "System.Core.dll" 
-                  sysDir ++ "FSharp.Core.dll"]  
-        for r in references do
-                yield "-r:" + r |]
 
 module Project1 = 
     open System.IO

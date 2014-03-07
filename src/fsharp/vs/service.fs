@@ -1532,6 +1532,7 @@ type ProjectOptions =
       ProjectFileName: string
       ProjectFileNames: string[]
       ProjectOptions: string[]
+      ReferencedProjects: (string * ProjectOptions)[]
       IsIncompleteTypeCheckEnvironment : bool
       UseScriptResolutionRules : bool      
       LoadTime : System.DateTime
@@ -1551,6 +1552,8 @@ type ProjectOptions =
         ProjectOptions.AreSameProjectForParsing(options1,options2) &&
         options1.ProjectFileNames = options2.ProjectFileNames &&
         options1.ProjectOptions = options2.ProjectOptions &&
+        options1.ReferencedProjects.Length = options2.ReferencedProjects.Length &&
+        Array.forall2 (fun (n1,a) (n2,b) -> n1 = n2 && ProjectOptions.AreSameProjectForBuilding(a,b)) options1.ReferencedProjects options2.ReferencedProjects &&
         options1.LoadTime = options2.LoadTime
     /// Compute the project directory.
     member po.ProjectDirectory = System.IO.Path.GetDirectoryName(po.ProjectFileName)
@@ -1587,7 +1590,7 @@ type FSharpSymbolUse(symbol:FSharpSymbol, itemOcc, range: range) =
 
 [<Sealed>]
 // 'details' is an option because the creation of the tcGlobals etc. for the project may have failed.
-type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*ModuleOrNamespaceType*TcResolutions list) option, reactorOps: IReactorOperations) =
+type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*ModuleOrNamespaceType*TcResolutions list*Build.IRawFSharpAssemblyContents option * ILAssemblyRef) option, reactorOps: IReactorOperations) =
 
     let getDetails() = 
         match details with 
@@ -1599,12 +1602,12 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*Modul
     member info.HasCriticalErrors = details.IsNone
 
     member info.AssemblySignature =  
-        let (tcGlobals, _tcImports, ccuSig, _tcResolutions) = getDetails()
+        let (tcGlobals, _tcImports, ccuSig, _tcResolutions, _assembly, _ilAssemRef) = getDetails()
         FSharpAssemblySignature(tcGlobals,ccuSig)
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetUsesOfSymbol(symbol:FSharpSymbol) = 
-        let (_tcGlobals, _tcImports, _ccuSig, tcResolutions) = getDetails()
+        let (_tcGlobals, _tcImports, _ccuSig, tcResolutions, _assembly, _ilAssemRef) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
         reactorOps.RunSyncOp(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
@@ -1614,7 +1617,7 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*Modul
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetAllUsesOfAllSymbols() = 
-        let (tcGlobals, _tcImports, _ccuSig, tcResolutions) = getDetails()
+        let (tcGlobals, _tcImports, _ccuSig, tcResolutions, _assembly, _ilAssemRef) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetAllUsesOfSymbols is immutable.
         reactorOps.RunSyncOp(fun () -> 
             [| for r in tcResolutions do 
@@ -1623,11 +1626,19 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*Modul
                     yield FSharpSymbolUse(symbol, itemOcc, m) |]) 
 
     member info.ProjectContext = 
-        let (tcGlobals, tcImports, _ccuSig, _tcResolutions) = getDetails()
+        let (tcGlobals, tcImports, _ccuSig, _tcResolutions, _assembly, _ilAssemRef) = getDetails()
         let assemblies = 
             [ for x in tcImports.GetImportedAssemblies() do 
                 yield FSharpAssembly(tcGlobals,x.FSharpViewOfMetadata) ]
         ProjectContext(assemblies) 
+
+    member info.RawFSharpAssemblyContents = 
+        let (_tcGlobals, _tcImports, _ccuSig, _tcResolutions, assembly, _ilAssemRef) = getDetails()
+        assembly
+
+    member info.AssemblyFullName = 
+        let (_tcGlobals, _tcImports, _ccuSig, _tcResolutions, _assembly, ilAssemRef) = getDetails()
+        ilAssemRef.QualifiedName
 
 [<Sealed>]
 /// A live object of this type keeps the background corresponding background builder (and type providers) alive (through reference-counting).
@@ -1820,12 +1831,20 @@ type BackgroundCompiler() as self =
     /// creates an incremental builder used by the command line compiler.
     let CreateOneIncrementalBuilder (options:ProjectOptions) = 
         use t = Trace.Call("Reactor","CreateOneIncrementalBuilder", fun () -> sprintf "options = %+A" options)
+
+        let projectReferences =  
+            [ for (nm,opts) in options.ReferencedProjects do 
+                 let r = self.ParseAndCheckProjectImpl(opts)
+                 match r.RawFSharpAssemblyContents with 
+                 | Some c -> yield (nm, c)
+                 | _ -> () ]
+
         let builderOpt, errorsAndWarnings = 
             // PROBLEM: This call can currently fail if an error happens while setting up the TcConfig
             // This leaves us completely horked.
             IncrementalFSharpBuild.IncrementalBuilder.TryCreateBackgroundBuilderForProjectOptions
                   (scriptClosure.TryGet options, Array.toList options.ProjectFileNames, 
-                   Array.toList options.ProjectOptions, options.ProjectDirectory, 
+                   Array.toList options.ProjectOptions, projectReferences, options.ProjectDirectory, 
                    options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment)
 
         // We're putting the builder in the cache, so increment its count.
@@ -1988,18 +2007,24 @@ type BackgroundCompiler() as self =
                 let typedResults = MakeCheckFileResults(options, builder, scope, creationErrors, untypedParse.Errors, tcErrors)
                 (untypedParse, typedResults)
 
+
+    /// Parse and typecheck the whole project (the implementation, called recursively as project graph is evaluated)
+    member private bc.ParseAndCheckProjectImpl(options) : CheckProjectResults =
+        let builderOpt,creationErrors,_ = incrementalBuildersCache.Get(options) 
+        match builderOpt with 
+        | None -> 
+            CheckProjectResults (Array.ofList creationErrors, None, reactorOps)
+        | Some builder -> 
+            let ((tcState,tcImports,tcGlobals,tcConfig,_tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp), ilAssemRef, assemblyOpt)  = 
+                builder.GetCheckResultsAndImplementationsForProject()
+                //.GetTypeCheckResultsAfterLastFileInProject()
+            let fileInfo = (Int32.MaxValue, Int32.MaxValue)
+            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcErrors) |]
+            CheckProjectResults (errors, Some(tcGlobals, tcImports, tcState.PartialAssemblySignature, tcResolutions, assemblyOpt, ilAssemRef), reactorOps)
+
     /// Parse and typecheck the whole project.
     member bc.ParseAndCheckProject(options) =
-        reactor.RunAsyncOp <| fun () -> 
-            let builderOpt,creationErrors,_ = incrementalBuildersCache.Get(options) 
-            match builderOpt with 
-            | None -> 
-                CheckProjectResults (Array.ofList creationErrors, None, reactorOps)
-            | Some builder -> 
-                let (tcState,tcImports,tcGlobals,tcConfig,_tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp)  = builder.GetTypeCheckResultsAfterLastFileInProject()
-                let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-                let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcErrors) |]
-                CheckProjectResults (errors, Some(tcGlobals, tcImports, tcState.PartialAssemblySignature, tcResolutions), reactorOps)
+        reactor.RunAsyncOp <| fun () -> bc.ParseAndCheckProjectImpl(options)
 
     member bc.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = 
         reactor.RunSyncOp (fun () -> 
@@ -2020,6 +2045,7 @@ type BackgroundCompiler() as self =
                     ProjectFileName = filename + ".fsproj" // Make a name that is unique in this directory.
                     ProjectFileNames = fas.SourceFiles |> List.map fst |> List.toArray
                     ProjectOptions = allFlags 
+                    ReferencedProjects= [| |]  
                     IsIncompleteTypeCheckEnvironment = false
                     UseScriptResolutionRules = true 
                     LoadTime = loadedTimeStamp
@@ -2223,6 +2249,7 @@ type InteractiveChecker() =
         { ProjectFileName = projectFileName
           ProjectFileNames = [| |] // the project file names will be inferred from the ProjectOptions
           ProjectOptions = argv 
+          ReferencedProjects= [| |]  
           IsIncompleteTypeCheckEnvironment = false
           UseScriptResolutionRules = false
           LoadTime = loadedTimeStamp
@@ -2281,7 +2308,7 @@ type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, 
         | Parser.TypeCheckAborted.No scope ->
             let errors = [|  yield! parseErrors; yield! tcErrors |]
             let typeCheckResults = CheckFileResults (errors,Some scope, None, reactorOps)   
-            let projectResults = CheckProjectResults (errors, Some(tcGlobals, tcImports, scope.CcuSig, [scope.ScopeResolutions]), reactorOps)
+            let projectResults = CheckProjectResults (errors, Some(tcGlobals, tcImports, scope.CcuSig, [scope.ScopeResolutions], None, mkSimpleAssRef "stdin"), reactorOps)
             untypedParse, typeCheckResults, projectResults
         | _ -> 
             failwith "unexpected aborted"

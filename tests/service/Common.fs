@@ -37,3 +37,33 @@ let getBackgroundCheckResultsForScriptText (input) =
     checker.GetBackgroundCheckResultsForFileInProject(file.Name, checkOptions) |> Async.RunSynchronously
 
 
+let mkProjectCommandLineArgs (dllName, fileNames) = 
+    [|  yield "--simpleresolution" 
+        yield "--noframework" 
+        yield "--debug:full" 
+        yield "--define:DEBUG" 
+        yield "--optimize-" 
+        yield "--out:" + dllName
+        yield "--doc:test.xml" 
+        yield "--warn:3" 
+        yield "--fullpaths" 
+        yield "--flaterrors" 
+        yield "--target:library" 
+        for x in fileNames do 
+            yield x
+        let references = 
+            if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+                [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" 
+                  @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" 
+                  @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" 
+                  @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"]  
+            else 
+                let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+                let (++) a b = System.IO.Path.Combine(a,b)
+                [ sysDir ++ "mscorlib.dll" 
+                  sysDir ++ "System.dll" 
+                  sysDir ++ "System.Core.dll" 
+                  sysDir ++ "FSharp.Core.dll"]  
+        for r in references do
+                yield "-r:" + r |]
+

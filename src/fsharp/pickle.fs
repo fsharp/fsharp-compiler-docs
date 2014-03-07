@@ -163,7 +163,7 @@ type ReaderState =
     inlerefs: InputTable<NonLocalEntityRef>; 
     isimpletyps: InputTable<TType>;
     ifile: string;
-    iILModule : ILModuleDef // the Abstract IL metadata for the DLL being read
+    iILModule : ILModuleDef option // the Abstract IL metadata for the DLL being read
   }
 
 let ufailwith st str = ffailwith st.ifile str
@@ -741,7 +741,7 @@ let check (ilscope:ILScopeRef) (inMap : NodeInTable<_,_>) =
         System.Diagnostics.Debug.Assert(false, sprintf "*** unpickle: osgn %d in table %s with IL scope %s had no matching declaration (was not fixed up)\nPlease report this warning. (Note for compiler developers: to get information about which item this index relates to, enable the conditional in Pickle.p_osgn_ref to refer to the given index number and recompile an identical copy of the source for the DLL containing the data being unpickled.  A message will then be printed indicating the name of the item.\n" i inMap.Name ilscope.QualifiedName)
 #endif
 
-let unpickleObjWithDanglingCcus file ilscope (iILModule:ILModuleDef) u (phase2bytes:byte[]) =
+let unpickleObjWithDanglingCcus file ilscope (iILModule:ILModuleDef option) u (phase2bytes:byte[]) =
     let st2 = 
        { is = ByteStream.FromBytes (phase2bytes,0,phase2bytes.Length); 
          iilscope= ilscope;
@@ -1832,13 +1832,16 @@ and u_tycon_repr st =
             (fun flagBit -> 
                 if flagBit then 
                     let iltref = v.TypeRef
+                    match st.iILModule with 
+                    | None -> TNoRepr
+                    | Some iILModule -> 
                     try 
                         let rec find acc enclosingTypeNames (tdefs:ILTypeDefs) = 
                             match enclosingTypeNames with 
                             | [] -> List.rev acc, tdefs.FindByName iltref.Name
                             | h::t -> let nestedTypeDef = tdefs.FindByName h
                                       find (tdefs.FindByName h :: acc) t nestedTypeDef.NestedTypes
-                        let nestedILTypeDefs,ilTypeDef = find [] iltref.Enclosing st.iILModule.TypeDefs
+                        let nestedILTypeDefs,ilTypeDef = find [] iltref.Enclosing iILModule.TypeDefs
                         TILObjModelRepr(st.iilscope,nestedILTypeDefs,ilTypeDef)
                     with _ -> 
                         System.Diagnostics.Debug.Assert(false, sprintf "failed to find IL backing metadata for cross-assembly generated type %s" iltref.FullName)

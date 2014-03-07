@@ -270,6 +270,9 @@ type ProjectOptions =
       ProjectFileNames: string[]
       /// The command line argument options for the project
       ProjectOptions: string[]
+      /// The command line arguments for the other projects referenced by this project, indexed by the
+      /// exact text used in the "-r:" reference in ProjectOptions.
+      ReferencedProjects: (string * ProjectOptions)[]
       /// When true, the typechecking environment is known a priori to be incomplete, for
       /// example when a .fs file is opened outside of a project. In this case, the number of error 
       /// messages reported is reduced.

@@ -604,8 +604,7 @@ type ILResource with
         | ILResourceLocation.Local b -> b()
         | _-> error(InternalError("Bytes",rangeStartup))
 
-let EncodeInterfaceData(tcConfig:TcConfig,tcGlobals,exportRemapping,_errorLogger:ErrorLogger,generatedCcu,outfile,exiter:Exiter) = 
-    try 
+let EncodeInterfaceData(tcConfig:TcConfig,tcGlobals,exportRemapping,generatedCcu,outfile) = 
       if GenerateInterfaceData(tcConfig) then 
         if verbose then dprintfn "Generating interface data attribute...";
         let resource = WriteSignatureData (tcConfig,tcGlobals,exportRemapping,generatedCcu,outfile)
@@ -624,12 +623,6 @@ let EncodeInterfaceData(tcConfig:TcConfig,tcGlobals,exportRemapping,_errorLogger
         [sigAttr], resources
       else 
         [],[]
-    with e -> 
-        errorRecoveryNoRange e
-#if SQM_SUPPORT
-        SqmLoggerWithConfig tcConfig _errorLogger.ErrorOrWarningNumbers
-#endif
-        exiter.Exit 1
 
 
 //----------------------------------------------------------------------------
@@ -1370,7 +1363,7 @@ module StaticLinker =
                                     | ResolvedCcu ccu -> Some ccu
                                     | UnresolvedCcu(_ccuName) -> None
 
-                                let modul = dllInfo.RawMetadata
+                                let modul = dllInfo.RawMetadata.TryGetRawILModule().Value
 
                                 let refs = 
                                     if ilAssemRef.Name = GetFSharpCoreLibraryName() then 
@@ -1439,7 +1432,7 @@ module StaticLinker =
                       | ResolvedCcu ccu -> Some ccu
                       | UnresolvedCcu(_ccuName) -> None
 
-                  let modul = dllInfo.RawMetadata
+                  let modul = dllInfo.RawMetadata.TryGetRawILModule().Value
                   yield (ccu, dllInfo.ILScopeRef, modul), (ilAssemRef.Name, provAssemStaticLinkInfo)
               | None -> () ]
 
@@ -1633,9 +1626,26 @@ module StaticLinker =
 
 type SigningInfo = SigningInfo of (* delaysign:*) bool * (*signer:*)  string option * (*container:*) string option
 
+let GetSigner(signingInfo) = 
+        let (SigningInfo(delaysign,signer,container)) = signingInfo
+        // REVIEW: favor the container over the key file - C# appears to do this
+        if isSome container then
+          Some(ILBinaryWriter.ILStrongNameSigner.OpenKeyContainer container.Value)
+        else
+            match signer with 
+            | None -> None
+            | Some(s) ->
+                try 
+                if delaysign then
+                    Some (ILBinaryWriter.ILStrongNameSigner.OpenPublicKeyFile s) 
+                else
+                    Some (ILBinaryWriter.ILStrongNameSigner.OpenKeyPairFile s) 
+                with e -> 
+                    // Note:: don't use errorR here since we really want to fail and not produce a binary
+                    error(Error(FSComp.SR.fscKeyFileCouldNotBeOpened(s),rangeCmdArgs))
+
 module FileWriter = 
     let EmitIL (tcConfig:TcConfig,ilGlobals,_errorLogger:ErrorLogger,outfile,pdbfile,ilxMainModule,signingInfo:SigningInfo,exiter:Exiter) =
-        let (SigningInfo(delaysign,signer,container)) = signingInfo
         try
     #if DEBUG
             if tcConfig.writeGeneratedILFiles then dprintn "Printing module...";
@@ -1649,25 +1659,7 @@ module FileWriter =
                        pdbfile=pdbfile;
                        emitTailcalls= tcConfig.emitTailcalls;
                        showTimes=tcConfig.showTimes;
-
-                       signer = 
-                         begin
-                          // REVIEW: favor the container over the key file - C# appears to do this
-                          if isSome container then
-                            Some(ILBinaryWriter.ILStrongNameSigner.OpenKeyContainer container.Value)
-                          else
-                            match signer with 
-                            | None -> None
-                            | Some(s) ->
-                               try 
-                                if delaysign then
-                                  Some (ILBinaryWriter.ILStrongNameSigner.OpenPublicKeyFile s) 
-                                else
-                                  Some (ILBinaryWriter.ILStrongNameSigner.OpenKeyPairFile s) 
-                               with e -> 
-                                   // Note:: don't use errorR here since we really want to fail and not produce a binary
-                                   error(Error(FSComp.SR.fscKeyFileCouldNotBeOpened(s),rangeCmdArgs))
-                         end;
+                       signer = GetSigner signingInfo;
                        fixupOverlappingSequencePoints = false; 
                        dumpDebugInfo =tcConfig.dumpDebugInfo } 
                   ilxMainModule
@@ -1852,7 +1844,14 @@ let main2(Args(tcConfig,tcImports,frameworkTcImports : TcImports,tcGlobals,error
 #endif
     
     let sigDataAttributes,sigDataResources = 
-        EncodeInterfaceData(tcConfig,tcGlobals,exportRemapping,errorLogger,generatedCcu,outfile,exiter)
+      try
+        EncodeInterfaceData(tcConfig,tcGlobals,exportRemapping,generatedCcu,outfile)
+      with e -> 
+        errorRecoveryNoRange e
+#if SQM_SUPPORT
+        SqmLoggerWithConfig tcConfig _errorLogger.ErrorOrWarningNumbers
+#endif
+        exiter.Exit 1
         
     if !progress && tcConfig.optSettings.jitOptUser = Some false then 
         dprintf "Note, optimizations are off.\n";
@@ -1865,7 +1864,7 @@ let main2(Args(tcConfig,tcImports,frameworkTcImports : TcImports,tcGlobals,error
     let metadataVersion = 
         match tcConfig.metadataVersion with
         | Some(v) -> v
-        | _ -> match (frameworkTcImports.DllTable.TryFind tcConfig.primaryAssembly.Name) with | Some(ib) -> ib.RawMetadata.MetadataVersion | _ -> ""
+        | _ -> match (frameworkTcImports.DllTable.TryFind tcConfig.primaryAssembly.Name) with | Some(ib) -> ib.RawMetadata.TryGetRawILModule().Value.MetadataVersion | _ -> ""
     let optimizedImpls,optimizationData,_ = ApplyAllOptimizations (tcConfig, tcGlobals, (LightweightTcValForUsingInBuildMethodCall tcGlobals), outfile, importMap, false, optEnv0, generatedCcu, typedAssembly)
 
     abortOnError(errorLogger,tcConfig,exiter)
@@ -1896,9 +1895,7 @@ let main2(Args(tcConfig,tcImports,frameworkTcImports : TcImports,tcGlobals,error
     // data structures involved here are so large we can't take the risk.
     Args(tcConfig,tcImports,tcGlobals,errorLogger,generatedCcu,outfile,optimizedImpls,topAttrs,pdbfile,assemblyName, (sigDataAttributes, sigDataResources), generatedOptData,assemVerFromAttrib,signingInfo,metadataVersion,exiter)
 
-let mutable tcImportsCapture = None
-let mutable dynamicAssemblyCreator = None
-let main2b(Args(tcConfig:TcConfig,tcImports,tcGlobals,errorLogger,generatedCcu:CcuThunk,outfile,optimizedImpls,topAttrs,pdbfile,assemblyName,idata,generatedOptData,assemVerFromAttrib,signingInfo,metadataVersion,exiter:Exiter)) = 
+let main2b (tcImportsCapture,dynamicAssemblyCreator) (Args(tcConfig:TcConfig,tcImports,tcGlobals,errorLogger,generatedCcu:CcuThunk,outfile,optimizedImpls,topAttrs,pdbfile,assemblyName,idata,generatedOptData,assemVerFromAttrib,signingInfo,metadataVersion,exiter:Exiter)) = 
   
     match tcImportsCapture with 
     | None -> ()
@@ -1971,7 +1968,7 @@ let main3(Args(tcConfig,errorLogger:ErrorLogger,staticLinker,ilGlobals,ilxMainMo
         
     Args (tcConfig,errorLogger,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter)
 
-let main4(Args(tcConfig,errorLogger:ErrorLogger,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter)) = 
+let main4 dynamicAssemblyCreator (Args(tcConfig,errorLogger:ErrorLogger,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter)) = 
     ReportTime tcConfig "Write .NET Binary"
     use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Output)    
     let pdbfile = pdbfile |> Option.map FileSystem.GetFullPathShim
@@ -1997,13 +1994,13 @@ let main4(Args(tcConfig,errorLogger:ErrorLogger,ilGlobals,ilxMainModule,outfile,
     ReportTime tcConfig "Exiting"
 
 
-let mainCompile (argv,bannerAlreadyPrinted,exiter:Exiter,loggerProviderOpt) = 
+let mainCompile (argv,bannerAlreadyPrinted,exiter:Exiter,loggerProviderOpt, tcImportsCapture, dynamicAssemblyCreator) = 
     // Don's note: "GC of intermediate data is really, really important here"
     main1 (argv,bannerAlreadyPrinted,exiter,defaultArg loggerProviderOpt CreateErrorLoggerThatQuitsAfterMaxErrors) 
     |> main2
-    |> main2b
+    |> main2b (tcImportsCapture,dynamicAssemblyCreator)
     |> main2c
     |> main3 
-    |> main4
+    |> main4 dynamicAssemblyCreator
 
 #endif // NO_COMPILER_BACKEND

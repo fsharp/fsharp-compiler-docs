@@ -430,15 +430,75 @@ in the project are still read from disk, unless you are using the <a href="files
 <p>Or ask for all the uses of one symbol in one file:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs80', 218)" onmouseover="showTip(event, 'fs80', 218)" class="i">allUsesOfXSymbolInFile1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs69', 219)" onmouseover="showTip(event, 'fs69', 219)" class="i">checkResults1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 220)" onmouseover="showTip(event, 'fs81', 220)" class="i">GetUsesOfSymbolInFile</span>(<span onmouseout="hideTip(event, 'fs76', 221)" onmouseover="showTip(event, 'fs76', 221)" class="i">xSymbol2</span>)
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs82', 222)" onmouseover="showTip(event, 'fs82', 222)" class="i">allUsesOfXSymbolInFile2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs75', 223)" onmouseover="showTip(event, 'fs75', 223)" class="i">checkResults2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 224)" onmouseover="showTip(event, 'fs81', 224)" class="i">GetUsesOfSymbolInFile</span>(<span onmouseout="hideTip(event, 'fs76', 225)" onmouseover="showTip(event, 'fs76', 225)" class="i">xSymbol2</span>)</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs82', 222)" onmouseover="showTip(event, 'fs82', 222)" class="i">allUsesOfXSymbolInFile2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs75', 223)" onmouseover="showTip(event, 'fs75', 223)" class="i">checkResults2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 224)" onmouseover="showTip(event, 'fs81', 224)" class="i">GetUsesOfSymbolInFile</span>(<span onmouseout="hideTip(event, 'fs76', 225)" onmouseover="showTip(event, 'fs76', 225)" class="i">xSymbol2</span>)
+
+<span class="c">(*</span>
+
+<span class="c">Analyzing multiple projects</span>
+<span class="c">-----------------------------</span>
+
+<span class="c">If you have multiple F# projects to analyze which include references from some projects to others, </span>
+<span class="c">then the simplest way to do this is to build the projects and specify the cross-project references using </span>
+<span class="c">a `-r:path-to-output-of-project.dll` argument in the ProjectOptions. However, this requires the build</span>
+<span class="c">of each project to succeed, producing the DLL file on disk which can be referred to.</span>
+
+<span class="c">In some situations, e.g. in an IDE, you may wish to allow references to other F# projects prior to successful compilation to</span>
+<span class="c">a DLL. To do this, fill in the ProjectReferences entry in ProjectOptions, which recursively specifies the project</span>
+<span class="c">options for dependent projects. Each project reference still needs a corresponding `-r:path-to-output-of-project.dll`</span>
+<span class="c">command line argument in ProjectOptions, along with an entry in ProjectReferences.</span>
+
+<span class="c">When a project reference is used, the analysis will make use of the results of incremental</span>
+<span class="c">analysis of the referenced F# project from source files, without requiring the compilation of these files to DLLs.</span>
+
+<span class="c">To efficiently analyze a set of F# projects which include cross-references, you should populate the ProjectReferences</span>
+<span class="c">correctly and then analyze each project in turn.   </span>
+
+<span class="c">&gt; **NOTE:** Project references are in prototype.  Using project references may currently degrade the responsiveness of the </span>
+<span class="c">  compiler service, because requests may not yet be serviced while dependent projects are being analyzed.</span>
+
+<span class="c">&gt; **NOTE:** Project references are disabled if the assembly being referred to contains type provider components - </span>
+<span class="c">  specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will </span>
+<span class="c">  still be required on disk.</span>
+
+<span class="c">**)</span></pre>
 </td>
 </tr>
 </table>

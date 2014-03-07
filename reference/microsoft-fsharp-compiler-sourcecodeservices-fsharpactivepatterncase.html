@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ParsedSigFileInput - F# Compiler Services</title>
+    <title>FSharpActivePatternCase - F# Compiler Services</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
@@ -35,28 +35,46 @@
 
 
 
-<h1>ParsedSigFileInput</h1>
+<h1>FSharpActivePatternCase</h1>
 <div class="xmldoc">
+<p>Represents a single case within an active pattern</p>
 </div>
-  <h3>Union Cases</h3>
+  <h3>Instance members</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Union Case</td><td>Description</td></tr>
+      <tr><td>Instance member</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '891', 891)" onmouseover="showTip(event, '891', 891)">
-            ParsedSigFileInput
+          <code onmouseout="hideTip(event, '2945', 2945)" onmouseover="showTip(event, '2945', 2945)">
+            DeclarationLocation(arg1)
           </code>
-          <div class="tip" id="891">
-            <strong>Signature:</strong>string * QualifiedNameOfFile * ScopedPragma list * ParsedHashDirective list * SynModuleOrNamespaceSig list<br />
+          <div class="tip" id="2945">
+            <strong>Signature:</strong>unit -&gt; range<br />
                       </div>
         </td>
         <td class="xmldoc">
-        
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1461-1461" class="github-link">Go to GitHub source</a>
+        <p>The location of declaration of the active pattern case</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L506-506" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2946', 2946)" onmouseover="showTip(event, '2946', 2946)">
+            Name(arg1)
+          </code>
+          <div class="tip" id="2946">
+            <strong>Signature:</strong>unit -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>The name of the active pattern case</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L505-505" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>

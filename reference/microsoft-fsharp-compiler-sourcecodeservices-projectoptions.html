@@ -48,10 +48,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3403', 3403)" onmouseover="showTip(event, '3403', 3403)">
+          <code onmouseout="hideTip(event, '3155', 3155)" onmouseover="showTip(event, '3155', 3155)">
             IsIncompleteTypeCheckEnvironment
           </code>
-          <div class="tip" id="3403">
+          <div class="tip" id="3155">
             <strong>Signature:</strong>bool<br />
                       </div>
         </td>
@@ -60,16 +60,16 @@
 example when a .fs file is opened outside of a project. In this case, the number of error 
 messages reported is reduced.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fsi#L276-276" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fsi#L279-279" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3404', 3404)" onmouseover="showTip(event, '3404', 3404)">
+          <code onmouseout="hideTip(event, '3156', 3156)" onmouseover="showTip(event, '3156', 3156)">
             LoadTime
           </code>
-          <div class="tip" id="3404">
+          <div class="tip" id="3156">
             <strong>Signature:</strong>DateTime<br />
                       </div>
         </td>
@@ -78,16 +78,16 @@ messages reported is reduced.</p>
 This ensures that a complete reload of the project or script type checking
 context occurs on project or script unload/reload.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fsi#L282-282" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fsi#L285-285" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3405', 3405)" onmouseover="showTip(event, '3405', 3405)">
+          <code onmouseout="hideTip(event, '3157', 3157)" onmouseover="showTip(event, '3157', 3157)">
             ProjectFileName
           </code>
-          <div class="tip" id="3405">
+          <div class="tip" id="3157">
             <strong>Signature:</strong>string<br />
                       </div>
         </td>
@@ -99,10 +99,10 @@ context occurs on project or script unload/reload.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3406', 3406)" onmouseover="showTip(event, '3406', 3406)">
+          <code onmouseout="hideTip(event, '3158', 3158)" onmouseover="showTip(event, '3158', 3158)">
             ProjectFileNames
           </code>
-          <div class="tip" id="3406">
+          <div class="tip" id="3158">
             <strong>Signature:</strong>string []<br />
                       </div>
         </td>
@@ -115,10 +115,10 @@ context occurs on project or script unload/reload.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3407', 3407)" onmouseover="showTip(event, '3407', 3407)">
+          <code onmouseout="hideTip(event, '3159', 3159)" onmouseover="showTip(event, '3159', 3159)">
             ProjectOptions
           </code>
-          <div class="tip" id="3407">
+          <div class="tip" id="3159">
             <strong>Signature:</strong>string []<br />
                       </div>
         </td>
@@ -131,33 +131,50 @@ context occurs on project or script unload/reload.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3408', 3408)" onmouseover="showTip(event, '3408', 3408)">
+          <code onmouseout="hideTip(event, '3160', 3160)" onmouseover="showTip(event, '3160', 3160)">
+            ReferencedProjects
+          </code>
+          <div class="tip" id="3160">
+            <strong>Signature:</strong>(string * ProjectOptions) []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>The command line arguments for the other projects referenced by this project, indexed by the
+exact text used in the "-r:" reference in ProjectOptions.</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fsi#L275-275" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3161', 3161)" onmouseover="showTip(event, '3161', 3161)">
             UnresolvedReferences
           </code>
-          <div class="tip" id="3408">
+          <div class="tip" id="3161">
             <strong>Signature:</strong>UnresolvedReferencesSet option<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Unused in this API and should be 'None'</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fsi#L284-284" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fsi#L287-287" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3409', 3409)" onmouseover="showTip(event, '3409', 3409)">
+          <code onmouseout="hideTip(event, '3162', 3162)" onmouseover="showTip(event, '3162', 3162)">
             UseScriptResolutionRules
           </code>
-          <div class="tip" id="3409">
+          <div class="tip" id="3162">
             <strong>Signature:</strong>bool<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>When true, use the reference resolution rules for scripts rather than the rules for compiler.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fsi#L278-278" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fsi#L281-281" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>

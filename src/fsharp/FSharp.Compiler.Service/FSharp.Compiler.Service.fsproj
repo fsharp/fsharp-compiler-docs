@@ -503,17 +503,17 @@
     <Compile Include="..\fscopts.fs">
       <Link>Driver/fscopts.fs</Link>
     </Compile>
-    <Compile Include="..\vs\IncrementalBuild.fsi">
-      <Link>Driver/IncrementalBuild.fsi</Link>
-    </Compile>
-    <Compile Include="..\vs\IncrementalBuild.fs">
-      <Link>Driver/IncrementalBuild.fs</Link>
-    </Compile>
     <Compile Include="..\fsc.fsi">
       <Link>Driver/fsc.fsi</Link>
     </Compile>
     <Compile Include="..\fsc.fs">
       <Link>Driver/fsc.fs</Link>
+    </Compile>
+    <Compile Include="..\vs\IncrementalBuild.fsi">
+      <Link>Service/IncrementalBuild.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\IncrementalBuild.fs">
+      <Link>Service/IncrementalBuild.fs</Link>
     </Compile>
     <Compile Include="..\vs\Reactor.fsi">
       <Link>Service/Reactor.fsi</Link>

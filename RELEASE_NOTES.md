@@ -119,3 +119,8 @@
 #### 0.0.29 - 
 * Fix symbols for named union fields in patterns
 
+#### 0.0.30 - 
+* Add initial prototype version of multi-project support, through optional ProjectReferences in ProjectOptions. Leave this empty
+  to use DLL/file-based references to results from other projects.
+
+

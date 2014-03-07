@@ -3,6 +3,7 @@ namespace Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.ErrorLogger
+open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.Build
 
@@ -41,10 +42,23 @@ type internal ErrorScope =
 
 /// Generalized Incremental Builder. This is exposed only for unittesting purposes.
 module internal IncrementalBuild =
-  // A build scalar.
-  type Scalar<'T> = interface end
-  /// A build vector.        
-  type Vector<'T> = interface end
+  type ScalarBuildRule  
+  type VectorBuildRule 
+  type INode = 
+        abstract Name : string
+
+  type IScalar = 
+        inherit INode
+        abstract GetScalarExpr : unit -> ScalarBuildRule
+
+  type IVector =
+        inherit INode
+        abstract GetVectorExpr : unit-> VectorBuildRule
+            
+  type Scalar<'T> =  interface inherit IScalar  end
+
+  type Vector<'T> = interface inherit IVector end
+
 
   /// A set of build rules and the corresponding, possibly partial, results from building.
   type PartialBuild 
@@ -86,20 +100,20 @@ module internal IncrementalBuild =
   /// Do one step in the build. Only required for unit testing.
   val Step : (string -> PartialBuild -> PartialBuild option)
   /// Get a scalar vector. Result must be available. Only required for unit testing.
-  val GetScalarResult<'T> : string * PartialBuild -> ('T * System.DateTime) option
+  val GetScalarResult<'T> : Scalar<'T> * PartialBuild -> ('T * System.DateTime) option
   /// Get a result vector. All results must be available or thrown an exception. Only required for unit testing.
-  val GetVectorResult<'T> : string * PartialBuild -> 'T[]
+  val GetVectorResult<'T> : Vector<'T> * PartialBuild -> 'T[]
   /// Get an element of vector result or None if there were no results. Only required for unit testing.
-  val GetVectorResultBySlot<'T> : string*int*PartialBuild -> ('T * System.DateTime) option
+  val GetVectorResultBySlot<'T> : Vector<'T>*int*PartialBuild -> ('T * System.DateTime) option
   
   /// Declare build outputs and bind them to real values.
   /// Only required for unit testing.
   type BuildDescriptionScope = 
        new : unit -> BuildDescriptionScope
        /// Declare a named scalar output.
-       member DeclareScalarOutput : name:string * output:Scalar<'T> -> unit
+       member DeclareScalarOutput : output:Scalar<'T> -> unit
        /// Declare a named vector output.
-       member DeclareVectorOutput : name:string * output:Vector<'T> -> unit
+       member DeclareVectorOutput : output:Vector<'T> -> unit
        /// Set the conrete inputs for this build. 
        member GetInitialPartialBuild : vectorinputs:(string * int * obj list) list * scalarinputs:(string*obj) list -> PartialBuild
 
@@ -182,11 +196,11 @@ module internal IncrementalFSharpBuild =
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetCheckResultsAndImplementationsForProject : unit -> Build.TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv * Build.TcImports * Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list 
+      member GetCheckResultsAndImplementationsForProject : unit -> PartialTypeCheckResults * IL.ILAssemblyRef * Build.IRawFSharpAssemblyContents option 
 
       /// Await the untyped parse results for a particular slot in the vector of parse results.
       ///
       /// This may be a marginally long-running operation (parses are relatively quick, only one file needs to be parsed)
       member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * bool) list
 
-      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * ErrorInfo list
+      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: (string * Build.IRawFSharpAssemblyContents) list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * ErrorInfo list

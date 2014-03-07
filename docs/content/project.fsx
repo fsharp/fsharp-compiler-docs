@@ -207,6 +207,36 @@ let allUsesOfXSymbolInFile1 = checkResults1.GetUsesOfSymbolInFile(xSymbol2)
 
 let allUsesOfXSymbolInFile2 = checkResults2.GetUsesOfSymbolInFile(xSymbol2)
 
+(*
+
+Analyzing multiple projects
+-----------------------------
+
+If you have multiple F# projects to analyze which include references from some projects to others, 
+then the simplest way to do this is to build the projects and specify the cross-project references using 
+a `-r:path-to-output-of-project.dll` argument in the ProjectOptions. However, this requires the build
+of each project to succeed, producing the DLL file on disk which can be referred to.
+
+In some situations, e.g. in an IDE, you may wish to allow references to other F# projects prior to successful compilation to
+a DLL. To do this, fill in the ProjectReferences entry in ProjectOptions, which recursively specifies the project
+options for dependent projects. Each project reference still needs a corresponding `-r:path-to-output-of-project.dll`
+command line argument in ProjectOptions, along with an entry in ProjectReferences.
+
+When a project reference is used, the analysis will make use of the results of incremental
+analysis of the referenced F# project from source files, without requiring the compilation of these files to DLLs.
+
+To efficiently analyze a set of F# projects which include cross-references, you should populate the ProjectReferences
+correctly and then analyze each project in turn.   
+
+> **NOTE:** Project references are in prototype.  Using project references may currently degrade the responsiveness of the 
+  compiler service, because requests may not yet be serviced while dependent projects are being analyzed.
+
+> **NOTE:** Project references are disabled if the assembly being referred to contains type provider components - 
+  specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will 
+  still be required on disk.
+
+**)
+
 (**
 Summary
 -------

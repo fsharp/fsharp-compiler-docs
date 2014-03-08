@@ -1813,8 +1813,10 @@ type (*internal*) IsResultObsolete =
 type BackgroundCompiler() as self =
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.reactor: The one and only Reactor
     let reactor = Reactor.Reactor()
-    let beforeBackgroundFileCheck = Event<string>()
-    let afterProjectTypeCheck = Event<string>()
+    let beforeFileChecked = Event<string>()
+    let fileParsed = Event<string>()
+    let fileChecked = Event<string>()
+    let projectChecked = Event<string>()
 
     let reactorOps = 
         { new IReactorOperations with 
@@ -1868,8 +1870,10 @@ type BackgroundCompiler() as self =
             //
             // This indicates to the UI that the file type check state is dirty. If the file is open and visible then 
             // the UI will sooner or later request a typecheck of the file, recording errors and intellisense information.
-            builder.BeforeTypeCheckFile.Add (beforeBackgroundFileCheck.Trigger)
-            builder.AfterProjectTypeCheck.Add (fun () -> afterProjectTypeCheck.Trigger options.ProjectFileName)
+            builder.BeforeTypeCheckFile.Add (beforeFileChecked.Trigger)
+            builder.FileParsed.Add (fileParsed.Trigger)
+            builder.FileChecked.Add (fileChecked.Trigger)
+            builder.ProjectChecked.Add (fun () -> projectChecked.Trigger options.ProjectFileName)
 
         (builderOpt, errorsAndWarnings, decrement)
 
@@ -2095,8 +2099,10 @@ type BackgroundCompiler() as self =
         reactor.WaitForBackgroundCompile() 
 
     member bc.ReactorOps  = reactorOps
-    member bc.BeforeBackgroundFileCheck = beforeBackgroundFileCheck.Publish
-    member bc.ProjectChecked = afterProjectTypeCheck.Publish
+    member bc.BeforeBackgroundFileCheck = beforeFileChecked.Publish
+    member bc.FileParsed = fileParsed.Publish
+    member bc.FileChecked = fileChecked.Publish
+    member bc.ProjectChecked = projectChecked.Publish
 
 //----------------------------------------------------------------------------
 // InteractiveChecker
@@ -2270,6 +2276,8 @@ type InteractiveChecker() =
     member ic.ReactorOps = backgroundCompiler.ReactorOps
 
     member ic.BeforeBackgroundFileCheck  = backgroundCompiler.BeforeBackgroundFileCheck
+    member ic.FileParsed  = backgroundCompiler.FileParsed
+    member ic.FileChecked  = backgroundCompiler.FileChecked
     member ic.ProjectChecked = backgroundCompiler.ProjectChecked
 
     static member GlobalForegroundParseCountStatistic = foregroundParseCount

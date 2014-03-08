@@ -123,4 +123,8 @@
 * Add initial prototype version of multi-project support, through optional ProjectReferences in ProjectOptions. Leave this empty
   to use DLL/file-based references to results from other projects.
 
+#### 0.0.31 - 
+* Fix performance problem with CheckFileInProject
+
+
 

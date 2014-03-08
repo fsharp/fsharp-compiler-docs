@@ -96,9 +96,9 @@ module internal IncrementalBuild =
       val AsScalar: string -> Vector<'I> -> Scalar<'I[]> 
 
   /// Evaluate a build. Only required for unit testing.
-  val Eval : string -> PartialBuild -> PartialBuild
+  val Eval : string -> int option -> PartialBuild -> PartialBuild
   /// Do one step in the build. Only required for unit testing.
-  val Step : (string -> PartialBuild -> PartialBuild option)
+  val Step : string -> int option -> PartialBuild -> PartialBuild option
   /// Get a scalar vector. Result must be available. Only required for unit testing.
   val GetScalarResult<'T> : Scalar<'T> * PartialBuild -> ('T * System.DateTime) option
   /// Get a result vector. All results must be available or thrown an exception. Only required for unit testing.
@@ -154,9 +154,15 @@ module internal IncrementalFSharpBuild =
       /// used by VS). 
       member BeforeTypeCheckFile : IEvent<string>
 
+      /// Raised just after a file is parsed
+      member FileParsed : IEvent<string>
+
+      /// Raised just after a file is checked
+      member FileChecked : IEvent<string>
+
       /// Raised just after the whole project has finished type checking. At this point, accessing the
       /// overall analysis results for the project will be quick.
-      member AfterProjectTypeCheck : IEvent<unit>
+      member ProjectChecked : IEvent<unit>
 
       /// Raised when a type provider invalidates the build.
       member ImportedCcusInvalidated : IEvent<string>

@@ -207,7 +207,7 @@ let allUsesOfXSymbolInFile1 = checkResults1.GetUsesOfSymbolInFile(xSymbol2)
 
 let allUsesOfXSymbolInFile2 = checkResults2.GetUsesOfSymbolInFile(xSymbol2)
 
-(*
+(**
 
 Analyzing multiple projects
 -----------------------------

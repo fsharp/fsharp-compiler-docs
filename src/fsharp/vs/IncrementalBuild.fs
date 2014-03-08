@@ -552,10 +552,12 @@ module internal IncrementalBuild =
         let results = List.foldBack ApplyExpr (buildRules.RuleList |> List.map snd) Map.empty
         PartialBuild(buildRules,results)
         
-        
-    /// Visit each executable action and call actionFunc with the given accumulator.
-    let ForeachAction output bt (actionFunc:Action->'acc->'acc) (acc:'acc) =
-        use t = Trace.Call("IncrementalBuildVerbose", "ForeachAction",  fun _->sprintf "name=%s" output)
+    type Target = Target of string * int option
+
+    /// Visit each executable action necessary to evaluate the given output (with an optional slot in a
+    /// vector output). Call actionFunc with the given accumulator.
+    let ForeachAction output optSlot bt (actionFunc:Action->'acc->'acc) (acc:'acc) =
+        use t = Trace.Call("IncrementalBuildVerbose", "ForeachAction",  fun _->sprintf "name=%A" output)
         let seen = Dictionary<_,_>()
         let Seen(id) = 
             if seen.ContainsKey(id) then true
@@ -592,7 +594,7 @@ module internal IncrementalBuild =
                 | None -> acc        
             | None -> acc           
         
-        let rec VisitVector ve acc =
+        let rec VisitVector optSlot ve acc =
         
             if Seen(VectorBuildRule.GetId ve) then acc
             else
@@ -604,12 +606,13 @@ module internal IncrementalBuild =
                     let acc =
                         match GetVectorWidthByExpr(bt,ve) with
                         | Some(cardinality) ->                    
-                            let GetInputAccumulator slot =
-                                if slot=0 then GetScalarExprResult(bt,accumulatorExpr) 
-                                else GetVectorExprResult(bt,ve,slot-1)
+                            let limit = match optSlot with None -> cardinality | Some slot -> (slot+1)
                         
                             let Scan slot =
-                                let accumulatorResult = GetInputAccumulator slot
+                                let accumulatorResult = 
+                                    if slot=0 then GetScalarExprResult(bt,accumulatorExpr) 
+                                    else GetVectorExprResult(bt,ve,slot-1)
+
                                 let inputResult = GetVectorExprResult(bt,inputExpr,slot)
                                 match accumulatorResult,inputResult with 
                                 | Available(accumulator,accumulatortimesamp,_accumulatorInputSig),Available(input,inputtimestamp,_inputSig) ->
@@ -629,11 +632,11 @@ module internal IncrementalBuild =
                                     | None -> None
                                 | _ -> None                            
                                 
-                            match ([0..cardinality-1]|>List.tryPick Scan) with Some(acc) ->acc | None->acc
+                            match ([0..limit-1]|>List.tryPick Scan) with Some(acc) ->acc | None->acc
                         | None -> acc
                     
                     // Check each slot for an action that may be performed.
-                    VisitVector inputExpr (VisitScalar accumulatorExpr acc)
+                    VisitVector None inputExpr (VisitScalar accumulatorExpr acc)
                 | VectorMap(id, taskname, inputExpr, func) ->
                     let acc =
                         match GetVectorWidthByExpr(bt,ve) with
@@ -655,9 +658,13 @@ module internal IncrementalBuild =
                                             Eventually.Done (func (Result.GetAvailable (GetVectorExprResult(bt,inputExpr,slot))))
                                         actionFunc (IndexedAction(id,taskname,slot,cardinality,inputtimestamp,OneToOneOp)) acc
                                     else acc
-                                [0..cardinality-1] |> List.fold MapResults acc                         
+                                match optSlot with 
+                                | None ->
+                                    [0..cardinality-1] |> List.fold MapResults acc                         
+                                | Some slot -> 
+                                    MapResults acc slot
                         | None -> acc
-                    VisitVector inputExpr acc
+                    VisitVector optSlot inputExpr acc
                 | VectorStamp(id, taskname, inputExpr, func) -> 
                
                     // For every result that is available, check time stamps.
@@ -684,9 +691,13 @@ module internal IncrementalBuild =
                                             actionFunc (IndexedAction(id,taskname,slot,cardinality,newtimestamp, fun _ -> Eventually.Done ires)) acc
                                         else acc
                                     | _ -> acc
-                                [0..cardinality-1] |> List.fold CheckStamp acc
+                                match optSlot with 
+                                | None ->
+                                    [0..cardinality-1] |> List.fold CheckStamp acc
+                                | Some slot -> 
+                                    CheckStamp acc slot
                         | None -> acc
-                    VisitVector inputExpr acc
+                    VisitVector optSlot inputExpr acc
                 | VectorMultiplex(id, taskname, inputExpr, func) -> 
                     VisitScalar inputExpr
                         (match GetScalarExprResult(bt,inputExpr) with
@@ -704,7 +715,7 @@ module internal IncrementalBuild =
                 match se with
                 | ScalarInput _ ->acc
                 | ScalarDemultiplex(id,taskname,inputExpr,func) ->
-                    VisitVector inputExpr 
+                    VisitVector None inputExpr 
                             (
                                 match GetVectorExprResultVector(bt,inputExpr) with
                                 | Some(inputresult) ->   
@@ -732,7 +743,7 @@ module internal IncrementalBuild =
         let Visit expr acc = 
             match expr with
             | ScalarBuildRule se ->VisitScalar se acc
-            | VectorBuildRule ve ->VisitVector ve acc                    
+            | VectorBuildRule ve ->VisitVector optSlot ve acc                    
                     
         let filtered = bt.Rules.RuleList |> List.filter (fun (s,_) -> s = output) |> List.map snd
         List.foldBack Visit filtered acc
@@ -787,7 +798,7 @@ module internal IncrementalBuild =
         ApplyResult(actionResult,bt)
 
     /// Evaluate the result of a single output
-    let EvalLeafsFirst output bt =
+    let EvalLeafsFirst output optSlot bt =
         use t = Trace.Call("IncrementalBuildVerbose", "EvalLeafsFirst", fun _->sprintf "name=%s" output)
 
         let rec Eval(bt,gen) =
@@ -797,15 +808,15 @@ module internal IncrementalBuild =
             // Possibly could detect this case directly.
             if gen>5000 then failwith "Infinite loop in incremental builder?"
             #endif
-            let newBt = ForeachAction output bt ExecuteApply bt
+            let newBt = ForeachAction output optSlot bt ExecuteApply bt
             if newBt=bt then bt else Eval(newBt,gen+1)
         Eval(bt,0)
         
-    let Step output (bt:PartialBuild) = 
+    let Step output optSlot (bt:PartialBuild) = 
         
         // Hey look, we're building up the whole list, executing one thing and then throwing
         // the list away. What about saving the list inside the Build instance?
-        let worklist = ForeachAction output bt (fun a l -> a :: l) []
+        let worklist = ForeachAction output optSlot bt (fun a l -> a :: l) []
             
         match worklist with 
         | action::_ -> Some(ExecuteApply action bt)
@@ -813,15 +824,15 @@ module internal IncrementalBuild =
             
         
     /// Eval by calling step over and over until done.
-    let EvalStepwise output bt = 
+    let EvalStepwise output optSlot bt = 
         let rec eval bt = 
-            match Step output bt with
+            match Step output optSlot bt with
             | Some newBt -> eval newBt
             | None->bt
         eval bt
         
-  /// Evaluate a build.
-    let Eval output bt = EvalLeafsFirst output bt
+  /// Evaluate an output of the build.
+    let Eval output (optSlot: int option) bt = EvalLeafsFirst output optSlot bt
 
   /// Get a scalar vector. Result must be available
     let GetScalarResult<'T>(node:Scalar<'T>,bt) : ('T*DateTime) option = 
@@ -1272,9 +1283,10 @@ module internal IncrementalFSharpBuild =
         
         let tcConfigP = TcConfigProvider.Constant(tcConfig)
         let importsInvalidated = new Event<string>()
+        let fileParsed = new Event<_>()
         let beforeTypeCheckFile = new Event<_>()
-        let afterTypeCheckFile = new Event<_>()
-        let afterProjectTypeCheck = new Event<_>()
+        let fileChecked = new Event<_>()
+        let projectChecked = new Event<_>()
 
         // Resolve assemblies and create the framework TcImports. This is done when constructing the
         // builder itself, rather than as an incremental task. This caches a level of "system" references. No type providers are 
@@ -1367,6 +1379,7 @@ module internal IncrementalFSharpBuild =
             try  
                 IncrementalBuilderEventsMRU.Add(IBEParsed filename)
                 let result = ParseOneInputFile(tcConfig,lexResourceManager, [], filename ,isLastCompiland,errorLogger,(*retryLocked*)true)
+                fileParsed.Trigger filename
                 Trace.PrintLine("FSharpBackgroundBuildVerbose", fun _ -> sprintf "done.")
                 result,sourceRange,filename,errorLogger.GetErrors ()
             with exn -> 
@@ -1472,7 +1485,6 @@ module internal IncrementalFSharpBuild =
                     eventually {
                         Trace.PrintLine("FSharpBackgroundBuild", fun _ -> sprintf "Typechecking %s..." filename)                
                         beforeTypeCheckFile.Trigger filename
-                        beforeTypeCheckFile.Trigger filename
 
                         ApplyMetaCommandsFromInputToTcConfig tcConfig (input, Path.GetDirectoryName filename) |> ignore
                         let sink = Nameres.TcResultsSinkImpl(tcAcc.tcGlobals)
@@ -1490,6 +1502,7 @@ module internal IncrementalFSharpBuild =
                         let typedImplFiles = if keepGeneratedTypedAssembly then typedImplFiles else []
                         let tcResolution = sink.GetTcResolutions()  
                         Trace.PrintLine("FSharpBackgroundBuild", fun _ -> sprintf "done.")
+                        fileChecked.Trigger filename
                         return {tcAcc with tcState=tcState 
                                            tcEnvAtEndOfFile=tcEnvAtEndOfFile
                                            topAttribs=Some topAttribs
@@ -1671,8 +1684,8 @@ module internal IncrementalFSharpBuild =
         // This is the intial representation of progress through the build, i.e. we have made no progress.
         let mutable partialBuild = buildDescription.GetInitialPartialBuild (buildInputs, [])
 
-        let EvalAndKeepOutput (output:INode) = 
-            let newPartialBuild = IncrementalBuild.Eval output.Name partialBuild
+        let EvalAndKeepOutput (output:INode) optSlot = 
+            let newPartialBuild = IncrementalBuild.Eval output.Name optSlot partialBuild
             partialBuild <- newPartialBuild
             newPartialBuild
 
@@ -1690,9 +1703,10 @@ module internal IncrementalFSharpBuild =
         member __.IsAlive = referenceCount > 0
 
         member __.TcConfig = tcConfig
+        member __.FileParsed = fileParsed.Publish
         member __.BeforeTypeCheckFile = beforeTypeCheckFile.Publish
-        member __.AfterTypeCheckFile = afterTypeCheckFile.Publish
-        member __.AfterProjectTypeCheck = afterProjectTypeCheck.Publish
+        member __.FileChecked = fileChecked.Publish
+        member __.ProjectChecked = projectChecked.Publish
         member __.ImportedCcusInvalidated = importsInvalidated.Publish
         member __.Dependencies = fileDependencies |> List.map (fun x -> x.Filename)
 #if EXTENSIONTYPING
@@ -1707,9 +1721,9 @@ module internal IncrementalFSharpBuild =
 #endif
 
         member __.Step () =  
-            match IncrementalBuild.Step tcStatesNode.Name partialBuild with 
+            match IncrementalBuild.Step tcStatesNode.Name None partialBuild with 
             | None -> 
-                afterProjectTypeCheck.Trigger()
+                projectChecked.Trigger()
                 false
             | Some newPartialBuild -> 
                 partialBuild <- newPartialBuild
@@ -1740,23 +1754,23 @@ module internal IncrementalFSharpBuild =
             let result = 
                 match slotOfFile with
                 | (*first file*) 0 -> 
-                    let build = EvalAndKeepOutput initialTcAccNode
+                    let build = EvalAndKeepOutput initialTcAccNode None
                     GetScalarResult(initialTcAccNode,build)
                 | _ -> 
                     // PROBLEM: This evaluates the whole type checking for the whole project, when only the
                     // results for one file are requested.
-                    let build = EvalAndKeepOutput tcStatesNode
+                    let build = EvalAndKeepOutput tcStatesNode (Some (slotOfFile-1))
                     GetVectorResultBySlot(tcStatesNode,slotOfFile-1,build)  
         
             match result with
             | Some(tcAcc,timestamp) -> GetPartialTypeCheckResults (tcAcc,timestamp)
-            | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
+            | None -> failwith "Build was not evaluated, expected the results to be ready after 'Eval'."
 
         member b.GetTypeCheckResultsAfterLastFileInProject () = 
             b.GetTypeCheckResultsBeforeSlotInProject(b.GetSlotsCount()) 
 
         member __.GetCheckResultsAndImplementationsForProject() = 
-            let build = EvalAndKeepOutput finalizedTypeCheckNode
+            let build = EvalAndKeepOutput finalizedTypeCheckNode None
             match GetScalarResult(finalizedTypeCheckNode,build) with
             | Some((ilAssemRef, assemblyOpt, tcAcc), timestamp) -> GetPartialTypeCheckResults (tcAcc,timestamp), ilAssemRef, assemblyOpt
             | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
@@ -1784,7 +1798,7 @@ module internal IncrementalFSharpBuild =
             match GetVectorResultBySlot(parseTreesNode,slotOfFile,partialBuild) with
             | Some (results, _) -> results
             | None -> 
-                let build = EvalAndKeepOutput parseTreesNode
+                let build = EvalAndKeepOutput parseTreesNode (Some slotOfFile)
                 match GetVectorResultBySlot(parseTreesNode,slotOfFile,build) with
                 | Some (results, _) -> results
                 | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."

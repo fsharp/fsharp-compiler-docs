@@ -484,8 +484,18 @@ type InteractiveChecker =
     /// Notify the host that the logical type checking context for a file has now been updated internally
     /// and that the file has become eligible to be re-typechecked for errors.
     ///
-    /// The event may be raised on a background thread.
+    /// The event will be raised on a background thread.
     member BeforeBackgroundFileCheck : IEvent<string>
+
+    /// Raised after a parse of a file in the background analysis.
+    ///
+    /// The event will be raised on a background thread.
+    member FileParsed : IEvent<string>
+
+    /// Raised after a check of a file in the background analysis.
+    ///
+    /// The event will be raised on a background thread.
+    member FileChecked : IEvent<string>
     
     [<Obsolete("Renamed to BeforeBackgroundFileCheck")>]
     member FileTypeCheckStateIsDirty : IEvent<string>

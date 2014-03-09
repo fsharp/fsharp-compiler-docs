@@ -327,7 +327,7 @@ type InteractiveChecker =
     /// <param name="filename">The filename for the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member ParseFileInProject : filename: string * source: string * options: ProjectOptions -> ParseFileResults        
+    member ParseFileInProject : filename: string * source: string * options: ProjectOptions -> Async<ParseFileResults>
 
     /// <summary>
     /// <para>Check a source code file, returning a handle to the results of the parse including
@@ -359,8 +359,7 @@ type InteractiveChecker =
 
     /// <summary>
     /// <para>
-    ///   Check a source code file, returning a handle to the results of the parse including
-    ///   the reconstructed types in the file.
+    ///   Check a source code file, returning a handle to the results
     /// </para>
     /// <para>
     ///    Note: all files except the one being checked are read from the FileSystem API
@@ -387,6 +386,35 @@ type InteractiveChecker =
     /// </param>
     ///
     member CheckFileInProject : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<CheckFileAnswer>
+
+    /// <summary>
+    /// <para>
+    ///   Parse and check a source code file, returning a handle to the results 
+    /// </para>
+    /// <para>
+    ///    Note: all files except the one being checked are read from the FileSystem API
+    /// </para>
+    /// <para>
+    ///   Return CheckFileAnswer.Aborted if a parse tree was not available or if the check
+    ////  was abandoned due to isResultObsolete returning 'true' at some checkpoint during type checking.
+    /// </para>
+    /// </summary>
+    ///
+    /// <param name="filename">The name of the file in the project whose source is being checked.</param>
+    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
+    /// <param name="source">The full source for the file.</param>
+    /// <param name="options">The options for the project or script.</param>
+    /// <param name="isResultObsolete">
+    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
+    //      source code in the editor. Type checking is abandoned when this returns 'true'.
+    /// </param>
+    /// <param name="textSnapshotInfo">
+    ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
+    ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 
+    ///     can be used to marginally increase accuracy of intellisense results in some situations.
+    /// </param>
+    ///
+    member ParseAndCheckFileInProject : filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<ParseFileResults * CheckFileAnswer>
 
     /// <summary>
     /// <para>Parse and typecheck all files in a project.</para>

@@ -159,15 +159,13 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             checker.StartBackgroundCompile options
             // wait for the antecedent to appear
             checker.WaitForBackgroundCompile()
-            // do an untyped parse
-            let untypedParse = checker.ParseFileInProject(filename, source, options)
             // do an typecheck
             let textSnapshotInfo = "" // TODO
-            let! typedInfo = checker.CheckFileInProject(untypedParse, filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo) 
+            let! parseResults, checkResults = checker.ParseAndCheckFileInProject(filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo) 
             // return the info
-            match typedInfo with 
+            match checkResults with 
             | CheckFileAnswer.Aborted -> return! invalidOp "aborted"
-            | CheckFileAnswer.Succeeded res -> return SimpleCheckFileResults(untypedParse, res, source.Split('\n'))
+            | CheckFileAnswer.Succeeded res -> return SimpleCheckFileResults(parseResults, res, source.Split('\n'))
           }
 
         member x.ParseAndCheckProject (projectFileName, argv:string[]) = 

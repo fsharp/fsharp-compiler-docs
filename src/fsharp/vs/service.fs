@@ -1957,7 +1957,7 @@ type BackgroundCompiler() as self =
             match incrementalBuildersCache.GetAvailable options with
             | Some(Some builder, creationErrors, _) ->
             
-                match builder.GetTypeCheckResultsBeforeFileInProjectIfReady filename with 
+                match builder.GetCheckResultsBeforeFileInProjectIfReady filename with 
                 | Some(tcPriorState,tcImports,tcGlobals,tcConfig,_tcEnvAtEnd,backgroundErrors,_tcResolutions,_antecedantTimeStamp) -> 
         
                     // Get additional script #load closure information if applicable.
@@ -1980,7 +1980,7 @@ type BackgroundCompiler() as self =
             match builderOpt with
             | None -> CheckFileAnswer.Succeeded (MakeCheckFileResultsEmpty(creationErrors))
             | Some builder -> 
-            let (tcPriorState,tcImports,tcGlobals,tcConfig,_priorEnvAtEnd,priorErrors,_tcResolutions,_antecedantTimeStamp) = builder.GetTypeCheckResultsBeforeFileInProject filename 
+            let (tcPriorState,tcImports,tcGlobals,tcConfig,_priorEnvAtEnd,priorErrors,_tcResolutions,_antecedantTimeStamp) = builder.GetCheckResultsBeforeFileInProject filename 
             let loadClosure = scriptClosure.TryGet options 
             let tcErrors, tcFileResult = 
                 Parser.TypeCheckOneFile(untypedParse,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
@@ -1998,7 +1998,7 @@ type BackgroundCompiler() as self =
                 (untypedParse, typedResults)
             | Some builder -> 
                 let (inputOpt, _, _, untypedErrors) = builder.GetParseResultsForFile filename  
-                let (tcState,tcImports,tcGlobals,tcConfig,tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp) = builder.GetTypeCheckResultsAfterFileInProject filename 
+                let (tcState,tcImports,tcGlobals,tcConfig,tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp) = builder.GetCheckResultsAfterFileInProject filename 
                 let fileInfo = (Int32.MaxValue, Int32.MaxValue)
                 let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, untypedErrors) |]
                 let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, tcErrors) |]
@@ -2021,7 +2021,7 @@ type BackgroundCompiler() as self =
         | Some builder -> 
             let ((tcState,tcImports,tcGlobals,tcConfig,_tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp), ilAssemRef, assemblyOpt)  = 
                 builder.GetCheckResultsAndImplementationsForProject()
-                //.GetTypeCheckResultsAfterLastFileInProject()
+                //.GetCheckResultsAfterLastFileInProject()
             let fileInfo = (Int32.MaxValue, Int32.MaxValue)
             let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcErrors) |]
             CheckProjectResults (errors, Some(tcGlobals, tcImports, tcState.PartialAssemblySignature, tcResolutions, assemblyOpt, ilAssemRef), reactorOps)

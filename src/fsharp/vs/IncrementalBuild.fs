@@ -1270,9 +1270,9 @@ module internal IncrementalFSharpBuild =
     // various steps of the process.
     //-----------------------------------------------------------------------------------
 
-    type PartialTypeCheckResults = TcState * TcImports * TcGlobals * TcConfig * TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * DateTime
+    type PartialCheckResults = TcState * TcImports * TcGlobals * TcConfig * TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * DateTime
 
-    let GetPartialTypeCheckResults (tcAcc: TypeCheckAccumulator, timestamp) : PartialTypeCheckResults = 
+    let GetPartialCheckResults (tcAcc: TypeCheckAccumulator, timestamp) : PartialCheckResults = 
         (tcAcc.tcState,tcAcc.tcImports,tcAcc.tcGlobals,tcAcc.tcConfig,tcAcc.tcEnvAtEndOfFile,tcAcc.tcErrors,tcAcc.tcResolutions,timestamp)
 
     type IncrementalBuilder(tcConfig : TcConfig, projectDirectory, outfile, assemblyName, niceNameGen : Ast.NiceNameGenerator, lexResourceManager,
@@ -1729,7 +1729,7 @@ module internal IncrementalFSharpBuild =
                 partialBuild <- newPartialBuild
                 true
     
-        member ib.GetTypeCheckResultsBeforeFileInProjectIfReady filename : PartialTypeCheckResults option  = 
+        member ib.GetCheckResultsBeforeFileInProjectIfReady filename : PartialCheckResults option  = 
             let slotOfFile = ib.GetSlotOfFileName filename
             let result = 
                 match slotOfFile with
@@ -1737,16 +1737,16 @@ module internal IncrementalFSharpBuild =
                 | _ -> GetVectorResultBySlot(tcStatesNode,slotOfFile-1,partialBuild)  
         
             match result with
-            | Some(tcAcc,timestamp) -> Some(GetPartialTypeCheckResults (tcAcc,timestamp))
+            | Some(tcAcc,timestamp) -> Some(GetPartialCheckResults (tcAcc,timestamp))
             | _->None
         
         // TODO: This evaluates the whole type checking for the whole project,when only the
         // results for one file are requested.
-        member ib.GetTypeCheckResultsBeforeFileInProject filename = 
+        member ib.GetCheckResultsBeforeFileInProject filename = 
             let slotOfFile = ib.GetSlotOfFileName filename
             ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile
 
-        member ib.GetTypeCheckResultsAfterFileInProject filename = 
+        member ib.GetCheckResultsAfterFileInProject filename = 
             let slotOfFile = ib.GetSlotOfFileName filename + 1
             ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile
 
@@ -1763,16 +1763,16 @@ module internal IncrementalFSharpBuild =
                     GetVectorResultBySlot(tcStatesNode,slotOfFile-1,build)  
         
             match result with
-            | Some(tcAcc,timestamp) -> GetPartialTypeCheckResults (tcAcc,timestamp)
+            | Some(tcAcc,timestamp) -> GetPartialCheckResults (tcAcc,timestamp)
             | None -> failwith "Build was not evaluated, expected the results to be ready after 'Eval'."
 
-        member b.GetTypeCheckResultsAfterLastFileInProject () = 
+        member b.GetCheckResultsAfterLastFileInProject () = 
             b.GetTypeCheckResultsBeforeSlotInProject(b.GetSlotsCount()) 
 
         member __.GetCheckResultsAndImplementationsForProject() = 
             let build = EvalAndKeepOutput finalizedTypeCheckNode None
             match GetScalarResult(finalizedTypeCheckNode,build) with
-            | Some((ilAssemRef, assemblyOpt, tcAcc), timestamp) -> GetPartialTypeCheckResults (tcAcc,timestamp), ilAssemRef, assemblyOpt
+            | Some((ilAssemRef, assemblyOpt, tcAcc), timestamp) -> GetPartialCheckResults (tcAcc,timestamp), ilAssemRef, assemblyOpt
             | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
         
         member __.GetSlotOfFileName(filename:string) =

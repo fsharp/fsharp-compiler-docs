@@ -62,7 +62,9 @@ also requires the result of `ParseFileInProject`, so the two functions are often
 together. 
 *)
 // Perform parsing  
-let parseFileResults = checker.ParseFileInProject(file, input, projOptions)
+let parseFileResults = 
+    checker.ParseFileInProject(file, input, projOptions) 
+    |> Async.RunSynchronously
 (**
 Before we look at the interesting operations provided by `TypeCheckResults`, we 
 need to run the type checker on a sample input. On F# code with errors, you would get some type checking
@@ -72,6 +74,14 @@ result (but it may contain incorrectly "guessed" results).
 // Perform type checking
 let checkFileAnswer = 
     checker.CheckFileInProject(parseFileResults, file, 0, input, projOptions) 
+    |> Async.RunSynchronously
+
+(**
+Alternatively you can use `ParseAndCheckFileInProject` to check both in one step:
+*)
+
+let parseResults2, checkFileAnswer2 = 
+    checker.ParseAndCheckFileInProject(file, 0, input, projOptions) 
     |> Async.RunSynchronously
 
 (**

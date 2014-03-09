@@ -8,7 +8,7 @@ let checker = InteractiveChecker.Create()
 
 let parseWithTypeInfo (file, input) = 
     let checkOptions = checker.GetProjectOptionsFromScript(file, input)
-    let untypedRes = checker.ParseFileInProject(file, input, checkOptions)
+    let untypedRes = checker.ParseFileInProject(file, input, checkOptions) |> Async.RunSynchronously
     
     match checker.CheckFileInProject(untypedRes, file, 0, input, checkOptions) |> Async.RunSynchronously with 
     | CheckFileAnswer.Succeeded(res) -> untypedRes, res

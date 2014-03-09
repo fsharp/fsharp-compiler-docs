@@ -33,11 +33,8 @@ let parseAndTypeCheckSingleFile (file, input) =
     // Get context representing a stand-alone (script) file
     let projOptions = checker.GetProjectOptionsFromScript(file, input)
 
-    // Perform untyped parsing  (reasonably quick)
-    let parseFileResults = checker.ParseFileInProject(file, input, projOptions)
-        
-    let checkFileResults = 
-        checker.CheckFileInProject(parseFileResults, file, 0, input, projOptions) 
+    let parseFileResults, checkFileResults = 
+        checker.ParseAndCheckFileInProject(file, 0, input, projOptions) 
         |> Async.RunSynchronously
 
     // Wait until type checking succeeds (or 100 attempts)

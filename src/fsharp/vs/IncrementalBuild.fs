@@ -556,7 +556,7 @@ module internal IncrementalBuild =
 
     /// Visit each executable action necessary to evaluate the given output (with an optional slot in a
     /// vector output). Call actionFunc with the given accumulator.
-    let ForeachAction output optSlot bt (actionFunc:Action->'acc->'acc) (acc:'acc) =
+    let ForeachAction (Target(output, optSlot)) bt (actionFunc:Action->'acc->'acc) (acc:'acc) =
         use t = Trace.Call("IncrementalBuildVerbose", "ForeachAction",  fun _->sprintf "name=%A" output)
         let seen = Dictionary<_,_>()
         let Seen(id) = 
@@ -798,8 +798,8 @@ module internal IncrementalBuild =
         ApplyResult(actionResult,bt)
 
     /// Evaluate the result of a single output
-    let EvalLeafsFirst output optSlot bt =
-        use t = Trace.Call("IncrementalBuildVerbose", "EvalLeafsFirst", fun _->sprintf "name=%s" output)
+    let EvalLeafsFirst target bt =
+        use t = Trace.Call("IncrementalBuildVerbose", "EvalLeafsFirst", fun _->sprintf "name=%A" target)
 
         let rec Eval(bt,gen) =
             Trace.PrintLine("FSharpBackgroundBuildVerbose", fun _ -> sprintf "---- Build generation %d ----" gen)
@@ -808,31 +808,27 @@ module internal IncrementalBuild =
             // Possibly could detect this case directly.
             if gen>5000 then failwith "Infinite loop in incremental builder?"
             #endif
-            let newBt = ForeachAction output optSlot bt ExecuteApply bt
+            let newBt = ForeachAction target bt ExecuteApply bt
             if newBt=bt then bt else Eval(newBt,gen+1)
         Eval(bt,0)
         
-    let Step output optSlot (bt:PartialBuild) = 
+    let Step target (bt:PartialBuild) = 
         
         // Hey look, we're building up the whole list, executing one thing and then throwing
         // the list away. What about saving the list inside the Build instance?
-        let worklist = ForeachAction output optSlot bt (fun a l -> a :: l) []
+        let worklist = ForeachAction target bt (fun a l -> a :: l) []
             
         match worklist with 
         | action::_ -> Some(ExecuteApply action bt)
         | _ -> None
             
-        
-    /// Eval by calling step over and over until done.
-    let EvalStepwise output optSlot bt = 
-        let rec eval bt = 
-            match Step output optSlot bt with
-            | Some newBt -> eval newBt
-            | None->bt
-        eval bt
-        
-  /// Evaluate an output of the build.
-    let Eval output (optSlot: int option) bt = EvalLeafsFirst output optSlot bt
+    /// Evaluate an output of the build.
+    let Eval target bt = EvalLeafsFirst target bt
+
+    /// Check if an output is up-to-date and ready
+    let IsReady target bt = 
+        let worklist = ForeachAction target bt (fun a l -> a :: l) []
+        worklist.IsEmpty
 
   /// Get a scalar vector. Result must be available
     let GetScalarResult<'T>(node:Scalar<'T>,bt) : ('T*DateTime) option = 
@@ -1685,7 +1681,7 @@ module internal IncrementalFSharpBuild =
         let mutable partialBuild = buildDescription.GetInitialPartialBuild (buildInputs, [])
 
         let EvalAndKeepOutput (output:INode) optSlot = 
-            let newPartialBuild = IncrementalBuild.Eval output.Name optSlot partialBuild
+            let newPartialBuild = IncrementalBuild.Eval (Target(output.Name, optSlot)) partialBuild
             partialBuild <- newPartialBuild
             newPartialBuild
 
@@ -1721,7 +1717,7 @@ module internal IncrementalFSharpBuild =
 #endif
 
         member __.Step () =  
-            match IncrementalBuild.Step tcStatesNode.Name None partialBuild with 
+            match IncrementalBuild.Step (Target(tcStatesNode.Name, None)) partialBuild with 
             | None -> 
                 projectChecked.Trigger()
                 false
@@ -1740,6 +1736,13 @@ module internal IncrementalFSharpBuild =
             | Some(tcAcc,timestamp) -> Some(GetPartialCheckResults (tcAcc,timestamp))
             | _->None
         
+    
+        member ib.AreCheckResultsBeforeFileInProjectReady filename = 
+            let slotOfFile = ib.GetSlotOfFileName filename
+            match slotOfFile with
+            | (*first file*) 0 -> IncrementalBuild.IsReady (Target(initialTcAccNode.Name, None)) partialBuild 
+            | _ -> IncrementalBuild.IsReady (Target(tcStatesNode.Name, Some (slotOfFile-1))) partialBuild  
+        
         // TODO: This evaluates the whole type checking for the whole project,when only the
         // results for one file are requested.
         member ib.GetCheckResultsBeforeFileInProject filename = 
@@ -1757,8 +1760,6 @@ module internal IncrementalFSharpBuild =
                     let build = EvalAndKeepOutput initialTcAccNode None
                     GetScalarResult(initialTcAccNode,build)
                 | _ -> 
-                    // PROBLEM: This evaluates the whole type checking for the whole project, when only the
-                    // results for one file are requested.
                     let build = EvalAndKeepOutput tcStatesNode (Some (slotOfFile-1))
                     GetVectorResultBySlot(tcStatesNode,slotOfFile-1,build)  
         

@@ -174,18 +174,24 @@ You can also request checks of updated versions of files within the project (not
 in the project are still read from disk, unless you are using the [FileSystem API](filesystem.html)):
 
 *)
-let parseResults1 = checker.ParseFileInProject(Inputs.fileName1, Inputs.fileSource1, projectOptions) 
-let parseResults2 = checker.ParseFileInProject(Inputs.fileName2, Inputs.fileSource2, projectOptions) 
+
+let parseResults1, checkAnswer1 = 
+    checker.ParseAndCheckFileInProject(Inputs.fileName1, 0, Inputs.fileSource1, projectOptions) 
+    |> Async.RunSynchronously
 
 let checkResults1 = 
-    checker.CheckFileInProject(parseResults1, Inputs.fileName1, 0, Inputs.fileSource1, projectOptions) 
+    match checkAnswer1 with 
+    | CheckFileAnswer.Succeeded x ->  x 
+    | _ -> failwith "unexpected aborted"
+
+let parseResults2, checkAnswer2 = 
+    checker.ParseAndCheckFileInProject(Inputs.fileName2, 0, Inputs.fileSource2, projectOptions)
     |> Async.RunSynchronously
-    |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
 
 let checkResults2 = 
-    checker.CheckFileInProject(parseResults2, Inputs.fileName2, 0, Inputs.fileSource2, projectOptions)
-    |> Async.RunSynchronously
-    |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
+    match checkAnswer2 with 
+    | CheckFileAnswer.Succeeded x ->  x 
+    | _ -> failwith "unexpected aborted"
 
 (**
 Again, you can resolve symbols and ask for references:

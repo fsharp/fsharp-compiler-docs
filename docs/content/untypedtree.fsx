@@ -57,8 +57,12 @@ return the `ParseTree` property:
 let getUntypedTree (file, input) = 
   // Get compiler options for the 'project' implied by a single script file
   let projOptions = checker.GetProjectOptionsFromScript(file, input)
+
   // Run the first phase (untyped parsing) of the compiler
-  let parseFileResults = checker.ParseFileInProject(file, input, projOptions)
+  let parseFileResults = 
+      checker.ParseFileInProject(file, input, projOptions) 
+      |> Async.RunSynchronously
+
   match parseFileResults.ParseTree with
   | Some tree -> tree
   | None -> failwith "Something went wrong during parsing!"

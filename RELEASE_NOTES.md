@@ -126,5 +126,9 @@
 #### 0.0.31 - 
 * Fix performance problem with CheckFileInProject
 
+#### 0.0.32 - 
+* Make ParseFileInProject asynchronous
+* Add ParseAndCheckFileInProject
+* Use cached results in ParseAndCheckFileInProject if available
 
 

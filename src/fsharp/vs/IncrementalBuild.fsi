@@ -94,11 +94,13 @@ module internal IncrementalBuild =
       val Demultiplex : string -> ('I[] -> 'O)->Vector<'I> -> Scalar<'O>
       /// Convert a Vector into a Scalar.
       val AsScalar: string -> Vector<'I> -> Scalar<'I[]> 
+ 
+  type Target = Target of string * int option
 
   /// Evaluate a build. Only required for unit testing.
-  val Eval : string -> int option -> PartialBuild -> PartialBuild
+  val Eval : Target -> PartialBuild -> PartialBuild
   /// Do one step in the build. Only required for unit testing.
-  val Step : string -> int option -> PartialBuild -> PartialBuild option
+  val Step : Target -> PartialBuild -> PartialBuild option
   /// Get a scalar vector. Result must be available. Only required for unit testing.
   val GetScalarResult<'T> : Scalar<'T> * PartialBuild -> ('T * System.DateTime) option
   /// Get a result vector. All results must be available or thrown an exception. Only required for unit testing.
@@ -176,9 +178,15 @@ module internal IncrementalFSharpBuild =
       /// Perform one step in the F# build (type-checking only, the type check is not finalized)
       member Step : unit -> bool
 
-      /// Get the preceding typecheck state of a slot. Return None if the result is not available.
-      /// This is a quick operation.
+      /// Get the preceding typecheck state of a slot, without checking if it is up-to-date w.r.t.
+      /// the timestamps on files and referenced DLLs prior to this one. Return None if the result is not available.
+      /// This is a very quick operation.
       member GetCheckResultsBeforeFileInProjectIfReady: filename:string -> PartialCheckResults option
+
+      /// Get the preceding typecheck state of a slot, but only if it is up-to-date w.r.t.
+      /// the timestamps on files and referenced DLLs prior to this one. Return None if the result is not available.
+      /// This is a relatively quick operation.
+      member AreCheckResultsBeforeFileInProjectReady: filename:string -> bool
 
       /// Get the preceding typecheck state of a slot. Compute the entire type check of the project up
       /// to the necessary point if the result is not available. This may be a long-running operation.

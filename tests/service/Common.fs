@@ -10,10 +10,9 @@ let checker = InteractiveChecker.Create()
 
 let parseAndTypeCheckFileInProject (file, input) = 
     let checkOptions = checker.GetProjectOptionsFromScript(file, input)
-    let untypedRes = checker.ParseFileInProject(file, input, checkOptions)
-    let typedRes = checker.CheckFileInProject(untypedRes, file, 0, input, checkOptions) |> Async.RunSynchronously
+    let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, checkOptions) |> Async.RunSynchronously
     match typedRes with
-    | CheckFileAnswer.Succeeded(res) -> untypedRes, res
+    | CheckFileAnswer.Succeeded(res) -> parseResult, res
     | res -> failwithf "Parsing did not finish... (%A)" res
 
 type TempFile(ext, contents) = 

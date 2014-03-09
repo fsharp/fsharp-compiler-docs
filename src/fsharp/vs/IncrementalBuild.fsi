@@ -131,7 +131,7 @@ module internal IncrementalFSharpBuild =
     /// Used for unit testing
   val GetCurrentIncrementalBuildEventNum : unit -> int
 
-  type PartialTypeCheckResults = Build.TcState * Build.TcImports * Env.TcGlobals * Build.TcConfig * TypeChecker.TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * System.DateTime
+  type PartialCheckResults = Build.TcState * Build.TcImports * Env.TcGlobals * Build.TcConfig * TypeChecker.TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * System.DateTime
 
   [<Class>]
   type IncrementalBuilder = 
@@ -178,31 +178,31 @@ module internal IncrementalFSharpBuild =
 
       /// Get the preceding typecheck state of a slot. Return None if the result is not available.
       /// This is a quick operation.
-      member GetTypeCheckResultsBeforeFileInProjectIfReady: filename:string -> PartialTypeCheckResults option
+      member GetCheckResultsBeforeFileInProjectIfReady: filename:string -> PartialCheckResults option
 
       /// Get the preceding typecheck state of a slot. Compute the entire type check of the project up
       /// to the necessary point if the result is not available. This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsBeforeFileInProject : filename:string -> PartialTypeCheckResults 
+      member GetCheckResultsBeforeFileInProject : filename:string -> PartialCheckResults 
 
       /// Get the typecheck state after checking a file. Compute the entire type check of the project up
       /// to the necessary point if the result is not available. This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsAfterFileInProject : filename:string -> PartialTypeCheckResults 
+      member GetCheckResultsAfterFileInProject : filename:string -> PartialCheckResults 
 
       /// Get the typecheck result after the end of the last file. The typecheck of the project is not 'completed'.
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsAfterLastFileInProject : unit -> PartialTypeCheckResults 
+      member GetCheckResultsAfterLastFileInProject : unit -> PartialCheckResults 
 
       /// Get the final typecheck result. If 'generateTypedImplFiles' was set on Create then the TypedAssembly will contain implementations.
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetCheckResultsAndImplementationsForProject : unit -> PartialTypeCheckResults * IL.ILAssemblyRef * Build.IRawFSharpAssemblyContents option 
+      member GetCheckResultsAndImplementationsForProject : unit -> PartialCheckResults * IL.ILAssemblyRef * Build.IRawFSharpAssemblyContents option 
 
       /// Await the untyped parse results for a particular slot in the vector of parse results.
       ///

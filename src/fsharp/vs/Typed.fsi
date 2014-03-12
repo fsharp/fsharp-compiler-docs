@@ -365,6 +365,15 @@ and [<Class>] FSharpStaticParameter =
     /// Get the kind of the static parameter
     member Kind : FSharpType
 
+    /// Get the default value for the static parameter
+    member DefaultValue : obj
+
+    /// Indicates if the static parameter is optional
+    member IsOptional : bool
+
+    /// Indicates if the static parameter has a default value
+    member HasDefaultValue : bool
+
 
 /// Represents further information about a member constraint on a generic type parameter
 and [<Class; NoEquality; NoComparison>] 

@@ -152,18 +152,18 @@ let ``Symbols many tests`` () =
     fnVal.FullType.GenericArguments.[0].IsTupleType |> shouldEqual true // int * int 
     let argTy1 = fnVal.FullType.GenericArguments.[0].GenericArguments.[0]
 
-    argTy1.NamedEntity.DisplayName |> shouldEqual "int" // int
+    argTy1.TypeDefinition.DisplayName |> shouldEqual "int" // int
 
-    argTy1.IsNamedType |> shouldEqual true
-    argTy1.NamedEntity.IsFSharpAbbreviation |> shouldEqual true // "int"
+    argTy1.HasTypeDefinition |> shouldEqual true
+    argTy1.TypeDefinition.IsFSharpAbbreviation |> shouldEqual true // "int"
 
-    let argTy1b = argTy1.NamedEntity.AbbreviatedType
-    argTy1b.NamedEntity.Namespace |> shouldEqual (Some "Microsoft.FSharp.Core")
-    argTy1b.NamedEntity.CompiledName |> shouldEqual "int32" 
+    let argTy1b = argTy1.TypeDefinition.AbbreviatedType
+    argTy1b.TypeDefinition.Namespace |> shouldEqual (Some "Microsoft.FSharp.Core")
+    argTy1b.TypeDefinition.CompiledName |> shouldEqual "int32" 
 
-    let argTy1c = argTy1b.NamedEntity.AbbreviatedType
-    argTy1c.NamedEntity.Namespace |> shouldEqual (Some "System")
-    argTy1c.NamedEntity.CompiledName |> shouldEqual "Int32" 
+    let argTy1c = argTy1b.TypeDefinition.AbbreviatedType
+    argTy1c.TypeDefinition.Namespace |> shouldEqual (Some "System")
+    argTy1c.TypeDefinition.CompiledName |> shouldEqual "Int32" 
 
     let typeCheckContext = typeCheckResults2.ProjectContext
     

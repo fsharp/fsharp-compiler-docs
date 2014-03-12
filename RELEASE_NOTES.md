@@ -140,5 +140,7 @@
 * Add StaticParameters property to entities, plus FSharpStaticParameter symbol
 * Fix #65
 
+#### 0.0.35 - 
+* Fix #38 - FSharp.Compiler.Services should tolerate an FSharp.Core without siginfo/optdata in the search path
 
 

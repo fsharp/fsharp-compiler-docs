@@ -146,3 +146,12 @@ with e ->
   //    printfn "Error evaluating expression (Wrapped: %s)" err.Message
   | _ -> 
       printfn "Error evaluating expression (%s)" e.Message
+(**
+The 'fsi' object
+------------------
+
+If you want your scripting code to be able to access the 'fsi' object, you should pass in an implementation of this object explicitly.
+Normally the one fromm FSharp.Compiler.Interactive.Settings.dll is used.
+*)
+
+let fsiConfig2 = FsiEvaluationSession.GetDefaultConfiguration(fsi)

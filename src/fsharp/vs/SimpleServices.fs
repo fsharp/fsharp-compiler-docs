@@ -23,6 +23,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     open Microsoft.FSharp.Compiler.Driver
     open Microsoft.FSharp.Compiler
     open Microsoft.FSharp.Compiler.ErrorLogger
+    open Microsoft.FSharp.Compiler.AbstractIL
+    open Microsoft.FSharp.Compiler.AbstractIL.IL
 
     [<AutoOpen>]
     module private Utils =
@@ -135,7 +137,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 [| let state = ref 0L
                    for line in lines do 
                          let tokens, n = x.TokenizeLine(line, !state) 
-                         state := n; 
+                         state := n 
                          yield tokens |]
             tokens
 
@@ -195,7 +197,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
                 let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
                 try 
-                    mainCompile (argv, true, exiter, Some loggerProvider, tcImportsCapture, dynamicAssemblyCreator); 
+                    mainCompile (argv, true, exiter, Some loggerProvider, tcImportsCapture, dynamicAssemblyCreator) 
                     0
                 with e -> 
                     stopProcessingRecovery e Range.range0
@@ -213,6 +215,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         /// the given TextWriters are used for the stdout and stderr streams respectively. In this 
         /// case, a global setting is modified during the execution.
         member x.CompileToDynamicAssembly (otherFlags: string[], execute: (TextWriter * TextWriter) option)  = 
+            // Set the output streams, if requested
             match execute with
             | Some (writer,error) -> 
 #if SILVERLIGHT
@@ -223,42 +226,63 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 System.Console.SetError error
 #endif
             | None -> ()
+            
+            // References used to capture the results of compilation
             let tcImportsRef = ref (None: Build.TcImports option)
             let res = ref None
             let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
+
+            // Function to generate and store the results of compilation 
             let dynamicAssemblyCreator = 
                 Some (fun (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) ->
-                    let assemblyBuilder = System.AppDomain.CurrentDomain.DefineDynamicAssembly(System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile),System.Reflection.Emit.AssemblyBuilderAccess.Run)
-                    let debugInfo = false
-                    let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule",debugInfo)     
-                    let _emEnv,execs = 
-                        Microsoft.FSharp.Compiler.AbstractIL.ILRuntimeWriter.emitModuleFragment 
-                            (ilGlobals ,
-                             Microsoft.FSharp.Compiler.AbstractIL.ILRuntimeWriter.emEnv0,
-                             assemblyBuilder,moduleBuilder,
-                             // Omit resources in dynamic assemblies, because the module builder is constructed without a filename the module 
-                             // is tagged as transient and as such DefineManifestResource will throw an invalid operation if resources are present
-                             { ilxMainModule with Resources=Microsoft.FSharp.Compiler.AbstractIL.IL.mkILResources [] },
-                             debugInfo,
-                             (fun s -> 
-                                 match tcImportsRef.Value.Value.TryFindExistingFullyQualifiedPathFromAssemblyRef s with 
-                                 | Some res -> Some (Choice1Of2 res)
-                                 | None -> None))
+
+                    // Create an assembly builder
+                    let assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile),System.Reflection.Emit.AssemblyBuilderAccess.Run)
+                    let debugInfo =  otherFlags |> Array.exists (fun arg -> arg = "-g" || arg = "--debug:+" || arg = "/debug:+")
+                    let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule", debugInfo)     
+
+                    // Omit resources in dynamic assemblies, because the module builder is constructed without a filename the module 
+                    // is tagged as transient and as such DefineManifestResource will throw an invalid operation if resources are present.
+                    // 
+                    // Also, the dynamic assembly creator can't currently handle types called "<Module>" from statically linked assemblies.
+                    let ilxMainModule = 
+                       { ilxMainModule with 
+                            TypeDefs = ilxMainModule.TypeDefs.AsList |> List.filter (fun td -> not (isTypeNameForGlobalFunctions td.Name)) |> mkILTypeDefs
+                            Resources=mkILResources [] }
+
+                    // The function used to resolve typees while emitting the code
+                    let assemblyResolver s = 
+                        match tcImportsRef.Value.Value.TryFindExistingFullyQualifiedPathFromAssemblyRef s with 
+                        | Some res -> Some (Choice1Of2 res)
+                        | None -> None
+
+                    // Emit the code
+                    let _emEnv,execs = ILRuntimeWriter.emitModuleFragment(ilGlobals, ILRuntimeWriter.emEnv0, assemblyBuilder, moduleBuilder, ilxMainModule, debugInfo, assemblyResolver)
+
+                    // Execute the top-level initialization, if requested
                     if execute.IsSome then 
                         for exec in execs do 
                             match exec() with 
                             | None -> ()
                             | Some exn -> raise exn
+
+                    // Register the reflected definitions for the dynamically generated assembly
                     for resource in ilxMainModule.Resources.AsList do 
                         if Build.IsReflectedDefinitionsResource resource then 
-                            Quotations.Expr.RegisterReflectedDefinitions(assemblyBuilder, moduleBuilder.Name, resource.Bytes);
+                            Quotations.Expr.RegisterReflectedDefinitions(assemblyBuilder, moduleBuilder.Name, resource.Bytes)
+
+                    // Save the result
                     res := Some assemblyBuilder)
             
 
+            // Perform the compilation, given the above capturing function.
             let errorsAndWarnings, result = x.Compile (otherFlags, tcImportsCapture, dynamicAssemblyCreator)
+
+            // Retrieve and return the results
             let assemblyOpt = 
                 match res.Value with 
                 | None -> None
                 | Some a ->  Some (a :> System.Reflection.Assembly)
+
             errorsAndWarnings, result, assemblyOpt
 

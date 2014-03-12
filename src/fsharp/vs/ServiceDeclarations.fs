@@ -204,29 +204,22 @@ module internal ItemDescriptionsImpl =
         | Item.DelegateCtor typ 
         | Item.FakeInterfaceCtor typ -> typ |> tryNiceEntityRefOfTy |> Option.map (rangeOfEntityRef isDecl)
 
-    // Provided type definitions do not have a useful F# CCU for the purposes of goto-definition.
-    let computeCcuOfTyconRef (tcref:TyconRef) = 
-#if EXTENSIONTYPING
-        if tcref.IsProvided then None else 
-#endif
-        ccuOfTyconRef tcref
-
-    let rec ccuOfItem g d = 
+    let rec ccuOfItem (g:TcGlobals) d = 
         match d with
         | Item.Value vref | Item.CustomBuilder (_,vref) -> ccuOfValRef vref 
-        | Item.UnionCase ucinfo                -> computeCcuOfTyconRef ucinfo.TyconRef
+        | Item.UnionCase ucinfo                -> ccuOfTyconRef ucinfo.TyconRef
         | Item.ActivePatternCase apref         -> ccuOfValRef apref.ActivePatternVal
-        | Item.ExnCase tcref                   -> computeCcuOfTyconRef tcref
-        | Item.RecdField rfinfo                -> computeCcuOfTyconRef rfinfo.RecdFieldRef.TyconRef
+        | Item.ExnCase tcref                   -> ccuOfTyconRef tcref
+        | Item.RecdField rfinfo                -> ccuOfTyconRef rfinfo.RecdFieldRef.TyconRef
         | Item.Event einfo                     -> einfo.ArbitraryValRef |> Option.bind ccuOfValRef
-        | Item.ILField _                       -> None
+        | Item.ILField finfo                       -> finfo.EnclosingType |> tcrefOfAppTy g |> ccuOfTyconRef
         | Item.Property(_,pinfos)              -> pinfos.Head.ArbitraryValRef |> Option.bind ccuOfValRef
         | Item.MethodGroup(_,(minfo :: _)) 
         | Item.CtorGroup(_,FilterDefaultStructCtors(minfo :: _)) -> minfo.ArbitraryValRef |> Option.bind ccuOfValRef
-        | Item.Types(_,(typ :: _))             -> tryNiceEntityRefOfTy typ |> Option.bind (fun tcref -> computeCcuOfTyconRef tcref)
+        | Item.Types(_,(typ :: _))             -> tryNiceEntityRefOfTy typ |> Option.bind (fun tcref -> ccuOfTyconRef tcref)
         | Item.TypeVar _  -> None
         | Item.CustomOperation (_,_,Some minfo)       -> minfo.ArbitraryValRef |> Option.bind ccuOfValRef
-        | Item.ModuleOrNamespaces(modref :: _) -> computeCcuOfTyconRef modref
+        | Item.ModuleOrNamespaces(modref :: _) -> ccuOfTyconRef modref
         | Item.SetterArg (_,item) -> ccuOfItem g item
         | Item.ArgName _ -> None
         | _ -> None
@@ -604,6 +597,42 @@ module internal ItemDescriptionsImpl =
                     abbreviateAdditionalConstraints=false;
                     suppressNestedTypes=true;
                     maxMembers=Some EnvMisc2.maxMembers }
+
+    let rec FullNameOfItem g d = 
+        let denv = DisplayEnv.Empty(g)
+        match d with
+        | Item.ImplicitOp(_, { contents = Some(TraitConstraintSln.FSMethSln(_, vref, _)) }) 
+        | Item.Value vref | Item.CustomBuilder (_,vref) -> fullDisplayTextOfValRef vref
+        | Item.UnionCase ucinfo -> fullDisplayTextOfUnionCaseRef  ucinfo.UnionCaseRef
+        | Item.ActivePatternResult(apinfo, _ty, idx, _) -> apinfo.Names.[idx]
+        | Item.ActivePatternCase apref -> FullNameOfItem g (Item.Value apref.ActivePatternVal)  + "." + apref.Name 
+        | Item.ExnCase ecref -> fullDisplayTextOfExnRef ecref 
+        | Item.RecdField rfinfo -> fullDisplayTextOfRecdFieldRef  rfinfo.RecdFieldRef
+        | Item.NewDef id -> id.idText
+        | Item.ILField finfo -> bufs (fun os -> NicePrint.outputILTypeRef denv os finfo.ILTypeRef; bprintf os ".%s" finfo.FieldName)
+        | Item.Event einfo -> bufs (fun os -> NicePrint.outputTyconRef denv os (tcrefOfAppTy g einfo.EnclosingType); bprintf os ".%s" einfo.EventName)
+        | Item.Property(_,(pinfo::_)) -> bufs (fun os -> NicePrint.outputTyconRef denv os (tcrefOfAppTy g pinfo.EnclosingType); bprintf os ".%s" pinfo.PropertyName)
+        | Item.CustomOperation (customOpName,_,_) -> customOpName
+        | Item.CtorGroup(_,minfo :: _) -> bufs (fun os -> NicePrint.outputTyconRef denv os minfo.DeclaringEntityRef)
+        | Item.MethodGroup(_,minfo :: _) -> bufs (fun os -> NicePrint.outputTyconRef denv os minfo.DeclaringEntityRef; bprintf os ".%s" minfo.DisplayName)        
+        | Item.UnqualifiedType (tcref :: _) -> bufs (fun os -> NicePrint.outputTyconRef denv os tcref)
+        | Item.FakeInterfaceCtor typ 
+        | Item.DelegateCtor typ 
+        | Item.Types(_,typ:: _) -> bufs (fun os -> NicePrint.outputTyconRef denv os (tcrefOfAppTy g typ))
+        | Item.ModuleOrNamespaces((modref :: _) as modrefs) -> 
+            let definiteNamespace = modrefs |> List.forall (fun modref -> modref.IsNamespace)
+            if definiteNamespace then fullDisplayTextOfModRef modref else modref.DemangledModuleOrNamespaceName
+        | Item.TypeVar (id, _) -> id
+        | Item.ArgName (id, _) -> id.idText
+        | Item.SetterArg (_, item) -> FullNameOfItem g item
+        | Item.ImplicitOp(id, _) -> id.idText
+        // unreachable 
+        | Item.UnqualifiedType([]) 
+        | Item.Types(_,[]) 
+        | Item.CtorGroup(_,[]) 
+        | Item.MethodGroup(_,[]) 
+        | Item.ModuleOrNamespaces []
+        | Item.Property(_,[]) -> ""
 
     /// Output a the description of a language item
     let rec FormatItemDescriptionToToolTipElement isDecl (infoReader:InfoReader) m denv d = 

@@ -121,6 +121,7 @@ let ``Test multi project 1 whole project errors`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(MultiProject1.options) |> Async.RunSynchronously
 
     wholeProjectResults .Errors.Length |> shouldEqual 0
+    wholeProjectResults.ProjectContext.GetReferencedAssemblies().Length |> shouldEqual 6
 
 [<Test>]
 let ``Test multi project 1 basic`` () = 
@@ -151,6 +152,17 @@ let ``Test multi project 1 all symbols`` () =
         [ for s in mp.GetAllUsesOfAllSymbols() do
              if  s.Symbol.DisplayName = "x1" then 
                  yield s.Symbol ]   |> List.head
+
+    let bFromProjectMultiProject = 
+        [ for s in mp.GetAllUsesOfAllSymbols() do
+             if  s.Symbol.DisplayName = "b" then 
+                 yield s.Symbol ]   |> List.head
+
+    x1FromProject1A.Assembly.FileName.IsNone |> shouldEqual true // For now, the assembly being analyzed doesn't return a filename
+    x1FromProject1A.Assembly.QualifiedName |> shouldEqual "" // For now, the assembly being analyzed doesn't return a qualified name
+    x1FromProject1A.Assembly.SimpleName |> shouldEqual (Path.GetFileNameWithoutExtension Project1A.dllName) 
+    x1FromProjectMultiProject.Assembly.FileName |> shouldEqual (Some Project1A.dllName)
+    bFromProjectMultiProject.Assembly.FileName |> shouldEqual  (Some Project1B.dllName)
 
     let usesOfx1FromProject1AInMultiProject1 = 
        mp.GetUsesOfSymbol(x1FromProject1A) 

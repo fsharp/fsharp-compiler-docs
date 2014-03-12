@@ -131,4 +131,8 @@
 * Add ParseAndCheckFileInProject
 * Use cached results in ParseAndCheckFileInProject if available
 
+#### 0.0.33 - 
+* Add FullName and Assembly properties for symbols
+* Fix #76
+* Add Japanese documentation
 

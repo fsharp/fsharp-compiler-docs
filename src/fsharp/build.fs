@@ -4709,14 +4709,17 @@ module private ScriptPreprocessClosure =
         ParseOneInputLexbuf (tcConfig,lexResourceManager,defines,lexbuf,filename,isLastCompiland,errorLogger) 
           
     /// Create a TcConfig for load closure starting from a single .fsx file
-    let CreateScriptSourceTcConfig(filename:string,codeContext,useMonoResolution,useFsiAuxLib,basicReferences) =  
+    let CreateScriptSourceTcConfig(filename:string,codeContext,useMonoResolution,useFsiAuxLib,basicReferences,applyCommandLineArgs) =  
         let projectDir = Path.GetDirectoryName(filename)
         let isInteractive = (codeContext = CodeContext.Evaluation)
         let isInvalidationSupported = (codeContext = CodeContext.Editing)
         
         let tcConfigB = TcConfigBuilder.CreateNew(Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value, true (* optimize for memory *), projectDir, isInteractive, isInvalidationSupported) 
-        if isNil basicReferences then 
-            BasicReferencesForScriptLoadClosure(useMonoResolution, useFsiAuxLib) |> List.iter(fun f->tcConfigB.AddReferencedAssemblyByPath(range0,f)) // Add script references
+        applyCommandLineArgs tcConfigB
+        match basicReferences with 
+        | None -> BasicReferencesForScriptLoadClosure(useMonoResolution, useFsiAuxLib) |> List.iter(fun f->tcConfigB.AddReferencedAssemblyByPath(range0,f)) // Add script references
+        | Some rs -> for m,r in rs do tcConfigB.AddReferencedAssemblyByPath(m,r)
+
         tcConfigB.resolutionEnvironment <-
             match codeContext with 
             | CodeContext.Editing -> MSBuildResolver.DesigntimeLike
@@ -4726,7 +4729,6 @@ module private ScriptPreprocessClosure =
         // be added conditionally once the relevant version of mscorlib.dll has been detected.
         tcConfigB.addVersionSpecificFrameworkReferences <- true 
         tcConfigB.implicitlyResolveAssemblies <- false
-        for m,r in basicReferences do tcConfigB.AddReferencedAssemblyByPath(m,r)
         TcConfig.Create(tcConfigB,validate=true)
         
     let private SourceFileOfFilename(filename,m,inputCodePage:int option) : ClosureDirective list = 
@@ -4872,18 +4874,18 @@ module private ScriptPreprocessClosure =
         
     /// Given source text, find the full load closure
     /// Used from service.fs, when editing a script file
-    let GetFullClosureOfScriptSource(filename,source,codeContext,useMonoResolution,useFsiAuxLib,lexResourceManager:Lexhelp.LexResourceManager) = 
+    let GetFullClosureOfScriptSource(filename,source,codeContext,useMonoResolution,useFsiAuxLib,lexResourceManager:Lexhelp.LexResourceManager,applyCommmandLineArgs) = 
         // Resolve the basic references such as FSharp.Core.dll first, before processing any #I directives in the script
         //
         // This is tries to mimic the action of running the script in F# Interactive - the initial context for scripting is created
         // first, then #I and other directives are processed.
         let references0 = 
-            let tcConfig = CreateScriptSourceTcConfig(filename,codeContext,useMonoResolution,useFsiAuxLib,[])
+            let tcConfig = CreateScriptSourceTcConfig(filename,codeContext,useMonoResolution,useFsiAuxLib,None,applyCommmandLineArgs)
             let resolutions0,_unresolvedReferences = GetAssemblyResolutionInformation(tcConfig)
             let references0 =  resolutions0 |> List.map (fun r->r.originalReference.Range,r.resolvedPath) |> Seq.distinct |> List.ofSeq
             references0
 
-        let tcConfig = CreateScriptSourceTcConfig(filename,codeContext,useMonoResolution,useFsiAuxLib,references0)
+        let tcConfig = CreateScriptSourceTcConfig(filename,codeContext,useMonoResolution,useFsiAuxLib,Some references0,applyCommmandLineArgs)
 
         let protoClosure = [SourceFile(filename,range0,source)]
         let finalClosure,tcConfig = FindClosureDirectives(protoClosure,tcConfig,codeContext,lexResourceManager)
@@ -4899,9 +4901,9 @@ module private ScriptPreprocessClosure =
 
 type LoadClosure with
     // Used from service.fs, when editing a script file
-    static member ComputeClosureOfSourceText(filename:string,source:string,codeContext,useMonoResolution,useFsiAuxLib,lexResourceManager:Lexhelp.LexResourceManager) : LoadClosure = 
+    static member ComputeClosureOfSourceText(filename:string,source:string,codeContext,useMonoResolution,useFsiAuxLib,lexResourceManager:Lexhelp.LexResourceManager,applyCommmandLineArgs) : LoadClosure = 
         use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)
-        ScriptPreprocessClosure.GetFullClosureOfScriptSource(filename,source,codeContext,useMonoResolution,useFsiAuxLib,lexResourceManager)
+        ScriptPreprocessClosure.GetFullClosureOfScriptSource(filename,source,codeContext,useMonoResolution,useFsiAuxLib,lexResourceManager,applyCommmandLineArgs)
 
     /// Used from fsi.fs and fsc.fs, for #load and command line.
     /// The resulting references are then added to a TcConfig.

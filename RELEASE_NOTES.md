@@ -144,3 +144,7 @@
 * Fix #38 - FSharp.Compiler.Services should tolerate an FSharp.Core without siginfo/optdata in the search path
 
 
+#### 0.0.36 - 
+* Fix #71 - Expose static parameters and xml docs of type providers
+* Fix #63 - SourceCodeServices: #r ignores include paths passed as command-line flags
+

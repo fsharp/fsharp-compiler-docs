@@ -2074,12 +2074,17 @@ type BackgroundCompiler() as self =
             let otherFlags = defaultArg otherFlags [| |]
             let useMonoResolution = runningOnMono || otherFlags |> Array.exists (fun x -> x = "--simpleresolution")
             let loadedTimeStamp = defaultArg loadedTimeStamp DateTime.MaxValue // Not 'now', we don't want to force reloading
-            let fas = LoadClosure.ComputeClosureOfSourceText(filename, source, CodeContext.Editing, useMonoResolution, useFsiAuxLib, new Lexhelp.LexResourceManager())
+            let applyCompilerOptions tcConfigB  = 
+                let collect _name = ()
+                let fsiCompilerOptions = Fscopts.GetCoreFsiCompilerOptions tcConfigB 
+                ParseCompilerOptions collect fsiCompilerOptions (Array.toList otherFlags)
+            let fas = LoadClosure.ComputeClosureOfSourceText(filename, source, CodeContext.Editing, useMonoResolution, useFsiAuxLib, new Lexhelp.LexResourceManager(), applyCompilerOptions)
             let allFlags = 
-                [| yield "--noframework"; yield "--warn:3"; yield! otherFlags
+                [| yield "--noframework"; yield "--warn:3"; 
+                   yield! otherFlags 
                    for r in fas.References do yield "-r:" + fst r
                    for (code,_) in fas.NoWarns do yield "--nowarn:" + code
-                   yield! otherFlags |]
+                |]
             let co = 
                 {
                     ProjectFileName = filename + ".fsproj" // Make a name that is unique in this directory.

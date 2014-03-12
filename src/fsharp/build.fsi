@@ -708,5 +708,5 @@ type LoadClosure =
         RootErrors : PhasedError list
         /// *Parse* warnings seen while parsing root of closure
         RootWarnings : PhasedError list }
-    static member ComputeClosureOfSourceText : filename: string * source: string * implicitDefines:CodeContext * useMonoResolution: bool * useFsiAuxLib: bool * lexResourceManager: Lexhelp.LexResourceManager -> LoadClosure
+    static member ComputeClosureOfSourceText : filename: string * source: string * implicitDefines:CodeContext * useMonoResolution: bool * useFsiAuxLib: bool * lexResourceManager: Lexhelp.LexResourceManager * applyCompilerOptions: (TcConfigBuilder -> unit) -> LoadClosure
     static member ComputeClosureOfSourceFiles : tcConfig:TcConfig * (string * range) list * implicitDefines:CodeContext * useDefaultScriptingReferences: bool * lexResourceManager: Lexhelp.LexResourceManager -> LoadClosure

@@ -3906,6 +3906,10 @@ and TcPseudoMemberSpec cenv newOk env synTypars tpenv memSpfn m =
             let argtys = List.concat curriedArgInfos
             let argtys = List.map fst argtys
             let logicalCompiledName = ComputeLogicalName id memberFlags
+
+            let item = Item.ArgName (id, memberConstraintTy)
+            CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.Use,env.DisplayEnv,env.eAccessRights)
+
             TTrait(tys,logicalCompiledName,memberFlags,argtys,returnTy, ref None),tpenv
         | _ -> error(Error(FSComp.SR.tcInvalidConstraint(),m))
     | _ -> error(Error(FSComp.SR.tcInvalidConstraint(),m))

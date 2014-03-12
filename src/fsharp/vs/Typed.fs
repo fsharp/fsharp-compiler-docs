@@ -1037,6 +1037,15 @@ and FSharpStaticParameter(g, thisCcu, tcImports:TcImports,  sp: Tainted< Extensi
             let typ = Import.ImportProvidedType (tcImports.GetImportMap()) m (sp.PApply((fun x -> x.ParameterType), m))
             FSharpType(g, thisCcu, tcImports,  typ)
 
+    member __.IsOptional = 
+        protect <| fun () -> sp.PUntaint((fun x -> x.IsOptional), m)
+
+    member __.HasDefaultValue = 
+        protect <| fun () -> sp.PUntaint((fun x -> x.HasDefaultValue), m)
+
+    member __.DefaultValue = 
+        protect <| fun () -> sp.PUntaint((fun x -> x.RawDefaultValue), m)
+
     override x.Equals(other : obj) =
         box x === other || 
         match other with

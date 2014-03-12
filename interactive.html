@@ -292,6 +292,21 @@ want to use something like this:</p>
 </tr>
 </table>
 
+<h2>The 'fsi' object</h2>
+
+<p>If you want your scripting code to be able to access the 'fsi' object, you should pass in an implementation of this object explicitly.
+Normally the one fromm FSharp.Compiler.Interactive.Settings.dll is used.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs55', 96)" onmouseover="showTip(event, 'fs55', 96)" class="i">fsiConfig2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 97)" onmouseover="showTip(event, 'fs22', 97)" class="i">FsiEvaluationSession</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 98)" onmouseover="showTip(event, 'fs23', 98)" class="i">GetDefaultConfiguration</span>(<span onmouseout="hideTip(event, 'fs56', 99)" onmouseover="showTip(event, 'fs56', 99)" class="i">fsi</span>)</pre>
+</td>
+</tr>
+</table>
+
 <div class="tip" id="fs1">namespace Microsoft</div>
 <div class="tip" id="fs2">namespace Microsoft.FSharp</div>
 <div class="tip" id="fs3">namespace Microsoft.FSharp.Compiler</div>
@@ -346,6 +361,8 @@ want to use something like this:</p>
 <div class="tip" id="fs52">val e : exn</div>
 <div class="tip" id="fs53">property Exception.InnerException: exn</div>
 <div class="tip" id="fs54">property Exception.Message: string</div>
+<div class="tip" id="fs55">val fsiConfig2 : FsiEvaluationSessionHostConfig<br /><br />Full name: Interactive.fsiConfig2</div>
+<div class="tip" id="fs56">val fsi : Interactive.InteractiveSession<br /><br />Full name: Microsoft.FSharp.Compiler.Interactive.Settings.fsi</div>
 
         </div>
         <div class="span3">

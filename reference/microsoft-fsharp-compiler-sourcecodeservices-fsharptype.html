@@ -47,161 +47,191 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3263', 3263)" onmouseover="showTip(event, '3263', 3263)">
+          <code onmouseout="hideTip(event, '3275', 3275)" onmouseover="showTip(event, '3275', 3275)">
             AbbreviatedType(arg1)
           </code>
-          <div class="tip" id="3263">
+          <div class="tip" id="3275">
             <strong>Signature:</strong>unit -&gt; FSharpType<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get the type for which this is an abbreviation</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L913-913" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L943-943" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3264', 3264)" onmouseover="showTip(event, '3264', 3264)">
+          <code onmouseout="hideTip(event, '3276', 3276)" onmouseover="showTip(event, '3276', 3276)">
             GenericArguments(arg1)
           </code>
-          <div class="tip" id="3264">
+          <div class="tip" id="3276">
             <strong>Signature:</strong>unit -&gt; IList&lt;FSharpType&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get the generic arguments for a tuple type, a function type or a type constructed using a named entity</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L898-898" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L919-919" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3265', 3265)" onmouseover="showTip(event, '3265', 3265)">
+          <code onmouseout="hideTip(event, '3277', 3277)" onmouseover="showTip(event, '3277', 3277)">
             GenericParameter(arg1)
           </code>
-          <div class="tip" id="3265">
+          <div class="tip" id="3277">
             <strong>Signature:</strong>unit -&gt; FSharpGenericParameter<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get the generic parameter data for a generic parameter type</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L930-930" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L960-960" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3266', 3266)" onmouseover="showTip(event, '3266', 3266)">
-            IsAbbreviation(arg1)
+          <code onmouseout="hideTip(event, '3278', 3278)" onmouseover="showTip(event, '3278', 3278)">
+            HasTypeDefinition(arg1)
           </code>
-          <div class="tip" id="3266">
-            <strong>Signature:</strong>unit -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        <p>Indicates this is an abbreviation for another type</p>
-
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L910-910" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3267', 3267)" onmouseover="showTip(event, '3267', 3267)">
-            IsFunctionType(arg1)
-          </code>
-          <div class="tip" id="3267">
-            <strong>Signature:</strong>unit -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        <p>Indicates if the type is a function type. The GenericArguments property returns the domain and range of the function type.</p>
-
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L916-916" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3268', 3268)" onmouseover="showTip(event, '3268', 3268)">
-            IsGenericParameter(arg1)
-          </code>
-          <div class="tip" id="3268">
-            <strong>Signature:</strong>unit -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        <p>Indicates if the type is a variable type, whether declared, generalized or an inference type parameter</p>
-
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L923-923" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3269', 3269)" onmouseover="showTip(event, '3269', 3269)">
-            IsNamedType(arg1)
-          </code>
-          <div class="tip" id="3269">
+          <div class="tip" id="3278">
             <strong>Signature:</strong>unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Indicates if the type is constructed using a named entity, including array and byref types</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L874-874" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L892-892" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3270', 3270)" onmouseover="showTip(event, '3270', 3270)">
+          <code onmouseout="hideTip(event, '3279', 3279)" onmouseover="showTip(event, '3279', 3279)">
+            IsAbbreviation(arg1)
+          </code>
+          <div class="tip" id="3279">
+            <strong>Signature:</strong>unit -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Indicates this is an abbreviation for another type</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L940-940" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3280', 3280)" onmouseover="showTip(event, '3280', 3280)">
+            IsFunctionType(arg1)
+          </code>
+          <div class="tip" id="3280">
+            <strong>Signature:</strong>unit -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Indicates if the type is a function type. The GenericArguments property returns the domain and range of the function type.</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L946-946" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3281', 3281)" onmouseover="showTip(event, '3281', 3281)">
+            IsGenericParameter(arg1)
+          </code>
+          <div class="tip" id="3281">
+            <strong>Signature:</strong>unit -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Indicates if the type is a variable type, whether declared, generalized or an inference type parameter</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L953-953" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3282', 3282)" onmouseover="showTip(event, '3282', 3282)">
+            IsNamedType(arg1)
+          </code>
+          <div class="tip" id="3282">
+            <strong>Signature:</strong>unit -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L906-906" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3283', 3283)" onmouseover="showTip(event, '3283', 3283)">
             IsTupleType(arg1)
           </code>
-          <div class="tip" id="3270">
+          <div class="tip" id="3283">
             <strong>Signature:</strong>unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Indicates if the type is a tuple type. The GenericArguments property returns the elements of the tuple type.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L881-881" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L899-899" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3271', 3271)" onmouseover="showTip(event, '3271', 3271)">
+          <code onmouseout="hideTip(event, '3284', 3284)" onmouseover="showTip(event, '3284', 3284)">
             IsUnresolved(arg1)
           </code>
-          <div class="tip" id="3271">
+          <div class="tip" id="3284">
             <strong>Signature:</strong>unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Indicates this is a named type in an unresolved assembly</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L872-872" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L890-890" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3272', 3272)" onmouseover="showTip(event, '3272', 3272)">
+          <code onmouseout="hideTip(event, '3285', 3285)" onmouseover="showTip(event, '3285', 3285)">
             NamedEntity(arg1)
           </code>
-          <div class="tip" id="3272">
+          <div class="tip" id="3285">
             <strong>Signature:</strong>unit -&gt; FSharpEntity<br />
                       </div>
         </td>
         <td class="xmldoc">
-        <p>Get the named entity for a type constructed using a named entity</p>
+        
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L907-907" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L888-888" class="github-link">Go to GitHub source</a>
+          <code onmouseout="hideTip(event, '3286', 3286)" onmouseover="showTip(event, '3286', 3286)">
+            TypeDefinition(arg1)
+          </code>
+          <div class="tip" id="3286">
+            <strong>Signature:</strong>unit -&gt; FSharpEntity<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Get the type definition for a type</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L909-909" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>

@@ -1478,3 +1478,71 @@ let ``Test project 8 all symbols`` () =
      [|(Some ((4, 14), (4, 17)), "file1", ((4, 14), (4, 17)));
        (Some ((4, 14), (4, 17)), "file1", ((5, 10), (5, 13)));
        (Some ((4, 14), (4, 17)), "file1", ((10, 9), (10, 12)))|]
+
+//-----------------------------------------------------------------------------------------
+module Project9 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Constraints
+
+let inline check< ^T when ^T : (static member IsInfinity : ^T -> bool)> (num: ^T) : ^T option =
+    if (^T : (static member IsInfinity: ^T -> bool) (num)) then None
+    else Some num
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test project9 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project9.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test project 9 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project9.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project9.cleanFileName su.FileName, tups su.RangeAlternate)
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("generic parameter T", "T", "file1", ((4, 18), (4, 20)));
+            ("generic parameter T", "T", "file1", ((4, 26), (4, 28)));
+            ("generic parameter T", "T", "file1", ((4, 59), (4, 61)));
+            ("bool", "bool", "file1", ((4, 65), (4, 69)));
+            ("parameter IsInfinity", "IsInfinity", "file1", ((4, 46), (4, 56)));
+            ("generic parameter T", "T", "file1", ((4, 78), (4, 80)));
+            ("val num", "num", "file1", ((4, 73), (4, 76)));
+            ("option`1", "option", "file1", ((4, 87), (4, 93)));
+            ("generic parameter T", "T", "file1", ((4, 84), (4, 86)));
+            ("generic parameter T", "T", "file1", ((5, 8), (5, 10)));
+            ("generic parameter T", "T", "file1", ((5, 40), (5, 42)));
+            ("bool", "bool", "file1", ((5, 46), (5, 50)));
+            ("parameter IsInfinity", "IsInfinity", "file1", ((5, 28), (5, 38)));
+            ("val num", "num", "file1", ((5, 53), (5, 56)));
+            ("None", "None", "file1", ((5, 64), (5, 68)));
+            ("Some", "Some", "file1", ((6, 9), (6, 13)));
+            ("val num", "num", "file1", ((6, 14), (6, 17)));
+            ("val check", "check", "file1", ((4, 11), (4, 16)));
+            ("Constraints", "Constraints", "file1", ((2, 7), (2, 18)))|]
+
+    let arg1symbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Array.pick (fun x -> if x.Symbol.DisplayName = "IsInfinity" then Some x.Symbol else None)
+    let arg1uses = 
+        wholeProjectResults.GetUsesOfSymbol(arg1symbol) 
+        |> Array.map (fun su -> Option.map tups su.Symbol.DeclarationLocation, Project9.cleanFileName su.FileName, tups su.RangeAlternate)
+    arg1uses |> shouldEqual
+     [|(Some ((4, 46), (4, 56)), "file1", ((4, 46), (4, 56)))|]

@@ -45,6 +45,16 @@ let evalInteraction text =
 let ``EvalExpression test 1``() = 
     evalExpression "42+1" |> shouldEqual "43"
 
+[<Test>]
+// 'fsi' can be evaluated because we passed it in explicitly up above
+let ``EvalExpression fsi test``() = 
+    evalExpression "fsi" |> shouldEqual "Microsoft.FSharp.Compiler.Interactive.InteractiveSession"
+
+[<Test>]
+// 'fsi' can be evaluated because we passed it in explicitly up above
+let ``EvalExpression fsi test 2``() = 
+    evalInteraction "fsi.AddPrinter |> ignore" 
+
 
 [<Test>]
 let ``EvalExpression typecheck failure``() = 

@@ -19,10 +19,17 @@ open Microsoft.FSharp.Compiler.Range
 
 type [<Class>] FSharpSymbol = 
     /// Internal use only. 
-    static member internal Create : g:TcGlobals * item:Nameres.Item -> FSharpSymbol
+    static member internal Create : g:TcGlobals * ccu: CcuThunk * item:Nameres.Item -> FSharpSymbol
 
     member internal Item: Nameres.Item
         
+    /// Get the assembly declaring this symbol
+    member Assembly: FSharpAssembly 
+
+    /// Get a textual representation of the full name of the symbol. The text returned for some symbols
+    /// may not be a valid identifier path in F# code, but rather a human-readable representation of the symbol.
+    member FullName: string
+
     /// Get the declaration location for the symbol
     member DeclarationLocation: range option
 
@@ -34,16 +41,16 @@ type [<Class>] FSharpSymbol =
 
 
 
-[<Class>]
-/// Represents an assembly as seen by the F# language
-type FSharpAssembly = 
 
-    internal new : tcGlobals: TcGlobals * ccu: CcuThunk -> FSharpAssembly
+/// Represents an assembly as seen by the F# language
+and [<Class>] FSharpAssembly = 
+
+    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * ccu: CcuThunk -> FSharpAssembly
 
     /// The qualified name of the assembly
     member QualifiedName: string 
     
-    /// A hint for the code location for the assembly
+    [<System.Obsolete("This item is obsolete, it is not useful")>]
     member CodeLocation: string 
       
     /// The contents of the this assembly 
@@ -62,7 +69,7 @@ type FSharpAssembly =
 /// Represents an inferred signature of part of an assembly as seen by the F# language
 and [<Class>] FSharpAssemblySignature = 
 
-    internal new : tcGlobals: TcGlobals * contents: ModuleOrNamespaceType -> FSharpAssemblySignature
+    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * contents: ModuleOrNamespaceType -> FSharpAssemblySignature
 
     /// The (non-nested) module and type definitions in this signature
     member Entities:  IList<FSharpEntity>
@@ -587,7 +594,7 @@ and [<Class>] FSharpActivePatternCase =
 
 and [<Class>] FSharpType =
     /// Internal use only. Create a ground type.
-    internal new : g:TcGlobals * typ:TType -> FSharpType
+    internal new : g:TcGlobals * thisCcu: CcuThunk * typ:TType -> FSharpType
 
     /// Indicates this is a named type in an unresolved assembly 
     member IsUnresolved : bool

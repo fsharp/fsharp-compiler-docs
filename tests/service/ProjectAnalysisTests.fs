@@ -385,76 +385,112 @@ let ``Test project1 all uses of all signature symbols`` () =
 let ``Test project1 all uses of all symbols`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
-    let allUsesOfAllSymbols = [ for s in wholeProjectResults.GetAllUsesOfAllSymbols() -> s.Symbol.DisplayName, Project1.cleanFileName s.FileName, tupsZ s.RangeAlternate ]
+    let allUsesOfAllSymbols = [ for s in wholeProjectResults.GetAllUsesOfAllSymbols() -> s.Symbol.DisplayName, s.Symbol.FullName, Project1.cleanFileName s.FileName, tupsZ s.RangeAlternate ]
     let expected =      
-          [("C", "file1", ((3, 5), (3, 6))); ("( .ctor )", "file1", ((3, 5), (3, 6)));
-           ("P", "file1", ((4, 13), (4, 14))); ("x", "file1", ((4, 11), (4, 12)));
-           ("( + )", "file1", ((6, 12), (6, 13))); ("xxx", "file1", ((6, 4), (6, 7)));
-           ("( + )", "file1", ((7, 17), (7, 18)));
-           ("xxx", "file1", ((7, 13), (7, 16))); ("xxx", "file1", ((7, 19), (7, 22)));
-           ("fff", "file1", ((7, 4), (7, 7))); ("C", "file1", ((9, 15), (9, 16)));
-           ("C", "file1", ((9, 15), (9, 16))); ("C", "file1", ((9, 15), (9, 16)));
-           ("C", "file1", ((9, 15), (9, 16))); ("CAbbrev", "file1", ((9, 5), (9, 12)));
-           ("M", "file1", ((1, 7), (1, 8))); ("D1", "file2", ((5, 5), (5, 7)));
-           ("( .ctor )", "file2", ((5, 5), (5, 7)));
-           ("SomeProperty", "file2", ((6, 13), (6, 25)));
-           ("x", "file2", ((6, 11), (6, 12))); ("M", "file2", ((6, 28), (6, 29)));
-           ("xxx", "file2", ((6, 28), (6, 33))); ("D2", "file2", ((8, 5), (8, 7)));
-           ("( .ctor )", "file2", ((8, 5), (8, 7)));
-           ("SomeProperty", "file2", ((9, 13), (9, 25)));
-           ("x", "file2", ((9, 11), (9, 12))); ("( + )", "file2", ((9, 36), (9, 37)));
-           ("M", "file2", ((9, 28), (9, 29))); ("fff", "file2", ((9, 28), (9, 33)));
-           ("D1", "file2", ((9, 38), (9, 40))); ("M", "file2", ((12, 27), (12, 28)));
-           ("xxx", "file2", ((12, 27), (12, 32))); ("y2", "file2", ((12, 4), (12, 6)));
-           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
-           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
-           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
-           ("int", "file2", ((19, 20), (19, 23)));
-           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
-           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
-           ("DefaultValueAttribute", "file2", ((18, 6), (18, 18)));
-           ("x", "file2", ((19, 16), (19, 17))); ("D3", "file2", ((15, 5), (15, 7)));
-           ("int", "file2", ((15, 10), (15, 13))); ("a", "file2", ((15, 8), (15, 9)));
-           ("( .ctor )", "file2", ((15, 5), (15, 7)));
-           ("SomeProperty", "file2", ((21, 13), (21, 25)));
-           ("( + )", "file2", ((16, 14), (16, 15)));
-           ("a", "file2", ((16, 12), (16, 13))); ("b", "file2", ((16, 8), (16, 9)));
-           ("x", "file2", ((21, 11), (21, 12)));
-           ("( + )", "file2", ((21, 30), (21, 31)));
-           ("a", "file2", ((21, 28), (21, 29))); ("b", "file2", ((21, 32), (21, 33)));
-           ("( + )", "file2", ((23, 25), (23, 26)));
-           ("( + )", "file2", ((23, 21), (23, 22)));
-           ("int32", "file2", ((23, 27), (23, 32)));
-           ("DateTime", "file2", ((23, 40), (23, 48)));
-           ("System", "file2", ((23, 33), (23, 39)));
-           ("Now", "file2", ((23, 33), (23, 52)));
-           ("Ticks", "file2", ((23, 33), (23, 58)));
-           ("( + )", "file2", ((23, 62), (23, 63)));
-           ("pair2", "file2", ((23, 10), (23, 15)));
-           ("pair1", "file2", ((23, 4), (23, 9)));
-           ("None", "file2", ((27, 4), (27, 8)));
-           ("DisableFormatting", "file2", ((28, 4), (28, 21)));
-           ("SaveOptions", "file2", ((26, 5), (26, 16)));
-           ("SaveOptions", "file2", ((30, 16), (30, 27)));
-           ("DisableFormatting", "file2", ((30, 16), (30, 45)));
-           ("enumValue", "file2", ((30, 4), (30, 13)));
-           ("x", "file2", ((32, 9), (32, 10))); ("y", "file2", ((32, 11), (32, 12)));
-           ("( + )", "file2", ((32, 17), (32, 18)));
-           ("x", "file2", ((32, 15), (32, 16))); ("y", "file2", ((32, 19), (32, 20)));
-           ("( ++ )", "file2", ((32, 5), (32, 7)));
-           ("( ++ )", "file2", ((34, 11), (34, 13)));
-           ("c1", "file2", ((34, 4), (34, 6)));
-           ("( ++ )", "file2", ((36, 11), (36, 13)));
-           ("c2", "file2", ((36, 4), (36, 6))); ("M", "file2", ((38, 12), (38, 13)));
-           ("C", "file2", ((38, 12), (38, 15))); ("M", "file2", ((38, 22), (38, 23)));
-           ("C", "file2", ((38, 22), (38, 25))); ("C", "file2", ((38, 22), (38, 25)));
-           ("mmmm1", "file2", ((38, 4), (38, 9)));
-           ("M", "file2", ((39, 12), (39, 13)));
-           ("CAbbrev", "file2", ((39, 12), (39, 21)));
-           ("M", "file2", ((39, 28), (39, 29)));
-           ("CAbbrev", "file2", ((39, 28), (39, 37)));
-           ("C", "file2", ((39, 28), (39, 37)));
-           ("mmmm2", "file2", ((39, 4), (39, 9))); ("N", "file2", ((1, 7), (1, 8)))]
+          [("C", "M.C", "file1", ((3, 5), (3, 6)));
+           ("( .ctor )", "M.C.( .ctor )", "file1", ((3, 5), (3, 6)));
+           ("P", "M.C.P", "file1", ((4, 13), (4, 14)));
+           ("x", "x", "file1", ((4, 11), (4, 12)));
+           ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file1",
+            ((6, 12), (6, 13))); ("xxx", "M.xxx", "file1", ((6, 4), (6, 7)));
+           ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file1",
+            ((7, 17), (7, 18))); ("xxx", "M.xxx", "file1", ((7, 13), (7, 16)));
+           ("xxx", "M.xxx", "file1", ((7, 19), (7, 22)));
+           ("fff", "M.fff", "file1", ((7, 4), (7, 7)));
+           ("C", "M.C", "file1", ((9, 15), (9, 16)));
+           ("C", "M.C", "file1", ((9, 15), (9, 16)));
+           ("C", "M.C", "file1", ((9, 15), (9, 16)));
+           ("C", "M.C", "file1", ((9, 15), (9, 16)));
+           ("CAbbrev", "M.CAbbrev", "file1", ((9, 5), (9, 12)));
+           ("M", "M", "file1", ((1, 7), (1, 8)));
+           ("D1", "N.D1", "file2", ((5, 5), (5, 7)));
+           ("( .ctor )", "N.D1.( .ctor )", "file2", ((5, 5), (5, 7)));
+           ("SomeProperty", "N.D1.SomeProperty", "file2", ((6, 13), (6, 25)));
+           ("x", "x", "file2", ((6, 11), (6, 12)));
+           ("M", "M", "file2", ((6, 28), (6, 29)));
+           ("xxx", "M.xxx", "file2", ((6, 28), (6, 33)));
+           ("D2", "N.D2", "file2", ((8, 5), (8, 7)));
+           ("( .ctor )", "N.D2.( .ctor )", "file2", ((8, 5), (8, 7)));
+           ("SomeProperty", "N.D2.SomeProperty", "file2", ((9, 13), (9, 25)));
+           ("x", "x", "file2", ((9, 11), (9, 12)));
+           ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
+            ((9, 36), (9, 37))); ("M", "M", "file2", ((9, 28), (9, 29)));
+           ("fff", "M.fff", "file2", ((9, 28), (9, 33)));
+           ("D1", "N.D1", "file2", ((9, 38), (9, 40)));
+           ("M", "M", "file2", ((12, 27), (12, 28)));
+           ("xxx", "M.xxx", "file2", ((12, 27), (12, 32)));
+           ("y2", "N.y2", "file2", ((12, 4), (12, 6)));
+           ("DefaultValueAttribute", "Microsoft.FSharp.Core.DefaultValueAttribute",
+            "file2", ((18, 6), (18, 18)));
+           ("DefaultValueAttribute", "Microsoft.FSharp.Core.DefaultValueAttribute",
+            "file2", ((18, 6), (18, 18)));
+           ("DefaultValueAttribute", "Microsoft.FSharp.Core.DefaultValueAttribute",
+            "file2", ((18, 6), (18, 18)));
+           ("int", "Microsoft.FSharp.Core.int", "file2", ((19, 20), (19, 23)));
+           ("DefaultValueAttribute", "Microsoft.FSharp.Core.DefaultValueAttribute",
+            "file2", ((18, 6), (18, 18)));
+           ("DefaultValueAttribute", "Microsoft.FSharp.Core.DefaultValueAttribute",
+            "file2", ((18, 6), (18, 18)));
+           ("DefaultValueAttribute", "Microsoft.FSharp.Core.DefaultValueAttribute",
+            "file2", ((18, 6), (18, 18)));
+           ("x", "N.D3.x", "file2", ((19, 16), (19, 17)));
+           ("D3", "N.D3", "file2", ((15, 5), (15, 7)));
+           ("int", "Microsoft.FSharp.Core.int", "file2", ((15, 10), (15, 13)));
+           ("a", "a", "file2", ((15, 8), (15, 9)));
+           ("( .ctor )", "N.D3.( .ctor )", "file2", ((15, 5), (15, 7)));
+           ("SomeProperty", "N.D3.SomeProperty", "file2", ((21, 13), (21, 25)));
+           ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
+            ((16, 14), (16, 15))); ("a", "a", "file2", ((16, 12), (16, 13)));
+           ("b", "b", "file2", ((16, 8), (16, 9)));
+           ("x", "x", "file2", ((21, 11), (21, 12)));
+           ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
+            ((21, 30), (21, 31))); ("a", "a", "file2", ((21, 28), (21, 29)));
+           ("b", "b", "file2", ((21, 32), (21, 33)));
+           ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
+            ((23, 25), (23, 26)));
+           ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
+            ((23, 21), (23, 22)));
+           ("int32", "Microsoft.FSharp.Core.Operators.int32", "file2",
+            ((23, 27), (23, 32)));
+           ("DateTime", "System.DateTime", "file2", ((23, 40), (23, 48)));
+           ("System", "System", "file2", ((23, 33), (23, 39)));
+           ("Now", "System.DateTime.Now", "file2", ((23, 33), (23, 52)));
+           ("Ticks", "System.DateTime.Ticks", "file2", ((23, 33), (23, 58)));
+           ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
+            ((23, 62), (23, 63))); ("pair2", "N.pair2", "file2", ((23, 10), (23, 15)));
+           ("pair1", "N.pair1", "file2", ((23, 4), (23, 9)));
+           ("None", "N.SaveOptions.None", "file2", ((27, 4), (27, 8)));
+           ("DisableFormatting", "N.SaveOptions.DisableFormatting", "file2",
+            ((28, 4), (28, 21)));
+           ("SaveOptions", "N.SaveOptions", "file2", ((26, 5), (26, 16)));
+           ("SaveOptions", "N.SaveOptions", "file2", ((30, 16), (30, 27)));
+           ("DisableFormatting", "N.SaveOptions.DisableFormatting", "file2",
+            ((30, 16), (30, 45)));
+           ("enumValue", "N.enumValue", "file2", ((30, 4), (30, 13)));
+           ("x", "x", "file2", ((32, 9), (32, 10)));
+           ("y", "y", "file2", ((32, 11), (32, 12)));
+           ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
+            ((32, 17), (32, 18))); ("x", "x", "file2", ((32, 15), (32, 16)));
+           ("y", "y", "file2", ((32, 19), (32, 20)));
+           ("( ++ )", "N.( ++ )", "file2", ((32, 5), (32, 7)));
+           ("( ++ )", "N.( ++ )", "file2", ((34, 11), (34, 13)));
+           ("c1", "N.c1", "file2", ((34, 4), (34, 6)));
+           ("( ++ )", "N.( ++ )", "file2", ((36, 11), (36, 13)));
+           ("c2", "N.c2", "file2", ((36, 4), (36, 6)));
+           ("M", "M", "file2", ((38, 12), (38, 13)));
+           ("C", "M.C", "file2", ((38, 12), (38, 15)));
+           ("M", "M", "file2", ((38, 22), (38, 23)));
+           ("C", "M.C", "file2", ((38, 22), (38, 25)));
+           ("C", "M.C", "file2", ((38, 22), (38, 25)));
+           ("mmmm1", "N.mmmm1", "file2", ((38, 4), (38, 9)));
+           ("M", "M", "file2", ((39, 12), (39, 13)));
+           ("CAbbrev", "M.CAbbrev", "file2", ((39, 12), (39, 21)));
+           ("M", "M", "file2", ((39, 28), (39, 29)));
+           ("CAbbrev", "M.CAbbrev", "file2", ((39, 28), (39, 37)));
+           ("C", "M.C", "file2", ((39, 28), (39, 37)));
+           ("mmmm2", "N.mmmm2", "file2", ((39, 4), (39, 9)));
+           ("N", "N", "file2", ((1, 7), (1, 8)))]
+
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true
@@ -1140,51 +1176,64 @@ let ``Test project 5 all symbols`` () =
 
     let allUsesOfAllSymbols = 
         wholeProjectResults.GetAllUsesOfAllSymbols()
-        |> Array.map (fun su -> su.Symbol.ToString(), Project5.cleanFileName su.FileName, tupsZ su.RangeAlternate)
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.FullName, Project5.cleanFileName su.FileName, tupsZ su.RangeAlternate)
 
     allUsesOfAllSymbols |> shouldEqual
-          [|("symbol ", "file1", ((4, 6), (4, 10)));
-            ("symbol ", "file1", ((4, 11), (4, 14)));
-            ("val input", "file1", ((4, 17), (4, 22)));
-            ("val ( = )", "file1", ((4, 38), (4, 39)));
-            ("val ( % )", "file1", ((4, 34), (4, 35)));
-            ("val input", "file1", ((4, 28), (4, 33)));
-            ("symbol ", "file1", ((4, 47), (4, 51)));
-            ("symbol ", "file1", ((4, 57), (4, 60)));
-            ("val ( |Even|Odd| )", "file1", ((4, 5), (4, 15)));
-            ("val input", "file1", ((7, 15), (7, 20)));
-            ("val input", "file1", ((8, 9), (8, 14)));
-            ("symbol Even", "file1", ((9, 5), (9, 9)));
-            ("val printfn", "file1", ((9, 13), (9, 20)));
-            ("val input", "file1", ((9, 34), (9, 39)));
-            ("symbol Odd", "file1", ((10, 5), (10, 8)));
-            ("val printfn", "file1", ((10, 12), (10, 19)));
-            ("val input", "file1", ((10, 32), (10, 37)));
-            ("val TestNumber", "file1", ((7, 4), (7, 14)));
-            ("symbol ", "file1", ((13, 6), (13, 11)));
-            ("string", "file1", ((13, 22), (13, 28)));
-            ("val str", "file1", ((13, 17), (13, 20)));
-            ("val floatvalue", "file1", ((14, 15), (14, 25)));
-            ("Double", "file1", ((15, 13), (15, 19)));
-            ("System", "file1", ((15, 6), (15, 12)));
-            ("val str", "file1", ((15, 29), (15, 32)));
-            ("val ( ~& )", "file1", ((15, 34), (15, 35)));
-            ("val floatvalue", "file1", ((15, 35), (15, 45)));
-            ("symbol TryParse", "file1", ((15, 6), (15, 28)));
-            ("Some", "file1", ((15, 52), (15, 56)));
-            ("val floatvalue", "file1", ((15, 57), (15, 67)));
-            ("None", "file1", ((16, 8), (16, 12)));
-            ("val ( |Float|_| )", "file1", ((13, 5), (13, 14)));
-            ("val str", "file1", ((19, 17), (19, 20)));
-            ("val str", "file1", ((20, 9), (20, 12)));
-            ("val f", "file1", ((21, 11), (21, 12)));
-            ("symbol Float", "file1", ((21, 5), (21, 10)));
-            ("val printfn", "file1", ((21, 16), (21, 23)));
-            ("val f", "file1", ((21, 46), (21, 47)));
-            ("val printfn", "file1", ((22, 10), (22, 17)));
-            ("val str", "file1", ((22, 38), (22, 41)));
-            ("val parseNumeric", "file1", ((19, 4), (19, 16)));
-            ("ActivePatterns", "file1", ((1, 7), (1, 21)))|]
+          [|("symbol ", "Even", "file1", ((4, 6), (4, 10)));
+            ("symbol ", "Odd", "file1", ((4, 11), (4, 14)));
+            ("val input", "input", "file1", ((4, 17), (4, 22)));
+            ("val ( = )", "Microsoft.FSharp.Core.Operators.( = )", "file1",
+             ((4, 38), (4, 39)));
+            ("val ( % )", "Microsoft.FSharp.Core.Operators.( % )", "file1",
+             ((4, 34), (4, 35))); ("val input", "input", "file1", ((4, 28), (4, 33)));
+            ("symbol ", "Even", "file1", ((4, 47), (4, 51)));
+            ("symbol ", "Odd", "file1", ((4, 57), (4, 60)));
+            ("val ( |Even|Odd| )", "ActivePatterns.( |Even|Odd| )", "file1",
+             ((4, 5), (4, 15))); ("val input", "input", "file1", ((7, 15), (7, 20)));
+            ("val input", "input", "file1", ((8, 9), (8, 14)));
+            ("symbol Even", "ActivePatterns.( |Even|Odd| ).Even", "file1",
+             ((9, 5), (9, 9)));
+            ("val printfn", "Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn",
+             "file1", ((9, 13), (9, 20)));
+            ("val input", "input", "file1", ((9, 34), (9, 39)));
+            ("symbol Odd", "ActivePatterns.( |Even|Odd| ).Odd", "file1",
+             ((10, 5), (10, 8)));
+            ("val printfn", "Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn",
+             "file1", ((10, 12), (10, 19)));
+            ("val input", "input", "file1", ((10, 32), (10, 37)));
+            ("val TestNumber", "ActivePatterns.TestNumber", "file1", ((7, 4), (7, 14)));
+            ("symbol ", "Float", "file1", ((13, 6), (13, 11)));
+            ("string", "Microsoft.FSharp.Core.string", "file1", ((13, 22), (13, 28)));
+            ("val str", "str", "file1", ((13, 17), (13, 20)));
+            ("val floatvalue", "floatvalue", "file1", ((14, 15), (14, 25)));
+            ("Double", "System.Double", "file1", ((15, 13), (15, 19)));
+            ("System", "System", "file1", ((15, 6), (15, 12)));
+            ("val str", "str", "file1", ((15, 29), (15, 32)));
+            ("val ( ~& )",
+             "Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators.( ~& )",
+             "file1", ((15, 34), (15, 35)));
+            ("val floatvalue", "floatvalue", "file1", ((15, 35), (15, 45)));
+            ("symbol TryParse", "System.Double.TryParse", "file1", ((15, 6), (15, 28)));
+            ("Some", "Microsoft.FSharp.Core.Option<_>.Some", "file1",
+             ((15, 52), (15, 56)));
+            ("val floatvalue", "floatvalue", "file1", ((15, 57), (15, 67)));
+            ("None", "Microsoft.FSharp.Core.Option<_>.None", "file1",
+             ((16, 8), (16, 12)));
+            ("val ( |Float|_| )", "ActivePatterns.( |Float|_| )", "file1",
+             ((13, 5), (13, 14))); ("val str", "str", "file1", ((19, 17), (19, 20)));
+            ("val str", "str", "file1", ((20, 9), (20, 12)));
+            ("val f", "f", "file1", ((21, 11), (21, 12)));
+            ("symbol Float", "ActivePatterns.( |Float|_| ).Float", "file1",
+             ((21, 5), (21, 10)));
+            ("val printfn", "Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn",
+             "file1", ((21, 16), (21, 23)));
+            ("val f", "f", "file1", ((21, 46), (21, 47)));
+            ("val printfn", "Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn",
+             "file1", ((22, 10), (22, 17)));
+            ("val str", "str", "file1", ((22, 38), (22, 41)));
+            ("val parseNumeric", "ActivePatterns.parseNumeric", "file1",
+             ((19, 4), (19, 16)));
+            ("ActivePatterns", "ActivePatterns", "file1", ((1, 7), (1, 21)))|]
 
 [<Test>]
 let ``Test complete active patterns's exact ranges from uses of symbols`` () =

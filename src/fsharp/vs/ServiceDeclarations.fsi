@@ -94,6 +94,8 @@ module internal ItemDescriptionsImpl =
     val GetF1Keyword : Item -> string option
     val rangeOfItem : TcGlobals -> bool -> Item -> range option
     val fileNameOfItem : TcGlobals -> string option -> range -> Item -> string
+    val FullNameOfItem : TcGlobals -> Item -> string
+    val ccuOfItem : TcGlobals -> Item -> CcuThunk option
 
 
 

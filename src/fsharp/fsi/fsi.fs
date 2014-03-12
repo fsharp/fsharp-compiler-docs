@@ -2083,7 +2083,10 @@ type internal FsiInteractionProcessor
         currState 
         |> interactiveCatch(fun istate ->
             let expr = parseExpression tokenizer 
-            mainThreadProcessParsedExpression (expr, istate))
+            let m = expr.Range
+            // Make this into "(); expr" to suppress generalization and compilation-as-function
+            let exprWithSeq = SynExpr.Sequential(SequencePointInfoForSeq.SuppressSequencePointOnStmtOfSequential,true,SynExpr.Const(SynConst.Unit,m.StartRange), expr, m)
+            mainThreadProcessParsedExpression (exprWithSeq, istate))
         |> commitResult
 
     member __.PartialAssemblySignatureUpdated = event.Publish

@@ -16,10 +16,11 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Env
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.Build
 
 type [<Class>] FSharpSymbol = 
     /// Internal use only. 
-    static member internal Create : g:TcGlobals * ccu: CcuThunk * item:Nameres.Item -> FSharpSymbol
+    static member internal Create : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * item:Nameres.Item -> FSharpSymbol
 
     member internal Item: Nameres.Item
         
@@ -45,7 +46,7 @@ type [<Class>] FSharpSymbol =
 /// Represents an assembly as seen by the F# language
 and [<Class>] FSharpAssembly = 
 
-    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * ccu: CcuThunk -> FSharpAssembly
+    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * ccu: CcuThunk -> FSharpAssembly
 
     /// The qualified name of the assembly
     member QualifiedName: string 
@@ -69,7 +70,7 @@ and [<Class>] FSharpAssembly =
 /// Represents an inferred signature of part of an assembly as seen by the F# language
 and [<Class>] FSharpAssemblySignature = 
 
-    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * contents: ModuleOrNamespaceType -> FSharpAssemblySignature
+    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * contents: ModuleOrNamespaceType -> FSharpAssemblySignature
 
     /// The (non-nested) module and type definitions in this signature
     member Entities:  IList<FSharpEntity>
@@ -133,6 +134,9 @@ and [<Class>] FSharpEntity =
 
     /// Get the generic parameters, possibly including unit-of-measure parameters
     member GenericParameters: IList<FSharpGenericParameter>
+
+    /// Get the static parameters for a provided type
+    member StaticParameters: IList<FSharpStaticParameter>
 
     /// Indicates that a module is compiled to a class with the given mangled name. The mangling is reversed during lookup 
     member HasFSharpModuleSuffix : bool
@@ -347,6 +351,19 @@ and [<Class>] FSharpGenericParameter =
        
     /// Get the declared or inferred constraints for the type parameter
     member Constraints: IList<FSharpGenericParameterConstraint> 
+
+and [<Class>] FSharpStaticParameter = 
+
+    inherit FSharpSymbol
+
+    /// Get the name of the static parameter 
+    member Name: string
+
+    /// Get the declaration location of the static parameter 
+    member DeclarationLocation : range 
+       
+    /// Get the kind of the static parameter
+    member Kind : FSharpType
 
 
 /// Represents further information about a member constraint on a generic type parameter
@@ -594,7 +611,7 @@ and [<Class>] FSharpActivePatternCase =
 
 and [<Class>] FSharpType =
     /// Internal use only. Create a ground type.
-    internal new : g:TcGlobals * thisCcu: CcuThunk * typ:TType -> FSharpType
+    internal new : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * typ:TType -> FSharpType
 
     /// Indicates this is a named type in an unresolved assembly 
     member IsUnresolved : bool
@@ -606,10 +623,16 @@ and [<Class>] FSharpType =
     member AbbreviatedType : FSharpType
 
     /// Indicates if the type is constructed using a named entity, including array and byref types
+    member HasTypeDefinition : bool
+
+    [<System.Obsolete("Renamed to HasTypeDefinition")>]
     member IsNamedType : bool
 
-    /// Get the named entity for a type constructed using a named entity
+    [<System.Obsolete("Renamed to TypeDefinition")>]
     member NamedEntity : FSharpEntity 
+
+    /// Get the type definition for a type 
+    member TypeDefinition : FSharpEntity 
 
     /// Get the generic arguments for a tuple type, a function type or a type constructed using a named entity
     member GenericArguments : IList<FSharpType>

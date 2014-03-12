@@ -134,31 +134,31 @@ fnVal.FullType.GenericArguments.[0] // int * int
 fnVal.FullType.GenericArguments.[0].IsTupleType // int * int 
 let argTy1 = fnVal.FullType.GenericArguments.[0].GenericArguments.[0]
 
-argTy1.NamedEntity.DisplayName // int
+argTy1.TypeDefinition.DisplayName // int
 
 (**
 OK, so we got an object representation of the type `int * int -> unit`, and we have seen the first 'int'. We can find out more about the
 type 'int' as follows, determining that it is a named type, which is an F# type abbreviation, `type int = int32`:
 *)
 
-argTy1.IsNamedType
-argTy1.NamedEntity.IsFSharpAbbreviation // "int"
+argTy1.HasTypeDefinition
+argTy1.TypeDefinition.IsFSharpAbbreviation // "int"
 
 (**
 We can now look at the right-hand-side of the type abbreviation, which is the type `int32`:
 *)
 
-let argTy1b = argTy1.NamedEntity.AbbreviatedType
-argTy1b.NamedEntity.Namespace // Some "Microsoft.FSharp.Core" 
-argTy1b.NamedEntity.CompiledName // "int32" 
+let argTy1b = argTy1.TypeDefinition.AbbreviatedType
+argTy1b.TypeDefinition.Namespace // Some "Microsoft.FSharp.Core" 
+argTy1b.TypeDefinition.CompiledName // "int32" 
 
 (**
 Again we can now look through the type abbreviation `type int32 = System.Int32` to get the 
 full information about the type:
 *)
-let argTy1c = argTy1b.NamedEntity.AbbreviatedType
-argTy1c.NamedEntity.Namespace // Some "SystemCore" 
-argTy1c.NamedEntity.CompiledName // "Int32" 
+let argTy1c = argTy1b.TypeDefinition.AbbreviatedType
+argTy1c.TypeDefinition.Namespace // Some "SystemCore" 
+argTy1c.TypeDefinition.CompiledName // "Int32" 
 
 (**
 The type checking results for a file also contain information extracted from the project (or script) options

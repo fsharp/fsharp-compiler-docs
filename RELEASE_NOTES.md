@@ -136,3 +136,8 @@
 * Fix #76
 * Add Japanese documentation
 
+#### 0.0.34 - 
+* Add StaticParameters property to entities, plus FSharpStaticParameter symbol
+
+
+

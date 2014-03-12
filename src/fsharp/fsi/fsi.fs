@@ -1136,7 +1136,7 @@ type internal FsiDynamicCompiler
              //
              let optValue = istate.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(istate.emEnv), vref.Deref);
              match optValue with
-             | Some (res, typ) -> istate, Completed(Some(FsiValue(res, typ, FSharpType(tcGlobals, istate.tcState.Ccu, vref.Type))))
+             | Some (res, typ) -> istate, Completed(Some(FsiValue(res, typ, FSharpType(tcGlobals, istate.tcState.Ccu, istate.tcImports, vref.Type))))
              | _ -> istate, Completed None
 
         // Return the interactive state.
@@ -1250,7 +1250,7 @@ type internal FsiDynamicCompiler
         } 
 
     member __.CurrentPartialAssemblySignature(istate) = 
-        FSharpAssemblySignature(istate.tcGlobals, istate.tcState.Ccu, istate.tcState.PartialAssemblySignature)
+        FSharpAssemblySignature(istate.tcGlobals, istate.tcState.Ccu, istate.tcImports, istate.tcState.PartialAssemblySignature)
 
 //----------------------------------------------------------------------------
 // ctrl-c handling

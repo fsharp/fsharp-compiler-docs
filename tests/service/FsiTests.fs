@@ -53,6 +53,15 @@ let ``EvalExpression typecheck failure``() =
      with e -> true)
     |> shouldEqual true
 
+[<Test>]
+let ``EvalExpression function value 1``() = 
+    fsiSession.EvalExpression "(fun x -> x + 1)"  |> fun s -> s.IsSome
+    |> shouldEqual true
+
+[<Test>]
+let ``EvalExpression function value 2``() = 
+    fsiSession.EvalExpression "fun x -> x + 1"  |> fun s -> s.IsSome
+    |> shouldEqual true
 
 [<Test>]
 let ``EvalExpression runtime failure``() = 
@@ -104,7 +113,7 @@ let ``PartialAssemblySignatureUpdated test``() =
 let ``ParseAndCheckInteraction test 1``() = 
     evalInteraction """ let xxxxxx = 1 """  
     evalInteraction """ type CCCC() = member x.MMMMM()  = 1 + 1 """  
-    let untypedResults, typedResults = fsiSession.ParseAndCheckInteraction("xxxxxx")
+    let untypedResults, typedResults, _ = fsiSession.ParseAndCheckInteraction("xxxxxx")
     untypedResults.FileName |> shouldEqual "stdin.fsx"
     untypedResults.Errors.Length |> shouldEqual 0
     untypedResults.ParseHadErrors |> shouldEqual false
@@ -112,11 +121,11 @@ let ``ParseAndCheckInteraction test 1``() =
     // Check we can't get a declaration location for text in the F# interactive state (because the file doesn't exist)
     // TODO: check that if we use # line directives, then the file will exist correctly
     let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
-    typedResults.GetDeclarationLocation(0,6,"xxxxxx",["xxxxxx"],identToken,false) |> shouldEqual (FindDeclResult.DeclNotFound  FindDeclFailureReason.NoSourceCode)
+    typedResults.GetDeclarationLocationAlternate(1,6,"xxxxxx",["xxxxxx"],false) |> shouldEqual (FindDeclResult.DeclNotFound  FindDeclFailureReason.NoSourceCode)
 
     // Check we can get a tooltip for text in the F# interactive state
     let tooltip = 
-        match typedResults.GetToolTipText(0,6,"xxxxxx",["xxxxxx"],identToken)  with 
+        match typedResults.GetToolTipTextAlternate(1,6,"xxxxxx",["xxxxxx"],identToken)  with 
         | ToolTipText [ToolTipElement(text, XmlCommentNone)] -> text
         | _ -> failwith "incorrect tool tip"
 

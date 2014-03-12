@@ -138,6 +138,7 @@
 
 #### 0.0.34 - 
 * Add StaticParameters property to entities, plus FSharpStaticParameter symbol
+* Fix #65
 
 
 

@@ -148,3 +148,5 @@
 * Fix #71 - Expose static parameters and xml docs of type providers
 * Fix #63 - SourceCodeServices: #r ignores include paths passed as command-line flags
 
+#### 0.0.37 - 
+* Obsolete HasDefaultValue - see https://github.com/fsharp/FSharp.Compiler.Service/issues/77

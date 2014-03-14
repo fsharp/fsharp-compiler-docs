@@ -90,8 +90,8 @@ let compileAndVerify isDll debugMode (assemblyName : string) (code : string) (de
     let verifier = new PEVerifier ()
     let tmp = Path.GetTempPath()
     let sourceFile = Path.Combine(tmp, assemblyName + ".fs")
-    let outFile = Path.Combine(tmp, assemblyName + if isDll then ".dll" else ".exe")
-    let pdbFile = Path.Combine(tmp, assemblyName + pdbExtension isDll)
+    let outFile = assemblyName + (if isDll then ".dll" else ".exe")
+    let pdbFile = assemblyName + (pdbExtension isDll)
     do File.WriteAllText(sourceFile, code)
     let args =
         [|
@@ -111,6 +111,10 @@ let compileAndVerify isDll debugMode (assemblyName : string) (code : string) (de
                 yield "--debug:full"
                 if not runningOnMono then // on Mono, the debug file name is not configurable
                     yield sprintf "--pdb:%s" pdbFile
+
+            // try to use local FSharp.Core.dll, instead.
+            yield "--noframework"
+            yield "-r:FSharp.Core.dll"
 
             for d in dependencies do
                 yield sprintf "-r:%s" d

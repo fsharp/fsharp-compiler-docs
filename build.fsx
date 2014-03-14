@@ -83,6 +83,12 @@ Target "Build" (fun _ ->
 )
 
 
+Target "PrepareTests" (fun _ ->
+    let target = "bin"
+    let files = !! "packages/FAKE/tools/FSharp.Core.*data"
+    Copy target files
+)
+
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
@@ -103,6 +109,13 @@ Target "RunTests" (fun _ ->
 
 FinalTarget "CloseTestRunner" (fun _ ->  
     ProcessHelper.killProcess "nunit-agent.exe"
+)
+
+Target "CleanupTests" (fun _ ->
+    !! "bin/Foo.*"
+    ++ "bin/Bar.*"
+    ++ "bin/FSharp.Core.*data"
+    |> DeleteFiles
 )
 
 // --------------------------------------------------------------------------------------
@@ -167,7 +180,9 @@ Target "All" DoNothing
   ==> "GenerateFSIStrings"
   ==> "Prepare"
   ==> "Build"
+  ==> "PrepareTests"
   ==> "RunTests" 
+  ==> "CleanupTests"
   ==> "All"
 
 "All"

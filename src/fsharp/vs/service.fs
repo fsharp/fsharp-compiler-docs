@@ -1585,9 +1585,21 @@ type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
 
 
 [<Sealed>]
-type FSharpSymbolUse(symbol:FSharpSymbol, itemOcc, range: range) = 
+type FSharpSymbolUse(g:TcGlobals, symbol:FSharpSymbol, itemOcc, range: range) = 
     member __.Symbol  = symbol
-    member __.IsDefinition = (match itemOcc with ItemOccurence.Binding | ItemOccurence.Pattern -> true | _ -> false)
+    member __.IsFromDefinition = (match itemOcc with ItemOccurence.Binding -> true | _ -> false)
+    member __.IsFromPattern = (match itemOcc with ItemOccurence.Pattern -> true | _ -> false)
+    member __.IsFromType = (match itemOcc with ItemOccurence.UseInType -> true | _ -> false)
+    member __.IsFromAttribute = (match itemOcc with ItemOccurence.UseInAttribute -> true | _ -> false)
+    member __.IsFromDispatchSlotImplementation = (match itemOcc with ItemOccurence.Implemented -> true | _ -> false)
+    member __.IsFromComputationExpression = 
+        match symbol.Item, itemOcc with 
+        // 'seq' in 'seq { ... }' gets colored as keywords
+        | (Item.Value vref), ItemOccurence.Use when valRefEq g g.seq_vref vref ->  true
+        // custom builders, custom operations get colored as keywords
+        | (Item.CustomBuilder _ | Item.CustomOperation _), ItemOccurence.Use ->  true
+        | _ -> false
+
     member __.FileName = range.FileName
     member __.Range = Range.toZ range
     member __.RangeAlternate = range
@@ -1611,12 +1623,12 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetUsesOfSymbol(symbol:FSharpSymbol) = 
-        let (_tcGlobals, _tcImports, _thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef) = getDetails()
+        let (tcGlobals, _tcImports, _thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
         reactorOps.RunSyncOp(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
             |> Seq.distinct 
-            |> Seq.map (fun (itemOcc,m) -> FSharpSymbolUse(symbol, itemOcc, m)) 
+            |> Seq.map (fun (itemOcc,m) -> FSharpSymbolUse(tcGlobals, symbol, itemOcc, m)) 
             |> Seq.toArray)
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
@@ -1627,7 +1639,7 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
             [| for r in tcResolutions do 
                   for (item,itemOcc,m) in r.GetAllUsesOfSymbols() do
                     let symbol = FSharpSymbol.Create(tcGlobals, thisCcu, tcImports, item)
-                    yield FSharpSymbolUse(symbol, itemOcc, m) |]) 
+                    yield FSharpSymbolUse(tcGlobals, symbol, itemOcc, m) |]) 
 
     member info.ProjectContext = 
         let (tcGlobals, tcImports, thisCcu, _ccuSig, _tcResolutions, _assembly, _ilAssemRef) = getDetails()
@@ -1756,7 +1768,7 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
             reactor.RunSyncOp(fun () -> 
                 [|    for (item,itemOcc,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
                         let symbol = FSharpSymbol.Create(scope.TcGlobals, scope.ThisCcu, scope.TcImports, item)
-                        yield FSharpSymbolUse(symbol,itemOcc, m) |]))
+                        yield FSharpSymbolUse(scope.TcGlobals, symbol, itemOcc, m) |]))
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetUsesOfSymbolInFile(symbol:FSharpSymbol) = 
@@ -1764,7 +1776,7 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
             // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
             reactor.RunSyncOp(fun () -> 
                 [|    for (itemOcc,m) in scope.ScopeResolutions.GetUsesOfSymbol(symbol.Item) do
-                        yield FSharpSymbolUse(symbol,itemOcc, m) |]))
+                        yield FSharpSymbolUse(scope.TcGlobals, symbol, itemOcc, m) |]))
 
     
     // Obsolete

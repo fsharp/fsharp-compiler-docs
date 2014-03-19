@@ -235,6 +235,6 @@ In this tutorial, we looked at basic of working with the untyped abstract syntax
 comprehensive topic, so it is not possible to explain everything in a single article. The 
 [Fantomas project](https://github.com/dungpa/fantomas) is a good example of tool based on the untyped
 AST that can help you understand more. In practice, it is also useful to combine the information here
-with some information you can obtain from the [editor services](editor.fsx) discussed in the next 
+with some information you can obtain from the [editor services](editor.html) discussed in the next 
 tutorial.
 *)

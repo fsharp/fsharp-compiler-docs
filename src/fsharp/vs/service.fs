@@ -1587,6 +1587,7 @@ type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
 [<Sealed>]
 type FSharpSymbolUse(g:TcGlobals, symbol:FSharpSymbol, itemOcc, range: range) = 
     member __.Symbol  = symbol
+    member x.IsDefinition = x.IsFromDefinition
     member __.IsFromDefinition = (match itemOcc with ItemOccurence.Binding -> true | _ -> false)
     member __.IsFromPattern = (match itemOcc with ItemOccurence.Pattern -> true | _ -> false)
     member __.IsFromType = (match itemOcc with ItemOccurence.UseInType -> true | _ -> false)

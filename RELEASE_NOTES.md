@@ -154,5 +154,6 @@
 #### 0.0.38 - 
 * Fixed #94 and #89 by addition of new properties to the FSharpSymbolUse type
 * Fixed #93 by addition of IsOpaque to FSharpEntity type
-* Fixed #92 - Issue with nsted classes
+* Fixed #92 - Issue with nested classes
+* Fixed #96 - Allow analysis of members from external assemblies
 

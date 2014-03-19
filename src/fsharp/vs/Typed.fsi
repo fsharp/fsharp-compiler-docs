@@ -530,6 +530,12 @@ and [<Class>] FSharpMemberFunctionOrValue =
     /// Indicates if this is a member, including extension members?
     member IsMember : bool
 
+    /// Indicates if this is a property member, or an F# method for a property getter or setter
+    member IsProperty : bool
+
+    /// Indicates if this is an event member
+    member IsEvent : bool
+
     /// Indicates if this is an abstract member?
     member IsDispatchSlot : bool
 

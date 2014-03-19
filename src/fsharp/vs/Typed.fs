@@ -184,6 +184,10 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports, entity:EntityRef) =
         | ILTypeMetadata (_,td) -> (td.tdKind = ILTypeDefKind.Class)
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> entity.Deref.IsFSharpClassTycon
 
+    member __.IsOpaque = 
+        isResolved() &&
+        entity.IsHiddenReprTycon
+
     member __.IsInterface = 
         isResolved() &&
         isInterfaceTyconRef entity

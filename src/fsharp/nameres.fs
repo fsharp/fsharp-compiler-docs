@@ -2202,6 +2202,8 @@ let rec ResolveTypeLongIdentInTyconRefPrim (ncenv:NameResolver) (typeNameResInfo
 let ResolveTypeLongIdentInTyconRef sink (ncenv:NameResolver) nenv typeNameResInfo ad m tcref (lid: Ident list) =
     let resInfo,tcref = ForceRaise (ResolveTypeLongIdentInTyconRefPrim ncenv typeNameResInfo ad ResolutionInfo.Empty PermitDirectReferenceToGeneratedType.No 0 m tcref lid)
     ResolutionInfo.SendToSink(sink,ncenv,nenv,ItemOccurence.Use,ad,resInfo,ResultTyparChecker(fun () -> true));
+    let item = Item.Types(tcref.DisplayName,[FreshenTycon ncenv m tcref])
+    CallNameResolutionSink sink (rangeOfLid lid,nenv,item,item,ItemOccurence.UseInType,nenv.eDisplayEnv,ad)
     tcref
 
 

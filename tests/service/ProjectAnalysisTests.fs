@@ -1935,3 +1935,59 @@ let ``Test Project14 all symbols`` () =
             ("member ( .ctor )", ".ctor", "file1", ((9, 10), (9, 11)), []);
             ("val x2", "x2", "file1", ((9, 4), (9, 6)), ["defn"]);
             ("Structs", "Structs", "file1", ((2, 7), (2, 14)), ["defn"])|]
+
+//-----------------------------------------------------------------------------------------
+// Misc - union patterns
+
+module Project15 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module UnionPatterns
+
+let f x = 
+    match x with 
+    | [h] 
+    | [_; h] 
+    | [_; _; h] -> h 
+    | _ -> 0
+
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project15 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project15.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project15 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project15.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project15.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su)
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("val x", "x", "file1", ((4, 6), (4, 7)), ["defn"]);
+            ("val x", "x", "file1", ((5, 10), (5, 11)), []);
+            ("val h", "h", "file1", ((6, 7), (6, 8)), ["defn"]);
+            ("val h", "h", "file1", ((7, 10), (7, 11)), ["defn"]);
+            ("val h", "h", "file1", ((8, 13), (8, 14)), ["defn"]);
+            ("val h", "h", "file1", ((8, 19), (8, 20)), []);
+            ("val f", "f", "file1", ((4, 4), (4, 5)), ["defn"]);
+            ("UnionPatterns", "UnionPatterns", "file1", ((2, 7), (2, 20)), ["defn"])|]

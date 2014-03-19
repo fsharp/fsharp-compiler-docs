@@ -157,3 +157,5 @@
 * Fixed #92 - Issue with nested classes
 * Fixed #87 - Allow analysis of members from external assemblies
 
+#### 0.0.39 - 
+* Fixed #79 - Usage points for symbols in union patterns

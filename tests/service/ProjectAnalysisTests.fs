@@ -28,6 +28,14 @@ let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn
 /// Extract range info  and convert to zero-based line  - please don't use this one any more
 let tupsZ (m:Range.range) = (m.StartLine-1, m.StartColumn), (m.EndLine-1, m.EndColumn)
 
+let attribsOfSymbolUse (s:FSharpSymbolUse) = 
+    [ if s.IsFromDefinition then yield "defn" 
+      if s.IsFromType then yield "type"
+      if s.IsFromAttribute then yield "attribute"
+      if s.IsFromDispatchSlotImplementation then yield "override"
+      if s.IsFromPattern then yield "pattern" 
+      if s.IsFromComputationExpression then yield "compexpr" ] 
+
 module Project1 = 
     open System.IO
 
@@ -893,79 +901,106 @@ let ``Test project3 all uses of all signature symbols`` () =
     let allSymbols = allSymbolsInEntities false wholeProjectResults.AssemblySignature.Entities
     let allUsesOfAllSymbols = 
         [ for s in allSymbols do 
-             let uses = [ for s in wholeProjectResults.GetUsesOfSymbol(s) -> (if s.FileName = Project3.fileName1 then "file1" else "??"), tupsZ s.RangeAlternate ]
+             let uses = [ for s in wholeProjectResults.GetUsesOfSymbol(s) -> 
+                            ((if s.FileName = Project3.fileName1 then "file1" else "??"), 
+                             tupsZ s.RangeAlternate, attribsOfSymbolUse s) ]
              yield s.ToString(), uses ]
     let expected =      
-          [("M", [("file1", ((1, 7), (1, 8)))]);
-           ("val IFooImplObjectExpression", [("file1", ((51, 4), (51, 28)))]);
-           ("val CFooImplObjectExpression", [("file1", ((59, 4), (59, 28)))]);
-           ("val getP", [("file1", ((67, 4), (67, 8)))]);
-           ("val getE", [("file1", ((68, 4), (68, 8)))]);
-           ("val getM", [("file1", ((69, 4), (69, 8)))]);
+          [("M", [("file1", ((1, 7), (1, 8)), ["defn"])]);
+           ("val IFooImplObjectExpression", [("file1", ((51, 4), (51, 28)), ["defn"])]);
+           ("val CFooImplObjectExpression", [("file1", ((59, 4), (59, 28)), ["defn"])]);
+           ("val getP", [("file1", ((67, 4), (67, 8)), ["defn"])]);
+           ("val getE", [("file1", ((68, 4), (68, 8)), ["defn"])]);
+           ("val getM", [("file1", ((69, 4), (69, 8)), ["defn"])]);
            ("IFoo",
-            [("file1", ((3, 5), (3, 9))); ("file1", ((29, 14), (29, 18)));
-             ("file1", ((53, 10), (53, 14))); ("file1", ((67, 15), (67, 19)));
-             ("file1", ((68, 15), (68, 19))); ("file1", ((69, 15), (69, 19)))]);
+            [("file1", ((3, 5), (3, 9)), ["defn"]);
+             ("file1", ((29, 14), (29, 18)), ["type"]);
+             ("file1", ((53, 10), (53, 14)), ["type"]);
+             ("file1", ((67, 15), (67, 19)), ["type"]);
+             ("file1", ((68, 15), (68, 19)), ["type"]);
+             ("file1", ((69, 15), (69, 19)), ["type"])]);
            ("member InterfaceMethod",
-            [("file1", ((5, 13), (5, 28))); ("file1", ((55, 20), (55, 35)));
-             ("file1", ((69, 23), (69, 42))); ("file1", ((31, 20), (31, 35)))]);
+            [("file1", ((5, 13), (5, 28)), ["defn"]);
+             ("file1", ((55, 20), (55, 35)), ["override"]);
+             ("file1", ((69, 23), (69, 42)), []);
+             ("file1", ((31, 20), (31, 35)), ["override"])]);
            ("member add_InterfaceEvent",
-            [("file1", ((7, 13), (7, 27))); ("file1", ((57, 20), (57, 34)));
-             ("file1", ((68, 23), (68, 41))); ("file1", ((33, 20), (33, 34)))]);
+            [("file1", ((7, 13), (7, 27)), ["defn"]);
+             ("file1", ((57, 20), (57, 34)), ["override"]);
+             ("file1", ((68, 23), (68, 41)), []);
+             ("file1", ((33, 20), (33, 34)), ["override"])]);
            ("member InterfaceEvent",
-            [("file1", ((7, 13), (7, 27))); ("file1", ((57, 20), (57, 34)));
-             ("file1", ((33, 20), (33, 34)))]);
+            [("file1", ((7, 13), (7, 27)), ["defn"]);
+             ("file1", ((57, 20), (57, 34)), ["override"]);
+             ("file1", ((33, 20), (33, 34)), ["override"])]);
            ("member InterfaceProperty",
-            [("file1", ((4, 13), (4, 30))); ("file1", ((54, 20), (54, 37)));
-             ("file1", ((67, 23), (67, 44))); ("file1", ((30, 20), (30, 37)))]);
+            [("file1", ((4, 13), (4, 30)), ["defn"]);
+             ("file1", ((54, 20), (54, 37)), ["override"]);
+             ("file1", ((67, 23), (67, 44)), []);
+             ("file1", ((30, 20), (30, 37)), ["override"])]);
            ("member remove_InterfaceEvent",
-            [("file1", ((7, 13), (7, 27))); ("file1", ((57, 20), (57, 34)));
-             ("file1", ((33, 20), (33, 34)))]);
+            [("file1", ((7, 13), (7, 27)), ["defn"]);
+             ("file1", ((57, 20), (57, 34)), ["override"]);
+             ("file1", ((33, 20), (33, 34)), ["override"])]);
            ("CFoo",
-            [("file1", ((10, 5), (10, 9))); ("file1", ((36, 12), (36, 16)));
-             ("file1", ((36, 12), (36, 16))); ("file1", ((61, 10), (61, 14)));
-             ("file1", ((61, 10), (61, 14)))]);
-           ("member ( .ctor )", [("file1", ((10, 5), (10, 9)))]);
+            [("file1", ((10, 5), (10, 9)), ["defn"]);
+             ("file1", ((36, 12), (36, 16)), ["type"]);
+             ("file1", ((36, 12), (36, 16)), []);
+             ("file1", ((61, 10), (61, 14)), ["type"]);
+             ("file1", ((61, 10), (61, 14)), [])]);
+           ("member ( .ctor )", [("file1", ((10, 5), (10, 9)), ["defn"])]);
            ("member AbstractClassMethod",
-            [("file1", ((12, 13), (12, 32))); ("file1", ((63, 22), (63, 41)));
-             ("file1", ((39, 18), (39, 37)))]);
+            [("file1", ((12, 13), (12, 32)), ["defn"]);
+             ("file1", ((63, 22), (63, 41)), ["override"]);
+             ("file1", ((39, 18), (39, 37)), ["override"])]);
            ("member add_AbstractClassEvent",
-            [("file1", ((14, 13), (14, 31))); ("file1", ((65, 22), (65, 40)));
-             ("file1", ((41, 18), (41, 36)))]);
+            [("file1", ((14, 13), (14, 31)), ["defn"]);
+             ("file1", ((65, 22), (65, 40)), ["override"]);
+             ("file1", ((41, 18), (41, 36)), ["override"])]);
            ("member AbstractClassEvent",
-            [("file1", ((14, 13), (14, 31))); ("file1", ((65, 22), (65, 40)));
-             ("file1", ((41, 18), (41, 36)))]);
+            [("file1", ((14, 13), (14, 31)), ["defn"]);
+             ("file1", ((65, 22), (65, 40)), ["override"]);
+             ("file1", ((41, 18), (41, 36)), ["override"])]);
            ("member AbstractClassProperty",
-            [("file1", ((11, 13), (11, 34))); ("file1", ((62, 22), (62, 43)));
-             ("file1", ((38, 18), (38, 39)))]);
+            [("file1", ((11, 13), (11, 34)), ["defn"]);
+             ("file1", ((62, 22), (62, 43)), ["override"]);
+             ("file1", ((38, 18), (38, 39)), ["override"])]);
            ("member remove_AbstractClassEvent",
-            [("file1", ((14, 13), (14, 31))); ("file1", ((65, 22), (65, 40)));
-             ("file1", ((41, 18), (41, 36)))]);
+            [("file1", ((14, 13), (14, 31)), ["defn"]);
+             ("file1", ((65, 22), (65, 40)), ["override"]);
+             ("file1", ((41, 18), (41, 36)), ["override"])]);
            ("CBaseFoo",
-            [("file1", ((16, 5), (16, 13))); ("file1", ((44, 12), (44, 20)));
-             ("file1", ((44, 12), (44, 20)))]);
-           ("member ( .ctor )", [("file1", ((16, 5), (16, 13)))]);
+            [("file1", ((16, 5), (16, 13)), ["defn"]);
+             ("file1", ((44, 12), (44, 20)), ["type"]);
+             ("file1", ((44, 12), (44, 20)), [])]);
+           ("member ( .ctor )", [("file1", ((16, 5), (16, 13)), ["defn"])]);
            ("member BaseClassMethod",
-            [("file1", ((19, 13), (19, 28))); ("file1", ((23, 15), (23, 30)));
-             ("file1", ((47, 18), (47, 33)))]);
+            [("file1", ((19, 13), (19, 28)), ["defn"]);
+             ("file1", ((23, 15), (23, 30)), ["override"]);
+             ("file1", ((47, 18), (47, 33)), ["override"])]);
            ("member add_BaseClassEvent",
-            [("file1", ((21, 13), (21, 27))); ("file1", ((25, 15), (25, 29)));
-             ("file1", ((49, 18), (49, 32)))]);
+            [("file1", ((21, 13), (21, 27)), ["defn"]);
+             ("file1", ((25, 15), (25, 29)), ["override"]);
+             ("file1", ((49, 18), (49, 32)), ["override"])]);
            ("member BaseClassEvent",
-            [("file1", ((21, 13), (21, 27))); ("file1", ((25, 15), (25, 29)));
-             ("file1", ((49, 18), (49, 32)))]);
+            [("file1", ((21, 13), (21, 27)), ["defn"]);
+             ("file1", ((25, 15), (25, 29)), ["override"]);
+             ("file1", ((49, 18), (49, 32)), ["override"])]);
            ("member BaseClassProperty",
-            [("file1", ((18, 13), (18, 30))); ("file1", ((22, 15), (22, 32)));
-             ("file1", ((46, 18), (46, 35)))]);
+            [("file1", ((18, 13), (18, 30)), ["defn"]);
+             ("file1", ((22, 15), (22, 32)), ["override"]);
+             ("file1", ((46, 18), (46, 35)), ["override"])]);
            ("member remove_BaseClassEvent",
-            [("file1", ((21, 13), (21, 27))); ("file1", ((25, 15), (25, 29)));
-             ("file1", ((49, 18), (49, 32)))]);
-           ("IFooImpl", [("file1", ((27, 5), (27, 13)))]);
-           ("member ( .ctor )", [("file1", ((27, 5), (27, 13)))]);
-           ("CFooImpl", [("file1", ((35, 5), (35, 13)))]);
-           ("member ( .ctor )", [("file1", ((35, 5), (35, 13)))]);
-           ("CBaseFooImpl", [("file1", ((43, 5), (43, 17)))]);
-           ("member ( .ctor )", [("file1", ((43, 5), (43, 17)))])]
+            [("file1", ((21, 13), (21, 27)), ["defn"]);
+             ("file1", ((25, 15), (25, 29)), ["override"]);
+             ("file1", ((49, 18), (49, 32)), ["override"])]);
+           ("IFooImpl", [("file1", ((27, 5), (27, 13)), ["defn"])]);
+           ("member ( .ctor )", [("file1", ((27, 5), (27, 13)), ["defn"])]);
+           ("CFooImpl", [("file1", ((35, 5), (35, 13)), ["defn"])]);
+           ("member ( .ctor )", [("file1", ((35, 5), (35, 13)), ["defn"])]);
+           ("CBaseFooImpl", [("file1", ((43, 5), (43, 17)), ["defn"])]);
+           ("member ( .ctor )", [("file1", ((43, 5), (43, 17)), ["defn"])])]
+
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true
@@ -1176,64 +1211,68 @@ let ``Test project 5 all symbols`` () =
 
     let allUsesOfAllSymbols = 
         wholeProjectResults.GetAllUsesOfAllSymbols()
-        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.FullName, Project5.cleanFileName su.FileName, tupsZ su.RangeAlternate)
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.FullName, Project5.cleanFileName su.FileName, tupsZ su.RangeAlternate, attribsOfSymbolUse su)
 
     allUsesOfAllSymbols |> shouldEqual
-          [|("symbol ", "Even", "file1", ((4, 6), (4, 10)));
-            ("symbol ", "Odd", "file1", ((4, 11), (4, 14)));
-            ("val input", "input", "file1", ((4, 17), (4, 22)));
+          [|("symbol ", "Even", "file1", ((4, 6), (4, 10)), ["defn"]);
+            ("symbol ", "Odd", "file1", ((4, 11), (4, 14)), ["defn"]);
+            ("val input", "input", "file1", ((4, 17), (4, 22)), ["defn"]);
             ("val ( = )", "Microsoft.FSharp.Core.Operators.( = )", "file1",
-             ((4, 38), (4, 39)));
+             ((4, 38), (4, 39)), []);
             ("val ( % )", "Microsoft.FSharp.Core.Operators.( % )", "file1",
-             ((4, 34), (4, 35))); ("val input", "input", "file1", ((4, 28), (4, 33)));
-            ("symbol ", "Even", "file1", ((4, 47), (4, 51)));
-            ("symbol ", "Odd", "file1", ((4, 57), (4, 60)));
+             ((4, 34), (4, 35)), []);
+            ("val input", "input", "file1", ((4, 28), (4, 33)), []);
+            ("symbol ", "Even", "file1", ((4, 47), (4, 51)), []);
+            ("symbol ", "Odd", "file1", ((4, 57), (4, 60)), []);
             ("val ( |Even|Odd| )", "ActivePatterns.( |Even|Odd| )", "file1",
-             ((4, 5), (4, 15))); ("val input", "input", "file1", ((7, 15), (7, 20)));
-            ("val input", "input", "file1", ((8, 9), (8, 14)));
+             ((4, 5), (4, 15)), ["defn"]);
+            ("val input", "input", "file1", ((7, 15), (7, 20)), ["defn"]);
+            ("val input", "input", "file1", ((8, 9), (8, 14)), []);
             ("symbol Even", "ActivePatterns.( |Even|Odd| ).Even", "file1",
-             ((9, 5), (9, 9)));
+             ((9, 5), (9, 9)), ["pattern"]);
             ("val printfn", "Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn",
-             "file1", ((9, 13), (9, 20)));
-            ("val input", "input", "file1", ((9, 34), (9, 39)));
+             "file1", ((9, 13), (9, 20)), []);
+            ("val input", "input", "file1", ((9, 34), (9, 39)), []);
             ("symbol Odd", "ActivePatterns.( |Even|Odd| ).Odd", "file1",
-             ((10, 5), (10, 8)));
+             ((10, 5), (10, 8)), ["pattern"]);
             ("val printfn", "Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn",
-             "file1", ((10, 12), (10, 19)));
-            ("val input", "input", "file1", ((10, 32), (10, 37)));
-            ("val TestNumber", "ActivePatterns.TestNumber", "file1", ((7, 4), (7, 14)));
-            ("symbol ", "Float", "file1", ((13, 6), (13, 11)));
-            ("string", "Microsoft.FSharp.Core.string", "file1", ((13, 22), (13, 28)));
-            ("val str", "str", "file1", ((13, 17), (13, 20)));
-            ("val floatvalue", "floatvalue", "file1", ((14, 15), (14, 25)));
-            ("Double", "System.Double", "file1", ((15, 13), (15, 19)));
-            ("System", "System", "file1", ((15, 6), (15, 12)));
-            ("val str", "str", "file1", ((15, 29), (15, 32)));
+             "file1", ((10, 12), (10, 19)), []);
+            ("val input", "input", "file1", ((10, 32), (10, 37)), []);
+            ("val TestNumber", "ActivePatterns.TestNumber", "file1", ((7, 4), (7, 14)),
+             ["defn"]); ("symbol ", "Float", "file1", ((13, 6), (13, 11)), ["defn"]);
+            ("string", "Microsoft.FSharp.Core.string", "file1", ((13, 22), (13, 28)),
+             ["type"]); ("val str", "str", "file1", ((13, 17), (13, 20)), ["defn"]);
+            ("val floatvalue", "floatvalue", "file1", ((14, 15), (14, 25)), ["defn"]);
+            ("Double", "System.Double", "file1", ((15, 13), (15, 19)), []);
+            ("System", "System", "file1", ((15, 6), (15, 12)), []);
+            ("val str", "str", "file1", ((15, 29), (15, 32)), []);
             ("val ( ~& )",
              "Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators.( ~& )",
-             "file1", ((15, 34), (15, 35)));
-            ("val floatvalue", "floatvalue", "file1", ((15, 35), (15, 45)));
-            ("symbol TryParse", "System.Double.TryParse", "file1", ((15, 6), (15, 28)));
+             "file1", ((15, 34), (15, 35)), []);
+            ("val floatvalue", "floatvalue", "file1", ((15, 35), (15, 45)), []);
+            ("symbol TryParse", "System.Double.TryParse", "file1", ((15, 6), (15, 28)),
+             []);
             ("Some", "Microsoft.FSharp.Core.Option<_>.Some", "file1",
-             ((15, 52), (15, 56)));
-            ("val floatvalue", "floatvalue", "file1", ((15, 57), (15, 67)));
+             ((15, 52), (15, 56)), []);
+            ("val floatvalue", "floatvalue", "file1", ((15, 57), (15, 67)), []);
             ("None", "Microsoft.FSharp.Core.Option<_>.None", "file1",
-             ((16, 8), (16, 12)));
+             ((16, 8), (16, 12)), []);
             ("val ( |Float|_| )", "ActivePatterns.( |Float|_| )", "file1",
-             ((13, 5), (13, 14))); ("val str", "str", "file1", ((19, 17), (19, 20)));
-            ("val str", "str", "file1", ((20, 9), (20, 12)));
-            ("val f", "f", "file1", ((21, 11), (21, 12)));
+             ((13, 5), (13, 14)), ["defn"]);
+            ("val str", "str", "file1", ((19, 17), (19, 20)), ["defn"]);
+            ("val str", "str", "file1", ((20, 9), (20, 12)), []);
+            ("val f", "f", "file1", ((21, 11), (21, 12)), ["defn"]);
             ("symbol Float", "ActivePatterns.( |Float|_| ).Float", "file1",
-             ((21, 5), (21, 10)));
+             ((21, 5), (21, 10)), ["pattern"]);
             ("val printfn", "Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn",
-             "file1", ((21, 16), (21, 23)));
-            ("val f", "f", "file1", ((21, 46), (21, 47)));
+             "file1", ((21, 16), (21, 23)), []);
+            ("val f", "f", "file1", ((21, 46), (21, 47)), []);
             ("val printfn", "Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn",
-             "file1", ((22, 10), (22, 17)));
-            ("val str", "str", "file1", ((22, 38), (22, 41)));
+             "file1", ((22, 10), (22, 17)), []);
+            ("val str", "str", "file1", ((22, 38), (22, 41)), []);
             ("val parseNumeric", "ActivePatterns.parseNumeric", "file1",
-             ((19, 4), (19, 16)));
-            ("ActivePatterns", "ActivePatterns", "file1", ((1, 7), (1, 21)))|]
+             ((19, 4), (19, 16)), ["defn"]);
+            ("ActivePatterns", "ActivePatterns", "file1", ((1, 7), (1, 21)), ["defn"])|]
 
 [<Test>]
 let ``Test complete active patterns's exact ranges from uses of symbols`` () =
@@ -1446,29 +1485,30 @@ let ``Test project 8 all symbols`` () =
 
     let allUsesOfAllSymbols = 
         wholeProjectResults.GetAllUsesOfAllSymbols()
-        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project8.cleanFileName su.FileName, tups su.RangeAlternate)
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project8.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su)
 
     allUsesOfAllSymbols |> shouldEqual
-          [|("int", "int", "file1", ((4, 19), (4, 22)));
-            ("int", "int", "file1", ((4, 31), (4, 34)));
-            ("int", "int", "file1", ((4, 19), (4, 22)));
-            ("parameter xxx", "xxx", "file1", ((4, 14), (4, 17)));
-            ("int", "int", "file1", ((4, 31), (4, 34)));
-            ("parameter yyy", "yyy", "file1", ((4, 25), (4, 28)));
-            ("B", "B", "file1", ((4, 9), (4, 10)));
-            ("A", "A", "file1", ((4, 5), (4, 6)));
-            ("B", "B", "file1", ((5, 8), (5, 9)));
-            ("parameter xxx", "xxx", "file1", ((5, 10), (5, 13)));
-            ("parameter yyy", "yyy", "file1", ((5, 17), (5, 20)));
-            ("val b", "b", "file1", ((5, 4), (5, 5)));
-            ("val b", "b", "file1", ((8, 10), (8, 11)));
-            ("parameter xxx", "xxx", "file1", ((10, 9), (10, 12)));
-            ("parameter yyy", "yyy", "file1", ((10, 18), (10, 21)));
-            ("val b", "b", "file1", ((10, 24), (10, 25)));
-            ("val a", "a", "file1", ((10, 15), (10, 16)));
-            ("B", "B", "file1", ((10, 6), (10, 7)));
-            ("val x", "x", "file1", ((7, 4), (7, 5)));
-            ("NamedUnionFields", "NamedUnionFields", "file1", ((2, 7), (2, 23)))|]
+          [|("int", "int", "file1", ((4, 19), (4, 22)), ["type"]);
+            ("int", "int", "file1", ((4, 31), (4, 34)), ["type"]);
+            ("int", "int", "file1", ((4, 19), (4, 22)), ["type"]);
+            ("parameter xxx", "xxx", "file1", ((4, 14), (4, 17)), ["defn"]);
+            ("int", "int", "file1", ((4, 31), (4, 34)), ["type"]);
+            ("parameter yyy", "yyy", "file1", ((4, 25), (4, 28)), ["defn"]);
+            ("B", "B", "file1", ((4, 9), (4, 10)), ["defn"]);
+            ("A", "A", "file1", ((4, 5), (4, 6)), ["defn"]);
+            ("B", "B", "file1", ((5, 8), (5, 9)), []);
+            ("parameter xxx", "xxx", "file1", ((5, 10), (5, 13)), []);
+            ("parameter yyy", "yyy", "file1", ((5, 17), (5, 20)), []);
+            ("val b", "b", "file1", ((5, 4), (5, 5)), ["defn"]);
+            ("val b", "b", "file1", ((8, 10), (8, 11)), []);
+            ("parameter xxx", "xxx", "file1", ((10, 9), (10, 12)), ["pattern"]);
+            ("parameter yyy", "yyy", "file1", ((10, 18), (10, 21)), ["pattern"]);
+            ("val b", "b", "file1", ((10, 24), (10, 25)), ["defn"]);
+            ("val a", "a", "file1", ((10, 15), (10, 16)), ["defn"]);
+            ("B", "B", "file1", ((10, 6), (10, 7)), ["pattern"]);
+            ("val x", "x", "file1", ((7, 4), (7, 5)), ["defn"]);
+            ("NamedUnionFields", "NamedUnionFields", "file1", ((2, 7), (2, 23)),
+             ["defn"])|]
 
     let arg1symbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Array.pick (fun x -> if x.Symbol.DisplayName = "xxx" then Some x.Symbol else None)
     let arg1uses = 
@@ -1656,26 +1696,88 @@ let ``Test Project11 all symbols`` () =
 
     let allUsesOfAllSymbols = 
         wholeProjectResults.GetAllUsesOfAllSymbols()
-        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project11.cleanFileName su.FileName, tups su.RangeAlternate)
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project11.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su)
 
     allUsesOfAllSymbols |> shouldEqual
-          [|("Generic", "Generic", "file1", ((4, 34), (4, 41)));
-            ("Collections", "Collections", "file1", ((4, 22), (4, 33)));
-            ("System", "System", "file1", ((4, 15), (4, 21)));
-            ("Dictionary`2", "Dictionary", "file1", ((4, 15), (4, 52)));
-            ("int", "int", "file1", ((4, 53), (4, 56)));
-            ("int", "int", "file1", ((4, 57), (4, 60)));
-            ("Enumerator", "Enumerator", "file1", ((4, 62), (4, 72)));
-            ("symbol Enumerator", "Enumerator", "file1", ((4, 15), (4, 72))); // Note, this is a constructor call, it should really be reported as such
-            ("val enum", "enum", "file1", ((4, 4), (4, 8)));
-            ("Generic", "Generic", "file1", ((5, 30), (5, 37)));
-            ("Collections", "Collections", "file1", ((5, 18), (5, 29)));
-            ("System", "System", "file1", ((5, 11), (5, 17)));
-            ("Dictionary`2", "Dictionary", "file1", ((5, 11), (5, 48)));
-            ("int", "int", "file1", ((5, 49), (5, 52)));
-            ("int", "int", "file1", ((5, 53), (5, 56)));
-            ("Enumerator", "Enumerator", "file1", ((5, 58), (5, 68)));
-            ("val x", "x", "file1", ((5, 9), (5, 10)));
-            ("val fff", "fff", "file1", ((5, 4), (5, 7)));
-            ("NestedTypes", "NestedTypes", "file1", ((2, 7), (2, 18)))|]
+          [|("Generic", "Generic", "file1", ((4, 34), (4, 41)), ["type"]);
+            ("Collections", "Collections", "file1", ((4, 22), (4, 33)), ["type"]);
+            ("System", "System", "file1", ((4, 15), (4, 21)), ["type"]);
+            ("Dictionary`2", "Dictionary", "file1", ((4, 15), (4, 52)), ["type"]);
+            ("int", "int", "file1", ((4, 53), (4, 56)), []);
+            ("int", "int", "file1", ((4, 57), (4, 60)), []);
+            ("Enumerator", "Enumerator", "file1", ((4, 62), (4, 72)), ["type"]);
+            ("symbol Enumerator", "Enumerator", "file1", ((4, 15), (4, 72)), []);
+            ("val enum", "enum", "file1", ((4, 4), (4, 8)), ["defn"]);
+            ("Generic", "Generic", "file1", ((5, 30), (5, 37)), ["type"]);
+            ("Collections", "Collections", "file1", ((5, 18), (5, 29)), ["type"]);
+            ("System", "System", "file1", ((5, 11), (5, 17)), ["type"]);
+            ("Dictionary`2", "Dictionary", "file1", ((5, 11), (5, 48)), ["type"]);
+            ("int", "int", "file1", ((5, 49), (5, 52)), ["type"]);
+            ("int", "int", "file1", ((5, 53), (5, 56)), ["type"]);
+            ("Enumerator", "Enumerator", "file1", ((5, 58), (5, 68)), ["type"]);
+            ("val x", "x", "file1", ((5, 9), (5, 10)), ["defn"]);
+            ("val fff", "fff", "file1", ((5, 4), (5, 7)), ["defn"]);
+            ("NestedTypes", "NestedTypes", "file1", ((2, 7), (2, 18)), ["defn"])|]
 
+//-----------------------------------------------------------------------------------------
+// see https://github.com/fsharp/FSharp.Compiler.Service/issues/92
+
+module Project12 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module ComputationExpressions
+
+let x1 = seq { for i in 0 .. 100 -> i }
+let x2 = query { for i in 0 .. 100 do
+                 where (i = 0)
+                 select (i,i) }
+
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project12 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project12.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project12 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project12.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project12.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su)
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("val seq", "seq", "file1", ((4, 9), (4, 12)), ["compexpr"]);
+            ("val ( .. )", "( .. )", "file1", ((4, 26), (4, 28)), []);
+            ("val i", "i", "file1", ((4, 19), (4, 20)), ["defn"]);
+            ("val i", "i", "file1", ((4, 36), (4, 37)), []);
+            ("val x1", "x1", "file1", ((4, 4), (4, 6)), ["defn"]);
+            ("val query", "query", "file1", ((5, 9), (5, 14)), []);   
+            ("val query", "query", "file1", ((5, 9), (5, 14)), ["compexpr"]);
+            ("member Where", "where", "file1", ((6, 17), (6, 22)), ["compexpr"]);
+            ("member Select", "select", "file1", ((7, 17), (7, 23)), ["compexpr"]);
+            ("val ( .. )", "( .. )", "file1", ((5, 28), (5, 30)), []);
+            ("val i", "i", "file1", ((5, 21), (5, 22)), ["defn"]);
+            ("val ( = )", "( = )", "file1", ((6, 26), (6, 27)), []);
+            ("val i", "i", "file1", ((6, 24), (6, 25)), []);
+            ("val i", "i", "file1", ((7, 25), (7, 26)), []);
+            ("val i", "i", "file1", ((7, 27), (7, 28)), []);
+            ("val x2", "x2", "file1", ((5, 4), (5, 6)), ["defn"]);
+            ("ComputationExpressions", "ComputationExpressions", "file1",((2, 7), (2, 29)), ["defn"])|]

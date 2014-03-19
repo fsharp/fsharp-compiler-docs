@@ -108,8 +108,19 @@ type ProjectContext =
 type FSharpSymbolUse = 
     /// The symbol referenced
     member Symbol : FSharpSymbol 
-    /// Indicates if the reference a definition for the symbol, either in a signature or implementation
-    member IsDefinition : bool
+    /// Indicates if the reference is a definition for the symbol, either in a signature or implementation
+    member IsFromDefinition : bool
+    /// Indicates if the reference is in a pattern
+    member IsFromPattern : bool
+    /// Indicates if the reference is in a syntactic type
+    member IsFromType : bool
+    /// Indicates if the reference is in an attribute
+    member IsFromAttribute : bool
+    /// Indicates if the reference is via the member being implemented in a class or object expression
+    member IsFromDispatchSlotImplementation : bool
+    /// Indicates if the reference is either a builder or a custom operation in a compuation expression
+    member IsFromComputationExpression : bool
+
     /// The file name the reference occurs in 
     member FileName: string 
     /// The range of text representing the reference to the symbol

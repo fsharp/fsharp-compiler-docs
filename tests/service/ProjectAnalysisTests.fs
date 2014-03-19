@@ -1630,6 +1630,7 @@ module Project11 =
 module NestedTypes
 
 let enum = new System.Collections.Generic.Dictionary<int,int>.Enumerator()
+let fff (x:System.Collections.Generic.Dictionary<int,int>.Enumerator) = ()
 
     """
     File.WriteAllText(fileName1, fileSource1)
@@ -1664,7 +1665,17 @@ let ``Test Project11 all symbols`` () =
             ("Dictionary`2", "Dictionary", "file1", ((4, 15), (4, 52)));
             ("int", "int", "file1", ((4, 53), (4, 56)));
             ("int", "int", "file1", ((4, 57), (4, 60)));
-            ("symbol Enumerator", "Enumerator", "file1", ((4, 15), (4, 72)));
+            ("Enumerator", "Enumerator", "file1", ((4, 62), (4, 72)));
+            ("symbol Enumerator", "Enumerator", "file1", ((4, 15), (4, 72))); // Note, this is a constructor call, it should really be reported as such
             ("val enum", "enum", "file1", ((4, 4), (4, 8)));
+            ("Generic", "Generic", "file1", ((5, 30), (5, 37)));
+            ("Collections", "Collections", "file1", ((5, 18), (5, 29)));
+            ("System", "System", "file1", ((5, 11), (5, 17)));
+            ("Dictionary`2", "Dictionary", "file1", ((5, 11), (5, 48)));
+            ("int", "int", "file1", ((5, 49), (5, 52)));
+            ("int", "int", "file1", ((5, 53), (5, 56)));
+            ("Enumerator", "Enumerator", "file1", ((5, 58), (5, 68)));
+            ("val x", "x", "file1", ((5, 9), (5, 10)));
+            ("val fff", "fff", "file1", ((5, 4), (5, 7)));
             ("NestedTypes", "NestedTypes", "file1", ((2, 7), (2, 18)))|]
 

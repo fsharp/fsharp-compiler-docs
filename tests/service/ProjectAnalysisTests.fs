@@ -1546,3 +1546,71 @@ let ``Test project 9 all symbols`` () =
         |> Array.map (fun su -> Option.map tups su.Symbol.DeclarationLocation, Project9.cleanFileName su.FileName, tups su.RangeAlternate)
     arg1uses |> shouldEqual
      [|(Some ((4, 46), (4, 56)), "file1", ((4, 46), (4, 56)))|]
+
+//-----------------------------------------------------------------------------------------
+module Project10 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module NamedArgs
+
+type C() = 
+    static member M(url: string, query: int)  = ()
+
+C.M("http://goo", query = 1)
+
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project10 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project10.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project10 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project10.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project10.cleanFileName su.FileName, tups su.RangeAlternate)
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("C", "C", "file1", ((4, 5), (4, 6)));
+            ("member ( .ctor )", "( .ctor )", "file1", ((4, 5), (4, 6)));
+            ("string", "string", "file1", ((5, 25), (5, 31)));
+            ("int", "int", "file1", ((5, 40), (5, 43)));
+            ("member M", "M", "file1", ((5, 18), (5, 19)));
+            ("string", "string", "file1", ((5, 25), (5, 31)));
+            ("int", "int", "file1", ((5, 40), (5, 43)));
+            ("val url", "url", "file1", ((5, 20), (5, 23)));
+            ("val query", "query", "file1", ((5, 33), (5, 38)));
+            ("C", "C", "file1", ((7, 0), (7, 1)));
+            ("member M", "M", "file1", ((7, 0), (7, 3)));
+            ("parameter query", "query", "file1", ((7, 18), (7, 23)));
+            ("NamedArgs", "NamedArgs", "file1", ((2, 7), (2, 16)))|]
+
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project10.fileName1, Project10.options) 
+        |> Async.RunSynchronously
+
+    let querySymbol = backgroundTypedParse1.GetSymbolAtLocationAlternate(7,23,"",["query"]).Value
+    querySymbol.ToString() |> shouldEqual "parameter query"
+
+    let querySymbol2 = backgroundTypedParse1.GetSymbolAtLocationAlternate(7,22,"",["query"]).Value
+    querySymbol2.ToString() |> shouldEqual "val query" // This is perhaps the wrong result, but not that the input location was wrong - was not the "column at end of names"
+

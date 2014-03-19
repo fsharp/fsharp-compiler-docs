@@ -266,6 +266,6 @@ match tree with
 さらに深く理解するためには、型無しASTを活用するツールのよい例として
 [Fantomas project](https://github.com/dungpa/fantomas) を参考にするとよいでしょう。
 実際には今回参照したような情報と、次のチュートリアルで説明する
-[エディタサービス](editor.fsx) から得られる情報とを
+[エディタサービス](editor.html) から得られる情報とを
 組み合わせて利用することになるでしょう。
 *)

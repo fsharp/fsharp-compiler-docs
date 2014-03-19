@@ -127,6 +127,8 @@ type FSharpSymbolUse =
     member RangeAlternate: range
     [<Obsolete("This member has been replaced by RangeAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member Range: Range01
+    [<Obsolete("Renamed to IsFromDefinition")>]
+    member IsDefinition : bool
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]

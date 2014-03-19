@@ -3230,6 +3230,8 @@ type InfoReader(g:TcGlobals, amap:Import.ImportMap) =
     member x.GetILFieldInfosOfType (optFilter,ad,m,typ) =
         ilFieldInfoCache.Apply(((optFilter,ad),m,typ))
 
+    member x.GetImmediateIntrinsicEventsOfType (optFilter,ad,m,typ) = getImmediateIntrinsicEventsOfType (optFilter,ad) m typ
+
     member x.GetEventInfosOfType (optFilter,ad,m,typ) =
         eventInfoCache.Apply(((optFilter,ad),m,typ))
 

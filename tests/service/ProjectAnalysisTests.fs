@@ -1250,7 +1250,7 @@ let ``Test project 5 all symbols`` () =
              "Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators.( ~& )",
              "file1", ((15, 34), (15, 35)), []);
             ("val floatvalue", "floatvalue", "file1", ((15, 35), (15, 45)), []);
-            ("symbol TryParse", "System.Double.TryParse", "file1", ((15, 6), (15, 28)),
+            ("member TryParse", "System.Double.TryParse", "file1", ((15, 6), (15, 28)),
              []);
             ("Some", "Microsoft.FSharp.Core.Option<_>.Some", "file1",
              ((15, 52), (15, 56)), []);
@@ -1706,7 +1706,7 @@ let ``Test Project11 all symbols`` () =
             ("int", "int", "file1", ((4, 53), (4, 56)), []);
             ("int", "int", "file1", ((4, 57), (4, 60)), []);
             ("Enumerator", "Enumerator", "file1", ((4, 62), (4, 72)), ["type"]);
-            ("symbol Enumerator", "Enumerator", "file1", ((4, 15), (4, 72)), []);
+            ("member .ctor", "Enumerator", "file1", ((4, 15), (4, 72)), []);
             ("val enum", "enum", "file1", ((4, 4), (4, 8)), ["defn"]);
             ("Generic", "Generic", "file1", ((5, 30), (5, 37)), ["type"]);
             ("Collections", "Collections", "file1", ((5, 18), (5, 29)), ["type"]);
@@ -1781,3 +1781,157 @@ let ``Test Project12 all symbols`` () =
             ("val i", "i", "file1", ((7, 27), (7, 28)), []);
             ("val x2", "x2", "file1", ((5, 4), (5, 6)), ["defn"]);
             ("ComputationExpressions", "ComputationExpressions", "file1",((2, 7), (2, 29)), ["defn"])|]
+
+//-----------------------------------------------------------------------------------------
+// Test fetching information about some external types (e.g. System.Object, System.DateTime)
+
+module Project13 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module ExternalTypes
+
+let x1  = new System.Object()
+let x2  = new System.DateTime(1,1,1)
+let x3 = new System.DateTime()
+
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project13 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project13.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project13 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project13.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project13.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su)
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("System", "System", "file1", ((4, 14), (4, 20)), ["type"]);
+            ("Object", "Object", "file1", ((4, 14), (4, 27)), []);
+            ("member .ctor", "Object", "file1", ((4, 14), (4, 27)), []);
+            ("val x1", "x1", "file1", ((4, 4), (4, 6)), ["defn"]);
+            ("System", "System", "file1", ((5, 14), (5, 20)), ["type"]);
+            ("DateTime", "DateTime", "file1", ((5, 14), (5, 29)), []);
+            ("member .ctor", "DateTime", "file1", ((5, 14), (5, 29)), []);
+            ("val x2", "x2", "file1", ((5, 4), (5, 6)), ["defn"]);
+            ("System", "System", "file1", ((6, 13), (6, 19)), ["type"]);
+            ("DateTime", "DateTime", "file1", ((6, 13), (6, 28)), []);
+            ("member .ctor", "DateTime", "file1", ((6, 13), (6, 28)), []);
+            ("val x3", "x3", "file1", ((6, 4), (6, 6)), ["defn"]);
+            ("ExternalTypes", "ExternalTypes", "file1", ((2, 7), (2, 20)), ["defn"])|]
+    
+
+    let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Array.find (fun su -> su.Symbol.DisplayName = "Object")
+    let objEntity = objSymbol.Symbol :?> FSharpEntity
+    let objMemberNames = [ for x in objEntity.MembersFunctionsAndValues -> x.DisplayName ]
+    objMemberNames |> shouldEqual [".ctor"; "ToString"; "Equals"; "Equals"; "ReferenceEquals"; "GetHashCode"; "GetType"; "Finalize"; "MemberwiseClone"]
+       
+    let dtSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Array.find (fun su -> su.Symbol.DisplayName = "DateTime")
+    let dtEntity = dtSymbol.Symbol :?> FSharpEntity
+    let dtPropNames = [ for x in dtEntity.MembersFunctionsAndValues do if x.IsProperty then yield x.DisplayName ]
+    
+    set ["Date"; "Day"; "DayOfWeek"; "DayOfYear"; "Hour"; "Kind"; "Millisecond"; "Minute"; "Month"; "Now"; "Second"; "Ticks"; "TimeOfDay"; "Today"; "Year"]  
+    - set dtPropNames  
+      |> shouldEqual (set [])
+
+    let objDispatchSlotNames = [ for x in objEntity.MembersFunctionsAndValues do if x.IsDispatchSlot then yield x.DisplayName ]
+    
+    objDispatchSlotNames |> shouldEqual ["ToString"; "Equals"; "GetHashCode"; "Finalize"]  
+
+    let _test1 = [ for x in objEntity.MembersFunctionsAndValues -> x.FullType ]
+    for x in objEntity.MembersFunctionsAndValues do 
+       x.IsCompilerGenerated |> shouldEqual false
+       x.IsExtensionMember |> shouldEqual false
+       x.IsEvent |> shouldEqual false
+       x.IsProperty |> shouldEqual false
+       x.IsSetterMethod |> shouldEqual false
+       x.IsGetterMethod |> shouldEqual false
+       x.IsImplicitConstructor |> shouldEqual false
+       x.IsTypeFunction |> shouldEqual false
+       x.IsUnresolved |> shouldEqual false
+    ()
+
+//-----------------------------------------------------------------------------------------
+// Misc - structs
+
+module Project14 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Structs
+
+[<Struct>]
+type S(p:int) = 
+   member x.P = p
+
+let x1  = S()
+let x2  = S(3)
+
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project14 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project14.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project14 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project14.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project14.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su)
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("StructAttribute", "StructAttribute", "file1", ((4, 2), (4, 8)),["attribute"]);
+            ("StructAttribute", "StructAttribute", "file1", ((4, 2), (4, 8)), ["type"]);
+            ("member ( .ctor )", "StructAttribute", "file1", ((4, 2), (4, 8)), []);
+            ("int", "int", "file1", ((5, 9), (5, 12)), ["type"]);
+            ("int", "int", "file1", ((5, 9), (5, 12)), ["type"]);
+            ("S", "S", "file1", ((5, 5), (5, 6)), ["defn"]);
+            ("int", "int", "file1", ((5, 9), (5, 12)), ["type"]);
+            ("val p", "p", "file1", ((5, 7), (5, 8)), ["defn"]);
+            ("member ( .ctor )", "( .ctor )", "file1", ((5, 5), (5, 6)), ["defn"]);
+            ("member P", "P", "file1", ((6, 12), (6, 13)), ["defn"]);
+            ("val x", "x", "file1", ((6, 10), (6, 11)), ["defn"]);
+            ("val p", "p", "file1", ((6, 16), (6, 17)), []);
+            ("member .ctor", ".ctor", "file1", ((8, 10), (8, 11)), []);
+            ("val x1", "x1", "file1", ((8, 4), (8, 6)), ["defn"]);
+            ("member ( .ctor )", ".ctor", "file1", ((9, 10), (9, 11)), []);
+            ("val x2", "x2", "file1", ((9, 4), (9, 6)), ["defn"]);
+            ("Structs", "Structs", "file1", ((2, 7), (2, 14)), ["defn"])|]

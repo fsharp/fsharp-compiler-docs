@@ -1548,6 +1548,8 @@ let ``Test project 9 all symbols`` () =
      [|(Some ((4, 46), (4, 56)), "file1", ((4, 46), (4, 56)))|]
 
 //-----------------------------------------------------------------------------------------
+// see https://github.com/fsharp/FSharp.Compiler.Service/issues/95
+
 module Project10 = 
     open System.IO
 
@@ -1613,4 +1615,56 @@ let ``Test Project10 all symbols`` () =
 
     let querySymbol2 = backgroundTypedParse1.GetSymbolAtLocationAlternate(7,22,"",["query"]).Value
     querySymbol2.ToString() |> shouldEqual "val query" // This is perhaps the wrong result, but not that the input location was wrong - was not the "column at end of names"
+
+//-----------------------------------------------------------------------------------------
+// see https://github.com/fsharp/FSharp.Compiler.Service/issues/92
+
+module Project11 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module NestedTypes
+
+let enum = new System.Collections.Generic.Dictionary<int,int>.Enumerator()
+
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project11 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project11.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project11 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project11.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project11.cleanFileName su.FileName, tups su.RangeAlternate)
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("Generic", "Generic", "file1", ((4, 34), (4, 41)));
+            ("Collections", "Collections", "file1", ((4, 22), (4, 33)));
+            ("System", "System", "file1", ((4, 15), (4, 21)));
+            ("Dictionary`2", "Dictionary", "file1", ((4, 15), (4, 52)));
+            ("int", "int", "file1", ((4, 53), (4, 56)));
+            ("int", "int", "file1", ((4, 57), (4, 60)));
+            ("symbol Enumerator", "Enumerator", "file1", ((4, 15), (4, 72)));
+            ("val enum", "enum", "file1", ((4, 4), (4, 8)));
+            ("NestedTypes", "NestedTypes", "file1", ((2, 7), (2, 18)))|]
 

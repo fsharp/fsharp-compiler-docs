@@ -1140,8 +1140,9 @@ type ValScheme =
 /// first phase. The input to the second phase is a List.map that gives the Val and type scheme 
 /// for each value bound by the pattern. 
 type TcPatPhase2Input = 
-    TcPatPhase2Input of (Val * TypeScheme) NameMap
-
+    | TcPatPhase2Input of (Val * TypeScheme) NameMap * bool
+    // Get an input indicating we are no longer on the left-most path through a disjunctive "or" pattern
+    member x.RightPath = (let (TcPatPhase2Input(a,_)) = x in TcPatPhase2Input(a,false))
 
 /// The first phase of checking and elaborating a binding leaves a whole goop of information. 
 /// This is a bit of a mess: much of this information is carried on a per-value basis by the 
@@ -4627,17 +4628,25 @@ and TcSimplePatsOfUnknownType cenv optArgsOK checkCxs env tpenv spats =
     let argty = NewInferenceType ()
     TcSimplePats cenv optArgsOK checkCxs argty env (tpenv,NameMap.empty,Set.empty) spats
 
-and TcPatBindingName _cenv _env id ty isMemberThis vis1 topValData (inlineFlag,declaredTypars,argAttribs,isMutable,vis2,compgen) (names,takenNames:Set<string>) = 
+and TcPatBindingName cenv env id ty isMemberThis vis1 topValData (inlineFlag,declaredTypars,argAttribs,isMutable,vis2,compgen) (names,takenNames:Set<string>) = 
     let vis = if isSome vis1 then vis1 else vis2
     if takenNames.Contains id.idText then errorR (VarBoundTwice id)
     let baseOrThis = if isMemberThis then MemberThisVal else NormalVal
     let names = Map.add id.idText (PrelimValScheme1(id,declaredTypars,ty,topValData,None,isMutable,inlineFlag,baseOrThis,argAttribs,vis,compgen)) names
     let takenNames = Set.add id.idText takenNames
-    (fun (TcPatPhase2Input values) -> 
+    (fun (TcPatPhase2Input (values, isLeftMost)) -> 
         let (vspec,typeScheme) = 
             match values.TryFind id.idText with
             | Some x -> x
             | None -> error(Error(FSComp.SR.tcNameNotBoundInPattern(id.idText),id.idRange))
+
+        // isLeftMost indcates we are processing the left-most path through a disjunctive or- attern.
+        // For those binding locations, CallNameResolutionSink is called in MakeAndPublishValue, like all other bindings
+        // For non-left-most paths, we register the name resolutions here
+        if not isLeftMost && not vspec.IsCompilerGenerated && not (String.hasPrefix vspec.LogicalName "_") then 
+            let item = Item.Value(mkLocalValRef vspec)
+            CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.Binding,env.DisplayEnv,env.eAccessRights)
+
         PBind(vspec,typeScheme)),
     names,takenNames
 
@@ -4720,7 +4729,7 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
           | None -> () 
           | Some (PrelimValScheme1(_,_,ty2,_,_,_,_,_,_,_,_)) -> 
               UnifyTypes cenv env m ty1 ty2)
-        (fun values -> TPat_disjs ([pat1' values;pat2' values],m)), (tpenv,names1,takenNames1)
+        (fun values -> TPat_disjs ([pat1' values;pat2' values.RightPath],m)), (tpenv,names1,takenNames1)
 
     | SynPat.Ands (pats,m) ->
         let pats',acc = TcPatterns warnOnUpper cenv env vFlags (tpenv,names,takenNames) (List.map (fun _ -> ty) pats) pats
@@ -9298,7 +9307,7 @@ and TcMatchPattern cenv inputTy env tpenv (pat:SynPat,optWhenExpr) =
     let patf',(tpenv,names,_) = TcPat WarnOnUpperCase cenv env None (ValInline.Optional,permitInferTypars,noArgOrRetAttribs,false,None,false) (tpenv,Map.empty,Set.empty) inputTy pat
     let envinner,values,vspecMap = MakeAndPublishSimpleVals cenv env m names false
     let optWhenExpr',tpenv = Option.mapFold (TcExpr cenv cenv.g.bool_ty envinner) tpenv optWhenExpr
-    patf' (TcPatPhase2Input values),optWhenExpr',FlatList.ofList (NameMap.range vspecMap),envinner,tpenv
+    patf' (TcPatPhase2Input (values, true)),optWhenExpr',FlatList.ofList (NameMap.range vspecMap),envinner,tpenv
 
 and TcMatchClauses cenv inputTy resultTy env tpenv clauses =
     List.mapFold (TcMatchClause cenv inputTy resultTy env) tpenv clauses 
@@ -9744,7 +9753,7 @@ and TcLetBinding cenv isUse env containerInfo declKind tpenv (binds,bindsm,scope
         let tpenv = HideUnscopedTypars generalizedTypars tpenv
         let valSchemes = NameMap.map (UseCombinedArity cenv.g declKind rhsExpr) prelimValSchemes2
         let values = MakeAndPublishVals cenv env (altActualParent,false,declKind,ValNotInRecScope,valSchemes,attrs,doc,konst)
-        let pat' = tcPatPhase2 (TcPatPhase2Input values)
+        let pat' = tcPatPhase2 (TcPatPhase2Input (values, true))
         let prelimRecValues = NameMap.map fst values
         
         // Now bind the r.h.s. to the l.h.s. 

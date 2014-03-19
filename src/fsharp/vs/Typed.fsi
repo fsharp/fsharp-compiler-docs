@@ -156,6 +156,9 @@ and [<Class>] FSharpEntity =
     /// Indicates if the type definition is a class type
     member IsClass : bool
 
+    /// Indicates if the type definition is a reference type where the implementation details are hidden by a signature
+    member IsOpaque : bool
+
     /// Indicates if the type definition is an enum type
     member IsEnum : bool
 

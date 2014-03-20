@@ -1856,7 +1856,7 @@ let ``Test Project13 all symbols`` () =
 
     let objDispatchSlotNames = [ for x in objEntity.MembersFunctionsAndValues do if x.IsDispatchSlot then yield x.DisplayName ]
     
-    objDispatchSlotNames |> shouldEqual ["ToString"; "Equals"; "GetHashCode"; "Finalize"]  
+    set objDispatchSlotNames |> shouldEqual (set ["ToString"; "Equals"; "GetHashCode"; "Finalize"])
 
     let _test1 = [ for x in objEntity.MembersFunctionsAndValues -> x.FullType ]
     for x in objEntity.MembersFunctionsAndValues do 

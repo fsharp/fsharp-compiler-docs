@@ -2080,3 +2080,54 @@ let ``Test Project16 all symbols`` () =
             ("val x", "x", "file1", ((5, 11), (5, 12)), ["defn"]);
             ("val x", "x", "file1", ((8, 11), (8, 12)), ["defn"]);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"])|]
+
+
+//-----------------------------------------------------------------------------------------
+// Misc - signature files
+
+module Project17 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Impl
+
+let _ = Microsoft.FSharp.Collections.List<int>.Empty
+    """
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project17 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project17.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project17 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project17.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project17.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su, 
+                                (match su.Symbol with :? FSharpEntity as e -> e.IsNamespace | _ -> false))
+
+    allUsesOfAllSymbols |> shouldEqual
+      [|("Collections", "Collections", "file1", ((4, 25), (4, 36)), [], true);
+        ("FSharp", "FSharp", "file1", ((4, 18), (4, 24)), [], true);
+        ("Microsoft", "Microsoft", "file1", ((4, 8), (4, 17)), [], true);
+        ("FSharpList`1", "List", "file1", ((4, 8), (4, 41)), [], false);
+        ("int", "int", "file1", ((4, 42), (4, 45)), ["type"], false);
+        ("FSharpList`1", "List", "file1", ((4, 8), (4, 46)), [], false);
+        ("member Empty", "Empty", "file1", ((4, 8), (4, 52)), [], false);
+        ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], false)|]

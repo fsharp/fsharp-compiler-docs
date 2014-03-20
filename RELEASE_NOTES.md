@@ -162,3 +162,5 @@
 
 #### 0.0.40 - 
 * Fixed #86 - Expose Microsoft.FSharp.Compiler.Interactive.Shell.Settings.fsi
+* Fixed #99 - Add IsNamespace property to FSharpEntity
+

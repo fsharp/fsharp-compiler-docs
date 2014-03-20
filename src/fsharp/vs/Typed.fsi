@@ -153,20 +153,23 @@ and [<Class>] FSharpEntity =
     /// Indicates if the entity is in an unresolved assembly 
     member IsUnresolved : bool
 
-    /// Indicates if the type definition is a class type
+    /// Indicates if the entity is a class type definition
     member IsClass : bool
 
-    /// Indicates if the type definition is a reference type where the implementation details are hidden by a signature
+    /// Indicates if the entity is a type definitio for a reference type where the implementation details are hidden by a signature
     member IsOpaque : bool
 
-    /// Indicates if the type definition is an enum type
+    /// Indicates if the entity is an enum type definition
     member IsEnum : bool
 
-    /// Indicates if the type definition is a delegate type
+    /// Indicates if the entity is a delegate type definition
     member IsDelegate : bool
 
-    /// Indicates if the type definition is an interface
+    /// Indicates if the entity is an interface type definition
     member IsInterface : bool
+
+    /// Indicates if the entity is a part of a namespace path
+    member IsNamespace : bool
 
     /// Get the in-memory XML documentation for the entity, used when code is checked in-memory
     member XmlDoc: IList<string>

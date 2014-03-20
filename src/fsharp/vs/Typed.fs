@@ -255,6 +255,7 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
         if isUnresolved() then true else
         not (isResolvedAndFSharp()) || entity.Deref.IsPrefixDisplay
 
+    member x.IsNamespace =  entity.IsNamespace
     member x.MembersOrValues =  x.MembersFunctionsAndValues
     member x.MembersFunctionsAndValues = 
       if isUnresolved() then makeReadOnlyCollection[] else

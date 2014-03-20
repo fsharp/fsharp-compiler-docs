@@ -1991,3 +1991,92 @@ let ``Test Project15 all symbols`` () =
             ("val h", "h", "file1", ((8, 19), (8, 20)), []);
             ("val f", "f", "file1", ((4, 4), (4, 5)), ["defn"]);
             ("UnionPatterns", "UnionPatterns", "file1", ((2, 7), (2, 20)), ["defn"])|]
+
+
+//-----------------------------------------------------------------------------------------
+// Misc - signature files
+
+module Project16 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let sigFileName1 = Path.ChangeExtension(fileName1, ".fsi")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Impl
+
+type C() = 
+    member x.PC = 1
+
+and D() = 
+    member x.PD = 1
+
+and E() = 
+    member x.PE = 1
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let sigFileSource1 = """
+module Impl
+
+type C = 
+    new : unit -> C
+    member PC : int
+
+and [<Class>] D = 
+    new : unit -> D
+    member PD : int
+
+and [<Class>] E = 
+    new : unit -> E
+    member PE : int
+    """
+    File.WriteAllText(sigFileName1, sigFileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" elif a = sigFileName1 then "sig1"  else "??"
+
+    let fileNames = [sigFileName1; fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project16 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project16.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project16 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project16.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project16.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su)
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("C", "C", "sig1", ((4, 5), (4, 6)), ["defn"]);
+            ("unit", "unit", "sig1", ((5, 10), (5, 14)), ["type"]);
+            ("C", "C", "sig1", ((5, 18), (5, 19)), ["type"]);
+            ("member ( .ctor )", "( .ctor )", "sig1", ((5, 4), (5, 7)), ["defn"]);
+            ("int", "int", "sig1", ((6, 16), (6, 19)), ["type"]);
+            ("member PC", "PC", "sig1", ((6, 11), (6, 13)), ["defn"]);
+            ("D", "D", "sig1", ((8, 4), (8, 5)), ["defn"]);
+            ("unit", "unit", "sig1", ((9, 10), (9, 14)), ["type"]);
+            ("D", "D", "sig1", ((9, 18), (9, 19)), ["type"]);
+            ("member ( .ctor )", "( .ctor )", "sig1", ((9, 4), (9, 7)), ["defn"]);
+            ("int", "int", "sig1", ((10, 16), (10, 19)), ["type"]);
+            ("member PD", "PD", "sig1", ((10, 11), (10, 13)), ["defn"]);
+            ("Impl", "Impl", "sig1", ((2, 7), (2, 11)), ["defn"]);
+            ("C", "C", "file1", ((4, 5), (4, 6)), ["defn"]);
+            ("D", "D", "file1", ((7, 4), (7, 5)), ["defn"]);
+            ("member ( .ctor )", "( .ctor )", "file1", ((4, 5), (4, 6)), ["defn"]);
+            ("member PC", "PC", "file1", ((5, 13), (5, 15)), ["defn"]);
+            ("member ( .ctor )", "( .ctor )", "file1", ((7, 4), (7, 5)), ["defn"]);
+            ("member PD", "PD", "file1", ((8, 13), (8, 15)), ["defn"]);
+            ("val x", "x", "file1", ((5, 11), (5, 12)), ["defn"]);
+            ("val x", "x", "file1", ((8, 11), (8, 12)), ["defn"]);
+            ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"])|]

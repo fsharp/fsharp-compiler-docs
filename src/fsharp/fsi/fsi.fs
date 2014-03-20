@@ -2691,7 +2691,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 // If no "fsi" object for the configuration is specified, make the default
 // configuration one which stores the settings in-process 
 
-module BuiltinFsiObjectImpl = 
+module Settings = 
     type IEventLoop =
         abstract Run : unit -> bool
         abstract Invoke : (unit -> 'T) -> 'T 
@@ -2780,11 +2780,11 @@ module BuiltinFsiObjectImpl =
         member self.AddPrintTransformer(printer : 'T -> obj) =
           addedPrinters <- Choice2Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
     
-    let BuiltinFsiObject = InteractiveSettings()
+    let fsi = InteractiveSettings()
 
 type FsiEvaluationSession with 
     static member GetDefaultConfiguration() = 
-        FsiEvaluationSession.GetDefaultConfiguration(BuiltinFsiObjectImpl.BuiltinFsiObject, false)
+        FsiEvaluationSession.GetDefaultConfiguration(Settings.fsi, false)
 
 /// Defines a read-only input stream used to feed content to the hosted F# Interactive dynamic compiler.
 [<AllowNullLiteral>]

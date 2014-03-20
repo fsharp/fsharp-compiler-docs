@@ -159,3 +159,6 @@
 
 #### 0.0.39 - 
 * Fixed #79 - Usage points for symbols in union patterns
+
+#### 0.0.40 - 
+* Fixed #86 - Expose Microsoft.FSharp.Compiler.Interactive.Shell.Settings.fsi

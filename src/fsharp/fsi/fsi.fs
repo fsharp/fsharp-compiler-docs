@@ -1899,7 +1899,7 @@ type internal FsiInteractionProcessor
            (istate,CtrlC)
         |  e ->
            stopProcessingRecovery e range0;
-           istate,CompletedWithReportedError
+           istate,CompletedWithReportedError e
 #else                                   
             if !progress then fprintfn fsiConsoleOutput.Out "In mainThreadProcessAction...";                  
             fsiInterruptController.InterruptAllowed <- InterruptCanRaiseException;
@@ -2532,12 +2532,16 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
                         // so we use special case for problematic case instead of just always scheduling restart.
 
                         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx
+#if SILVERLIGHT
+                        if true
+#else
                         let os = Environment.OSVersion
                         // Win7 6.1
                         let isWindows7 = os.Version.Major = 6 && os.Version.Minor = 1
                         // Win8 6.2
                         let isWindows8Plus = os.Version >= Version(6, 2, 0, 0)
                         if isFromThreadException && ((isWindows7 && Environment.Is64BitProcess) || (Environment.Is64BitOperatingSystem && isWindows8Plus))
+#endif
 #if DEBUG
                             // for debug purposes
                             && Environment.GetEnvironmentVariable("FSI_SCHEDULE_RESTART_WITH_ERRORS") = null
@@ -2585,9 +2589,9 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 #if SILVERLIGHT 
       // Request that ThreadAbort interrupts be performed on this (current) thread
       fsiInterruptController.InstallKillThread(Thread.CurrentThread, 100)
-      fsi.EventLoop <- Microsoft.FSharp.Compiler.Interactive.RuntimeHelpers.GetSimpleEventLoop()
+      //fsi.EventLoop <- Microsoft.FSharp.Compiler.Interactive.RuntimeHelpers.GetSimpleEventLoop()
       fsiInteractionProcessor.LoadInitialFiles()
-      fsiInteractionProcessor.StartQueueAgent()
+      //fsiInteractionProcessor.StartQueueAgent()
       fsiInteractionProcessor.StartStdinReadAndProcessThread ()            
 
       DriveFsiEventLoop (fsiConfig, fsiConsoleOutput )
@@ -2636,6 +2640,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
         // to be explicitly kept alive.
         GC.KeepAlive fsiInterruptController.EventHandlers
 
+#endif // SILVERLIGHT
 
     static member GetDefaultConfiguration(fsiObj:obj) =  FsiEvaluationSession.GetDefaultConfiguration(fsiObj, true)
     static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) = 
@@ -2747,7 +2752,11 @@ module Settings =
         let mutable evLoop = (new SimpleEventLoop() :> IEventLoop)
         let mutable showIDictionary = true
         let mutable showDeclarationValues = true
+#if SILVERLIGHT
+        let mutable args : string[] = [| |]
+#else
         let mutable args = Environment.GetCommandLineArgs()
+#endif
         let mutable fpfmt = "g10"
         let mutable fp = (CultureInfo.InvariantCulture :> System.IFormatProvider)
         let mutable printWidth = 78
@@ -2876,4 +2885,3 @@ type CompilerOutputStream()  =
             else
                 "")
 
-#endif // SILVERLIGHT

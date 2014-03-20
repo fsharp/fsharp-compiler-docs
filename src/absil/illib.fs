@@ -979,7 +979,7 @@ module Shim =
     open System
 
     let mutable FileSystem = 
-        { new FileSystem() with 
+        { new IFileSystem with 
             member this.ReadAllBytesShim (fileName:string) = 
                 use stream = this.FileStreamReadShim fileName
                 let len = stream.Length
@@ -1014,9 +1014,13 @@ module Shim =
             member __.FileStreamCreateShim (fileName:string) = 
                 System.IO.IsolatedStorage.IsolatedStorageFile.GetUserStoreForApplication().CreateFile(fileName) :> Stream
 
+            member __.FileStreamWriteExistingShim (fileName:string) = 
+                let isf = System.IO.IsolatedStorage.IsolatedStorageFile.GetUserStoreForApplication()
+                new System.IO.IsolatedStorage.IsolatedStorageFileStream(fileName,FileMode.Open,FileAccess.Write,isf) :> Stream
+
             member __.GetFullPathShim (fileName:string) = fileName
             member __.IsPathRootedShim (pathName:string) = true
-            member __.GetFullPathShim (fileName:string) = fileName
+
             member __.IsInvalidPathShim(path:string) = 
                 let isInvalidPath(p:string) = 
                     String.IsNullOrEmpty(p) || p.IndexOfAny(System.IO.Path.GetInvalidPathChars()) <> -1

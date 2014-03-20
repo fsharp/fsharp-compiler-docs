@@ -1,18 +1,4 @@
 
-#if SILVERLIGHT
-namespace Microsoft.FSharp.Compiler.Interactive
-
-module Runner = 
-
-    type public InteractiveConsole(argv:string[],reader:System.IO.TextReader, writer:System.IO.TextWriter, error:System.IO.TextWriter) =
-        do
-            Microsoft.FSharp.Core.Printf.setWriter writer
-            Microsoft.FSharp.Core.Printf.setError error
-        let session = Microsoft.FSharp.Compiler.Interactive.Shell.FsiEvaluationSession(argv, reader, writer, error)
-        member x.Run() = session.Run()
-        member x.Interrupt() = session.Interrupt()
-#endif
-
 namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
     open System

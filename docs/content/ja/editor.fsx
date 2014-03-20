@@ -187,7 +187,7 @@ for item in decls.Items do
 
 > **注意：** `GetDeclarationsAlternate` は古い関数 `GetDeclarations` に代わるものです。
   `GetDeclarations` は0から始まる行番号を受け取るようになっていたため、非推奨になりました。
-  また、将来的には現在の `GetDeclarations` が削除され、 `GetDeclarationsAlternative` が
+  また、将来的には現在の `GetDeclarations` が削除され、 `GetDeclarationsAlternate` が
   `GetDeclarations` になる予定です。
 
 コードを実行してみると、 `Substring` や `ToUpper` 、 `ToLower` といった

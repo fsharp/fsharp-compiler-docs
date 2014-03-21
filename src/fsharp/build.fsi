@@ -145,10 +145,36 @@ type PrimaryAssembly =
     | DotNetCore
     member Name : string
 
+//----------------------------------------------------------------------------
+
+/// Represents a reference to an F# assembly. May be backed by a real assembly on disk (read by Abstract IL), or a cross-project
+/// reference in FSharp.Compiler.Service.
+type IRawFSharpAssemblyContents = 
+    ///  The raw list AutoOpenAttribute attributes in the assembly
+    abstract GetAutoOpenAttributes : ILGlobals -> string list
+    ///  The raw list InternalsVisibleToAttribute attributes in the assembly
+    abstract GetInternalsVisibleToAttributes : ILGlobals  -> string list
+    ///  The raw IL module definition in the assembly, if any. This is not present for cross-project references
+    /// in the language service
+    abstract TryGetRawILModule : unit -> ILModuleDef option
+    abstract HasAnyFSharpSignatureDataAttribute : ILGlobals -> bool
+    abstract HasMatchingFSharpSignatureDataAttribute : ILGlobals -> bool
+    ///  The raw F# signature data in the assembly, if any
+    abstract GetRawFSharpSignatureData : range * ilShortAssemName: string * fileName: string -> (string * byte[]) list
+    ///  The raw F# optimization data in the assembly, if any
+    abstract GetRawFSharpOptimizationData : range * ilShortAssemName: string * fileName: string -> (string * (unit -> byte[])) list
+    ///  The table of type forwarders in the assembly
+    abstract GetRawTypeForwarders : unit -> ILExportedTypesAndForwarders
+    /// The identity of the module
+    abstract ILScopeRef : ILScopeRef
+    abstract ILAssemblyRefs : ILAssemblyRef list
+    abstract ShortAssemblyName : string
+
 type AssemblyReference = 
-    | AssemblyReference of range * string 
+    | AssemblyReference of range * string  * IRawFSharpAssemblyContents option
     member Range : range
     member Text : string
+    member PreResolvedContents : IRawFSharpAssemblyContents option
 
 type AssemblyResolution = 
       {/// The original reference to the assembly.
@@ -218,6 +244,7 @@ type TcConfigBuilder =
       mutable loadedSources: (range * string) list;
       
       mutable referencedDLLs: AssemblyReference  list;
+      mutable projectReferences : (string * IRawFSharpAssemblyContents) list;
       mutable knownUnresolvedReferences : UnresolvedAssemblyReference list;
       optimizeForMemory: bool;
       mutable subsystemVersion : int * int
@@ -482,13 +509,14 @@ type TcConfig =
     member TargetMscorlibVersion : System.Version
     member TargetIsSilverlight : bool
 
+
 //----------------------------------------------------------------------------
 // Tables of referenced DLLs 
 //--------------------------------------------------------------------------
 
 type ImportedBinary = 
     { FileName: string;
-      RawMetadata: ILModuleDef
+      RawMetadata: IRawFSharpAssemblyContents
 #if EXTENSIONTYPING
       ProviderGeneratedAssembly: System.Reflection.Assembly option
       IsProviderGenerated: bool
@@ -566,6 +594,7 @@ type TcImports =
 val IsSignatureDataResource : ILResource -> bool
 val IsOptimizationDataResource : ILResource -> bool
 val IsReflectedDefinitionsResource : ILResource -> bool
+val GetSignatureDataResourceName : ILResource -> string
 
 #if NO_COMPILER_BACKEND
 #else
@@ -628,7 +657,7 @@ type TcState =
     member TcEnvFromImpls : TcEnv
     /// The inferred contents of the assembly, containing the signatures of all implemented files.
     member PartialAssemblySignature : ModuleOrNamespaceType
-    
+
 val TypecheckInitialState : 
     range * string * TcConfig * TcGlobals * TcImports * Ast.NiceNameGenerator * TcEnv -> TcState
 
@@ -679,5 +708,5 @@ type LoadClosure =
         RootErrors : PhasedError list
         /// *Parse* warnings seen while parsing root of closure
         RootWarnings : PhasedError list }
-    static member ComputeClosureOfSourceText : filename: string * source: string * implicitDefines:CodeContext * useMonoResolution: bool * useFsiAuxLib: bool * lexResourceManager: Lexhelp.LexResourceManager -> LoadClosure
+    static member ComputeClosureOfSourceText : filename: string * source: string * implicitDefines:CodeContext * useMonoResolution: bool * useFsiAuxLib: bool * lexResourceManager: Lexhelp.LexResourceManager * applyCompilerOptions: (TcConfigBuilder -> unit) -> LoadClosure
     static member ComputeClosureOfSourceFiles : tcConfig:TcConfig * (string * range) list * implicitDefines:CodeContext * useDefaultScriptingReferences: bool * lexResourceManager: Lexhelp.LexResourceManager -> LoadClosure

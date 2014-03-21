@@ -14,7 +14,7 @@ let getUntypedTree (file, input) =
   let checkOptions = checker.GetProjectOptionsFromScript(file, input)
   // Run the first phase (untyped parsing) of the compiler
 
-  let untypedRes = checker.ParseFileInProject(file, input, checkOptions)
+  let untypedRes = checker.ParseFileInProject(file, input, checkOptions) |> Async.RunSynchronously
   match untypedRes.ParseTree with
   | Some tree -> tree
   | None -> failwith "Something went wrong during parsing!"

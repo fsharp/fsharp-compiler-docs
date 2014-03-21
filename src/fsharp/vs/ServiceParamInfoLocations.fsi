@@ -31,4 +31,4 @@ type (*internal*) NoteworthyParamInfoLocations =
 
 // implementation details used by other code in the compiler    
 module internal NoteworthyParamInfoLocationsImpl =
-    val internal FindNoteworthyParamInfoLocations : Line0 * int * Ast.ParsedInput -> NoteworthyParamInfoLocations option
+    val internal FindNoteworthyParamInfoLocations : pos * Ast.ParsedInput -> NoteworthyParamInfoLocations option

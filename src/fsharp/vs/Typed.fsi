@@ -16,13 +16,21 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Env
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.Build
 
 type [<Class>] FSharpSymbol = 
     /// Internal use only. 
-    static member internal Create : g:TcGlobals * item:Nameres.Item -> FSharpSymbol
+    static member internal Create : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * item:Nameres.Item -> FSharpSymbol
 
     member internal Item: Nameres.Item
         
+    /// Get the assembly declaring this symbol
+    member Assembly: FSharpAssembly 
+
+    /// Get a textual representation of the full name of the symbol. The text returned for some symbols
+    /// may not be a valid identifier path in F# code, but rather a human-readable representation of the symbol.
+    member FullName: string
+
     /// Get the declaration location for the symbol
     member DeclarationLocation: range option
 
@@ -34,16 +42,16 @@ type [<Class>] FSharpSymbol =
 
 
 
-[<Class>]
-/// Represents an assembly as seen by the F# language
-type FSharpAssembly = 
 
-    internal new : tcGlobals: TcGlobals * ccu: CcuThunk -> FSharpAssembly
+/// Represents an assembly as seen by the F# language
+and [<Class>] FSharpAssembly = 
+
+    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * ccu: CcuThunk -> FSharpAssembly
 
     /// The qualified name of the assembly
     member QualifiedName: string 
     
-    /// A hint for the code location for the assembly
+    [<System.Obsolete("This item is obsolete, it is not useful")>]
     member CodeLocation: string 
       
     /// The contents of the this assembly 
@@ -62,7 +70,7 @@ type FSharpAssembly =
 /// Represents an inferred signature of part of an assembly as seen by the F# language
 and [<Class>] FSharpAssemblySignature = 
 
-    internal new : tcGlobals: TcGlobals * contents: ModuleOrNamespaceType -> FSharpAssemblySignature
+    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * contents: ModuleOrNamespaceType -> FSharpAssemblySignature
 
     /// The (non-nested) module and type definitions in this signature
     member Entities:  IList<FSharpEntity>
@@ -127,6 +135,9 @@ and [<Class>] FSharpEntity =
     /// Get the generic parameters, possibly including unit-of-measure parameters
     member GenericParameters: IList<FSharpGenericParameter>
 
+    /// Get the static parameters for a provided type
+    member StaticParameters: IList<FSharpStaticParameter>
+
     /// Indicates that a module is compiled to a class with the given mangled name. The mangling is reversed during lookup 
     member HasFSharpModuleSuffix : bool
 
@@ -142,17 +153,23 @@ and [<Class>] FSharpEntity =
     /// Indicates if the entity is in an unresolved assembly 
     member IsUnresolved : bool
 
-    /// Indicates if the type definition is a class type
+    /// Indicates if the entity is a class type definition
     member IsClass : bool
 
-    /// Indicates if the type definition is an enum type
+    /// Indicates if the entity is a type definitio for a reference type where the implementation details are hidden by a signature
+    member IsOpaque : bool
+
+    /// Indicates if the entity is an enum type definition
     member IsEnum : bool
 
-    /// Indicates if the type definition is a delegate type
+    /// Indicates if the entity is a delegate type definition
     member IsDelegate : bool
 
-    /// Indicates if the type definition is an interface
+    /// Indicates if the entity is an interface type definition
     member IsInterface : bool
+
+    /// Indicates if the entity is a part of a namespace path
+    member IsNamespace : bool
 
     /// Get the in-memory XML documentation for the entity, used when code is checked in-memory
     member XmlDoc: IList<string>
@@ -332,11 +349,36 @@ and [<Class>] FSharpGenericParameter =
     /// Indicates if this is a statically resolved type variable
     member IsSolveAtCompileTime : bool 
 
+    /// Indicates if this is a compiler generated type parameter
+    member IsCompilerGenerated : bool 
+
     /// Get the declared attributes of the type parameter. 
     member Attributes: IList<FSharpAttribute>                      
        
     /// Get the declared or inferred constraints for the type parameter
     member Constraints: IList<FSharpGenericParameterConstraint> 
+
+and [<Class>] FSharpStaticParameter = 
+
+    inherit FSharpSymbol
+
+    /// Get the name of the static parameter 
+    member Name: string
+
+    /// Get the declaration location of the static parameter 
+    member DeclarationLocation : range 
+       
+    /// Get the kind of the static parameter
+    member Kind : FSharpType
+
+    /// Get the default value for the static parameter
+    member DefaultValue : obj
+
+    /// Indicates if the static parameter is optional
+    member IsOptional : bool
+
+    [<System.ObsoleteAttribute("This member is no longer used, use IsOptional instead")>]
+    member HasDefaultValue : bool
 
 
 /// Represents further information about a member constraint on a generic type parameter
@@ -491,6 +533,12 @@ and [<Class>] FSharpMemberFunctionOrValue =
     /// Indicates if this is a member, including extension members?
     member IsMember : bool
 
+    /// Indicates if this is a property member, or an F# method for a property getter or setter
+    member IsProperty : bool
+
+    /// Indicates if this is an event member
+    member IsEvent : bool
+
     /// Indicates if this is an abstract member?
     member IsDispatchSlot : bool
 
@@ -566,16 +614,25 @@ and [<Class>] FSharpMemberFunctionOrValue =
 
 
 and [<Class>] FSharpParameter =
-
-    member Name: string
+    inherit FSharpSymbol
+    /// The optional name of the parameter in the F# source code.  
+    member Name: string option
     member DeclarationLocation : range 
     member Type : FSharpType 
     member Attributes: IList<FSharpAttribute>
 
+/// Represents a single case within an active pattern
+and [<Class>] FSharpActivePatternCase =
+    inherit FSharpSymbol
+    /// The name of the active pattern case 
+    member Name: string 
+    /// The location of declaration of the active pattern case 
+    member DeclarationLocation : range 
+
 
 and [<Class>] FSharpType =
     /// Internal use only. Create a ground type.
-    internal new : g:TcGlobals * typ:TType -> FSharpType
+    internal new : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * typ:TType -> FSharpType
 
     /// Indicates this is a named type in an unresolved assembly 
     member IsUnresolved : bool
@@ -587,10 +644,16 @@ and [<Class>] FSharpType =
     member AbbreviatedType : FSharpType
 
     /// Indicates if the type is constructed using a named entity, including array and byref types
+    member HasTypeDefinition : bool
+
+    [<System.Obsolete("Renamed to HasTypeDefinition")>]
     member IsNamedType : bool
 
-    /// Get the named entity for a type constructed using a named entity
+    [<System.Obsolete("Renamed to TypeDefinition")>]
     member NamedEntity : FSharpEntity 
+
+    /// Get the type definition for a type 
+    member TypeDefinition : FSharpEntity 
 
     /// Get the generic arguments for a tuple type, a function type or a type constructed using a named entity
     member GenericArguments : IList<FSharpType>

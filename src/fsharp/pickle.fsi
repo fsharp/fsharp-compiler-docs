@@ -79,7 +79,7 @@ val internal u_expr : Expr unpickler
 val internal u_typ : TType unpickler
 val internal unpickleModuleOrNamespace : ReaderState -> ModuleOrNamespace
 val internal unpickleModuleInfo : ReaderState -> PickledModuleInfo
-val internal unpickleObjWithDanglingCcus : string -> viewedScope:ILScopeRef -> ilModule:ILModuleDef -> ('T  unpickler) -> byte[] ->  PickledDataWithReferences<'T>
+val internal unpickleObjWithDanglingCcus : string -> viewedScope:ILScopeRef -> ilModule:ILModuleDef option -> ('T  unpickler) -> byte[] ->  PickledDataWithReferences<'T>
 
 
 

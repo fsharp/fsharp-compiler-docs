@@ -95,8 +95,8 @@ type FindDeclFailureReason =
 type FindDeclResult = 
     /// Indicates a declaration location was not found, with an additional reason
     | DeclNotFound of FindDeclFailureReason
-    /// Indicates a declaration location was found, giving the position-in-file and name-of-file
-    | DeclFound      of Position * string
+    /// Indicates a declaration location was found
+    | DeclFound      of range
      
 /// Represents the checking context implied by the ProjectOptions 
 [<Sealed>]
@@ -108,12 +108,27 @@ type ProjectContext =
 type FSharpSymbolUse = 
     /// The symbol referenced
     member Symbol : FSharpSymbol 
-    /// Indicates if the reference a definition for the symbol, either in a signature or implementation
-    member IsDefinition : bool
+    /// Indicates if the reference is a definition for the symbol, either in a signature or implementation
+    member IsFromDefinition : bool
+    /// Indicates if the reference is in a pattern
+    member IsFromPattern : bool
+    /// Indicates if the reference is in a syntactic type
+    member IsFromType : bool
+    /// Indicates if the reference is in an attribute
+    member IsFromAttribute : bool
+    /// Indicates if the reference is via the member being implemented in a class or object expression
+    member IsFromDispatchSlotImplementation : bool
+    /// Indicates if the reference is either a builder or a custom operation in a compuation expression
+    member IsFromComputationExpression : bool
+
     /// The file name the reference occurs in 
     member FileName: string 
     /// The range of text representing the reference to the symbol
+    member RangeAlternate: range
+    [<Obsolete("This member has been replaced by RangeAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member Range: Range01
+    [<Obsolete("Renamed to IsFromDefinition")>]
+    member IsDefinition : bool
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -153,7 +168,7 @@ type CheckFileResults =
     ///    and assume that we're going to repeat the operation later on.
     /// </param>
 
-    member GetDeclarations : ParsedFileResultsOpt:ParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<DeclarationSet>
+    member GetDeclarationsAlternate : ParsedFileResultsOpt:ParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<DeclarationSet>
 
     /// <summary>Compute a formatted tooltip for the given location</summary>
     ///
@@ -162,10 +177,7 @@ type CheckFileResults =
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
     /// <param name="tokenTag">Used to discriminate between 'identifiers', 'strings' and others. For strings, an attempt is made to give a tooltip for a #r "..." location.</param>
-    member GetToolTipText : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
-
-    [<Obsolete("This method has been renamed to GetToolTipText")>]
-    member GetDataTipText : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
+    member GetToolTipTextAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
 
     /// <summary>Compute the Visual Studio F1-help key identifier for the given location, based on name resolution results</summary>
     ///
@@ -173,7 +185,8 @@ type CheckFileResults =
     /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
-    member GetF1Keyword                   : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> string option
+    member GetF1KeywordAlternate                   : line:int * colAtEndOfNames:int * lineText:string * names:string list -> string option
+
 
     /// <summary>Compute a set of method overloads to show in a dialog relevant to the given code location.</summary>
     ///
@@ -181,7 +194,7 @@ type CheckFileResults =
     /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
-    member GetMethods                     : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list option -> MethodGroup
+    member GetMethodsAlternate              : line:int * colAtEndOfNames:int * lineText:string * names:string list option -> MethodGroup
 
     /// <summary>Resolve the names at the given location to the declaration location of the corresponding construct.</summary>
     ///
@@ -190,10 +203,7 @@ type CheckFileResults =
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
     /// <param name="preferSignature">If false, then make an attempt to go to the implementation (rather than the signature if present).</param>
-    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> FindDeclResult
-
-    [<Obsolete("This overload is obsolete. The tokenTag parameter is no longer required for this member")>]
-    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * preferSignature:bool -> FindDeclResult
+    member GetDeclarationLocationAlternate         : line:int * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> FindDeclResult
 
     /// <summary>Resolve the names at the given location to a symbol.</summary>
     ///
@@ -201,13 +211,43 @@ type CheckFileResults =
     /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
-    member GetSymbolAtLocation  : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> FSharpSymbol option
+    member GetSymbolAtLocationAlternate  : line:int * colAtEndOfNames:int * lineText:string * names:string list -> FSharpSymbol option
 
     /// <summary>Get any extra colorization info that is available after the typecheck</summary>
-    member GetExtraColorizations : unit -> (Range01 * TokenColorKind)[]
+    member GetExtraColorizationsAlternate : unit -> (range * TokenColorKind)[]
 
     /// Get all textual usages of all symbols throughout the file
     member GetAllUsesOfAllSymbolsInFile : unit -> FSharpSymbolUse[]
+
+    /// Get the textual usages that resolved to the given symbol throughout the file
+    member GetUsesOfSymbolInFile : symbol:FSharpSymbol -> FSharpSymbolUse[]
+
+    [<Obsolete("This member has been replaced by GetSymbolAtLocationAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetSymbolAtLocation  : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> FSharpSymbol option
+
+    [<Obsolete("This member has been replaced by GetExtraColorizationsAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetExtraColorizations : unit -> (Range01 * TokenColorKind)[]
+
+    [<Obsolete("This member has been replaced by GetDeclarationsAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetDeclarations : ParsedFileResultsOpt:ParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<DeclarationSet>
+
+    [<Obsolete("This member has been replaced by GetToolTipTextAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetToolTipText : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
+
+    [<Obsolete("This method has been renamed to GetToolTipText")>]
+    member GetDataTipText : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
+
+    [<Obsolete("This member has been replaced by GetF1KeywordAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetF1Keyword                   : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> string option
+
+    [<Obsolete("This member has been replaced by GetMethodsAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetMethods                     : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list option -> MethodGroup
+    [<Obsolete("This member has been replaced by GetDeclarationLocationAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> FindDeclResult
+
+    [<Obsolete("This overload is obsolete. The tokenTag parameter is no longer required for this member")>]
+    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * preferSignature:bool -> FindDeclResult
+
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -243,6 +283,9 @@ type ProjectOptions =
       ProjectFileNames: string[]
       /// The command line argument options for the project
       ProjectOptions: string[]
+      /// The command line arguments for the other projects referenced by this project, indexed by the
+      /// exact text used in the "-r:" reference in ProjectOptions.
+      ReferencedProjects: (string * ProjectOptions)[]
       /// When true, the typechecking environment is known a priori to be incomplete, for
       /// example when a .fs file is opened outside of a project. In this case, the number of error 
       /// messages reported is reduced.
@@ -283,6 +326,9 @@ type InteractiveChecker =
     /// <param name="filename">The filename for the file, used to help caching of results.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
+    member MatchBracesAlternate : filename : string * source: string * options: ProjectOptions -> (range * range)[]
+
+    [<Obsolete("This member has been replaced by MatchBracesAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member MatchBraces : filename : string * source: string * options: ProjectOptions -> (Range01 * Range01)[]
 
     /// <summary>
@@ -294,7 +340,7 @@ type InteractiveChecker =
     /// <param name="filename">The filename for the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member ParseFileInProject : filename: string * source: string * options: ProjectOptions -> ParseFileResults        
+    member ParseFileInProject : filename: string * source: string * options: ProjectOptions -> Async<ParseFileResults>
 
     /// <summary>
     /// <para>Check a source code file, returning a handle to the results of the parse including
@@ -326,8 +372,7 @@ type InteractiveChecker =
 
     /// <summary>
     /// <para>
-    ///   Check a source code file, returning a handle to the results of the parse including
-    ///   the reconstructed types in the file.
+    ///   Check a source code file, returning a handle to the results
     /// </para>
     /// <para>
     ///    Note: all files except the one being checked are read from the FileSystem API
@@ -354,6 +399,35 @@ type InteractiveChecker =
     /// </param>
     ///
     member CheckFileInProject : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<CheckFileAnswer>
+
+    /// <summary>
+    /// <para>
+    ///   Parse and check a source code file, returning a handle to the results 
+    /// </para>
+    /// <para>
+    ///    Note: all files except the one being checked are read from the FileSystem API
+    /// </para>
+    /// <para>
+    ///   Return CheckFileAnswer.Aborted if a parse tree was not available or if the check
+    ////  was abandoned due to isResultObsolete returning 'true' at some checkpoint during type checking.
+    /// </para>
+    /// </summary>
+    ///
+    /// <param name="filename">The name of the file in the project whose source is being checked.</param>
+    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
+    /// <param name="source">The full source for the file.</param>
+    /// <param name="options">The options for the project or script.</param>
+    /// <param name="isResultObsolete">
+    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
+    //      source code in the editor. Type checking is abandoned when this returns 'true'.
+    /// </param>
+    /// <param name="textSnapshotInfo">
+    ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
+    ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 
+    ///     can be used to marginally increase accuracy of intellisense results in some situations.
+    /// </param>
+    ///
+    member ParseAndCheckFileInProject : filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<ParseFileResults * CheckFileAnswer>
 
     /// <summary>
     /// <para>Parse and typecheck all files in a project.</para>
@@ -414,7 +488,10 @@ type InteractiveChecker =
     /// If the source of the file has changed the results returned by this function may be out of date, though may
     /// still be usable for generating intellsense menus and information.
     /// </summary>
-    member TryGetRecentTypeCheckResultsForFile : filename: string * options:ProjectOptions -> (ParseFileResults * CheckFileResults * (*version*)int) option
+    /// <param name="filename">The filename for the file.</param>
+    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
+    /// <param name="source">Optionally, specify source that must match the previous parse precisely.</param>
+    member TryGetRecentTypeCheckResultsForFile : filename: string * options:ProjectOptions * ?source: string -> (ParseFileResults * CheckFileResults * (*version*)int) option
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.
@@ -448,8 +525,18 @@ type InteractiveChecker =
     /// Notify the host that the logical type checking context for a file has now been updated internally
     /// and that the file has become eligible to be re-typechecked for errors.
     ///
-    /// The event may be raised on a background thread.
+    /// The event will be raised on a background thread.
     member BeforeBackgroundFileCheck : IEvent<string>
+
+    /// Raised after a parse of a file in the background analysis.
+    ///
+    /// The event will be raised on a background thread.
+    member FileParsed : IEvent<string>
+
+    /// Raised after a check of a file in the background analysis.
+    ///
+    /// The event will be raised on a background thread.
+    member FileChecked : IEvent<string>
     
     [<Obsolete("Renamed to BeforeBackgroundFileCheck")>]
     member FileTypeCheckStateIsDirty : IEvent<string>
@@ -474,6 +561,9 @@ type InteractiveChecker =
     [<Obsolete("This member has been renamed to CheckFileInProjectIfReady")>]
     member TypeCheckSource : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> CheckFileAnswer option
     
+    // One shared global singleton for use by multiple add-ins
+    static member Instance : InteractiveChecker
+
 // For internal use only 
 and internal IReactorOperations = 
     abstract RunAsyncOp : (unit -> 'T) -> Async<'T>

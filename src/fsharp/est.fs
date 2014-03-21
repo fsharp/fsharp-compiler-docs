@@ -157,7 +157,7 @@ module internal ExtensionTyping =
                             _ -> ()
                     result |> List.ofSeq)
             with
-                | :? System.IO.IOException ->
+                | :? System.IO.IOException | :? System.UnauthorizedAccessException ->
                     []
                 | e ->
                     System.Diagnostics.Debug.Assert(false, e.ToString())  // what other exceptions might occur?

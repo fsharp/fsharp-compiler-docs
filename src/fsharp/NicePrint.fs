@@ -1145,17 +1145,17 @@ module InfoMemberPrinting =
         | _, Some nm, true, ptyOpt -> 
             // detect parameter type, if ptyOpt is None - this is .NET style optional argument
             let pty = defaultArg ptyOpt pty
-            bprintf os "?%s: " nm 
+            bprintf os "?%s: " nm.idText 
             outputTy denv os pty
         // Layout an unnamed argument 
         | _, None, _,_ -> 
             outputTy denv os pty;
         // Layout a named argument 
         | true, Some nm,_,_ -> 
-            bprintf os "params %s: " nm 
+            bprintf os "params %s: " nm.idText
             outputTy denv os pty
         | false, Some nm,_,_ -> 
-            bprintf os "%s: " nm 
+            bprintf os "%s: " nm.idText 
             outputTy denv os pty
 
     /// Format a method info using "F# style".

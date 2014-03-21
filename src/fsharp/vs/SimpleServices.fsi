@@ -40,22 +40,34 @@ type SimpleCheckFileResults =
     member Errors: ErrorInfo []
 
     /// Get the declarations at the given code location.
-    member GetDeclarations: line:Line0 * col:int * qualifyingNames:string list * partialName:string * ?xmlCommentRetriever:(string * string -> string) -> Async<SimpleDeclaration []>
+    member GetDeclarationsAlternate: line:int * col:int * qualifyingNames:string list * partialName:string * ?xmlCommentRetriever:(string * string -> string) -> Async<SimpleDeclaration []>
 
     /// Get the Visual Studio F1-help keyword for the item at the given position
-    member GetF1Keyword: line:Line0 * col:int * names:string list -> string option
+    member GetF1KeywordAlternate: line:int * col:int * names:string list -> string option
 
     /// Get the data tip text at the given position
-    member GetToolTipText: line:Line0 * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> string
+    member GetToolTipTextAlternate: line:int * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> string
 
     /// Get the location of the declaration at the given position
-    member GetDeclarationLocation: line:Line0 * col:int * names:string list * isDecl:bool -> FindDeclResult
+    member GetDeclarationLocationAlternate: line:int * col:int * names:string list * isDecl:bool -> FindDeclResult
 
     /// Get the full type checking results 
     member FullResults: Microsoft.FSharp.Compiler.SourceCodeServices.CheckFileResults
 
     [<System.Obsolete("This method has been renamed to GetToolTipText")>] 
     member GetDataTipText: line:Line0 * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> string
+
+    [<System.Obsolete("This member has been replaced by GetDeclarationsAlternate, which accepts 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetDeclarations: line:Line0 * col:int * qualifyingNames:string list * partialName:string * ?xmlCommentRetriever:(string * string -> string) -> Async<SimpleDeclaration []>
+
+    [<System.Obsolete("This member has been replaced by GetF1KeywordAlternate, which accepts 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetF1Keyword: line:Line0 * col:int * names:string list -> string option
+
+    [<System.Obsolete("This member has been replaced by GetToolTipTextAlternate, which accepts 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetToolTipText: line:Line0 * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> string
+
+    [<System.Obsolete("This member has been replaced by GetDeclarationLocationAlternate, which accepts 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetDeclarationLocation: line:Line0 * col:int * names:string list * isDecl:bool -> FindDeclResult
 
 
 /// Provides simpler version of services for checking and compiling F# scripts
@@ -71,6 +83,9 @@ type SimpleSourceCodeServices =
     member TokenizeFile: source:string -> TokenInformation [] []
 
     /// Return information about matching braces in a single file.
+    member MatchBracesAlternate: filename:string * source:string * ?otherFlags:string [] -> (range * range) []
+
+    [<System.Obsolete("This member has been replaced by MatchBracesAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member MatchBraces: filename:string * source:string * ?otherFlags:string [] -> (Range01 * Range01) []
 
     /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense

@@ -3,6 +3,7 @@ namespace Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.ErrorLogger
+open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.Build
 
@@ -12,16 +13,21 @@ type (*internal*) Severity =
     | Warning 
     | Error
 
+[<Class>]
 type (*internal*) ErrorInfo = 
-    { FileName:string
-      StartLine:Line0
-      EndLine:Line0
-      StartColumn:int
-      EndColumn:int
-      Severity:Severity
-      Message:string
-      Subcategory:string }
-    static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * (Line0*int) -> ErrorInfo
+    member FileName: string
+    member StartLineAlternate:int
+    member EndLineAlternate:int
+    [<System.Obsolete("This member has been replaced by StartLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member StartLine:Line0
+    [<System.Obsolete("This member has been replaced by EndLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member EndLine:Line0
+    member StartColumn:int
+    member EndColumn:int
+    member Severity:Severity
+    member Message:string
+    member Subcategory:string
+    static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * lastPosInFile:(int*int) -> ErrorInfo
     static member internal CreateFromException : PhasedError * bool * bool * range -> ErrorInfo
 
 // implementation details used by other code in the compiler    
@@ -36,10 +42,23 @@ type internal ErrorScope =
 
 /// Generalized Incremental Builder. This is exposed only for unittesting purposes.
 module internal IncrementalBuild =
-  // A build scalar.
-  type Scalar<'T> = interface end
-  /// A build vector.        
-  type Vector<'T> = interface end
+  type ScalarBuildRule  
+  type VectorBuildRule 
+  type INode = 
+        abstract Name : string
+
+  type IScalar = 
+        inherit INode
+        abstract GetScalarExpr : unit -> ScalarBuildRule
+
+  type IVector =
+        inherit INode
+        abstract GetVectorExpr : unit-> VectorBuildRule
+            
+  type Scalar<'T> =  interface inherit IScalar  end
+
+  type Vector<'T> = interface inherit IVector end
+
 
   /// A set of build rules and the corresponding, possibly partial, results from building.
   type PartialBuild 
@@ -75,26 +94,28 @@ module internal IncrementalBuild =
       val Demultiplex : string -> ('I[] -> 'O)->Vector<'I> -> Scalar<'O>
       /// Convert a Vector into a Scalar.
       val AsScalar: string -> Vector<'I> -> Scalar<'I[]> 
+ 
+  type Target = Target of string * int option
 
   /// Evaluate a build. Only required for unit testing.
-  val Eval : string -> PartialBuild -> PartialBuild
+  val Eval : Target -> PartialBuild -> PartialBuild
   /// Do one step in the build. Only required for unit testing.
-  val Step : (string -> PartialBuild -> PartialBuild option)
+  val Step : Target -> PartialBuild -> PartialBuild option
   /// Get a scalar vector. Result must be available. Only required for unit testing.
-  val GetScalarResult<'T> : string * PartialBuild -> ('T * System.DateTime) option
+  val GetScalarResult<'T> : Scalar<'T> * PartialBuild -> ('T * System.DateTime) option
   /// Get a result vector. All results must be available or thrown an exception. Only required for unit testing.
-  val GetVectorResult<'T> : string * PartialBuild -> 'T[]
+  val GetVectorResult<'T> : Vector<'T> * PartialBuild -> 'T[]
   /// Get an element of vector result or None if there were no results. Only required for unit testing.
-  val GetVectorResultBySlot<'T> : string*int*PartialBuild -> ('T * System.DateTime) option
+  val GetVectorResultBySlot<'T> : Vector<'T>*int*PartialBuild -> ('T * System.DateTime) option
   
   /// Declare build outputs and bind them to real values.
   /// Only required for unit testing.
   type BuildDescriptionScope = 
        new : unit -> BuildDescriptionScope
        /// Declare a named scalar output.
-       member DeclareScalarOutput : name:string * output:Scalar<'T> -> unit
+       member DeclareScalarOutput : output:Scalar<'T> -> unit
        /// Declare a named vector output.
-       member DeclareVectorOutput : name:string * output:Vector<'T> -> unit
+       member DeclareVectorOutput : output:Vector<'T> -> unit
        /// Set the conrete inputs for this build. 
        member GetInitialPartialBuild : vectorinputs:(string * int * obj list) list * scalarinputs:(string*obj) list -> PartialBuild
 
@@ -112,7 +133,7 @@ module internal IncrementalFSharpBuild =
     /// Used for unit testing
   val GetCurrentIncrementalBuildEventNum : unit -> int
 
-  type PartialTypeCheckResults = Build.TcState * Build.TcImports * Env.TcGlobals * Build.TcConfig * TypeChecker.TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * System.DateTime
+  type PartialCheckResults = Build.TcState * Build.TcImports * Env.TcGlobals * Build.TcConfig * TypeChecker.TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * System.DateTime
 
   [<Class>]
   type IncrementalBuilder = 
@@ -135,9 +156,15 @@ module internal IncrementalFSharpBuild =
       /// used by VS). 
       member BeforeTypeCheckFile : IEvent<string>
 
+      /// Raised just after a file is parsed
+      member FileParsed : IEvent<string>
+
+      /// Raised just after a file is checked
+      member FileChecked : IEvent<string>
+
       /// Raised just after the whole project has finished type checking. At this point, accessing the
       /// overall analysis results for the project will be quick.
-      member AfterProjectTypeCheck : IEvent<unit>
+      member ProjectChecked : IEvent<unit>
 
       /// Raised when a type provider invalidates the build.
       member ImportedCcusInvalidated : IEvent<string>
@@ -151,37 +178,43 @@ module internal IncrementalFSharpBuild =
       /// Perform one step in the F# build (type-checking only, the type check is not finalized)
       member Step : unit -> bool
 
-      /// Get the preceding typecheck state of a slot. Return None if the result is not available.
-      /// This is a quick operation.
-      member GetTypeCheckResultsBeforeFileInProjectIfReady: filename:string -> PartialTypeCheckResults option
+      /// Get the preceding typecheck state of a slot, without checking if it is up-to-date w.r.t.
+      /// the timestamps on files and referenced DLLs prior to this one. Return None if the result is not available.
+      /// This is a very quick operation.
+      member GetCheckResultsBeforeFileInProjectIfReady: filename:string -> PartialCheckResults option
+
+      /// Get the preceding typecheck state of a slot, but only if it is up-to-date w.r.t.
+      /// the timestamps on files and referenced DLLs prior to this one. Return None if the result is not available.
+      /// This is a relatively quick operation.
+      member AreCheckResultsBeforeFileInProjectReady: filename:string -> bool
 
       /// Get the preceding typecheck state of a slot. Compute the entire type check of the project up
       /// to the necessary point if the result is not available. This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsBeforeFileInProject : filename:string -> PartialTypeCheckResults 
+      member GetCheckResultsBeforeFileInProject : filename:string -> PartialCheckResults 
 
       /// Get the typecheck state after checking a file. Compute the entire type check of the project up
       /// to the necessary point if the result is not available. This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsAfterFileInProject : filename:string -> PartialTypeCheckResults 
+      member GetCheckResultsAfterFileInProject : filename:string -> PartialCheckResults 
 
       /// Get the typecheck result after the end of the last file. The typecheck of the project is not 'completed'.
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetTypeCheckResultsAfterLastFileInProject : unit -> PartialTypeCheckResults 
+      member GetCheckResultsAfterLastFileInProject : unit -> PartialCheckResults 
 
       /// Get the final typecheck result. If 'generateTypedImplFiles' was set on Create then the TypedAssembly will contain implementations.
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetCheckResultsAndImplementationsForProject : unit -> Build.TcState * TypeChecker.TopAttribs * Tast.TypedAssembly * TypeChecker.TcEnv * Build.TcImports * Env.TcGlobals * Build.TcConfig * (PhasedError * bool) list 
+      member GetCheckResultsAndImplementationsForProject : unit -> PartialCheckResults * IL.ILAssemblyRef * Build.IRawFSharpAssemblyContents option 
 
       /// Await the untyped parse results for a particular slot in the vector of parse results.
       ///
       /// This may be a marginally long-running operation (parses are relatively quick, only one file needs to be parsed)
       member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * bool) list
 
-      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * ErrorInfo list
+      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: (string * Build.IRawFSharpAssemblyContents) list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * ErrorInfo list

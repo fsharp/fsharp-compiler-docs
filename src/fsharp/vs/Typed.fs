@@ -21,6 +21,7 @@ open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.Infos
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
+open Microsoft.FSharp.Compiler.Build
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Nameres
 open Microsoft.FSharp.Compiler.Env
@@ -60,17 +61,28 @@ module Impl =
             invalidOp (sprintf "The entity '%s' does not exist or is in an unresolved assembly." poorQualifiedName)
 
 // delay the realization of 'item' in case it is unresolved
-type FSharpSymbol(g:TcGlobals, item: (unit -> Item)) =
+type FSharpSymbol(g:TcGlobals, thisCcu, tcImports, item: (unit -> Item)) =
+    member x.Assembly = 
+        let ccu = defaultArg (ItemDescriptionsImpl.ccuOfItem g (item())) thisCcu 
+        FSharpAssembly(g, thisCcu, tcImports,  ccu)
+    member x.FullName = ItemDescriptionsImpl.FullNameOfItem g (item()) 
     member x.DeclarationLocation = ItemDescriptionsImpl.rangeOfItem g true (item())
     member x.ImplementationLocation = ItemDescriptionsImpl.rangeOfItem g false (item())
     member internal x.Item = item()
     member x.DisplayName = item().DisplayName
     override x.ToString() = "symbol " + (try item().DisplayName with _ -> "?")
+    override x.Equals(other : obj) =
+        box x === other ||
+        match other with
+        |   :? FSharpSymbol as otherSymbol -> Nameres.ItemsReferToSameDefinition g x.Item otherSymbol.Item
+        |   _ -> false
+    override x.GetHashCode() = hash x.ImplementationLocation  // TODO: this is not a great hash code, but most symbols override it below
 
-type FSharpEntity(g:TcGlobals, entity:EntityRef) = 
-    inherit FSharpSymbol(g, (fun () -> checkEntityIsResolved(entity); 
-                                       if entity.IsModule then Item.ModuleOrNamespaces [entity] 
-                                       else Item.UnqualifiedType [entity]))
+and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) = 
+    inherit FSharpSymbol(g, thisCcu, tcImports,  (fun () -> 
+                              checkEntityIsResolved(entity); 
+                              if entity.IsModule then Item.ModuleOrNamespaces [entity] 
+                              else Item.UnqualifiedType [entity]))
 
     // If an entity is in an assembly not available to us in the resolution set,
     // we generally return "false" from predicates like IsClass, since we know
@@ -136,9 +148,9 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         checkIsResolved()
         entity.Range
 
-    member this.GenericParameters = 
+    member x.GenericParameters = 
         checkIsResolved()
-        entity.TyparsNoRange |> List.map (fun tp -> FSharpGenericParameter(g, tp)) |> List.toArray |> makeReadOnlyCollection
+        entity.TyparsNoRange |> List.map (fun tp -> FSharpGenericParameter(g, thisCcu, tcImports,  tp)) |> List.toArray |> makeReadOnlyCollection
 
     member __.IsMeasure = 
         isResolvedAndFSharp() && (entity.TypeOrMeasureKind = TyparKind.Measure)
@@ -171,6 +183,10 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         | ProvidedTypeMetadata info -> info.IsClass
         | ILTypeMetadata (_,td) -> (td.tdKind = ILTypeDefKind.Class)
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> entity.Deref.IsFSharpClassTycon
+
+    member __.IsOpaque = 
+        isResolved() &&
+        entity.IsHiddenReprTycon
 
     member __.IsInterface = 
         isResolved() &&
@@ -214,7 +230,7 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         match entity.TypeReprInfo with 
         | TFsObjModelRepr r when entity.IsFSharpDelegateTycon -> 
             match r.fsobjmodel_kind with 
-            | TTyconDelegate ss -> FSharpDelegateSignature(g, ss)
+            | TTyconDelegate ss -> FSharpDelegateSignature(g, thisCcu, tcImports,  ss)
             | _ -> invalidOp "not a delegate type"
         | _ -> invalidOp "not a delegate type"
       
@@ -227,34 +243,53 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         if isUnresolved() then FSharpAccessibility(taccessPublic) else
         FSharpAccessibility(entity.TypeReprAccessibility)
 
-    member this.DeclaredInterfaces = 
+    member x.DeclaredInterfaces = 
         if isUnresolved() then makeReadOnlyCollection [] else
-        entity.ImmediateInterfaceTypesOfFSharpTycon |> List.map (fun ty -> FSharpType(g, ty)) |> makeReadOnlyCollection
+        entity.ImmediateInterfaceTypesOfFSharpTycon |> List.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) |> makeReadOnlyCollection
 
-    member this.BaseType = 
+    member x.BaseType = 
         checkIsResolved()        
-        entity.TypeContents.tcaug_super |> Option.map (fun ty -> FSharpType(g, ty)) 
+        entity.TypeContents.tcaug_super |> Option.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) 
         
     member __.UsesPrefixDisplay = 
         if isUnresolved() then true else
         not (isResolvedAndFSharp()) || entity.Deref.IsPrefixDisplay
 
-    member this.MembersOrValues =  this.MembersFunctionsAndValues
-    member this.MembersFunctionsAndValues = 
+    member x.IsNamespace =  entity.IsNamespace
+    member x.MembersOrValues =  x.MembersFunctionsAndValues
+    member x.MembersFunctionsAndValues = 
       if isUnresolved() then makeReadOnlyCollection[] else
       protect <| fun () -> 
-         (entity.MembersOfFSharpTyconSorted
-            |> List.filter (fun v -> 
-                 not v.IsOverrideOrExplicitImpl && 
-                 not v.Deref.IsClassConstructor)
-            |> List.map (fun v -> FSharpMemberFunctionOrValue(g, v, None)))
-           @
-            (entity.ModuleOrNamespaceType.AllValsAndMembers
-            |> Seq.toList
-            |> List.filter (fun v -> v.IsExtensionMember || not v.IsMember) 
-            |> List.map (fun v -> FSharpMemberFunctionOrValue(g,mkNestedValRef entity v, None)))
-               
-         |> makeReadOnlyCollection
+        ([ if x.IsFSharp then 
+             for v in entity.MembersOfFSharpTyconSorted do 
+               if not v.IsOverrideOrExplicitImpl && not v.Deref.IsClassConstructor then 
+                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V v, Item.Value v) 
+           else
+               let _, entityTy = generalizeTyconRef entity
+               let amap = tcImports.GetImportMap()
+               let props = GetImmediateIntrinsicPropInfosOfType (None, AccessibleFromSomeFSharpCode) g amap range0 entityTy 
+               let events = InfoReader(g, amap).GetImmediateIntrinsicEventsOfType (None, AccessibleFromSomeFSharpCode, range0, entityTy)
+               //let skipMeths = 
+               //    set [ for p in props do 
+               //             if p.HasGetter then yield p.GetterMethod.LogicalName 
+               //             if p.HasSetter then yield p.SetterMethod.LogicalName 
+               //          for e in events do 
+               //             yield e.GetAddMethod().LogicalName
+               //             yield e.GetRemoveMethod().LogicalName ]
+
+               for minfo in GetImmediateIntrinsicMethInfosOfType (None, AccessibleFromSomeFSharpCode) g amap range0 entityTy do
+                //if not (skipMeths.Contains minfo.LogicalName) then 
+                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+               for pinfo in props do
+                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  P pinfo, Item.Property (pinfo.PropertyName,[pinfo]))
+               for einfo in events do
+                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  E einfo, Item.Event einfo)
+
+           for v in entity.ModuleOrNamespaceType.AllValsAndMembers do
+               if not v.IsMember then
+                   let vref = mkNestedValRef entity v
+                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V vref, Item.Value vref) ]  
+         |> makeReadOnlyCollection)
  
     member __.XmlDocSig = 
         checkIsResolved()
@@ -264,55 +299,67 @@ type FSharpEntity(g:TcGlobals, entity:EntityRef) =
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
         entity.XmlDoc |> makeXmlDoc
 
+    member x.StaticParameters = 
+        match entity.TypeReprInfo with 
+        | TProvidedTypeExtensionPoint info -> 
+            let m = x.DeclarationLocation
+            let typeBeforeArguments = info.ProvidedType 
+            let staticParameters = typeBeforeArguments.PApplyWithProvider((fun (typeBeforeArguments,provider) -> typeBeforeArguments.GetStaticParameters(provider)), range=m) 
+            let staticParameters = staticParameters.PApplyArray(id, "GetStaticParameters", m)
+            [| for p in staticParameters -> FSharpStaticParameter(g, thisCcu, tcImports,  p, m) |]
+        | _ -> [| |]
+      |> makeReadOnlyCollection
+
     member __.NestedEntities = 
         if isUnresolved() then makeReadOnlyCollection[] else
         entity.ModuleOrNamespaceType.AllEntities 
         |> QueueList.toList
-        |> List.map (fun x -> FSharpEntity(g, entity.MkNestedTyconRef x))
+        |> List.map (fun x -> FSharpEntity(g, thisCcu, tcImports,  entity.MkNestedTyconRef x))
         |> makeReadOnlyCollection
 
-    member this.UnionCases = 
+    member x.UnionCases = 
         if isUnresolved() then makeReadOnlyCollection[] else
         entity.UnionCasesAsRefList
-        |> List.map (fun x -> FSharpUnionCase(g, x)) 
+        |> List.map (fun x -> FSharpUnionCase(g, thisCcu, tcImports,  x)) 
         |> makeReadOnlyCollection
 
-    member this.RecordFields = this.FSharpFields
-    member this.FSharpFields =
+    member x.RecordFields = x.FSharpFields
+    member x.FSharpFields =
         if isUnresolved() then makeReadOnlyCollection[] else
 
         entity.AllFieldsAsList
-        |> List.map (fun x -> FSharpField(g,  FSharpFieldData.Recd (mkRecdFieldRef entity x.Name)))
+        |> List.map (fun x -> FSharpField(g, thisCcu, tcImports,  FSharpFieldData.Recd (mkRecdFieldRef entity x.Name)))
         |> makeReadOnlyCollection
 
-    member this.AbbreviatedType   = 
+    member x.AbbreviatedType   = 
         checkIsResolved()
 
         match entity.TypeAbbrev with
         | None -> invalidOp "not a type abbreviation"
-        | Some ty -> FSharpType(g, ty)
+        | Some ty -> FSharpType(g, thisCcu, tcImports,  ty)
 
     member __.Attributes = 
         if isUnresolved() then makeReadOnlyCollection[] else
         entity.Attribs
-        |> List.map (fun a -> FSharpAttribute(g, a))
+        |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a))
         |> makeReadOnlyCollection
 
-    override this.Equals(other : obj) =
-        box this === other ||
+    override x.Equals(other : obj) =
+        box x === other ||
         match other with
         |   :? FSharpEntity as otherEntity -> tyconRefEq g entity otherEntity.Entity
         |   _ -> false
 
-    override this.GetHashCode() =
+    override x.GetHashCode() =
         checkIsResolved()
         ((hash entity.Stamp) <<< 1) + 1
 
     override x.ToString() = x.CompiledName
 
-and FSharpUnionCase(g:TcGlobals, v: UnionCaseRef) =
-    inherit FSharpSymbol (g, (fun () -> checkEntityIsResolved v.TyconRef
-                                        Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))))
+and FSharpUnionCase(g:TcGlobals, thisCcu, tcImports, v: UnionCaseRef) =
+    inherit FSharpSymbol (g, thisCcu, tcImports,   (fun () -> 
+                               checkEntityIsResolved v.TyconRef
+                               Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))))
 
     let isUnresolved() = 
         entityIsUnresolved v.TyconRef || v.TryUnionCase.IsNone 
@@ -334,11 +381,11 @@ and FSharpUnionCase(g:TcGlobals, v: UnionCaseRef) =
 
     member __.UnionCaseFields = 
         if isUnresolved() then makeReadOnlyCollection [] else
-        v.UnionCase.RecdFields |> List.mapi (fun i _ ->  FSharpField(g, FSharpFieldData.Union (v, i))) |> List.toArray |> makeReadOnlyCollection
+        v.UnionCase.RecdFields |> List.mapi (fun i _ ->  FSharpField(g, thisCcu, tcImports,  FSharpFieldData.Union (v, i))) |> List.toArray |> makeReadOnlyCollection
 
     member __.ReturnType = 
         checkIsResolved()
-        FSharpType(g, v.ReturnType)
+        FSharpType(g, thisCcu, tcImports,  v.ReturnType)
 
     member __.CompiledName = 
         checkIsResolved()
@@ -354,20 +401,20 @@ and FSharpUnionCase(g:TcGlobals, v: UnionCaseRef) =
 
     member __.Attributes = 
         if isUnresolved() then makeReadOnlyCollection [] else
-        v.Attribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
+        v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
 
     member __.Accessibility =  
         if isUnresolved() then FSharpAccessibility(taccessPublic) else
         FSharpAccessibility(v.UnionCase.Accessibility)
 
-    member private this.V = v
-    override this.Equals(other : obj) =
-        box this === other ||
+    member private x.V = v
+    override x.Equals(other : obj) =
+        box x === other ||
         match other with
         |   :? FSharpUnionCase as uc -> v === uc.V
         |   _ -> false
     
-    override this.GetHashCode() = hash v.CaseName
+    override x.GetHashCode() = hash v.CaseName
 
     override x.ToString() = x.CompiledName
 
@@ -380,8 +427,8 @@ and FSharpFieldData =
         | Recd v -> v.RecdField
         | Union (v,n) -> v.FieldByIndex(n)
 
-and FSharpField(g:TcGlobals, d: FSharpFieldData) =
-    inherit FSharpSymbol (g, (fun () -> 
+and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData) =
+    inherit FSharpSymbol (g, thisCcu, tcImports,  (fun () -> 
              match d with 
              | Recd v -> 
                  checkEntityIsResolved v.TyconRef
@@ -432,7 +479,7 @@ and FSharpField(g:TcGlobals, d: FSharpFieldData) =
 
     member __.FieldType = 
         checkIsResolved()
-        FSharpType(g, d.RecdField.FormalType)
+        FSharpType(g, thisCcu, tcImports,  d.RecdField.FormalType)
 
     member __.IsStatic = 
         if isUnresolved() then false else 
@@ -452,19 +499,19 @@ and FSharpField(g:TcGlobals, d: FSharpFieldData) =
 
     member __.FieldAttributes = 
         if isUnresolved() then makeReadOnlyCollection [] else 
-        d.RecdField.FieldAttribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
+        d.RecdField.FieldAttribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
 
     member __.PropertyAttributes = 
         if isUnresolved() then makeReadOnlyCollection [] else 
-        d.RecdField.PropertyAttribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
+        d.RecdField.PropertyAttribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
 
     member __.Accessibility =  
         if isUnresolved() then FSharpAccessibility(taccessPublic) else 
         FSharpAccessibility(d.RecdField.Accessibility) 
 
-    member private this.V = d
-    override this.Equals(other : obj) =
-        box this === other ||
+    member private x.V = d
+    override x.Equals(other : obj) =
+        box x === other ||
         match other with
         |   :? FSharpField as uc -> 
             match d, uc.V with 
@@ -478,7 +525,8 @@ and FSharpField(g:TcGlobals, d: FSharpFieldData) =
 
 and [<System.Obsolete("Renamed to FSharpField")>] FSharpRecordField = FSharpField
 
-and FSharpAccessibility(a:Accessibility) = 
+and FSharpAccessibility(a:Accessibility, ?isProtected) = 
+    let isProtected = defaultArg isProtected  false
     let isInternalCompPath x = 
         match x with 
         | CompPath(ILScopeRef.Local,[]) -> true 
@@ -488,77 +536,86 @@ and FSharpAccessibility(a:Accessibility) =
         | [] -> Public 
         | _ when List.forall isInternalCompPath p  -> Internal 
         | _ -> Private
-    member __.IsPublic = match a with Public -> true | _ -> false
-    member __.IsPrivate = match a with Private -> true | _ -> false
-    member __.IsInternal = match a with Internal -> true | _ -> false
+    member __.IsPublic = not isProtected && match a with Public -> true | _ -> false
+    member __.IsPrivate = not isProtected && match a with Private -> true | _ -> false
+    member __.IsInternal = not isProtected && match a with Internal -> true | _ -> false
+    member __.IsProtected = isProtected
     override x.ToString() = match a with Public -> "public" | Internal -> "internal" | Private -> "private"
 
-and FSharpGenericParameter(g:TcGlobals, v:Typar) = 
+and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, n, item) = 
 
-    inherit FSharpSymbol (g, (fun () -> Item.TypeVar(v.Name, v)))
+    inherit FSharpSymbol (g, thisCcu, tcImports,  (fun () -> item))
+    member __.Name = apinfo.ActiveTags.[n]
+    member __.DeclarationLocation = snd apinfo.ActiveTagsWithRanges.[n]
+
+
+and FSharpGenericParameter(g:TcGlobals, thisCcu, tcImports, v:Typar) = 
+
+    inherit FSharpSymbol (g, thisCcu, tcImports,  (fun () -> Item.TypeVar(v.Name, v)))
     member __.Name = v.DisplayName
     member __.DeclarationLocation = v.Range
+    member __.IsCompilerGenerated = v.IsCompilerGenerated
        
     member __.IsMeasure = (v.Kind = TyparKind.Measure)
     member __.XmlDoc = v.Data.typar_xmldoc |> makeXmlDoc
     member __.IsSolveAtCompileTime = (v.StaticReq = TyparStaticReq.HeadTypeStaticReq)
-    member __.Attributes = v.Attribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
-    member __.Constraints = v.Constraints |> List.map (fun a -> FSharpGenericParameterConstraint(g, a)) |> makeReadOnlyCollection
+    member __.Attributes = v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
+    member __.Constraints = v.Constraints |> List.map (fun a -> FSharpGenericParameterConstraint(g, thisCcu, tcImports, a)) |> makeReadOnlyCollection
     
-    member private this.V = v
+    member private x.V = v
 
-    override this.Equals(other : obj) =
-        box this === other ||
+    override x.Equals(other : obj) =
+        box x === other ||
         match other with
         |   :? FSharpGenericParameter as p -> typarRefEq v p.V
         |   _ -> false
 
-    override this.GetHashCode() = (hash v.Stamp)
+    override x.GetHashCode() = (hash v.Stamp)
 
     override x.ToString() = "generic parameter " + x.Name
 
-and FSharpDelegateSignature(g: TcGlobals, info : SlotSig) = 
+and FSharpDelegateSignature(g: TcGlobals, thisCcu, tcImports, info : SlotSig) = 
 
     member __.DelegateArguments = 
         info.FormalParams.Head
-        |> List.map (fun (TSlotParam(nm, ty, _, _, _, _)) -> nm, FSharpType(g, ty))
+        |> List.map (fun (TSlotParam(nm, ty, _, _, _, _)) -> nm, FSharpType(g, thisCcu, tcImports,  ty))
         |> makeReadOnlyCollection
 
     member __.DelegateReturnType = 
         match info.FormalReturnType with
-        | None -> FSharpType(g, g.unit_ty)
-        | Some ty -> FSharpType(g, ty)
-    override this.ToString() = "<delegate signature>"
+        | None -> FSharpType(g, thisCcu, tcImports,  g.unit_ty)
+        | Some ty -> FSharpType(g, thisCcu, tcImports,  ty)
+    override x.ToString() = "<delegate signature>"
 
-and FSharpGenericParameterMemberConstraint(g: TcGlobals, info : TraitConstraintInfo) = 
+and FSharpGenericParameterMemberConstraint(g: TcGlobals, thisCcu, tcImports, info : TraitConstraintInfo) = 
     let (TTrait(tys,nm,flags,atys,rty,_)) = info 
     member __.MemberSources = 
-        tys   |> List.map (fun ty -> FSharpType(g, ty)) |> makeReadOnlyCollection
+        tys   |> List.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) |> makeReadOnlyCollection
 
     member __.MemberName = nm
 
     member __.MemberIsStatic = not flags.IsInstance
 
-    member __.MemberArgumentTypes = atys   |> List.map (fun ty -> FSharpType(g, ty)) |> makeReadOnlyCollection
+    member __.MemberArgumentTypes = atys   |> List.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) |> makeReadOnlyCollection
 
-    member this.MemberReturnType =
+    member x.MemberReturnType =
         match rty with 
-        | None -> FSharpType(g, g.unit_ty) 
-        | Some ty -> FSharpType(g, ty) 
-    override this.ToString() = "<member constraint info>"
+        | None -> FSharpType(g, thisCcu, tcImports,  g.unit_ty) 
+        | Some ty -> FSharpType(g, thisCcu, tcImports,  ty) 
+    override x.ToString() = "<member constraint info>"
 
 
-and FSharpGenericParameterDelegateConstraint(g: TcGlobals, tupledArgTyp: TType, rty: TType) = 
-    member __.DelegateTupledArgumentType = FSharpType(g, tupledArgTyp)
-    member __.DelegateReturnType =  FSharpType(g, rty)
-    override this.ToString() = "<delegate constraint info>"
+and FSharpGenericParameterDelegateConstraint(g: TcGlobals, thisCcu, tcImports, tupledArgTyp: TType, rty: TType) = 
+    member __.DelegateTupledArgumentType = FSharpType(g, thisCcu, tcImports,  tupledArgTyp)
+    member __.DelegateReturnType =  FSharpType(g, thisCcu, tcImports,  rty)
+    override x.ToString() = "<delegate constraint info>"
 
-and FSharpGenericParameterDefaultsToConstraint(g: TcGlobals, pri:int, ty:TType) = 
+and FSharpGenericParameterDefaultsToConstraint(g: TcGlobals, thisCcu, tcImports, pri:int, ty:TType) = 
     member __.DefaultsToPriority = pri 
-    member __.DefaultsToTarget = FSharpType(g, ty) 
-    override this.ToString() = "<defaults-to constraint info>"
+    member __.DefaultsToTarget = FSharpType(g, thisCcu, tcImports,  ty) 
+    override x.ToString() = "<defaults-to constraint info>"
 
-and FSharpGenericParameterConstraint(g: TcGlobals, cx : TyparConstraint) = 
+and FSharpGenericParameterConstraint(g: TcGlobals, thisCcu, tcImports, cx : TyparConstraint) = 
 
     member __.IsCoercesToConstraint = 
         match cx with 
@@ -567,7 +624,7 @@ and FSharpGenericParameterConstraint(g: TcGlobals, cx : TyparConstraint) =
 
     member __.CoercesToTarget = 
         match cx with 
-        | TyparConstraint.CoercesTo(ty,_) -> FSharpType(g, ty) 
+        | TyparConstraint.CoercesTo(ty,_) -> FSharpType(g, thisCcu, tcImports,  ty) 
         | _ -> invalidOp "not a coerces-to constraint"
 
     member __.IsDefaultsToConstraint = 
@@ -577,7 +634,7 @@ and FSharpGenericParameterConstraint(g: TcGlobals, cx : TyparConstraint) =
 
     member __.DefaultsToConstraintData = 
         match cx with 
-        | TyparConstraint.DefaultsTo(pri, ty, _) ->  FSharpGenericParameterDefaultsToConstraint(g, pri, ty) 
+        | TyparConstraint.DefaultsTo(pri, ty, _) ->  FSharpGenericParameterDefaultsToConstraint(g, thisCcu, tcImports,  pri, ty) 
         | _ -> invalidOp "not a 'defaults-to' constraint"
 
     member __.IsSupportsNullConstraint  = match cx with TyparConstraint.SupportsNull _ -> true | _ -> false
@@ -589,7 +646,7 @@ and FSharpGenericParameterConstraint(g: TcGlobals, cx : TyparConstraint) =
 
     member __.MemberConstraintData =  
         match cx with 
-        | TyparConstraint.MayResolveMember(info, _) ->  FSharpGenericParameterMemberConstraint(g, info) 
+        | TyparConstraint.MayResolveMember(info, _) ->  FSharpGenericParameterMemberConstraint(g, thisCcu, tcImports,  info) 
         | _ -> invalidOp "not a member constraint"
 
     member __.IsNonNullableValueTypeConstraint = 
@@ -610,7 +667,7 @@ and FSharpGenericParameterConstraint(g: TcGlobals, cx : TyparConstraint) =
     member __.SimpleChoices = 
         match cx with 
         | TyparConstraint.SimpleChoice (tys,_) -> 
-            tys   |> List.map (fun ty -> FSharpType(g, ty)) |> makeReadOnlyCollection
+            tys   |> List.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) |> makeReadOnlyCollection
         | _ -> invalidOp "incorrect constraint kind"
 
     member __.IsRequiresDefaultConstructorConstraint  = 
@@ -625,7 +682,7 @@ and FSharpGenericParameterConstraint(g: TcGlobals, cx : TyparConstraint) =
 
     member __.EnumConstraintTarget = 
         match cx with 
-        | TyparConstraint.IsEnum(ty,_) -> FSharpType(g, ty)
+        | TyparConstraint.IsEnum(ty,_) -> FSharpType(g, thisCcu, tcImports,  ty)
         | _ -> invalidOp "incorrect constraint kind"
     
     member __.IsComparisonConstraint = 
@@ -650,10 +707,10 @@ and FSharpGenericParameterConstraint(g: TcGlobals, cx : TyparConstraint) =
 
     member __.DelegateConstraintData =  
         match cx with 
-        | TyparConstraint.IsDelegate(ty1,ty2, _) ->  FSharpGenericParameterDelegateConstraint(g, ty1, ty2) 
+        | TyparConstraint.IsDelegate(ty1,ty2, _) ->  FSharpGenericParameterDelegateConstraint(g, thisCcu, tcImports,  ty1, ty2) 
         | _ -> invalidOp "not a delegate constraint"
 
-    override this.ToString() = "<type constraint>"
+    override x.ToString() = "<type constraint>"
 
 and FSharpInlineAnnotation = 
    | PseudoValue
@@ -661,49 +718,103 @@ and FSharpInlineAnnotation =
    | OptionalInline 
    | NeverInline 
 
+and FSharpMemberOrValData = 
+    | E of EventInfo
+    | P of PropInfo
+    | M of MethInfo
+    | V of ValRef
 and FSharpMemberOrVal = FSharpMemberFunctionOrValue
-and FSharpMemberFunctionOrValue(g:TcGlobals,v:ValRef, itemOpt) = 
+and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberOrValData, item) = 
 
-    inherit FSharpSymbol (g, (fun () -> defaultArg itemOpt (Item.Value(v))))
+    inherit FSharpSymbol (g, thisCcu, tcImports,  (fun () -> item))
 
-    let isUnresolved() = v.TryDeref.IsNone
+    let fsharpInfo() = 
+        match d with 
+        | M m -> m.ArbitraryValRef 
+        | P p -> p.ArbitraryValRef 
+        | E e -> e.ArbitraryValRef 
+        | V v -> Some v
+    
+    let isUnresolved() = 
+        match fsharpInfo() with 
+        | None -> false
+        | Some v -> v.TryDeref.IsNone
 
     let checkIsResolved() = 
-        if isUnresolved() then invalidOp (sprintf "The value or member '%s' does not exist or is in an unresolved assembly." (match v with VRefNonLocal n -> n.ItemKey.PartialKey.LogicalName | _ -> "<local>"))
+        if isUnresolved() then 
+            let v = (fsharpInfo()).Value
+            let nm = (match v with VRefNonLocal n -> n.ItemKey.PartialKey.LogicalName | _ -> "<local>")
+            invalidOp (sprintf "The value or member '%s' does not exist or is in an unresolved assembly." nm)
 
     member __.IsUnresolved = 
         isUnresolved()
 
     member __.DeclarationLocation = 
         checkIsResolved()
-        v.Range
+        match fsharpInfo() with 
+        | Some v -> v.Range
+        | None -> 
+        match base.DeclarationLocation with 
+        | Some m -> m 
+        | None -> failwith "DeclarationLocation property not available"
 
     member __.LogicalEnclosingEntity = 
         checkIsResolved()
+        match d with 
+        | E m -> FSharpEntity(g, thisCcu, tcImports,  tcrefOfAppTy g m.EnclosingType)
+        | P m -> FSharpEntity(g, thisCcu, tcImports,  tcrefOfAppTy g m.EnclosingType)
+        | M m -> FSharpEntity(g, thisCcu, tcImports,  tcrefOfAppTy g m.EnclosingType)
+        | V v -> 
         match v.ApparentParent with 
         | ParentNone -> invalidOp "the value or member doesn't have a logical parent" 
-        | Parent p -> FSharpEntity(g, p)
+        | Parent p -> FSharpEntity(g, thisCcu, tcImports,  p)
 
-    member this.GenericParameters = 
+    member x.GenericParameters = 
         checkIsResolved()
-        v.Typars |> List.map (fun tp -> FSharpGenericParameter(g, tp)) |> List.toArray |> makeReadOnlyCollection
+        let tps = 
+            match d with 
+            | E _ -> []
+            | P _ -> []
+            | M m -> m.FormalMethodTypars
+            | V v -> v.Typars 
+        tps |> List.map (fun tp -> FSharpGenericParameter(g, thisCcu, tcImports,  tp)) |> List.toArray |> makeReadOnlyCollection
 
-    member this.FullType = 
+    member x.FullType = 
         checkIsResolved()
-        FSharpType(g, v.TauType)
+        let ty = 
+            match d with 
+            | E e -> e.GetDelegateType(tcImports.GetImportMap(),range0)
+            | P p -> p.GetPropertyType(tcImports.GetImportMap(),range0)
+            | M m -> 
+                let rty = m.GetFSharpReturnTy(tcImports.GetImportMap(),range0,m.FormalMethodInst)
+                let argtysl = m.GetParamTypes(tcImports.GetImportMap(),range0,m.FormalMethodInst) 
+                mkIteratedFunTy (List.map (mkTupledTy g) argtysl) rty
+            | V v -> v.TauType
+        FSharpType(g, thisCcu, tcImports,  ty)
 
     member __.EnclosingEntity = 
         checkIsResolved()
+        match d with 
+        | E m -> FSharpEntity(g, thisCcu, tcImports,  tcrefOfAppTy g m.EnclosingType)
+        | P m -> FSharpEntity(g, thisCcu, tcImports,  tcrefOfAppTy g m.EnclosingType)
+        | M m -> FSharpEntity(g, thisCcu, tcImports,  m.DeclaringEntityRef)
+        | V v -> 
         match v.ActualParent with 
         | ParentNone -> invalidOp "the value or member doesn't have an enclosing entity" 
-        | Parent p -> FSharpEntity(g, p)
+        | Parent p -> FSharpEntity(g, thisCcu, tcImports,  p)
 
     member __.IsCompilerGenerated = 
         if isUnresolved() then false else 
+        match fsharpInfo() with 
+        | None -> false
+        | Some v -> 
         v.IsCompilerGenerated
 
     member __.InlineAnnotation = 
         if isUnresolved() then FSharpInlineAnnotation.OptionalInline else 
+        match fsharpInfo() with 
+        | None -> FSharpInlineAnnotation.OptionalInline
+        | Some v -> 
         match v.InlineInfo with 
         | ValInline.PseudoVal -> FSharpInlineAnnotation.PseudoValue
         | ValInline.Always -> FSharpInlineAnnotation.AlwaysInline
@@ -712,74 +823,156 @@ and FSharpMemberFunctionOrValue(g:TcGlobals,v:ValRef, itemOpt) =
 
     member __.IsMutable = 
         if isUnresolved() then false else 
-        v.IsMutable
+        match d with 
+        | M _ | P _ |  E _ -> false
+        | V v -> v.IsMutable
 
     member __.IsModuleValueOrMember = 
         if isUnresolved() then false else 
-        v.IsMember || v.IsModuleBinding
+        match d with 
+        | M _ | P _ | E _ -> true
+        | V v -> v.IsMember || v.IsModuleBinding
 
     member __.IsMember = 
         if isUnresolved() then false else 
-        v.IsMember 
+        match d with 
+        | M _ | P _ | E _ -> true
+        | V v -> v.IsMember 
     
     member __.IsDispatchSlot = 
         if isUnresolved() then false else 
-        v.IsDispatchSlot
+        match d with 
+        | E e -> e.GetAddMethod().IsDispatchSlot
+        | P p -> p.IsDispatchSlot
+        | M m -> m.IsDispatchSlot
+        | V v -> v.IsDispatchSlot
+
+    member x.IsProperty = 
+        if isUnresolved() then false else 
+        match d with 
+        | P _ -> true
+        | _ -> x.IsGetterMethod || x.IsSetterMethod
+
+    member x.IsEvent = 
+        if isUnresolved() then false else 
+        match d with 
+        | E _ -> true
+        | _ ->
+        match fsharpInfo() with 
+        | None -> false
+        | Some v -> v.IsFSharpEventProperty(g) 
 
     member __.IsGetterMethod = 
         if isUnresolved() then false else 
+        match fsharpInfo() with 
+        | None -> false
+        | Some v -> 
         match v.MemberInfo with 
         | None -> false 
         | Some memInfo -> memInfo.MemberFlags.MemberKind = MemberKind.PropertyGet
 
     member __.IsSetterMethod = 
         if isUnresolved() then false else 
+        match fsharpInfo() with 
+        | None -> false
+        | Some v -> 
         match v.MemberInfo with 
         | None -> false 
         | Some memInfo -> memInfo.MemberFlags.MemberKind = MemberKind.PropertySet
 
     member __.IsInstanceMember = 
         if isUnresolved() then false else 
-        v.IsInstanceMember
+        match d with 
+        | E e -> not e.IsStatic
+        | P p -> not p.IsStatic
+        | M m -> m.IsInstance
+        | V v -> v.IsInstanceMember
 
     member __.IsExtensionMember = 
         if isUnresolved() then false else 
-        v.IsExtensionMember
+        match d with 
+        | E e -> e.GetAddMethod().IsExtensionMember
+        | P p -> p.IsExtensionMember
+        | M m -> m.IsExtensionMember
+        | V v -> v.IsExtensionMember
 
     member __.IsImplicitConstructor = 
         if isUnresolved() then false else 
-        v.IsIncrClassConstructor
+        match fsharpInfo() with 
+        | None -> false
+        | Some v -> v.IsIncrClassConstructor
     
     member __.IsTypeFunction = 
         if isUnresolved() then false else 
-        v.IsTypeFunction
+        match fsharpInfo() with 
+        | None -> false
+        | Some v -> v.IsTypeFunction
 
     member __.IsActivePattern =  
         if isUnresolved() then false else 
-        v.CoreDisplayName |> PrettyNaming.ActivePatternInfoOfValName |> isSome
+        match fsharpInfo() with 
+        | Some v -> PrettyNaming.ActivePatternInfoOfValName v.CoreDisplayName v.Range |> isSome
+        | None -> false
 
-    member __.CompiledName = 
+    member x.CompiledName = 
         checkIsResolved()
-        v.CompiledName
+        match fsharpInfo() with 
+        | Some v -> v.CompiledName
+        | None -> x.LogicalName
 
     member __.LogicalName = 
         checkIsResolved()
-        v.LogicalName
+        match d with 
+        | E e -> e.EventName
+        | P p -> p.PropertyName
+        | M m -> m.LogicalName
+        | V v -> v.LogicalName
 
     member __.DisplayName = 
         checkIsResolved()
-        v.DisplayName
+        match d with 
+        | E e -> e.EventName
+        | P p -> p.PropertyName
+        | M m -> m.DisplayName
+        | V v -> v.DisplayName
 
     member __.XmlDocSig = 
         checkIsResolved()
-        v.XmlDocSig
+        match fsharpInfo() with 
+        | None -> ""
+        | Some v -> v.XmlDocSig
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
-        v.XmlDoc |> makeXmlDoc
+        match d with 
+        | E e -> e.XmlDoc |> makeXmlDoc
+        | P p -> p.XmlDoc |> makeXmlDoc
+        | M m -> m.XmlDoc |> makeXmlDoc
+        | V v -> v.XmlDoc |> makeXmlDoc
 
-    member __.CurriedParameterGroups = 
+    member x.CurriedParameterGroups = 
         checkIsResolved()
+        match d with 
+        | P p -> 
+            
+            [ [ for (ParamData(_isParamArrayArg,_isOutArg,_optArgInfo,nmOpt,pty)) in p.GetParamDatas(tcImports.GetImportMap(),range0) do 
+                let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }
+                yield FSharpParameter(g, thisCcu, tcImports,  pty, argInfo, x.DeclarationLocation) ] 
+               |> makeReadOnlyCollection  ]
+           |> makeReadOnlyCollection
+
+        | E _ ->  []  |> makeReadOnlyCollection
+        | M m -> 
+            
+            [ for argtys in m.GetParamDatas(tcImports.GetImportMap(),range0,m.FormalMethodInst) do 
+                 yield 
+                   [ for (ParamData(_isParamArrayArg,_isOutArg,_optArgInfo,nmOpt,pty)) in argtys do 
+                        let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }
+                        yield FSharpParameter(g, thisCcu, tcImports,  pty, argInfo, x.DeclarationLocation) ] 
+                   |> makeReadOnlyCollection ]
+             |> makeReadOnlyCollection
+
+        | V v -> 
         match v.ValReprInfo with 
         | None -> failwith "not a module let binding or member"
         | Some (ValReprInfo(_typars,curriedArgInfos,_retInfo)) -> 
@@ -790,12 +983,26 @@ and FSharpMemberFunctionOrValue(g:TcGlobals,v:ValRef, itemOpt) =
             [ for argtys in argtysl do 
                  yield 
                    [ for argty, argInfo in argtys do 
-                        yield FSharpParameter(g, argty, argInfo) ] 
+                        yield FSharpParameter(g, thisCcu, tcImports,  argty, argInfo, x.DeclarationLocation) ] 
                    |> makeReadOnlyCollection ]
              |> makeReadOnlyCollection
 
-    member this.ReturnParameter  = 
+    member x.ReturnParameter  = 
         checkIsResolved()
+        match d with 
+        | E e -> 
+            let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
+            let rty = e.GetDelegateType(tcImports.GetImportMap(),range0)
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocation) 
+        | P p -> 
+            let retInfo : ArgReprInfo = { Name=None; Attribs= [] }  
+            let rty = p.GetPropertyType(tcImports.GetImportMap(),range0)
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocation) 
+        | M m -> 
+            let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
+            let rty = m.GetFSharpReturnTy(tcImports.GetImportMap(),range0,m.FormalMethodInst)
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocation) 
+        | V v -> 
         match v.ValReprInfo with 
         | None -> failwith "not a module let binding or member" 
         | Some (ValReprInfo(_typars,argInfos,retInfo)) -> 
@@ -803,12 +1010,15 @@ and FSharpMemberFunctionOrValue(g:TcGlobals,v:ValRef, itemOpt) =
             let tau = v.TauType
             let _,rty = GetTopTauTypeInFSharpForm g argInfos tau range0
             
-            FSharpParameter(g, rty, retInfo) 
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocation) 
 
 
     member __.Attributes = 
         if isUnresolved() then makeReadOnlyCollection [] else 
-        v.Attribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
+        match fsharpInfo() with 
+        | None -> [] 
+        | Some v -> v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) 
+     |> makeReadOnlyCollection
      
 (*
     /// Is this "base" in "base.M(...)"
@@ -828,36 +1038,41 @@ and FSharpMemberFunctionOrValue(g:TcGlobals,v:ValRef, itemOpt) =
       /// How visible is this? 
     member __.Accessibility = 
         if isUnresolved() then FSharpAccessibility(taccessPublic) else 
-        FSharpAccessibility(v.Accessibility)
+        match fsharpInfo() with 
+        | Some v -> FSharpAccessibility(v.Accessibility)
+        | None ->  
+        match d with 
+        | E _ ->  FSharpAccessibility(taccessPublic)
+        | P _ ->  FSharpAccessibility(taccessPublic)
+        | M m ->  FSharpAccessibility(taccessPublic,isProtected=m.IsProtectedAccessiblity)
+        | V v -> FSharpAccessibility(v.Accessibility)
 
-    member private this.V = v
-
-    override this.Equals(other : obj) =
-        box this === other ||
+    override x.Equals(other : obj) =
+        box x === other ||
         match other with
-        |   :? FSharpMemberFunctionOrValue as other -> v === other.V
+        |   :? FSharpMemberFunctionOrValue as other -> ItemsReferToSameDefinition g x.Item other.Item
         |   _ -> false
 
-    override this.GetHashCode() = hash (box v)
-    override this.ToString() = try  (if v.IsMember then "member " else "val ") + v.DisplayName with _  -> "??"
+    override x.GetHashCode() = hash (box x.DisplayName)
+    override x.ToString() = try  (if x.IsMember then "member " else "val ") + x.DisplayName with _  -> "??"
 
-and FSharpType(g:TcGlobals, typ:TType) =
+and FSharpType(g:TcGlobals, thisCcu, tcImports, typ:TType) =
 
     let isUnresolved() = 
        ErrorLogger.protectAssemblyExploration true <| fun () -> 
         match stripTyparEqns typ with 
-        | TType_app (tcref,_) -> FSharpEntity(g, tcref).IsUnresolved
-        | TType_measure (MeasureCon tcref) ->  FSharpEntity(g, tcref).IsUnresolved
-        | TType_measure (MeasureProd _) ->  FSharpEntity(g, g.measureproduct_tcr).IsUnresolved 
-        | TType_measure MeasureOne ->  FSharpEntity(g, g.measureone_tcr).IsUnresolved 
-        | TType_measure (MeasureInv _) ->  FSharpEntity(g, g.measureinverse_tcr).IsUnresolved 
+        | TType_app (tcref,_) -> FSharpEntity(g, thisCcu, tcImports,  tcref).IsUnresolved
+        | TType_measure (MeasureCon tcref) ->  FSharpEntity(g, thisCcu, tcImports,  tcref).IsUnresolved
+        | TType_measure (MeasureProd _) ->  FSharpEntity(g, thisCcu, tcImports,  g.measureproduct_tcr).IsUnresolved 
+        | TType_measure MeasureOne ->  FSharpEntity(g, thisCcu, tcImports,  g.measureone_tcr).IsUnresolved 
+        | TType_measure (MeasureInv _) ->  FSharpEntity(g, thisCcu, tcImports,  g.measureinverse_tcr).IsUnresolved 
         | _ -> false
     
     let isResolved() = not (isUnresolved())
 
     member __.IsUnresolved = isUnresolved()
 
-    member __.IsNamedType = 
+    member __.HasTypeDefinition = 
        isResolved() &&
        protect <| fun () -> 
          match stripTyparEqns typ with 
@@ -871,33 +1086,45 @@ and FSharpType(g:TcGlobals, typ:TType) =
         | TType_tuple _ -> true 
         | _ -> false
 
-    member __.NamedEntity = 
+    member x.IsNamedType = x.HasTypeDefinition
+    member x.NamedEntity = x.TypeDefinition
+
+    member __.TypeDefinition = 
        protect <| fun () -> 
         match stripTyparEqns typ with 
-        | TType_app (tcref,_) -> FSharpEntity(g, tcref) 
-        | TType_measure (MeasureCon tcref) ->  FSharpEntity(g, tcref) 
-        | TType_measure (MeasureProd _) ->  FSharpEntity(g, g.measureproduct_tcr) 
-        | TType_measure MeasureOne ->  FSharpEntity(g, g.measureone_tcr) 
-        | TType_measure (MeasureInv _) ->  FSharpEntity(g, g.measureinverse_tcr) 
+        | TType_app (tcref,_) -> FSharpEntity(g, thisCcu, tcImports,  tcref) 
+        | TType_measure (MeasureCon tcref) ->  FSharpEntity(g, thisCcu, tcImports,  tcref) 
+        | TType_measure (MeasureProd _) ->  FSharpEntity(g, thisCcu, tcImports,  g.measureproduct_tcr) 
+        | TType_measure MeasureOne ->  FSharpEntity(g, thisCcu, tcImports,  g.measureone_tcr) 
+        | TType_measure (MeasureInv _) ->  FSharpEntity(g, thisCcu, tcImports,  g.measureinverse_tcr) 
         | _ -> invalidOp "not a named type"
 
     member __.GenericArguments = 
        protect <| fun () -> 
         match stripTyparEqns typ with 
         | TType_app (_,tyargs) 
-        | TType_tuple (tyargs) -> (tyargs |> List.map (fun ty -> FSharpType(g, ty)) |> makeReadOnlyCollection) 
-        | TType_fun(d,r) -> [| FSharpType(g, d); FSharpType(g, r) |] |> makeReadOnlyCollection
+        | TType_tuple (tyargs) -> (tyargs |> List.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) |> makeReadOnlyCollection) 
+        | TType_fun(d,r) -> [| FSharpType(g, thisCcu, tcImports,  d); FSharpType(g, thisCcu, tcImports,  r) |] |> makeReadOnlyCollection
         | TType_measure (MeasureCon _) ->  [| |] |> makeReadOnlyCollection
-        | TType_measure (MeasureProd (t1,t2)) ->  [| FSharpType(g, TType_measure t1); FSharpType(g, TType_measure t2) |] |> makeReadOnlyCollection
+        | TType_measure (MeasureProd (t1,t2)) ->  [| FSharpType(g, thisCcu, tcImports,  TType_measure t1); FSharpType(g, thisCcu, tcImports,  TType_measure t2) |] |> makeReadOnlyCollection
         | TType_measure MeasureOne ->  [| |] |> makeReadOnlyCollection
-        | TType_measure (MeasureInv t1) ->  [| FSharpType(g, TType_measure t1) |] |> makeReadOnlyCollection
+        | TType_measure (MeasureInv t1) ->  [| FSharpType(g, thisCcu, tcImports,  TType_measure t1) |] |> makeReadOnlyCollection
         | _ -> invalidOp "not a named type"
 
+(*
+    member __.ProvidedArguments = 
+        let typeName, argNamesAndValues = 
+            try 
+                PrettyNaming.demangleProvidedTypeName typeLogicalName 
+            with PrettyNaming.InvalidMangledStaticArg piece -> 
+                error(Error(FSComp.SR.etProvidedTypeReferenceInvalidText(piece),range0)) 
+*)
+
     member typ.IsAbbreviation = 
-       isResolved() && typ.IsNamedType && typ.NamedEntity.IsFSharpAbbreviation
+       isResolved() && typ.HasTypeDefinition && typ.TypeDefinition.IsFSharpAbbreviation
 
     member __.AbbreviatedType = 
-       protect <| fun () -> FSharpType(g,stripTyEqns g typ)
+       protect <| fun () -> FSharpType(g, thisCcu, tcImports,  stripTyEqns g typ)
 
     member __.IsFunctionType = 
        isResolved() &&
@@ -918,24 +1145,24 @@ and FSharpType(g:TcGlobals, typ:TType) =
         match stripTyparEqns typ with 
         | TType_var tp 
         | TType_measure (MeasureVar tp) -> 
-            FSharpGenericParameter (g, tp)
+            FSharpGenericParameter (g, thisCcu, tcImports,  tp)
         | _ -> invalidOp "not a generic parameter type"
 
     member private x.Typ = typ
 
-    override this.Equals(other : obj) =
-        box this === other ||
+    override x.Equals(other : obj) =
+        box x === other ||
         match other with
         |   :? FSharpType as t -> typeEquiv g typ t.Typ
         |   _ -> false
 
-    override this.GetHashCode() = hash this
+    override x.GetHashCode() = hash x
 
-    override this.ToString() = 
+    override x.ToString() = 
        protect <| fun () -> 
         "type " + NicePrint.stringOfTy (DisplayEnv.Empty(g)) typ 
 
-and FSharpAttribute(g: TcGlobals, attrib) = 
+and FSharpAttribute(g: TcGlobals, thisCcu, tcImports, attrib) = 
 
     let (Attrib(tcref,_kind,unnamedArgs,propVals,_,_,_)) = attrib
     let fail() = failwith "This custom attribute has an argument that can not yet be converted using this API"
@@ -961,7 +1188,7 @@ and FSharpAttribute(g: TcGlobals, attrib) =
         | _ -> fail()
 
     member __.AttributeType =  
-        FSharpEntity(g, tcref)
+        FSharpEntity(g, thisCcu, tcImports,  tcref)
 
     member __.IsUnresolved =  entityIsUnresolved(tcref)
 
@@ -971,29 +1198,69 @@ and FSharpAttribute(g: TcGlobals, attrib) =
     member __.NamedArguments = 
         propVals |> List.map (fun (AttribNamedArg(nm,_,isField,AttribExpr(_, e))) -> (nm, isField, evalArg e)) |> makeReadOnlyCollection
 
-    override this.ToString() = 
+    override x.ToString() = 
         if entityIsUnresolved tcref then "attribute ???" else "attribute " + tcref.CompiledName + "(...)" 
 
     
-and FSharpParameter(g, typ:TType,topArgInfo:ArgReprInfo) = 
+and FSharpStaticParameter(g, thisCcu, tcImports:TcImports,  sp: Tainted< ExtensionTyping.ProvidedParameterInfo >, m) = 
+    inherit FSharpSymbol(g, thisCcu, tcImports,  (fun () -> 
+              protect <| fun () -> 
+                let spKind = Import.ImportProvidedType (tcImports.GetImportMap()) m (sp.PApply((fun x -> x.ParameterType), m))
+                let nm = sp.PUntaint((fun p -> p.Name), m)
+                Item.ArgName((mkSynId m nm, spKind))))
+
+    member __.Name = 
+        protect <| fun () -> 
+            sp.PUntaint((fun p -> p.Name), m)
+
+    member __.DeclarationLocation = m
+
+    member __.Kind = 
+        protect <| fun () -> 
+            let typ = Import.ImportProvidedType (tcImports.GetImportMap()) m (sp.PApply((fun x -> x.ParameterType), m))
+            FSharpType(g, thisCcu, tcImports,  typ)
+
+    member __.IsOptional = 
+        protect <| fun () -> sp.PUntaint((fun x -> x.IsOptional), m)
+
+    member __.HasDefaultValue = 
+        protect <| fun () -> sp.PUntaint((fun x -> x.HasDefaultValue), m)
+
+    member __.DefaultValue = 
+        protect <| fun () -> sp.PUntaint((fun x -> x.RawDefaultValue), m)
+
+    override x.Equals(other : obj) =
+        box x === other || 
+        match other with
+        |   :? FSharpStaticParameter as p -> x.Name = p.Name && x.DeclarationLocation = p.DeclarationLocation
+        |   _ -> false
+
+    override x.GetHashCode() = hash x.Name
+    override x.ToString() = 
+        "static parameter " + x.Name 
+
+and FSharpParameter(g, thisCcu, tcImports,  typ:TType,topArgInfo:ArgReprInfo, m) = 
+    inherit FSharpSymbol(g, thisCcu, tcImports,  (fun () -> Item.ArgName((match topArgInfo.Name with None -> mkSynId m "" | Some v -> v), typ)))
     let attribs = topArgInfo.Attribs
     let idOpt = topArgInfo.Name
-    member __.Name = match idOpt with None -> null | Some v -> v.idText
-    member __.Type = FSharpType(g, typ)
-    member __.DeclarationLocation = match idOpt with None -> range0 | Some v -> v.idRange
-    member __.Attributes = attribs |> List.map (fun a -> FSharpAttribute(g, a)) |> makeReadOnlyCollection
+    member __.Name = match idOpt with None -> None | Some v -> Some v.idText
+    member __.Type = FSharpType(g, thisCcu, tcImports,  typ)
+    member __.DeclarationLocation = match idOpt with None -> m | Some v -> v.idRange
+    member __.Attributes = attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
     
     member private x.ValReprInfo = topArgInfo
 
-    override this.Equals(other : obj) =
-        box this === other || 
+    override x.Equals(other : obj) =
+        box x === other || 
         match other with
-        |   :? FSharpParameter as p -> topArgInfo === p.ValReprInfo
+        |   :? FSharpParameter as p -> x.Name = p.Name && x.DeclarationLocation = p.DeclarationLocation
         |   _ -> false
 
-    override this.GetHashCode() = hash (box topArgInfo)
+    override x.GetHashCode() = hash (box topArgInfo)
+    override x.ToString() = 
+        "parameter " + (match x.Name with None -> "<unnamed" | Some s -> s)
 
-type FSharpAssemblySignature internal (g: TcGlobals, mtyp: ModuleOrNamespaceType) = 
+and FSharpAssemblySignature internal (g: TcGlobals, thisCcu, tcImports, mtyp: ModuleOrNamespaceType) = 
 
     member __.Entities = 
 
@@ -1002,13 +1269,13 @@ type FSharpAssemblySignature internal (g: TcGlobals, mtyp: ModuleOrNamespaceType
                    if entity.IsNamespace then 
                        yield! loop entity.ModuleOrNamespaceType
                    else 
-                       yield FSharpEntity(g, mkLocalEntityRef entity) |]
+                       yield FSharpEntity(g, thisCcu, tcImports,  mkLocalEntityRef entity) |]
         
         loop mtyp |> makeReadOnlyCollection
 
-    override this.ToString() = "<assembly signature>"
+    override x.ToString() = "<assembly signature>"
 
-type FSharpAssembly internal (g: TcGlobals, ccu: CcuThunk) = 
+and FSharpAssembly internal (g: TcGlobals, thisCcu, tcImports, ccu: CcuThunk) = 
 
     member __.RawCcuThunk = ccu
     member __.QualifiedName = match ccu.QualifiedName with None -> "" | Some s -> s
@@ -1016,65 +1283,77 @@ type FSharpAssembly internal (g: TcGlobals, ccu: CcuThunk) =
     member __.FileName = ccu.FileName
     member __.SimpleName = ccu.AssemblyName 
     member __.IsProviderGenerated = ccu.IsProviderGenerated
-    member __.Contents = FSharpAssemblySignature(g, ccu.Contents.ModuleOrNamespaceType)
+    member __.Contents = FSharpAssemblySignature(g, thisCcu, tcImports,  ccu.Contents.ModuleOrNamespaceType)
                  
-    override this.ToString() = this.QualifiedName
+    override x.ToString() = x.QualifiedName
 
 type FSharpSymbol with 
     // TODO: there are several cases where we may need to report more interesting
     // symbol information below. By default we return a vanilla symbol.
-    static member Create(g, item) : FSharpSymbol = 
-        let dflt = FSharpSymbol(g, (fun () -> item)) 
+    static member Create(g, thisCcu, tcImports,  item) : FSharpSymbol = 
+        let dflt = FSharpSymbol(g, thisCcu, tcImports,  (fun () -> item)) 
         match item with 
-        | Item.Value v -> FSharpMemberFunctionOrValue(g, v, Some item) :> _
-        | Item.UnionCase uinfo -> FSharpUnionCase(g, uinfo.UnionCaseRef) :> _
-        | Item.ExnCase tcref -> FSharpEntity(g, tcref) :>_
-        | Item.RecdField rfinfo -> FSharpField(g, Recd rfinfo.RecdFieldRef) :> _
+        | Item.Value v -> FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V v, item) :> _
+        | Item.UnionCase uinfo -> FSharpUnionCase(g, thisCcu, tcImports,  uinfo.UnionCaseRef) :> _
+        | Item.ExnCase tcref -> FSharpEntity(g, thisCcu, tcImports,  tcref) :>_
+        | Item.RecdField rfinfo -> FSharpField(g, thisCcu, tcImports,  Recd rfinfo.RecdFieldRef) :> _
         
         | Item.Event einfo -> 
             match einfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
+            | Some vref ->  FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V vref, item) :> _
             | None -> dflt 
             
         | Item.Property(_,pinfo :: _) -> 
-            match pinfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
-            | None -> dflt 
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  P pinfo, item) :> _
             
         | Item.MethodGroup(_,minfo :: _) -> 
-            match minfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
-            | None -> dflt
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M minfo, item) :> _
 
         | Item.CtorGroup(_,cinfo :: _) -> 
-            match cinfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
-            | None -> dflt 
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M cinfo, item) :> _
 
         | Item.DelegateCtor (AbbrevOrAppTy tcref) -> 
-            FSharpEntity(g, tcref) :>_ 
+            FSharpEntity(g, thisCcu, tcImports,  tcref) :>_ 
 
+        | Item.UnqualifiedType(tcref :: _)  
         | Item.Types(_,AbbrevOrAppTy tcref :: _) -> 
-            FSharpEntity(g, tcref) :>_  
+            FSharpEntity(g, thisCcu, tcImports,  tcref) :>_  
 
         | Item.ModuleOrNamespaces(modref :: _) ->  
-            FSharpEntity(g, modref) :> _
+            FSharpEntity(g, thisCcu, tcImports,  modref) :> _
 
-        | Item.SetterArg (_id, item) -> FSharpSymbol.Create(g,item)
+        | Item.SetterArg (_id, item) -> FSharpSymbol.Create(g, thisCcu, tcImports,  item)
 
         | Item.CustomOperation (_customOpName,_, Some minfo) -> 
-            match minfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, vref, Some item) :> _
-            | None -> dflt
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M minfo, item) :> _
 
         | Item.CustomBuilder (_,vref) -> 
-            FSharpMemberFunctionOrValue(g, vref, Some item) :> _
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V vref, item) :> _
+
+        | Item.TypeVar (_, tp) ->
+             FSharpGenericParameter(g, thisCcu, tcImports,  tp) :> _
+
+        | Item.ActivePatternCase apref -> 
+             FSharpActivePatternCase(g, thisCcu, tcImports,  apref.ActivePatternInfo, apref.CaseIndex, item) :> _
+
+        | Item.ActivePatternResult (apinfo,_,n,_) ->
+             FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, n, item) :> _
+
+        | Item.ArgName(id,ty)  ->
+             FSharpParameter(g, thisCcu, tcImports,  ty, {Attribs=[]; Name=Some id}, id.idRange) :> _
 
         // TODO: the following don't currently return any interesting subtype
-        | Item.ArgName _  
-        | Item.TypeVar _
-        | Item.ActivePatternCase _
+        | Item.ImplicitOp _
         | Item.ILField _ 
         | Item.FakeInterfaceCtor _
         | Item.NewDef _ -> dflt
-        | _ ->  dflt
+        // These cases cover unreachable cases
+        | Item.CustomOperation (_, _, None) 
+        | Item.UnqualifiedType []
+        | Item.ModuleOrNamespaces []
+        | Item.Property (_,[])
+        | Item.MethodGroup (_,[])
+        | Item.CtorGroup (_,[])
+        // These cases cover misc. corned cases (non-symbol types)
+        | Item.Types _
+        | Item.DelegateCtor _  -> dflt

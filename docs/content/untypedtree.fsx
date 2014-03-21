@@ -57,8 +57,12 @@ return the `ParseTree` property:
 let getUntypedTree (file, input) = 
   // Get compiler options for the 'project' implied by a single script file
   let projOptions = checker.GetProjectOptionsFromScript(file, input)
+
   // Run the first phase (untyped parsing) of the compiler
-  let parseFileResults = checker.ParseFileInProject(file, input, projOptions)
+  let parseFileResults = 
+      checker.ParseFileInProject(file, input, projOptions) 
+      |> Async.RunSynchronously
+
   match parseFileResults.ParseTree with
   | Some tree -> tree
   | None -> failwith "Something went wrong during parsing!"
@@ -231,6 +235,6 @@ In this tutorial, we looked at basic of working with the untyped abstract syntax
 comprehensive topic, so it is not possible to explain everything in a single article. The 
 [Fantomas project](https://github.com/dungpa/fantomas) is a good example of tool based on the untyped
 AST that can help you understand more. In practice, it is also useful to combine the information here
-with some information you can obtain from the [editor services](editor.fsx) discussed in the next 
+with some information you can obtain from the [editor services](editor.html) discussed in the next 
 tutorial.
 *)

@@ -1,10 +1,11 @@
-﻿module FSharp.Compiler.Service.Tests.FsiTests
-
+﻿
 #if INTERACTIVE
 #r "../../bin/FSharp.Compiler.Service.dll"
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
+#else
+module FSharp.Compiler.Service.Tests.FsiTests
 #endif
 
 open Microsoft.FSharp.Compiler
@@ -44,6 +45,16 @@ let evalInteraction text =
 let ``EvalExpression test 1``() = 
     evalExpression "42+1" |> shouldEqual "43"
 
+[<Test>]
+// 'fsi' can be evaluated because we passed it in explicitly up above
+let ``EvalExpression fsi test``() = 
+    evalExpression "fsi" |> shouldEqual "Microsoft.FSharp.Compiler.Interactive.InteractiveSession"
+
+[<Test>]
+// 'fsi' can be evaluated because we passed it in explicitly up above
+let ``EvalExpression fsi test 2``() = 
+    evalInteraction "fsi.AddPrinter |> ignore" 
+
 
 [<Test>]
 let ``EvalExpression typecheck failure``() = 
@@ -52,6 +63,15 @@ let ``EvalExpression typecheck failure``() =
      with e -> true)
     |> shouldEqual true
 
+[<Test>]
+let ``EvalExpression function value 1``() = 
+    fsiSession.EvalExpression "(fun x -> x + 1)"  |> fun s -> s.IsSome
+    |> shouldEqual true
+
+[<Test>]
+let ``EvalExpression function value 2``() = 
+    fsiSession.EvalExpression "fun x -> x + 1"  |> fun s -> s.IsSome
+    |> shouldEqual true
 
 [<Test>]
 let ``EvalExpression runtime failure``() = 
@@ -103,7 +123,7 @@ let ``PartialAssemblySignatureUpdated test``() =
 let ``ParseAndCheckInteraction test 1``() = 
     evalInteraction """ let xxxxxx = 1 """  
     evalInteraction """ type CCCC() = member x.MMMMM()  = 1 + 1 """  
-    let untypedResults, typedResults = fsiSession.ParseAndCheckInteraction("xxxxxx")
+    let untypedResults, typedResults, _ = fsiSession.ParseAndCheckInteraction("xxxxxx")
     untypedResults.FileName |> shouldEqual "stdin.fsx"
     untypedResults.Errors.Length |> shouldEqual 0
     untypedResults.ParseHadErrors |> shouldEqual false
@@ -111,11 +131,11 @@ let ``ParseAndCheckInteraction test 1``() =
     // Check we can't get a declaration location for text in the F# interactive state (because the file doesn't exist)
     // TODO: check that if we use # line directives, then the file will exist correctly
     let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
-    typedResults.GetDeclarationLocation(0,6,"xxxxxx",["xxxxxx"],identToken,false) |> shouldEqual (FindDeclResult.DeclNotFound  FindDeclFailureReason.NoSourceCode)
+    typedResults.GetDeclarationLocationAlternate(1,6,"xxxxxx",["xxxxxx"],false) |> shouldEqual (FindDeclResult.DeclNotFound  FindDeclFailureReason.NoSourceCode)
 
     // Check we can get a tooltip for text in the F# interactive state
     let tooltip = 
-        match typedResults.GetToolTipText(0,6,"xxxxxx",["xxxxxx"],identToken)  with 
+        match typedResults.GetToolTipTextAlternate(1,6,"xxxxxx",["xxxxxx"],identToken)  with 
         | ToolTipText [ToolTipElement(text, XmlCommentNone)] -> text
         | _ -> failwith "incorrect tool tip"
 

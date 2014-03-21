@@ -108,8 +108,8 @@ Now look at the errors and warnings:
 wholeProjectResults .Errors.Length // 1
 wholeProjectResults.Errors.[0].Message.Contains("Incomplete pattern matches on this expression") // yes it does
 
-wholeProjectResults.Errors.[0].StartLine // 12
-wholeProjectResults.Errors.[0].EndLine // 12
+wholeProjectResults.Errors.[0].StartLineAlternate // 13
+wholeProjectResults.Errors.[0].EndLineAlternate // 13
 wholeProjectResults.Errors.[0].StartColumn // 15
 wholeProjectResults.Errors.[0].EndColumn // 16
 
@@ -150,7 +150,7 @@ let backgroundParseResults1, backgroundTypedParse1 =
 You can now resolve symbols in each file:
 *)
 
-let xSymbol = backgroundTypedParse1.GetSymbolAtLocation(8,9,"",["xxx"]).Value
+let xSymbol = backgroundTypedParse1.GetSymbolAtLocationAlternate(9,9,"",["xxx"]).Value
 
 (**
 For each symbol, you can look up the references to that symbol:
@@ -174,24 +174,30 @@ You can also request checks of updated versions of files within the project (not
 in the project are still read from disk, unless you are using the [FileSystem API](filesystem.html)):
 
 *)
-let parseResults1 = checker.ParseFileInProject(Inputs.fileName1, Inputs.fileSource1, projectOptions) 
-let parseResults2 = checker.ParseFileInProject(Inputs.fileName2, Inputs.fileSource2, projectOptions) 
+
+let parseResults1, checkAnswer1 = 
+    checker.ParseAndCheckFileInProject(Inputs.fileName1, 0, Inputs.fileSource1, projectOptions) 
+    |> Async.RunSynchronously
 
 let checkResults1 = 
-    checker.CheckFileInProject(parseResults1, Inputs.fileName1, 0, Inputs.fileSource1, projectOptions) 
+    match checkAnswer1 with 
+    | CheckFileAnswer.Succeeded x ->  x 
+    | _ -> failwith "unexpected aborted"
+
+let parseResults2, checkAnswer2 = 
+    checker.ParseAndCheckFileInProject(Inputs.fileName2, 0, Inputs.fileSource2, projectOptions)
     |> Async.RunSynchronously
-    |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
 
 let checkResults2 = 
-    checker.CheckFileInProject(parseResults2, Inputs.fileName2, 0, Inputs.fileSource2, projectOptions)
-    |> Async.RunSynchronously
-    |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
+    match checkAnswer2 with 
+    | CheckFileAnswer.Succeeded x ->  x 
+    | _ -> failwith "unexpected aborted"
 
 (**
 Again, you can resolve symbols and ask for references:
 *)
 
-let xSymbol2 = checkResults1.GetSymbolAtLocation(8,9,"",["xxx"]).Value
+let xSymbol2 = checkResults1.GetSymbolAtLocationAlternate(9,9,"",["xxx"]).Value
 let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2)
 
 
@@ -199,6 +205,43 @@ let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2)
 Or ask for all the symbols uses in the file (including uses of symbols with local scope)
 *)
 let allUsesOfAllSymbolsInFile1 = checkResults1.GetAllUsesOfAllSymbolsInFile()
+
+(**
+Or ask for all the uses of one symbol in one file:
+*)
+let allUsesOfXSymbolInFile1 = checkResults1.GetUsesOfSymbolInFile(xSymbol2)
+
+let allUsesOfXSymbolInFile2 = checkResults2.GetUsesOfSymbolInFile(xSymbol2)
+
+(**
+
+Analyzing multiple projects
+-----------------------------
+
+If you have multiple F# projects to analyze which include references from some projects to others, 
+then the simplest way to do this is to build the projects and specify the cross-project references using 
+a `-r:path-to-output-of-project.dll` argument in the ProjectOptions. However, this requires the build
+of each project to succeed, producing the DLL file on disk which can be referred to.
+
+In some situations, e.g. in an IDE, you may wish to allow references to other F# projects prior to successful compilation to
+a DLL. To do this, fill in the ProjectReferences entry in ProjectOptions, which recursively specifies the project
+options for dependent projects. Each project reference still needs a corresponding `-r:path-to-output-of-project.dll`
+command line argument in ProjectOptions, along with an entry in ProjectReferences.
+
+When a project reference is used, the analysis will make use of the results of incremental
+analysis of the referenced F# project from source files, without requiring the compilation of these files to DLLs.
+
+To efficiently analyze a set of F# projects which include cross-references, you should populate the ProjectReferences
+correctly and then analyze each project in turn.   
+
+> **NOTE:** Project references are in prototype.  Using project references may currently degrade the responsiveness of the 
+  compiler service, because requests may not yet be serviced while dependent projects are being analyzed.
+
+> **NOTE:** Project references are disabled if the assembly being referred to contains type provider components - 
+  specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will 
+  still be required on disk.
+
+**)
 
 (**
 Summary

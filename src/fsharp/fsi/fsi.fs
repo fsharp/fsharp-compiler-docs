@@ -1136,7 +1136,7 @@ type internal FsiDynamicCompiler
              //
              let optValue = istate.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(istate.emEnv), vref.Deref);
              match optValue with
-             | Some (res, typ) -> istate, Completed(Some(FsiValue(res, typ, FSharpType(tcGlobals,vref.Type))))
+             | Some (res, typ) -> istate, Completed(Some(FsiValue(res, typ, FSharpType(tcGlobals, istate.tcState.Ccu, istate.tcImports, vref.Type))))
              | _ -> istate, Completed None
 
         // Return the interactive state.
@@ -1163,7 +1163,7 @@ type internal FsiDynamicCompiler
         if FileSystem.IsInvalidPathShim(path) then
             error(Error(FSIstrings.SR.fsiInvalidAssembly(path),m))
         // Check the file can be resolved before calling requireDLLReference 
-        let resolutions = tcImports.ResolveAssemblyReference(AssemblyReference(m,path),ResolveAssemblyReferenceMode.ReportErrors)
+        let resolutions = tcImports.ResolveAssemblyReference(AssemblyReference(m,path, None),ResolveAssemblyReferenceMode.ReportErrors)
         tcConfigB.AddReferencedAssemblyByPath(m,path)
         let tcState = istate.tcState 
         let tcEnv,(_dllinfos,ccuinfos) = 
@@ -1250,7 +1250,7 @@ type internal FsiDynamicCompiler
         } 
 
     member __.CurrentPartialAssemblySignature(istate) = 
-        FSharpAssemblySignature(istate.tcGlobals,istate.tcState.PartialAssemblySignature)
+        FSharpAssemblySignature(istate.tcGlobals, istate.tcState.Ccu, istate.tcImports, istate.tcState.PartialAssemblySignature)
 
 //----------------------------------------------------------------------------
 // ctrl-c handling
@@ -1506,14 +1506,14 @@ module internal MagicAssemblyResolution =
                let assemblyReferenceTextExe = (simpleAssemName + ".exe") 
                let overallSearchResult =           
                    // OK, try to resolve as a .dll
-                   let searchResult = tcImports.TryResolveAssemblyReference (AssemblyReference(m,assemblyReferenceTextDll),ResolveAssemblyReferenceMode.Speculative)
+                   let searchResult = tcImports.TryResolveAssemblyReference (AssemblyReference(m,assemblyReferenceTextDll,None),ResolveAssemblyReferenceMode.Speculative)
 
                    match searchResult with
                    | OkResult (warns,[r]) -> OkResult (warns, Choice1Of2 r.resolvedPath)
                    | _ -> 
 
                    // OK, try to resolve as a .exe
-                   let searchResult = tcImports.TryResolveAssemblyReference (AssemblyReference(m,assemblyReferenceTextExe),ResolveAssemblyReferenceMode.Speculative)
+                   let searchResult = tcImports.TryResolveAssemblyReference (AssemblyReference(m,assemblyReferenceTextExe,None),ResolveAssemblyReferenceMode.Speculative)
 
                    match searchResult with
                    | OkResult (warns, [r]) -> OkResult (warns, Choice1Of2 r.resolvedPath)
@@ -1899,7 +1899,7 @@ type internal FsiInteractionProcessor
            (istate,CtrlC)
         |  e ->
            stopProcessingRecovery e range0;
-           istate,CompletedWithReportedError
+           istate,CompletedWithReportedError e
 #else                                   
             if !progress then fprintfn fsiConsoleOutput.Out "In mainThreadProcessAction...";                  
             fsiInterruptController.InterruptAllowed <- InterruptCanRaiseException;
@@ -2083,7 +2083,10 @@ type internal FsiInteractionProcessor
         currState 
         |> interactiveCatch(fun istate ->
             let expr = parseExpression tokenizer 
-            mainThreadProcessParsedExpression (expr, istate))
+            let m = expr.Range
+            // Make this into "(); expr" to suppress generalization and compilation-as-function
+            let exprWithSeq = SynExpr.Sequential(SequencePointInfoForSeq.SuppressSequencePointOnStmtOfSequential,true,SynExpr.Const(SynConst.Unit,m.StartRange), expr, m)
+            mainThreadProcessParsedExpression (exprWithSeq, istate))
         |> commitResult
 
     member __.PartialAssemblySignatureUpdated = event.Publish
@@ -2529,12 +2532,16 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
                         // so we use special case for problematic case instead of just always scheduling restart.
 
                         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx
+#if SILVERLIGHT
+                        if true
+#else
                         let os = Environment.OSVersion
                         // Win7 6.1
                         let isWindows7 = os.Version.Major = 6 && os.Version.Minor = 1
                         // Win8 6.2
                         let isWindows8Plus = os.Version >= Version(6, 2, 0, 0)
                         if isFromThreadException && ((isWindows7 && Environment.Is64BitProcess) || (Environment.Is64BitOperatingSystem && isWindows8Plus))
+#endif
 #if DEBUG
                             // for debug purposes
                             && Environment.GetEnvironmentVariable("FSI_SCHEDULE_RESTART_WITH_ERRORS") = null
@@ -2582,9 +2589,9 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 #if SILVERLIGHT 
       // Request that ThreadAbort interrupts be performed on this (current) thread
       fsiInterruptController.InstallKillThread(Thread.CurrentThread, 100)
-      fsi.EventLoop <- Microsoft.FSharp.Compiler.Interactive.RuntimeHelpers.GetSimpleEventLoop()
+      //fsi.EventLoop <- Microsoft.FSharp.Compiler.Interactive.RuntimeHelpers.GetSimpleEventLoop()
       fsiInteractionProcessor.LoadInitialFiles()
-      fsiInteractionProcessor.StartQueueAgent()
+      //fsiInteractionProcessor.StartQueueAgent()
       fsiInteractionProcessor.StartStdinReadAndProcessThread ()            
 
       DriveFsiEventLoop (fsiConfig, fsiConsoleOutput )
@@ -2633,6 +2640,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
         // to be explicitly kept alive.
         GC.KeepAlive fsiInterruptController.EventHandlers
 
+#endif // SILVERLIGHT
 
     static member GetDefaultConfiguration(fsiObj:obj) =  FsiEvaluationSession.GetDefaultConfiguration(fsiObj, true)
     static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) = 
@@ -2688,7 +2696,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 // If no "fsi" object for the configuration is specified, make the default
 // configuration one which stores the settings in-process 
 
-module BuiltinFsiObjectImpl = 
+module Settings = 
     type IEventLoop =
         abstract Run : unit -> bool
         abstract Invoke : (unit -> 'T) -> 'T 
@@ -2744,7 +2752,11 @@ module BuiltinFsiObjectImpl =
         let mutable evLoop = (new SimpleEventLoop() :> IEventLoop)
         let mutable showIDictionary = true
         let mutable showDeclarationValues = true
+#if SILVERLIGHT
+        let mutable args : string[] = [| |]
+#else
         let mutable args = Environment.GetCommandLineArgs()
+#endif
         let mutable fpfmt = "g10"
         let mutable fp = (CultureInfo.InvariantCulture :> System.IFormatProvider)
         let mutable printWidth = 78
@@ -2777,11 +2789,11 @@ module BuiltinFsiObjectImpl =
         member self.AddPrintTransformer(printer : 'T -> obj) =
           addedPrinters <- Choice2Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
     
-    let BuiltinFsiObject = InteractiveSettings()
+    let fsi = InteractiveSettings()
 
 type FsiEvaluationSession with 
     static member GetDefaultConfiguration() = 
-        FsiEvaluationSession.GetDefaultConfiguration(BuiltinFsiObjectImpl.BuiltinFsiObject, false)
+        FsiEvaluationSession.GetDefaultConfiguration(Settings.fsi, false)
 
 /// Defines a read-only input stream used to feed content to the hosted F# Interactive dynamic compiler.
 [<AllowNullLiteral>]
@@ -2873,4 +2885,3 @@ type CompilerOutputStream()  =
             else
                 "")
 
-#endif // SILVERLIGHT

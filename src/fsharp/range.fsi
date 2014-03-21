@@ -95,11 +95,11 @@ val rangeCmdArgs : range
 val stringOfPos   : pos   -> string
 val stringOfRange : range -> string
 
+/// Represents a line number when using zero-based line counting (used by Visual Studio)
+#if CHECK_LINE0_TYPES
 // Visual Studio uses line counts starting at 0, F# uses them starting at 1 
 [<Measure>] type ZeroBasedLineAnnotation
 
-/// Represents a line number when using zero-based line counting (used by Visual Studio)
-#if CHECK_LINE0_TYPES
 type Line0 = int<ZeroBasedLineAnnotation>
 #else
 type Line0 = int
@@ -115,8 +115,6 @@ module Line =
     val fromZ : Line0 -> int
     /// Convert a line number from one-based line counting (used internally in the F# compiler and in F# error messages) to zero-based line counting (used by Visual Studio)
     val toZ : int -> Line0 
-    /// Add an annotation to indicate the assertion that the line count is zero-based
-    val assertZeroBasedLine : int -> Line0 
 
 module Pos =
     /// Convert a position from zero-based line counting (used by Visual Studio) to one-based line counting (used internally in the F# compiler and in F# error messages) 

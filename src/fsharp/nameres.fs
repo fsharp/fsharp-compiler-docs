@@ -89,7 +89,7 @@ let TryFindTypeWithRecdField (modref:ModuleOrNamespaceRef) (id: Ident) =
 /// Get the active pattern elements defined by a given value, if any
 let ActivePatternElemsOfValRef vref = 
     match TryGetActivePatternInfo vref with
-    | Some (APInfo(_,nms) as apinfo) -> List.mapi (fun i _ -> APElemRef(apinfo,vref, i)) nms
+    | Some apinfo -> apinfo.ActiveTags |> List.mapi (fun i _ -> APElemRef(apinfo,vref, i)) 
     | None -> [] 
 
 
@@ -1078,9 +1078,6 @@ type ItemOccurence =
     /// Abstract slot gets implemented
     | Implemented
   
-/// location in code where item appears
-type ItemUsageLocation = range * string
-
 type ITypecheckResultsSink =
     abstract NotifyEnvWithScope : range * NameResolutionEnv * AccessorDomain -> unit
     abstract NotifyExprHasType : pos * TType * Tastops.DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
@@ -1159,10 +1156,13 @@ let (|ValUse|_|) (item:Item) =
     | FSharpPropertyUse vref
     | FSharpMethodUse vref
     | FSharpEventUse vref
-    | Item.CustomBuilder(_, vref) -> Some (vref, 0)
-    | Item.ActivePatternCase(APElemRef(_, vref, idx)) -> Some (vref, idx)
-    //| Item.ActivePatternResult(_, vref, idx,_) -> Some (vref, idx)
-    //| Item.ArgName
+    | Item.CustomBuilder(_, vref) -> Some vref
+    | _ -> None
+
+let (|ActivePatternCaseUse|_|) (item:Item) = 
+    match item with 
+    | Item.ActivePatternCase(APElemRef(_, vref, idx)) -> Some (vref.Range, vref.ImplRange, idx)
+    | Item.ActivePatternResult(ap, _, idx,_) -> Some (ap.Range, ap.Range, idx)
     | _ -> None
 
 let tyconRefDefnEq g (eref1:EntityRef) (eref2: EntityRef) =
@@ -1184,15 +1184,28 @@ let ItemsReferToSameDefinition g orig other =
     | EntityUse ty1, EntityUse ty2 -> 
         tyconRefDefnEq g ty1 ty2
     | Item.TypeVar (nm1,tp1), Item.TypeVar (nm2,tp2) -> 
-        nm1 = nm2 && not tp1.IsCompilerGenerated && not tp1.IsFromError && tp1.Range = tp2.Range
+        nm1 = nm2 && 
+        (typeEquiv g (mkTyparTy tp1) (mkTyparTy tp2) || 
+         match stripTyparEqns (mkTyparTy tp1), stripTyparEqns (mkTyparTy tp2) with 
+         | TType_var tp1, TType_var tp2 -> 
+            not tp1.IsCompilerGenerated && not tp1.IsFromError && 
+            not tp2.IsCompilerGenerated && not tp2.IsFromError && 
+            tp1.Range = tp2.Range
+         | AbbrevOrAppTy tcref1, AbbrevOrAppTy tcref2 -> 
+            tyconRefDefnEq g tcref1 tcref2
+         | _ -> false)
     | ILPropertyUse(propDef1), ILPropertyUse(propDef2) -> 
         propDef1 === propDef2 
-    | ValUse(vref1, idx1), ValUse(vref2, idx2) -> 
-        idx1 = idx2 && valRefDefnEq g vref1 vref2 || 
-        // Signature items considered equal to implementation items
-        (vref1.ImplRange = vref2.ImplRange && vref1.LogicalName = vref2.LogicalName) 
+    | ValUse vref1, ValUse vref2 -> 
+        valRefDefnEq g vref1 vref2 
+    | ActivePatternCaseUse (range1, range1i, idx1), ActivePatternCaseUse (range2, range2i, idx2) -> 
+        (idx1 = idx2) && (range1 = range2 || range1i = range2i)
     | ILMethodUse methodDef1, ILMethodUse methodDef2 -> 
         methodDef1 === methodDef2
+    | Item.ArgName (id1,_), Item.ArgName (id2,_) -> 
+        (id1.idText = id2.idText && id1.idRange = id2.idRange)
+    | (Item.ArgName (id,_), ValUse vref) | (ValUse vref, Item.ArgName (id,_)) -> 
+        (id.idText = vref.DisplayName && id.idRange = vref.ImplRange)
     | ILFieldUse f1, ILFieldUse f2 -> 
         f1 === f2 
     | UnionCaseUse u1, UnionCaseUse u2 ->  
@@ -2189,6 +2202,8 @@ let rec ResolveTypeLongIdentInTyconRefPrim (ncenv:NameResolver) (typeNameResInfo
 let ResolveTypeLongIdentInTyconRef sink (ncenv:NameResolver) nenv typeNameResInfo ad m tcref (lid: Ident list) =
     let resInfo,tcref = ForceRaise (ResolveTypeLongIdentInTyconRefPrim ncenv typeNameResInfo ad ResolutionInfo.Empty PermitDirectReferenceToGeneratedType.No 0 m tcref lid)
     ResolutionInfo.SendToSink(sink,ncenv,nenv,ItemOccurence.Use,ad,resInfo,ResultTyparChecker(fun () -> true));
+    let item = Item.Types(tcref.DisplayName,[FreshenTycon ncenv m tcref])
+    CallNameResolutionSink sink (rangeOfLid lid,nenv,item,item,ItemOccurence.UseInType,nenv.eDisplayEnv,ad)
     tcref
 
 

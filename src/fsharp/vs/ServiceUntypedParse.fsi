@@ -25,13 +25,13 @@ open System.Collections.Generic
 type ParseFileResults = 
     member ParseTree : Ast.ParsedInput option
     /// Notable parse info for ParameterInfo at a given location
-    member FindNoteworthyParamInfoLocations : line:Line0 * col:int -> NoteworthyParamInfoLocations option
+    member FindNoteworthyParamInfoLocations : pos:pos -> NoteworthyParamInfoLocations option
     /// Name of the file for which this information were created
     member FileName                       : string
     /// Get declared items and the selected item at the specified location
     member GetNavigationItems             : unit -> NavigationItems
     /// Return the inner-most range associated with a possible breakpoint location
-    member ValidateBreakpointLocation : line:Line0 * col:int -> Range01 option
+    member ValidateBreakpointLocation : pos:pos -> range option
     /// When these files change then the build is invalid
     member DependencyFiles : string list
 
@@ -75,10 +75,10 @@ type internal CompletionContext =
 // implementation details used by other code in the compiler    
 module (*internal*) UntypedParseImpl =
     open Microsoft.FSharp.Compiler.Ast
-    val TryFindExpressionASTLeftOfDotLeftOfCursor : Line0 * int * ParsedInput option -> (pos * bool) option
-    val GetRangeOfExprLeftOfDot : Line0 * int * ParsedInput option -> ((Line0*int) * (Line0*int)) option
-    val TryFindExpressionIslandInPosition : Line0 * int * ParsedInput option -> string option
-    val TryGetCompletionContext : Line0 * int * ParseFileResults option -> CompletionContext option
+    val TryFindExpressionASTLeftOfDotLeftOfCursor : pos * ParsedInput option -> (pos * bool) option
+    val GetRangeOfExprLeftOfDot : pos  * ParsedInput option -> range option
+    val TryFindExpressionIslandInPosition : pos * ParsedInput option -> string option
+    val TryGetCompletionContext : pos * ParseFileResults option -> CompletionContext option
 
 // implementation details used by other code in the compiler    
 module internal SourceFileImpl =

@@ -1,18 +1,4 @@
 
-#if SILVERLIGHT
-namespace Microsoft.FSharp.Compiler.Interactive
-
-module Runner = 
-
-    type public InteractiveConsole(argv:string[],reader:System.IO.TextReader, writer:System.IO.TextWriter, error:System.IO.TextWriter) =
-        do
-            Microsoft.FSharp.Core.Printf.setWriter writer
-            Microsoft.FSharp.Core.Printf.setError error
-        let session = Microsoft.FSharp.Compiler.Interactive.Shell.FsiEvaluationSession(argv, reader, writer, error)
-        member x.Run() = session.Run()
-        member x.Interrupt() = session.Interrupt()
-#endif
-
 namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
     open System
@@ -24,6 +10,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     open Microsoft.FSharp.Compiler
     open Microsoft.FSharp.Compiler.Ast
     open Microsoft.FSharp.Compiler.ErrorLogger
+    open Microsoft.FSharp.Compiler.AbstractIL
+    open Microsoft.FSharp.Compiler.AbstractIL.IL
 
     [<AutoOpen>]
     module private Utils =
@@ -83,32 +71,34 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.Errors = results.Errors
 
         /// Get the declarations at the given code location.
-        member x.GetDeclarations(line:Line0, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
-            async { let! items = results.GetDeclarations(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
+        member x.GetDeclarationsAlternate(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
+            async { let! items = results.GetDeclarationsAlternate(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
                     return [| for i in items.Items -> SimpleDeclaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
 
         /// Get the Visual Studio F1-help keyword for the item at the given position
-        member x.GetF1Keyword(line, col, names) =
-            results.GetF1Keyword(line, col, source.[int line], names)
-
-        [<System.Obsolete("This method has been renamed to GetToolTipText")>]
-        member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = 
-            x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever)
+        member x.GetF1KeywordAlternate(line, col, names) =
+            results.GetF1KeywordAlternate(line, col, source.[int line], names)
 
         /// Get the data tip text at the given position
-        member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) =
-            let tip = results.GetToolTipText(line, col, source.[int line], names, identToken)
+        member x.GetToolTipTextAlternate(line, col, names, ?xmlCommentRetriever) =
+            let tip = results.GetToolTipTextAlternate(line, col, source.[int line], names, identToken)
             formatTip tip xmlCommentRetriever
 
-        member x.GetRawToolTipText(line, col, names) =
-            results.GetToolTipText(line, col, source.[line], names, identToken)
-
         /// Get the location of the declaration at the given position
-        member x.GetDeclarationLocation(line, col, names, isDecl) =
-            results.GetDeclarationLocation(line, col, source.[int line], names, identToken, isDecl)
+        member x.GetDeclarationLocationAlternate(line, col, names, isDecl) =
+            results.GetDeclarationLocationAlternate(line, col, source.[int line], names, isDecl)
 
         /// Get the full type checking results 
         member x.FullResults = results
+
+
+        // Obsolete
+        
+        member x.GetF1Keyword(line, col, names) = x.GetF1KeywordAlternate(Line.fromZ line, col, names)
+        member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipTextAlternate(Line.fromZ line, col, names, ?xmlCommentRetriever=xmlCommentRetriever)
+        member x.GetDeclarationLocation(line, col, names, isDecl) = x.GetDeclarationLocationAlternate(Line.fromZ line, col, names, isDecl)
+        member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever)
+        member x.GetDeclarations(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) = x.GetDeclarationsAlternate(Line.fromZ line, col, qualifyingNames, partialName, ?xmlCommentRetriever=xmlCommentRetriever)
 
     /// Provides simple services for checking and compiling F# scripts
     type public SimpleSourceCodeServices() =
@@ -134,12 +124,16 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 [| let state = ref 0L
                    for line in lines do 
                          let tokens, n = x.TokenizeLine(line, !state) 
-                         state := n; 
+                         state := n 
                          yield tokens |]
             tokens
 
         /// Return information about matching braces in a single file.
-        member x.MatchBraces (filename, source: string, ?otherFlags) : (Range01 * Range01) [] = 
+        member x.MatchBracesAlternate (filename, source: string, ?otherFlags) = 
+            let options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
+            checker.MatchBracesAlternate(filename, source,  options)
+
+        member x.MatchBraces (filename, source, ?otherFlags) = 
             let options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
             checker.MatchBraces(filename, source,  options)
 
@@ -154,15 +148,13 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             checker.StartBackgroundCompile options
             // wait for the antecedent to appear
             checker.WaitForBackgroundCompile()
-            // do an untyped parse
-            let untypedParse = checker.ParseFileInProject(filename, source, options)
             // do an typecheck
             let textSnapshotInfo = "" // TODO
-            let! typedInfo = checker.CheckFileInProject(untypedParse, filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo) 
+            let! parseResults, checkResults = checker.ParseAndCheckFileInProject(filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo) 
             // return the info
-            match typedInfo with 
+            match checkResults with 
             | CheckFileAnswer.Aborted -> return! invalidOp "aborted"
-            | CheckFileAnswer.Succeeded res -> return SimpleCheckFileResults(untypedParse, res, source.Split('\n'))
+            | CheckFileAnswer.Succeeded res -> return SimpleCheckFileResults(parseResults, res, source.Split('\n'))
           }
 
         member x.ParseAndCheckProject (projectFileName, argv:string[]) = 
@@ -170,7 +162,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             checker.ParseAndCheckProject(options)
 
         /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
-        member x.Compile (argv: string[])  = 
+        member x.Compile (argv: string[], tcImportsCapture, dynamicAssemblyCreator)  = 
             let errors = ResizeArray<_>()
 
             let errorSink warn exn = 
@@ -192,13 +184,15 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
                 let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
                 try 
-                    mainCompile (argv, true, exiter, Some loggerProvider); 
+                    mainCompile (argv, true, exiter, Some loggerProvider, tcImportsCapture, dynamicAssemblyCreator) 
                     0
                 with e -> 
                     stopProcessingRecovery e Range.range0
                     1
         
             errors.ToArray(), result
+
+        member x.Compile (argv: string[])  = x.Compile(argv, None, None)
 
         member x.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool) =
             let errors = ResizeArray<_>()
@@ -223,14 +217,13 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
                 let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
                 try 
-                    compileOfAst (assemblyName, target, outFile, pdbFile, dependencies, exiter, ast); 
+                    compileOfAst (assemblyName, target, outFile, pdbFile, dependencies, exiter, ast, None, None); 
                     0
                 with e -> 
                     stopProcessingRecovery e Range.range0
                     1
 
             errors.ToArray(), result
-
 
         /// Compiles to a dynamic assembly usinng the given flags.  Any source files names 
         /// are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not
@@ -240,6 +233,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         /// the given TextWriters are used for the stdout and stderr streams respectively. In this 
         /// case, a global setting is modified during the execution.
         member x.CompileToDynamicAssembly (otherFlags: string[], execute: (TextWriter * TextWriter) option)  = 
+            // Set the output streams, if requested
             match execute with
             | Some (writer,error) -> 
 #if SILVERLIGHT
@@ -250,46 +244,63 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 System.Console.SetError error
 #endif
             | None -> ()
-            let tcImportsRef = ref None
+            
+            // References used to capture the results of compilation
+            let tcImportsRef = ref (None: Build.TcImports option)
             let res = ref None
-            tcImportsCapture <- Some (fun tcImports -> tcImportsRef := Some tcImports)
-            dynamicAssemblyCreator <- 
+            let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
+
+            // Function to generate and store the results of compilation 
+            let dynamicAssemblyCreator = 
                 Some (fun (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) ->
-                    let assemblyBuilder = System.AppDomain.CurrentDomain.DefineDynamicAssembly(System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile),System.Reflection.Emit.AssemblyBuilderAccess.Run)
-                    let debugInfo = false
-                    let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule",debugInfo)     
-                    let _emEnv,execs = 
-                        Microsoft.FSharp.Compiler.AbstractIL.ILRuntimeWriter.emitModuleFragment 
-                            (ilGlobals ,
-                             Microsoft.FSharp.Compiler.AbstractIL.ILRuntimeWriter.emEnv0,
-                             assemblyBuilder,moduleBuilder,
-                             // Omit resources in dynamic assemblies, because the module builder is constructed without a filename the module 
-                             // is tagged as transient and as such DefineManifestResource will throw an invalid operation if resources are present
-                             { ilxMainModule with Resources=Microsoft.FSharp.Compiler.AbstractIL.IL.mkILResources [] },
-                             debugInfo,
-                             (fun s -> 
-                                 match tcImportsRef.Value.Value.TryFindExistingFullyQualifiedPathFromAssemblyRef s with 
-                                 | Some res -> Some (Choice1Of2 res)
-                                 | None -> None))
+
+                    // Create an assembly builder
+                    let assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile),System.Reflection.Emit.AssemblyBuilderAccess.Run)
+                    let debugInfo =  otherFlags |> Array.exists (fun arg -> arg = "-g" || arg = "--debug:+" || arg = "/debug:+")
+                    let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule", debugInfo)     
+
+                    // Omit resources in dynamic assemblies, because the module builder is constructed without a filename the module 
+                    // is tagged as transient and as such DefineManifestResource will throw an invalid operation if resources are present.
+                    // 
+                    // Also, the dynamic assembly creator can't currently handle types called "<Module>" from statically linked assemblies.
+                    let ilxMainModule = 
+                       { ilxMainModule with 
+                            TypeDefs = ilxMainModule.TypeDefs.AsList |> List.filter (fun td -> not (isTypeNameForGlobalFunctions td.Name)) |> mkILTypeDefs
+                            Resources=mkILResources [] }
+
+                    // The function used to resolve typees while emitting the code
+                    let assemblyResolver s = 
+                        match tcImportsRef.Value.Value.TryFindExistingFullyQualifiedPathFromAssemblyRef s with 
+                        | Some res -> Some (Choice1Of2 res)
+                        | None -> None
+
+                    // Emit the code
+                    let _emEnv,execs = ILRuntimeWriter.emitModuleFragment(ilGlobals, ILRuntimeWriter.emEnv0, assemblyBuilder, moduleBuilder, ilxMainModule, debugInfo, assemblyResolver)
+
+                    // Execute the top-level initialization, if requested
                     if execute.IsSome then 
                         for exec in execs do 
                             match exec() with 
                             | None -> ()
                             | Some exn -> raise exn
+
+                    // Register the reflected definitions for the dynamically generated assembly
                     for resource in ilxMainModule.Resources.AsList do 
                         if Build.IsReflectedDefinitionsResource resource then 
-                            Quotations.Expr.RegisterReflectedDefinitions(assemblyBuilder, moduleBuilder.Name, resource.Bytes);
+                            Quotations.Expr.RegisterReflectedDefinitions(assemblyBuilder, moduleBuilder.Name, resource.Bytes)
+
+                    // Save the result
                     res := Some assemblyBuilder)
             
 
-            try 
-                let errorsAndWarnings, result = x.Compile otherFlags
-                let assemblyOpt = 
-                    match res.Value with 
-                    | None -> None
-                    | Some a ->  Some (a :> System.Reflection.Assembly)
-                errorsAndWarnings, result, assemblyOpt
-            finally
-                tcImportsCapture <- None
-                dynamicAssemblyCreator <- None
+            // Perform the compilation, given the above capturing function.
+            let errorsAndWarnings, result = x.Compile (otherFlags, tcImportsCapture, dynamicAssemblyCreator)
+
+            // Retrieve and return the results
+            let assemblyOpt = 
+                match res.Value with 
+                | None -> None
+                | Some a ->  Some (a :> System.Reflection.Assembly)
+
+            errorsAndWarnings, result, assemblyOpt
 

@@ -177,7 +177,7 @@ type CheckFileResults =
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
     /// <param name="tokenTag">Used to discriminate between 'identifiers', 'strings' and others. For strings, an attempt is made to give a tooltip for a #r "..." location.</param>
-    member GetToolTipTextAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
+    member GetToolTipTextAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> Async<ToolTipText>
 
     /// <summary>Compute the Visual Studio F1-help key identifier for the given location, based on name resolution results</summary>
     ///
@@ -185,7 +185,7 @@ type CheckFileResults =
     /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
-    member GetF1KeywordAlternate                   : line:int * colAtEndOfNames:int * lineText:string * names:string list -> string option
+    member GetF1KeywordAlternate                   : line:int * colAtEndOfNames:int * lineText:string * names:string list -> Async<string option>
 
 
     /// <summary>Compute a set of method overloads to show in a dialog relevant to the given code location.</summary>
@@ -194,7 +194,7 @@ type CheckFileResults =
     /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
-    member GetMethodsAlternate              : line:int * colAtEndOfNames:int * lineText:string * names:string list option -> MethodGroup
+    member GetMethodsAlternate              : line:int * colAtEndOfNames:int * lineText:string * names:string list option -> Async<MethodGroup>
 
     /// <summary>Resolve the names at the given location to the declaration location of the corresponding construct.</summary>
     ///
@@ -203,7 +203,7 @@ type CheckFileResults =
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
     /// <param name="preferSignature">If false, then make an attempt to go to the implementation (rather than the signature if present).</param>
-    member GetDeclarationLocationAlternate         : line:int * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> FindDeclResult
+    member GetDeclarationLocationAlternate         : line:int * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> Async<FindDeclResult>
 
     /// <summary>Resolve the names at the given location to a symbol.</summary>
     ///
@@ -211,16 +211,16 @@ type CheckFileResults =
     /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
-    member GetSymbolAtLocationAlternate  : line:int * colAtEndOfNames:int * lineText:string * names:string list -> FSharpSymbol option
+    member GetSymbolAtLocationAlternate  : line:int * colAtEndOfNames:int * lineText:string * names:string list -> Async<FSharpSymbol option>
 
     /// <summary>Get any extra colorization info that is available after the typecheck</summary>
     member GetExtraColorizationsAlternate : unit -> (range * TokenColorKind)[]
 
     /// Get all textual usages of all symbols throughout the file
-    member GetAllUsesOfAllSymbolsInFile : unit -> FSharpSymbolUse[]
+    member GetAllUsesOfAllSymbolsInFile : unit -> Async<FSharpSymbolUse[]>
 
     /// Get the textual usages that resolved to the given symbol throughout the file
-    member GetUsesOfSymbolInFile : symbol:FSharpSymbol -> FSharpSymbolUse[]
+    member GetUsesOfSymbolInFile : symbol:FSharpSymbol -> Async<FSharpSymbolUse[]>
 
     [<Obsolete("This member has been replaced by GetSymbolAtLocationAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member GetSymbolAtLocation  : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> FSharpSymbol option
@@ -262,10 +262,10 @@ type CheckProjectResults =
     member ProjectContext : ProjectContext
 
     /// Get the textual usages that resolved to the given symbol throughout the project
-    member GetUsesOfSymbol : symbol:FSharpSymbol -> FSharpSymbolUse[]
+    member GetUsesOfSymbol : symbol:FSharpSymbol -> Async<FSharpSymbolUse[]>
 
     /// Get all textual usages of all symbols throughout the project
-    member GetAllUsesOfAllSymbols : unit -> FSharpSymbolUse[]
+    member GetAllUsesOfAllSymbols : unit -> Async<FSharpSymbolUse[]>
 
     /// Indicates if critical errors existed in the project options
     member HasCriticalErrors : bool 
@@ -326,7 +326,7 @@ type InteractiveChecker =
     /// <param name="filename">The filename for the file, used to help caching of results.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member MatchBracesAlternate : filename : string * source: string * options: ProjectOptions -> (range * range)[]
+    member MatchBracesAlternate : filename : string * source: string * options: ProjectOptions -> Async<(range * range)[]>
 
     [<Obsolete("This member has been replaced by MatchBracesAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member MatchBraces : filename : string * source: string * options: ProjectOptions -> (Range01 * Range01)[]
@@ -368,7 +368,7 @@ type InteractiveChecker =
     ///     can be used to marginally increase accuracy of intellisense results in some situations.
     /// </param>
     ///
-    member CheckFileInProjectIfReady : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> CheckFileAnswer option
+    member CheckFileInProjectIfReady : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<CheckFileAnswer option>
 
     /// <summary>
     /// <para>
@@ -448,7 +448,7 @@ type InteractiveChecker =
     /// <param name="loadedTimeStamp">Indicates when the script was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the script to be considered as a new project,
     /// so that references are re-resolved.</param>
-    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> ProjectOptions
+    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> Async<ProjectOptions>
 
     /// <summary>
     /// <para>Get the ProjectOptions implied by a set of command line arguments.</para>
@@ -567,9 +567,7 @@ type InteractiveChecker =
 // For internal use only 
 and internal IReactorOperations = 
     abstract RunAsyncOp : (unit -> 'T) -> Async<'T>
-    abstract AsyncOp: Reactor.Operation -> unit
-    abstract SyncOp: Reactor.Operation -> unit
-    abstract RunSyncOp: (unit -> 'T) -> 'T
+    abstract StartAsyncOp: Reactor.Operation -> unit
 
 // An object to typecheck source in a given typechecking environment.
 // Used internally to provide intellisense over F# Interactive.

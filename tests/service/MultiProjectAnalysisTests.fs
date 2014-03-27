@@ -144,17 +144,17 @@ let ``Test multi project 1 all symbols`` () =
     let mp = checker.ParseAndCheckProject(MultiProject1.options) |> Async.RunSynchronously
 
     let x1FromProject1A = 
-        [ for s in p1A.GetAllUsesOfAllSymbols() do
+        [ for s in p1A.GetAllUsesOfAllSymbols() |> Async.RunSynchronously do
              if  s.Symbol.DisplayName = "x1" then 
                  yield s.Symbol ]   |> List.head
 
     let x1FromProjectMultiProject = 
-        [ for s in mp.GetAllUsesOfAllSymbols() do
+        [ for s in mp.GetAllUsesOfAllSymbols() |> Async.RunSynchronously do
              if  s.Symbol.DisplayName = "x1" then 
                  yield s.Symbol ]   |> List.head
 
     let bFromProjectMultiProject = 
-        [ for s in mp.GetAllUsesOfAllSymbols() do
+        [ for s in mp.GetAllUsesOfAllSymbols() |> Async.RunSynchronously do
              if  s.Symbol.DisplayName = "b" then 
                  yield s.Symbol ]   |> List.head
 
@@ -166,10 +166,12 @@ let ``Test multi project 1 all symbols`` () =
 
     let usesOfx1FromProject1AInMultiProject1 = 
        mp.GetUsesOfSymbol(x1FromProject1A) 
+            |> Async.RunSynchronously
             |> Array.map (fun s -> s.Symbol.DisplayName, MultiProject1.cleanFileName  s.FileName, tups s.Symbol.DeclarationLocation.Value) 
 
     let usesOfx1FromMultiProject1InMultiProject1 = 
        mp.GetUsesOfSymbol(x1FromProjectMultiProject) 
+            |> Async.RunSynchronously
             |> Array.map (fun s -> s.Symbol.DisplayName, MultiProject1.cleanFileName  s.FileName, tups s.Symbol.DeclarationLocation.Value) 
 
     usesOfx1FromProject1AInMultiProject1 |> shouldEqual usesOfx1FromMultiProject1InMultiProject1

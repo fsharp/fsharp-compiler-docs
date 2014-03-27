@@ -31,7 +31,9 @@ We now perform type checking on the specified input:
 
 let parseAndTypeCheckSingleFile (file, input) = 
     // Get context representing a stand-alone (script) file
-    let projOptions = checker.GetProjectOptionsFromScript(file, input)
+    let projOptions = 
+        checker.GetProjectOptionsFromScript(file, input)
+        |> Async.RunSynchronously
 
     let parseFileResults, checkFileResults = 
         checker.ParseAndCheckFileInProject(file, 0, input, projOptions) 
@@ -191,7 +193,10 @@ the project for a single script. By specifying a different "projOptions" you can
 a specification of a larger project.
 *)
 let parseAndCheckScript (file, input) = 
-    let projOptions = checker.GetProjectOptionsFromScript(file, input)
+    let projOptions = 
+        checker.GetProjectOptionsFromScript(file, input)
+        |> Async.RunSynchronously
+
     checker.ParseAndCheckProject(projOptions) |> Async.RunSynchronously
 
 (**

@@ -42,13 +42,13 @@ type SimpleCheckFileResults =
     member GetDeclarationsAlternate: line:int * col:int * qualifyingNames:string list * partialName:string * ?xmlCommentRetriever:(string * string -> string) -> Async<SimpleDeclaration []>
 
     /// Get the Visual Studio F1-help keyword for the item at the given position
-    member GetF1KeywordAlternate: line:int * col:int * names:string list -> string option
+    member GetF1KeywordAlternate: line:int * col:int * names:string list -> Async<string option>
 
     /// Get the data tip text at the given position
-    member GetToolTipTextAlternate: line:int * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> string
+    member GetToolTipTextAlternate: line:int * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> Async<string>
 
     /// Get the location of the declaration at the given position
-    member GetDeclarationLocationAlternate: line:int * col:int * names:string list * isDecl:bool -> FindDeclResult
+    member GetDeclarationLocationAlternate: line:int * col:int * names:string list * isDecl:bool -> Async<FindDeclResult>
 
     /// Get the full type checking results 
     member FullResults: Microsoft.FSharp.Compiler.SourceCodeServices.CheckFileResults
@@ -82,7 +82,7 @@ type SimpleSourceCodeServices =
     member TokenizeFile: source:string -> TokenInformation [] []
 
     /// Return information about matching braces in a single file.
-    member MatchBracesAlternate: filename:string * source:string * ?otherFlags:string [] -> (range * range) []
+    member MatchBracesAlternate: filename:string * source:string * ?otherFlags:string [] -> Async<(range * range) []>
 
     [<System.Obsolete("This member has been replaced by MatchBracesAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member MatchBraces: filename:string * source:string * ?otherFlags:string [] -> (Range01 * Range01) []

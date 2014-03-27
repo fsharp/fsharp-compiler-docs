@@ -1,7 +1,7 @@
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
-/// Reactor is intended to long-running, but interruptible operations to be interleaved
-/// with one-off synchronous or asynchronous operations. 
+/// Reactor is intended for long-running but interruptible operations, interleaved
+/// with one-off asynchronous operations. 
 ///
 /// It is used to guard the global compiler state while maintaining  responsiveness on 
 /// the UI thread.
@@ -18,20 +18,13 @@ module internal Reactor =
     type Reactor =
         /// Start building. The build function will return true if there is more work to do.
         member StartBuilding : build:BuildStepper -> unit
-        /// Start building the most recently building thing.
-        member StartBuildingRecent : unit -> unit
         /// Halt the current build.
         member StopBuilding : unit -> unit
         /// Block until the current build is complete.
         member WaitForBackgroundCompile : unit -> unit
-        /// Block while performing and operation. Restart the most recent build afterward.
-        member SyncOp : op:Operation -> unit
         /// Start an operation and return immediately. Restart the most recent build after the operation is complete.
-        member AsyncOp : op:Operation -> unit
+        member StartAsyncOp : op:Operation -> unit
     
-        /// Block while performing and operation. Restart the most recent build afterward.
-        member RunSyncOp : (unit -> 'T) -> 'T
-
     // TODO: For all AsyncOps: if the operation gets cancelled, the background thread and Reactor don't abandon their work,
     // even when it is ultimately an Eventually<_> compuation which could easily be abandoned, or an IncrementalBuild.Eval
     // operation which can be halted part way through.

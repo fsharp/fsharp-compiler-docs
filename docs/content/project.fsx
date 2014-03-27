@@ -150,24 +150,33 @@ let backgroundParseResults1, backgroundTypedParse1 =
 You can now resolve symbols in each file:
 *)
 
-let xSymbol = backgroundTypedParse1.GetSymbolAtLocationAlternate(9,9,"",["xxx"]).Value
+let xSymbolOpt = 
+    backgroundTypedParse1.GetSymbolAtLocationAlternate(9,9,"",["xxx"])
+    |> Async.RunSynchronously
+
+let xSymbol = xSymbolOpt.Value
 
 (**
 For each symbol, you can look up the references to that symbol:
 *)
-let usesOfXSymbol = wholeProjectResults.GetUsesOfSymbol(xSymbol)
+let usesOfXSymbol = 
+    wholeProjectResults.GetUsesOfSymbol(xSymbol) 
+    |> Async.RunSynchronously
 
 (**
 You can iterate all the defined symbols in the inferred signature and find where they are used:
 *)
 let allUsesOfAllSignatureSymbols = 
     [ for s in allSymbols do 
-         yield s.ToString(), wholeProjectResults.GetUsesOfSymbol(s) ]
+         let uses = wholeProjectResults.GetUsesOfSymbol(s) |> Async.RunSynchronously 
+         yield s.ToString(), uses ]
 
 (**
 You can also look at all the symbols uses in the whole project (including uses of symbols with local scope)
 *)
-let allUsesOfAllSymbols = wholeProjectResults.GetAllUsesOfAllSymbols()
+let allUsesOfAllSymbols =  
+    wholeProjectResults.GetAllUsesOfAllSymbols()
+    |> Async.RunSynchronously
 
 (**
 You can also request checks of updated versions of files within the project (note that the other files 
@@ -197,21 +206,34 @@ let checkResults2 =
 Again, you can resolve symbols and ask for references:
 *)
 
-let xSymbol2 = checkResults1.GetSymbolAtLocationAlternate(9,9,"",["xxx"]).Value
-let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2)
+let xSymbol2Opt = 
+    checkResults1.GetSymbolAtLocationAlternate(9,9,"",["xxx"])
+    |> Async.RunSynchronously
+
+let xSymbol2 = xSymbol2Opt.Value
+
+let usesOfXSymbol2 = 
+    wholeProjectResults.GetUsesOfSymbol(xSymbol2) 
+    |> Async.RunSynchronously
 
 
 (**
 Or ask for all the symbols uses in the file (including uses of symbols with local scope)
 *)
-let allUsesOfAllSymbolsInFile1 = checkResults1.GetAllUsesOfAllSymbolsInFile()
+let allUsesOfAllSymbolsInFile1 = 
+    checkResults1.GetAllUsesOfAllSymbolsInFile()
+    |> Async.RunSynchronously
 
 (**
 Or ask for all the uses of one symbol in one file:
 *)
-let allUsesOfXSymbolInFile1 = checkResults1.GetUsesOfSymbolInFile(xSymbol2)
+let allUsesOfXSymbolInFile1 = 
+    checkResults1.GetUsesOfSymbolInFile(xSymbol2)
+    |> Async.RunSynchronously
 
-let allUsesOfXSymbolInFile2 = checkResults2.GetUsesOfSymbolInFile(xSymbol2)
+let allUsesOfXSymbolInFile2 = 
+    checkResults2.GetUsesOfSymbolInFile(xSymbol2)
+    |> Async.RunSynchronously
 
 (**
 

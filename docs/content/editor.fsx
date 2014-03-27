@@ -52,7 +52,9 @@ let input =
 let inputLines = input.Split('\n')
 let file = "/home/user/Test.fsx"
 
-let projOptions = checker.GetProjectOptionsFromScript(file, input)
+let projOptions = 
+    checker.GetProjectOptionsFromScript(file, input)
+    |> Async.RunSynchronously
 
 (**
 To perform type checking, we first need to parse the input using 
@@ -193,6 +195,7 @@ changes):
 // Get overloads of the String.Concat method
 let methods = 
     checkFileResults.GetMethodsAlternate(5, 27, inputLines.[4], Some ["String"; "Concat"])
+    |> Async.RunSynchronously
 
 // Print concatenated parameter lists
 for mi in methods.Methods do

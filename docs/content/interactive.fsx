@@ -126,7 +126,7 @@ open Microsoft.FSharp.Compiler
 let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
 checkResults.GetToolTipTextAlternate(1, 2, "xxx + xx", ["xxx"], identToken) // a tooltip
 
-checkResults.GetSymbolAtLocationAlternate(1, 2, "xxx + xx", ["xxx"]) // symbol xxx
+checkResults.GetSymbolUseAtLocation(1, 2, "xxx + xx", ["xxx"]) // symbol xxx
   
 (**
 Exception handling

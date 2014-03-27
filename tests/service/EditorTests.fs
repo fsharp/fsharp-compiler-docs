@@ -191,10 +191,10 @@ let ``Expression typing test`` () =
 
     // Get declarations (autocomplete) for a location
     //
-    // Getting the declarations at columns 42 to 47 with [], "" for the names and residue 
-    // gives the results for the string type. Actually only column 42 should really be passed.
+    // Getting the declarations at columns 42 to 43 with [], "" for the names and residue 
+    // gives the results for the string type. 
     // 
-    for col in 42..50 do 
+    for col in 42..43 do 
         let decls =  typeCheckResults.GetDeclarationsAlternate(Some untyped, 2, col, inputLines.[1], [], "", fun _ -> false)|> Async.RunSynchronously
         set [ for item in decls.Items -> item.Name ] |> shouldEqual
            (set

@@ -150,11 +150,23 @@ let backgroundParseResults1, backgroundTypedParse1 =
 You can now resolve symbols in each file:
 *)
 
-let xSymbolOpt = 
-    backgroundTypedParse1.GetSymbolAtLocationAlternate(9,9,"",["xxx"])
+let xSymbolUseOpt = 
+    backgroundTypedParse1.GetSymbolUseAtLocation(9,9,"",["xxx"])
     |> Async.RunSynchronously
 
-let xSymbol = xSymbolOpt.Value
+let xSymbolUse = xSymbolUseOpt.Value
+
+let xSymbol = xSymbolUse.Symbol
+
+(**
+You can find out more about a symbol by doing type checks on various symbol kinds:
+*)
+
+let xSymbolAsValue = 
+    match xSymbol with 
+    | :? FSharpMemberFunctionOrValue as xSymbolAsVal -> xSymbolAsVal
+    | _ -> failwith "we expected this to be a member, function or value"
+       
 
 (**
 For each symbol, you can look up the references to that symbol:
@@ -206,11 +218,13 @@ let checkResults2 =
 Again, you can resolve symbols and ask for references:
 *)
 
-let xSymbol2Opt = 
-    checkResults1.GetSymbolAtLocationAlternate(9,9,"",["xxx"])
+let xSymbolUse2Opt = 
+    checkResults1.GetSymbolUseAtLocation(9,9,"",["xxx"])
     |> Async.RunSynchronously
 
-let xSymbol2 = xSymbol2Opt.Value
+let xSymbolUse2 = xSymbolUse2Opt.Value
+
+let xSymbol2 = xSymbolUse2.Symbol
 
 let usesOfXSymbol2 = 
     wholeProjectResults.GetUsesOfSymbol(xSymbol2) 

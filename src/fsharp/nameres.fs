@@ -1248,11 +1248,11 @@ type TcResolutions
     member this.GetUsesOfSymbol(item) = 
         [| for cnr in capturedNameResolutions do
                if protectAssemblyExploration false (fun () -> ItemsReferToSameDefinition g item cnr.Item) then
-                  yield cnr.ItemOccurence, cnr.Range |]
+                  yield cnr.ItemOccurence, cnr.DisplayEnv, cnr.Range |]
 
     member this.GetAllUsesOfSymbols() = 
         [| for cnr in capturedNameResolutions do
-              yield (cnr.Item, cnr.ItemOccurence, cnr.Range) |]
+              yield (cnr.Item, cnr.ItemOccurence, cnr.DisplayEnv, cnr.Range) |]
 
 /// An accumulator for the results being emitted into the tcSink.
 type TcResultsSinkImpl(g) =

@@ -185,8 +185,8 @@ type internal TcResolutions =
     /// Exact name resolutions
     member CapturedNameResolutions : ResizeArray<CapturedNameResolution>
     member CapturedMethodGroupResolutions : ResizeArray<CapturedNameResolution>
-    member GetUsesOfSymbol : Item -> (ItemOccurence * range)[]
-    member GetAllUsesOfSymbols : unit -> (Item * ItemOccurence * range)[]
+    member GetUsesOfSymbol : Item -> (ItemOccurence * DisplayEnv * range)[]
+    member GetAllUsesOfSymbols : unit -> (Item * ItemOccurence * DisplayEnv * range)[]
 
 type ITypecheckResultsSink =
     abstract NotifyEnvWithScope   : range * NameResolutionEnv * AccessorDomain -> unit

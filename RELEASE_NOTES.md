@@ -166,3 +166,5 @@
 
 #### 0.0.41 - 
 * Fixed #104 - Make all operations that may utilize the FCS reactor async
+* Add FSharpDisplayContext and FSharpType.Format
+* Replace GetSymbolAtLocationAlternate by GetSymbolUseAtLocation

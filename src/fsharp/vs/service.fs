@@ -1144,10 +1144,12 @@ type TypeCheckInfo
                   else 
                       fail FindDeclFailureReason.NoSourceCode // provided items may have TypeProviderDefinitionLocationAttribute that binds them to some location
 
-    member scope.GetSymbolAtLocation (line, lineStr, colAtEndOfNames, names) =
+    member scope.GetSymbolUseAtLocation (line, lineStr, colAtEndOfNames, names) =
         match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, colAtEndOfNames, ResolveTypeNamesToCtors, ResolveOverloads.Yes, fun _ -> false) with
         | None | Some ([], _, _) -> None
-        | Some (item :: _ , _, _) -> Some (FSharpSymbol.Create(g, thisCcu, tcImports, item))
+        | Some (item :: _ , denv, m) -> 
+            let symbol = FSharpSymbol.Create(g, thisCcu, tcImports, item)
+            Some (symbol, denv, m)
 
     member scope.PartialAssemblySignature() = FSharpAssemblySignature(g, thisCcu, tcImports, ccuSig)
 
@@ -1583,8 +1585,9 @@ type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
 
 
 [<Sealed>]
-type FSharpSymbolUse(g:TcGlobals, symbol:FSharpSymbol, itemOcc, range: range) = 
+type FSharpSymbolUse(g:TcGlobals, denv: DisplayEnv, symbol:FSharpSymbol, itemOcc, range: range) = 
     member __.Symbol  = symbol
+    member __.DisplayContext  = FSharpDisplayContext(fun _ -> denv)
     member x.IsDefinition = x.IsFromDefinition
     member __.IsFromDefinition = (match itemOcc with ItemOccurence.Binding -> true | _ -> false)
     member __.IsFromPattern = (match itemOcc with ItemOccurence.Pattern -> true | _ -> false)
@@ -1626,8 +1629,8 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
         // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
         reactorOps.RunAsyncOp(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
-            |> Seq.distinct 
-            |> Seq.map (fun (itemOcc,m) -> FSharpSymbolUse(tcGlobals, symbol, itemOcc, m)) 
+            |> Seq.distinctBy (fun (itemOcc,_denv,m) -> itemOcc, m) 
+            |> Seq.map (fun (itemOcc,denv,m) -> FSharpSymbolUse(tcGlobals, denv, symbol, itemOcc, m)) 
             |> Seq.toArray)
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
@@ -1636,9 +1639,9 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
         // This probably doesn't need to be run on the reactor since all data touched by GetAllUsesOfSymbols is immutable.
         reactorOps.RunAsyncOp(fun () -> 
             [| for r in tcResolutions do 
-                  for (item,itemOcc,m) in r.GetAllUsesOfSymbols() do
+                  for (item,itemOcc,denv,m) in r.GetAllUsesOfSymbols() do
                     let symbol = FSharpSymbol.Create(tcGlobals, thisCcu, tcImports, item)
-                    yield FSharpSymbolUse(tcGlobals, symbol, itemOcc, m) |]) 
+                    yield FSharpSymbolUse(tcGlobals, denv, symbol, itemOcc, m) |]) 
 
     member info.ProjectContext = 
         let (tcGlobals, tcImports, thisCcu, _ccuSig, _tcResolutions, _assembly, _ilAssemRef) = getDetails()
@@ -1737,19 +1740,30 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
             async.Return dflt
 
     member info.GetF1KeywordAlternate (line, colAtEndOfNames, lineStr, names) =
-        reactorOp None (fun scope -> scope.GetF1Keyword (line, lineStr, colAtEndOfNames, names))
+        reactorOp None (fun scope -> 
+            scope.GetF1Keyword (line, lineStr, colAtEndOfNames, names))
 
     // Resolve the names at the given location to a set of methods
     member info.GetMethodsAlternate(line, colAtEndOfNames, lineStr, names) =
         let dflt = MethodGroup("",[| |])
-        reactorOp dflt (fun scope-> scope.GetMethods (line, lineStr, colAtEndOfNames, names))
+        reactorOp dflt (fun scope-> 
+            scope.GetMethods (line, lineStr, colAtEndOfNames, names))
             
     member info.GetDeclarationLocationAlternate (line, colAtEndOfNames, lineStr, names, flag) = 
         let dflt = FindDeclResult.DeclNotFound FindDeclFailureReason.Unknown
-        reactorOp dflt (fun scope -> scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, flag))
+        reactorOp dflt (fun scope -> 
+            scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, flag))
+
+    member info.GetSymbolUseAtLocation (line, colAtEndOfNames, lineStr, names) = 
+        reactorOp None (fun scope -> 
+            scope.GetSymbolUseAtLocation (line, lineStr, colAtEndOfNames, names)
+            |> Option.map (fun (sym,denv,m) -> FSharpSymbolUse(scope.TcGlobals,denv,sym,ItemOccurence.Use,m)))
 
     member info.GetSymbolAtLocationAlternate (line, colAtEndOfNames, lineStr, names) = 
-        reactorOp None (fun scope -> scope.GetSymbolAtLocation (line, lineStr, colAtEndOfNames, names))
+        reactorOp None (fun scope -> 
+            scope.GetSymbolUseAtLocation (line, lineStr, colAtEndOfNames, names)
+            |> Option.map (fun (sym,_,_) -> sym))
+
 
     member info.GetExtraColorizationsAlternate() = 
         threadSafeOp [| |] (fun (scope, _builder, _reactor) -> 
@@ -1762,22 +1776,20 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
             scope.PartialAssemblySignature())
 
     member info.ProjectContext = 
-        let assemblies = 
-            threadSafeOp [] (fun (scope, _builder, _reactor) -> 
-                // This operation is not asynchronous - GetReferencedAssemblies can be run on the calling thread
-                scope.GetReferencedAssemblies()  )
-        ProjectContext(assemblies)
+        threadSafeOp (ProjectContext []) (fun (scope, _builder, _reactor) -> 
+            // This operation is not asynchronous - GetReferencedAssemblies can be run on the calling thread
+            ProjectContext(scope.GetReferencedAssemblies()))
 
     member info.GetAllUsesOfAllSymbolsInFile() = 
         reactorOp [| |] (fun scope -> 
-            [| for (item,itemOcc,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
+            [| for (item,itemOcc,denv,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
                   let symbol = FSharpSymbol.Create(scope.TcGlobals, scope.ThisCcu, scope.TcImports, item)
-                  yield FSharpSymbolUse(scope.TcGlobals, symbol, itemOcc, m) |])
+                  yield FSharpSymbolUse(scope.TcGlobals, denv, symbol, itemOcc, m) |])
 
     member info.GetUsesOfSymbolInFile(symbol:FSharpSymbol) = 
         reactorOp [| |] (fun scope -> 
-            [| for (itemOcc,m) in scope.ScopeResolutions.GetUsesOfSymbol(symbol.Item) do
-                  yield FSharpSymbolUse(scope.TcGlobals, symbol, itemOcc, m) |])
+            [| for (itemOcc,denv,m) in scope.ScopeResolutions.GetUsesOfSymbol(symbol.Item) do
+                  yield FSharpSymbolUse(scope.TcGlobals, denv, symbol, itemOcc, m) |])
 
     
     // Obsolete

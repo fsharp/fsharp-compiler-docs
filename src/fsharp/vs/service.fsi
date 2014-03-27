@@ -108,21 +108,32 @@ type ProjectContext =
 type FSharpSymbolUse = 
     /// The symbol referenced
     member Symbol : FSharpSymbol 
+
+    /// The display context active at the point where the symbol is used. Can be passed to FSharpType.Format
+    /// and other methods to format items in a way that is suitable for a specific source code location.
+    member DisplayContext : FSharpDisplayContext
+
     /// Indicates if the reference is a definition for the symbol, either in a signature or implementation
     member IsFromDefinition : bool
+
     /// Indicates if the reference is in a pattern
     member IsFromPattern : bool
+
     /// Indicates if the reference is in a syntactic type
     member IsFromType : bool
+
     /// Indicates if the reference is in an attribute
     member IsFromAttribute : bool
+
     /// Indicates if the reference is via the member being implemented in a class or object expression
     member IsFromDispatchSlotImplementation : bool
+
     /// Indicates if the reference is either a builder or a custom operation in a compuation expression
     member IsFromComputationExpression : bool
 
     /// The file name the reference occurs in 
     member FileName: string 
+
     /// The range of text representing the reference to the symbol
     member RangeAlternate: range
     [<Obsolete("This member has been replaced by RangeAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
@@ -205,13 +216,13 @@ type CheckFileResults =
     /// <param name="preferSignature">If false, then make an attempt to go to the implementation (rather than the signature if present).</param>
     member GetDeclarationLocationAlternate         : line:int * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> Async<FindDeclResult>
 
-    /// <summary>Resolve the names at the given location to a symbol.</summary>
+    /// <summary>Resolve the names at the given location to a use of symbol.</summary>
     ///
     /// <param name="line">The line number where the information is being requested.</param>
     /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
-    member GetSymbolAtLocationAlternate  : line:int * colAtEndOfNames:int * lineText:string * names:string list -> Async<FSharpSymbol option>
+    member GetSymbolUseAtLocation  : line:int * colAtEndOfNames:int * lineText:string * names:string list -> Async<FSharpSymbolUse option>
 
     /// <summary>Get any extra colorization info that is available after the typecheck</summary>
     member GetExtraColorizationsAlternate : unit -> (range * TokenColorKind)[]
@@ -221,6 +232,10 @@ type CheckFileResults =
 
     /// Get the textual usages that resolved to the given symbol throughout the file
     member GetUsesOfSymbolInFile : symbol:FSharpSymbol -> Async<FSharpSymbolUse[]>
+
+
+    [<System.Obsolete("Please change to use GetSymbolUseAtLocation(...).Symbol")>]
+    member GetSymbolAtLocationAlternate  : line:int * colAtEndOfNames:int * lineText:string * names:string list -> Async<FSharpSymbol option>
 
     [<Obsolete("This member has been replaced by GetSymbolAtLocationAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member GetSymbolAtLocation  : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> FSharpSymbol option

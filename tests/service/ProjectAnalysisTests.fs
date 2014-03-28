@@ -1933,7 +1933,8 @@ let ``Test Project13 all symbols`` () =
         [ for x in objEntity.MembersFunctionsAndValues do 
              let p = x.ReturnParameter 
              yield p.Name,  p.Type.ToString(), p.Type.Format(dtSymbol.DisplayContext) ]
-    objMethodsReturnParameter |> shouldEqual
+    set objMethodsReturnParameter |> shouldEqual
+       (set
           [(None, "type Microsoft.FSharp.Core.unit", "unit");
            (None, "type Microsoft.FSharp.Core.string", "string");
            (None, "type Microsoft.FSharp.Core.bool", "bool");
@@ -1942,7 +1943,7 @@ let ``Test Project13 all symbols`` () =
            (None, "type Microsoft.FSharp.Core.int", "int");
            (None, "type System.Type", "System.Type");
            (None, "type Microsoft.FSharp.Core.unit", "unit");
-           (None, "type Microsoft.FSharp.Core.obj", "obj")]
+           (None, "type Microsoft.FSharp.Core.obj", "obj")])
 
     // check we can get the CurriedParameterGroups
     let dtMethodsCurriedParameterGroups = 

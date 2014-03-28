@@ -168,3 +168,6 @@
 * Fixed #104 - Make all operations that may utilize the FCS reactor async
 * Add FSharpDisplayContext and FSharpType.Format
 * Replace GetSymbolAtLocationAlternate by GetSymbolUseAtLocation
+
+#### 0.0.42 - 
+* Register enum symbols in patterns

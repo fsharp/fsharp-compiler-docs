@@ -2362,7 +2362,9 @@ let ``Test Project19 all symbols`` () =
             ("val x", "x", "file1", ((8, 6), (8, 7)), ["defn"], false);
             ("val x", "x", "file1", ((8, 16), (8, 17)), [], false);
             ("Enum", "Enum", "file1", ((8, 23), (8, 27)), [], false);
+            ("field EnumCase1", "EnumCase1", "file1", ((8, 23), (8, 37)), ["pattern"], false); 
             ("Enum", "Enum", "file1", ((8, 45), (8, 49)), [], false);
+            ("field EnumCase2", "EnumCase2", "file1", ((8, 45), (8, 59)), ["pattern"], false); 
             ("val f", "f", "file1", ((8, 4), (8, 5)), ["defn"], false);
             ("DayOfWeek", "DayOfWeek", "file1", ((10, 15), (10, 24)), [], false);
             ("System", "System", "file1", ((10, 8), (10, 14)), [], true);

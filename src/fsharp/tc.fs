@@ -4897,6 +4897,8 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
             | None -> error (Error(FSComp.SR.tcFieldNotLiteralCannotBeUsedInPattern(), m))
             | Some lit -> 
                 UnifyTypes cenv env m ty rfinfo.FieldType
+                let item = Item.RecdField(rfinfo)
+                CallNameResolutionSink cenv.tcSink (m,env.NameEnv,item,item,ItemOccurence.Pattern,env.DisplayEnv,env.AccessRights)
                 (fun _ -> TPat_const (lit,m)),(tpenv,names,takenNames)             
 
         | Item.Value vref ->

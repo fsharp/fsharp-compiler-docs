@@ -283,6 +283,9 @@ and [<Class>] FSharpField =
 
     inherit FSharpSymbol
 
+    /// Get the declaring entity of this field
+    member DeclaringEntity: FSharpEntity
+
     /// Indicates if the field is declared 'static'
     member IsMutable: bool
 

@@ -48,7 +48,7 @@ let ``Intro test`` () =
         msg.Message.Contains("Missing qualification after '.'") |> shouldEqual true
 
     // Get tool tip at the specified location
-    let tip = typeCheckResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken)
+    let tip = typeCheckResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken) |> Async.RunSynchronously
     (sprintf "%A" tip).Replace("\n","") |> shouldEqual """ToolTipText  [ToolTipElement ("val foo : unit -> unitFull name: Test.foo",XmlCommentNone)]"""
     // Get declarations (autocomplete) for a location
     let decls =  typeCheckResults.GetDeclarationsAlternate(Some untyped, 7, 23, inputLines.[6], [], "msg", fun _ -> false)|> Async.RunSynchronously
@@ -60,7 +60,7 @@ let ``Intro test`` () =
            "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
            "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"]
     // Get overloads of the String.Concat method
-    let methods = typeCheckResults.GetMethodsAlternate(5, 27, inputLines.[4], Some ["String"; "Concat"])
+    let methods = typeCheckResults.GetMethodsAlternate(5, 27, inputLines.[4], Some ["String"; "Concat"]) |> Async.RunSynchronously
 
     methods.MethodName  |> shouldEqual "Concat"
 
@@ -170,3 +170,37 @@ let ``Symbols many tests`` () =
     typeCheckContext.GetReferencedAssemblies() |> List.exists (fun s -> s.FileName.Value.Contains("mscorlib")) |> shouldEqual true
     
 
+let input3 = 
+  """
+let date = System.DateTime.Now.ToString().PadRight(25)
+  """
+
+[<Test>]
+let ``Expression typing test`` () = 
+
+    // Split the input & define file name
+    let inputLines = input3.Split('\n')
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input3) 
+    let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
+
+    // We only expect one reported error. However,
+    // on Unix, using filenames like /home/user/Test.fsx gives a second copy of all parse errors due to the
+    // way the load closure for scripts is generated. So this returns two identical errors
+    typeCheckResults.Errors.Length |> shouldEqual 0
+
+    // Get declarations (autocomplete) for a location
+    //
+    // Getting the declarations at columns 42 to 43 with [], "" for the names and residue 
+    // gives the results for the string type. 
+    // 
+    for col in 42..43 do 
+        let decls =  typeCheckResults.GetDeclarationsAlternate(Some untyped, 2, col, inputLines.[1], [], "", fun _ -> false)|> Async.RunSynchronously
+        set [ for item in decls.Items -> item.Name ] |> shouldEqual
+           (set
+              ["Chars"; "Clone"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
+               "GetEnumerator"; "GetHashCode"; "GetType"; "GetTypeCode"; "IndexOf";
+               "IndexOfAny"; "Insert"; "IsNormalized"; "LastIndexOf"; "LastIndexOfAny";
+               "Length"; "Normalize"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
+               "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
+               "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"])

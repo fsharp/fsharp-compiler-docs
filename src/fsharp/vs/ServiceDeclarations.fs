@@ -1242,10 +1242,10 @@ type Declaration(name, glyph:int, info) =
         | Some descriptionText -> descriptionText
         | None ->
             match info with
-            | Choice1Of2 (items, infoReader, m, denv, syncop, checkAlive) -> 
+            | Choice1Of2 (items, infoReader, m, denv, startOp, checkAlive) -> 
                 let work() = 
-                    // syncop "Synchronous Operation" causes the lambda to execute on the background compiler thread, through the Reactor
-                    syncop (fun () -> 
+                    // startOp "Synchronous Operation" causes the lambda to execute on the background compiler thread, through the Reactor
+                    startOp (fun () -> 
                           // This is where we do some work which may touch TAST data structures owned by the IncrementalBuilder - infoReader, item etc. 
                           // It is written to be robust to a disposal of an IncrementalBuilder, in which case it will just return the empty string. 
                           // It is best to think of this as a "weak reference" to the IncrementalBuilder, i.e. this code is written to be robust to its
@@ -1298,7 +1298,7 @@ type DeclarationSet(declarations: Declaration[]) =
     member self.Glyph i = declarations.[i].Glyph
             
     // Make a 'Declarations' object for a set of selected items
-    static member Create(infoReader:InfoReader, m, denv, items, syncop:(unit->unit)->unit, checkAlive : unit -> bool) = 
+    static member Create(infoReader:InfoReader, m, denv, items, startOp:(unit->unit)->unit, checkAlive : unit -> bool) = 
         let g = infoReader.g
          
         let items = items |> RemoveExplicitlySuppressed g
@@ -1349,7 +1349,7 @@ type DeclarationSet(declarations: Declaration[]) =
                 match itemsWithSameName with
                 | [] -> failwith "Unexpected empty bag"
                 | items -> 
-                    new Declaration(nm, GlyphOfItem(denv,items.Head), Choice1Of2 (items, infoReader, m, denv, syncop, checkAlive)))
+                    new Declaration(nm, GlyphOfItem(denv,items.Head), Choice1Of2 (items, infoReader, m, denv, startOp, checkAlive)))
 
         new DeclarationSet(Array.ofList decls)
 

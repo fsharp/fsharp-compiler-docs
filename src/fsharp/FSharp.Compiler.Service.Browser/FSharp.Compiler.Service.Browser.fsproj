@@ -600,6 +600,7 @@
       <Name>FSharp.Core</Name>
       <AssemblyName>FSharp.Core.dll</AssemblyName>
       <HintPath>..\..\..\..\fsharp\lib\release\sl5-compiler\FSharp.Core.dll</HintPath>
+      <Private>true</Private>
     </Reference>
   </ItemGroup>
   <PropertyGroup>

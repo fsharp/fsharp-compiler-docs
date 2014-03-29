@@ -18,6 +18,16 @@ open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Build
 
+/// Represents the information needed to format types and other information in a style
+/// suitable for use in F# source text at a particular source location.
+///
+/// Acquired via GetDisplayEnvAtLocationAlternate and simialr methods. May be passed 
+/// to the Format method on FSharpType and other methods.
+type [<Class>] FSharpDisplayContext = 
+    internal new : denv: (TcGlobals -> Tastops.DisplayEnv) -> FSharpDisplayContext
+    static member Empty: FSharpDisplayContext
+
+/// Represents a symbol 
 type [<Class>] FSharpSymbol = 
     /// Internal use only. 
     static member internal Create : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * item:Nameres.Item -> FSharpSymbol
@@ -272,6 +282,9 @@ and [<System.Obsolete("Renamed to FSharpField")>] FSharpRecordField = FSharpFiel
 and [<Class>] FSharpField =
 
     inherit FSharpSymbol
+
+    /// Get the declaring entity of this field
+    member DeclaringEntity: FSharpEntity
 
     /// Indicates if the field is declared 'static'
     member IsMutable: bool
@@ -670,6 +683,8 @@ and [<Class>] FSharpType =
     /// Get the generic parameter data for a generic parameter type
     member GenericParameter : FSharpGenericParameter
 
+    /// Format the type using the rules of the given display context
+    member Format : context: FSharpDisplayContext -> string
 
 and [<Class>] FSharpAttribute = 
         

@@ -173,3 +173,6 @@
 * Fix #105 - Register enum symbols in patterns
 * Fix #107 - Return correct results for inheritance chain of .NET types
 * Fix #101 - Add DeclaringEntity property
+
+#### 0.0.43 - 
+* Fix #109 - Duplicates in GetUsesOfSymbolInFile 

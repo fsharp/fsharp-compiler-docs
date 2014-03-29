@@ -1788,7 +1788,7 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
 
     member info.GetUsesOfSymbolInFile(symbol:FSharpSymbol) = 
         reactorOp [| |] (fun scope -> 
-            [| for (itemOcc,denv,m) in scope.ScopeResolutions.GetUsesOfSymbol(symbol.Item) do
+            [| for (itemOcc,denv,m) in scope.ScopeResolutions.GetUsesOfSymbol(symbol.Item) |> Seq.distinctBy (fun (itemOcc,_denv,m) -> itemOcc, m) do
                   yield FSharpSymbolUse(scope.TcGlobals, denv, symbol, itemOcc, m) |])
 
     

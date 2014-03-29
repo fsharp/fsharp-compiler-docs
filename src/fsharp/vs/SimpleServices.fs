@@ -81,8 +81,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
         /// Get the data tip text at the given position
         member x.GetToolTipTextAlternate(line, col, names, ?xmlCommentRetriever) =
-            let tip = results.GetToolTipTextAlternate(line, col, source.[int line], names, identToken)
-            formatTip tip xmlCommentRetriever
+            async { 
+                let! tip = results.GetToolTipTextAlternate(line, col, source.[int line], names, identToken)
+                return formatTip tip xmlCommentRetriever
+            }
 
         /// Get the location of the declaration at the given position
         member x.GetDeclarationLocationAlternate(line, col, names, isDecl) =
@@ -94,10 +96,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
         // Obsolete
         
-        member x.GetF1Keyword(line, col, names) = x.GetF1KeywordAlternate(Line.fromZ line, col, names)
-        member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipTextAlternate(Line.fromZ line, col, names, ?xmlCommentRetriever=xmlCommentRetriever)
-        member x.GetDeclarationLocation(line, col, names, isDecl) = x.GetDeclarationLocationAlternate(Line.fromZ line, col, names, isDecl)
-        member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever)
+        member x.GetF1Keyword(line, col, names) = x.GetF1KeywordAlternate(Line.fromZ line, col, names) |> Async.RunSynchronously
+        member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipTextAlternate(Line.fromZ line, col, names, ?xmlCommentRetriever=xmlCommentRetriever) |> Async.RunSynchronously
+        member x.GetDeclarationLocation(line, col, names, isDecl) = x.GetDeclarationLocationAlternate(Line.fromZ line, col, names, isDecl) |> Async.RunSynchronously
+        member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever) 
         member x.GetDeclarations(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) = x.GetDeclarationsAlternate(Line.fromZ line, col, qualifyingNames, partialName, ?xmlCommentRetriever=xmlCommentRetriever)
 
     /// Provides simple services for checking and compiling F# scripts
@@ -130,12 +132,16 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
         /// Return information about matching braces in a single file.
         member x.MatchBracesAlternate (filename, source: string, ?otherFlags) = 
-            let options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
-            checker.MatchBracesAlternate(filename, source,  options)
+            async { 
+                let! options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
+                return! checker.MatchBracesAlternate(filename, source,  options)
+            }
 
         member x.MatchBraces (filename, source, ?otherFlags) = 
-            let options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
-            checker.MatchBraces(filename, source,  options)
+            async { 
+                let! options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
+                return checker.MatchBraces(filename, source,  options)
+            } |> Async.RunSynchronously
 
         [<System.Obsolete("This method has been renamed to ParseAndCheckScript")>]
         member x.TypeCheckScript (filename, source, otherFlags) = 
@@ -144,7 +150,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
         member x.ParseAndCheckScript (filename, source, ?otherFlags) = 
           async { 
-            let options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
+            let! options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
             checker.StartBackgroundCompile options
             // wait for the antecedent to appear
             checker.WaitForBackgroundCompile()

@@ -32,25 +32,22 @@ namespace Internal.Utilities.Collections
   /// that aren't what was originally passed to the Set function.         
   type internal MruCache<'TKey,'TValue> =
     new : keepStrongly:int 
-            * compute:('TKey -> 'TValue) 
             * areSame:('TKey * 'TKey -> bool) 
             * ?isStillValid:('TKey * 'TValue -> bool)
             * ?areSameForSubsumption:('TKey * 'TKey -> bool) 
-            * ?logComputedNewValue:('TKey -> unit)
-            * ?logUsedCachedValue:('TKey -> unit)
             * ?onDiscard:('TValue -> unit)
             * ?keepMax:int
             -> MruCache<'TKey,'TValue>
     /// Clear out the cache.
     member Clear : unit -> unit
-    /// Get the value for the given key. Compute if necessary.
-    member Get : key:'TKey -> 'TValue
     /// Get the value for the given key or None if not already available
-    member GetAvailable : key:'TKey -> 'TValue option
+    member TryGetAny : key:'TKey -> 'TValue option
+    /// Get the value for the given key or None if not already available
+    member TryGet : key:'TKey -> 'TValue option
     /// Remove the given value from the mru cache.
     member Remove : key:'TKey -> unit
-    /// Set the value for the given key. This value does not have to agree with computed value.           
-    member SetAlternate : key:'TKey * value:'TValue -> unit
+    /// Set the given key. 
+    member Set : key:'TKey * value:'TValue -> unit
 
   [<Sealed>]
   type internal List = 

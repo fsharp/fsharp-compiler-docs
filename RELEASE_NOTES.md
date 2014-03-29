@@ -164,3 +164,15 @@
 * Fixed #86 - Expose Microsoft.FSharp.Compiler.Interactive.Shell.Settings.fsi
 * Fixed #99 - Add IsNamespace property to FSharpEntity
 
+#### 0.0.41 - 
+* Fixed #104 - Make all operations that may utilize the FCS reactor async
+* Add FSharpDisplayContext and FSharpType.Format
+* Replace GetSymbolAtLocationAlternate by GetSymbolUseAtLocation
+
+#### 0.0.42 - 
+* Fix #105 - Register enum symbols in patterns
+* Fix #107 - Return correct results for inheritance chain of .NET types
+* Fix #101 - Add DeclaringEntity property
+
+#### 0.0.43 - 
+* Fix #109 - Duplicates in GetUsesOfSymbolInFile 

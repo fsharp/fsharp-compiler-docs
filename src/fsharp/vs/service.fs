@@ -421,7 +421,7 @@ type TypeCheckInfo
            // This is a name resolution environment to use if no better match can be found.
            sFallback:Nameres.NameResolutionEnv,
            loadClosure : LoadClosure option,
-           syncop:(unit->unit)->unit,
+           startOp:(unit->unit)->unit,
            checkAlive : (unit -> bool),
            textSnapshotInfo:obj option) = 
 
@@ -969,7 +969,7 @@ type TypeCheckInfo
                 | Some(items,denv,m) -> 
                     let items = items |> filterIntellisenseCompletionsBasedOnParseContext (parseResultsOpt |> Option.bind (fun x -> x.ParseTree)) (mkPos line colAtEndOfNamesAndResidue)
                     let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
-                    DeclarationSet.Create(infoReader,m,denv,items,syncop,checkAlive))
+                    DeclarationSet.Create(infoReader,m,denv,items,startOp,checkAlive))
             (fun msg -> DeclarationSet.Error msg)
             
     member scope.GetReferenceResolutionToolTipText(line,col) : ToolTipText = 
@@ -1144,10 +1144,12 @@ type TypeCheckInfo
                   else 
                       fail FindDeclFailureReason.NoSourceCode // provided items may have TypeProviderDefinitionLocationAttribute that binds them to some location
 
-    member scope.GetSymbolAtLocation (line, lineStr, colAtEndOfNames, names) =
+    member scope.GetSymbolUseAtLocation (line, lineStr, colAtEndOfNames, names) =
         match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, colAtEndOfNames, ResolveTypeNamesToCtors, ResolveOverloads.Yes, fun _ -> false) with
         | None | Some ([], _, _) -> None
-        | Some (item :: _ , _, _) -> Some (FSharpSymbol.Create(g, thisCcu, tcImports, item))
+        | Some (item :: _ , denv, m) -> 
+            let symbol = FSharpSymbol.Create(g, thisCcu, tcImports, item)
+            Some (symbol, denv, m)
 
     member scope.PartialAssemblySignature() = FSharpAssemblySignature(g, thisCcu, tcImports, ccuSig)
 
@@ -1391,7 +1393,7 @@ module internal Parser =
            loadClosure: LoadClosure option,
            // These are the errors and warnings seen by the background compiler for the entire antecedant 
            backgroundErrors: (PhasedError * bool) list,    
-           syncop: (unit->unit)->unit,
+           startOp: (unit->unit)->unit,
            // Used by 'DeclarationSet' to check the IncrementalBuilder is still alive.
            checkAlive : (unit -> bool),
            isResultObsolete: unit->bool,
@@ -1517,7 +1519,7 @@ module internal Parser =
                                 sink.GetTcResolutions(), 
                                 tcEnvAtEnd.NameEnv,
                                 loadClosure,
-                                syncop,
+                                startOp,
                                 checkAlive,
                                 textSnapshotInfo)     
                 errors, TypeCheckAborted.No scope
@@ -1574,9 +1576,7 @@ type ProjectOptions =
  
 type IReactorOperations = 
     abstract RunAsyncOp : (unit -> 'T) -> Async<'T>
-    abstract AsyncOp: Reactor.Operation -> unit
-    abstract SyncOp: Reactor.Operation -> unit
-    abstract RunSyncOp: (unit -> 'T) -> 'T
+    abstract StartAsyncOp: Reactor.Operation -> unit
 
 type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
 
@@ -1585,8 +1585,9 @@ type [<Sealed>] ProjectContext(assemblies: FSharpAssembly list) =
 
 
 [<Sealed>]
-type FSharpSymbolUse(g:TcGlobals, symbol:FSharpSymbol, itemOcc, range: range) = 
+type FSharpSymbolUse(g:TcGlobals, denv: DisplayEnv, symbol:FSharpSymbol, itemOcc, range: range) = 
     member __.Symbol  = symbol
+    member __.DisplayContext  = FSharpDisplayContext(fun _ -> denv)
     member x.IsDefinition = x.IsFromDefinition
     member __.IsFromDefinition = (match itemOcc with ItemOccurence.Binding -> true | _ -> false)
     member __.IsFromPattern = (match itemOcc with ItemOccurence.Pattern -> true | _ -> false)
@@ -1626,21 +1627,21 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
     member info.GetUsesOfSymbol(symbol:FSharpSymbol) = 
         let (tcGlobals, _tcImports, _thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
-        reactorOps.RunSyncOp(fun () -> 
+        reactorOps.RunAsyncOp(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
-            |> Seq.distinct 
-            |> Seq.map (fun (itemOcc,m) -> FSharpSymbolUse(tcGlobals, symbol, itemOcc, m)) 
+            |> Seq.distinctBy (fun (itemOcc,_denv,m) -> itemOcc, m) 
+            |> Seq.map (fun (itemOcc,denv,m) -> FSharpSymbolUse(tcGlobals, denv, symbol, itemOcc, m)) 
             |> Seq.toArray)
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetAllUsesOfAllSymbols() = 
         let (tcGlobals, tcImports, thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetAllUsesOfSymbols is immutable.
-        reactorOps.RunSyncOp(fun () -> 
+        reactorOps.RunAsyncOp(fun () -> 
             [| for r in tcResolutions do 
-                  for (item,itemOcc,m) in r.GetAllUsesOfSymbols() do
+                  for (item,itemOcc,denv,m) in r.GetAllUsesOfSymbols() do
                     let symbol = FSharpSymbol.Create(tcGlobals, thisCcu, tcImports, item)
-                    yield FSharpSymbolUse(tcGlobals, symbol, itemOcc, m) |]) 
+                    yield FSharpSymbolUse(tcGlobals, denv, symbol, itemOcc, m) |]) 
 
     member info.ProjectContext = 
         let (tcGlobals, tcImports, thisCcu, _ccuSig, _tcResolutions, _assembly, _ilAssemRef) = getDetails()
@@ -1684,18 +1685,35 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
            | Some (_,_,reactor) -> 
                // Make sure we run disposal in the reactor thread, since it may trigger type provider disposals etc.
                details <- None
-               reactor.AsyncOp (fun () -> decrementer.Dispose())
+               reactor.StartAsyncOp (fun () -> decrementer.Dispose())
            | _ -> () 
 
-    let checkBuilder dflt f = 
+    // Run an operation that needs to be run in the reactor thread
+    let reactorOp dflt f = 
+      async {
+        match details with
+        | None -> 
+            return dflt
+        | Some (_ , Some builder, _) when not builder.IsAlive -> 
+            System.Diagnostics.Debug.Assert(false,"unexpected dead builder") 
+            return dflt
+        | Some (scope, builderOpt, reactor) -> 
+            // Ensure the builder doesn't get released while running operations asynchronously. 
+            use _unwind = match builderOpt with Some builder -> builder.IncrementUsageCount() | None -> { new System.IDisposable with member __.Dispose() = () }
+            let! res = reactor.RunAsyncOp(fun () ->  f scope)
+            return res
+      }
+
+    // Run an operation that can be called from any thread
+    let threadSafeOp dflt f = 
         match details with
         | None -> 
             dflt
         | Some (_ , Some builder, _) when not builder.IsAlive -> 
             System.Diagnostics.Debug.Assert(false,"unexpected dead builder") 
             dflt
-        | Some (scope, builder, ops) -> 
-            f(scope, builder, ops)
+        | Some (scope, builderOpt, ops) -> 
+            f(scope, builderOpt, ops)
 
     // At the moment we only dispose on finalize - we never explicitly dispose these objects. Explicitly disposing is not
     // really worth much since the underlying project builds are likely to still be in the incrementalBuilder cache.
@@ -1708,76 +1726,70 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
     /// Intellisense autocompletions
     member info.GetDeclarationsAlternate(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
         let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
-        checkBuilder (async.Return DeclarationSet.Empty) (fun (scope, builderOpt, reactor) -> 
-            async { // Ensure the builder doesn't get released while running GetDeclarations asynchronously. In synchronous operations,
-                    // the builder is kept alive at least because the CheckFileResults object itself is alive (note it is almsot certain to 
-                    // be alive for other reasons too anyway, e.g. in the incrementalBuildersCache).
-                    use _unwind = match builderOpt with Some builder -> builder.IncrementUsageCount() | None -> { new System.IDisposable with member __.Dispose() = () }
-                    return! reactor.RunAsyncOp(fun () -> scope.GetDeclarations(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))  
-                  })
+        reactorOp DeclarationSet.Empty (fun scope -> scope.GetDeclarations(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
 
     /// Resolve the names at the given location to give a data tip 
     member info.GetToolTipTextAlternate(line, colAtEndOfNames, lineStr, names, tokenTag) = 
         let dflt = ToolTipText []
-        checkBuilder dflt (fun (scope, _builder, reactor) -> 
-            match tokenTagToTokenId tokenTag with 
-            | TOKEN_IDENT -> 
-                reactor.RunSyncOp (fun () -> scope.GetToolTipText line lineStr colAtEndOfNames names)
-            | TOKEN_STRING | TOKEN_STRING_TEXT -> 
-                reactor.RunSyncOp (fun () -> scope.GetReferenceResolutionToolTipText(line, colAtEndOfNames))        
-            | _ -> ToolTipText [])
+        match tokenTagToTokenId tokenTag with 
+        | TOKEN_IDENT -> 
+            reactorOp dflt (fun scope -> scope.GetToolTipText line lineStr colAtEndOfNames names)
+        | TOKEN_STRING | TOKEN_STRING_TEXT -> 
+            reactorOp dflt (fun scope -> scope.GetReferenceResolutionToolTipText(line, colAtEndOfNames) )
+        | _ -> 
+            async.Return dflt
 
     member info.GetF1KeywordAlternate (line, colAtEndOfNames, lineStr, names) =
-        checkBuilder None (fun (scope, _builder, reactor) -> 
-            reactor.RunSyncOp (fun () -> scope.GetF1Keyword (line, lineStr, colAtEndOfNames, names)))
+        reactorOp None (fun scope -> 
+            scope.GetF1Keyword (line, lineStr, colAtEndOfNames, names))
 
     // Resolve the names at the given location to a set of methods
     member info.GetMethodsAlternate(line, colAtEndOfNames, lineStr, names) =
         let dflt = MethodGroup("",[| |])
-        checkBuilder dflt (fun (scope, _builder, reactor) -> 
-            reactor.RunSyncOp (fun () -> scope.GetMethods (line, lineStr, colAtEndOfNames, names)))
+        reactorOp dflt (fun scope-> 
+            scope.GetMethods (line, lineStr, colAtEndOfNames, names))
             
     member info.GetDeclarationLocationAlternate (line, colAtEndOfNames, lineStr, names, flag) = 
         let dflt = FindDeclResult.DeclNotFound FindDeclFailureReason.Unknown
-        checkBuilder dflt (fun (scope, _builder, reactor) -> 
-            reactor.RunSyncOp (fun () -> scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, flag)))
+        reactorOp dflt (fun scope -> 
+            scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, flag))
+
+    member info.GetSymbolUseAtLocation (line, colAtEndOfNames, lineStr, names) = 
+        reactorOp None (fun scope -> 
+            scope.GetSymbolUseAtLocation (line, lineStr, colAtEndOfNames, names)
+            |> Option.map (fun (sym,denv,m) -> FSharpSymbolUse(scope.TcGlobals,denv,sym,ItemOccurence.Use,m)))
 
     member info.GetSymbolAtLocationAlternate (line, colAtEndOfNames, lineStr, names) = 
-        checkBuilder None (fun (scope, _builder, reactor) -> 
-            reactor.RunSyncOp (fun () -> scope.GetSymbolAtLocation (line, lineStr, colAtEndOfNames, names)))
+        reactorOp None (fun scope -> 
+            scope.GetSymbolUseAtLocation (line, lineStr, colAtEndOfNames, names)
+            |> Option.map (fun (sym,_,_) -> sym))
+
 
     member info.GetExtraColorizationsAlternate() = 
-        use t = Trace.Call("SyncOp","GetExtraColorizations", fun _->sprintf "")
-        checkBuilder [| |] (fun (scope, _builder, _reactor) -> 
+        threadSafeOp [| |] (fun (scope, _builder, _reactor) -> 
+            // This operation is not asynchronous - GetExtraColorizations can be run on the calling thread
             scope.GetExtraColorizations())
      
     member info.PartialAssemblySignature = 
-        use t = Trace.Call("SyncOp","PartialAssemblySignature", fun _->sprintf "")
-        checkBuilder Unchecked.defaultof<_> (fun (scope, _builder, _reactor) -> 
+        threadSafeOp Unchecked.defaultof<_> (fun (scope, _builder, _reactor) -> 
+            // This operation is not asynchronous - PartialAssemblySignature can be run on the calling thread
             scope.PartialAssemblySignature())
 
     member info.ProjectContext = 
-        let assemblies = 
-            checkBuilder [] (fun (scope, _builder, _reactor) -> 
-                scope.GetReferencedAssemblies()  )
-        ProjectContext(assemblies)
+        threadSafeOp (ProjectContext []) (fun (scope, _builder, _reactor) -> 
+            // This operation is not asynchronous - GetReferencedAssemblies can be run on the calling thread
+            ProjectContext(scope.GetReferencedAssemblies()))
 
-    // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetAllUsesOfAllSymbolsInFile() = 
-        checkBuilder [| |] (fun (scope, _builder, reactor) -> 
-            // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
-            reactor.RunSyncOp(fun () -> 
-                [|    for (item,itemOcc,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
-                        let symbol = FSharpSymbol.Create(scope.TcGlobals, scope.ThisCcu, scope.TcImports, item)
-                        yield FSharpSymbolUse(scope.TcGlobals, symbol, itemOcc, m) |]))
+        reactorOp [| |] (fun scope -> 
+            [| for (item,itemOcc,denv,m) in scope.ScopeResolutions.GetAllUsesOfSymbols() do
+                  let symbol = FSharpSymbol.Create(scope.TcGlobals, scope.ThisCcu, scope.TcImports, item)
+                  yield FSharpSymbolUse(scope.TcGlobals, denv, symbol, itemOcc, m) |])
 
-    // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetUsesOfSymbolInFile(symbol:FSharpSymbol) = 
-        checkBuilder [| |] (fun (scope, _builder, reactor) -> 
-            // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
-            reactor.RunSyncOp(fun () -> 
-                [|    for (itemOcc,m) in scope.ScopeResolutions.GetUsesOfSymbol(symbol.Item) do
-                        yield FSharpSymbolUse(scope.TcGlobals, symbol, itemOcc, m) |]))
+        reactorOp [| |] (fun scope -> 
+            [| for (itemOcc,denv,m) in scope.ScopeResolutions.GetUsesOfSymbol(symbol.Item) |> Seq.distinctBy (fun (itemOcc,_denv,m) -> itemOcc, m) do
+                  yield FSharpSymbolUse(scope.TcGlobals, denv, symbol, itemOcc, m) |])
 
     
     // Obsolete
@@ -1790,24 +1802,29 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
 
     member info.GetToolTipText(line, colAtEndOfNames, lineStr, names, tokenTag) = 
         info.GetToolTipTextAlternate(Line.fromZ line, colAtEndOfNames, lineStr, names, tokenTag)
+        |> Async.RunSynchronously
 
     member info.GetDataTipText(line, colAtEndOfNames, lineStr, names, tokenTag) = 
-        info.GetToolTipText(line, colAtEndOfNames, lineStr, names, tokenTag)
-
-    member info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, _tokenTag:int, flag) = 
-        info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, flag) 
+        info.GetToolTipText(line, colAtEndOfNames, lineStr, names, tokenTag) 
 
     member info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, flag) = 
         info.GetDeclarationLocationAlternate (Line.fromZ line, colAtEndOfNames, lineStr, names, flag) 
+        |> Async.RunSynchronously
+
+    member info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, _tokenTag:int, flag) = 
+        info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, flag)
 
     member info.GetSymbolAtLocation (line, colAtEndOfNames, lineStr, names) = 
         info.GetSymbolAtLocationAlternate (Line.fromZ line, colAtEndOfNames, lineStr, names) 
+        |> Async.RunSynchronously
 
     member info.GetF1Keyword (line,colAtEndOfNames,lineStr,names) =
         info.GetF1KeywordAlternate (Line.fromZ line,colAtEndOfNames,lineStr,names)
+        |> Async.RunSynchronously
 
     member info.GetMethods (line, colAtEndOfNames,lineStr:string,names:Names option) =
         info.GetMethodsAlternate(Line.fromZ line, colAtEndOfNames,lineStr,names) 
+        |> Async.RunSynchronously
 
 //----------------------------------------------------------------------------
 // BackgroundCompiler
@@ -1838,9 +1855,7 @@ type BackgroundCompiler() as self =
     let reactorOps = 
         { new IReactorOperations with 
                 member __.RunAsyncOp op = reactor.RunAsyncOp op
-                member __.RunSyncOp op = reactor.RunSyncOp op
-                member __.SyncOp op = reactor.SyncOp op
-                member __.AsyncOp op = reactor.AsyncOp op }
+                member __.StartAsyncOp op = reactor.StartAsyncOp op }
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.scriptClosure 
     /// Information about the derived script closure.
@@ -1900,10 +1915,18 @@ type BackgroundCompiler() as self =
     // 
     /// Cache of builds keyed by options.        
     let incrementalBuildersCache = 
-        MruCache(keepStrongly=buildCacheSize, keepMax=buildCacheSize, compute=CreateOneIncrementalBuilder, 
+        MruCache(keepStrongly=buildCacheSize, keepMax=buildCacheSize, 
                  areSame =  ProjectOptions.AreSameProjectForBuilding, 
                  areSameForSubsumption =  ProjectOptions.AreSameProjectName,
-                 onDiscard = (fun (_, _, decrement) -> decrement.Dispose()))
+                 onDiscard = (fun (_, _, decrement:IDisposable) -> decrement.Dispose()))
+
+    let getOrCreateBuilder options =  
+        match incrementalBuildersCache.TryGet options with
+        | Some b -> b
+        | None -> 
+            let b = CreateOneIncrementalBuilder options 
+            incrementalBuildersCache.Set (options, b)
+            b
 
     
     let MakeCheckFileResultsEmpty(creationErrors) = 
@@ -1933,7 +1956,7 @@ type BackgroundCompiler() as self =
 #if TYPE_PROVIDER_SECURITY
             ExtensionTyping.GlobalsTheLanguageServiceCanPoke.theMostRecentFileNameWeChecked <- Some filename
 #endif
-            let builderOpt,creationErrors,_ = incrementalBuildersCache.Get(options) // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
+            let builderOpt,creationErrors,_ = getOrCreateBuilder options // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
             match builderOpt with
             | None -> ParseFileResults(List.toArray creationErrors, None, true, [])
             | Some builder -> 
@@ -1946,20 +1969,19 @@ type BackgroundCompiler() as self =
     /// Fetch the parse information from the background compiler (which checks w.r.t. the FileSystem API)
     member bc.GetBackgroundParseResultsForFileInProject(filename, options) =
         reactor.RunAsyncOp <| fun () -> 
-            let builderOpt, creationErrors, _= incrementalBuildersCache.Get(options)
+            let builderOpt, creationErrors, _= getOrCreateBuilder options
             match builderOpt with
             | None -> ParseFileResults(List.toArray creationErrors, None, true, [])
             | Some builder -> 
             let inputOpt,_,_,parseErrors = builder.GetParseResultsForFile filename            
             let dependencyFiles = builder.Dependencies 
-            //let fileInfo = Parser.GetFileInfoForLastLineErrors source
             let fileInfo = (Int32.MaxValue, Int32.MaxValue)
             let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, parseErrors) |]
             ParseFileResults(errors = errors, input = inputOpt, parseHadErrors = false, dependencyFiles = dependencyFiles)
         
     member bc.MatchBraces(filename:string, source, options)=
-        reactor.RunSyncOp <| fun () -> 
-            let builderOpt,_,_ = incrementalBuildersCache.Get(options)
+        reactor.RunAsyncOp <| fun () -> 
+            let builderOpt,_,_ = getOrCreateBuilder options
             match builderOpt with
             | None -> [| |]
             | Some builder -> 
@@ -1970,8 +1992,8 @@ type BackgroundCompiler() as self =
 
     /// Type-check the result obtained by parsing, but only if the antecedent type checking context is available. 
     member bc.CheckFileInProjectIfReady(parseResults:ParseFileResults,filename,source,options,isResultObsolete,textSnapshotInfo:obj option) =
-        reactor.RunSyncOp <| fun () -> 
-            match incrementalBuildersCache.GetAvailable options with
+        reactor.RunAsyncOp <| fun () -> 
+            match incrementalBuildersCache.TryGetAny options with
             | Some(Some builder, creationErrors, _) ->
             
                 match builder.GetCheckResultsBeforeFileInProjectIfReady filename with 
@@ -1984,7 +2006,7 @@ type BackgroundCompiler() as self =
                     // Run the type checking.
                     let tcErrors, tcFileResult = 
                         Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                                loadClosure,backgroundErrors,reactor.SyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+                                                loadClosure,backgroundErrors,reactor.StartAsyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
 
                     Some(MakeCheckFileAnswer(tcFileResult, options, builder, creationErrors, parseResults.Errors, tcErrors))
                 | None -> None
@@ -1993,7 +2015,7 @@ type BackgroundCompiler() as self =
     /// Type-check the result obtained by parsing. Force the evaluation of the antecedent type checking context if needed.
     member bc.CheckFileInProject(parseResults:ParseFileResults,filename,source,options,isResultObsolete,textSnapshotInfo) =
         reactor.RunAsyncOp <| fun () -> 
-            let builderOpt,creationErrors,_ = incrementalBuildersCache.Get(options) 
+            let builderOpt,creationErrors,_ = getOrCreateBuilder options
             match builderOpt with
             | None -> CheckFileAnswer.Succeeded (MakeCheckFileResultsEmpty(creationErrors))
             | Some builder -> 
@@ -2001,7 +2023,7 @@ type BackgroundCompiler() as self =
             let loadClosure = scriptClosure.TryGet options 
             let tcErrors, tcFileResult = 
                 Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                        loadClosure,priorErrors,reactor.SyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+                                        loadClosure,priorErrors,reactor.StartAsyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
             MakeCheckFileAnswer(tcFileResult, options, builder, creationErrors, parseResults.Errors, tcErrors)
 
     /// Parses the source file and returns untyped AST
@@ -2011,7 +2033,7 @@ type BackgroundCompiler() as self =
 #if TYPE_PROVIDER_SECURITY
             ExtensionTyping.GlobalsTheLanguageServiceCanPoke.theMostRecentFileNameWeChecked <- Some filename
 #endif
-            let builderOpt,creationErrors,_ = incrementalBuildersCache.Get(options) // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
+            let builderOpt,creationErrors,_ = getOrCreateBuilder options // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
             match builderOpt with
             | None -> 
                 let parseResults = ParseFileResults(List.toArray creationErrors, None, true, [])
@@ -2032,14 +2054,14 @@ type BackgroundCompiler() as self =
             let loadClosure = scriptClosure.TryGet options 
             let tcErrors, tcFileResult = 
                 Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                        loadClosure,priorErrors,reactor.SyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+                                        loadClosure,priorErrors,reactor.StartAsyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
             let checkAnswer = MakeCheckFileAnswer(tcFileResult, options, builder, creationErrors, parseResults.Errors, tcErrors)
             parseResults, checkAnswer, false
 
     /// Fetch the check information from the background compiler (which checks w.r.t. the FileSystem API)
     member bc.GetBackgroundCheckResultsForFileInProject(filename,options) =
         reactor.RunAsyncOp <| fun () -> 
-            let (builderOpt, creationErrors, _) = incrementalBuildersCache.Get options 
+            let (builderOpt, creationErrors, _) = getOrCreateBuilder options 
             match builderOpt with
             | None -> 
                 let parseResults = ParseFileResults(Array.ofList creationErrors, None, true, [])
@@ -2056,14 +2078,14 @@ type BackgroundCompiler() as self =
                 let scope = 
                     TypeCheckInfo(tcConfig, tcGlobals, tcState.PartialAssemblySignature, tcState.Ccu, tcImports,
                                   options.ProjectFileName, filename, List.last tcResolutions, tcEnvAtEnd.NameEnv,
-                                  loadClosure, reactorOps.SyncOp, (fun () -> builder.IsAlive), None)     
+                                  loadClosure, reactorOps.StartAsyncOp, (fun () -> builder.IsAlive), None)     
                 let typedResults = MakeCheckFileResults(options, builder, scope, creationErrors, parseResults.Errors, tcErrors)
                 (parseResults, typedResults)
 
 
     /// Parse and typecheck the whole project (the implementation, called recursively as project graph is evaluated)
     member private bc.ParseAndCheckProjectImpl(options) : CheckProjectResults =
-        let builderOpt,creationErrors,_ = incrementalBuildersCache.Get(options) 
+        let builderOpt,creationErrors,_ = getOrCreateBuilder options
         match builderOpt with 
         | None -> 
             CheckProjectResults (Array.ofList creationErrors, None, reactorOps)
@@ -2080,7 +2102,7 @@ type BackgroundCompiler() as self =
         reactor.RunAsyncOp <| fun () -> bc.ParseAndCheckProjectImpl(options)
 
     member bc.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = 
-        reactor.RunSyncOp (fun () -> 
+        reactor.RunAsyncOp (fun () -> 
             // Do we add a reference to FSharp.Compiler.Interactive.Settings by default?
             let useFsiAuxLib = defaultArg useFsiAuxLib true
             // Do we use a "FSharp.Core, 4.3.0.0" reference by default?
@@ -2113,18 +2135,18 @@ type BackgroundCompiler() as self =
             co)
             
     member bc.InvalidateConfiguration(options : ProjectOptions) =
-        reactor.AsyncOp <| fun () -> 
-            match incrementalBuildersCache.GetAvailable options with
+        reactor.StartAsyncOp <| fun () -> 
+            match incrementalBuildersCache.TryGetAny options with
             | None -> ()
             | Some (_oldBuilder, _, _) ->
                     // We do not need to decrement here - the onDiscard function is called each time an entry is pushed out of the build cache,
                     // including by SetAlternate.
                     let builderB, errorsB, decrementB = CreateOneIncrementalBuilder options
-                    incrementalBuildersCache.SetAlternate(options, (builderB, errorsB, decrementB))
+                    incrementalBuildersCache.Set(options, (builderB, errorsB, decrementB))
         bc.StartBuilding(options)
 
     member bc.NotifyProjectCleaned(options : ProjectOptions) =
-        match incrementalBuildersCache.GetAvailable options with
+        match incrementalBuildersCache.TryGetAny options with
         | None -> ()
         | Some (builderOpt, _, _) ->
 #if EXTENSIONTYPING
@@ -2136,11 +2158,11 @@ type BackgroundCompiler() as self =
 #endif
 
     member bc.InvalidateAll() =
-        reactor.AsyncOp (fun () -> incrementalBuildersCache.Clear())
+        reactor.StartAsyncOp (fun () -> incrementalBuildersCache.Clear())
 
     member bc.StartBuilding(options) =
         reactor.StartBuilding(fun () -> 
-            let builderOpt,_,_ = incrementalBuildersCache.Get(options)
+            let builderOpt,_,_ = getOrCreateBuilder options
             match builderOpt with 
             | None -> false
             | Some builder -> builder.Step())
@@ -2187,18 +2209,13 @@ type InteractiveChecker() =
     let ComputeBraceMatching(filename:string,source,options:ProjectOptions) = 
         backgroundCompiler.MatchBraces(filename,source,options)
     
-    /// Parse a source code file, returning an information about the untyped results
-    /// and the results needed for further processing using 'CheckFileInProject'
-    let ComputeUntypedParse(filename: string, source, options) =
-        foregroundParseCount <- foregroundParseCount + 1
-        backgroundCompiler.ParseFileInProject(filename, source, options)
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.braceMatchMru. Most recently used cache for brace matching. Accessed on the
     // background UI thread, not on the compiler thread.
-    let braceMatchMru = MruCache<_,_>(braceMatchCacheSize,ComputeBraceMatching,areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true)) 
+    let braceMatchMru = MruCache<_,_>(braceMatchCacheSize,areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true)) 
 
-    // STATIC ROOT: LanguageServiceState.InteractiveChecker.untypedCheckMru. Most recently used cache for parsing files.
-    let untypedCheckMru = MruCache<_, _>(untypedCheckMruSize, ComputeUntypedParse, areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true))
+    // STATIC ROOT: LanguageServiceState.InteractiveChecker.parseFileInProjectMru. Most recently used cache for parsing files.
+    let parseFileInProjectMru = MruCache<_, _>(untypedCheckMruSize, areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true))
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.typeCheckLookup 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.typeCheckLookup2
@@ -2223,10 +2240,25 @@ type InteractiveChecker() =
     static member Create() = new InteractiveChecker()
 
     member ic.MatchBracesAlternate(filename, source, options) =
-        braceMatchMru.Get((filename, source, options))
+        async { 
+            match braceMatchMru.TryGet (filename, source, options) with 
+            | Some res -> return res
+            | None -> 
+                let! res = ComputeBraceMatching (filename, source, options)
+                braceMatchMru.Set ((filename, source, options), res)
+                return res 
+         }
 
     member ic.ParseFileInProject(filename, source, options) =
-        untypedCheckMru.Get((filename, source, options))
+        async { 
+            match parseFileInProjectMru.TryGet (filename, source, options) with 
+            | Some res -> return res
+            | None -> 
+                foregroundParseCount <- foregroundParseCount + 1
+                let! res = backgroundCompiler.ParseFileInProject(filename, source, options)
+                parseFileInProjectMru.Set ((filename, source, options), res)
+                return res 
+         }
         
     member ic.GetBackgroundParseResultsForFileInProject (filename,options) =
         backgroundCompiler.GetBackgroundParseResultsForFileInProject(filename,options)
@@ -2254,7 +2286,7 @@ type InteractiveChecker() =
         typeCheckLookup.Clear()
         typeCheckLookup2.Clear()
         braceMatchMru.Clear()
-        untypedCheckMru.Clear()
+        parseFileInProjectMru.Clear()
         for i in 0 .. 2 do 
             System.GC.Collect()
             System.GC.WaitForPendingFinalizers() 
@@ -2283,9 +2315,11 @@ type InteractiveChecker() =
     /// parse including the reconstructed types in the file.
     member ic.CheckFileInProjectIfReady(parseResults:ParseFileResults, filename:string, fileVersion:int, source:string, options:ProjectOptions, ?isResultObsolete, ?textSnapshotInfo:obj) =        
         let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
-        let checkAnswer = backgroundCompiler.CheckFileInProjectIfReady(parseResults,filename,source,options,isResultObsolete,textSnapshotInfo)
-        ic.RecordTypeCheckFileInProjectResults(filename,options,parseResults,fileVersion,checkAnswer,source)
-        checkAnswer
+        async {
+            let! checkAnswer = backgroundCompiler.CheckFileInProjectIfReady(parseResults,filename,source,options,isResultObsolete,textSnapshotInfo)
+            ic.RecordTypeCheckFileInProjectResults(filename,options,parseResults,fileVersion,checkAnswer,source)
+            return checkAnswer
+         }
             
     /// Typecheck a source code file, returning a handle to the results of the 
     /// parse including the reconstructed types in the file.
@@ -2313,7 +2347,7 @@ type InteractiveChecker() =
         backgroundCompiler.ParseAndCheckProject(options)
 
     /// For a given script file, get the ProjectOptions implied by the #load closure
-    member ic.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) :  ProjectOptions = 
+    member ic.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = 
         backgroundCompiler.GetProjectOptionsFromScript(filename,source,?loadedTimeStamp=loadedTimeStamp, ?otherFlags=otherFlags, ?useFsiAuxLib=useFsiAuxLib)
         
     member ic.GetProjectOptionsFromCommandLineArgs(projectFileName, argv, ?loadedTimeStamp) = 
@@ -2351,13 +2385,30 @@ type InteractiveChecker() =
           
     // Obsolete
     member ic.MatchBraces(filename, source, options) =
-        ic.MatchBracesAlternate(filename, source, options) |> Array.map (fun (a,b) -> Range.toZ a, Range.toZ b)
+        ic.MatchBracesAlternate(filename, source, options) 
+        |> Async.RunSynchronously
+        |> Array.map (fun (a,b) -> Range.toZ a, Range.toZ b)
 
-    member bc.UntypedParse(filename, source, options) = bc.ParseFileInProject(filename, source, options) |> Async.RunSynchronously
-    member bc.TypeCheckSource(parseResults, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo:obj) = bc.CheckFileInProjectIfReady(parseResults, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo)
-    member ic.GetCheckOptionsFromScriptRoot(filename, source, loadedTimeStamp) = ic.GetProjectOptionsFromScript(filename, source, loadedTimeStamp, [| |]) 
-    member ic.GetCheckOptionsFromScriptRoot(filename, source, loadedTimeStamp, otherFlags) = ic.GetProjectOptionsFromScript(filename, source, loadedTimeStamp, otherFlags) 
-    member ic.GetProjectOptionsFromScriptRoot(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = ic.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp=loadedTimeStamp, ?otherFlags=otherFlags, ?useFsiAuxLib=useFsiAuxLib)
+    member bc.UntypedParse(filename, source, options) = 
+        bc.ParseFileInProject(filename, source, options) 
+        |> Async.RunSynchronously
+
+    member bc.TypeCheckSource(parseResults, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo:obj) = 
+        bc.CheckFileInProjectIfReady(parseResults, filename, fileVersion, source, options, isResultObsolete, textSnapshotInfo)
+        |> Async.RunSynchronously
+
+    member ic.GetCheckOptionsFromScriptRoot(filename, source, loadedTimeStamp) = 
+        ic.GetProjectOptionsFromScript(filename, source, loadedTimeStamp, [| |]) 
+        |> Async.RunSynchronously
+
+    member ic.GetCheckOptionsFromScriptRoot(filename, source, loadedTimeStamp, otherFlags) = 
+        ic.GetProjectOptionsFromScript(filename, source, loadedTimeStamp, otherFlags) 
+        |> Async.RunSynchronously
+
+    member ic.GetProjectOptionsFromScriptRoot(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = 
+        ic.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp=loadedTimeStamp, ?otherFlags=otherFlags, ?useFsiAuxLib=useFsiAuxLib)
+        |> Async.RunSynchronously
+
     member ic.FileTypeCheckStateIsDirty  = backgroundCompiler.BeforeBackgroundFileCheck
 
     static member Instance = globalInstance
@@ -2376,7 +2427,7 @@ type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, 
         let backgroundErrors = []
         let tcErrors, tcFileResult = 
             Parser.TypeCheckOneFile(parseResults,source,mainInputFileName,"project",tcConfig,tcGlobals,tcImports,  tcState,
-                                    loadClosure,backgroundErrors,reactorOps.SyncOp,(fun () -> true),(fun _ -> false),None)
+                                    loadClosure,backgroundErrors,reactorOps.StartAsyncOp,(fun () -> true),(fun _ -> false),None)
 
         match tcFileResult with 
         | Parser.TypeCheckAborted.No scope ->

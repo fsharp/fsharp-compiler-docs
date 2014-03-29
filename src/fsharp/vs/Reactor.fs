@@ -27,12 +27,8 @@ module internal Reactor =
     type ReactorCommands = 
         /// Kick off a build.
         | StartBuild of BuildStepper
-        /// Kick off the most recently known build.
-        | StartRecentBuild                                            
         /// Do a bit of work on the given build.
         | Step                                                        
-        /// Do some work synchronized in the mailbox.
-        | SyncOp of Operation * AsyncReplyChannel<ResultOrException<unit>>  
         /// Do some work not synchronized in the mailbox.
         | AsyncOp of Operation 
         /// Stop building after finishing the current unit of work.
@@ -42,9 +38,7 @@ module internal Reactor =
         override rc.ToString() = 
             match rc with
             | StartBuild _->"StartBuild" 
-            | StartRecentBuild -> "StartRecentBuild"
             | Step->"Step"
-            | SyncOp _->"SyncOp" 
             | AsyncOp _->"AsyncOp" 
             | StopBuild _->"StopBuild"
             | FinishBuild _->"FinishBuild"
@@ -75,8 +69,6 @@ module internal Reactor =
         let culture = new System.Globalization.CultureInfo(System.Threading.Thread.CurrentThread.CurrentUICulture.LCID)
 #endif
 
-        let mutable recentBuild : BuildStepper option = None
-
         /// Mailbox dispatch function.                
         let Dispatch (inbox: MailboxProcessor<_>) =
         
@@ -93,17 +85,8 @@ module internal Reactor =
                 | FinishingBuild(_) -> state
                 | BackgroundError(_)-> state
                 
-            // Kick off a build of the most recently known build if there is one.
-            let HandleStartRecentBuild = function
-                | Idling -> 
-                    match recentBuild with
-                    | None -> Idling
-                    | Some mostRecent -> HandleStartBuild mostRecent Idling
-                | state -> state
-                
             // Stop the build.
             let HandleStopBuild (channel:AsyncReplyChannel<_>) state = 
-                recentBuild<-None
                 match state with 
                   | ActivelyBuilding(_) 
                   | Idling -> channel.Reply(Result ())
@@ -121,30 +104,11 @@ module internal Reactor =
                     System.Diagnostics.Debug.Assert(false, sprintf "Bug in target of HandleAsyncOp: %A: %s\nThe most recent error reported to an error scope: %+A\n" (e.GetType()) e.Message e.StackTrace)
                     state
                 
-            // Do the given operation and reply
-            let HandleSyncOp op (channel:AsyncReplyChannel<_>) state = 
-                match state with
-                  | ActivelyBuilding(_) 
-                  | FinishingBuild(_)  
-                  | Idling -> 
-                        try 
-                            op()
-                            channel.Reply(Result ())
-                            state                            
-                        with 
-                        | e->
-                            channel.Reply(Exception e)
-                            state
-                  | BackgroundError(e)->
-                        channel.Reply(Exception e)
-                        Idling
-                
             // Do a step in the build.
             let HandleStep state = 
                 match state with
                 | FinishingBuild(build,_) 
                 | ActivelyBuilding(build) -> 
-                    recentBuild <- Some(build)
 
                     // Gather any required reply channel.
                     let replyChannel = 
@@ -196,39 +160,34 @@ module internal Reactor =
                     
                                              
             // Async workflow which receives messages and dispatches to worker functions.
-            let rec Loop (state: ReactorState) = 
+            let rec loop (state: ReactorState) = 
                 async { let! msg = inbox.Receive()
                         System.Threading.Thread.CurrentThread.CurrentUICulture <- culture
 
-                        match msg with
-                        | StartBuild build -> return! Loop(HandleStartBuild build state)
-                        | StartRecentBuild -> return! Loop(HandleStartRecentBuild state)
-                        | Step -> return! Loop(HandleStep state)
-                        | SyncOp(op,channel) -> return! Loop(HandleSyncOp op channel state)
-                        | AsyncOp(op) -> return! Loop(HandleAsyncOp op state)
-                        | StopBuild(channel) -> return! Loop(HandleStopBuild channel state)
-                        | FinishBuild(channel) -> return! Loop(HandleFinishBuilding channel state)
+                        let newState = 
+                            match msg with
+                            | StartBuild build -> HandleStartBuild build state
+                            | Step -> HandleStep state
+                            | AsyncOp op -> HandleAsyncOp op state
+                            | StopBuild channel -> HandleStopBuild channel state
+                            | FinishBuild channel -> HandleFinishBuilding channel state
+
+                        return! loop newState
                       }
-            Loop Idling
+            loop Idling
             
         let builder = MailboxProcessor<_>.Start(Dispatch)
 
         // [Foreground Mailbox Accessors] -----------------------------------------------------------                
         member r.StartBuilding(build) = builder.Post(StartBuild build)
-        member r.StartBuildingRecent() = builder.Post(StartRecentBuild)
+
         member r.StopBuilding() = 
             match builder.PostAndReply(fun replyChannel->StopBuild(replyChannel)) with
             | Result result->result
             | Exception excn->
                 raise excn
 
-        member r.SyncOp(op) =
-            match builder.PostAndReply(fun replyChannel->SyncOp(op,replyChannel)) with
-            | Result result->result
-            | Exception excn->
-                raise excn
-
-        member r.AsyncOp(op) =
+        member r.StartAsyncOp(op) =
             builder.Post(AsyncOp(op)) 
 
         // This is for testing only
@@ -237,14 +196,9 @@ module internal Reactor =
             | Result result->result
             | Exception excn->raise excn
 
-        member r.RunSyncOp f = 
-            let result = ref None
-            r.SyncOp (fun () -> result := Some(f()))
-            Option.get !result
-
         member r.RunAsyncOp f = 
             let resultCell = AsyncUtil.AsyncResultCell<_>()
-            r.AsyncOp(
+            r.StartAsyncOp(
                 fun () ->
                     let result =
                         try

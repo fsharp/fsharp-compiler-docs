@@ -138,7 +138,7 @@ type internal AgedLookup<'TKey,'TValue>(keepStrongly:int, areSame, ?onStrongDisc
 
         
 
-type internal MruCache<'TKey,'TValue>(keepStrongly,compute, areSame, ?isStillValid : 'TKey*'TValue->bool, ?areSameForSubsumption, ?logComputedNewValue, ?logUsedCachedValue, ?onStrongDiscard, ?keepMax) =
+type internal MruCache<'TKey,'TValue>(keepStrongly, areSame, ?isStillValid : 'TKey*'TValue->bool, ?areSameForSubsumption, ?onStrongDiscard, ?keepMax) =
         
     /// Default behavior of areSameForSubsumption function is areSame
     let areSameForSubsumption = defaultArg areSameForSubsumption areSame
@@ -151,34 +151,21 @@ type internal MruCache<'TKey,'TValue>(keepStrongly,compute, areSame, ?isStillVal
     /// Whether or not this result value is still valid.
     let isStillValid = defaultArg isStillValid (fun _ -> true)
         
-    /// Log a message when a new value is computed.        
-    let logComputedNewValue = defaultArg logComputedNewValue ignore
-        
-    /// Log a message when an existing value was retrieved from cache.
-    let logUsedCachedValue =  defaultArg logUsedCachedValue ignore
-                
-    member bc.GetAvailable(key) = 
+    member bc.TryGetAny(key) = 
         match cache.TryPeekKeyValue(key) with
         | Some(key', value)->
             if areSame(key',key) then Some(value)
             else None
         | None -> None
        
-    member bc.Get(key) = 
-        let Compute() = 
-            let value = compute key
-            cache.Put(key, value)
-            logComputedNewValue(key)
-            value        
+    member bc.TryGet(key) = 
         match cache.TryGetKeyValue(key) with
         | Some(key', value) -> 
-            if areSame(key', key) && isStillValid(key,value) then
-                logUsedCachedValue(key)
-                value
-            else Compute()
-        | None -> Compute()
+            if areSame(key', key) && isStillValid(key,value) then Some value
+            else None
+        | None -> None
            
-    member bc.SetAlternate(key:'TKey,value:'TValue) = 
+    member bc.Set(key:'TKey,value:'TValue) = 
         cache.Put(key,value)
        
     member bc.Remove(key) = 

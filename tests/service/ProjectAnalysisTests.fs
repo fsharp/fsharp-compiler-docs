@@ -2318,7 +2318,7 @@ let ``Test Project18 all symbols`` () =
 
 
 //-----------------------------------------------------------------------------------------
-// Misc - generic type definnitions
+// Misc - enums
 
 module Project19 = 
     open System.IO
@@ -2384,4 +2384,59 @@ let ``Test Project19 all symbols`` () =
             ("symbol Monday", "Monday", "file1", ((10, 8), (10, 31)), [], false);
             ("val s", "s", "file1", ((10, 4), (10, 5)), ["defn"], false);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], false)|]
+
+
+
+
+//-----------------------------------------------------------------------------------------
+// Misc - https://github.com/fsharp/FSharp.Compiler.Service/issues/109
+
+module Project20 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Impl
+
+type A<'T>() = 
+    member x.M() : 'T = failwith ""
+
+    """
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project20 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project20.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project20 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project20.options) |> Async.RunSynchronously
+
+    let tSymbolUse = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.RangeAlternate.StartLine = 5 && su.Symbol.ToString() = "generic parameter T")
+    let tSymbol = tSymbolUse.Symbol
+
+
+
+    let allUsesOfTSymbol = 
+        wholeProjectResults.GetUsesOfSymbol(tSymbol)
+        |> Async.RunSynchronously
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project20.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su, 
+                                (match su.Symbol with :? FSharpEntity as e -> e.IsNamespace | _ -> false))
+
+    allUsesOfTSymbol |> shouldEqual
+          [|("generic parameter T", "T", "file1", ((4, 7), (4, 9)), ["type"], false);
+            ("generic parameter T", "T", "file1", ((5, 19), (5, 21)), ["type"], false)|]
 

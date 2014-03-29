@@ -172,3 +172,4 @@
 #### 0.0.42 - 
 * Fix #105 - Register enum symbols in patterns
 * Fix #107 - Return correct results for inheritance chain of .NET types
+* Fix #101 - Add DeclaringEntity property

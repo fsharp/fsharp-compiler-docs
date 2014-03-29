@@ -434,6 +434,10 @@ and FSharpFieldData =
         match x with 
         | Recd v -> v.RecdField
         | Union (v,n) -> v.FieldByIndex(n)
+    member x.DeclaringTyconRef =
+        match x with 
+        | Recd v -> v.TyconRef
+        | Union (v,_) -> v.TyconRef
 
 and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData) =
     inherit FSharpSymbol (g, thisCcu, tcImports,  (fun () -> 
@@ -461,6 +465,9 @@ and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData) =
             checkEntityIsResolved v.TyconRef
             if v.TryUnionCase.IsNone then 
                 invalidOp (sprintf "The union case '%s' could not be found in the target type" v.CaseName)
+
+    member __.DeclaringEntity = 
+        FSharpEntity(g, thisCcu, tcImports, d.DeclaringTyconRef)
 
     member __.IsUnresolved = 
         isUnresolved()

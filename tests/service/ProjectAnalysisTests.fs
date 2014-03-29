@@ -1905,6 +1905,19 @@ let ``Test Project13 all symbols`` () =
     let dtSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "DateTime")
     let dtEntity = dtSymbol.Symbol :?> FSharpEntity
     let dtPropNames = [ for x in dtEntity.MembersFunctionsAndValues do if x.IsProperty then yield x.DisplayName ]
+
+    let dtType = dtSymbol.Symbol:?> FSharpEntity
+
+    set [ for i in dtType.DeclaredInterfaces -> i.ToString() ] |> shouldEqual
+        (set
+          ["type System.IComparable"; 
+           "type System.IFormattable";
+           "type System.IConvertible";
+           "type System.Runtime.Serialization.ISerializable";
+           "type System.IComparable<System.DateTime>";
+           "type System.IEquatable<System.DateTime>"])
+
+    dtType.BaseType.ToString() |> shouldEqual "Some(type System.ValueType)"
     
     set ["Date"; "Day"; "DayOfWeek"; "DayOfYear"; "Hour"; "Kind"; "Millisecond"; "Minute"; "Month"; "Now"; "Second"; "Ticks"; "TimeOfDay"; "Today"; "Year"]  
     - set dtPropNames  
@@ -1932,18 +1945,18 @@ let ``Test Project13 all symbols`` () =
     let objMethodsReturnParameter = 
         [ for x in objEntity.MembersFunctionsAndValues do 
              let p = x.ReturnParameter 
-             yield p.Name,  p.Type.ToString(), p.Type.Format(dtSymbol.DisplayContext) ]
+             yield x.DisplayName, p.Name,  p.Type.ToString(), p.Type.Format(dtSymbol.DisplayContext) ]
     set objMethodsReturnParameter |> shouldEqual
        (set
-          [(None, "type Microsoft.FSharp.Core.unit", "unit");
-           (None, "type Microsoft.FSharp.Core.string", "string");
-           (None, "type Microsoft.FSharp.Core.bool", "bool");
-           (None, "type Microsoft.FSharp.Core.bool", "bool");
-           (None, "type Microsoft.FSharp.Core.bool", "bool");
-           (None, "type Microsoft.FSharp.Core.int", "int");
-           (None, "type System.Type", "System.Type");
-           (None, "type Microsoft.FSharp.Core.unit", "unit");
-           (None, "type Microsoft.FSharp.Core.obj", "obj")])
+           [(".ctor", None, "type Microsoft.FSharp.Core.unit", "unit");
+            ("ToString", None, "type Microsoft.FSharp.Core.string", "string");
+            ("Equals", None, "type Microsoft.FSharp.Core.bool", "bool");
+            ("Equals", None, "type Microsoft.FSharp.Core.bool", "bool");
+            ("ReferenceEquals", None, "type Microsoft.FSharp.Core.bool", "bool");
+            ("GetHashCode", None, "type Microsoft.FSharp.Core.int", "int");
+            ("GetType", None, "type System.Type", "System.Type");
+            ("Finalize", None, "type Microsoft.FSharp.Core.unit", "unit");
+            ("MemberwiseClone", None, "type Microsoft.FSharp.Core.obj", "obj")])
 
     // check we can get the CurriedParameterGroups
     let dtMethodsCurriedParameterGroups = 

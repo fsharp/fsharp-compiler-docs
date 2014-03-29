@@ -163,7 +163,9 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
         isResolvedAndFSharp() && entity.IsModule
 
     member __.HasFSharpModuleSuffix = 
-        isResolvedAndFSharp() && entity.IsModule && (entity.ModuleOrNamespaceType.ModuleOrNamespaceKind = ModuleOrNamespaceKind.FSharpModuleWithSuffix)
+        isResolvedAndFSharp() && 
+        entity.IsModule && 
+        (entity.ModuleOrNamespaceType.ModuleOrNamespaceKind = ModuleOrNamespaceKind.FSharpModuleWithSuffix)
 
     member __.IsValueType  = 
         isResolved() &&
@@ -228,7 +230,6 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
     member __.HasAssemblyCodeRepresentation = 
         isResolvedAndFSharp() && (entity.IsAsmReprTycon || entity.IsMeasureableReprTycon)
 
-
     member __.FSharpDelegateSignature =
         checkIsResolved()
         match entity.TypeReprInfo with 
@@ -249,11 +250,14 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
 
     member x.DeclaredInterfaces = 
         if isUnresolved() then makeReadOnlyCollection [] else
-        entity.ImmediateInterfaceTypesOfFSharpTycon |> List.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) |> makeReadOnlyCollection
+        [ for ty in GetImmediateInterfacesOfType g (tcImports.GetImportMap()) range0 (generalizedTyconRef entity) do 
+             yield FSharpType(g, thisCcu, tcImports,  ty) ]
+        |> makeReadOnlyCollection
 
     member x.BaseType = 
         checkIsResolved()        
-        entity.TypeContents.tcaug_super |> Option.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) 
+        GetSuperTypeOfType g (tcImports.GetImportMap()) range0 (generalizedTyconRef entity) 
+        |> Option.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) 
         
     member __.UsesPrefixDisplay = 
         if isUnresolved() then true else

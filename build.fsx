@@ -208,7 +208,7 @@ Target "All" DoNothing
   ==> "Prepare"
   ==> "Build"
   =?> ("SourceLink", isAppVeyorBuild)
-  =?> ("RunTests", isAppVeyorBuild = false) // 3 tests failing on AppVeyor
+  ==> "RunTests"
   ==> "All"
 
 "All"

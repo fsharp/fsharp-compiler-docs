@@ -170,4 +170,5 @@
 * Replace GetSymbolAtLocationAlternate by GetSymbolUseAtLocation
 
 #### 0.0.42 - 
-* Register enum symbols in patterns
+* Fix #105 - Register enum symbols in patterns
+* Fix #107 - Return correct results for inheritance chain of .NET types

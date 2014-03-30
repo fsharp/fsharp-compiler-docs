@@ -108,6 +108,9 @@ type SimpleSourceCodeServices =
     /// the given TextWriters are used for the stdout and stderr streams respectively. In this 
     /// case, a global setting is modified during the execution.
     member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option -> ErrorInfo [] * int * System.Reflection.Assembly option
+
+    /// TypeCheck and compile provided AST
+    member CompileToDynamicAssembly: ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool -> ErrorInfo [] * int * System.Reflection.Assembly option
             
     [<System.Obsolete("This method has been renamed to ParseAndCheckScript")>] 
     member TypeCheckScript: filename:string * source:string * otherFlags:string [] -> Async<SimpleCheckFileResults>

@@ -237,7 +237,8 @@ module Bar
     exception E of int * string
 
     // depends on FSharp.Compiler.Service
-    let checker = InteractiveChecker.Create()
+    // note : mono's pedump fails if this is a value; will not verify type initializer for module
+    let checker () = InteractiveChecker.Create()
 
     printfn "done!" // make the code have some initialization effect
 """

@@ -1829,6 +1829,71 @@ let main1(argv,bannerAlreadyPrinted,exiter:Exiter,loggerProvider) =
     // data structures involved here are so large we can't take the risk.
     Args(tcConfig,tcImports,frameworkTcImports,tcGlobals,errorLogger,generatedCcu,outfile,typedAssembly,topAttrs,pdbfile,assemblyName,assemVerFromAttrib,signingInfo,exiter)
 
+
+// set up typecheck for given AST without parsing any command line parameters
+let main1OfAst (assemblyName : string, target : CompilerTarget, outfile : string, pdbFile : string option, dllReferences : string list, exiter : Exiter, inputs : ParsedInput list) =
+
+    let tcConfigB = Build.TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, (*optimizeForMemory*) false, Directory.GetCurrentDirectory(), isInteractive=false, isInvalidationSupported=false)
+    // Preset: --optimize+ -g --tailcalls+ (see 4505)
+    SetOptimizeSwitch tcConfigB On
+    SetDebugSwitch    tcConfigB None Off
+    SetTailcallSwitch tcConfigB On
+    tcConfigB.target <- target
+    tcConfigB.sqmNumOfSourceFiles <- 1
+        
+    let errorLogger = CreateErrorLoggerThatQuitsAfterMaxErrors (tcConfigB, exiter)
+
+    tcConfigB.conditionalCompilationDefines <- "COMPILED" :: tcConfigB.conditionalCompilationDefines
+
+    // append assembly dependencies
+    dllReferences |> List.iter (fun ref -> tcConfigB.AddReferencedAssemblyByPath(rangeStartup,ref))
+
+    // If there's a problem building TcConfig, abort    
+    let tcConfig = 
+        try
+            TcConfig.Create(tcConfigB,validate=false)
+        with e ->
+            exiter.Exit 1
+    
+    let foundationalTcConfigP = TcConfigProvider.Constant(tcConfig)
+    let sysRes,otherRes,knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
+    let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (foundationalTcConfigP, sysRes, otherRes)
+
+    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse) 
+
+    let meta = Directory.GetCurrentDirectory()
+    let tcConfig = (tcConfig,inputs) ||> List.fold (fun tcc inp -> ApplyMetaCommandsFromInputToTcConfig tcc (inp,meta))
+    let tcConfigP = TcConfigProvider.Constant(tcConfig)
+
+    let tcGlobals,tcImports =  
+        let tcImports = TcImports.BuildNonFrameworkTcImports(None,tcConfigP,tcGlobals,frameworkTcImports,otherRes,knownUnresolved)
+        tcGlobals,tcImports
+
+    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.TypeCheck)            
+    let tcEnv0 = GetInitialTypecheckerEnv (Some assemblyName) rangeStartup tcConfig tcImports tcGlobals
+
+    let tcState,topAttrs,typedAssembly,_tcEnvAtEnd = 
+        TypeCheck(tcConfig,tcImports,tcGlobals,errorLogger,assemblyName,NiceNameGenerator(),tcEnv0,inputs,exiter)
+
+    let generatedCcu = tcState.Ccu
+
+    use unwindPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.CodeGen)
+    let signingInfo = ValidateKeySigningAttributes tcConfig tcGlobals topAttrs
+
+    // Try to find an AssemblyVersion attribute 
+    let assemVerFromAttrib = 
+        match AttributeHelpers.TryFindVersionAttribute tcGlobals "System.Reflection.AssemblyVersionAttribute" topAttrs.assemblyAttrs with
+        | Some v -> 
+            match tcConfig.version with 
+            | VersionNone -> Some v
+            | _ -> warning(Error(FSComp.SR.fscAssemblyVersionAttributeIgnored(),Range.range0)); None
+        | _ -> None
+
+    // Pass on only the minimimum information required for the next phase to ensure GC kicks in.
+    // In principle the JIT should be able to do good liveness analysis to clean things up, but the
+    // data structures involved here are so large we can't take the risk.
+    Args(tcConfig,tcImports,frameworkTcImports,tcGlobals,errorLogger,generatedCcu,outfile,typedAssembly,topAttrs,pdbFile,assemblyName,assemVerFromAttrib,signingInfo,exiter)
+
   
 let main2(Args(tcConfig,tcImports,frameworkTcImports : TcImports,tcGlobals,errorLogger,generatedCcu:CcuThunk,outfile,typedAssembly,topAttrs,pdbfile,assemblyName,assemVerFromAttrib,signingInfo,exiter:Exiter)) = 
       
@@ -2001,6 +2066,15 @@ let mainCompile (argv,bannerAlreadyPrinted,exiter:Exiter,loggerProviderOpt, tcIm
     |> main2b (tcImportsCapture,dynamicAssemblyCreator)
     |> main2c
     |> main3 
+    |> main4 dynamicAssemblyCreator
+
+
+let compileOfAst (assemblyName, target, outFile, pdbFile, dllReferences, exiter, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
+    main1OfAst (assemblyName, target, outFile, pdbFile, dllReferences, exiter, inputs)
+    |> main2
+    |> main2b (tcImportsCapture, dynamicAssemblyCreator)
+    |> main2c
+    |> main3
     |> main4 dynamicAssemblyCreator
 
 #endif // NO_COMPILER_BACKEND

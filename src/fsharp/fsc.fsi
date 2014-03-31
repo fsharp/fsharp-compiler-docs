@@ -1,5 +1,6 @@
 module internal Microsoft.FSharp.Compiler.Driver 
 
+open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.ErrorLogger
@@ -21,6 +22,18 @@ val mainCompile :
     exiter: Exiter * 
     loggerProvider: (TcConfigBuilder * Exiter -> ErrorLogger) option * 
     tcImportsCapture: (TcImports -> unit) option *
+    dynamicAssemblyCreator: (TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option
+      -> unit
+
+val compileOfAst : 
+    assemblyName:string * 
+    target:CompilerTarget * 
+    targetDll:string * 
+    targetPdb:string option * 
+    dependencies:string list * 
+    exiter:Exiter * 
+    inputs:ParsedInput list *
+    tcImportsCapture : (TcImports -> unit) option *
     dynamicAssemblyCreator: (TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option
       -> unit
 

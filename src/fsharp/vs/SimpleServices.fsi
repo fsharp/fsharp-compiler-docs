@@ -18,6 +18,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
 open System.IO
 open Microsoft.FSharp.Compiler
+open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
@@ -95,6 +96,9 @@ type SimpleSourceCodeServices =
 
     /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
     member Compile: argv:string [] -> ErrorInfo [] * int
+    
+    /// TypeCheck and compile provided AST
+    member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool -> ErrorInfo [] * int
 
     /// Compiles to a dynamic assembly usinng the given flags.  Any source files names 
     /// are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not
@@ -104,6 +108,9 @@ type SimpleSourceCodeServices =
     /// the given TextWriters are used for the stdout and stderr streams respectively. In this 
     /// case, a global setting is modified during the execution.
     member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option -> ErrorInfo [] * int * System.Reflection.Assembly option
+
+    /// TypeCheck and compile provided AST
+    member CompileToDynamicAssembly: ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool -> ErrorInfo [] * int * System.Reflection.Assembly option
             
     [<System.Obsolete("This method has been renamed to ParseAndCheckScript")>] 
     member TypeCheckScript: filename:string * source:string * otherFlags:string [] -> Async<SimpleCheckFileResults>

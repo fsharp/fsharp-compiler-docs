@@ -1,14 +1,4 @@
-//----------------------------------------------------------------------------
-//
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 //-------------------------------------------------------------------------
 // Name environment and name resolution 
@@ -133,6 +123,12 @@ let (|AbbrevOrAppTy|_|) (typ: TType) =
     | TType_app (tcref,_) -> Some tcref
     | _ -> None
 
+[<NoEquality; NoComparison; RequireQualifiedAccess>]
+type ArgumentContainer =
+    | Method of MethInfo
+    | Type of TyconRef
+    | UnionCase of UnionCaseInfo
+
 // Note: Active patterns are encoded like this:
 //   let (|A|B|) x = if x < 0 then A else B    // A and B are reported as results using 'Item.ActivePatternResult' 
 //   match () with | A | B -> ()               // A and B are reported using 'Item.ActivePatternCase'
@@ -187,7 +183,7 @@ type Item =
     /// Represents the resolution of a name to an operator
     | ImplicitOp of Ident * TraitConstraintSln option ref
     /// Represents the resolution of a name to a named argument
-    | ArgName of Ident * TType
+    | ArgName of Ident * TType * ArgumentContainer option
     /// Represents the resolution of a name to a named property setter
     | SetterArg of Ident * Item 
     /// Represents the potential resolution of an unqualified name to a type.
@@ -220,7 +216,7 @@ type Item =
         | Item.UnqualifiedType(tcref :: _) -> tcref.DisplayName
         | Item.TypeVar (nm,_) -> nm
         | Item.ModuleOrNamespaces(modref :: _) ->  modref.DemangledModuleOrNamespaceName
-        | Item.ArgName (id,_)  -> id.idText
+        | Item.ArgName (id, _, _)  -> id.idText
         | Item.SetterArg (id, _) -> id.idText
         | Item.CustomOperation (customOpName,_,_) -> customOpName
         | Item.CustomBuilder (nm,_) -> nm
@@ -1202,9 +1198,9 @@ let ItemsReferToSameDefinition g orig other =
         (idx1 = idx2) && (range1 = range2 || range1i = range2i)
     | ILMethodUse methodDef1, ILMethodUse methodDef2 -> 
         methodDef1 === methodDef2
-    | Item.ArgName (id1,_), Item.ArgName (id2,_) -> 
+    | Item.ArgName (id1,_, _), Item.ArgName (id2,_, _) -> 
         (id1.idText = id2.idText && id1.idRange = id2.idRange)
-    | (Item.ArgName (id,_), ValUse vref) | (ValUse vref, Item.ArgName (id,_)) -> 
+    | (Item.ArgName (id,_, _), ValUse vref) | (ValUse vref, Item.ArgName (id, _, _)) -> 
         (id.idText = vref.DisplayName && id.idRange = vref.ImplRange)
     | ILFieldUse f1, ILFieldUse f2 -> 
         f1 === f2 
@@ -1279,14 +1275,18 @@ type TcResultsSinkImpl(g) =
             // results in duplication of textual variables. So we ensure we never record two name resolutions 
             // for the same identifier at the same location.
             if allowedRange m then 
-                let alreadyDone = 
-                    match item with 
-                    | Item.Value vref -> 
-                        let key = (endPos, vref.DisplayName)
-                        let res = capturedNameResolutionIdentifiers.ContainsKey key
-                        if not res then capturedNameResolutionIdentifiers.Add(key, ()) |> ignore
-                        res
+                let keyOpt = 
+                    match item with
+                    | Item.Value vref -> Some (endPos, vref.DisplayName)
+                    | Item.ArgName (id, _, _) -> Some (endPos, id.idText)
+                    | _ -> None
 
+                let alreadyDone = 
+                    match keyOpt with
+                    | Some key ->
+                        let res = capturedNameResolutionIdentifiers.ContainsKey key
+                        if not res then capturedNameResolutionIdentifiers.Add (key, ()) |> ignore
+                        res
                     | _ -> false
                 
                 if not alreadyDone then 
@@ -2743,7 +2743,9 @@ let ResolveCompletionsInType (ncenv: NameResolver) nenv isApplicableMeth m ad st
     let pinfoItems = 
         pinfos
         |> List.map (fun pinfo -> DecodeFSharpEvent [pinfo] ad g ncenv m)
-        |> List.filter (fun pinfo->pinfo.IsSome)
+        |> List.filter (fun pinfo-> match pinfo with
+                                    | Some(Item.Event(einfo)) -> IsStandardEventInfo ncenv.InfoReader m ad einfo
+                                    | _ -> pinfo.IsSome)
         |> List.map (fun pinfo->pinfo.Value)
 
     let addersAndRemovers = 

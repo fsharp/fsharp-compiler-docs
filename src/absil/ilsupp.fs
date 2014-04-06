@@ -1,13 +1,4 @@
-//----------------------------------------------------------------------------
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 module internal Microsoft.FSharp.Compiler.AbstractIL.Internal.Support 
 
@@ -1058,6 +1049,10 @@ let pdbInitialize (binaryName:string) (pdbName:string) =
 
 [<assembly:System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", Scope="member", Target="Microsoft.FSharp.Compiler.AbstractIL.Internal.Support.#pdbClose(Microsoft.FSharp.Compiler.AbstractIL.Internal.Support+PdbWriter)", MessageId="System.GC.Collect")>]
 do()
+
+let pdbCloseDocument(documentWriter : PdbDocumentWriter) = 
+    Marshal.ReleaseComObject (documentWriter.symDocWriter)
+    |> ignore
 
 [<System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId="System.GC.Collect")>]
 let pdbClose (writer:PdbWriter) =

@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
@@ -28,6 +29,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             match el with
             | ToolTipElementNone -> ()
             | ToolTipElement(it, comment) ->
+                sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
+            | ToolTipElementParameter(it, comment, _) ->
                 sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
             | ToolTipElementGroup(items) ->
                 let items, msg =
@@ -183,14 +186,16 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                     member x.ErrorSinkImpl(exn) = errorSink false exn
                     member x.ErrorCount = errors |> Seq.filter (fun e -> e.Severity = Severity.Error) |> Seq.length }
 
-            let loggerProvider (_tcConfigBuilder, _exiter) = errorLogger 
+            let loggerProvider = 
+                { new ErrorLoggerProvider() with 
+                    member x.CreateErrorLoggerThatQuitsAfterMaxErrors(_tcConfigBuilder, _exiter) = errorLogger    }
      
             let result = 
                 use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
                 use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
                 let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
                 try 
-                    mainCompile (argv, true, exiter, Some loggerProvider, tcImportsCapture, dynamicAssemblyCreator) 
+                    mainCompile (argv, true, exiter, loggerProvider, tcImportsCapture, dynamicAssemblyCreator) 
                     0
                 with e -> 
                     stopProcessingRecovery e Range.range0
@@ -213,6 +218,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                     member x.ErrorSinkImpl(exn) = errorSink false exn
                     member x.ErrorCount = errors |> Seq.filter (fun e -> e.Severity = Severity.Error) |> Seq.length }
 
+            let loggerProvider = 
+                { new ErrorLoggerProvider() with 
+                    member x.CreateErrorLoggerThatQuitsAfterMaxErrors(_tcConfigBuilder, _exiter) = errorLogger    }
+     
             let executable = defaultArg executable true
             let target = if executable then Build.CompilerTarget.ConsoleExe else Build.CompilerTarget.Dll
      
@@ -221,7 +230,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
                 let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
                 try 
-                    compileOfAst (assemblyName, target, outFile, pdbFile, dependencies, exiter, asts, tcImportsCapture, dynamicAssemblyCreator)
+                    compileOfAst (assemblyName, target, outFile, pdbFile, dependencies, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator)
                     0
                 with e -> 
                     stopProcessingRecovery e Range.range0

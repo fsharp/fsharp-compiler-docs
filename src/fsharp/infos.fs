@@ -1,14 +1,4 @@
-//----------------------------------------------------------------------------
-//
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 /// tinfos, minfos, finfos, pinfos - summaries of information for references
 /// to .NET and F# constructs.
@@ -3521,7 +3511,7 @@ let TryDestStandardDelegateTyp (infoReader:InfoReader) m ad delTy =
     let g = infoReader.g
     let (SigOfFunctionForDelegate(_,compiledViewOfDelArgTys,delRetTy,_)) = GetSigOfFunctionForDelegate infoReader delTy m ad
     match compiledViewOfDelArgTys with 
-    | senderTy :: argTys when isObjTy g senderTy  -> Some(mkTupledTy g argTys,delRetTy)
+    | senderTy :: argTys when (isObjTy g senderTy) && not (List.exists (isByrefTy g) argTys)  -> Some(mkTupledTy g argTys,delRetTy)
     | _ -> None
 
 

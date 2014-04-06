@@ -1231,7 +1231,7 @@ and FSharpStaticParameter(g, thisCcu, tcImports:TcImports,  sp: Tainted< Extensi
               protect <| fun () -> 
                 let spKind = Import.ImportProvidedType (tcImports.GetImportMap()) m (sp.PApply((fun x -> x.ParameterType), m))
                 let nm = sp.PUntaint((fun p -> p.Name), m)
-                Item.ArgName((mkSynId m nm, spKind))))
+                Item.ArgName((mkSynId m nm, spKind, None))))
 
     member __.Name = 
         protect <| fun () -> 
@@ -1266,7 +1266,7 @@ and FSharpStaticParameter(g, thisCcu, tcImports:TcImports,  sp: Tainted< Extensi
 and FSharpParameter(g, thisCcu, tcImports,  typ:TType,topArgInfo:ArgReprInfo, mOpt) = 
     inherit FSharpSymbol(g, thisCcu, tcImports,  (fun () -> 
                             let m = match mOpt with Some m  -> m | None -> range0
-                            Item.ArgName((match topArgInfo.Name with None -> mkSynId m "" | Some v -> v), typ)))
+                            Item.ArgName((match topArgInfo.Name with None -> mkSynId m "" | Some v -> v), typ, None)))
     let attribs = topArgInfo.Attribs
     let idOpt = topArgInfo.Name
     let m = match mOpt with Some m  -> m | None -> range0
@@ -1366,7 +1366,7 @@ type FSharpSymbol with
         | Item.ActivePatternResult (apinfo,_,n,_) ->
              FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, n, item) :> _
 
-        | Item.ArgName(id,ty)  ->
+        | Item.ArgName(id,ty,_)  ->
              FSharpParameter(g, thisCcu, tcImports,  ty, {Attribs=[]; Name=Some id}, Some id.idRange) :> _
 
         // TODO: the following don't currently return any interesting subtype

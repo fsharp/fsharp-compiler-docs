@@ -1,14 +1,4 @@
-//----------------------------------------------------------------------------
-//
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 //----------------------------------------------------------------------------
 // Write Abstract IL structures at runtime using Reflection.Emit
@@ -85,7 +75,7 @@ type System.Reflection.Emit.AssemblyBuilder with
         if logRefEmitCalls then printfn "assemblyBuilder%d.SetCustomAttribute(%A, %A)" (abs <| hash asmB) cinfo bytes
         wrapCustomAttr asmB.SetCustomAttribute (cinfo, bytes)
 
-#if FX_ATLEAST_SILVERLIGHT_50
+#if SILVERLIGHT
 #else
     member asmB.AddResourceFileAndLog(nm1, nm2, attrs)        = 
         if logRefEmitCalls then printfn "assemblyBuilder%d.AddResourceFile(%A, %A, enum %d)" (abs <| hash asmB) nm1 nm2 (LanguagePrimitives.EnumToValue attrs)
@@ -1547,7 +1537,7 @@ let rec buildMethodPass2 cenv tref (typB:TypeBuilder) emEnv (mdef : ILMethodDef)
 (* p.CharBestFit *)
 (* p.NoMangle *)
 
-#if FX_ATLEAST_SILVERLIGHT_50
+#if SILVERLIGHT
         failwith "PInvoke methods may not be defined when targeting Silverlight via System.Reflection.Emit"
 #else
         let methB = typB.DefinePInvokeMethod(mdef.Name, 
@@ -1657,7 +1647,7 @@ let buildFieldPass2 cenv tref (typB:TypeBuilder) emEnv (fdef : ILFieldDef) =
     let attrs = attrsAccess ||| attrsOther
     let fieldT = convType cenv emEnv  fdef.Type
     let fieldB = 
-#if FX_ATLEAST_SILVERLIGHT_50
+#if SILVERLIGHT
 #else
         match fdef.Data with 
         | Some d -> typB.DefineInitializedData(fdef.Name, d, attrs)
@@ -1683,7 +1673,7 @@ let buildFieldPass2 cenv tref (typB:TypeBuilder) emEnv (fdef : ILFieldDef) =
                 // => here we cannot detect if underlying type is already set so as a conservative solution we delay initialization of fields
                 // to the end of pass2 (types and members are already created but method bodies are yet not emitted)
                 { emEnv with delayedFieldInits = (fun() -> fieldB.SetConstant(convFieldInit initial))::emEnv.delayedFieldInits }
-#if FX_ATLEAST_SILVERLIGHT_50
+#if SILVERLIGHT
 #else
     fdef.Offset |> Option.iter (fun offset ->  fieldB.SetOffset(offset));
 #endif
@@ -2071,7 +2061,7 @@ let buildModuleFragment cenv emEnv (asmB : AssemblyBuilder) (modB : ModuleBuilde
         | ILResourceLocation.Local bf -> 
             modB.DefineManifestResourceAndLog(r.Name, new System.IO.MemoryStream(bf()), attribs)
         | ILResourceLocation.File (mr,_n) -> 
-#if FX_ATLEAST_SILVERLIGHT_50
+#if SILVERLIGHT
            ()
 #else
            asmB.AddResourceFileAndLog(r.Name, mr.Name, attribs)

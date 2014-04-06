@@ -1,15 +1,4 @@
-
-//----------------------------------------------------------------------------
-//
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 /// Loading initial context, reporting errors etc.
 module internal Microsoft.FSharp.Compiler.Build
@@ -93,6 +82,34 @@ val OutputPhasedError : StringBuilder -> PhasedError -> bool -> unit
 val SanitizeFileName : filename:string -> implicitIncludeDir:string -> string
 val OutputErrorOrWarning : implicitIncludeDir:string * showFullPaths: bool * flattenErrors: bool * errorStyle: ErrorStyle *  warning:bool -> StringBuilder -> PhasedError -> unit
 val OutputErrorOrWarningContext : prefix:string -> fileLineFunction:(string -> int -> string) -> StringBuilder -> PhasedError -> unit
+
+type ErrorLocation =
+    {
+        Range : range
+        File : string
+        TextRepresentation : string
+        IsEmpty : bool
+    }
+
+type CanonicalInformation = 
+    {
+        ErrorNumber : int
+        Subcategory : string
+        TextRepresentation : string
+    }
+
+type DetailedIssueInfo = 
+    {
+        Location : ErrorLocation option
+        Canonical : CanonicalInformation
+        Message : string
+    }
+
+type ErrorOrWarning = 
+    | Short of bool * string
+    | Long of bool * DetailedIssueInfo
+
+val CollectErrorOrWarning : implicitIncludeDir:string * showFullPaths: bool * flattenErrors: bool * errorStyle: ErrorStyle *  warning:bool * PhasedError -> seq<ErrorOrWarning>
 
 //----------------------------------------------------------------------------
 // Options and configuration

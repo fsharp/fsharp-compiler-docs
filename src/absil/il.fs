@@ -1,14 +1,4 @@
-//----------------------------------------------------------------------------
-//
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 module (*internal*) Microsoft.FSharp.Compiler.AbstractIL.IL
 
@@ -5069,9 +5059,9 @@ let parseILVersion (vstr : string) =
     let zero32 n = if n < 0 then 0us else uint16(n)
     // since the minor revision will be -1 if none is specified, we need to truncate to 0 to not break existing code
 #if SILVERLIGHT
-    let minorRevision = if versionComponents.Length < 4 then 0us else uint16(version.Revision)
+    let minorRevision = if version.Revision = -1 then 0us else uint16(version.Revision)
 #else
-    let minorRevision = if versionComponents.Length < 4 then 0us else uint16(version.MinorRevision)
+    let minorRevision = if version.Revision = -1 then 0us else uint16(version.MinorRevision)
 #endif    
     (zero32 version.Major, zero32 version.Minor, zero32 version.Build, minorRevision);;
 

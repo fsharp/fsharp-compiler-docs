@@ -1,15 +1,4 @@
-//----------------------------------------------------------------------------
-//
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
-
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 module internal Microsoft.FSharp.Compiler.Nameres
 
@@ -37,6 +26,12 @@ type NameResolver =
     member InfoReader : InfoReader
     member amap : ImportMap
     member g : TcGlobals
+
+[<NoEquality; NoComparison; RequireQualifiedAccess>]
+type ArgumentContainer =
+    | Method of MethInfo
+    | Type of TyconRef
+    | UnionCase of UnionCaseInfo
 
 //---------------------------------------------------------------------------
 // 
@@ -74,7 +69,7 @@ type Item =
   /// Represents the resolution of a source identifier to an implicit use of an infix operator (+solution if such available)
   | ImplicitOp of Ident * TraitConstraintSln option ref
   /// Represents the resolution of a source identifier to a named argument
-  | ArgName of Ident * TType
+  | ArgName of Ident * TType * ArgumentContainer option
   | SetterArg of Ident * Item 
   | UnqualifiedType of TyconRef list
   member DisplayName : string

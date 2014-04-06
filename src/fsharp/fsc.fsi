@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+
 module internal Microsoft.FSharp.Compiler.Driver 
 
 open Microsoft.FSharp.Compiler.Ast
@@ -12,6 +14,11 @@ open Microsoft.FSharp.Compiler.Env
 
 type SigningInfo = SigningInfo of (* delaysign:*) bool * (*signer:*)  string option * (*container:*) string option
 
+[<AbstractClass>]
+type ErrorLoggerProvider =
+    new : unit -> ErrorLoggerProvider
+    abstract CreateErrorLoggerThatQuitsAfterMaxErrors : tcConfigBuilder : TcConfigBuilder * exiter : Exiter -> ErrorLogger
+
 #if NO_COMPILER_BACKEND
 #else
 /// <summary>fsc.exe calls this</summary>
@@ -20,7 +27,7 @@ val mainCompile :
     argv: string[] * 
     bannerAlreadyPrinted: bool * 
     exiter: Exiter * 
-    loggerProvider: (TcConfigBuilder * Exiter -> ErrorLogger) option * 
+    loggerProvider: ErrorLoggerProvider * 
     tcImportsCapture: (TcImports -> unit) option *
     dynamicAssemblyCreator: (TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option
       -> unit
@@ -32,6 +39,7 @@ val compileOfAst :
     targetPdb:string option * 
     dependencies:string list * 
     exiter:Exiter * 
+    loggerProvider: ErrorLoggerProvider * 
     inputs:ParsedInput list *
     tcImportsCapture : (TcImports -> unit) option *
     dynamicAssemblyCreator: (TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option

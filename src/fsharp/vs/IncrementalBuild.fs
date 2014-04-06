@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 namespace Microsoft.FSharp.Compiler
 #nowarn "57"
@@ -1147,7 +1148,7 @@ module internal IncrementalFSharpBuild =
     type IBEvent =
         | IBEParsed of string // filename
         | IBETypechecked of string // filename
-        | IBENuked
+        | IBEDeleted
 
     let IncrementalBuilderEventsMRU = new FixedLengthMRU<IBEvent>()  
     let GetMostRecentIncrementalBuildEvents(n) = IncrementalBuilderEventsMRU.MostRecentList(n)
@@ -1673,7 +1674,7 @@ module internal IncrementalFSharpBuild =
               )
 #endif        
 
-        do IncrementalBuilderEventsMRU.Add(IBENuked)
+        do IncrementalBuilderEventsMRU.Add(IBEDeleted)
         let buildInputs = [VectorInput (fileNamesNode, sourceFiles)
                            VectorInput (referencedAssembliesNode, nonFrameworkAssemblyInputs) ]
 
@@ -1894,4 +1895,3 @@ module internal IncrementalFSharpBuild =
                None
 
           builderOpt, errorScope.ErrorsAndWarnings
-

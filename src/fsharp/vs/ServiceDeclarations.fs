@@ -1,13 +1,4 @@
-//----------------------------------------------------------------------------
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
+// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 //----------------------------------------------------------------------------
 // Open up the compiler as an incremental service for parsing,
@@ -78,6 +69,8 @@ type (*internal*) ToolTipElement =
     | ToolTipElementNone
     /// A single type, method, etc with comment.
     | ToolTipElement of (* text *) string * XmlComment
+    /// A parameter of a method.
+    | ToolTipElementParameter of string * XmlComment * string
     /// For example, a method overload group.
     | ToolTipElementGroup of ((* text *) string * XmlComment) list
     /// An error occurred formatting this element
@@ -196,7 +189,7 @@ module internal ItemDescriptionsImpl =
         | Item.CtorGroup(_,FilterDefaultStructCtors(minfos)) -> minfos |> List.tryPick (rangeOfMethInfo isDecl)
         | Item.ActivePatternResult(APInfo _,_, _, m) -> Some m
         | Item.SetterArg (_,item) -> rangeOfItem g isDecl item
-        | Item.ArgName (id,_) -> Some id.idRange
+        | Item.ArgName (id,_, _) -> Some id.idRange
         | Item.CustomOperation (_,_,implOpt) -> implOpt |> Option.bind (rangeOfMethInfo isDecl)
         | Item.ImplicitOp _ -> None
         | Item.NewDef id -> Some id.idRange
@@ -406,6 +399,10 @@ module internal ItemDescriptionsImpl =
 
         | Item.MethodGroup(_,minfo :: _) -> GetXmlDocSigOfMethInfo infoReader  m minfo
         | Item.CtorGroup(_,minfo :: _) -> GetXmlDocSigOfMethInfo infoReader  m minfo
+        | Item.ArgName(_, _, Some argContainer) -> match argContainer with 
+                                                   | ArgumentContainer.Method(minfo) -> GetXmlDocSigOfMethInfo infoReader m minfo
+                                                   | ArgumentContainer.Type(tcref) -> GetXmlDocSigOfEntityRef infoReader m tcref
+                                                   | ArgumentContainer.UnionCase(ucinfo) -> GetXmlDocSigOfUnionCaseInfo ucinfo
         |  _ -> XmlCommentNone
 
     /// Produce an XmlComment with a signature or raw text.
@@ -623,7 +620,7 @@ module internal ItemDescriptionsImpl =
             let definiteNamespace = modrefs |> List.forall (fun modref -> modref.IsNamespace)
             if definiteNamespace then fullDisplayTextOfModRef modref else modref.DemangledModuleOrNamespaceName
         | Item.TypeVar (id, _) -> id
-        | Item.ArgName (id, _) -> id.idText
+        | Item.ArgName (id, _, _) -> id.idText
         | Item.SetterArg (_, item) -> FullNameOfItem g item
         | Item.ImplicitOp(id, _) -> id.idText
         // unreachable 
@@ -890,13 +887,22 @@ module internal ItemDescriptionsImpl =
                 ToolTipElement(os.ToString(), GetXmlComment (XmlDoc [||]) infoReader m d)
 
         // Named parameters
-        | Item.ArgName (id, argTy) -> 
+        | Item.ArgName (id, argTy, argContainer) -> 
             let _, argTy, _ = PrettyTypes.PrettifyTypes1 g argTy
             let text = bufs (fun os -> 
                           bprintf os "%s %s : " (FSComp.SR.typeInfoArgument()) id.idText 
                           NicePrint.outputTy denv os argTy)
-            let xml = GetXmlComment (XmlDoc [||]) infoReader m d
-            ToolTipElement(text, xml)
+
+            let xmldoc = match argContainer with
+                         | Some(ArgumentContainer.Method (minfo)) ->
+                               if minfo.HasDirectXmlComment then minfo.XmlDoc else XmlDoc [||] 
+                         | Some(ArgumentContainer.Type(tcref)) ->
+                               if (tyconRefUsesLocalXmlDoc g.compilingFslib tcref) then tcref.XmlDoc else XmlDoc [||]
+                         | Some(ArgumentContainer.UnionCase(ucinfo)) ->
+                               if (tyconRefUsesLocalXmlDoc g.compilingFslib ucinfo.TyconRef) then ucinfo.UnionCase.XmlDoc else XmlDoc [||]
+                         | _ -> XmlDoc [||]
+            let xml = GetXmlComment xmldoc infoReader m d
+            ToolTipElementParameter(text, xml, id.idText)
             
         | Item.SetterArg (_, item) -> 
             FormatItemDescriptionToToolTipElement isDecl infoReader m denv item

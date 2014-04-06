@@ -4838,13 +4838,10 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
                                                       | Item.UnionCase uci -> Some(ArgumentContainer.UnionCase(uci))
                                                       | Item.ExnCase tref -> Some(ArgumentContainer.Type(tref))
                                                       | _ -> None
-                                let argItem = Item.ArgName (id, (List.nth argtys idx), argContainerOpt)   
-                                CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,argItem,argItem,ItemOccurence.Use,env.DisplayEnv,ad)
+                                let argItem = Item.ArgName (argNames.[idx], argtys.[idx], argContainerOpt)   
+                                CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,argItem,argItem,ItemOccurence.Pattern,env.DisplayEnv,ad)
                             | _ ->
                                 error(Error(FSComp.SR.tcUnionCaseFieldCannotBeUsedMoreThanOnce(id.idText), id.idRange))
-                            let container = match item with Item.UnionCase uc ->  Some (ArgumentContainer.UnionCase uc) | _ -> None
-                            let item = Item.ArgName(argNames.[idx], argtys.[idx], container)
-                            CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.Pattern,env.DisplayEnv,env.AccessRights)
                     for i = 0 to nargtys - 1 do
                         if box result.[i] = null then
                             result.[i] <- SynPat.Wild(m.MakeSynthetic())
@@ -7894,7 +7891,7 @@ and TcItemThen cenv overallTy env tpenv (item,mItem,rest,afterOverloadResolution
                                                       | Item.UnionCase uci -> Some(ArgumentContainer.UnionCase(uci))
                                                       | Item.ExnCase tref -> Some(ArgumentContainer.Type(tref))
                                                       | _ -> None
-                                let argItem = Item.ArgName (id, argtys.[i], argContainerOpt)   
+                                let argItem = Item.ArgName (argNames.[i], argtys.[i], argContainerOpt)   
                                 CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,argItem,argItem,ItemOccurence.Use,env.DisplayEnv,ad)
                             else error(Error(FSComp.SR.tcUnionCaseFieldCannotBeUsedMoreThanOnce(id.idText), id.idRange))
                             currentIndex <- SEEN_NAMED_ARGUMENT

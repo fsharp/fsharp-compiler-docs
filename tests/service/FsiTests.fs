@@ -131,15 +131,29 @@ let ``ParseAndCheckInteraction test 1``() =
     // Check we can't get a declaration location for text in the F# interactive state (because the file doesn't exist)
     // TODO: check that if we use # line directives, then the file will exist correctly
     let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
-    typedResults.GetDeclarationLocationAlternate(1,6,"xxxxxx",["xxxxxx"],false) |> shouldEqual (FindDeclResult.DeclNotFound  FindDeclFailureReason.NoSourceCode)
+    typedResults.GetDeclarationLocationAlternate(1,6,"xxxxxx",["xxxxxx"],false) |> Async.RunSynchronously |> shouldEqual (FindDeclResult.DeclNotFound  FindDeclFailureReason.NoSourceCode) 
 
     // Check we can get a tooltip for text in the F# interactive state
     let tooltip = 
-        match typedResults.GetToolTipTextAlternate(1,6,"xxxxxx",["xxxxxx"],identToken)  with 
+        match typedResults.GetToolTipTextAlternate(1,6,"xxxxxx",["xxxxxx"],identToken)  |> Async.RunSynchronously with 
         | ToolTipText [ToolTipElement(text, XmlCommentNone)] -> text
         | _ -> failwith "incorrect tool tip"
 
     Assert.True(tooltip.Contains("val xxxxxx : int"))
 
+let RunManually() = 
+  ``EvalExpression test 1``() 
+  ``EvalExpression fsi test``() 
+  ``EvalExpression fsi test 2``() 
+  ``EvalExpression typecheck failure``() 
+  ``EvalExpression function value 1``() 
+  ``EvalExpression function value 2``() 
+  ``EvalExpression runtime failure``() 
+  ``EvalExpression parse failure``() 
+  ``EvalInteraction typecheck failure``() 
+  ``EvalInteraction runtime failure``() 
+  ``EvalInteraction parse failure``() 
+  ``PartialAssemblySignatureUpdated test``() 
+  ``ParseAndCheckInteraction test 1``() 
 
 #endif

@@ -176,3 +176,8 @@
 
 #### 0.0.43 - 
 * Fix #109 - Duplicates in GetUsesOfSymbolInFile 
+
+#### 0.0.44 - 
+* Integrate latest changes from visualfsharp.codeplex.com via github.com/fsharp/fsharp 
+
+

@@ -204,3 +204,26 @@ let ``Expression typing test`` () =
                "Length"; "Normalize"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
                "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
                "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"])
+
+
+[<Test>]
+let ``ToolTip description wait is respected`` () = 
+    // Make sure that the spinwait delay is respected when 
+    // getting descriptions for Autocomplete entries
+    let input = "let mystring = \"\"."
+
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input3) 
+
+    let decls =  typeCheckResults.GetDeclarationsAlternate(Some untyped, 2, 17, input, [], "", fun _ -> false)|> Async.RunSynchronously
+    let item = decls.Items.[0];
+    
+    let sw = System.Diagnostics.Stopwatch()
+    sw.Start()
+    let description = item.DescriptionText
+    sw.Stop();
+    
+    let isLoading = description = ToolTipText [ ToolTipElement("(loading description...)", XmlCommentNone) ]
+    if isLoading then
+       Assert.GreaterOrEqual(sw.ElapsedMilliseconds, 300L)
+    else Assert.Inconclusive()

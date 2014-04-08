@@ -204,3 +204,22 @@ let ``Expression typing test`` () =
                "Length"; "Normalize"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
                "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
                "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"])
+
+[<Test>]
+let ``ToolTip description`` () = 
+    let inputLines = input3.Split('\n')
+
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input3) 
+
+    let decls =  typeCheckResults.GetDeclarationsAlternate(Some untyped, 2, 42, inputLines.[1], [], "", fun _ -> false)|> Async.RunSynchronously
+    let item = decls.Items.[0];
+    
+    let description = item.DescriptionText |> Async.RunSynchronously
+
+    match description with 
+    | Choice1Of2 (ToolTipText (ToolTipElement(x,_) :: _)) ->
+       Assert.AreEqual("property System.String.Chars: int -> char", x)
+    | Choice2Of2 err -> Assert.Fail(err)
+    | _              -> Assert.Fail("Tooltip for wrong ident")
+    

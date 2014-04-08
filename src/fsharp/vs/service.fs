@@ -412,7 +412,7 @@ type TypeCheckInfo
            // This is a name resolution environment to use if no better match can be found.
            sFallback:Nameres.NameResolutionEnv,
            loadClosure : LoadClosure option,
-           startOp:(unit->unit)->unit,
+           startOp:(unit->Choice<ToolTipText,string>)->Async<Choice<ToolTipText,string>>,
            checkAlive : (unit -> bool),
            textSnapshotInfo:obj option) = 
 
@@ -1382,7 +1382,7 @@ module internal Parser =
            loadClosure: LoadClosure option,
            // These are the errors and warnings seen by the background compiler for the entire antecedant 
            backgroundErrors: (PhasedError * bool) list,    
-           startOp: (unit->unit)->unit,
+           startOp: (unit->Choice<ToolTipText,string>)->Async<Choice<ToolTipText,string>>,
            // Used by 'DeclarationSet' to check the IncrementalBuilder is still alive.
            checkAlive : (unit -> bool),
            isResultObsolete: unit->bool,
@@ -1995,7 +1995,7 @@ type BackgroundCompiler() as self =
                     // Run the type checking.
                     let tcErrors, tcFileResult = 
                         Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                                loadClosure,backgroundErrors,reactor.StartAsyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+                                                loadClosure,backgroundErrors,reactor.RunAsyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
 
                     Some(MakeCheckFileAnswer(tcFileResult, options, builder, creationErrors, parseResults.Errors, tcErrors))
                 | None -> None
@@ -2012,7 +2012,7 @@ type BackgroundCompiler() as self =
             let loadClosure = scriptClosure.TryGet options 
             let tcErrors, tcFileResult = 
                 Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                        loadClosure,priorErrors,reactor.StartAsyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+                                        loadClosure,priorErrors,reactor.RunAsyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
             MakeCheckFileAnswer(tcFileResult, options, builder, creationErrors, parseResults.Errors, tcErrors)
 
     /// Parses the source file and returns untyped AST
@@ -2043,7 +2043,7 @@ type BackgroundCompiler() as self =
             let loadClosure = scriptClosure.TryGet options 
             let tcErrors, tcFileResult = 
                 Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                        loadClosure,priorErrors,reactor.StartAsyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+                                        loadClosure,priorErrors,reactor.RunAsyncOp,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
             let checkAnswer = MakeCheckFileAnswer(tcFileResult, options, builder, creationErrors, parseResults.Errors, tcErrors)
             parseResults, checkAnswer, false
 
@@ -2067,7 +2067,7 @@ type BackgroundCompiler() as self =
                 let scope = 
                     TypeCheckInfo(tcConfig, tcGlobals, tcState.PartialAssemblySignature, tcState.Ccu, tcImports,
                                   options.ProjectFileName, filename, List.last tcResolutions, tcEnvAtEnd.NameEnv,
-                                  loadClosure, reactorOps.StartAsyncOp, (fun () -> builder.IsAlive), None)     
+                                  loadClosure, reactorOps.RunAsyncOp, (fun () -> builder.IsAlive), None)     
                 let typedResults = MakeCheckFileResults(options, builder, scope, creationErrors, parseResults.Errors, tcErrors)
                 (parseResults, typedResults)
 
@@ -2416,7 +2416,7 @@ type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, 
         let backgroundErrors = []
         let tcErrors, tcFileResult = 
             Parser.TypeCheckOneFile(parseResults,source,mainInputFileName,"project",tcConfig,tcGlobals,tcImports,  tcState,
-                                    loadClosure,backgroundErrors,reactorOps.StartAsyncOp,(fun () -> true),(fun _ -> false),None)
+                                    loadClosure,backgroundErrors,reactorOps.RunAsyncOp,(fun () -> true),(fun _ -> false),None)
 
         match tcFileResult with 
         | Parser.TypeCheckAborted.No scope ->

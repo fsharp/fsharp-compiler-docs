@@ -42,10 +42,6 @@ module EnvMisc2 =
 #endif
     let maxMembers   = GetEnvInteger "mFSharp_MaxMembersInQuickInfo" 10
 
-    /// dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
-    /// This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
-    let dataTipSpinWaitTime = GetEnvInteger "mFSharp_ToolTipSpinWaitTime" 300
-
 //----------------------------------------------------------------------------
 // Display characteristics of typechecking items
 //--------------------------------------------------------------------------
@@ -1239,53 +1235,26 @@ open ItemDescriptionsImpl
 /// An intellisense declaration
 [<Sealed>]
 type Declaration(name, glyph:int, info) =
-    let mutable descriptionTextHolder:ToolTipText option = None
-    let mutable task = null
-
+    let mutable descriptionTextHolder = None
     member decl.Name = name
     member decl.DescriptionText = 
         match descriptionTextHolder with
-        | Some descriptionText -> descriptionText
+        | Some descriptionText -> async { return descriptionText }
         | None ->
             match info with
             | Choice1Of2 (items, infoReader, m, denv, startOp, checkAlive) -> 
-                let work() = 
-                    // startOp "Synchronous Operation" causes the lambda to execute on the background compiler thread, through the Reactor
-                    startOp (fun () -> 
-                          // This is where we do some work which may touch TAST data structures owned by the IncrementalBuilder - infoReader, item etc. 
-                          // It is written to be robust to a disposal of an IncrementalBuilder, in which case it will just return the empty string. 
-                          // It is best to think of this as a "weak reference" to the IncrementalBuilder, i.e. this code is written to be robust to its
-                          // disposal. Yes, you are right to scratch your head here, but this is ok.
-                          let description = 
-                              if checkAlive() then ToolTipText(items |> Seq.toList |> List.map (FormatDescriptionOfItem true infoReader m denv))
-                              else ToolTipText [ ToolTipElement(FSComp.SR.descriptionUnavailable(), XmlCommentNone) ]
+                startOp (fun () -> 
+                  // This is where we do some work which may touch TAST data structures owned by the IncrementalBuilder - infoReader, item etc. 
+                  // It is written to be robust to a disposal of an IncrementalBuilder, in which case it will just return the empty string. 
+                  // It is best to think of this as a "weak reference" to the IncrementalBuilder, i.e. this code is written to be robust to its
+                  // disposal. Yes, you are right to scratch your head here, but this is ok.
+                  let description = 
+                      if checkAlive() then Choice1Of2 (ToolTipText(items |> Seq.toList |> List.map (FormatDescriptionOfItem true infoReader m denv)))
+                      else Choice2Of2 "Description unavailable"
 
-                          descriptionTextHolder<-Some description) 
-                // The dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
-                // This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
-#if FX_NO_TASK
-                if task = null then
-                    Async.Start (async { do work() })
-                    task <- obj()
-                let mutable wait = 0
-                while (wait < EnvMisc2.dataTipSpinWaitTime) && descriptionTextHolder.IsNone do 
-                    System.Threading.Thread.Sleep 10
-#else
-                if task = null then
-                    // kick off the actual (non-cooperative) work
-                    task <- System.Threading.Tasks.Task.Factory.StartNew(fun() -> work())
-
-                // The dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
-                // This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
-                task.Wait EnvMisc2.dataTipSpinWaitTime  |> ignore
-#endif
-                match descriptionTextHolder with 
-                | Some text -> text
-                | None -> ToolTipText [ ToolTipElement(FSComp.SR.loadingDescription(), XmlCommentNone) ]
-
-            | Choice2Of2 result -> 
-                result
-
+                  descriptionTextHolder <- Some description
+                  description)
+            | Choice2Of2 result -> async { return Choice1Of2 result }
     member decl.Glyph = glyph      
       
 /// A table of declarations for Intellisense completion 
@@ -1298,13 +1267,13 @@ type DeclarationSet(declarations: Declaration[]) =
 
     member self.Name i = declarations.[i].Name
 
-    member self.Description i : ToolTipText = 
-        ErrorScope.Protect Range.range0 (fun () -> declarations.[i].DescriptionText) (fun err -> ToolTipText [ToolTipElementCompositionError err])
+    member self.Description i : Async<Choice<ToolTipText,string>> = 
+        ErrorScope.Protect Range.range0 (fun () -> declarations.[i].DescriptionText) (fun err -> async { return Choice2Of2 err })
 
     member self.Glyph i = declarations.[i].Glyph
             
     // Make a 'Declarations' object for a set of selected items
-    static member Create(infoReader:InfoReader, m, denv, items, startOp:(unit->unit)->unit, checkAlive : unit -> bool) = 
+    static member Create(infoReader:InfoReader, m, denv, items, startOp:(unit->Choice<ToolTipText,string>)->Async<Choice<ToolTipText,string>>, checkAlive : unit -> bool) = 
         let g = infoReader.g
          
         let items = items |> RemoveExplicitlySuppressed g

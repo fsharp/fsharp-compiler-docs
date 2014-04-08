@@ -55,7 +55,7 @@ type Declaration =
     member Name : string
     /// Get the description text for the declaration. Commputing this property may require using compiler
     /// resources and may trigger execution of a type provider method to retrieve documentation.
-    member DescriptionText : ToolTipText
+    member DescriptionText : Async<Choice<ToolTipText,string>>
     /// Get the glyph integer for the declaration as used by Visual Studio.
     member Glyph : int
     
@@ -67,7 +67,7 @@ type DeclarationSet =
     member Items : Declaration[]
 
     // Implementation details used by other code in the compiler    
-    static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * items:Item list * startOp:((unit->unit)->unit) * checkAlive:(unit -> bool) -> DeclarationSet
+    static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * items:Item list * checkAlive:(unit -> bool) -> DeclarationSet
     static member internal Error : message:string -> DeclarationSet
     static member Empty : DeclarationSet
 

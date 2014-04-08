@@ -14,6 +14,17 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     open Microsoft.FSharp.Compiler.AbstractIL
     open Microsoft.FSharp.Compiler.AbstractIL.IL
 
+    module EnvMisc3 =
+#if SILVERLIGHT
+        let GetEnvInteger e dflt = dflt
+#else
+        let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
+#endif
+        /// dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
+        /// This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
+        let dataTipSpinWaitTime = GetEnvInteger "mFSharp_ToolTipSpinWaitTime" 300
+
+
     [<AutoOpen>]
     module private Utils =
 
@@ -76,7 +87,12 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         /// Get the declarations at the given code location.
         member x.GetDeclarationsAlternate(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
             async { let! items = results.GetDeclarationsAlternate(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
-                    return [| for i in items.Items -> SimpleDeclaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
+                    return [| for i in items.Items -> 
+                                 SimpleDeclaration(i.Name, (fun () -> 
+                                    let desc = Async.RunSynchronously(i.DescriptionText, EnvMisc3.dataTipSpinWaitTime)
+                                    match desc with
+                                    | Choice1Of2 tooltip -> formatTip tooltip xmlCommentRetriever
+                                    | Choice2Of2 err     -> err)) |] }
 
         /// Get the Visual Studio F1-help keyword for the item at the given position
         member x.GetF1KeywordAlternate(line, col, names) =

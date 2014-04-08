@@ -1242,15 +1242,14 @@ type Declaration(name, glyph:int, info) =
         | Some descriptionText -> async { return descriptionText }
         | None ->
             match info with
-            | Choice1Of2 (items, infoReader, m, denv, checkAlive) -> async {
-                 
+            | Choice1Of2 (items, infoReader, m, denv, startOp, checkAlive) -> 
+                startOp (fun () -> 
                   let description = 
                       if checkAlive() then Choice1Of2 (ToolTipText(items |> Seq.toList |> List.map (FormatDescriptionOfItem true infoReader m denv)))
                       else Choice2Of2 "Description unavailable"
 
                   descriptionTextHolder<-Some description
-                  return description
-                 }
+                  description)
             | Choice2Of2 result -> async { return Choice1Of2 result }
     member decl.Glyph = glyph      
       
@@ -1270,7 +1269,7 @@ type DeclarationSet(declarations: Declaration[]) =
     member self.Glyph i = declarations.[i].Glyph
             
     // Make a 'Declarations' object for a set of selected items
-    static member Create(infoReader:InfoReader, m, denv, items, checkAlive : unit -> bool) = 
+    static member Create(infoReader:InfoReader, m, denv, items, startOp:(unit->Choice<ToolTipText,string>)->Async<Choice<ToolTipText,string>>, checkAlive : unit -> bool) = 
         let g = infoReader.g
          
         let items = items |> RemoveExplicitlySuppressed g
@@ -1321,7 +1320,7 @@ type DeclarationSet(declarations: Declaration[]) =
                 match itemsWithSameName with
                 | [] -> failwith "Unexpected empty bag"
                 | items -> 
-                    new Declaration(nm, GlyphOfItem(denv,items.Head), Choice1Of2 (items, infoReader, m, denv, checkAlive)))
+                    new Declaration(nm, GlyphOfItem(denv,items.Head), Choice1Of2 (items, infoReader, m, denv, startOp, checkAlive)))
 
         new DeclarationSet(Array.ofList decls)
 

@@ -1244,11 +1244,15 @@ type Declaration(name, glyph:int, info) =
             match info with
             | Choice1Of2 (items, infoReader, m, denv, startOp, checkAlive) -> 
                 startOp (fun () -> 
+                  // This is where we do some work which may touch TAST data structures owned by the IncrementalBuilder - infoReader, item etc. 
+                  // It is written to be robust to a disposal of an IncrementalBuilder, in which case it will just return the empty string. 
+                  // It is best to think of this as a "weak reference" to the IncrementalBuilder, i.e. this code is written to be robust to its
+                  // disposal. Yes, you are right to scratch your head here, but this is ok.
                   let description = 
                       if checkAlive() then Choice1Of2 (ToolTipText(items |> Seq.toList |> List.map (FormatDescriptionOfItem true infoReader m denv)))
                       else Choice2Of2 "Description unavailable"
 
-                  descriptionTextHolder<-Some description
+                  descriptionTextHolder <- Some description
                   description)
             | Choice2Of2 result -> async { return Choice1Of2 result }
     member decl.Glyph = glyph      

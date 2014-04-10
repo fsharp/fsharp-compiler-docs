@@ -69,8 +69,8 @@ type (*internal*) ToolTipElement =
     | ToolTipElementNone
     /// A single type, method, etc with comment.
     | ToolTipElement of (* text *) string * XmlComment
-    /// A parameter of a method.
-    | ToolTipElementParameter of string * XmlComment * string
+    // /// A parameter of a method.
+    // | ToolTipElementParameter of string * XmlComment * string
     /// For example, a method overload group.
     | ToolTipElementGroup of ((* text *) string * XmlComment) list
     /// An error occurred formatting this element
@@ -902,7 +902,8 @@ module internal ItemDescriptionsImpl =
                                if (tyconRefUsesLocalXmlDoc g.compilingFslib ucinfo.TyconRef) then ucinfo.UnionCase.XmlDoc else XmlDoc [||]
                          | _ -> XmlDoc [||]
             let xml = GetXmlComment xmldoc infoReader m d
-            ToolTipElementParameter(text, xml, id.idText)
+            ToolTipElement(text, xml)
+            // ToolTipElementParameter(text, xml, id.idText)
             
         | Item.SetterArg (_, item) -> 
             FormatItemDescriptionToToolTipElement isDecl infoReader m denv item
@@ -1243,24 +1244,30 @@ type Declaration(name, glyph:int, info) =
     let mutable task = null
 
     member decl.Name = name
+
+    member decl.DescriptionTextAsync = 
+            match info with
+            | Choice1Of2 (items, infoReader, m, denv, reactor:IReactorOperations, checkAlive) -> 
+                    // reactor causes the lambda to execute on the background compiler thread, through the Reactor
+                    reactor.RunAsyncOp (fun () -> 
+                          // This is where we do some work which may touch TAST data structures owned by the IncrementalBuilder - infoReader, item etc. 
+                          // It is written to be robust to a disposal of an IncrementalBuilder, in which case it will just return the empty string. 
+                          // It is best to think of this as a "weak reference" to the IncrementalBuilder, i.e. this code is written to be robust to its
+                          // disposal. Yes, you are right to scratch your head here, but this is ok.
+                              if checkAlive() then ToolTipText(items |> Seq.toList |> List.map (FormatDescriptionOfItem true infoReader m denv))
+                              else ToolTipText [ ToolTipElement(FSComp.SR.descriptionUnavailable(), XmlCommentNone) ])
+            | Choice2Of2 result -> 
+                async.Return result
+
     member decl.DescriptionText = 
         match descriptionTextHolder with
         | Some descriptionText -> descriptionText
         | None ->
             match info with
-            | Choice1Of2 (items, infoReader, m, denv, startOp, checkAlive) -> 
+            | Choice1Of2 _ -> 
                 let work() = 
-                    // startOp "Synchronous Operation" causes the lambda to execute on the background compiler thread, through the Reactor
-                    startOp (fun () -> 
-                          // This is where we do some work which may touch TAST data structures owned by the IncrementalBuilder - infoReader, item etc. 
-                          // It is written to be robust to a disposal of an IncrementalBuilder, in which case it will just return the empty string. 
-                          // It is best to think of this as a "weak reference" to the IncrementalBuilder, i.e. this code is written to be robust to its
-                          // disposal. Yes, you are right to scratch your head here, but this is ok.
-                          let description = 
-                              if checkAlive() then ToolTipText(items |> Seq.toList |> List.map (FormatDescriptionOfItem true infoReader m denv))
-                              else ToolTipText [ ToolTipElement(FSComp.SR.descriptionUnavailable(), XmlCommentNone) ]
-
-                          descriptionTextHolder<-Some description) 
+                    let text = decl.DescriptionTextAsync |> Async.RunSynchronously
+                    descriptionTextHolder<-Some text 
                 // The dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
                 // This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
 #if FX_NO_TASK
@@ -1304,7 +1311,7 @@ type DeclarationSet(declarations: Declaration[]) =
     member self.Glyph i = declarations.[i].Glyph
             
     // Make a 'Declarations' object for a set of selected items
-    static member Create(infoReader:InfoReader, m, denv, items, startOp:(unit->unit)->unit, checkAlive : unit -> bool) = 
+    static member Create(infoReader:InfoReader, m, denv, items, reactor, checkAlive) = 
         let g = infoReader.g
          
         let items = items |> RemoveExplicitlySuppressed g
@@ -1355,7 +1362,7 @@ type DeclarationSet(declarations: Declaration[]) =
                 match itemsWithSameName with
                 | [] -> failwith "Unexpected empty bag"
                 | items -> 
-                    new Declaration(nm, GlyphOfItem(denv,items.Head), Choice1Of2 (items, infoReader, m, denv, startOp, checkAlive)))
+                    new Declaration(nm, GlyphOfItem(denv,items.Head), Choice1Of2 (items, infoReader, m, denv, reactor, checkAlive)))
 
         new DeclarationSet(Array.ofList decls)
 

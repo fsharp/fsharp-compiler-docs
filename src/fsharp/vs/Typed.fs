@@ -254,6 +254,12 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
              yield FSharpType(g, thisCcu, tcImports,  ty) ]
         |> makeReadOnlyCollection
 
+    member x.AllInterfaces = 
+        if isUnresolved() then makeReadOnlyCollection [] else
+        [ for ty in AllInterfacesOfType  g (tcImports.GetImportMap()) range0 AllowMultiIntfInstantiations.Yes (generalizedTyconRef entity) do 
+             yield FSharpType(g, thisCcu, tcImports,  ty) ]
+        |> makeReadOnlyCollection
+
     member x.BaseType = 
         checkIsResolved()        
         GetSuperTypeOfType g (tcImports.GetImportMap()) range0 (generalizedTyconRef entity) 
@@ -577,7 +583,7 @@ and FSharpGenericParameter(g:TcGlobals, thisCcu, tcImports, v:Typar) =
     member __.Attributes = v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
     member __.Constraints = v.Constraints |> List.map (fun a -> FSharpGenericParameterConstraint(g, thisCcu, tcImports, a)) |> makeReadOnlyCollection
     
-    member private x.V = v
+    member internal x.V = v
 
     override x.Equals(other : obj) =
         box x === other ||
@@ -1167,6 +1173,20 @@ and FSharpType(g:TcGlobals, thisCcu, tcImports, typ:TType) =
         | TType_measure (MeasureVar tp) -> 
             FSharpGenericParameter (g, thisCcu, tcImports,  tp)
         | _ -> invalidOp "not a generic parameter type"
+
+    member x.AllInterfaces = 
+        if isUnresolved() then makeReadOnlyCollection [] else
+        [ for ty in AllInterfacesOfType  g (tcImports.GetImportMap()) range0 AllowMultiIntfInstantiations.Yes typ do 
+             yield FSharpType(g, thisCcu, tcImports,  ty) ]
+        |> makeReadOnlyCollection
+
+    member x.BaseType = 
+        GetSuperTypeOfType g (tcImports.GetImportMap()) range0 typ
+        |> Option.map (fun ty -> FSharpType(g, thisCcu, tcImports,  ty)) 
+
+    member x.Instantiate(tys:(FSharpGenericParameter * FSharpType) list) = 
+        let typI = instType (tys |> List.map (fun (tyv,typ) -> tyv.V, typ.Typ)) typ
+        FSharpType(g, thisCcu, tcImports,  typI)
 
     member private x.Typ = typ
 

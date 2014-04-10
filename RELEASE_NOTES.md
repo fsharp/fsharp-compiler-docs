@@ -179,6 +179,9 @@
 
 #### 0.0.44 - 
 * Integrate latest changes from visualfsharp.codeplex.com via github.com/fsharp/fsharp 
-* The changes from visualfsharp add a new tool tip kind 'ToolTipElementParameter(text, xml, name)' for the tool tip for a parameter
+* Fix problem with task that generates description text of declaration
+* Add AllInterfaceTypes to FSharpEntity and FSharpType
+* Add BaseType to FSharpType to propagate instantiation
+* Add Instantiate to FSharpType 
 
 

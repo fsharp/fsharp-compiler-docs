@@ -5,6 +5,11 @@ open System
 open Microsoft.FSharp.Control
 open Microsoft.FSharp.Compiler.Lib
 
+// For internal use only 
+type internal IReactorOperations = 
+    abstract RunAsyncOp : (unit -> 'T) -> Async<'T>
+    abstract StartAsyncOp: (unit -> unit) -> unit
+
 module internal Reactor =
 
     type BuildStepper = (unit -> (*keep building*)bool)

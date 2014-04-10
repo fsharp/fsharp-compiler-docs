@@ -570,10 +570,6 @@ type InteractiveChecker =
     // One shared global singleton for use by multiple add-ins
     static member Instance : InteractiveChecker
 
-// For internal use only 
-and internal IReactorOperations = 
-    abstract RunAsyncOp : (unit -> 'T) -> Async<'T>
-    abstract StartAsyncOp: Reactor.Operation -> unit
 
 // An object to typecheck source in a given typechecking environment.
 // Used internally to provide intellisense over F# Interactive.

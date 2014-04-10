@@ -200,6 +200,9 @@ and [<Class>] FSharpEntity =
     /// Get the declared interface implementations
     member DeclaredInterfaces : IList<FSharpType>  
 
+    /// Get all the interface implementations, by walking the type hierarchy
+    member AllInterfaces : IList<FSharpType>  
+
     /// Get the base type, if any 
     member BaseType : FSharpType option
 
@@ -685,6 +688,18 @@ and [<Class>] FSharpType =
 
     /// Format the type using the rules of the given display context
     member Format : context: FSharpDisplayContext -> string
+
+    /// Instantiate generic type parameters in a type
+    member Instantiate : (FSharpGenericParameter * FSharpType) list -> FSharpType
+
+    /// Get all the interface implementations, by walking the type hierarchy, taking into account the instantiation of this type
+    /// if it is an instantiation of a generic type.
+    member AllInterfaces : IList<FSharpType>  
+
+    /// Get the base type, if any, taking into account the instantiation of this type
+    /// if it is an instantiation of a generic type.
+    member BaseType : FSharpType option
+
 
 and [<Class>] FSharpAttribute = 
         

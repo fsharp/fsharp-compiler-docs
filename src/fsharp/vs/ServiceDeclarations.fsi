@@ -31,8 +31,8 @@ type ToolTipElement =
     | ToolTipElementNone
     /// A single type, method, etc with comment.
     | ToolTipElement of (* text *) string * XmlComment
-    /// A parameter of a method.
-    | ToolTipElementParameter of string * XmlComment * string
+    // /// A parameter of a method.
+    // | ToolTipElementParameter of string * XmlComment * string
     /// For example, a method overload group.
     | ToolTipElementGroup of ((* text *) string * XmlComment) list
     /// An error occurred formatting this element
@@ -55,7 +55,11 @@ type Declaration =
     member Name : string
     /// Get the description text for the declaration. Commputing this property may require using compiler
     /// resources and may trigger execution of a type provider method to retrieve documentation.
+    ///
+    /// May return "Loading..." if timeout occurs
     member DescriptionText : ToolTipText
+    /// Get the description text, asynchronously.  Never returns "Loading...".
+    member DescriptionTextAsync : Async<ToolTipText>
     /// Get the glyph integer for the declaration as used by Visual Studio.
     member Glyph : int
     
@@ -67,7 +71,7 @@ type DeclarationSet =
     member Items : Declaration[]
 
     // Implementation details used by other code in the compiler    
-    static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * items:Item list * startOp:((unit->unit)->unit) * checkAlive:(unit -> bool) -> DeclarationSet
+    static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * items:Item list * reactor:IReactorOperations * checkAlive:(unit -> bool) -> DeclarationSet
     static member internal Error : message:string -> DeclarationSet
     static member Empty : DeclarationSet
 

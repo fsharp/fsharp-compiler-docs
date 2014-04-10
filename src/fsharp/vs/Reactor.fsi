@@ -2,6 +2,11 @@
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
+// For internal use only 
+type internal IReactorOperations = 
+    abstract RunAsyncOp : (unit -> 'T) -> Async<'T>
+    abstract StartAsyncOp: (unit -> unit) -> unit
+
 /// Reactor is intended for long-running but interruptible operations, interleaved
 /// with one-off asynchronous operations. 
 ///

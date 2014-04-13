@@ -144,6 +144,7 @@ let derefByte (p:nativeint) =
     NativePtr.read (NativePtr.ofNativeInt<byte> p) 
 
 type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
+    let mutable disposed = false
 
     static member Create fileName  =
         //printf "fileName = %s\n" fileName;
@@ -162,7 +163,7 @@ type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
 
         if start.Equals(IntPtr.Zero) then
            failwithf "MapViewOfFile(0x%08x)" ( Marshal.GetHRForLastWin32Error() );
-        MemoryMappedFile(hMap, start)
+        new MemoryMappedFile(hMap, start)
 
     member m.Addr (i:int) : nativeint = 
         start + nativeint i
@@ -181,9 +182,7 @@ type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
     member m.ReadUInt16 i = 
         NativePtr.read (NativePtr.ofNativeInt<uint16> (m.Addr i)) 
 
-    member m.Close() = 
-        ignore(MemoryMapping.UnmapViewOfFile start);
-        ignore(MemoryMapping.CloseHandle hMap)
+    member m.Close() = m.Dispose()
 
     member m.CountUtf8String i = 
         let start = m.Addr i  
@@ -196,6 +195,20 @@ type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
         let n = m.CountUtf8String i
         new System.String(NativePtr.ofNativeInt (m.Addr i), 0, n, System.Text.Encoding.UTF8)
 
+    override m.Finalize() = m.Dispose(false)
+
+    member m.Dispose(_ : bool) = 
+        if not disposed then
+            ignore(MemoryMapping.UnmapViewOfFile start);
+            ignore(MemoryMapping.CloseHandle hMap)
+            disposed <- true
+
+    member m.Dispose() =
+       m.Dispose(true)
+       GC.SuppressFinalize(m)
+
+    interface IDisposable with
+        override m.Dispose() = m.Dispose()
 
 type MMapChannel = 
     { mutable mmPos: int;

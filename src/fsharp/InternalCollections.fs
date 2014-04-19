@@ -25,7 +25,7 @@ type internal AgedLookup<'TKey,'TValue>(keepStrongly:int, areSame, ?onStrongDisc
     // The 75 here determines how long the list should be passed the end of strongly held
     // references. Some operations are O(N) and we don't want to let things get out of
     // hand.
-    let keepMax = defaultArg keepMax 75 
+    let keepMax = defaultArg keepMax 200 
     let keepMax = max keepStrongly keepMax 
     
     /// Look up a the given key, return None if not found.

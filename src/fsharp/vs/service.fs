@@ -51,13 +51,13 @@ module EnvMisc =
 #else
     let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
 #endif
-    let buildCacheSize   = GetEnvInteger "mFSharp_BuildCacheSize" 3
-    let recentForgroundTypeCheckLookupSize = GetEnvInteger "mFSharp_RecentForegroundTypeCheckCacheSize" 5
-    let braceMatchCacheSize = GetEnvInteger "mFSharp_BraceMatchCacheSize" 5
-    let untypedCheckMruSize = GetEnvInteger "mFSharp_UntypedCheckMruCacheSize" 2
+    let getToolTipTextSize = GetEnvInteger "mFSharp_RecentForegroundTypeCheckCacheSize" 5
     let maxTypeCheckErrorsOutOfProjectContext = GetEnvInteger "mFSharp_MaxErrorsOutOfProjectContext" 3
+    let braceMatchCacheSize = GetEnvInteger "mFSharp_BraceMatchCacheSize" 5
+    let parseFileInProjectCacheSize = GetEnvInteger "mFSharp_ParseFileInProjectCacheSize" 2
+    let incrementalTypeCheckCacheSize = GetEnvInteger "mFSharp_IncrementalTypeCheckCacheSize" 5
 
-
+    let projectCacheSizeDefault   = GetEnvInteger "mFSharp_ProjectCacheSizeDefault" 3
 
 //----------------------------------------------------------------------------
 // Methods
@@ -424,7 +424,7 @@ type TypeCheckInfo
     // Is not keyed on 'Names' collection because this is invariant for the current position in 
     // this unchanged file. Keyed on lineStr though to prevent a change to the currently line
     // being available against a stale scope.
-    let getToolTipTextCache = AgedLookup<int*int*string,ToolTipText>(recentForgroundTypeCheckLookupSize,areSame=(fun (x,y) -> x = y))
+    let getToolTipTextCache = AgedLookup<int*int*string,ToolTipText>(getToolTipTextSize,areSame=(fun (x,y) -> x = y))
     
     let amap = tcImports.GetImportMap()
     let infoReader = new InfoReader(g,amap)
@@ -1831,7 +1831,7 @@ type (*internal*) IsResultObsolete =
 
         
 // There is only one instance of this type, held in InteractiveChecker
-type BackgroundCompiler() as self =
+type BackgroundCompiler(projectCacheSize) as self =
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.reactor: The one and only Reactor
     let reactor = Reactor.Reactor()
     let beforeFileChecked = Event<string>()
@@ -1846,7 +1846,7 @@ type BackgroundCompiler() as self =
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.scriptClosure 
     /// Information about the derived script closure.
-    let scriptClosure = AgedLookup<ProjectOptions,LoadClosure>(buildCacheSize, areSame=ProjectOptions.AreSameProjectForBuilding)
+    let scriptClosure = AgedLookup<ProjectOptions,LoadClosure>(projectCacheSize, areSame=ProjectOptions.AreSameProjectForBuilding)
 
     /// CreateOneIncrementalBuilder (for background type checking). Note that fsc.fs also
     /// creates an incremental builder used by the command line compiler.
@@ -1897,12 +1897,12 @@ type BackgroundCompiler() as self =
         (builderOpt, errorsAndWarnings, decrement)
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.incrementalBuildersCache. This root typically holds more 
-    // live information than anything else in the F# Language Service, since it holds up to 3 (buildCacheSize) background project builds
+    // live information than anything else in the F# Language Service, since it holds up to 3 (projectCacheStrongSize) background project builds
     // strongly.
     // 
     /// Cache of builds keyed by options.        
     let incrementalBuildersCache = 
-        MruCache(keepStrongly=buildCacheSize, keepMax=buildCacheSize, 
+        MruCache(keepStrongly=projectCacheSize, keepMax=projectCacheSize, 
                  areSame =  ProjectOptions.AreSameProjectForBuilding, 
                  areSameForSubsumption =  ProjectOptions.AreSameProjectName,
                  onDiscard = (fun (_, _, decrement:IDisposable) -> decrement.Dispose()))
@@ -2175,12 +2175,13 @@ type BackgroundCompiler() as self =
 [<Sealed>]
 [<AutoSerializable(false)>]
 // There is typically only one instance of this type in a Visual Studio process.
-type InteractiveChecker() =
-    let backgroundCompiler = BackgroundCompiler()
+type InteractiveChecker(projectCacheSize) =
+
+    let backgroundCompiler = BackgroundCompiler(projectCacheSize)
 
     static let mutable foregroundParseCount = 0
     static let mutable foregroundTypeCheckCount = 0
-    static let globalInstance = InteractiveChecker()
+    static let globalInstance = InteractiveChecker.Create()
     
     /// Determine whether two sets of sources and parse options are the same.
     let AreSameForParsing((f1: string, s1: string, o1: ProjectOptions), (f2, s2, o2)) =
@@ -2202,7 +2203,7 @@ type InteractiveChecker() =
     let braceMatchMru = MruCache<_,_>(braceMatchCacheSize,areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true)) 
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.parseFileInProjectMru. Most recently used cache for parsing files.
-    let parseFileInProjectMru = MruCache<_, _>(untypedCheckMruSize, areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true))
+    let parseFileInProjectMru = MruCache<_, _>(parseFileInProjectCacheSize, areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true))
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.typeCheckLookup 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.typeCheckLookup2
@@ -2214,17 +2215,22 @@ type InteractiveChecker() =
     
     let typeCheckLookup = 
         AgedLookup<string * ProjectOptions, ParseFileResults * CheckFileResults * int>
-            (keepStrongly=recentForgroundTypeCheckLookupSize,
+            (keepStrongly=incrementalTypeCheckCacheSize,
              areSame=fun (x,y)->x=y) 
 
     // Also keyed on source. This can only be out of date if the antecedent is out of date
     let typeCheckLookup2 = 
         AgedLookup<string * ProjectOptions * string, ParseFileResults * CheckFileResults * int>
-            (keepStrongly=recentForgroundTypeCheckLookupSize,
+            (keepStrongly=incrementalTypeCheckCacheSize,
              areSame=fun (x,y)->x=y) 
 
+    static member Create() = 
+        new InteractiveChecker(projectCacheSizeDefault)
+
     /// Instantiate an interactive checker.    
-    static member Create() = new InteractiveChecker()
+    static member Create(?projectCacheSize) = 
+        let projectCacheSizeReal = defaultArg projectCacheSize projectCacheSizeDefault
+        new InteractiveChecker(projectCacheSize=projectCacheSizeReal)
 
     member ic.MatchBracesAlternate(filename, source, options) =
         async { 

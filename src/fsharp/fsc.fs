@@ -1850,7 +1850,7 @@ let expandFileNameIfNeeded (tcConfig : TcConfig) name =
 [<NoEquality; NoComparison>]
 type Args<'a> = Args  of 'a
 
-let main0(argv,bannerAlreadyPrinted,exiter:Exiter, errorLoggerProvider : ErrorLoggerProvider, disposables : DelayedDisposables) = 
+let main0(argv,bannerAlreadyPrinted,openBinariesInMemory,exiter:Exiter, errorLoggerProvider : ErrorLoggerProvider, disposables : DelayedDisposables) = 
 
     // See Bug 735819 
     let lcidFromCodePage = 
@@ -1876,6 +1876,7 @@ let main0(argv,bannerAlreadyPrinted,exiter:Exiter, errorLoggerProvider : ErrorLo
 #if SILVERLIGHT
                           ()
 #else
+                          tcConfigB.openBinariesInMemory <- openBinariesInMemory
                           match tcConfigB.lcid with
                           | Some(n) -> System.Threading.Thread.CurrentThread.CurrentUICulture <- new System.Globalization.CultureInfo(n)
                           | None -> ()
@@ -1954,9 +1955,10 @@ let main1(tcGlobals,tcImports : TcImports,frameworkTcImports,generatedCcu,typedA
 
 
 // set up typecheck for given AST without parsing any command line parameters
-let main1OfAst (assemblyName : string, target : CompilerTarget, outfile : string, pdbFile : string option, dllReferences : string list, exiter : Exiter, errorLoggerProvider: ErrorLoggerProvider, inputs : ParsedInput list) =
+let main1OfAst (openBinariesInMemory, assemblyName, target, outfile, pdbFile, dllReferences, exiter, errorLoggerProvider: ErrorLoggerProvider, inputs) =
 
     let tcConfigB = Build.TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, (*optimizeForMemory*) false, Directory.GetCurrentDirectory(), isInteractive=false, isInvalidationSupported=false)
+    tcConfigB.openBinariesInMemory <- openBinariesInMemory
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
     SetOptimizeSwitch tcConfigB On
     SetDebugSwitch    tcConfigB None Off
@@ -2184,10 +2186,10 @@ let main4 dynamicAssemblyCreator (Args(tcConfig,errorLogger:ErrorLogger,ilGlobal
     ReportTime tcConfig "Exiting"
 
 
-let typecheckAndCompile(argv,bannerAlreadyPrinted,exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) =
+let typecheckAndCompile(argv,bannerAlreadyPrinted,openBinariesInMemory,exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) =
     // Don's note: "GC of intermediate data is really, really important here"
     use d = new DelayedDisposables()
-    main0(argv,bannerAlreadyPrinted,exiter, errorLoggerProvider, d)
+    main0(argv,bannerAlreadyPrinted,openBinariesInMemory,exiter, errorLoggerProvider, d)
     |> main1
     |> main2
     |> main2b (tcImportsCapture,dynamicAssemblyCreator)
@@ -2196,15 +2198,15 @@ let typecheckAndCompile(argv,bannerAlreadyPrinted,exiter:Exiter, errorLoggerProv
     |> main4 dynamicAssemblyCreator
 
 
-let compileOfAst (assemblyName, target, outFile, pdbFile, dllReferences, exiter, errorLoggerProvider, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
-    main1OfAst (assemblyName, target, outFile, pdbFile, dllReferences, exiter, errorLoggerProvider, inputs)
+let compileOfAst (openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, exiter, errorLoggerProvider, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
+    main1OfAst (openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, exiter, errorLoggerProvider, inputs)
     |> main2
     |> main2b (tcImportsCapture, dynamicAssemblyCreator)
     |> main2c
     |> main3
     |> main4 dynamicAssemblyCreator
 
-let mainCompile (argv,bannerAlreadyPrinted,exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) = 
-    typecheckAndCompile(argv, bannerAlreadyPrinted, exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator)
+let mainCompile (argv, bannerAlreadyPrinted, openBinariesInMemory, exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) = 
+    typecheckAndCompile(argv, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator)
 
 #endif // NO_COMPILER_BACKEND

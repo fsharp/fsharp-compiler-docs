@@ -26,6 +26,7 @@ type ErrorLoggerProvider =
 val mainCompile : 
     argv: string[] * 
     bannerAlreadyPrinted: bool * 
+    openBinariesInMemory: bool * 
     exiter: Exiter * 
     loggerProvider: ErrorLoggerProvider * 
     tcImportsCapture: (TcImports -> unit) option *
@@ -33,6 +34,7 @@ val mainCompile :
       -> unit
 
 val compileOfAst : 
+    openBinariesInMemory: bool * 
     assemblyName:string * 
     target:CompilerTarget * 
     targetDll:string * 

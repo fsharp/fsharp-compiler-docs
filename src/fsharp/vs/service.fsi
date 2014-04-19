@@ -321,7 +321,9 @@ type CheckFileAnswer =
 
 [<Sealed; AutoSerializable(false)>]      
 type InteractiveChecker =
-    /// Create an instance of an InteractiveChecker.  Currently resources are not reclaimed.
+    /// Create an instance of an InteractiveChecker.  
+    static member Create : ?projectCacheSize: int -> InteractiveChecker
+    /// Create an instance of an InteractiveChecker.
     static member Create : unit -> InteractiveChecker
 
     /// <summary>

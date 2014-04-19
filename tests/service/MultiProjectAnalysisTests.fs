@@ -21,7 +21,8 @@ open System.Collections.Generic
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
-let checker = InteractiveChecker.Create()
+let numProjectsForStressTest = 100
+let checker = InteractiveChecker.Create(numProjectsForStressTest + 10)
 
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)
@@ -93,7 +94,7 @@ module MultiProject1 =
     let projFileName = Path.ChangeExtension(base1, ".fsproj")
     let fileSource1 = """
 
-module MoultiProject1
+module MultiProject1
 
 open Project1A
 open Project1B
@@ -128,7 +129,7 @@ let ``Test multi project 1 basic`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(MultiProject1.options) |> Async.RunSynchronously
 
-    [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] |> shouldEqual ["MoultiProject1"]
+    [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] |> shouldEqual ["MultiProject1"]
 
     [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] |> shouldEqual []
 
@@ -175,4 +176,120 @@ let ``Test multi project 1 all symbols`` () =
             |> Array.map (fun s -> s.Symbol.DisplayName, MultiProject1.cleanFileName  s.FileName, tups s.Symbol.DeclarationLocation.Value) 
 
     usesOfx1FromProject1AInMultiProject1 |> shouldEqual usesOfx1FromMultiProject1InMultiProject1
+
+//------------------------------------------------------------------------------------
+
+
+
+// A project referencing many sub-projects
+module ManyProjectsStressTest = 
+    open System.IO
+
+    type Project = { ModuleName: string; FileName: string; Options: ProjectOptions; DllName: string } 
+    let projects = 
+        [ for i in 1 .. numProjectsForStressTest do 
+                let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+                let moduleName = "Project" + string i
+                let fileSource1 = "module " + moduleName + """
+
+// Some random code
+open System
+
+type C() = 
+    static member Print() = System.Console.WriteLine("Hello World")
+    
+let v = C()
+
+let p = C.Print()
+
+    """
+                File.WriteAllText(fileName1, fileSource1)
+                let base2 = Path.GetTempFileName()
+                let dllName = Path.ChangeExtension(base2, ".dll")
+                let projFileName = Path.ChangeExtension(base2, ".fsproj")
+                let fileNames = [fileName1 ]
+                let args = mkProjectCommandLineArgs (dllName, fileNames)
+                let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+                yield { ModuleName = moduleName; FileName=fileName1; Options = options; DllName=dllName } ]
+
+    let jointProject = 
+        let fileName = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+        let dllBase = Path.GetTempFileName()
+        let dllName = Path.ChangeExtension(dllBase, ".dll")
+        let projFileName = Path.ChangeExtension(dllBase, ".fsproj")
+        let fileSource = 
+            """
+
+module JointProject
+
+"""          + String.concat "\r\n" [ for p in projects -> "open " + p.ModuleName ] +  """
+
+let p = (""" 
+             + String.concat ",\r\n         " [ for p in projects -> p.ModuleName  + ".v" ] +  ")"
+        File.WriteAllText(fileName, fileSource)
+
+        let fileNames = [fileName]
+        let args = mkProjectCommandLineArgs (dllName, fileNames)
+        let options = 
+            let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+            { options with 
+                ProjectOptions = Array.append options.ProjectOptions [| for p in  projects -> ("-r:" + p.DllName) |]
+                ReferencedProjects = [| for p in projects -> (p.DllName, p.Options); |] }
+        { ModuleName = "JointProject"; FileName=fileName; Options = options; DllName=dllName } 
+
+    let cleanFileName a = 
+        projects |> List.tryPick (fun m -> if a = m.FileName then Some m.ModuleName else None)
+        |> function Some x -> x | None -> if a = jointProject.FileName then "fileN" else "??"
+
+
+
+[<Test>]
+let ``Test ManyProjectsStressTest whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
+
+    wholeProjectResults .Errors.Length |> shouldEqual 0
+    wholeProjectResults.ProjectContext.GetReferencedAssemblies().Length |> shouldEqual (numProjectsForStressTest + 4)
+
+[<Test>]
+let ``Test ManyProjectsStressTest basic`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] |> shouldEqual ["ManyProjectsStressTest"]
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] |> shouldEqual []
+
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] 
+        |> shouldEqual ["p"]
+
+[<Test>]
+let ``Test ManyProjectsStressTest all symbols`` () = 
+
+  for i in 1 .. 100 do 
+    printfn "stress test iteration %d (first may be slow, rest fast)" i
+    let projectsResults = [ for p in ManyProjectsStressTest.projects -> p, checker.ParseAndCheckProject(p.Options) |> Async.RunSynchronously ]
+    let jointProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
+
+    let vsFromJointProject = 
+        [ for s in jointProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously do
+             if  s.Symbol.DisplayName = "v" then 
+                 yield s.Symbol ]   
+
+    for (p,pResults) in projectsResults do 
+        let vFromProject = 
+            [ for s in pResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously do
+                if  s.Symbol.DisplayName = "v" then 
+                   yield s.Symbol ]   |> List.head 
+        vFromProject.Assembly.FileName.IsNone |> shouldEqual true // For now, the assembly being analyzed doesn't return a filename
+        vFromProject.Assembly.QualifiedName |> shouldEqual "" // For now, the assembly being analyzed doesn't return a qualified name
+        vFromProject.Assembly.SimpleName |> shouldEqual (Path.GetFileNameWithoutExtension p.DllName) 
+
+        let usesFromJointProject = 
+            jointProjectResults.GetUsesOfSymbol(vFromProject) 
+                |> Async.RunSynchronously
+                |> Array.map (fun s -> s.Symbol.DisplayName, ManyProjectsStressTest.cleanFileName  s.FileName, tups s.Symbol.DeclarationLocation.Value) 
+
+        usesFromJointProject.Length |> shouldEqual 1
 

@@ -16,6 +16,7 @@ open System.IO
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
+open FSharp.Compiler.Service.Tests
 
 open NUnit.Framework
 
@@ -90,8 +91,7 @@ type DebugMode =
 let checker = InteractiveChecker.Create()
 let compiler = new SimpleSourceCodeServices()
 
-let compileAndVerify isDll debugMode (assemblyName : string) (code : string) (dependencies : string list) =
-    let verifier = new PEVerifier ()
+let compile isDll debugMode (assemblyName : string) (code : string) (dependencies : string list) =
     let tmp = Path.GetTempPath()
     let sourceFile = Path.Combine(tmp, assemblyName + ".fs")
     let outFile = Path.Combine(tmp, assemblyName + if isDll then ".dll" else ".exe")
@@ -130,6 +130,11 @@ let compileAndVerify isDll debugMode (assemblyName : string) (code : string) (de
        printfn "error: %A" err
     Assert.AreEqual (errorInfo.Length, 0)
     if id <> 0 then raise <| CompilationError(assemblyName, id, errorInfo)
+    outFile
+//sizeof<nativeint>
+let compileAndVerify isDll debugMode assemblyName code dependencies =
+    let verifier = new PEVerifier ()
+    let outFile = compile isDll debugMode assemblyName code dependencies 
     verifier.Verify outFile
     outFile
 
@@ -245,3 +250,28 @@ module Bar
     let serviceAssembly = typeof<InteractiveChecker>.Assembly.Location
     let ast = parseSourceCode("bar", code)
     compileAndVerifyAst("bar", ast, [serviceAssembly])
+
+#if STRESS
+// For this stress test the aim is to check if we have a memory leak
+
+module StressTest1 = 
+    open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
+    open System.IO
+
+    [<Test>]
+    let ``stress test repeated in-memory compilation``() =
+      for i = 1 to 500 do
+        printfn "stress test iteration %d" i
+        let code = """
+module M
+
+type C() = 
+    member x.P = 1
+
+let x = 3 + 4
+"""
+
+        compile true PdbOnly "Foo" code [] |> ignore
+
+#endif
+  

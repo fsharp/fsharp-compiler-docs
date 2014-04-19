@@ -184,4 +184,8 @@
 * Add BaseType to FSharpType to propagate instantiation
 * Add Instantiate to FSharpType 
 
+#### 0.0.45 - 
+* Add optional project cache size parameter to InteractiveChecker
+* Switch to openBinariesInMemory for SimpleSourceCodeServices
+* Cleanup SimpleSourceCodeServices to avoid code duplication
 

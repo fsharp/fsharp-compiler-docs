@@ -20,3 +20,12 @@ Build Status
 
 Head (branch ``master``), Mono 3.x, OSX + some unit tests (Travis) [![Build Status](https://travis-ci.org/fsharp/FSharp.Compiler.Service.png?branch=master)](https://travis-ci.org/fsharp/FSharp.Compiler.Service/branches)
 
+Dev Guide
+----------
+
+To integrate latest changes from http://github.com/fsharp/fsharp, use
+
+git remote add fsc https://github.com/fsharp/fsharp
+git pull fsc master
+
+

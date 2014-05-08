@@ -204,3 +204,62 @@ let ``Expression typing test`` () =
                "Length"; "Normalize"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
                "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
                "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"])
+
+[<Test>]
+let ``Find function from member 1`` () = 
+    let input = 
+      """
+type Test() = 
+    let abc a b c = a + b + c
+    member x.Test = """ 
+
+    // Split the input & define file name
+    let inputLines = input.Split('\n')
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+
+    let decls = typeCheckResults.GetDeclarationsAlternate(Some untyped, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let item = decls.Items |> Array.tryFind (fun d -> d.Name = "abc")
+    match item with
+    | Some item -> 
+       printf "%s" item.Name
+    | _ -> ()
+    decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
+ 
+[<Test>]
+let ``Find function from member 2`` () = 
+    let input = 
+      """
+type Test() = 
+    let abc a b c = a + b + c
+    member x.Test = a""" 
+
+    // Split the input & define file name
+    let inputLines = input.Split('\n')
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+
+    let decls = typeCheckResults.GetDeclarationsAlternate(Some untyped, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let item = decls.Items |> Array.tryFind (fun d -> d.Name = "abc")
+    match item with
+    | Some item -> 
+       printf "%s" item.Name
+    | _ -> ()
+    decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
+ 
+[<Test>]
+let ``Find function from var`` () = 
+    let input = 
+      """
+type Test() = 
+    let abc a b c = a + b + c
+    let test = """ 
+
+    // Split the input & define file name
+    let inputLines = input.Split('\n')
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+
+    let decls = typeCheckResults.GetDeclarationsAlternate(Some untyped, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
+ 

@@ -293,3 +293,70 @@ let ``Test ManyProjectsStressTest all symbols`` () =
 
         usesFromJointProject.Length |> shouldEqual 1
 
+//-----------------------------------------------------------------------------------------
+
+module MultiProjectDirty1 = 
+    open System.IO
+
+    let fileName1 = Path.Combine(__SOURCE_DIRECTORY__, "Project1.fs")
+    let dllName = Path.ChangeExtension(fileName1, ".dll")
+    let projFileName = Path.ChangeExtension(fileName1, ".fsproj")
+    
+    let cleanFileName a = if a = fileName1 then "Project1" else "??"
+
+    let fileNames = [fileName1]
+    
+    let getOptions() = 
+        let args = mkProjectCommandLineArgs (dllName, fileNames)
+        checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+module MultiProjectDirty2 = 
+    open System.IO
+
+    let fileName1 = Path.Combine(__SOURCE_DIRECTORY__, "Project2.fs")
+    let dllName = Path.ChangeExtension(fileName1, ".dll")
+    let projFileName = Path.ChangeExtension(fileName1, ".fsproj")
+    
+    let cleanFileName a = if a = fileName1 then "Project2" else "??"
+
+    let fileNames = [fileName1]    
+   
+    let getOptions() = 
+        let args = mkProjectCommandLineArgs (dllName, fileNames)
+        let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+        { options with 
+            ProjectOptions = Array.append options.ProjectOptions [| ("-r:" + MultiProjectDirty1.dllName) |]
+            ReferencedProjects = [| (MultiProjectDirty1.dllName, MultiProjectDirty1.getOptions()) |] }
+
+[<Test; Ignore("FCS should pick up changes in dependent projects")>]
+let ``Test multi project symbols should pick up changes in dependent projects`` () = 
+    let testWithSymbolLocation line col revertFileChanged =
+        let wholeProjectResults1 = checker.ParseAndCheckProject(MultiProjectDirty1.getOptions()) |> Async.RunSynchronously
+        let backgroundParseResults1, backgroundTypedParse1 = 
+            checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, MultiProjectDirty1.getOptions()) 
+            |> Async.RunSynchronously    
+
+        let xSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(line, col, "", ["x"]) |> Async.RunSynchronously
+        xSymbolUse.IsSome |> shouldEqual true  
+        let xSymbol = xSymbolUse.Value.Symbol
+
+        printfn "Symbol found. Checking symbol uses in another project..."
+
+        let wholeProjectResults2 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
+    
+        let usesOfXSymbol = 
+            wholeProjectResults2.GetUsesOfSymbol(xSymbol) 
+            |> Async.RunSynchronously
+            |> Array.map (fun su -> su.Symbol.ToString(), MultiProjectDirty2.cleanFileName su.FileName, tups su.RangeAlternate)
+
+        revertFileChanged()
+        usesOfXSymbol 
+        |> shouldEqual 
+            [|("val x", "Project2", ((5, 8), (5, 9)));
+            ("val x", "Project2", ((6, 8), (6, 18)))|]
+
+    testWithSymbolLocation 3 4 id
+
+    let content = File.ReadAllText(MultiProjectDirty1.fileName1)
+    File.WriteAllText(MultiProjectDirty1.fileName1, System.Environment.NewLine + content)
+    testWithSymbolLocation 4 4 (fun _ -> File.WriteAllText(MultiProjectDirty1.fileName1, content))

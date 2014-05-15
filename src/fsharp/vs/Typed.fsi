@@ -166,6 +166,9 @@ and [<Class>] FSharpEntity =
     /// Indicates if the entity is a class type definition
     member IsClass : bool
 
+    /// Indicates if is the 'byref<_>' type definition used for byref types in F#-compiled assemblies
+    member IsByRef : bool
+
     /// Indicates if the entity is a type definitio for a reference type where the implementation details are hidden by a signature
     member IsOpaque : bool
 

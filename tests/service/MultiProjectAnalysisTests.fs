@@ -314,6 +314,7 @@ module MultiProjectDirty2 =
     open System.IO
 
     let fileName1 = Path.Combine(__SOURCE_DIRECTORY__, "Project2.fs")
+
     let dllName = Path.ChangeExtension(fileName1, ".dll")
     let projFileName = Path.ChangeExtension(fileName1, ".fsproj")
     
@@ -328,35 +329,146 @@ module MultiProjectDirty2 =
             ProjectOptions = Array.append options.ProjectOptions [| ("-r:" + MultiProjectDirty1.dllName) |]
             ReferencedProjects = [| (MultiProjectDirty1.dllName, MultiProjectDirty1.getOptions()) |] }
 
-[<Test; Ignore("FCS should pick up changes in dependent projects")>]
+[<Test>]
 let ``Test multi project symbols should pick up changes in dependent projects`` () = 
-    let testWithSymbolLocation line col revertFileChanged =
-        let wholeProjectResults1 = checker.ParseAndCheckProject(MultiProjectDirty1.getOptions()) |> Async.RunSynchronously
-        let backgroundParseResults1, backgroundTypedParse1 = 
-            checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, MultiProjectDirty1.getOptions()) 
-            |> Async.RunSynchronously    
 
-        let xSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(line, col, "", ["x"]) |> Async.RunSynchronously
-        xSymbolUse.IsSome |> shouldEqual true  
-        let xSymbol = xSymbolUse.Value.Symbol
+    let content = """module Project1
 
-        printfn "Symbol found. Checking symbol uses in another project..."
+let x = "F#"
+"""                   
+    //  register to count the file checks
+    let count = ref 0
+    checker.FileChecked.Add (fun _ -> incr count)
 
-        let wholeProjectResults2 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
+    //---------------- Write the first version of the file in project 1 and check the project --------------------
+
+    File.WriteAllText(MultiProjectDirty1.fileName1, content)
+
+    let wholeProjectResults1 = checker.ParseAndCheckProject(MultiProjectDirty1.getOptions()) |> Async.RunSynchronously
+
+    count.Value |> shouldEqual 1
+
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, MultiProjectDirty1.getOptions()) 
+        |> Async.RunSynchronously    
+
+    count.Value |> shouldEqual 1
+
+    //---------------- Get a symbol from project 1 and look up its uses in both projects --------------------
+
+    let xSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(3, 4, "", ["x"]) |> Async.RunSynchronously
+    xSymbolUse.IsSome |> shouldEqual true  
+    let xSymbol = xSymbolUse.Value.Symbol
+
+    printfn "Symbol found. Checking symbol uses in another project..."
+
+    let wholeProjectResults2 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
+
+    count.Value |> shouldEqual 2
     
-        let usesOfXSymbol = 
-            wholeProjectResults2.GetUsesOfSymbol(xSymbol) 
-            |> Async.RunSynchronously
-            |> Array.map (fun su -> su.Symbol.ToString(), MultiProjectDirty2.cleanFileName su.FileName, tups su.RangeAlternate)
+    let _ = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
 
-        revertFileChanged()
-        usesOfXSymbol 
-        |> shouldEqual 
-            [|("val x", "Project2", ((5, 8), (5, 9)));
-            ("val x", "Project2", ((6, 8), (6, 18)))|]
+    count.Value |> shouldEqual 2 // cached
 
-    testWithSymbolLocation 3 4 id
+    let usesOfXSymbolInProject1 = 
+        wholeProjectResults1.GetUsesOfSymbol(xSymbol) 
+        |> Async.RunSynchronously
+        |> Array.map (fun su -> su.Symbol.ToString(), MultiProjectDirty1.cleanFileName su.FileName, tups su.RangeAlternate)
 
-    let content = File.ReadAllText(MultiProjectDirty1.fileName1)
+    usesOfXSymbolInProject1
+    |> shouldEqual 
+        [|("val x", "Project1", ((3, 4), (3, 5))) |]
+
+    let usesOfXSymbolInProject2 = 
+        wholeProjectResults2.GetUsesOfSymbol(xSymbol) 
+        |> Async.RunSynchronously
+        |> Array.map (fun su -> su.Symbol.ToString(), MultiProjectDirty2.cleanFileName su.FileName, tups su.RangeAlternate)
+
+    usesOfXSymbolInProject2 
+    |> shouldEqual 
+        [|("val x", "Project2", ((5, 8), (5, 9)));
+          ("val x", "Project2", ((6, 8), (6, 18)))|]
+
+    //---------------- Change the file by adding a line, then re-check everything --------------------
+    
     File.WriteAllText(MultiProjectDirty1.fileName1, System.Environment.NewLine + content)
-    testWithSymbolLocation 4 4 (fun _ -> File.WriteAllText(MultiProjectDirty1.fileName1, content))
+
+
+    let wholeProjectResults1AfterChange1 = checker.ParseAndCheckProject(MultiProjectDirty1.getOptions()) |> Async.RunSynchronously
+
+    count.Value |> shouldEqual 3
+
+    let backgroundParseResults1AfterChange1, backgroundTypedParse1AfterChange1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, MultiProjectDirty1.getOptions()) 
+        |> Async.RunSynchronously    
+
+    let xSymbolUseAfterChange1 = backgroundTypedParse1AfterChange1.GetSymbolUseAtLocation(4, 4, "", ["x"]) |> Async.RunSynchronously
+    xSymbolUseAfterChange1.IsSome |> shouldEqual true  
+    let xSymbolAfterChange1 = xSymbolUseAfterChange1.Value.Symbol
+
+    let wholeProjectResults2AfterChange1 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
+
+    count.Value |> shouldEqual 4
+
+    let usesOfXSymbolInProject1AfterChange1 = 
+        wholeProjectResults1AfterChange1.GetUsesOfSymbol(xSymbolAfterChange1) 
+        |> Async.RunSynchronously
+        |> Array.map (fun su -> su.Symbol.ToString(), MultiProjectDirty1.cleanFileName su.FileName, tups su.RangeAlternate)
+    
+    usesOfXSymbolInProject1AfterChange1
+    |> shouldEqual 
+        [|("val x", "Project1", ((4, 4), (4, 5))) |]
+
+    let usesOfXSymbolInProject2AfterChange1 = 
+        wholeProjectResults2AfterChange1.GetUsesOfSymbol(xSymbolAfterChange1) 
+        |> Async.RunSynchronously
+        |> Array.map (fun su -> su.Symbol.ToString(), MultiProjectDirty2.cleanFileName su.FileName, tups su.RangeAlternate)
+
+    usesOfXSymbolInProject2AfterChange1 
+    |> shouldEqual 
+        [|("val x", "Project2", ((5, 8), (5, 9)));
+          ("val x", "Project2", ((6, 8), (6, 18)))|]
+
+    //---------------- Revert the change to the file --------------------
+    File.WriteAllText(MultiProjectDirty1.fileName1, content)
+
+    count.Value |> shouldEqual 4
+
+    let wholeProjectResults2AfterChange2 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
+
+    count.Value |> shouldEqual 6 // note, causes two files to be type checked, one from each project
+
+
+    let wholeProjectResults1AfterChange2 = checker.ParseAndCheckProject(MultiProjectDirty1.getOptions()) |> Async.RunSynchronously
+
+    count.Value |> shouldEqual 6 // the project is already checked
+
+    let backgroundParseResults1AfterChange2, backgroundTypedParse1AfterChange2 = 
+        checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, MultiProjectDirty1.getOptions()) 
+        |> Async.RunSynchronously    
+
+    let xSymbolUseAfterChange2 = backgroundTypedParse1AfterChange2.GetSymbolUseAtLocation(4, 4, "", ["x"]) |> Async.RunSynchronously
+    xSymbolUseAfterChange2.IsSome |> shouldEqual true  
+    let xSymbolAfterChange2 = xSymbolUseAfterChange2.Value.Symbol
+
+
+    let usesOfXSymbolInProject1AfterChange2 = 
+        wholeProjectResults1AfterChange2.GetUsesOfSymbol(xSymbolAfterChange2) 
+        |> Async.RunSynchronously
+        |> Array.map (fun su -> su.Symbol.ToString(), MultiProjectDirty1.cleanFileName su.FileName, tups su.RangeAlternate)
+
+    usesOfXSymbolInProject1AfterChange2
+    |> shouldEqual 
+        [|("val x", "Project1", ((3, 4), (3, 5))) |]
+
+
+    let usesOfXSymbolInProject2AfterChange2 = 
+        wholeProjectResults2AfterChange2.GetUsesOfSymbol(xSymbolAfterChange2) 
+        |> Async.RunSynchronously
+        |> Array.map (fun su -> su.Symbol.ToString(), MultiProjectDirty2.cleanFileName su.FileName, tups su.RangeAlternate)
+
+    usesOfXSymbolInProject2AfterChange2
+    |> shouldEqual 
+        [|("val x", "Project2", ((5, 8), (5, 9)));
+          ("val x", "Project2", ((6, 8), (6, 18)))|]
+

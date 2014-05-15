@@ -49,7 +49,7 @@ let argv = [| "C:\\fsi.exe" |]
 let allArgs = Array.append argv [|"--noninteractive"|]
 
 let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
-let fsiSession = FsiEvaluationSession(fsiConfig, allArgs, inStream, outStream, errStream)  
+let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, outStream, errStream)  
 
 
 

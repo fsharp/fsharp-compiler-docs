@@ -1854,11 +1854,16 @@ type BackgroundCompiler(projectCacheSize) as self =
         use t = Trace.Call("Reactor","CreateOneIncrementalBuilder", fun () -> sprintf "options = %+A" options)
 
         let projectReferences =  
-            [ for (nm,opts) in options.ReferencedProjects do 
-                 let r = self.ParseAndCheckProjectImpl(opts)
-                 match r.RawFSharpAssemblyContents with 
-                 | Some c -> yield (nm, c)
-                 | _ -> () ]
+            [ for (nm,opts) in options.ReferencedProjects ->
+                { new IProjectReference with 
+                        member x.EvaluateRawContents() = 
+                            let r = self.ParseAndCheckProjectImpl(opts)
+                            match r.RawFSharpAssemblyContents with 
+                            | Some c -> c
+                            | _ -> invalidOp ("errors in project '" + nm + "'")
+                        member x.GetLogicalTimeStamp() = 
+                            self.GetLogicalTimeStampForProject(opts)
+                        member x.FileName = nm } ]
 
         let builderOpt, errorsAndWarnings = 
             // PROBLEM: This call can currently fail if an error happens while setting up the TcConfig
@@ -2083,6 +2088,13 @@ type BackgroundCompiler(projectCacheSize) as self =
             let fileInfo = (Int32.MaxValue, Int32.MaxValue)
             let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcErrors) |]
             CheckProjectResults (errors, Some(tcGlobals, tcImports, tcState.Ccu, tcState.PartialAssemblySignature, tcResolutions, assemblyOpt, ilAssemRef), reactorOps)
+
+    /// Get the timestamp that would be on the output if fully built immediately
+    member private bc.GetLogicalTimeStampForProject(options) =
+        let builderOpt,_creationErrors,_ = getOrCreateBuilder options
+        match builderOpt with 
+        | None -> None
+        | Some builder -> Some (builder.GetLogicalTimeStampForProject())
 
     /// Parse and typecheck the whole project.
     member bc.ParseAndCheckProject(options) =

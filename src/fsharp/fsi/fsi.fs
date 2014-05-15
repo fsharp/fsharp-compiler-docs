@@ -433,7 +433,8 @@ type internal FsiStdinSyphon(errorWriter: TextWriter) =
                 errorWriter.WriteLine();
                 writeViaBufferWithEnvironmentNewLines errorWriter (OutputErrorOrWarningContext "  " syphon.GetLine) err; 
                 writeViaBufferWithEnvironmentNewLines errorWriter (OutputErrorOrWarning (tcConfig.implicitIncludeDir,tcConfig.showFullPaths,tcConfig.flatErrors,tcConfig.errorStyle,false))  err;
-                errorWriter.WriteLine()))
+                errorWriter.WriteLine()
+                errorWriter.Flush()))
 
 
    
@@ -652,7 +653,7 @@ type internal FsiCommandLineOptions(fsiConfig: FsiEvaluationSessionHostConfig, a
            let abbrevArgs = abbrevFlagSet tcConfigB false
            ParseCompilerOptions collect fsiCompilerOptions (List.tail (PostProcessCompilerArgs abbrevArgs argv))
         with e ->
-            stopProcessingRecovery e range0; exit 1;
+            stopProcessingRecovery e range0; failwith "Error creating evaluation session"
         inputFilesAcc
 
 #if SILVERLIGHT
@@ -2384,7 +2385,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
       try 
           TcImports.BuildTcImports(tcConfigP) 
       with e -> 
-          stopProcessingRecovery e range0; exit 1
+          stopProcessingRecovery e range0; failwith "Error creating evaluation session"
 #endif
 
     let ilGlobals  = tcGlobals.ilg
@@ -2631,6 +2632,8 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
         GC.KeepAlive fsiInterruptController.EventHandlers
 
 #endif // SILVERLIGHT
+
+    static member Create(fsiConfig, argv, inReader, outWriter, errorWriter) = new FsiEvaluationSession(fsiConfig, argv, inReader, outWriter, errorWriter)
 
     static member GetDefaultConfiguration(fsiObj:obj) =  FsiEvaluationSession.GetDefaultConfiguration(fsiObj, true)
     static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) = 

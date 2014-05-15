@@ -27,7 +27,7 @@ let argv = [| "C:\\fsi.exe" |]
 let allArgs = Array.append argv [|"--noninteractive"|]
 
 let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(fsi)
-let fsiSession = FsiEvaluationSession(fsiConfig, allArgs, inStream, new StreamWriter(outStream), new StreamWriter(errStream))  
+let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, new StreamWriter(outStream), new StreamWriter(errStream))  
 
 /// Evaluate expression & return the result
 let evalExpression text =
@@ -141,6 +141,36 @@ let ``ParseAndCheckInteraction test 1``() =
 
     Assert.True(tooltip.Contains("val xxxxxx : int"))
 
+[<Test>]
+let ``Bad arguments to session creation 1``() = 
+    let inStream = new StringReader("")
+    let outStream = new CompilerOutputStream()
+    let errStream = new CompilerOutputStream()
+    let errWriter = new StreamWriter(errStream)
+    let fsiSession = 
+        try 
+           FsiEvaluationSession.Create(fsiConfig, [| "fsi.exe"; "-r:nonexistent.dll" |], inStream, new StreamWriter(outStream), errWriter) |> ignore
+           false
+        with _ -> true
+    Assert.True fsiSession
+    Assert.False (String.IsNullOrEmpty (errStream.Read())) // error stream contains some output
+    Assert.True (String.IsNullOrEmpty (outStream.Read())) // output stream contains no output
+
+[<Test>]
+let ``Bad arguments to session creation 2``() = 
+    let inStream = new StringReader("")
+    let outStream = new CompilerOutputStream()
+    let errStream = new CompilerOutputStream()
+    let errWriter = new StreamWriter(errStream)
+    let fsiSession = 
+        try 
+           FsiEvaluationSession.Create(fsiConfig, [| "fsi.exe"; "-badarg" |], inStream, new StreamWriter(outStream), errWriter) |> ignore
+           false
+        with _ -> true
+    Assert.True fsiSession
+    Assert.False (String.IsNullOrEmpty (errStream.Read())) // error stream contains some output
+    Assert.True (String.IsNullOrEmpty (outStream.Read())) // output stream contains no output
+
 let RunManually() = 
   ``EvalExpression test 1``() 
   ``EvalExpression fsi test``() 
@@ -155,5 +185,7 @@ let RunManually() =
   ``EvalInteraction parse failure``() 
   ``PartialAssemblySignatureUpdated test``() 
   ``ParseAndCheckInteraction test 1``() 
+  ``Bad arguments to session creation 1``()
+  ``Bad arguments to session creation 2``()
 
 #endif

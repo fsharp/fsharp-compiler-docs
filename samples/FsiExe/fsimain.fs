@@ -194,7 +194,7 @@ let MainMain argv =
                 // Connect the configuration through to the 'fsi' Event loop
                 member __.OptionalConsoleReadLine = getConsoleReadLine() }
 
-        and fsiSession = FsiEvaluationSession (fsiConfig, argv, Console.In, Console.Out, Console.Error)
+        and fsiSession = FsiEvaluationSession.Create (fsiConfig, argv, Console.In, Console.Out, Console.Error)
 
         if fsiSession.IsGui then 
             try 

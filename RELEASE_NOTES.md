@@ -189,3 +189,7 @@
 * Switch to openBinariesInMemory for SimpleSourceCodeServices
 * Cleanup SimpleSourceCodeServices to avoid code duplication
 
+#### 0.0.46 - 
+* Fix multi-project analysis when referenced projects have changed (#141)
+* Fix process exit on bad arguments to FsiEvaluationSession (#126)
+* Deprecate FsiEvaluationSession constructor and add FsiEvaluationSession.Create static method to allow for future API that can return errors

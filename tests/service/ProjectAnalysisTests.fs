@@ -2440,3 +2440,77 @@ let ``Test Project20 all symbols`` () =
           [|("generic parameter T", "T", "file1", ((4, 7), (4, 9)), ["type"], false);
             ("generic parameter T", "T", "file1", ((5, 19), (5, 21)), ["type"], false)|]
 
+//-----------------------------------------------------------------------------------------
+// Misc - https://github.com/fsharp/FSharp.Compiler.Service/issues/137
+
+module Project21 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Impl
+
+type IMyInterface<'a> = 
+    abstract Method1: 'a -> unit
+    abstract Method2: 'a -> unit
+
+let _ = { new IMyInterface<int> with
+              member x.Method1(arg1: string): unit = 
+                  raise (System.NotImplementedException())
+
+              member x.Method2(arg1: int): unit = 
+                  raise (System.NotImplementedException())
+               }
+
+    """
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project21 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project21.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 2
+
+
+[<Test>]
+let ``Test Project21 all symbols`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project21.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Async.RunSynchronously
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project19.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su, 
+                                (match su.Symbol with :? FSharpEntity as e -> e.IsNamespace | _ -> false))
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("generic parameter a", "a", "??", ((4, 18), (4, 20)), ["type"], false);
+            ("generic parameter a", "a", "??", ((5, 22), (5, 24)), ["type"], false);
+            ("unit", "unit", "??", ((5, 28), (5, 32)), ["type"], false);
+            ("member Method1", "Method1", "??", ((5, 13), (5, 20)), ["defn"], false);
+            ("generic parameter a", "a", "??", ((6, 22), (6, 24)), ["type"], false);
+            ("unit", "unit", "??", ((6, 28), (6, 32)), ["type"], false);
+            ("member Method2", "Method2", "??", ((6, 13), (6, 20)), ["defn"], false);
+            ("IMyInterface`1", "IMyInterface", "??", ((4, 5), (4, 17)), ["defn"],false);
+            ("IMyInterface`1", "IMyInterface", "??", ((8, 14), (8, 26)), ["type"],false); 
+            ("int", "int", "??", ((8, 27), (8, 30)), ["type"], false);
+            ("val x", "x", "??", ((9, 21), (9, 22)), ["defn"], false);
+            ("string", "string", "??", ((9, 37), (9, 43)), ["type"], false);
+            ("val x", "x", "??", ((12, 21), (12, 22)), ["defn"], false);
+            ("int", "int", "??", ((12, 37), (12, 40)), ["type"], false);
+            ("val arg1", "arg1", "??", ((12, 31), (12, 35)), ["defn"], false);
+            ("unit", "unit", "??", ((12, 43), (12, 47)), ["type"], false);
+            ("val raise", "raise", "??", ((13, 18), (13, 23)), [], false);
+            ("System", "System", "??", ((13, 25), (13, 31)), [], true);
+            ("member .ctor", ".ctor", "??", ((13, 25), (13, 55)), [], false);
+            ("Impl", "Impl", "??", ((2, 7), (2, 11)), ["defn"], false)|]
+

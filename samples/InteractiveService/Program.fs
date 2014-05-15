@@ -15,7 +15,7 @@ let main (argv) =
     let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
 
     let fsiSession = 
-        FsiEvaluationSession
+        FsiEvaluationSession.Create
             (fsiConfig, 
              [| yield "fsi.exe"
                 yield! argv

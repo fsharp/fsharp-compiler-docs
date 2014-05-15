@@ -89,10 +89,14 @@ type FsiValue =
     /// The type of the value, from the point of view of the F# type system
     member FSharpType : FSharpType
 
-/// The primary type, representing a full F# Interactive session, reading from the given
-/// text input, writing to the given text output and error writers.
+/// Represents an F# Interactive evaluation session.
 type FsiEvaluationSession = 
+    /// Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers.
+    [<System.Obsolete("Please use FsiEvaluationSession.Create instead of this object constructor")>]
     new : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter -> FsiEvaluationSession
+
+    /// Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers.
+    static member Create : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter -> FsiEvaluationSession
 
     /// A host calls this to request an interrupt on the evaluation thread.
     member Interrupt : unit -> unit

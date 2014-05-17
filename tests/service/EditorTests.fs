@@ -139,13 +139,13 @@ let ``Symbols many tests`` () =
     fnVal.IsCompilerGenerated |> shouldEqual false
     fnVal.IsDispatchSlot |> shouldEqual false
     fnVal.IsExtensionMember |> shouldEqual false
-    fnVal.IsGetterMethod |> shouldEqual false
+    fnVal.IsPropertyGetterMethod |> shouldEqual false
     fnVal.IsImplicitConstructor |> shouldEqual false
     fnVal.IsInstanceMember |> shouldEqual false
     fnVal.IsMember |> shouldEqual false
     fnVal.IsModuleValueOrMember |> shouldEqual true
     fnVal.IsMutable |> shouldEqual false
-    fnVal.IsSetterMethod |> shouldEqual false
+    fnVal.IsPropertySetterMethod |> shouldEqual false
     fnVal.IsTypeFunction |> shouldEqual false
 
     fnVal.FullType.IsFunctionType |> shouldEqual true // int * int -> unit

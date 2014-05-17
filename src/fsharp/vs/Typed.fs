@@ -278,31 +278,32 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
     member x.MembersFunctionsAndValues = 
       if isUnresolved() then makeReadOnlyCollection[] else
       protect <| fun () -> 
-        ([ if x.IsFSharp then 
-             for v in entity.MembersOfFSharpTyconSorted do 
-               if not v.IsOverrideOrExplicitImpl && not v.Deref.IsClassConstructor then 
-                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V v, Item.Value v) 
+        ([ let _, entityTy = generalizeTyconRef entity
+           let amap = tcImports.GetImportMap()
+           let infoReader = InfoReader(g, amap)
+           if x.IsFSharpAbbreviation then 
+               ()
+           elif x.IsFSharp then 
+               // For F# code we emit methods members in declaration order
+               for v in entity.MembersOfFSharpTyconSorted do 
+                 // Ignore members representing the generated .cctor and implementations of interface slots
+                 if not v.IsOverrideOrExplicitImpl && not v.Deref.IsClassConstructor then 
+                     let fsMeth = FSMeth (g, entityTy, v, None)
+                     let item = 
+                         if fsMeth.IsConstructor then  Item.CtorGroup (fsMeth.DisplayName, [fsMeth])                          
+                         else Item.MethodGroup (fsMeth.DisplayName, [fsMeth])
+                     yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M fsMeth, item) 
            else
-               let _, entityTy = generalizeTyconRef entity
-               let amap = tcImports.GetImportMap()
-               let props = GetImmediateIntrinsicPropInfosOfType (None, AccessibleFromSomeFSharpCode) g amap range0 entityTy 
-               let events = InfoReader(g, amap).GetImmediateIntrinsicEventsOfType (None, AccessibleFromSomeFSharpCode, range0, entityTy)
-               //let skipMeths = 
-               //    set [ for p in props do 
-               //             if p.HasGetter then yield p.GetterMethod.LogicalName 
-               //             if p.HasSetter then yield p.SetterMethod.LogicalName 
-               //          for e in events do 
-               //             yield e.GetAddMethod().LogicalName
-               //             yield e.GetRemoveMethod().LogicalName ]
-
                for minfo in GetImmediateIntrinsicMethInfosOfType (None, AccessibleFromSomeFSharpCode) g amap range0 entityTy do
-                //if not (skipMeths.Contains minfo.LogicalName) then 
-                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
-               for pinfo in props do
-                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  P pinfo, Item.Property (pinfo.PropertyName,[pinfo]))
-               for einfo in events do
-                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  E einfo, Item.Event einfo)
+                    yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+           let props = GetImmediateIntrinsicPropInfosOfType (None, AccessibleFromSomeFSharpCode) g amap range0 entityTy 
+           let events = infoReader.GetImmediateIntrinsicEventsOfType (None, AccessibleFromSomeFSharpCode, range0, entityTy)
+           for pinfo in props do
+                yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  P pinfo, Item.Property (pinfo.PropertyName,[pinfo]))
+           for einfo in events do
+                yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  E einfo, Item.Event einfo)
 
+           // Emit the values and functions in a module
            for v in entity.ModuleOrNamespaceType.AllValsAndMembers do
                if not v.IsMember then
                    let vref = mkNestedValRef entity v
@@ -877,22 +878,40 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         | V v -> v.IsDispatchSlot
 
     member x.IsProperty = 
-        if isUnresolved() then false else 
         match d with 
         | P _ -> true
-        | _ -> x.IsGetterMethod || x.IsSetterMethod
+        | _ -> false
 
     member x.IsEvent = 
-        if isUnresolved() then false else 
         match d with 
         | E _ -> true
-        | _ ->
-        match fsharpInfo() with 
-        | None -> false
-        | Some v -> v.IsFSharpEventProperty(g) 
+        | _ -> false
 
-    member __.IsGetterMethod = 
+    member __.IsEventAddMethod = 
         if isUnresolved() then false else 
+        match d with 
+        | M m when m.LogicalName.StartsWith("add_") -> 
+            let eventName = m.LogicalName.[4..]
+            let amap = tcImports.GetImportMap() 
+            let infoReader = InfoReader(g, amap)
+            let entityTy = generalizedTyconRef m.DeclaringEntityRef
+            nonNil (infoReader.GetImmediateIntrinsicEventsOfType (Some eventName, AccessibleFromSomeFSharpCode, range0, entityTy))
+        | _ -> false
+
+    member __.IsEventRemoveMethod = 
+        if isUnresolved() then false else 
+        match d with 
+        | M m when m.LogicalName.StartsWith("remove_") -> 
+            let eventName = m.LogicalName.[7..]
+            let amap = tcImports.GetImportMap() 
+            let infoReader = InfoReader(g, amap)
+            let entityTy = generalizedTyconRef m.DeclaringEntityRef
+            nonNil (infoReader.GetImmediateIntrinsicEventsOfType (Some eventName, AccessibleFromSomeFSharpCode, range0, entityTy))
+        | _ -> false
+
+    member x.IsGetterMethod =  
+        if isUnresolved() then false else 
+        x.IsPropertyGetterMethod ||
         match fsharpInfo() with 
         | None -> false
         | Some v -> 
@@ -900,14 +919,32 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         | None -> false 
         | Some memInfo -> memInfo.MemberFlags.MemberKind = MemberKind.PropertyGet
 
-    member __.IsSetterMethod = 
+    member x.IsSetterMethod =  
         if isUnresolved() then false else 
+        x.IsPropertySetterMethod ||
         match fsharpInfo() with 
         | None -> false
         | Some v -> 
         match v.MemberInfo with 
         | None -> false 
         | Some memInfo -> memInfo.MemberFlags.MemberKind = MemberKind.PropertySet
+
+    member __.IsPropertyGetterMethod = 
+        if isUnresolved() then false else 
+        match d with 
+        | M m when m.LogicalName.StartsWith("get_") -> 
+            let propName = PrettyNaming.ChopPropertyName(m.LogicalName) 
+            nonNil (GetImmediateIntrinsicPropInfosOfType(Some propName, AccessibleFromSomeFSharpCode) g (tcImports.GetImportMap()) range0 (generalizedTyconRef m.DeclaringEntityRef))
+        | _ -> false
+
+    member __.IsPropertySetterMethod = 
+        if isUnresolved() then false else 
+        match d with 
+        // Look for a matching property with the right name. 
+        | M m when m.LogicalName.StartsWith("set_") -> 
+            let propName = PrettyNaming.ChopPropertyName(m.LogicalName) 
+            nonNil (GetImmediateIntrinsicPropInfosOfType(Some propName, AccessibleFromSomeFSharpCode) g (tcImports.GetImportMap()) range0 (generalizedTyconRef m.DeclaringEntityRef))
+        | _ -> false
 
     member __.IsInstanceMember = 
         if isUnresolved() then false else 
@@ -1082,8 +1119,12 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         |   :? FSharpMemberFunctionOrValue as other -> ItemsReferToSameDefinition g x.Item other.Item
         |   _ -> false
 
-    override x.GetHashCode() = hash (box x.DisplayName)
-    override x.ToString() = try  (if x.IsMember then "member " else "val ") + x.DisplayName with _  -> "??"
+    override x.GetHashCode() = hash (box x.LogicalName)
+    override x.ToString() = 
+        try  
+            let prefix = (if x.IsEvent then "event " elif x.IsProperty then "property " elif x.IsMember then "member " else "val ") 
+            prefix + x.LogicalName 
+        with _  -> "??"
 
 
 and FSharpType(g:TcGlobals, thisCcu, tcImports, typ:TType) =
@@ -1350,9 +1391,7 @@ type FSharpSymbol with
         | Item.RecdField rfinfo -> FSharpField(g, thisCcu, tcImports,  Recd rfinfo.RecdFieldRef) :> _
         
         | Item.Event einfo -> 
-            match einfo.ArbitraryValRef with 
-            | Some vref ->  FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V vref, item) :> _
-            | None -> dflt 
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  E einfo, item) :> _
             
         | Item.Property(_,pinfo :: _) -> 
             FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  P pinfo, item) :> _

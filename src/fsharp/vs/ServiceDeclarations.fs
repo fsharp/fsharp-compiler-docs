@@ -204,17 +204,25 @@ module internal ItemDescriptionsImpl =
         | Item.ActivePatternCase apref         -> ccuOfValRef apref.ActivePatternVal
         | Item.ExnCase tcref                   -> ccuOfTyconRef tcref
         | Item.RecdField rfinfo                -> ccuOfTyconRef rfinfo.RecdFieldRef.TyconRef
-        | Item.Event einfo                     -> einfo.ArbitraryValRef |> Option.bind ccuOfValRef
-        | Item.ILField finfo                       -> finfo.EnclosingType |> tcrefOfAppTy g |> ccuOfTyconRef
-        | Item.Property(_,pinfos)              -> pinfos.Head.ArbitraryValRef |> Option.bind ccuOfValRef
+        | Item.Event einfo                     -> einfo.EnclosingType  |> tcrefOfAppTy g |> ccuOfTyconRef
+        | Item.ILField finfo                   -> finfo.EnclosingType |> tcrefOfAppTy g |> ccuOfTyconRef
+        | Item.Property(_,(pinfo :: _))        -> 
+            match pinfo.ArbitraryValRef with 
+            | Some v -> ccuOfValRef v 
+            | None -> pinfo.EnclosingType |> tcrefOfAppTy g |> ccuOfTyconRef
+
+        | Item.ArgName (_,_,Some (ArgumentContainer.Method minfo)) 
         | Item.MethodGroup(_,(minfo :: _)) 
-        | Item.CtorGroup(_,FilterDefaultStructCtors(minfo :: _)) -> minfo.ArbitraryValRef |> Option.bind ccuOfValRef
-        | Item.Types(_,(typ :: _))             -> tryNiceEntityRefOfTy typ |> Option.bind (fun tcref -> ccuOfTyconRef tcref)
-        | Item.TypeVar _  -> None
-        | Item.CustomOperation (_,_,Some minfo)       -> minfo.ArbitraryValRef |> Option.bind ccuOfValRef
-        | Item.ModuleOrNamespaces(modref :: _) -> ccuOfTyconRef modref
+        | Item.CtorGroup(_,FilterDefaultStructCtors(minfo :: _)) 
+        | Item.CustomOperation (_,_,Some minfo)       -> minfo.DeclaringEntityRef |> ccuOfTyconRef
+
+        | Item.Types(_,(typ :: _))             -> tryNiceEntityRefOfTy typ |> Option.bind ccuOfTyconRef
+        | Item.ArgName (_,_,Some (ArgumentContainer.Type eref)) 
+        | Item.ModuleOrNamespaces(eref :: _) 
+        | Item.UnqualifiedType(eref :: _) -> ccuOfTyconRef eref
+
         | Item.SetterArg (_,item) -> ccuOfItem g item
-        | Item.ArgName _ -> None
+        | Item.TypeVar _  -> None
         | _ -> None
 
     /// Work out the source file for an item and fix it up relative to the CCU if it is relative.

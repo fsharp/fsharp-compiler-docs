@@ -539,10 +539,6 @@ and [<Class>] FSharpMemberFunctionOrValue =
     /// Indicates if this is a mutable value
     member IsMutable : bool
 
-    // /// Get the reflection object for this member
-    // [<System.Obsolete("This member does not yet return correct results for overloaded members")>]
-    // member ReflectionMemberInfo :System.Reflection.MemberInfo
-
     /// Indicates if this is a module or member value
     member IsModuleValueOrMember : bool
 
@@ -552,7 +548,7 @@ and [<Class>] FSharpMemberFunctionOrValue =
     /// Indicates if this is a member, including extension members?
     member IsMember : bool
 
-    /// Indicates if this is a property member, or an F# method for a property getter or setter
+    /// Indicates if this is a property member
     member IsProperty : bool
 
     /// Indicates if this is an event member
@@ -561,11 +557,25 @@ and [<Class>] FSharpMemberFunctionOrValue =
     /// Indicates if this is an abstract member?
     member IsDispatchSlot : bool
 
-    /// Indicates if this is a getter method for a property
+    /// Indicates if this is a getter method for a property, or a use of a property in getter mode
+    [<System.Obsolete("Renamed to IsPropertyGetterMethod, which returns 'true' only for method symbols, not for property symbols")>]
     member IsGetterMethod: bool 
 
-    /// Indicates if this is a setter method for a property
+    /// Indicates if this is a setter method for a property, or a use of a property in setter mode
+    [<System.Obsolete("Renamed to IsPropertySetterMethod, which returns 'true' only for method symbols, not for property symbols")>]
     member IsSetterMethod: bool 
+
+    /// Indicates if this is a getter method for a property, or a use of a property in getter mode
+    member IsPropertyGetterMethod: bool 
+
+    /// Indicates if this is a setter method for a property, or a use of a property in setter mode
+    member IsPropertySetterMethod: bool 
+
+    /// Indicates if this is an add method for an event
+    member IsEventAddMethod: bool 
+
+    /// Indicates if this is a remove method for an event
+    member IsEventRemoveMethod: bool 
 
     /// Indicates if this is an instance member, when seen from F#?
     member IsInstanceMember : bool 
@@ -632,12 +642,20 @@ and [<Class>] FSharpMemberFunctionOrValue =
     member Accessibility : FSharpAccessibility
 
 
+/// Represents a parameter 
 and [<Class>] FSharpParameter =
     inherit FSharpSymbol
-    /// The optional name of the parameter in the F# source code.  
+
+    /// The optional name of the parameter 
     member Name: string option
+
+    /// The declartaion location of the parameter 
     member DeclarationLocation : range 
+
+    /// The declared or inferred type of the parameter 
     member Type : FSharpType 
+
+    /// The declared attributes of the parameter 
     member Attributes: IList<FSharpAttribute>
 
 /// Represents a single case within an active pattern

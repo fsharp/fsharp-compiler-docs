@@ -201,3 +201,6 @@
 
 #### 0.0.47 - 
 * Adjust fix for #143 for F# types with abstract+default events
+
+#### 0.0.48 - 
+* Allow own fsi object without referencing FSharp.Compiler.Interactive.Settings.dll (#127)

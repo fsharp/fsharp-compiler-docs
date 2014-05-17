@@ -183,6 +183,12 @@ type FsiEvaluationSession =
 
     /// Get a configuration that uses the 'fsi' object (normally from FSharp.Compiler.Interactive.Settings.dll,
     /// an object from another DLL with identical characteristics) to provide an implementation of the configuration.
+    /// The flag indicates if FSharp.Compiler.Interactive.Settings.dll  is referenced by default.
+    static member GetDefaultConfiguration: fsiObj: obj * useFsiAuxLib: bool -> FsiEvaluationSessionHostConfig
+
+    /// Get a configuration that uses the 'fsi' object (normally from FSharp.Compiler.Interactive.Settings.dll,
+    /// an object from another DLL with identical characteristics) to provide an implementation of the configuration.
+    /// FSharp.Compiler.Interactive.Settings.dll  is referenced by default.
     static member GetDefaultConfiguration: fsiObj: obj -> FsiEvaluationSessionHostConfig
 
     /// Get a configuration that uses a private inbuilt implementation of the 'fsi' object and does not

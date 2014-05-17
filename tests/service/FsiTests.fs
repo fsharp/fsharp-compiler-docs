@@ -74,6 +74,17 @@ let ``EvalExpression function value 2``() =
     |> shouldEqual true
 
 [<Test>]
+let ``EvalExpression function value 3``() = 
+    fsiSession.EvalExpression "incr"  |> fun s -> s.IsSome
+    |> shouldEqual true
+
+[<Test; Ignore("Failing test for #135")>]
+let ``EvalExpression function value 4``() = 
+    fsiSession.EvalInteraction  "let hello(s : System.IO.TextReader) = printfn \"Hello World\""
+    fsiSession.EvalExpression "hello"  |> fun s -> s.IsSome
+    |> shouldEqual true
+
+[<Test>]
 let ``EvalExpression runtime failure``() = 
     (try evalExpression """ (failwith "fail" : int) """  |> ignore
          false

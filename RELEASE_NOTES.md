@@ -199,7 +199,5 @@
 * Change IsProperty and IsEvent to only return true for the symbols for properties and events, rather than the methods assocaited with these
 * Fix value of Assembly for some symbols (e.g. property symbols)
 
-  
-
-
-
+#### 0.0.47 - 
+* Adjust fix for #143 for F# types with abstract+default events

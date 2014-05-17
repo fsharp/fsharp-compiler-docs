@@ -895,7 +895,11 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             let amap = tcImports.GetImportMap() 
             let infoReader = InfoReader(g, amap)
             let entityTy = generalizedTyconRef m.DeclaringEntityRef
-            nonNil (infoReader.GetImmediateIntrinsicEventsOfType (Some eventName, AccessibleFromSomeFSharpCode, range0, entityTy))
+            nonNil (infoReader.GetImmediateIntrinsicEventsOfType (Some eventName, AccessibleFromSomeFSharpCode, range0, entityTy)) ||
+            match GetImmediateIntrinsicPropInfosOfType(Some eventName, AccessibleFromSomeFSharpCode) g amap range0 (generalizedTyconRef m.DeclaringEntityRef) with 
+            | pinfo :: _  -> pinfo.IsFSharpEventProperty
+            | _ -> false
+
         | _ -> false
 
     member __.IsEventRemoveMethod = 
@@ -906,7 +910,10 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             let amap = tcImports.GetImportMap() 
             let infoReader = InfoReader(g, amap)
             let entityTy = generalizedTyconRef m.DeclaringEntityRef
-            nonNil (infoReader.GetImmediateIntrinsicEventsOfType (Some eventName, AccessibleFromSomeFSharpCode, range0, entityTy))
+            nonNil (infoReader.GetImmediateIntrinsicEventsOfType (Some eventName, AccessibleFromSomeFSharpCode, range0, entityTy)) ||
+            match GetImmediateIntrinsicPropInfosOfType(Some eventName, AccessibleFromSomeFSharpCode) g amap range0 (generalizedTyconRef m.DeclaringEntityRef) with 
+            | pinfo :: _ -> pinfo.IsFSharpEventProperty
+            | _ -> false
         | _ -> false
 
     member x.IsGetterMethod =  
@@ -934,7 +941,8 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         match d with 
         | M m when m.LogicalName.StartsWith("get_") -> 
             let propName = PrettyNaming.ChopPropertyName(m.LogicalName) 
-            nonNil (GetImmediateIntrinsicPropInfosOfType(Some propName, AccessibleFromSomeFSharpCode) g (tcImports.GetImportMap()) range0 (generalizedTyconRef m.DeclaringEntityRef))
+            let amap = tcImports.GetImportMap() 
+            nonNil (GetImmediateIntrinsicPropInfosOfType(Some propName, AccessibleFromSomeFSharpCode) g amap range0 (generalizedTyconRef m.DeclaringEntityRef))
         | _ -> false
 
     member __.IsPropertySetterMethod = 
@@ -943,7 +951,8 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         // Look for a matching property with the right name. 
         | M m when m.LogicalName.StartsWith("set_") -> 
             let propName = PrettyNaming.ChopPropertyName(m.LogicalName) 
-            nonNil (GetImmediateIntrinsicPropInfosOfType(Some propName, AccessibleFromSomeFSharpCode) g (tcImports.GetImportMap()) range0 (generalizedTyconRef m.DeclaringEntityRef))
+            let amap = tcImports.GetImportMap() 
+            nonNil (GetImmediateIntrinsicPropInfosOfType(Some propName, AccessibleFromSomeFSharpCode) g amap range0 (generalizedTyconRef m.DeclaringEntityRef))
         | _ -> false
 
     member __.IsInstanceMember = 
@@ -1021,7 +1030,8 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         match d with 
         | P p -> 
             
-            [ [ for (ParamData(_isParamArrayArg,_isOutArg,_optArgInfo,nmOpt,pty)) in p.GetParamDatas(tcImports.GetImportMap(),range0) do 
+            let amap = tcImports.GetImportMap() 
+            [ [ for (ParamData(_isParamArrayArg,_isOutArg,_optArgInfo,nmOpt,pty)) in p.GetParamDatas(amap,range0) do 
                 let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }
                 yield FSharpParameter(g, thisCcu, tcImports,  pty, argInfo, x.DeclarationLocationOpt) ] 
                |> makeReadOnlyCollection  ]
@@ -1030,7 +1040,8 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         | E _ ->  []  |> makeReadOnlyCollection
         | M m -> 
             
-            [ for argtys in m.GetParamDatas(tcImports.GetImportMap(),range0,m.FormalMethodInst) do 
+            let amap = tcImports.GetImportMap() 
+            [ for argtys in m.GetParamDatas(amap,range0,m.FormalMethodInst) do 
                  yield 
                    [ for (ParamData(_isParamArrayArg,_isOutArg,_optArgInfo,nmOpt,pty)) in argtys do 
                         let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }

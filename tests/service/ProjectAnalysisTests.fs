@@ -977,30 +977,30 @@ let ``Test project3 all symbols in signature`` () =
                ("val setP", ["val"]); ("val getE", ["val"]); ("val getM", ["val"]);
                ("IFoo", ["interface"]);
                ("member InterfaceMethod", ["slot"; "member"]);
-               ("member add_InterfaceEvent", ["slot"; "member"]);
+               ("member add_InterfaceEvent", ["slot"; "member"; "add" ]);
                ("member get_InterfaceEvent", ["slot"; "member"; "getter"]);
                ("member get_InterfaceProperty", ["slot"; "member"; "getter"]);
-               ("member remove_InterfaceEvent", ["slot"; "member"]);
+               ("member remove_InterfaceEvent", ["slot"; "member"; "remove" ]);
                ("member set_InterfacePropertySet", ["slot"; "member"; "setter"]);
                ("property InterfacePropertySet", ["slot"; "member"; "prop"]);
                ("property InterfaceProperty", ["slot"; "member"; "prop"]);
                ("property InterfaceEvent", ["slot"; "member"; "prop"]);
                ("CFoo", ["class"]); ("member .ctor", ["member"; "ctor"]);
                ("member AbstractClassMethod", ["slot"; "member"]);
-               ("member add_AbstractClassEvent", ["slot"; "member"]);
+               ("member add_AbstractClassEvent", ["slot"; "member"; "add" ]);
                ("member get_AbstractClassEvent", ["slot"; "member"; "getter"]);
                ("member get_AbstractClassProperty", ["slot"; "member"; "getter"]);
-               ("member remove_AbstractClassEvent", ["slot"; "member"]);
+               ("member remove_AbstractClassEvent", ["slot"; "member"; "remove"]);
                ("member set_AbstractClassPropertySet", ["slot"; "member"; "setter"]);
                ("property AbstractClassPropertySet", ["slot"; "member"; "prop"]);
                ("property AbstractClassProperty", ["slot"; "member"; "prop"]);
                ("property AbstractClassEvent", ["slot"; "member"; "prop"]);
                ("CBaseFoo", ["class"]); ("member .ctor", ["member"; "ctor"]);
                ("member BaseClassMethod", ["slot"; "member"]);
-               ("member add_BaseClassEvent", ["slot"; "member"]);
+               ("member add_BaseClassEvent", ["slot"; "member"; "add"]);
                ("member get_BaseClassEvent", ["slot"; "member"; "getter"]);
                ("member get_BaseClassProperty", ["slot"; "member"; "getter"]);
-               ("member remove_BaseClassEvent", ["slot"; "member"]);
+               ("member remove_BaseClassEvent", ["slot"; "member"; "remove"]);
                ("member set_BaseClassPropertySet", ["slot"; "member"; "setter"]);
                ("property BaseClassPropertySet", ["member"; "prop"]);
                ("property BaseClassPropertySet", ["slot"; "member"; "prop"]);
@@ -1054,10 +1054,10 @@ let ``Test project3 all uses of all signature symbols`` () =
                  ("file1", ((79, 23), (79, 42)), [], ["slot"; "member"]);
                  ("file1", ((36, 20), (36, 35)), ["override"], ["slot"; "member"])]);
                ("member add_InterfaceEvent",
-                [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"]);
-                 ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"]);
-                 ("file1", ((78, 23), (78, 41)), [], ["slot"; "member"]);
-                 ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"])]);
+                [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"; "add" ]);
+                 ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"; "add" ]);
+                 ("file1", ((78, 23), (78, 41)), [], ["slot"; "member"; "add" ]);
+                 ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"; "add" ])]);
                ("member get_InterfaceEvent",
                 [("file1", ((8, 13), (8, 27)), ["defn"],
                   ["slot"; "member"; "getter"]);
@@ -1074,9 +1074,9 @@ let ``Test project3 all uses of all signature symbols`` () =
                  ("file1", ((34, 20), (34, 37)), ["override"],
                   ["slot"; "member"; "getter"])]);
                ("member remove_InterfaceEvent",
-                [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"]);
-                 ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"]);
-                 ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"])]);
+                [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"; "remove"]);
+                 ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"; "remove"]);
+                 ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"; "remove"])]);
                ("member set_InterfacePropertySet",
                 [("file1", ((5, 13), (5, 33)), ["defn"],
                   ["slot"; "member"; "setter"]);
@@ -1122,9 +1122,9 @@ let ``Test project3 all uses of all signature symbols`` () =
                  ("file1", ((72, 22), (72, 41)), ["override"], ["slot"; "member"]);
                  ("file1", ((45, 18), (45, 37)), ["override"], ["slot"; "member"])]);
                ("member add_AbstractClassEvent",
-                [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"]);
-                 ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"]);
-                 ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"])]);
+                [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"; "add" ]);
+                 ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"; "add" ]);
+                 ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"; "add" ])]);
                ("member get_AbstractClassEvent",
                 [("file1", ((16, 13), (16, 31)), ["defn"],
                   ["slot"; "member"; "getter"]);
@@ -1140,9 +1140,9 @@ let ``Test project3 all uses of all signature symbols`` () =
                  ("file1", ((43, 18), (43, 39)), ["override"],
                   ["slot"; "member"; "getter"])]);
                ("member remove_AbstractClassEvent",
-                [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"]);
-                 ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"]);
-                 ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"])]);
+                [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"; "remove"]);
+                 ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"; "remove"]);
+                 ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"; "remove"])]);
                ("member set_AbstractClassPropertySet",
                 [("file1", ((13, 13), (13, 37)), ["defn"],
                   ["slot"; "member"; "setter"]);
@@ -1184,9 +1184,9 @@ let ``Test project3 all uses of all signature symbols`` () =
                  ("file1", ((27, 15), (27, 30)), ["override"], ["slot"; "member"]);
                  ("file1", ((54, 18), (54, 33)), ["override"], ["slot"; "member"])]);
                ("member add_BaseClassEvent",
-                [("file1", ((24, 13), (24, 27)), ["defn"], ["slot"; "member"]);
-                 ("file1", ((29, 15), (29, 29)), ["override"], ["slot"; "member"]);
-                 ("file1", ((56, 18), (56, 32)), ["override"], ["slot"; "member"])]);
+                [("file1", ((24, 13), (24, 27)), ["defn"], ["slot"; "member"; "add" ]);
+                 ("file1", ((29, 15), (29, 29)), ["override"], ["slot"; "member"; "add" ]);
+                 ("file1", ((56, 18), (56, 32)), ["override"], ["slot"; "member"; "add" ])]);
                ("member get_BaseClassEvent",
                 [("file1", ((24, 13), (24, 27)), ["defn"],
                   ["slot"; "member"; "getter"]);
@@ -1202,9 +1202,9 @@ let ``Test project3 all uses of all signature symbols`` () =
                  ("file1", ((52, 18), (52, 35)), ["override"],
                   ["slot"; "member"; "getter"])]);
                ("member remove_BaseClassEvent",
-                [("file1", ((24, 13), (24, 27)), ["defn"], ["slot"; "member"]);
-                 ("file1", ((29, 15), (29, 29)), ["override"], ["slot"; "member"]);
-                 ("file1", ((56, 18), (56, 32)), ["override"], ["slot"; "member"])]);
+                [("file1", ((24, 13), (24, 27)), ["defn"], ["slot"; "member"; "remove"]);
+                 ("file1", ((29, 15), (29, 29)), ["override"], ["slot"; "member"; "remove"]);
+                 ("file1", ((56, 18), (56, 32)), ["override"], ["slot"; "member"; "remove"])]);
                ("member set_BaseClassPropertySet",
                 [("file1", ((21, 13), (21, 33)), ["defn"],
                   ["slot"; "member"; "setter"]);
@@ -2859,6 +2859,7 @@ type AnotherMutableList() =
 
 let f1 (x: System.Collections.Generic.IList<'T>) = () // grab the IList symbol and look into it
 let f2 (x: AnotherMutableList) = () // grab the AnotherMutableList symbol and look into it
+let f3 (x: System.Collections.ObjectModel.ObservableCollection<'T>) = () // grab the ObservableCollection symbol and look into it
     """
     File.WriteAllText(fileName1, fileSource1)
     let cleanFileName a = if a = fileName1 then "file1" else "??"
@@ -2886,6 +2887,11 @@ let ``Test Project22 IList contents`` () =
         |> Async.RunSynchronously
         |> Array.find (fun su -> su.Symbol.DisplayName = "IList")
 
+    let ocTypeUse = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Async.RunSynchronously
+        |> Array.find (fun su -> su.Symbol.DisplayName = "ObservableCollection")
+
     let alistTypeUse = 
         wholeProjectResults.GetAllUsesOfAllSymbols()
         |> Async.RunSynchronously
@@ -2893,6 +2899,7 @@ let ``Test Project22 IList contents`` () =
 
 
     let ilistTypeDefn = ilistTypeUse.Symbol :?> FSharpEntity
+    let ocTypeDefn = ocTypeUse.Symbol :?> FSharpEntity
     let alistTypeDefn = alistTypeUse.Symbol :?> FSharpEntity
 
     [ for x in ilistTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
@@ -2903,6 +2910,28 @@ let ``Test Project22 IList contents`` () =
                ("Insert", ["slot"; "member"]); 
                ("RemoveAt", ["slot"; "member"]);
                ("Item", ["slot"; "member"; "prop"])]
+
+    [ for x in ocTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
+      |> shouldEqual
+              [(".ctor", ["member"]); 
+               (".ctor", ["member"]); 
+               (".ctor", ["member"]);
+               ("Move", ["member"]); 
+               ("add_CollectionChanged", ["slot"; "member"; "add"]);
+               ("remove_CollectionChanged", ["slot"; "member"; "remove"]);
+               ("ClearItems", ["slot"; "member"]); 
+               ("RemoveItem", ["slot"; "member"]);
+               ("InsertItem", ["slot"; "member"]); 
+               ("SetItem", ["slot"; "member"]);
+               ("MoveItem", ["slot"; "member"]); 
+               ("OnPropertyChanged", ["slot"; "member"]);
+               ("add_PropertyChanged", ["slot"; "member"; "add"]);
+               ("remove_PropertyChanged", ["slot"; "member"; "remove"]);
+               ("OnCollectionChanged", ["slot"; "member"]);
+               ("BlockReentrancy", ["member"]); 
+               ("CheckReentrancy", ["member"]);
+               ("CollectionChanged", ["slot"; "member"; "event"]);
+               ("PropertyChanged", ["slot"; "member"; "event"])]
 
     [ for x in alistTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
       |> shouldEqual

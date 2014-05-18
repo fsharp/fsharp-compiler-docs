@@ -392,11 +392,13 @@ let x = "F#"
 
     //---------------- Change the file by adding a line, then re-check everything --------------------
     
+    let wt0 = System.DateTime.Now
     let wt1 = File.GetLastWriteTime MultiProjectDirty1.fileName1
     printfn "Writing new content to file '%s'" MultiProjectDirty1.fileName1
     File.WriteAllText(MultiProjectDirty1.fileName1, System.Environment.NewLine + content)
     printfn "Wrote new content to file '%s'"  MultiProjectDirty1.fileName1
     let wt2 = File.GetLastWriteTime MultiProjectDirty1.fileName1
+    printfn "Current time: '%A', ticks = %d"  wt0 wt0.Ticks
     printfn "Old write time: '%A', ticks = %d"  wt1 wt1.Ticks
     printfn "New write time: '%A', ticks = %d"  wt2 wt2.Ticks
 

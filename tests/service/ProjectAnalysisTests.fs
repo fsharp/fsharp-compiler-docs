@@ -2911,9 +2911,9 @@ let ``Test Project22 IList contents`` () =
                ("RemoveAt", ["slot"; "member"]);
                ("Item", ["slot"; "member"; "prop"])]
 
-    [ for x in ocTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
+    set [ for x in ocTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
       |> shouldEqual
-              [(".ctor", ["member"]); 
+         (set [(".ctor", ["member"]); 
                (".ctor", ["member"]); 
                (".ctor", ["member"]);
                ("Move", ["member"]); 
@@ -2931,7 +2931,7 @@ let ``Test Project22 IList contents`` () =
                ("BlockReentrancy", ["member"]); 
                ("CheckReentrancy", ["member"]);
                ("CollectionChanged", ["slot"; "member"; "event"]);
-               ("PropertyChanged", ["slot"; "member"; "event"])]
+               ("PropertyChanged", ["slot"; "member"; "event"])])
 
     [ for x in alistTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
       |> shouldEqual

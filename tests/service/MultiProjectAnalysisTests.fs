@@ -391,7 +391,9 @@ let x = "F#"
 
     //---------------- Change the file by adding a line, then re-check everything --------------------
     
+    Console.WriteLine("Writing new content to file {0}", MultiProjectDirty1.fileName1)
     File.WriteAllText(MultiProjectDirty1.fileName1, System.Environment.NewLine + content)
+    Console.WriteLine("Wrote new content to file {0}", MultiProjectDirty1.fileName1)
 
 
     let wholeProjectResults1AfterChange1 = checker.ParseAndCheckProject(MultiProjectDirty1.getOptions()) |> Async.RunSynchronously

@@ -375,11 +375,13 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
     printfn "Symbol found. Checking symbol uses in another project..."
 
-    let wholeProjectResults2 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
+    let proj2options = MultiProjectDirty2.getOptions()
+
+    let wholeProjectResults2 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
     count.Value |> shouldEqual 2
     
-    let _ = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
+    let _ = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
     count.Value |> shouldEqual 2 // cached
 
@@ -413,9 +415,9 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
     printfn "Current time: '%A', ticks = %d"  wt0 wt0.Ticks
     printfn "Old write time: '%A', ticks = %d"  wt1 wt1.Ticks
     printfn "New write time: '%A', ticks = %d"  wt2 wt2.Ticks
+    System.Threading.Thread.Sleep(1000)
 
     let wholeProjectResults1AfterChange1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
-    System.Threading.Thread.Sleep(1000)
     count.Value |> shouldEqual 3
 
     let backgroundParseResults1AfterChange1, backgroundTypedParse1AfterChange1 = 
@@ -426,9 +428,12 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
     xSymbolUseAfterChange1.IsSome |> shouldEqual true  
     let xSymbolAfterChange1 = xSymbolUseAfterChange1.Value.Symbol
 
-    let wholeProjectResults2AfterChange1 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
 
+    printfn "Checking project 2 after first change, options = '%A'" proj2options
     System.Threading.Thread.Sleep(1000)
+
+    let wholeProjectResults2AfterChange1 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
+
     count.Value |> shouldEqual 4
 
     let usesOfXSymbolInProject1AfterChange1 = 
@@ -452,13 +457,19 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
     //---------------- Revert the change to the file --------------------
 
+    let wt0 = System.DateTime.Now
+    let wt1 = File.GetLastWriteTime MultiProjectDirty1.fileName1
     printfn "Writing old content to file '%s'" MultiProjectDirty1.fileName1
     File.WriteAllText(MultiProjectDirty1.fileName1, MultiProjectDirty1.content)
-    printfn "Wrote new content to file '%s'" MultiProjectDirty1.fileName1
+    printfn "Wrote old content to file '%s'"  MultiProjectDirty1.fileName1
+    let wt2 = File.GetLastWriteTime MultiProjectDirty1.fileName1
+    printfn "Current time: '%A', ticks = %d"  wt0 wt0.Ticks
+    printfn "Old write time: '%A', ticks = %d"  wt1 wt1.Ticks
+    printfn "New write time: '%A', ticks = %d"  wt2 wt2.Ticks
 
     count.Value |> shouldEqual 4
 
-    let wholeProjectResults2AfterChange2 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
+    let wholeProjectResults2AfterChange2 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
     System.Threading.Thread.Sleep(1000)
     count.Value |> shouldEqual 6 // note, causes two files to be type checked, one from each project

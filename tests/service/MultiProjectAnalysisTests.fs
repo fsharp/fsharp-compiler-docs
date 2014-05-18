@@ -398,7 +398,7 @@ let x = "F#"
 
     printfn "Project 1 options = '%A'" proj1options
     let wholeProjectResults1AfterChange1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
-
+    System.Threading.Thread.Sleep(1000)
     count.Value |> shouldEqual 3
 
     let backgroundParseResults1AfterChange1, backgroundTypedParse1AfterChange1 = 
@@ -411,6 +411,7 @@ let x = "F#"
 
     let wholeProjectResults2AfterChange1 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
 
+    System.Threading.Thread.Sleep(1000)
     count.Value |> shouldEqual 4
 
     let usesOfXSymbolInProject1AfterChange1 = 
@@ -442,6 +443,7 @@ let x = "F#"
 
     let wholeProjectResults2AfterChange2 = checker.ParseAndCheckProject(MultiProjectDirty2.getOptions()) |> Async.RunSynchronously
 
+    System.Threading.Thread.Sleep(1000)
     count.Value |> shouldEqual 6 // note, causes two files to be type checked, one from each project
 
 

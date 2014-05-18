@@ -298,10 +298,17 @@ let ``Test ManyProjectsStressTest all symbols`` () =
 module MultiProjectDirty1 = 
     open System.IO
 
-    let fileName1 = Path.Combine(__SOURCE_DIRECTORY__, "Project1.fs")
-    let dllName = Path.ChangeExtension(fileName1, ".dll")
-    let projFileName = Path.ChangeExtension(fileName1, ".fsproj")
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base1 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base1, ".dll")
+    let projFileName = Path.ChangeExtension(base1, ".fsproj")
+    let content = """module Project1
+
+let x = "F#"
+"""                   
     
+    File.WriteAllText(fileName1, content)
+
     let cleanFileName a = if a = fileName1 then "Project1" else "??"
 
     let fileNames = [fileName1]
@@ -313,11 +320,21 @@ module MultiProjectDirty1 =
 module MultiProjectDirty2 = 
     open System.IO
 
-    let fileName1 = Path.Combine(__SOURCE_DIRECTORY__, "Project2.fs")
 
-    let dllName = Path.ChangeExtension(fileName1, ".dll")
-    let projFileName = Path.ChangeExtension(fileName1, ".fsproj")
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base1 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base1, ".dll")
+    let projFileName = Path.ChangeExtension(base1, ".fsproj")
     
+    let content = """module Project2
+
+open Project1
+
+let y = x
+let z = Project1.x
+"""
+    File.WriteAllText(fileName1, content)
+
     let cleanFileName a = if a = fileName1 then "Project2" else "??"
 
     let fileNames = [fileName1]    
@@ -332,17 +349,12 @@ module MultiProjectDirty2 =
 [<Test>]
 let ``Test multi project symbols should pick up changes in dependent projects`` () = 
 
-    let content = """module Project1
-
-let x = "F#"
-"""                   
     //  register to count the file checks
     let count = ref 0
     checker.FileChecked.Add (fun _ -> incr count)
 
     //---------------- Write the first version of the file in project 1 and check the project --------------------
 
-    File.WriteAllText(MultiProjectDirty1.fileName1, content)
     let proj1options = MultiProjectDirty1.getOptions()
 
     let wholeProjectResults1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
@@ -395,7 +407,7 @@ let x = "F#"
     let wt0 = System.DateTime.Now
     let wt1 = File.GetLastWriteTime MultiProjectDirty1.fileName1
     printfn "Writing new content to file '%s'" MultiProjectDirty1.fileName1
-    File.WriteAllText(MultiProjectDirty1.fileName1, System.Environment.NewLine + content)
+    File.WriteAllText(MultiProjectDirty1.fileName1, System.Environment.NewLine + MultiProjectDirty1.content)
     printfn "Wrote new content to file '%s'"  MultiProjectDirty1.fileName1
     let wt2 = File.GetLastWriteTime MultiProjectDirty1.fileName1
     printfn "Current time: '%A', ticks = %d"  wt0 wt0.Ticks
@@ -441,7 +453,7 @@ let x = "F#"
     //---------------- Revert the change to the file --------------------
 
     printfn "Writing old content to file '%s'" MultiProjectDirty1.fileName1
-    File.WriteAllText(MultiProjectDirty1.fileName1, content)
+    File.WriteAllText(MultiProjectDirty1.fileName1, MultiProjectDirty1.content)
     printfn "Wrote new content to file '%s'" MultiProjectDirty1.fileName1
 
     count.Value |> shouldEqual 4

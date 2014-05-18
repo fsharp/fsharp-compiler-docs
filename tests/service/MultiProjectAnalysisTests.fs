@@ -343,13 +343,14 @@ let x = "F#"
     //---------------- Write the first version of the file in project 1 and check the project --------------------
 
     File.WriteAllText(MultiProjectDirty1.fileName1, content)
+    let proj1options = MultiProjectDirty1.getOptions()
 
-    let wholeProjectResults1 = checker.ParseAndCheckProject(MultiProjectDirty1.getOptions()) |> Async.RunSynchronously
+    let wholeProjectResults1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
 
     count.Value |> shouldEqual 1
 
     let backgroundParseResults1, backgroundTypedParse1 = 
-        checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, MultiProjectDirty1.getOptions()) 
+        checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, proj1options) 
         |> Async.RunSynchronously    
 
     count.Value |> shouldEqual 1
@@ -391,17 +392,17 @@ let x = "F#"
 
     //---------------- Change the file by adding a line, then re-check everything --------------------
     
-    Console.WriteLine("Writing new content to file {0}", MultiProjectDirty1.fileName1)
+    printfn "Writing new content to file '%s'" MultiProjectDirty1.fileName1
     File.WriteAllText(MultiProjectDirty1.fileName1, System.Environment.NewLine + content)
-    Console.WriteLine("Wrote new content to file {0}", MultiProjectDirty1.fileName1)
+    printfn "Wrote new content to file '%s'"  MultiProjectDirty1.fileName1
 
-
-    let wholeProjectResults1AfterChange1 = checker.ParseAndCheckProject(MultiProjectDirty1.getOptions()) |> Async.RunSynchronously
+    printfn "Project 1 options = '%A'" proj1options
+    let wholeProjectResults1AfterChange1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
 
     count.Value |> shouldEqual 3
 
     let backgroundParseResults1AfterChange1, backgroundTypedParse1AfterChange1 = 
-        checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, MultiProjectDirty1.getOptions()) 
+        checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, proj1options) 
         |> Async.RunSynchronously    
 
     let xSymbolUseAfterChange1 = backgroundTypedParse1AfterChange1.GetSymbolUseAtLocation(4, 4, "", ["x"]) |> Async.RunSynchronously
@@ -432,7 +433,10 @@ let x = "F#"
           ("val x", "Project2", ((6, 8), (6, 18)))|]
 
     //---------------- Revert the change to the file --------------------
+
+    printfn "Writing old content to file '%s'" MultiProjectDirty1.fileName1
     File.WriteAllText(MultiProjectDirty1.fileName1, content)
+    printfn "Wrote new content to file '%s'" MultiProjectDirty1.fileName1
 
     count.Value |> shouldEqual 4
 
@@ -441,12 +445,12 @@ let x = "F#"
     count.Value |> shouldEqual 6 // note, causes two files to be type checked, one from each project
 
 
-    let wholeProjectResults1AfterChange2 = checker.ParseAndCheckProject(MultiProjectDirty1.getOptions()) |> Async.RunSynchronously
+    let wholeProjectResults1AfterChange2 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
 
     count.Value |> shouldEqual 6 // the project is already checked
 
     let backgroundParseResults1AfterChange2, backgroundTypedParse1AfterChange2 = 
-        checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, MultiProjectDirty1.getOptions()) 
+        checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, proj1options) 
         |> Async.RunSynchronously    
 
     let xSymbolUseAfterChange2 = backgroundTypedParse1AfterChange2.GetSymbolUseAtLocation(4, 4, "", ["x"]) |> Async.RunSynchronously

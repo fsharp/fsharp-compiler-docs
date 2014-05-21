@@ -180,7 +180,7 @@ let main argv =
     0
   """  
 
-[<Test; Description("Tests that two identicle functions, one in a module and one nested in another function have the same CurriedParameterGroups count")>]
+[<Test; Ignore; Description("Tests that two identicle functions, one in a module and one nested in another function have the same CurriedParameterGroups count")>]
 let ``Nested Symbols test`` () = 
 
     let file = "/home/user/Test.fsx"

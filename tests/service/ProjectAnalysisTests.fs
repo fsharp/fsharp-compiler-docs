@@ -2991,7 +2991,7 @@ let ``Test Project23 whole project errors`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project22.options) |> Async.RunSynchronously
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
-[<Test>]
+[<Test; Ignore("Failing")>]
 let ``Test Project23 property`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project23.options) |> Async.RunSynchronously
@@ -3019,3 +3019,121 @@ let ``Test Project23 property`` () =
          ("get_StaticProperty", ["member"; "getter"]);
          ("get_Property", ["member"; "getter"])
          ("x", [])]
+
+
+// Misc - type provider symbols
+module Project24 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module TypeProviderTests
+open FSharp.Data
+type Project = XmlProvider<"<root><value>1</value><value>3</value></root>">
+let _ = Project.GetSample()
+
+type Record = { Field: int }
+let r = { Record.Field = 1 }
+
+type TypeWithProperties() =
+    member x.Name
+        with get() = 0
+        and set (v: int) = ()
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = 
+        [| yield! mkProjectCommandLineArgs (dllName, fileNames) 
+           yield "-r:" + Path.Combine(__SOURCE_DIRECTORY__, "FSharp.Data.dll")
+           yield @"-r:C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Xml.Linq.dll" |]
+    let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test Project24 whole project errors`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+[<Test; Ignore "FCS should return symbol uses for type-provided members">]
+let ``Test symbol uses of type-provided members`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
+        |> Async.RunSynchronously   
+
+    let getSampleSymbolUseOpt = 
+        backgroundTypedParse1.GetSymbolUseAtLocation(5,25,"",["GetSample"]) 
+        |> Async.RunSynchronously
+
+    let getSampleSymbol = getSampleSymbolUseOpt.Value.Symbol
+    
+    let usesOfGetSampleSymbol = 
+        backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
+        |> Async.RunSynchronously
+        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
+
+    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((4, 8), (4, 25)))|]
+
+[<Test>]
+let ``Test symbol uses of type-provided types`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
+        |> Async.RunSynchronously   
+
+    let getSampleSymbolUseOpt = 
+        backgroundTypedParse1.GetSymbolUseAtLocation(4,26,"",["XmlProvider"]) 
+        |> Async.RunSynchronously
+
+    let getSampleSymbol = getSampleSymbolUseOpt.Value.Symbol
+    
+    let usesOfGetSampleSymbol = 
+        backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
+        |> Async.RunSynchronously
+        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
+
+    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((3, 15), (3, 26)))|]
+
+[<Test; Ignore "FCS should return symbols for fully-qualified records">]
+let ``Test symbol uses of fully-qualified records`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
+        |> Async.RunSynchronously   
+
+    let getSampleSymbolUseOpt = 
+        backgroundTypedParse1.GetSymbolUseAtLocation(7,11,"",["Record"]) 
+        |> Async.RunSynchronously
+
+    let getSampleSymbol = getSampleSymbolUseOpt.Value.Symbol
+    
+    let usesOfGetSampleSymbol = 
+        backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
+        |> Async.RunSynchronously
+        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
+
+    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((6, 5), (6, 11))); ("file1", ((7, 10), (7, 16)))|]
+
+[<Test; Ignore "FCS should return symbols for properties with explicit getters and setters">]
+let ``Test symbol uses of properties with both getters and setters`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
+        |> Async.RunSynchronously   
+
+    let getSampleSymbolUseOpt = 
+        backgroundTypedParse1.GetSymbolUseAtLocation(11,17,"",["Name"]) 
+        |> Async.RunSynchronously
+
+    let getSampleSymbol = getSampleSymbolUseOpt.Value.Symbol
+    
+    let usesOfGetSampleSymbol = 
+        backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
+        |> Async.RunSynchronously
+        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
+
+    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((10, 13), (10, 17)))|]

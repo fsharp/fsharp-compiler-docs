@@ -106,6 +106,7 @@ module internal Utilities =
 
     let ignoreAllErrors f = try f() with _ -> ()
 
+let referencedAssemblies = Dictionary<string, DateTime>()
 
 //----------------------------------------------------------------------------
 // Timing support
@@ -627,16 +628,13 @@ type internal FsiCommandLineOptions(fsiConfig: FsiEvaluationSessionHostConfig, a
             CompilerOption("full-help", tagNone, OptionHelp (fun blocks -> displayHelpFsi tcConfigB blocks), None, None); // "Short form of --help");
         ]);
        PublicOptions(FSComp.SR.optsHelpBannerAdvanced(),
-        [CompilerOption("exec","", OptionUnit (fun () -> interact <- false), None,
-                                 Some (FSIstrings.SR.fsiExec()));
-         CompilerOption("gui", tagNone, OptionSwitch (fun flag -> gui <- (flag = On)),None,
-                                 Some (FSIstrings.SR.fsiGui()));
-         CompilerOption("quiet","", OptionUnit (fun () -> tcConfigB.noFeedback <- true), None,
-                                 Some (FSIstrings.SR.fsiQuiet()));     
+        [CompilerOption("exec",                 "", OptionUnit (fun () -> interact <- false), None, Some (FSIstrings.SR.fsiExec()));
+         CompilerOption("gui",                  tagNone, OptionSwitch(fun flag -> gui <- (flag = On)),None,Some (FSIstrings.SR.fsiGui()));
+         CompilerOption("quiet",                "", OptionUnit (fun () -> tcConfigB.noFeedback <- true), None,Some (FSIstrings.SR.fsiQuiet()));     
          (* Renamed --readline and --no-readline to --tabcompletion:+|- *)
-         CompilerOption("readline",tagNone, OptionSwitch (function flag -> enableConsoleKeyProcessing <- (flag = On)),None,
-                                 Some (FSIstrings.SR.fsiReadline()));
-         CompilerOption("quotations-debug", tagNone, OptionSwitch(fun switch -> tcConfigB.emitDebugInfoInQuotations <- switch = On), None, Some(FSIstrings.SR.fsiEmitDebugInfoInQuotations()))
+         CompilerOption("readline",             tagNone, OptionSwitch(fun flag -> enableConsoleKeyProcessing <- (flag = On)),           None, Some(FSIstrings.SR.fsiReadline()));
+         CompilerOption("quotations-debug",     tagNone, OptionSwitch(fun switch -> tcConfigB.emitDebugInfoInQuotations <- switch = On),None, Some(FSIstrings.SR.fsiEmitDebugInfoInQuotations()));
+         CompilerOption("shadowcopyreferences", tagNone, OptionSwitch(fun flag -> tcConfigB.shadowCopyReferences <- flag = On),         None, Some(FSIstrings.SR.shadowCopyReferences()));
         ]);
       ]
 
@@ -1769,9 +1767,21 @@ type internal FsiInteractionProcessor
             | IHash (ParsedHashDirective(("reference" | "r"),[path],m),_) -> 
                 let resolutions,istate = fsiDynamicCompiler.EvalRequireReference istate m path 
                 resolutions |> List.iter (fun ar -> 
-                    let format = if fsiOptions.IsInteractiveServer then FSIstrings.SR.fsiDidAHashrWithLockWarning(ar.resolvedPath) else FSIstrings.SR.fsiDidAHashr(ar.resolvedPath)
-                    fsiConsoleOutput.uprintnfnn "%s" format
-                    )
+                    let format = 
+                        if tcConfig.shadowCopyReferences then
+                            let resolvedPath = ar.resolvedPath.ToUpperInvariant()
+                            let fileTime = File.GetLastWriteTimeUtc(resolvedPath)
+                            match referencedAssemblies.TryGetValue(resolvedPath) with
+                            | false, _ -> 
+                                referencedAssemblies.Add(resolvedPath, fileTime)
+                                FSIstrings.SR.fsiDidAHashr(ar.resolvedPath)
+                            | true, time when time <> fileTime ->
+                                FSIstrings.SR.fsiDidAHashrWithStaleWarning(ar.resolvedPath)
+                            | _ ->
+                                FSIstrings.SR.fsiDidAHashr(ar.resolvedPath)
+                        else
+                            FSIstrings.SR.fsiDidAHashrWithLockWarning(ar.resolvedPath)
+                    fsiConsoleOutput.uprintnfnn "%s" format)
                 istate,Completed None
 
             | IHash (ParsedHashDirective("I",[path],m),_) -> 
@@ -2256,7 +2266,6 @@ let internal DriveFsiEventLoop (fsiConfig: FsiEvaluationSessionHostConfig, fsiCo
 
     runLoop()
 
-
 /// The primary type, representing a full F# Interactive session, reading from the given
 /// text input, writing to the given text output and error writers.
 type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:string[], inReader:TextReader, outWriter:TextWriter, errorWriter: TextWriter) = 
@@ -2290,7 +2299,8 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
     do if runningOnMono then enableConsoleColoring <- false 
 
     do SetUninitializedErrorLoggerFallback AssertFalseErrorLogger
-  
+    
+
     //----------------------------------------------------------------------------
     // tcConfig - build the initial config
     //----------------------------------------------------------------------------
@@ -2327,7 +2337,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 
     let fsiStdinSyphon = new FsiStdinSyphon(errorWriter)
     let fsiConsoleOutput = FsiConsoleOutput(tcConfigB, outWriter, errorWriter)
-    
+
     let errorLogger = ErrorLoggerThatStopsOnFirstError(tcConfigB, fsiStdinSyphon, fsiConsoleOutput)
 
     do InstallErrorLoggingOnThisThread errorLogger // FSI error logging on main thread.

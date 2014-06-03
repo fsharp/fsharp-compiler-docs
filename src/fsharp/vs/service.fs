@@ -46,11 +46,7 @@ open ItemDescriptionsImpl
 
 [<AutoOpen>]
 module EnvMisc =
-#if SILVERLIGHT
-    let GetEnvInteger e dflt = dflt
-#else
     let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
-#endif
     let getToolTipTextSize = GetEnvInteger "mFSharp_RecentForegroundTypeCheckCacheSize" 5
     let maxTypeCheckErrorsOutOfProjectContext = GetEnvInteger "mFSharp_MaxErrorsOutOfProjectContext" 3
     let braceMatchCacheSize = GetEnvInteger "mFSharp_BraceMatchCacheSize" 5

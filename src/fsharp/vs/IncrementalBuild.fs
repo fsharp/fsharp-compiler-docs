@@ -269,12 +269,8 @@ module internal IncrementalBuild =
                             
     /// Action timing
     module Time =     
-#if SILVERLIGHT
-        let Action<'T> taskname slot func : 'T =  func()
-#else
         let sw = new Stopwatch()
         let Action _taskname _slot func = func()            
-#endif
         
     /// Result of a particular action over the bound build tree
     [<NoEquality; NoComparison>]
@@ -1086,13 +1082,9 @@ module internal IncrementalFSharpBuild =
     /// to enable other requests to be serviced. Yielding means returning a continuation function
     /// (via an Eventually<_> value of case NotYetDone) that can be called as the next piece of work. 
     let maxTimeShareMilliseconds = 
-#if SILVERLIGHT
-        50L
-#else
         match System.Environment.GetEnvironmentVariable("mFSharp_MaxTimeShare") with 
         | null | "" -> 50L
         | s -> int64 s
-#endif
       
     /// Global service state
     type FrameworkImportsCacheKey = (*resolvedpath*)string list * string * (*ClrRoot*)string list* (*fsharpBinaries*)string

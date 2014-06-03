@@ -2960,3 +2960,62 @@ let ``Test Project22 IList properties`` () =
     attribsOfSymbol ilistTypeDefn |> shouldEqual ["interface"]
 
     ilistTypeDefn.Assembly.SimpleName |> shouldEqual "mscorlib"
+
+//-----------------------------------------------------------------------------------------
+// Misc - properties
+
+module Project23 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Impl
+
+type Class() =
+    static member StaticProperty = 1
+    member x.Property = 1
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test Project23 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project22.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+[<Test>]
+let ``Test Project23 property`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project23.options) |> Async.RunSynchronously
+    let allSymbolsUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+    
+    let classTypeUse = allSymbolsUses |> Array.find (fun su -> su.Symbol.DisplayName = "Class")
+    let classTypeDefn = classTypeUse.Symbol :?> FSharpEntity
+
+    [ for x in classTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
+      |> shouldEqual 
+           [(".ctor", ["member"; "ctor"])   
+            ("get_Property", ["member"; "getter"])
+            ("get_StaticProperty", ["member"; "getter"])
+            ("StaticProperty", ["member"; "prop"])
+            ("Property", ["member"; "prop"])]
+
+    allSymbolsUses 
+    |> Array.map (fun x -> x.Symbol)
+    |> Array.choose (function 
+        | :? FSharpMemberFunctionOrValue as f -> Some (f.LogicalName, attribsOfSymbol f)
+        | _ -> None)
+    |> Array.toList
+    |> shouldEqual 
+        [(".ctor", ["member"; "ctor"])
+         ("get_StaticProperty", ["member"; "getter"]);
+         ("get_Property", ["member"; "getter"])
+         ("x", [])]

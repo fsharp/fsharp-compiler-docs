@@ -28,9 +28,14 @@ open System.Collections.Generic
 let codeLabelOrder = ComparisonIdentity.Structural<ILCodeLabel>
 
 // Convert the output of convCustomAttr
+#if SILVERLIGHT
+let wrapCustomAttr setCustomAttr (cinfo, cinfoBuilder) =
+    setCustomAttr(cinfoBuilder cinfo)
+#else
 open Microsoft.FSharp.Compiler.AbstractIL.ILAsciiWriter 
 let wrapCustomAttr setCustomAttr (cinfo, bytes) =
     setCustomAttr(cinfo, bytes)
+#endif
 
 
 //----------------------------------------------------------------------------
@@ -41,7 +46,12 @@ let logRefEmitCalls = false
 
 type System.AppDomain with 
     member x.DefineDynamicAssemblyAndLog(asmName,flags,asmDir:string)  =
-        let asmB = x.DefineDynamicAssembly(asmName,flags,asmDir)
+#if SILVERLIGHT    
+        ignore asmDir
+        let asmB = x.DefineDynamicAssembly(asmName,flags) 
+#else
+        let asmB = x.DefineDynamicAssembly(asmName,flags,asmDir) 
+#endif
         if logRefEmitCalls then 
             printfn "open System"
             printfn "open System.Reflection"
@@ -51,8 +61,13 @@ type System.AppDomain with
         
 
 type System.Reflection.Emit.AssemblyBuilder with 
-    member asmB.DefineDynamicModuleAndLog(a,b,c) =  
+    member asmB.DefineDynamicModuleAndLog(a,b,c) =
+#if SILVERLIGHT  
+        ignore c
+        let modB = asmB.DefineDynamicModule(a,b)
+#else    
         let modB = asmB.DefineDynamicModule(a,b,c)
+#endif
         if logRefEmitCalls then printfn "let moduleBuilder%d = assemblyBuilder%d.DefineDynamicModule(%A,%A,%A)" (abs <| hash modB) (abs <| hash asmB) a b c
         modB
         
@@ -60,9 +75,12 @@ type System.Reflection.Emit.AssemblyBuilder with
         if logRefEmitCalls then printfn "assemblyBuilder%d.SetCustomAttribute(%A, %A)" (abs <| hash asmB) cinfo bytes
         wrapCustomAttr asmB.SetCustomAttribute (cinfo, bytes)
 
+#if SILVERLIGHT
+#else
     member asmB.AddResourceFileAndLog(nm1, nm2, attrs)        = 
         if logRefEmitCalls then printfn "assemblyBuilder%d.AddResourceFile(%A, %A, enum %d)" (abs <| hash asmB) nm1 nm2 (LanguagePrimitives.EnumToValue attrs)
         asmB.AddResourceFile(nm1,nm2,attrs)
+#endif
 
     member asmB.SetCustomAttributeAndLog(cab)        = 
         if logRefEmitCalls then printfn "assemblyBuilder%d.SetCustomAttribute(%A)" (abs <| hash asmB) cab
@@ -90,7 +108,11 @@ type System.Reflection.Emit.ModuleBuilder with
         
     member modB.DefineManifestResourceAndLog(name,stream,attrs) =
         if logRefEmitCalls then printfn "moduleBuilder%d.DefineManifestResource(%A,%A,enum %d)" (abs <| hash modB) name stream (LanguagePrimitives.EnumToValue attrs)
+#if SILVERLIGHT
+        // Annoyingly, DefineManifestResource is security critical on Silverlight
+#else
         modB.DefineManifestResource(name,stream,attrs)
+#endif
         
     member modB.SetCustomAttributeAndLog(cinfo,bytes)        = 
         if logRefEmitCalls then printfn "moduleBuilder%d.SetCustomAttribute(%A, %A)" (abs <| hash modB) cinfo bytes
@@ -189,8 +211,12 @@ type System.Reflection.Emit.TypeBuilder with
         typB.AddInterfaceImplementation(ty)
 
     member typB.InvokeMemberAndLog(nm,flags,args)        = 
-        if logRefEmitCalls then printfn "typeBuilder%d.InvokeMember(\"%s\",enum %d,null,null,%A,Globalization.CultureInfo.InvariantCulture)" (abs <| hash typB) nm (LanguagePrimitives.EnumToValue flags) args     
+        if logRefEmitCalls then printfn "typeBuilder%d.InvokeMember(\"%s\",enum %d,null,null,%A,Globalization.CultureInfo.InvariantCulture)" (abs <| hash typB) nm (LanguagePrimitives.EnumToValue flags) args
+#if SILVERLIGHT
+        typB.InvokeMember(nm,flags,null,null,args)
+#else        
         typB.InvokeMember(nm,flags,null,null,args,Globalization.CultureInfo.InvariantCulture)
+#endif        
 
     member typB.SetCustomAttributeAndLog(cinfo,bytes)        = 
         if logRefEmitCalls then printfn "typeBuilder%d.SetCustomAttribute(%A, %A)" (abs <| hash typB) cinfo bytes
@@ -346,9 +372,12 @@ let getTRefType (cenv:cenv) (tref:ILTypeRef) =
     match tref.Scope with
     | ILScopeRef.Assembly asmref ->
         let assembly = 
-            match cenv.resolvePath asmref with                     
+            match cenv.resolvePath asmref with
+#if SILVERLIGHT
+#else                        
             | Some (Choice1Of2 path) ->
-                FileSystem.AssemblyLoadFrom(path)              
+                FileSystem.AssemblyLoadFrom(path)
+#endif                
             | Some (Choice2Of2 assembly) ->
                 assembly
             | None ->
@@ -407,6 +436,8 @@ let envUpdateCreatedTypeRef emEnv (tref:ILTypeRef) =
     let typT,typB,typeDef,_createdTypOpt = Zmap.force tref emEnv.emTypMap "envGetTypeDef: failed"
     if typB.IsCreated() then
         let typ = typB.CreateTypeAndLog()
+#if SILVERLIGHT
+#else
         // Bug DevDev2 40395: Mono 2.6 and 2.8 has a bug where executing code that includes an array type
         // match "match x with :? C[] -> ..." before the full loading of an object of type
         // causes a failure when C is later loaded. One workaround for this is to attempt to do a fake allocation
@@ -417,6 +448,7 @@ let envUpdateCreatedTypeRef emEnv (tref:ILTypeRef) =
             try 
               System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typ) |> ignore
             with e -> ()
+#endif
 
         {emEnv with emTypMap = Zmap.add tref (typT,typB,typeDef,Some typ) emEnv.emTypMap}
     else
@@ -593,6 +625,35 @@ let convFieldInit x =
     | ILFieldInit.Single ieee32 -> box ieee32 
     | ILFieldInit.Double ieee64 -> box ieee64 
     | ILFieldInit.Null            -> (null :> Object)
+
+#if SILVERLIGHT
+//----------------------------------------------------------------------------
+// convAttribElem
+//----------------------------------------------------------------------------
+
+let rec convAttribElem cenv emEnv = function
+    | ILAttribElem.String (Some x)  -> box x
+    | ILAttribElem.String None      -> null
+    | ILAttribElem.Bool x           -> box x
+    | ILAttribElem.Char x           -> box x
+    | ILAttribElem.SByte x          -> box x
+    | ILAttribElem.Int16 x          -> box x
+    | ILAttribElem.Int32 x          -> box x
+    | ILAttribElem.Int64 x          -> box x
+    | ILAttribElem.Byte x           -> box x
+    | ILAttribElem.UInt16 x         -> box x
+    | ILAttribElem.UInt32 x         -> box x
+    | ILAttribElem.UInt64 x         -> box x
+    | ILAttribElem.Single x         -> box x
+    | ILAttribElem.Double x         -> box x
+    | ILAttribElem.Null             -> null
+    | ILAttribElem.Type (Some t)    -> box <| convCreatedType cenv emEnv t
+    | ILAttribElem.Type None        -> null
+    | ILAttribElem.TypeRef (Some t) -> box <| envGetTypT cenv emEnv true t
+    | ILAttribElem.TypeRef None     -> null
+    | ILAttribElem.Array (_, a)     -> box [| for i in a -> convAttribElem cenv emEnv i |]
+
+#endif
 
 //----------------------------------------------------------------------------
 // Some types require hard work...
@@ -840,8 +901,14 @@ let emitInstrNewobj cenv emEnv (ilG:ILGenerator) mspec varargs =
     | Some _vartyps -> failwith "emit: pending new varargs" // XXX - gap
 
 let emitSilverlightCheck (ilG:ILGenerator) =
+#if SILVERLIGHT
+    if Microsoft.FSharp.Silverlight.EmitInterruptChecks then
+        let methWL = typeof<Microsoft.FSharp.Silverlight>.GetMethod("CheckInterrupt", BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.NonPublic, null, [||], null)
+        ilG.EmitCall(OpCodes.Call, methWL, [||])
+#else
     ignore ilG
     ()
+#endif
 
 let emitInstrCall cenv emEnv (ilG:ILGenerator) opCall tail (mspec:ILMethodSpec) varargs =
     emitInstrTail ilG tail (fun () ->
@@ -852,6 +919,16 @@ let emitInstrCall cenv emEnv (ilG:ILGenerator) opCall tail (mspec:ILMethodSpec) 
             | Some _vartyps -> failwith "emitInstrCall: .ctor and varargs"
         else
             let minfo = convMethodSpec cenv emEnv mspec
+#if SILVERLIGHT
+            // When generating code for silverlight, we intercept direct 
+            // calls to System.Console.WriteLine.
+            let fullName = minfo.DeclaringType.FullName + "." + minfo.Name
+            let minfo =
+              if fullName = "System.Console.WriteLine" || fullName = "System.Console.Write" then
+                  let args = minfo.GetParameters() |> Array.map (fun x -> x.ParameterType)
+                  typeof<Microsoft.FSharp.Silverlight>.GetMethod(minfo.Name, BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.NonPublic, null, args, null)
+              else minfo
+#endif
             match varargs with
             | None         -> ilG.EmitAndLog(opCall,minfo)
             | Some vartyps -> ilG.EmitCall (opCall,minfo,convTypesToArray cenv emEnv vartyps)
@@ -1022,7 +1099,12 @@ let rec emitInstr cenv (modB : ModuleBuilder) emEnv (ilG:ILGenerator) instr =
     | I_callvirt       (tail,mspec,varargs)   -> emitSilverlightCheck ilG
                                                  emitInstrCall cenv emEnv ilG OpCodes.Callvirt tail mspec varargs
     | I_callconstraint (tail,typ,mspec,varargs) -> ilG.Emit(OpCodes.Constrained,convType cenv emEnv typ); 
-                                                   emitInstrCall cenv emEnv ilG OpCodes.Callvirt tail mspec varargs                                                     
+                                                   emitInstrCall cenv emEnv ilG OpCodes.Callvirt tail mspec varargs   
+#if SILVERLIGHT                                                   
+    | I_calli (tail,_callsig,None)             -> emitInstrTail ilG tail (fun () -> ())
+    | I_calli (tail,_callsig,Some _vartyps)     -> emitInstrTail ilG tail (fun () -> ())
+#else    
+                                                   
     | I_calli (tail,callsig,None)             -> emitInstrTail ilG tail (fun () ->
                                                    ilG.EmitCalli(OpCodes.Calli,
                                                                  convCallConv callsig.CallingConv,
@@ -1034,7 +1116,8 @@ let rec emitInstr cenv (modB : ModuleBuilder) emEnv (ilG:ILGenerator) instr =
                                                                  convCallConv callsig.CallingConv,
                                                                  convType cenv emEnv callsig.ReturnType,
                                                                  convTypesToArray cenv emEnv callsig.ArgTypes,
-                                                                 convTypesToArray cenv emEnv vartyps))                                                                
+                                                                 convTypesToArray cenv emEnv vartyps))
+#endif                                                                 
     | I_ldftn mspec                           -> ilG.EmitAndLog(OpCodes.Ldftn,convMethodSpec cenv emEnv mspec)
     | I_newobj (mspec,varargs)                -> emitInstrNewobj cenv emEnv ilG mspec varargs
     | I_throw                        -> ilG.EmitAndLog(OpCodes.Throw)
@@ -1277,7 +1360,24 @@ let convCustomAttr cenv emEnv cattr =
        match convConstructorSpec cenv emEnv cattr.Method with 
        | null -> failwithf "convCustomAttr: %+A" cattr.Method
        | res -> res
+// In Silverlight, we cannot use the byte[] data to generate attributes (security restriction).
+// Instead, we return a function which creates a CustomAttributeBuilder to be used for SetCustomAttributes.
+#if SILVERLIGHT
+    let ty : System.Type = convType cenv emEnv cattr.Method.EnclosingType
+    let convAttrArray arr = [|for i in arr -> convAttribElem cenv emEnv i|]
+
+    let fixedArgs, namedArgs = cattr.Arguments
+    let prop, fields = List.partition (fun (_, _, isProp, _) -> isProp) namedArgs
+    let prop = prop |> List.map (fun (name, _, _, value) -> ty.GetProperty(name), value) |> List.toArray
+    let fields = fields |> List.map (fun (name, _, _, value) -> ty.GetField(name), value) |> List.toArray
+
+    let data (cinfo: ConstructorInfo) =
+        CustomAttributeBuilder(cinfo, convAttrArray fixedArgs,
+                               Array.map fst prop,   convAttrArray (Array.map snd prop),
+                               Array.map fst fields, convAttrArray (Array.map snd fields))
+#else
     let data = cattr.Data 
+#endif
     (methInfo,data)
 
 let emitCustomAttr cenv emEnv add cattr  = add (convCustomAttr cenv emEnv cattr)
@@ -1437,6 +1537,9 @@ let rec buildMethodPass2 cenv tref (typB:TypeBuilder) emEnv (mdef : ILMethodDef)
 (* p.CharBestFit *)
 (* p.NoMangle *)
 
+#if SILVERLIGHT
+        failwith "PInvoke methods may not be defined when targeting Silverlight via System.Reflection.Emit"
+#else
         let methB = typB.DefinePInvokeMethod(mdef.Name, 
                                              p.Where.Name, 
                                              p.Name, 
@@ -1450,6 +1553,7 @@ let rec buildMethodPass2 cenv tref (typB:TypeBuilder) emEnv (mdef : ILMethodDef)
                                              pcs) 
         methB.SetImplementationFlagsAndLog(implflags);
         envBindMethodRef emEnv mref methB
+#endif
 
     | _ -> 
       match mdef.Name with
@@ -1543,9 +1647,12 @@ let buildFieldPass2 cenv tref (typB:TypeBuilder) emEnv (fdef : ILFieldDef) =
     let attrs = attrsAccess ||| attrsOther
     let fieldT = convType cenv emEnv  fdef.Type
     let fieldB = 
+#if SILVERLIGHT
+#else
         match fdef.Data with 
         | Some d -> typB.DefineInitializedData(fdef.Name, d, attrs)
         | None -> 
+#endif
         typB.DefineFieldAndLog(fdef.Name,fieldT,attrs)
      
     // set default value
@@ -1566,7 +1673,10 @@ let buildFieldPass2 cenv tref (typB:TypeBuilder) emEnv (fdef : ILFieldDef) =
                 // => here we cannot detect if underlying type is already set so as a conservative solution we delay initialization of fields
                 // to the end of pass2 (types and members are already created but method bodies are yet not emitted)
                 { emEnv with delayedFieldInits = (fun() -> fieldB.SetConstant(convFieldInit initial))::emEnv.delayedFieldInits }
+#if SILVERLIGHT
+#else
     fdef.Offset |> Option.iter (fun offset ->  fieldB.SetOffset(offset));
+#endif
     // custom attributes: done on pass 3 as they may reference attribute constructors generated on
     // pass 2.
     let fref = mkILFieldRef (tref,fdef.Name,fdef.Type)    
@@ -1871,7 +1981,10 @@ let createTypeRef (visited : Dictionary<_,_>, created : Dictionary<_,_>) emEnv t
         if not (visited.ContainsKey(tref)) || visited.[tref] > priority then 
             visited.[tref] <- priority;
             let tdef = envGetTypeDef emEnv tref
-            if verbose2 then dprintf "- traversing type %s\n" typB.FullName;        
+            if verbose2 then dprintf "- traversing type %s\n" typB.FullName;
+#if SILVERLIGHT
+            traverseTypeDef priority tref tdef;
+#else            
             let typeCreationHandler =
                 let nestingToProbe = tref.Enclosing 
                 ResolveEventHandler(
@@ -1889,7 +2002,8 @@ let createTypeRef (visited : Dictionary<_,_>, created : Dictionary<_,_>) emEnv t
             try
                 traverseTypeDef priority tref tdef;
             finally
-               System.AppDomain.CurrentDomain.remove_TypeResolve typeCreationHandler           
+               System.AppDomain.CurrentDomain.remove_TypeResolve typeCreationHandler
+#endif               
             if not (created.ContainsKey(tref)) then 
                 created.[tref] <- true;   
                 if verbose2 then dprintf "- creating type %s\n" typB.FullName;
@@ -1947,7 +2061,11 @@ let buildModuleFragment cenv emEnv (asmB : AssemblyBuilder) (modB : ModuleBuilde
         | ILResourceLocation.Local bf -> 
             modB.DefineManifestResourceAndLog(r.Name, new System.IO.MemoryStream(bf()), attribs)
         | ILResourceLocation.File (mr,_n) -> 
+#if SILVERLIGHT
+           ()
+#else
            asmB.AddResourceFileAndLog(r.Name, mr.Name, attribs)
+#endif
         | ILResourceLocation.Assembly _ -> 
            failwith "references to resources other assemblies may not be emitted using System.Reflection");
     emEnv
@@ -1958,7 +2076,14 @@ let buildModuleFragment cenv emEnv (asmB : AssemblyBuilder) (modB : ModuleBuilde
 
 let mkDynamicAssemblyAndModule (assemblyName, optimize, debugInfo) =
     let filename = assemblyName ^ ".dll"
-    let currentDom  = System.AppDomain.CurrentDomain   
+    let currentDom  = System.AppDomain.CurrentDomain
+#if SILVERLIGHT
+    ignore optimize
+    let asmName = new AssemblyName()
+    asmName.Name <- assemblyName;
+    let asmB = currentDom.DefineDynamicAssembly(asmName,AssemblyBuilderAccess.Run)
+    let modB = asmB.DefineDynamicModule(filename,debugInfo)     
+#else       
     let asmDir  = "."
     let asmName = new AssemblyName()
     asmName.Name <- assemblyName;
@@ -1970,7 +2095,12 @@ let mkDynamicAssemblyAndModule (assemblyName, optimize, debugInfo) =
         asmB.SetCustomAttributeAndLog(daBuilder);
     
     let modB = asmB.DefineDynamicModuleAndLog(assemblyName,filename,debugInfo)
+#endif    
     asmB,modB
+
+#if SILVERLIGHT
+type EntryDelegate = delegate of unit -> unit 
+#endif
 
 let emitModuleFragment (ilg, emEnv, asmB : AssemblyBuilder, modB : ModuleBuilder, modul : IL.ILModuleDef, debugInfo : bool, resolvePath) =
     let cenv = { ilg = ilg ; generatePdb = debugInfo; resolvePath=resolvePath }
@@ -1983,8 +2113,19 @@ let emitModuleFragment (ilg, emEnv, asmB : AssemblyBuilder, modB : ModuleBuilder
        emitCustomAttrs cenv emEnv asmB.SetCustomAttributeAndLog mani.CustomAttrs;    
     // invoke entry point methods
     let execEntryPtFun ((typB : TypeBuilder),methodName) () =
-      try        
-        ignore (typB.InvokeMemberAndLog(methodName,BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.Static,[| |]));       
+      try 
+#if SILVERLIGHT
+        let mi = typB.GetMethod(methodName, BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.Static)
+        System.Diagnostics.Debug.WriteLine("mi: {0}", string(mi.ToString()))
+        let dm = DynamicMethod((methodName+"dm"),null,null)
+        let ilg = dm.GetILGenerator();
+        ilg.EmitCall(OpCodes.Call,mi,null)
+        ilg.Emit(OpCodes.Ret)
+        let invokedm = dm.CreateDelegate(typeof<EntryDelegate>)
+        invokedm.DynamicInvoke(null) |> ignore
+#else          
+        ignore (typB.InvokeMemberAndLog(methodName,BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.Static,[| |]));
+#endif        
         None
       with 
          | :? System.Reflection.TargetInvocationException as e ->

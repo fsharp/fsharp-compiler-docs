@@ -597,7 +597,28 @@ module Eventually =
 
     let force e = Option.get (forceWhile (fun () -> true) e)
         
-    /// Keep running the computation bit by bit until a time limit is reached. 
+    /// Keep running the computation bit by bit until a time limit is reached.
+#if SILVERLIGHT
+    // There is no Stopwatch on Silverlight, so use DateTime.Now. I'm not sure of the pros and cons of this.
+    // An alternative is just to always force the computation all the way to the end.
+    //let repeatedlyProgressUntilDoneOrTimeShareOver _timeShareInMilliseconds runner e = 
+    //    Done (runner (fun () -> force e))
+    let repeatedlyProgressUntilDoneOrTimeShareOver (timeShareInMilliseconds:int64) runner e = 
+        let rec runTimeShare e = 
+          runner (fun () -> 
+            let sw = System.DateTime.Now
+            let rec loop e = 
+                match e with 
+                | Done _ -> e
+                | NotYetDone (work) -> 
+                    let ts = System.DateTime.Now - sw 
+                    if ts.TotalMilliseconds > float timeShareInMilliseconds then 
+                        NotYetDone(fun () -> runTimeShare e) 
+                    else 
+                        loop(work())
+            loop e)
+        runTimeShare e
+#else    
     /// The runner gets called each time the computation is restarted
     let repeatedlyProgressUntilDoneOrTimeShareOver timeShareInMilliseconds runner e = 
         let sw = new System.Diagnostics.Stopwatch() 
@@ -616,6 +637,7 @@ module Eventually =
                         loop(work())
             loop(e))
         runTimeShare e
+#endif
 
     let rec bind k e = 
         match e with 
@@ -1054,6 +1076,10 @@ module Shim =
 #endif
 
     type System.Text.Encoding with 
-        static member GetEncodingShim(n:int) =             
-                System.Text.Encoding.GetEncoding(n)           
+        static member GetEncodingShim(n:int) = 
+#if SILVERLIGHT
+                System.Text.Encoding.GetEncoding(n.ToString())
+#else                
+                System.Text.Encoding.GetEncoding(n)
+#endif                
 

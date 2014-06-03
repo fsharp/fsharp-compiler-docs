@@ -2083,9 +2083,12 @@ type TcConfigBuilder =
 
 
     static member CreateNew (defaultFSharpBinariesDir,optimizeForMemory,implicitIncludeDir,isInteractive,isInvalidationSupported) =
+#if SILVERLIGHT
+#else    
         System.Diagnostics.Debug.Assert(FileSystem.IsPathRootedShim(implicitIncludeDir), sprintf "implicitIncludeDir should be absolute: '%s'" implicitIncludeDir)
         if (String.IsNullOrEmpty(defaultFSharpBinariesDir)) then 
             failwith "Expected a valid defaultFSharpBinariesDir"
+#endif
         { primaryAssembly = PrimaryAssembly.Mscorlib; // defaut value, can be overridden using the command line switch
           light = None;
           noFeedback=false;
@@ -2376,12 +2379,16 @@ let OpenILBinary(filename,optimizeForMemory,openBinariesInMemory,ilGlobalsOpt, p
         let location =
           // In order to use memory mapped files on the shadow copied version of the Assembly, we `preload the assembly
           // We swallow all exceptions so that we do not change the exception contract of this API
+#if SILVERLIGHT
+          filename
+#else
           if shadowCopyReferences then 
             try
               System.Reflection.Assembly.ReflectionOnlyLoadFrom(filename).Location
             with e -> filename
           else
             filename
+#endif
         ILBinaryReader.OpenILModuleReader location opts
 
 #if DEBUG

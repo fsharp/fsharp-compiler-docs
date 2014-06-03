@@ -28,7 +28,10 @@ module internal MSBuildResolver =
             
     type ResolutionEnvironment = CompileTimeLike | RuntimeLike | DesigntimeLike
     
-
+#if SILVERLIGHT
+    let HighestInstalledNetFrameworkVersionMajorMinor() =
+        4,"v5.0"
+#else
     open System
     open System.Reflection
     open Microsoft.Build.Tasks
@@ -460,3 +463,5 @@ module internal MSBuildResolver =
             referenceCopyLocalPaths = set rootedResults.referenceCopyLocalPaths |> Set.union (set unrootedResults.referenceCopyLocalPaths) |> Set.toArray 
             suggestedBindingRedirects = set rootedResults.suggestedBindingRedirects |> Set.union (set unrootedResults.suggestedBindingRedirects) |> Set.toArray 
         }
+
+#endif

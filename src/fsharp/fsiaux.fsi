@@ -67,3 +67,7 @@ module RuntimeHelpers =
     val internal GetSavedIt : unit -> obj
     val internal GetSavedItType : unit -> System.Type
 (*    val openPaths : unit -> string[] *)
+
+#if SILVERLIGHT
+    val GetSimpleEventLoop : unit -> IEventLoop
+#endif

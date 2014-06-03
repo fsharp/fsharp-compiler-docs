@@ -1766,6 +1766,8 @@ type internal FsiInteractionProcessor
 
             | IHash (ParsedHashDirective(("reference" | "r"),[path],m),_) -> 
                 let resolutions,istate = fsiDynamicCompiler.EvalRequireReference istate m path 
+#if SILVERLIGHT
+#else
                 resolutions |> List.iter (fun ar -> 
                     let format = 
                         if tcConfig.shadowCopyReferences then
@@ -1782,6 +1784,7 @@ type internal FsiInteractionProcessor
                         else
                             FSIstrings.SR.fsiDidAHashrWithLockWarning(ar.resolvedPath)
                     fsiConsoleOutput.uprintnfnn "%s" format)
+#endif
                 istate,Completed None
 
             | IHash (ParsedHashDirective("I",[path],m),_) -> 

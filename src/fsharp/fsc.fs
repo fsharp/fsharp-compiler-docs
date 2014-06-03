@@ -1850,7 +1850,7 @@ let expandFileNameIfNeeded (tcConfig : TcConfig) name =
 [<NoEquality; NoComparison>]
 type Args<'a> = Args  of 'a
 
-let main0(argv,bannerAlreadyPrinted,openBinariesInMemory,exiter:Exiter, errorLoggerProvider : ErrorLoggerProvider, disposables : DelayedDisposables) = 
+let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, errorLoggerProvider : ErrorLoggerProvider, disposables : DelayedDisposables) = 
 
     // See Bug 735819 
     let lcidFromCodePage = 

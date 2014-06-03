@@ -1021,7 +1021,10 @@ type ILAttributeNamedArg = string * ILType * bool * ILAttribElem
 /// Custom attributes.  See 'decodeILAttribData' for a helper to parse the byte[] 
 /// to ILAttribElem's as best as possible.  
 type ILAttribute =
-    { Method: ILMethodSpec;
+    { Method: ILMethodSpec;  
+#if SILVERLIGHT
+      Arguments: ILAttribElem list * ILAttributeNamedArg list
+#endif
       Data: byte[] }
 
 [<NoEquality; NoComparison; Sealed>]

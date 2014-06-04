@@ -730,6 +730,8 @@ module internal ExtensionTyping =
         member __.IsFamilyAndAssembly = x.IsFamilyAndAssembly
         override __.Equals y = assert false; match y with :? ProvidedFieldInfo as y -> x.Equals y.Handle | _ -> false
         override __.GetHashCode() = assert false; x.GetHashCode()
+        static member TaintedEquals (pt1:Tainted<ProvidedFieldInfo>, pt2:Tainted<ProvidedFieldInfo>) = 
+           Tainted.EqTainted (pt1.PApplyNoFailure(fun st -> st.Handle)) (pt2.PApplyNoFailure(fun st -> st.Handle))
 
     and [<AllowNullLiteral; Sealed>] 
         ProvidedMethodInfo private (x: System.Reflection.MethodInfo, ctxt) = 

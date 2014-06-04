@@ -1445,6 +1445,14 @@ type ILFieldInfo =
         | ProvidedField(amap,fi,m) -> Import.ImportProvidedType amap m (fi.PApply((fun fi -> fi.FieldType),m))
 #endif
 
+    static member ILFieldInfosUseIdenticalDefinitions x1 x2 = 
+        match x1,x2 with 
+        | ILFieldInfo(_, x1), ILFieldInfo(_, x2) -> (x1 === x2)
+#if EXTENSIONTYPING
+        | ProvidedField(_,fi1,_), ProvidedField(_,fi2,_)-> ProvidedFieldInfo.TaintedEquals (fi1, fi2) 
+#endif
+        | _ -> false
+
      /// Get an (uninstantiated) reference to the field as an Abstract IL ILFieldRef
     member x.ILFieldRef = rescopeILFieldRef x.ScopeRef (mkILFieldRef(x.ILTypeRef,x.FieldName,x.ILFieldType))
     override x.ToString() =  x.FieldName

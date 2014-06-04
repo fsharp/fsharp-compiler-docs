@@ -468,6 +468,13 @@ type Entity =
     /// The display name of the namespace, module or type, e.g. List instead of List`1, including static parameters if any
     member x.DisplayNameWithStaticParameters = x.GetDisplayName(true, false)
 
+#if EXTENSIONTYPING
+    member x.IsStaticInstantiationTycon = 
+        x.IsProvidedErasedTycon &&
+            let _nm,args = PrettyNaming.demangleProvidedTypeName x.LogicalName
+            args.Length > 0 
+#endif
+
     member x.GetDisplayName(withStaticParameters, withUnderscoreTypars) = 
         let nm = x.LogicalName
 #if EXTENSIONTYPING
@@ -2647,6 +2654,8 @@ and
     member x.IsProvidedNamespace      = x.Deref.IsProvidedNamespace
     /// Indicates if the entity is an erased provided type definition
     member x.IsProvidedErasedTycon    = x.Deref.IsProvidedErasedTycon
+    /// Indicates if the entity is an erased provided type definition that incorporates a static instantiation (and therefore in some sense compiler generated)
+    member x.IsStaticInstantiationTycon    = x.Deref.IsStaticInstantiationTycon
     /// Indicates if the entity is a generated provided type definition, i.e. not erased.
     member x.IsProvidedGeneratedTycon = x.Deref.IsProvidedGeneratedTycon
 #endif

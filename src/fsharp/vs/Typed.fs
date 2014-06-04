@@ -171,6 +171,10 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
         isResolved() &&
         entity.IsStructOrEnumTycon 
 
+    member x.IsArrayType  = 
+        isResolved() &&
+        isArrayTyconRef g entity
+
     member __.IsProvided  = 
         isResolved() &&
         entity.IsProvided
@@ -178,6 +182,10 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
     member __.IsProvidedAndErased  = 
         isResolved() &&
         entity.IsProvidedErasedTycon
+
+    member __.IsStaticInstantiation  = 
+        isResolved() &&
+        entity.IsStaticInstantiationTycon
 
     member __.IsProvidedAndGenerated  = 
         isResolved() &&
@@ -943,6 +951,10 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             let propName = PrettyNaming.ChopPropertyName(m.LogicalName) 
             let amap = tcImports.GetImportMap() 
             nonNil (GetImmediateIntrinsicPropInfosOfType(Some propName, AccessibleFromSomeFSharpCode) g amap range0 (generalizedTyconRef m.DeclaringEntityRef))
+        | V v -> 
+            match v.MemberInfo with 
+            | None -> false 
+            | Some memInfo -> memInfo.MemberFlags.MemberKind = MemberKind.PropertyGet
         | _ -> false
 
     member __.IsPropertySetterMethod = 
@@ -953,6 +965,10 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             let propName = PrettyNaming.ChopPropertyName(m.LogicalName) 
             let amap = tcImports.GetImportMap() 
             nonNil (GetImmediateIntrinsicPropInfosOfType(Some propName, AccessibleFromSomeFSharpCode) g amap range0 (generalizedTyconRef m.DeclaringEntityRef))
+        | V v -> 
+            match v.MemberInfo with 
+            | None -> false 
+            | Some memInfo -> memInfo.MemberFlags.MemberKind = MemberKind.PropertySet
         | _ -> false
 
     member __.IsInstanceMember = 

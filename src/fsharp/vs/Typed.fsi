@@ -130,6 +130,12 @@ and [<Class>] FSharpEntity =
     /// Indicates if the entity is a struct or enum
     member IsValueType : bool
 
+    /// Indicates if the entity is an array type
+    member IsArrayType : bool
+
+    /// Indicates if the entity is a 'fake' symbol related to a static instantiation of a type provider
+    member IsStaticInstantiation : bool
+
     /// Indicates if the entity is a provided type
     member IsProvided : bool
 

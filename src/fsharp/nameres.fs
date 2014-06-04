@@ -1103,22 +1103,22 @@ let (|ValRefOfProp|_|) (pi : PropInfo) = pi.ArbitraryValRef
 let (|ValRefOfMeth|_|) (mi : MethInfo) = mi.ArbitraryValRef
 let (|ValRefOfEvent|_|) (evt : EventInfo) = evt.ArbitraryValRef
 
-let rec (|RecordFieldItem|_|) (item : Item) = 
+let rec (|RecordFieldUse|_|) (item : Item) = 
     match item with
     | Item.RecdField(RecdFieldInfo(_, RFRef(tcref, name))) -> Some (name, tcref)
-    | Item.SetterArg(_, RecordFieldItem(f)) -> Some(f)
+    | Item.SetterArg(_, RecordFieldUse(f)) -> Some(f)
     | _ -> None
 
 let rec (|ILFieldUse|_|) (item : Item) = 
     match item with
-    | Item.ILField(ILFieldInfo(_, f)) -> Some(f)
+    | Item.ILField(finfo) -> Some(finfo)
     | Item.SetterArg(_, ILFieldUse(f)) -> Some(f)
     | _ -> None
 
-let rec (|ILPropertyUse|_|) (item : Item) = 
+let rec (|PropertyUse|_|) (item : Item) = 
     match item with
-    | Item.Property(_, ILProp(_, ILPropInfo(_ty, propDef))::_) -> Some(propDef)
-    | Item.SetterArg(_, ILPropertyUse(propDef)) -> Some(propDef)
+    | Item.Property(_, pinfo::_) -> Some(pinfo)
+    | Item.SetterArg(_, PropertyUse(pinfo)) -> Some(pinfo)
     | _ -> None
 
 let rec (|FSharpPropertyUse|_|) (item : Item) = 
@@ -1127,9 +1127,9 @@ let rec (|FSharpPropertyUse|_|) (item : Item) =
     | Item.SetterArg(_, FSharpPropertyUse(propDef)) -> Some(propDef)
     | _ -> None
 
-let (|ILMethodUse|_|) (item : Item) = 
+let (|MethodUse|_|) (item : Item) = 
     match item with
-    | Item.MethodGroup(_, [ILMeth(_, ILMethInfo(_, _, _, methodDef, _), _)]) -> Some(methodDef)
+    | Item.MethodGroup(_, [minfo]) -> Some(minfo)
     | _ -> None
 
 let (|FSharpMethodUse|_|) (item : Item) = 
@@ -1151,9 +1151,9 @@ let (|EntityUse|_|) (item: Item) =
         | _ -> None
     | _ -> None
 
-let (|ILEventUse|_|) (item : Item) = 
+let (|EventUse|_|) (item : Item) = 
     match item with
-    | Item.Event(ILEvent(_, evt)) -> Some evt.RawMetadata
+    | Item.Event(einfo) -> Some einfo
     | _ -> None
 
 let (|FSharpEventUse|_|) (item : Item) = 
@@ -1210,26 +1210,26 @@ let ItemsReferToSameDefinition g orig other =
          | AbbrevOrAppTy tcref1, AbbrevOrAppTy tcref2 -> 
             tyconRefDefnEq g tcref1 tcref2
          | _ -> false)
-    | ILPropertyUse(propDef1), ILPropertyUse(propDef2) -> 
-        propDef1 === propDef2 
     | ValUse vref1, ValUse vref2 -> 
         valRefDefnEq g vref1 vref2 
     | ActivePatternCaseUse (range1, range1i, idx1), ActivePatternCaseUse (range2, range2i, idx2) -> 
         (idx1 = idx2) && (range1 = range2 || range1i = range2i)
-    | ILMethodUse methodDef1, ILMethodUse methodDef2 -> 
-        methodDef1 === methodDef2
+    | MethodUse minfo1, MethodUse minfo2 -> 
+        MethInfo.MethInfosUseIdenticalDefinitions minfo1 minfo2
+    | PropertyUse(pinfo1), PropertyUse(pinfo2) -> 
+        PropInfo.PropInfosUseIdenticalDefinitions pinfo1 pinfo2
     | Item.ArgName (id1,_, _), Item.ArgName (id2,_, _) -> 
         (id1.idText = id2.idText && id1.idRange = id2.idRange)
     | (Item.ArgName (id,_, _), ValUse vref) | (ValUse vref, Item.ArgName (id, _, _)) -> 
         (id.idText = vref.DisplayName && id.idRange = vref.ImplRange)
     | ILFieldUse f1, ILFieldUse f2 -> 
-        f1 === f2 
+        ILFieldInfo.ILFieldInfosUseIdenticalDefinitions f1 f2 
     | UnionCaseUse u1, UnionCaseUse u2 ->  
         unionCaseRefDefnEq g u1 u2
-    | RecordFieldItem(name1, tcref1), RecordFieldItem(name2, tcref2) -> 
+    | RecordFieldUse(name1, tcref1), RecordFieldUse(name2, tcref2) -> 
         name1 = name2 && tyconRefDefnEq g tcref1 tcref2
-    | ILEventUse evt1, ILEventUse evt2 -> 
-        evt1 === evt2 
+    | EventUse evt1, EventUse evt2 -> 
+       EventInfo.EventInfosUseIdenticalDefintions evt1 evt2 
     | Item.ModuleOrNamespaces modrefs1, Item.ModuleOrNamespaces modrefs2 ->
         modrefs1 |> List.exists (fun modref1 -> modrefs2 |> List.exists (fun r -> tyconRefDefnEq g modref1 r || fullDisplayTextOfModRef modref1 = fullDisplayTextOfModRef r))
     | _ -> false
@@ -2369,7 +2369,7 @@ let rec ResolveFieldInModuleOrNamespace (ncenv:NameResolver) nenv ad (resInfo:Re
         let modulScopedFieldNames = 
             match TryFindTypeWithRecdField modref id  with
             | Some tycon when IsEntityAccessible ncenv.amap m ad (modref.MkNestedTyconRef tycon) -> 
-                success(modref.MkNestedRecdFieldRef tycon id, rest)
+                success(resInfo, modref.MkNestedRecdFieldRef tycon id, rest)
             | _ -> error
         // search for type-qualified names, e.g. { Microsoft.FSharp.Core.Ref.contents = 1 } 
         let tyconSearch = 
@@ -2379,7 +2379,7 @@ let rec ResolveFieldInModuleOrNamespace (ncenv:NameResolver) nenv ad (resInfo:Re
                 let tcrefs = tcrefs |> List.map (fun tcref -> (ResolutionInfo.Empty,tcref))
                 let tyconSearch = ResolveLongIdentInTyconRefs ncenv nenv LookupKind.RecdField  (depth+1) m ad rest typeNameResInfo id.idRange tcrefs
                 // choose only fields 
-                let tyconSearch = tyconSearch |?> List.choose (function (_,Item.RecdField(RecdFieldInfo(_,rfref)),rest) -> Some(rfref,rest) | _ -> None)
+                let tyconSearch = tyconSearch |?> List.choose (function (resInfo,Item.RecdField(RecdFieldInfo(_,rfref)),rest) -> Some(resInfo,rfref,rest) | _ -> None)
                 tyconSearch
             | _ -> 
                 NoResultsOrUsefulErrors
@@ -2398,7 +2398,7 @@ let rec ResolveFieldInModuleOrNamespace (ncenv:NameResolver) nenv ad (resInfo:Re
         error(InternalError("ResolveFieldInModuleOrNamespace",m))
 
 /// Resolve a long identifier representing a record field 
-let ResolveField (ncenv:NameResolver) nenv ad typ (mp,id:Ident) =
+let ResolveFieldPrim (ncenv:NameResolver) nenv ad typ (mp,id:Ident) =
     let typeNameResInfo = TypeNameResolutionInfo.Default
     let g = ncenv.g
     let m = id.idRange
@@ -2406,7 +2406,7 @@ let ResolveField (ncenv:NameResolver) nenv ad typ (mp,id:Ident) =
     | [] -> 
         if isAppTy g typ then 
             match ncenv.InfoReader.TryFindRecdOrClassFieldInfoOfType(id.idText,m,typ) with
-            | Some (RecdFieldInfo(_,rfref)) -> [rfref]
+            | Some (RecdFieldInfo(_,rfref)) -> [(ResolutionInfo.Empty, rfref)]
             | None -> error(Error(FSComp.SR.nrTypeDoesNotContainSuchField((NicePrint.minimalStringOfType nenv.eDisplayEnv typ), id.idText),m))
         else 
             let frefs = 
@@ -2414,6 +2414,7 @@ let ResolveField (ncenv:NameResolver) nenv ad typ (mp,id:Ident) =
                 with :? KeyNotFoundException -> error (UndefinedName(0,FSComp.SR.undefinedNameRecordLabel,id,NameMap.domainL nenv.eFieldLabels))
             // Eliminate duplicates arising from multiple 'open' 
             let frefs = frefs |> ListSet.setify (fun fref1 fref2 -> tyconRefEq g fref1.TyconRef fref2.TyconRef)
+            let frefs = frefs |> List.map (fun fref -> ResolutionInfo.Empty, fref)
             frefs
                         
     | _ -> 
@@ -2426,15 +2427,23 @@ let ResolveField (ncenv:NameResolver) nenv ad typ (mp,id:Ident) =
                 let tcrefs = tcrefs |> List.map (fun tcref -> (ResolutionInfo.Empty,tcref))
                 let tyconSearch = ResolveLongIdentInTyconRefs ncenv nenv LookupKind.RecdField 1 m ad rest typeNameResInfo tn.idRange tcrefs
                 // choose only fields 
-                let tyconSearch = tyconSearch |?> List.choose (function (_,Item.RecdField(RecdFieldInfo(_,rfref)),rest) -> Some(rfref,rest) | _ -> None)
+                let tyconSearch = tyconSearch |?> List.choose (function (resInfo,Item.RecdField(RecdFieldInfo(_,rfref)),rest) -> Some(resInfo,rfref,rest) | _ -> None)
                 tyconSearch
             | _ -> NoResultsOrUsefulErrors
         let modulSearch ad = 
             ResolveLongIndentAsModuleOrNamespaceThen ncenv.amap m OpenQualified nenv ad lid 
                 (ResolveFieldInModuleOrNamespace ncenv nenv ad)
-        let item,rest = ForceRaise (AtMostOneResult m (modulSearch ad +++ tyconSearch ad +++ modulSearch AccessibleFromSomeFSharpCode +++ tyconSearch AccessibleFromSomeFSharpCode))
+        let resInfo,item,rest = ForceRaise (AtMostOneResult m (modulSearch ad +++ tyconSearch ad +++ modulSearch AccessibleFromSomeFSharpCode +++ tyconSearch AccessibleFromSomeFSharpCode))
         if nonNil rest then errorR(Error(FSComp.SR.nrInvalidFieldLabel(),(List.head rest).idRange));
-        [item]
+        [(resInfo,item)]
+
+let ResolveField sink ncenv nenv ad typ (mp,id) =
+    let res = ResolveFieldPrim ncenv nenv ad typ (mp,id)
+    // Register the results of any field paths "Module.Type" in "Module.Type.field" as a name resolution. (Note, the path resolution
+    // info is only non-empty if there was a unique resolution of the field)
+    for (resInfo,_rfref) in res do
+        ResolutionInfo.SendToSink(sink,ncenv,nenv,ItemOccurence.UseInType, ad,resInfo,ResultTyparChecker(fun () -> true));
+    res  |> List.map snd
 
 /// Generate a new reference to a record field with a fresh type instantiation
 let FreshenRecdFieldRef (ncenv:NameResolver) m (rfref:RecdFieldRef) =

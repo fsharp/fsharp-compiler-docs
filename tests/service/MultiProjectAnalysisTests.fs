@@ -409,13 +409,14 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
     let wt0 = System.DateTime.Now
     let wt1 = File.GetLastWriteTime MultiProjectDirty1.fileName1
     printfn "Writing new content to file '%s'" MultiProjectDirty1.fileName1
+
+    System.Threading.Thread.Sleep(1000)
     File.WriteAllText(MultiProjectDirty1.fileName1, System.Environment.NewLine + MultiProjectDirty1.content)
     printfn "Wrote new content to file '%s'"  MultiProjectDirty1.fileName1
     let wt2 = File.GetLastWriteTime MultiProjectDirty1.fileName1
     printfn "Current time: '%A', ticks = %d"  wt0 wt0.Ticks
     printfn "Old write time: '%A', ticks = %d"  wt1 wt1.Ticks
     printfn "New write time: '%A', ticks = %d"  wt2 wt2.Ticks
-    System.Threading.Thread.Sleep(1000)
 
     let wholeProjectResults1AfterChange1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
     count.Value |> shouldEqual 3
@@ -430,7 +431,6 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
 
     printfn "Checking project 2 after first change, options = '%A'" proj2options
-    System.Threading.Thread.Sleep(1000)
 
     let wholeProjectResults2AfterChange1 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
@@ -457,15 +457,16 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
     //---------------- Revert the change to the file --------------------
 
-    let wt0 = System.DateTime.Now
-    let wt1 = File.GetLastWriteTime MultiProjectDirty1.fileName1
+    let wt0b = System.DateTime.Now
+    let wt1b = File.GetLastWriteTime MultiProjectDirty1.fileName1
     printfn "Writing old content to file '%s'" MultiProjectDirty1.fileName1
+    System.Threading.Thread.Sleep(1000)
     File.WriteAllText(MultiProjectDirty1.fileName1, MultiProjectDirty1.content)
     printfn "Wrote old content to file '%s'"  MultiProjectDirty1.fileName1
-    let wt2 = File.GetLastWriteTime MultiProjectDirty1.fileName1
-    printfn "Current time: '%A', ticks = %d"  wt0 wt0.Ticks
-    printfn "Old write time: '%A', ticks = %d"  wt1 wt1.Ticks
-    printfn "New write time: '%A', ticks = %d"  wt2 wt2.Ticks
+    let wt2b = File.GetLastWriteTime MultiProjectDirty1.fileName1
+    printfn "Current time: '%A', ticks = %d"  wt0b wt0b.Ticks
+    printfn "Old write time: '%A', ticks = %d"  wt1b wt1b.Ticks
+    printfn "New write time: '%A', ticks = %d"  wt2b wt2b.Ticks
 
     count.Value |> shouldEqual 4
 

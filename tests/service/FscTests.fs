@@ -17,6 +17,7 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open FSharp.Compiler.Service.Tests
+open FSharp.Compiler.Service.Tests.Common
 
 open NUnit.Framework
 
@@ -104,6 +105,16 @@ type DebugMode =
 let checker = InteractiveChecker.Create()
 let compiler = new SimpleSourceCodeServices()
 
+/// Ensures the default FSharp.Core referenced by the F# compiler service (if none is 
+/// provided explicitly) is available in the output directory.
+let ensureDefaultFSharpCoreAvailable tmpDir  =
+    // FSharp.Compiler.Service references FSharp.Core 4.3.0.0 by default.  That's wrong? But the output won't verify
+    // or run on a system without FSharp.Core 4.3.0.0 in the GAC or in the same directory, or with a binding redirect in place.
+    // 
+    // So just copy the FSharp.Core 4.3.0.0 to the tmp directory. Only need to do this on Windows.
+    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+        File.Copy(fsCore4300(), Path.Combine(tmpDir, Path.GetFileName(fsCore4300())), overwrite = true)
+
 let compile isDll debugMode (assemblyName : string) (code : string) (dependencies : string list) =
     let tmp = Path.GetTempPath()
     let sourceFile = Path.Combine(tmp, assemblyName + ".fs")
@@ -136,6 +147,8 @@ let compile isDll debugMode (assemblyName : string) (code : string) (dependencie
 
             yield sourceFile
         |]
+
+    ensureDefaultFSharpCoreAvailable tmp
         
     printfn "args: %A" args
     let errorInfo, id = compiler.Compile args
@@ -166,6 +179,8 @@ let compileAndVerifyAst (name : string, ast : Ast.ParsedInput list, references :
     let outDir = Path.GetTempPath()
     
     let outFile = Path.Combine(outDir, name + ".dll")
+
+    ensureDefaultFSharpCoreAvailable outDir
 
     let errors, id = compiler.Compile(ast, name, outFile, references, executable = false)
     for err in errors do printfn "error: %A" err

@@ -204,3 +204,12 @@
 
 #### 0.0.48 - 
 * Allow own fsi object without referencing FSharp.Compiler.Interactive.Settings.dll (#127)
+
+#### 0.0.49 - 
+* Fix #138 - Fix symbol equality for provided type members 
+* Fix #150 - Return IsGetterMethod = true for declarations of F# properties (no separate 'property' symbol is yet returned, see #79)
+* Fix #132 - Add IsStaticInstantiation on FSharpEntity to allow clients to detect fake symbols arising from application of static parameters
+* Fix #154 - Add IsArrayType on FSharpEntity to allow clients to detect the symbols for array types
+* Fix #96 - Return resolutions of 'Module' and 'Type' in "Module.field" and "Type.field"
+
+

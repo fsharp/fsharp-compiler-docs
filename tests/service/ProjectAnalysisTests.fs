@@ -438,7 +438,7 @@ let ``Test project1 all uses of all symbols`` () =
               [("C", "M.C", "file1", ((3, 5), (3, 6)), ["class"]);
                ("( .ctor )", "M.C.( .ctor )", "file1", ((3, 5), (3, 6)),
                 ["member"; "ctor"]);
-               ("P", "M.C.P", "file1", ((4, 13), (4, 14)), ["member"]);
+               ("P", "M.C.P", "file1", ((4, 13), (4, 14)), ["member"; "getter"]);
                ("x", "x", "file1", ((4, 11), (4, 12)), []);
                ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file1",
                 ((6, 12), (6, 13)), ["val"]);
@@ -458,14 +458,14 @@ let ``Test project1 all uses of all symbols`` () =
                ("( .ctor )", "N.D1.( .ctor )", "file2", ((5, 5), (5, 7)),
                 ["member"; "ctor"]);
                ("SomeProperty", "N.D1.SomeProperty", "file2", ((6, 13), (6, 25)),
-                ["member"]); ("x", "x", "file2", ((6, 11), (6, 12)), []);
+                ["member";"getter"]); ("x", "x", "file2", ((6, 11), (6, 12)), []);
                ("M", "M", "file2", ((6, 28), (6, 29)), ["module"]);
                ("xxx", "M.xxx", "file2", ((6, 28), (6, 33)), ["val"]);
                ("D2", "N.D2", "file2", ((8, 5), (8, 7)), ["class"]);
                ("( .ctor )", "N.D2.( .ctor )", "file2", ((8, 5), (8, 7)),
                 ["member"; "ctor"]);
                ("SomeProperty", "N.D2.SomeProperty", "file2", ((9, 13), (9, 25)),
-                ["member"]); ("x", "x", "file2", ((9, 11), (9, 12)), []);
+                ["member";"getter"]); ("x", "x", "file2", ((9, 11), (9, 12)), []);
                ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
                 ((9, 36), (9, 37)), ["val"]);
                ("M", "M", "file2", ((9, 28), (9, 29)), ["module"]);
@@ -495,7 +495,7 @@ let ``Test project1 all uses of all symbols`` () =
                ("( .ctor )", "N.D3.( .ctor )", "file2", ((15, 5), (15, 7)),
                 ["member"; "ctor"]);
                ("SomeProperty", "N.D3.SomeProperty", "file2", ((21, 13), (21, 25)),
-                ["member"]);
+                ["member";"getter"]);
                ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
                 ((16, 14), (16, 15)), ["val"]);
                ("a", "a", "file2", ((16, 12), (16, 13)), []);
@@ -633,7 +633,7 @@ let ``Test file explicit parse all symbols`` () =
        |> shouldEqual 
               [("C", "file1", ((3, 5), (3, 6)), ["class"]);
                ("( .ctor )", "file1", ((3, 5), (3, 6)), ["member"; "ctor"]);
-               ("P", "file1", ((4, 13), (4, 14)), ["member"]);
+               ("P", "file1", ((4, 13), (4, 14)), ["member"; "getter"]);
                ("x", "file1", ((4, 11), (4, 12)), []);
                ("( + )", "file1", ((6, 12), (6, 13)), ["val"]);
                ("xxx", "file1", ((6, 4), (6, 7)), ["val"]);
@@ -2459,35 +2459,35 @@ let ``Test Project16 all symbols`` () =
             ("member .ctor", "( .ctor )", "sig1", ((5, 4), (5, 7)), ["defn"],
              ["member"]);
             ("int", "int", "sig1", ((6, 16), (6, 19)), ["type"], ["abbrev"]);
-            ("member get_PC", "PC", "sig1", ((6, 11), (6, 13)), ["defn"], ["member"]);
+            ("member get_PC", "PC", "sig1", ((6, 11), (6, 13)), ["defn"], ["member";"getter"]);
             ("D", "D", "sig1", ((8, 14), (8, 15)), ["defn"], ["class"]);
             ("unit", "unit", "sig1", ((9, 10), (9, 14)), ["type"], ["abbrev"]);
             ("D", "D", "sig1", ((9, 18), (9, 19)), ["type"], ["class"]);
             ("member .ctor", "( .ctor )", "sig1", ((9, 4), (9, 7)), ["defn"],
              ["member"]);
             ("int", "int", "sig1", ((10, 16), (10, 19)), ["type"], ["abbrev"]);
-            ("member get_PD", "PD", "sig1", ((10, 11), (10, 13)), ["defn"], ["member"]);
+            ("member get_PD", "PD", "sig1", ((10, 11), (10, 13)), ["defn"], ["member";"getter"]);
             ("E", "E", "sig1", ((12, 14), (12, 15)), ["defn"], ["class"]);
             ("unit", "unit", "sig1", ((13, 10), (13, 14)), ["type"], ["abbrev"]);
             ("E", "E", "sig1", ((13, 18), (13, 19)), ["type"], ["class"]);
             ("member .ctor", "( .ctor )", "sig1", ((13, 4), (13, 7)), ["defn"],
              ["member"]);
             ("int", "int", "sig1", ((14, 16), (14, 19)), ["type"], ["abbrev"]);
-            ("member get_PE", "PE", "sig1", ((14, 11), (14, 13)), ["defn"], ["member"]);
+            ("member get_PE", "PE", "sig1", ((14, 11), (14, 13)), ["defn"], ["member";"getter"]);
             ("Impl", "Impl", "sig1", ((2, 7), (2, 11)), ["defn"], ["module"]);
             ("C", "C", "file1", ((4, 5), (4, 6)), ["defn"], ["class"]);
             ("D", "D", "file1", ((7, 4), (7, 5)), ["defn"], ["class"]);
             ("E", "E", "file1", ((10, 4), (10, 5)), ["defn"], ["class"]);
             ("member .ctor", "( .ctor )", "file1", ((4, 5), (4, 6)), ["defn"],
              ["member"; "ctor"]);
-            ("member get_PC", "PC", "file1", ((5, 13), (5, 15)), ["defn"], ["member"]);
+            ("member get_PC", "PC", "file1", ((5, 13), (5, 15)), ["defn"], ["member";"getter"]);
             ("member .ctor", "( .ctor )", "file1", ((7, 4), (7, 5)), ["defn"],
              ["member"; "ctor"]);
-            ("member get_PD", "PD", "file1", ((8, 13), (8, 15)), ["defn"], ["member"]);
+            ("member get_PD", "PD", "file1", ((8, 13), (8, 15)), ["defn"], ["member";"getter"]);
             ("member .ctor", "( .ctor )", "file1", ((10, 4), (10, 5)), ["defn"],
              ["member"; "ctor"]);
             ("member get_PE", "PE", "file1", ((11, 13), (11, 15)), ["defn"],
-             ["member"]); ("val x", "x", "file1", ((5, 11), (5, 12)), ["defn"], []);
+             ["member"; "getter"]); ("val x", "x", "file1", ((5, 11), (5, 12)), ["defn"], []);
             ("val x", "x", "file1", ((8, 11), (8, 12)), ["defn"], []);
             ("val x", "x", "file1", ((11, 11), (11, 12)), ["defn"], []);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], ["module"])|]

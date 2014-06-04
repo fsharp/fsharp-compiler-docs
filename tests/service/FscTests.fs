@@ -63,6 +63,7 @@ type PEVerifier () =
                 | Some pe -> pe, "/UNIQUE /IL /NOLOGO"
 
     static let execute (fileName : string, arguments : string) =
+        printfn "executing '%s' with arguments %s" fileName arguments
         let psi = new ProcessStartInfo(fileName, arguments)
         psi.UseShellExecute <- false
         psi.ErrorDialog <- false

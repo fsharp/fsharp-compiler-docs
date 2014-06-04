@@ -36,9 +36,9 @@ type PEVerifier () =
     static let expectedExitCode = 0
     static let runsOnMono = try System.Type.GetType("Mono.Runtime") <> null with _ -> false
 
-    let verifierPath, switches =
+    let verifierInfo =
         if runsOnMono then
-            "pedump", "--verify all"
+            Some ("pedump", "--verify all")
         else
             let rec tryFindFile (fileName : string) (dir : DirectoryInfo) =
                 let file = Path.Combine(dir.FullName, fileName)
@@ -46,6 +46,11 @@ type PEVerifier () =
                 else
                     dir.GetDirectories() 
                     |> Array.sortBy(fun d -> d.Name)
+                    |> Array.filter(fun d -> 
+                        match d.Name with 
+                        // skip old SDK directories
+                        | "v6.0" | "v6.0A" | "v7.0" | "v7.0A" | "v7.1" | "v7.1A" -> false
+                        | _ -> true)
                     |> Array.rev // order by descending -- get latest version
                     |> Array.tryPick (tryFindFile fileName)
 
@@ -55,12 +60,12 @@ type PEVerifier () =
                 if dI.Exists then Some dI
                 else None
 
-            match Array.tryPick tryGetSdkDir [| Environment.SpecialFolder.ProgramFiles ; Environment.SpecialFolder.ProgramFilesX86 |] with
-            | None -> failwith "Could not resolve .NET SDK folder."
+            match Array.tryPick tryGetSdkDir [| Environment.SpecialFolder.ProgramFilesX86; Environment.SpecialFolder.ProgramFiles  |] with
+            | None -> None
             | Some sdkDir ->
                 match tryFindFile "peverify.exe" sdkDir with
-                | None -> failwith "Could not locate 'peverify.exe'."
-                | Some pe -> pe, "/UNIQUE /IL /NOLOGO"
+                | None -> None
+                | Some pe -> Some (pe, "/UNIQUE /IL /NOLOGO")
 
     static let execute (fileName : string, arguments : string) =
         printfn "executing '%s' with arguments %s" fileName arguments
@@ -78,12 +83,17 @@ type PEVerifier () =
         proc.ExitCode, stdOut, stdErr
 
     member __.Verify(assemblyPath : string) =
-        let id,stdOut,stdErr = execute(verifierPath, sprintf "%s \"%s\"" switches assemblyPath)
-        if id = expectedExitCode && String.IsNullOrWhiteSpace stdErr then ()
-        else
-            printfn "Verification failure, stdout: <<<%s>>>" stdOut
-            printfn "Verification failure, stderr: <<<%s>>>" stdErr
-            raise <| VerificationException(assemblyPath, id, stdOut + "\n" + stdErr)
+        match verifierInfo with
+        | Some (verifierPath, switches) -> 
+            let id,stdOut,stdErr = execute(verifierPath, sprintf "%s \"%s\"" switches assemblyPath)
+            if id = expectedExitCode && String.IsNullOrWhiteSpace stdErr then ()
+            else
+                printfn "Verification failure, stdout: <<<%s>>>" stdOut
+                printfn "Verification failure, stderr: <<<%s>>>" stdErr
+                raise <| VerificationException(assemblyPath, id, stdOut + "\n" + stdErr)
+        | None -> 
+           printfn "Skipping verification part of test because verifier not found"
+            
 
 
 type DebugMode =

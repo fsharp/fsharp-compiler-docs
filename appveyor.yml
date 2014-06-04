@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 build_script:
-  - cmd: build.cmd nuget
+  - cmd: build.cmd Release
 test: off
 artifacts:
   - path: bin\*.nupkg

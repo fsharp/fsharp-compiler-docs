@@ -44,7 +44,7 @@ let ``Intro test`` () =
 
     // So we check that the messages are the same
     for msg in typeCheckResults.Errors do 
-        printfn "Error: %A" msg
+        printfn "Good! got an error, hopefully with the right text: %A" msg
         msg.Message.Contains("Missing qualification after '.'") |> shouldEqual true
 
     // Get tool tip at the specified location

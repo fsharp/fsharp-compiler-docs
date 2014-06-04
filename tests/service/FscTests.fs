@@ -81,6 +81,7 @@ type PEVerifier () =
         let id,stdOut,stdErr = execute(verifierPath, sprintf "%s \"%s\"" switches assemblyPath)
         if id = expectedExitCode && String.IsNullOrWhiteSpace stdErr then ()
         else
+            printfn "Verification failure, stderr: <<<%s>>>" stdErr
             raise <| VerificationException(assemblyPath, id, stdOut + "\n" + stdErr)
 
 

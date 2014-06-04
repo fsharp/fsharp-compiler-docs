@@ -3050,7 +3050,7 @@ type TypeWithProperties() =
     let args = 
         [| yield! mkProjectCommandLineArgs (dllName, fileNames) 
            yield "-r:" + Path.Combine(__SOURCE_DIRECTORY__, "FSharp.Data.dll")
-           yield @"-r:C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Xml.Linq.dll" |]
+           yield @"-r:" + sysLib "System.Xml.Linq" |]
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
 [<Test>]

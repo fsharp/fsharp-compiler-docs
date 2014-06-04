@@ -36,6 +36,21 @@ let getBackgroundCheckResultsForScriptText (input) =
     checker.GetBackgroundCheckResultsForFileInProject(file.Name, checkOptions) |> Async.RunSynchronously
 
 
+let sysLib nm = 
+    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\" + nm + ".dll"
+    else
+        let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+        let (++) a b = System.IO.Path.Combine(a,b)
+        sysDir ++ nm + ".dll" 
+
+let fsCore4300() = 
+    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"  
+    else 
+        sysLib "FSharp.Core"
+
+
 let mkProjectCommandLineArgs (dllName, fileNames) = 
     [|  yield "--simpleresolution" 
         yield "--noframework" 
@@ -51,18 +66,10 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
         for x in fileNames do 
             yield x
         let references = 
-            if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-                [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" 
-                  @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" 
-                  @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" 
-                  @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"]  
-            else 
-                let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
-                let (++) a b = System.IO.Path.Combine(a,b)
-                [ sysDir ++ "mscorlib.dll" 
-                  sysDir ++ "System.dll" 
-                  sysDir ++ "System.Core.dll" 
-                  sysDir ++ "FSharp.Core.dll"]  
+            [ yield sysLib "mscorlib"
+              yield sysLib "System"
+              yield sysLib "System.Core"
+              yield fsCore4300() ]
         for r in references do
                 yield "-r:" + r |]
 

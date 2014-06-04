@@ -22,7 +22,7 @@ open NUnit.Framework
 
 exception 
    VerificationException of (*assembly:*)string * (*errorCode:*)int * (*output:*)string
-   with override e.Message = sprintf "Verification of '%s' failed with code %d." e.Data0 e.Data1
+   with override e.Message = sprintf "Verification of '%s' failed with code %d, message <<<%s>>>" e.Data0 e.Data1 e.Data2
 
 exception 
    CompilationError of (*assembly:*)string * (*errorCode:*)int * (*info:*)ErrorInfo []
@@ -81,6 +81,7 @@ type PEVerifier () =
         let id,stdOut,stdErr = execute(verifierPath, sprintf "%s \"%s\"" switches assemblyPath)
         if id = expectedExitCode && String.IsNullOrWhiteSpace stdErr then ()
         else
+            printfn "Verification failure, stdout: <<<%s>>>" stdOut
             printfn "Verification failure, stderr: <<<%s>>>" stdErr
             raise <| VerificationException(assemblyPath, id, stdOut + "\n" + stdErr)
 

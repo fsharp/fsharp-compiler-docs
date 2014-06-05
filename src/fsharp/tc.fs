@@ -10162,7 +10162,12 @@ and AnalyzeRecursiveInstanceMemberDecl (cenv,envinner: TcEnv, tpenv, declKind, s
              | None -> None
 
          let memberInfo = MakeMemberDataAndMangledNameForMemberVal(cenv.g,tcref,isExtrinsic,bindingAttribs,optInferredImplSlotTys,memberFlags,valSynInfo,memberId,false)
-         let memberId = match toolId with Some tid -> ident(memberId.idText, tid.idRange) | None -> memberId
+         // This line factored in the 'get' or 'set' as the identifier for a property declaration using "with get () = ... and set v = ..."
+         // It has been removed from FSharp.Compiler.Service because we want the property name to be the location of
+         // the definition of these symbols.
+         //
+         // See https://github.com/fsharp/FSharp.Compiler.Service/issues/79.
+         //let memberId = match toolId with Some tid -> ident(memberId.idText, tid.idRange) | None -> memberId
 
          envinner, tpenv, memberId, Some memberInfo, vis, vis2, None, enclosingDeclaredTypars, baseValOpt, flex, bindingRhs, declaredTypars
      | _ -> 

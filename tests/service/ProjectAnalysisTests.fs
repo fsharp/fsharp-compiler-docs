@@ -38,6 +38,14 @@ let attribsOfSymbolUse (s:FSharpSymbolUse) =
 
 let attribsOfSymbol (s:FSharpSymbol) = 
     [ match s with 
+        | :? FSharpField as v -> 
+            yield "field"
+            if v.IsCompilerGenerated then yield "compgen"
+            if v.IsDefaultValue then yield "default"
+            if v.IsMutable then yield "mutable"
+            if v.IsVolatile then yield "volatile"
+            if v.IsStatic then yield "static"
+
         | :? FSharpEntity as v -> 
             if v.IsNamespace then yield "namespace"
             if v.IsFSharpModule then yield "module"
@@ -349,14 +357,14 @@ let ``Test project1 xxx symbols`` () =
 
     let usesOfXSymbol = 
         [ for su in wholeProjectResults.GetUsesOfSymbol(xSymbol) |> Async.RunSynchronously do
-              yield Project1.cleanFileName su.FileName , tupsZ su.RangeAlternate, attribsOfSymbol su.Symbol ]
+              yield Project1.cleanFileName su.FileName , tups su.RangeAlternate, attribsOfSymbol su.Symbol ]
 
     usesOfXSymbol |> shouldEqual
-       [("file1", ((6, 4), (6, 7)), ["val"]);
-        ("file1", ((7, 13), (7, 16)), ["val"]);
-        ("file1", ((7, 19), (7, 22)), ["val"]);
-        ("file2", ((6, 28), (6, 33)), ["val"]);
-        ("file2", ((12, 27), (12, 32)), ["val"])]
+       [("file1", ((7, 4), (7, 7)), ["val"]);
+        ("file1", ((8, 13), (8, 16)), ["val"]);
+        ("file1", ((8, 19), (8, 22)), ["val"]);
+        ("file2", ((7, 28), (7, 33)), ["val"]);
+        ("file2", ((13, 27), (13, 32)), ["val"])]
 
 [<Test>]
 let ``Test project1 all uses of all signature symbols`` () = 
@@ -1055,20 +1063,18 @@ let ``Test project3 all uses of all signature symbols`` () =
                  ("file1", ((79, 23), (79, 42)), [], ["slot"; "member"]);
                  ("file1", ((36, 20), (36, 35)), ["override"], ["slot"; "member"])]);
                ("member add_InterfaceEvent",
-                [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"; "add" ]);
-                 ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"; "add" ]);
-                 ("file1", ((78, 23), (78, 41)), [], ["slot"; "member"; "add" ]);
-                 ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"; "add" ])]);
+                [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"; "add"]);
+                 ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"; "add"]);
+                 ("file1", ((78, 23), (78, 41)), [], ["slot"; "member"; "add"]);
+                 ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"; "add"])]);
                ("member get_InterfaceEvent",
-                [("file1", ((8, 13), (8, 27)), ["defn"],
-                  ["slot"; "member"; "getter"]);
+                [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"; "getter"]);
                  ("file1", ((65, 20), (65, 34)), ["override"],
                   ["slot"; "member"; "getter"]);
                  ("file1", ((38, 20), (38, 34)), ["override"],
                   ["slot"; "member"; "getter"])]);
                ("member get_InterfaceProperty",
-                [("file1", ((4, 13), (4, 30)), ["defn"],
-                  ["slot"; "member"; "getter"]);
+                [("file1", ((4, 13), (4, 30)), ["defn"], ["slot"; "member"; "getter"]);
                  ("file1", ((61, 20), (61, 37)), ["override"],
                   ["slot"; "member"; "getter"]);
                  ("file1", ((76, 23), (76, 44)), [], ["slot"; "member"; "getter"]);
@@ -1076,36 +1082,31 @@ let ``Test project3 all uses of all signature symbols`` () =
                   ["slot"; "member"; "getter"])]);
                ("member remove_InterfaceEvent",
                 [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"; "remove"]);
-                 ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"; "remove"]);
-                 ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"; "remove"])]);
+                 ("file1", ((65, 20), (65, 34)), ["override"],
+                  ["slot"; "member"; "remove"]);
+                 ("file1", ((38, 20), (38, 34)), ["override"],
+                  ["slot"; "member"; "remove"])]);
                ("member set_InterfacePropertySet",
-                [("file1", ((5, 13), (5, 33)), ["defn"],
-                  ["slot"; "member"; "setter"]);
+                [("file1", ((5, 13), (5, 33)), ["defn"], ["slot"; "member"; "setter"]);
                  ("file1", ((62, 20), (62, 40)), ["override"],
                   ["slot"; "member"; "setter"]);
                  ("file1", ((77, 25), (77, 49)), [], ["slot"; "member"; "setter"]);
-                 ("file1", ((35, 46), (35, 49)), ["override"],
+                 ("file1", ((35, 20), (35, 40)), ["override"],
                   ["slot"; "member"; "setter"])]);
                ("property InterfacePropertySet",
                 [("file1", ((5, 13), (5, 33)), ["defn"], ["slot"; "member"; "prop"]);
-                 ("file1", ((62, 20), (62, 40)), ["override"],
-                  ["slot"; "member"; "prop"]);
+                 ("file1", ((62, 20), (62, 40)), ["override"], ["slot"; "member"; "prop"]);
                  ("file1", ((77, 25), (77, 49)), [], ["slot"; "member"; "prop"]);
-                 ("file1", ((35, 46), (35, 49)), ["override"],
-                  ["slot"; "member"; "prop"])]);
+                 ("file1", ((35, 20), (35, 40)), ["override"], ["slot"; "member"; "prop"])]);
                ("property InterfaceProperty",
                 [("file1", ((4, 13), (4, 30)), ["defn"], ["slot"; "member"; "prop"]);
-                 ("file1", ((61, 20), (61, 37)), ["override"],
-                  ["slot"; "member"; "prop"]);
+                 ("file1", ((61, 20), (61, 37)), ["override"], ["slot"; "member"; "prop"]);
                  ("file1", ((76, 23), (76, 44)), [], ["slot"; "member"; "prop"]);
-                 ("file1", ((34, 20), (34, 37)), ["override"],
-                  ["slot"; "member"; "prop"])]);
+                 ("file1", ((34, 20), (34, 37)), ["override"], ["slot"; "member"; "prop"])]);
                ("property InterfaceEvent",
                 [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"; "prop"]);
-                 ("file1", ((65, 20), (65, 34)), ["override"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((38, 20), (38, 34)), ["override"],
-                  ["slot"; "member"; "prop"])]);
+                 ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"; "prop"]);
+                 ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"; "prop"])]);
                ("CFoo",
                 [("file1", ((11, 5), (11, 9)), ["defn"], ["class"]);
                  ("file1", ((41, 12), (41, 16)), ["type"], ["class"]);
@@ -1123,55 +1124,45 @@ let ``Test project3 all uses of all signature symbols`` () =
                  ("file1", ((72, 22), (72, 41)), ["override"], ["slot"; "member"]);
                  ("file1", ((45, 18), (45, 37)), ["override"], ["slot"; "member"])]);
                ("member add_AbstractClassEvent",
-                [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"; "add" ]);
-                 ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"; "add" ]);
-                 ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"; "add" ])]);
+                [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"; "add"]);
+                 ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"; "add"]);
+                 ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"; "add"])]);
                ("member get_AbstractClassEvent",
-                [("file1", ((16, 13), (16, 31)), ["defn"],
-                  ["slot"; "member"; "getter"]);
+                [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"; "getter"]);
                  ("file1", ((74, 22), (74, 40)), ["override"],
                   ["slot"; "member"; "getter"]);
                  ("file1", ((47, 18), (47, 36)), ["override"],
                   ["slot"; "member"; "getter"])]);
                ("member get_AbstractClassProperty",
-                [("file1", ((12, 13), (12, 34)), ["defn"],
-                  ["slot"; "member"; "getter"]);
+                [("file1", ((12, 13), (12, 34)), ["defn"], ["slot"; "member"; "getter"]);
                  ("file1", ((70, 22), (70, 43)), ["override"],
                   ["slot"; "member"; "getter"]);
                  ("file1", ((43, 18), (43, 39)), ["override"],
                   ["slot"; "member"; "getter"])]);
                ("member remove_AbstractClassEvent",
                 [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"; "remove"]);
-                 ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"; "remove"]);
-                 ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"; "remove"])]);
+                 ("file1", ((74, 22), (74, 40)), ["override"],
+                  ["slot"; "member"; "remove"]);
+                 ("file1", ((47, 18), (47, 36)), ["override"],
+                  ["slot"; "member"; "remove"])]);
                ("member set_AbstractClassPropertySet",
-                [("file1", ((13, 13), (13, 37)), ["defn"],
-                  ["slot"; "member"; "setter"]);
+                [("file1", ((13, 13), (13, 37)), ["defn"], ["slot"; "member"; "setter"]);
                  ("file1", ((71, 22), (71, 46)), ["override"],
                   ["slot"; "member"; "setter"]);
-                 ("file1", ((44, 48), (44, 51)), ["override"],
+                 ("file1", ((44, 18), (44, 42)), ["override"],
                   ["slot"; "member"; "setter"])]);
                ("property AbstractClassPropertySet",
-                [("file1", ((13, 13), (13, 37)), ["defn"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((71, 22), (71, 46)), ["override"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((44, 48), (44, 51)), ["override"],
-                  ["slot"; "member"; "prop"])]);
+                [("file1", ((13, 13), (13, 37)), ["defn"], ["slot"; "member"; "prop"]);
+                 ("file1", ((71, 22), (71, 46)), ["override"], ["slot"; "member"; "prop"]);
+                 ("file1", ((44, 18), (44, 42)), ["override"], ["slot"; "member"; "prop"])]);
                ("property AbstractClassProperty",
-                [("file1", ((12, 13), (12, 34)), ["defn"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((70, 22), (70, 43)), ["override"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((43, 18), (43, 39)), ["override"],
-                  ["slot"; "member"; "prop"])]);
+                [("file1", ((12, 13), (12, 34)), ["defn"], ["slot"; "member"; "prop"]);
+                 ("file1", ((70, 22), (70, 43)), ["override"], ["slot"; "member"; "prop"]);
+                 ("file1", ((43, 18), (43, 39)), ["override"], ["slot"; "member"; "prop"])]);
                ("property AbstractClassEvent",
-                [("file1", ((16, 13), (16, 31)), ["defn"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((74, 22), (74, 40)), ["override"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((47, 18), (47, 36)), ["override"],
-                  ["slot"; "member"; "prop"])]);
+                [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"; "prop"]);
+                 ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"; "prop"]);
+                 ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"; "prop"])]);
                ("CBaseFoo",
                 [("file1", ((18, 5), (18, 13)), ["defn"], ["class"]);
                  ("file1", ((50, 12), (50, 20)), ["type"], ["class"]);
@@ -1185,61 +1176,51 @@ let ``Test project3 all uses of all signature symbols`` () =
                  ("file1", ((27, 15), (27, 30)), ["override"], ["slot"; "member"]);
                  ("file1", ((54, 18), (54, 33)), ["override"], ["slot"; "member"])]);
                ("member add_BaseClassEvent",
-                [("file1", ((24, 13), (24, 27)), ["defn"], ["slot"; "member"; "add" ]);
-                 ("file1", ((29, 15), (29, 29)), ["override"], ["slot"; "member"; "add" ]);
-                 ("file1", ((56, 18), (56, 32)), ["override"], ["slot"; "member"; "add" ])]);
+                [("file1", ((24, 13), (24, 27)), ["defn"], ["slot"; "member"; "add"]);
+                 ("file1", ((29, 15), (29, 29)), ["override"], ["slot"; "member"; "add"]);
+                 ("file1", ((56, 18), (56, 32)), ["override"], ["slot"; "member"; "add"])]);
                ("member get_BaseClassEvent",
-                [("file1", ((24, 13), (24, 27)), ["defn"],
-                  ["slot"; "member"; "getter"]);
+                [("file1", ((24, 13), (24, 27)), ["defn"], ["slot"; "member"; "getter"]);
                  ("file1", ((29, 15), (29, 29)), ["override"],
                   ["slot"; "member"; "getter"]);
                  ("file1", ((56, 18), (56, 32)), ["override"],
                   ["slot"; "member"; "getter"])]);
                ("member get_BaseClassProperty",
-                [("file1", ((20, 13), (20, 30)), ["defn"],
-                  ["slot"; "member"; "getter"]);
+                [("file1", ((20, 13), (20, 30)), ["defn"], ["slot"; "member"; "getter"]);
                  ("file1", ((25, 15), (25, 32)), ["override"],
                   ["slot"; "member"; "getter"]);
                  ("file1", ((52, 18), (52, 35)), ["override"],
                   ["slot"; "member"; "getter"])]);
                ("member remove_BaseClassEvent",
                 [("file1", ((24, 13), (24, 27)), ["defn"], ["slot"; "member"; "remove"]);
-                 ("file1", ((29, 15), (29, 29)), ["override"], ["slot"; "member"; "remove"]);
-                 ("file1", ((56, 18), (56, 32)), ["override"], ["slot"; "member"; "remove"])]);
+                 ("file1", ((29, 15), (29, 29)), ["override"],
+                  ["slot"; "member"; "remove"]);
+                 ("file1", ((56, 18), (56, 32)), ["override"],
+                  ["slot"; "member"; "remove"])]);
                ("member set_BaseClassPropertySet",
-                [("file1", ((21, 13), (21, 33)), ["defn"],
+                [("file1", ((21, 13), (21, 33)), ["defn"], ["slot"; "member"; "setter"]);
+                 ("file1", ((26, 15), (26, 35)), ["override"],
                   ["slot"; "member"; "setter"]);
-                 ("file1", ((26, 41), (26, 44)), ["override"],
-                  ["slot"; "member"; "setter"]);
-                 ("file1", ((53, 44), (53, 47)), ["override"],
+                 ("file1", ((53, 18), (53, 38)), ["override"],
                   ["slot"; "member"; "setter"])]);
                ("property BaseClassPropertySet",
-                [("file1", ((26, 41), (26, 44)), ["defn"], ["member"; "prop"])]);
+                [("file1", ((26, 15), (26, 35)), ["defn"], ["member"; "prop"])]);
                ("property BaseClassPropertySet",
-                [("file1", ((21, 13), (21, 33)), ["defn"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((26, 41), (26, 44)), ["override"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((53, 44), (53, 47)), ["override"],
-                  ["slot"; "member"; "prop"])]);
+                [("file1", ((21, 13), (21, 33)), ["defn"], ["slot"; "member"; "prop"]);
+                 ("file1", ((26, 15), (26, 35)), ["override"], ["slot"; "member"; "prop"]);
+                 ("file1", ((53, 18), (53, 38)), ["override"], ["slot"; "member"; "prop"])]);
                ("property BaseClassProperty",
                 [("file1", ((25, 15), (25, 32)), ["defn"], ["member"; "prop"])]);
                ("property BaseClassProperty",
-                [("file1", ((20, 13), (20, 30)), ["defn"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((25, 15), (25, 32)), ["override"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((52, 18), (52, 35)), ["override"],
-                  ["slot"; "member"; "prop"])]);
+                [("file1", ((20, 13), (20, 30)), ["defn"], ["slot"; "member"; "prop"]);
+                 ("file1", ((25, 15), (25, 32)), ["override"], ["slot"; "member"; "prop"]);
+                 ("file1", ((52, 18), (52, 35)), ["override"], ["slot"; "member"; "prop"])]);
                ("property BaseClassEvent",
                 [("file1", ((29, 15), (29, 29)), ["defn"], ["member"; "prop"])]);
                ("property BaseClassEvent",
-                [("file1", ((24, 13), (24, 27)), ["defn"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((29, 15), (29, 29)), ["override"],
-                  ["slot"; "member"; "prop"]);
-                 ("file1", ((56, 18), (56, 32)), ["override"],
-                  ["slot"; "member"; "prop"])]);
+                [("file1", ((24, 13), (24, 27)), ["defn"], ["slot"; "member"; "prop"]);
+                 ("file1", ((29, 15), (29, 29)), ["override"], ["slot"; "member"; "prop"]);
+                 ("file1", ((56, 18), (56, 32)), ["override"], ["slot"; "member"; "prop"])]);
                ("IFooImpl", [("file1", ((31, 5), (31, 13)), ["defn"], ["class"])]);
                ("member .ctor",
                 [("file1", ((31, 5), (31, 13)), ["defn"], ["member"; "ctor"])]);
@@ -1247,7 +1228,7 @@ let ``Test project3 all uses of all signature symbols`` () =
                ("member .ctor",
                 [("file1", ((40, 5), (40, 13)), ["defn"], ["member"; "ctor"])]);
                ("property AbstractClassPropertySet",
-                [("file1", ((44, 48), (44, 51)), ["defn"], ["member"; "prop"])]);
+                [("file1", ((44, 18), (44, 42)), ["defn"], ["member"; "prop"])]);
                ("property AbstractClassProperty",
                 [("file1", ((43, 18), (43, 39)), ["defn"], ["member"; "prop"])]);
                ("property AbstractClassEvent",
@@ -1256,7 +1237,7 @@ let ``Test project3 all uses of all signature symbols`` () =
                ("member .ctor",
                 [("file1", ((49, 5), (49, 17)), ["defn"], ["member"; "ctor"])]);
                ("property BaseClassPropertySet",
-                [("file1", ((53, 44), (53, 47)), ["defn"], ["member"; "prop"])]);
+                [("file1", ((53, 18), (53, 38)), ["defn"], ["member"; "prop"])]);
                ("property BaseClassProperty",
                 [("file1", ((52, 18), (52, 35)), ["defn"], ["member"; "prop"])]);
                ("property BaseClassEvent",
@@ -3023,8 +3004,233 @@ let ``Test Project23 property`` () =
          ]
 
 
-// Misc - type provider symbols
+// Misc - property symbols
 module Project24 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module PropertyTest
+
+type TypeWithProperties() =
+    member x.NameGetSet
+        with get() = 0
+        and set (v: int) = ()
+
+    member x.NameGet
+        with get() = 0
+        and set (v: int) = ()
+
+    member x.NameSet
+        with set (v: int) = ()
+
+    static member StaticNameGetSet
+        with get() = 0
+        and set (v: int) = ()
+
+    static member StaticNameGet
+        with get() = 0
+        and set (v: int) = ()
+
+    static member StaticNameSet
+        with set (v: int) = ()
+
+    member val AutoPropGet = 0 with get
+    member val AutoPropGetSet = 0 with get, set
+
+    static member val StaticAutoPropGet = 0 with get
+    static member val StaticAutoPropGetSet = 0 with get, set
+
+let v1 = TypeWithProperties().NameGetSet 
+TypeWithProperties().NameGetSet  <- 3
+
+let v2 = TypeWithProperties().NameGet
+
+TypeWithProperties().NameSet  <- 3
+
+let v3 = TypeWithProperties.StaticNameGetSet 
+TypeWithProperties.StaticNameGetSet  <- 3
+
+let v4 = TypeWithProperties.StaticNameGet
+
+TypeWithProperties.StaticNameSet  <- 3
+
+let v5 = TypeWithProperties().AutoPropGet 
+
+let v6 = TypeWithProperties().AutoPropGetSet
+TypeWithProperties().AutoPropGetSet  <- 3
+
+let v7 = TypeWithProperties.StaticAutoPropGet
+
+let v8 = TypeWithProperties.StaticAutoPropGetSet
+TypeWithProperties.StaticAutoPropGetSet  <- 3
+
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames) 
+    let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test Project24 whole project errors`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+[<Test>]
+let ``Test Project24 all symbols`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
+        |> Async.RunSynchronously   
+
+    let allUses  = 
+        backgroundTypedParse1.GetAllUsesOfAllSymbolsInFile() 
+        |> Async.RunSynchronously
+        |> Array.map (fun s -> (s.Symbol.DisplayName, Project24.cleanFileName s.FileName, tups s.RangeAlternate, attribsOfSymbolUse s, attribsOfSymbol s.Symbol))
+
+    allUses |> shouldEqual 
+          [|("TypeWithProperties", "file1", ((4, 5), (4, 23)), ["defn"], ["class"]);
+            ("( .ctor )", "file1", ((4, 5), (4, 23)), ["defn"], ["member"; "ctor"]);
+            ("NameGetSet", "file1", ((5, 13), (5, 23)), ["defn"], ["member"; "getter"]);
+            ("int", "file1", ((7, 20), (7, 23)), ["type"], ["abbrev"]);
+            ("NameGet", "file1", ((9, 13), (9, 20)), ["defn"], ["member"; "getter"]);
+            ("int", "file1", ((11, 20), (11, 23)), ["type"], ["abbrev"]);
+            ("int", "file1", ((14, 21), (14, 24)), ["type"], ["abbrev"]);
+            ("NameSet", "file1", ((13, 13), (13, 20)), ["defn"], ["member"; "setter"]);
+            ("StaticNameGetSet", "file1", ((16, 18), (16, 34)), ["defn"],
+             ["member"; "getter"]);
+            ("int", "file1", ((18, 20), (18, 23)), ["type"], ["abbrev"]);
+            ("StaticNameGet", "file1", ((20, 18), (20, 31)), ["defn"],
+             ["member"; "getter"]);
+            ("int", "file1", ((22, 20), (22, 23)), ["type"], ["abbrev"]);
+            ("int", "file1", ((25, 21), (25, 24)), ["type"], ["abbrev"]);
+            ("StaticNameSet", "file1", ((24, 18), (24, 31)), ["defn"],
+             ["member"; "setter"]);
+            ("AutoPropGet", "file1", ((27, 15), (27, 26)), ["defn"],
+             ["member"; "getter"]);
+            ("AutoPropGetSet", "file1", ((28, 15), (28, 29)), ["defn"],
+             ["member"; "getter"]);
+            ("StaticAutoPropGet", "file1", ((30, 22), (30, 39)), ["defn"],
+             ["member"; "getter"]);
+            ("StaticAutoPropGetSet", "file1", ((31, 22), (31, 42)), ["defn"],
+             ["member"; "getter"]);
+            ("( AutoPropGet@ )", "file1", ((27, 29), (27, 30)), ["defn"], []);
+            ("( AutoPropGetSet@ )", "file1", ((28, 32), (28, 33)), ["defn"],
+             ["mutable"]);
+            ("( StaticAutoPropGet@ )", "file1", ((30, 42), (30, 43)), ["defn"], []);
+            ("( StaticAutoPropGetSet@ )", "file1", ((31, 45), (31, 46)), ["defn"],
+             ["mutable"]); ("x", "file1", ((5, 11), (5, 12)), ["defn"], []);
+            ("int", "file1", ((7, 20), (7, 23)), ["type"], ["abbrev"]);
+            ("v", "file1", ((7, 17), (7, 18)), ["defn"], []);
+            ("x", "file1", ((9, 11), (9, 12)), ["defn"], []);
+            ("int", "file1", ((11, 20), (11, 23)), ["type"], ["abbrev"]);
+            ("v", "file1", ((11, 17), (11, 18)), ["defn"], []);
+            ("x", "file1", ((13, 11), (13, 12)), ["defn"], []);
+            ("int", "file1", ((14, 21), (14, 24)), ["type"], ["abbrev"]);
+            ("v", "file1", ((14, 18), (14, 19)), ["defn"], []);
+            ("int", "file1", ((18, 20), (18, 23)), ["type"], ["abbrev"]);
+            ("v", "file1", ((18, 17), (18, 18)), ["defn"], []);
+            ("int", "file1", ((22, 20), (22, 23)), ["type"], ["abbrev"]);
+            ("v", "file1", ((22, 17), (22, 18)), ["defn"], []);
+            ("int", "file1", ((25, 21), (25, 24)), ["type"], ["abbrev"]);
+            ("v", "file1", ((25, 18), (25, 19)), ["defn"], []);
+            ("( AutoPropGet@ )", "file1", ((27, 15), (27, 26)), [], []);
+            ("( AutoPropGetSet@ )", "file1", ((28, 15), (28, 29)), [], ["mutable"]);
+            ("v", "file1", ((28, 15), (28, 29)), ["defn"], []);
+            ("( StaticAutoPropGet@ )", "file1", ((30, 22), (30, 39)), [], []);
+            ("( StaticAutoPropGetSet@ )", "file1", ((31, 22), (31, 42)), [],
+             ["mutable"]); ("v", "file1", ((31, 22), (31, 42)), ["defn"], []);
+            ("( .cctor )", "file1", ((4, 5), (4, 23)), ["defn"], ["member"]);
+            ("TypeWithProperties", "file1", ((33, 9), (33, 27)), [],
+             ["member"; "ctor"]);
+            ("NameGetSet", "file1", ((33, 9), (33, 40)), [], ["member"; "prop"]);
+            ("v1", "file1", ((33, 4), (33, 6)), ["defn"], ["val"]);
+            ("TypeWithProperties", "file1", ((34, 0), (34, 18)), [],
+             ["member"; "ctor"]);
+            ("NameGetSet", "file1", ((34, 0), (34, 31)), [], ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((36, 9), (36, 27)), [],
+             ["member"; "ctor"]);
+            ("NameGet", "file1", ((36, 9), (36, 37)), [], ["member"; "prop"]);
+            ("v2", "file1", ((36, 4), (36, 6)), ["defn"], ["val"]);
+            ("TypeWithProperties", "file1", ((38, 0), (38, 18)), [],
+             ["member"; "ctor"]);
+            ("NameSet", "file1", ((38, 0), (38, 28)), [], ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((40, 9), (40, 27)), [], ["class"]);
+            ("StaticNameGetSet", "file1", ((40, 9), (40, 44)), [], ["member"; "prop"]);
+            ("v3", "file1", ((40, 4), (40, 6)), ["defn"], ["val"]);
+            ("TypeWithProperties", "file1", ((41, 0), (41, 18)), [], ["class"]);
+            ("StaticNameGetSet", "file1", ((41, 0), (41, 35)), [], ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((43, 9), (43, 27)), [], ["class"]);
+            ("StaticNameGet", "file1", ((43, 9), (43, 41)), [], ["member"; "prop"]);
+            ("v4", "file1", ((43, 4), (43, 6)), ["defn"], ["val"]);
+            ("TypeWithProperties", "file1", ((45, 0), (45, 18)), [], ["class"]);
+            ("StaticNameSet", "file1", ((45, 0), (45, 32)), [], ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((47, 9), (47, 27)), [],
+             ["member"; "ctor"]);
+            ("AutoPropGet", "file1", ((47, 9), (47, 41)), [], ["member"; "prop"]);
+            ("v5", "file1", ((47, 4), (47, 6)), ["defn"], ["val"]);
+            ("TypeWithProperties", "file1", ((49, 9), (49, 27)), [],
+             ["member"; "ctor"]);
+            ("AutoPropGetSet", "file1", ((49, 9), (49, 44)), [], ["member"; "prop"]);
+            ("v6", "file1", ((49, 4), (49, 6)), ["defn"], ["val"]);
+            ("TypeWithProperties", "file1", ((50, 0), (50, 18)), [],
+             ["member"; "ctor"]);
+            ("AutoPropGetSet", "file1", ((50, 0), (50, 35)), [], ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((52, 9), (52, 27)), [], ["class"]);
+            ("StaticAutoPropGet", "file1", ((52, 9), (52, 45)), [], ["member"; "prop"]);
+            ("v7", "file1", ((52, 4), (52, 6)), ["defn"], ["val"]);
+            ("TypeWithProperties", "file1", ((54, 9), (54, 27)), [], ["class"]);
+            ("StaticAutoPropGetSet", "file1", ((54, 9), (54, 48)), [],
+             ["member"; "prop"]);
+            ("v8", "file1", ((54, 4), (54, 6)), ["defn"], ["val"]);
+            ("TypeWithProperties", "file1", ((55, 0), (55, 18)), [], ["class"]);
+            ("StaticAutoPropGetSet", "file1", ((55, 0), (55, 39)), [],
+             ["member"; "prop"]);
+            ("PropertyTest", "file1", ((2, 7), (2, 19)), ["defn"], ["module"])|]
+
+[<Test>]
+let ``Test symbol uses of properties with both getters and setters`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
+        |> Async.RunSynchronously   
+
+    let getAllSymbolUses = 
+        backgroundTypedParse1.GetAllUsesOfAllSymbolsInFile() 
+        |> Async.RunSynchronously
+        |> Array.map (fun s -> (s.Symbol.DisplayName, Project24.cleanFileName s.FileName, tups s.RangeAlternate, attribsOfSymbol s.Symbol))
+
+    getAllSymbolUses |> shouldEqual
+          [|("TypeWithProperties", "file1", ((4, 5), (4, 23)), ["class"]);
+            ("( .ctor )", "file1", ((4, 5), (4, 23)), ["member"; "ctor"]);
+            ("Name", "file1", ((5, 13), (5, 17)), ["member"; "getter"]);
+            ("int", "file1", ((7, 20), (7, 23)), ["abbrev"]);
+            ("x", "file1", ((5, 11), (5, 12)), []);
+            ("int", "file1", ((7, 20), (7, 23)), ["abbrev"]);
+            ("v", "file1", ((7, 17), (7, 18)), []);
+            ("PropertyTest", "file1", ((2, 7), (2, 19)), ["module"])|]
+
+    let getSampleSymbolUseOpt = 
+        backgroundTypedParse1.GetSymbolUseAtLocation(5,17,"",["Name"]) 
+        |> Async.RunSynchronously
+
+    let getSampleSymbol = getSampleSymbolUseOpt.Value.Symbol
+    
+    let usesOfGetSampleSymbol = 
+        backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
+        |> Async.RunSynchronously
+        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
+
+    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((10, 13), (10, 17)))|]
+
+
+// Misc - type provider symbols
+module Project25 = 
     open System.IO
 
     let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
@@ -3040,11 +3246,6 @@ let _ = Project.GetSample()
 type Record = { Field: int }
 let r = { Record.Field = 1 }
 
-type TypeWithProperties() =
-    member x.Name
-        with get() = 0
-        and set (v: int) = ()
-
 let _ = XmlProvider<"<root><value>1</value><value>3</value></root>">.GetSample()
 """
     File.WriteAllText(fileName1, fileSource1)
@@ -3058,63 +3259,50 @@ let _ = XmlProvider<"<root><value>1</value><value>3</value></root>">.GetSample()
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
 [<Test>]
-let ``Test Project24 whole project errors`` () = 
-    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+let ``Test Project25 whole project errors`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project25.options) |> Async.RunSynchronously
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
 let ``Test symbol uses of type-provided members`` () = 
-    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    let wholeProjectResults = checker.ParseAndCheckProject(Project25.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
-        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
+        checker.GetBackgroundCheckResultsForFileInProject(Project25.fileName1, Project25.options) 
         |> Async.RunSynchronously   
 
     let allUses  = 
         backgroundTypedParse1.GetAllUsesOfAllSymbolsInFile() 
         |> Async.RunSynchronously
-        |> Array.map (fun s -> (s.Symbol.FullName, Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate, attribsOfSymbol s.Symbol))
+        |> Array.map (fun s -> (s.Symbol.FullName, Project25.cleanFileName s.FileName, tups s.RangeAlternate, attribsOfSymbol s.Symbol))
 
     allUses |> shouldEqual 
 
-          [|("FSharp.Data.XmlProvider", "file1", ((3, 15), (3, 26)),
+          [|("FSharp.Data.XmlProvider", "file1", ((4, 15), (4, 26)),
              ["class"; "provided"; "erased"]);
-            ("FSharp.Data.XmlProvider", "file1", ((3, 15), (3, 26)),
+            ("FSharp.Data.XmlProvider", "file1", ((4, 15), (4, 26)),
              ["class"; "provided"; "erased"]);
-            ("FSharp.Data.XmlProvider", "file1", ((3, 15), (3, 26)),
+            ("FSharp.Data.XmlProvider", "file1", ((4, 15), (4, 26)),
              ["class"; "provided"; "erased"]);
-            ("FSharp.Data.XmlProvider", "file1", ((3, 15), (3, 26)),
+            ("FSharp.Data.XmlProvider", "file1", ((4, 15), (4, 26)),
              ["class"; "provided"; "erased"]);
-            ("TypeProviderTests.Project", "file1", ((3, 5), (3, 12)), ["abbrev"]);
-            ("TypeProviderTests.Project", "file1", ((4, 8), (4, 15)), ["abbrev"]);
-            ("FSharp.Data.XmlProvider<...>.GetSample", "file1", ((4, 8), (4, 25)),
+            ("TypeProviderTests.Project", "file1", ((4, 5), (4, 12)), ["abbrev"]);
+            ("TypeProviderTests.Project", "file1", ((5, 8), (5, 15)), ["abbrev"]);
+            ("FSharp.Data.XmlProvider<...>.GetSample", "file1", ((5, 8), (5, 25)),
              ["member"]);
-            ("Microsoft.FSharp.Core.int", "file1", ((6, 23), (6, 26)), ["abbrev"]);
-            ("Microsoft.FSharp.Core.int", "file1", ((6, 23), (6, 26)), ["abbrev"]);
-            ("TypeProviderTests.Record.Field", "file1", ((6, 16), (6, 21)), []);
-            ("TypeProviderTests.Record", "file1", ((6, 5), (6, 11)), ["record"]);
-            ("TypeProviderTests.Record", "file1", ((7, 10), (7, 16)), ["record"]);
-            ("TypeProviderTests.Record.Field", "file1", ((7, 17), (7, 22)), []);
-            ("TypeProviderTests.r", "file1", ((7, 4), (7, 5)), ["val"]);
-            ("TypeProviderTests.TypeWithProperties", "file1", ((9, 5), (9, 23)),
-             ["class"]);
-            ("TypeProviderTests.TypeWithProperties.( .ctor )", "file1",
-             ((9, 5), (9, 23)), ["member"; "ctor"]);
-            ("TypeProviderTests.TypeWithProperties.Name", "file1",
-             ((11, 13), (11, 16)), ["member"; "getter"]);
-            ("Microsoft.FSharp.Core.int", "file1", ((12, 20), (12, 23)), ["abbrev"]);
-            ("TypeProviderTests.TypeWithProperties.Name", "file1",
-             ((12, 12), (12, 15)), ["member"; "setter"]);
-            ("x", "file1", ((10, 11), (10, 12)), []);
-            ("Microsoft.FSharp.Core.int", "file1", ((12, 20), (12, 23)), ["abbrev"]);
-            ("v", "file1", ((12, 17), (12, 18)), []);
-            ("FSharp.Data.XmlProvider", "file1", ((14, 8), (14, 19)),
+            ("Microsoft.FSharp.Core.int", "file1", ((7, 23), (7, 26)), ["abbrev"]);
+            ("Microsoft.FSharp.Core.int", "file1", ((7, 23), (7, 26)), ["abbrev"]);
+            ("TypeProviderTests.Record.Field", "file1", ((7, 16), (7, 21)), ["field"]);
+            ("TypeProviderTests.Record", "file1", ((7, 5), (7, 11)), ["record"]);
+            ("TypeProviderTests.Record", "file1", ((8, 10), (8, 16)), ["record"]);
+            ("TypeProviderTests.Record.Field", "file1", ((8, 17), (8, 22)), ["field"]);
+            ("TypeProviderTests.r", "file1", ((8, 4), (8, 5)), ["val"]);
+            ("FSharp.Data.XmlProvider", "file1", ((10, 8), (10, 19)),
              ["class"; "provided"; "erased"]);
-            ("FSharp.Data.XmlProvider<...>", "file1", ((14, 8), (14, 68)),
+            ("FSharp.Data.XmlProvider<...>", "file1", ((10, 8), (10, 68)),
              ["class"; "provided"; "staticinst"; "erased"]);
-            ("FSharp.Data.XmlProvider<...>.GetSample", "file1", ((14, 8), (14, 78)),
+            ("FSharp.Data.XmlProvider<...>.GetSample", "file1", ((10, 8), (10, 78)),
              ["member"]);
-            ("TypeProviderTests", "file1", ((1, 7), (1, 24)), ["module"])|]
-
+            ("TypeProviderTests", "file1", ((2, 7), (2, 24)), ["module"])|]
     let getSampleSymbolUseOpt = 
         backgroundTypedParse1.GetSymbolUseAtLocation(5,25,"",["GetSample"]) 
         |> Async.RunSynchronously
@@ -3124,15 +3312,15 @@ let ``Test symbol uses of type-provided members`` () =
     let usesOfGetSampleSymbol = 
         backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
         |> Async.RunSynchronously
-        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
+        |> Array.map (fun s -> (Project25.cleanFileName s.FileName, tups s.RangeAlternate))
 
-    usesOfGetSampleSymbol |> shouldEqual[|("file1", ((4, 8), (4, 25))); ("file1", ((14, 8), (14, 78)))|]
+    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((5, 8), (5, 25))); ("file1", ((10, 8), (10, 78)))|]
 
 [<Test>]
 let ``Test symbol uses of type-provided types`` () = 
-    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    let wholeProjectResults = checker.ParseAndCheckProject(Project25.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
-        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
+        checker.GetBackgroundCheckResultsForFileInProject(Project25.fileName1, Project25.options) 
         |> Async.RunSynchronously   
 
     let getSampleSymbolUseOpt = 
@@ -3144,15 +3332,15 @@ let ``Test symbol uses of type-provided types`` () =
     let usesOfGetSampleSymbol = 
         backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
         |> Async.RunSynchronously
-        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
+        |> Array.map (fun s -> (Project25.cleanFileName s.FileName, tups s.RangeAlternate))
 
-    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((3, 15), (3, 26))); ("file1", ((14, 8), (14, 19)))|]
+    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((4, 15), (4, 26))); ("file1", ((10, 8), (10, 19)))|]
 
 [<Test>]
 let ``Test symbol uses of fully-qualified records`` () = 
-    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    let wholeProjectResults = checker.ParseAndCheckProject(Project25.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
-        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
+        checker.GetBackgroundCheckResultsForFileInProject(Project25.fileName1, Project25.options) 
         |> Async.RunSynchronously   
 
     let getSampleSymbolUseOpt = 
@@ -3164,31 +3352,7 @@ let ``Test symbol uses of fully-qualified records`` () =
     let usesOfGetSampleSymbol = 
         backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
         |> Async.RunSynchronously
-        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
+        |> Array.map (fun s -> (Project25.cleanFileName s.FileName, tups s.RangeAlternate))
 
-    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((6, 5), (6, 11))); ("file1", ((7, 10), (7, 16)))|]
+    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((7, 5), (7, 11))); ("file1", ((8, 10), (8, 16)))|]
 
-[<Test; Ignore "FCS should return symbols for properties with explicit getters and setters">]
-let ``Test symbol uses of properties with both getters and setters`` () = 
-    let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
-    let backgroundParseResults1, backgroundTypedParse1 = 
-        checker.GetBackgroundCheckResultsForFileInProject(Project24.fileName1, Project24.options) 
-        |> Async.RunSynchronously   
-
-    let getAllSymbolUses = 
-        backgroundTypedParse1.GetAllUsesOfAllSymbolsInFile() 
-        |> Async.RunSynchronously
-        |> Array.map (fun s -> (s.Symbol.DisplayName, Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate, attribsOfSymbol s.Symbol))
-
-    let getSampleSymbolUseOpt = 
-        backgroundTypedParse1.GetSymbolUseAtLocation(11,17,"",["Name"]) 
-        |> Async.RunSynchronously
-
-    let getSampleSymbol = getSampleSymbolUseOpt.Value.Symbol
-    
-    let usesOfGetSampleSymbol = 
-        backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
-        |> Async.RunSynchronously
-        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
-
-    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((10, 13), (10, 17)))|]

@@ -10,10 +10,18 @@ This tutorial demonstrates how to host the F# compiler.
 *)
 
 (**
-> **NOTE:** There is a number of options for hosting the F# compiler. The easiest one is to use the 
+> **NOTE:** There are several options for hosting the F# compiler. The easiest one is to use the 
 `fsc.exe` process and pass arguments. 
+*)
 
+(**
 
+> **NOTE:** By default [compilations using FSharp.Compiler.Service reference FSharp.Core 4.3.0.0](https://github.com/fsharp/FSharp.Compiler.Service/issues/156) (matching F# 3.0).  You can override
+this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitly in your command-line arguments.
+
+*)
+
+(**
 ---------------------------
 
 First, we need to reference the libraries that contain F# interactive service:

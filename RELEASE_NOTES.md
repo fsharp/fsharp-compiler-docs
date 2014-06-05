@@ -212,4 +212,6 @@
 * Fix #154 - Add IsArrayType on FSharpEntity to allow clients to detect the symbols for array types
 * Fix #96 - Return resolutions of 'Module' and 'Type' in "Module.field" and "Type.field"
 
+#### 0.0.50 - 
+* Fix #79 - FindUsesOfSymbol returns None at definition of properties with explicit getters and setters 
 

@@ -232,26 +232,25 @@ let ``Test project1 all symbols`` () =
            ("val mmmm2", "file2", (40, 4), (40, 9), ["val"]);
            ("D1", "file2", (6, 5), (6, 7), ["class"]);
            ("member .ctor", "file2", (6, 5), (6, 7), ["member"; "ctor"]);
-           ("member get_SomeProperty", "file2", (7, 13), (7, 25),
-            ["member"; "getter"]);
-           ("property SomeProperty", "file2", (7, 13), (7, 25),
-            ["member"; "prop"]); ("D2", "file2", (9, 5), (9, 7), ["class"]);
+           ("member get_SomeProperty", "file2", (7, 13), (7, 25), ["member"; "getter"]);
+           ("property SomeProperty", "file2", (7, 13), (7, 25), ["member"; "prop"]);
+           ("D2", "file2", (9, 5), (9, 7), ["class"]);
            ("member .ctor", "file2", (9, 5), (9, 7), ["member"; "ctor"]);
            ("member get_SomeProperty", "file2", (10, 13), (10, 25),
             ["member"; "getter"]);
-           ("property SomeProperty", "file2", (10, 13), (10, 25),
-            ["member"; "prop"]); ("D3", "file2", (16, 5), (16, 7), ["class"]);
+           ("property SomeProperty", "file2", (10, 13), (10, 25), ["member"; "prop"]);
+           ("D3", "file2", (16, 5), (16, 7), ["class"]);
            ("member .ctor", "file2", (16, 5), (16, 7), ["member"; "ctor"]);
            ("member get_SomeProperty", "file2", (22, 13), (22, 25),
             ["member"; "getter"]);
-           ("property SomeProperty", "file2", (22, 13), (22, 25),
-            ["member"; "prop"]); ("field a", "file2", (16, 8), (16, 9), []);
-           ("field b", "file2", (17, 8), (17, 9), []);
-           ("field x", "file2", (20, 16), (20, 17), []);
+           ("property SomeProperty", "file2", (22, 13), (22, 25), ["member"; "prop"]);
+           ("field a", "file2", (16, 8), (16, 9), ["field"; "compgen"]);
+           ("field b", "file2", (17, 8), (17, 9), ["field"; "compgen"]);
+           ("field x", "file2", (20, 16), (20, 17), ["field"; "default"; "mutable"]);
            ("SaveOptions", "file2", (27, 5), (27, 16), ["enum"; "valuetype"]);
-           ("field value__", "file2", (28, 2), (29, 25), []);
-           ("field None", "file2", (28, 4), (28, 8), []);
-           ("field DisableFormatting", "file2", (29, 4), (29, 21), []);
+           ("field value__", "file2", (28, 2), (29, 25), ["field"; "compgen"]);
+           ("field None", "file2", (28, 4), (28, 8), ["field"; "static"]);
+           ("field DisableFormatting", "file2", (29, 4), (29, 21), ["field"; "static"]);
            ("M", "file1", (2, 7), (2, 8), ["module"]);
            ("val xxx", "file1", (7, 4), (7, 7), ["val"]);
            ("val fff", "file1", (8, 4), (8, 7), ["val"]);
@@ -272,7 +271,7 @@ let ``Test project1 all symbols`` () =
             ]
 
     allImplementationLocations |> shouldEqual
-          [("N", "file2", (2, 7), (2, 8), ["module"]);
+           [("N", "file2", (2, 7), (2, 8), ["module"]);
            ("val y2", "file2", (13, 4), (13, 6), ["val"]);
            ("val pair2", "file2", (24, 10), (24, 15), ["val"]);
            ("val pair1", "file2", (24, 4), (24, 9), ["val"]);
@@ -284,26 +283,25 @@ let ``Test project1 all symbols`` () =
            ("val mmmm2", "file2", (40, 4), (40, 9), ["val"]);
            ("D1", "file2", (6, 5), (6, 7), ["class"]);
            ("member .ctor", "file2", (6, 5), (6, 7), ["member"; "ctor"]);
-           ("member get_SomeProperty", "file2", (7, 13), (7, 25),
-            ["member"; "getter"]);
-           ("property SomeProperty", "file2", (7, 13), (7, 25),
-            ["member"; "prop"]); ("D2", "file2", (9, 5), (9, 7), ["class"]);
+           ("member get_SomeProperty", "file2", (7, 13), (7, 25), ["member"; "getter"]);
+           ("property SomeProperty", "file2", (7, 13), (7, 25), ["member"; "prop"]);
+           ("D2", "file2", (9, 5), (9, 7), ["class"]);
            ("member .ctor", "file2", (9, 5), (9, 7), ["member"; "ctor"]);
            ("member get_SomeProperty", "file2", (10, 13), (10, 25),
             ["member"; "getter"]);
-           ("property SomeProperty", "file2", (10, 13), (10, 25),
-            ["member"; "prop"]); ("D3", "file2", (16, 5), (16, 7), ["class"]);
+           ("property SomeProperty", "file2", (10, 13), (10, 25), ["member"; "prop"]);
+           ("D3", "file2", (16, 5), (16, 7), ["class"]);
            ("member .ctor", "file2", (16, 5), (16, 7), ["member"; "ctor"]);
            ("member get_SomeProperty", "file2", (22, 13), (22, 25),
             ["member"; "getter"]);
-           ("property SomeProperty", "file2", (22, 13), (22, 25),
-            ["member"; "prop"]); ("field a", "file2", (16, 8), (16, 9), []);
-           ("field b", "file2", (17, 8), (17, 9), []);
-           ("field x", "file2", (20, 16), (20, 17), []);
+           ("property SomeProperty", "file2", (22, 13), (22, 25), ["member"; "prop"]);
+           ("field a", "file2", (16, 8), (16, 9), ["field"; "compgen"]);
+           ("field b", "file2", (17, 8), (17, 9), ["field"; "compgen"]);
+           ("field x", "file2", (20, 16), (20, 17), ["field"; "default"; "mutable"]);
            ("SaveOptions", "file2", (27, 5), (27, 16), ["enum"; "valuetype"]);
-           ("field value__", "file2", (28, 2), (29, 25), []);
-           ("field None", "file2", (28, 4), (28, 8), []);
-           ("field DisableFormatting", "file2", (29, 4), (29, 21), []);
+           ("field value__", "file2", (28, 2), (29, 25), ["field"; "compgen"]);
+           ("field None", "file2", (28, 4), (28, 8), ["field"; "static"]);
+           ("field DisableFormatting", "file2", (29, 4), (29, 21), ["field"; "static"]);
            ("M", "file1", (2, 7), (2, 8), ["module"]);
            ("val xxx", "file1", (7, 4), (7, 7), ["val"]);
            ("val fff", "file1", (8, 4), (8, 7), ["val"]);
@@ -466,14 +464,14 @@ let ``Test project1 all uses of all symbols`` () =
                ("( .ctor )", "N.D1.( .ctor )", "file2", ((5, 5), (5, 7)),
                 ["member"; "ctor"]);
                ("SomeProperty", "N.D1.SomeProperty", "file2", ((6, 13), (6, 25)),
-                ["member";"getter"]); ("x", "x", "file2", ((6, 11), (6, 12)), []);
+                ["member"; "getter"]); ("x", "x", "file2", ((6, 11), (6, 12)), []);
                ("M", "M", "file2", ((6, 28), (6, 29)), ["module"]);
                ("xxx", "M.xxx", "file2", ((6, 28), (6, 33)), ["val"]);
                ("D2", "N.D2", "file2", ((8, 5), (8, 7)), ["class"]);
                ("( .ctor )", "N.D2.( .ctor )", "file2", ((8, 5), (8, 7)),
                 ["member"; "ctor"]);
                ("SomeProperty", "N.D2.SomeProperty", "file2", ((9, 13), (9, 25)),
-                ["member";"getter"]); ("x", "x", "file2", ((9, 11), (9, 12)), []);
+                ["member"; "getter"]); ("x", "x", "file2", ((9, 11), (9, 12)), []);
                ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
                 ((9, 36), (9, 37)), ["val"]);
                ("M", "M", "file2", ((9, 28), (9, 29)), ["module"]);
@@ -496,14 +494,15 @@ let ``Test project1 all uses of all symbols`` () =
                 "file2", ((18, 6), (18, 18)), ["class"]);
                ("DefaultValueAttribute", "Microsoft.FSharp.Core.DefaultValueAttribute",
                 "file2", ((18, 6), (18, 18)), ["member"]);
-               ("x", "N.D3.x", "file2", ((19, 16), (19, 17)), []);
+               ("x", "N.D3.x", "file2", ((19, 16), (19, 17)),
+                ["field"; "default"; "mutable"]);
                ("D3", "N.D3", "file2", ((15, 5), (15, 7)), ["class"]);
                ("int", "Microsoft.FSharp.Core.int", "file2", ((15, 10), (15, 13)),
                 ["abbrev"]); ("a", "a", "file2", ((15, 8), (15, 9)), []);
                ("( .ctor )", "N.D3.( .ctor )", "file2", ((15, 5), (15, 7)),
                 ["member"; "ctor"]);
                ("SomeProperty", "N.D3.SomeProperty", "file2", ((21, 13), (21, 25)),
-                ["member";"getter"]);
+                ["member"; "getter"]);
                ("( + )", "Microsoft.FSharp.Core.Operators.( + )", "file2",
                 ((16, 14), (16, 15)), ["val"]);
                ("a", "a", "file2", ((16, 12), (16, 13)), []);
@@ -530,15 +529,16 @@ let ``Test project1 all uses of all symbols`` () =
                 ((23, 62), (23, 63)), ["val"]);
                ("pair2", "N.pair2", "file2", ((23, 10), (23, 15)), ["val"]);
                ("pair1", "N.pair1", "file2", ((23, 4), (23, 9)), ["val"]);
-               ("None", "N.SaveOptions.None", "file2", ((27, 4), (27, 8)), []);
+               ("None", "N.SaveOptions.None", "file2", ((27, 4), (27, 8)),
+                ["field"; "static"]);
                ("DisableFormatting", "N.SaveOptions.DisableFormatting", "file2",
-                ((28, 4), (28, 21)), []);
+                ((28, 4), (28, 21)), ["field"; "static"]);
                ("SaveOptions", "N.SaveOptions", "file2", ((26, 5), (26, 16)),
                 ["enum"; "valuetype"]);
                ("SaveOptions", "N.SaveOptions", "file2", ((30, 16), (30, 27)),
                 ["enum"; "valuetype"]);
                ("DisableFormatting", "N.SaveOptions.DisableFormatting", "file2",
-                ((30, 16), (30, 45)), []);
+                ((30, 16), (30, 45)), ["field"; "static"]);
                ("enumValue", "N.enumValue", "file2", ((30, 4), (30, 13)), ["val"]);
                ("x", "x", "file2", ((32, 9), (32, 10)), []);
                ("y", "y", "file2", ((32, 11), (32, 12)), []);
@@ -2669,29 +2669,33 @@ let ``Test Project19 all symbols`` () =
         |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project19.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su, attribsOfSymbol su.Symbol)
 
     allUsesOfAllSymbols |> shouldEqual
-          [|("field EnumCase1", "EnumCase1", "file1", ((4, 14), (4, 23)), ["defn"], []);
-            ("field EnumCase2", "EnumCase2", "file1", ((4, 30), (4, 39)), ["defn"], []);
+          [|("field EnumCase1", "EnumCase1", "file1", ((4, 14), (4, 23)), ["defn"],
+             ["field"; "static"]);
+            ("field EnumCase2", "EnumCase2", "file1", ((4, 30), (4, 39)), ["defn"],
+             ["field"; "static"]);
             ("Enum", "Enum", "file1", ((4, 5), (4, 9)), ["defn"],
              ["enum"; "valuetype"]);
             ("Enum", "Enum", "file1", ((6, 8), (6, 12)), [], ["enum"; "valuetype"]);
-            ("field EnumCase1", "EnumCase1", "file1", ((6, 8), (6, 22)), [], []);
+            ("field EnumCase1", "EnumCase1", "file1", ((6, 8), (6, 22)), [],
+             ["field"; "static"]);
             ("Enum", "Enum", "file1", ((7, 8), (7, 12)), [], ["enum"; "valuetype"]);
-            ("field EnumCase2", "EnumCase2", "file1", ((7, 8), (7, 22)), [], []);
+            ("field EnumCase2", "EnumCase2", "file1", ((7, 8), (7, 22)), [],
+             ["field"; "static"]);
             ("val x", "x", "file1", ((8, 6), (8, 7)), ["defn"], []);
             ("val x", "x", "file1", ((8, 16), (8, 17)), [], []);
             ("Enum", "Enum", "file1", ((8, 23), (8, 27)), [], ["enum"; "valuetype"]);
             ("field EnumCase1", "EnumCase1", "file1", ((8, 23), (8, 37)), ["pattern"],
-             []);
+             ["field"; "static"]);
             ("Enum", "Enum", "file1", ((8, 45), (8, 49)), [], ["enum"; "valuetype"]);
             ("field EnumCase2", "EnumCase2", "file1", ((8, 45), (8, 59)), ["pattern"],
-             []); ("val f", "f", "file1", ((8, 4), (8, 5)), ["defn"], ["val"]);
+             ["field"; "static"]);
+            ("val f", "f", "file1", ((8, 4), (8, 5)), ["defn"], ["val"]);
             ("DayOfWeek", "DayOfWeek", "file1", ((10, 15), (10, 24)), [],
              ["enum"; "valuetype"]);
             ("System", "System", "file1", ((10, 8), (10, 14)), [], ["namespace"]);
             ("symbol Monday", "Monday", "file1", ((10, 8), (10, 31)), [], []);
             ("val s", "s", "file1", ((10, 4), (10, 5)), ["defn"], ["val"]);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], ["module"])|]
-
 
 
 
@@ -3208,11 +3212,85 @@ let ``Test symbol uses of properties with both getters and setters`` () =
     getAllSymbolUses |> shouldEqual
           [|("TypeWithProperties", "file1", ((4, 5), (4, 23)), ["class"]);
             ("( .ctor )", "file1", ((4, 5), (4, 23)), ["member"; "ctor"]);
-            ("Name", "file1", ((5, 13), (5, 17)), ["member"; "getter"]);
+            ("NameGetSet", "file1", ((5, 13), (5, 23)), ["member"; "getter"]);
             ("int", "file1", ((7, 20), (7, 23)), ["abbrev"]);
+            ("NameGet", "file1", ((9, 13), (9, 20)), ["member"; "getter"]);
+            ("int", "file1", ((11, 20), (11, 23)), ["abbrev"]);
+            ("int", "file1", ((14, 21), (14, 24)), ["abbrev"]);
+            ("NameSet", "file1", ((13, 13), (13, 20)), ["member"; "setter"]);
+            ("StaticNameGetSet", "file1", ((16, 18), (16, 34)), ["member"; "getter"]);
+            ("int", "file1", ((18, 20), (18, 23)), ["abbrev"]);
+            ("StaticNameGet", "file1", ((20, 18), (20, 31)), ["member"; "getter"]);
+            ("int", "file1", ((22, 20), (22, 23)), ["abbrev"]);
+            ("int", "file1", ((25, 21), (25, 24)), ["abbrev"]);
+            ("StaticNameSet", "file1", ((24, 18), (24, 31)), ["member"; "setter"]);
+            ("AutoPropGet", "file1", ((27, 15), (27, 26)), ["member"; "getter"]);
+            ("AutoPropGetSet", "file1", ((28, 15), (28, 29)), ["member"; "getter"]);
+            ("StaticAutoPropGet", "file1", ((30, 22), (30, 39)), ["member"; "getter"]);
+            ("StaticAutoPropGetSet", "file1", ((31, 22), (31, 42)),
+             ["member"; "getter"]);
+            ("( AutoPropGet@ )", "file1", ((27, 29), (27, 30)), []);
+            ("( AutoPropGetSet@ )", "file1", ((28, 32), (28, 33)), ["mutable"]);
+            ("( StaticAutoPropGet@ )", "file1", ((30, 42), (30, 43)), []);
+            ("( StaticAutoPropGetSet@ )", "file1", ((31, 45), (31, 46)), ["mutable"]);
             ("x", "file1", ((5, 11), (5, 12)), []);
             ("int", "file1", ((7, 20), (7, 23)), ["abbrev"]);
             ("v", "file1", ((7, 17), (7, 18)), []);
+            ("x", "file1", ((9, 11), (9, 12)), []);
+            ("int", "file1", ((11, 20), (11, 23)), ["abbrev"]);
+            ("v", "file1", ((11, 17), (11, 18)), []);
+            ("x", "file1", ((13, 11), (13, 12)), []);
+            ("int", "file1", ((14, 21), (14, 24)), ["abbrev"]);
+            ("v", "file1", ((14, 18), (14, 19)), []);
+            ("int", "file1", ((18, 20), (18, 23)), ["abbrev"]);
+            ("v", "file1", ((18, 17), (18, 18)), []);
+            ("int", "file1", ((22, 20), (22, 23)), ["abbrev"]);
+            ("v", "file1", ((22, 17), (22, 18)), []);
+            ("int", "file1", ((25, 21), (25, 24)), ["abbrev"]);
+            ("v", "file1", ((25, 18), (25, 19)), []);
+            ("( AutoPropGet@ )", "file1", ((27, 15), (27, 26)), []);
+            ("( AutoPropGetSet@ )", "file1", ((28, 15), (28, 29)), ["mutable"]);
+            ("v", "file1", ((28, 15), (28, 29)), []);
+            ("( StaticAutoPropGet@ )", "file1", ((30, 22), (30, 39)), []);
+            ("( StaticAutoPropGetSet@ )", "file1", ((31, 22), (31, 42)), ["mutable"]);
+            ("v", "file1", ((31, 22), (31, 42)), []);
+            ("( .cctor )", "file1", ((4, 5), (4, 23)), ["member"]);
+            ("TypeWithProperties", "file1", ((33, 9), (33, 27)), ["member"; "ctor"]);
+            ("NameGetSet", "file1", ((33, 9), (33, 40)), ["member"; "prop"]);
+            ("v1", "file1", ((33, 4), (33, 6)), ["val"]);
+            ("TypeWithProperties", "file1", ((34, 0), (34, 18)), ["member"; "ctor"]);
+            ("NameGetSet", "file1", ((34, 0), (34, 31)), ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((36, 9), (36, 27)), ["member"; "ctor"]);
+            ("NameGet", "file1", ((36, 9), (36, 37)), ["member"; "prop"]);
+            ("v2", "file1", ((36, 4), (36, 6)), ["val"]);
+            ("TypeWithProperties", "file1", ((38, 0), (38, 18)), ["member"; "ctor"]);
+            ("NameSet", "file1", ((38, 0), (38, 28)), ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((40, 9), (40, 27)), ["class"]);
+            ("StaticNameGetSet", "file1", ((40, 9), (40, 44)), ["member"; "prop"]);
+            ("v3", "file1", ((40, 4), (40, 6)), ["val"]);
+            ("TypeWithProperties", "file1", ((41, 0), (41, 18)), ["class"]);
+            ("StaticNameGetSet", "file1", ((41, 0), (41, 35)), ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((43, 9), (43, 27)), ["class"]);
+            ("StaticNameGet", "file1", ((43, 9), (43, 41)), ["member"; "prop"]);
+            ("v4", "file1", ((43, 4), (43, 6)), ["val"]);
+            ("TypeWithProperties", "file1", ((45, 0), (45, 18)), ["class"]);
+            ("StaticNameSet", "file1", ((45, 0), (45, 32)), ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((47, 9), (47, 27)), ["member"; "ctor"]);
+            ("AutoPropGet", "file1", ((47, 9), (47, 41)), ["member"; "prop"]);
+            ("v5", "file1", ((47, 4), (47, 6)), ["val"]);
+            ("TypeWithProperties", "file1", ((49, 9), (49, 27)), ["member"; "ctor"]);
+            ("AutoPropGetSet", "file1", ((49, 9), (49, 44)), ["member"; "prop"]);
+            ("v6", "file1", ((49, 4), (49, 6)), ["val"]);
+            ("TypeWithProperties", "file1", ((50, 0), (50, 18)), ["member"; "ctor"]);
+            ("AutoPropGetSet", "file1", ((50, 0), (50, 35)), ["member"; "prop"]);
+            ("TypeWithProperties", "file1", ((52, 9), (52, 27)), ["class"]);
+            ("StaticAutoPropGet", "file1", ((52, 9), (52, 45)), ["member"; "prop"]);
+            ("v7", "file1", ((52, 4), (52, 6)), ["val"]);
+            ("TypeWithProperties", "file1", ((54, 9), (54, 27)), ["class"]);
+            ("StaticAutoPropGetSet", "file1", ((54, 9), (54, 48)), ["member"; "prop"]);
+            ("v8", "file1", ((54, 4), (54, 6)), ["val"]);
+            ("TypeWithProperties", "file1", ((55, 0), (55, 18)), ["class"]);
+            ("StaticAutoPropGetSet", "file1", ((55, 0), (55, 39)), ["member"; "prop"]);
             ("PropertyTest", "file1", ((2, 7), (2, 19)), ["module"])|]
 
     let getSampleSymbolUseOpt = 

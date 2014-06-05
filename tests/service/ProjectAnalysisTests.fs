@@ -3294,7 +3294,7 @@ let ``Test symbol uses of properties with both getters and setters`` () =
             ("PropertyTest", "file1", ((2, 7), (2, 19)), ["module"])|]
 
     let getSampleSymbolUseOpt = 
-        backgroundTypedParse1.GetSymbolUseAtLocation(5,17,"",["Name"]) 
+        backgroundTypedParse1.GetSymbolUseAtLocation(9,20,"",["NameGet"]) 
         |> Async.RunSynchronously
 
     let getSampleSymbol = getSampleSymbolUseOpt.Value.Symbol
@@ -3302,9 +3302,9 @@ let ``Test symbol uses of properties with both getters and setters`` () =
     let usesOfGetSampleSymbol = 
         backgroundTypedParse1.GetUsesOfSymbolInFile(getSampleSymbol) 
         |> Async.RunSynchronously
-        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tupsZ s.RangeAlternate))
+        |> Array.map (fun s -> (Project24.cleanFileName s.FileName, tups s.RangeAlternate))
 
-    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((10, 13), (10, 17)))|]
+    usesOfGetSampleSymbol |> shouldEqual [|("file1", ((9, 13), (9, 20))); ("file1", ((36, 9), (36, 37)))|]
 
 
 // Misc - type provider symbols

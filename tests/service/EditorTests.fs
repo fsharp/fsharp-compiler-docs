@@ -168,7 +168,40 @@ let ``Symbols many tests`` () =
     let typeCheckContext = typeCheckResults2.ProjectContext
     
     typeCheckContext.GetReferencedAssemblies() |> List.exists (fun s -> s.FileName.Value.Contains("mscorlib")) |> shouldEqual true
+ 
+let nestedFunctionInput =
+  """
+module Test =
+    let half (str: string) = str.[..str.Length / 2]
+
+[<EntryPoint>]
+let main argv = 
+    let half (str: string) = str.[..str.Length / 2]
+    0
+  """  
+
+[<Test; Ignore; Description("Tests that two identicle functions, one in a module and one nested in another function have the same CurriedParameterGroups count")>]
+let ``Nested Symbols test`` () = 
+
+    let file = "/home/user/Test.fsx"
+    let untyped2, typeCheckResults2 = parseAndTypeCheckFileInProject(file, nestedFunctionInput)
+
+    let partialAssemblySignature = typeCheckResults2.PartialAssemblySignature
     
+    let allSymbols =typeCheckResults2.GetAllUsesOfAllSymbolsInFile() |> Async.RunSynchronously
+    //filter out all functions that are not called half, map the to the smbbol case to FSharpMemberFunctionOrValue
+    let halfSymbols =
+        allSymbols 
+        |> Array.filter (fun su -> su.Symbol.DisplayName = "half")
+        |> Array.map (fun su -> (su.Symbol :?> FSharpMemberFunctionOrValue, su.Symbol))
+    
+    //match both symbols and compare
+    match halfSymbols with
+    | [| first; second |] ->
+        
+        // I would expect the CurriedParameterGroups to have the same count as both functions are the same: string -> string
+        (fst first).CurriedParameterGroups.Count |> shouldEqual (fst second).CurriedParameterGroups.Count
+    | _ -> failwith "Too many symbols present"
 
 let input3 = 
   """

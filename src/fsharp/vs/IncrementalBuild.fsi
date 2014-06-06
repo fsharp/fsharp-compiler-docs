@@ -45,7 +45,15 @@ type internal ErrorScope =
 /// Incremental builder for F# parsing and type checking.  
 module internal IncrementalFSharpBuild =
 
-  type PartialCheckResults = Build.TcState * Build.TcImports * Env.TcGlobals * Build.TcConfig * TypeChecker.TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * System.DateTime
+  type PartialCheckResults = 
+      { TcState : Build.TcState 
+        TcImports: Build.TcImports 
+        TcGlobals: Env.TcGlobals 
+        TcConfig: Build.TcConfig 
+        TcEnvAtEnd : TypeChecker.TcEnv 
+        Errors : (PhasedError * bool) list 
+        TcResolutions: Nameres.TcResolutions list 
+        TimeStamp: System.DateTime }
 
   [<Class>]
   type IncrementalBuilder = 

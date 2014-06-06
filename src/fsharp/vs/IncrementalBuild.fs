@@ -1167,10 +1167,26 @@ module internal IncrementalFSharpBuild =
     // various steps of the process.
     //-----------------------------------------------------------------------------------
 
-    type PartialCheckResults = TcState * TcImports * TcGlobals * TcConfig * TcEnv * (PhasedError * bool) list * Nameres.TcResolutions list * DateTime
+    type PartialCheckResults = 
+      { TcState : Build.TcState 
+        TcImports: Build.TcImports 
+        TcGlobals: Env.TcGlobals 
+        TcConfig: Build.TcConfig 
+        TcEnvAtEnd : TypeChecker.TcEnv 
+        Errors : (PhasedError * bool) list 
+        TcResolutions: Nameres.TcResolutions list 
+        TimeStamp: System.DateTime }
 
-    let GetPartialCheckResults (tcAcc: TypeCheckAccumulator, timestamp) : PartialCheckResults = 
-        (tcAcc.tcState,tcAcc.tcImports,tcAcc.tcGlobals,tcAcc.tcConfig,tcAcc.tcEnvAtEndOfFile,tcAcc.tcErrors,tcAcc.tcResolutions,timestamp)
+    let GetPartialCheckResults (tcAcc: TypeCheckAccumulator, timestamp) = 
+      { TcState = tcAcc.tcState
+        TcImports = tcAcc.tcImports
+        TcGlobals = tcAcc.tcGlobals
+        TcConfig = tcAcc.tcConfig
+        TcEnvAtEnd = tcAcc.tcEnvAtEndOfFile
+        Errors = tcAcc.tcErrors
+        TcResolutions = tcAcc.tcResolutions
+        TimeStamp = timestamp }
+
 
     type IncrementalBuilder(tcConfig : TcConfig, projectDirectory, outfile, assemblyName, niceNameGen : Ast.NiceNameGenerator, lexResourceManager,
                             sourceFiles:string list, projectReferences: IProjectReference list, ensureReactive, 

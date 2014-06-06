@@ -530,11 +530,11 @@
     <Compile Include="..\vs\ServiceDeclarations.fs">
       <Link>Service/ServiceDeclarations.fs</Link>
     </Compile>
-    <Compile Include="..\vs\Typed.fsi">
-      <Link>Service/Typed.fsi</Link>
+    <Compile Include="..\vs\Symbols.fsi">
+      <Link>Service/Symbols.fsi</Link>
     </Compile>
-    <Compile Include="..\vs\Typed.fs">
-      <Link>Service/Typed.fs</Link>
+    <Compile Include="..\vs\Symbols.fs">
+      <Link>Service/Symbols.fs</Link>
     </Compile>
     <Compile Include="..\vs\ServiceLexing.fsi">
       <Link>Service/ServiceLexing.fsi</Link>

@@ -10168,6 +10168,7 @@ and AnalyzeRecursiveInstanceMemberDecl (cenv,envinner: TcEnv, tpenv, declKind, s
          //
          // See https://github.com/fsharp/FSharp.Compiler.Service/issues/79.
          //let memberId = match toolId with Some tid -> ident(memberId.idText, tid.idRange) | None -> memberId
+         ignore toolId
 
          envinner, tpenv, memberId, Some memberInfo, vis, vis2, None, enclosingDeclaredTypars, baseValOpt, flex, bindingRhs, declaredTypars
      | _ -> 

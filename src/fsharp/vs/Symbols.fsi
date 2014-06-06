@@ -32,6 +32,8 @@ type [<Class>] FSharpSymbol =
     /// Internal use only. 
     static member internal Create : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * item:Nameres.Item -> FSharpSymbol
 
+    member IsAccessible: FSharpAccessibilityRights -> bool
+        
     member internal Item: Nameres.Item
         
     /// Get the assembly declaring this symbol
@@ -344,17 +346,22 @@ and [<Class>] FSharpField =
     /// Indicates if the record field is for a type in an unresolved assembly 
     member IsUnresolved : bool
 
-/// Indicates the accessibility of an item as seen by the F# language
+/// Represents the rights of a compilation to access symbols
+and [<Class>] FSharpAccessibilityRights =
+    internal new : CcuThunk * Infos.AccessorDomain -> FSharpAccessibilityRights
+    member internal Contents : Infos.AccessorDomain
+
+/// Indicates the accessibility of a symbol, as seen by the F# language
 and [<Class>] FSharpAccessibility = 
-    /// Indicates the item has public accessibility
+    /// Indicates the symbol has public accessibility
     member IsPublic : bool
 
-    /// Indicates the item has private accessibility
+    /// Indicates the symbol has private accessibility
     member IsPrivate : bool
 
-    /// Indicates the item has internal accessibility
+    /// Indicates the symbol has internal accessibility
     member IsInternal : bool
-        
+
 and [<Class>] FSharpGenericParameter = 
 
     inherit FSharpSymbol

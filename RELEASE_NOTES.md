@@ -215,3 +215,5 @@
 #### 0.0.50 - 
 * Fix #79 - FindUsesOfSymbol returns None at definition of properties with explicit getters and setters 
 
+#### 0.0.51 - 
+* Add IsAccessible to FSharpSymbol, and ProjectContext.AccessibilityRights to give the context of an access

@@ -95,6 +95,9 @@ type ProjectContext =
     /// Get the resolution and full contents of the assemblies referenced by the project options
     member GetReferencedAssemblies : unit -> FSharpAssembly list
 
+    /// Get the accessibility rights for this project context w.r.t. InternalsVisibleTo attributes granting access to other assemblies
+    member AccessibilityRights : FSharpAccessibilityRights
+
 [<Sealed>]
 type FSharpSymbolUse = 
     /// The symbol referenced

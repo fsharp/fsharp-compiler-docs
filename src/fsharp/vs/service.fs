@@ -406,6 +406,7 @@ type TypeCheckInfo
            ccuSig: ModuleOrNamespaceType,
            thisCcu: CcuThunk,
            tcImports: TcImports,
+           tcAccessRights: AccessorDomain,
            projectFileName: string ,
            mainInputFileName: string ,
            sResolutions: TcResolutions,
@@ -1144,6 +1145,8 @@ type TypeCheckInfo
 
     member scope.PartialAssemblySignature() = FSharpAssemblySignature(g, thisCcu, tcImports, ccuSig)
 
+    member scope.AccessRights =  tcAccessRights
+
     member scope.GetReferencedAssemblies() = 
         [ for x in tcImports.GetImportedAssemblies() do 
                 yield FSharpAssembly(g, thisCcu, tcImports, x.FSharpViewOfMetadata) ]
@@ -1502,6 +1505,7 @@ module internal Parser =
                                 tcState.PartialAssemblySignature, 
                                 tcState.Ccu,
                                 tcImports,
+                                tcEnvAtEnd.AccessRights,
                                 //typedImplFiles,
                                 projectFileName, 
                                 mainInputFileName, 
@@ -1565,10 +1569,12 @@ type ProjectOptions =
  
 
 [<Sealed>] 
-type ProjectContext(assemblies: FSharpAssembly list) =
+type ProjectContext(thisCcu: CcuThunk, assemblies: FSharpAssembly list, ad: AccessorDomain) =
 
     /// Get the assemblies referenced
     member __.GetReferencedAssemblies() = assemblies
+
+    member __.AccessibilityRights = FSharpAccessibilityRights(thisCcu, ad)
 
 
 [<Sealed>]
@@ -1595,7 +1601,7 @@ type FSharpSymbolUse(g:TcGlobals, denv: DisplayEnv, symbol:FSharpSymbol, itemOcc
 
 [<Sealed>]
 // 'details' is an option because the creation of the tcGlobals etc. for the project may have failed.
-type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuThunk*ModuleOrNamespaceType*TcResolutions list*Build.IRawFSharpAssemblyContents option * ILAssemblyRef) option, reactorOps: IReactorOperations) =
+type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuThunk*ModuleOrNamespaceType*TcResolutions list*Build.IRawFSharpAssemblyContents option * ILAssemblyRef * AccessorDomain) option, reactorOps: IReactorOperations) =
 
     let getDetails() = 
         match details with 
@@ -1607,12 +1613,12 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
     member info.HasCriticalErrors = details.IsNone
 
     member info.AssemblySignature =  
-        let (tcGlobals, tcImports, thisCcu, ccuSig, _tcResolutions, _assembly, _ilAssemRef) = getDetails()
+        let (tcGlobals, tcImports, thisCcu, ccuSig, _tcResolutions, _assembly, _ilAssemRef, _ad) = getDetails()
         FSharpAssemblySignature(tcGlobals, thisCcu, tcImports, ccuSig)
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetUsesOfSymbol(symbol:FSharpSymbol) = 
-        let (tcGlobals, _tcImports, _thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef) = getDetails()
+        let (tcGlobals, _tcImports, _thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef, _ad) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
         reactorOps.RunAsyncOp(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
@@ -1622,7 +1628,7 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetAllUsesOfAllSymbols() = 
-        let (tcGlobals, tcImports, thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef) = getDetails()
+        let (tcGlobals, tcImports, thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef, _ad) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetAllUsesOfSymbols is immutable.
         reactorOps.RunAsyncOp(fun () -> 
             [| for r in tcResolutions do 
@@ -1631,18 +1637,18 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
                     yield FSharpSymbolUse(tcGlobals, denv, symbol, itemOcc, m) |]) 
 
     member info.ProjectContext = 
-        let (tcGlobals, tcImports, thisCcu, _ccuSig, _tcResolutions, _assembly, _ilAssemRef) = getDetails()
+        let (tcGlobals, tcImports, thisCcu, _ccuSig, _tcResolutions, _assembly, _ilAssemRef, ad) = getDetails()
         let assemblies = 
             [ for x in tcImports.GetImportedAssemblies() do 
                 yield FSharpAssembly(tcGlobals, thisCcu, tcImports, x.FSharpViewOfMetadata) ]
-        ProjectContext(assemblies) 
+        ProjectContext(thisCcu, assemblies, ad) 
 
     member info.RawFSharpAssemblyContents = 
-        let (_tcGlobals, _tcImports, _thisCcu, _ccuSig, _tcResolutions, assembly, _ilAssemRef) = getDetails()
+        let (_tcGlobals, _tcImports, _thisCcu, _ccuSig, _tcResolutions, assembly, _ilAssemRef, _ad) = getDetails()
         assembly
 
     member info.AssemblyFullName = 
-        let (_tcGlobals, _tcImports, _thisCcu, _ccuSig, _tcResolutions, _assembly, ilAssemRef) = getDetails()
+        let (_tcGlobals, _tcImports, _thisCcu, _ccuSig, _tcResolutions, _assembly, ilAssemRef, _ad) = getDetails()
         ilAssemRef.QualifiedName
 
 [<Sealed>]
@@ -1695,10 +1701,10 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
     let threadSafeOp dflt f = 
         match details with
         | None -> 
-            dflt
+            dflt()
         | Some (_ , Some builder, _) when not builder.IsAlive -> 
             System.Diagnostics.Debug.Assert(false,"unexpected dead builder") 
-            dflt
+            dflt()
         | Some (scope, builderOpt, ops) -> 
             f(scope, builderOpt, ops)
 
@@ -1753,19 +1759,25 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
 
 
     member info.GetExtraColorizationsAlternate() = 
-        threadSafeOp [| |] (fun (scope, _builder, _reactor) -> 
+        threadSafeOp 
+           (fun () -> [| |]) 
+           (fun (scope, _builder, _reactor) -> 
             // This operation is not asynchronous - GetExtraColorizations can be run on the calling thread
             scope.GetExtraColorizations())
      
     member info.PartialAssemblySignature = 
-        threadSafeOp Unchecked.defaultof<_> (fun (scope, _builder, _reactor) -> 
+        threadSafeOp 
+            (fun () -> failwith "not available") 
+            (fun (scope, _builder, _reactor) -> 
             // This operation is not asynchronous - PartialAssemblySignature can be run on the calling thread
             scope.PartialAssemblySignature())
 
     member info.ProjectContext = 
-        threadSafeOp (ProjectContext []) (fun (scope, _builder, _reactor) -> 
-            // This operation is not asynchronous - GetReferencedAssemblies can be run on the calling thread
-            ProjectContext(scope.GetReferencedAssemblies()))
+        threadSafeOp 
+            (fun () -> failwith "not available") 
+            (fun (scope, _builder, _reactor) -> 
+               // This operation is not asynchronous - GetReferencedAssemblies can be run on the calling thread
+                ProjectContext(scope.ThisCcu, scope.GetReferencedAssemblies(), scope.AccessRights))
 
     member info.GetAllUsesOfAllSymbolsInFile() = 
         reactorOp [| |] (fun scope -> 
@@ -1989,7 +2001,7 @@ type BackgroundCompiler(projectCacheSize) as self =
             | Some(Some builder, creationErrors, _) ->
             
                 match builder.GetCheckResultsBeforeFileInProjectIfReady filename with 
-                | Some(tcPriorState,tcImports,tcGlobals,tcConfig,_tcEnvAtEnd,backgroundErrors,_tcResolutions,_antecedantTimeStamp) -> 
+                | Some(tcPrior) -> 
         
                     // Get additional script #load closure information if applicable.
                     // For scripts, this will have been recorded by GetProjectOptionsFromScript.
@@ -1997,8 +2009,8 @@ type BackgroundCompiler(projectCacheSize) as self =
                 
                     // Run the type checking.
                     let tcErrors, tcFileResult = 
-                        Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                                loadClosure,backgroundErrors,reactorOps,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+                        Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcPrior.TcConfig,tcPrior.TcGlobals,tcPrior.TcImports,  tcPrior.TcState,
+                                                loadClosure,tcPrior.Errors,reactorOps,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
 
                     Some(MakeCheckFileAnswer(tcFileResult, options, builder, creationErrors, parseResults.Errors, tcErrors))
                 | None -> None
@@ -2011,11 +2023,11 @@ type BackgroundCompiler(projectCacheSize) as self =
             match builderOpt with
             | None -> CheckFileAnswer.Succeeded (MakeCheckFileResultsEmpty(creationErrors))
             | Some builder -> 
-            let (tcPriorState,tcImports,tcGlobals,tcConfig,_priorEnvAtEnd,priorErrors,_tcResolutions,_antecedantTimeStamp) = builder.GetCheckResultsBeforeFileInProject filename 
+            let tcPrior = builder.GetCheckResultsBeforeFileInProject filename 
             let loadClosure = scriptClosure.TryGet options 
             let tcErrors, tcFileResult = 
-                Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                        loadClosure,priorErrors,reactorOps,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+                Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcPrior.TcConfig,tcPrior.TcGlobals,tcPrior.TcImports,  tcPrior.TcState,
+                                        loadClosure,tcPrior.Errors,reactorOps,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
             MakeCheckFileAnswer(tcFileResult, options, builder, creationErrors, parseResults.Errors, tcErrors)
 
     /// Parses the source file and returns untyped AST
@@ -2037,7 +2049,7 @@ type BackgroundCompiler(projectCacheSize) as self =
             | Some (parseResults, checkResults,_) when builder.AreCheckResultsBeforeFileInProjectReady(filename) ->  
                parseResults, CheckFileAnswer.Succeeded checkResults, true
             | _ -> 
-            let (tcPriorState,tcImports,tcGlobals,tcConfig,_priorEnvAtEnd,priorErrors,_tcResolutions,_antecedantTimeStamp) = builder.GetCheckResultsBeforeFileInProject filename 
+            let tcPrior = builder.GetCheckResultsBeforeFileInProject filename 
 
             // Do the parsing.
             let parseErrors, _matchPairs, inputOpt, anyErrors = Parser.ParseOneFile (source, false, true, filename, builder.ProjectFileNames, builder.TcConfig)
@@ -2045,8 +2057,8 @@ type BackgroundCompiler(projectCacheSize) as self =
             let parseResults = ParseFileResults(parseErrors, inputOpt, anyErrors, builder.Dependencies)
             let loadClosure = scriptClosure.TryGet options 
             let tcErrors, tcFileResult = 
-                Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcConfig,tcGlobals,tcImports,  tcPriorState,
-                                        loadClosure,priorErrors,reactorOps,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
+                Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcPrior.TcConfig,tcPrior.TcGlobals,tcPrior.TcImports,  tcPrior.TcState,
+                                        loadClosure,tcPrior.Errors,reactorOps,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
             let checkAnswer = MakeCheckFileAnswer(tcFileResult, options, builder, creationErrors, parseResults.Errors, tcErrors)
             parseResults, checkAnswer, false
 
@@ -2061,15 +2073,15 @@ type BackgroundCompiler(projectCacheSize) as self =
                 (parseResults, typedResults)
             | Some builder -> 
                 let (inputOpt, _, _, untypedErrors) = builder.GetParseResultsForFile filename  
-                let (tcState,tcImports,tcGlobals,tcConfig,tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp) = builder.GetCheckResultsAfterFileInProject filename 
+                let tcProj = builder.GetCheckResultsAfterFileInProject filename 
                 let fileInfo = (Int32.MaxValue, Int32.MaxValue)
                 let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, untypedErrors) |]
-                let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, tcErrors) |]
+                let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, tcProj.Errors) |]
                 let parseResults = ParseFileResults(errors = untypedErrors, input = inputOpt, parseHadErrors = false, dependencyFiles = builder.Dependencies)
                 let loadClosure = scriptClosure.TryGet options 
                 let scope = 
-                    TypeCheckInfo(tcConfig, tcGlobals, tcState.PartialAssemblySignature, tcState.Ccu, tcImports,
-                                  options.ProjectFileName, filename, List.last tcResolutions, tcEnvAtEnd.NameEnv,
+                    TypeCheckInfo(tcProj.TcConfig, tcProj.TcGlobals, tcProj.TcState.PartialAssemblySignature, tcProj.TcState.Ccu, tcProj.TcImports, tcProj.TcEnvAtEnd.AccessRights,
+                                  options.ProjectFileName, filename, List.last tcProj.TcResolutions, tcProj.TcEnvAtEnd.NameEnv,
                                   loadClosure, reactorOps, (fun () -> builder.IsAlive), None)     
                 let typedResults = MakeCheckFileResults(options, builder, scope, creationErrors, parseResults.Errors, tcErrors)
                 (parseResults, typedResults)
@@ -2082,12 +2094,11 @@ type BackgroundCompiler(projectCacheSize) as self =
         | None -> 
             CheckProjectResults (Array.ofList creationErrors, None, reactorOps)
         | Some builder -> 
-            let ((tcState,tcImports,tcGlobals,tcConfig,_tcEnvAtEnd,tcErrors,tcResolutions,_antecedantTimeStamp), ilAssemRef, assemblyOpt)  = 
-                builder.GetCheckResultsAndImplementationsForProject()
+            let (tcProj, ilAssemRef, assemblyOpt)  = builder.GetCheckResultsAndImplementationsForProject()
                 //.GetCheckResultsAfterLastFileInProject()
             let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcErrors) |]
-            CheckProjectResults (errors, Some(tcGlobals, tcImports, tcState.Ccu, tcState.PartialAssemblySignature, tcResolutions, assemblyOpt, ilAssemRef), reactorOps)
+            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcProj.TcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcProj.Errors) |]
+            CheckProjectResults (errors, Some(tcProj.TcGlobals, tcProj.TcImports, tcProj.TcState.Ccu, tcProj.TcState.PartialAssemblySignature, tcProj.TcResolutions, assemblyOpt, ilAssemRef, tcProj.TcEnvAtEnd.AccessRights), reactorOps)
 
     /// Get the timestamp that would be on the output if fully built immediately
     member private bc.GetLogicalTimeStampForProject(options) =
@@ -2438,7 +2449,7 @@ type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, 
         | Parser.TypeCheckAborted.No scope ->
             let errors = [|  yield! parseErrors; yield! tcErrors |]
             let typeCheckResults = CheckFileResults (errors,Some scope, None, reactorOps)   
-            let projectResults = CheckProjectResults (errors, Some(tcGlobals, tcImports, scope.ThisCcu, scope.CcuSig, [scope.ScopeResolutions], None, mkSimpleAssRef "stdin"), reactorOps)
+            let projectResults = CheckProjectResults (errors, Some(tcGlobals, tcImports, scope.ThisCcu, scope.CcuSig, [scope.ScopeResolutions], None, mkSimpleAssRef "stdin", tcState.TcEnvFromImpls.AccessRights), reactorOps)
             parseResults, typeCheckResults, projectResults
         | _ -> 
             failwith "unexpected aborted"

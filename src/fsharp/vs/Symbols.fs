@@ -60,21 +60,52 @@ module Impl =
                     entity.nlr.DisplayName + ", " + entity.nlr.Ccu.AssemblyName
             invalidOp (sprintf "The entity '%s' does not exist or is in an unresolved assembly." poorQualifiedName)
 
+    /// Checking accessibility that arise from different compilations needs more care - this is a duplicate of the F# compiler code for this case
+    let checkForCrossProjectAccessibility (thisCcu2:CcuThunk, ad2) (thisCcu1, taccess1) = 
+        match ad2 with 
+        | AccessibleFrom(cpaths2,_) ->
+            let nameOfScoRef (thisCcu:CcuThunk) scoref = 
+                match scoref with 
+                | ILScopeRef.Local -> thisCcu.AssemblyName 
+                | ILScopeRef.Assembly aref -> aref.Name 
+                | ILScopeRef.Module mref -> mref.Name
+            let canAccessCompPathFromCrossProject (CompPath(scoref1,cpath1)) (CompPath(scoref2,cpath2)) =
+                let rec loop p1 p2  = 
+                    match p1,p2 with 
+                    | (a1,k1)::rest1, (a2,k2)::rest2 -> (a1=a2) && (k1=k2) && loop rest1 rest2
+                    | [],_ -> true 
+                    | _ -> false // cpath1 is longer
+                loop cpath1 cpath2 &&
+                nameOfScoRef thisCcu1 scoref1 = nameOfScoRef thisCcu2 scoref2
+            let canAccessFromCrossProject (TAccess x1) cpath2 = x1 |> List.forall (fun cpath1 -> canAccessCompPathFromCrossProject cpath1 cpath2)
+            cpaths2 |> List.exists (canAccessFromCrossProject taccess1) 
+        | _ -> true // otherwise use the normal check
+
 type FSharpDisplayContext(denv: TcGlobals -> DisplayEnv) = 
     member x.Contents(g) = denv(g)
     static member Empty = FSharpDisplayContext(fun g -> DisplayEnv.Empty(g))
 
 // delay the realization of 'item' in case it is unresolved
-type FSharpSymbol(g:TcGlobals, thisCcu, tcImports, item: (unit -> Item)) =
+type FSharpSymbol(g:TcGlobals, thisCcu, tcImports, item: (unit -> Item), access: (FSharpSymbol -> CcuThunk -> AccessorDomain -> bool)) =
+
     member x.Assembly = 
         let ccu = defaultArg (ItemDescriptionsImpl.ccuOfItem g (item())) thisCcu 
         FSharpAssembly(g, thisCcu, tcImports,  ccu)
+
+    member x.IsAccessible(rights: FSharpAccessibilityRights) = access x rights.ThisCcu rights.Contents
+
     member x.FullName = ItemDescriptionsImpl.FullNameOfItem g (item()) 
+
     member x.DeclarationLocation = ItemDescriptionsImpl.rangeOfItem g true (item())
+
     member x.ImplementationLocation = ItemDescriptionsImpl.rangeOfItem g false (item())
+
     member internal x.Item = item()
+
     member x.DisplayName = item().DisplayName
+
     override x.ToString() = "symbol " + (try item().DisplayName with _ -> "?")
+
     override x.Equals(other : obj) =
         box x === other ||
         match other with
@@ -83,10 +114,15 @@ type FSharpSymbol(g:TcGlobals, thisCcu, tcImports, item: (unit -> Item)) =
     override x.GetHashCode() = hash x.ImplementationLocation  // TODO: this is not a great hash code, but most symbols override it below
 
 and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) = 
-    inherit FSharpSymbol(g, thisCcu, tcImports,  (fun () -> 
+    inherit FSharpSymbol(g, thisCcu, tcImports,  
+                         (fun () -> 
                               checkEntityIsResolved(entity); 
                               if entity.IsModule then Item.ModuleOrNamespaces [entity] 
-                              else Item.UnqualifiedType [entity]))
+                              else Item.UnqualifiedType [entity]), 
+                         (fun _this thisCcu2 ad -> 
+                             checkForCrossProjectAccessibility (thisCcu2, ad) (thisCcu, entity.Accessibility)) 
+                             // && AccessibilityLogic.IsEntityAccessible (tcImports.GetImportMap()) range0 ad entity)
+                             )
 
     // If an entity is in an assembly not available to us in the resolution set,
     // we generally return "false" from predicates like IsClass, since we know
@@ -384,9 +420,15 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
     override x.ToString() = x.CompiledName
 
 and FSharpUnionCase(g:TcGlobals, thisCcu, tcImports, v: UnionCaseRef) =
-    inherit FSharpSymbol (g, thisCcu, tcImports,   (fun () -> 
+    inherit FSharpSymbol (g, thisCcu, tcImports,   
+                          (fun () -> 
                                checkEntityIsResolved v.TyconRef
-                               Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))))
+                               Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))),
+                          (fun _this thisCcu2 ad -> 
+                               checkForCrossProjectAccessibility (thisCcu2, ad) (thisCcu, v.UnionCase.Accessibility)) 
+                               //&& AccessibilityLogic.IsUnionCaseAccessible (tcImports.GetImportMap()) range0 ad v)
+                               )
+
 
     let isUnresolved() = 
         entityIsUnresolved v.TyconRef || v.TryUnionCase.IsNone 
@@ -458,17 +500,23 @@ and FSharpFieldData =
         | Recd v -> v.TyconRef
         | Union (v,_) -> v.TyconRef
 
-and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData) =
-    inherit FSharpSymbol (g, thisCcu, tcImports,  (fun () -> 
-             match d with 
-             | Recd v -> 
-                 checkEntityIsResolved v.TyconRef
-                 Item.RecdField(RecdFieldInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))
-             | Union (v,_) -> 
-                 // This is not correct: there is no "Item" for a named union case field
-                 Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))
-
-             ))
+and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData)  =
+    inherit FSharpSymbol (g, thisCcu, tcImports,  
+                          (fun () -> 
+                                match d with 
+                                | Recd v -> 
+                                    checkEntityIsResolved v.TyconRef
+                                    Item.RecdField(RecdFieldInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))
+                                | Union (v,_) -> 
+                                    // This is not correct: there is no "Item" for a named union case field
+                                    Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))),
+                          (fun this thisCcu2 ad -> 
+                                checkForCrossProjectAccessibility (thisCcu2, ad) (thisCcu, (this :?> FSharpField).Accessibility.Contents)) 
+                                //&&
+                                //match d with 
+                                //| Recd v -> AccessibilityLogic.IsRecdFieldAccessible (tcImports.GetImportMap()) range0 ad v
+                                //| Union (v,_) -> AccessibilityLogic.IsUnionCaseAccessible (tcImports.GetImportMap()) range0 ad v)
+                                )
     let isUnresolved() = 
         match d with 
         | Recd v -> entityIsUnresolved v.TyconRef || v.TryRecdField.IsNone 
@@ -539,7 +587,7 @@ and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData) =
         if isUnresolved() then makeReadOnlyCollection [] else 
         d.RecdField.PropertyAttribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
 
-    member __.Accessibility =  
+    member __.Accessibility : FSharpAccessibility =  
         if isUnresolved() then FSharpAccessibility(taccessPublic) else 
         FSharpAccessibility(d.RecdField.Accessibility) 
 
@@ -561,31 +609,51 @@ and [<System.Obsolete("Renamed to FSharpField")>] FSharpRecordField = FSharpFiel
 
 and FSharpAccessibility(a:Accessibility, ?isProtected) = 
     let isProtected = defaultArg isProtected  false
+
     let isInternalCompPath x = 
         match x with 
         | CompPath(ILScopeRef.Local,[]) -> true 
         | _ -> false
+
     let (|Public|Internal|Private|) (TAccess p) = 
         match p with 
         | [] -> Public 
         | _ when List.forall isInternalCompPath p  -> Internal 
         | _ -> Private
+
     member __.IsPublic = not isProtected && match a with Public -> true | _ -> false
+
     member __.IsPrivate = not isProtected && match a with Private -> true | _ -> false
+
     member __.IsInternal = not isProtected && match a with Internal -> true | _ -> false
+
     member __.IsProtected = isProtected
-    override x.ToString() = match a with Public -> "public" | Internal -> "internal" | Private -> "private"
+
+    member __.Contents = a
+
+    override x.ToString() = stringOfAccess a
+
+and [<Class>] FSharpAccessibilityRights(thisCcu: CcuThunk, ad:Infos.AccessorDomain) =
+    member internal __.ThisCcu = thisCcu
+    member internal __.Contents = ad
+
 
 and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, n, item) = 
 
-    inherit FSharpSymbol (g, thisCcu, tcImports,  (fun () -> item))
+    inherit FSharpSymbol (g, thisCcu, tcImports,  
+                          (fun () -> item),
+                          (fun _ _ _ -> true))
+
     member __.Name = apinfo.ActiveTags.[n]
+
     member __.DeclarationLocation = snd apinfo.ActiveTagsWithRanges.[n]
 
 
 and FSharpGenericParameter(g:TcGlobals, thisCcu, tcImports, v:Typar) = 
 
-    inherit FSharpSymbol (g, thisCcu, tcImports,  (fun () -> Item.TypeVar(v.Name, v)))
+    inherit FSharpSymbol (g, thisCcu, tcImports,  
+                          (fun () -> Item.TypeVar(v.Name, v)),
+                          (fun _ _ _ad -> true))
     member __.Name = v.DisplayName
     member __.DeclarationLocation = v.Range
     member __.IsCompilerGenerated = v.IsCompilerGenerated
@@ -760,7 +828,22 @@ and FSharpMemberOrValData =
 and FSharpMemberOrVal = FSharpMemberFunctionOrValue
 and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberOrValData, item) = 
 
-    inherit FSharpSymbol (g, thisCcu, tcImports,  (fun () -> item))
+    inherit FSharpSymbol(g, thisCcu, tcImports,  
+                         (fun () -> item),
+                         (fun this thisCcu2 ad -> 
+                              let this = this :?> FSharpMemberFunctionOrValue 
+                              checkForCrossProjectAccessibility (thisCcu2, ad) (thisCcu, this.Accessibility.Contents)) 
+                              //&& 
+                              //match d with 
+                              //| E e -> 
+                              //    match e with 
+                              //    | EventInfo.ILEvent (_,e) -> AccessibilityLogic.IsILEventInfoAccessible g (tcImports.GetImportMap()) range0 ad e
+                              //    | EventInfo.FSEvent (_,_,vref,_) ->  AccessibilityLogic.IsValAccessible ad vref
+                              //    | _ -> true
+                              //| M m -> AccessibilityLogic.IsMethInfoAccessible (tcImports.GetImportMap()) range0 ad m
+                              //| P p -> AccessibilityLogic.IsPropInfoAccessible g (tcImports.GetImportMap()) range0 ad p
+                              //| V v -> AccessibilityLogic.IsValAccessible ad v
+                          )
 
     let fsharpInfo() = 
         match d with 
@@ -1129,7 +1212,7 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
 *)
 
       /// How visible is this? 
-    member __.Accessibility = 
+    member __.Accessibility : FSharpAccessibility  = 
         if isUnresolved() then FSharpAccessibility(taccessPublic) else 
         match fsharpInfo() with 
         | Some v -> FSharpAccessibility(v.Accessibility)
@@ -1319,11 +1402,13 @@ and FSharpAttribute(g: TcGlobals, thisCcu, tcImports, attrib) =
 
     
 and FSharpStaticParameter(g, thisCcu, tcImports:TcImports,  sp: Tainted< ExtensionTyping.ProvidedParameterInfo >, m) = 
-    inherit FSharpSymbol(g, thisCcu, tcImports,  (fun () -> 
-              protect <| fun () -> 
-                let spKind = Import.ImportProvidedType (tcImports.GetImportMap()) m (sp.PApply((fun x -> x.ParameterType), m))
-                let nm = sp.PUntaint((fun p -> p.Name), m)
-                Item.ArgName((mkSynId m nm, spKind, None))))
+    inherit FSharpSymbol(g, thisCcu, tcImports,  
+                         (fun () -> 
+                              protect <| fun () -> 
+                                let spKind = Import.ImportProvidedType (tcImports.GetImportMap()) m (sp.PApply((fun x -> x.ParameterType), m))
+                                let nm = sp.PUntaint((fun p -> p.Name), m)
+                                Item.ArgName((mkSynId m nm, spKind, None))),
+                         (fun _ _ _ -> true))
 
     member __.Name = 
         protect <| fun () -> 
@@ -1356,9 +1441,11 @@ and FSharpStaticParameter(g, thisCcu, tcImports:TcImports,  sp: Tainted< Extensi
         "static parameter " + x.Name 
 
 and FSharpParameter(g, thisCcu, tcImports,  typ:TType,topArgInfo:ArgReprInfo, mOpt) = 
-    inherit FSharpSymbol(g, thisCcu, tcImports,  (fun () -> 
+    inherit FSharpSymbol(g, thisCcu, tcImports,  
+                         (fun () -> 
                             let m = match mOpt with Some m  -> m | None -> range0
-                            Item.ArgName((match topArgInfo.Name with None -> mkSynId m "" | Some v -> v), typ, None)))
+                            Item.ArgName((match topArgInfo.Name with None -> mkSynId m "" | Some v -> v), typ, None)),
+                         (fun _ _ _ -> true))
     let attribs = topArgInfo.Attribs
     let idOpt = topArgInfo.Name
     let m = match mOpt with Some m  -> m | None -> range0
@@ -1403,6 +1490,7 @@ and FSharpAssembly internal (g: TcGlobals, thisCcu, tcImports, ccu: CcuThunk) =
     member __.SimpleName = ccu.AssemblyName 
     member __.IsProviderGenerated = ccu.IsProviderGenerated
     member __.Contents = FSharpAssemblySignature(g, thisCcu, tcImports,  ccu.Contents.ModuleOrNamespaceType)
+
                  
     override x.ToString() = x.QualifiedName
 
@@ -1410,7 +1498,7 @@ type FSharpSymbol with
     // TODO: there are several cases where we may need to report more interesting
     // symbol information below. By default we return a vanilla symbol.
     static member Create(g, thisCcu, tcImports,  item) : FSharpSymbol = 
-        let dflt = FSharpSymbol(g, thisCcu, tcImports,  (fun () -> item)) 
+        let dflt() = FSharpSymbol(g, thisCcu, tcImports,  (fun () -> item), (fun _ _ _ -> true)) 
         match item with 
         | Item.Value v -> FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V v, item) :> _
         | Item.UnionCase uinfo -> FSharpUnionCase(g, thisCcu, tcImports,  uinfo.UnionCaseRef) :> _
@@ -1463,7 +1551,7 @@ type FSharpSymbol with
         | Item.ImplicitOp _
         | Item.ILField _ 
         | Item.FakeInterfaceCtor _
-        | Item.NewDef _ -> dflt
+        | Item.NewDef _ -> dflt()
         // These cases cover unreachable cases
         | Item.CustomOperation (_, _, None) 
         | Item.UnqualifiedType []
@@ -1473,4 +1561,4 @@ type FSharpSymbol with
         | Item.CtorGroup (_,[])
         // These cases cover misc. corned cases (non-symbol types)
         | Item.Types _
-        | Item.DelegateCtor _  -> dflt
+        | Item.DelegateCtor _  -> dflt()

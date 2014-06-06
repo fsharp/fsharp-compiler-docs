@@ -213,6 +213,14 @@ let ``Test project1 all symbols`` () =
     for s in allSymbols do 
         s.DeclarationLocation.IsSome |> shouldEqual true
 
+    for s in allSymbols do 
+        match s with 
+        | :? FSharpMemberFunctionOrValue as v when v.IsModuleValueOrMember -> 
+           s.IsAccessible(wholeProjectResults.ProjectContext.AccessibilityRights) |> shouldEqual true
+        | :? FSharpEntity -> 
+           s.IsAccessible(wholeProjectResults.ProjectContext.AccessibilityRights) |> shouldEqual true
+        | _ -> ()
+
     let allDeclarationLocations = 
         [ for s in allSymbols do 
              let m = s.DeclarationLocation.Value

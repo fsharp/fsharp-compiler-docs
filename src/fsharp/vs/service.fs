@@ -1538,22 +1538,24 @@ type ProjectOptions =
       UnresolvedReferences : UnresolvedReferencesSet option
     }
     /// Whether the two parse options refer to the same project.
-    static member AreSameProjectName(options1,options2) =
+    static member AreSubsumable(options1,options2) =
         options1.ProjectFileName = options2.ProjectFileName          
+
     /// Compare two options sets with respect to the parts of the options that are important to parsing.
-    static member AreSameProjectForParsing(options1,options2) =
-        ProjectOptions.AreSameProjectName(options1,options2) &&
+    static member AreSameForParsing(options1,options2) =
+        options1.ProjectFileName = options2.ProjectFileName &&
         options1.ProjectOptions = options2.ProjectOptions &&
         options1.UnresolvedReferences = options2.UnresolvedReferences
 
     /// Compare two options sets with respect to the parts of the options that are important to building.
-    static member AreSameProjectForBuilding(options1,options2) =
-        ProjectOptions.AreSameProjectForParsing(options1,options2) &&
+    static member AreSameForChecking(options1,options2) =
+        options1.ProjectFileName = options2.ProjectFileName &&
         options1.ProjectFileNames = options2.ProjectFileNames &&
         options1.ProjectOptions = options2.ProjectOptions &&
         options1.ReferencedProjects.Length = options2.ReferencedProjects.Length &&
-        Array.forall2 (fun (n1,a) (n2,b) -> n1 = n2 && ProjectOptions.AreSameProjectForBuilding(a,b)) options1.ReferencedProjects options2.ReferencedProjects &&
+        Array.forall2 (fun (n1,a) (n2,b) -> n1 = n2 && ProjectOptions.AreSameForChecking(a,b)) options1.ReferencedProjects options2.ReferencedProjects &&
         options1.LoadTime = options2.LoadTime
+
     /// Compute the project directory.
     member po.ProjectDirectory = System.IO.Path.GetDirectoryName(po.ProjectFileName)
     override this.ToString() =
@@ -1858,7 +1860,10 @@ type BackgroundCompiler(projectCacheSize) as self =
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.scriptClosure 
     /// Information about the derived script closure.
-    let scriptClosure = AgedLookup<ProjectOptions,LoadClosure>(projectCacheSize, areSame=ProjectOptions.AreSameProjectForBuilding)
+    let scriptClosure = 
+        MruCache<ProjectOptions,LoadClosure>(projectCacheSize, 
+            areSame=ProjectOptions.AreSameForChecking, 
+            areSameForSubsumption=ProjectOptions.AreSubsumable)
 
     /// CreateOneIncrementalBuilder (for background type checking). Note that fsc.fs also
     /// creates an incremental builder used by the command line compiler.
@@ -1920,8 +1925,8 @@ type BackgroundCompiler(projectCacheSize) as self =
     /// Cache of builds keyed by options.        
     let incrementalBuildersCache = 
         MruCache(keepStrongly=projectCacheSize, keepMax=projectCacheSize, 
-                 areSame =  ProjectOptions.AreSameProjectForBuilding, 
-                 areSameForSubsumption =  ProjectOptions.AreSameProjectName,
+                 areSame =  ProjectOptions.AreSameForChecking, 
+                 areSameForSubsumption =  ProjectOptions.AreSubsumable,
                  onDiscard = (fun (_, _, decrement:IDisposable) -> decrement.Dispose()))
 
     let getOrCreateBuilder options =  
@@ -2141,7 +2146,7 @@ type BackgroundCompiler(projectCacheSize) as self =
                     LoadTime = loadedTimeStamp
                     UnresolvedReferences = Some (UnresolvedReferencesSet(fas.UnresolvedReferences))
                 }
-            scriptClosure.Put(co,fas) // Save the full load closure for later correlation.
+            scriptClosure.Set(co,fas) // Save the full load closure for later correlation.
             co)
             
     member bc.InvalidateConfiguration(options : ProjectOptions) =
@@ -2206,15 +2211,32 @@ type InteractiveChecker(projectCacheSize) =
     static let mutable foregroundTypeCheckCount = 0
     static let globalInstance = InteractiveChecker.Create()
     
-    /// Determine whether two sets of sources and parse options are the same.
-    let AreSameForParsing((f1: string, s1: string, o1: ProjectOptions), (f2, s2, o2)) =
-        (f1 = f2) 
-        && ProjectOptions.AreSameProjectForParsing(o1,o2)
-        && (s1 = s2)
+    /// Determine whether two (fileName,options) keys are identical w.r.t. affect on checking
+    let AreSameForChecking2((fileName1: string, options1: ProjectOptions), (fileName2, o2)) =
+        (fileName1 = fileName2) 
+        && ProjectOptions.AreSameForChecking(options1,o2)
         
-    /// Determine whether two sets of sources and parse options should be subsumed under the same project.
-    let AreSubsumableForParsing((_,_,o1:ProjectOptions),(_,_,o2:ProjectOptions)) =
-        ProjectOptions.AreSameProjectName(o1,o2)
+    /// Determine whether two (fileName,options) keys should be identical w.r.t. resource usage
+    let AreSubsumable2((fileName1:string,o1:ProjectOptions),(fileName2:string,o2:ProjectOptions)) =
+        (fileName1 = fileName2)
+        && ProjectOptions.AreSubsumable(o1,o2)
+
+    /// Determine whether two (fileName,sourceText,options) keys should be identical w.r.t. parsing
+    let AreSameForParsing3((fileName1: string, source1: string, options1: ProjectOptions), (fileName2, source2, options2)) =
+        (fileName1 = fileName2) 
+        && ProjectOptions.AreSameForParsing(options1,options2)
+        && (source1 = source2)
+        
+    /// Determine whether two (fileName,sourceText,options) keys should be identical w.r.t. checking
+    let AreSameForChecking3((fileName1: string, source1: string, options1: ProjectOptions), (fileName2, source2, options2)) =
+        (fileName1 = fileName2) 
+        && ProjectOptions.AreSameForChecking(options1,options2)
+        && (source1 = source2)
+
+    /// Determine whether two (fileName,sourceText,options) keys should be identical w.r.t. resource usage
+    let AreSubsumable3((fileName1:string,_,o1:ProjectOptions),(fileName2:string,_,o2:ProjectOptions)) =
+        (fileName1 = fileName2)
+        && ProjectOptions.AreSubsumable(o1,o2)
         
     // Parse using backgroundCompiler
     let ComputeBraceMatching(filename:string,source,options:ProjectOptions) = 
@@ -2223,10 +2245,16 @@ type InteractiveChecker(projectCacheSize) =
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.braceMatchMru. Most recently used cache for brace matching. Accessed on the
     // background UI thread, not on the compiler thread.
-    let braceMatchMru = MruCache<_,_>(braceMatchCacheSize,areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true)) 
+    let braceMatchMru = 
+        MruCache<(string*string*ProjectOptions),_>(braceMatchCacheSize,
+            areSame=AreSameForParsing3,
+            areSameForSubsumption=AreSubsumable3) 
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.parseFileInProjectMru. Most recently used cache for parsing files.
-    let parseFileInProjectMru = MruCache<_, _>(parseFileInProjectCacheSize, areSame=AreSameForParsing,areSameForSubsumption=AreSubsumableForParsing,isStillValid=(fun _ -> true))
+    let parseFileInProjectMru = 
+        MruCache<_, _>(parseFileInProjectCacheSize, 
+            areSame=AreSameForParsing3,
+            areSameForSubsumption=AreSubsumable3)
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.typeCheckLookup 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.typeCheckLookup2
@@ -2237,15 +2265,17 @@ type InteractiveChecker(projectCacheSize) =
     ///    - the source for the file may have changed
     
     let typeCheckLookup = 
-        AgedLookup<string * ProjectOptions, ParseFileResults * CheckFileResults * int>
+        MruCache<string * ProjectOptions, ParseFileResults * CheckFileResults * int>
             (keepStrongly=incrementalTypeCheckCacheSize,
-             areSame=fun (x,y)->x=y) 
+             areSame=AreSameForChecking2,
+             areSameForSubsumption=AreSubsumable2)
 
     // Also keyed on source. This can only be out of date if the antecedent is out of date
     let typeCheckLookup2 = 
-        AgedLookup<string * ProjectOptions * string, ParseFileResults * CheckFileResults * int>
+        MruCache<string * string * ProjectOptions, ParseFileResults * CheckFileResults * int>
             (keepStrongly=incrementalTypeCheckCacheSize,
-             areSame=fun (x,y)->x=y) 
+             areSame=AreSameForChecking3,
+             areSameForSubsumption=AreSubsumable3)
 
     static member Create() = 
         new InteractiveChecker(projectCacheSizeDefault)
@@ -2285,7 +2315,7 @@ type InteractiveChecker(projectCacheSize) =
     /// Try to get recent approximate type check results for a file. 
     member ic.TryGetRecentTypeCheckResultsForFile(filename: string, options:ProjectOptions, ?source) =
         match source with 
-        | Some sourceText -> typeCheckLookup2.TryGet((filename,options,sourceText)) 
+        | Some sourceText -> typeCheckLookup2.TryGet((filename,sourceText,options)) 
         | None -> typeCheckLookup.TryGet((filename,options)) 
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
@@ -2324,8 +2354,8 @@ type InteractiveChecker(projectCacheSize) =
             backgroundCompiler.StartBuilding(options) 
         | Some (CheckFileAnswer.Succeeded typedResults) -> 
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
-            typeCheckLookup.Put((filename,options),(parseResults,typedResults,fileVersion))            
-            typeCheckLookup2.Put((filename,options,source),(parseResults,typedResults,fileVersion))            
+            typeCheckLookup.Set((filename,options),(parseResults,typedResults,fileVersion))            
+            typeCheckLookup2.Set((filename,source,options),(parseResults,typedResults,fileVersion))            
 
     /// Typecheck a source code file, returning a handle to the results of the 
     /// parse including the reconstructed types in the file.
@@ -2350,7 +2380,7 @@ type InteractiveChecker(projectCacheSize) =
     /// Typecheck a source code file, returning a handle to the results of the 
     /// parse including the reconstructed types in the file.
     member ic.ParseAndCheckFileInProject(filename:string, fileVersion:int, source:string, options:ProjectOptions, ?isResultObsolete, ?textSnapshotInfo:obj) =        
-        let cachedResults = typeCheckLookup2.TryGet((filename,options,source)) 
+        let cachedResults = typeCheckLookup2.TryGet((filename,source,options)) 
         let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
         async {
             let! parseResults, checkAnswer, usedCachedResults = backgroundCompiler.ParseAndCheckFileInProject(filename,source,options,isResultObsolete,textSnapshotInfo,cachedResults)

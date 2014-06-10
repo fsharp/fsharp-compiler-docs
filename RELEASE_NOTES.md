@@ -217,3 +217,6 @@
 
 #### 0.0.51 - 
 * Add IsAccessible to FSharpSymbol, and ProjectContext.AccessibilityRights to give the context of an access
+
+#### 0.0.52 - 
+* Fix caches keeping hold of stale entries

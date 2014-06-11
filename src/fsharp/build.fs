@@ -4066,6 +4066,12 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
                 name.Version
 #endif
 
+            // The callback captured by the TypeProviderConfig. Disconnect when things are disposed
+            let systemRuntimeContainsType =
+                let systemRuntimeContainsTypeRef = ref tcImports.SystemRuntimeContainsType
+                tcImports.AttachDisposeAction(fun () -> systemRuntimeContainsTypeRef := (fun _ -> raise (System.ObjectDisposedException("The type provider has been disposed"))))
+                fun arg -> systemRuntimeContainsTypeRef.Value arg
+                
             let providers = 
                 [ for assemblyName in providerAssemblies do
                       yield ExtensionTyping.GetTypeProvidersOfAssembly(displayPSTypeProviderSecurityDialogBlockingUI, tcConfig.validateTypeProviders, 
@@ -4073,7 +4079,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
                                                                        tpApprovalsRef, 
 #endif
                                                                        fileNameOfRuntimeAssembly, ilScopeRefOfRuntimeAssembly, assemblyName, typeProviderEnvironment, 
-                                                                       tcConfig.isInvalidationSupported, tcConfig.isInteractive, tcImports.SystemRuntimeContainsType, systemRuntimeAssemblyVersion, m) ]
+                                                                       tcConfig.isInvalidationSupported, tcConfig.isInteractive, systemRuntimeContainsType, systemRuntimeAssemblyVersion, m) ]
             let wasApproved = providers |> List.forall (fun (ok,_) -> ok)
             let providers = providers |> List.map snd |> List.concat
 

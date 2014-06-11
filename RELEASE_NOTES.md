@@ -223,3 +223,6 @@
 
 #### 0.0.53 - 
 * Add queue length to InteractiveChecker
+
+#### 0.0.54 - 
+* Fix for #159 - Unsubscribe from TP Invalidate events when disposing builders 

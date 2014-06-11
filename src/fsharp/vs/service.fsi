@@ -530,6 +530,11 @@ type InteractiveChecker =
     /// Flush all caches and garbage collect
     member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -> unit
 
+    /// Current queue length of the service, for debug purposes. 
+    /// In addition, a single async operation or a step of a background build 
+    /// may be in progress - such an operation is not counted in the queue length.
+    member CurrentQueueLength : int
+
     /// This function is called when a project has been cleaned/rebuilt, and thus any live type providers should be refreshed.
     member NotifyProjectCleaned: options: ProjectOptions -> unit    
     

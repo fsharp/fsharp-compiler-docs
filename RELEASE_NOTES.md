@@ -220,3 +220,6 @@
 
 #### 0.0.52 - 
 * Fix caches keeping hold of stale entries
+
+#### 0.0.53 - 
+* Add queue length to InteractiveChecker

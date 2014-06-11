@@ -448,10 +448,6 @@ type TypeCheckInfo
 
         let mostDeeplyNestedEnclosingScope = !bestSoFar 
         
-        match mostDeeplyNestedEnclosingScope with 
-        | Some (m,_,_) -> Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "Strict Inclusion found env for range %s\n" (stringOfRange m))
-        | None ->Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "Strict Inclusion found no environment, cursorPos = %s\n" (stringOfPos cursorPos))
-        
         // Look for better subtrees on the r.h.s. of the subtree to the left of where we are 
         // Should really go all the way down the r.h.s. of the subtree to the left of where we are 
         // This is all needed when the index is floating free in the area just after the environment we really want to capture 
@@ -478,16 +474,13 @@ type TypeCheckInfo
         
         let resEnv = 
             match !bestAlmostIncludedSoFar with 
-            | Some (m,env,ad) -> 
-                Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "Chose refined-rightmost env covering range %s\n" (stringOfRange m))
+            | Some (_m,env,ad) -> 
                 env,ad
             | None -> 
                 match mostDeeplyNestedEnclosingScope with 
-                | Some (m,env,ad) -> 
-                    Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "Chose refined env covering range %s\n" (stringOfRange m))
+                | Some (_m,env,ad) -> 
                     env,ad
                 | None -> 
-                    Trace.PrintLine("CompilerServicesVerbose", fun () -> "Using fallback global env\n")
                     (sFallback,AccessibleFromSomeFSharpCode)
         let pm = mkRange mainInputFileName cursorPos cursorPos 
 
@@ -509,10 +502,7 @@ type TypeCheckInfo
 
         let quals = 
             (match resolveOverloads with ResolveOverloads.Yes -> sResolutions.CapturedNameResolutions | ResolveOverloads.No -> sResolutions.CapturedMethodGroupResolutions)
-            |> ResizeArray.filter (fun cnr -> 
-                Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "Checking position %s = %s\n" (stringOfPos endOfNamesPos) (stringOfPos cnr.Pos))
-                posEq cnr.Pos endOfNamesPos)
-        Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "GetPreciseItemsFromNameResolution: Found %d relevant quals\n" quals.Count)
+            |> ResizeArray.filter (fun cnr ->  posEq cnr.Pos endOfNamesPos)
         
         let items = quals |> ResizeArray.toList |> List.rev  // Logic below expects the list to be in reverse order of resolution
         
@@ -522,7 +512,6 @@ type TypeCheckInfo
             let items = items |> RemoveExplicitlySuppressed g
             let items = items |> FilterItemsForCtors filterCtors
             if nonNil items then
-                Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "GetPreciseItemsFromNameResolution: Results in %d items!\n" items.Length)
                 if hasTextChangedSinceLastTypecheck(textSnapshotInfo, m) then
                     NameResResult.TypecheckStaleAndTextChanged // typecheck is stale, wait for second-chance IntelliSense to bring up right result
                 else
@@ -571,7 +560,6 @@ type TypeCheckInfo
         
         // No residue, so the items are the full resolution of the name
         | CNR(_,_,_,denv,_,_,m) :: _, None -> 
-            Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "GetPreciseItemsFromNameResolution: No residue, precise results found\n")
             let items = items |> List.map (fun (CNR(_,item,_,_,_,_,_)) -> item) 
                               // "into" is special magic syntax, not an identifier or a library call.  It is part of capturedNameResolutions as an 
                               // implementation detail of syntax coloring, but we should not report name resolution results for it, to prevent spurious QuickInfo.
@@ -590,7 +578,6 @@ type TypeCheckInfo
                     // but you almost never want to do this in practice, and we choose not to offer up any intellisense for 
                     // F# function types.
                     let isFunction = isFunTy denv.g typ
-                    Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "GetPreciseCompletionListFromExprTypings: isFunction=%A, isLocationWeCareAbout=%A\n" isFunction isLocationWeCareAbout)
                     isLocationWeCareAbout && not isFunction)
             |> Seq.toArray
 
@@ -660,7 +647,6 @@ type TypeCheckInfo
             | Some bestQual ->
                 let (_,typ,denv,nenv,ad,m) = bestQual 
                 let items = ResolveCompletionsInType ncenv nenv (ConstraintSolver.IsApplicableMethApprox g amap m) m ad false typ 
-                Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "GetPreciseCompletionListFromExprTypings: Results in %d items!\n" items.Length)
                 let items = items |> RemoveDuplicateItems g
                 let items = items |> RemoveExplicitlySuppressed g
                 let items = items |> FilterItemsForCtors filterCtors 
@@ -719,7 +705,6 @@ type TypeCheckInfo
             let filterDeclItemsByResidue residue (items: Item list) = 
                 items |> List.filter (fun item -> 
                     let n1 =  item.DisplayName 
-                    Trace.PrintLine("CompilerServicesVerbose", fun () -> sprintf "\nn1 = <<<%s>>>\nn2 = <<<%s>>>\n" n1 residue)
                     if not (f denv item) then false
                     else
                         match item with
@@ -728,7 +713,6 @@ type TypeCheckInfo
             
             // Are we looking for items with precisely the given name?
             if nonNil items && exactMatchResidue.IsSome then
-                Trace.PrintLine("CompilerServices", fun _ -> sprintf "looking through %d items before filtering by residue\n" (List.length items))       
                 let items = items |> filterDeclItemsByResidue exactMatchResidue.Value
                 if nonNil items then Some(items,denv,m) else None        
             else 
@@ -836,14 +820,12 @@ type TypeCheckInfo
         | NameResResult.TypecheckStaleAndTextChanged -> None // second-chance intellisense will try again
         | NameResResult.Cancel(denv,m) -> Some([], denv, m)
         | NameResResult.Members(FilterRelevantItems(items)) -> 
-            Trace.PrintLine("CompilerServices", fun _ -> sprintf "GetDeclItemsForNamesAtPosition: lookup based on name resolution results successful, #items = %d, exists ctor = %b\n" (p13 items).Length (items |> p13 |> List.exists (function Item.CtorGroup _ -> true | _ -> false)))       
             Some items
         | _ ->
         
         match origLongIdentOpt with
         | None -> None
         | Some _ -> 
-            Trace.PrintLine("CompilerServices", fun _ -> sprintf "GetDeclItemsForNamesAtPosition: plid = %+A, residue = %+A, colAtEndOfNamesAndResidue = %+A\n" plid exactMatchResidueOpt colAtEndOfNamesAndResidue)       
 
             // Try to use the type of the expression on the left to help generate a completion list
             let mutable thereIsADotInvolved = false
@@ -880,7 +862,6 @@ type TypeCheckInfo
                     // and then return to the qualItems. This is because the expression typings are a little inaccurate, primarily because
                     // it appears we're getting some typings recorded for non-atomic expressions like "f x"
                     when (match plid with [] -> true | _ -> false)  -> 
-                Trace.PrintLine("CompilerServices", fun _ -> sprintf "GetDeclItemsForNamesAtPosition: lookup based on expression typings successful\n")       
                 Some items
             | GetPreciseCompletionListFromExprTypingsResult.NoneBecauseThereWereTypeErrors, _ ->
                 // There was an error, e.g. we have "<expr>." and there is an error determining the type of <expr>  
@@ -902,13 +883,11 @@ type TypeCheckInfo
             
             // First, use unfiltered name resolution items, if they're not empty
             | NameResResult.Members(items, denv, m), _, _ when nonNil items -> 
-                Trace.PrintLine("CompilerServices", fun _ -> sprintf "GetDeclItemsForNamesAtPosition: lookup based on name resolution results successful, #items = %d, exists ctor = %b\n" (items).Length (items |> List.exists (function Item.CtorGroup _ -> true | _ -> false)))       
                 Some(items, denv, m)                
             
             // If we have nonempty items from environment that were resolved from a type, then use them... 
             // (that's better than the next case - here we'd return 'int' as a type)
             | _, FilterRelevantItems(items, denv, m), _ when nonNil items ->
-                Trace.PrintLine("CompilerServices", fun _ -> sprintf "GetDeclItemsForNamesAtPosition: lookup based on name and environment successful\n")       
                 Some(items, denv, m)
 
             // Try again with the qualItems
@@ -1031,7 +1010,6 @@ type TypeCheckInfo
 
     // GetToolTipText: return the "pop up" (or "Quick Info") text given a certain context.
     member x.GetToolTipText line lineStr colAtEndOfNames names : ToolTipText  = 
-        use t = Trace.Call("CompilerServices","GetToolTipText", fun _->sprintf " line=%+A,idx=%+A,names=%+A" line colAtEndOfNames names)
         
         let Compute() = 
             ErrorScope.Protect 
@@ -1053,7 +1031,6 @@ type TypeCheckInfo
              res
 
     member x.GetF1Keyword (line, lineStr, colAtEndOfNames, names) : string option =
-       use t = Trace.Call("CompilerServices","GetF1Keyword", fun _->sprintf " line=%+A,idx=%+A,names=%+A" line colAtEndOfNames names) 
        ErrorScope.Protect
             Range.range0
             (fun () ->
@@ -1257,24 +1234,11 @@ module internal Parser =
         member x.TcConfig with set tc = tcConfig <- tc
         member x.AnyErrors = errorCount > 0
 
-    /// Report an unexpect (bug) exception.
-    let ReportUnexpectedException exn = 
-        match exn with
-        | WrappedError(wrappedExn,_) ->
-            System.Diagnostics.Debug.Assert(false, sprintf "Bug seen in service-level request. Underlying wrapped exception was %s\n"  (wrappedExn.ToString()))
-            Trace.PrintLine("CompilerServices", fun _ -> sprintf "Underlying wrapped exception was %s\n" (wrappedExn.ToString()))
-        | _ -> ()
-        System.Diagnostics.Debug.Assert(false, sprintf "Bug seen in service-level request: %s\n"  (exn.ToString()))
-        Trace.PrintLine("CompilerServices", fun _ -> sprintf "Unexpected error %s\n" (exn.ToString()))
-                
 
     /// ParseOneFile builds all the information necessary to report errors, match braces and build scopes 
     ///
     /// projectSourceFiles is only used to compute isLastCompiland, and is ignored if Build.IsScript(mainInputFileName)  is true.
     let ParseOneFile (source: string, matchBracesOnly: bool, reportErrors: bool, mainInputFileName: string, projectSourceFiles: string list, tcConfig: TcConfig) =
-
-      try 
-          Trace.PrintLine("CompilerServices", fun _ -> sprintf "Service.parseSource %s, matchBraces = %b, reportErrors = %b" mainInputFileName matchBracesOnly reportErrors)
 
           // Initialize the error handler 
           let errHandler = new ErrorHandler(reportErrors, mainInputFileName, tcConfig, source)
@@ -1355,19 +1319,14 @@ module internal Parser =
                         let parseResult = ParseInput(lexfun,errHandler.ErrorLogger,lexbuf,None,mainInputFileName,isLastCompiland)
                         Some parseResult
                   with e -> 
-                    Trace.PrintLine("CompilerServices", fun _ -> sprintf "Could not recover from errors while parsing: %s\n" (e.ToString()))
                     errHandler.ErrorLogger.ErrorR(e)
                     None)
                 
-          Trace.PrintLine("CompilerServices", fun _ -> sprintf "#errors = %d\n" errHandler.CollectedErrorsAndWarnings.Length)
 
           errHandler.CollectedErrorsAndWarnings,
           matchPairRef.ToArray(),
           parseResult,
           errHandler.AnyErrors
-      with exn -> 
-          ReportUnexpectedException exn
-          reraise()
 
     /// Indicates if the type check got aborted because it is no longer relevant.
     type TypeCheckAborted = Yes | No of TypeCheckInfo
@@ -1390,7 +1349,7 @@ module internal Parser =
            checkAlive : (unit -> bool),
            isResultObsolete: unit->bool,
            textSnapshotInfo : obj option) = 
-      try
+
         match parseResults.ParseTree with 
         // When processing the following cases, we don't need to type-check
         | None -> 
@@ -1469,11 +1428,6 @@ module internal Parser =
                 // For non-scripts, check for disallow #r and #load.
                 ApplyMetaCommandsFromInputToTcConfig tcConfig (parsedMainInput,Path.GetDirectoryName mainInputFileName) |> ignore
                 
-            if verbose then 
-                tcConfig.includes |> List.iter (fun p -> Trace.PrintLine("CompilerServicesVerbose", fun _ -> sprintf "include directory '%s'\n" p)) 
-                tcConfig.implicitOpens |> List.iter (fun p -> Trace.PrintLine("CompilerServicesVerbose", fun _ -> sprintf "implicit open '%s'\n" p)) 
-                tcConfig.referencedDLLs |> List.iter (fun r -> Trace.PrintLine("CompilerServicesVerbose", fun _ -> sprintf "dll from flags '%s'\n" r.Text)) 
-            
             // A problem arises with nice name generation, which really should only 
             // be done in the backend, but is also done in the typechecker for better or worse. 
             // If we don't do this the NNG accumulates data and we get a memory leak. 
@@ -1518,10 +1472,6 @@ module internal Parser =
                 errors, TypeCheckAborted.No scope
             | None -> 
                 errors, TypeCheckAborted.Yes
-      with 
-      | e -> 
-        ReportUnexpectedException(e)
-        reraise()
 
 type  UnresolvedReferencesSet = UnresolvedReferencesSet of UnresolvedAssemblyReference list
 
@@ -1622,7 +1572,7 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
     member info.GetUsesOfSymbol(symbol:FSharpSymbol) = 
         let (tcGlobals, _tcImports, _thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef, _ad) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
-        reactorOps.RunAsyncOp(fun () -> 
+        reactorOps.EnqueueAndAwaitOpAsync(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
             |> Seq.distinctBy (fun (itemOcc,_denv,m) -> itemOcc, m) 
             |> Seq.map (fun (itemOcc,denv,m) -> FSharpSymbolUse(tcGlobals, denv, symbol, itemOcc, m)) 
@@ -1632,7 +1582,7 @@ type CheckProjectResults(errors: ErrorInfo[], details:(TcGlobals*TcImports*CcuTh
     member info.GetAllUsesOfAllSymbols() = 
         let (tcGlobals, tcImports, thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef, _ad) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetAllUsesOfSymbols is immutable.
-        reactorOps.RunAsyncOp(fun () -> 
+        reactorOps.EnqueueAndAwaitOpAsync(fun () -> 
             [| for r in tcResolutions do 
                   for (item,itemOcc,denv,m) in r.GetAllUsesOfSymbols() do
                     let symbol = FSharpSymbol.Create(tcGlobals, thisCcu, tcImports, item)
@@ -1680,7 +1630,7 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
            | Some (_,_,reactor) -> 
                // Make sure we run disposal in the reactor thread, since it may trigger type provider disposals etc.
                details <- None
-               reactor.StartAsyncOp (fun () -> decrementer.Dispose())
+               reactor.EnqueueOp (fun () -> decrementer.Dispose())
            | _ -> () 
 
     // Run an operation that needs to be run in the reactor thread
@@ -1695,7 +1645,7 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
         | Some (scope, builderOpt, reactor) -> 
             // Ensure the builder doesn't get released while running operations asynchronously. 
             use _unwind = match builderOpt with Some builder -> builder.IncrementUsageCount() | None -> { new System.IDisposable with member __.Dispose() = () }
-            let! res = reactor.RunAsyncOp(fun () ->  f scope)
+            let! res = reactor.EnqueueAndAwaitOpAsync(fun () ->  f scope)
             return res
       }
 
@@ -1855,8 +1805,8 @@ type BackgroundCompiler(projectCacheSize) as self =
 
     let reactorOps = 
         { new IReactorOperations with 
-                member __.RunAsyncOp op = reactor.RunAsyncOp op
-                member __.StartAsyncOp op = reactor.StartAsyncOp op }
+                member __.EnqueueAndAwaitOpAsync op = reactor.EnqueueAndAwaitOpAsync op
+                member __.EnqueueOp op = reactor.EnqueueOp op }
 
     // STATIC ROOT: LanguageServiceState.InteractiveChecker.backgroundCompiler.scriptClosure 
     /// Information about the derived script closure.
@@ -1868,7 +1818,6 @@ type BackgroundCompiler(projectCacheSize) as self =
     /// CreateOneIncrementalBuilder (for background type checking). Note that fsc.fs also
     /// creates an incremental builder used by the command line compiler.
     let CreateOneIncrementalBuilder (options:ProjectOptions) = 
-        use t = Trace.Call("Reactor","CreateOneIncrementalBuilder", fun () -> sprintf "options = %+A" options)
 
         let projectReferences =  
             [ for (nm,opts) in options.ReferencedProjects ->
@@ -1960,7 +1909,7 @@ type BackgroundCompiler(projectCacheSize) as self =
 
     /// Parses the source file and returns untyped AST
     member bc.ParseFileInProject(filename:string, source,options:ProjectOptions) =
-        reactor.RunAsyncOp <| fun () -> 
+        reactor.EnqueueAndAwaitOpAsync <| fun () -> 
         
 #if TYPE_PROVIDER_SECURITY
             ExtensionTyping.GlobalsTheLanguageServiceCanPoke.theMostRecentFileNameWeChecked <- Some filename
@@ -1977,7 +1926,7 @@ type BackgroundCompiler(projectCacheSize) as self =
      
     /// Fetch the parse information from the background compiler (which checks w.r.t. the FileSystem API)
     member bc.GetBackgroundParseResultsForFileInProject(filename, options) =
-        reactor.RunAsyncOp <| fun () -> 
+        reactor.EnqueueAndAwaitOpAsync <| fun () -> 
             let builderOpt, creationErrors, _= getOrCreateBuilder options
             match builderOpt with
             | None -> ParseFileResults(List.toArray creationErrors, None, true, [])
@@ -1989,7 +1938,7 @@ type BackgroundCompiler(projectCacheSize) as self =
             ParseFileResults(errors = errors, input = inputOpt, parseHadErrors = false, dependencyFiles = dependencyFiles)
         
     member bc.MatchBraces(filename:string, source, options)=
-        reactor.RunAsyncOp <| fun () -> 
+        reactor.EnqueueAndAwaitOpAsync <| fun () -> 
             let builderOpt,_,_ = getOrCreateBuilder options
             match builderOpt with
             | None -> [| |]
@@ -2001,7 +1950,7 @@ type BackgroundCompiler(projectCacheSize) as self =
 
     /// Type-check the result obtained by parsing, but only if the antecedent type checking context is available. 
     member bc.CheckFileInProjectIfReady(parseResults:ParseFileResults,filename,source,options,isResultObsolete,textSnapshotInfo:obj option) =
-        reactor.RunAsyncOp <| fun () -> 
+        reactor.EnqueueAndAwaitOpAsync <| fun () -> 
             match incrementalBuildersCache.TryGetAny options with
             | Some(Some builder, creationErrors, _) ->
             
@@ -2023,7 +1972,7 @@ type BackgroundCompiler(projectCacheSize) as self =
 
     /// Type-check the result obtained by parsing. Force the evaluation of the antecedent type checking context if needed.
     member bc.CheckFileInProject(parseResults:ParseFileResults,filename,source,options,isResultObsolete,textSnapshotInfo) =
-        reactor.RunAsyncOp <| fun () -> 
+        reactor.EnqueueAndAwaitOpAsync <| fun () -> 
             let builderOpt,creationErrors,_ = getOrCreateBuilder options
             match builderOpt with
             | None -> CheckFileAnswer.Succeeded (MakeCheckFileResultsEmpty(creationErrors))
@@ -2037,7 +1986,7 @@ type BackgroundCompiler(projectCacheSize) as self =
 
     /// Parses the source file and returns untyped AST
     member bc.ParseAndCheckFileInProject(filename:string, source, options:ProjectOptions,isResultObsolete,textSnapshotInfo,cachedResults) =
-        reactor.RunAsyncOp <| fun () -> 
+        reactor.EnqueueAndAwaitOpAsync <| fun () -> 
         
 #if TYPE_PROVIDER_SECURITY
             ExtensionTyping.GlobalsTheLanguageServiceCanPoke.theMostRecentFileNameWeChecked <- Some filename
@@ -2069,7 +2018,7 @@ type BackgroundCompiler(projectCacheSize) as self =
 
     /// Fetch the check information from the background compiler (which checks w.r.t. the FileSystem API)
     member bc.GetBackgroundCheckResultsForFileInProject(filename,options) =
-        reactor.RunAsyncOp <| fun () -> 
+        reactor.EnqueueAndAwaitOpAsync <| fun () -> 
             let (builderOpt, creationErrors, _) = getOrCreateBuilder options 
             match builderOpt with
             | None -> 
@@ -2114,10 +2063,10 @@ type BackgroundCompiler(projectCacheSize) as self =
 
     /// Parse and typecheck the whole project.
     member bc.ParseAndCheckProject(options) =
-        reactor.RunAsyncOp <| fun () -> bc.ParseAndCheckProjectImpl(options)
+        reactor.EnqueueAndAwaitOpAsync <| fun () -> bc.ParseAndCheckProjectImpl(options)
 
     member bc.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = 
-        reactor.RunAsyncOp (fun () -> 
+        reactor.EnqueueAndAwaitOpAsync (fun () -> 
             // Do we add a reference to FSharp.Compiler.Interactive.Settings by default?
             let useFsiAuxLib = defaultArg useFsiAuxLib true
             // Do we use a "FSharp.Core, 4.3.0.0" reference by default?
@@ -2150,7 +2099,7 @@ type BackgroundCompiler(projectCacheSize) as self =
             co)
             
     member bc.InvalidateConfiguration(options : ProjectOptions) =
-        reactor.StartAsyncOp <| fun () -> 
+        reactor.EnqueueOp <| fun () -> 
             match incrementalBuildersCache.TryGetAny options with
             | None -> ()
             | Some (_oldBuilder, _, _) ->
@@ -2158,7 +2107,7 @@ type BackgroundCompiler(projectCacheSize) as self =
                     // including by SetAlternate.
                     let builderB, errorsB, decrementB = CreateOneIncrementalBuilder options
                     incrementalBuildersCache.Set(options, (builderB, errorsB, decrementB))
-        bc.StartBuilding(options)
+        bc.StartBackgroundCompile(options)
 
     member bc.NotifyProjectCleaned(options : ProjectOptions) =
         match incrementalBuildersCache.TryGetAny options with
@@ -2173,27 +2122,28 @@ type BackgroundCompiler(projectCacheSize) as self =
 #endif
 
     member bc.InvalidateAll() =
-        reactor.StartAsyncOp (fun () -> incrementalBuildersCache.Clear())
+        reactor.EnqueueOp (fun () -> incrementalBuildersCache.Clear())
 
-    member bc.StartBuilding(options) =
-        reactor.StartBuilding(fun () -> 
+    member bc.StartBackgroundCompile(options) =
+        reactor.StartBackgroundOp(fun () -> 
             let builderOpt,_,_ = getOrCreateBuilder options
             match builderOpt with 
             | None -> false
             | Some builder -> builder.Step())
 
-    member bc.StopBuilding() =
-        reactor.StopBuilding() 
+    member bc.StopBackgroundCompile() =
+        reactor.StopBackgroundOp() 
 
-    // This is for unit testing only
     member bc.WaitForBackgroundCompile() =
-        reactor.WaitForBackgroundCompile() 
+        reactor.WaitForBackgroundOpCompletion() 
 
     member bc.ReactorOps  = reactorOps
     member bc.BeforeBackgroundFileCheck = beforeFileChecked.Publish
     member bc.FileParsed = fileParsed.Publish
     member bc.FileChecked = fileChecked.Publish
     member bc.ProjectChecked = projectChecked.Publish
+
+    member bc.CurrentQueueLength = reactor.CurrentQueueLength
 
 //----------------------------------------------------------------------------
 // InteractiveChecker
@@ -2351,7 +2301,7 @@ type InteractiveChecker(projectCacheSize) =
         match checkAnswer with 
         | None
         | Some CheckFileAnswer.Aborted -> 
-            backgroundCompiler.StartBuilding(options) 
+            backgroundCompiler.StartBackgroundCompile(options) 
         | Some (CheckFileAnswer.Succeeded typedResults) -> 
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
             typeCheckLookup.Set((filename,options),(parseResults,typedResults,fileVersion))            
@@ -2408,10 +2358,10 @@ type InteractiveChecker(projectCacheSize) =
           UnresolvedReferences = None }
 
     /// Begin background parsing the given project.
-    member ic.StartBackgroundCompile(options) = backgroundCompiler.StartBuilding(options) 
+    member ic.StartBackgroundCompile(options) = backgroundCompiler.StartBackgroundCompile(options) 
 
     /// Stop the background compile.
-    member ic.StopBackgroundCompile() = backgroundCompiler.StopBuilding()
+    member ic.StopBackgroundCompile() = backgroundCompiler.StopBackgroundCompile()
 
     /// Block until the background compile finishes.
     //
@@ -2420,6 +2370,8 @@ type InteractiveChecker(projectCacheSize) =
 
     // Publish the ReactorOps from the background compiler for internal use
     member ic.ReactorOps = backgroundCompiler.ReactorOps
+    member ic.CurrentQueueLength = backgroundCompiler.CurrentQueueLength
+
 
     member ic.BeforeBackgroundFileCheck  = backgroundCompiler.BeforeBackgroundFileCheck
     member ic.FileParsed  = backgroundCompiler.FileParsed

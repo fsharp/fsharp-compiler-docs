@@ -2897,14 +2897,14 @@ let ``Test Project22 IList contents`` () =
     let ocTypeDefn = ocTypeUse.Symbol :?> FSharpEntity
     let alistTypeDefn = alistTypeUse.Symbol :?> FSharpEntity
 
-    [ for x in ilistTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
+    set [ for x in ilistTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
       |> shouldEqual
-              [("get_Item", ["slot"; "member"; "getter"]);
-               ("set_Item", ["slot"; "member"; "setter"]); 
-               ("IndexOf", ["slot"; "member"]);
-               ("Insert", ["slot"; "member"]); 
-               ("RemoveAt", ["slot"; "member"]);
-               ("Item", ["slot"; "member"; "prop"])]
+           (set [("get_Item", ["slot"; "member"; "getter"]);
+                ("set_Item", ["slot"; "member"; "setter"]); 
+                ("IndexOf", ["slot"; "member"]);
+                ("Insert", ["slot"; "member"]); 
+                ("RemoveAt", ["slot"; "member"]);
+                ("Item", ["slot"; "member"; "prop"])])
 
     set [ for x in ocTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
       |> shouldEqual
@@ -2928,17 +2928,17 @@ let ``Test Project22 IList contents`` () =
                ("CollectionChanged", ["slot"; "member"; "event"]);
                ("PropertyChanged", ["slot"; "member"; "event"])])
 
-    [ for x in alistTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
+    set [ for x in alistTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
       |> shouldEqual
-            [(".ctor", ["member"; "ctor"]); 
-             ("get_Item", ["member"; "getter"]);
-             ("set_Item", ["member"; "setter"]); 
-             ("Item", ["member"; "prop"])]
+            (set [(".ctor", ["member"; "ctor"]); 
+                  ("get_Item", ["member"; "getter"]);
+                  ("set_Item", ["member"; "setter"]); 
+                  ("Item", ["member"; "prop"])])
 
-    [ for x in ilistTypeDefn.AllInterfaces -> x.TypeDefinition.DisplayName, attribsOfSymbol x.TypeDefinition ]
+    set [ for x in ilistTypeDefn.AllInterfaces -> x.TypeDefinition.DisplayName, attribsOfSymbol x.TypeDefinition ]
        |> shouldEqual
-              [("IList", ["interface"]); ("ICollection", ["interface"]);
-               ("IEnumerable", ["interface"]); ("IEnumerable", ["interface"])]
+              (set [("IList", ["interface"]); ("ICollection", ["interface"]);
+                    ("IEnumerable", ["interface"]); ("IEnumerable", ["interface"])])
 
 [<Test>]
 let ``Test Project22 IList properties`` () =

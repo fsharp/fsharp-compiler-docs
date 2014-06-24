@@ -226,3 +226,6 @@
 
 #### 0.0.54 - 
 * Fix for #159 - Unsubscribe from TP Invalidate events when disposing builders 
+
+#### 0.0.55 - 
+* Integrate changes for F# 3.1.x, Fix #166

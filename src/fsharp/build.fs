@@ -4496,7 +4496,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
                     | None -> tcConfig.ResolveLibWithDirectories loadFailureAction r
             match resolution with
             | Some resolution ->
-            match frameworkTcImports.RegisterAndImportReferencedAssemblies(None, [resolution]) with
+                match frameworkTcImports.RegisterAndImportReferencedAssemblies(None, [resolution]) with
                 | (_, [ResolvedImportedAssembly(ccu)]) -> Some ccu
                 | _        -> 
                     match loadFailureAction with

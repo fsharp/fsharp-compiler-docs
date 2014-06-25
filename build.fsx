@@ -151,9 +151,6 @@ FinalTarget "CloseTestRunner" (fun _ ->
 // Build a NuGet package
 
 Target "NuGet" (fun _ ->
-    // Format the description to fit on a single line (remove \r\n and double-spaces)
-    let description = description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
-    let nugetPath = ".nuget/NuGet.exe"
     NuGet (fun p -> 
         { p with   
             Authors = authors
@@ -161,10 +158,9 @@ Target "NuGet" (fun _ ->
             Summary = summary
             Description = description
             Version = nugetVersion
-            ReleaseNotes = String.concat " " release.Notes
+            ReleaseNotes = release.Notes |> toLines
             Tags = tags
             OutputPath = "bin"
-            ToolPath = nugetPath
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey" })
         ("nuget/" + project + ".nuspec")

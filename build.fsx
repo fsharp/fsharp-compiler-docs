@@ -29,7 +29,8 @@ let tags = "F# fsharp interactive compiler editor"
 let gitHome = "https://github.com/fsharp"
 let gitName = "FSharp.Compiler.Service"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/fsharp"
-//let testAssemblies = ["tests/*/bin/Release/Deedle*Tests*.dll"]
+
+let netFrameworks = ["v4.0"; "v4.5"]
 
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script 
@@ -85,12 +86,14 @@ Target "GenerateFSIStrings" (fun _ ->
 )
 
 Target "Build" (fun _ ->
-    // Build the rest of the project
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [project + ".sln" (*; project + ".Tests.sln"*)]
-      Excludes = [] } 
-    |> MSBuildRelease "" "Build"
-    |> Log "AppBuild-Output: "
+    netFrameworks
+    |> List.iter (fun framework -> 
+        let outputPath = "bin/" + framework.Replace(".","")
+        !! (project + ".sln")
+        |> MSBuild outputPath "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
+        |> Log ".NET 4.0 Build-Output: "
+
+        MoveFile outputPath "./bin/FSharp.Compiler.Service.xml")
 )
 
 Target "SourceLink" (fun _ ->
@@ -134,7 +137,7 @@ Target "RunTests" (fun _ ->
     let nunitPath = sprintf "packages/NUnit.Runners.%s/tools" nunitVersion
     ActivateFinalTarget "CloseTestRunner"
 
-    ["bin/FSharp.Compiler.Service.Tests.dll"]
+    !! "./bin/**/FSharp.Compiler.Service.Tests.dll"
     |> NUnit (fun p ->
         { p with
             Framework = "v4.0.30319"

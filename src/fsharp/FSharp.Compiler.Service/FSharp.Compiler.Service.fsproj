@@ -57,9 +57,11 @@
     <DefineConstants>DEBUG; $(DefineConstants)</DefineConstants>
     <Optimize>false</Optimize>
     <OtherFlags>$(OtherFlags) --no-jit-optimize --jit-tracking</OtherFlags>
+    <DocumentationFile>..\..\..\bin\FSharp.Compiler.Service.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>
+    <DocumentationFile>..\..\..\bin\FSharp.Compiler.Service.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">

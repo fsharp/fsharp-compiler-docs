@@ -29,15 +29,15 @@ let tags = "F# fsharp interactive compiler editor"
 let gitHome = "https://github.com/fsharp"
 let gitName = "FSharp.Compiler.Service"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/fsharp"
-//let testAssemblies = ["tests/*/bin/Release/Deedle*Tests*.dll"]
+
+let netFrameworks = ["v4.0"; "v4.5"]
 
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script 
 // --------------------------------------------------------------------------------------
 
 // Read release notes & version info from RELEASE_NOTES.md
-Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
-let release = parseReleaseNotes (IO.File.ReadAllLines "RELEASE_NOTES.md")
+let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let isAppVeyorBuild = environVar "APPVEYOR" <> null
 let nugetVersion = 
     if isAppVeyorBuild then sprintf "%s-a%s" release.NugetVersion (DateTime.UtcNow.ToString "yyMMddHHmm")
@@ -58,10 +58,7 @@ Target "AssemblyInfo" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Clean build results & restore NuGet packages
 
-Target "RestorePackages" (fun _ ->
-    !! "./**/packages.config"
-    |> Seq.iter (RestorePackage (fun p -> { p with ToolPath = "./.nuget/NuGet.exe" }))
-)
+Target "RestorePackages" RestorePackages
 
 Target "Clean" (fun _ ->
     CleanDirs ["bin"; "temp" ]
@@ -85,12 +82,14 @@ Target "GenerateFSIStrings" (fun _ ->
 )
 
 Target "Build" (fun _ ->
-    // Build the rest of the project
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [project + ".sln" (*; project + ".Tests.sln"*)]
-      Excludes = [] } 
-    |> MSBuildRelease "" "Build"
-    |> Log "AppBuild-Output: "
+    netFrameworks
+    |> List.iter (fun framework -> 
+        let outputPath = "bin/" + framework.Replace(".","")
+        !! (project + ".sln")
+        |> MSBuild outputPath "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
+        |> Log ".NET 4.0 Build-Output: "
+
+        MoveFile outputPath "./bin/FSharp.Compiler.Service.xml")
 )
 
 Target "SourceLink" (fun _ ->
@@ -127,34 +126,22 @@ Target "SourceLink" (fun _ ->
 )
 
 // --------------------------------------------------------------------------------------
-// Run the unit tests using test runner & kill test runner when complete
+// Run the unit tests using test runner
 
 Target "RunTests" (fun _ ->
-    let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
-    let nunitPath = sprintf "packages/NUnit.Runners.%s/tools" nunitVersion
-    ActivateFinalTarget "CloseTestRunner"
-
-    ["bin/FSharp.Compiler.Service.Tests.dll"]
+    !! "./bin/**/FSharp.Compiler.Service.Tests.dll"
     |> NUnit (fun p ->
         { p with
             Framework = "v4.0.30319"
-            ToolPath = nunitPath
             DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
             OutputFile = "TestResults.xml" })
-)
-
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess "nunit-agent.exe"
 )
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
 Target "NuGet" (fun _ ->
-    // Format the description to fit on a single line (remove \r\n and double-spaces)
-    let description = description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
-    let nugetPath = ".nuget/NuGet.exe"
     NuGet (fun p -> 
         { p with   
             Authors = authors
@@ -162,10 +149,9 @@ Target "NuGet" (fun _ ->
             Summary = summary
             Description = description
             Version = nugetVersion
-            ReleaseNotes = String.concat " " release.Notes
+            ReleaseNotes = release.Notes |> toLines
             Tags = tags
             OutputPath = "bin"
-            ToolPath = nugetPath
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey" })
         ("nuget/" + project + ".nuspec")

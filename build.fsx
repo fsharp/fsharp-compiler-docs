@@ -126,11 +126,9 @@ Target "SourceLink" (fun _ ->
 )
 
 // --------------------------------------------------------------------------------------
-// Run the unit tests using test runner & kill test runner when complete
+// Run the unit tests using test runner
 
 Target "RunTests" (fun _ ->
-    ActivateFinalTarget "CloseTestRunner"
-
     !! "./bin/**/FSharp.Compiler.Service.Tests.dll"
     |> NUnit (fun p ->
         { p with
@@ -138,10 +136,6 @@ Target "RunTests" (fun _ ->
             DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
             OutputFile = "TestResults.xml" })
-)
-
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess "nunit-agent.exe"
 )
 
 // --------------------------------------------------------------------------------------

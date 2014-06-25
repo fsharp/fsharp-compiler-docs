@@ -230,3 +230,6 @@
 #### 0.0.55 - 
 * Integrate changes for F# 3.1.x, Fix #166
 * Fix for #160 - Nuget package contains .NET 4.0 and 4.5
+
+#### 0.0.56 - 
+* Second fix for #160 - Nuget package now contains .NET 4.0 and 4.5

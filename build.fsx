@@ -87,7 +87,7 @@ Target "Build" (fun _ ->
         let outputPath = "bin/" + framework.Replace(".","")
         !! (project + ".sln")
         |> MSBuild outputPath "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
-        |> Log ".NET 4.0 Build-Output: "
+        |> Log (".NET " + framework + " Build-Output: ")
 
         MoveFile outputPath "./bin/FSharp.Compiler.Service.xml")
 )

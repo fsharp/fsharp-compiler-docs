@@ -1560,11 +1560,26 @@ let GetFSharpCoreReferenceUsedByCompiler(useMonoResolution) =
     GetFSharpCoreLibraryName()+".dll"
   else
     let fsCoreName = GetFSharpCoreLibraryName()
-    typeof<TypeInThisAssembly>.Assembly.GetReferencedAssemblies()
-    |> Array.pick (fun name ->
-        if name.Name = fsCoreName then Some(name.ToString())
-        else None
-    )     
+
+    // check if FSharp.Core can be found from the hosting environment
+    let foundReference =
+        match System.Reflection.Assembly.GetEntryAssembly() with
+        | null -> None
+        | entryAssembly ->
+            entryAssembly.GetReferencedAssemblies()
+            |> Array.tryPick (fun name ->
+                if name.Name = fsCoreName then Some(name.ToString())
+                else None)
+
+    // if not we use the referenced FSharp.Core from this project
+    match foundReference with
+    | Some fsharpCore -> fsharpCore
+    | None ->                        
+        typeof<TypeInThisAssembly>.Assembly.GetReferencedAssemblies()
+        |> Array.pick (fun name ->
+            if name.Name = fsCoreName then Some(name.ToString())
+            else None)
+
 let GetFsiLibraryName () = "FSharp.Compiler.Interactive.Settings"  
 #endif
 

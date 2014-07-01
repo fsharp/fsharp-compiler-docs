@@ -1560,7 +1560,11 @@ let GetFSharpCoreReferenceUsedByCompiler(useMonoResolution) =
     GetFSharpCoreLibraryName()+".dll"
   else
     let fsCoreName = GetFSharpCoreLibraryName()
+
+    // We check if FSharp.Core can be found from the hosting environment
+    // if not we use the referenced FSharp.Core from this project
     typeof<TypeInThisAssembly>.Assembly.GetReferencedAssemblies()
+    |> Array.append (System.Reflection.Assembly.GetEntryAssembly().GetReferencedAssemblies())
     |> Array.pick (fun name ->
         if name.Name = fsCoreName then Some(name.ToString())
         else None

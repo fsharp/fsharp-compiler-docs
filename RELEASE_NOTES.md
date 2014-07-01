@@ -235,3 +235,7 @@
 
 #### 0.0.57 - 
 * Second fix for #160 - Nuget package now contains .NET 4.0 and 4.5
+
+#### 0.0.58 - 
+* Fix for #156 - The FSharp.Core should be retrieved from the hosting environment
+

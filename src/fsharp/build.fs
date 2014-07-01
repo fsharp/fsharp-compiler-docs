@@ -1563,10 +1563,13 @@ let GetFSharpCoreReferenceUsedByCompiler(useMonoResolution) =
 
     // check if FSharp.Core can be found from the hosting environment
     let foundReference =
-        System.Reflection.Assembly.GetEntryAssembly().GetReferencedAssemblies()
-        |> Array.tryPick (fun name ->
-            if name.Name = fsCoreName then Some(name.ToString())
-            else None)
+        match System.Reflection.Assembly.GetEntryAssembly() with
+        | null -> None
+        | entryAssembly ->
+            entryAssembly.GetReferencedAssemblies()
+            |> Array.tryPick (fun name ->
+                if name.Name = fsCoreName then Some(name.ToString())
+                else None)
 
     // if not we use the referenced FSharp.Core from this project
     match foundReference with

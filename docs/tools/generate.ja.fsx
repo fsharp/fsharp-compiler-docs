@@ -46,7 +46,7 @@ let root = "file://" + (__SOURCE_DIRECTORY__ @@ "../output/ja")
 #endif
 
 // Paths with template/source/output locations
-let bin         = __SOURCE_DIRECTORY__ @@ "../../bin"
+let bin         = __SOURCE_DIRECTORY__ @@ "../../bin/v45"
 let content     = __SOURCE_DIRECTORY__ @@ "../content/ja"
 let output      = __SOURCE_DIRECTORY__ @@ "../output"
 let outputJa    = __SOURCE_DIRECTORY__ @@ "../output/ja"

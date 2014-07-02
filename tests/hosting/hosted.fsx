@@ -1,6 +1,6 @@
 
 
-#r @"../../bin/FSharp.Compiler.Service.dll"
+#r @"../../bin/v45/FSharp.Compiler.Service.dll"
 #nowarn "57"
 
 module SimpleTokenizeExample = 

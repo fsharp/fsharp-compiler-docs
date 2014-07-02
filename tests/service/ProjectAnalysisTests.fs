@@ -191,6 +191,21 @@ let ``Test project1 whole project errors`` () =
     wholeProjectResults.Errors.[0].StartColumn |> shouldEqual 43
     wholeProjectResults.Errors.[0].EndColumn |> shouldEqual 44
 
+[<Test; Ignore "FCS should not throw exceptions on FSharpEntity.BaseType">]
+let ``Test project1 should not throw exceptions on entities from referenced assemblies`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
+    let rec getAllBaseTypes (entity: FSharpEntity) = 
+        seq { if not entity.IsProvided && entity.Accessibility.IsPublic then
+                if not entity.IsUnresolved then yield entity.BaseType
+                for e in entity.NestedEntities do
+                    yield! getAllBaseTypes e }
+    let allBaseTypes =
+        wholeProjectResults.ProjectContext.GetReferencedAssemblies()
+        |> List.map (fun asm -> asm.Contents.Entities)
+        |> Seq.collect (Seq.map getAllBaseTypes)
+        |> Seq.concat
+    Assert.DoesNotThrow(fun () -> Seq.iter (fun _ -> ()) allBaseTypes)
+
 [<Test>]
 let ``Test project1 basic`` () = 
 

@@ -28,7 +28,7 @@ let tags = "F# fsharp interactive compiler editor"
 
 let gitHome = "https://github.com/fsharp"
 let gitName = "FSharp.Compiler.Service"
-let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/fsharp"
+let gitRaw = environVarOrDefault "gitRaw" "https://raw.githubusercontent.com/fsharp"
 
 let netFrameworks = ["v4.0"; "v4.5"]
 
@@ -96,32 +96,36 @@ Target "SourceLink" (fun _ ->
     #if MONO
     ()
     #else
-    let f = !! "src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj" |> Seq.head
-    use repo = new GitRepo(__SOURCE_DIRECTORY__)
-    let proj = VsProj.LoadRelease f
-    logfn "source linking %s" proj.OutputFilePdb
-    let compiles = proj.Compiles.SetBaseDirectory __SOURCE_DIRECTORY__ 
-    let gitFiles =
-        compiles
-        -- "src/assemblyinfo/assemblyinfo*.fs" // not source indexed
-        // generated and in fsproj as Compile, but in .gitignore, not source indexed
-        -- "src/fsharp/FSharp.Compiler.Service/illex.fs" // <FsLex Include="..\..\absil\illex.fsl">
-        -- "src/fsharp/FSharp.Compiler.Service/ilpars.fs"
-        -- "src/fsharp/FSharp.Compiler.Service/lex.fs"
-        -- "src/fsharp/FSharp.Compiler.Service/pars.fs"
-    repo.VerifyChecksums gitFiles
-    let pdbFiles =  
-        compiles
-        // generated, not in the fsproj as Compile, not source indexed
-        ++ "src/absil/illex.fsl"
-        ++ "src/absil/ilpars.fsy"
-        ++ "src/fsharp/fsharp.compiler.service/obj/x86/release/fscomp.fs"
-        ++ "src/fsharp/fsharp.compiler.service/obj/x86/release/fsistrings.fs"
-        ++ "src/fsharp/lex.fsl"
-        ++ "src/fsharp/pars.fsy"
-    proj.VerifyPdbChecksums pdbFiles
-    proj.CreateSrcSrv (sprintf "%s/%s/{0}/%%var2%%" gitRaw gitName) repo.Revision (repo.Paths gitFiles)
-    Pdbstr.exec proj.OutputFilePdb proj.OutputFilePdbSrcSrv
+    netFrameworks
+    |> List.iter (fun framework -> 
+        let f = !! "src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj" |> Seq.head
+        use repo = new GitRepo(__SOURCE_DIRECTORY__)
+        let outputPath = __SOURCE_DIRECTORY__ @@ "bin/" + framework.Replace(".","")
+        let proj = VsProj.Load f ["Configuration","Release"; "TargetFrameworkVersion",framework; "OutputPath",outputPath]
+        logfn "indexing %s" proj.OutputFilePdb
+        let compiles = proj.Compiles.SetBaseDirectory __SOURCE_DIRECTORY__ 
+        let gitFiles =
+            compiles
+            -- "src/assemblyinfo/assemblyinfo*.fs" // not source indexed
+            // generated and in fsproj as Compile, but in .gitignore, not source indexed
+            -- "src/fsharp/FSharp.Compiler.Service/illex.fs" // <FsLex Include="..\..\absil\illex.fsl">
+            -- "src/fsharp/FSharp.Compiler.Service/ilpars.fs"
+            -- "src/fsharp/FSharp.Compiler.Service/lex.fs"
+            -- "src/fsharp/FSharp.Compiler.Service/pars.fs"
+        repo.VerifyChecksums gitFiles
+        let pdbFiles =  
+            compiles
+            // generated, not in the fsproj as Compile, not source indexed
+            ++ "src/absil/illex.fsl"
+            ++ "src/absil/ilpars.fsy"
+            ++ "src/fsharp/fsharp.compiler.service/obj/x86/release/fscomp.fs"
+            ++ "src/fsharp/fsharp.compiler.service/obj/x86/release/fsistrings.fs"
+            ++ "src/fsharp/lex.fsl"
+            ++ "src/fsharp/pars.fsy"
+        proj.VerifyPdbChecksums pdbFiles
+        proj.CreateSrcSrv (sprintf "%s/%s/{0}/%%var2%%" gitRaw gitName) repo.Revision (repo.Paths gitFiles)
+        Pdbstr.exec proj.OutputFilePdb proj.OutputFilePdbSrcSrv
+    )
     #endif
 )
 
@@ -197,12 +201,12 @@ Target "All" DoNothing
   ==> "GenerateFSIStrings"
   ==> "Prepare"
   ==> "Build"
-  =?> ("SourceLink", isAppVeyorBuild)
   ==> "RunTests"
   ==> "All"
 
 "All"
   ==> "PrepareRelease" 
+  ==> "SourceLink"
   ==> "NuGet"
   ==> "Release"
 

@@ -942,6 +942,20 @@ type TypeCheckInfo
                     let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
                     DeclarationSet.Create(infoReader,m,denv,items,reactorOps,checkAlive))
             (fun msg -> DeclarationSet.Error msg)
+
+    member x.GetDeclarationSymbols (parseResultsOpt:ParseFileResults option, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) =
+        let isInterfaceFile = SourceFileImpl.IsInterfaceFile mainInputFileName
+        ErrorScope.Protect 
+            Range.range0 
+            (fun () -> 
+                match GetDeclItemsForNamesAtPosition(parseResultsOpt, Some qualifyingNames, Some partialName, line, lineStr, colAtEndOfNamesAndResidue, ResolveTypeNamesToCtors, ResolveOverloads.Yes, hasTextChangedSinceLastTypecheck) with
+                | None -> List.Empty  
+                | Some(items,denv,m) -> 
+                    let items = items |> filterIntellisenseCompletionsBasedOnParseContext (parseResultsOpt |> Option.bind (fun x -> x.ParseTree)) (mkPos line colAtEndOfNamesAndResidue)
+                    let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
+                    let symbols = items |> List.map (fun item -> FSharpSymbol.Create(g, thisCcu, tcImports, item) )
+                    symbols)
+            (fun msg -> List.empty)
             
     member scope.GetReferenceResolutionToolTipText(line,col) : ToolTipText = 
         let pos = mkPos line col
@@ -1672,6 +1686,10 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
     member info.GetDeclarationsAlternate(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
         let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
         reactorOp DeclarationSet.Empty (fun scope -> scope.GetDeclarations(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
+
+    member info.GetDeclarationSymbols(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
+        let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
+        reactorOp List.empty (fun scope -> scope.GetDeclarationSymbols(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
 
     /// Resolve the names at the given location to give a data tip 
     member info.GetToolTipTextAlternate(line, colAtEndOfNames, lineStr, names, tokenTag) = 

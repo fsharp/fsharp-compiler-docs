@@ -175,6 +175,9 @@ type CheckFileResults =
 
     member GetDeclarationsAlternate : ParsedFileResultsOpt:ParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<DeclarationSet>
 
+    member GetDeclarationSymbols : ParsedFileResultsOpt:ParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpSymbol list>
+
+
     /// <summary>Compute a formatted tooltip for the given location</summary>
     ///
     /// <param name="line">The line number where the information is being requested.</param>

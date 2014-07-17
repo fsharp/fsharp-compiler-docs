@@ -872,6 +872,18 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         | Some v -> Some v.Range
         | None -> base.DeclarationLocation 
 
+    member x.Overloads =
+        checkIsResolved()
+        match d with
+        | M m ->
+            match item with
+            | Item.MethodGroup (name, methodInfos) -> 
+                methodInfos
+                |> List.filter (fun methodInfo -> not (methodInfo.NumArgs = m.NumArgs) )
+                |> List.map (fun mi -> FSharpMemberFunctionOrValue(g, thisCcu, tcImports, M mi, item))
+                |> Some
+            | _ -> None
+        | _ -> None
 
     member x.DeclarationLocation = 
         checkIsResolved()

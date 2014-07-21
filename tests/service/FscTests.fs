@@ -154,9 +154,10 @@ let compile isDll debugMode (assemblyName : string) (code : string) (dependencie
     let errorInfo, id = compiler.Compile args
     for err in errorInfo do 
        printfn "error: %A" err
-    Assert.AreEqual (errorInfo.Length, 0)
     if id <> 0 then raise <| CompilationError(assemblyName, id, errorInfo)
+    Assert.AreEqual (errorInfo.Length, 0)
     outFile
+
 //sizeof<nativeint>
 let compileAndVerify isDll debugMode assemblyName code dependencies =
     let verifier = new PEVerifier ()
@@ -278,6 +279,26 @@ module Bar
     let serviceAssembly = typeof<InteractiveChecker>.Assembly.Location
     let ast = parseSourceCode("bar", code)
     compileAndVerifyAst("bar", ast, [serviceAssembly])
+
+
+[<Test>]
+let ``Check line no are indexed by 1`` () =
+    let code = """
+module Bar
+    let doStuff a b =
+            a + b
+
+    let sum = doStuff "1" 2
+
+"""    
+    try
+        compile false PdbOnly "Bar" code [] |> ignore
+    with
+    | :? CompilationError as exn  ->                 
+            Assert.AreEqual(6,exn.Data2.[0].StartLineAlternate)
+            Assert.True(exn.Data2.[0].ToString().Contains("Bar.fs (6,26)-(6,27)"))
+    | _  -> failwith "No compilation error"
+
 
 #if STRESS
 // For this stress test the aim is to check if we have a memory leak

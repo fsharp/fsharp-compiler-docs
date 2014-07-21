@@ -296,7 +296,7 @@ module Bar
     with
     | :? CompilationError as exn  ->
             Assert.AreEqual(6,exn.Data2.[0].StartLineAlternate)
-            Assert.True(exn.Data2.[0].ToString().Contains("Bar.fs (6,26)-(6,27)"))
+            Assert.True(exn.Data2.[0].ToString().Contains("Bar.fs (6,27)-(6,28)"))
     | _  -> failwith "No compilation error"
 
 [<Test>]

@@ -282,7 +282,7 @@ module Bar
 
 
 [<Test>]
-let ``Check line no are indexed by 1`` () =
+let ``Check line nos are indexed by 1`` () =
     let code = """
 module Bar
     let doStuff a b =
@@ -294,10 +294,22 @@ module Bar
     try
         compile false PdbOnly "Bar" code [] |> ignore
     with
-    | :? CompilationError as exn  ->                 
+    | :? CompilationError as exn  ->
             Assert.AreEqual(6,exn.Data2.[0].StartLineAlternate)
             Assert.True(exn.Data2.[0].ToString().Contains("Bar.fs (6,26)-(6,27)"))
     | _  -> failwith "No compilation error"
+
+[<Test>]
+let ``Check cols are indexed by 1`` () =
+    let code = "let x = 1 + a"
+
+    try
+        compile false PdbOnly "Foo" code [] |> ignore
+    with
+    | :? CompilationError as exn  ->
+            Assert.True(exn.Data2.[0].ToString().Contains("Foo.fs (1,13)-(1,14)"))
+    | _  -> failwith "No compilation error"
+
 
 
 #if STRESS

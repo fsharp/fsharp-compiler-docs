@@ -2075,7 +2075,7 @@ type internal FsiInteractionProcessor
 
     member this.EvalScript(scriptPath) =
         // Todo: this runs the script as expected but errors are displayed one line to far in debugger
-        let sourceText = sprintf "#load \"%s\" " scriptPath
+        let sourceText = sprintf "#load @\"%s\" " scriptPath
         this.EvalInteraction sourceText
 
     member __.EvalExpression(sourceText) =

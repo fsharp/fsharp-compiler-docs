@@ -215,6 +215,8 @@ type public FsiEvaluationSessionHostConfig =
     /// Implicitly reference FSharp.Compiler.Interactive.Settings.dll
     abstract UseFsiAuxLib : bool
 
+    /// Hook for listening for evaluation bindings
+    abstract EvaluationListener : (string * range * FsiValue -> unit) option with get, set
 
 /// Used to print value signatures along with their values, according to the current
 /// set of pretty printers installed in the system, and default printing rules.
@@ -1043,7 +1045,19 @@ type internal FsiDynamicCompiler
             let denv = 
                 if isIncrementalFragment then
                   // Extend denv with a (Val -> layout option) function for printing of val bindings.
-                  {denv with generatedValueLayout = (fun v -> valuePrinter.InvokeDeclLayout (emEnv, ilxGenerator, v)) }
+                  {denv with generatedValueLayout = (fun v -> //Extension to allow Val to be forwarded 
+                                                              //at the point the layout function is invoked.
+                                                              match fsiConfig.EvaluationListener with
+                                                              | Some notify ->
+                                                                 let optValue = ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(emEnv), v)
+
+                                                                 match optValue with
+                                                                 | Some (res, typ) ->
+                                                                     let fsiVal = FsiValue(res, typ, FSharpType(tcGlobals, istate.tcState.Ccu, istate.tcImports, v.Type))
+                                                                     notify(v.DisplayName, v.Range, fsiVal)
+                                                                 | None ->  ()
+                                                              | None -> ()
+                                                              valuePrinter.InvokeDeclLayout (emEnv, ilxGenerator, v)) }
                 else
                   // With #load items, the vals in the inferred signature do not tie up with those generated. Disable printing.
                   denv 
@@ -2698,25 +2712,28 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 
         // We want to avoid modifying FSharp.Compiler.Interactive.Settings to avoid republishing that DLL.
         // So we access these via reflection
-        { // Connect the configuration through to the 'fsi' object from FSharp.Compiler.Interactive.Settings
-            new FsiEvaluationSessionHostConfig with 
-              member __.FormatProvider = getInstanceProperty fsiObj "FormatProvider"
-              member __.FloatingPointFormat = getInstanceProperty fsiObj "FloatingPointFormat"
-              member __.AddedPrinters = getInstanceProperty fsiObj "AddedPrinters"
-              member __.ShowDeclarationValues = getInstanceProperty fsiObj "ShowDeclarationValues"
-              member __.ShowIEnumerable = getInstanceProperty fsiObj "ShowIEnumerable"
-              member __.ShowProperties = getInstanceProperty fsiObj "ShowProperties"
-              member __.PrintSize = getInstanceProperty fsiObj "PrintSize"
-              member __.PrintDepth = getInstanceProperty fsiObj "PrintDepth"
-              member __.PrintWidth = getInstanceProperty fsiObj "PrintWidth"
-              member __.PrintLength = getInstanceProperty fsiObj "PrintLength"
-              member __.ReportUserCommandLineArgs args = setInstanceProperty fsiObj "CommandLineArgs" args
-              member __.StartServer(fsiServerName) =  failwith "--fsi-server not implemented in the default configuration"
-              member __.EventLoopRun() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "Run"   
-              member __.EventLoopInvoke(f : unit -> 'T) =  callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") [|typeof<'T>|] "Invoke" f
-              member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "ScheduleRestart"
-              member __.UseFsiAuxLib = useFsiAuxLib
-              member __.OptionalConsoleReadLine = None }
+        let makeConfig (evaluationNotify: ref<_>) =
+            { // Connect the configuration through to the 'fsi' object from FSharp.Compiler.Interactive.Settings
+                new FsiEvaluationSessionHostConfig with 
+                  member __.FormatProvider = getInstanceProperty fsiObj "FormatProvider"
+                  member __.FloatingPointFormat = getInstanceProperty fsiObj "FloatingPointFormat"
+                  member __.AddedPrinters = getInstanceProperty fsiObj "AddedPrinters"
+                  member __.ShowDeclarationValues = getInstanceProperty fsiObj "ShowDeclarationValues"
+                  member __.ShowIEnumerable = getInstanceProperty fsiObj "ShowIEnumerable"
+                  member __.ShowProperties = getInstanceProperty fsiObj "ShowProperties"
+                  member __.PrintSize = getInstanceProperty fsiObj "PrintSize"
+                  member __.PrintDepth = getInstanceProperty fsiObj "PrintDepth"
+                  member __.PrintWidth = getInstanceProperty fsiObj "PrintWidth"
+                  member __.PrintLength = getInstanceProperty fsiObj "PrintLength"
+                  member __.ReportUserCommandLineArgs args = setInstanceProperty fsiObj "CommandLineArgs" args
+                  member __.StartServer(fsiServerName) =  failwith "--fsi-server not implemented in the default configuration"
+                  member __.EventLoopRun() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "Run"   
+                  member __.EventLoopInvoke(f : unit -> 'T) =  callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") [|typeof<'T>|] "Invoke" f
+                  member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "ScheduleRestart"
+                  member __.UseFsiAuxLib = useFsiAuxLib
+                  member __.OptionalConsoleReadLine = None 
+                  member __.EvaluationListener with get() = !evaluationNotify and set(value) = evaluationNotify := value }
+        makeConfig (ref<_>(None))
 
 
 //-------------------------------------------------------------------------------

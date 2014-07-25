@@ -216,7 +216,7 @@ type public FsiEvaluationSessionHostConfig =
     abstract UseFsiAuxLib : bool
 
     /// Hook for listening for evaluation bindings
-    abstract EvaluationListener : (string * range * FsiValue -> unit) option with get, set
+    abstract EvaluationListener : (string * FSharpDisplayContext * range * FsiValue -> unit) option with get, set
 
 /// Used to print value signatures along with their values, according to the current
 /// set of pretty printers installed in the system, and default printing rules.
@@ -1047,16 +1047,16 @@ type internal FsiDynamicCompiler
                   // Extend denv with a (Val -> layout option) function for printing of val bindings.
                   {denv with generatedValueLayout = (fun v -> //Extension to allow Val to be forwarded 
                                                               //at the point the layout function is invoked.
-                                                              match fsiConfig.EvaluationListener with
-                                                              | Some notify ->
-                                                                 let optValue = ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(emEnv), v)
-
-                                                                 match optValue with
-                                                                 | Some (res, typ) ->
-                                                                     let fsiVal = FsiValue(res, typ, FSharpType(tcGlobals, istate.tcState.Ccu, istate.tcImports, v.Type))
-                                                                     notify(v.DisplayName, v.Range, fsiVal)
-                                                                 | None ->  ()
-                                                              | None -> ()
+//                                                              match fsiConfig.EvaluationListener with
+//                                                              | Some notify ->
+//                                                                 let optValue = ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(emEnv), v)
+//                                                                 match optValue with
+//                                                                 | Some (res, typ) ->
+//                                                                     let displayContext = FSharpDisplayContext(fun _ -> denv)
+//                                                                     let fsiVal = FsiValue(res, typ, FSharpType(tcGlobals, istate.tcState.Ccu, istate.tcImports, v.Type))
+//                                                                     notify(v.DisplayName, displayContext, v.Range, fsiVal)
+//                                                                 | None ->  ()
+//                                                              | None -> ()
                                                               valuePrinter.InvokeDeclLayout (emEnv, ilxGenerator, v)) }
                 else
                   // With #load items, the vals in the inferred signature do not tie up with those generated. Disable printing.
@@ -1112,7 +1112,35 @@ type internal FsiDynamicCompiler
         let input = ParsedInput.ImplFile(ParsedImplFileInput(filename,true, QualFileNameOfUniquePath (rangeStdin,prefixPath),[],[],[impl],true (* isLastCompiland *) ))
         let istate,tcEnvAtEndOfLastInput = ProcessInputs (istate, [input], showTypes, true, isInteractiveItExpr, prefix)
         let tcState = istate.tcState 
-        { istate with tcState = tcState.NextStateAfterIncrementalFragment(tcEnvAtEndOfLastInput) }
+        let newState = { istate with tcState = tcState.NextStateAfterIncrementalFragment(tcEnvAtEndOfLastInput) }
+
+        //grab all the uqualified Items and notify the EvaluationListener
+        let allNames = newState.tcState.TcEnvFromImpls.NameEnv.eUnqualifiedItems.Values
+
+        let filteredByVal =
+            allNames
+            |> List.choose (function
+                            | Nameres.Item.Value vref -> Some (vref, i)
+                            | _ -> None)
+
+        let actualValues =
+            filteredByVal
+            |> List.choose (fun (vref, i) -> let optValue = newState.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(newState.emEnv), vref.Deref)
+                                             match optValue with
+                                             | Some (res, typ) ->
+                                                //let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, i)
+                                                let displayEnv = newState.tcState.TcEnvFromImpls.DisplayEnv
+                                                let displayContext = FSharpDisplayContext(fun _ -> displayEnv)
+                                                Some(vref.DisplayName,
+                                                     displayContext,
+                                                     vref.Range,
+                                                     FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)))
+                                             | None -> None )
+        fsiConfig.EvaluationListener
+        |> Option.iter (fun notify ->
+                            for (name, displayContext, range, fsiValue) in actualValues do 
+                                notify (name, displayContext, range, fsiValue))
+        newState
       
 
     /// Evaluate the given expression and produce a new interactive state.

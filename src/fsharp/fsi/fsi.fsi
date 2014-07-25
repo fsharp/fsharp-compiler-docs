@@ -51,7 +51,7 @@ type public FsiEvaluationSessionHostConfig =
     /// stripping things like "/use:file.fsx", "-r:Foo.dll" etc.
     abstract ReportUserCommandLineArgs : string [] -> unit
     /// Hook for listening for evaluation bindings
-    abstract EvaluationListener : (string * Microsoft.FSharp.Compiler.Range.range * FsiValue -> unit) option with get, set
+    abstract EvaluationListener : (string * FSharpDisplayContext * Microsoft.FSharp.Compiler.Range.range * FsiValue -> unit) option with get, set
 
 
     ///<summary>

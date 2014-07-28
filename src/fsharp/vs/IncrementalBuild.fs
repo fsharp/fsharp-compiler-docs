@@ -961,7 +961,7 @@ type ErrorInfo(fileName, s:pos, e:pos, severity: Severity, message: string, subc
     override e.ToString()=
         sprintf "%s (%d,%d)-(%d,%d) %s %s %s" 
             e.FileName
-            (int e.StartLine) e.StartColumn (int e.EndLine) e.EndColumn
+            (int e.StartLineAlternate) (e.StartColumn + 1) (int e.EndLineAlternate) (e.EndColumn + 1)
             e.Subcategory
             (if e.Severity=Severity.Warning then "warning" else "error") 
             e.Message    

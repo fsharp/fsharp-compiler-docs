@@ -239,3 +239,6 @@
 #### 0.0.58 - 
 * Fix for #156 - The FSharp.Core should be retrieved from the hosting environment
 
+#### 0.0.59 - 
+* Fix for #184 - Fix EvalScript by using verbatim string for #Load  
+* Fix for #183 - The line no. reporting is still using 0-based indexes in errors. This is confusing.

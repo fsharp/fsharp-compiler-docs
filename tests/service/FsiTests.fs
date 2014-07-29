@@ -182,6 +182,25 @@ let ``Bad arguments to session creation 2``() =
     Assert.False (String.IsNullOrEmpty (errStream.Read())) // error stream contains some output
     Assert.True (String.IsNullOrEmpty (outStream.Read())) // output stream contains no output
 
+[<Test>]
+// Regression test for #184
+let ``EvalScript accepts paths verbatim``() =
+    // Path contains escape sequences (\b and \n)
+    // Let's ensure the exception thrown (if any) is FileNameNotResolved
+    (try
+        let scriptPath = @"C:\bad\path\no\donut.fsx"
+        fsiSession.EvalScript scriptPath |> ignore
+        true
+     with
+        | e ->
+            // Microsoft.FSharp.Compiler.Build is internal, so we can't access the exception class here
+            if String.Equals(e.InnerException.GetType().FullName,
+                "Microsoft.FSharp.Compiler.Build+FileNameNotResolved",
+                StringComparison.InvariantCultureIgnoreCase)
+            then true
+            else false)
+    |> shouldEqual true
+
 let RunManually() = 
   ``EvalExpression test 1``() 
   ``EvalExpression fsi test``() 
@@ -198,5 +217,6 @@ let RunManually() =
   ``ParseAndCheckInteraction test 1``() 
   ``Bad arguments to session creation 1``()
   ``Bad arguments to session creation 2``()
+  ``EvalScript accepts paths verbatim``()
 
 #endif

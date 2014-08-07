@@ -1243,11 +1243,6 @@ module internal Parser =
           // Initialize the error handler 
           let errHandler = new ErrorHandler(reportErrors, mainInputFileName, tcConfig, source)
 
-          // Very old comment: This helps reason=MethodTip to work. reason=MethodTip 
-          // calls with only partial text.  Preumably adding this causes the final EndParameters 
-          // call to refer to a different line than the StartParameters call we're really interested in 
-          // Or something like that.  
-          let source = source + "\n\n\n"
           let lexbuf = UnicodeLexing.StringAsLexbuf source
 
           // Colelctor for parens matching

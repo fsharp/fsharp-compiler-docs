@@ -56,6 +56,7 @@
     <Compile Include="ProjectAnalysisTests.fs" />
     <Compile Include="MultiProjectAnalysisTests.fs" />
     <Compile Include="PerfTests.fs" />
+    <Compile Include="InteractiveCheckerTests.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
   </ItemGroup>

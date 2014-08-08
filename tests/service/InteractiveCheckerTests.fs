@@ -26,33 +26,33 @@ let rangeToTuple (range: Range.range) = (posToTuple range.Start, posToTuple rang
 
 let identsAndRanges (input: Ast.ParsedInput) =
     let identAndRange ident (range: Range.range) =
-      (ident, rangeToTuple range)
-    let identAndRange' (componentInfo: Ast.SynComponentInfo) =
+        (ident, rangeToTuple range)
+    let extractFromComponentInfo (componentInfo: Ast.SynComponentInfo) =
         let ((Ast.SynComponentInfo.ComponentInfo(attrs, typarDecls, typarConstraints, longIdent, _, _, _, range))) = componentInfo
         // TODO : attrs, typarDecls and typarConstraints
         [identAndRange (longIdentToString longIdent) range]
-    let identsAndRanges''' (typeDefn: Ast.SynTypeDefn) =
+    let extractFromTypeDefn (typeDefn: Ast.SynTypeDefn) =
         let (Ast.SynTypeDefn.TypeDefn(componentInfo, repr, members, _)) = typeDefn
         // TODO : repr and members
-        identAndRange' componentInfo
-    let rec identsAndRanges'' (moduleDecl: Ast.SynModuleDecl) =
+        extractFromComponentInfo componentInfo
+    let rec extractFromModuleDecl (moduleDecl: Ast.SynModuleDecl) =
         match moduleDecl with
-        | Ast.SynModuleDecl.Types(typeDefns, _) -> (typeDefns |> List.collect identsAndRanges''')
+        | Ast.SynModuleDecl.Types(typeDefns, _) -> (typeDefns |> List.collect extractFromTypeDefn)
         | Ast.SynModuleDecl.ModuleAbbrev(ident, _, range) -> [ identAndRange (ident.ToString()) range ]
-        | Ast.SynModuleDecl.NestedModule(componentInfo, decls, _, _) -> (identAndRange' componentInfo) @ (decls |> List.collect identsAndRanges'')
+        | Ast.SynModuleDecl.NestedModule(componentInfo, decls, _, _) -> (extractFromComponentInfo componentInfo) @ (decls |> List.collect extractFromModuleDecl)
         | Ast.SynModuleDecl.Let(_, _, _) -> failwith "Not implemented yet"
         | Ast.SynModuleDecl.DoExpr(_, _, range) -> failwith "Not implemented yet"
         | Ast.SynModuleDecl.Exception(_, range) -> failwith "Not implemented yet"
         | Ast.SynModuleDecl.Open(longIdentWithDots, range) -> [ identAndRange (longIdentWithDotsToString longIdentWithDots) range ]
         | Ast.SynModuleDecl.Attributes(attrs, range) -> failwith "Not implemented yet"
         | Ast.SynModuleDecl.HashDirective(_, range) -> failwith "Not implemented yet"
-        | Ast.SynModuleDecl.NamespaceFragment(moduleOrNamespace) -> identsAndRanges' moduleOrNamespace
-    and identsAndRanges' (Ast.SynModuleOrNamespace(longIdent, _, moduleDecls, _, _, _, range)) =
-        (identAndRange (longIdentToString longIdent) range) :: (moduleDecls |> List.collect identsAndRanges'')
+        | Ast.SynModuleDecl.NamespaceFragment(moduleOrNamespace) -> extractFromModuleOrNamespace moduleOrNamespace
+    and extractFromModuleOrNamespace (Ast.SynModuleOrNamespace(longIdent, _, moduleDecls, _, _, _, range)) =
+        (identAndRange (longIdentToString longIdent) range) :: (moduleDecls |> List.collect extractFromModuleDecl)
 
     match input with
     | Ast.ImplFile(Ast.ParsedImplFileInput(_, _, _, _, _, modulesOrNamespaces, _)) ->
-         modulesOrNamespaces |> List.collect identsAndRanges'
+         modulesOrNamespaces |> List.collect extractFromModuleOrNamespace
     | Ast.SigFile _ -> []
 
 let parseAndExtractRanges code =

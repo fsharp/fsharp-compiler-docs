@@ -89,7 +89,7 @@ let input2 =
     
 [<Test>]
 let ``Test ranges - module`` () =
-    parseAndExtractRanges input2 |> should equal [("M", ((4, 4), (5, 4))); ("Sample", ((4, 9), (4, 15)))]
+    parseAndExtractRanges input2 |> should equal [("M", ((2, 4), (4, 26))); ("Sample", ((4, 9), (4, 15)))]
 
 let input3 =
     """

@@ -11,11 +11,8 @@ module FSharp.Compiler.Service.Tests.InteractiveChecker
 open NUnit.Framework
 open FsUnit
 open System
-open System.IO
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
-open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
-open FSharp.Compiler.Service.Tests.Common
 
 let longIdentToString (longIdent: Ast.LongIdent) =
     String.Join(".", longIdent |> List.map (fun ident -> ident.ToString()))
@@ -28,11 +25,11 @@ let identsAndRanges (input: Ast.ParsedInput) =
     let identAndRange ident (range: Range.range) =
         (ident, rangeToTuple range)
     let extractFromComponentInfo (componentInfo: Ast.SynComponentInfo) =
-        let ((Ast.SynComponentInfo.ComponentInfo(attrs, typarDecls, typarConstraints, longIdent, _, _, _, range))) = componentInfo
+        let ((Ast.SynComponentInfo.ComponentInfo(_attrs, _typarDecls, _typarConstraints, longIdent, _, _, _, range))) = componentInfo
         // TODO : attrs, typarDecls and typarConstraints
         [identAndRange (longIdentToString longIdent) range]
     let extractFromTypeDefn (typeDefn: Ast.SynTypeDefn) =
-        let (Ast.SynTypeDefn.TypeDefn(componentInfo, repr, members, _)) = typeDefn
+        let (Ast.SynTypeDefn.TypeDefn(componentInfo, _repr, _members, _)) = typeDefn
         // TODO : repr and members
         extractFromComponentInfo componentInfo
     let rec extractFromModuleDecl (moduleDecl: Ast.SynModuleDecl) =
@@ -41,11 +38,11 @@ let identsAndRanges (input: Ast.ParsedInput) =
         | Ast.SynModuleDecl.ModuleAbbrev(ident, _, range) -> [ identAndRange (ident.ToString()) range ]
         | Ast.SynModuleDecl.NestedModule(componentInfo, decls, _, _) -> (extractFromComponentInfo componentInfo) @ (decls |> List.collect extractFromModuleDecl)
         | Ast.SynModuleDecl.Let(_, _, _) -> failwith "Not implemented yet"
-        | Ast.SynModuleDecl.DoExpr(_, _, range) -> failwith "Not implemented yet"
-        | Ast.SynModuleDecl.Exception(_, range) -> failwith "Not implemented yet"
+        | Ast.SynModuleDecl.DoExpr(_, _, _range) -> failwith "Not implemented yet"
+        | Ast.SynModuleDecl.Exception(_, _range) -> failwith "Not implemented yet"
         | Ast.SynModuleDecl.Open(longIdentWithDots, range) -> [ identAndRange (longIdentWithDotsToString longIdentWithDots) range ]
-        | Ast.SynModuleDecl.Attributes(attrs, range) -> failwith "Not implemented yet"
-        | Ast.SynModuleDecl.HashDirective(_, range) -> failwith "Not implemented yet"
+        | Ast.SynModuleDecl.Attributes(_attrs, _range) -> failwith "Not implemented yet"
+        | Ast.SynModuleDecl.HashDirective(_, _range) -> failwith "Not implemented yet"
         | Ast.SynModuleDecl.NamespaceFragment(moduleOrNamespace) -> extractFromModuleOrNamespace moduleOrNamespace
     and extractFromModuleOrNamespace (Ast.SynModuleOrNamespace(longIdent, _, moduleDecls, _, _, _, range)) =
         (identAndRange (longIdentToString longIdent) range) :: (moduleDecls |> List.collect extractFromModuleDecl)

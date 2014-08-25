@@ -1447,7 +1447,7 @@ let CollectErrorOrWarning (implicitIncludeDir,showFullPaths,flattenErrors,errorS
     | ReportedError _ -> 
         dprintf "Unexpected ReportedError"  (* this should actually never happen *)
         Seq.empty
-    | StopProcessing -> 
+    | StopProcessing _ -> 
         dprintf "Unexpected StopProcessing"  (* this should actually never happen *)
         Seq.empty
     | _ -> 

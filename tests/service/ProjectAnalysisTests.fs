@@ -3458,3 +3458,88 @@ let ``Test symbol uses of fully-qualified records`` () =
 
     usesOfGetSampleSymbol |> shouldEqual [|("file1", ((7, 5), (7, 11))); ("file1", ((8, 10), (8, 16)))|]
 
+module Project26 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module FSharpParameter
+open System
+open System.Runtime.InteropServices
+
+type Class() =
+    member x.M1(arg1, ?arg2) = ()
+    member x.M2([<ParamArray>] arg1, [<OptionalArgument>] arg2) = ()
+    member x.M3([<Out>] arg: byref<int>) = ()
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test Project26 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project26.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+
+[<Test>]
+let ``Test Project26 parameter symbols`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project26.options) |> Async.RunSynchronously
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Async.RunSynchronously
+        |> Array.map (fun su -> su.Symbol.ToString(), su.Symbol.DisplayName, Project13.cleanFileName su.FileName, tups su.RangeAlternate, attribsOfSymbolUse su, attribsOfSymbol su.Symbol)
+
+
+    let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Class")
+    let objEntity = objSymbol.Symbol :?> FSharpEntity
+    
+    // check we can get the CurriedParameterGroups
+    let objMethodsCurriedParameterGroups = 
+        [ for x in objEntity.MembersFunctionsAndValues do 
+             for pg in x.CurriedParameterGroups do 
+                 for p in pg do
+                     let attributeNames = 
+                        seq {
+                            if p.IsParamArrayArg then yield "params"
+                            if p.IsOutArg then yield "out"
+                            if p.IsOptionalArg then yield "optional"
+                        }
+                        |> String.concat ","
+                     yield x.CompiledName, p.Name,  p.Type.ToString(), attributeNames ]
+
+    objMethodsCurriedParameterGroups |> shouldEqual 
+          [("M1", Some "arg1", "type 'c", "");
+           ("M1", Some "arg2", "type 'd Microsoft.FSharp.Core.option", "optional");
+           ("M2", Some "arg1", "type 'a", "params");
+           ("M2", Some "arg2", "type 'b", "optional");
+           ("M3", Some "arg", "type Microsoft.FSharp.Core.byref<Microsoft.FSharp.Core.int>", "out")]
+
+    // check we can get the ReturnParameter
+    let objMethodsReturnParameter = 
+        [ for x in objEntity.MembersFunctionsAndValues do 
+             let p = x.ReturnParameter 
+             let attributeNames = 
+                 seq {
+                    if p.IsParamArrayArg then yield "params"
+                    if p.IsOutArg then yield "out"
+                    if p.IsOptionalArg then yield "optional"
+                 }
+                 |> String.concat ","
+             yield x.DisplayName, p.Name,  p.Type.ToString(), attributeNames ]
+    set objMethodsReturnParameter |> shouldEqual
+       (set
+           [("( .ctor )", None, "type FSharpParameter.Class", "");
+            ("M1", None, "type Microsoft.FSharp.Core.unit", "");
+            ("M2", None, "type Microsoft.FSharp.Core.unit", "");
+            ("M3", None, "type Microsoft.FSharp.Core.unit", "")])

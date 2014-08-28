@@ -1130,9 +1130,9 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         | P p -> 
             
             let amap = tcImports.GetImportMap() 
-            [ [ for (ParamData(_isParamArrayArg,_isOutArg,_optArgInfo,nmOpt,pty)) in p.GetParamDatas(amap,range0) do 
+            [ [ for (ParamData(isParamArrayArg,isOutArg,optArgInfo,nmOpt,pty)) in p.GetParamDatas(amap,range0) do 
                 let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }
-                yield FSharpParameter(g, thisCcu, tcImports,  pty, argInfo, x.DeclarationLocationOpt) ] 
+                yield FSharpParameter(g, thisCcu, tcImports,  pty, argInfo, x.DeclarationLocationOpt, isParamArrayArg, isOutArg, optArgInfo.IsOptional) ] 
                |> makeReadOnlyCollection  ]
            |> makeReadOnlyCollection
 
@@ -1142,9 +1142,9 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             let amap = tcImports.GetImportMap() 
             [ for argtys in m.GetParamDatas(amap,range0,m.FormalMethodInst) do 
                  yield 
-                   [ for (ParamData(_isParamArrayArg,_isOutArg,_optArgInfo,nmOpt,pty)) in argtys do 
+                   [ for (ParamData(isParamArrayArg,isOutArg,optArgInfo,nmOpt,pty)) in argtys do 
                         let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }
-                        yield FSharpParameter(g, thisCcu, tcImports,  pty, argInfo, x.DeclarationLocationOpt) ] 
+                        yield FSharpParameter(g, thisCcu, tcImports,  pty, argInfo, x.DeclarationLocationOpt, isParamArrayArg, isOutArg, optArgInfo.IsOptional) ] 
                    |> makeReadOnlyCollection ]
              |> makeReadOnlyCollection
 
@@ -1159,25 +1159,28 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             [ for argtys in argtysl do 
                  yield 
                    [ for argty, argInfo in argtys do 
-                        yield FSharpParameter(g, thisCcu, tcImports,  argty, argInfo, x.DeclarationLocationOpt) ] 
+                        let isParamArrayArg = HasFSharpAttribute g g.attrib_ParamArrayAttribute argInfo.Attribs
+                        let isOutArg = HasFSharpAttribute g g.attrib_OutAttribute argInfo.Attribs && isByrefTy g argty
+                        let isOptionalArg = HasFSharpAttribute g g.attrib_OptionalArgumentAttribute argInfo.Attribs
+                        yield FSharpParameter(g, thisCcu, tcImports,  argty, argInfo, x.DeclarationLocationOpt, isParamArrayArg, isOutArg, isOptionalArg) ] 
                    |> makeReadOnlyCollection ]
              |> makeReadOnlyCollection
 
-    member x.ReturnParameter  = 
+    member x.ReturnParameter = 
         checkIsResolved()
         match d with 
         | E e -> 
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
             let rty = e.GetDelegateType(tcImports.GetImportMap(),range0)
-            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt) 
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, false, false, false) 
         | P p -> 
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }  
             let rty = p.GetPropertyType(tcImports.GetImportMap(),range0)
-            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt) 
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, false, false, false) 
         | M m -> 
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
             let rty = m.GetFSharpReturnTy(tcImports.GetImportMap(),range0,m.FormalMethodInst)
-            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt) 
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, false, false, false) 
         | V v -> 
         match v.ValReprInfo with 
         | None -> failwith "not a module let binding or member" 
@@ -1186,7 +1189,7 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             let tau = v.TauType
             let _,rty = GetTopTauTypeInFSharpForm g argInfos tau range0
             
-            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt) 
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, false, false, false) 
 
 
     member __.Attributes = 
@@ -1440,7 +1443,7 @@ and FSharpStaticParameter(g, thisCcu, tcImports:TcImports,  sp: Tainted< Extensi
     override x.ToString() = 
         "static parameter " + x.Name 
 
-and FSharpParameter(g, thisCcu, tcImports,  typ:TType,topArgInfo:ArgReprInfo, mOpt) = 
+and FSharpParameter(g, thisCcu, tcImports, typ:TType, topArgInfo:ArgReprInfo, mOpt, isParamArrayArg, isOutArg, isOptionalArg) = 
     inherit FSharpSymbol(g, thisCcu, tcImports,  
                          (fun () -> 
                             let m = match mOpt with Some m  -> m | None -> range0
@@ -1453,6 +1456,9 @@ and FSharpParameter(g, thisCcu, tcImports,  typ:TType,topArgInfo:ArgReprInfo, mO
     member __.Type = FSharpType(g, thisCcu, tcImports,  typ)
     member __.DeclarationLocation = match idOpt with None -> m | Some v -> v.idRange
     member __.Attributes = attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
+    member __.IsParamArrayArg = isParamArrayArg
+    member __.IsOutArg = isOutArg
+    member __.IsOptionalArg = isOptionalArg
     
     member private x.ValReprInfo = topArgInfo
 
@@ -1545,7 +1551,7 @@ type FSharpSymbol with
              FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, n, item) :> _
 
         | Item.ArgName(id,ty,_)  ->
-             FSharpParameter(g, thisCcu, tcImports,  ty, {Attribs=[]; Name=Some id}, Some id.idRange) :> _
+             FSharpParameter(g, thisCcu, tcImports,  ty, {Attribs=[]; Name=Some id}, Some id.idRange, false, false, false) :> _
 
         // TODO: the following don't currently return any interesting subtype
         | Item.ImplicitOp _

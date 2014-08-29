@@ -543,6 +543,35 @@ and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData)  =
         if isUnresolved() then false else 
         d.RecdField.IsMutable
 
+    member __.IsLiteral = 
+        if isUnresolved() then false else 
+        d.RecdField.LiteralValue.IsSome
+
+    member __.LiteralValue = 
+        if isUnresolved() then None else 
+        match d.RecdField.LiteralValue with
+        | Some lv ->
+            match lv with
+            | Const.Bool    v -> Some(box v)
+            | Const.SByte   v -> Some(box v)
+            | Const.Byte    v -> Some(box v)
+            | Const.Int16   v -> Some(box v)
+            | Const.UInt16  v -> Some(box v)
+            | Const.Int32   v -> Some(box v)
+            | Const.UInt32  v -> Some(box v)
+            | Const.Int64   v -> Some(box v)
+            | Const.UInt64  v -> Some(box v)
+            | Const.IntPtr  v -> Some(box v)
+            | Const.UIntPtr v -> Some(box v)
+            | Const.Single  v -> Some(box v)
+            | Const.Double  v -> Some(box v)
+            | Const.Char    v -> Some(box v)
+            | Const.String  v -> Some(box v)
+            | Const.Decimal v -> Some(box v)
+            | Const.Unit
+            | Const.Zero      -> None
+        | None -> None
+
     member __.IsVolatile = 
         if isUnresolved() then false else 
         d.RecdField.IsVolatile

@@ -1172,15 +1172,15 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         | E e -> 
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
             let rty = e.GetDelegateType(tcImports.GetImportMap(),range0)
-            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, false, false, false) 
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | P p -> 
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }  
             let rty = p.GetPropertyType(tcImports.GetImportMap(),range0)
-            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, false, false, false) 
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | M m -> 
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
             let rty = m.GetFSharpReturnTy(tcImports.GetImportMap(),range0,m.FormalMethodInst)
-            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, false, false, false) 
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | V v -> 
         match v.ValReprInfo with 
         | None -> failwith "not a module let binding or member" 
@@ -1189,7 +1189,7 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             let tau = v.TauType
             let _,rty = GetTopTauTypeInFSharpForm g argInfos tau range0
             
-            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, false, false, false) 
+            FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
 
 
     member __.Attributes = 
@@ -1551,7 +1551,7 @@ type FSharpSymbol with
              FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, n, item) :> _
 
         | Item.ArgName(id,ty,_)  ->
-             FSharpParameter(g, thisCcu, tcImports,  ty, {Attribs=[]; Name=Some id}, Some id.idRange, false, false, false) :> _
+             FSharpParameter(g, thisCcu, tcImports,  ty, {Attribs=[]; Name=Some id}, Some id.idRange, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) :> _
 
         // TODO: the following don't currently return any interesting subtype
         | Item.ImplicitOp _

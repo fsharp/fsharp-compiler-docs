@@ -303,6 +303,9 @@ and [<Class>] FSharpField =
     /// Indicates if the field is declared 'static'
     member IsMutable: bool
 
+    /// Indicates if the field has a literal value
+    member IsLiteral: bool
+
     /// Indicates if the field is declared volatile 
     member IsVolatile: bool
 
@@ -336,10 +339,9 @@ and [<Class>] FSharpField =
     /// Get the name of the field 
     member Name : string
 
-#if TODO
       /// Get the default initialization info, for static literals 
-    member LiteralValue: obj 
-#endif
+    member LiteralValue: obj option
+
       ///  Indicates if the declared visibility of the field, not taking signatures into account 
     member Accessibility: FSharpAccessibility 
 

@@ -45,6 +45,8 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsMutable then yield "mutable"
             if v.IsVolatile then yield "volatile"
             if v.IsStatic then yield "static"
+            if v.IsLiteral then yield sprintf "%A" v.LiteralValue.Value
+
 
         | :? FSharpEntity as v -> 
             if v.IsNamespace then yield "namespace"
@@ -273,8 +275,8 @@ let ``Test project1 all symbols`` () =
            ("field x", "file2", (20, 16), (20, 17), ["field"; "default"; "mutable"]);
            ("SaveOptions", "file2", (27, 5), (27, 16), ["enum"; "valuetype"]);
            ("field value__", "file2", (28, 2), (29, 25), ["field"; "compgen"]);
-           ("field None", "file2", (28, 4), (28, 8), ["field"; "static"]);
-           ("field DisableFormatting", "file2", (29, 4), (29, 21), ["field"; "static"]);
+           ("field None", "file2", (28, 4), (28, 8), ["field"; "static"; "0"]);
+           ("field DisableFormatting", "file2", (29, 4), (29, 21), ["field"; "static"; "1"]);
            ("M", "file1", (2, 7), (2, 8), ["module"]);
            ("val xxx", "file1", (7, 4), (7, 7), ["val"]);
            ("val fff", "file1", (8, 4), (8, 7), ["val"]);
@@ -324,8 +326,8 @@ let ``Test project1 all symbols`` () =
            ("field x", "file2", (20, 16), (20, 17), ["field"; "default"; "mutable"]);
            ("SaveOptions", "file2", (27, 5), (27, 16), ["enum"; "valuetype"]);
            ("field value__", "file2", (28, 2), (29, 25), ["field"; "compgen"]);
-           ("field None", "file2", (28, 4), (28, 8), ["field"; "static"]);
-           ("field DisableFormatting", "file2", (29, 4), (29, 21), ["field"; "static"]);
+           ("field None", "file2", (28, 4), (28, 8), ["field"; "static"; "0"]);
+           ("field DisableFormatting", "file2", (29, 4), (29, 21), ["field"; "static"; "1"]);
            ("M", "file1", (2, 7), (2, 8), ["module"]);
            ("val xxx", "file1", (7, 4), (7, 7), ["val"]);
            ("val fff", "file1", (8, 4), (8, 7), ["val"]);
@@ -554,15 +556,15 @@ let ``Test project1 all uses of all symbols`` () =
                ("pair2", "N.pair2", "file2", ((23, 10), (23, 15)), ["val"]);
                ("pair1", "N.pair1", "file2", ((23, 4), (23, 9)), ["val"]);
                ("None", "N.SaveOptions.None", "file2", ((27, 4), (27, 8)),
-                ["field"; "static"]);
+                ["field"; "static"; "0"]);
                ("DisableFormatting", "N.SaveOptions.DisableFormatting", "file2",
-                ((28, 4), (28, 21)), ["field"; "static"]);
+                ((28, 4), (28, 21)), ["field"; "static"; "1"]);
                ("SaveOptions", "N.SaveOptions", "file2", ((26, 5), (26, 16)),
                 ["enum"; "valuetype"]);
                ("SaveOptions", "N.SaveOptions", "file2", ((30, 16), (30, 27)),
                 ["enum"; "valuetype"]);
                ("DisableFormatting", "N.SaveOptions.DisableFormatting", "file2",
-                ((30, 16), (30, 45)), ["field"; "static"]);
+                ((30, 16), (30, 45)), ["field"; "static"; "1"]);
                ("enumValue", "N.enumValue", "file2", ((30, 4), (30, 13)), ["val"]);
                ("x", "x", "file2", ((32, 9), (32, 10)), []);
                ("y", "y", "file2", ((32, 11), (32, 12)), []);
@@ -2694,25 +2696,25 @@ let ``Test Project19 all symbols`` () =
 
     allUsesOfAllSymbols |> shouldEqual
           [|("field EnumCase1", "EnumCase1", "file1", ((4, 14), (4, 23)), ["defn"],
-             ["field"; "static"]);
+             ["field"; "static"; "1"]);
             ("field EnumCase2", "EnumCase2", "file1", ((4, 30), (4, 39)), ["defn"],
-             ["field"; "static"]);
+             ["field"; "static"; "2"]);
             ("Enum", "Enum", "file1", ((4, 5), (4, 9)), ["defn"],
              ["enum"; "valuetype"]);
             ("Enum", "Enum", "file1", ((6, 8), (6, 12)), [], ["enum"; "valuetype"]);
             ("field EnumCase1", "EnumCase1", "file1", ((6, 8), (6, 22)), [],
-             ["field"; "static"]);
+             ["field"; "static"; "1"]);
             ("Enum", "Enum", "file1", ((7, 8), (7, 12)), [], ["enum"; "valuetype"]);
             ("field EnumCase2", "EnumCase2", "file1", ((7, 8), (7, 22)), [],
-             ["field"; "static"]);
+             ["field"; "static"; "2"]);
             ("val x", "x", "file1", ((8, 6), (8, 7)), ["defn"], []);
             ("val x", "x", "file1", ((8, 16), (8, 17)), [], []);
             ("Enum", "Enum", "file1", ((8, 23), (8, 27)), [], ["enum"; "valuetype"]);
             ("field EnumCase1", "EnumCase1", "file1", ((8, 23), (8, 37)), ["pattern"],
-             ["field"; "static"]);
+             ["field"; "static"; "1"]);
             ("Enum", "Enum", "file1", ((8, 45), (8, 49)), [], ["enum"; "valuetype"]);
             ("field EnumCase2", "EnumCase2", "file1", ((8, 45), (8, 59)), ["pattern"],
-             ["field"; "static"]);
+             ["field"; "static"; "2"]);
             ("val f", "f", "file1", ((8, 4), (8, 5)), ["defn"], ["val"]);
             ("DayOfWeek", "DayOfWeek", "file1", ((10, 15), (10, 24)), [],
              ["enum"; "valuetype"]);

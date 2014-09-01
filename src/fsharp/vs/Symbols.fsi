@@ -662,7 +662,7 @@ and [<Class>] FSharpParameter =
     /// The optional name of the parameter 
     member Name: string option
 
-    /// The declartaion location of the parameter 
+    /// The declaration location of the parameter 
     member DeclarationLocation : range 
 
     /// The declared or inferred type of the parameter 
@@ -670,6 +670,15 @@ and [<Class>] FSharpParameter =
 
     /// The declared attributes of the parameter 
     member Attributes: IList<FSharpAttribute>
+
+    /// Indicate this is a param array argument
+    member IsParamArrayArg: bool
+
+    /// Indicate this is an out argument
+    member IsOutArg: bool
+
+    /// Indicate this is an optional argument
+    member IsOptionalArg: bool
 
 /// Represents a single case within an active pattern
 and [<Class>] FSharpActivePatternCase =

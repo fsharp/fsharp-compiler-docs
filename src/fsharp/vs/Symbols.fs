@@ -182,7 +182,14 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
         match entity.CompiledRepresentation with 
         | CompiledTypeRepr.ILAsmNamed(tref,_,_) -> tref.FullName
         | CompiledTypeRepr.ILAsmOpen _ -> fail()
-        
+    
+    member x.TryFullName = 
+        if isUnresolved() then None
+        elif entity.IsTypeAbbrev then None
+        else
+            match entity.CompiledRepresentation with 
+            | CompiledTypeRepr.ILAsmNamed(tref,_,_) -> Some tref.FullName
+            | CompiledTypeRepr.ILAsmOpen _ -> None   
 
     member __.DeclarationLocation = 
         checkIsResolved()

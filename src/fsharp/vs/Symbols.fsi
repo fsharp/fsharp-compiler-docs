@@ -117,6 +117,9 @@ and [<Class>] FSharpEntity =
     /// Get the full name of the type or module
     member FullName: string 
 
+    /// Get the full name of the type or module if it is available
+    member TryFullName: string option
+
     /// Get the declaration location for the type constructor 
     member DeclarationLocation: range 
 

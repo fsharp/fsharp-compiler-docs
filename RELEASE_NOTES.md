@@ -242,3 +242,9 @@
 #### 0.0.59 - 
 * Fix for #184 - Fix EvalScript by using verbatim string for #Load  
 * Fix for #183 - The line no. reporting is still using 0-based indexes in errors. This is confusing.
+
+#### 0.0.60 - 
+* #207 - Add IsLiteral/LiteralValue to FSharpField 
+* #205 - Add IsOptionalArg and related properties to FSharpParameter 
+* #210 - Check default/override members via 'IsOverrideOrExplicitMember' 
+* #209 - Add TryFullName to FSharpEntity 

@@ -330,8 +330,8 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
            elif x.IsFSharp then 
                // For F# code we emit methods members in declaration order
                for v in entity.MembersOfFSharpTyconSorted do 
-                 // Ignore members representing the generated .cctor and implementations of interface slots
-                 if not v.IsOverrideOrExplicitImpl && not v.Deref.IsClassConstructor then 
+                 // Ignore members representing the generated .cctor
+                 if not v.Deref.IsClassConstructor then 
                      let fsMeth = FSMeth (g, entityTy, v, None)
                      let item = 
                          if fsMeth.IsConstructor then  Item.CtorGroup (fsMeth.DisplayName, [fsMeth])                          
@@ -1098,6 +1098,15 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         | P p -> p.IsExtensionMember
         | M m -> m.IsExtensionMember
         | V v -> v.IsExtensionMember
+
+    member __.IsOverrideOrExplicitMember =
+        if isUnresolved() then false else 
+        match d with 
+        | E e -> e.GetAddMethod().IsDefiniteFSharpOverride
+        | P p -> p.IsDefiniteFSharpOverride
+        | M m -> m.IsDefiniteFSharpOverride
+        | V v -> 
+            v.MemberInfo.IsSome && v.IsDefiniteFSharpOverrideMember
 
     member __.IsImplicitConstructor = 
         if isUnresolved() then false else 

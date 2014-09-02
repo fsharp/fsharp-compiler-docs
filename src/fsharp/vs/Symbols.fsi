@@ -560,6 +560,9 @@ and [<Class>] FSharpMemberFunctionOrValue =
     /// Indicates if this is an extension member?
     member IsExtensionMember : bool
 
+    /// Indicates if this is an 'override' or explicit member (declared via 'default' keyword)?
+    member IsOverrideOrExplicitMember : bool
+
     /// Indicates if this is a member, including extension members?
     member IsMember : bool
 

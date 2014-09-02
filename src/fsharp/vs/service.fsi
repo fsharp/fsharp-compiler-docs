@@ -175,6 +175,30 @@ type CheckFileResults =
 
     member GetDeclarationsAlternate : ParsedFileResultsOpt:ParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<DeclarationSet>
 
+    /// <summary>Get the items for a declaration list in FSharpSymbol format</summary>
+    ///
+    /// <param name="ParsedFileResultsOpt">
+    ///    If this is present, it is used to filter declarations based on location in the
+    ///    parse tree, specifically at 'open' declarations, 'inherit' of class or interface
+    ///    'record field' locations and r.h.s. of 'range' operator a..b
+    /// </param>
+    /// <param name="line">The line number where the completion is happening</param>
+    /// <param name="colAtEndOfNamesAndResidue">The column number (1-based) at the end of the 'names' text </param>
+    /// <param name="qualifyingNames">The long identifier to the left of the '.'</param>
+    /// <param name="partialName">The residue of a partial long identifier to the right of the '.'</param>
+    /// <param name="lineStr">The residue of a partial long identifier to the right of the '.'</param>
+    /// <param name="lineText">
+    ///    The text of the line where the completion is happening. This is only used to make a couple
+    ///    of adhoc corrections to completion accuracy (e.g. checking for "..")
+    /// </param>
+    /// <param name="hasTextChangedSinceLastTypecheck">
+    ///    If text has been used from a captured name resolution from the typecheck, then 
+    ///    callback to the client to check if the text has changed. If it has, then give up
+    ///    and assume that we're going to repeat the operation later on.
+    /// </param>
+    member GetDeclarationSymbols : ParsedFileResultsOpt:ParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpSymbol list list>
+
+
     /// <summary>Compute a formatted tooltip for the given location</summary>
     ///
     /// <param name="line">The line number where the information is being requested.</param>

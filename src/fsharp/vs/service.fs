@@ -942,6 +942,71 @@ type TypeCheckInfo
                     let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
                     DeclarationSet.Create(infoReader,m,denv,items,reactorOps,checkAlive))
             (fun msg -> DeclarationSet.Error msg)
+
+    member x.GetDeclarationSymbols (parseResultsOpt:ParseFileResults option, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) =
+        let isInterfaceFile = SourceFileImpl.IsInterfaceFile mainInputFileName
+        ErrorScope.Protect 
+            Range.range0 
+            (fun () -> 
+                match GetDeclItemsForNamesAtPosition(parseResultsOpt, Some qualifyingNames, Some partialName, line, lineStr, colAtEndOfNamesAndResidue, ResolveTypeNamesToCtors, ResolveOverloads.Yes, hasTextChangedSinceLastTypecheck) with
+                | None -> List.Empty  
+                | Some(items,denv,m) -> 
+                    let items = items |> filterIntellisenseCompletionsBasedOnParseContext (parseResultsOpt |> Option.bind (fun x -> x.ParseTree)) (mkPos line colAtEndOfNamesAndResidue)
+                    let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
+
+                    //do filtering like Declarationset
+                    let items = items |> RemoveExplicitlySuppressed g
+                    
+                    // Sort by name. For things with the same name, 
+                    //     - show types with fewer generic parameters first
+                    //     - show types before over other related items - they usually have very useful XmlDocs 
+                    let items = 
+                        items |> List.sortBy (fun d -> 
+                            let n = 
+                                match d with  
+                                | Item.Types (_,(TType_app(tcref,_) :: _)) -> 1 + tcref.TyparsNoRange.Length
+                                // Put delegate ctors after types, sorted by #typars. RemoveDuplicateItems will remove FakeInterfaceCtor and DelegateCtor if an earlier type is also reported with this name
+                                | Item.FakeInterfaceCtor (TType_app(tcref,_)) 
+                                | Item.DelegateCtor (TType_app(tcref,_)) -> 1000 + tcref.TyparsNoRange.Length
+                                // Put type ctors after types, sorted by #typars. RemoveDuplicateItems will remove DefaultStructCtors if a type is also reported with this name
+                                | Item.CtorGroup (_, (cinfo :: _)) -> 1000 + 10 * (tcrefOfAppTy g cinfo.EnclosingType).TyparsNoRange.Length 
+                                | _ -> 0
+                            (d.DisplayName,n))
+
+                    // Remove all duplicates. We've put the types first, so this removes the DelegateCtor and DefaultStructCtor's.
+                    let items = items |> RemoveDuplicateItems g
+
+                    if verbose then dprintf "service.ml: mkDecls: %d found groups after filtering\n" (List.length items); 
+
+                    // Group by display name
+                    let items = items |> List.groupBy (fun d -> d.DisplayName) 
+
+                    // Filter out operators (and list)
+                    let items = 
+                        // Check whether this item looks like an operator.
+                        let isOpItem(nm,item) = 
+                            match item with 
+                            | [Item.Value _]
+                            | [Item.MethodGroup(_,[_])] -> 
+                                (IsOpName nm) && nm.[0]='(' && nm.[nm.Length-1]=')'
+                            | [Item.UnionCase _] -> IsOpName nm
+                            | _ -> false              
+
+                        let isFSharpList nm = (nm = "[]") // list shows up as a Type and a UnionCase, only such entity with a symbolic name, but want to filter out of intellisense
+
+                        items |> List.filter (fun (nm,items) -> not (isOpItem(nm,items)) && not(isFSharpList nm)) 
+
+
+                    let items = 
+                        // Filter out duplicate names
+                        items |> List.map (fun (nm,itemsWithSameName) -> 
+                            match itemsWithSameName with
+                            | [] -> failwith "Unexpected empty bag"
+                            | items -> items |> List.map (fun item -> FSharpSymbol.Create(g, thisCcu, tcImports, item)))
+
+                    //end filtering
+                    items)
+            (fun msg -> List.empty)
             
     member scope.GetReferenceResolutionToolTipText(line,col) : ToolTipText = 
         let pos = mkPos line col
@@ -1667,6 +1732,10 @@ type CheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option, buil
     member info.GetDeclarationsAlternate(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
         let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
         reactorOp DeclarationSet.Empty (fun scope -> scope.GetDeclarations(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
+
+    member info.GetDeclarationSymbols(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
+        let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
+        reactorOp List.empty (fun scope -> scope.GetDeclarationSymbols(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
 
     /// Resolve the names at the given location to give a data tip 
     member info.GetToolTipTextAlternate(line, colAtEndOfNames, lineStr, names, tokenTag) = 

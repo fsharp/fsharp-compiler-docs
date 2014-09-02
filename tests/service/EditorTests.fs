@@ -262,4 +262,65 @@ type Test() =
 
     let decls = typeCheckResults.GetDeclarationsAlternate(Some untyped, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
+
+[<Test; Ignore("Currently failing, see #139")>]
+let ``Symbol based find function from member 1`` () = 
+    let input = 
+      """
+type Test() = 
+    let abc a b c = a + b + c
+    member x.Test = """ 
+
+    // Split the input & define file name
+    let inputLines = input.Split('\n')
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+
+    let decls = typeCheckResults.GetDeclarationSymbols(Some untyped, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let item = decls |> List.tryFind (fun d -> d.Head.DisplayName = "abc")
+    match item with
+    | Some items -> 
+       for symbol in items do
+           printf "%s" symbol.DisplayName
+    | _ -> ()
+    decls |> Seq.exists (fun d -> d.Head.DisplayName = "abc") |> shouldEqual true
+
+[<Test>]
+let ``Symbol based find function from member 2`` () = 
+    let input = 
+      """
+type Test() = 
+    let abc a b c = a + b + c
+    member x.Test = a""" 
+
+    // Split the input & define file name
+    let inputLines = input.Split('\n')
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+
+    let decls = typeCheckResults.GetDeclarationSymbols(Some untyped, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let item = decls |> List.tryFind (fun d -> d.Head.DisplayName = "abc")
+    match item with
+    | Some items -> 
+       for symbol in items do
+           printf "%s" symbol.DisplayName
+    | _ -> ()
+    decls |> Seq.exists (fun d -> d.Head.DisplayName = "abc") |> shouldEqual true
+    true |> should equal true
+
+[<Test>]
+let ``Symbol based find function from var`` () = 
+    let input = 
+      """
+type Test() = 
+    let abc a b c = a + b + c
+    let test = """ 
+
+    // Split the input & define file name
+    let inputLines = input.Split('\n')
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+
+    let decls = typeCheckResults.GetDeclarationSymbols(Some untyped, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    decls|> Seq .exists (fun d -> d.Head.DisplayName = "abc") |> shouldEqual true
  

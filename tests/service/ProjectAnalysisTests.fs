@@ -1621,16 +1621,26 @@ let ``Test complete active patterns's exact ranges from uses of symbols`` () =
         checker.GetBackgroundCheckResultsForFileInProject(Project5.fileName1, Project5.options) 
         |> Async.RunSynchronously
 
-
     let oddSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(11,8,"",["Odd"]) |> Async.RunSynchronously
     oddSymbolUse.IsSome |> shouldEqual true  
     let oddSymbol = oddSymbolUse.Value.Symbol
     oddSymbol.ToString() |> shouldEqual "symbol Odd"
 
+    let oddActivePatternCase = oddSymbol :?> FSharpActivePatternCase
+    let oddGroup = oddActivePatternCase.Group
+    oddGroup.IsTotal |> shouldEqual true
+    oddGroup.Names |> Seq.toList |> shouldEqual ["Even"; "Odd"]
+    oddGroup.OverallType.Format(oddSymbolUse.Value.DisplayContext) |> shouldEqual "int -> Choice<unit,unit>"
+
     let evenSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(10,9,"",["Even"]) |> Async.RunSynchronously
     evenSymbolUse.IsSome |> shouldEqual true  
     let evenSymbol = evenSymbolUse.Value.Symbol
     evenSymbol.ToString() |> shouldEqual "symbol Even"
+    let evenActivePatternCase = evenSymbol :?> FSharpActivePatternCase
+    let evenGroup = evenActivePatternCase.Group
+    evenGroup.IsTotal |> shouldEqual true
+    evenGroup.Names |> Seq.toList |> shouldEqual ["Even"; "Odd"]
+    evenGroup.OverallType.Format(evenSymbolUse.Value.DisplayContext) |> shouldEqual "int -> Choice<unit,unit>"
 
     let usesOfEvenSymbol = 
         wholeProjectResults.GetUsesOfSymbol(evenSymbol) 
@@ -1661,12 +1671,16 @@ let ``Test partial active patterns's exact ranges from uses of symbols`` () =
         checker.GetBackgroundCheckResultsForFileInProject(Project5.fileName1, Project5.options) 
         |> Async.RunSynchronously    
 
-
     let floatSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(22,10,"",["Float"]) |> Async.RunSynchronously
     floatSymbolUse.IsSome |> shouldEqual true  
     let floatSymbol = floatSymbolUse.Value.Symbol 
     floatSymbol.ToString() |> shouldEqual "symbol Float"
 
+    let floatActivePatternCase = floatSymbol :?> FSharpActivePatternCase
+    let floatGroup = floatActivePatternCase.Group
+    floatGroup.IsTotal |> shouldEqual false
+    floatGroup.Names |> Seq.toList |> shouldEqual ["Float"]
+    floatGroup.OverallType.Format(floatSymbolUse.Value.DisplayContext) |> shouldEqual "string -> float option"
 
     let usesOfFloatSymbol = 
         wholeProjectResults.GetUsesOfSymbol(floatSymbol) 

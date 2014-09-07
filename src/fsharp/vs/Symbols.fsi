@@ -695,7 +695,17 @@ and [<Class>] FSharpActivePatternCase =
     member Name: string 
     /// The location of declaration of the active pattern case 
     member DeclarationLocation : range 
+    /// The group of active pattern cases this belongs to
+    member Group : FSharpActivePatternGroup
 
+/// Represents all cases within an active pattern
+and [<Class>] FSharpActivePatternGroup =
+    /// The names of the active pattern cases
+    member Names: IList<string> 
+    /// Indicate this is a total active pattern
+    member IsTotal : bool 
+    /// Get the type indicating signature of the active pattern
+    member OverallType : FSharpType
 
 and [<Class>] FSharpType =
     /// Internal use only. Create a ground type.

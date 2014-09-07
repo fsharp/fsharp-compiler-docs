@@ -674,7 +674,7 @@ and [<Class>] FSharpAccessibilityRights(thisCcu: CcuThunk, ad:Infos.AccessorDoma
     member internal __.Contents = ad
 
 
-and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, n, item) = 
+and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, typ, n, item) = 
 
     inherit FSharpSymbol (g, thisCcu, tcImports,  
                           (fun () -> item),
@@ -684,6 +684,15 @@ and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming
 
     member __.DeclarationLocation = snd apinfo.ActiveTagsWithRanges.[n]
 
+    member __.Group = FSharpActivePatternGroup(g, thisCcu, tcImports, apinfo, typ)
+
+and FSharpActivePatternGroup(g: TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, typ) =
+    
+    member __.Names = makeReadOnlyCollection apinfo.Names
+
+    member __.IsTotal = apinfo.IsTotal
+
+    member __.OverallType = FSharpType(g, thisCcu, tcImports, typ)
 
 and FSharpGenericParameter(g:TcGlobals, thisCcu, tcImports, v:Typar) = 
 
@@ -1602,10 +1611,10 @@ type FSharpSymbol with
              FSharpGenericParameter(g, thisCcu, tcImports,  tp) :> _
 
         | Item.ActivePatternCase apref -> 
-             FSharpActivePatternCase(g, thisCcu, tcImports,  apref.ActivePatternInfo, apref.CaseIndex, item) :> _
+             FSharpActivePatternCase(g, thisCcu, tcImports,  apref.ActivePatternInfo, apref.ActivePatternVal.Type, apref.CaseIndex, item) :> _
 
-        | Item.ActivePatternResult (apinfo,_,n,_) ->
-             FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, n, item) :> _
+        | Item.ActivePatternResult (apinfo, typ, n, _) ->
+             FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, typ, n, item) :> _
 
         | Item.ArgName(id,ty,_)  ->
              FSharpParameter(g, thisCcu, tcImports,  ty, {Attribs=[]; Name=Some id}, Some id.idRange, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) :> _

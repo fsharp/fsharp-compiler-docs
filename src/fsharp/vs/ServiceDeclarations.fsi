@@ -84,6 +84,7 @@ module internal TestHooks =
 module internal ItemDescriptionsImpl = 
     val isFunction : TcGlobals -> TType -> bool
     val ParamNameAndTypesOfUnaryCustomOperation : TcGlobals -> MethInfo -> ParamNameAndType list
+    val metaInfoOfEntityRef : InfoReader -> range -> EntityRef ->  (string * Typars * ILTypeInfo) option
     val FormatDescriptionOfItem : bool -> InfoReader -> range -> DisplayEnv -> Item -> ToolTipElement
     val FormatReturnTypeOfItem  : InfoReader -> range -> DisplayEnv -> Item -> string
     val RemoveDuplicateItems : TcGlobals -> Item list -> Item list

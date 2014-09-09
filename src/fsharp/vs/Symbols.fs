@@ -81,6 +81,29 @@ module Impl =
             cpaths2 |> List.exists (canAccessFromCrossProject taccess1) 
         | _ -> true // otherwise use the normal check
 
+    let getXmlDocSigOfEntityRef g (tcImports:TcImports) (eref:EntityRef) = 
+        if eref.IsILTycon then 
+            let amap = tcImports.GetImportMap()
+            let infoReader = InfoReader(g, amap)
+            match ItemDescriptionsImpl.metaInfoOfEntityRef infoReader eref.Range eref  with
+            | None -> ""
+            | Some (_,_,formalTypeInfo) -> "T:"+formalTypeInfo.ILTypeRef.FullName
+        else
+            let m = eref.Deref
+            if m.XmlDocSig = "" then
+                m.XmlDocSig <- XmlDocSigOfEntity eref
+            m.XmlDocSig
+
+    let getXmlDocSigOfRecdFieldInfo (tyconRef:TyconRef) (recdField:RecdField) =
+        if recdField.XmlDocSig = "" then
+            recdField.XmlDocSig <- XmlDocSigOfField "" recdField.Name tyconRef.CompiledRepresentationForNamedType.FullName
+        recdField.XmlDocSig
+
+    let getXmlDocSigOfUnionCaseInfo (tcref:TyconRef) (unionCase:UnionCase) = 
+        if  unionCase.XmlDocSig = "" then
+            unionCase.XmlDocSig <- XmlDocSigOfUnionCase ""  unionCase.DisplayName tcref.CompiledRepresentationForNamedType.FullName
+        unionCase.XmlDocSig
+
     let getXmlDocSigOfEvent g (tcImports:TcImports) (event:EventInfo) =
         match event with
         | ILEvent(_,ilEventInfo) as einfo ->
@@ -427,7 +450,7 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
  
     member __.XmlDocSig = 
         checkIsResolved()
-        entity.XmlDocSig 
+        getXmlDocSigOfEntityRef g tcImports entity 
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
@@ -533,7 +556,7 @@ and FSharpUnionCase(g:TcGlobals, thisCcu, tcImports, v: UnionCaseRef) =
 
     member __.XmlDocSig = 
         checkIsResolved()
-        v.UnionCase.XmlDocSig
+        getXmlDocSigOfUnionCaseInfo v.TyconRef v.UnionCase
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
@@ -653,7 +676,7 @@ and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData)  =
 
     member __.XmlDocSig = 
         checkIsResolved()
-        d.RecdField.XmlDocSig
+        getXmlDocSigOfRecdFieldInfo d.DeclaringTyconRef d.RecdField
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else

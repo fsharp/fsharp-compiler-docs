@@ -95,10 +95,12 @@ module Impl =
         | _ -> "" //FSEvent (_, propInfo, addVal, remVal) -> ""
 
     let getXmlDocSigOfVal g (vref:ValRef) =
-        let v = vref.Deref
-        if v.XmlDocSig = "" then
-            v.XmlDocSig <- XmlDocSigOfVal g (buildAccessPath vref.TopValActualParent.CompilationPathOpt) v
-        v.XmlDocSig
+        try
+            let v = vref.Deref
+            if v.XmlDocSig = "" then
+                v.XmlDocSig <- XmlDocSigOfVal g (buildAccessPath vref.TopValActualParent.CompilationPathOpt) v
+            v.XmlDocSig
+        with exn -> ""
 
     let getXmlDocSigOfProp (tcImports:TcImports) (p:PropInfo) =
         match p with

@@ -1505,7 +1505,7 @@ module Project5 =
     let fileSource1 = """
 module ActivePatterns 
 
-
+///Total active pattern for even/odd integers
 let (|Even|Odd|) input = if input % 2 = 0 then Even else Odd
 
 
@@ -1514,7 +1514,7 @@ let TestNumber input =
    | Even -> printfn "%d is even" input
    | Odd -> printfn "%d is odd" input
 
-
+///Partial active pattern for floats
 let (|Float|_|) (str: string) =
    let mutable floatvalue = 0.0
    if System.Double.TryParse(str, &floatvalue) then Some(floatvalue)
@@ -1614,23 +1614,37 @@ let ``Test project 5 all symbols`` () =
             ("ActivePatterns", "ActivePatterns", "file1", ((1, 7), (1, 21)), ["defn"])|]
 
 [<Test>]
-let ``Test complete active patterns's exact ranges from uses of symbols`` () =
+let ``Test complete active patterns' exact ranges from uses of symbols`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project5.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
         checker.GetBackgroundCheckResultsForFileInProject(Project5.fileName1, Project5.options) 
         |> Async.RunSynchronously
 
-
     let oddSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(11,8,"",["Odd"]) |> Async.RunSynchronously
     oddSymbolUse.IsSome |> shouldEqual true  
     let oddSymbol = oddSymbolUse.Value.Symbol
     oddSymbol.ToString() |> shouldEqual "symbol Odd"
 
+    let oddActivePatternCase = oddSymbol :?> FSharpActivePatternCase
+    oddActivePatternCase.XmlDoc |> Seq.toList |> shouldEqual ["Total active pattern for even/odd integers"]
+    oddActivePatternCase.XmlDocSig |> shouldEqual ""
+    let oddGroup = oddActivePatternCase.Group
+    oddGroup.IsTotal |> shouldEqual true
+    oddGroup.Names |> Seq.toList |> shouldEqual ["Even"; "Odd"]
+    oddGroup.OverallType.Format(oddSymbolUse.Value.DisplayContext) |> shouldEqual "int -> Choice<unit,unit>"
+
     let evenSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(10,9,"",["Even"]) |> Async.RunSynchronously
     evenSymbolUse.IsSome |> shouldEqual true  
     let evenSymbol = evenSymbolUse.Value.Symbol
     evenSymbol.ToString() |> shouldEqual "symbol Even"
+    let evenActivePatternCase = evenSymbol :?> FSharpActivePatternCase
+    evenActivePatternCase.XmlDoc |> Seq.toList |> shouldEqual ["Total active pattern for even/odd integers"]
+    evenActivePatternCase.XmlDocSig |> shouldEqual ""
+    let evenGroup = evenActivePatternCase.Group
+    evenGroup.IsTotal |> shouldEqual true
+    evenGroup.Names |> Seq.toList |> shouldEqual ["Even"; "Odd"]
+    evenGroup.OverallType.Format(evenSymbolUse.Value.DisplayContext) |> shouldEqual "int -> Choice<unit,unit>"
 
     let usesOfEvenSymbol = 
         wholeProjectResults.GetUsesOfSymbol(evenSymbol) 
@@ -1654,19 +1668,25 @@ let ``Test complete active patterns's exact ranges from uses of symbols`` () =
 
 
 [<Test>]
-let ``Test partial active patterns's exact ranges from uses of symbols`` () =
+let ``Test partial active patterns' exact ranges from uses of symbols`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project5.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
         checker.GetBackgroundCheckResultsForFileInProject(Project5.fileName1, Project5.options) 
         |> Async.RunSynchronously    
 
-
     let floatSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(22,10,"",["Float"]) |> Async.RunSynchronously
     floatSymbolUse.IsSome |> shouldEqual true  
     let floatSymbol = floatSymbolUse.Value.Symbol 
     floatSymbol.ToString() |> shouldEqual "symbol Float"
 
+    let floatActivePatternCase = floatSymbol :?> FSharpActivePatternCase
+    floatActivePatternCase.XmlDoc |> Seq.toList |> shouldEqual ["Partial active pattern for floats"]
+    floatActivePatternCase.XmlDocSig |> shouldEqual ""
+    let floatGroup = floatActivePatternCase.Group
+    floatGroup.IsTotal |> shouldEqual false
+    floatGroup.Names |> Seq.toList |> shouldEqual ["Float"]
+    floatGroup.OverallType.Format(floatSymbolUse.Value.DisplayContext) |> shouldEqual "string -> float option"
 
     let usesOfFloatSymbol = 
         wholeProjectResults.GetUsesOfSymbol(floatSymbol) 
@@ -1683,7 +1703,6 @@ let ``Test partial active patterns's exact ranges from uses of symbols`` () =
         |> Async.RunSynchronously
 
     floatSymUseOpt.IsSome |> shouldEqual true
-
 
 //-----------------------------------------------------------------------------------------
 

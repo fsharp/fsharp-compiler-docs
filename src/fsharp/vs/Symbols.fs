@@ -674,7 +674,7 @@ and [<Class>] FSharpAccessibilityRights(thisCcu: CcuThunk, ad:Infos.AccessorDoma
     member internal __.Contents = ad
 
 
-and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, n, item) = 
+and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo: PrettyNaming.ActivePatternInfo, typ, n, valOpt: ValRef option, item) = 
 
     inherit FSharpSymbol (g, thisCcu, tcImports,  
                           (fun () -> item),
@@ -684,6 +684,30 @@ and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming
 
     member __.DeclarationLocation = snd apinfo.ActiveTagsWithRanges.[n]
 
+    member __.Group = FSharpActivePatternGroup(g, thisCcu, tcImports, apinfo, typ)
+
+    member __.XmlDoc = 
+        defaultArg (valOpt |> Option.map (fun vref -> vref.XmlDoc)) XmlDoc.Empty
+        |> makeXmlDoc
+
+    member __.XmlDocSig = 
+        let docSigOpt =
+            valOpt
+            |> Option.bind (fun vref ->
+                if not vref.IsLocalRef then            
+                    let v = vref.Deref
+                    Some (XmlDocSigOfVal g vref.TopValActualParent.CompiledRepresentationForNamedType.Name v)
+                else None
+            )
+        defaultArg docSigOpt ""
+
+and FSharpActivePatternGroup(g: TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, typ) =
+    
+    member __.Names = makeReadOnlyCollection apinfo.Names
+
+    member __.IsTotal = apinfo.IsTotal
+
+    member __.OverallType = FSharpType(g, thisCcu, tcImports, typ)
 
 and FSharpGenericParameter(g:TcGlobals, thisCcu, tcImports, v:Typar) = 
 
@@ -1602,10 +1626,10 @@ type FSharpSymbol with
              FSharpGenericParameter(g, thisCcu, tcImports,  tp) :> _
 
         | Item.ActivePatternCase apref -> 
-             FSharpActivePatternCase(g, thisCcu, tcImports,  apref.ActivePatternInfo, apref.CaseIndex, item) :> _
+             FSharpActivePatternCase(g, thisCcu, tcImports,  apref.ActivePatternInfo, apref.ActivePatternVal.Type, apref.CaseIndex, Some apref.ActivePatternVal, item) :> _
 
-        | Item.ActivePatternResult (apinfo,_,n,_) ->
-             FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, n, item) :> _
+        | Item.ActivePatternResult (apinfo, typ, n, _) ->
+             FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, typ, n, None, item) :> _
 
         | Item.ArgName(id,ty,_)  ->
              FSharpParameter(g, thisCcu, tcImports,  ty, {Attribs=[]; Name=Some id}, Some id.idRange, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) :> _

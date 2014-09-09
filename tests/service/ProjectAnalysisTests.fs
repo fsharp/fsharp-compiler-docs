@@ -2987,6 +2987,19 @@ module Impl
 type Class() =
     static member StaticProperty = 1
     member x.Property = 1
+
+module Getter =
+    type System.Int32 with
+        static member Zero = 0
+        member x.Value = 0 
+
+    let _ = 0 .Value
+
+module Setter =
+    type System.Int32 with
+        member x.Value with set (_: int) = ()
+
+    0 .Value <- 0
 """
     File.WriteAllText(fileName1, fileSource1)
     let cleanFileName a = if a = fileName1 then "file1" else "??"
@@ -2998,7 +3011,7 @@ type Class() =
 [<Test>]
 let ``Test Project23 whole project errors`` () = 
 
-    let wholeProjectResults = checker.ParseAndCheckProject(Project22.options) |> Async.RunSynchronously
+    let wholeProjectResults = checker.ParseAndCheckProject(Project23.options) |> Async.RunSynchronously
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
@@ -3012,11 +3025,11 @@ let ``Test Project23 property`` () =
 
     [ for x in classTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
       |> shouldEqual 
-           [(".ctor", ["member"; "ctor"])   
-            ("get_Property", ["member"; "getter"])
-            ("get_StaticProperty", ["member"; "getter"])
-            ("StaticProperty", ["member"; "prop"])
-            ("Property", ["member"; "prop"])]
+          [(".ctor", ["member"; "ctor"]); 
+           ("get_Property", ["member"; "getter"]);
+           ("get_StaticProperty", ["member"; "getter"]);
+           ("StaticProperty", ["member"; "prop"]); 
+           ("Property", ["member"; "prop"])]
 
     allSymbolsUses 
     |> Array.map (fun x -> x.Symbol)
@@ -3024,13 +3037,45 @@ let ``Test Project23 property`` () =
         | :? FSharpMemberFunctionOrValue as f -> Some (f.LogicalName, attribsOfSymbol f)
         | _ -> None)
     |> Array.toList
-    |> shouldEqual 
-        [(".ctor", ["member"; "ctor"])
+    |> shouldEqual         
+        [(".ctor", ["member"; "ctor"]); 
          ("get_StaticProperty", ["member"; "getter"]);
-         ("get_Property", ["member"; "getter"])
-         ("x", [])
-         ]
+         ("get_Property", ["member"; "getter"]); 
+         ("x", []);
+         ("get_Zero", ["member"; "extmem"; "getter"]);
+         ("get_Value", ["member"; "extmem"; "getter"]); 
+         ("x", []);
+         ("Value", ["member"; "prop"; "extmem"]);
+         ("set_Value", ["member"; "extmem"; "setter"]); 
+         ("x", []);
+         ("_arg1", ["compgen"]); 
+         ("Value", ["member"; "prop"; "extmem"])]
 
+[<Test>]
+let ``Test Project23 extension properties' getters/setters should refer to the correct declaring entities`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project23.options) |> Async.RunSynchronously
+    let allSymbolsUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+
+    let extensionMembers = allSymbolsUses |> Array.rev |> Array.filter (fun su -> su.Symbol.DisplayName = "Value")
+    extensionMembers
+    |> Array.collect (fun memb -> wholeProjectResults.GetUsesOfSymbol(memb.Symbol) |> Async.RunSynchronously)
+    |> Array.collect (fun x -> 
+        [|
+        match x.Symbol with
+        | :? FSharpMemberFunctionOrValue as f -> 
+            if f.HasGetterMethod then
+                yield (f.EnclosingEntity.FullName, f.GetterMethod.EnclosingEntity.FullName, attribsOfSymbol f)
+            if f.HasSetterMethod then
+                yield (f.EnclosingEntity.FullName, f.SetterMethod.EnclosingEntity.FullName, attribsOfSymbol f)
+        | _ -> () 
+        |])
+    |> Array.toList
+    |> shouldEqual 
+        [ ("System.Int32", "Impl.Setter", ["member"; "prop"; "extmem"]);
+          ("System.Int32", "Impl.Setter", ["member"; "prop"; "extmem"]);
+          ("System.Int32", "Impl.Getter", ["member"; "prop"; "extmem"])
+          ("System.Int32", "Impl.Getter", ["member"; "prop"; "extmem"]) ]
 
 // Misc - property symbols
 module Project24 = 

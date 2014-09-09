@@ -564,6 +564,18 @@ and [<Class>] FSharpMemberFunctionOrValue =
     /// Indicates if this is a property member
     member IsProperty : bool
 
+    /// Indicates if this is a property then there exists an associated getter method
+    member HasGetterMethod : bool
+
+    /// Get an associated getter method of the property
+    member GetterMethod : FSharpMemberFunctionOrValue
+
+    /// Indicates if this is a property then there exists an associated setter method
+    member HasSetterMethod : bool
+
+    /// Get an associated setter method of the property
+    member SetterMethod : FSharpMemberFunctionOrValue
+
     /// Indicates if this is an event member
     member IsEvent : bool
 

@@ -38,7 +38,7 @@ let rec findOriginalException err =
 
 
 /// Thrown when we stop processing the F# Interactive interactive entry or #load.
-exception StopProcessing
+exception StopProcessing of string
 
 
 (* common error kinds *)
@@ -316,8 +316,8 @@ module ErrorLoggerExtensions =
 #endif
 
     type ErrorLogger with  
-        member x.ErrorR  exn = match exn with StopProcessing | ReportedError _ -> raise exn | _ -> x.ErrorSink(PhasedError.Create(exn,CompileThreadStatic.BuildPhase))
-        member x.Warning exn = match exn with StopProcessing | ReportedError _ -> raise exn | _ -> x.WarnSink(PhasedError.Create(exn,CompileThreadStatic.BuildPhase))
+        member x.ErrorR  exn = match exn with StopProcessing _ | ReportedError _ -> raise exn | _ -> x.ErrorSink(PhasedError.Create(exn,CompileThreadStatic.BuildPhase))
+        member x.Warning exn = match exn with StopProcessing _ | ReportedError _ -> raise exn | _ -> x.WarnSink(PhasedError.Create(exn,CompileThreadStatic.BuildPhase))
         member x.Error   exn = x.ErrorR exn; raise (ReportedError (Some exn))
         member x.PhasedError   (ph:PhasedError) = 
             x.ErrorSink ph
@@ -329,7 +329,7 @@ module ErrorLoggerExtensions =
             (* Don't send ThreadAbortException down the error channel *)
             | :? System.Threading.ThreadAbortException | WrappedError((:? System.Threading.ThreadAbortException),_) ->  ()
             | ReportedError _  | WrappedError(ReportedError _,_)  -> ()
-            | StopProcessing | WrappedError(StopProcessing,_) -> raise exn
+            | StopProcessing _ | WrappedError(StopProcessing _,_) -> raise exn
             | _ ->
                 try  
                     x.ErrorR (AttachRange m exn) // may raise exceptions, e.g. an fsi error sink raises StopProcessing.
@@ -345,11 +345,11 @@ module ErrorLoggerExtensions =
             // Additionally ignore/catch ReportedError.
             // Can throw other exceptions raised by the ErrorSink(exn) handler.         
             match exn with
-            | StopProcessing | WrappedError(StopProcessing,_) -> () // suppress, so skip error recovery.
+            | StopProcessing _ | WrappedError(StopProcessing _,_) -> () // suppress, so skip error recovery.
             | _ ->
                 try  x.ErrorRecovery exn m
                 with
-                  | StopProcessing | WrappedError(StopProcessing,_) -> () // catch, e.g. raised by ErrorSink.
+                  | StopProcessing _ | WrappedError(StopProcessing _,_) -> () // catch, e.g. raised by ErrorSink.
                   | ReportedError _ | WrappedError(ReportedError _,_)  -> () // catch, but not expected unless ErrorRecovery is changed.
         member x.ErrorRecoveryNoRange (exn:exn) =
             x.ErrorRecovery exn range0

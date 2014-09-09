@@ -3719,3 +3719,90 @@ let ``Test project27 all symbols in signature`` () =
              ("CFooImpl", ["class"]);
              ("member .ctor", ["member"; "ctor"]);
              ("member AbstractMethod", ["member"; "overridemem"])]
+
+module Project28 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+open System
+open System.Collections.Generic
+type DU = A of string | B of int
+type XmlDocSigTest() =
+    let event1 = new Event<_>()
+    let event2 = new Event<_>()
+    let aString = "fourtytwo"
+    let anInt = 42
+    member x.AProperty = Dictionary<int, string>()
+    member x.AnotherProperty = aString
+    member x.AMethod () = x.AProperty
+    member x.AnotherMethod () = anInt
+    [<CLIEvent>]
+    member this.AnEvent = event1.Publish\an\event = event1.Publis
+    member this.AnotherEvent = event2.Publish
+    member this.TestEvent1(arg) = event1.Trigger(this, arg)
+    member this.TestEvent2(arg) = event2.Trigger(this, arg)
+
+type Use() =
+    let a = XmlDocSigTest ()
+    a.AnEvent.Add (fun _ -> () )
+    member x.Test () = ( )
+"""
+    File.WriteAllText(fileName1, fileSource1)
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test project28 all symbols in signature`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project28.options) |> Async.RunSynchronously
+    let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
+    let xmlDocSigs =
+        allSymbols
+        |> Seq.map (fun s ->
+                        match s with
+                        | :? FSharpEntity as fse -> s.GetType().Name, fse.DisplayName, fse.XmlDocSig
+                        | :? FSharpField as fsf -> s.GetType().Name, fsf.DisplayName, fsf.XmlDocSig
+                        | :? FSharpMemberFunctionOrValue as fsm -> s.GetType().Name, fsm.DisplayName, fsm.XmlDocSig
+                        | :? FSharpUnionCase as fsu -> s.GetType().Name, fsu.DisplayName, fsu.XmlDocSig
+                        | :? FSharpSymbol as s-> s.GetType().Name, s.DisplayName, "unknown")
+        |> Seq.toArray
+
+    printfn "%A" xmlDocSigs
+    xmlDocSigs
+      |> shouldEqual 
+            [|("FSharpEntity", "M", "T:M"); 
+              ("FSharpEntity", "DU", "T:M.DU");
+              ("FSharpUnionCase", "A", "T:M.DU.A"); 
+              ("FSharpField", "A", "F:M.DU.Item");
+              ("FSharpUnionCase", "B", "T:M.DU.B"); 
+              ("FSharpField", "B", "F:M.DU.Item");
+              ("FSharpEntity", "XmlDocSigTest", "T:M.XmlDocSigTest");
+              ("FSharpMemberFunctionOrValue", "( .ctor )", "M:M.XmlDocSigTest.#ctor");
+              ("FSharpMemberFunctionOrValue", "AMethod", "M:M.XmlDocSigTest.AMethod");
+              ("FSharpMemberFunctionOrValue", "AnotherMethod", "M:M.XmlDocSigTest.AnotherMethod");
+              ("FSharpMemberFunctionOrValue", "TestEvent1", "M:M.XmlDocSigTest.TestEvent1(System.Object)");
+              ("FSharpMemberFunctionOrValue", "TestEvent2", "M:M.XmlDocSigTest.TestEvent2(System.Object)");
+              ("FSharpMemberFunctionOrValue", "add_AnEvent", "M:M.XmlDocSigTest.add_AnEvent(Microsoft.FSharp.Control.FSharpHandler{System.Tuple{M.XmlDocSigTest,System.Object}})");
+              ("FSharpMemberFunctionOrValue", "AProperty", "P:M.XmlDocSigTest.AProperty");
+              ("FSharpMemberFunctionOrValue", "AnEvent", "P:M.XmlDocSigTest.AnEvent");
+              ("FSharpMemberFunctionOrValue", "AnotherEvent", "P:M.XmlDocSigTest.AnotherEvent");
+              ("FSharpMemberFunctionOrValue", "AnotherProperty", "P:M.XmlDocSigTest.AnotherProperty");
+              ("FSharpMemberFunctionOrValue", "remove_AnEvent", "M:M.XmlDocSigTest.remove_AnEvent(Microsoft.FSharp.Control.FSharpHandler{System.Tuple{M.XmlDocSigTest,System.Object}})");
+              ("FSharpMemberFunctionOrValue", "AnotherProperty", "P:M.XmlDocSigTest.AnotherProperty");
+              ("FSharpMemberFunctionOrValue", "AnotherEvent", "P:M.XmlDocSigTest.AnotherEvent");
+              ("FSharpMemberFunctionOrValue", "AnEvent", "P:M.XmlDocSigTest.AnEvent");
+              ("FSharpMemberFunctionOrValue", "AProperty", "P:M.XmlDocSigTest.AProperty");
+              ("FSharpField", "event1", "F:M.XmlDocSigTest.event1");
+              ("FSharpField", "event2", "F:M.XmlDocSigTest.event2");
+              ("FSharpField", "aString", "F:M.XmlDocSigTest.aString");
+              ("FSharpField", "anInt", "F:M.XmlDocSigTest.anInt");
+              ("FSharpEntity", "Use", "T:M.Use");
+              ("FSharpMemberFunctionOrValue", "( .ctor )", "M:M.Use.#ctor");
+              ("FSharpMemberFunctionOrValue", "Test", "M:M.Use.Test")|]

@@ -629,3 +629,86 @@ let ``Test multi project 2 all symbols`` () =
     symFromB.IsAccessible(mpC.ProjectContext.AccessibilityRights) |> shouldEqual false
  
 //------------------------------------------------------------------------------------
+
+module Project3A = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let baseName = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(baseName, ".dll")
+    let projFileName = Path.ChangeExtension(baseName, ".fsproj")
+    let fileSource1 = """
+module Project3A
+
+///A parameterized active pattern of divisibility
+let (|DivisibleBy|_|) by n = 
+    if n % by = 0 then Some DivisibleBy else None
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+// A project referencing a sub-project
+module MultiProject3 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let baseName = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(baseName, ".dll")
+    let projFileName = Path.ChangeExtension(baseName, ".fsproj")
+    let fileSource1 = """
+module MultiProject3
+
+open Project3A
+
+let fizzBuzz = function 
+    | DivisibleBy 3 & DivisibleBy 5 -> "FizzBuzz" 
+    | DivisibleBy 3 -> "Fizz" 
+    | DivisibleBy 5 -> "Buzz" 
+    | _ -> "" 
+    """
+    File.WriteAllText(fileName1, fileSource1)
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options = 
+        let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+        { options with 
+            ProjectOptions = Array.append options.ProjectOptions [| ("-r:" + Project3A.dllName) |]
+            ReferencedProjects = [| (Project3A.dllName, Project3A.options) |] }
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+[<Test>]
+let ``Test multi project 3 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(MultiProject3.options) |> Async.RunSynchronously
+
+    wholeProjectResults .Errors.Length |> shouldEqual 0
+
+[<Test>]
+let ``Test active patterns' XmlDocSig declared in referenced projects`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(MultiProject3.options) |> Async.RunSynchronously
+    let backgroundParseResults1, backgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(MultiProject3.fileName1, MultiProject3.options) 
+        |> Async.RunSynchronously    
+
+    let divisibleBySymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(7,7,"",["DivisibleBy"]) |> Async.RunSynchronously
+    divisibleBySymbolUse.IsSome |> shouldEqual true  
+    let divisibleBySymbol = divisibleBySymbolUse.Value.Symbol 
+    divisibleBySymbol.ToString() |> shouldEqual "symbol DivisibleBy"
+
+    let divisibleByActivePatternCase = divisibleBySymbol :?> FSharpActivePatternCase
+    divisibleByActivePatternCase.XmlDoc |> Seq.toList |> shouldEqual []
+    divisibleByActivePatternCase.XmlDocSig |> shouldEqual "M:Project3A.|DivisibleBy|_|(System.Int32,System.Int32)"
+    let divisibleByGroup = divisibleByActivePatternCase.Group
+    divisibleByGroup.IsTotal |> shouldEqual false
+    divisibleByGroup.Names |> Seq.toList |> shouldEqual ["DivisibleBy"]
+    divisibleByGroup.OverallType.Format(divisibleBySymbolUse.Value.DisplayContext) |> shouldEqual "int -> int -> unit option"
+
+//------------------------------------------------------------------------------------

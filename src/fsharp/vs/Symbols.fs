@@ -985,6 +985,44 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             | V v -> v.TauType
         FSharpType(g, thisCcu, tcImports,  ty)
 
+    member __.HasGetterMethod =
+        if isUnresolved() then false
+        else
+            match d with 
+            | P m -> m.HasGetter
+            | E _
+            | M _
+            | V _ -> false
+
+    member __.GetterMethod =
+        checkIsResolved()
+        match d with 
+        | P m -> 
+            let minfo = m.GetterMethod
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | E _
+        | M _
+        | V _ -> invalidOp "the value or member doesn't have an associated getter method" 
+
+    member __.HasSetterMethod =
+        if isUnresolved() then false
+        else
+            match d with 
+            | P m -> m.HasSetter
+            | E _
+            | M _
+            | V _ -> false
+
+    member __.SetterMethod =
+        checkIsResolved()
+        match d with 
+        | P m -> 
+            let minfo = m.SetterMethod
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | E _
+        | M _
+        | V _ -> invalidOp "the value or member doesn't have an associated setter method" 
+
     member __.EnclosingEntity = 
         checkIsResolved()
         match d with 

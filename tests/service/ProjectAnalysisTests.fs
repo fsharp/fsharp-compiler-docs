@@ -3747,14 +3747,14 @@ type XmlDocSigTest() =
     member x.AMethod () = x.AProperty
     member x.AnotherMethod () = anInt
     [<CLIEvent>]
-    member this.AnEvent = event1.Publish\an\event = event1.Publis
+    member this.AnEvent = event1.Publish
     member this.AnotherEvent = event2.Publish
     member this.TestEvent1(arg) = event1.Trigger(this, arg)
     member this.TestEvent2(arg) = event2.Trigger(this, arg)
 
 type Use() =
     let a = XmlDocSigTest ()
-    a.AnEvent.Add (fun _ -> () )
+    do a.AnEvent.Add (fun _ -> () )
     member x.Test number =
         TestNumber 42
 """
@@ -3766,7 +3766,6 @@ type Use() =
 
 [<Test>]
 let ``Test project28 all symbols in signature`` () = 
-
     let wholeProjectResults = checker.ParseAndCheckProject(Project28.options) |> Async.RunSynchronously
     let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
     let xmlDocSigs =

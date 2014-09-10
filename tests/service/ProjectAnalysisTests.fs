@@ -3731,6 +3731,11 @@ module Project28 =
 module M
 open System
 open System.Collections.Generic
+let (|Even|Odd|) input = if input % 2 = 0 then Even else Odd
+let TestNumber input =
+   match input with
+   | Even -> printfn "%d is even" input
+   | Odd -> printfn "%d is odd" input
 type DU = A of string | B of int
 type XmlDocSigTest() =
     let event1 = new Event<_>()
@@ -3750,7 +3755,8 @@ type XmlDocSigTest() =
 type Use() =
     let a = XmlDocSigTest ()
     a.AnEvent.Add (fun _ -> () )
-    member x.Test () = ( )
+    member x.Test number =
+        TestNumber 42
 """
     File.WriteAllText(fileName1, fileSource1)
 
@@ -3766,23 +3772,29 @@ let ``Test project28 all symbols in signature`` () =
     let xmlDocSigs =
         allSymbols
         |> Seq.map (fun s ->
+                        let typeName = s.GetType().Name
                         match s with
-                        | :? FSharpEntity as fse -> s.GetType().Name, fse.DisplayName, fse.XmlDocSig
-                        | :? FSharpField as fsf -> s.GetType().Name, fsf.DisplayName, fsf.XmlDocSig
-                        | :? FSharpMemberFunctionOrValue as fsm -> s.GetType().Name, fsm.DisplayName, fsm.XmlDocSig
-                        | :? FSharpUnionCase as fsu -> s.GetType().Name, fsu.DisplayName, fsu.XmlDocSig
-                        | :? FSharpSymbol as s-> s.GetType().Name, s.DisplayName, "unknown")
+                        | :? FSharpEntity as fse -> typeName, fse.DisplayName, fse.XmlDocSig
+                        | :? FSharpField as fsf -> typeName, fsf.DisplayName, fsf.XmlDocSig
+                        | :? FSharpMemberFunctionOrValue as fsm -> typeName, fsm.DisplayName, fsm.XmlDocSig
+                        | :? FSharpUnionCase as fsu -> typeName, fsu.DisplayName, fsu.XmlDocSig
+                        | :? FSharpActivePatternCase as ap -> typeName, ap.DisplayName, ap.XmlDocSig
+                        | :? FSharpGenericParameter as fsg -> typeName, fsg.DisplayName, ""
+                        | :? FSharpParameter as fsp -> typeName, fsp.DisplayName, ""
+                        | :? FSharpStaticParameter as fss -> typeName, fss.DisplayName, ""
+                        | :? FSharpSymbol as s-> typeName, s.DisplayName, "unknown")
         |> Seq.toArray
 
-    printfn "%A" xmlDocSigs
     xmlDocSigs
       |> shouldEqual 
-            [|("FSharpEntity", "M", "T:M"); 
-              ("FSharpEntity", "DU", "T:M.DU");
-              ("FSharpUnionCase", "A", "T:M.DU.A"); 
-              ("FSharpField", "A", "F:M.DU.Item");
-              ("FSharpUnionCase", "B", "T:M.DU.B"); 
-              ("FSharpField", "B", "F:M.DU.Item");
+            [|("FSharpEntity", "M", "T:M");
+              ("FSharpMemberFunctionOrValue", "( |Even|Odd| )", "M:|Even|Odd|(System.Int32)");
+              ("FSharpMemberFunctionOrValue", "TestNumber", "M:TestNumber(System.Int32)");
+              ("FSharpEntity", "DU", "T:M.DU"); 
+              ("FSharpUnionCase", "A", "T:M.DU.A");
+              ("FSharpField", "A", "T:M.DU.A"); 
+              ("FSharpUnionCase", "B", "T:M.DU.B");
+              ("FSharpField", "B", "T:M.DU.B");
               ("FSharpEntity", "XmlDocSigTest", "T:M.XmlDocSigTest");
               ("FSharpMemberFunctionOrValue", "( .ctor )", "M:M.XmlDocSigTest.#ctor");
               ("FSharpMemberFunctionOrValue", "AMethod", "M:M.XmlDocSigTest.AMethod");
@@ -3805,4 +3817,5 @@ let ``Test project28 all symbols in signature`` () =
               ("FSharpField", "anInt", "F:M.XmlDocSigTest.anInt");
               ("FSharpEntity", "Use", "T:M.Use");
               ("FSharpMemberFunctionOrValue", "( .ctor )", "M:M.Use.#ctor");
-              ("FSharpMemberFunctionOrValue", "Test", "M:M.Use.Test")|]
+              ("FSharpMemberFunctionOrValue", "Test", "M:M.Use.Test``1(``0)");
+              ("FSharpGenericParameter", "?", "")|]

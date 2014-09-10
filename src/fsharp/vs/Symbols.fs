@@ -81,92 +81,12 @@ module Impl =
             cpaths2 |> List.exists (canAccessFromCrossProject taccess1) 
         | _ -> true // otherwise use the normal check
 
-    let getXmlDocSigOfEntityRef g (tcImports:TcImports) (eref:EntityRef) = 
-        if eref.IsILTycon then 
-            let amap = tcImports.GetImportMap()
-            let infoReader = InfoReader(g, amap)
-            match ItemDescriptionsImpl.metaInfoOfEntityRef infoReader eref.Range eref  with
-            | None -> ""
-            | Some (_,_,formalTypeInfo) -> "T:"+formalTypeInfo.ILTypeRef.FullName
-        else
-            let m = eref.Deref
-            if m.XmlDocSig = "" then
-                m.XmlDocSig <- XmlDocSigOfEntity eref
-            m.XmlDocSig
-
-    let getXmlDocSigOfRecdFieldInfo (tyconRef:TyconRef) (recdField:RecdField) =
-        if recdField.XmlDocSig = "" then
-            recdField.XmlDocSig <- XmlDocSigOfField "" recdField.Name tyconRef.CompiledRepresentationForNamedType.FullName
-        recdField.XmlDocSig
-
-    let getXmlDocSigOfUnionCaseInfo (tcref:TyconRef) (unionCase:UnionCase) = 
-        if  unionCase.XmlDocSig = "" then
-            unionCase.XmlDocSig <- XmlDocSigOfUnionCase ""  unionCase.DisplayName tcref.CompiledRepresentationForNamedType.FullName
-        unionCase.XmlDocSig
-
-    let getXmlDocSigOfEvent g (tcImports:TcImports) (event:EventInfo) =
-        match event with
-        | ILEvent(_,ilEventInfo) as einfo ->
-            let tinfo = ilEventInfo.ILTypeInfo
-            let tcref = tinfo.TyconRef
-            let amap = tcImports.GetImportMap()
-            let infoReader = InfoReader(g, amap)
-            match ItemDescriptionsImpl.metaInfoOfEntityRef infoReader range0 tcref  with
-            | None -> ""
-            | Some (_,_,formalTypeInfo) ->
-                "E:"+formalTypeInfo.ILTypeRef.FullName+"."+einfo.EventName
-        | _ -> "" //FSEvent (_, propInfo, addVal, remVal) -> ""
-
-    let getXmlDocSigOfVal g (vref:ValRef) =
-        try
-            let v = vref.Deref
-            if v.XmlDocSig = "" then
-                v.XmlDocSig <- XmlDocSigOfVal g (buildAccessPath vref.TopValActualParent.CompilationPathOpt) v
-            v.XmlDocSig
-        with exn -> ""
-
-    let getXmlDocSigOfProp (tcImports:TcImports) (p:PropInfo) =
-        match p with
-        | FSProp (g,typ,_,_) as fspinfo ->
-            match fspinfo.ArbitraryValRef with
-            | None -> ""
-            | Some vref -> getXmlDocSigOfVal g vref
-        | ILProp(g, (ILPropInfo(tinfo,pdef))) ->
-            let tcref = tinfo.TyconRef
-            let amap = tcImports.GetImportMap()
-            let infoReader = InfoReader(g, amap)
-            match ItemDescriptionsImpl.metaInfoOfEntityRef infoReader range0 tcref  with
-            | None -> ""
-            | Some (_,formalTypars,formalTypeInfo) ->
-                let filpinfo = ILPropInfo(formalTypeInfo,pdef)
-                "P:"+formalTypeInfo.ILTypeRef.FullName+"."+pdef.Name+XmlDocArgsEnc g (formalTypars,[]) (filpinfo.GetParamTypes(amap,range0))
-        | ProvidedProp _ -> ""
-
-    let getXmlDocSigOfMeth (tcImports:TcImports) (minfo:MethInfo) =
-        match minfo with
-        | FSMeth (g,_,vref,_) -> getXmlDocSigOfVal g vref
-        | ILMeth (g,ilminfo,_) ->
-            let actualTypeName = ilminfo.DeclaringTyconRef.CompiledRepresentationForNamedType.FullName
-            let fmtps = ilminfo.FormalMethodTypars
-            let genArity = if fmtps.Length=0 then "" else sprintf "``%d" fmtps.Length
-            let amap = tcImports.GetImportMap()
-            let infoReader = InfoReader(g, amap)
-            match ItemDescriptionsImpl.metaInfoOfEntityRef infoReader range0 ilminfo.DeclaringTyconRef  with
-            | None -> ""
-            | Some (_,formalTypars,formalTypeInfo) ->
-                let amap = tcImports.GetImportMap()
-                let filminfo = ILMethInfo(g,formalTypeInfo.ToType,None,ilminfo.RawMetadata,fmtps)
-                let args =
-                    match ilminfo.IsILExtensionMethod with
-                    | true -> filminfo.GetRawArgTypes(amap,range0,minfo.FormalMethodInst)
-                    | false -> filminfo.GetParamTypes(amap,range0,minfo.FormalMethodInst)
-
-                // http://msdn.microsoft.com/en-us/library/fsbx0t7x.aspx
-                // If the name of the item itself has periods, they are replaced by the hash-sign ('#'). It is assumed that no item has a hash-sign directly in its name. For example, the fully qualified name of the String constructor would be "System.String.#ctor".
-                let normalizedName = ilminfo.ILName.Replace(".","#")
-
-                "M:"+actualTypeName+"."+normalizedName+genArity+XmlDocArgsEnc g (formalTypars,fmtps) args
-        | DefaultStructCtor _ | ProvidedMeth _ -> ""
+    let getXmlDocSigForEntity g (tcImports:TcImports) (ent:EntityRef)=
+        let amap = tcImports.GetImportMap()
+        let infoReader = InfoReader(g, amap)
+        match ItemDescriptionsImpl.GetXmlDocSigOfEntityRef infoReader ent.Range ent with
+        | Some (_, docsig) -> docsig
+        | _ -> ""
 
 type FSharpDisplayContext(denv: TcGlobals -> DisplayEnv) = 
     member x.Contents(g) = denv(g)
@@ -450,8 +370,8 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
  
     member __.XmlDocSig = 
         checkIsResolved()
-        getXmlDocSigOfEntityRef g tcImports entity 
-
+        getXmlDocSigForEntity g tcImports entity
+ 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
         entity.XmlDoc |> makeXmlDoc
@@ -556,7 +476,10 @@ and FSharpUnionCase(g:TcGlobals, thisCcu, tcImports, v: UnionCaseRef) =
 
     member __.XmlDocSig = 
         checkIsResolved()
-        getXmlDocSigOfUnionCaseInfo v.TyconRef v.UnionCase
+        let unionCase = UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v)
+        match ItemDescriptionsImpl.GetXmlDocSigOfUnionCaseInfo unionCase with
+        | Some (_, docsig) -> docsig
+        | _ -> ""
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
@@ -676,7 +599,17 @@ and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData)  =
 
     member __.XmlDocSig = 
         checkIsResolved()
-        getXmlDocSigOfRecdFieldInfo d.DeclaringTyconRef d.RecdField
+        let xmlsig =
+            match d with 
+            | Recd v -> 
+                let recd = RecdFieldInfo(generalizeTypars v.TyconRef.TyparsNoRange,v)
+                ItemDescriptionsImpl.GetXmlDocSigOfRecdFieldInfo recd
+            | Union (v,_) -> 
+                let unionCase = UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v)
+                ItemDescriptionsImpl.GetXmlDocSigOfUnionCaseInfo unionCase
+        match xmlsig with
+        | Some (_, docsig) -> docsig
+        | _ -> ""
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
@@ -778,15 +711,13 @@ and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo: PrettyNamin
         |> makeXmlDoc
 
     member __.XmlDocSig = 
-        let docSigOpt =
-            valOpt
-            |> Option.bind (fun vref ->
-                if not vref.IsLocalRef then            
-                    let v = vref.Deref
-                    Some (XmlDocSigOfVal g vref.TopValActualParent.CompiledRepresentationForNamedType.Name v)
-                else None
-            )
-        defaultArg docSigOpt ""
+        let xmlsig = 
+            match valOpt with
+            | Some valref -> ItemDescriptionsImpl.GetXmlDocSigOfActivePatternCase g valref
+            | None -> None
+        match xmlsig with
+        | Some (_, docsig) -> docsig
+        | _ -> ""
 
 and FSharpActivePatternGroup(g: TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, typ) =
     
@@ -1318,11 +1249,36 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
 
     member __.XmlDocSig = 
         checkIsResolved()
-        match d with
-        | E e -> getXmlDocSigOfEvent g tcImports e
-        | P p -> getXmlDocSigOfProp tcImports p
-        | M m -> getXmlDocSigOfMeth tcImports m
-        | V v -> getXmlDocSigOfVal g v
+ 
+        match d with 
+        | E e ->
+            let amap = tcImports.GetImportMap()
+            let infoReader = InfoReader(g, amap)
+            let range = defaultArg __.DeclarationLocationOpt range0
+            match ItemDescriptionsImpl.GetXmlDocSigOfEvent infoReader range e with
+            | Some (_, docsig) -> docsig
+            | _ -> ""
+        | P p ->
+            let amap = tcImports.GetImportMap()
+            let infoReader = InfoReader(g, amap)
+            let range = defaultArg __.DeclarationLocationOpt range0
+            match ItemDescriptionsImpl.GetXmlDocSigOfProp infoReader range p with
+            | Some (_, docsig) -> docsig
+            | _ -> ""
+        | M m -> 
+            let amap = tcImports.GetImportMap()
+            let infoReader = InfoReader(g, amap)
+            let range = defaultArg __.DeclarationLocationOpt range0
+            match ItemDescriptionsImpl.GetXmlDocSigOfMethInfo infoReader range m with
+            | Some (_, docsig) -> docsig
+            | _ -> ""
+        | V v ->
+            match v.ActualParent with 
+            | Parent entityRef -> 
+                match ItemDescriptionsImpl.GetXmlDocSigOfValRef g entityRef v with
+                | Some (_, docsig) -> docsig
+                | _ -> ""
+            | ParentNone -> "" 
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else

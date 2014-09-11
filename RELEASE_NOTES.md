@@ -248,3 +248,8 @@
 * #205 - Add IsOptionalArg and related properties to FSharpParameter 
 * #210 - Check default/override members via 'IsOverrideOrExplicitMember' 
 * #209 - Add TryFullName to FSharpEntity 
+
+#### 0.0.61 - 
+* #216 - Return associated getters/setters from F# properties  
+* #214 - Added missing XmlDocSig for FSharpMemberFunctionOrValue's Events, Methods and Properties  
+* #213 - Retrieve information for all active pattern cases  

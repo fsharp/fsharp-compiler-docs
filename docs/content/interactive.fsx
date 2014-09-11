@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../bin/v45/"
+#I "../../bin/v4.5/"
 (**
 Interactive Service: Embedding F# Interactive
 =============================================
@@ -89,6 +89,7 @@ The `EvalScript` method allows to evaluate a complete .fsx script.
 let evalScript scriptPath = 
   fsiSession.EvalScript(scriptPath)
 
+File.WriteAllText("sample.fsx", "let twenty = 10 + 10")
 evalScript "sample.fsx"
 
 (**
@@ -155,3 +156,4 @@ Normally the one fromm FSharp.Compiler.Interactive.Settings.dll is used.
 *)
 
 let fsiConfig2 = FsiEvaluationSession.GetDefaultConfiguration(fsi)
+

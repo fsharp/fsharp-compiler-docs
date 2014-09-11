@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../bin/v45/"
+#I "../../bin/v4.5/"
 (**
 Compiler Services: Using the F# tokenizer
 =========================================

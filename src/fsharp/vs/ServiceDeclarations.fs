@@ -266,55 +266,49 @@ module internal ItemDescriptionsImpl =
         match tcref with 
         | ERefLocal _ -> None
         | ERefNonLocal nlref -> 
-        match nlref.Ccu.FileName with
-        | None -> None
-        | Some ccuFileName -> 
-        // Generalize to get a formal signature 
-        let formalTypars = tcref.Typars(m)
-        let formalTypeInst = generalizeTypars formalTypars
-        let formalTypeInfo = ILTypeInfo.FromType g (TType_app(tcref,formalTypeInst))
-        Some(ccuFileName,formalTypars,formalTypeInfo)
+            // Generalize to get a formal signature 
+            let formalTypars = tcref.Typars(m)
+            let formalTypeInst = generalizeTypars formalTypars
+            let formalTypeInfo = ILTypeInfo.FromType g (TType_app(tcref,formalTypeInst))
+            Some(nlref.Ccu.FileName,formalTypars,formalTypeInfo)
+
+    let mkXmlComment thing =
+        match thing with
+        | Some (Some(fileName), xmlDocSig) -> XmlCommentSignature(fileName, xmlDocSig)
+        | _ -> XmlCommentNone
 
     let GetXmlDocSigOfEntityRef infoReader m (eref:EntityRef) = 
         if eref.IsILTycon then 
             match metaInfoOfEntityRef infoReader m eref  with
-            | None -> XmlCommentNone
-            | Some (ccuFileName,_,formalTypeInfo) -> XmlCommentSignature(ccuFileName,"T:"+formalTypeInfo.ILTypeRef.FullName)
+            | None -> None
+            | Some (ccuFileName,_,formalTypeInfo) -> Some(ccuFileName,"T:"+formalTypeInfo.ILTypeRef.FullName)
         else
-            match libFileOfEntityRef eref with
-            | None -> XmlCommentNone
-            | Some ccuFileName -> 
-                let m = eref.Deref
-                if m.XmlDocSig = "" then
-                    m.XmlDocSig <- XmlDocSigOfEntity eref
-                XmlCommentSignature (ccuFileName, m.XmlDocSig)
+            let ccuFileName = libFileOfEntityRef eref
+            let m = eref.Deref
+            if m.XmlDocSig = "" then
+                m.XmlDocSig <- XmlDocSigOfEntity eref
+            Some (ccuFileName, m.XmlDocSig)
 
     let GetXmlDocSigOfValRef g (tcref:TyconRef) (vref:ValRef) = 
-        match libFileOfEntityRef tcref with
-        | None -> XmlCommentNone
-        | Some ccuFileName -> 
-            let v = vref.Deref
-            if v.XmlDocSig = "" then
-                v.XmlDocSig <- XmlDocSigOfVal g (buildAccessPath vref.TopValActualParent.CompilationPathOpt) v
-            XmlCommentSignature (ccuFileName, v.XmlDocSig)                
+        let ccuFileName = libFileOfEntityRef tcref
+        let v = vref.Deref
+        if v.XmlDocSig = "" then
+            v.XmlDocSig <- XmlDocSigOfVal g (buildAccessPath vref.TopValActualParent.CompilationPathOpt) v
+        Some (ccuFileName, v.XmlDocSig)                
 
     let GetXmlDocSigOfRecdFieldInfo (rfinfo:RecdFieldInfo) = 
         let tcref = rfinfo.TyconRef
-        match libFileOfEntityRef tcref with
-        | None -> XmlCommentNone
-        | Some ccuFileName -> 
-            if rfinfo.RecdField.XmlDocSig = "" then
-                rfinfo.RecdField.XmlDocSig <- XmlDocSigOfField "" rfinfo.Name tcref.CompiledRepresentationForNamedType.FullName
-            XmlCommentSignature (ccuFileName, rfinfo.RecdField.XmlDocSig)            
+        let ccuFileName = libFileOfEntityRef tcref 
+        if rfinfo.RecdField.XmlDocSig = "" then
+            rfinfo.RecdField.XmlDocSig <- XmlDocSigOfField "" rfinfo.Name tcref.CompiledRepresentationForNamedType.FullName
+        Some (ccuFileName, rfinfo.RecdField.XmlDocSig)            
 
     let GetXmlDocSigOfUnionCaseInfo (ucinfo:UnionCaseInfo) = 
         let tcref =  ucinfo.TyconRef
-        match libFileOfEntityRef tcref with
-        | None -> XmlCommentNone
-        | Some ccuFileName -> 
-            if  ucinfo.UnionCase.XmlDocSig = "" then
-                  ucinfo.UnionCase.XmlDocSig <- XmlDocSigOfUnionCase ""  ucinfo.Name tcref.CompiledRepresentationForNamedType.FullName
-            XmlCommentSignature (ccuFileName,  ucinfo.UnionCase.XmlDocSig)
+        let ccuFileName = libFileOfEntityRef tcref
+        if  ucinfo.UnionCase.XmlDocSig = "" then
+            ucinfo.UnionCase.XmlDocSig <- XmlDocSigOfUnionCase ""  ucinfo.Name tcref.CompiledRepresentationForNamedType.FullName
+        Some (ccuFileName,  ucinfo.UnionCase.XmlDocSig)
 
     let GetXmlDocSigOfMethInfo (infoReader:InfoReader)  m (minfo:MethInfo) = 
         let amap = infoReader.amap
@@ -327,7 +321,7 @@ module internal ItemDescriptionsImpl =
             let genArity = if fmtps.Length=0 then "" else sprintf "``%d" fmtps.Length
 
             match metaInfoOfEntityRef infoReader m ilminfo.DeclaringTyconRef  with 
-            | None -> XmlCommentNone
+            | None -> None
             | Some (ccuFileName,formalTypars,formalTypeInfo) ->
                 let filminfo = ILMethInfo(g,formalTypeInfo.ToType,None,ilminfo.RawMetadata,fmtps) 
                 let args = 
@@ -339,11 +333,50 @@ module internal ItemDescriptionsImpl =
                 // If the name of the item itself has periods, they are replaced by the hash-sign ('#'). It is assumed that no item has a hash-sign directly in its name. For example, the fully qualified name of the String constructor would be "System.String.#ctor".
                 let normalizedName = ilminfo.ILName.Replace(".","#")
 
-                XmlCommentSignature (ccuFileName,"M:"+actualTypeName+"."+normalizedName+genArity+XmlDocArgsEnc g (formalTypars,fmtps) args)
-        | DefaultStructCtor _ -> XmlCommentNone
+                Some (ccuFileName,"M:"+actualTypeName+"."+normalizedName+genArity+XmlDocArgsEnc g (formalTypars,fmtps) args)
+        | DefaultStructCtor _ -> None
 #if EXTENSIONTYPING
-        | ProvidedMeth _ -> XmlCommentNone
+        | ProvidedMeth _ -> None
 #endif
+
+    let GetXmlDocSigOfActivePatternCase g (vref:ValRef) =
+        if not vref.IsLocalRef then
+            let ccuFileName = vref.nlr.Ccu.FileName
+            let v = vref.Deref
+            if v.XmlDocSig = "" then
+                v.XmlDocSig <- XmlDocSigOfVal g vref.TopValActualParent.CompiledRepresentationForNamedType.Name v
+            Some (ccuFileName, v.XmlDocSig)
+        else 
+            None
+
+    let GetXmlDocSigOfProp infoReader m pinfo =
+        match pinfo with 
+#if EXTENSIONTYPING
+        | ProvidedProp _ -> None // No signature is possible. If an xml comment existed it would have been returned by PropInfo.XmlDoc in infos.fs
+#endif
+        | FSProp (g,typ,_,_) as fspinfo -> 
+            let tcref = tcrefOfAppTy g typ
+            match fspinfo.ArbitraryValRef with 
+            | None -> None
+            | Some vref -> GetXmlDocSigOfValRef g tcref vref
+        | ILProp(g, (ILPropInfo(tinfo,pdef))) -> 
+            let tcref = tinfo.TyconRef
+            match metaInfoOfEntityRef infoReader m tcref  with
+            | Some (ccuFileName,formalTypars,formalTypeInfo) ->
+                let filpinfo = ILPropInfo(formalTypeInfo,pdef)
+                Some (ccuFileName,"P:"+formalTypeInfo.ILTypeRef.FullName+"."+pdef.Name+XmlDocArgsEnc g (formalTypars,[]) (filpinfo.GetParamTypes(infoReader.amap,m)))
+            | _ -> None
+
+    let GetXmlDocSigOfEvent infoReader m (einfo:EventInfo) =
+        match einfo with
+        | ILEvent(_,ilEventInfo) ->
+            let tinfo = ilEventInfo.ILTypeInfo 
+            let tcref = tinfo.TyconRef 
+            match metaInfoOfEntityRef infoReader m tcref  with 
+            | Some (ccuFileName,_,formalTypeInfo) -> 
+                Some(ccuFileName,"E:"+formalTypeInfo.ILTypeRef.FullName+"."+einfo.EventName)
+            | _ -> None
+        | _ -> None
 
     /// This function gets the signature to pass to Visual Studio to use its lookup functions for .NET stuff. 
     let rec GetXmlDocHelpSigOfItemForLookup (infoReader:InfoReader) m d = 
@@ -353,64 +386,31 @@ module internal ItemDescriptionsImpl =
         match d with
         | Item.ActivePatternCase (APElemRef(_, vref, _))        
         | Item.Value vref | Item.CustomBuilder (_,vref) -> 
-            if not vref.IsLocalRef then
-                match vref.nlr.Ccu.FileName with
-                | Some ccuFileName -> 
-                    let v = vref.Deref
-                    if v.XmlDocSig = "" then
-                        v.XmlDocSig <- XmlDocSigOfVal g vref.TopValActualParent.CompiledRepresentationForNamedType.Name v
-                    XmlCommentSignature (ccuFileName, v.XmlDocSig)
-                | None -> XmlCommentNone
-            else 
-                XmlCommentNone
-        | Item.UnionCase  ucinfo -> GetXmlDocSigOfUnionCaseInfo ucinfo
-        | Item.ExnCase tcref -> GetXmlDocSigOfEntityRef infoReader m tcref 
-        | Item.RecdField rfinfo -> GetXmlDocSigOfRecdFieldInfo rfinfo
+            mkXmlComment (GetXmlDocSigOfActivePatternCase g vref)
+        | Item.UnionCase  ucinfo -> mkXmlComment (GetXmlDocSigOfUnionCaseInfo ucinfo)
+        | Item.ExnCase tcref -> mkXmlComment (GetXmlDocSigOfEntityRef infoReader m tcref)
+        | Item.RecdField rfinfo -> mkXmlComment (GetXmlDocSigOfRecdFieldInfo rfinfo)
         | Item.NewDef _ -> XmlCommentNone
         | Item.ILField(ILFieldInfo(tinfo, fdef)) -> 
               match metaInfoOfEntityRef infoReader m tinfo.TyconRef  with
-              | None -> XmlCommentNone
-              | Some (ccuFileName,_,formalTypeInfo) ->
+              | Some (Some(ccuFileName),_,formalTypeInfo) ->
                   XmlCommentSignature(ccuFileName,"F:"+formalTypeInfo.ILTypeRef.FullName+"."+fdef.Name)
+              | _ -> XmlCommentNone
 
-        | Item.Types(_,((TType_app(tcref,_)) :: _)) ->  GetXmlDocSigOfEntityRef infoReader m tcref 
-        | Item.CustomOperation (_,_,Some minfo)       -> GetXmlDocSigOfMethInfo infoReader  m minfo
+        | Item.Types(_,((TType_app(tcref,_)) :: _)) ->  mkXmlComment (GetXmlDocSigOfEntityRef infoReader m tcref)
+        | Item.CustomOperation (_,_,Some minfo) -> mkXmlComment (GetXmlDocSigOfMethInfo infoReader  m minfo)
         | Item.TypeVar _  -> XmlCommentNone
-        | Item.ModuleOrNamespaces(modref :: _) -> GetXmlDocSigOfEntityRef infoReader m modref
+        | Item.ModuleOrNamespaces(modref :: _) -> mkXmlComment (GetXmlDocSigOfEntityRef infoReader m modref)
 
-        | Item.Property(_,(pinfo :: _)) -> 
-            match pinfo with 
-#if EXTENSIONTYPING
-            | ProvidedProp _ -> XmlCommentNone // No signature is possible. If an xml comment existed it would have been returned by PropInfo.XmlDoc in infos.fs
-#endif
-            | FSProp (g,typ,_,_) as fspinfo -> 
-                let tcref = tcrefOfAppTy g typ
-                match fspinfo.ArbitraryValRef with 
-                | None -> XmlCommentNone
-                | Some vref -> 
-                GetXmlDocSigOfValRef g tcref vref
-            | ILProp(g, (ILPropInfo(tinfo,pdef))) -> 
-                let tcref = tinfo.TyconRef
-                match metaInfoOfEntityRef infoReader m tcref  with
-                | None -> XmlCommentNone
-                | Some (ccuFileName,formalTypars,formalTypeInfo) ->
-                    let filpinfo = ILPropInfo(formalTypeInfo,pdef)
-                    XmlCommentSignature (ccuFileName,"P:"+formalTypeInfo.ILTypeRef.FullName+"."+pdef.Name+XmlDocArgsEnc g (formalTypars,[]) (filpinfo.GetParamTypes(amap,m)))
+        | Item.Property(_,(pinfo :: _)) -> mkXmlComment (GetXmlDocSigOfProp infoReader m pinfo)
+        | Item.Event(ILEvent(_,ilEventInfo) as einfo) -> mkXmlComment (GetXmlDocSigOfEvent infoReader m einfo)
 
-        | Item.Event(ILEvent(_,ilEventInfo) as einfo) ->
-            let tinfo = ilEventInfo.ILTypeInfo 
-            let tcref = tinfo.TyconRef 
-            match metaInfoOfEntityRef infoReader m tcref  with 
-            | None -> XmlCommentNone 
-            | Some (ccuFileName,_,formalTypeInfo) -> 
-                XmlCommentSignature(ccuFileName,"E:"+formalTypeInfo.ILTypeRef.FullName+"."+einfo.EventName)
-
-        | Item.MethodGroup(_,minfo :: _) -> GetXmlDocSigOfMethInfo infoReader  m minfo
-        | Item.CtorGroup(_,minfo :: _) -> GetXmlDocSigOfMethInfo infoReader  m minfo
+        | Item.MethodGroup(_,minfo :: _) -> mkXmlComment (GetXmlDocSigOfMethInfo infoReader  m minfo)
+        | Item.CtorGroup(_,minfo :: _) -> mkXmlComment (GetXmlDocSigOfMethInfo infoReader  m minfo)
         | Item.ArgName(_, _, Some argContainer) -> match argContainer with 
-                                                   | ArgumentContainer.Method(minfo) -> GetXmlDocSigOfMethInfo infoReader m minfo
-                                                   | ArgumentContainer.Type(tcref) -> GetXmlDocSigOfEntityRef infoReader m tcref
-                                                   | ArgumentContainer.UnionCase(ucinfo) -> GetXmlDocSigOfUnionCaseInfo ucinfo
+                                                   | ArgumentContainer.Method(minfo) -> mkXmlComment (GetXmlDocSigOfMethInfo infoReader m minfo)
+                                                   | ArgumentContainer.Type(tcref) -> mkXmlComment (GetXmlDocSigOfEntityRef infoReader m tcref)
+                                                   | ArgumentContainer.UnionCase(ucinfo) -> mkXmlComment (GetXmlDocSigOfUnionCaseInfo ucinfo)
         |  _ -> XmlCommentNone
 
     /// Produce an XmlComment with a signature or raw text.

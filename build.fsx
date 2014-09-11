@@ -174,12 +174,14 @@ Target "GenerateDocsJa" (fun _ ->
 // Release Scripts
 
 Target "ReleaseDocs" (fun _ ->
-    Repository.clone "" (gitHome + "/" + gitName + ".git") "temp/gh-pages"
-    Branches.checkoutBranch "temp/gh-pages" "gh-pages"
+    let tempDocsDir = "temp/gh-pages"
+    if not (System.IO.Directory.Exists tempDocsDir) then 
+        Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") "gh-pages" tempDocsDir
+
+    fullclean tempDocsDir
     CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
-    CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
-    let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
-    CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |> printfn "%s"
+    StageAll tempDocsDir
+    Commit tempDocsDir (sprintf "Update generated documentation for version %s" release.NugetVersion)
     Branches.push "temp/gh-pages"
 )
 

@@ -116,7 +116,8 @@ let ensureDefaultFSharpCoreAvailable tmpDir  =
         File.Copy(fsCore4300(), Path.Combine(tmpDir, Path.GetFileName(fsCore4300())), overwrite = true)
 
 let compile isDll debugMode (assemblyName : string) (code : string) (dependencies : string list) =
-    let tmp = Path.GetTempPath()
+    let tmp = Path.Combine(Path.GetTempPath(),"test"+string(hash (isDll,debugMode,assemblyName,code,dependencies)))
+    try Directory.CreateDirectory(tmp) |> ignore with _ -> ()
     let sourceFile = Path.Combine(tmp, assemblyName + ".fs")
     let outFile = Path.Combine(tmp, assemblyName + if isDll then ".dll" else ".exe")
     let pdbFile = Path.Combine(tmp, assemblyName + pdbExtension isDll)
@@ -166,7 +167,9 @@ let compileAndVerify isDll debugMode assemblyName code dependencies =
     outFile
 
 let parseSourceCode (name : string, code : string) =
-    let location = Path.GetTempPath()
+    let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))
+    try Directory.CreateDirectory(location) |> ignore with _ -> ()
+
     let projPath = Path.Combine(location, name + ".fsproj")
     let filePath = Path.Combine(location, name + ".fs")
     let dllPath = Path.Combine(location, name + ".dll")
@@ -177,8 +180,9 @@ let parseSourceCode (name : string, code : string) =
 
 
 let compileAndVerifyAst (name : string, ast : Ast.ParsedInput list, references : string list) =
-    let outDir = Path.GetTempPath()
-    
+    let outDir = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, references)))
+    try Directory.CreateDirectory(outDir) |> ignore with _ -> ()
+
     let outFile = Path.Combine(outDir, name + ".dll")
 
     ensureDefaultFSharpCoreAvailable outDir

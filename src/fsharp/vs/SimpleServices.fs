@@ -315,7 +315,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
 
             let debugInfo = defaultArg debug false
-            let outFile = Path.Combine(Path.GetTempPath(), assemblyName + ".dll")
+            let location = Path.Combine(Path.GetTempPath(),"test"+string(hash assemblyName))
+            try Directory.CreateDirectory(location) |> ignore with _ -> ()
+
+            let outFile = Path.Combine(location, assemblyName + ".dll")
 
             // Function to generate and store the results of compilation 
             let dynamicAssemblyCreator = Some (dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))

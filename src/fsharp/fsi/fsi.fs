@@ -467,7 +467,7 @@ type internal ErrorLoggerThatStopsOnFirstError(tcConfigB:TcConfigBuilder, fsiStd
         errors <- errors + 1
         if tcConfigB.abortOnError then exit 1 (* non-zero exit code *)
         // STOP ON FIRST ERROR (AVOIDS PARSER ERROR RECOVERY)
-        raise StopProcessing 
+        raise (StopProcessing (sprintf "%A" err))
     
     member x.CheckForErrors() = (errors > 0)
     member x.ResetErrorCount() = (errors <- 0)
@@ -488,9 +488,9 @@ type internal ErrorLoggerThatStopsOnFirstError(tcConfigB:TcConfigBuilder, fsiStd
     /// A helper function to check if its time to abort
     member x.AbortOnError() = 
         if errors > 0 then 
-            fprintf fsiConsoleOutput.Error  "%s" (FSIstrings.SR.stoppedDueToError())
+            fprintf fsiConsoleOutput.Error "%s" (FSIstrings.SR.stoppedDueToError())
             fsiConsoleOutput.Error.Flush()
-            raise StopProcessing 
+            raise (StopProcessing "")
 
 /// Get the directory name from a string, with some defaults if it doesn't have one
 let internal directoryName (s:string) = 
@@ -651,7 +651,7 @@ type internal FsiCommandLineOptions(fsiConfig: FsiEvaluationSessionHostConfig, a
            let abbrevArgs = abbrevFlagSet tcConfigB false
            ParseCompilerOptions collect fsiCompilerOptions (List.tail (PostProcessCompilerArgs abbrevArgs argv))
         with e ->
-            stopProcessingRecovery e range0; failwith "Error creating evaluation session"
+            stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
         inputFilesAcc
 
 #if SILVERLIGHT
@@ -2398,7 +2398,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
       try 
           TcImports.BuildTcImports(tcConfigP) 
       with e -> 
-          stopProcessingRecovery e range0; failwith "Error creating evaluation session"
+          stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
 #endif
 
     let ilGlobals  = tcGlobals.ilg
@@ -2497,7 +2497,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
                     errorLogger.SetError()
                     try 
                         errorLogger.AbortOnError() 
-                    with StopProcessing -> 
+                    with StopProcessing _ -> 
                         // BUG 664864: Watson Clr20r3 across buckets with: Application FSIAnyCPU.exe from Dev11 RTM; Exception AE251Y0L0P2WC0QSWDZ0E2IDRYQTDSVB; FSIANYCPU.NI.EXE!Microsoft.FSharp.Compiler.Interactive.Shell+threadException
                         // reason: some window that use System.Windows.Forms.DataVisualization types (possible FSCharts) was created in FSI.
                         // at some moment one chart has raised InvalidArgumentException from OnPaint, this exception was intercepted by the code in higher layer and 

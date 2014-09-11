@@ -572,6 +572,18 @@ and [<Class>] FSharpMemberFunctionOrValue =
     /// Indicates if this is a property member
     member IsProperty : bool
 
+    /// Indicates if this is a property then there exists an associated getter method
+    member HasGetterMethod : bool
+
+    /// Get an associated getter method of the property
+    member GetterMethod : FSharpMemberFunctionOrValue
+
+    /// Indicates if this is a property then there exists an associated setter method
+    member HasSetterMethod : bool
+
+    /// Get an associated setter method of the property
+    member SetterMethod : FSharpMemberFunctionOrValue
+
     /// Indicates if this is an event member
     member IsEvent : bool
 
@@ -693,9 +705,29 @@ and [<Class>] FSharpActivePatternCase =
     inherit FSharpSymbol
     /// The name of the active pattern case 
     member Name: string 
+
     /// The location of declaration of the active pattern case 
     member DeclarationLocation : range 
 
+    /// The group of active pattern cases this belongs to
+    member Group : FSharpActivePatternGroup
+
+    /// Get the in-memory XML documentation for the active pattern case, used when code is checked in-memory
+    member XmlDoc: IList<string>
+
+      /// XML documentation signature for the active pattern case, used for .xml file lookup for compiled code
+    member XmlDocSig: string
+
+/// Represents all cases within an active pattern
+and [<Class>] FSharpActivePatternGroup =
+    /// The names of the active pattern cases
+    member Names: IList<string> 
+
+    /// Indicate this is a total active pattern
+    member IsTotal : bool 
+
+    /// Get the type indicating signature of the active pattern
+    member OverallType : FSharpType
 
 and [<Class>] FSharpType =
     /// Internal use only. Create a ground type.

@@ -1505,7 +1505,7 @@ module Project5 =
     let fileSource1 = """
 module ActivePatterns 
 
-
+///Total active pattern for even/odd integers
 let (|Even|Odd|) input = if input % 2 = 0 then Even else Odd
 
 
@@ -1514,7 +1514,7 @@ let TestNumber input =
    | Even -> printfn "%d is even" input
    | Odd -> printfn "%d is odd" input
 
-
+///Partial active pattern for floats
 let (|Float|_|) (str: string) =
    let mutable floatvalue = 0.0
    if System.Double.TryParse(str, &floatvalue) then Some(floatvalue)
@@ -1614,23 +1614,37 @@ let ``Test project 5 all symbols`` () =
             ("ActivePatterns", "ActivePatterns", "file1", ((1, 7), (1, 21)), ["defn"])|]
 
 [<Test>]
-let ``Test complete active patterns's exact ranges from uses of symbols`` () =
+let ``Test complete active patterns' exact ranges from uses of symbols`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project5.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
         checker.GetBackgroundCheckResultsForFileInProject(Project5.fileName1, Project5.options) 
         |> Async.RunSynchronously
 
-
     let oddSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(11,8,"",["Odd"]) |> Async.RunSynchronously
     oddSymbolUse.IsSome |> shouldEqual true  
     let oddSymbol = oddSymbolUse.Value.Symbol
     oddSymbol.ToString() |> shouldEqual "symbol Odd"
 
+    let oddActivePatternCase = oddSymbol :?> FSharpActivePatternCase
+    oddActivePatternCase.XmlDoc |> Seq.toList |> shouldEqual ["Total active pattern for even/odd integers"]
+    oddActivePatternCase.XmlDocSig |> shouldEqual ""
+    let oddGroup = oddActivePatternCase.Group
+    oddGroup.IsTotal |> shouldEqual true
+    oddGroup.Names |> Seq.toList |> shouldEqual ["Even"; "Odd"]
+    oddGroup.OverallType.Format(oddSymbolUse.Value.DisplayContext) |> shouldEqual "int -> Choice<unit,unit>"
+
     let evenSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(10,9,"",["Even"]) |> Async.RunSynchronously
     evenSymbolUse.IsSome |> shouldEqual true  
     let evenSymbol = evenSymbolUse.Value.Symbol
     evenSymbol.ToString() |> shouldEqual "symbol Even"
+    let evenActivePatternCase = evenSymbol :?> FSharpActivePatternCase
+    evenActivePatternCase.XmlDoc |> Seq.toList |> shouldEqual ["Total active pattern for even/odd integers"]
+    evenActivePatternCase.XmlDocSig |> shouldEqual ""
+    let evenGroup = evenActivePatternCase.Group
+    evenGroup.IsTotal |> shouldEqual true
+    evenGroup.Names |> Seq.toList |> shouldEqual ["Even"; "Odd"]
+    evenGroup.OverallType.Format(evenSymbolUse.Value.DisplayContext) |> shouldEqual "int -> Choice<unit,unit>"
 
     let usesOfEvenSymbol = 
         wholeProjectResults.GetUsesOfSymbol(evenSymbol) 
@@ -1654,19 +1668,25 @@ let ``Test complete active patterns's exact ranges from uses of symbols`` () =
 
 
 [<Test>]
-let ``Test partial active patterns's exact ranges from uses of symbols`` () =
+let ``Test partial active patterns' exact ranges from uses of symbols`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project5.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
         checker.GetBackgroundCheckResultsForFileInProject(Project5.fileName1, Project5.options) 
         |> Async.RunSynchronously    
 
-
     let floatSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(22,10,"",["Float"]) |> Async.RunSynchronously
     floatSymbolUse.IsSome |> shouldEqual true  
     let floatSymbol = floatSymbolUse.Value.Symbol 
     floatSymbol.ToString() |> shouldEqual "symbol Float"
 
+    let floatActivePatternCase = floatSymbol :?> FSharpActivePatternCase
+    floatActivePatternCase.XmlDoc |> Seq.toList |> shouldEqual ["Partial active pattern for floats"]
+    floatActivePatternCase.XmlDocSig |> shouldEqual ""
+    let floatGroup = floatActivePatternCase.Group
+    floatGroup.IsTotal |> shouldEqual false
+    floatGroup.Names |> Seq.toList |> shouldEqual ["Float"]
+    floatGroup.OverallType.Format(floatSymbolUse.Value.DisplayContext) |> shouldEqual "string -> float option"
 
     let usesOfFloatSymbol = 
         wholeProjectResults.GetUsesOfSymbol(floatSymbol) 
@@ -1683,7 +1703,6 @@ let ``Test partial active patterns's exact ranges from uses of symbols`` () =
         |> Async.RunSynchronously
 
     floatSymUseOpt.IsSome |> shouldEqual true
-
 
 //-----------------------------------------------------------------------------------------
 
@@ -3053,6 +3072,19 @@ module Impl
 type Class() =
     static member StaticProperty = 1
     member x.Property = 1
+
+module Getter =
+    type System.Int32 with
+        static member Zero = 0
+        member x.Value = 0 
+
+    let _ = 0 .Value
+
+module Setter =
+    type System.Int32 with
+        member x.Value with set (_: int) = ()
+
+    0 .Value <- 0
 """
     File.WriteAllText(fileName1, fileSource1)
     let cleanFileName a = if a = fileName1 then "file1" else "??"
@@ -3064,7 +3096,7 @@ type Class() =
 [<Test>]
 let ``Test Project23 whole project errors`` () = 
 
-    let wholeProjectResults = checker.ParseAndCheckProject(Project22.options) |> Async.RunSynchronously
+    let wholeProjectResults = checker.ParseAndCheckProject(Project23.options) |> Async.RunSynchronously
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
@@ -3078,11 +3110,11 @@ let ``Test Project23 property`` () =
 
     [ for x in classTypeDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
       |> shouldEqual 
-           [(".ctor", ["member"; "ctor"])   
-            ("get_Property", ["member"; "getter"])
-            ("get_StaticProperty", ["member"; "getter"])
-            ("StaticProperty", ["member"; "prop"])
-            ("Property", ["member"; "prop"])]
+          [(".ctor", ["member"; "ctor"]); 
+           ("get_Property", ["member"; "getter"]);
+           ("get_StaticProperty", ["member"; "getter"]);
+           ("StaticProperty", ["member"; "prop"]); 
+           ("Property", ["member"; "prop"])]
 
     allSymbolsUses 
     |> Array.map (fun x -> x.Symbol)
@@ -3090,13 +3122,45 @@ let ``Test Project23 property`` () =
         | :? FSharpMemberFunctionOrValue as f -> Some (f.LogicalName, attribsOfSymbol f)
         | _ -> None)
     |> Array.toList
-    |> shouldEqual 
-        [(".ctor", ["member"; "ctor"])
+    |> shouldEqual         
+        [(".ctor", ["member"; "ctor"]); 
          ("get_StaticProperty", ["member"; "getter"]);
-         ("get_Property", ["member"; "getter"])
-         ("x", [])
-         ]
+         ("get_Property", ["member"; "getter"]); 
+         ("x", []);
+         ("get_Zero", ["member"; "extmem"; "getter"]);
+         ("get_Value", ["member"; "extmem"; "getter"]); 
+         ("x", []);
+         ("Value", ["member"; "prop"; "extmem"]);
+         ("set_Value", ["member"; "extmem"; "setter"]); 
+         ("x", []);
+         ("_arg1", ["compgen"]); 
+         ("Value", ["member"; "prop"; "extmem"])]
 
+[<Test>]
+let ``Test Project23 extension properties' getters/setters should refer to the correct declaring entities`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project23.options) |> Async.RunSynchronously
+    let allSymbolsUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+
+    let extensionMembers = allSymbolsUses |> Array.rev |> Array.filter (fun su -> su.Symbol.DisplayName = "Value")
+    extensionMembers
+    |> Array.collect (fun memb -> wholeProjectResults.GetUsesOfSymbol(memb.Symbol) |> Async.RunSynchronously)
+    |> Array.collect (fun x -> 
+        [|
+        match x.Symbol with
+        | :? FSharpMemberFunctionOrValue as f -> 
+            if f.HasGetterMethod then
+                yield (f.EnclosingEntity.FullName, f.GetterMethod.EnclosingEntity.FullName, attribsOfSymbol f)
+            if f.HasSetterMethod then
+                yield (f.EnclosingEntity.FullName, f.SetterMethod.EnclosingEntity.FullName, attribsOfSymbol f)
+        | _ -> () 
+        |])
+    |> Array.toList
+    |> shouldEqual 
+        [ ("System.Int32", "Impl.Setter", ["member"; "prop"; "extmem"]);
+          ("System.Int32", "Impl.Setter", ["member"; "prop"; "extmem"]);
+          ("System.Int32", "Impl.Getter", ["member"; "prop"; "extmem"])
+          ("System.Int32", "Impl.Getter", ["member"; "prop"; "extmem"]) ]
 
 // Misc - property symbols
 module Project24 = 
@@ -3655,3 +3719,102 @@ let ``Test project27 all symbols in signature`` () =
              ("CFooImpl", ["class"]);
              ("member .ctor", ["member"; "ctor"]);
              ("member AbstractMethod", ["member"; "overridemem"])]
+
+module Project28 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+open System
+open System.Collections.Generic
+let (|Even|Odd|) input = if input % 2 = 0 then Even else Odd
+let TestNumber input =
+   match input with
+   | Even -> printfn "%d is even" input
+   | Odd -> printfn "%d is odd" input
+type DU = A of string | B of int
+type XmlDocSigTest() =
+    let event1 = new Event<_>()
+    let event2 = new Event<_>()
+    let aString = "fourtytwo"
+    let anInt = 42
+    member x.AProperty = Dictionary<int, string>()
+    member x.AnotherProperty = aString
+    member x.AMethod () = x.AProperty
+    member x.AnotherMethod () = anInt
+    [<CLIEvent>]
+    member this.AnEvent = event1.Publish
+    member this.AnotherEvent = event2.Publish
+    member this.TestEvent1(arg) = event1.Trigger(this, arg)
+    member this.TestEvent2(arg) = event2.Trigger(this, arg)
+
+type Use() =
+    let a = XmlDocSigTest ()
+    do a.AnEvent.Add (fun _ -> () )
+    member x.Test number =
+        TestNumber 42
+"""
+    File.WriteAllText(fileName1, fileSource1)
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test project28 all symbols in signature`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project28.options) |> Async.RunSynchronously
+    let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities
+    let xmlDocSigs =
+        allSymbols
+        |> Seq.map (fun s ->
+                        let typeName = s.GetType().Name
+                        match s with
+                        | :? FSharpEntity as fse -> typeName, fse.DisplayName, fse.XmlDocSig
+                        | :? FSharpField as fsf -> typeName, fsf.DisplayName, fsf.XmlDocSig
+                        | :? FSharpMemberFunctionOrValue as fsm -> typeName, fsm.DisplayName, fsm.XmlDocSig
+                        | :? FSharpUnionCase as fsu -> typeName, fsu.DisplayName, fsu.XmlDocSig
+                        | :? FSharpActivePatternCase as ap -> typeName, ap.DisplayName, ap.XmlDocSig
+                        | :? FSharpGenericParameter as fsg -> typeName, fsg.DisplayName, ""
+                        | :? FSharpParameter as fsp -> typeName, fsp.DisplayName, ""
+                        | :? FSharpStaticParameter as fss -> typeName, fss.DisplayName, ""
+                        | :? FSharpSymbol as s-> typeName, s.DisplayName, "unknown")
+        |> Seq.toArray
+
+    xmlDocSigs
+      |> shouldEqual 
+            [|("FSharpEntity", "M", "T:M");
+              ("FSharpMemberFunctionOrValue", "( |Even|Odd| )", "M:|Even|Odd|(System.Int32)");
+              ("FSharpMemberFunctionOrValue", "TestNumber", "M:TestNumber(System.Int32)");
+              ("FSharpEntity", "DU", "T:M.DU"); 
+              ("FSharpUnionCase", "A", "T:M.DU.A");
+              ("FSharpField", "A", "T:M.DU.A"); 
+              ("FSharpUnionCase", "B", "T:M.DU.B");
+              ("FSharpField", "B", "T:M.DU.B");
+              ("FSharpEntity", "XmlDocSigTest", "T:M.XmlDocSigTest");
+              ("FSharpMemberFunctionOrValue", "( .ctor )", "M:M.XmlDocSigTest.#ctor");
+              ("FSharpMemberFunctionOrValue", "AMethod", "M:M.XmlDocSigTest.AMethod");
+              ("FSharpMemberFunctionOrValue", "AnotherMethod", "M:M.XmlDocSigTest.AnotherMethod");
+              ("FSharpMemberFunctionOrValue", "TestEvent1", "M:M.XmlDocSigTest.TestEvent1(System.Object)");
+              ("FSharpMemberFunctionOrValue", "TestEvent2", "M:M.XmlDocSigTest.TestEvent2(System.Object)");
+              ("FSharpMemberFunctionOrValue", "add_AnEvent", "M:M.XmlDocSigTest.add_AnEvent(Microsoft.FSharp.Control.FSharpHandler{System.Tuple{M.XmlDocSigTest,System.Object}})");
+              ("FSharpMemberFunctionOrValue", "AProperty", "P:M.XmlDocSigTest.AProperty");
+              ("FSharpMemberFunctionOrValue", "AnEvent", "P:M.XmlDocSigTest.AnEvent");
+              ("FSharpMemberFunctionOrValue", "AnotherEvent", "P:M.XmlDocSigTest.AnotherEvent");
+              ("FSharpMemberFunctionOrValue", "AnotherProperty", "P:M.XmlDocSigTest.AnotherProperty");
+              ("FSharpMemberFunctionOrValue", "remove_AnEvent", "M:M.XmlDocSigTest.remove_AnEvent(Microsoft.FSharp.Control.FSharpHandler{System.Tuple{M.XmlDocSigTest,System.Object}})");
+              ("FSharpMemberFunctionOrValue", "AnotherProperty", "P:M.XmlDocSigTest.AnotherProperty");
+              ("FSharpMemberFunctionOrValue", "AnotherEvent", "P:M.XmlDocSigTest.AnotherEvent");
+              ("FSharpMemberFunctionOrValue", "AnEvent", "P:M.XmlDocSigTest.AnEvent");
+              ("FSharpMemberFunctionOrValue", "AProperty", "P:M.XmlDocSigTest.AProperty");
+              ("FSharpField", "event1", "F:M.XmlDocSigTest.event1");
+              ("FSharpField", "event2", "F:M.XmlDocSigTest.event2");
+              ("FSharpField", "aString", "F:M.XmlDocSigTest.aString");
+              ("FSharpField", "anInt", "F:M.XmlDocSigTest.anInt");
+              ("FSharpEntity", "Use", "T:M.Use");
+              ("FSharpMemberFunctionOrValue", "( .ctor )", "M:M.Use.#ctor");
+              ("FSharpMemberFunctionOrValue", "Test", "M:M.Use.Test``1(``0)");
+              ("FSharpGenericParameter", "?", "")|]

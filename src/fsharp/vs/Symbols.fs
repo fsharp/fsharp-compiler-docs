@@ -81,6 +81,13 @@ module Impl =
             cpaths2 |> List.exists (canAccessFromCrossProject taccess1) 
         | _ -> true // otherwise use the normal check
 
+    let getXmlDocSigForEntity g (tcImports:TcImports) (ent:EntityRef)=
+        let amap = tcImports.GetImportMap()
+        let infoReader = InfoReader(g, amap)
+        match ItemDescriptionsImpl.GetXmlDocSigOfEntityRef infoReader ent.Range ent with
+        | Some (_, docsig) -> docsig
+        | _ -> ""
+
 type FSharpDisplayContext(denv: TcGlobals -> DisplayEnv) = 
     member x.Contents(g) = denv(g)
     static member Empty = FSharpDisplayContext(fun g -> DisplayEnv.Empty(g))
@@ -363,8 +370,8 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
  
     member __.XmlDocSig = 
         checkIsResolved()
-        entity.XmlDocSig 
-
+        getXmlDocSigForEntity g tcImports entity
+ 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
         entity.XmlDoc |> makeXmlDoc
@@ -469,7 +476,10 @@ and FSharpUnionCase(g:TcGlobals, thisCcu, tcImports, v: UnionCaseRef) =
 
     member __.XmlDocSig = 
         checkIsResolved()
-        v.UnionCase.XmlDocSig
+        let unionCase = UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v)
+        match ItemDescriptionsImpl.GetXmlDocSigOfUnionCaseInfo unionCase with
+        | Some (_, docsig) -> docsig
+        | _ -> ""
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
@@ -589,7 +599,17 @@ and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData)  =
 
     member __.XmlDocSig = 
         checkIsResolved()
-        d.RecdField.XmlDocSig
+        let xmlsig =
+            match d with 
+            | Recd v -> 
+                let recd = RecdFieldInfo(generalizeTypars v.TyconRef.TyparsNoRange,v)
+                ItemDescriptionsImpl.GetXmlDocSigOfRecdFieldInfo recd
+            | Union (v,_) -> 
+                let unionCase = UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v)
+                ItemDescriptionsImpl.GetXmlDocSigOfUnionCaseInfo unionCase
+        match xmlsig with
+        | Some (_, docsig) -> docsig
+        | _ -> ""
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
@@ -674,7 +694,7 @@ and [<Class>] FSharpAccessibilityRights(thisCcu: CcuThunk, ad:Infos.AccessorDoma
     member internal __.Contents = ad
 
 
-and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, n, item) = 
+and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo: PrettyNaming.ActivePatternInfo, typ, n, valOpt: ValRef option, item) = 
 
     inherit FSharpSymbol (g, thisCcu, tcImports,  
                           (fun () -> item),
@@ -684,6 +704,28 @@ and FSharpActivePatternCase(g:TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming
 
     member __.DeclarationLocation = snd apinfo.ActiveTagsWithRanges.[n]
 
+    member __.Group = FSharpActivePatternGroup(g, thisCcu, tcImports, apinfo, typ)
+
+    member __.XmlDoc = 
+        defaultArg (valOpt |> Option.map (fun vref -> vref.XmlDoc)) XmlDoc.Empty
+        |> makeXmlDoc
+
+    member __.XmlDocSig = 
+        let xmlsig = 
+            match valOpt with
+            | Some valref -> ItemDescriptionsImpl.GetXmlDocSigOfActivePatternCase g valref
+            | None -> None
+        match xmlsig with
+        | Some (_, docsig) -> docsig
+        | _ -> ""
+
+and FSharpActivePatternGroup(g: TcGlobals, thisCcu, tcImports, apinfo:PrettyNaming.ActivePatternInfo, typ) =
+    
+    member __.Names = makeReadOnlyCollection apinfo.Names
+
+    member __.IsTotal = apinfo.IsTotal
+
+    member __.OverallType = FSharpType(g, thisCcu, tcImports, typ)
 
 and FSharpGenericParameter(g:TcGlobals, thisCcu, tcImports, v:Typar) = 
 
@@ -961,6 +1003,44 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             | V v -> v.TauType
         FSharpType(g, thisCcu, tcImports,  ty)
 
+    member __.HasGetterMethod =
+        if isUnresolved() then false
+        else
+            match d with 
+            | P m -> m.HasGetter
+            | E _
+            | M _
+            | V _ -> false
+
+    member __.GetterMethod =
+        checkIsResolved()
+        match d with 
+        | P m -> 
+            let minfo = m.GetterMethod
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | E _
+        | M _
+        | V _ -> invalidOp "the value or member doesn't have an associated getter method" 
+
+    member __.HasSetterMethod =
+        if isUnresolved() then false
+        else
+            match d with 
+            | P m -> m.HasSetter
+            | E _
+            | M _
+            | V _ -> false
+
+    member __.SetterMethod =
+        checkIsResolved()
+        match d with 
+        | P m -> 
+            let minfo = m.SetterMethod
+            FSharpMemberFunctionOrValue(g, thisCcu, tcImports, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | E _
+        | M _
+        | V _ -> invalidOp "the value or member doesn't have an associated setter method" 
+
     member __.EnclosingEntity = 
         checkIsResolved()
         match d with 
@@ -1169,9 +1249,36 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
 
     member __.XmlDocSig = 
         checkIsResolved()
-        match fsharpInfo() with 
-        | None -> ""
-        | Some v -> v.XmlDocSig
+ 
+        match d with 
+        | E e ->
+            let amap = tcImports.GetImportMap()
+            let infoReader = InfoReader(g, amap)
+            let range = defaultArg __.DeclarationLocationOpt range0
+            match ItemDescriptionsImpl.GetXmlDocSigOfEvent infoReader range e with
+            | Some (_, docsig) -> docsig
+            | _ -> ""
+        | P p ->
+            let amap = tcImports.GetImportMap()
+            let infoReader = InfoReader(g, amap)
+            let range = defaultArg __.DeclarationLocationOpt range0
+            match ItemDescriptionsImpl.GetXmlDocSigOfProp infoReader range p with
+            | Some (_, docsig) -> docsig
+            | _ -> ""
+        | M m -> 
+            let amap = tcImports.GetImportMap()
+            let infoReader = InfoReader(g, amap)
+            let range = defaultArg __.DeclarationLocationOpt range0
+            match ItemDescriptionsImpl.GetXmlDocSigOfMethInfo infoReader range m with
+            | Some (_, docsig) -> docsig
+            | _ -> ""
+        | V v ->
+            match v.ActualParent with 
+            | Parent entityRef -> 
+                match ItemDescriptionsImpl.GetXmlDocSigOfValRef g entityRef v with
+                | Some (_, docsig) -> docsig
+                | _ -> ""
+            | ParentNone -> "" 
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
@@ -1602,10 +1709,10 @@ type FSharpSymbol with
              FSharpGenericParameter(g, thisCcu, tcImports,  tp) :> _
 
         | Item.ActivePatternCase apref -> 
-             FSharpActivePatternCase(g, thisCcu, tcImports,  apref.ActivePatternInfo, apref.CaseIndex, item) :> _
+             FSharpActivePatternCase(g, thisCcu, tcImports,  apref.ActivePatternInfo, apref.ActivePatternVal.Type, apref.CaseIndex, Some apref.ActivePatternVal, item) :> _
 
-        | Item.ActivePatternResult (apinfo,_,n,_) ->
-             FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, n, item) :> _
+        | Item.ActivePatternResult (apinfo, typ, n, _) ->
+             FSharpActivePatternCase(g, thisCcu, tcImports,  apinfo, typ, n, None, item) :> _
 
         | Item.ArgName(id,ty,_)  ->
              FSharpParameter(g, thisCcu, tcImports,  ty, {Attribs=[]; Name=Some id}, Some id.idRange, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) :> _

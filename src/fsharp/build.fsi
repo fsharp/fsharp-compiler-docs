@@ -575,6 +575,7 @@ type TcAssemblyResolutions =
 
 [<Sealed>]
 type TcConfigProvider = 
+    member Get : unit -> TcConfig
     static member Constant : TcConfig -> TcConfigProvider
     static member BasedOnMutableBuilder : TcConfigBuilder -> TcConfigProvider
 
@@ -582,6 +583,7 @@ type TcConfigProvider =
 type TcImports =
     interface System.IDisposable
     //new : TcImports option -> TcImports
+    member Base : TcImports option
     member SetBase : TcImports -> unit
     member DllTable : NameMap<ImportedBinary> with get
     member GetImportedAssemblies : unit -> ImportedAssembly list
@@ -613,7 +615,6 @@ type TcImports =
 
     static member BuildFrameworkTcImports      : TcConfigProvider * AssemblyResolution list * AssemblyResolution list -> TcGlobals * TcImports
     static member BuildNonFrameworkTcImports   : (string->unit) option * TcConfigProvider * TcGlobals * TcImports * AssemblyResolution list * UnresolvedAssemblyReference list -> TcImports
-    static member BuildTcImports               : TcConfigProvider -> TcGlobals * TcImports
 
 //----------------------------------------------------------------------------
 // Special resources in DLLs

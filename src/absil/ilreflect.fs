@@ -2074,7 +2074,7 @@ let buildModuleFragment cenv emEnv (asmB : AssemblyBuilder) (modB : ModuleBuilde
 // test hook
 //----------------------------------------------------------------------------
 
-let mkDynamicAssemblyAndModule (assemblyName, optimize, debugInfo) =
+let mkDynamicAssemblyAndModule (assemblyName, optimize, debugInfo, collectible) =
     let filename = assemblyName ^ ".dll"
     let currentDom  = System.AppDomain.CurrentDomain
 #if SILVERLIGHT
@@ -2087,7 +2087,8 @@ let mkDynamicAssemblyAndModule (assemblyName, optimize, debugInfo) =
     let asmDir  = "."
     let asmName = new AssemblyName()
     asmName.Name <- assemblyName;
-    let asmB = currentDom.DefineDynamicAssemblyAndLog(asmName,AssemblyBuilderAccess.RunAndSave,asmDir) 
+    let asmAccess = if collectible then AssemblyBuilderAccess.RunAndCollect else AssemblyBuilderAccess.RunAndSave
+    let asmB = currentDom.DefineDynamicAssemblyAndLog(asmName,asmAccess,asmDir) 
     if not optimize then 
         let daType = typeof<System.Diagnostics.DebuggableAttribute>;
         let daCtor = daType.GetConstructor [| typeof<System.Diagnostics.DebuggableAttribute.DebuggingModes> |]

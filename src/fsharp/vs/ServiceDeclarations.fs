@@ -380,7 +380,6 @@ module internal ItemDescriptionsImpl =
 
     /// This function gets the signature to pass to Visual Studio to use its lookup functions for .NET stuff. 
     let rec GetXmlDocHelpSigOfItemForLookup (infoReader:InfoReader) m d = 
-        let amap = infoReader.amap
         let g = infoReader.g
                 
         match d with
@@ -403,7 +402,7 @@ module internal ItemDescriptionsImpl =
         | Item.ModuleOrNamespaces(modref :: _) -> mkXmlComment (GetXmlDocSigOfEntityRef infoReader m modref)
 
         | Item.Property(_,(pinfo :: _)) -> mkXmlComment (GetXmlDocSigOfProp infoReader m pinfo)
-        | Item.Event(ILEvent(_,ilEventInfo) as einfo) -> mkXmlComment (GetXmlDocSigOfEvent infoReader m einfo)
+        | Item.Event(einfo) -> mkXmlComment (GetXmlDocSigOfEvent infoReader m einfo)
 
         | Item.MethodGroup(_,minfo :: _) -> mkXmlComment (GetXmlDocSigOfMethInfo infoReader  m minfo)
         | Item.CtorGroup(_,minfo :: _) -> mkXmlComment (GetXmlDocSigOfMethInfo infoReader  m minfo)

@@ -950,7 +950,7 @@ type TypeCheckInfo
             (fun () -> 
                 match GetDeclItemsForNamesAtPosition(parseResultsOpt, Some qualifyingNames, Some partialName, line, lineStr, colAtEndOfNamesAndResidue, ResolveTypeNamesToCtors, ResolveOverloads.Yes, hasTextChangedSinceLastTypecheck) with
                 | None -> List.Empty  
-                | Some(items,denv,m) -> 
+                | Some(items,_denv,_m) -> 
                     let items = items |> filterIntellisenseCompletionsBasedOnParseContext (parseResultsOpt |> Option.bind (fun x -> x.ParseTree)) (mkPos line colAtEndOfNamesAndResidue)
                     let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
 
@@ -999,14 +999,14 @@ type TypeCheckInfo
 
                     let items = 
                         // Filter out duplicate names
-                        items |> List.map (fun (nm,itemsWithSameName) -> 
+                        items |> List.map (fun (_nm,itemsWithSameName) -> 
                             match itemsWithSameName with
                             | [] -> failwith "Unexpected empty bag"
                             | items -> items |> List.map (fun item -> FSharpSymbol.Create(g, thisCcu, tcImports, item)))
 
                     //end filtering
                     items)
-            (fun msg -> List.empty)
+            (fun _msg -> [])
             
     member scope.GetReferenceResolutionToolTipText(line,col) : ToolTipText = 
         let pos = mkPos line col

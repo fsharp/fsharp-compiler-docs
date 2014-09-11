@@ -3722,7 +3722,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
         CheckDisposed()
         importsBase <- Some(baseTcImports)
 
-    member private tcImports.Base  = 
+    member tcImports.Base  = 
             CheckDisposed()
             importsBase
 
@@ -4623,18 +4623,6 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
         tcImports.ReportUnresolvedAssemblyReferences(knownUnresolved)
         tcImports
       
-    // Note: This returns a TcImports object. TcImports are disposable - the caller owns the returned TcImports object 
-    // and if hosted in Visual Studio or another long-running process must dispose this object. However this
-    // function is currently only used from fsi.exe. If we move to a long-running hosted evaluation service API then
-    // we should start disposing these objects.
-    static member BuildTcImports(tcConfigP:TcConfigProvider) = 
-        let tcConfig = tcConfigP.Get()
-        //let foundationalTcImports,tcGlobals = TcImports.BuildFoundationalTcImports(tcConfigP)
-        let frameworkDLLs,nonFrameworkReferences,knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
-        let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (tcConfigP,frameworkDLLs,nonFrameworkReferences)
-        let tcImports = TcImports.BuildNonFrameworkTcImports(None, tcConfigP,tcGlobals,frameworkTcImports,nonFrameworkReferences,knownUnresolved)
-        tcGlobals,tcImports
-        
     interface System.IDisposable with 
         member tcImports.Dispose() = 
             CheckDisposed()

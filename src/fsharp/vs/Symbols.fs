@@ -955,7 +955,7 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         match d with
         | M m ->
             match item with
-            | Item.MethodGroup (name, methodInfos) -> 
+            | Item.MethodGroup (_name, methodInfos) -> 
                 methodInfos
                 |> List.filter (fun methodInfo -> not (methodInfo.NumArgs = m.NumArgs) )
                 |> List.map (fun mi -> FSharpMemberFunctionOrValue(g, thisCcu, tcImports, M mi, item))

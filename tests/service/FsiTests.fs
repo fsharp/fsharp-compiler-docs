@@ -1,6 +1,6 @@
 ﻿
 #if INTERACTIVE
-#r "../../bin/v45/FSharp.Compiler.Service.dll"
+#r "../../bin/v4.5/FSharp.Compiler.Service.dll"
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
@@ -16,6 +16,7 @@ open NUnit.Framework
 open FsUnit
 open System
 open System.IO
+open System.Text
 
 // Intialize output and input streams
 let inStream = new StringReader("")
@@ -40,7 +41,7 @@ let evalInteraction text =
   fsiSession.EvalInteraction(text)
 
 // For some reason NUnit doesn't like running these FsiEvaluationSession tests. We need to work out why.
-#if INTERACTIVE
+//#if INTERACTIVE
 [<Test>]
 let ``EvalExpression test 1``() = 
     evalExpression "42+1" |> shouldEqual "43"
@@ -194,12 +195,33 @@ let ``EvalScript accepts paths verbatim``() =
      with
         | e ->
             // Microsoft.FSharp.Compiler.Build is internal, so we can't access the exception class here
-            if String.Equals(e.InnerException.GetType().FullName,
-                "Microsoft.FSharp.Compiler.Build+FileNameNotResolved",
-                StringComparison.InvariantCultureIgnoreCase)
-            then true
-            else false)
+            String.Equals(e.InnerException.GetType().FullName,
+                          "Microsoft.FSharp.Compiler.Build+FileNameNotResolved",
+                          StringComparison.InvariantCultureIgnoreCase))
     |> shouldEqual true
+
+
+[<Test>]
+let ``Disposing interactive session (collectible)``() =
+
+    let createSession i =
+        let defaultArgs = [|"fsi.exe";"--noninteractive";"--nologo";"--gui-"|]
+        let sbOut = StringBuilder()
+        use inStream = new StringReader("")
+        use outStream = new StringWriter(sbOut)
+        let sbErr = StringBuilder("")
+        use errStream = new StringWriter(sbErr)
+
+        let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
+        use session = FsiEvaluationSession.Create(fsiConfig, defaultArgs, inStream, outStream, errStream, collectible=true)
+        
+        session.EvalInteraction <| sprintf "let x%i = 42" i
+
+    // Dynamic assemblies should be collected and handle count should not be increased
+    for i in 1 .. 200 do
+        printfn "iteration %d" i
+        createSession i
+
 
 let RunManually() = 
   ``EvalExpression test 1``() 
@@ -218,5 +240,6 @@ let RunManually() =
   ``Bad arguments to session creation 1``()
   ``Bad arguments to session creation 2``()
   ``EvalScript accepts paths verbatim``()
+  ``Disposing interactive session (collectible)``() 
 
-#endif
+//#endif

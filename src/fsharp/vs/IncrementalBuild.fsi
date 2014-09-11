@@ -45,6 +45,9 @@ type internal ErrorScope =
 /// Incremental builder for F# parsing and type checking.  
 module internal IncrementalFSharpBuild =
 
+  /// Lookup the global static cache for building the FrameworkTcImports
+  val GetFrameworkTcImports : TcConfig -> Env.TcGlobals * TcImports * AssemblyResolution list * UnresolvedAssemblyReference list
+
   type PartialCheckResults = 
       { TcState : Build.TcState 
         TcImports: Build.TcImports 

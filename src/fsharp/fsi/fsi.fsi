@@ -91,12 +91,23 @@ type FsiValue =
 
 /// Represents an F# Interactive evaluation session.
 type FsiEvaluationSession = 
+
+    interface System.IDisposable
+
     /// Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers.
     [<System.Obsolete("Please use FsiEvaluationSession.Create instead of this object constructor")>]
     new : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter -> FsiEvaluationSession
 
     /// Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers.
-    static member Create : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter -> FsiEvaluationSession
+    /// 
+    /// <summary>Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers</summary>
+    /// 
+    /// <param name="fsiConfig">The dynamic configuration of the evaluation session</param>
+    /// <param name="argv">The commmand line arguments for the evaluation session</param>
+    /// <param name="inReader">Read input from the given reader</param>
+    /// <param name="outWriter">Write output to the given writer</param>
+    /// <param name="collectible">Optionally make the dynamic assmbly for the session collectible</param>
+    static member Create : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter * ?collectible: bool -> FsiEvaluationSession
 
     /// A host calls this to request an interrupt on the evaluation thread.
     member Interrupt : unit -> unit

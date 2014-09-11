@@ -84,7 +84,7 @@ Target "GenerateFSIStrings" (fun _ ->
 Target "Build" (fun _ ->
     netFrameworks
     |> List.iter (fun framework -> 
-        let outputPath = "bin/" + framework.Replace(".","")
+        let outputPath = "bin/" + framework
         !! (project + ".sln")
         |> MSBuild outputPath "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
         |> Log (".NET " + framework + " Build-Output: "))
@@ -98,7 +98,7 @@ Target "SourceLink" (fun _ ->
     |> List.iter (fun framework -> 
         let f = !! "src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj" |> Seq.head
         use repo = new GitRepo(__SOURCE_DIRECTORY__)
-        let outputPath = __SOURCE_DIRECTORY__ @@ "bin/" + framework.Replace(".","")
+        let outputPath = __SOURCE_DIRECTORY__ @@ "bin/" + framework
         let proj = VsProj.Load f ["Configuration","Release"; "TargetFrameworkVersion",framework; "OutputPath",outputPath]
         logfn "indexing %s" proj.OutputFilePdb
         let compiles = proj.Compiles.SetBaseDirectory __SOURCE_DIRECTORY__ 

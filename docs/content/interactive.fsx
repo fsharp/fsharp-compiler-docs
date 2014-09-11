@@ -36,10 +36,11 @@ F# code that prints:
 *)
 open System
 open System.IO
+open System.Text
 
 // Intialize output and input streams
-let sbOut = new Text.StringBuilder()
-let sbErr = new Text.StringBuilder()
+let sbOut = new StringBuilder()
+let sbErr = new StringBuilder()
 let inStream = new StringReader("")
 let outStream = new StringWriter(sbOut)
 let errStream = new StringWriter(sbErr)
@@ -157,3 +158,33 @@ Normally the one fromm FSharp.Compiler.Interactive.Settings.dll is used.
 
 let fsiConfig2 = FsiEvaluationSession.GetDefaultConfiguration(fsi)
 
+(**
+Collectible code generation
+------------------
+
+Evaluating code in using FsiEvaluationSession generates a .NET dynamic assembly and uses other resources.
+You can make generated code collectible by passing `collectible=true`.  However code will only
+be collected if there are no outstanding object references involving types, for example
+`FsiValue` objects returned by `EvalExpression`, and you must have disposed the `FsiEvaluationSession`.
+See also [Restrictions on Collectible Assemblies](http://msdn.microsoft.com/en-us/library/dd554932(v=vs.110).aspx#restrictions).
+
+The example below shows the creation of 200 evaluation sessions. If collectible code is working correctly,
+overall resource usage will not increase linearly as the 
+*)
+
+let collectionTest() = 
+
+    for i in 1 .. 200 do
+        let defaultArgs = [|"fsi.exe";"--noninteractive";"--nologo";"--gui-"|]
+        use inStream = new StringReader("")
+        use outStream = new StringWriter()
+        use errStream = new StringWriter()
+
+        let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
+        use session = FsiEvaluationSession.Create(fsiConfig, defaultArgs, inStream, outStream, errStream, collectible=true)
+        
+        session.EvalInteraction (sprintf "type D = { v : int }")
+        let v = session.EvalExpression (sprintf "{ v = 42 * %d }" i)
+        printfn "iteration %d, result = %A" i v.Value.ReflectionValue
+
+// collectionTest()  <-- run the test like this

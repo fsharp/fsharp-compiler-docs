@@ -16,11 +16,11 @@
       <tags>@tags@</tags>
     </metadata>
     <files>
-      <file src="..\bin\v40\FSharp.Compiler.Service.dll" target="lib/net40" />
-      <file src="..\bin\v40\FSharp.Compiler.Service.xml" target="lib/net40" />
-      <file src="..\bin\v40\FSharp.Compiler.Service.pdb" target="lib/net40" />
-      <file src="..\bin\v45\FSharp.Compiler.Service.dll" target="lib/net45" />
-      <file src="..\bin\v45\FSharp.Compiler.Service.xml" target="lib/net45" />
-      <file src="..\bin\v45\FSharp.Compiler.Service.pdb" target="lib/net45" />
+      <file src="..\bin\v4.0\FSharp.Compiler.Service.dll" target="lib/net40" />
+      <file src="..\bin\v4.0\FSharp.Compiler.Service.xml" target="lib/net40" />
+      <file src="..\bin\v4.0\FSharp.Compiler.Service.pdb" target="lib/net40" />
+      <file src="..\bin\v4.5\FSharp.Compiler.Service.dll" target="lib/net45" />
+      <file src="..\bin\v4.5\FSharp.Compiler.Service.xml" target="lib/net45" />
+      <file src="..\bin\v4.5\FSharp.Compiler.Service.pdb" target="lib/net45" />
    </files>
 </package>

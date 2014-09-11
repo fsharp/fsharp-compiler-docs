@@ -1332,7 +1332,6 @@ let ``Test project3 all uses of all signature symbols`` () =
           [("file1", ((52, 18), (52, 35)), ["defn"], ["member"; "prop"; "overridemem"])]);
          ("property BaseClassEvent",
           [("file1", ((56, 18), (56, 32)), ["defn"], ["member"; "prop"; "overridemem"])])]
-    printfn "Actual: %A" allUsesOfAllSymbols
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true

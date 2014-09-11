@@ -7,16 +7,16 @@
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
 
-    <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
@@ -48,47 +48,31 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3137', 3137)" onmouseover="showTip(event, '3137', 3137)">
+          <code onmouseout="hideTip(event, '3286', 3286)" onmouseover="showTip(event, '3286', 3286)">
             AssemblySignature(arg1)
           </code>
-          <div class="tip" id="3137">
+          <div class="tip" id="3286">
             <strong>Signature:</strong>unit -&gt; FSharpAssemblySignature<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get a view of the overall contents of the assembly. Only valid to use if HasCriticalErrors is false.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1608-1608" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1627-1627" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3138', 3138)" onmouseover="showTip(event, '3138', 3138)">
+          <code onmouseout="hideTip(event, '3287', 3287)" onmouseover="showTip(event, '3287', 3287)">
             Errors(arg1)
           </code>
-          <div class="tip" id="3138">
+          <div class="tip" id="3287">
             <strong>Signature:</strong>unit -&gt; ErrorInfo []<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>The errors returned by processing the project</p>
-
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1604-1604" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3139', 3139)" onmouseover="showTip(event, '3139', 3139)">
-            GetAllUsesOfAllSymbols(arg1)
-          </code>
-          <div class="tip" id="3139">
-            <strong>Signature:</strong>unit -&gt; FSharpSymbolUse []<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        <p>Get all textual usages of all symbols throughout the project</p>
 
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1623-1623" class="github-link">Go to GitHub source</a>
         </td>
@@ -96,49 +80,65 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3140', 3140)" onmouseover="showTip(event, '3140', 3140)">
-            GetUsesOfSymbol(symbol)
+          <code onmouseout="hideTip(event, '3288', 3288)" onmouseover="showTip(event, '3288', 3288)">
+            GetAllUsesOfAllSymbols(arg1)
           </code>
-          <div class="tip" id="3140">
-            <strong>Signature:</strong>symbol:FSharpSymbol -&gt; FSharpSymbolUse []<br />
+          <div class="tip" id="3288">
+            <strong>Signature:</strong>unit -&gt; Async&lt;FSharpSymbolUse []&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-        <p>Get the textual usages that resolved to the given symbol throughout the project</p>
+        <p>Get all textual usages of all symbols throughout the project</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1613-1613" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1642-1642" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3141', 3141)" onmouseover="showTip(event, '3141', 3141)">
+          <code onmouseout="hideTip(event, '3289', 3289)" onmouseover="showTip(event, '3289', 3289)">
+            GetUsesOfSymbol(symbol)
+          </code>
+          <div class="tip" id="3289">
+            <strong>Signature:</strong>symbol:FSharpSymbol -&gt; Async&lt;FSharpSymbolUse []&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Get the textual usages that resolved to the given symbol throughout the project</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1632-1632" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3290', 3290)" onmouseover="showTip(event, '3290', 3290)">
             HasCriticalErrors(arg1)
           </code>
-          <div class="tip" id="3141">
+          <div class="tip" id="3290">
             <strong>Signature:</strong>unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Indicates if critical errors existed in the project options</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1606-1606" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1625-1625" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3142', 3142)" onmouseover="showTip(event, '3142', 3142)">
+          <code onmouseout="hideTip(event, '3291', 3291)" onmouseover="showTip(event, '3291', 3291)">
             ProjectContext(arg1)
           </code>
-          <div class="tip" id="3142">
+          <div class="tip" id="3291">
             <strong>Signature:</strong>unit -&gt; ProjectContext<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get the resolution of the ProjectOptions</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1632-1632" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1651-1651" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>
@@ -155,7 +155,7 @@
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE.md">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>

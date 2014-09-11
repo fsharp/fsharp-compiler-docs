@@ -7,16 +7,16 @@
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
 
-    <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
@@ -336,7 +336,14 @@ it formats the XML content for you (apart from ones read from XML doc files usin
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpaccessibility.html">FSharpAccessibility</a>
           </td>
-          <td class="xmldoc"><p>Indicates the accessibility of an item as seen by the F# language</p>
+          <td class="xmldoc"><p>Indicates the accessibility of a symbol, as seen by the F# language</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpaccessibilityrights.html">FSharpAccessibilityRights</a>
+          </td>
+          <td class="xmldoc"><p>Represents the rights of a compilation to access symbols</p>
 </td>
         </tr>
         <tr>
@@ -344,6 +351,13 @@ it formats the XML content for you (apart from ones read from XML doc files usin
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpactivepatterncase.html">FSharpActivePatternCase</a>
           </td>
           <td class="xmldoc"><p>Represents a single case within an active pattern</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpactivepatterngroup.html">FSharpActivePatternGroup</a>
+          </td>
+          <td class="xmldoc"><p>Represents all cases within an active pattern</p>
 </td>
         </tr>
         <tr>
@@ -371,6 +385,17 @@ it formats the XML content for you (apart from ones read from XML doc files usin
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpdelegatesignature.html">FSharpDelegateSignature</a>
           </td>
           <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpdisplaycontext.html">FSharpDisplayContext</a>
+          </td>
+          <td class="xmldoc"><p>Represents the information needed to format types and other information in a style
+suitable for use in F# source text at a particular source location.</p>
+
+<p>Acquired via GetDisplayEnvAtLocationAlternate and simialr methods. May be passed 
+to the Format method on FSharpType and other methods.</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -441,7 +466,8 @@ it formats the XML content for you (apart from ones read from XML doc files usin
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpparameter.html">FSharpParameter</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Represents a parameter</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -460,7 +486,8 @@ it formats the XML content for you (apart from ones read from XML doc files usin
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpsymbol.html">FSharpSymbol</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Represents a symbol</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -740,7 +767,7 @@ with nested declarations (that can be shown in the member drop-down)</p>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE.md">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>

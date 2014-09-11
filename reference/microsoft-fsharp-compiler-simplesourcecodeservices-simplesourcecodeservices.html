@@ -7,16 +7,16 @@
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
 
-    <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
@@ -48,17 +48,17 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2928', 2928)" onmouseover="showTip(event, '2928', 2928)">
+          <code onmouseout="hideTip(event, '3015', 3015)" onmouseover="showTip(event, '3015', 3015)">
             new(arg1)
           </code>
-          <div class="tip" id="2928">
+          <div class="tip" id="3015">
             <strong>Signature:</strong>unit -&gt; SimpleSourceCodeServices<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Create a singleton global isntance for checking and compiling F# scripts</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L117-117" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L109-109" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>
@@ -72,26 +72,58 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2929', 2929)" onmouseover="showTip(event, '2929', 2929)">
+          <code onmouseout="hideTip(event, '3020', 3020)" onmouseover="showTip(event, '3020', 3020)">
+            Compile(...)
+          </code>
+          <div class="tip" id="3020">
+            <strong>Signature:</strong>(ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string option * ?executable:bool option) -&gt; ErrorInfo [] * int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>TypeCheck and compile provided AST</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L283-283" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3022', 3022)" onmouseover="showTip(event, '3022', 3022)">
             Compile(argv)
           </code>
-          <div class="tip" id="2929">
+          <div class="tip" id="3022">
             <strong>Signature:</strong>(argv:string []) -&gt; ErrorInfo [] * int<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L208-208" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L280-280" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2930', 2930)" onmouseover="showTip(event, '2930', 2930)">
+          <code onmouseout="hideTip(event, '3023', 3023)" onmouseover="showTip(event, '3023', 3023)">
             CompileToDynamicAssembly(...)
           </code>
-          <div class="tip" id="2930">
+          <div class="tip" id="3023">
+            <strong>Signature:</strong>(ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool option) -&gt; ErrorInfo [] * int * Assembly option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>TypeCheck and compile provided AST</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L309-309" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3024', 3024)" onmouseover="showTip(event, '3024', 3024)">
+            CompileToDynamicAssembly(...)
+          </code>
+          <div class="tip" id="3024">
             <strong>Signature:</strong>(otherFlags:string [] * execute:(TextWriter * TextWriter) option) -&gt; ErrorInfo [] * int * Assembly option<br />
                       </div>
         </td>
@@ -104,117 +136,117 @@ be written - instead a dynamic assembly will be created and loaded.</p>
 the given TextWriters are used for the stdout and stderr streams respectively. In this 
 case, a global setting is modified during the execution.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L217-217" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L286-286" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2931', 2931)" onmouseover="showTip(event, '2931', 2931)">
+          <code onmouseout="hideTip(event, '3025', 3025)" onmouseover="showTip(event, '3025', 3025)">
             MatchBraces(...)
           </code>
-          <div class="tip" id="2931">
+          <div class="tip" id="3025">
             <strong>Signature:</strong>(filename:string * source:string * ?otherFlags:string [] option) -&gt; (Range01 * Range01) []<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L149-149" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L250-250" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2932', 2932)" onmouseover="showTip(event, '2932', 2932)">
+          <code onmouseout="hideTip(event, '3026', 3026)" onmouseover="showTip(event, '3026', 3026)">
             MatchBracesAlternate(...)
           </code>
-          <div class="tip" id="2932">
-            <strong>Signature:</strong>(filename:string * source:string * ?otherFlags:string [] option) -&gt; (range * range) []<br />
+          <div class="tip" id="3026">
+            <strong>Signature:</strong>(filename:string * source:string * ?otherFlags:string [] option) -&gt; Async&lt;(range * range) []&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Return information about matching braces in a single file.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L145-145" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L244-244" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2933', 2933)" onmouseover="showTip(event, '2933', 2933)">
+          <code onmouseout="hideTip(event, '3027', 3027)" onmouseover="showTip(event, '3027', 3027)">
             ParseAndCheckProject(...)
           </code>
-          <div class="tip" id="2933">
+          <div class="tip" id="3027">
             <strong>Signature:</strong>(projectFileName:string * argv:string []) -&gt; Async&lt;CheckProjectResults&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>For analysis of a project</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L173-173" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L276-276" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2934', 2934)" onmouseover="showTip(event, '2934', 2934)">
+          <code onmouseout="hideTip(event, '3028', 3028)" onmouseover="showTip(event, '3028', 3028)">
             ParseAndCheckScript(...)
           </code>
-          <div class="tip" id="2934">
+          <div class="tip" id="3028">
             <strong>Signature:</strong>(filename:string * source:string * ?otherFlags:string [] option) -&gt; Async&lt;SimpleCheckFileResults&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L158-158" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L261-261" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2935', 2935)" onmouseover="showTip(event, '2935', 2935)">
+          <code onmouseout="hideTip(event, '3029', 3029)" onmouseover="showTip(event, '3029', 3029)">
             TokenizeFile(source)
           </code>
-          <div class="tip" id="2935">
+          <div class="tip" id="3029">
             <strong>Signature:</strong>source:string -&gt; TokenInformation [] []<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Tokenize an entire file, line by line</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L134-134" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L233-233" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2936', 2936)" onmouseover="showTip(event, '2936', 2936)">
+          <code onmouseout="hideTip(event, '3030', 3030)" onmouseover="showTip(event, '3030', 3030)">
             TokenizeLine(line, state)
           </code>
-          <div class="tip" id="2936">
+          <div class="tip" id="3030">
             <strong>Signature:</strong>(line:string * state:int64) -&gt; TokenInformation [] * int64<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Tokenize a single line, returning token information and a tokenization state represented by an integer</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L124-124" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L223-223" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2937', 2937)" onmouseover="showTip(event, '2937', 2937)">
+          <code onmouseout="hideTip(event, '3031', 3031)" onmouseover="showTip(event, '3031', 3031)">
             TypeCheckScript(...)
           </code>
-          <div class="tip" id="2937">
+          <div class="tip" id="3031">
             <strong>Signature:</strong>(filename:string * source:string * otherFlags:string []) -&gt; Async&lt;SimpleCheckFileResults&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L154-154" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L257-257" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>
@@ -231,7 +263,7 @@ case, a global setting is modified during the execution.</p>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE.md">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>

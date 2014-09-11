@@ -7,16 +7,16 @@
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
 
-    <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
@@ -37,6 +37,7 @@
 
 <h1>FSharpSymbol</h1>
 <div class="xmldoc">
+<p>Represents a symbol</p>
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -47,58 +48,58 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3196', 3196)" onmouseover="showTip(event, '3196', 3196)">
+          <code onmouseout="hideTip(event, '3179', 3179)" onmouseover="showTip(event, '3179', 3179)">
             Assembly(arg1)
           </code>
-          <div class="tip" id="3196">
+          <div class="tip" id="3179">
             <strong>Signature:</strong>unit -&gt; FSharpAssembly<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get the assembly declaring this symbol</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L65-65" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L98-98" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3197', 3197)" onmouseover="showTip(event, '3197', 3197)">
+          <code onmouseout="hideTip(event, '3180', 3180)" onmouseover="showTip(event, '3180', 3180)">
             DeclarationLocation(arg1)
           </code>
-          <div class="tip" id="3197">
+          <div class="tip" id="3180">
             <strong>Signature:</strong>unit -&gt; range option<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get the declaration location for the symbol</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L69-69" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L106-106" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3198', 3198)" onmouseover="showTip(event, '3198', 3198)">
+          <code onmouseout="hideTip(event, '3181', 3181)" onmouseover="showTip(event, '3181', 3181)">
             DisplayName(arg1)
           </code>
-          <div class="tip" id="3198">
+          <div class="tip" id="3181">
             <strong>Signature:</strong>unit -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Gets the short display name for the symbol</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L72-72" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L112-112" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3199', 3199)" onmouseover="showTip(event, '3199', 3199)">
+          <code onmouseout="hideTip(event, '3182', 3182)" onmouseover="showTip(event, '3182', 3182)">
             FullName(arg1)
           </code>
-          <div class="tip" id="3199">
+          <div class="tip" id="3182">
             <strong>Signature:</strong>unit -&gt; string<br />
                       </div>
         </td>
@@ -106,23 +107,38 @@
         <p>Get a textual representation of the full name of the symbol. The text returned for some symbols
 may not be a valid identifier path in F# code, but rather a human-readable representation of the symbol.</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L68-68" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L104-104" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3200', 3200)" onmouseover="showTip(event, '3200', 3200)">
+          <code onmouseout="hideTip(event, '3183', 3183)" onmouseover="showTip(event, '3183', 3183)">
             ImplementationLocation(arg1)
           </code>
-          <div class="tip" id="3200">
+          <div class="tip" id="3183">
             <strong>Signature:</strong>unit -&gt; range option<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Get the implementation location for the symbol of it wsa declared in a signature that has an implementation</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Typed.fs#L70-70" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L108-108" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3184', 3184)" onmouseover="showTip(event, '3184', 3184)">
+            IsAccessible(arg1)
+          </code>
+          <div class="tip" id="3184">
+            <strong>Signature:</strong>FSharpAccessibilityRights -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L102-102" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>
@@ -139,7 +155,7 @@ may not be a valid identifier path in F# code, but rather a human-readable repre
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE.md">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>

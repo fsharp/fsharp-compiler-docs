@@ -7,16 +7,16 @@
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
 
-    <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
@@ -47,80 +47,192 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3258', 3258)" onmouseover="showTip(event, '3258', 3258)">
+          <code onmouseout="hideTip(event, '3253', 3253)" onmouseover="showTip(event, '3253', 3253)">
+            DisplayContext(arg1)
+          </code>
+          <div class="tip" id="3253">
+            <strong>Signature:</strong>unit -&gt; FSharpDisplayContext<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>The display context active at the point where the symbol is used. Can be passed to FSharpType.Format
+and other methods to format items in a way that is suitable for a specific source code location.</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1595-1595" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3254', 3254)" onmouseover="showTip(event, '3254', 3254)">
             FileName(arg1)
           </code>
-          <div class="tip" id="3258">
+          <div class="tip" id="3254">
             <strong>Signature:</strong>unit -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>The file name the reference occurs in</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1591-1591" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1610-1610" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3255', 3255)" onmouseover="showTip(event, '3255', 3255)">
+            IsDefinition(arg1)
+          </code>
+          <div class="tip" id="3255">
+            <strong>Signature:</strong>unit -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1596-1596" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3256', 3256)" onmouseover="showTip(event, '3256', 3256)">
+            IsFromAttribute(arg1)
+          </code>
+          <div class="tip" id="3256">
+            <strong>Signature:</strong>unit -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Indicates if the reference is in an attribute</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1600-1600" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3257', 3257)" onmouseover="showTip(event, '3257', 3257)">
+            IsFromComputationExpression(arg1)
+          </code>
+          <div class="tip" id="3257">
+            <strong>Signature:</strong>unit -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Indicates if the reference is either a builder or a custom operation in a compuation expression</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1602-1602" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3258', 3258)" onmouseover="showTip(event, '3258', 3258)">
+            IsFromDefinition(arg1)
+          </code>
+          <div class="tip" id="3258">
+            <strong>Signature:</strong>unit -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Indicates if the reference is a definition for the symbol, either in a signature or implementation</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1597-1597" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '3259', 3259)" onmouseover="showTip(event, '3259', 3259)">
-            IsDefinition(arg1)
+            IsFromDispatchSlotImplementation(arg1)
           </code>
           <div class="tip" id="3259">
             <strong>Signature:</strong>unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-        <p>Indicates if the reference a definition for the symbol, either in a signature or implementation</p>
+        <p>Indicates if the reference is via the member being implemented in a class or object expression</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1590-1590" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1601-1601" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '3260', 3260)" onmouseover="showTip(event, '3260', 3260)">
-            Range(arg1)
+            IsFromPattern(arg1)
           </code>
           <div class="tip" id="3260">
-            <strong>Signature:</strong>unit -&gt; Range01<br />
+            <strong>Signature:</strong>unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-        
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1592-1592" class="github-link">Go to GitHub source</a>
+        <p>Indicates if the reference is in a pattern</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1598-1598" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '3261', 3261)" onmouseover="showTip(event, '3261', 3261)">
-            RangeAlternate(arg1)
+            IsFromType(arg1)
           </code>
           <div class="tip" id="3261">
-            <strong>Signature:</strong>unit -&gt; range<br />
+            <strong>Signature:</strong>unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-        <p>The range of text representing the reference to the symbol</p>
+        <p>Indicates if the reference is in a syntactic type</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1593-1593" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1599-1599" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '3262', 3262)" onmouseover="showTip(event, '3262', 3262)">
-            Symbol(arg1)
+            Range(arg1)
           </code>
           <div class="tip" id="3262">
+            <strong>Signature:</strong>unit -&gt; Range01<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1611-1611" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3263', 3263)" onmouseover="showTip(event, '3263', 3263)">
+            RangeAlternate(arg1)
+          </code>
+          <div class="tip" id="3263">
+            <strong>Signature:</strong>unit -&gt; range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>The range of text representing the reference to the symbol</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1612-1612" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3264', 3264)" onmouseover="showTip(event, '3264', 3264)">
+            Symbol(arg1)
+          </code>
+          <div class="tip" id="3264">
             <strong>Signature:</strong>unit -&gt; FSharpSymbol<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>The symbol referenced</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1589-1589" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1594-1594" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>
@@ -137,7 +249,7 @@
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE.md">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>

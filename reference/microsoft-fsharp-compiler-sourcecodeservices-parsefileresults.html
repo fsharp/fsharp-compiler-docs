@@ -7,16 +7,16 @@
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
 
-    <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
@@ -47,15 +47,79 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3287', 3287)" onmouseover="showTip(event, '3287', 3287)">
+          <code onmouseout="hideTip(event, '3266', 3266)" onmouseover="showTip(event, '3266', 3266)">
             DependencyFiles(arg1)
           </code>
-          <div class="tip" id="3287">
+          <div class="tip" id="3266">
             <strong>Signature:</strong>unit -&gt; string list<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>When these files change then the build is invalid</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L355-355" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3267', 3267)" onmouseover="showTip(event, '3267', 3267)">
+            Errors(arg1)
+          </code>
+          <div class="tip" id="3267">
+            <strong>Signature:</strong>unit -&gt; ErrorInfo []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Get the errors and warnings for the parse</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L81-81" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3268', 3268)" onmouseover="showTip(event, '3268', 3268)">
+            FileName(arg1)
+          </code>
+          <div class="tip" id="3268">
+            <strong>Signature:</strong>unit -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Name of the file for which this information were created</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L357-357" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3269', 3269)" onmouseover="showTip(event, '3269', 3269)">
+            FindNoteworthyParamInfoLocations(pos)
+          </code>
+          <div class="tip" id="3269">
+            <strong>Signature:</strong>pos:pos -&gt; NoteworthyParamInfoLocations option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Notable parse info for ParameterInfo at a given location</p>
+
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L87-87" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3270', 3270)" onmouseover="showTip(event, '3270', 3270)">
+            GetNavigationItems(arg1)
+          </code>
+          <div class="tip" id="3270">
+            <strong>Signature:</strong>unit -&gt; NavigationItems<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        <p>Get declared items and the selected item at the specified location</p>
 
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L364-364" class="github-link">Go to GitHub source</a>
         </td>
@@ -63,112 +127,48 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3288', 3288)" onmouseover="showTip(event, '3288', 3288)">
-            Errors(arg1)
-          </code>
-          <div class="tip" id="3288">
-            <strong>Signature:</strong>unit -&gt; ErrorInfo []<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        <p>Get the errors and warnings for the parse</p>
-
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L90-90" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3289', 3289)" onmouseover="showTip(event, '3289', 3289)">
-            FileName(arg1)
-          </code>
-          <div class="tip" id="3289">
-            <strong>Signature:</strong>unit -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        <p>Name of the file for which this information were created</p>
-
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L366-366" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3290', 3290)" onmouseover="showTip(event, '3290', 3290)">
-            FindNoteworthyParamInfoLocations(pos)
-          </code>
-          <div class="tip" id="3290">
-            <strong>Signature:</strong>pos:pos -&gt; NoteworthyParamInfoLocations option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        <p>Notable parse info for ParameterInfo at a given location</p>
-
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L96-96" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3291', 3291)" onmouseover="showTip(event, '3291', 3291)">
-            GetNavigationItems(arg1)
-          </code>
-          <div class="tip" id="3291">
-            <strong>Signature:</strong>unit -&gt; NavigationItems<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        <p>Get declared items and the selected item at the specified location</p>
-
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L373-373" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3292', 3292)" onmouseover="showTip(event, '3292', 3292)">
+          <code onmouseout="hideTip(event, '3271', 3271)" onmouseover="showTip(event, '3271', 3271)">
             ParseHadErrors(arg1)
           </code>
-          <div class="tip" id="3292">
+          <div class="tip" id="3271">
             <strong>Signature:</strong>unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Indicates if any errors occured during the parse</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L92-92" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L83-83" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3293', 3293)" onmouseover="showTip(event, '3293', 3293)">
+          <code onmouseout="hideTip(event, '3272', 3272)" onmouseover="showTip(event, '3272', 3272)">
             ParseTree(arg1)
           </code>
-          <div class="tip" id="3293">
+          <div class="tip" id="3272">
             <strong>Signature:</strong>unit -&gt; ParsedInput option<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L94-94" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L85-85" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3294', 3294)" onmouseover="showTip(event, '3294', 3294)">
+          <code onmouseout="hideTip(event, '3273', 3273)" onmouseover="showTip(event, '3273', 3273)">
             ValidateBreakpointLocation(pos)
           </code>
-          <div class="tip" id="3294">
+          <div class="tip" id="3273">
             <strong>Signature:</strong>pos:pos -&gt; range option<br />
                       </div>
         </td>
         <td class="xmldoc">
         <p>Return the inner-most range associated with a possible breakpoint location</p>
 
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L378-378" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L369-369" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>
@@ -185,7 +185,7 @@
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE.md">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>

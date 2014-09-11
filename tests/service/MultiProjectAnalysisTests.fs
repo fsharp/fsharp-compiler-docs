@@ -267,7 +267,7 @@ let ``Test ManyProjectsStressTest basic`` () =
 [<Test>]
 let ``Test ManyProjectsStressTest all symbols`` () = 
 
-  for i in 1 .. 100 do 
+  for i in 1 .. 30 do 
     printfn "stress test iteration %d (first may be slow, rest fast)" i
     let projectsResults = [ for p in ManyProjectsStressTest.projects -> p, checker.ParseAndCheckProject(p.Options) |> Async.RunSynchronously ]
     let jointProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously

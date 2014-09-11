@@ -218,7 +218,7 @@ let ``Disposing interactive session (collectible)``() =
         session.EvalInteraction <| sprintf "let x%i = 42" i
 
     // Dynamic assemblies should be collected and handle count should not be increased
-    for i in 1 .. 200 do
+    for i in 1 .. 50 do
         printfn "iteration %d" i
         createSession i
 

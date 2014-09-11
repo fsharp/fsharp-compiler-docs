@@ -168,8 +168,11 @@ be collected if there are no outstanding object references involving types, for 
 `FsiValue` objects returned by `EvalExpression`, and you must have disposed the `FsiEvaluationSession`.
 See also [Restrictions on Collectible Assemblies](http://msdn.microsoft.com/en-us/library/dd554932(v=vs.110).aspx#restrictions).
 
-The example below shows the creation of 200 evaluation sessions. If collectible code is working correctly,
-overall resource usage will not increase linearly as the 
+The example below shows the creation of 200 evaluation sessions. Note that `collectible=true` and
+`use session = ...` are both used. 
+
+If collectible code is working correctly,
+overall resource usage will not increase linearly as the evaluation progresses.
 *)
 
 let collectionTest() = 

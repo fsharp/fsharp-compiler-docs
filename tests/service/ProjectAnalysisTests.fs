@@ -1,5 +1,5 @@
 ﻿#if INTERACTIVE
-#r "../../bin/v45/FSharp.Compiler.Service.dll"
+#r "../../bin/v4.5/FSharp.Compiler.Service.dll"
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
@@ -3781,7 +3781,7 @@ let ``Test project28 all symbols in signature`` () =
                         | :? FSharpGenericParameter as fsg -> typeName, fsg.DisplayName, ""
                         | :? FSharpParameter as fsp -> typeName, fsp.DisplayName, ""
                         | :? FSharpStaticParameter as fss -> typeName, fss.DisplayName, ""
-                        | :? FSharpSymbol as s-> typeName, s.DisplayName, "unknown")
+                        | _ -> typeName, s.DisplayName, "unknown")
         |> Seq.toArray
 
     xmlDocSigs

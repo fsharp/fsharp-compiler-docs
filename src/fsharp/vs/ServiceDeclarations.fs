@@ -300,14 +300,14 @@ module internal ItemDescriptionsImpl =
         let tcref = rfinfo.TyconRef
         let ccuFileName = libFileOfEntityRef tcref 
         if rfinfo.RecdField.XmlDocSig = "" then
-            rfinfo.RecdField.XmlDocSig <- XmlDocSigOfField "" rfinfo.Name tcref.CompiledRepresentationForNamedType.FullName
+            rfinfo.RecdField.XmlDocSig <- XmlDocSigOfProperty [tcref.CompiledRepresentationForNamedType.FullName; rfinfo.Name]
         Some (ccuFileName, rfinfo.RecdField.XmlDocSig)            
 
     let GetXmlDocSigOfUnionCaseInfo (ucinfo:UnionCaseInfo) = 
         let tcref =  ucinfo.TyconRef
         let ccuFileName = libFileOfEntityRef tcref
         if  ucinfo.UnionCase.XmlDocSig = "" then
-            ucinfo.UnionCase.XmlDocSig <- XmlDocSigOfUnionCase ""  ucinfo.Name tcref.CompiledRepresentationForNamedType.FullName
+            ucinfo.UnionCase.XmlDocSig <- XmlDocSigOfUnionCase [tcref.CompiledRepresentationForNamedType.FullName; ucinfo.Name]
         Some (ccuFileName,  ucinfo.UnionCase.XmlDocSig)
 
     let GetXmlDocSigOfMethInfo (infoReader:InfoReader)  m (minfo:MethInfo) = 

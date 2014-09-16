@@ -598,15 +598,21 @@ module XmlDocWriter =
         let g = tcGlobals
         let doValSig ptext (v:Val)  = if (hasDoc v.XmlDoc) then v.XmlDocSig <- XmlDocSigOfVal g ptext v
         let doTyconSig ptext (tc:Tycon) = 
-            if (hasDoc tc.XmlDoc) then tc.XmlDocSig <- XmlDocSigOfTycon ptext tc
+            if (hasDoc tc.XmlDoc) then tc.XmlDocSig <- XmlDocSigOfTycon [ptext; tc.CompiledName]
             for vref in tc.MembersOfFSharpTyconSorted do 
                 doValSig ptext vref.Deref
             for uc in tc.UnionCasesAsList do
-                if (hasDoc uc.XmlDoc) then uc.XmlDocSig <- XmlDocSigOfUnionCase ptext uc.Id.idText tc.CompiledName
+                if (hasDoc uc.XmlDoc) then uc.XmlDocSig <- XmlDocSigOfUnionCase [ptext; tc.CompiledName; uc.Id.idText]
             for rf in tc.AllFieldsAsList do
-                if (hasDoc rf.XmlDoc) then rf.XmlDocSig <- XmlDocSigOfField ptext rf.Id.idText tc.CompiledName
+                if (hasDoc rf.XmlDoc) then
+                    rf.XmlDocSig <-
+                        if tc.IsRecordTycon && (not rf.IsStatic) then 
+                            // represents a record field, which is exposed as a property
+                            XmlDocSigOfProperty [ptext; tc.CompiledName; rf.Id.idText]
+                        else
+                            XmlDocSigOfField [ptext; tc.CompiledName; rf.Id.idText]
 
-        let doModuleMemberSig path (m:ModuleOrNamespace) = m.XmlDocSig <- XmlDocSigOfSubModul path
+        let doModuleMemberSig path (m:ModuleOrNamespace) = m.XmlDocSig <- XmlDocSigOfSubModul [path]
         (* moduleSpec - recurses *)
         let rec doModuleSig path (mspec:ModuleOrNamespace) = 
             let mtype = mspec.ModuleOrNamespaceType
@@ -981,12 +987,12 @@ module AttributeHelpers =
         | _ -> None
 
     // Try to find an AssemblyVersion attribute 
-    let TryFindVersionAttribute tcGlobals attrib attribs =
+    let TryFindVersionAttribute tcGlobals attrib attribName attribs =
         match TryFindStringAttribute tcGlobals attrib attribs with
         | Some versionString ->
              try Some(IL.parseILVersion versionString)
              with e -> 
-                 warning(Error(FSComp.SR.fscBadAssemblyVersion(versionString),Range.rangeStartup));
+                 warning(Error(FSComp.SR.fscBadAssemblyVersion(attribName, versionString),Range.rangeStartup));
                  None
         | _ -> None
 
@@ -1148,12 +1154,12 @@ module MainModuleBuilder =
                     | _ -> []
 
                 let fileVersion = 
-                    match AttributeHelpers.TryFindVersionAttribute tcGlobals "System.Reflection.AssemblyFileVersionAttribute" topAttrs.assemblyAttrs with
+                    match AttributeHelpers.TryFindVersionAttribute tcGlobals "System.Reflection.AssemblyFileVersionAttribute" "AssemblyFileVersionAttribute" topAttrs.assemblyAttrs with
                     | Some v -> v
                     | None -> assemblyVersion
 
                 let productVersion = 
-                    match AttributeHelpers.TryFindVersionAttribute tcGlobals "System.Reflection.AssemblyInformationalVersionAttribute" topAttrs.assemblyAttrs with
+                    match AttributeHelpers.TryFindVersionAttribute tcGlobals "System.Reflection.AssemblyInformationalVersionAttribute" "AssemblyInformationalVersionAttribute" topAttrs.assemblyAttrs with
                     | Some v -> v
                     | None -> assemblyVersion
 
@@ -1927,7 +1933,7 @@ let main1(tcGlobals,tcImports : TcImports,frameworkTcImports,generatedCcu,typedA
 
     // Try to find an AssemblyVersion attribute 
     let assemVerFromAttrib = 
-        match AttributeHelpers.TryFindVersionAttribute tcGlobals "System.Reflection.AssemblyVersionAttribute" topAttrs.assemblyAttrs with
+        match AttributeHelpers.TryFindVersionAttribute tcGlobals "System.Reflection.AssemblyVersionAttribute" "AssemblyVersionAttribute" topAttrs.assemblyAttrs with
         | Some v -> 
            match tcConfig.version with 
            | VersionNone -> Some v
@@ -2010,7 +2016,7 @@ let main1OfAst (openBinariesInMemory, assemblyName, target, outfile, pdbFile, dl
 
     // Try to find an AssemblyVersion attribute 
     let assemVerFromAttrib = 
-        match AttributeHelpers.TryFindVersionAttribute tcGlobals "System.Reflection.AssemblyVersionAttribute" topAttrs.assemblyAttrs with
+        match AttributeHelpers.TryFindVersionAttribute tcGlobals "System.Reflection.AssemblyVersionAttribute" "AssemblyVersionAttribute" topAttrs.assemblyAttrs with
         | Some v -> 
             match tcConfig.version with 
             | VersionNone -> Some v
@@ -2210,6 +2216,7 @@ let compileOfAst (openBinariesInMemory, assemblyName, target, outFile, pdbFile, 
     |> main4 dynamicAssemblyCreator
 
 let mainCompile (argv, bannerAlreadyPrinted, openBinariesInMemory, exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) = 
+    //System.Runtime.GCSettings.LatencyMode <- System.Runtime.GCLatencyMode.Batch
     typecheckAndCompile(argv, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator)
 
 #endif // NO_COMPILER_BACKEND

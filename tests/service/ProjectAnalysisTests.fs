@@ -3809,10 +3809,10 @@ let ``Test project28 all symbols in signature`` () =
               ("FSharpMemberFunctionOrValue", "AnotherEvent", "P:M.XmlDocSigTest.AnotherEvent");
               ("FSharpMemberFunctionOrValue", "AnEvent", "P:M.XmlDocSigTest.AnEvent");
               ("FSharpMemberFunctionOrValue", "AProperty", "P:M.XmlDocSigTest.AProperty");
-              ("FSharpField", "event1", "F:M.XmlDocSigTest.event1");
-              ("FSharpField", "event2", "F:M.XmlDocSigTest.event2");
-              ("FSharpField", "aString", "F:M.XmlDocSigTest.aString");
-              ("FSharpField", "anInt", "F:M.XmlDocSigTest.anInt");
+              ("FSharpField", "event1", "P:M.XmlDocSigTest.event1");
+              ("FSharpField", "event2", "P:M.XmlDocSigTest.event2");
+              ("FSharpField", "aString", "P:M.XmlDocSigTest.aString");
+              ("FSharpField", "anInt", "P:M.XmlDocSigTest.anInt");
               ("FSharpEntity", "Use", "T:M.Use");
               ("FSharpMemberFunctionOrValue", "( .ctor )", "M:M.Use.#ctor");
               ("FSharpMemberFunctionOrValue", "Test", "M:M.Use.Test``1(``0)");

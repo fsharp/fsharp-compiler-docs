@@ -254,3 +254,6 @@
 * #214 - Added missing XmlDocSig for FSharpMemberFunctionOrValue's Events, Methods and Properties  
 * #213 - Retrieve information for all active pattern cases  
 * #188 - Fix leak in file handles when using multiple instances of FsiEvaluationSession, and add optionally collectible assemblies
+
+#### 0.0.62 - 
+* Integrate to latest http://github.com/fsharp/fsharp (#80f9221f811217bd890b3a670d717ebc510aeeaf)

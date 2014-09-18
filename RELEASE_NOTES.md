@@ -257,3 +257,7 @@
 
 #### 0.0.62 - 
 * Integrate to latest http://github.com/fsharp/fsharp (#80f9221f811217bd890b3a670d717ebc510aeeaf)
+
+#### 0.0.63 - 
+* #221 - Normalize return types of .NET events
+

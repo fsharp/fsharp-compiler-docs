@@ -1335,7 +1335,9 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         match d with 
         | E e -> 
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
-            let rty = e.GetDelegateType(tcImports.GetImportMap(),range0)
+            let infoReader = InfoReader(g, tcImports.GetImportMap())
+            let rty = PropTypOfEventInfo infoReader range0 AccessibleFromSomewhere e
+            let _,rty, _cxs = PrettyTypes.PrettifyTypes1 g rty
             FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | P p -> 
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }  

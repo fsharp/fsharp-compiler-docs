@@ -117,13 +117,13 @@ fnVal.IsActivePattern // false
 fnVal.IsCompilerGenerated // false
 fnVal.IsDispatchSlot // false
 fnVal.IsExtensionMember // false
-fnVal.IsGetterMethod // false
+fnVal.IsPropertyGetterMethod // false
 fnVal.IsImplicitConstructor // false
 fnVal.IsInstanceMember // false
 fnVal.IsMember // false
 fnVal.IsModuleValueOrMember // true
 fnVal.IsMutable // false
-fnVal.IsSetterMethod // false
+fnVal.IsPropertySetterMethod // false
 fnVal.IsTypeFunction // false
 
 (**

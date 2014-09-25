@@ -73,6 +73,22 @@ We use `GetProjectOptionsFromCommandLineArgs` to treat two files as a project:
 *)
 
 let projectOptions = 
+    let sysLib nm = 
+        if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86) +
+            @"\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\" + nm + ".dll"
+        else
+            let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+            let (++) a b = System.IO.Path.Combine(a,b)
+            sysDir ++ nm + ".dll" 
+
+    let fsCore4300() = 
+        if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86) +
+            @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"  
+        else 
+            sysLib "FSharp.Core"
+
     checker.GetProjectOptionsFromCommandLineArgs
        (Inputs.projFileName,
         [| yield "--simpleresolution" 
@@ -88,12 +104,12 @@ let projectOptions =
            yield "--target:library" 
            yield Inputs.fileName1
            yield Inputs.fileName2
-           let references = 
-             [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" 
-               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" 
-               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" 
-               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"]  
-           for r in references do
+           let references =
+             [ sysLib "mscorlib" 
+               sysLib "System"
+               sysLib "System.Core"
+               fsCore4300() ]
+           for r in references do 
                  yield "-r:" + r |])
 
 (**

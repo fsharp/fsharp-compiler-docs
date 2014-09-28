@@ -134,6 +134,11 @@ module Impl =
         match ItemDescriptionsImpl.GetXmlDocSigOfEntityRef cenv.infoReader ent.Range ent with
         | Some (_, docsig) -> docsig
         | _ -> ""
+        
+    let getItem (ent:EntityRef) =
+        checkEntityIsResolved(ent)
+        if ent.IsModule then Item.ModuleOrNamespaces [ent] 
+        else Item.UnqualifiedType [ent]
 
 type FSharpDisplayContext(denv: TcGlobals -> DisplayEnv) = 
     member x.Contents(g) = denv(g)
@@ -179,10 +184,7 @@ type FSharpSymbol(cenv:cenv, item: (unit -> Item), access: (FSharpSymbol -> CcuT
 
 and FSharpEntity(cenv:cenv, entity:EntityRef) = 
     inherit FSharpSymbol(cenv,  
-                         (fun () -> 
-                              checkEntityIsResolved(entity); 
-                              if entity.IsModule then Item.ModuleOrNamespaces [entity] 
-                              else Item.UnqualifiedType [entity]), 
+                         (fun () -> getItem(entity)), 
                          (fun _this thisCcu2 ad -> 
                              checkForCrossProjectAccessibility (thisCcu2, ad) (cenv.thisCcu, getApproxFSharpAccessibilityOfEntity entity)) 
                              // && AccessibilityLogic.IsEntityAccessible cenv.amap range0 ad entity)
@@ -194,7 +196,9 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
     let isResolvedAndFSharp() = 
         match entity with
         | ERefNonLocal(NonLocalEntityRef(ccu, _)) -> not ccu.IsUnresolvedReference && ccu.IsFSharp
-        | _ -> true
+        | _ -> 
+            let ccu = defaultArg (ItemDescriptionsImpl.ccuOfItem cenv.g (getItem entity)) cenv.thisCcu 
+            ccu.IsFSharp
 
     let isUnresolved() = entityIsUnresolved entity
     let isResolved() = not (isUnresolved())
@@ -1788,7 +1792,7 @@ and FSharpAssembly internal (cenv, ccu: CcuThunk) =
     member __.FileName = ccu.FileName
     member __.SimpleName = ccu.AssemblyName 
     member __.IsProviderGenerated = ccu.IsProviderGenerated
-    member __.Contents = FSharpAssemblySignature(cenv,  ccu.Contents.ModuleOrNamespaceType)
+    member __.Contents = FSharpAssemblySignature((if ccu.IsUnresolvedReference then cenv else (new cenv(cenv.g, ccu, cenv.tcImports))),  ccu.Contents.ModuleOrNamespaceType)
                  
     override x.ToString() = x.QualifiedName
 

@@ -3842,7 +3842,7 @@ let f (x: INotifyPropertyChanged) = failwith ""
 let ``Test project29 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project29.options) |> Async.RunSynchronously
-    wholeProjectResults .Errors.Length |> shouldEqual 0
+    wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
 let ``Test project29 event symbols`` () = 
@@ -3872,6 +3872,58 @@ let ``Test project29 event symbols`` () =
            [("PropertyChanged", None, "IEvent<PropertyChangedEventHandler,PropertyChangedEventArgs>");
            ("add_PropertyChanged", None, "unit");
            ("remove_PropertyChanged", None, "unit")])
+
+
+module Project30 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Module
+open System
+type T() = 
+    [<Obsolete("hello")>]
+    member __.Member = 0         
+"""
+    File.WriteAllText(fileName1, fileSource1)
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+let ``Test project30 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project30.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+[<Test>]
+let ``Test project30 event symbols`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project30.options) |> Async.RunSynchronously
+    
+    let moduleSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Module")
+    let moduleEntity = moduleSymbol.Symbol :?> FSharpEntity
+    
+    let moduleAttributes = 
+        [ for x in moduleEntity.Attributes do 
+             yield x.Format(moduleSymbol.DisplayContext), x.Format(FSharpDisplayContext.Empty) ]
+
+    moduleAttributes |> shouldEqual 
+          [("[<CompilationRepresentationAttribute (enum<CompilationRepresentationFlags> (4))>]", "[<Microsoft.FSharp.Core.CompilationRepresentationAttribute (enum<Microsoft.FSharp.Core.CompilationRepresentationFlags> (4))>]")]
+   
+    let memberSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Member")
+    let memberEntity = memberSymbol.Symbol :?> FSharpMemberFunctionOrValue
+    
+    let memberAttributes = 
+        [ for x in memberEntity.Attributes do 
+             yield x.Format(memberSymbol.DisplayContext), x.Format(FSharpDisplayContext.Empty) ]
+
+    memberAttributes |> shouldEqual 
+          ["""[<Obsolete ("hello")>]""", """[<System.Obsolete ("hello")>]"""]
 
 #if FX_ATLEAST_45
 

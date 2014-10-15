@@ -632,7 +632,7 @@ module private PrintTypes =
     /// Layout an attribute 'Type(arg1, ..., argN)' 
     //
     // REVIEW: we are ignoring "props" here
-    and private layoutAttrib denv (Attrib(_,k,args,_props,_,_,_)) = 
+    and layoutAttrib denv (Attrib(_,k,args,_props,_,_,_)) = 
         let argsL = bracketL (layoutAttribArgs denv args)
         match k with 
         | (ILAttrib(ilMethRef)) -> 
@@ -675,7 +675,7 @@ module private PrintTypes =
         | TyparKind.Type -> restL
         | TyparKind.Measure -> squareAngleL (wordL "Measure") @@ restL
 
-    and private layoutTyparAttribs denv kind attrs restL =         
+    and layoutTyparAttribs denv kind attrs restL =         
         match attrs, kind with
         | [], TyparKind.Type -> restL 
         | _, _  -> squareAngleL (sepListL (rightL ";") ((match kind with TyparKind.Type -> [] | TyparKind.Measure -> [wordL "Measure"]) @ List.map (layoutAttrib denv) attrs)) ^^ restL
@@ -1802,6 +1802,7 @@ let prettyStringOfTy        denv x    = x |> PrintTypes.layoutPrettyType denv |>
 let stringOfRecdField       denv x    = x |> TastDefinitionPrinting.layoutRecdField false denv |> showL
 let stringOfUnionCase       denv x    = x |> TastDefinitionPrinting.layoutUnionCase denv (wordL "|")  |> showL
 let stringOfExnDef          denv x    = x |> TastDefinitionPrinting.layoutExnDefn denv |> showL
+let stringOfAttrib          denv x    = x |> PrintTypes.layoutAttrib denv |> squareAngleL |> showL
 
 let layoutInferredSigOfModuleExpr showHeader denv infoReader ad m expr = InferredSigPrinting.layoutInferredSigOfModuleExpr showHeader denv infoReader ad m expr 
 let layoutValOrMember denv v = PrintTastMemberOrVals.layoutValOrMember denv v 

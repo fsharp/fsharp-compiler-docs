@@ -814,4 +814,6 @@ and [<Class>] FSharpAttribute =
     /// Indicates if the attribute type is in an unresolved assembly 
     member IsUnresolved : bool
 
+    /// Format the attribute using the rules of the given display context
+    member Format : context: FSharpDisplayContext -> string
 

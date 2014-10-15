@@ -1570,6 +1570,10 @@ and FSharpAttribute(g: TcGlobals, thisCcu, tcImports, attrib) =
     member __.NamedArguments = 
         propVals |> List.map (fun (AttribNamedArg(nm,_,isField,AttribExpr(_, e))) -> (nm, isField, evalArg e)) |> makeReadOnlyCollection
 
+    member x.Format(denv: FSharpDisplayContext) = 
+        protect <| fun () -> 
+            NicePrint.stringOfAttrib (denv.Contents g) attrib 
+
     override x.ToString() = 
         if entityIsUnresolved tcref then "attribute ???" else "attribute " + tcref.CompiledName + "(...)" 
 

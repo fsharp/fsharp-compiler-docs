@@ -496,6 +496,24 @@ type InteractiveChecker =
     /// so that references are re-resolved.</param>
     member GetProjectOptionsFromCommandLineArgs : projectFileName: string * argv: string[] * ?loadedTimeStamp: DateTime -> ProjectOptions
            
+    /// <summary>
+    /// <para>Get the command line arguments implied by a standard F# project file in the xbuild/msbuild format.</para>
+    /// </summary>
+    ///
+    /// <param name="projectFileName">Used to differentiate between projects and for the base directory of the project.</param>
+    /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
+    static member GetCommandLineArgsFromProject : projectFileName: string * ?properties : (string * string) list -> string[]
+
+    /// <summary>
+    /// <para>Get the project options implied by a standard F# project file in the xbuild/msbuild format.</para>
+    /// </summary>
+    ///
+    /// <param name="projectFileName">Used to differentiate between projects and for the base directory of the project.</param>
+    /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
+    /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
+    /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
+    member GetProjectOptionsFromProject : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> ProjectOptions
+
     [<Obsolete("This member has been renamed to 'GetProjectOptionsFromScript'")>]
     member GetProjectOptionsFromScriptRoot : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> ProjectOptions
 

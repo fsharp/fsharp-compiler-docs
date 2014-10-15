@@ -8,6 +8,10 @@ This tutorial demonstrates how to can analyze a whole project using services pro
 
 > **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
 
+*)
+
+
+(**
 
 Getting whole-project results
 -----------------------------
@@ -294,6 +298,48 @@ correctly and then analyze each project in turn.
   still be required on disk.
 
 **)
+
+(**
+Cracking a project file
+-----------------------------
+
+F# projects normally use the '.fsproj' project file format.  You can get options corresponding to a project file
+using GetProjectOptionsFromProjectFile.  In this example we get the project options for one of the 
+project files in the F# Compiler Service project itself - you should also be able to use this technique
+for any project that cleans buildly using the command line tools 'xbuild' or 'msbuild'.
+
+
+*)
+
+(*** define-output:options1 ***)
+
+checker.GetProjectOptionsFromProject(__SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj")
+
+
+(**
+
+The options produced in this case are:
+
+*)
+
+(*** include-it:options1 ***)
+
+
+(**
+
+Another utility is provided to simply get the command line arguments for a project file
+
+*)
+
+(*** define-output:options2 ***)
+
+InteractiveChecker.GetCommandLineArgsFromProject(__SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj")
+
+(**
+
+Here the arguments are simply returned as an array of command line arguments suitable for the F# compiler or compiler service.
+
+*)
 
 (**
 Summary

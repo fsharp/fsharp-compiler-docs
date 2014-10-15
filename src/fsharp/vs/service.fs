@@ -2442,6 +2442,9 @@ type InteractiveChecker(projectCacheSize) =
 
         let project = 
             if runningOnMono then 
+                // On Mono, we have had trouble with ToolsVersion = 12.0.  Using 4.0 appears
+                // adequate for practical purposes, but there is some underlying problem here
+                // that remains to be investigated properly.
                 engine.LoadProject(xmlReader, "4.0", FullPath=projectFileName)
             else
                 engine.LoadProject(xmlReader, FullPath=projectFileName)

@@ -496,6 +496,8 @@ type InteractiveChecker =
     /// so that references are re-resolved.</param>
     member GetProjectOptionsFromCommandLineArgs : projectFileName: string * argv: string[] * ?loadedTimeStamp: DateTime -> ProjectOptions
            
+#if SILVERLIGHT
+#else
     /// <summary>
     /// <para>Get the command line arguments implied by a standard F# project file in the xbuild/msbuild format.</para>
     /// </summary>
@@ -513,6 +515,7 @@ type InteractiveChecker =
     /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
     member GetProjectOptionsFromProject : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> ProjectOptions
+#endif
 
     [<Obsolete("This member has been renamed to 'GetProjectOptionsFromScript'")>]
     member GetProjectOptionsFromScriptRoot : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> ProjectOptions

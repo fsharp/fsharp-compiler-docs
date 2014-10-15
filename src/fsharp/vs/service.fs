@@ -2599,7 +2599,7 @@ type InteractiveChecker(projectCacheSize) =
                    if not (String.IsNullOrWhiteSpace nw) then yield "--nowarn:" + nw
                for nw in warningsAsError do
                    if not (String.IsNullOrWhiteSpace nw) then yield "--warnaserror:" + nw
-               yield if debugSymbols then "debug+"
+               yield if debugSymbols then "--debug+"
                      else "--debug-"
                yield if optimize then "--optimize+"
                      else "--optimize-"
@@ -2615,11 +2615,11 @@ type InteractiveChecker(projectCacheSize) =
                    | _ -> ()
                match platformOpt |> Option.map (fun o -> o.ToUpperInvariant()), prefer32bit, 
                      targetTypeOpt |> Option.map (fun o -> o.ToUpperInvariant()) with
-               | Some "ANYCPU", true, Some "EXE" | Some "ANYCPU", true, Some "WINEXE" -> yield "anycpu32bitpreferred"
-               | Some "ANYCPU", _, _ -> yield "anycpu"
-               | Some "X86", _, _ -> yield "x86"
-               | Some "X64", _, _ -> yield "x64"
-               | Some "ITANIUM", _, _ -> yield "Itanium"
+               | Some "ANYCPU", true, Some "EXE" | Some "ANYCPU", true, Some "WINEXE" -> yield "--platform:anycpu32bitpreferred"
+               | Some "ANYCPU", _, _ -> yield "--platform:anycpu"
+               | Some "X86", _, _ -> yield "--platform:x86"
+               | Some "X64", _, _ -> yield "--platform:x64"
+               | Some "ITANIUM", _, _ -> yield "--platform:Itanium"
                | _ -> ()
                match targetTypeOpt |> Option.map (fun o -> o.ToUpperInvariant()) with
                | Some "LIBRARY" -> yield "--target:library"

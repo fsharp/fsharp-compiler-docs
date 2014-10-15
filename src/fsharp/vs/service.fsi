@@ -504,7 +504,7 @@ type InteractiveChecker =
     ///
     /// <param name="projectFileName">Used to differentiate between projects and for the base directory of the project.</param>
     /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
-    static member GetCommandLineArgsFromProject : projectFileName: string * ?properties : (string * string) list -> string[]
+    static member GetCommandLineArgsFromProjectFile : projectFileName: string * ?properties : (string * string) list -> string[]
 
     /// <summary>
     /// <para>Get the project options implied by a standard F# project file in the xbuild/msbuild format.</para>
@@ -514,7 +514,7 @@ type InteractiveChecker =
     /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
     /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
-    member GetProjectOptionsFromProject : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> ProjectOptions
+    member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> ProjectOptions
 #endif
 
     [<Obsolete("This member has been renamed to 'GetProjectOptionsFromScript'")>]

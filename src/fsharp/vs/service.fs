@@ -2423,11 +2423,11 @@ type InteractiveChecker(projectCacheSize) =
 
 #if SILVERLIGHT
 #else
-    member ic.GetProjectOptionsFromProject(projectFileName, ?properties : (string * string) list, ?loadedTimeStamp) = 
-        let args = InteractiveChecker.GetCommandLineArgsFromProject(projectFileName, ?properties=properties)
+    member ic.GetProjectOptionsFromProjectFile(projectFileName, ?properties : (string * string) list, ?loadedTimeStamp) = 
+        let args = InteractiveChecker.GetCommandLineArgsFromProjectFile(projectFileName, ?properties=properties)
         ic.GetProjectOptionsFromCommandLineArgs(projectFileName, args, ?loadedTimeStamp=loadedTimeStamp)
 
-    static member GetCommandLineArgsFromProject(projectFileName:string, ?properties : (string * string) list) = 
+    static member GetCommandLineArgsFromProjectFile(projectFileName:string, ?properties : (string * string) list) = 
 
         // It seems the current directory must be set to get correct processing
         use _pwd = 

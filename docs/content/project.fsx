@@ -315,7 +315,7 @@ let projectFile  = __SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Se
 
 (*** define-output:options1 ***)
 
-checker.GetProjectOptionsFromProject(projectFile)
+checker.GetProjectOptionsFromProjectFile(projectFile)
 
 
 (**
@@ -332,7 +332,7 @@ You can also request RELEASE mode and set other build configuration parameters:
 
 *)
 
-checker.GetProjectOptionsFromProject(projectFile, [("Configuration", "Release")])
+checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
 
 (**
 
@@ -342,7 +342,7 @@ Another utility is provided to simply get the command line arguments for a proje
 
 (*** define-output:options2 ***)
 
-InteractiveChecker.GetCommandLineArgsFromProject(__SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj")
+InteractiveChecker.GetCommandLineArgsFromProjectFile(__SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj")
 
 (**
 

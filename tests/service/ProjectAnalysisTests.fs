@@ -3837,6 +3837,7 @@ let f (x: INotifyPropertyChanged) = failwith ""
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
 
+[<Test>]
 let ``Test project29 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project29.options) |> Async.RunSynchronously
@@ -3870,3 +3871,26 @@ let ``Test project29 event symbols`` () =
            [("PropertyChanged", None, "IEvent<PropertyChangedEventHandler,PropertyChangedEventArgs>");
            ("add_PropertyChanged", None, "unit");
            ("remove_PropertyChanged", None, "unit")])
+
+[<Test>]
+let ``Project file parsing example 1`` () = 
+
+    let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
+    let options = checker.GetProjectOptionsFromProjectFile(projectFile)
+
+    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("FSharp.Compiler.Service.dll")) |> shouldEqual true
+    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("FileSystemTests.fs")) |> shouldEqual true
+    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--define:TRACE")) |> shouldEqual true
+    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--define:DEBUG")) |> shouldEqual true
+    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--flaterrors")) |> shouldEqual true
+    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--simpleresolution")) |> shouldEqual true
+    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--noframework")) |> shouldEqual true
+
+    // Check with Configuration = Release
+    let options2 = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
+
+    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("FSharp.Compiler.Service.dll")) |> shouldEqual true
+    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("FileSystemTests.fs")) |> shouldEqual true
+    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--define:TRACE")) |> shouldEqual true
+    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--define:DEBUG")) |> shouldEqual false
+    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--debug:pdbonly")) |> shouldEqual true

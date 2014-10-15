@@ -806,10 +806,10 @@ and [<Class>] FSharpAttribute =
     member AttributeType : FSharpEntity
 
     /// The arguments to the constructor for the attribute
-    member ConstructorArguments : IList<obj>
+    member ConstructorArguments : IList<FSharpType * obj>
 
     /// The named arguments for the attribute
-    member NamedArguments : IList<string * bool * obj>
+    member NamedArguments : IList<FSharpType * string * bool * obj>
 
     /// Indicates if the attribute type is in an unresolved assembly 
     member IsUnresolved : bool

@@ -7,6 +7,7 @@
 module FSharp.Compiler.Service.Tests.ProjectAnalysisTests
 #endif
 
+let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e ->  false
 
 open NUnit.Framework
 open FsUnit
@@ -3874,6 +3875,8 @@ let ``Test project29 event symbols`` () =
 
 [<Test>]
 let ``Project file parsing example 1 Default Configuration`` () = 
+  // BUG - see https://travis-ci.org/fsharp/FSharp.Compiler.Service/builds/38069869
+  //if not runningOnMono then 
 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
@@ -3888,7 +3891,8 @@ let ``Project file parsing example 1 Default Configuration`` () =
 
 [<Test>]
 let ``Project file parsing example 1 Release Configuration`` () = 
-
+  // BUG - see https://travis-ci.org/fsharp/FSharp.Compiler.Service/builds/38069869
+  //if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     // Check with Configuration = Release
     let options2 = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])

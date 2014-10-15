@@ -2437,7 +2437,8 @@ type InteractiveChecker(projectCacheSize) =
 
         use engine = new Microsoft.Build.Evaluation.ProjectCollection()
 
-        use xmlReader = System.Xml.XmlReader.Create(FileSystem.FileStreamReadShim(projectFileName))
+        use stream = FileSystem.FileStreamReadShim(projectFileName)
+        use xmlReader = System.Xml.XmlReader.Create(stream)
 
         let project = 
             if runningOnMono then 

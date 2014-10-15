@@ -311,9 +311,11 @@ for any project that cleans buildly using the command line tools 'xbuild' or 'ms
 
 *)
 
+let projectFile  = __SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
+
 (*** define-output:options1 ***)
 
-checker.GetProjectOptionsFromProject(__SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj")
+checker.GetProjectOptionsFromProject(projectFile)
 
 
 (**
@@ -324,6 +326,13 @@ The options produced in this case are:
 
 (*** include-it:options1 ***)
 
+(**
+
+You can also request RELEASE mode and set other build configuration parameters:
+
+*)
+
+checker.GetProjectOptionsFromProject(projectFile, [("Configuration", "Release")])
 
 (**
 

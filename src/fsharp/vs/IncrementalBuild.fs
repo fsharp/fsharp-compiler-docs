@@ -1430,7 +1430,7 @@ module internal IncrementalFSharpBuild =
         let FinalizeTypeCheckTask (tcStates:TypeCheckAccumulator[]) = 
           assertNotDisposed()
           let finalAcc = tcStates.[tcStates.Length-1]
-          let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnvAtEndOfFile, (Option.get acc.topAttribs), acc.typedImplFiles)
+          let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnvAtEndOfFile, defaultArg acc.topAttribs EmptyTopAttrs, acc.typedImplFiles)
           let (_tcEnvAtEndOfLastFile,topAttrs,mimpls),tcState = TypecheckMultipleInputsFinish (results,finalAcc.tcState)
 
           let oldContents = tcState.Ccu.Deref.Contents

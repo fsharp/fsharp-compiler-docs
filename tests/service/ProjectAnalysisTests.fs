@@ -3873,7 +3873,7 @@ let ``Test project29 event symbols`` () =
            ("remove_PropertyChanged", None, "unit")])
 
 [<Test>]
-let ``Project file parsing example 1`` () = 
+let ``Project file parsing example 1 Default Configuration`` () = 
 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
@@ -3886,6 +3886,10 @@ let ``Project file parsing example 1`` () =
     options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--simpleresolution")) |> shouldEqual true
     options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--noframework")) |> shouldEqual true
 
+[<Test>]
+let ``Project file parsing example 1 Release Configuration`` () = 
+
+    let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     // Check with Configuration = Release
     let options2 = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
 

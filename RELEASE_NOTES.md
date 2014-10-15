@@ -261,3 +261,8 @@
 #### 0.0.63 - 
 * #221 - Normalize return types of .NET events
 
+#### 0.0.64 - 
+* Add project parser, particularly GetProjectOptionsFromProjectFile
+
+#### 0.0.65 - 
+* Fixes to project parser

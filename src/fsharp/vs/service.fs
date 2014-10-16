@@ -2236,7 +2236,7 @@ type FSharpProjectFileParser (fsprojFileName:string, ?properties) =
         for (prop, value) in properties do
             bpg.SetProperty(prop, value) 
 
-        engine.GlobalProperties = bpg
+        engine.GlobalProperties <- bpg
 
         // We seem to need to pass 12.0/4.0 in here for some unknown reason
         let project = new Microsoft.Build.BuildEngine.Project(engine, engine.DefaultToolsVersion) 

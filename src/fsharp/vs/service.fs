@@ -2222,11 +2222,13 @@ type FSharpProjectFileParser (fsprojFileName:string, ?properties) =
         if FileSystem.IsPathRootedShim v then v
         else Path.Combine(dir, v)
 
-    // Use the old API on Mono, with ToolsVersion = 4.0
+    // Use the old API on Mono, with ToolsVersion = 12.0
     let rec CrackProjectOnMono(fsprojFile:string) = 
         let engine = new Microsoft.Build.BuildEngine.Engine()
+        engine.DefaultToolsVersion <- "12.0"
 
         let project = new Microsoft.Build.BuildEngine.Project(engine)
+
         for (prop, value) in properties do
             project.SetProperty(prop, value) 
 

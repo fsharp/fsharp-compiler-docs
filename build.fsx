@@ -131,7 +131,7 @@ Target "SourceLink" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests" (fun _ ->
-    !! "./bin/**/FSharp.Compiler.Service.Tests.dll"
+    !! "./bin/v4.5/FSharp.Compiler.Service.Tests.dll"
     |> NUnit (fun p ->
         { p with
             Framework = "v4.0.30319"

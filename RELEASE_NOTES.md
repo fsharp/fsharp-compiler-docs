@@ -269,4 +269,6 @@
 
 #### 0.0.66 - 
 * Fixes to project parser for Mono
+* Use MSBuild v12.0 for reference resolution on .NET 4.5+
+
 

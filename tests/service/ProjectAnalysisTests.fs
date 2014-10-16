@@ -3892,6 +3892,11 @@ let ``Project file parsing example 1 Default Configuration`` () =
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
 
+    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
+    printfn "PROJ FILE %s" projectFile
+    printfn "%A" options.ProjectOptions
+    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
+
     checkOption options.ProjectOptions "FSharp.Compiler.Service.dll"
     checkOption options.ProjectOptions "FileSystemTests.fs"
     checkOption options.ProjectOptions "--define:TRACE"
@@ -3908,6 +3913,10 @@ let ``Project file parsing example 1 Release Configuration`` () =
     // Check with Configuration = Release
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
 
+    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
+    printfn "PROJ FILE %s" projectFile
+    printfn "%A" options.ProjectOptions
+    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
     checkOption options.ProjectOptions "FSharp.Compiler.Service.dll"
     checkOption options.ProjectOptions "FileSystemTests.fs"
     checkOption options.ProjectOptions "--define:TRACE"
@@ -3920,6 +3929,11 @@ let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() =
 //  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
+
+    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
+    printfn "PROJ FILE %s" projectFile
+    printfn "%A" options.ProjectOptions
+    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
 
     checkOption options.ProjectOptions "--targetprofile:netcore"
     checkOption options.ProjectOptions "--tailcalls-"
@@ -3937,6 +3951,10 @@ let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
 
+    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
+    printfn "PROJ FILE %s" projectFile
+    printfn "%A" options.ProjectOptions
+    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
     checkOption options.ProjectOptions "--targetprofile:netcore"
     checkOption options.ProjectOptions "--tailcalls-"
 

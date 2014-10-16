@@ -2225,7 +2225,11 @@ type FSharpProjectFileParser (fsprojFileName:string, ?properties) =
     // Use the old API on Mono, with ToolsVersion = 12.0
     let rec CrackProjectOnMono(fsprojFile:string) = 
         let engine = new Microsoft.Build.BuildEngine.Engine()
+#if FX_AT_LEAST_45
         engine.DefaultToolsVersion <- "12.0"
+#else
+        engine.DefaultToolsVersion <- "4.0"
+#endif
 
         let project = new Microsoft.Build.BuildEngine.Project(engine)
 

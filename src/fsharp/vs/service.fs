@@ -2239,8 +2239,7 @@ type FSharpProjectFileParser (fsprojFileName:string, ?properties) =
 
         project.Load(fsprojFile) 
 
-        project.Build([|"ResolveAssemblyReferences"|])  |> ignore
-        project.Build([|"ImplicitlyExpandTargetFramework"|])  |> ignore
+        project.Build([|"ResolveAssemblyReferences"; "ImplicitlyExpandTargetFramework"|])  |> ignore
 
         let fullFileName = project.FullFileName
         let directory = Path.GetDirectoryName fullFileName

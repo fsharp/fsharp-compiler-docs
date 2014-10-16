@@ -3876,7 +3876,7 @@ let ``Test project29 event symbols`` () =
 [<Test>]
 let ``Project file parsing example 1 Default Configuration`` () = 
   // BUG - see https://travis-ci.org/fsharp/FSharp.Compiler.Service/builds/38069869
-  if not runningOnMono then 
+//  if not runningOnMono then 
 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
@@ -3892,7 +3892,7 @@ let ``Project file parsing example 1 Default Configuration`` () =
 [<Test>]
 let ``Project file parsing example 1 Release Configuration`` () = 
   // BUG - see https://travis-ci.org/fsharp/FSharp.Compiler.Service/builds/38069869
-  if not runningOnMono then 
+//  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     // Check with Configuration = Release
     let options2 = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])

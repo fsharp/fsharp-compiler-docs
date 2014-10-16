@@ -3926,7 +3926,7 @@ let ``Project file parsing example 1 Release Configuration`` () =
 [<Test>]
 let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() = 
   // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-//  if not runningOnMono then 
+  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
 
@@ -3947,7 +3947,7 @@ let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() =
 [<Test>]
 let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78``() = 
   // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-//  if not runningOnMono then 
+  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
 

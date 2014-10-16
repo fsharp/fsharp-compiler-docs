@@ -2231,7 +2231,8 @@ type FSharpProjectFileParser (fsprojFileName:string, ?properties) =
         engine.DefaultToolsVersion <- "4.0"
 #endif
 
-        let project = new Microsoft.Build.BuildEngine.Project(engine)
+        // We seem to need to pass 12.0/4.0 in here for some unknown reason
+        let project = new Microsoft.Build.BuildEngine.Project(engine, engine.DefaultToolsVersion) 
 
         for (prop, value) in properties do
             project.SetProperty(prop, value) 

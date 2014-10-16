@@ -266,3 +266,7 @@
 
 #### 0.0.65 - 
 * Fixes to project parser
+
+#### 0.0.66 - 
+* Fixes to project parser for Mono
+

@@ -2209,6 +2209,261 @@ type BackgroundCompiler(projectCacheSize) as self =
 
     member bc.CurrentQueueLength = reactor.CurrentQueueLength
 
+
+#if SILVERLIGHT
+#else
+//----------------------------------------------------------------------------
+// FSharpProjectFileParser
+//
+type FSharpProjectFileParser (fsprojFileName:string, ?properties) =
+
+    let properties = defaultArg properties []
+    let mkAbsolute dir v = 
+        if FileSystem.IsPathRootedShim v then v
+        else Path.Combine(dir, v)
+
+    // Use the old API on Mono, with ToolsVersion = 4.0
+    let rec CrackProjectOnMono(fsprojFile:string) = 
+        let engine = new Microsoft.Build.BuildEngine.Engine()
+
+        let project = new Microsoft.Build.BuildEngine.Project(engine)
+        for (prop, value) in properties do
+            project.SetProperty(prop, value) 
+
+        project.Load(fsprojFile) 
+
+        project.Build([|"ResolveAssemblyReferences"|])  |> ignore
+        project.Build([|"ImplicitlyExpandTargetFramework"|])  |> ignore
+
+        let fullFileName = project.FullFileName
+        let directory = Path.GetDirectoryName fullFileName
+
+        let outdir = mkAbsolute directory (project.GetEvaluatedProperty "OutDir")
+        let output = mkAbsolute outdir (project.GetEvaluatedProperty "TargetFileName")
+
+        let files = 
+            let fs  = project.GetEvaluatedItemsByName("Compile")
+            [| for f in fs -> mkAbsolute directory f.FinalItemSpec |]
+
+        let resources = 
+            let fs  = project.GetEvaluatedItemsByName("Resource")
+            [| for f in fs -> mkAbsolute directory f.FinalItemSpec |]
+
+        let references = 
+            [| for i in project.GetEvaluatedItemsByName("ResolvedFiles") do
+                yield i.FinalItemSpec
+                for i in project.GetEvaluatedItemsByName("ProjectReference") do
+                    let fsproj = mkAbsolute directory i.FinalItemSpec
+                    match (try Some (CrackProjectOnMono fsproj) with _ -> None) with  
+                    | Some (output, _, _, _, _, _) -> yield output
+                    | None -> () |]
+
+        output, directory, files, resources, references, project.GetEvaluatedProperty
+
+    let rec CrackProjectOnDotNet(fsprojFile) =
+        use _pwd = 
+            let dir = Environment.CurrentDirectory
+            Environment.CurrentDirectory <- Path.GetDirectoryName(fsprojFile)
+            { new System.IDisposable with member x.Dispose() = Environment.CurrentDirectory <- dir }
+
+        use engine = new Microsoft.Build.Evaluation.ProjectCollection()
+
+        use stream = FileSystem.FileStreamReadShim(fsprojFile)
+        use xmlReader = System.Xml.XmlReader.Create(stream)
+
+        let project = engine.LoadProject(xmlReader, FullPath=fsprojFile)
+        for (prop, value) in properties do
+            project.SetProperty(prop, value) |> ignore
+
+        let project = project.CreateProjectInstance()
+
+        let directory = project.Directory
+        let output = mkAbsolute directory (project.GetPropertyValue "TargetPath")
+
+        project.Build([| "ResolveAssemblyReferences" |], null) |> ignore
+        project.Build([|"ImplicitlyExpandTargetFramework"|], null)  |> ignore
+
+        let files = [| for f in project.GetItems("Compile") -> mkAbsolute directory f.EvaluatedInclude |]
+        let resources = [| for f in project.GetItems("Resource")-> mkAbsolute directory f.EvaluatedInclude |]
+        let references =
+              [| for i in project.GetItems("ReferencePath") do
+                   yield i.EvaluatedInclude
+                 for cp in project.GetItems("ProjectReference") do
+                   let fsproj = cp.GetMetadataValue("FullPath")
+                   match (try Some (CrackProjectOnDotNet fsproj) with _ -> None) with  
+                   | Some (output, _, _, _, _, _) -> yield output
+                   | None -> ()
+              |]
+        (output, directory, files, resources, references, project.GetPropertyValue)
+
+
+    let output, directory, files, resources, references, getpropPrim = 
+        if runningOnMono then  CrackProjectOnMono(fsprojFileName) else CrackProjectOnDotNet(fsprojFileName)
+    
+    
+    let getprop s = 
+        let v = getpropPrim s
+        if String.IsNullOrWhiteSpace v then None
+        else Some v
+
+    let split (s : string option) (cs : char []) = 
+        match s with
+        | None -> [||]
+        | Some s -> 
+            if String.IsNullOrWhiteSpace s then [||]
+            else s.Split(cs, StringSplitOptions.RemoveEmptyEntries)
+    
+    let getbool (s : string option) = 
+        match s with
+        | None -> false
+        | Some s -> 
+            match (Boolean.TryParse s) with
+            | (true, result) -> result
+            | (false, _) -> false
+    
+    let fxVer = getprop "TargetFrameworkVersion"
+    let optimize = getprop "Optimize" |> getbool
+    let assemblyNameOpt = getprop "AssemblyName"
+    let tailcalls = getprop "Tailcalls" |> getbool
+    let outputPathOpt = getprop "OutputPath"
+    let docFileOpt = getprop "DocumentationFile"
+    let outputTypeOpt = getprop "OutputType"
+    let debugTypeOpt = getprop "DebugType"
+    let baseAddressOpt = getprop "BaseAddress"
+    let sigFileOpt = getprop "GenerateSignatureFile"
+    let keyFileOpt = getprop "KeyFile"
+    let pdbFileOpt = getprop "PdbFile"
+    let platformOpt = getprop "Platform"
+    let targetTypeOpt = getprop "TargetType"
+    let versionFileOpt = getprop "VersionFile"
+    let targetProfileOpt = getprop "TargetProfile"
+    let warnLevelOpt = getprop "Warn"
+    let subsystemVersionOpt = getprop "SubsystemVersion"
+    let win32ResOpt = getprop "Win32ResourceFile"
+    let heOpt = getprop "HighEntropyVA" |> getbool
+    let win32ManifestOpt = getprop "Win32ManifestFile"
+    let debugSymbols = getprop "DebugSymbols" |> getbool
+    let prefer32bit = getprop "Prefer32Bit" |> getbool
+    let warnAsError = getprop "TreatWarningsAsErrors" |> getbool
+    let defines = split (getprop "DefineConstants") [| ';'; ','; ' ' |]
+    let nowarn = split (getprop "NoWarn") [| ';'; ','; ' ' |]
+    let warningsAsError = split (getprop "WarningsAsErrors") [| ';'; ','; ' ' |]
+    let libPaths = split (getprop "ReferencePath") [| ';'; ',' |]
+    let otherFlags = split (getprop "OtherFlags") [| ' ' |]
+    let isLib = (outputTypeOpt = Some "Library")
+    
+    let docFileOpt = 
+        match docFileOpt with
+        | None -> None
+        | Some docFile -> Some(mkAbsolute directory docFile)
+    
+    
+    let options = 
+        [|  yield "--simpleresolution"
+            yield "--noframework"
+            yield "--out:" + output
+            match docFileOpt with
+            | None -> ()
+            | Some docFile -> yield "--doc:" + docFile
+            match baseAddressOpt with
+            | None -> ()
+            | Some baseAddress -> yield "--baseaddress:" + baseAddress
+            match keyFileOpt with
+            | None -> ()
+            | Some keyFile -> yield "--keyfile:" + keyFile
+            match sigFileOpt with
+            | None -> ()
+            | Some sigFile -> yield "--sig:" + sigFile
+            match pdbFileOpt with
+            | None -> ()
+            | Some pdbFile -> yield "--pdb:" + pdbFile
+            match versionFileOpt with
+            | None -> ()
+            | Some versionFile -> yield "--versionfile:" + versionFile
+            match warnLevelOpt with
+            | None -> ()
+            | Some warnLevel -> yield "--warn:" + warnLevel
+            match subsystemVersionOpt with
+            | None -> ()
+            | Some s -> yield "--subsystemversion:" + s
+            if heOpt then yield "--highentropyva+"
+            match win32ResOpt with
+            | None -> ()
+            | Some win32Res -> yield "--win32res:" + win32Res
+            match win32ManifestOpt with
+            | None -> ()
+            | Some win32Manifest -> yield "--win32manifest:" + win32Manifest
+            match targetProfileOpt with
+            | None -> ()
+            | Some targetProfile -> yield "--targetprofile:" + targetProfile
+            yield "--fullpaths"
+            yield "--flaterrors"
+            if warnAsError then yield "--warnaserror"
+            yield 
+                if isLib then "--target:library"
+                else "--target:exe"
+            for symbol in defines do
+                if not (String.IsNullOrWhiteSpace symbol) then yield "--define:" + symbol
+            for nw in nowarn do
+                if not (String.IsNullOrWhiteSpace nw) then yield "--nowarn:" + nw
+            for nw in warningsAsError do
+                if not (String.IsNullOrWhiteSpace nw) then yield "--warnaserror:" + nw
+            yield if debugSymbols then "--debug+"
+                    else "--debug-"
+            yield if optimize then "--optimize+"
+                    else "--optimize-"
+            yield if tailcalls then "--tailcalls+"
+                    else "--tailcalls-"
+            match debugTypeOpt with
+            | None -> ()
+            | Some debugType -> 
+                match debugType.ToUpperInvariant() with
+                | "NONE" -> ()
+                | "PDBONLY" -> yield "--debug:pdbonly"
+                | "FULL" -> yield "--debug:full"
+                | _ -> ()
+            match platformOpt |> Option.map (fun o -> o.ToUpperInvariant()), prefer32bit, 
+                    targetTypeOpt |> Option.map (fun o -> o.ToUpperInvariant()) with
+            | Some "ANYCPU", true, Some "EXE" | Some "ANYCPU", true, Some "WINEXE" -> yield "--platform:anycpu32bitpreferred"
+            | Some "ANYCPU", _, _ -> yield "--platform:anycpu"
+            | Some "X86", _, _ -> yield "--platform:x86"
+            | Some "X64", _, _ -> yield "--platform:x64"
+            | Some "ITANIUM", _, _ -> yield "--platform:Itanium"
+            | _ -> ()
+            match targetTypeOpt |> Option.map (fun o -> o.ToUpperInvariant()) with
+            | Some "LIBRARY" -> yield "--target:library"
+            | Some "EXE" -> yield "--target:exe"
+            | Some "WINEXE" -> yield "--target:winexe"
+            | Some "MODULE" -> yield "--target:module"
+            | _ -> ()
+            yield! otherFlags
+            for f in resources do
+                yield "--resource:" + f
+            for i in libPaths do
+                yield "--lib:" + mkAbsolute directory i 
+            for r in references do
+                yield "-r:" + r 
+            yield! files |]
+    
+(*
+        // Finalization of the default BuildManager on Mono causes a thread to start when 'BuildNodeManager' is accessed
+        // in the finalizer on exit.  The thread start doesn't work when exiting, and an error is printed
+        // and even worse the thread is not marked as a background computation thread, so a console 
+        // application doesn't exit correctly.
+        if runningOnMono then 
+            System.GC.SuppressFinalize(Microsoft.Build.Execution.BuildManager.DefaultBuildManager)
+*)
+    member x.Options = options
+    member x.FrameworkVersion = fxVer
+    member x.References = references
+    member x.Files = files
+    member x.Resources = resources
+    member x.Output = output
+    member x.Directory = directory
+    member x.AssemblyName = assemblyNameOpt
+    member x.OutputPath = outputPathOpt
+#endif
+
 //----------------------------------------------------------------------------
 // InteractiveChecker
 //
@@ -2428,218 +2683,8 @@ type InteractiveChecker(projectCacheSize) =
         ic.GetProjectOptionsFromCommandLineArgs(projectFileName, args, ?loadedTimeStamp=loadedTimeStamp)
 
     static member GetCommandLineArgsFromProjectFile(projectFileName:string, ?properties : (string * string) list) = 
-
-        // It seems the current directory must be set to get correct processing
-        use _pwd = 
-            let dir = Environment.CurrentDirectory
-            Environment.CurrentDirectory <- Path.GetDirectoryName(projectFileName)
-            { new System.IDisposable with member x.Dispose() = Environment.CurrentDirectory <- dir }
-
-        use engine = new Microsoft.Build.Evaluation.ProjectCollection()
-
-        use stream = FileSystem.FileStreamReadShim(projectFileName)
-        use xmlReader = System.Xml.XmlReader.Create(stream)
-
-        let project = 
-            if runningOnMono then 
-                // On Mono, we have had trouble with ToolsVersion = 12.0.  Using 4.0 appears
-                // adequate for practical purposes, but there is some underlying problem here
-                // that remains to be investigated properly.
-                engine.LoadProject(xmlReader, "4.0", FullPath=projectFileName)
-            else
-                engine.LoadProject(xmlReader, FullPath=projectFileName)
-        let properties = defaultArg properties []
-        for (p, v) in properties do
-            project.SetProperty(p, v) |> ignore
-
-        let project = project.CreateProjectInstance()
-
-        let b = project.Build([| "ResolveReferences" |], null)
-        if not b then 
-            failwith (sprintf "resolving references failed for project '%s'" projectFileName)
-
-        let mkAbsolute dir v = 
-            if FileSystem.IsPathRootedShim v then v
-            else Path.Combine(dir, v)
-    
-        let fileItems = project.GetItems("Compile")
-        let resourceItems = project.GetItems("Resource")
-        let dir = Path.GetDirectoryName project.FullPath
-    
-        let getprop s = 
-            let v = project.GetPropertyValue s
-            if String.IsNullOrWhiteSpace v then None
-            else Some v
-    
-        let split (s : string option) (cs : char []) = 
-            match s with
-            | None -> [||]
-            | Some s -> 
-                if String.IsNullOrWhiteSpace s then [||]
-                else s.Split(cs, StringSplitOptions.RemoveEmptyEntries)
-    
-        let getbool (s : string option) = 
-            match s with
-            | None -> false
-            | Some s -> 
-                match (Boolean.TryParse s) with
-                | (true, result) -> result
-                | (false, _) -> false
-    
-        let optimize = getprop "Optimize" |> getbool
-        let assemblyNameOpt = getprop "AssemblyName"
-        let tailcalls = getprop "Tailcalls" |> getbool
-        let outputPathOpt = getprop "OutputPath"
-        let docFileOpt = getprop "DocumentationFile"
-        let outputTypeOpt = getprop "OutputType"
-        let debugTypeOpt = getprop "DebugType"
-        let baseAddressOpt = getprop "BaseAddress"
-        let sigFileOpt = getprop "GenerateSignatureFile"
-        let keyFileOpt = getprop "KeyFile"
-        let pdbFileOpt = getprop "PdbFile"
-        let platformOpt = getprop "Platform"
-        let targetTypeOpt = getprop "TargetType"
-        let versionFileOpt = getprop "VersionFile"
-        let targetProfileOpt = getprop "TargetProfile"
-        let warnLevelOpt = getprop "Warn"
-        let subsystemVersionOpt = getprop "SubsystemVersion"
-        let win32ResOpt = getprop "Win32ResourceFile"
-        let heOpt = getprop "HighEntropyVA" |> getbool
-        let win32ManifestOpt = getprop "Win32ManifestFile"
-        let debugSymbols = getprop "DebugSymbols" |> getbool
-        let prefer32bit = getprop "Prefer32Bit" |> getbool
-        let warnAsError = getprop "TreatWarningsAsErrors" |> getbool
-        let defines = split (getprop "DefineConstants") [| ';'; ','; ' ' |]
-        let nowarn = split (getprop "NoWarn") [| ';'; ','; ' ' |]
-        let warningsAsError = split (getprop "WarningsAsErrors") [| ';'; ','; ' ' |]
-        let libPaths = split (getprop "ReferencePath") [| ';'; ',' |]
-        let otherFlags = split (getprop "OtherFlags") [| ' ' |]
-        let isLib = (outputTypeOpt = Some "Library")
-    
-        let outputFileOpt = 
-            match outputPathOpt, assemblyNameOpt with
-            | Some outputPath, Some assemblyName -> 
-                let v = 
-                    Path.Combine(outputPath, assemblyName) + (if isLib then ".dll"
-                                                              else ".exe")
-                Some(mkAbsolute dir v)
-            | _ -> None
-    
-        let docFileOpt = 
-            match docFileOpt with
-            | None -> None
-            | Some docFile -> Some(mkAbsolute dir docFile)
-    
-        let files = 
-            [| for f in fileItems do
-                   yield mkAbsolute dir f.EvaluatedInclude |]
-    
-        let resources = 
-            [| for f in resourceItems do
-                   yield "--resource:" + mkAbsolute dir f.EvaluatedInclude |]
-    
-        //let fxVer = project.GetPropertyValue("TargetFrameworkVersion")
-    
-        let references = 
-            [| for i in project.GetItems("ReferencePath") do
-                   yield "-r:" + mkAbsolute dir i.EvaluatedInclude |]
-    
-        let libPaths = 
-            [| for i in libPaths do
-                   yield "--lib:" + mkAbsolute dir i |]
-    
-        let options = 
-            [| yield "--simpleresolution"
-               yield "--noframework"
-               match outputFileOpt with
-               | None -> ()
-               | Some outputFile -> yield "--out:" + outputFile
-               match docFileOpt with
-               | None -> ()
-               | Some docFile -> yield "--doc:" + docFile
-               match baseAddressOpt with
-               | None -> ()
-               | Some baseAddress -> yield "--baseaddress:" + baseAddress
-               match keyFileOpt with
-               | None -> ()
-               | Some keyFile -> yield "--keyfile:" + keyFile
-               match sigFileOpt with
-               | None -> ()
-               | Some sigFile -> yield "--sig:" + sigFile
-               match pdbFileOpt with
-               | None -> ()
-               | Some pdbFile -> yield "--pdb:" + pdbFile
-               match versionFileOpt with
-               | None -> ()
-               | Some versionFile -> yield "--versionfile:" + versionFile
-               match warnLevelOpt with
-               | None -> ()
-               | Some warnLevel -> yield "--warn:" + warnLevel
-               match subsystemVersionOpt with
-               | None -> ()
-               | Some s -> yield "--subsystemversion:" + s
-               if heOpt then yield "--highentropyva+"
-               match win32ResOpt with
-               | None -> ()
-               | Some win32Res -> yield "--win32res:" + win32Res
-               match win32ManifestOpt with
-               | None -> ()
-               | Some win32Manifest -> yield "--win32manifest:" + win32Manifest
-               match targetProfileOpt with
-               | None -> ()
-               | Some targetProfile -> yield "--targetprofile:" + targetProfile
-               yield "--fullpaths"
-               yield "--flaterrors"
-               if warnAsError then yield "--warnaserror"
-               yield if isLib then "--target:library"
-                     else "--target:exe"
-               for symbol in defines do
-                   if not (String.IsNullOrWhiteSpace symbol) then yield "--define:" + symbol
-               for nw in nowarn do
-                   if not (String.IsNullOrWhiteSpace nw) then yield "--nowarn:" + nw
-               for nw in warningsAsError do
-                   if not (String.IsNullOrWhiteSpace nw) then yield "--warnaserror:" + nw
-               yield if debugSymbols then "--debug+"
-                     else "--debug-"
-               yield if optimize then "--optimize+"
-                     else "--optimize-"
-               yield if tailcalls then "--tailcalls+"
-                     else "--tailcalls-"
-               match debugTypeOpt with
-               | None -> ()
-               | Some debugType -> 
-                   match debugType.ToUpperInvariant() with
-                   | "NONE" -> ()
-                   | "PDBONLY" -> yield "--debug:pdbonly"
-                   | "FULL" -> yield "--debug:full"
-                   | _ -> ()
-               match platformOpt |> Option.map (fun o -> o.ToUpperInvariant()), prefer32bit, 
-                     targetTypeOpt |> Option.map (fun o -> o.ToUpperInvariant()) with
-               | Some "ANYCPU", true, Some "EXE" | Some "ANYCPU", true, Some "WINEXE" -> yield "--platform:anycpu32bitpreferred"
-               | Some "ANYCPU", _, _ -> yield "--platform:anycpu"
-               | Some "X86", _, _ -> yield "--platform:x86"
-               | Some "X64", _, _ -> yield "--platform:x64"
-               | Some "ITANIUM", _, _ -> yield "--platform:Itanium"
-               | _ -> ()
-               match targetTypeOpt |> Option.map (fun o -> o.ToUpperInvariant()) with
-               | Some "LIBRARY" -> yield "--target:library"
-               | Some "EXE" -> yield "--target:exe"
-               | Some "WINEXE" -> yield "--target:winexe"
-               | Some "MODULE" -> yield "--target:module"
-               | _ -> ()
-               yield! otherFlags
-               yield! resources
-               yield! libPaths
-               yield! references
-               yield! files |]
-    
-        // Finalization of the default BuildManager on Mono causes a thread to start when 'BuildNodeManager' is accessed
-        // in the finalizer on exit.  The thread start doesn't work when exiting, and an error is printed
-        // and even worse the thread is not marked as a background computation thread, so a console 
-        // application doesn't exit correctly.
-        if runningOnMono then 
-            System.GC.SuppressFinalize(Microsoft.Build.Execution.BuildManager.DefaultBuildManager)
-        options
+        let parsedProject = FSharpProjectFileParser(projectFileName, ?properties=properties)
+        parsedProject.Options
 #endif
 
     /// Begin background parsing the given project.

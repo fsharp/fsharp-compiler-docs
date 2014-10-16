@@ -3873,32 +3873,75 @@ let ``Test project29 event symbols`` () =
            ("add_PropertyChanged", None, "unit");
            ("remove_PropertyChanged", None, "unit")])
 
+let checkOption (opts:string[]) s = 
+    let found = "Found '"+s+"'"
+    (if opts |> Array.exists (fun o -> o.EndsWith(s)) then found else "Failed to find '"+s+"'")
+       |> shouldEqual found
+
+let checkOptionNotPresent (opts:string[]) s = 
+    let found = "Found '"+s+"'"
+    let notFound = "Did not expect to find '"+s+"'"
+    (if opts |> Array.exists (fun o -> o.EndsWith(s)) then found else notFound)
+       |> shouldEqual notFound
+
 [<Test>]
 let ``Project file parsing example 1 Default Configuration`` () = 
-  // BUG - see https://travis-ci.org/fsharp/FSharp.Compiler.Service/builds/38069869
+  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
 //  if not runningOnMono then 
 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
 
-    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("FSharp.Compiler.Service.dll")) |> shouldEqual true
-    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("FileSystemTests.fs")) |> shouldEqual true
-    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--define:TRACE")) |> shouldEqual true
-    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--define:DEBUG")) |> shouldEqual true
-    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--flaterrors")) |> shouldEqual true
-    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--simpleresolution")) |> shouldEqual true
-    options.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--noframework")) |> shouldEqual true
+    checkOption options.ProjectOptions "FSharp.Compiler.Service.dll"
+    checkOption options.ProjectOptions "FileSystemTests.fs"
+    checkOption options.ProjectOptions "--define:TRACE"
+    checkOption options.ProjectOptions "--define:DEBUG"
+    checkOption options.ProjectOptions "--flaterrors"
+    checkOption options.ProjectOptions "--simpleresolution"
+    checkOption options.ProjectOptions "--noframework"
 
 [<Test>]
 let ``Project file parsing example 1 Release Configuration`` () = 
-  // BUG - see https://travis-ci.org/fsharp/FSharp.Compiler.Service/builds/38069869
+  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
 //  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     // Check with Configuration = Release
-    let options2 = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
+    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
 
-    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("FSharp.Compiler.Service.dll")) |> shouldEqual true
-    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("FileSystemTests.fs")) |> shouldEqual true
-    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--define:TRACE")) |> shouldEqual true
-    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--define:DEBUG")) |> shouldEqual false
-    options2.ProjectOptions |> Array.exists (fun o -> o.EndsWith("--debug:pdbonly")) |> shouldEqual true
+    checkOption options.ProjectOptions "FSharp.Compiler.Service.dll"
+    checkOption options.ProjectOptions "FileSystemTests.fs"
+    checkOption options.ProjectOptions "--define:TRACE"
+    checkOptionNotPresent options.ProjectOptions "--define:DEBUG"
+    checkOption options.ProjectOptions "--debug:pdbonly"
+
+[<Test>]
+let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() = 
+  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
+//  if not runningOnMono then 
+    let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj"
+    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
+
+    checkOption options.ProjectOptions "--targetprofile:netcore"
+    checkOption options.ProjectOptions "--tailcalls-"
+
+    checkOption options.ProjectOptions "FSharp.Core.dll"
+    checkOption options.ProjectOptions "Microsoft.CSharp.dll"
+    checkOption options.ProjectOptions "System.Runtime.dll"
+    checkOption options.ProjectOptions "System.Net.Requests.dll"
+    checkOption options.ProjectOptions "System.Xml.XmlSerializer.dll"
+
+[<Test>]
+let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78``() = 
+  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
+//  if not runningOnMono then 
+    let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj"
+    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
+
+    checkOption options.ProjectOptions "--targetprofile:netcore"
+    checkOption options.ProjectOptions "--tailcalls-"
+
+    checkOption options.ProjectOptions "FSharp.Core.dll"
+    checkOption options.ProjectOptions "Microsoft.CSharp.dll"
+    checkOption options.ProjectOptions "System.Runtime.dll"
+    checkOption options.ProjectOptions "System.Net.Requests.dll"
+    checkOption options.ProjectOptions "System.Xml.XmlSerializer.dll"

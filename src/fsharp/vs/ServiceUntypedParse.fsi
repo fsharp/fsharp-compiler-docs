@@ -13,6 +13,7 @@ open Microsoft.FSharp.Compiler.ErrorLogger
 open System.Collections.Generic
 
 [<Sealed>]
+/// Represents the results of parsing an F# file
 type FSharpParseFileResults = 
     member ParseTree : Ast.ParsedInput option
     /// Notable parse info for ParameterInfo at a given location

@@ -9,7 +9,8 @@ namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
 open Microsoft.FSharp.Compiler 
 
-type (*internal*) FSharpNavigationDeclarationItemKind =
+/// Indicates a kind of item to show in an F# navigation bar
+type FSharpNavigationDeclarationItemKind =
     | NamespaceDecl
     | ModuleFileDecl
     | ExnDecl

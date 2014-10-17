@@ -49,6 +49,9 @@ type FSharpToolTipText =
     | FSharpToolTipText of FSharpToolTipElement list  
     
 [<Sealed>]
+/// Represents a declaration in F# source code, with information attached ready for display by an editor.
+/// Returned by GetDeclarations.
+//
 // Note: this type holds a weak reference to compiler resources. 
 type FSharpDeclaration =
     /// Get the display name for the declaration.
@@ -64,7 +67,8 @@ type FSharpDeclaration =
     member Glyph : int
     
 [<Sealed>]
-/// Represents a set of declarations returned by GetDeclarations.
+/// Represents a set of declarations in F# source code, with information attached ready for display by an editor.
+/// Returned by GetDeclarations.
 //
 // Note: this type holds a weak reference to compiler resources. 
 type FSharpDeclarationSet =

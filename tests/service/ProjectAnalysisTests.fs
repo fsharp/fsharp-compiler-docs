@@ -69,7 +69,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsUnresolved then yield "unresolved"
             if v.IsValueType then yield "valuetype"
 
-        | :? FSharpMemberFunctionOrValue as v -> 
+        | :? FSharpMemberOrFunctionOrValue as v -> 
             if v.IsActivePattern then yield "apat"
             if v.IsDispatchSlot then yield "slot"
             if v.IsModuleValueOrMember && not v.IsMember then yield "val"
@@ -249,7 +249,7 @@ let ``Test project1 all symbols`` () =
 
     for s in allSymbols do 
         match s with 
-        | :? FSharpMemberFunctionOrValue as v when v.IsModuleValueOrMember -> 
+        | :? FSharpMemberOrFunctionOrValue as v when v.IsModuleValueOrMember -> 
            s.IsAccessible(wholeProjectResults.ProjectContext.AccessibilityRights) |> shouldEqual true
         | :? FSharpEntity -> 
            s.IsAccessible(wholeProjectResults.ProjectContext.AccessibilityRights) |> shouldEqual true
@@ -3119,7 +3119,7 @@ let ``Test Project23 property`` () =
     allSymbolsUses 
     |> Array.map (fun x -> x.Symbol)
     |> Array.choose (function 
-        | :? FSharpMemberFunctionOrValue as f -> Some (f.LogicalName, attribsOfSymbol f)
+        | :? FSharpMemberOrFunctionOrValue as f -> Some (f.LogicalName, attribsOfSymbol f)
         | _ -> None)
     |> Array.toList
     |> shouldEqual         
@@ -3148,7 +3148,7 @@ let ``Test Project23 extension properties' getters/setters should refer to the c
     |> Array.collect (fun x -> 
         [|
         match x.Symbol with
-        | :? FSharpMemberFunctionOrValue as f -> 
+        | :? FSharpMemberOrFunctionOrValue as f -> 
             if f.HasGetterMethod then
                 yield (f.EnclosingEntity.FullName, f.GetterMethod.EnclosingEntity.FullName, attribsOfSymbol f)
             if f.HasSetterMethod then
@@ -3775,7 +3775,7 @@ let ``Test project28 all symbols in signature`` () =
                         match s with
                         | :? FSharpEntity as fse -> typeName, fse.DisplayName, fse.XmlDocSig
                         | :? FSharpField as fsf -> typeName, fsf.DisplayName, fsf.XmlDocSig
-                        | :? FSharpMemberFunctionOrValue as fsm -> typeName, fsm.DisplayName, fsm.XmlDocSig
+                        | :? FSharpMemberOrFunctionOrValue as fsm -> typeName, fsm.DisplayName, fsm.XmlDocSig
                         | :? FSharpUnionCase as fsu -> typeName, fsu.DisplayName, fsu.XmlDocSig
                         | :? FSharpActivePatternCase as ap -> typeName, ap.DisplayName, ap.XmlDocSig
                         | :? FSharpGenericParameter as fsg -> typeName, fsg.DisplayName, ""
@@ -3787,36 +3787,36 @@ let ``Test project28 all symbols in signature`` () =
     xmlDocSigs
       |> shouldEqual 
             [|("FSharpEntity", "M", "T:M");
-              ("FSharpMemberFunctionOrValue", "( |Even|Odd| )", "M:|Even|Odd|(System.Int32)");
-              ("FSharpMemberFunctionOrValue", "TestNumber", "M:TestNumber(System.Int32)");
+              ("FSharpMemberOrFunctionOrValue", "( |Even|Odd| )", "M:|Even|Odd|(System.Int32)");
+              ("FSharpMemberOrFunctionOrValue", "TestNumber", "M:TestNumber(System.Int32)");
               ("FSharpEntity", "DU", "T:M.DU"); 
               ("FSharpUnionCase", "A", "T:M.DU.A");
               ("FSharpField", "A", "T:M.DU.A"); 
               ("FSharpUnionCase", "B", "T:M.DU.B");
               ("FSharpField", "B", "T:M.DU.B");
               ("FSharpEntity", "XmlDocSigTest", "T:M.XmlDocSigTest");
-              ("FSharpMemberFunctionOrValue", "( .ctor )", "M:M.XmlDocSigTest.#ctor");
-              ("FSharpMemberFunctionOrValue", "AMethod", "M:M.XmlDocSigTest.AMethod");
-              ("FSharpMemberFunctionOrValue", "AnotherMethod", "M:M.XmlDocSigTest.AnotherMethod");
-              ("FSharpMemberFunctionOrValue", "TestEvent1", "M:M.XmlDocSigTest.TestEvent1(System.Object)");
-              ("FSharpMemberFunctionOrValue", "TestEvent2", "M:M.XmlDocSigTest.TestEvent2(System.Object)");
-              ("FSharpMemberFunctionOrValue", "add_AnEvent", "M:M.XmlDocSigTest.add_AnEvent(Microsoft.FSharp.Control.FSharpHandler{System.Tuple{M.XmlDocSigTest,System.Object}})");
-              ("FSharpMemberFunctionOrValue", "AProperty", "P:M.XmlDocSigTest.AProperty");
-              ("FSharpMemberFunctionOrValue", "AnEvent", "P:M.XmlDocSigTest.AnEvent");
-              ("FSharpMemberFunctionOrValue", "AnotherEvent", "P:M.XmlDocSigTest.AnotherEvent");
-              ("FSharpMemberFunctionOrValue", "AnotherProperty", "P:M.XmlDocSigTest.AnotherProperty");
-              ("FSharpMemberFunctionOrValue", "remove_AnEvent", "M:M.XmlDocSigTest.remove_AnEvent(Microsoft.FSharp.Control.FSharpHandler{System.Tuple{M.XmlDocSigTest,System.Object}})");
-              ("FSharpMemberFunctionOrValue", "AnotherProperty", "P:M.XmlDocSigTest.AnotherProperty");
-              ("FSharpMemberFunctionOrValue", "AnotherEvent", "P:M.XmlDocSigTest.AnotherEvent");
-              ("FSharpMemberFunctionOrValue", "AnEvent", "P:M.XmlDocSigTest.AnEvent");
-              ("FSharpMemberFunctionOrValue", "AProperty", "P:M.XmlDocSigTest.AProperty");
+              ("FSharpMemberOrFunctionOrValue", "( .ctor )", "M:M.XmlDocSigTest.#ctor");
+              ("FSharpMemberOrFunctionOrValue", "AMethod", "M:M.XmlDocSigTest.AMethod");
+              ("FSharpMemberOrFunctionOrValue", "AnotherMethod", "M:M.XmlDocSigTest.AnotherMethod");
+              ("FSharpMemberOrFunctionOrValue", "TestEvent1", "M:M.XmlDocSigTest.TestEvent1(System.Object)");
+              ("FSharpMemberOrFunctionOrValue", "TestEvent2", "M:M.XmlDocSigTest.TestEvent2(System.Object)");
+              ("FSharpMemberOrFunctionOrValue", "add_AnEvent", "M:M.XmlDocSigTest.add_AnEvent(Microsoft.FSharp.Control.FSharpHandler{System.Tuple{M.XmlDocSigTest,System.Object}})");
+              ("FSharpMemberOrFunctionOrValue", "AProperty", "P:M.XmlDocSigTest.AProperty");
+              ("FSharpMemberOrFunctionOrValue", "AnEvent", "P:M.XmlDocSigTest.AnEvent");
+              ("FSharpMemberOrFunctionOrValue", "AnotherEvent", "P:M.XmlDocSigTest.AnotherEvent");
+              ("FSharpMemberOrFunctionOrValue", "AnotherProperty", "P:M.XmlDocSigTest.AnotherProperty");
+              ("FSharpMemberOrFunctionOrValue", "remove_AnEvent", "M:M.XmlDocSigTest.remove_AnEvent(Microsoft.FSharp.Control.FSharpHandler{System.Tuple{M.XmlDocSigTest,System.Object}})");
+              ("FSharpMemberOrFunctionOrValue", "AnotherProperty", "P:M.XmlDocSigTest.AnotherProperty");
+              ("FSharpMemberOrFunctionOrValue", "AnotherEvent", "P:M.XmlDocSigTest.AnotherEvent");
+              ("FSharpMemberOrFunctionOrValue", "AnEvent", "P:M.XmlDocSigTest.AnEvent");
+              ("FSharpMemberOrFunctionOrValue", "AProperty", "P:M.XmlDocSigTest.AProperty");
               ("FSharpField", "event1", "P:M.XmlDocSigTest.event1");
               ("FSharpField", "event2", "P:M.XmlDocSigTest.event2");
               ("FSharpField", "aString", "P:M.XmlDocSigTest.aString");
               ("FSharpField", "anInt", "P:M.XmlDocSigTest.anInt");
               ("FSharpEntity", "Use", "T:M.Use");
-              ("FSharpMemberFunctionOrValue", "( .ctor )", "M:M.Use.#ctor");
-              ("FSharpMemberFunctionOrValue", "Test", "M:M.Use.Test``1(``0)");
+              ("FSharpMemberOrFunctionOrValue", "( .ctor )", "M:M.Use.#ctor");
+              ("FSharpMemberOrFunctionOrValue", "Test", "M:M.Use.Test``1(``0)");
               ("FSharpGenericParameter", "?", "")|]
 
 module Project29 = 

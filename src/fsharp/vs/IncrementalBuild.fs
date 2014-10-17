@@ -941,11 +941,11 @@ module internal IncrementalBuild =
 
 
 [<RequireQualifiedAccess>]
-type Severity = 
+type FSharpErrorSeverity = 
     | Warning 
     | Error
 
-type FSharpErrorInfo(fileName, s:pos, e:pos, severity: Severity, message: string, subcategory: string) = 
+type FSharpErrorInfo(fileName, s:pos, e:pos, severity: FSharpErrorSeverity, message: string, subcategory: string) = 
     member __.StartLine = Line.toZ s.Line
     member __.StartLineAlternate = s.Line
     member __.EndLine = Line.toZ e.Line
@@ -963,7 +963,7 @@ type FSharpErrorInfo(fileName, s:pos, e:pos, severity: Severity, message: string
             e.FileName
             (int e.StartLineAlternate) (e.StartColumn + 1) (int e.EndLineAlternate) (e.EndColumn + 1)
             e.Subcategory
-            (if e.Severity=Severity.Warning then "warning" else "error") 
+            (if e.Severity=FSharpErrorSeverity.Warning then "warning" else "error") 
             e.Message    
             
     /// Decompose a warning or error into parts: position, severity, message
@@ -972,7 +972,7 @@ type FSharpErrorInfo(fileName, s:pos, e:pos, severity: Severity, message: string
         let s = m.Start
         let e = (if trim then m.Start else m.End)
         let msg = bufs (fun buf -> OutputPhasedError buf exn false)
-        FSharpErrorInfo(m.FileName, s, e, (if warn then Severity.Warning else Severity.Error), msg, exn.Subcategory())
+        FSharpErrorInfo(m.FileName, s, e, (if warn then FSharpErrorSeverity.Warning else FSharpErrorSeverity.Error), msg, exn.Subcategory())
         
     /// Decompose a warning or error into parts: position, severity, message
     static member internal CreateFromExceptionAndAdjustEof(exn,warn,trim:bool,fallbackRange:range, (linesCount:int, lastLength:int)) = 
@@ -1005,8 +1005,8 @@ type ErrorScope()  =
                       mostRecentError <- Some(err)
                 member x.ErrorCount = errors.Length })
         
-    member x.Errors = errors |> List.filter (fun error -> error.Severity = Severity.Error)
-    member x.Warnings = errors |> List.filter (fun error -> error.Severity = Severity.Warning)
+    member x.Errors = errors |> List.filter (fun error -> error.Severity = FSharpErrorSeverity.Error)
+    member x.Warnings = errors |> List.filter (fun error -> error.Severity = FSharpErrorSeverity.Warning)
     member x.ErrorsAndWarnings = errors
     member x.TryGetFirstErrorText() =
         match x.Errors with 
@@ -1787,3 +1787,6 @@ module internal IncrementalFSharpBuild =
 
 [<Obsolete("This type has been renamed to FSharpErrorInfo")>]
 type ErrorInfo = FSharpErrorInfo
+
+[<Obsolete("This type has been renamed to FSharpErrorSeverity")>]
+type Severity = FSharpErrorSeverity

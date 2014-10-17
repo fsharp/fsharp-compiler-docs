@@ -97,6 +97,7 @@ type FSharpProjectContext =
     /// Get the accessibility rights for this project context w.r.t. InternalsVisibleTo attributes granting access to other assemblies
     member AccessibilityRights : FSharpAccessibilityRights
 
+/// Represents the use of an F# symbol from F# source code
 [<Sealed>]
 type FSharpSymbolUse = 
     /// The symbol referenced
@@ -381,6 +382,7 @@ type FSharpProjectFileInfo =
 #endif
 
 [<Sealed; AutoSerializable(false)>]      
+/// Used to parse and check F# source code.
 type FSharpChecker =
     /// Create an instance of an FSharpChecker.  
     static member Create : ?projectCacheSize: int -> FSharpChecker

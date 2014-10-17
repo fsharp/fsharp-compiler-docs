@@ -251,7 +251,7 @@
 
 #### 0.0.61 - 
 * #216 - Return associated getters/setters from F# properties  
-* #214 - Added missing XmlDocSig for FSharpMemberFunctionOrValue's Events, Methods and Properties  
+* #214 - Added missing XmlDocSig for FSharpMemberOrFunctionOrValue's Events, Methods and Properties  
 * #213 - Retrieve information for all active pattern cases  
 * #188 - Fix leak in file handles when using multiple instances of FsiEvaluationSession, and add optionally collectible assemblies
 

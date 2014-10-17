@@ -125,7 +125,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 { new ErrorLogger("CompileAPI") with 
                     member x.WarnSinkImpl(exn) = errorSink true exn
                     member x.ErrorSinkImpl(exn) = errorSink false exn
-                    member x.ErrorCount = errors |> Seq.filter (fun e -> e.Severity = Severity.Error) |> Seq.length }
+                    member x.ErrorCount = errors |> Seq.filter (fun e -> e.Severity = FSharpErrorSeverity.Error) |> Seq.length }
 
             let loggerProvider = 
                 { new ErrorLoggerProvider() with 

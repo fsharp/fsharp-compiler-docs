@@ -15,6 +15,7 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
 
+/// A range of utility functions to assist with traversing an AST
 module (*internal*) AstTraversal =
     // treat ranges as though they are half-open: [,)
     let rangeContainsPosLeftEdgeInclusive (m1:range) p =

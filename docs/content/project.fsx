@@ -184,7 +184,7 @@ You can find out more about a symbol by doing type checks on various symbol kind
 
 let xSymbolAsValue = 
     match xSymbol with 
-    | :? FSharpMemberFunctionOrValue as xSymbolAsVal -> xSymbolAsVal
+    | :? FSharpMemberOrFunctionOrValue as xSymbolAsVal -> xSymbolAsVal
     | _ -> failwith "we expected this to be a member, function or value"
        
 

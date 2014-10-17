@@ -350,22 +350,22 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
                      let item = 
                          if fsMeth.IsConstructor then  Item.CtorGroup (fsMeth.DisplayName, [fsMeth])                          
                          else Item.MethodGroup (fsMeth.DisplayName, [fsMeth])
-                     yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M fsMeth, item) 
+                     yield FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  M fsMeth, item) 
            else
                for minfo in GetImmediateIntrinsicMethInfosOfType (None, AccessibleFromSomeFSharpCode) g amap range0 entityTy do
-                    yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+                    yield FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
            let props = GetImmediateIntrinsicPropInfosOfType (None, AccessibleFromSomeFSharpCode) g amap range0 entityTy 
            let events = infoReader.GetImmediateIntrinsicEventsOfType (None, AccessibleFromSomeFSharpCode, range0, entityTy)
            for pinfo in props do
-                yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  P pinfo, Item.Property (pinfo.PropertyName,[pinfo]))
+                yield FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  P pinfo, Item.Property (pinfo.PropertyName,[pinfo]))
            for einfo in events do
-                yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  E einfo, Item.Event einfo)
+                yield FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  E einfo, Item.Event einfo)
 
            // Emit the values and functions in a module
            for v in entity.ModuleOrNamespaceType.AllValsAndMembers do
                if not v.IsMember then
                    let vref = mkNestedValRef entity v
-                   yield FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V vref, Item.Value vref) ]  
+                   yield FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  V vref, Item.Value vref) ]  
          |> makeReadOnlyCollection)
  
     member __.XmlDocSig = 
@@ -903,13 +903,17 @@ and FSharpMemberOrValData =
     | P of PropInfo
     | M of MethInfo
     | V of ValRef
-and FSharpMemberOrVal = FSharpMemberFunctionOrValue
-and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberOrValData, item) = 
+
+and FSharpMemberOrVal = FSharpMemberOrFunctionOrValue
+
+and FSharpMemberFunctionOrValue =  FSharpMemberOrFunctionOrValue
+
+and FSharpMemberOrFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberOrValData, item) = 
 
     inherit FSharpSymbol(g, thisCcu, tcImports,  
                          (fun () -> item),
                          (fun this thisCcu2 ad -> 
-                              let this = this :?> FSharpMemberFunctionOrValue 
+                              let this = this :?> FSharpMemberOrFunctionOrValue 
                               checkForCrossProjectAccessibility (thisCcu2, ad) (thisCcu, this.Accessibility.Contents)) 
                               //&& 
                               //match d with 
@@ -958,7 +962,7 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
             | Item.MethodGroup (_name, methodInfos) -> 
                 methodInfos
                 |> List.filter (fun methodInfo -> not (methodInfo.NumArgs = m.NumArgs) )
-                |> List.map (fun mi -> FSharpMemberFunctionOrValue(g, thisCcu, tcImports, M mi, item))
+                |> List.map (fun mi -> FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports, M mi, item))
                 |> Some
             | _ -> None
         | _ -> None
@@ -1017,7 +1021,7 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         match d with 
         | P m -> 
             let minfo = m.GetterMethod
-            FSharpMemberFunctionOrValue(g, thisCcu, tcImports, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+            FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
         | E _
         | M _
         | V _ -> invalidOp "the value or member doesn't have an associated getter method" 
@@ -1036,7 +1040,7 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
         match d with 
         | P m -> 
             let minfo = m.SetterMethod
-            FSharpMemberFunctionOrValue(g, thisCcu, tcImports, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+            FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
         | E _
         | M _
         | V _ -> invalidOp "the value or member doesn't have an associated setter method" 
@@ -1395,7 +1399,7 @@ and FSharpMemberFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMemberO
     override x.Equals(other : obj) =
         box x === other ||
         match other with
-        |   :? FSharpMemberFunctionOrValue as other -> ItemsReferToSameDefinition g x.Item other.Item
+        |   :? FSharpMemberOrFunctionOrValue as other -> ItemsReferToSameDefinition g x.Item other.Item
         |   _ -> false
 
     override x.GetHashCode() = hash (box x.LogicalName)
@@ -1672,22 +1676,22 @@ type FSharpSymbol with
     static member Create(g, thisCcu, tcImports,  item) : FSharpSymbol = 
         let dflt() = FSharpSymbol(g, thisCcu, tcImports,  (fun () -> item), (fun _ _ _ -> true)) 
         match item with 
-        | Item.Value v -> FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V v, item) :> _
+        | Item.Value v -> FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  V v, item) :> _
         | Item.UnionCase uinfo -> FSharpUnionCase(g, thisCcu, tcImports,  uinfo.UnionCaseRef) :> _
         | Item.ExnCase tcref -> FSharpEntity(g, thisCcu, tcImports,  tcref) :>_
         | Item.RecdField rfinfo -> FSharpField(g, thisCcu, tcImports,  Recd rfinfo.RecdFieldRef) :> _
         
         | Item.Event einfo -> 
-            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  E einfo, item) :> _
+            FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  E einfo, item) :> _
             
         | Item.Property(_,pinfo :: _) -> 
-            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  P pinfo, item) :> _
+            FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  P pinfo, item) :> _
             
         | Item.MethodGroup(_,minfo :: _) -> 
-            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M minfo, item) :> _
+            FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  M minfo, item) :> _
 
         | Item.CtorGroup(_,cinfo :: _) -> 
-            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M cinfo, item) :> _
+            FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  M cinfo, item) :> _
 
         | Item.DelegateCtor (AbbrevOrAppTy tcref) -> 
             FSharpEntity(g, thisCcu, tcImports,  tcref) :>_ 
@@ -1702,10 +1706,10 @@ type FSharpSymbol with
         | Item.SetterArg (_id, item) -> FSharpSymbol.Create(g, thisCcu, tcImports,  item)
 
         | Item.CustomOperation (_customOpName,_, Some minfo) -> 
-            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  M minfo, item) :> _
+            FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  M minfo, item) :> _
 
         | Item.CustomBuilder (_,vref) -> 
-            FSharpMemberFunctionOrValue(g, thisCcu, tcImports,  V vref, item) :> _
+            FSharpMemberOrFunctionOrValue(g, thisCcu, tcImports,  V vref, item) :> _
 
         | Item.TypeVar (_, tp) ->
              FSharpGenericParameter(g, thisCcu, tcImports,  tp) :> _

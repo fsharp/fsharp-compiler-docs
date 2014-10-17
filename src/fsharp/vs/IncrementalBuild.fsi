@@ -11,7 +11,7 @@ open Microsoft.FSharp.Compiler.Build
 
 
 [<RequireQualifiedAccess>]
-type (*internal*) Severity = 
+type (*internal*) FSharpErrorSeverity = 
     | Warning 
     | Error
 
@@ -26,7 +26,7 @@ type (*internal*) FSharpErrorInfo =
     member EndLine:Line0
     member StartColumn:int
     member EndColumn:int
-    member Severity:Severity
+    member Severity:FSharpErrorSeverity
     member Message:string
     member Subcategory:string
     static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * lastPosInFile:(int*int) -> FSharpErrorInfo
@@ -148,3 +148,7 @@ module internal IncrementalFSharpBuild =
 [<System.Obsolete("This type has been renamed to FSharpErrorInfo")>]
 /// Renamed to FSharpErrorInfo
 type ErrorInfo = FSharpErrorInfo
+
+[<Obsolete("This type has been renamed to FSharpErrorSeverity")>]
+/// Renamed to FSharpErrorSeverity
+type Severity = FSharpErrorSeverity

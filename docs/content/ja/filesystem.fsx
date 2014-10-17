@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../../bin/v45/"
+#I "../../../bin/v4.5/"
 (**
 コンパイラサービス: ファイルシステム仮想化
 ==========================================
@@ -92,7 +92,7 @@ FileSystemによるコンパイルの実行
 *)
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 let projectOptions = 
     let allFlags = 
         [| yield "--simpleresolution"; 
@@ -115,7 +115,8 @@ let projectOptions =
  
     { ProjectFileName = @"c:\mycode\compilation.fsproj" // 現在のディレクトリで一意な名前を指定
       ProjectFileNames = [| fileName1; fileName2 |]
-      ProjectOptions = allFlags 
+      OtherOptions = allFlags 
+      ReferencedProjects=[| |]
       IsIncompleteTypeCheckEnvironment = false
       UseScriptResolutionRules = true 
       LoadTime = System.DateTime.Now // 'Now' を指定して強制的に再読込させている点に注意

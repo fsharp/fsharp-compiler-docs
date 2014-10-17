@@ -6,7 +6,7 @@ Compiler Services: Project Analysis
 
 This tutorial demonstrates how to can analyze a whole project using services provided by the F# compiler.
 
-> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
+> **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published
 
 *)
 
@@ -313,18 +313,8 @@ for any project that cleans buildly using the command line tools 'xbuild' or 'ms
 
 let projectFile  = __SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
 
-(*** define-output:options1 ***)
-
 checker.GetProjectOptionsFromProjectFile(projectFile)
 
-
-(**
-
-The options produced in this case are:
-
-*)
-
-(*** include-it:options1 ***)
 
 (**
 

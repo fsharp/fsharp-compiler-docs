@@ -38,7 +38,7 @@ The libraries contain additional public API that can be used, but is not documen
  * [**Working with signatures, types, and resolved symbols**](symbols.html) - many services related to type checking
    return resolved symbols, representing inferred types, and the signatures of whole assemblies. 
   
- * [**Working with projects project-wide analysis**](project.html) - you can request a check of
+ * [**Working with projects and project-wide analysis**](project.html) - you can request a check of
    an entire project, and ask for the results of whole-project analyses such as find-all-references.
    
  * [**Hosting F# interactive**](interactive.html) - allows calling F# interactive as a .NET library
@@ -50,7 +50,22 @@ The libraries contain additional public API that can be used, but is not documen
    representing the file system. By setting this variable you can host the compiler in situations where a file system
    is not available.
   
-> **NOTE:** The services in FSharp.Compiler.Service.dll are overlapping and will in the future be made more regular.
+> **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published
+
+Projects using the F# Compiler Services
+------------------
+
+Some of the projects using the F# Compiler Services are:
+
+ * [**The Visual F# Power Tools**](http://fsprojects.github.io/VisualFSharpPowerTools/) 
+ * [**The Xamarin and MonoDevelop Tools for F#**](https://github.com/fsharp/fsharpbinding/blob/master/monodevelop/README.md) 
+ * [**The Emacs Plugin for F#**](https://github.com/fsharp/fsharpbinding/blob/master/emacs/README.md) 
+ * [**The Vim Plugin for F#**](https://github.com/fsharp/fsharpbinding/blob/master/vim/README.md) 
+ * [**iFSharp**](https://github.com/BayardRock/IfSharp)  - iPython-style notebook engine for F#
+ * [**CloudSharper**](http://cloudsharper.com/) 
+ * [**Tsunami**](http://tsunami.io) 
+ * [**FQuake3**](https://github.com/TIHan/FQuake3/)  - integrates F# as an interactive game scripting engine
+ * [**FCell**](http://fcell.io) 
 
 
 Contributing and copyright

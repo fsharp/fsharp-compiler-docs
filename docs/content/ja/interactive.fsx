@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../../bin/v45/"
+#I "../../../bin/v4.5/"
 (**
 インタラクティブサービス: F# Interactiveの組み込み
 ==================================================
@@ -56,7 +56,7 @@ let argv = [| "C:\\fsi.exe" |]
 let allArgs = Array.append argv [|"--noninteractive"|]
 
 let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
-let fsiSession = FsiEvaluationSession(fsiConfig, allArgs, inStream, outStream, errStream)  
+let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, outStream, errStream)  
 
 (**
 コードの評価および実行
@@ -138,7 +138,9 @@ open Microsoft.FSharp.Compiler
 let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
 checkResults.GetToolTipTextAlternate(1, 2, "xxx + xx", ["xxx"], identToken) // a tooltip
 
-checkResults.GetSymbolAtLocationAlternate(1, 2, "xxx + xx", ["xxx"]) // symbol xxx
+let symbolUse = 
+    checkResults.GetSymbolUseAtLocation(1, 2, "xxx + xx", ["xxx"]) 
+    |> Async.RunSynchronously
   
 (**
 例外処理

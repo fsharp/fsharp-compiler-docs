@@ -212,7 +212,8 @@ Target "All" DoNothing
 
 "Release"
   ==> "CleanDocs"
-  ==> "GenerateDocsJa"
+
+"GenerateDocsJa"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
 

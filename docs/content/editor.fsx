@@ -11,7 +11,7 @@ brackets and other functions in F# editors including Visual Studio, Xamarin Stud
 Similarly to [the tutorial on using untyped AST](untypedtree.html), we start by 
 getting the `InteractiveChecker` object. 
 
-> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
+> **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published
 
 
 Type checking sample source code

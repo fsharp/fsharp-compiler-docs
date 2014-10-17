@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../../bin/v45/"
+#I "../../../bin/v4.5/"
 (**
 コンパイラサービス: シンボルの処理
 ==================================
@@ -13,7 +13,7 @@
   最新のnugetパッケージの公開に伴って変更されることがあります。
 
 これまでと同じく、 `FSharp.Compiler.Service.dll` への参照を追加した後、
-適切な名前空間をオープンし、 `InteractiveChecker` のインスタンスを作成します:
+適切な名前空間をオープンし、 `FSharpChecker` のインスタンスを作成します:
 
 *)
 // F#コンパイラAPIへの参照
@@ -24,7 +24,7 @@ open System.IO
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 // インタラクティブチェッカーのインスタンスを作成
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 (**
 
@@ -34,7 +34,9 @@ let checker = InteractiveChecker.Create()
 
 let parseAndTypeCheckSingleFile (file, input) = 
     // スタンドアロンの(スクリプト)ファイルを表すコンテキストを取得
-    let projOptions = checker.GetProjectOptionsFromScript(file, input)
+    let projOptions = 
+        checker.GetProjectOptionsFromScript(file, input)
+        |> Async.RunSynchronously
 
     let parseFileResults, checkFileResults = 
         checker.ParseAndCheckFileInProject(file, 0, input, projOptions) 
@@ -42,7 +44,7 @@ let parseAndTypeCheckSingleFile (file, input) =
 
     // 型チェックが成功(あるいは100%に到達)するまで待機
     match checkFileResults with
-    | CheckFileAnswer.Succeeded(res) -> parseFileResults, res
+    | FSharpCheckFileAnswer.Succeeded(res) -> parseFileResults, res
     | res -> failwithf "Parsing did not finish... (%A)" res
 
 let file = "/home/user/Test.fsx"
@@ -119,13 +121,13 @@ fnVal.IsActivePattern // false
 fnVal.IsCompilerGenerated // false
 fnVal.IsDispatchSlot // false
 fnVal.IsExtensionMember // false
-fnVal.IsGetterMethod // false
+fnVal.IsPropertyGetterMethod // false
 fnVal.IsImplicitConstructor // false
 fnVal.IsInstanceMember // false
 fnVal.IsMember // false
 fnVal.IsModuleValueOrMember // true
 fnVal.IsMutable // false
-fnVal.IsSetterMethod // false
+fnVal.IsPropertySetterMethod // false
 fnVal.IsTypeFunction // false
 
 (**
@@ -139,7 +141,7 @@ fnVal.FullType.GenericArguments.[0] // int * int
 fnVal.FullType.GenericArguments.[0].IsTupleType // true
 let argTy1 = fnVal.FullType.GenericArguments.[0].GenericArguments.[0]
 
-argTy1.NamedEntity.DisplayName // int
+argTy1.TypeDefinition.DisplayName // int
 
 (**
 というわけで `int * int -> unit` という型を表現するオブジェクトが取得できて、
@@ -148,23 +150,23 @@ argTy1.NamedEntity.DisplayName // int
 それが名前付きの型であり、F#の型省略形 `type int = int32` であることがわかります:
 *)
 
-argTy1.IsNamedType // true
-argTy1.NamedEntity.IsFSharpAbbreviation // true
+argTy1.HasTypeDefinition // true
+argTy1.TypeDefinition.IsFSharpAbbreviation // true
 
 (**
 型省略形の右辺、つまり `int32` についてもチェックしてみましょう:
 *)
 
-let argTy1b = argTy1.NamedEntity.AbbreviatedType
-argTy1b.NamedEntity.Namespace // Some "Microsoft.FSharp.Core" 
-argTy1b.NamedEntity.CompiledName // "int32" 
+let argTy1b = argTy1.TypeDefinition.AbbreviatedType
+argTy1b.TypeDefinition.Namespace // Some "Microsoft.FSharp.Core" 
+argTy1b.TypeDefinition.CompiledName // "int32" 
 
 (**
 そして再び型省略形 `type int32 = System.Int32` から型に関する完全な情報が取得できます:
 *)
-let argTy1c = argTy1b.NamedEntity.AbbreviatedType
-argTy1c.NamedEntity.Namespace // Some "System" 
-argTy1c.NamedEntity.CompiledName // "Int32" 
+let argTy1c = argTy1b.TypeDefinition.AbbreviatedType
+argTy1c.TypeDefinition.Namespace // Some "System" 
+argTy1c.TypeDefinition.CompiledName // "Int32" 
 
 (**
 ファイルに対する型チェックの結果には、
@@ -201,8 +203,15 @@ for ass in projectContext.GetReferencedAssemblies() do
 構成することもできます。
 *)
 let parseAndCheckScript (file, input) = 
-    let projOptions = checker.GetProjectOptionsFromScript(file, input)
-    checker.ParseAndCheckProject(projOptions) |> Async.RunSynchronously
+    let projOptions = 
+        checker.GetProjectOptionsFromScript(file, input)
+        |> Async.RunSynchronously
+
+    let projResults = 
+        checker.ParseAndCheckProject(projOptions) 
+        |> Async.RunSynchronously
+
+    projResults
 
 (**
 そして特定の入力に対してこの関数を呼び出します:

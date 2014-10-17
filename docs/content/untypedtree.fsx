@@ -12,7 +12,7 @@ types and there are some ambiguities that are resolved only later by the type
 checker. You can also combine the untyped AST information with the API available
 from [editor services](editor.html). 
 
-> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
+> **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published
 
 
 Getting the untyped AST

@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../../bin/v45/"
+#I "../../../bin/v4.5/"
 (**
 コンパイラサービス: プロジェクトの分析
 ======================================
@@ -16,7 +16,7 @@
 
 [以前の(型無しASTを使った)チュートリアル](untypedtree.html) と同じく、
 まずは `FSharp.Compiler.Service.dll` への参照追加と、適切な名前空間のオープン、
-`InteractiveChecker` インスタンスの作成を行います:
+`FSharpChecker` インスタンスの作成を行います:
 
 *)
 // F#コンパイラAPIへの参照
@@ -27,7 +27,7 @@ open System.Collections.Generic
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 // インタラクティブチェッカーのインスタンスを作成
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 (**
 今回のサンプル入力は以下の通りです:
@@ -155,12 +155,14 @@ let backgroundParseResults1, backgroundTypedParse1 =
 そしてそれぞれのファイル内にあるシンボルを解決できます:
 *)
 
-let xSymbol = backgroundTypedParse1.GetSymbolAtLocationAlternate(9,9,"",["xxx"]).Value
+let xSymbol = 
+    backgroundTypedParse1.GetSymbolUseAtLocation(9,9,"",["xxx"])
+    |> Async.RunSynchronously
 
 (**
 それぞれのシンボルに対して、シンボルへの参照を検索することもできます:
 *)
-let usesOfXSymbol = wholeProjectResults.GetUsesOfSymbol(xSymbol)
+let usesOfXSymbol = wholeProjectResults.GetUsesOfSymbol(xSymbol.Value.Symbol)
 
 (**
 推測されたシグネチャ内にあるすべての定義済みシンボルに対して、
@@ -190,7 +192,7 @@ let parseResults1, checkAnswer1 =
 
 let checkResults1 = 
     match checkAnswer1 with 
-    | CheckFileAnswer.Succeeded x ->  x 
+    | FSharpCheckFileAnswer.Succeeded x ->  x 
     | _ -> failwith "想定外の終了状態です"
 
 let parseResults2, checkAnswer2 = 
@@ -199,15 +201,18 @@ let parseResults2, checkAnswer2 =
 
 let checkResults2 = 
     match checkAnswer2 with 
-    | CheckFileAnswer.Succeeded x ->  x 
+    | FSharpCheckFileAnswer.Succeeded x ->  x 
     | _ -> failwith "想定外の終了状態です"
 
 (**
 そして再びシンボルを解決したり、参照を検索したりすることができます:
 *)
 
-let xSymbol2 = checkResults1.GetSymbolAtLocationAlternate(9,9,"",["xxx"]).Value
-let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2)
+let xSymbol2 = 
+    checkResults1.GetSymbolUseAtLocation(9,9,"",["xxx"]) 
+    |> Async.RunSynchronously
+
+let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2.Value.Symbol)
 
 (**
 あるいは(ローカルスコープで使用されているシンボルも含めて)
@@ -218,9 +223,9 @@ let allUsesOfAllSymbolsInFile1 = checkResults1.GetAllUsesOfAllSymbolsInFile()
 (**
 あるいは特定のファイル中で使用されているシンボルを検索することもできます：
 *)
-let allUsesOfXSymbolInFile1 = checkResults1.GetUsesOfSymbolInFile(xSymbol2)
+let allUsesOfXSymbolInFile1 = checkResults1.GetUsesOfSymbolInFile(xSymbol2.Value.Symbol)
 
-let allUsesOfXSymbolInFile2 = checkResults2.GetUsesOfSymbolInFile(xSymbol2)
+let allUsesOfXSymbolInFile2 = checkResults2.GetUsesOfSymbolInFile(xSymbol2.Value.Symbol)
 
 (**
 

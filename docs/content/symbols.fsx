@@ -7,7 +7,7 @@ Compiler Services: Working with symbols
 This tutorial demonstrates how to work with symbols provided by the F# compiler. See also [project wide analysis](project.html)
 for information on symbol references.
 
-> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published.
+> **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.
 
 As usual we start by referencing `FSharp.Compiler.Service.dll`, opening the relevant namespace and creating an instance
 of `InteractiveChecker`:

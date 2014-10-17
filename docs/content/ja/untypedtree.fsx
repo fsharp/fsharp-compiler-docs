@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../../bin/v45/"
+#I "../../../bin/v4.5/"
 (**
 コンパイラサービス：型無し構文木の処理
 ======================================
@@ -25,7 +25,7 @@
 ---------------
 
 
-型無しASTにアクセスするには、 `InteractiveChecker` のインスタンスを作成します。
+型無しASTにアクセスするには、 `FSharpChecker` のインスタンスを作成します。
 これは型チェックおよびパース用のコンテキストを表す型で、、
 スタンドアロンのF#スクリプトファイル(たとえばVisual Studioで開いたファイル)、
 あるいは複数ファイルで構成されたロード済みのプロジェクトファイルの
@@ -48,11 +48,11 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 型無しパース処理は(それなりの時間がかかる型チェック処理と比較すると)
 かなり高速なため、同期的に実行できます。
-まず `InteractiveChecker` を作成します。
+まず `FSharpChecker` を作成します。
 
 *)
 // インタラクティブチェッカーのインスタンスを作成
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 (**
 
 ASTを取得するために、ファイル名とソースコードを受け取る関数を用意します
@@ -70,18 +70,21 @@ let getUntypedTree (file, input) =
   // 1つのスクリプトファイルから推測される「プロジェクト」用の
   // コンパイラオプションを取得する
   let projectOptions =
-      checker.GetProjectOptionsFromScriptRoot(file, input)
+      checker.GetProjectOptionsFromScript(file, input) 
       |> Async.RunSynchronously
 
   // コンパイラの第1フェーズを実行する
-  let untypedRes = checker.ParseFileInProject(file, input, projectOptions)
+  let untypedRes = 
+      checker.ParseFileInProject(file, input, projectOptions) 
+      |> Async.RunSynchronously
+
   match untypedRes.ParseTree with
   | Some tree -> tree
   | None -> failwith "パース中に何らかの問題が発生しました!"
 
 (**
-`InteractiveChecker` の詳細については
-[ APIドキュメント](../reference/microsoft-fsharp-compiler-sourcecodeservices-interactivechecker.html)
+`FSharpChecker` の詳細については
+[ APIドキュメント](../reference/microsoft-fsharp-compiler-sourcecodeservices-FSharpChecker.html)
 の他に、F# ソースコードのインラインコメントも参考になるでしょう
 ( [`service.fsi` のソースコードを参照](https://github.com/fsharp/fsharp/blob/fsharp_31/src/fsharp/vs/service.fsi) )。
 
@@ -220,7 +223,7 @@ let visitModulesAndNamespaces modulesOrNss =
 すべてを組み合わせる
 --------------------
 
-既に説明したように、 `getUntypedTree` 関数では `InteractiveChecker` を使って
+既に説明したように、 `getUntypedTree` 関数では `FSharpChecker` を使って
 ASTに対する第1フェーズ(パース)を行ってツリーを返しています。
 この関数にはF#のソースコードとともに、ファイルのパスを指定する必要があります。
 (単に位置情報として利用されるだけなので)

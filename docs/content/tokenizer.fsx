@@ -10,7 +10,7 @@ information about tokens on each line. For each token, you can get the type
 of the token, exact location as well as color kind of the token (keyword, 
 identifier, number, operator, etc.).
 
-> **NOTE:** The API used below is experimental and subject to change when later versions of the nuget package are published
+> **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published
 
 
 Creating the tokenizer

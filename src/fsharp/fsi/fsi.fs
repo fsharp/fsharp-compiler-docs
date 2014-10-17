@@ -654,7 +654,7 @@ type internal FsiCommandLineOptions(fsiConfig: FsiEvaluationSessionHostConfig, a
             stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
         inputFilesAcc
 
-#if SILVERLIGHT
+#if LIMITED_CONSOLE
 #else
     do 
         if tcConfigB.utf8output then
@@ -748,7 +748,7 @@ let internal InstallErrorLoggingOnThisThread errorLogger =
 /// Set the input/output encoding. The use of a thread is due to a known bug on 
 /// on Vista where calls to Console.InputEncoding can block the process.
 let internal SetServerCodePages(fsiOptions: FsiCommandLineOptions) =     
-#if SILVERLIGHT
+#if LIMITED_CONSOLE
     ignore fsiOptions
 #else     
     match fsiOptions.FsiServerInputCodePage, fsiOptions.FsiServerOutputCodePage with 
@@ -2289,8 +2289,8 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
     do if not runningOnMono then Lib.UnmanagedProcessExecutionOptions.EnableHeapTerminationOnCorruption() (* SDL recommendation *)
     // See Bug 735819 
     let lcidFromCodePage = 
-#if SILVERLIGHT
-#else         
+#if LIMITED_CONSOLE
+#else
         if (Console.OutputEncoding.CodePage <> 65001) &&
            (Console.OutputEncoding.CodePage <> Thread.CurrentThread.CurrentUICulture.TextInfo.OEMCodePage) &&
            (Console.OutputEncoding.CodePage <> Thread.CurrentThread.CurrentUICulture.TextInfo.ANSICodePage) then

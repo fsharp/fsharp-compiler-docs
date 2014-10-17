@@ -84,12 +84,16 @@ module internal FSharpEnvironment =
     let REG_SZ = 1u
 
     let GetDefaultRegistryStringValueViaDotNet(subKey: string)  =
+#if NO_WIN32_REGISTRY
+        None
+#else
         Option.ofString
             (try
                 downcast Microsoft.Win32.Registry.GetValue("HKEY_LOCAL_MACHINE\\"+subKey,null,null)
              with e->
                 System.Diagnostics.Debug.Assert(false, sprintf "Failed in GetDefaultRegistryStringValueViaDotNet: %s" (e.ToString()))
                 null)
+#endif
 
 // RegistryView.Registry API is not available before .NET 4.0
 #if FX_ATLEAST_40_COMPILER_LOCATION
@@ -185,7 +189,9 @@ module internal FSharpEnvironment =
             None
     
     let internal tryAppConfig (appConfigKey:string) = 
-
+#if NO_SYSTEM_CONFIG
+        None
+#else
         let locationFromAppConfig = ConfigurationSettings.AppSettings.[appConfigKey]
         System.Diagnostics.Debug.Print(sprintf "Considering appConfigKey %s which has value '%s'" appConfigKey locationFromAppConfig) 
 
@@ -196,6 +202,7 @@ module internal FSharpEnvironment =
             let locationFromAppConfig = locationFromAppConfig.Replace("{exepath}", exeAssemblyFolder)
             System.Diagnostics.Debug.Print(sprintf "Using path %s" locationFromAppConfig) 
             Some locationFromAppConfig
+#endif
 
     // The default location of FSharp.Core.dll and fsc.exe based on the version of fsc.exe that is running
     // Used for

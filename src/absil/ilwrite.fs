@@ -492,7 +492,7 @@ let DumpDebugInfo (outfile:string) (info:PdbData) =
 // Strong name signing
 //---------------------------------------------------------------------
 
-#if SILVERLIGHT
+#if NO_STRONGNAME_SIGNER
 type ILStrongNameSigner =  
     | NeverImplemented
     static member OpenPublicKeyFile (_s:string) = NeverImplemented
@@ -4083,7 +4083,7 @@ let writeBinaryAndReportMappings (outfile, ilg, pdbfile: string option, signer: 
           let dataSectionAddr = next
           let dataSectionVirtToPhys v = v - dataSectionAddr + dataSectionPhysLoc
           
-#if SILVERLIGHT
+#if NO_NATIVE_RESOURCES
           let nativeResources = [| |]
 #else
           let resourceFormat = if modul.Is64Bit then Support.X64 else Support.X86

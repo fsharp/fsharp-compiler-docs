@@ -985,7 +985,7 @@ let fsharpModuleName (t:CompilerTarget) (s:string) =
 let ignoreFailureOnMono1_1_16 f = try f() with _ -> ()
 
 let DoWithErrorColor isWarn f =
-#if SILVERLIGHT
+#if LIMITED_CONSOLE
     ignore (isWarn : bool)
     f()
 #else    

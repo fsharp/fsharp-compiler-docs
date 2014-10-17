@@ -64,7 +64,7 @@ F#のソースコードに対して、トークナイザは
 </tr>
 </table>
 
-<p>すると <code>SourceTokenizer</code> のインスタンスを作成できるようになります。
+<p>すると <code>FSharpSourceTokenizer</code> のインスタンスを作成できるようになります。
 このクラスには2つの引数を指定します。
 最初の引数には定義済みのシンボルのリスト、
 2番目の引数にはソースコードのファイル名を指定します。
@@ -78,7 +78,7 @@ F#のソースコードに対して、トークナイザは
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">sourceTok</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">SourceTokenizer</span>([], <span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\\</span><span class="s">test</span><span class="s">.</span><span class="s">fsx</span><span class="s">&quot;</span>)</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">sourceTok</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">FSharpSourceTokenizer</span>([], <span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\\</span><span class="s">test</span><span class="s">.</span><span class="s">fsx</span><span class="s">&quot;</span>)</pre>
 </td>
 </tr>
 </table>
@@ -97,8 +97,8 @@ F#のソースコードに対して、トークナイザは
 
 <h3>1行をトークン化する</h3>
 
-<p>1行をトークン化するには、先ほど作成した <code>SourceTokenizer</code> オブジェクトに対して
-<code>CreateLineTokenizer</code> を呼び、 <code>LineTokenizer</code> を作成します:</p>
+<p>1行をトークン化するには、先ほど作成した <code>FSharpSourceTokenizer</code> オブジェクトに対して
+<code>CreateLineTokenizer</code> を呼び、 <code>FSharpLineTokenizer</code> を作成します:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
@@ -112,7 +112,7 @@ F#のソースコードに対して、トークナイザは
 
 <p>そして <code>tokenizer</code> の <code>ScanToken</code> を繰り返し <code>None</code> を返すまで
 (つまり最終行に到達するまで)繰り返し呼び出すような単純な再帰関数を用意します。
-この関数が成功すると、必要な詳細情報をすべて含んだ <code>TokenInformation</code> オブジェクトが
+この関数が成功すると、必要な詳細情報をすべて含んだ <code>FSharpTokenInfo</code> オブジェクトが
 返されます:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -129,7 +129,7 @@ F#のソースコードに対して、トークナイザは
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">/// F#コード1行をトークン化します</span>
-<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="i">tokenizeLine</span> (<span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="i">tokenizer</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="i">LineTokenizer</span>) <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">state</span> <span class="o">=</span>
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="i">tokenizeLine</span> (<span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="i">tokenizer</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="i">FSharpLineTokenizer</span>) <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">state</span> <span class="o">=</span>
   <span class="k">match</span> <span onmouseout="hideTip(event, 'fs10', 14)" onmouseover="showTip(event, 'fs10', 14)" class="i">tokenizer</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs13', 15)" onmouseover="showTip(event, 'fs13', 15)" class="i">ScanToken</span>(<span onmouseout="hideTip(event, 'fs12', 16)" onmouseover="showTip(event, 'fs12', 16)" class="i">state</span>) <span class="k">with</span>
   | <span onmouseout="hideTip(event, 'fs14', 17)" onmouseover="showTip(event, 'fs14', 17)" class="i">Some</span> <span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="i">tok</span>, <span onmouseout="hideTip(event, 'fs12', 19)" onmouseover="showTip(event, 'fs12', 19)" class="i">state</span> <span class="k">-&gt;</span>
       <span class="c">// トークン名を表示</span>
@@ -157,7 +157,7 @@ F#のソースコードに対して、トークナイザは
 
 <p>この結果は LET WHITESPACE IDENT EQUALS INT32 という
 トークン名のシーケンスになります。
-<code>TokenInformation</code> にはたとえば以下のような興味深いプロパティが多数あります:</p>
+<code>FSharpTokenInfo</code> にはたとえば以下のような興味深いプロパティが多数あります:</p>
 
 <ul>
 <li><code>CharClass</code> および <code>ColorClass</code> はF#コードを色づけする場合に使用できるような、
@@ -267,17 +267,17 @@ Line 3
 <div class="tip" id="fs2">namespace Microsoft.FSharp</div>
 <div class="tip" id="fs3">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs4">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
-<div class="tip" id="fs5">val sourceTok : SourceTokenizer<br /><br />Full name: Tokenizer.sourceTok</div>
-<div class="tip" id="fs6">Multiple items<br />type SourceTokenizer =<br />&#160;&#160;new : conditionalDefines:string list * fileName:string -&gt; SourceTokenizer<br />&#160;&#160;member CreateBufferTokenizer : bufferFiller:(char [] * int * int -&gt; int) -&gt; LineTokenizer<br />&#160;&#160;member CreateLineTokenizer : lineText:string -&gt; LineTokenizer<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.SourceTokenizer<br /><br />--------------------<br />new : conditionalDefines:string list * fileName:string -&gt; SourceTokenizer</div>
-<div class="tip" id="fs7">val tokenizer : LineTokenizer<br /><br />Full name: Tokenizer.tokenizer</div>
-<div class="tip" id="fs8">member SourceTokenizer.CreateLineTokenizer : lineText:string -&gt; LineTokenizer</div>
-<div class="tip" id="fs9">val tokenizeLine : tokenizer:LineTokenizer -&gt; state:LexState -&gt; LexState<br /><br />Full name: Tokenizer.tokenizeLine<br /><em><br /><br />&#160;F#コード1行をトークン化します</em></div>
-<div class="tip" id="fs10">val tokenizer : LineTokenizer</div>
-<div class="tip" id="fs11">type LineTokenizer<br />member ScanToken : lexState:LexState -&gt; TokenInformation option * LexState<br />static member ColorStateOfLexState : LexState -&gt; ColorState<br />static member LexStateOfColorState : ColorState -&gt; LexState<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.LineTokenizer</div>
+<div class="tip" id="fs5">val sourceTok : FSharpSourceTokenizer<br /><br />Full name: Tokenizer.sourceTok</div>
+<div class="tip" id="fs6">Multiple items<br />type FSharpSourceTokenizer =<br />&#160;&#160;new : conditionalDefines:string list * fileName:string -&gt; FSharpSourceTokenizer<br />&#160;&#160;member CreateBufferTokenizer : bufferFiller:(char [] * int * int -&gt; int) -&gt; FSharpLineTokenizer<br />&#160;&#160;member CreateLineTokenizer : lineText:string -&gt; FSharpLineTokenizer<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpSourceTokenizer<br /><br />--------------------<br />new : conditionalDefines:string list * fileName:string -&gt; FSharpSourceTokenizer</div>
+<div class="tip" id="fs7">val tokenizer : FSharpLineTokenizer<br /><br />Full name: Tokenizer.tokenizer</div>
+<div class="tip" id="fs8">member FSharpSourceTokenizer.CreateLineTokenizer : lineText:string -&gt; FSharpLineTokenizer</div>
+<div class="tip" id="fs9">val tokenizeLine : tokenizer:FSharpLineTokenizer -&gt; state:LexState -&gt; LexState<br /><br />Full name: Tokenizer.tokenizeLine<br /><em><br /><br />&#160;F#コード1行をトークン化します</em></div>
+<div class="tip" id="fs10">val tokenizer : FSharpLineTokenizer</div>
+<div class="tip" id="fs11">type FSharpLineTokenizer<br />member ScanToken : lexState:LexState -&gt; FSharpTokenInfo option * LexState<br />static member ColorStateOfLexState : LexState -&gt; ColorState<br />static member LexStateOfColorState : ColorState -&gt; LexState<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpLineTokenizer</div>
 <div class="tip" id="fs12">val state : LexState</div>
-<div class="tip" id="fs13">member LineTokenizer.ScanToken : lexState:LexState -&gt; TokenInformation option * LexState</div>
+<div class="tip" id="fs13">member FSharpLineTokenizer.ScanToken : lexState:LexState -&gt; FSharpTokenInfo option * LexState</div>
 <div class="tip" id="fs14">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
-<div class="tip" id="fs15">val tok : TokenInformation</div>
+<div class="tip" id="fs15">val tok : FSharpTokenInfo</div>
 <div class="tip" id="fs16">val printf : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printf</div>
 <div class="tip" id="fs17">union case Option.None: Option&lt;&#39;T&gt;</div>
 <div class="tip" id="fs18">val lines : string []<br /><br />Full name: Tokenizer.lines</div>

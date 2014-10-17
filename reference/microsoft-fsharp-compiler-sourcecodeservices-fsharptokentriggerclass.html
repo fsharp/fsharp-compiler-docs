@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>FSharpXmlComment - F# Compiler Services</title>
+    <title>FSharpTokenTriggerClass - F# Compiler Services</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
@@ -35,28 +35,105 @@
 
 
 
-<h1>FSharpXmlComment</h1>
+<h1>FSharpTokenTriggerClass</h1>
 <div class="xmldoc">
-<p>Describe a comment as either a block of text or a file+signature reference into an intellidoc file.</p>
+<p>Gives an indication of what should happen when the token is typed in an IDE</p>
 </div>
-  <h3>Union Cases</h3>
+  <h3>Record Fields</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Union Case</td><td>Description</td></tr>
+      <tr><td>Record Field</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3838', 3838)" onmouseover="showTip(event, '3838', 3838)">
+          <code onmouseout="hideTip(event, '4237', 4237)" onmouseover="showTip(event, '4237', 4237)">
+            ChoiceSelect
+          </code>
+          <div class="tip" id="4237">
+            <strong>Signature:</strong> FSharpTokenTriggerClass<br />
+              <strong>Modifiers:</strong> static<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fsi#L55-55" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '4238', 4238)" onmouseover="showTip(event, '4238', 4238)">
+            MatchBraces
+          </code>
+          <div class="tip" id="4238">
+            <strong>Signature:</strong> FSharpTokenTriggerClass<br />
+              <strong>Modifiers:</strong> static<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fsi#L54-54" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '4239', 4239)" onmouseover="showTip(event, '4239', 4239)">
+            MemberSelect
+          </code>
+          <div class="tip" id="4239">
+            <strong>Signature:</strong> FSharpTokenTriggerClass<br />
+              <strong>Modifiers:</strong> static<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fsi#L53-53" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '4240', 4240)" onmouseover="showTip(event, '4240', 4240)">
+            MethodTip
+          </code>
+          <div class="tip" id="4240">
+            <strong>Signature:</strong> FSharpTokenTriggerClass<br />
+              <strong>Modifiers:</strong> static<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fsi#L56-56" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '4241', 4241)" onmouseover="showTip(event, '4241', 4241)">
             None
           </code>
-          <div class="tip" id="3838">
-            <strong>Signature:</strong> <br />
+          <div class="tip" id="4241">
+            <strong>Signature:</strong> FSharpTokenTriggerClass<br />
+              <strong>Modifiers:</strong> static<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L24-24" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fsi#L52-52" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -66,15 +143,16 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3839', 3839)" onmouseover="showTip(event, '3839', 3839)">
-            Text(string)
+          <code onmouseout="hideTip(event, '4242', 4242)" onmouseover="showTip(event, '4242', 4242)">
+            ParamEnd
           </code>
-          <div class="tip" id="3839">
-            <strong>Signature:</strong> string<br />
+          <div class="tip" id="4242">
+            <strong>Signature:</strong> FSharpTokenTriggerClass<br />
+              <strong>Modifiers:</strong> static<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L25-25" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fsi#L59-59" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -84,15 +162,35 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3840', 3840)" onmouseover="showTip(event, '3840', 3840)">
-            XmlDocFileSignature(string,string)
+          <code onmouseout="hideTip(event, '4243', 4243)" onmouseover="showTip(event, '4243', 4243)">
+            ParamNext
           </code>
-          <div class="tip" id="3840">
-            <strong>Signature:</strong> string * string<br />
+          <div class="tip" id="4243">
+            <strong>Signature:</strong> FSharpTokenTriggerClass<br />
+              <strong>Modifiers:</strong> static<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L26-26" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fsi#L58-58" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '4244', 4244)" onmouseover="showTip(event, '4244', 4244)">
+            ParamStart
+          </code>
+          <div class="tip" id="4244">
+            <strong>Signature:</strong> FSharpTokenTriggerClass<br />
+              <strong>Modifiers:</strong> static<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fsi#L57-57" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

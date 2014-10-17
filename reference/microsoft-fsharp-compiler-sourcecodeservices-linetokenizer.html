@@ -37,85 +37,8 @@
 
 <h1>LineTokenizer</h1>
 <div class="xmldoc">
-<p>Object to tokenize a line of F# source code, starting with the given lexState.  The lexState should be 0 for
-the first line of text. Returns an array of ranges of the text and two enumerations categorizing the
-tokens and characters covered by that range, i.e. TokenColorKind and TokenCharKind.  The enumerations
-are somewhat adhoc but useful enough to give good colorization options to the user in an IDE.</p>
-
-<p>A new lexState is also returned.  An IDE-plugin should in general cache the lexState 
-values for each line of the edited code.</p>
+<p>Renamed to FSharpLineTokenizer</p>
 </div>
-  <h3>Instance members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Instance member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '4266', 4266)" onmouseover="showTip(event, '4266', 4266)">
-            ScanToken(lexState)
-          </code>
-          <div class="tip" id="4266">
-            <strong>Signature:</strong> lexState:LexState -&gt; TokenInformation option * LexState<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fs#L510-510" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Scan one token from the line</p>
-
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <h3>Static members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Static member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '4284', 4284)" onmouseover="showTip(event, '4284', 4284)">
-            ColorStateOfLexState(arg1)
-          </code>
-          <div class="tip" id="4284">
-            <strong>Signature:</strong> LexState -&gt; ColorState<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fs#L679-679" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '4285', 4285)" onmouseover="showTip(event, '4285', 4285)">
-            LexStateOfColorState(arg1)
-          </code>
-          <div class="tip" id="4285">
-            <strong>Signature:</strong> ColorState -&gt; LexState<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fs#L683-683" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-    </tbody>
-  </table>
 
         </div>
         <div class="span3">

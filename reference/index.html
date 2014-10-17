@@ -103,7 +103,8 @@ The type of the tables contained in a file produced by the fsyacc.exe parser gen
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-errorinfo.html">ErrorInfo</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpErrorInfo</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -277,62 +278,71 @@ it formats the XML content for you (apart from ones read from XML doc files usin
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-checkfileanswer.html">CheckFileAnswer</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpCheckFileAnswer</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-checkfileresults.html">CheckFileResults</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpCheckFileResults</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-checkoptions.html">CheckOptions</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpProjectOptions</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-checkprojectresults.html">CheckProjectResults</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpCheckProjectResults</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-colorstate.html">ColorState</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpTokenizerColorState</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-datatiptext.html">DataTipText</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpToolTipText</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-declaration.html">Declaration</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpDeclaration</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-declarationgroup.html">DeclarationGroup</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpDeclarationGroup</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-declarationitem.html">DeclarationItem</a>
           </td>
-          <td class="xmldoc"><p>Represents an item to be displayed in the navigation bar</p>
+          <td class="xmldoc"><p>Renamed to FSharpNavigationDeclarationItem</p>
 </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-declarationitemkind.html">DeclarationItemKind</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpNavigationDeclarationItemKind</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -508,6 +518,19 @@ to the Format method on FSharpType and other methods.</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharplinetokenizer.html">FSharpLineTokenizer</a>
+          </td>
+          <td class="xmldoc"><p>Object to tokenize a line of F# source code, starting with the given lexState.  The lexState should be 0 for
+the first line of text. Returns an array of ranges of the text and two enumerations categorizing the
+tokens and characters covered by that range, i.e. FSharpTokenColorKind and FSharpTokenCharKind.  The enumerations
+are somewhat adhoc but useful enough to give good colorization options to the user in an IDE.</p>
+
+<p>A new lexState is also returned.  An IDE-plugin should in general cache the lexState 
+values for each line of the edited code.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpmemberfunctionorvalue.html">FSharpMemberFunctionOrValue</a>
           </td>
           <td class="xmldoc"></td>
@@ -539,6 +562,42 @@ a single, non-overloaded item such as union case or a named function value.</p>
           </td>
           <td class="xmldoc"><p>Represents one parameter for one method (or other item) in a group.</p>
 </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpnavigationdeclarationitem.html">FSharpNavigationDeclarationItem</a>
+          </td>
+          <td class="xmldoc"><p>Represents an item to be displayed in the navigation bar</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpnavigationdeclarationitemkind.html">FSharpNavigationDeclarationItemKind</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpnavigationitems.html">FSharpNavigationItems</a>
+          </td>
+          <td class="xmldoc"><p>Represents result of 'GetNavigationItems' operation - this contains
+all the members and currently selected indices. First level correspond to
+types &amp; modules and second level are methods etc.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpnavigationtopleveldeclaration.html">FSharpNavigationTopLevelDeclaration</a>
+          </td>
+          <td class="xmldoc"><p>Represents top-level declarations (that should be in the type drop-down)
+with nested declarations (that can be shown in the member drop-down)</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpnoteworthyparaminfolocations.html">FSharpNoteworthyParamInfoLocations</a>
+          </td>
+          <td class="xmldoc"></td>
         </tr>
         <tr>
           <td class="type-name">
@@ -583,6 +642,13 @@ a single, non-overloaded item such as union case or a named function value.</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpsourcetokenizer.html">FSharpSourceTokenizer</a>
+          </td>
+          <td class="xmldoc"><p>Tokenizer for a source file. Holds some expensive-to-compute resources at the scope of the file.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpstaticparameter.html">FSharpStaticParameter</a>
           </td>
           <td class="xmldoc"></td>
@@ -599,6 +665,47 @@ a single, non-overloaded item such as union case or a named function value.</p>
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpsymboluse.html">FSharpSymbolUse</a>
           </td>
           <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharptokencharkind.html">FSharpTokenCharKind</a>
+          </td>
+          <td class="xmldoc"><p>Gives an indication of the class to assign to the characters of the token an IDE</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharptokencolorkind.html">FSharpTokenColorKind</a>
+          </td>
+          <td class="xmldoc"><p>Gives an indicattion of the color class to assign to the token an IDE</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharptokeninfo.html">FSharpTokenInfo</a>
+          </td>
+          <td class="xmldoc"><p>Information about a particular token from the tokenizer</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharptokentriggerclass.html">FSharpTokenTriggerClass</a>
+          </td>
+          <td class="xmldoc"><p>Gives an indication of what should happen when the token is typed in an IDE</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharptokenizercolorstate.html">FSharpTokenizerColorState</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharptokenizerlexstate.html">FSharpTokenizerLexState</a>
+          </td>
+          <td class="xmldoc"><p>Represents encoded information for the end-of-line continutation of lexing</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -629,7 +736,7 @@ a single, non-overloaded item such as union case or a named function value.</p>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpxmlcomment.html">FSharpXmlComment</a>
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpxmldoc.html">FSharpXmlDoc</a>
           </td>
           <td class="xmldoc"><p>Describe a comment as either a block of text or a file+signature reference into an intellidoc file.</p>
 </td>
@@ -638,19 +745,22 @@ a single, non-overloaded item such as union case or a named function value.</p>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-finddeclfailurereason.html">FindDeclFailureReason</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpFindDeclFailureReason</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-finddeclresult.html">FindDeclResult</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpFindDeclResult</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-interactivechecker.html">InteractiveChecker</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpChecker</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -663,143 +773,157 @@ of intellisense results in some situations.</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-lexstate.html">LexState</a>
+          </td>
+          <td class="xmldoc"><p>Renamed to FSharpTokenizerLexState</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-linetokenizer.html">LineTokenizer</a>
           </td>
-          <td class="xmldoc"><p>Object to tokenize a line of F# source code, starting with the given lexState.  The lexState should be 0 for
-the first line of text. Returns an array of ranges of the text and two enumerations categorizing the
-tokens and characters covered by that range, i.e. TokenColorKind and TokenCharKind.  The enumerations
-are somewhat adhoc but useful enough to give good colorization options to the user in an IDE.</p>
-
-<p>A new lexState is also returned.  An IDE-plugin should in general cache the lexState 
-values for each line of the edited code.</p>
+          <td class="xmldoc"><p>Renamed to FSharpLineTokenizer</p>
 </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-method.html">Method</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpMethodGroupItem</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-methodgroup.html">MethodGroup</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpMethodGroup</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-methodgroupitem.html">MethodGroupItem</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpMethodGroupItem</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-navigationitems.html">NavigationItems</a>
           </td>
-          <td class="xmldoc"><p>Represents result of 'GetNavigationItems' operation - this contains
-all the members and currently selected indices. First level correspond to
-types &amp; modules and second level are methods etc.</p>
+          <td class="xmldoc"><p>Renamed to FSharpNavigationItems</p>
 </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-noteworthyparaminfolocations.html">NoteworthyParamInfoLocations</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpNoteworthyParamInfoLocations</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-notifyfiletypecheckstateisdirty.html">NotifyFileTypeCheckStateIsDirty</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Obsolete and replaced</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-param.html">Param</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpMethodGroupItemParameter</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-parsefileresults.html">ParseFileResults</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpParseFileResults</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-projectcontext.html">ProjectContext</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpProjectContext</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-projectoptions.html">ProjectOptions</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpProjectOptions</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-sourcetokenizer.html">SourceTokenizer</a>
           </td>
-          <td class="xmldoc"><p>Tokenizer for a source file. Holds some expensive-to-compute resources at the scope of the file.</p>
+          <td class="xmldoc"><p>Renamed to FSharpSourceTokenizer</p>
 </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-tokencharkind.html">TokenCharKind</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpTokenCharKind</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-tokencolorkind.html">TokenColorKind</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpTokenColorKind</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-tokeninformation.html">TokenInformation</a>
           </td>
-          <td class="xmldoc"><p>Information about a particular token from the tokenizer</p>
+          <td class="xmldoc"><p>Renamed to FSharpTokenInfo</p>
 </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-tooltipelement.html">ToolTipElement</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpToolTipElement</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-tooltiptext.html">ToolTipText</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpToolTipText</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-topleveldeclaration.html">TopLevelDeclaration</a>
           </td>
-          <td class="xmldoc"><p>Represents top-level declarations (that should be in the type drop-down)
-with nested declarations (that can be shown in the member drop-down)</p>
+          <td class="xmldoc"><p>Renamed to FSharpNavigationTopLevelDeclaration</p>
 </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-triggerclass.html">TriggerClass</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpTokenTriggerClass</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-typecheckanswer.html">TypeCheckAnswer</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpCheckFileAnswer</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-typecheckresults.html">TypeCheckResults</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpCheckFileResults</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -812,13 +936,15 @@ with nested declarations (that can be shown in the member drop-down)</p>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-untypedparseinfo.html">UntypedParseInfo</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpParseFileResults</p>
+</td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-xmlcomment.html">XmlComment</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Renamed to FSharpXmlDoc</p>
+</td>
         </tr>
     </tbody>
   </table>

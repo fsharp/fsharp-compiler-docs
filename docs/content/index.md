@@ -66,6 +66,7 @@ Some of the projects using the F# Compiler Services are:
  * [**Tsunami**](http://tsunami.io) 
  * [**FQuake3**](https://github.com/TIHan/FQuake3/)  - integrates F# as an interactive game scripting engine
  * [**FCell**](http://fcell.io) 
+ * [**FSharpLint**](https://github.com/fsprojects/FSharpLint) 
 
 
 Contributing and copyright

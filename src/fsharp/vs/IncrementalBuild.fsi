@@ -16,7 +16,7 @@ type (*internal*) Severity =
     | Error
 
 [<Class>]
-type (*internal*) ErrorInfo = 
+type (*internal*) FSharpErrorInfo = 
     member FileName: string
     member StartLineAlternate:int
     member EndLineAlternate:int
@@ -29,15 +29,15 @@ type (*internal*) ErrorInfo =
     member Severity:Severity
     member Message:string
     member Subcategory:string
-    static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * lastPosInFile:(int*int) -> ErrorInfo
-    static member internal CreateFromException : PhasedError * bool * bool * range -> ErrorInfo
+    static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * lastPosInFile:(int*int) -> FSharpErrorInfo
+    static member internal CreateFromException : PhasedError * bool * bool * range -> FSharpErrorInfo
 
 // Implementation details used by other code in the compiler    
 [<Sealed>]
 type internal ErrorScope = 
     interface System.IDisposable
     new : unit -> ErrorScope
-    member ErrorsAndWarnings : ErrorInfo list
+    member ErrorsAndWarnings : FSharpErrorInfo list
     static member Protect<'a> : range -> (unit->'a) -> (string->'a) -> 'a
     static member ProtectWithDefault<'a> : range -> (unit -> 'a) -> 'a -> 'a
     static member ProtectAndDiscard : range -> (unit -> unit) -> unit
@@ -143,4 +143,7 @@ module internal IncrementalFSharpBuild =
       /// This may be a marginally long-running operation (parses are relatively quick, only one file needs to be parsed)
       member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * bool) list
 
-      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * ErrorInfo list
+      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * FSharpErrorInfo list
+
+[<System.Obsolete("This type has been renamed to FSharpErrorInfo")>]
+type ErrorInfo = FSharpErrorInfo

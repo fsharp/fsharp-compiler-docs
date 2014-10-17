@@ -159,7 +159,7 @@ type FsiEvaluationSession =
     ///
     /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
     /// by input from 'stdin'. 
-    member ParseAndCheckInteraction : code: string -> ParseFileResults * CheckFileResults * CheckProjectResults
+    member ParseAndCheckInteraction : code: string -> FSharpParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults
 
     /// The single, global interactive checker to use in conjunction with other operations
     /// on the FsiEvaluationSession.  

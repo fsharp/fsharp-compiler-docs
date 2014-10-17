@@ -945,7 +945,7 @@ type Severity =
     | Warning 
     | Error
 
-type ErrorInfo(fileName, s:pos, e:pos, severity: Severity, message: string, subcategory: string) = 
+type FSharpErrorInfo(fileName, s:pos, e:pos, severity: Severity, message: string, subcategory: string) = 
     member __.StartLine = Line.toZ s.Line
     member __.StartLineAlternate = s.Line
     member __.EndLine = Line.toZ e.Line
@@ -956,8 +956,8 @@ type ErrorInfo(fileName, s:pos, e:pos, severity: Severity, message: string, subc
     member __.Message = message
     member __.Subcategory = subcategory
     member __.FileName = fileName
-    member __.WithStart(newStart) = ErrorInfo(fileName, newStart, e, severity, message, subcategory)
-    member __.WithEnd(newEnd) = ErrorInfo(fileName, s, newEnd, severity, message, subcategory)
+    member __.WithStart(newStart) = FSharpErrorInfo(fileName, newStart, e, severity, message, subcategory)
+    member __.WithEnd(newEnd) = FSharpErrorInfo(fileName, s, newEnd, severity, message, subcategory)
     override e.ToString()=
         sprintf "%s (%d,%d)-(%d,%d) %s %s %s" 
             e.FileName
@@ -972,11 +972,11 @@ type ErrorInfo(fileName, s:pos, e:pos, severity: Severity, message: string, subc
         let s = m.Start
         let e = (if trim then m.Start else m.End)
         let msg = bufs (fun buf -> OutputPhasedError buf exn false)
-        ErrorInfo(m.FileName, s, e, (if warn then Severity.Warning else Severity.Error), msg, exn.Subcategory())
+        FSharpErrorInfo(m.FileName, s, e, (if warn then Severity.Warning else Severity.Error), msg, exn.Subcategory())
         
     /// Decompose a warning or error into parts: position, severity, message
     static member internal CreateFromExceptionAndAdjustEof(exn,warn,trim:bool,fallbackRange:range, (linesCount:int, lastLength:int)) = 
-        let r = ErrorInfo.CreateFromException(exn,warn,trim,fallbackRange)
+        let r = FSharpErrorInfo.CreateFromException(exn,warn,trim,fallbackRange)
                 
         // Adjust to make sure that errors reported at Eof are shown at the linesCount        
         let startline, schange = min (r.StartLineAlternate, false) (linesCount, true)
@@ -998,9 +998,9 @@ type ErrorScope()  =
         PushErrorLoggerPhaseUntilUnwind (fun _oldLogger -> 
             { new ErrorLogger("ErrorScope") with 
                 member x.WarnSinkImpl(exn) = 
-                      errors <- ErrorInfo.CreateFromException(exn,true,false,range.Zero):: errors
+                      errors <- FSharpErrorInfo.CreateFromException(exn,true,false,range.Zero):: errors
                 member x.ErrorSinkImpl(exn) = 
-                      let err = ErrorInfo.CreateFromException(exn,false,false,range.Zero)
+                      let err = FSharpErrorInfo.CreateFromException(exn,false,false,range.Zero)
                       errors <- err :: errors
                       mostRecentError <- Some(err)
                 member x.ErrorCount = errors.Length })
@@ -1784,3 +1784,6 @@ module internal IncrementalFSharpBuild =
                None
 
           builderOpt, errorScope.ErrorsAndWarnings
+
+[<Obsolete("This type has been renamed to FSharpErrorInfo")>]
+type ErrorInfo = FSharpErrorInfo

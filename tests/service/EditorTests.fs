@@ -49,7 +49,7 @@ let ``Intro test`` () =
 
     // Get tool tip at the specified location
     let tip = typeCheckResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken) |> Async.RunSynchronously
-    (sprintf "%A" tip).Replace("\n","") |> shouldEqual """ToolTipText  [ToolTipElement ("val foo : unit -> unitFull name: Test.foo",XmlCommentNone)]"""
+    (sprintf "%A" tip).Replace("\n","") |> shouldEqual """FSharpToolTipText [Single ("val foo : unit -> unitFull name: Test.foo",XmlCommentNone)]"""
     // Get declarations (autocomplete) for a location
     let decls =  typeCheckResults.GetDeclarationsAlternate(Some untyped, 7, 23, inputLines.[6], [], "msg", fun _ -> false)|> Async.RunSynchronously
     [ for item in decls.Items -> item.Name ] |> shouldEqual

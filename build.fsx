@@ -61,7 +61,7 @@ Target "AssemblyInfo" (fun _ ->
 Target "RestorePackages" RestorePackages
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp" ]
+    CleanDirs ["bin" ]
 )
 
 Target "CleanDocs" (fun _ ->

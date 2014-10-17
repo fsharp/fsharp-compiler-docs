@@ -138,7 +138,7 @@ type FSharpSymbolUse =
 [<Sealed>]
 type FSharpCheckFileResults =
     /// The errors returned by parsing a source file.
-    member Errors : ErrorInfo[]
+    member Errors : FSharpErrorInfo[]
 
     /// Get a view of the contents of the assembly up to and including the file just checked
     member PartialAssemblySignature : FSharpAssemblySignature
@@ -172,7 +172,7 @@ type FSharpCheckFileResults =
     ///    and assume that we're going to repeat the operation later on.
     /// </param>
 
-    member GetDeclarationsAlternate : ParsedFileResultsOpt:ParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpDeclarationSet>
+    member GetDeclarationsAlternate : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpDeclarationSet>
 
     /// <summary>Get the items for a declaration list in FSharpSymbol format</summary>
     ///
@@ -195,7 +195,7 @@ type FSharpCheckFileResults =
     ///    callback to the client to check if the text has changed. If it has, then give up
     ///    and assume that we're going to repeat the operation later on.
     /// </param>
-    member GetDeclarationSymbols : ParsedFileResultsOpt:ParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpSymbol list list>
+    member GetDeclarationSymbols : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpSymbol list list>
 
 
     /// <summary>Compute a formatted tooltip for the given location</summary>
@@ -261,7 +261,7 @@ type FSharpCheckFileResults =
     member GetExtraColorizations : unit -> (Range01 * TokenColorKind)[]
 
     [<Obsolete("This member has been replaced by GetDeclarationsAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetDeclarations : ParsedFileResultsOpt:ParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<FSharpDeclarationSet>
+    member GetDeclarations : ParsedFileResultsOpt:FSharpParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<FSharpDeclarationSet>
 
     [<Obsolete("This member has been replaced by GetToolTipTextAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member GetToolTipText : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
@@ -285,7 +285,7 @@ type FSharpCheckFileResults =
 [<Sealed>]
 type FSharpCheckProjectResults =
     /// The errors returned by processing the project
-    member Errors : ErrorInfo[]
+    member Errors : FSharpErrorInfo[]
 
     /// Get a view of the overall contents of the assembly. Only valid to use if HasCriticalErrors is false.
     member AssemblySignature : FSharpAssemblySignature
@@ -409,7 +409,7 @@ type FSharpChecker =
     /// <param name="filename">The filename for the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member ParseFileInProject : filename: string * source: string * options: FSharpProjectOptions -> Async<ParseFileResults>
+    member ParseFileInProject : filename: string * source: string * options: FSharpProjectOptions -> Async<FSharpParseFileResults>
 
     /// <summary>
     /// <para>Check a source code file, returning a handle to the results of the parse including
@@ -437,7 +437,7 @@ type FSharpChecker =
     ///     can be used to marginally increase accuracy of intellisense results in some situations.
     /// </param>
     ///
-    member CheckFileInProjectIfReady : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpCheckFileAnswer option>
+    member CheckFileInProjectIfReady : parsed: FSharpParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpCheckFileAnswer option>
 
     /// <summary>
     /// <para>
@@ -467,7 +467,7 @@ type FSharpChecker =
     ///     can be used to marginally increase accuracy of intellisense results in some situations.
     /// </param>
     ///
-    member CheckFileInProject : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpCheckFileAnswer>
+    member CheckFileInProject : parsed: FSharpParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpCheckFileAnswer>
 
     /// <summary>
     /// <para>
@@ -496,7 +496,7 @@ type FSharpChecker =
     ///     can be used to marginally increase accuracy of intellisense results in some situations.
     /// </param>
     ///
-    member ParseAndCheckFileInProject : filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<ParseFileResults * FSharpCheckFileAnswer>
+    member ParseAndCheckFileInProject : filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpParseFileResults * FSharpCheckFileAnswer>
 
     /// <summary>
     /// <para>Parse and typecheck all files in a project.</para>
@@ -556,7 +556,7 @@ type FSharpChecker =
     ///
     /// <param name="filename">The filename for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member GetBackgroundParseResultsForFileInProject : filename : string * options : FSharpProjectOptions -> Async<ParseFileResults>
+    member GetBackgroundParseResultsForFileInProject : filename : string * options : FSharpProjectOptions -> Async<FSharpParseFileResults>
 
     /// <summary>
     /// <para>Like ParseFileInProject, but uses the existing results from the background builder.</para>
@@ -565,7 +565,7 @@ type FSharpChecker =
     ///
     /// <param name="filename">The filename for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member GetBackgroundCheckResultsForFileInProject : filename : string * options : FSharpProjectOptions -> Async<ParseFileResults * FSharpCheckFileResults>
+    member GetBackgroundCheckResultsForFileInProject : filename : string * options : FSharpProjectOptions -> Async<FSharpParseFileResults * FSharpCheckFileResults>
 
     /// <summary>
     /// Try to get type check results for a file. This looks up the results of recent type checks of the
@@ -576,7 +576,7 @@ type FSharpChecker =
     /// <param name="filename">The filename for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
     /// <param name="source">Optionally, specify source that must match the previous parse precisely.</param>
-    member TryGetRecentTypeCheckResultsForFile : filename: string * options:FSharpProjectOptions * ?source: string -> (ParseFileResults * FSharpCheckFileResults * (*version*)int) option
+    member TryGetRecentTypeCheckResultsForFile : filename: string * options:FSharpProjectOptions * ?source: string -> (FSharpParseFileResults * FSharpCheckFileResults * (*version*)int) option
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.
@@ -646,10 +646,10 @@ type FSharpChecker =
     member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimeStamp : DateTime * otherFlags: string[] -> FSharpProjectOptions
 
     [<Obsolete("This member has been renamed to ParseFileInProject")>]
-    member UntypedParse : filename: string * source: string * options: FSharpProjectOptions -> ParseFileResults        
+    member UntypedParse : filename: string * source: string * options: FSharpProjectOptions -> FSharpParseFileResults        
 
     [<Obsolete("This member has been renamed to CheckFileInProjectIfReady")>]
-    member TypeCheckSource : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> FSharpCheckFileAnswer option
+    member TypeCheckSource : parsed: FSharpParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> FSharpCheckFileAnswer option
     
     // One shared global singleton for use by multiple add-ins
     static member Instance : FSharpChecker
@@ -659,7 +659,7 @@ type FSharpChecker =
 // Used internally to provide intellisense over F# Interactive.
 type internal FsiInteractiveChecker =
     internal new : ops: IReactorOperations * tcConfig: Build.TcConfig * tcGlobals: Env.TcGlobals * tcImports: Build.TcImports * tcState: Build.TcState * loadClosure: Build.LoadClosure option ->  FsiInteractiveChecker 
-    member internal ParseAndCheckInteraction : source:string -> ParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults
+    member internal ParseAndCheckInteraction : source:string -> FSharpParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults
 
 /// Information about the compilation environment    
 module CompilerEnvironment =
@@ -714,8 +714,8 @@ type CheckFileAnswer = FSharpCheckFileAnswer
 [<Obsolete("This type has been renamed to FSharpCheckFileResults")>]
 type TypeCheckResults = FSharpCheckFileResults
 
-[<Obsolete("This type has been renamed to ParseFileResults")>]
-type UntypedParseInfo = ParseFileResults
+[<Obsolete("This type has been renamed to FSharpParseFileResults")>]
+type UntypedParseInfo = FSharpParseFileResults
 
 [<Obsolete("NotifyFileTypeCheckStateIsDirty has been replaced by the FileTypeCheckStateIsDirty event on the FSharpChecker type")>]
 type NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)

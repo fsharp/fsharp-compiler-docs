@@ -76,7 +76,7 @@ type CompletionContext =
 //----------------------------------------------------------------------------
 
 [<Sealed>]
-type ParseFileResults(errors : ErrorInfo[], input : Ast.ParsedInput option, parseHadErrors : bool, dependencyFiles : string list) = 
+type FSharpParseFileResults(errors : FSharpErrorInfo[], input : Ast.ParsedInput option, parseHadErrors : bool, dependencyFiles : string list) = 
 
     member scope.Errors = errors
 
@@ -607,7 +607,7 @@ module (*internal*) UntypedParseImpl =
     type TS = AstTraversal.TraverseStep
 
     /// try to determine completion context for the given pair (row, columns)
-    let TryGetCompletionContext (pos, untypedParseOpt: ParseFileResults option) : CompletionContext option = 
+    let TryGetCompletionContext (pos, untypedParseOpt: FSharpParseFileResults option) : CompletionContext option = 
         let parsedInputOpt =
             match untypedParseOpt with
             | Some upi -> upi.ParseTree
@@ -753,3 +753,6 @@ module (*internal*) UntypedParseImpl =
                             | None -> Some (CompletionContext.Invalid) // A $ .B -> no completion list
                         | _ -> None }
         AstTraversal.Traverse(pos, pt, walker)
+
+[<Obsolete("This type has been renamed to FSharpParseFileResults")>]
+type ParseFileResults = FSharpParseFileResults

@@ -29,7 +29,7 @@
     <OutputPath>..\..\..\bin\$(TargetFrameworkVersion)</OutputPath>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
     <DefineConstants>$(DefineConstants);CROSS_PLATFORM_COMPILER</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_ATLEAST_45</DefineConstants>
+    <DefineConstants Condition="$(TargetFrameworkVersion) == 'v4.5'">$(DefineConstants);FX_ATLEAST_45</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_ATLEAST_40</DefineConstants>
     <DefineConstants>$(DefineConstants);BE_SECURITY_TRANSPARENT</DefineConstants>
     <DefineConstants>$(DefineConstants);TYPE_PROVIDER_SECURITY</DefineConstants>
@@ -63,12 +63,6 @@
     <Optimize>true</Optimize>
     <DocumentationFile>..\..\..\bin\$(TargetFrameworkVersion)\FSharp.Compiler.Service.XML</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="$(TargetFrameworkVersion) == 'v4.0'">
-    <DefineConstants>$(DefineConstants);NET40</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(TargetFrameworkVersion) == 'v4.5'">
-    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
-  </PropertyGroup>  
   <ItemGroup>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">
       <Link>AssemblyInfo/assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>

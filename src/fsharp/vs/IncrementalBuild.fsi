@@ -2,6 +2,7 @@
 
 namespace Microsoft.FSharp.Compiler
 
+open System
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.ErrorLogger
@@ -20,9 +21,9 @@ type (*internal*) FSharpErrorInfo =
     member FileName: string
     member StartLineAlternate:int
     member EndLineAlternate:int
-    [<System.Obsolete("This member has been replaced by StartLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    [<Obsolete("This member has been replaced by StartLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member StartLine:Line0
-    [<System.Obsolete("This member has been replaced by EndLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    [<Obsolete("This member has been replaced by EndLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member EndLine:Line0
     member StartColumn:int
     member EndColumn:int
@@ -35,7 +36,7 @@ type (*internal*) FSharpErrorInfo =
 // Implementation details used by other code in the compiler    
 [<Sealed>]
 type internal ErrorScope = 
-    interface System.IDisposable
+    interface IDisposable
     new : unit -> ErrorScope
     member ErrorsAndWarnings : FSharpErrorInfo list
     static member Protect<'a> : range -> (unit->'a) -> (string->'a) -> 'a
@@ -56,14 +57,14 @@ module internal IncrementalFSharpBuild =
         TcEnvAtEnd : TypeChecker.TcEnv 
         Errors : (PhasedError * bool) list 
         TcResolutions: Nameres.TcResolutions list 
-        TimeStamp: System.DateTime }
+        TimeStamp: DateTime }
 
   [<Class>]
   type IncrementalBuilder = 
 
       /// Increment the usage count on the IncrementalBuilder by 1. Ths initial usage count is 0. The returns an IDisposable which will 
       /// decrement the usage count on the entire build by 1 and dispose if it is no longer used by anyone.
-      member IncrementUsageCount : unit -> System.IDisposable
+      member IncrementUsageCount : unit -> IDisposable
      
       /// Check if the builder is not disposed
       member IsAlive : bool
@@ -136,7 +137,7 @@ module internal IncrementalFSharpBuild =
       member GetCheckResultsAndImplementationsForProject : unit -> PartialCheckResults * IL.ILAssemblyRef * Build.IRawFSharpAssemblyContents option 
 
       /// Get the logical time stamp that is associated with the output of the project if it were gully built immediately
-      member GetLogicalTimeStampForProject: unit -> System.DateTime
+      member GetLogicalTimeStampForProject: unit -> DateTime
 
       /// Await the untyped parse results for a particular slot in the vector of parse results.
       ///
@@ -145,7 +146,7 @@ module internal IncrementalFSharpBuild =
 
       static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * FSharpErrorInfo list
 
-[<System.Obsolete("This type has been renamed to FSharpErrorInfo")>]
+[<Obsolete("This type has been renamed to FSharpErrorInfo")>]
 /// Renamed to FSharpErrorInfo
 type ErrorInfo = FSharpErrorInfo
 

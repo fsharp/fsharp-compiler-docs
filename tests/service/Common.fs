@@ -6,13 +6,13 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
 // Create one global interactive checker instance 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 let parseAndTypeCheckFileInProject (file, input) = 
     let checkOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
     let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, checkOptions) |> Async.RunSynchronously
     match typedRes with
-    | CheckFileAnswer.Succeeded(res) -> parseResult, res
+    | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
     | res -> failwithf "Parsing did not finish... (%A)" res
 
 type TempFile(ext, contents) = 

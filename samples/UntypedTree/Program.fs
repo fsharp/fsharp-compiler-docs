@@ -3,8 +3,8 @@ open System
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 
-// Create an interactive checker instance (ignore notifications)
-let checker = InteractiveChecker.Create()
+// Create a checker instance (ignore notifications)
+let checker = FSharpChecker.Create()
 
 // ------------------------------------------------------------------
 

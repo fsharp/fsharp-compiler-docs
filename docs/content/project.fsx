@@ -29,7 +29,7 @@ open System.Collections.Generic
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 // Create an interactive checker instance 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 (**
 Here are our sample inputs:
@@ -222,7 +222,7 @@ let parseResults1, checkAnswer1 =
 
 let checkResults1 = 
     match checkAnswer1 with 
-    | CheckFileAnswer.Succeeded x ->  x 
+    | FSharpCheckFileAnswer.Succeeded x ->  x 
     | _ -> failwith "unexpected aborted"
 
 let parseResults2, checkAnswer2 = 
@@ -231,7 +231,7 @@ let parseResults2, checkAnswer2 =
 
 let checkResults2 = 
     match checkAnswer2 with 
-    | CheckFileAnswer.Succeeded x ->  x 
+    | FSharpCheckFileAnswer.Succeeded x ->  x 
     | _ -> failwith "unexpected aborted"
 
 (**
@@ -340,14 +340,11 @@ Another utility is provided to simply get the command line arguments for a proje
 
 *)
 
-(*** define-output:options2 ***)
-
-InteractiveChecker.GetCommandLineArgsFromProjectFile(__SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj")
+FSharpProjectFileInfo.Parse(projectFile, [("Configuration", "Release")])
 
 (**
 
-Here the arguments are simply returned as an array of command line arguments suitable for the F# compiler or compiler service.
-
+Here a detailed view of the resolved and processed project file is returned.
 *)
 
 (**

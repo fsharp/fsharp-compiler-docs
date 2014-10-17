@@ -274,3 +274,9 @@
 #### 0.0.67 - 
 * Fixes to project parser for Mono
 
+#### 0.0.70 - 
+* Make FSharpProjectFileParser public
+* Fixes to project parser for Mono (.NET 4.0 component)
+* Renamings in SourceCodeServices API for more consistent use of 'FSharp' prefix
+
+

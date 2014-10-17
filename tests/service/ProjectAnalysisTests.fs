@@ -21,7 +21,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
 // Create an interactive checker instance 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)
@@ -622,12 +622,12 @@ let ``Test file explicit parse symbols`` () =
     let checkResults1 = 
         checker.CheckFileInProject(parseResults1, Project1.fileName1, 0, Project1.fileSource1, Project1.options) 
         |> Async.RunSynchronously
-        |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
+        |> function FSharpCheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
 
     let checkResults2 = 
         checker.CheckFileInProject(parseResults2, Project1.fileName2, 0, Project1.fileSource2, Project1.options)
         |> Async.RunSynchronously
-        |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
+        |> function FSharpCheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
 
     let xSymbolUse2Opt = checkResults1.GetSymbolUseAtLocation(9,9,"",["xxx"]) |> Async.RunSynchronously
     let xSymbol2 = xSymbolUse2Opt.Value.Symbol
@@ -668,12 +668,12 @@ let ``Test file explicit parse all symbols`` () =
     let checkResults1 = 
         checker.CheckFileInProject(parseResults1, Project1.fileName1, 0, Project1.fileSource1, Project1.options) 
         |> Async.RunSynchronously
-        |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
+        |> function FSharpCheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
 
     let checkResults2 = 
         checker.CheckFileInProject(parseResults2, Project1.fileName2, 0, Project1.fileSource2, Project1.options)
         |> Async.RunSynchronously
-        |> function CheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
+        |> function FSharpCheckFileAnswer.Succeeded x ->  x | _ -> failwith "unexpected aborted"
 
     let usesOfSymbols = checkResults1.GetAllUsesOfAllSymbolsInFile() |> Async.RunSynchronously
     let cleanedUsesOfSymbols = 
@@ -3894,16 +3894,16 @@ let ``Project file parsing example 1 Default Configuration`` () =
 
     printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
     printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.ProjectOptions
+    printfn "%A" options.OtherOptions
     printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
 
-    checkOption options.ProjectOptions "FSharp.Compiler.Service.dll"
-    checkOption options.ProjectOptions "FileSystemTests.fs"
-    checkOption options.ProjectOptions "--define:TRACE"
-    checkOption options.ProjectOptions "--define:DEBUG"
-    checkOption options.ProjectOptions "--flaterrors"
-    checkOption options.ProjectOptions "--simpleresolution"
-    checkOption options.ProjectOptions "--noframework"
+    checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
+    checkOption options.OtherOptions "FileSystemTests.fs"
+    checkOption options.OtherOptions "--define:TRACE"
+    checkOption options.OtherOptions "--define:DEBUG"
+    checkOption options.OtherOptions "--flaterrors"
+    checkOption options.OtherOptions "--simpleresolution"
+    checkOption options.OtherOptions "--noframework"
 
 [<Test>]
 let ``Project file parsing example 1 Release Configuration`` () = 
@@ -3915,13 +3915,13 @@ let ``Project file parsing example 1 Release Configuration`` () =
 
     printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
     printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.ProjectOptions
+    printfn "%A" options.OtherOptions
     printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-    checkOption options.ProjectOptions "FSharp.Compiler.Service.dll"
-    checkOption options.ProjectOptions "FileSystemTests.fs"
-    checkOption options.ProjectOptions "--define:TRACE"
-    checkOptionNotPresent options.ProjectOptions "--define:DEBUG"
-    checkOption options.ProjectOptions "--debug:pdbonly"
+    checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
+    checkOption options.OtherOptions "FileSystemTests.fs"
+    checkOption options.OtherOptions "--define:TRACE"
+    checkOptionNotPresent options.OtherOptions "--define:DEBUG"
+    checkOption options.OtherOptions "--debug:pdbonly"
 
 [<Test>]
 let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() = 
@@ -3932,17 +3932,17 @@ let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() =
 
     printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
     printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.ProjectOptions
+    printfn "%A" options.OtherOptions
     printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
 
-    checkOption options.ProjectOptions "--targetprofile:netcore"
-    checkOption options.ProjectOptions "--tailcalls-"
+    checkOption options.OtherOptions "--targetprofile:netcore"
+    checkOption options.OtherOptions "--tailcalls-"
 
-    checkOption options.ProjectOptions "FSharp.Core.dll"
-    checkOption options.ProjectOptions "Microsoft.CSharp.dll"
-    checkOption options.ProjectOptions "System.Runtime.dll"
-    checkOption options.ProjectOptions "System.Net.Requests.dll"
-    checkOption options.ProjectOptions "System.Xml.XmlSerializer.dll"
+    checkOption options.OtherOptions "FSharp.Core.dll"
+    checkOption options.OtherOptions "Microsoft.CSharp.dll"
+    checkOption options.OtherOptions "System.Runtime.dll"
+    checkOption options.OtherOptions "System.Net.Requests.dll"
+    checkOption options.OtherOptions "System.Xml.XmlSerializer.dll"
 
 [<Test>]
 let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78``() = 
@@ -3953,13 +3953,13 @@ let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted
 
     printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
     printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.ProjectOptions
+    printfn "%A" options.OtherOptions
     printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-    checkOption options.ProjectOptions "--targetprofile:netcore"
-    checkOption options.ProjectOptions "--tailcalls-"
+    checkOption options.OtherOptions "--targetprofile:netcore"
+    checkOption options.OtherOptions "--tailcalls-"
 
-    checkOption options.ProjectOptions "FSharp.Core.dll"
-    checkOption options.ProjectOptions "Microsoft.CSharp.dll"
-    checkOption options.ProjectOptions "System.Runtime.dll"
-    checkOption options.ProjectOptions "System.Net.Requests.dll"
-    checkOption options.ProjectOptions "System.Xml.XmlSerializer.dll"
+    checkOption options.OtherOptions "FSharp.Core.dll"
+    checkOption options.OtherOptions "Microsoft.CSharp.dll"
+    checkOption options.OtherOptions "System.Runtime.dll"
+    checkOption options.OtherOptions "System.Net.Requests.dll"
+    checkOption options.OtherOptions "System.Xml.XmlSerializer.dll"

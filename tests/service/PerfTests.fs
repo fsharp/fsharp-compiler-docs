@@ -20,7 +20,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
 // Create an interactive checker instance 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 module Project1 = 
     open System.IO
@@ -46,22 +46,22 @@ let ``Test request for parse and check doesn't check whole project`` () =
     checker.FileChecked.Add (fun x -> incr backgroundCheckCount)
     checker.FileParsed.Add (fun x -> incr backgroundParseCount)
 
-    let pB, tB = InteractiveChecker.GlobalForegroundParseCountStatistic, InteractiveChecker.GlobalForegroundTypeCheckCountStatistic
+    let pB, tB = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
     let parseResults1 = checker.ParseFileInProject(Project1.fileNames.[5], Project1.fileSources2.[5], Project1.options)  |> Async.RunSynchronously
-    let pC, tC = InteractiveChecker.GlobalForegroundParseCountStatistic, InteractiveChecker.GlobalForegroundTypeCheckCountStatistic
+    let pC, tC = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
     (pC - pB) |> shouldEqual 1
     (tC - tB) |> shouldEqual 0
     backgroundParseCount.Value |> shouldEqual 0
     backgroundCheckCount.Value |> shouldEqual 0
     let checkResults1 = checker.CheckFileInProject(parseResults1, Project1.fileNames.[5], 0, Project1.fileSources2.[5], Project1.options)  |> Async.RunSynchronously
-    let pD, tD = InteractiveChecker.GlobalForegroundParseCountStatistic, InteractiveChecker.GlobalForegroundTypeCheckCountStatistic
+    let pD, tD = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
     backgroundParseCount.Value |> shouldEqual 10 // This could be reduced to 5 - the whole project gets parsed 
     backgroundCheckCount.Value |> shouldEqual 5
     (pD - pC) |> shouldEqual 0
     (tD - tC) |> shouldEqual 1
 
     let checkResults2 = checker.CheckFileInProject(parseResults1, Project1.fileNames.[7], 0, Project1.fileSources2.[7], Project1.options)  |> Async.RunSynchronously
-    let pE, tE = InteractiveChecker.GlobalForegroundParseCountStatistic, InteractiveChecker.GlobalForegroundTypeCheckCountStatistic
+    let pE, tE = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
     (pE - pD) |> shouldEqual 0
     (tE - tD) |> shouldEqual 1
     backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
@@ -69,7 +69,7 @@ let ``Test request for parse and check doesn't check whole project`` () =
 
     // A subsequent ParseAndCheck of identical source code doesn't do any more anything
     let checkResults2 = checker.ParseAndCheckFileInProject(Project1.fileNames.[7], 0, Project1.fileSources2.[7], Project1.options)  |> Async.RunSynchronously
-    let pF, tF = InteractiveChecker.GlobalForegroundParseCountStatistic, InteractiveChecker.GlobalForegroundTypeCheckCountStatistic
+    let pF, tF = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
     (pF - pE) |> shouldEqual 0  // note, no new parse of the file
     (tF - tE) |> shouldEqual 0  // note, no new typecheck of the file
     backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed

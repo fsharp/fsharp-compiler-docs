@@ -29,7 +29,7 @@ open System
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 // Create an interactive checker instance 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 (**
 
@@ -95,7 +95,7 @@ the interesting functionality...
 
 let checkFileResults = 
     match checkFileAnswer with
-    | CheckFileAnswer.Succeeded(res) -> res
+    | FSharpCheckFileAnswer.Succeeded(res) -> res
     | res -> failwithf "Parsing did not finish... (%A)" res
 
 (**

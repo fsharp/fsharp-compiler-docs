@@ -102,7 +102,7 @@ type DebugMode =
     | PdbOnly
     | Full
 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 let compiler = new SimpleSourceCodeServices()
 
 /// Ensures the default FSharp.Core referenced by the F# compiler service (if none is 
@@ -280,7 +280,7 @@ module Bar
 
     printfn "done!" // make the code have some initialization effect
 """
-    let serviceAssembly = typeof<InteractiveChecker>.Assembly.Location
+    let serviceAssembly = typeof<FSharpChecker>.Assembly.Location
     let ast = parseSourceCode("bar", code)
     compileAndVerifyAst("bar", ast, [serviceAssembly])
 

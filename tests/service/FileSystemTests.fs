@@ -97,7 +97,7 @@ let ``FileSystem compilation test``() =
  
         { ProjectFileName = @"c:\mycode\compilation.fsproj" // Make a name that is unique in this directory.
           ProjectFileNames = [| fileName1; fileName2 |]
-          ProjectOptions = allFlags 
+          OtherOptions = allFlags 
           ReferencedProjects = [| |];
           IsIncompleteTypeCheckEnvironment = false
           UseScriptResolutionRules = true 

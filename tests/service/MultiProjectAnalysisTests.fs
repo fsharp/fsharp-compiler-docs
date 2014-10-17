@@ -22,7 +22,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
 let numProjectsForStressTest = 100
-let checker = InteractiveChecker.Create(numProjectsForStressTest + 10)
+let checker = FSharpChecker.Create(numProjectsForStressTest + 10)
 
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)
@@ -109,7 +109,7 @@ let p = (Project1A.x1, Project1B.b)
     let options = 
         let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
         { options with 
-            ProjectOptions = Array.append options.ProjectOptions [| ("-r:" + Project1A.dllName); ("-r:" + Project1B.dllName) |]
+            OtherOptions = Array.append options.OtherOptions [| ("-r:" + Project1A.dllName); ("-r:" + Project1B.dllName) |]
             ReferencedProjects = [| (Project1A.dllName, Project1A.options);
                                     (Project1B.dllName, Project1B.options); |] }
     let cleanFileName a = if a = fileName1 then "file1" else "??"
@@ -185,7 +185,7 @@ let ``Test multi project 1 all symbols`` () =
 module ManyProjectsStressTest = 
     open System.IO
 
-    type Project = { ModuleName: string; FileName: string; Options: ProjectOptions; DllName: string } 
+    type Project = { ModuleName: string; FileName: string; Options: FSharpProjectOptions; DllName: string } 
     let projects = 
         [ for i in 1 .. numProjectsForStressTest do 
                 let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
@@ -233,7 +233,7 @@ let p = ("""
         let options = 
             let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
             { options with 
-                ProjectOptions = Array.append options.ProjectOptions [| for p in  projects -> ("-r:" + p.DllName) |]
+                OtherOptions = Array.append options.OtherOptions [| for p in  projects -> ("-r:" + p.DllName) |]
                 ReferencedProjects = [| for p in projects -> (p.DllName, p.Options); |] }
         { ModuleName = "JointProject"; FileName=fileName; Options = options; DllName=dllName } 
 
@@ -343,7 +343,7 @@ let z = Project1.x
         let args = mkProjectCommandLineArgs (dllName, fileNames)
         let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
         { options with 
-            ProjectOptions = Array.append options.ProjectOptions [| ("-r:" + MultiProjectDirty1.dllName) |]
+            OtherOptions = Array.append options.OtherOptions [| ("-r:" + MultiProjectDirty1.dllName) |]
             ReferencedProjects = [| (MultiProjectDirty1.dllName, MultiProjectDirty1.getOptions()) |] }
 
 [<Test>]
@@ -562,7 +562,7 @@ let v = Project2A.C().InternalMember // access an internal symbol
     let options = 
         let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
         { options with 
-            ProjectOptions = Array.append options.ProjectOptions [| ("-r:" + Project2A.dllName);  |]
+            OtherOptions = Array.append options.OtherOptions [| ("-r:" + Project2A.dllName);  |]
             ReferencedProjects = [| (Project2A.dllName, Project2A.options); |] }
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
@@ -587,7 +587,7 @@ let v = Project2A.C().InternalMember // access an internal symbol
     let options = 
         let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
         { options with 
-            ProjectOptions = Array.append options.ProjectOptions [| ("-r:" + Project2A.dllName);  |]
+            OtherOptions = Array.append options.OtherOptions [| ("-r:" + Project2A.dllName);  |]
             ReferencedProjects = [| (Project2A.dllName, Project2A.options); |] }
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
@@ -679,7 +679,7 @@ let fizzBuzz = function
     let options = 
         let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
         { options with 
-            ProjectOptions = Array.append options.ProjectOptions [| ("-r:" + Project3A.dllName) |]
+            OtherOptions = Array.append options.OtherOptions [| ("-r:" + Project3A.dllName) |]
             ReferencedProjects = [| (Project3A.dllName, Project3A.options) |] }
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
@@ -688,7 +688,7 @@ let ``Test multi project 3 whole project errors`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(MultiProject3.options) |> Async.RunSynchronously
 
-    wholeProjectResults .Errors.Length |> shouldEqual 0
+    wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
 let ``Test active patterns' XmlDocSig declared in referenced projects`` () =

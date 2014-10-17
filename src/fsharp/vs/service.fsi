@@ -14,7 +14,7 @@ open Microsoft.FSharp.Compiler.Range
 
 /// Represents one parameter for one method (or other item) in a group. 
 [<Sealed>]
-type MethodGroupItemParameter = 
+type FSharpMethodGroupItemParameter = 
 
     /// The name of the parameter.
     member ParameterName: string
@@ -35,7 +35,7 @@ type MethodGroupItemParameter =
 /// Represents one method (or other item) in a method group. The item may represent either a method or 
 /// a single, non-overloaded item such as union case or a named function value.
 [<Sealed>]
-type MethodGroupItem = 
+type FSharpMethodGroupItem = 
 
     /// The formatted description text for the method (or other item)
     member Description : ToolTipText
@@ -44,7 +44,7 @@ type MethodGroupItem =
     member TypeText: string
 
     /// The parameters of the method in the overload set
-    member Parameters: MethodGroupItemParameter[]
+    member Parameters: FSharpMethodGroupItemParameter[]
 
     /// Indicates that this not really a method, but actually a static arguments list, like TP<42,"foo">
     member IsStaticArguments: bool
@@ -54,19 +54,19 @@ type MethodGroupItem =
 
 /// Represents a group of methods (or other items) returned by GetMethods.  
 [<Sealed>]
-type MethodGroup = 
+type FSharpMethodGroup = 
     /// The shared name of the methods (or other items) in the group
     member MethodName: string
 
     /// The methods (or other items) in the group
-    member Methods: MethodGroupItem[] 
+    member Methods: FSharpMethodGroupItem[] 
 
     [<Obsolete("This member has been renamed to 'MethodName'")>]
     member Name: string
 
 /// Represents the reason why the GetDeclarationLocation operation failed.
 [<RequireQualifiedAccess>]
-type FindDeclFailureReason = 
+type FSharpFindDeclFailureReason = 
 
     /// Generic reason: no particular information about error
     | Unknown
@@ -75,7 +75,6 @@ type FindDeclFailureReason =
     | NoSourceCode
 
     /// Trying to find declaration of ProvidedType without TypeProviderDefinitionLocationAttribute
-
     | ProvidedType of string
 
     /// Trying to find declaration of ProvidedMember without TypeProviderDefinitionLocationAttribute
@@ -83,15 +82,15 @@ type FindDeclFailureReason =
 
 /// Represents the result of the GetDeclarationLocation operation.
 [<RequireQualifiedAccess>]
-type FindDeclResult = 
+type FSharpFindDeclResult = 
     /// Indicates a declaration location was not found, with an additional reason
-    | DeclNotFound of FindDeclFailureReason
+    | DeclNotFound of FSharpFindDeclFailureReason
     /// Indicates a declaration location was found
     | DeclFound      of range
      
 /// Represents the checking context implied by the ProjectOptions 
 [<Sealed>]
-type ProjectContext =
+type FSharpProjectContext =
     /// Get the resolution and full contents of the assemblies referenced by the project options
     member GetReferencedAssemblies : unit -> FSharpAssembly list
 
@@ -137,7 +136,7 @@ type FSharpSymbolUse =
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
-type CheckFileResults =
+type FSharpCheckFileResults =
     /// The errors returned by parsing a source file.
     member Errors : ErrorInfo[]
 
@@ -145,7 +144,7 @@ type CheckFileResults =
     member PartialAssemblySignature : FSharpAssemblySignature
 
     /// Get the resolution of the ProjectOptions 
-    member ProjectContext : ProjectContext
+    member ProjectContext : FSharpProjectContext
 
     /// Indicates whether type checking successfully occured with some results returned. If false, indicates that 
     /// an unrecoverable error in earlier checking/parsing/resolution steps.
@@ -223,7 +222,7 @@ type CheckFileResults =
     /// <param name="colAtEndOfNames">The column number at the end of the identifiers where the information is being requested.</param>
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
-    member GetMethodsAlternate              : line:int * colAtEndOfNames:int * lineText:string * names:string list option -> Async<MethodGroup>
+    member GetMethodsAlternate              : line:int * colAtEndOfNames:int * lineText:string * names:string list option -> Async<FSharpMethodGroup>
 
     /// <summary>Resolve the names at the given location to the declaration location of the corresponding construct.</summary>
     ///
@@ -232,7 +231,7 @@ type CheckFileResults =
     /// <param name="lineText">The text of the line where the information is being requested.</param>
     /// <param name="names">The identifiers at the location where the information is being requested.</param>
     /// <param name="preferSignature">If false, then make an attempt to go to the implementation (rather than the signature if present).</param>
-    member GetDeclarationLocationAlternate         : line:int * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> Async<FindDeclResult>
+    member GetDeclarationLocationAlternate         : line:int * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> Async<FSharpFindDeclResult>
 
     /// <summary>Resolve the names at the given location to a use of symbol.</summary>
     ///
@@ -274,17 +273,17 @@ type CheckFileResults =
     member GetF1Keyword                   : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> string option
 
     [<Obsolete("This member has been replaced by GetMethodsAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetMethods                     : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list option -> MethodGroup
+    member GetMethods                     : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list option -> FSharpMethodGroup
     [<Obsolete("This member has been replaced by GetDeclarationLocationAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> FindDeclResult
+    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> FSharpFindDeclResult
 
     [<Obsolete("This overload is obsolete. The tokenTag parameter is no longer required for this member")>]
-    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * preferSignature:bool -> FindDeclResult
+    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * preferSignature:bool -> FSharpFindDeclResult
 
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
-type CheckProjectResults =
+type FSharpCheckProjectResults =
     /// The errors returned by processing the project
     member Errors : ErrorInfo[]
 
@@ -292,7 +291,7 @@ type CheckProjectResults =
     member AssemblySignature : FSharpAssemblySignature
 
     /// Get the resolution of the ProjectOptions 
-    member ProjectContext : ProjectContext
+    member ProjectContext : FSharpProjectContext
 
     /// Get the textual usages that resolved to the given symbol throughout the project
     member GetUsesOfSymbol : symbol:FSharpSymbol -> Async<FSharpSymbolUse[]>
@@ -308,17 +307,17 @@ type CheckProjectResults =
 type UnresolvedReferencesSet 
 
 /// <summary>A set of information describing a project or script build configuration.</summary>
-type ProjectOptions = 
+type FSharpProjectOptions = 
     { 
       // Note that this may not reduce to just the project directory, because there may be two projects in the same directory.
       ProjectFileName: string
       /// The files in the project
       ProjectFileNames: string[]
-      /// The command line argument options for the project
-      ProjectOptions: string[]
+      /// Additional command line argument options for the project. These can include additional files and references.
+      OtherOptions: string[]
       /// The command line arguments for the other projects referenced by this project, indexed by the
-      /// exact text used in the "-r:" reference in ProjectOptions.
-      ReferencedProjects: (string * ProjectOptions)[]
+      /// exact text used in the "-r:" reference in FSharpProjectOptions.
+      ReferencedProjects: (string * FSharpProjectOptions)[]
       /// When true, the typechecking environment is known a priori to be incomplete, for
       /// example when a .fs file is opened outside of a project. In this case, the number of error 
       /// messages reported is reduced.
@@ -332,6 +331,8 @@ type ProjectOptions =
       /// Unused in this API and should be 'None'
       UnresolvedReferences : UnresolvedReferencesSet option
     }
+    [<Obsolete("This member has been renamed to 'OtherOptions'")>]
+    member ProjectOptions: string[] 
          
           
 /// Callback which can be used by the host to indicate to the checker that a requested result has become obsolete,
@@ -342,16 +343,47 @@ type IsResultObsolete =
 
 /// The result of calling TypeCheckResult including the possibility of abort and background compiler not caught up.
 [<RequireQualifiedAccess>]
-type CheckFileAnswer =
+type FSharpCheckFileAnswer =
     | Aborted // because isResultObsolete caused an abandonment of the operation
-    | Succeeded of CheckFileResults    
+    | Succeeded of FSharpCheckFileResults    
+
+#if SILVERLIGHT
+#else
+[<Sealed; AutoSerializable(false)>]      
+/// Represents the information gathered by parsing and processing a .fsproj project file format.
+type FSharpProjectFileInfo =
+    /// Parse and process a .fsproj file 
+    static member Parse : fsprojFileName: string * ?properties: (string * string) list -> FSharpProjectFileInfo
+    /// The command-line arguments for compiling this project
+    member Options : string list
+    /// The FrameworkVersion for the project
+    member FrameworkVersion : string option
+    /// The resolved references for the project
+    member References : string list
+    /// The list of files marked 'Compile' for the project
+    member CompileFiles : string list
+    /// The list of resource files for the project
+    member ResourceFiles : string list
+    /// The list of files marked 'Content' in the project
+    member ContentFiles : string list
+    /// The list of files marked 'None' in the project
+    member OtherFiles : string list
+    /// The name of the primary output file for the project
+    member OutputFile : string option
+    /// The directory in which the project file resides
+    member Directory : string
+    /// The name of the output assembly for the project
+    member AssemblyName : string option
+    /// The name of the output path for the project
+    member OutputPath : string option
+#endif
 
 [<Sealed; AutoSerializable(false)>]      
-type InteractiveChecker =
-    /// Create an instance of an InteractiveChecker.  
-    static member Create : ?projectCacheSize: int -> InteractiveChecker
-    /// Create an instance of an InteractiveChecker.
-    static member Create : unit -> InteractiveChecker
+type FSharpChecker =
+    /// Create an instance of an FSharpChecker.  
+    static member Create : ?projectCacheSize: int -> FSharpChecker
+    /// Create an instance of an FSharpChecker.
+    static member Create : unit -> FSharpChecker
 
     /// <summary>
     ///   Parse a source code file, returning information about brace matching in the file.
@@ -361,10 +393,10 @@ type InteractiveChecker =
     /// <param name="filename">The filename for the file, used to help caching of results.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member MatchBracesAlternate : filename : string * source: string * options: ProjectOptions -> Async<(range * range)[]>
+    member MatchBracesAlternate : filename : string * source: string * options: FSharpProjectOptions -> Async<(range * range)[]>
 
     [<Obsolete("This member has been replaced by MatchBracesAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member MatchBraces : filename : string * source: string * options: ProjectOptions -> (Range01 * Range01)[]
+    member MatchBraces : filename : string * source: string * options: FSharpProjectOptions -> (Range01 * Range01)[]
 
     /// <summary>
     /// <para>Parse a source code file, returning a handle that can be used for obtaining navigation bar information
@@ -375,7 +407,7 @@ type InteractiveChecker =
     /// <param name="filename">The filename for the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member ParseFileInProject : filename: string * source: string * options: ProjectOptions -> Async<ParseFileResults>
+    member ParseFileInProject : filename: string * source: string * options: FSharpProjectOptions -> Async<ParseFileResults>
 
     /// <summary>
     /// <para>Check a source code file, returning a handle to the results of the parse including
@@ -403,7 +435,7 @@ type InteractiveChecker =
     ///     can be used to marginally increase accuracy of intellisense results in some situations.
     /// </param>
     ///
-    member CheckFileInProjectIfReady : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<CheckFileAnswer option>
+    member CheckFileInProjectIfReady : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpCheckFileAnswer option>
 
     /// <summary>
     /// <para>
@@ -413,7 +445,7 @@ type InteractiveChecker =
     ///    Note: all files except the one being checked are read from the FileSystem API
     /// </para>
     /// <para>
-    ///   Return CheckFileAnswer.Aborted if a parse tree was not available or if the check
+    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available or if the check
     ////  was abandoned due to isResultObsolete returning 'true' at some checkpoint during type checking.
     /// </para>
     /// </summary>
@@ -433,7 +465,7 @@ type InteractiveChecker =
     ///     can be used to marginally increase accuracy of intellisense results in some situations.
     /// </param>
     ///
-    member CheckFileInProject : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<CheckFileAnswer>
+    member CheckFileInProject : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpCheckFileAnswer>
 
     /// <summary>
     /// <para>
@@ -443,7 +475,7 @@ type InteractiveChecker =
     ///    Note: all files except the one being checked are read from the FileSystem API
     /// </para>
     /// <para>
-    ///   Return CheckFileAnswer.Aborted if a parse tree was not available or if the check
+    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available or if the check
     ////  was abandoned due to isResultObsolete returning 'true' at some checkpoint during type checking.
     /// </para>
     /// </summary>
@@ -462,7 +494,7 @@ type InteractiveChecker =
     ///     can be used to marginally increase accuracy of intellisense results in some situations.
     /// </param>
     ///
-    member ParseAndCheckFileInProject : filename: string * fileversion: int * source: string * options: ProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<ParseFileResults * CheckFileAnswer>
+    member ParseAndCheckFileInProject : filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<ParseFileResults * FSharpCheckFileAnswer>
 
     /// <summary>
     /// <para>Parse and typecheck all files in a project.</para>
@@ -470,10 +502,10 @@ type InteractiveChecker =
     /// </summary>
     ///
     /// <param name="options">The options for the project or script.</param>
-    member ParseAndCheckProject : options: ProjectOptions -> Async<CheckProjectResults>
+    member ParseAndCheckProject : options: FSharpProjectOptions -> Async<FSharpCheckProjectResults>
 
     /// <summary>
-    /// <para>For a given script file, get the ProjectOptions implied by the #load closure.</para>
+    /// <para>For a given script file, get the FSharpProjectOptions implied by the #load closure.</para>
     /// <para>All files are read from the FileSystem API, except the file being checked.</para>
     /// </summary>
     ///
@@ -483,10 +515,10 @@ type InteractiveChecker =
     /// <param name="loadedTimeStamp">Indicates when the script was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the script to be considered as a new project,
     /// so that references are re-resolved.</param>
-    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> Async<ProjectOptions>
+    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> Async<FSharpProjectOptions>
 
     /// <summary>
-    /// <para>Get the ProjectOptions implied by a set of command line arguments.</para>
+    /// <para>Get the FSharpProjectOptions implied by a set of command line arguments.</para>
     /// </summary>
     ///
     /// <param name="projectFileName">Used to differentiate between projects and for the base directory of the project.</param>
@@ -494,17 +526,10 @@ type InteractiveChecker =
     /// <param name="loadedTimeStamp">Indicates when the script was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the script to be considered as a new project,
     /// so that references are re-resolved.</param>
-    member GetProjectOptionsFromCommandLineArgs : projectFileName: string * argv: string[] * ?loadedTimeStamp: DateTime -> ProjectOptions
+    member GetProjectOptionsFromCommandLineArgs : projectFileName: string * argv: string[] * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
            
 #if SILVERLIGHT
 #else
-    /// <summary>
-    /// <para>Get the command line arguments implied by a standard F# project file in the xbuild/msbuild format.</para>
-    /// </summary>
-    ///
-    /// <param name="projectFileName">Used to differentiate between projects and for the base directory of the project.</param>
-    /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
-    static member GetCommandLineArgsFromProjectFile : projectFileName: string * ?properties : (string * string) list -> string[]
 
     /// <summary>
     /// <para>Get the project options implied by a standard F# project file in the xbuild/msbuild format.</para>
@@ -514,11 +539,11 @@ type InteractiveChecker =
     /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
     /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
-    member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> ProjectOptions
+    member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
 #endif
 
     [<Obsolete("This member has been renamed to 'GetProjectOptionsFromScript'")>]
-    member GetProjectOptionsFromScriptRoot : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> ProjectOptions
+    member GetProjectOptionsFromScriptRoot : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> FSharpProjectOptions
 
     /// <summary>
     /// <para>Like ParseFileInProject, but uses results from the background builder.</para>
@@ -527,7 +552,7 @@ type InteractiveChecker =
     ///
     /// <param name="filename">The filename for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member GetBackgroundParseResultsForFileInProject : filename : string * options : ProjectOptions -> Async<ParseFileResults>
+    member GetBackgroundParseResultsForFileInProject : filename : string * options : FSharpProjectOptions -> Async<ParseFileResults>
 
     /// <summary>
     /// <para>Like ParseFileInProject, but uses the existing results from the background builder.</para>
@@ -536,7 +561,7 @@ type InteractiveChecker =
     ///
     /// <param name="filename">The filename for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member GetBackgroundCheckResultsForFileInProject : filename : string * options : ProjectOptions -> Async<ParseFileResults * CheckFileResults>
+    member GetBackgroundCheckResultsForFileInProject : filename : string * options : FSharpProjectOptions -> Async<ParseFileResults * FSharpCheckFileResults>
 
     /// <summary>
     /// Try to get type check results for a file. This looks up the results of recent type checks of the
@@ -547,7 +572,7 @@ type InteractiveChecker =
     /// <param name="filename">The filename for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
     /// <param name="source">Optionally, specify source that must match the previous parse precisely.</param>
-    member TryGetRecentTypeCheckResultsForFile : filename: string * options:ProjectOptions * ?source: string -> (ParseFileResults * CheckFileResults * (*version*)int) option
+    member TryGetRecentTypeCheckResultsForFile : filename: string * options:FSharpProjectOptions * ?source: string -> (ParseFileResults * FSharpCheckFileResults * (*version*)int) option
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.
@@ -555,10 +580,10 @@ type InteractiveChecker =
         
     /// This function is called when the configuration is known to have changed for reasons not encoded in the ProjectOptions.
     /// For example, dependent references may have been deleted or created.
-    member InvalidateConfiguration: options: ProjectOptions -> unit    
+    member InvalidateConfiguration: options: FSharpProjectOptions -> unit    
 
     /// Begin background parsing the given project.
-    member StartBackgroundCompile: options: ProjectOptions -> unit
+    member StartBackgroundCompile: options: FSharpProjectOptions -> unit
 
     /// Stop the background compile.
     member StopBackgroundCompile : unit -> unit
@@ -581,7 +606,7 @@ type InteractiveChecker =
     member CurrentQueueLength : int
 
     /// This function is called when a project has been cleaned/rebuilt, and thus any live type providers should be refreshed.
-    member NotifyProjectCleaned: options: ProjectOptions -> unit    
+    member NotifyProjectCleaned: options: FSharpProjectOptions -> unit    
     
     /// Notify the host that the logical type checking context for a file has now been updated internally
     /// and that the file has become eligible to be re-typechecked for errors.
@@ -611,26 +636,26 @@ type InteractiveChecker =
     member internal ReactorOps : IReactorOperations
 
     [<Obsolete("This member now takes an additional 'otherFlags' argument")>]
-    member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimeStamp : DateTime -> ProjectOptions
+    member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimeStamp : DateTime -> FSharpProjectOptions
 
     [<Obsolete("This member has been renamed to GetProjectOptionsFromScript")>]
-    member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimeStamp : DateTime * otherFlags: string[] -> ProjectOptions
+    member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimeStamp : DateTime * otherFlags: string[] -> FSharpProjectOptions
 
     [<Obsolete("This member has been renamed to ParseFileInProject")>]
-    member UntypedParse : filename: string * source: string * options: ProjectOptions -> ParseFileResults        
+    member UntypedParse : filename: string * source: string * options: FSharpProjectOptions -> ParseFileResults        
 
     [<Obsolete("This member has been renamed to CheckFileInProjectIfReady")>]
-    member TypeCheckSource : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: ProjectOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> CheckFileAnswer option
+    member TypeCheckSource : parsed: ParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> FSharpCheckFileAnswer option
     
     // One shared global singleton for use by multiple add-ins
-    static member Instance : InteractiveChecker
+    static member Instance : FSharpChecker
 
 
 // An object to typecheck source in a given typechecking environment.
 // Used internally to provide intellisense over F# Interactive.
 type internal FsiInteractiveChecker =
     internal new : ops: IReactorOperations * tcConfig: Build.TcConfig * tcGlobals: Env.TcGlobals * tcImports: Build.TcImports * tcState: Build.TcState * loadClosure: Build.LoadClosure option ->  FsiInteractiveChecker 
-    member internal ParseAndCheckInteraction : source:string -> ParseFileResults * CheckFileResults * CheckProjectResults
+    member internal ParseAndCheckInteraction : source:string -> ParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults
 
 /// Information about the compilation environment    
 module CompilerEnvironment =
@@ -658,24 +683,53 @@ module PrettyNaming =
     val FormatAndOtherOverloadsString : int -> string
 
 
-[<Obsolete("This type has been renamed to MethodGroupItemParameter")>]
-type Param = MethodGroupItemParameter
+[<Obsolete("This type has been renamed to FSharpMethodGroupItemParameter")>]
+type Param = FSharpMethodGroupItemParameter
 
-[<Obsolete("This type has been renamed to MethodGroupItem")>]
-type Method = MethodGroupItem
+[<Obsolete("This type has been renamed to FSharpMethodGroupItem")>]
+type Method = FSharpMethodGroupItem
+
+[<Obsolete("This type has been renamed to FSharpMethodGroupItem")>]
+type MethodGroupItem = FSharpMethodGroupItem
+
+[<Obsolete("This type has been renamed to FSharpMethodGroup")>]
+type MethodGroup = FSharpMethodGroup
+
+[<Obsolete("This type has been renamed to FSharpProjectOptions")>]
+type CheckOptions = FSharpProjectOptions
 
 [<Obsolete("This type has been renamed to ProjectOptions")>]
-type CheckOptions = ProjectOptions
+type ProjectOptions = FSharpProjectOptions
 
-[<Obsolete("This type has been renamed to CheckFileAnswer")>]
-type TypeCheckAnswer = CheckFileAnswer
+[<Obsolete("This type has been renamed to FSharpCheckFileAnswer")>]
+type TypeCheckAnswer = FSharpCheckFileAnswer
 
-[<Obsolete("This type has been renamed to CheckFileResults")>]
-type TypeCheckResults = CheckFileResults
+[<Obsolete("This type has been renamed to FSharpCheckFileAnswer")>]
+type CheckFileAnswer = FSharpCheckFileAnswer
+
+[<Obsolete("This type has been renamed to FSharpCheckFileResults")>]
+type TypeCheckResults = FSharpCheckFileResults
 
 [<Obsolete("This type has been renamed to ParseFileResults")>]
 type UntypedParseInfo = ParseFileResults
 
-[<Obsolete("NotifyFileTypeCheckStateIsDirty has been replaced by the FileTypeCheckStateIsDirty event on the InteractiveChecker type")>]
+[<Obsolete("NotifyFileTypeCheckStateIsDirty has been replaced by the FileTypeCheckStateIsDirty event on the FSharpChecker type")>]
 type NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
         
+[<Obsolete("This type has been renamed to FSharpProjectContext")>]
+type ProjectContext = FSharpProjectContext
+
+[<Obsolete("This type has been renamed to FSharpCheckFileResults")>]
+type CheckFileResults = FSharpCheckFileResults
+
+[<Obsolete("This type has been renamed to FSharpFindDeclFailureReason")>]
+type FindDeclFailureReason = FSharpFindDeclFailureReason
+
+[<Obsolete("This type has been renamed to FSharpFindDeclResult")>]
+type FindDeclResult = FSharpFindDeclResult
+
+[<Obsolete("This type has been renamed to FSharpCheckProjectResults")>]
+type CheckProjectResults = FSharpCheckProjectResults
+
+[<Obsolete("This type has been renamed to FSharpChecker")>]
+type InteractiveChecker = FSharpChecker

@@ -54,7 +54,7 @@ let identsAndRanges (input: Ast.ParsedInput) =
 
 let parseAndExtractRanges code =
     let file = "/home/user/Test.fsx"
-    let checker = InteractiveChecker.Create()
+    let checker = FSharpChecker.Create()
     let result =
         async {
             let! projectOptions = checker.GetProjectOptionsFromScript(file, code)

@@ -94,7 +94,7 @@ Doing a compilation with the FileSystem
 *)
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 let projectOptions = 
     let sysLib nm = 
@@ -134,7 +134,7 @@ let projectOptions =
  
     { ProjectFileName = @"c:\mycode\compilation.fsproj" // Make a name that is unique in this directory.
       ProjectFileNames = [| fileName1; fileName2 |]
-      ProjectOptions = allFlags 
+      OtherOptions = allFlags 
       ReferencedProjects = [| |]
       IsIncompleteTypeCheckEnvironment = false
       UseScriptResolutionRules = true 

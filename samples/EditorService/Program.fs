@@ -4,14 +4,14 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 // Create an interactive checker instance (ignore notifications)
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 let parseWithTypeInfo (file, input) = 
     let checkOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
     let untypedRes = checker.ParseFileInProject(file, input, checkOptions) |> Async.RunSynchronously
     
     match checker.CheckFileInProject(untypedRes, file, 0, input, checkOptions) |> Async.RunSynchronously with 
-    | CheckFileAnswer.Succeeded(res) -> untypedRes, res
+    | FSharpCheckFileAnswer.Succeeded(res) -> untypedRes, res
     | res -> failwithf "Parsing did not finish... (%A)" res
 
 // ----------------------------------------------------------------------------

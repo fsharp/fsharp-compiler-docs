@@ -541,7 +541,7 @@ and [<RequireQualifiedAccess>] FSharpInlineAnnotation =
 /// Renamed to FSharpMemberOrFunctionOrValue
 and [<System.Obsolete("Renamed to FSharpMemberOrFunctionOrValue")>] FSharpMemberOrVal =  FSharpMemberOrFunctionOrValue
 /// Renamed to FSharpMemberOrFunctionOrValue
-and [<System.Obsolete("Renamed to FSharpMemberOrFunctionOrValue")>] FSharpMemberOrFunctionOrValue =  FSharpMemberOrFunctionOrValue
+and [<System.Obsolete("Renamed to FSharpMemberOrFunctionOrValue")>] FSharpMemberFunctionOrValue =  FSharpMemberOrFunctionOrValue
 
 /// A subtype of F# symbol that represents an F# method, property, event, function or value, including extension members.
 and [<Class>] FSharpMemberOrFunctionOrValue = 

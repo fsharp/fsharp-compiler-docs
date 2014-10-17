@@ -279,4 +279,6 @@
 * Fixes to project parser for Mono (.NET 4.0 component)
 * Renamings in SourceCodeServices API for more consistent use of 'FSharp' prefix
 
+#### 0.0.71 - 
+* More renamings in SourceCodeServices API for more consistent use of 'FSharp' prefix
 

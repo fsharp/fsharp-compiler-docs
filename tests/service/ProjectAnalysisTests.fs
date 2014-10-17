@@ -3873,6 +3873,8 @@ let ``Test project29 event symbols`` () =
            ("add_PropertyChanged", None, "unit");
            ("remove_PropertyChanged", None, "unit")])
 
+#if FX_ATLEAST_45
+
 let checkOption (opts:string[]) s = 
     let found = "Found '"+s+"'"
     (if opts |> Array.exists (fun o -> o.EndsWith(s)) then found else "Failed to find '"+s+"'")
@@ -3963,3 +3965,4 @@ let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted
     checkOption options.OtherOptions "System.Runtime.dll"
     checkOption options.OtherOptions "System.Net.Requests.dll"
     checkOption options.OtherOptions "System.Xml.XmlSerializer.dll"
+#endif

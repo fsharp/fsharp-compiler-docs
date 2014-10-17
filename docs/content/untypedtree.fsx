@@ -42,7 +42,7 @@ can be used to notify the checker about file changes (which we ignore).
 
 *)
 // Create an interactive checker instance 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 (**
 
 To get the AST, we define a function that takes file name and the source code

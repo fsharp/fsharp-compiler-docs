@@ -19,20 +19,20 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
         let buildFormatComment (xmlCommentRetriever: string * string -> string) cmt (sb: StringBuilder) =
             match cmt with
-            | XmlCommentText(s) -> sb.AppendLine(s) |> ignore
-            | XmlCommentSignature(file, signature) ->
+            | FSharpXmlComment.Text(s) -> sb.AppendLine(s) |> ignore
+            | FSharpXmlComment.XmlDocFileSignature(file, signature) ->
                 let comment = xmlCommentRetriever (file, signature)
                 if (not (comment.Equals(null))) && comment.Length > 0 then sb.AppendLine(comment) |> ignore
-            | XmlCommentNone -> ()
+            | FSharpXmlComment.None -> ()
 
         let buildFormatElement isSingle el (sb: StringBuilder) xmlCommentRetriever =
             match el with
-            | ToolTipElementNone -> ()
-            | ToolTipElement(it, comment) ->
+            | FSharpToolTipElement.None -> ()
+            | FSharpToolTipElement.Single(it, comment) ->
                 sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
             //| ToolTipElementParameter(it, comment, _) ->
             //    sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
-            | ToolTipElementGroup(items) ->
+            | FSharpToolTipElement.Group(items) ->
                 let items, msg =
                   if items.Length > 10 then
                     (items |> Seq.take 10 |> List.ofSeq),
@@ -43,7 +43,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                 for (it, comment) in items do
                   sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
                 if msg <> null then sb.AppendFormat(msg) |> ignore
-            | ToolTipElementCompositionError(err) ->
+            | FSharpToolTipElement.CompositionError(err) ->
                 sb.Append("Composition error: " + err) |> ignore
 
         // Convert ToolTipText to string
@@ -51,8 +51,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let commentRetriever = defaultArg xmlCommentRetriever (fun _ -> "")
             let sb = new StringBuilder()
             match tip with
-            | ToolTipText([single]) -> buildFormatElement true single sb commentRetriever
-            | ToolTipText(its) -> for item in its do buildFormatElement false item sb commentRetriever
+            | FSharpToolTipText([single]) -> buildFormatElement true single sb commentRetriever
+            | FSharpToolTipText(its) -> for item in its do buildFormatElement false item sb commentRetriever
             sb.ToString().Trim('\n', '\r')
 
     /// Represents a declaration returned by GetDeclarations

@@ -251,7 +251,7 @@ module internal Params =
 /// A single method for Intellisense completion
 [<Sealed; NoEquality; NoComparison>]
 // Note: instances of this type do not hold any references to any compiler resources.
-type FSharpMethodGroupItem(description: ToolTipText, typeText: string, parameters: FSharpMethodGroupItemParameter[], isStaticArguments: bool) = 
+type FSharpMethodGroupItem(description: FSharpToolTipText, typeText: string, parameters: FSharpMethodGroupItemParameter[], isStaticArguments: bool) = 
     member __.Description = description
     member __.TypeText = typeText
     [<Obsolete("This member has been renamed to 'TypeText'")>]
@@ -332,7 +332,7 @@ type FSharpMethodGroup( name: string, unsortedMethods: FSharpMethodGroupItem[] )
                 let methods = 
                     items |> Array.ofList |> Array.map (fun item -> 
                         FSharpMethodGroupItem(
-                          description=ToolTipText [FormatDescriptionOfItem true infoReader m denv item],
+                          description=FSharpToolTipText [FormatDescriptionOfItem true infoReader m denv item],
                           typeText= (FormatReturnTypeOfItem infoReader m denv item),
                           parameters = Array.ofList (Params.ParamsOfItem infoReader m denv item),
                           isStaticArguments = (match item with | Item.Types _ -> true | _ -> false)
@@ -425,7 +425,7 @@ type TypeCheckInfo
     // Is not keyed on 'Names' collection because this is invariant for the current position in 
     // this unchanged file. Keyed on lineStr though to prevent a change to the currently line
     // being available against a stale scope.
-    let getToolTipTextCache = AgedLookup<int*int*string,ToolTipText>(getToolTipTextSize,areSame=(fun (x,y) -> x = y))
+    let getToolTipTextCache = AgedLookup<int*int*string,FSharpToolTipText>(getToolTipTextSize,areSame=(fun (x,y) -> x = y))
     
     let amap = tcImports.GetImportMap()
     let infoReader = new InfoReader(g,amap)
@@ -489,7 +489,7 @@ type TypeCheckInfo
     /// The items that come back from ResolveCompletionsInType are a bit
     /// noisy. Filter a few things out.
     ///
-    /// e.g. prefer types to constructors for ToolTipText 
+    /// e.g. prefer types to constructors for FSharpToolTipText 
     let FilterItemsForCtors filterCtors items = 
         let items = items |> List.filter (function (Item.CtorGroup _) when filterCtors = ResolveTypeNamesToTypeRefs -> false | _ -> true) 
         items
@@ -930,18 +930,18 @@ type TypeCheckInfo
             | Some _ ->
                 items |> List.filter (function | Item.ModuleOrNamespaces _ -> true | _ -> false)
 
-    member x.GetDeclarations (parseResultsOpt:ParseFileResults option, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) : DeclarationSet =
+    member x.GetDeclarations (parseResultsOpt:ParseFileResults option, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) =
         let isInterfaceFile = SourceFileImpl.IsInterfaceFile mainInputFileName
         ErrorScope.Protect 
             Range.range0 
             (fun () -> 
                 match GetDeclItemsForNamesAtPosition(parseResultsOpt, Some qualifyingNames, Some partialName, line, lineStr, colAtEndOfNamesAndResidue, ResolveTypeNamesToCtors, ResolveOverloads.Yes, hasTextChangedSinceLastTypecheck) with
-                | None -> DeclarationSet.Empty  
+                | None -> FSharpDeclarationSet.Empty  
                 | Some(items,denv,m) -> 
                     let items = items |> filterIntellisenseCompletionsBasedOnParseContext (parseResultsOpt |> Option.bind (fun x -> x.ParseTree)) (mkPos line colAtEndOfNamesAndResidue)
                     let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
-                    DeclarationSet.Create(infoReader,m,denv,items,reactorOps,checkAlive))
-            (fun msg -> DeclarationSet.Error msg)
+                    FSharpDeclarationSet.Create(infoReader,m,denv,items,reactorOps,checkAlive))
+            (fun msg -> FSharpDeclarationSet.Error msg)
 
     member x.GetDeclarationSymbols (parseResultsOpt:ParseFileResults option, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) =
         let isInterfaceFile = SourceFileImpl.IsInterfaceFile mainInputFileName
@@ -1008,7 +1008,7 @@ type TypeCheckInfo
                     items)
             (fun _msg -> [])
             
-    member scope.GetReferenceResolutionToolTipText(line,col) : ToolTipText = 
+    member scope.GetReferenceResolutionToolTipText(line,col) = 
         let pos = mkPos line col
         let lineIfExists(append) =
             if not(String.IsNullOrEmpty(append)) then append.Trim([|' '|])+"\n"
@@ -1064,27 +1064,27 @@ type TypeCheckInfo
                         lineIfExists(resolvedPath)
                         + lineIfExists(resolved.fusionName)  
                                                   
-                ToolTipText [ToolTipElement(tip.TrimEnd([|'\n'|]) ,XmlCommentNone)]
+                FSharpToolTipText [FSharpToolTipElement.Single(tip.TrimEnd([|'\n'|]) ,FSharpXmlComment.None)]
 
-            | [] -> ToolTipText []
+            | [] -> FSharpToolTipText []
                                     
         ErrorScope.Protect 
             Range.range0 
             dataTipOfReferences
-            (fun err -> ToolTipText [ToolTipElementCompositionError err])
+            (fun err -> FSharpToolTipText [FSharpToolTipElement.CompositionError err])
 
     // GetToolTipText: return the "pop up" (or "Quick Info") text given a certain context.
-    member x.GetToolTipText line lineStr colAtEndOfNames names : ToolTipText  = 
+    member x.GetToolTipText line lineStr colAtEndOfNames names = 
         
         let Compute() = 
             ErrorScope.Protect 
                 Range.range0 
                 (fun () -> 
                     match GetDeclItemsForNamesAtPosition(None,Some(names),None,line,lineStr,colAtEndOfNames,ResolveTypeNamesToCtors,ResolveOverloads.Yes,fun _ -> false) with
-                    | None -> ToolTipText []
+                    | None -> FSharpToolTipText []
                     | Some(items,denv,m) ->
-                         ToolTipText(items |> List.map (FormatDescriptionOfItem false infoReader m denv )))
-                (fun err -> ToolTipText [ToolTipElementCompositionError err])
+                         FSharpToolTipText(items |> List.map (FormatDescriptionOfItem false infoReader m denv )))
+                (fun err -> FSharpToolTipText [FSharpToolTipElement.CompositionError err])
                
         // See devdiv bug 646520 for rationale behind truncating and caching these quick infos (they can be big!)
         let key = line,colAtEndOfNames,lineStr
@@ -1126,7 +1126,7 @@ type TypeCheckInfo
             )    
             (fun _ -> None)
 
-    member scope.GetMethods (line, lineStr, colAtEndOfNames, namesOpt) : FSharpMethodGroup =
+    member scope.GetMethods (line, lineStr, colAtEndOfNames, namesOpt) =
         ErrorScope.Protect 
             Range.range0 
             (fun () -> 
@@ -1136,7 +1136,7 @@ type TypeCheckInfo
             (fun msg -> 
                 FSharpMethodGroup(msg,[| |]))
 
-    member scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, isDecl) : FSharpFindDeclResult =
+    member scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, isDecl) =
           match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, colAtEndOfNames, ResolveTypeNamesToCtors,ResolveOverloads.Yes, fun _ -> false) with
           | None
           | Some ([], _, _) -> FSharpFindDeclResult.DeclNotFound FSharpFindDeclFailureReason.Unknown
@@ -1405,7 +1405,7 @@ module internal Parser =
            // These are the errors and warnings seen by the background compiler for the entire antecedant 
            backgroundErrors: (PhasedError * bool) list,    
            reactorOps: IReactorOperations,
-           // Used by 'DeclarationSet' to check the IncrementalBuilder is still alive.
+           // Used by 'FSharpDeclarationSet' to check the IncrementalBuilder is still alive.
            checkAlive : (unit -> bool),
            isResultObsolete: unit->bool,
            textSnapshotInfo : obj option) = 
@@ -1732,7 +1732,7 @@ type FSharpCheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option
     /// Intellisense autocompletions
     member info.GetDeclarationsAlternate(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
         let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
-        reactorOp DeclarationSet.Empty (fun scope -> scope.GetDeclarations(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
+        reactorOp FSharpDeclarationSet.Empty (fun scope -> scope.GetDeclarations(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
 
     member info.GetDeclarationSymbols(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
         let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
@@ -1740,7 +1740,7 @@ type FSharpCheckFileResults(errors: ErrorInfo[], scopeOptX: TypeCheckInfo option
 
     /// Resolve the names at the given location to give a data tip 
     member info.GetToolTipTextAlternate(line, colAtEndOfNames, lineStr, names, tokenTag) = 
-        let dflt = ToolTipText []
+        let dflt = FSharpToolTipText []
         match tokenTagToTokenId tokenTag with 
         | TOKEN_IDENT -> 
             reactorOp dflt (fun scope -> scope.GetToolTipText line lineStr colAtEndOfNames names)
@@ -2213,6 +2213,7 @@ type BackgroundCompiler(projectCacheSize) as self =
 
 #if SILVERLIGHT
 #else
+#if FX_ATLEAST_45
 //----------------------------------------------------------------------------
 // FSharpProjectFileInfo
 //
@@ -2494,6 +2495,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
     member x.OutputPath = outputPathOpt
     static member Parse(fsprojFileName:string, ?properties) = new FSharpProjectFileInfo(fsprojFileName, ?properties=properties)
 #endif
+#endif
 
 //----------------------------------------------------------------------------
 // FSharpChecker
@@ -2709,11 +2711,13 @@ type FSharpChecker(projectCacheSize) =
 
 #if SILVERLIGHT
 #else
+#if FX_ATLEAST_45
     member ic.GetProjectOptionsFromProjectFile(projectFileName, ?properties : (string * string) list, ?loadedTimeStamp) = 
         let parsedProject = FSharpProjectFileInfo(projectFileName, ?properties=properties)
         let args = parsedProject.Options |> Array.ofList
         ic.GetProjectOptionsFromCommandLineArgs(projectFileName, args, ?loadedTimeStamp=loadedTimeStamp)
 
+#endif
 #endif
 
     /// Begin background parsing the given project.

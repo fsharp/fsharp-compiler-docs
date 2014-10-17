@@ -21,7 +21,7 @@ open System.IO
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 // Create an interactive checker instance 
-let checker = InteractiveChecker.Create()
+let checker = FSharpChecker.Create()
 
 (**
 
@@ -41,7 +41,7 @@ let parseAndTypeCheckSingleFile (file, input) =
 
     // Wait until type checking succeeds (or 100 attempts)
     match checkFileResults with
-    | CheckFileAnswer.Succeeded(res) -> parseFileResults, res
+    | FSharpCheckFileAnswer.Succeeded(res) -> parseFileResults, res
     | res -> failwithf "Parsing did not finish... (%A)" res
 
 let file = "/home/user/Test.fsx"

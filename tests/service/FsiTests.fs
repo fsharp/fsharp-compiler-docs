@@ -148,7 +148,7 @@ let ``ParseAndCheckInteraction test 1``() =
     // Check we can get a tooltip for text in the F# interactive state
     let tooltip = 
         match typedResults.GetToolTipTextAlternate(1,6,"xxxxxx",["xxxxxx"],identToken)  |> Async.RunSynchronously with 
-        | ToolTipText [ToolTipElement(text, XmlCommentNone)] -> text
+        | FSharpToolTipText [FSharpToolTipElement.Single(text, FSharpXmlComment.None)] -> text
         | _ -> failwith "incorrect tool tip"
 
     Assert.True(tooltip.Contains("val xxxxxx : int"))

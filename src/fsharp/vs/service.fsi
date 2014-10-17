@@ -172,7 +172,7 @@ type FSharpCheckFileResults =
     ///    and assume that we're going to repeat the operation later on.
     /// </param>
 
-    member GetDeclarationsAlternate : ParsedFileResultsOpt:ParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<DeclarationSet>
+    member GetDeclarationsAlternate : ParsedFileResultsOpt:ParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpDeclarationSet>
 
     /// <summary>Get the items for a declaration list in FSharpSymbol format</summary>
     ///
@@ -261,7 +261,7 @@ type FSharpCheckFileResults =
     member GetExtraColorizations : unit -> (Range01 * TokenColorKind)[]
 
     [<Obsolete("This member has been replaced by GetDeclarationsAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetDeclarations : ParsedFileResultsOpt:ParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<DeclarationSet>
+    member GetDeclarations : ParsedFileResultsOpt:ParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<FSharpDeclarationSet>
 
     [<Obsolete("This member has been replaced by GetToolTipTextAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member GetToolTipText : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
@@ -349,6 +349,7 @@ type FSharpCheckFileAnswer =
 
 #if SILVERLIGHT
 #else
+#if FX_ATLEAST_45
 [<Sealed; AutoSerializable(false)>]      
 /// Represents the information gathered by parsing and processing a .fsproj project file format.
 type FSharpProjectFileInfo =
@@ -376,6 +377,7 @@ type FSharpProjectFileInfo =
     member AssemblyName : string option
     /// The name of the output path for the project
     member OutputPath : string option
+#endif
 #endif
 
 [<Sealed; AutoSerializable(false)>]      
@@ -530,6 +532,7 @@ type FSharpChecker =
            
 #if SILVERLIGHT
 #else
+#if FX_ATLEAST_45
 
     /// <summary>
     /// <para>Get the project options implied by a standard F# project file in the xbuild/msbuild format.</para>
@@ -540,6 +543,7 @@ type FSharpChecker =
     /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
     member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
+#endif
 #endif
 
     [<Obsolete("This member has been renamed to 'GetProjectOptionsFromScript'")>]

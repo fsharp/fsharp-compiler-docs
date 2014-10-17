@@ -11,9 +11,9 @@ open Microsoft.FSharp.Compiler.Range
 open System.Collections.Generic
 
 /// Represents encoded information for the end-of-line continutation of lexing
-type internal LexState = int64
+type FSharpTokenizerLexState = int64
 
-type ColorState =
+type FSharpTokenizerColorState =
     | Token = 1
     | IfDefSkip = 3
     | String = 4
@@ -29,7 +29,9 @@ type ColorState =
     | TripleQuoteStringInComment = 14
     | InitialState = 0 
     
-type TokenColorKind =
+
+/// Gives an indicattion of the color class to assign to the token an IDE
+type FSharpTokenColorKind =
     | Default = 0
     | Text = 0
     | Keyword = 1
@@ -45,7 +47,8 @@ type TokenColorKind =
     | TypeName = 11
 #endif
     
-type TriggerClass =
+/// Gives an indication of what should happen when the token is typed in an IDE
+type FSharpTokenTriggerClass =
     | None         = 0x00000000
     | MemberSelect = 0x00000001
     | MatchBraces  = 0x00000002
@@ -55,7 +58,8 @@ type TriggerClass =
     | ParamNext    = 0x00000020
     | ParamEnd     = 0x00000040    
     
-type TokenCharKind = 
+/// Gives an indication of the class to assign to the characters of the token an IDE
+type FSharpTokenCharKind = 
     | Default     = 0x00000000
     | Text        = 0x00000000
     | Keyword     = 0x00000001
@@ -69,15 +73,16 @@ type TokenCharKind =
     | Comment     = 0x0000000A    
     
 /// Information about a particular token from the tokenizer
-type TokenInformation = 
+type FSharpTokenInfo = 
     { /// Left column of the token.
       LeftColumn:int
       /// Right column of the token.
       RightColumn:int
-      ColorClass:TokenColorKind
-      CharClass:TokenCharKind
+      ColorClass:FSharpTokenColorKind
+      /// Gives an indication of the class to assign to the token an IDE
+      CharClass:FSharpTokenCharKind
       /// Actions taken when the token is typed
-      TriggerClass:TriggerClass
+      FSharpTokenTriggerClass:FSharpTokenTriggerClass
       /// The tag is an integer identifier for the token
       Tag:int
       /// Provides additional information about the token
@@ -87,27 +92,59 @@ type TokenInformation =
 
 /// Object to tokenize a line of F# source code, starting with the given lexState.  The lexState should be 0 for
 /// the first line of text. Returns an array of ranges of the text and two enumerations categorizing the
-/// tokens and characters covered by that range, i.e. TokenColorKind and TokenCharKind.  The enumerations
+/// tokens and characters covered by that range, i.e. FSharpTokenColorKind and FSharpTokenCharKind.  The enumerations
 /// are somewhat adhoc but useful enough to give good colorization options to the user in an IDE.
 ///
 /// A new lexState is also returned.  An IDE-plugin should in general cache the lexState 
 /// values for each line of the edited code.
 [<Sealed>] 
-type (*internal*) LineTokenizer =
+type (*internal*) FSharpLineTokenizer =
     /// Scan one token from the line
-    member ScanToken : lexState:LexState -> TokenInformation option * LexState
-    static member ColorStateOfLexState : LexState -> ColorState
-    static member LexStateOfColorState : ColorState -> LexState
+    member ScanToken : lexState:FSharpTokenizerLexState -> FSharpTokenInfo option * FSharpTokenizerLexState
+    static member ColorStateOfLexState : FSharpTokenizerLexState -> FSharpTokenizerColorState
+    static member LexStateOfColorState : FSharpTokenizerColorState -> FSharpTokenizerLexState
     
 
 /// Tokenizer for a source file. Holds some expensive-to-compute resources at the scope of the file.
 [<Sealed>]
-type (*internal*) SourceTokenizer =
-    new : conditionalDefines:string list * fileName:string -> SourceTokenizer
-    member CreateLineTokenizer : lineText:string -> LineTokenizer
-    member CreateBufferTokenizer : bufferFiller:(char[] * int * int -> int) -> LineTokenizer
+type (*internal*) FSharpSourceTokenizer =
+    new : conditionalDefines:string list * fileName:string -> FSharpSourceTokenizer
+    member CreateLineTokenizer : lineText:string -> FSharpLineTokenizer
+    member CreateBufferTokenizer : bufferFiller:(char[] * int * int -> int) -> FSharpLineTokenizer
     
 
 module internal TestExpose =     
-    val TokenInfo                                    : Parser.token -> (TokenColorKind * TokenCharKind * TriggerClass) 
+    val TokenInfo                                    : Parser.token -> (FSharpTokenColorKind * FSharpTokenCharKind * FSharpTokenTriggerClass) 
 
+
+[<System.Obsolete("This type has been renamed to FSharpSourceTokenizer")>]
+/// Renamed to FSharpSourceTokenizer
+type SourceTokenizer = FSharpSourceTokenizer
+
+[<System.Obsolete("This type has been renamed to FSharpLineTokenizer")>]
+/// Renamed to FSharpLineTokenizer
+type LineTokenizer = FSharpLineTokenizer
+
+[<System.Obsolete("This type has been renamed to FSharpTokenInfo")>]
+/// Renamed to FSharpTokenInfo
+type TokenInformation = FSharpTokenInfo
+
+[<System.Obsolete("This type has been renamed to FSharpTokenTriggerClass")>]
+/// Renamed to FSharpTokenTriggerClass
+type TriggerClass = FSharpTokenTriggerClass
+
+[<System.Obsolete("This type has been renamed to FSharpTokenCharKind")>]
+/// Renamed to FSharpTokenCharKind
+type TokenCharKind = FSharpTokenCharKind
+
+[<System.Obsolete("This type has been renamed to FSharpTokenColorKind")>]
+/// Renamed to FSharpTokenColorKind
+type TokenColorKind = FSharpTokenColorKind
+
+[<System.Obsolete("This type has been renamed to FSharpTokenizerColorState")>]
+/// Renamed to FSharpTokenizerColorState
+type ColorState = FSharpTokenizerColorState
+
+[<System.Obsolete("This type has been renamed to FSharpTokenizerLexState")>]
+/// Renamed to FSharpTokenizerLexState
+type LexState = FSharpTokenizerLexState

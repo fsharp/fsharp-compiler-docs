@@ -16,7 +16,7 @@ open Microsoft.FSharp.Compiler.Ast
 // Navigation items. 
 //--------------------------------------------------------------------------
 
-type DeclarationItemKind =
+type FSharpNavigationDeclarationItemKind =
     | NamespaceDecl
     | ModuleFileDecl
     | ExnDecl
@@ -29,7 +29,7 @@ type DeclarationItemKind =
 
 /// Represents an item to be displayed in the navigation bar
 [<Sealed>]
-type DeclarationItem(uniqueName : string, name : string, kind : DeclarationItemKind, glyph : int, range : range, bodyRange : range, singleTopLevel:bool) = 
+type FSharpNavigationDeclarationItem(uniqueName : string, name : string, kind : FSharpNavigationDeclarationItemKind, glyph : int, range : range, bodyRange : range, singleTopLevel:bool) = 
     
     //let range_of_m (m:range) = ((m.StartColumn, m.StartLine), (m.EndColumn, m.EndLine))
     member x.bodyRange = bodyRange
@@ -42,22 +42,22 @@ type DeclarationItem(uniqueName : string, name : string, kind : DeclarationItemK
     member x.BodyRange = bodyRange 
     member x.IsSingleTopLevel = singleTopLevel
     member x.WithUniqueName(uniqueName : string) =
-      DeclarationItem(uniqueName, name, kind, glyph, range, bodyRange, singleTopLevel)
+      FSharpNavigationDeclarationItem(uniqueName, name, kind, glyph, range, bodyRange, singleTopLevel)
     static member Create(name : string, kind, glyph : int, range : range, bodyRange : range, singleTopLevel:bool) = 
-      DeclarationItem("", name, kind, glyph, range, bodyRange, singleTopLevel)
+      FSharpNavigationDeclarationItem("", name, kind, glyph, range, bodyRange, singleTopLevel)
 
 /// Represents top-level declarations (that should be in the type drop-down)
 /// with nested declarations (that can be shown in the member drop-down)
 [<NoEquality; NoComparison>]
-type TopLevelDeclaration = 
-    { Declaration : DeclarationItem
-      Nested : DeclarationItem[] }
+type FSharpNavigationTopLevelDeclaration = 
+    { Declaration : FSharpNavigationDeclarationItem
+      Nested : FSharpNavigationDeclarationItem[] }
       
 /// Represents result of 'GetNavigationItems' operation - this contains
 /// all the members and currently selected indices. First level correspond to
 /// types & modules and second level are methods etc.
 [<Sealed>]
-type NavigationItems(declarations:TopLevelDeclaration[]) =
+type FSharpNavigationItems(declarations:FSharpNavigationTopLevelDeclaration[]) =
     member x.Declarations = declarations
 
 open ItemDescriptionIcons 
@@ -67,7 +67,7 @@ module NavigationImpl =
     let union_ranges_checked r1 r2 = if r1 = range.Zero then r2 elif r2 = range.Zero then r1 else unionRanges r1 r2
     
     let range_of_decls' f decls = 
-      match (decls |> List.map (f >> (fun (d:DeclarationItem) -> d.bodyRange))) with 
+      match (decls |> List.map (f >> (fun (d:FSharpNavigationDeclarationItem) -> d.bodyRange))) with 
       | hd::tl -> tl |> List.fold (union_ranges_checked) hd
       | [] -> range.Zero
     
@@ -100,20 +100,20 @@ module NavigationImpl =
         // Create declaration (for the left dropdown)                
         let createDeclLid(baseName, lid, kind, baseGlyph, m, bodym, nested) =
             let name = (if baseName <> "" then baseName + "." else "") + (textOfLid lid)
-            DeclarationItem.Create
+            FSharpNavigationDeclarationItem.Create
               (name, kind, baseGlyph * 6, m, bodym, false), (addItemName name), nested
             
         let createDecl(baseName, (id:Ident), kind, baseGlyph, m, bodym, nested) =
             let name = (if baseName <> "" then baseName + "." else "") + (id.idText)
-            DeclarationItem.Create
+            FSharpNavigationDeclarationItem.Create
               (name, kind, baseGlyph * 6, m, bodym, false), (addItemName name), nested
          
         // Create member-kind-of-thing for the right dropdown
         let createMemberLid(lid, kind, baseGlyph, m) =
-            DeclarationItem.Create(textOfLid lid, kind, baseGlyph * 6, m, m, false), (addItemName(textOfLid lid))
+            FSharpNavigationDeclarationItem.Create(textOfLid lid, kind, baseGlyph * 6, m, m, false), (addItemName(textOfLid lid))
 
         let createMember((id:Ident), kind, baseGlyph, m) =
-            DeclarationItem.Create(id.idText, kind, baseGlyph * 6, m, m, false), (addItemName(id.idText))
+            FSharpNavigationDeclarationItem.Create(id.idText, kind, baseGlyph * 6, m, m, false), (addItemName(id.idText))
             
 
         // Process let-binding
@@ -149,7 +149,7 @@ module NavigationImpl =
                 // F# class declaration
                 let members = processMembers membDefns |> snd
                 let nested = members@topMembers
-                ([ createDeclLid(baseName, lid, TypeDecl, iIconGroupClass, m, bodyRange mb nested, nested) ] : ((DeclarationItem * int * _) list))
+                ([ createDeclLid(baseName, lid, TypeDecl, iIconGroupClass, m, bodyRange mb nested, nested) ] : ((FSharpNavigationDeclarationItem * int * _) list))
             | SynTypeDefnRepr.Simple(simple, _) ->
                 // F# type declaration
                 match simple with
@@ -181,7 +181,7 @@ module NavigationImpl =
                 | _ -> [] 
                   
         // Returns class-members for the right dropdown                  
-        and processMembers members : (range * list<DeclarationItem * int>) = 
+        and processMembers members : (range * list<FSharpNavigationDeclarationItem * int>) = 
             let members = members |> List.map (fun memb ->
                (memb.Range,
                 match memb with
@@ -207,7 +207,7 @@ module NavigationImpl =
 
         // Process declarations nested in a module that should be displayed in the left dropdown
         // (such as type declarations, nested modules etc.)                            
-        let rec processTopLevelDeclarations(baseName, decls) = decls |> List.collect (function
+        let rec processFSharpNavigationTopLevelDeclarations(baseName, decls) = decls |> List.collect (function
             | SynModuleDecl.ModuleAbbrev(id, lid, m) ->
                 [ createDecl(baseName, id, ModuleDecl, iIconGroupModule, m, rangeOfLid lid, []) ]
                 
@@ -217,7 +217,7 @@ module NavigationImpl =
                 let newBaseName = (if (baseName = "") then "" else baseName+".") + (textOfLid lid)
                 
                 // Get nested modules and types (for the left dropdown)
-                let other = processTopLevelDeclarations(newBaseName, decls)
+                let other = processFSharpNavigationTopLevelDeclarations(newBaseName, decls)
                 createDeclLid(baseName, lid, ModuleDecl, iIconGroupModule, m, union_ranges_checked (range_of_decls nested) (moduleRange (rangeOfLid lid) other), nested)::other
                   
             | SynModuleDecl.Types(tydefs, _) -> tydefs |> List.collect (processTycon baseName)                                    
@@ -237,11 +237,11 @@ module NavigationImpl =
                 // Find let bindings (for the right dropdown)
                 let nested = processNestedDeclarations(decls)
                 // Get nested modules and types (for the left dropdown)
-                let other = processTopLevelDeclarations(baseName, decls)
+                let other = processFSharpNavigationTopLevelDeclarations(baseName, decls)
                 
                 // Create explicitly - it can be 'single top level' thing that is hidden
                 let decl =
-                    DeclarationItem.Create
+                    FSharpNavigationDeclarationItem.Create
                         (textOfLid id, (if isModule then ModuleFileDecl else NamespaceDecl),
                             iIconGroupModule * 6, m, 
                             union_ranges_checked (range_of_decls nested) (moduleRange (rangeOfLid id) other), 
@@ -256,6 +256,18 @@ module NavigationImpl =
                 nest |> Array.sortInPlaceWith (fun a b -> compare a.Name b.Name)
                 { Declaration = d.WithUniqueName(uniqueName d.Name idx); Nested = nest } )                  
         items |> Array.sortInPlaceWith (fun a b -> compare a.Declaration.Name b.Declaration.Name)
-        new NavigationItems(items)
+        new FSharpNavigationItems(items)
 
-    let empty = new NavigationItems([| |])
+    let empty = new FSharpNavigationItems([| |])
+
+[<System.Obsolete("This type has been renamed to FSharpNavigationTopLevelDeclaration")>]
+type TopLevelDeclaration = FSharpNavigationTopLevelDeclaration
+
+[<System.Obsolete("This type has been renamed to FSharpNavigationDeclarationItem")>]
+type DeclarationItem = FSharpNavigationDeclarationItem
+
+[<System.Obsolete("This type has been renamed to FSharpNavigationItems")>]
+type NavigationItems = FSharpNavigationItems
+
+[<System.Obsolete("This type has been renamed to FSharpNavigationDeclarationItemKind")>]
+type DeclarationItemKind = FSharpNavigationDeclarationItemKind

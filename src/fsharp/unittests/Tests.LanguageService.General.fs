@@ -300,7 +300,7 @@ EdmxFile
                         let filename = "test.fs"
                         let defines = [ "COMPILED"; "EDITING" ]
             
-                        SourceTokenizer(defines,filename).CreateLineTokenizer(source))
+                        FSharpSourceTokenizer(defines,filename).CreateLineTokenizer(source))
         
         let cm = Microsoft.VisualStudio.FSharp.LanguageService.TokenColor.Comment
         let kw = Microsoft.VisualStudio.FSharp.LanguageService.TokenColor.Keyword
@@ -496,16 +496,16 @@ EdmxFile
     member public this.``TokenInfo.TriggerClasses``() =      
       let important = 
         [ // Member select for dot completions
-          Parser.DOT, (TokenColorKind.Operator,TokenCharKind.Delimiter,TriggerClass.MemberSelect)
+          Parser.DOT, (FSharpTokenColorKind.Operator,FSharpTokenCharKind.Delimiter,FSharpTokenTriggerClass.MemberSelect)
           // for parameter info
-          Parser.LPAREN, (TokenColorKind.Text,TokenCharKind.Delimiter, TriggerClass.ParamStart ||| TriggerClass.MatchBraces)
-          Parser.COMMA,  (TokenColorKind.Text,TokenCharKind.Delimiter, TriggerClass.ParamNext)
-          Parser.RPAREN, (TokenColorKind.Text,TokenCharKind.Delimiter, TriggerClass.ParamEnd ||| TriggerClass.MatchBraces) ]
+          Parser.LPAREN, (FSharpTokenColorKind.Text,FSharpTokenCharKind.Delimiter, FSharpTokenTriggerClass.ParamStart ||| FSharpTokenTriggerClass.MatchBraces)
+          Parser.COMMA,  (FSharpTokenColorKind.Text,FSharpTokenCharKind.Delimiter, FSharpTokenTriggerClass.ParamNext)
+          Parser.RPAREN, (FSharpTokenColorKind.Text,FSharpTokenCharKind.Delimiter, FSharpTokenTriggerClass.ParamEnd ||| FSharpTokenTriggerClass.MatchBraces) ]
       let matching =           
         [ // Other cases where we expect MatchBraces
           Parser.LQUOTE("", false); Parser.LBRACK; Parser.LBRACE; Parser.LBRACK_BAR;
           Parser.RQUOTE("", false); Parser.RBRACK; Parser.RBRACE; Parser.BAR_RBRACK ]
-        |> List.map (fun n -> n, (TokenColorKind.Text,TokenCharKind.Delimiter, TriggerClass.MatchBraces))
+        |> List.map (fun n -> n, (FSharpTokenColorKind.Text,FSharpTokenCharKind.Delimiter, FSharpTokenTriggerClass.MatchBraces))
       for tok, expected in List.concat [ important; matching ] do
         let info = TestExpose.TokenInfo tok
         AssertEqual(expected, info)

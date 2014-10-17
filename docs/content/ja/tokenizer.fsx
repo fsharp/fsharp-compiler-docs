@@ -23,7 +23,7 @@ F#のソースコードに対して、トークナイザは
 #r "FSharp.Compiler.Service.dll"
 open Microsoft.FSharp.Compiler.SourceCodeServices
 (**
-すると `SourceTokenizer` のインスタンスを作成できるようになります。
+すると `FSharpSourceTokenizer` のインスタンスを作成できるようになります。
 このクラスには2つの引数を指定します。
 最初の引数には定義済みのシンボルのリスト、
 2番目の引数にはソースコードのファイル名を指定します。
@@ -32,7 +32,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 ファイル名はソースコードの位置を特定する場合にのみ指定する必要があります
 (存在しないファイル名でも指定できます):
 *)
-let sourceTok = SourceTokenizer([], "C:\\test.fsx")
+let sourceTok = FSharpSourceTokenizer([], "C:\\test.fsx")
 (**
 `sourceTok` オブジェクトを使用することでF#ソースコードの各行を
 (繰り返し)トークン化することができます。
@@ -49,18 +49,18 @@ F#コードのトークン化
 
 ### 1行をトークン化する
 
-1行をトークン化するには、先ほど作成した `SourceTokenizer` オブジェクトに対して
-`CreateLineTokenizer` を呼び、 `LineTokenizer` を作成します:
+1行をトークン化するには、先ほど作成した `FSharpSourceTokenizer` オブジェクトに対して
+`CreateLineTokenizer` を呼び、 `FSharpLineTokenizer` を作成します:
 *)
 let tokenizer = sourceTok.CreateLineTokenizer("let answer=42")
 (**
 そして `tokenizer` の `ScanToken` を繰り返し `None` を返すまで
 (つまり最終行に到達するまで)繰り返し呼び出すような単純な再帰関数を用意します。
-この関数が成功すると、必要な詳細情報をすべて含んだ `TokenInformation` オブジェクトが
+この関数が成功すると、必要な詳細情報をすべて含んだ `FSharpTokenInfo` オブジェクトが
 返されます:
 *)
 /// F#コード1行をトークン化します
-let rec tokenizeLine (tokenizer:LineTokenizer) state =
+let rec tokenizeLine (tokenizer:FSharpLineTokenizer) state =
   match tokenizer.ScanToken(state) with
   | Some tok, state ->
       // トークン名を表示
@@ -77,7 +77,7 @@ tokenizeLine tokenizer 0L
 (**
 この結果は LET WHITESPACE IDENT EQUALS INT32 という
 トークン名のシーケンスになります。
-`TokenInformation` にはたとえば以下のような興味深いプロパティが多数あります:
+`FSharpTokenInfo` にはたとえば以下のような興味深いプロパティが多数あります:
 
  - `CharClass` および `ColorClass` はF#コードを色づけする場合に使用できるような、
    トークンのカテゴリに関する情報を返します。

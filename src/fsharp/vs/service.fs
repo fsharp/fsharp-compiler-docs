@@ -1064,7 +1064,7 @@ type TypeCheckInfo
                         lineIfExists(resolvedPath)
                         + lineIfExists(resolved.fusionName)  
                                                   
-                FSharpToolTipText [FSharpToolTipElement.Single(tip.TrimEnd([|'\n'|]) ,FSharpXmlComment.None)]
+                FSharpToolTipText [FSharpToolTipElement.Single(tip.TrimEnd([|'\n'|]) ,FSharpXmlDoc.None)]
 
             | [] -> FSharpToolTipText []
                                     
@@ -1200,15 +1200,15 @@ type TypeCheckInfo
                match cnr with 
                // 'seq' in 'seq { ... }' gets colored as keywords
                | CNR(_, (Item.Value vref), ItemOccurence.Use, _, _, _, m) when valRefEq g g.seq_vref vref -> 
-                   yield (m, TokenColorKind.Keyword) 
+                   yield (m, FSharpTokenColorKind.Keyword) 
                // custom builders, custom operations get colored as keywords
                | CNR(_, (Item.CustomBuilder _ | Item.CustomOperation _), ItemOccurence.Use, _, _, _, m) -> 
-                   yield (m, TokenColorKind.Keyword) 
+                   yield (m, FSharpTokenColorKind.Keyword) 
 #if COLORIZE_TYPES
                // types get colored as types when they occur in syntactic types or custom attributes
                // typevariables get colored as types when they occur in syntactic types custom builders, custom operations get colored as keywords
                | CNR(_, (Item.TypeVar  _ | Item.Types _ | Item.UnqualifiedType _) , (ItemOccurence.UseInType | ItemOccurence.UseInAttribute), _, _, _, m) -> 
-                   yield (m, TokenColorKind.TypeName) 
+                   yield (m, FSharpTokenColorKind.TypeName) 
 #endif
                | _ -> () 
            |]

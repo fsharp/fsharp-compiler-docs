@@ -22,13 +22,13 @@ To use the tokenizer, reference `FSharp.Compiler.Service.dll` and open the
 #r "FSharp.Compiler.Service.dll"
 open Microsoft.FSharp.Compiler.SourceCodeServices
 (**
-Now you can create an instance of `SourceTokenizer`. The class takes two 
+Now you can create an instance of `FSharpSourceTokenizer`. The class takes two 
 arguments - the first is the list of defined symbols and the second is the
 file name of the source code. The defined symbols are required because the
 tokenizer handles `#if` directives. The file name is required only to specify
 locations of the source code (and it does not have to exist):
 *)
-let sourceTok = SourceTokenizer([], "C:\\test.fsx")
+let sourceTok = FSharpSourceTokenizer([], "C:\\test.fsx")
 (**
 Using the `sourceTok` object, we can now (repeatedly) tokenize lines of 
 F# source code.
@@ -43,17 +43,17 @@ you do not need to re-tokenize the entire file - only the parts that have change
 
 ### Tokenizing single line
 
-To tokenize a single line, we create a `LineTokenizer` by calling `CreateLineTokenizer`
-on the `SourceTokenizer` object that we created earlier:
+To tokenize a single line, we create a `FSharpLineTokenizer` by calling `CreateLineTokenizer`
+on the `FSharpSourceTokenizer` object that we created earlier:
 *)
 let tokenizer = sourceTok.CreateLineTokenizer("let answer=42")
 (**
 Now, we can write a simple recursive function that calls `ScanToken` on the `tokenizer`
 until it returns `None` (indicating the end of line). When the function suceeds, it 
-returns `TokenInformation` object with all the interesting details:
+returns `FSharpTokenInfo` object with all the interesting details:
 *)
 /// Tokenize a single line of F# code
-let rec tokenizeLine (tokenizer:LineTokenizer) state =
+let rec tokenizeLine (tokenizer:FSharpLineTokenizer) state =
   match tokenizer.ScanToken(state) with
   | Some tok, state ->
       // Print token name
@@ -68,7 +68,7 @@ and an earlier line ends with a multi-line comment. As an initial state, we can 
 tokenizeLine tokenizer 0L
 (**
 The result is a sequence of tokens with names LET, WHITESPACE, IDENT, EQUALS and INT32.
-There is a number of interesting properties on `TokenInformation` including:
+There is a number of interesting properties on `FSharpTokenInfo` including:
 
  - `CharClass` and `ColorClass` return information about the token category that
    can be used for colorizing F# code.

@@ -84,10 +84,10 @@ type SimpleSourceCodeServices =
     new: unit -> SimpleSourceCodeServices
 
     /// Tokenize a single line, returning token information and a tokenization state represented by an integer
-    member TokenizeLine: line:string * state:int64 -> TokenInformation [] * int64
+    member TokenizeLine: line:string * state:int64 -> FSharpTokenInfo [] * int64
 
     /// Tokenize an entire file, line by line
-    member TokenizeFile: source:string -> TokenInformation [] []
+    member TokenizeFile: source:string -> FSharpTokenInfo [] []
 
     /// Return information about matching braces in a single file.
     [<System.Obsolete("This method has been deprecated. Use the SourceCodeServices API directly. See http://fsharp.github.io/FSharp.Compiler.Service/editor.html")>] 
@@ -102,7 +102,7 @@ type SimpleSourceCodeServices =
 
     /// For analysis of a project
     [<System.Obsolete("This method has been deprecated. Use the SourceCodeServices API directly. see http://fsharp.github.io/FSharp.Compiler.Service/project.html")>] 
-    member ParseAndCheckProject: projectFileName:string * argv:string [] -> Async<CheckProjectResults>
+    member ParseAndCheckProject: projectFileName:string * argv:string [] -> Async<FSharpCheckProjectResults>
 
     /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
     member Compile: argv:string [] -> FSharpErrorInfo [] * int

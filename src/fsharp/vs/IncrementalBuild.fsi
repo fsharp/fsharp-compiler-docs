@@ -146,4 +146,5 @@ module internal IncrementalFSharpBuild =
       static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * FSharpErrorInfo list
 
 [<System.Obsolete("This type has been renamed to FSharpErrorInfo")>]
+/// Renamed to FSharpErrorInfo
 type ErrorInfo = FSharpErrorInfo

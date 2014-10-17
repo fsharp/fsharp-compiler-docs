@@ -60,7 +60,7 @@ type iDeclarationSet = int
 
 /// Describe a comment as either a block of text or a file+signature reference into an intellidoc file.
 [<RequireQualifiedAccess>]
-type FSharpXmlComment =
+type FSharpXmlDoc =
     | None
     | Text of string
     | XmlDocFileSignature of (*File and Signature*) string * string
@@ -70,11 +70,11 @@ type FSharpXmlComment =
 type FSharpToolTipElement = 
     | None
     /// A single type, method, etc with comment.
-    | Single of (* text *) string * FSharpXmlComment
+    | Single of (* text *) string * FSharpXmlDoc
     // /// A parameter of a method.
     // | ToolTipElementParameter of string * XmlComment * string
     /// For example, a method overload group.
-    | Group of ((* text *) string * FSharpXmlComment) list
+    | Group of ((* text *) string * FSharpXmlDoc) list
     /// An error occurred formatting this element
     | CompositionError of string
 
@@ -266,8 +266,8 @@ module internal ItemDescriptionsImpl =
 
     let mkXmlComment thing =
         match thing with
-        | Some (Some(fileName), xmlDocSig) -> FSharpXmlComment.XmlDocFileSignature(fileName, xmlDocSig)
-        | _ -> FSharpXmlComment.None
+        | Some (Some(fileName), xmlDocSig) -> FSharpXmlDoc.XmlDocFileSignature(fileName, xmlDocSig)
+        | _ -> FSharpXmlDoc.None
 
     let GetXmlDocSigOfEntityRef infoReader m (eref:EntityRef) = 
         if eref.IsILTycon then 
@@ -381,16 +381,16 @@ module internal ItemDescriptionsImpl =
         | Item.UnionCase  ucinfo -> mkXmlComment (GetXmlDocSigOfUnionCaseInfo ucinfo)
         | Item.ExnCase tcref -> mkXmlComment (GetXmlDocSigOfEntityRef infoReader m tcref)
         | Item.RecdField rfinfo -> mkXmlComment (GetXmlDocSigOfRecdFieldInfo rfinfo)
-        | Item.NewDef _ -> FSharpXmlComment.None
+        | Item.NewDef _ -> FSharpXmlDoc.None
         | Item.ILField(ILFieldInfo(tinfo, fdef)) -> 
               match metaInfoOfEntityRef infoReader m tinfo.TyconRef  with
               | Some (Some(ccuFileName),_,formalTypeInfo) ->
-                  FSharpXmlComment.XmlDocFileSignature(ccuFileName,"F:"+formalTypeInfo.ILTypeRef.FullName+"."+fdef.Name)
-              | _ -> FSharpXmlComment.None
+                  FSharpXmlDoc.XmlDocFileSignature(ccuFileName,"F:"+formalTypeInfo.ILTypeRef.FullName+"."+fdef.Name)
+              | _ -> FSharpXmlDoc.None
 
         | Item.Types(_,((TType_app(tcref,_)) :: _)) ->  mkXmlComment (GetXmlDocSigOfEntityRef infoReader m tcref)
         | Item.CustomOperation (_,_,Some minfo) -> mkXmlComment (GetXmlDocSigOfMethInfo infoReader  m minfo)
-        | Item.TypeVar _  -> FSharpXmlComment.None
+        | Item.TypeVar _  -> FSharpXmlDoc.None
         | Item.ModuleOrNamespaces(modref :: _) -> mkXmlComment (GetXmlDocSigOfEntityRef infoReader m modref)
 
         | Item.Property(_,(pinfo :: _)) -> mkXmlComment (GetXmlDocSigOfProp infoReader m pinfo)
@@ -402,7 +402,7 @@ module internal ItemDescriptionsImpl =
                                                    | ArgumentContainer.Method(minfo) -> mkXmlComment (GetXmlDocSigOfMethInfo infoReader m minfo)
                                                    | ArgumentContainer.Type(tcref) -> mkXmlComment (GetXmlDocSigOfEntityRef infoReader m tcref)
                                                    | ArgumentContainer.UnionCase(ucinfo) -> mkXmlComment (GetXmlDocSigOfUnionCaseInfo ucinfo)
-        |  _ -> FSharpXmlComment.None
+        |  _ -> FSharpXmlDoc.None
 
     /// Produce an XmlComment with a signature or raw text.
     let GetXmlComment (xmlDoc:XmlDoc) (infoReader:InfoReader) m d = 
@@ -416,9 +416,9 @@ module internal ItemDescriptionsImpl =
                         // Note: this code runs for local/within-project xmldoc tooltips, but not for cross-project or .XML
                         bprintf os "\n%s" s))
 
-        let xml = if String.IsNullOrEmpty result then FSharpXmlComment.None else FSharpXmlComment.Text result
+        let xml = if String.IsNullOrEmpty result then FSharpXmlDoc.None else FSharpXmlDoc.Text result
         match xml with
-        | FSharpXmlComment.None -> GetXmlDocHelpSigOfItemForLookup infoReader m d
+        | FSharpXmlDoc.None -> GetXmlDocHelpSigOfItemForLookup infoReader m d
         | _ -> xml
 
     /// Output a method info
@@ -1250,7 +1250,7 @@ type FSharpDeclaration(name, glyph:int, info) =
                           // It is best to think of this as a "weak reference" to the IncrementalBuilder, i.e. this code is written to be robust to its
                           // disposal. Yes, you are right to scratch your head here, but this is ok.
                               if checkAlive() then FSharpToolTipText(items |> Seq.toList |> List.map (FormatDescriptionOfItem true infoReader m denv))
-                              else FSharpToolTipText [ FSharpToolTipElement.Single(FSComp.SR.descriptionUnavailable(), FSharpXmlComment.None) ])
+                              else FSharpToolTipText [ FSharpToolTipElement.Single(FSComp.SR.descriptionUnavailable(), FSharpXmlDoc.None) ])
             | Choice2Of2 result -> 
                 async.Return result
 
@@ -1283,7 +1283,7 @@ type FSharpDeclaration(name, glyph:int, info) =
 #endif
                 match descriptionTextHolder with 
                 | Some text -> text
-                | None -> FSharpToolTipText [ FSharpToolTipElement.Single(FSComp.SR.loadingDescription(), FSharpXmlComment.None) ]
+                | None -> FSharpToolTipText [ FSharpToolTipElement.Single(FSComp.SR.loadingDescription(), FSharpXmlDoc.None) ]
 
             | Choice2Of2 result -> 
                 result
@@ -1378,8 +1378,8 @@ type Declaration = FSharpDeclaration
 [<System.Obsolete("This type has been renamed to 'FSharpDeclarationGroup'")>]
 type DeclarationGroup = FSharpDeclarationGroup
 
-[<System.Obsolete("This type has been renamed to 'FSharpXmlComment'")>]
-type XmlComment = FSharpXmlComment
+[<System.Obsolete("This type has been renamed to 'FSharpXmlDoc'")>]
+type XmlComment = FSharpXmlDoc
 
 [<System.Obsolete("This type has been renamed to 'FSharpToolTipElement'")>]
 type ToolTipElement = FSharpToolTipElement
@@ -1388,7 +1388,7 @@ type ToolTipElement = FSharpToolTipElement
 type ToolTipText = FSharpToolTipText
 
 module Obsoletes = 
-    [<System.Obsolete("The cases of this union type have been renamed to 'FSharpXmlComment.None', 'FSharpXmlComment.Text' or 'FSharpXmlComment.XmlDocFileSignature'", true)>]
+    [<System.Obsolete("The cases of this union type have been renamed to 'FSharpXmlDoc.None', 'FSharpXmlDoc.Text' or 'FSharpXmlDoc.XmlDocFileSignature'", true)>]
     type Dummy = 
     | XmlCommentNone 
     | XmlCommentText of string 
@@ -1397,8 +1397,8 @@ module Obsoletes =
     [<System.Obsolete("The cases of this union type have been renamed to 'FSharpToolTipElement.None', 'FSharpToolTipElement.Single', 'FSharpToolTipElement.Group' or 'FSharpToolTipElement.CompositionError'", true)>]
     type Dummy2 = 
     | ToolTipElementNone 
-    | ToolTipElement of  string * FSharpXmlComment 
-    | ToolTipElementGroup of (string * FSharpXmlComment) list 
+    | ToolTipElement of  string * FSharpXmlDoc 
+    | ToolTipElementGroup of (string * FSharpXmlDoc) list 
     | ToolTipElementCompositionError of string  
 
 

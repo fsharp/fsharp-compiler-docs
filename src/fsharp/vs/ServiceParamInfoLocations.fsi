@@ -11,7 +11,7 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 
 [<Sealed>]
-type (*internal*) NoteworthyParamInfoLocations =
+type (*internal*) FSharpNoteworthyParamInfoLocations =
     member LongId : string list
     member LongIdStartLocation : int * int
     member LongIdEndLocation : int * int
@@ -22,4 +22,8 @@ type (*internal*) NoteworthyParamInfoLocations =
 
 // implementation details used by other code in the compiler    
 module internal NoteworthyParamInfoLocationsImpl =
-    val internal FindNoteworthyParamInfoLocations : pos * Ast.ParsedInput -> NoteworthyParamInfoLocations option
+    val internal FindNoteworthyParamInfoLocations : pos * Ast.ParsedInput -> FSharpNoteworthyParamInfoLocations option
+
+[<System.Obsolete("This type has been renamed to FSharpNoteworthyParamInfoLocations")>]
+/// Renamed to FSharpNoteworthyParamInfoLocations
+type NoteworthyParamInfoLocations = FSharpNoteworthyParamInfoLocations

@@ -12,7 +12,7 @@ open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
 
 [<Sealed>]
-type NoteworthyParamInfoLocations(longId : string list, longIdStartLocation : int*int, longIdEndLocation : int*int, openParenLocation : int*int, 
+type FSharpNoteworthyParamInfoLocations(longId : string list, longIdStartLocation : int*int, longIdEndLocation : int*int, openParenLocation : int*int, 
                                            tupleEndLocations : (int*int)[], isThereACloseParen : bool, namedParamNames : string[]) =
     let namedParamNames =
         if (tupleEndLocations.Length = namedParamNames.Length) then
@@ -40,7 +40,7 @@ module internal NoteworthyParamInfoLocationsImpl =
         | SynType.LongIdent _ -> true // NOTE: this is not a static constant, but it is a prefix of incomplete code, e.g. "TP<42,Arg3" is a prefix of "TP<42,Arg3=6>" and Arg3 shows up as a LongId
         | _ -> false
 
-    let traverseInput(pos,parseTree) : NoteworthyParamInfoLocations option =
+    let traverseInput(pos,parseTree) : FSharpNoteworthyParamInfoLocations option =
 
         let rec digOutIdentStartEndFromAnApp synExpr =
             // we found it, dig out ident
@@ -167,7 +167,7 @@ module internal NoteworthyParamInfoLocationsImpl =
                 match constrArgsResult,cacheOpt with
                 | Some(parenLoc,args,isThereACloseParen), _ ->
                     let typename = getTypeName synType
-                    let r = NoteworthyParamInfoLocations(typename, (synType.Range.StartLine, synType.Range.StartColumn+1), (synType.Range.EndLine, synType.Range.EndColumn+1), // +1 because col are 0-based, but want 1-based
+                    let r = FSharpNoteworthyParamInfoLocations(typename, (synType.Range.StartLine, synType.Range.StartColumn+1), (synType.Range.EndLine, synType.Range.EndColumn+1), // +1 because col are 0-based, but want 1-based
                                                          parenLoc, args |> Seq.map (fun (l,c,_n) -> l,c) |> Seq.toArray, isThereACloseParen, args |> Seq.map (fun (_l,_c,n) -> n) |> Seq.toArray)
                     Trace.PrintLine("LanguageServiceParamInfo", fun () -> sprintf "Found 'new' call with ranges %+A from %+A" r expr)
                     Some(r)
@@ -193,7 +193,7 @@ module internal NoteworthyParamInfoLocationsImpl =
                                 Trace.PrintLine("LanguageServiceParamInfo", fun () -> sprintf "Found apparent infix operator, ignoring dug-out ident from %+A" expr)
                                 None
                             else
-                                let r = NoteworthyParamInfoLocations(lid, lidStart, lidEnd, parenLoc, args |> Seq.map (fun (l,c,_n) -> l,c) |> Seq.toArray, 
+                                let r = FSharpNoteworthyParamInfoLocations(lid, lidStart, lidEnd, parenLoc, args |> Seq.map (fun (l,c,_n) -> l,c) |> Seq.toArray, 
                                                                      isThereACloseParen, args |> Seq.map (fun (_l,_c,n) -> n) |> Seq.toArray)
                                 Trace.PrintLine("LanguageServiceParamInfo", fun () -> sprintf "Found app with ranges %+A from %+A" r expr)
                                 Some r
@@ -209,7 +209,7 @@ module internal NoteworthyParamInfoLocationsImpl =
                     let typeArgsm = mkRange openm.FileName openm.Start wholem.End 
                     if AstTraversal.rangeContainsPosEdgesExclusive typeArgsm pos && tyArgs |> List.forall isStaticArg then
                         // +1s because col are 0-based, but want 1-based
-                        let r = NoteworthyParamInfoLocations(["dummy"], // TODO synExpr, but LongId?
+                        let r = FSharpNoteworthyParamInfoLocations(["dummy"], // TODO synExpr, but LongId?
                                                              (synExpr.Range.StartLine, synExpr.Range.StartColumn+1),
                                                              (synExpr.Range.EndLine, synExpr.Range.EndColumn+1), 
                                                              (openm.StartLine, openm.StartColumn+1), 
@@ -234,7 +234,7 @@ module internal NoteworthyParamInfoLocationsImpl =
                 let betweenTheBrackets = mkRange wholem.FileName openm.Start wholem.End
                 if AstTraversal.rangeContainsPosEdgesExclusive betweenTheBrackets pos && args |> List.forall isStaticArg then
                     // +1s because col are 0-based, but want 1-based
-                    let r = NoteworthyParamInfoLocations(lid |> List.map (fun id -> id.idText), 
+                    let r = FSharpNoteworthyParamInfoLocations(lid |> List.map (fun id -> id.idText), 
                                                             (lidm.StartLine, lidm.StartColumn+1),
                                                             (lidm.EndLine, lidm.EndColumn+1), 
                                                             (openm.StartLine, openm.StartColumn+1), 
@@ -265,7 +265,7 @@ module internal NoteworthyParamInfoLocationsImpl =
                     | Some(parenLoc,args,isThereACloseParen) ->
                         // we found it, dig out ident
                         let typename = getTypeName ty
-                        let r = NoteworthyParamInfoLocations(typename, (ty.Range.StartLine, ty.Range.StartColumn+1), (ty.Range.EndLine, ty.Range.EndColumn+1), // +1 because col are 0-based, but want 1-based
+                        let r = FSharpNoteworthyParamInfoLocations(typename, (ty.Range.StartLine, ty.Range.StartColumn+1), (ty.Range.EndLine, ty.Range.EndColumn+1), // +1 because col are 0-based, but want 1-based
                                                              parenLoc, args |> Seq.map (fun (l,c,_n) -> l,c) |> Seq.toArray, 
                                                              isThereACloseParen, args |> Seq.map (fun (_l,_c,n) -> n) |> Seq.toArray)
                         Trace.PrintLine("LanguageServiceParamInfo", fun () -> sprintf "Found app with ranges %+A from %+A" r expr)
@@ -287,3 +287,5 @@ module internal NoteworthyParamInfoLocationsImpl =
             r
         | _ -> None
 
+[<System.Obsolete("This type has been renamed to FSharpNoteworthyParamInfoLocations")>]
+type NoteworthyParamInfoLocations = FSharpNoteworthyParamInfoLocations

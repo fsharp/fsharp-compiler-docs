@@ -755,4 +755,5 @@ module (*internal*) UntypedParseImpl =
         AstTraversal.Traverse(pos, pt, walker)
 
 [<Obsolete("This type has been renamed to FSharpParseFileResults")>]
+/// Renamed to FSharpParseFileResults
 type ParseFileResults = FSharpParseFileResults

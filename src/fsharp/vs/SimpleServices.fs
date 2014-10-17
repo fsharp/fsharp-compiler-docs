@@ -19,11 +19,11 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
         let buildFormatComment (xmlCommentRetriever: string * string -> string) cmt (sb: StringBuilder) =
             match cmt with
-            | FSharpXmlComment.Text(s) -> sb.AppendLine(s) |> ignore
-            | FSharpXmlComment.XmlDocFileSignature(file, signature) ->
+            | FSharpXmlDoc.Text(s) -> sb.AppendLine(s) |> ignore
+            | FSharpXmlDoc.XmlDocFileSignature(file, signature) ->
                 let comment = xmlCommentRetriever (file, signature)
                 if (not (comment.Equals(null))) && comment.Length > 0 then sb.AppendLine(comment) |> ignore
-            | FSharpXmlComment.None -> ()
+            | FSharpXmlDoc.None -> ()
 
         let buildFormatElement isSingle el (sb: StringBuilder) xmlCommentRetriever =
             match el with
@@ -220,8 +220,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
 
         /// Tokenize a single line, returning token information and a tokenization state represented by an integer
-        member x.TokenizeLine (line: string, state: int64) : TokenInformation[] * int64 = 
-            let tokenizer = SourceTokenizer([], "example.fsx")
+        member x.TokenizeLine (line: string, state: int64) : FSharpTokenInfo[] * int64 = 
+            let tokenizer = FSharpSourceTokenizer([], "example.fsx")
             let lineTokenizer = tokenizer.CreateLineTokenizer line
             let state = ref (None, state)
             let tokens = 
@@ -230,7 +230,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             tokens, snd !state 
 
         /// Tokenize an entire file, line by line
-        member x.TokenizeFile (source: string) : TokenInformation[][] = 
+        member x.TokenizeFile (source: string) : FSharpTokenInfo[][] = 
             let lines = source.Split('\n')
             let tokens = 
                 [| let state = ref 0L

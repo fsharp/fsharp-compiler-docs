@@ -242,7 +242,7 @@ type FSharpCheckFileResults =
     member GetSymbolUseAtLocation  : line:int * colAtEndOfNames:int * lineText:string * names:string list -> Async<FSharpSymbolUse option>
 
     /// <summary>Get any extra colorization info that is available after the typecheck</summary>
-    member GetExtraColorizationsAlternate : unit -> (range * TokenColorKind)[]
+    member GetExtraColorizationsAlternate : unit -> (range * FSharpTokenColorKind)[]
 
     /// Get all textual usages of all symbols throughout the file
     member GetAllUsesOfAllSymbolsInFile : unit -> Async<FSharpSymbolUse[]>
@@ -258,7 +258,7 @@ type FSharpCheckFileResults =
     member GetSymbolAtLocation  : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> FSharpSymbol option
 
     [<Obsolete("This member has been replaced by GetExtraColorizationsAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetExtraColorizations : unit -> (Range01 * TokenColorKind)[]
+    member GetExtraColorizations : unit -> (Range01 * FSharpTokenColorKind)[]
 
     [<Obsolete("This member has been replaced by GetDeclarationsAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member GetDeclarations : ParsedFileResultsOpt:FSharpParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<FSharpDeclarationSet>
@@ -688,52 +688,69 @@ module PrettyNaming =
 
 
 [<Obsolete("This type has been renamed to FSharpMethodGroupItemParameter")>]
+/// Renamed to FSharpMethodGroupItemParameter
 type Param = FSharpMethodGroupItemParameter
 
 [<Obsolete("This type has been renamed to FSharpMethodGroupItem")>]
+/// Renamed to FSharpMethodGroupItem
 type Method = FSharpMethodGroupItem
 
 [<Obsolete("This type has been renamed to FSharpMethodGroupItem")>]
+/// Renamed to FSharpMethodGroupItem
 type MethodGroupItem = FSharpMethodGroupItem
 
 [<Obsolete("This type has been renamed to FSharpMethodGroup")>]
+/// Renamed to FSharpMethodGroup
 type MethodGroup = FSharpMethodGroup
 
 [<Obsolete("This type has been renamed to FSharpProjectOptions")>]
+/// Renamed to FSharpProjectOptions
 type CheckOptions = FSharpProjectOptions
 
 [<Obsolete("This type has been renamed to ProjectOptions")>]
+/// Renamed to FSharpProjectOptions
 type ProjectOptions = FSharpProjectOptions
 
 [<Obsolete("This type has been renamed to FSharpCheckFileAnswer")>]
+/// Renamed to FSharpCheckFileAnswer
 type TypeCheckAnswer = FSharpCheckFileAnswer
 
 [<Obsolete("This type has been renamed to FSharpCheckFileAnswer")>]
+/// Renamed to FSharpCheckFileAnswer
 type CheckFileAnswer = FSharpCheckFileAnswer
 
 [<Obsolete("This type has been renamed to FSharpCheckFileResults")>]
+/// Renamed to FSharpCheckFileResults
 type TypeCheckResults = FSharpCheckFileResults
 
 [<Obsolete("This type has been renamed to FSharpParseFileResults")>]
+/// Renamed to FSharpParseFileResults
 type UntypedParseInfo = FSharpParseFileResults
 
 [<Obsolete("NotifyFileTypeCheckStateIsDirty has been replaced by the FileTypeCheckStateIsDirty event on the FSharpChecker type")>]
+/// Obsolete and replaced
 type NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
         
 [<Obsolete("This type has been renamed to FSharpProjectContext")>]
+/// Renamed to FSharpProjectContext
 type ProjectContext = FSharpProjectContext
 
 [<Obsolete("This type has been renamed to FSharpCheckFileResults")>]
+/// Renamed to FSharpCheckFileResults
 type CheckFileResults = FSharpCheckFileResults
 
 [<Obsolete("This type has been renamed to FSharpFindDeclFailureReason")>]
+/// Renamed to FSharpFindDeclFailureReason
 type FindDeclFailureReason = FSharpFindDeclFailureReason
 
 [<Obsolete("This type has been renamed to FSharpFindDeclResult")>]
+/// Renamed to FSharpFindDeclResult
 type FindDeclResult = FSharpFindDeclResult
 
 [<Obsolete("This type has been renamed to FSharpCheckProjectResults")>]
+/// Renamed to FSharpCheckProjectResults
 type CheckProjectResults = FSharpCheckProjectResults
 
 [<Obsolete("This type has been renamed to FSharpChecker")>]
+/// Renamed to FSharpChecker
 type InteractiveChecker = FSharpChecker

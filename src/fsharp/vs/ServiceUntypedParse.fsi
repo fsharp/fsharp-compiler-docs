@@ -16,11 +16,11 @@ open System.Collections.Generic
 type FSharpParseFileResults = 
     member ParseTree : Ast.ParsedInput option
     /// Notable parse info for ParameterInfo at a given location
-    member FindNoteworthyParamInfoLocations : pos:pos -> NoteworthyParamInfoLocations option
+    member FindNoteworthyParamInfoLocations : pos:pos -> FSharpNoteworthyParamInfoLocations option
     /// Name of the file for which this information were created
     member FileName                       : string
     /// Get declared items and the selected item at the specified location
-    member GetNavigationItems             : unit -> NavigationItems
+    member GetNavigationItems             : unit -> FSharpNavigationItems
     /// Return the inner-most range associated with a possible breakpoint location
     member ValidateBreakpointLocation : pos:pos -> range option
     /// When these files change then the build is invalid
@@ -77,4 +77,5 @@ module internal SourceFileImpl =
     val AdditionalDefinesForUseInEditor : string -> string list
 
 [<System.Obsolete("This type has been renamed to FSharpParseFileResults")>]
+/// Renamed to FSharpParseFileResults
 type ParseFileResults = FSharpParseFileResults

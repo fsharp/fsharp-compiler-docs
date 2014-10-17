@@ -20,9 +20,12 @@ open Microsoft.FSharp.Compiler.Tastops
 //
 // Note: instances of this type do not hold any references to any compiler resources.
 [<RequireQualifiedAccess>]
-type FSharpXmlComment =
+type FSharpXmlDoc =
+    /// No documentation is available
     | None
+    /// The text for documentation 
     | Text of string
+    /// Indicates that the text for the documentation can be found in a .xml documentation file, using the given signature key
     | XmlDocFileSignature of (*File:*) string * (*Signature:*)string
 
 /// A single tool tip display element
@@ -32,9 +35,9 @@ type FSharpXmlComment =
 type FSharpToolTipElement = 
     | None
     /// A single type, method, etc with comment.
-    | Single of (* text *) string * FSharpXmlComment
+    | Single of (* text *) string * FSharpXmlDoc
     /// For example, a method overload group.
-    | Group of ((* text *) string * FSharpXmlComment) list
+    | Group of ((* text *) string * FSharpXmlDoc) list
     /// An error occurred formatting this element
     | CompositionError of string
 
@@ -99,27 +102,33 @@ module internal ItemDescriptionsImpl =
 
 
 [<System.Obsolete("This type has been renamed to 'FSharpDeclaration'")>]
+/// Renamed to FSharpDeclaration
 type Declaration = FSharpDeclaration
 
 
 [<System.Obsolete("This type has been renamed to 'FSharpDeclarationGroup'")>]
+/// Renamed to FSharpDeclarationGroup
 type DeclarationGroup = FSharpDeclarationGroup
 
-[<System.Obsolete("This type has been renamed to 'FSharpXmlComment'")>]
-type XmlComment = FSharpXmlComment
+[<System.Obsolete("This type has been renamed to 'FSharpXmlDoc'")>]
+/// Renamed to FSharpXmlDoc
+type XmlComment = FSharpXmlDoc
 
 [<System.Obsolete("This type has been renamed to 'FSharpToolTipElement'")>]
+/// Renamed to FSharpToolTipElement
 type ToolTipElement = FSharpToolTipElement
 
 [<System.Obsolete("This type has been renamed to 'FSharpToolTipText'")>]
+/// Renamed to FSharpToolTipText
 type ToolTipText = FSharpToolTipText
 
 [<System.Obsolete("This type has been renamed to 'FSharpToolTipText'")>]
+/// Renamed to FSharpToolTipText
 type DataTipText = FSharpToolTipText
 
 [<AutoOpen>]
 module Obsoletes = 
-    [<System.Obsolete("The cases of this union type have been renamed to 'FSharpXmlComment.None', 'FSharpXmlComment.Text' or 'FSharpXmlComment.XmlDocFileSignature'", true)>]
+    [<System.Obsolete("The cases of this union type have been renamed to 'FSharpXmlDoc.None', 'FSharpXmlDoc.Text' or 'FSharpXmlDoc.XmlDocFileSignature'", true)>]
     type Dummy = 
     | XmlCommentNone 
     | XmlCommentText of string 
@@ -128,8 +137,8 @@ module Obsoletes =
     [<System.Obsolete("The cases of this union type have been renamed to 'FSharpToolTipElement.None', 'FSharpToolTipElement.Single', 'FSharpToolTipElement.Group' or 'FSharpToolTipElement.CompositionError'",true)>]
     type Dummy2 = 
     | ToolTipElementNone 
-    | ToolTipElement of  string * FSharpXmlComment 
-    | ToolTipElementGroup of (string * FSharpXmlComment) list 
+    | ToolTipElement of  string * FSharpXmlDoc 
+    | ToolTipElementGroup of (string * FSharpXmlDoc) list 
     | ToolTipElementCompositionError of string  
 
 

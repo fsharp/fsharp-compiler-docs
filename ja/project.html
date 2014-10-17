@@ -559,15 +559,15 @@ ReferencedProjectsを正しく設定した後、
 <div class="tip" id="fs37">property FSharpCheckProjectResults.AssemblySignature: FSharpAssemblySignature</div>
 <div class="tip" id="fs38">property FSharpAssemblySignature.Entities: IList&lt;FSharpEntity&gt;</div>
 <div class="tip" id="fs39">property FSharpEntity.DisplayName: string</div>
-<div class="tip" id="fs40">val x : FSharpMemberFunctionOrValue</div>
-<div class="tip" id="fs41">property FSharpMemberFunctionOrValue.DisplayName: string</div>
+<div class="tip" id="fs40">val x : FSharpMemberOrFunctionOrValue</div>
+<div class="tip" id="fs41">property FSharpMemberOrFunctionOrValue.DisplayName: string</div>
 <div class="tip" id="fs42">val allSymbolsInEntities : entities:IList&lt;FSharpEntity&gt; -&gt; FSharpSymbol list<br /><br />Full name: Project.allSymbolsInEntities</div>
 <div class="tip" id="fs43">val entities : IList&lt;FSharpEntity&gt;</div>
 <div class="tip" id="fs44">type IList&lt;&#39;T&gt; =<br />&#160;&#160;member IndexOf : item:&#39;T -&gt; int<br />&#160;&#160;member Insert : index:int * item:&#39;T -&gt; unit<br />&#160;&#160;member Item : int -&gt; &#39;T with get, set<br />&#160;&#160;member RemoveAt : index:int -&gt; unit<br /><br />Full name: System.Collections.Generic.IList&lt;_&gt;</div>
 <div class="tip" id="fs45">type FSharpEntity =<br />&#160;&#160;inherit FSharpSymbol<br />&#160;&#160;member AbbreviatedType : FSharpType<br />&#160;&#160;member AccessPath : string<br />&#160;&#160;member Accessibility : FSharpAccessibility<br />&#160;&#160;member AllInterfaces : IList&lt;FSharpType&gt;<br />&#160;&#160;member Attributes : IList&lt;FSharpAttribute&gt;<br />&#160;&#160;member BaseType : FSharpType option<br />&#160;&#160;member CompiledName : string<br />&#160;&#160;member DeclarationLocation : range<br />&#160;&#160;member DeclaredInterfaces : IList&lt;FSharpType&gt;<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpEntity</div>
 <div class="tip" id="fs46">val e : FSharpEntity</div>
 <div class="tip" id="fs47">type FSharpSymbol =<br />&#160;&#160;member IsAccessible : FSharpAccessibilityRights -&gt; bool<br />&#160;&#160;member Assembly : FSharpAssembly<br />&#160;&#160;member DeclarationLocation : range option<br />&#160;&#160;member DisplayName : string<br />&#160;&#160;member FullName : string<br />&#160;&#160;member ImplementationLocation : range option<br />&#160;&#160;member private Item : Item<br />&#160;&#160;static member private Create : g:TcGlobals * thisCcu:CcuThunk * tcImports:TcImports * item:Item -&gt; FSharpSymbol<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpSymbol</div>
-<div class="tip" id="fs48">property FSharpEntity.MembersFunctionsAndValues: IList&lt;FSharpMemberFunctionOrValue&gt;</div>
+<div class="tip" id="fs48">property FSharpEntity.MembersFunctionsAndValues: IList&lt;FSharpMemberOrFunctionOrValue&gt;</div>
 <div class="tip" id="fs49">val x : FSharpUnionCase</div>
 <div class="tip" id="fs50">property FSharpEntity.UnionCases: IList&lt;FSharpUnionCase&gt;</div>
 <div class="tip" id="fs51">val x : FSharpField</div>

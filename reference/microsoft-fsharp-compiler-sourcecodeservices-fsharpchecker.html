@@ -37,6 +37,7 @@
 
 <h1>FSharpChecker</h1>
 <div class="xmldoc">
+<p>Used to parse and check F# source code.</p>
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -47,10 +48,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3503', 3503)" onmouseover="showTip(event, '3503', 3503)">
+          <code onmouseout="hideTip(event, '3495', 3495)" onmouseover="showTip(event, '3495', 3495)">
             BeforeBackgroundFileCheck
           </code>
-          <div class="tip" id="3503">
+          <div class="tip" id="3495">
             <strong>Signature:</strong> IEvent&lt;string&gt;<br />
                       </div>
         </td>
@@ -69,10 +70,10 @@ and that the file has become eligible to be re-typechecked for errors.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3504', 3504)" onmouseover="showTip(event, '3504', 3504)">
+          <code onmouseout="hideTip(event, '3496', 3496)" onmouseover="showTip(event, '3496', 3496)">
             BeforeBackgroundFileCheck
           </code>
-          <div class="tip" id="3504">
+          <div class="tip" id="3496">
             <strong>Signature:</strong> IEvent&lt;string&gt;<br />
                       </div>
         </td>
@@ -91,10 +92,10 @@ and that the file has become eligible to be re-typechecked for errors.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3505', 3505)" onmouseover="showTip(event, '3505', 3505)">
+          <code onmouseout="hideTip(event, '3497', 3497)" onmouseover="showTip(event, '3497', 3497)">
             CheckFileInProject(...)
           </code>
-          <div class="tip" id="3505">
+          <div class="tip" id="3497">
             <strong>Signature:</strong> (parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * isResultObsolete:IsResultObsolete option * textSnapshotInfo:obj option) -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />
                       </div>
         </td>
@@ -114,10 +115,10 @@ and that the file has become eligible to be re-typechecked for errors.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3506', 3506)" onmouseover="showTip(event, '3506', 3506)">
+          <code onmouseout="hideTip(event, '3498', 3498)" onmouseover="showTip(event, '3498', 3498)">
             CheckFileInProjectIfReady(...)
           </code>
-          <div class="tip" id="3506">
+          <div class="tip" id="3498">
             <strong>Signature:</strong> (parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * isResultObsolete:IsResultObsolete option * textSnapshotInfo:obj option) -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />
                       </div>
         </td>
@@ -136,10 +137,10 @@ and that the file has become eligible to be re-typechecked for errors.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3507', 3507)" onmouseover="showTip(event, '3507', 3507)">
+          <code onmouseout="hideTip(event, '3499', 3499)" onmouseover="showTip(event, '3499', 3499)">
             ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients(...)
           </code>
-          <div class="tip" id="3507">
+          <div class="tip" id="3499">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
@@ -155,172 +156,172 @@ and that the file has become eligible to be re-typechecked for errors.</p>
       <tr>
         <td class="member-name">
 
+          <code onmouseout="hideTip(event, '3500', 3500)" onmouseover="showTip(event, '3500', 3500)">
+            CurrentQueueLength
+          </code>
+          <div class="tip" id="3500">
+            <strong>Signature:</strong> int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2736-2736" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Current queue length of the service, for debug purposes. 
+In addition, a single async operation or a step of a background build 
+may be in progress - such an operation is not counted in the queue length.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3501', 3501)" onmouseover="showTip(event, '3501', 3501)">
+            CurrentQueueLength
+          </code>
+          <div class="tip" id="3501">
+            <strong>Signature:</strong> int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2736-2736" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Current queue length of the service, for debug purposes. 
+In addition, a single async operation or a step of a background build 
+may be in progress - such an operation is not counted in the queue length.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3502', 3502)" onmouseover="showTip(event, '3502', 3502)">
+            FileChecked
+          </code>
+          <div class="tip" id="3502">
+            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2741-2741" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Raised after a check of a file in the background analysis.</p>
+
+<p>The event will be raised on a background thread.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3503', 3503)" onmouseover="showTip(event, '3503', 3503)">
+            FileChecked
+          </code>
+          <div class="tip" id="3503">
+            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2741-2741" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Raised after a check of a file in the background analysis.</p>
+
+<p>The event will be raised on a background thread.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3504', 3504)" onmouseover="showTip(event, '3504', 3504)">
+            FileParsed
+          </code>
+          <div class="tip" id="3504">
+            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2740-2740" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Raised after a parse of a file in the background analysis.</p>
+
+<p>The event will be raised on a background thread.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3505', 3505)" onmouseover="showTip(event, '3505', 3505)">
+            FileParsed
+          </code>
+          <div class="tip" id="3505">
+            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2740-2740" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Raised after a parse of a file in the background analysis.</p>
+
+<p>The event will be raised on a background thread.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3506', 3506)" onmouseover="showTip(event, '3506', 3506)">
+            FileTypeCheckStateIsDirty
+          </code>
+          <div class="tip" id="3506">
+            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2773-2773" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3507', 3507)" onmouseover="showTip(event, '3507', 3507)">
+            FileTypeCheckStateIsDirty
+          </code>
+          <div class="tip" id="3507">
+            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2773-2773" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
           <code onmouseout="hideTip(event, '3508', 3508)" onmouseover="showTip(event, '3508', 3508)">
-            CurrentQueueLength
-          </code>
-          <div class="tip" id="3508">
-            <strong>Signature:</strong> int<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2736-2736" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Current queue length of the service, for debug purposes. 
-In addition, a single async operation or a step of a background build 
-may be in progress - such an operation is not counted in the queue length.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3509', 3509)" onmouseover="showTip(event, '3509', 3509)">
-            CurrentQueueLength
-          </code>
-          <div class="tip" id="3509">
-            <strong>Signature:</strong> int<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2736-2736" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Current queue length of the service, for debug purposes. 
-In addition, a single async operation or a step of a background build 
-may be in progress - such an operation is not counted in the queue length.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3510', 3510)" onmouseover="showTip(event, '3510', 3510)">
-            FileChecked
-          </code>
-          <div class="tip" id="3510">
-            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2741-2741" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Raised after a check of a file in the background analysis.</p>
-
-<p>The event will be raised on a background thread.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3511', 3511)" onmouseover="showTip(event, '3511', 3511)">
-            FileChecked
-          </code>
-          <div class="tip" id="3511">
-            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2741-2741" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Raised after a check of a file in the background analysis.</p>
-
-<p>The event will be raised on a background thread.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3512', 3512)" onmouseover="showTip(event, '3512', 3512)">
-            FileParsed
-          </code>
-          <div class="tip" id="3512">
-            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2740-2740" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Raised after a parse of a file in the background analysis.</p>
-
-<p>The event will be raised on a background thread.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3513', 3513)" onmouseover="showTip(event, '3513', 3513)">
-            FileParsed
-          </code>
-          <div class="tip" id="3513">
-            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2740-2740" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Raised after a parse of a file in the background analysis.</p>
-
-<p>The event will be raised on a background thread.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3514', 3514)" onmouseover="showTip(event, '3514', 3514)">
-            FileTypeCheckStateIsDirty
-          </code>
-          <div class="tip" id="3514">
-            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2773-2773" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3515', 3515)" onmouseover="showTip(event, '3515', 3515)">
-            FileTypeCheckStateIsDirty
-          </code>
-          <div class="tip" id="3515">
-            <strong>Signature:</strong> IEvent&lt;string&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2773-2773" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3516', 3516)" onmouseover="showTip(event, '3516', 3516)">
             GetBackgroundCheckResultsForFileInProject(...)
           </code>
-          <div class="tip" id="3516">
+          <div class="tip" id="3508">
             <strong>Signature:</strong> (filename:string * options:FSharpProjectOptions) -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />
                       </div>
         </td>
@@ -336,10 +337,10 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3517', 3517)" onmouseover="showTip(event, '3517', 3517)">
+          <code onmouseout="hideTip(event, '3509', 3509)" onmouseover="showTip(event, '3509', 3509)">
             GetBackgroundParseResultsForFileInProject(...)
           </code>
-          <div class="tip" id="3517">
+          <div class="tip" id="3509">
             <strong>Signature:</strong> (filename:string * options:FSharpProjectOptions) -&gt; Async&lt;FSharpParseFileResults&gt;<br />
                       </div>
         </td>
@@ -355,10 +356,10 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3518', 3518)" onmouseover="showTip(event, '3518', 3518)">
+          <code onmouseout="hideTip(event, '3510', 3510)" onmouseover="showTip(event, '3510', 3510)">
             GetCheckOptionsFromScriptRoot(...)
           </code>
-          <div class="tip" id="3518">
+          <div class="tip" id="3510">
             <strong>Signature:</strong> (filename:string * source:string * loadedTimeStamp:DateTime * otherFlags:string []) -&gt; FSharpProjectOptions<br />
                       </div>
         </td>
@@ -373,10 +374,10 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3519', 3519)" onmouseover="showTip(event, '3519', 3519)">
+          <code onmouseout="hideTip(event, '3511', 3511)" onmouseover="showTip(event, '3511', 3511)">
             GetCheckOptionsFromScriptRoot(...)
           </code>
-          <div class="tip" id="3519">
+          <div class="tip" id="3511">
             <strong>Signature:</strong> (filename:string * source:string * loadedTimeStamp:DateTime) -&gt; FSharpProjectOptions<br />
                       </div>
         </td>
@@ -391,10 +392,10 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3520', 3520)" onmouseover="showTip(event, '3520', 3520)">
+          <code onmouseout="hideTip(event, '3512', 3512)" onmouseover="showTip(event, '3512', 3512)">
             GetProjectOptionsFromCommandLineArgs(...)
           </code>
-          <div class="tip" id="3520">
+          <div class="tip" id="3512">
             <strong>Signature:</strong> (projectFileName:string * argv:string [] * loadedTimeStamp:DateTime option) -&gt; FSharpProjectOptions<br />
                       </div>
         </td>
@@ -410,10 +411,10 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3521', 3521)" onmouseover="showTip(event, '3521', 3521)">
+          <code onmouseout="hideTip(event, '3513', 3513)" onmouseover="showTip(event, '3513', 3513)">
             GetProjectOptionsFromProjectFile(...)
           </code>
-          <div class="tip" id="3521">
+          <div class="tip" id="3513">
             <strong>Signature:</strong> (projectFileName:string * properties:(string * string) list option * loadedTimeStamp:DateTime option) -&gt; FSharpProjectOptions<br />
                       </div>
         </td>
@@ -429,10 +430,10 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3522', 3522)" onmouseover="showTip(event, '3522', 3522)">
+          <code onmouseout="hideTip(event, '3514', 3514)" onmouseover="showTip(event, '3514', 3514)">
             GetProjectOptionsFromScript(...)
           </code>
-          <div class="tip" id="3522">
+          <div class="tip" id="3514">
             <strong>Signature:</strong> (filename:string * source:string * loadedTimeStamp:DateTime option * otherFlags:string [] option * useFsiAuxLib:bool option) -&gt; Async&lt;FSharpProjectOptions&gt;<br />
                       </div>
         </td>
@@ -448,10 +449,10 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3523', 3523)" onmouseover="showTip(event, '3523', 3523)">
+          <code onmouseout="hideTip(event, '3515', 3515)" onmouseover="showTip(event, '3515', 3515)">
             GetProjectOptionsFromScriptRoot(...)
           </code>
-          <div class="tip" id="3523">
+          <div class="tip" id="3515">
             <strong>Signature:</strong> (filename:string * source:string * loadedTimeStamp:DateTime option * otherFlags:string [] option * useFsiAuxLib:bool option) -&gt; FSharpProjectOptions<br />
                       </div>
         </td>
@@ -466,10 +467,10 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3524', 3524)" onmouseover="showTip(event, '3524', 3524)">
+          <code onmouseout="hideTip(event, '3516', 3516)" onmouseover="showTip(event, '3516', 3516)">
             InvalidateAll()
           </code>
-          <div class="tip" id="3524">
+          <div class="tip" id="3516">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
@@ -486,10 +487,10 @@ For example, the type provider approvals file may have changed.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3525', 3525)" onmouseover="showTip(event, '3525', 3525)">
+          <code onmouseout="hideTip(event, '3517', 3517)" onmouseover="showTip(event, '3517', 3517)">
             InvalidateConfiguration(options)
           </code>
-          <div class="tip" id="3525">
+          <div class="tip" id="3517">
             <strong>Signature:</strong> options:FSharpProjectOptions -&gt; unit<br />
                       </div>
         </td>
@@ -506,10 +507,10 @@ For example, dependent references may have been deleted or created.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3526', 3526)" onmouseover="showTip(event, '3526', 3526)">
+          <code onmouseout="hideTip(event, '3518', 3518)" onmouseover="showTip(event, '3518', 3518)">
             MatchBraces(filename, source, options)
           </code>
-          <div class="tip" id="3526">
+          <div class="tip" id="3518">
             <strong>Signature:</strong> (filename:string * source:string * options:FSharpProjectOptions) -&gt; (Range01 * Range01) []<br />
                       </div>
         </td>
@@ -524,10 +525,10 @@ For example, dependent references may have been deleted or created.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3527', 3527)" onmouseover="showTip(event, '3527', 3527)">
+          <code onmouseout="hideTip(event, '3519', 3519)" onmouseover="showTip(event, '3519', 3519)">
             MatchBracesAlternate(...)
           </code>
-          <div class="tip" id="3527">
+          <div class="tip" id="3519">
             <strong>Signature:</strong> (filename:string * source:string * options:FSharpProjectOptions) -&gt; Async&lt;(range * range) []&gt;<br />
                       </div>
         </td>
@@ -544,10 +545,10 @@ Return an enumeration of the matching parethetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3528', 3528)" onmouseover="showTip(event, '3528', 3528)">
+          <code onmouseout="hideTip(event, '3520', 3520)" onmouseover="showTip(event, '3520', 3520)">
             NotifyProjectCleaned(options)
           </code>
-          <div class="tip" id="3528">
+          <div class="tip" id="3520">
             <strong>Signature:</strong> options:FSharpProjectOptions -&gt; unit<br />
                       </div>
         </td>
@@ -563,10 +564,10 @@ Return an enumeration of the matching parethetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3529', 3529)" onmouseover="showTip(event, '3529', 3529)">
+          <code onmouseout="hideTip(event, '3521', 3521)" onmouseover="showTip(event, '3521', 3521)">
             ParseAndCheckFileInProject(...)
           </code>
-          <div class="tip" id="3529">
+          <div class="tip" id="3521">
             <strong>Signature:</strong> (filename:string * fileversion:int * source:string * options:FSharpProjectOptions * isResultObsolete:IsResultObsolete option * textSnapshotInfo:obj option) -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />
                       </div>
         </td>
@@ -586,10 +587,10 @@ Return an enumeration of the matching parethetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3530', 3530)" onmouseover="showTip(event, '3530', 3530)">
+          <code onmouseout="hideTip(event, '3522', 3522)" onmouseover="showTip(event, '3522', 3522)">
             ParseAndCheckProject(options)
           </code>
-          <div class="tip" id="3530">
+          <div class="tip" id="3522">
             <strong>Signature:</strong> options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />
                       </div>
         </td>
@@ -605,10 +606,10 @@ Return an enumeration of the matching parethetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3531', 3531)" onmouseover="showTip(event, '3531', 3531)">
+          <code onmouseout="hideTip(event, '3523', 3523)" onmouseover="showTip(event, '3523', 3523)">
             ParseFileInProject(...)
           </code>
-          <div class="tip" id="3531">
+          <div class="tip" id="3523">
             <strong>Signature:</strong> (filename:string * source:string * options:FSharpProjectOptions) -&gt; Async&lt;FSharpParseFileResults&gt;<br />
                       </div>
         </td>
@@ -625,10 +626,10 @@ Return an enumeration of the matching parethetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3532', 3532)" onmouseover="showTip(event, '3532', 3532)">
+          <code onmouseout="hideTip(event, '3524', 3524)" onmouseover="showTip(event, '3524', 3524)">
             ProjectChecked
           </code>
-          <div class="tip" id="3532">
+          <div class="tip" id="3524">
             <strong>Signature:</strong> IEvent&lt;string&gt;<br />
                       </div>
         </td>
@@ -646,10 +647,10 @@ Return an enumeration of the matching parethetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3533', 3533)" onmouseover="showTip(event, '3533', 3533)">
+          <code onmouseout="hideTip(event, '3525', 3525)" onmouseover="showTip(event, '3525', 3525)">
             ProjectChecked
           </code>
-          <div class="tip" id="3533">
+          <div class="tip" id="3525">
             <strong>Signature:</strong> IEvent&lt;string&gt;<br />
                       </div>
         </td>
@@ -667,10 +668,10 @@ Return an enumeration of the matching parethetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3534', 3534)" onmouseover="showTip(event, '3534', 3534)">
+          <code onmouseout="hideTip(event, '3526', 3526)" onmouseover="showTip(event, '3526', 3526)">
             StartBackgroundCompile(options)
           </code>
-          <div class="tip" id="3534">
+          <div class="tip" id="3526">
             <strong>Signature:</strong> options:FSharpProjectOptions -&gt; unit<br />
                       </div>
         </td>
@@ -686,10 +687,10 @@ Return an enumeration of the matching parethetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3535', 3535)" onmouseover="showTip(event, '3535', 3535)">
+          <code onmouseout="hideTip(event, '3527', 3527)" onmouseover="showTip(event, '3527', 3527)">
             StopBackgroundCompile()
           </code>
-          <div class="tip" id="3535">
+          <div class="tip" id="3527">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
@@ -705,10 +706,10 @@ Return an enumeration of the matching parethetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3536', 3536)" onmouseover="showTip(event, '3536', 3536)">
+          <code onmouseout="hideTip(event, '3528', 3528)" onmouseover="showTip(event, '3528', 3528)">
             TryGetRecentTypeCheckResultsForFile(...)
           </code>
-          <div class="tip" id="3536">
+          <div class="tip" id="3528">
             <strong>Signature:</strong> (filename:string * options:FSharpProjectOptions * source:string option) -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />
                       </div>
         </td>
@@ -727,10 +728,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3537', 3537)" onmouseover="showTip(event, '3537', 3537)">
+          <code onmouseout="hideTip(event, '3529', 3529)" onmouseover="showTip(event, '3529', 3529)">
             TypeCheckSource(...)
           </code>
-          <div class="tip" id="3537">
+          <div class="tip" id="3529">
             <strong>Signature:</strong> (parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * isResultObsolete:IsResultObsolete * textSnapshotInfo:obj) -&gt; FSharpCheckFileAnswer option<br />
                       </div>
         </td>
@@ -745,10 +746,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3538', 3538)" onmouseover="showTip(event, '3538', 3538)">
+          <code onmouseout="hideTip(event, '3530', 3530)" onmouseover="showTip(event, '3530', 3530)">
             UntypedParse(filename, source, options)
           </code>
-          <div class="tip" id="3538">
+          <div class="tip" id="3530">
             <strong>Signature:</strong> (filename:string * source:string * options:FSharpProjectOptions) -&gt; FSharpParseFileResults<br />
                       </div>
         </td>
@@ -763,10 +764,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3539', 3539)" onmouseover="showTip(event, '3539', 3539)">
+          <code onmouseout="hideTip(event, '3531', 3531)" onmouseover="showTip(event, '3531', 3531)">
             WaitForBackgroundCompile()
           </code>
-          <div class="tip" id="3539">
+          <div class="tip" id="3531">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
@@ -790,10 +791,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3555', 3555)" onmouseover="showTip(event, '3555', 3555)">
+          <code onmouseout="hideTip(event, '3535', 3535)" onmouseover="showTip(event, '3535', 3535)">
             Create()
           </code>
-          <div class="tip" id="3555">
+          <div class="tip" id="3535">
             <strong>Signature:</strong> unit -&gt; FSharpChecker<br />
                       </div>
         </td>
@@ -809,10 +810,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3556', 3556)" onmouseover="showTip(event, '3556', 3556)">
+          <code onmouseout="hideTip(event, '3539', 3539)" onmouseover="showTip(event, '3539', 3539)">
             Create(projectCacheSize)
           </code>
-          <div class="tip" id="3556">
+          <div class="tip" id="3539">
             <strong>Signature:</strong> (projectCacheSize:int option) -&gt; FSharpChecker<br />
                       </div>
         </td>
@@ -828,10 +829,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3557', 3557)" onmouseover="showTip(event, '3557', 3557)">
+          <code onmouseout="hideTip(event, '3540', 3540)" onmouseover="showTip(event, '3540', 3540)">
             GlobalForegroundParseCountStatistic
           </code>
-          <div class="tip" id="3557">
+          <div class="tip" id="3540">
             <strong>Signature:</strong> int<br />
                       </div>
         </td>
@@ -847,10 +848,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3558', 3558)" onmouseover="showTip(event, '3558', 3558)">
+          <code onmouseout="hideTip(event, '3541', 3541)" onmouseover="showTip(event, '3541', 3541)">
             GlobalForegroundParseCountStatistic
           </code>
-          <div class="tip" id="3558">
+          <div class="tip" id="3541">
             <strong>Signature:</strong> int<br />
                       </div>
         </td>
@@ -866,10 +867,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3559', 3559)" onmouseover="showTip(event, '3559', 3559)">
+          <code onmouseout="hideTip(event, '3542', 3542)" onmouseover="showTip(event, '3542', 3542)">
             GlobalForegroundTypeCheckCountStatistic
           </code>
-          <div class="tip" id="3559">
+          <div class="tip" id="3542">
             <strong>Signature:</strong> int<br />
                       </div>
         </td>
@@ -885,10 +886,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3560', 3560)" onmouseover="showTip(event, '3560', 3560)">
+          <code onmouseout="hideTip(event, '3543', 3543)" onmouseover="showTip(event, '3543', 3543)">
             GlobalForegroundTypeCheckCountStatistic
           </code>
-          <div class="tip" id="3560">
+          <div class="tip" id="3543">
             <strong>Signature:</strong> int<br />
                       </div>
         </td>
@@ -904,10 +905,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3561', 3561)" onmouseover="showTip(event, '3561', 3561)">
+          <code onmouseout="hideTip(event, '3544', 3544)" onmouseover="showTip(event, '3544', 3544)">
             Instance
           </code>
-          <div class="tip" id="3561">
+          <div class="tip" id="3544">
             <strong>Signature:</strong> FSharpChecker<br />
                       </div>
         </td>
@@ -922,10 +923,10 @@ still be usable for generating intellsense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3562', 3562)" onmouseover="showTip(event, '3562', 3562)">
+          <code onmouseout="hideTip(event, '3545', 3545)" onmouseover="showTip(event, '3545', 3545)">
             Instance
           </code>
-          <div class="tip" id="3562">
+          <div class="tip" id="3545">
             <strong>Signature:</strong> FSharpChecker<br />
                       </div>
         </td>

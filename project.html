@@ -383,7 +383,7 @@ in the project. This will be fast and will not invlove any additional checking.<
 <td class="snippet"><pre class="fssnip">
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs82', 206)" onmouseover="showTip(event, 'fs82', 206)" class="i">xSymbolAsValue</span> <span class="o">=</span> 
     <span class="k">match</span> <span onmouseout="hideTip(event, 'fs80', 207)" onmouseover="showTip(event, 'fs80', 207)" class="i">xSymbol</span> <span class="k">with</span> 
-    | <span class="o">:?</span> <span onmouseout="hideTip(event, 'fs83', 208)" onmouseover="showTip(event, 'fs83', 208)" class="i">FSharpMemberFunctionOrValue</span> <span class="k">as</span> <span onmouseout="hideTip(event, 'fs84', 209)" onmouseover="showTip(event, 'fs84', 209)" class="i">xSymbolAsVal</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs84', 210)" onmouseover="showTip(event, 'fs84', 210)" class="i">xSymbolAsVal</span>
+    | <span class="o">:?</span> <span onmouseout="hideTip(event, 'fs83', 208)" onmouseover="showTip(event, 'fs83', 208)" class="i">FSharpMemberOrFunctionOrValue</span> <span class="k">as</span> <span onmouseout="hideTip(event, 'fs84', 209)" onmouseover="showTip(event, 'fs84', 209)" class="i">xSymbolAsVal</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs84', 210)" onmouseover="showTip(event, 'fs84', 210)" class="i">xSymbolAsVal</span>
     | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs85', 211)" onmouseover="showTip(event, 'fs85', 211)" class="i">failwith</span> <span class="s">&quot;</span><span class="s">we</span><span class="s"> </span><span class="s">expected</span><span class="s"> </span><span class="s">this</span><span class="s"> </span><span class="s">to</span><span class="s"> </span><span class="s">be</span><span class="s"> </span><span class="s">a</span><span class="s"> </span><span class="s">member</span><span class="s">,</span><span class="s"> </span><span class="s">function</span><span class="s"> </span><span class="s">or</span><span class="s"> </span><span class="s">value</span><span class="s">&quot;</span>
        </pre>
 </td>
@@ -694,15 +694,15 @@ such as symbol references. To learn more about working with symbols, see <a href
 <div class="tip" id="fs55">property FSharpCheckProjectResults.AssemblySignature: FSharpAssemblySignature</div>
 <div class="tip" id="fs56">property FSharpAssemblySignature.Entities: IList&lt;FSharpEntity&gt;</div>
 <div class="tip" id="fs57">property FSharpEntity.DisplayName: string</div>
-<div class="tip" id="fs58">val x : FSharpMemberFunctionOrValue</div>
-<div class="tip" id="fs59">property FSharpMemberFunctionOrValue.DisplayName: string</div>
+<div class="tip" id="fs58">val x : FSharpMemberOrFunctionOrValue</div>
+<div class="tip" id="fs59">property FSharpMemberOrFunctionOrValue.DisplayName: string</div>
 <div class="tip" id="fs60">val allSymbolsInEntities : entities:IList&lt;FSharpEntity&gt; -&gt; FSharpSymbol list<br /><br />Full name: Project.allSymbolsInEntities</div>
 <div class="tip" id="fs61">val entities : IList&lt;FSharpEntity&gt;</div>
 <div class="tip" id="fs62">type IList&lt;&#39;T&gt; =<br />&#160;&#160;member IndexOf : item:&#39;T -&gt; int<br />&#160;&#160;member Insert : index:int * item:&#39;T -&gt; unit<br />&#160;&#160;member Item : int -&gt; &#39;T with get, set<br />&#160;&#160;member RemoveAt : index:int -&gt; unit<br /><br />Full name: System.Collections.Generic.IList&lt;_&gt;</div>
 <div class="tip" id="fs63">type FSharpEntity =<br />&#160;&#160;inherit FSharpSymbol<br />&#160;&#160;member AbbreviatedType : FSharpType<br />&#160;&#160;member AccessPath : string<br />&#160;&#160;member Accessibility : FSharpAccessibility<br />&#160;&#160;member AllInterfaces : IList&lt;FSharpType&gt;<br />&#160;&#160;member Attributes : IList&lt;FSharpAttribute&gt;<br />&#160;&#160;member BaseType : FSharpType option<br />&#160;&#160;member CompiledName : string<br />&#160;&#160;member DeclarationLocation : range<br />&#160;&#160;member DeclaredInterfaces : IList&lt;FSharpType&gt;<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpEntity</div>
 <div class="tip" id="fs64">val e : FSharpEntity</div>
 <div class="tip" id="fs65">type FSharpSymbol =<br />&#160;&#160;member IsAccessible : FSharpAccessibilityRights -&gt; bool<br />&#160;&#160;member Assembly : FSharpAssembly<br />&#160;&#160;member DeclarationLocation : range option<br />&#160;&#160;member DisplayName : string<br />&#160;&#160;member FullName : string<br />&#160;&#160;member ImplementationLocation : range option<br />&#160;&#160;member private Item : Item<br />&#160;&#160;static member private Create : g:TcGlobals * thisCcu:CcuThunk * tcImports:TcImports * item:Item -&gt; FSharpSymbol<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpSymbol</div>
-<div class="tip" id="fs66">property FSharpEntity.MembersFunctionsAndValues: IList&lt;FSharpMemberFunctionOrValue&gt;</div>
+<div class="tip" id="fs66">property FSharpEntity.MembersFunctionsAndValues: IList&lt;FSharpMemberOrFunctionOrValue&gt;</div>
 <div class="tip" id="fs67">val x : FSharpUnionCase</div>
 <div class="tip" id="fs68">property FSharpEntity.UnionCases: IList&lt;FSharpUnionCase&gt;</div>
 <div class="tip" id="fs69">val x : FSharpField</div>
@@ -718,9 +718,9 @@ such as symbol references. To learn more about working with symbols, see <a href
 <div class="tip" id="fs79">property Option.Value: FSharpSymbolUse</div>
 <div class="tip" id="fs80">val xSymbol : FSharpSymbol<br /><br />Full name: Project.xSymbol</div>
 <div class="tip" id="fs81">property FSharpSymbolUse.Symbol: FSharpSymbol</div>
-<div class="tip" id="fs82">val xSymbolAsValue : FSharpMemberFunctionOrValue<br /><br />Full name: Project.xSymbolAsValue</div>
-<div class="tip" id="fs83">type FSharpMemberFunctionOrValue =<br />&#160;&#160;inherit FSharpSymbol<br />&#160;&#160;member Accessibility : FSharpAccessibility<br />&#160;&#160;member Attributes : IList&lt;FSharpAttribute&gt;<br />&#160;&#160;member CompiledName : string<br />&#160;&#160;member CurriedParameterGroups : IList&lt;IList&lt;FSharpParameter&gt;&gt;<br />&#160;&#160;member DeclarationLocation : range<br />&#160;&#160;member DisplayName : string<br />&#160;&#160;member EnclosingEntity : FSharpEntity<br />&#160;&#160;member FullType : FSharpType<br />&#160;&#160;member GenericParameters : IList&lt;FSharpGenericParameter&gt;<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpMemberFunctionOrValue</div>
-<div class="tip" id="fs84">val xSymbolAsVal : FSharpMemberFunctionOrValue</div>
+<div class="tip" id="fs82">val xSymbolAsValue : FSharpMemberOrFunctionOrValue<br /><br />Full name: Project.xSymbolAsValue</div>
+<div class="tip" id="fs83">type FSharpMemberOrFunctionOrValue =<br />&#160;&#160;inherit FSharpSymbol<br />&#160;&#160;member Accessibility : FSharpAccessibility<br />&#160;&#160;member Attributes : IList&lt;FSharpAttribute&gt;<br />&#160;&#160;member CompiledName : string<br />&#160;&#160;member CurriedParameterGroups : IList&lt;IList&lt;FSharpParameter&gt;&gt;<br />&#160;&#160;member DeclarationLocation : range<br />&#160;&#160;member DisplayName : string<br />&#160;&#160;member EnclosingEntity : FSharpEntity<br />&#160;&#160;member FullType : FSharpType<br />&#160;&#160;member GenericParameters : IList&lt;FSharpGenericParameter&gt;<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpMemberOrFunctionOrValue</div>
+<div class="tip" id="fs84">val xSymbolAsVal : FSharpMemberOrFunctionOrValue</div>
 <div class="tip" id="fs85">val failwith : message:string -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.failwith</div>
 <div class="tip" id="fs86">val usesOfXSymbol : FSharpSymbolUse []<br /><br />Full name: Project.usesOfXSymbol</div>
 <div class="tip" id="fs87">member FSharpCheckProjectResults.GetUsesOfSymbol : symbol:FSharpSymbol -&gt; Async&lt;FSharpSymbolUse []&gt;</div>

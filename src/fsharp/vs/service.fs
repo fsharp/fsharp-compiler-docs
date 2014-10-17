@@ -2885,7 +2885,7 @@ type MethodGroupItem = FSharpMethodGroupItem
 [<Obsolete("This type has been renamed to FSharpMethodGroup")>]
 type MethodGroup = FSharpMethodGroup
 
-[<Obsolete("This type has been renamed to ProjectOptions")>]
+[<Obsolete("This type has been renamed to FSharpProjectOptions")>]
 type ProjectOptions = FSharpProjectOptions
 
 [<Obsolete("This type has been renamed to FSharpCheckFileAnswer")>]

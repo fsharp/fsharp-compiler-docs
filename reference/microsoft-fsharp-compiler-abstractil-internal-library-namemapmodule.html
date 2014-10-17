@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>NameMap - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>NameMap</h1>
+<div class="xmldoc">
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '716', 716)" onmouseover="showTip(event, '716', 716)">
+            add v x m
+          </code>
+          <div class="tip" id="716">
+            <strong>Signature:</strong> v:string -&gt; x:&#39;T -&gt; m:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L875-875" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '717', 717)" onmouseover="showTip(event, '717', 717)">
+            empty 
+          </code>
+          <div class="tip" id="717">
+            <strong>Signature:</strong> Map&lt;&#39;?98441,&#39;?98442&gt;<br />
+                          <strong>Type parameters:</strong> '?98441, '?98442          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L822-822" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '718', 718)" onmouseover="showTip(event, '718', 718)">
+            exists f m
+          </code>
+          <div class="tip" id="718">
+            <strong>Signature:</strong> f:(&#39;?98453 -&gt; &#39;?98454 -&gt; bool) -&gt; m:Map&lt;&#39;?98453,&#39;?98454&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?98453, '?98454          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L826-826" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '719', 719)" onmouseover="showTip(event, '719', 719)">
+            existsInRange p m
+          </code>
+          <div class="tip" id="719">
+            <strong>Signature:</strong> p:(&#39;?98517 -&gt; bool) -&gt; m:Map&lt;&#39;?98518,&#39;?98517&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?98517, '?98518          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L879-879" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '720', 720)" onmouseover="showTip(event, '720', 720)">
+            filterRange f l
+          </code>
+          <div class="tip" id="720">
+            <strong>Signature:</strong> f:(&#39;T -&gt; bool) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L855-855" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '721', 721)" onmouseover="showTip(event, '721', 721)">
+            find v m
+          </code>
+          <div class="tip" id="721">
+            <strong>Signature:</strong> v:string -&gt; m:NameMap&lt;&#39;T&gt; -&gt; &#39;T<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L871-871" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '722', 722)" onmouseover="showTip(event, '722', 722)">
+            foldBack f m z
+          </code>
+          <div class="tip" id="722">
+            <strong>Signature:</strong> f:(string -&gt; &#39;T -&gt; &#39;?98448 -&gt; &#39;?98448) -&gt; m:NameMap&lt;&#39;T&gt; -&gt; z:&#39;?98448 -&gt; &#39;?98448<br />
+                          <strong>Type parameters:</strong> 'T, '?98448          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L824-824" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '723', 723)" onmouseover="showTip(event, '723', 723)">
+            foldBackRange f l acc
+          </code>
+          <div class="tip" id="723">
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?98488 -&gt; &#39;?98488) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; acc:&#39;?98488 -&gt; &#39;?98488<br />
+                          <strong>Type parameters:</strong> 'T, '?98488          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L853-853" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '724', 724)" onmouseover="showTip(event, '724', 724)">
+            forall f m
+          </code>
+          <div class="tip" id="724">
+            <strong>Signature:</strong> f:(&#39;?98450 -&gt; &#39;?98451 -&gt; bool) -&gt; m:Map&lt;&#39;?98450,&#39;?98451&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?98450, '?98451          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L825-825" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '725', 725)" onmouseover="showTip(event, '725', 725)">
+            isEmpty m
+          </code>
+          <div class="tip" id="725">
+            <strong>Signature:</strong> m:NameMap&lt;&#39;T&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L877-877" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '726', 726)" onmouseover="showTip(event, '726', 726)">
+            iter f l
+          </code>
+          <div class="tip" id="726">
+            <strong>Signature:</strong> f:(&#39;T -&gt; unit) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; unit<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L861-861" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '727', 727)" onmouseover="showTip(event, '727', 727)">
+            iteri f l
+          </code>
+          <div class="tip" id="727">
+            <strong>Signature:</strong> f:(string -&gt; &#39;T -&gt; unit) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; unit<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L863-863" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '728', 728)" onmouseover="showTip(event, '728', 728)">
+            layer m1 m2
+          </code>
+          <div class="tip" id="728">
+            <strong>Signature:</strong> m1:NameMap&lt;&#39;T&gt; -&gt; m2:Map&lt;string,&#39;T&gt; -&gt; Map&lt;string,&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L831-831" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '729', 729)" onmouseover="showTip(event, '729', 729)">
+            layerAdditive addf m1 m2
+          </code>
+          <div class="tip" id="729">
+            <strong>Signature:</strong> addf:(&#39;?98467 list -&gt; &#39;?98468 -&gt; &#39;?98467 list) -&gt; m1:Map&lt;&#39;?98469,&#39;?98468&gt; -&gt; m2:Map&lt;&#39;?98469,&#39;?98467 list&gt; -&gt; Map&lt;&#39;?98469,&#39;?98467 list&gt;<br />
+                          <strong>Type parameters:</strong> '?98467, '?98468, '?98469          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L834-834" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Not a very useful function - only called in one place - should be changed</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '730', 730)" onmouseover="showTip(event, '730', 730)">
+            map f l
+          </code>
+          <div class="tip" id="730">
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?98496) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;?98496&gt;<br />
+                          <strong>Type parameters:</strong> 'T, '?98496          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L859-859" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '731', 731)" onmouseover="showTip(event, '731', 731)">
+            mapFilter f l
+          </code>
+          <div class="tip" id="731">
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?98493 option) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;?98493&gt;<br />
+                          <strong>Type parameters:</strong> 'T, '?98493          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L857-857" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '732', 732)" onmouseover="showTip(event, '732', 732)">
+            mapFold f s l
+          </code>
+          <div class="tip" id="732">
+            <strong>Signature:</strong> f:(&#39;?98483 -&gt; string -&gt; &#39;T -&gt; &#39;?98485 * &#39;?98483) -&gt; s:&#39;?98483 -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;?98485&gt; * &#39;?98483<br />
+                          <strong>Type parameters:</strong> '?98483, 'T, '?98485          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L850-850" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '733', 733)" onmouseover="showTip(event, '733', 733)">
+            mapi f l
+          </code>
+          <div class="tip" id="733">
+            <strong>Signature:</strong> f:(string -&gt; &#39;T -&gt; &#39;?98503) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;?98503&gt;<br />
+                          <strong>Type parameters:</strong> 'T, '?98503          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L865-865" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '734', 734)" onmouseover="showTip(event, '734', 734)">
+            mem v m
+          </code>
+          <div class="tip" id="734">
+            <strong>Signature:</strong> v:string -&gt; m:NameMap&lt;&#39;T&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L869-869" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '735', 735)" onmouseover="showTip(event, '735', 735)">
+            ofFlatList l
+          </code>
+          <div class="tip" id="735">
+            <strong>Signature:</strong> l:FlatList&lt;string * &#39;T&gt; -&gt; NameMap&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L829-829" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '736', 736)" onmouseover="showTip(event, '736', 736)">
+            ofKeyedList f l
+          </code>
+          <div class="tip" id="736">
+            <strong>Signature:</strong> f:(&#39;?98456 -&gt; &#39;?98457) -&gt; l:&#39;?98456 list -&gt; Map&lt;&#39;?98457,&#39;?98456&gt;<br />
+                          <strong>Type parameters:</strong> '?98456, '?98457          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L827-827" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '737', 737)" onmouseover="showTip(event, '737', 737)">
+            ofList l
+          </code>
+          <div class="tip" id="737">
+            <strong>Signature:</strong> l:(string * &#39;T) list -&gt; NameMap&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L828-828" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '738', 738)" onmouseover="showTip(event, '738', 738)">
+            partition f l
+          </code>
+          <div class="tip" id="738">
+            <strong>Signature:</strong> f:(&#39;T -&gt; bool) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;T&gt; * Map&lt;string,&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L867-867" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '739', 739)" onmouseover="showTip(event, '739', 739)">
+            range m
+          </code>
+          <div class="tip" id="739">
+            <strong>Signature:</strong> m:Map&lt;&#39;?98444,&#39;?98445&gt; -&gt; &#39;?98445 list<br />
+                          <strong>Type parameters:</strong> '?98444, '?98445          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L823-823" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '740', 740)" onmouseover="showTip(event, '740', 740)">
+            suball2 errf p m1 m2
+          </code>
+          <div class="tip" id="740">
+            <strong>Signature:</strong> errf:(&#39;?98479 -&gt; &#39;?98480 -&gt; bool) -&gt; p:(&#39;?98481 -&gt; &#39;?98480 -&gt; bool) -&gt; m1:Map&lt;&#39;?98479,&#39;?98481&gt; -&gt; m2:Map&lt;&#39;?98479,&#39;?98480&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?98479, '?98480, '?98481          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L848-848" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '741', 741)" onmouseover="showTip(event, '741', 741)">
+            subfold2 errf f m1 m2 acc
+          </code>
+          <div class="tip" id="741">
+            <strong>Signature:</strong> errf:(&#39;?98474 -&gt; &#39;?98475 -&gt; &#39;?98476) -&gt; f:(&#39;?98474 -&gt; &#39;?98477 -&gt; &#39;?98475 -&gt; &#39;?98476 -&gt; &#39;?98476) -&gt; m1:Map&lt;&#39;?98474,&#39;?98477&gt; -&gt; m2:Map&lt;&#39;?98474,&#39;?98475&gt; -&gt; acc:&#39;?98476 -&gt; &#39;?98476<br />
+                          <strong>Type parameters:</strong> '?98474, '?98475, '?98476, '?98477          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L845-845" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>For every entry in m2 find an entry in m1 and fold</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '742', 742)" onmouseover="showTip(event, '742', 742)">
+            toList l
+          </code>
+          <div class="tip" id="742">
+            <strong>Signature:</strong> l:NameMap&lt;&#39;T&gt; -&gt; (string * &#39;T) list<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L830-830" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '743', 743)" onmouseover="showTip(event, '743', 743)">
+            tryFind v m
+          </code>
+          <div class="tip" id="743">
+            <strong>Signature:</strong> v:string -&gt; m:NameMap&lt;&#39;T&gt; -&gt; &#39;T option<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L873-873" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '744', 744)" onmouseover="showTip(event, '744', 744)">
+            tryFindInRange p m
+          </code>
+          <div class="tip" id="744">
+            <strong>Signature:</strong> p:(&#39;?98520 -&gt; bool) -&gt; m:Map&lt;&#39;?98521,&#39;?98520&gt; -&gt; &#39;?98520 option<br />
+                          <strong>Type parameters:</strong> '?98520, '?98521          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L881-881" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '745', 745)" onmouseover="showTip(event, '745', 745)">
+            union unionf ms
+          </code>
+          <div class="tip" id="745">
+            <strong>Signature:</strong> unionf:(seq&lt;&#39;?98471&gt; -&gt; &#39;?98472) -&gt; ms:seq&lt;NameMap&lt;&#39;?98471&gt;&gt; -&gt; Map&lt;string,&#39;?98472&gt;<br />
+                          <strong>Type parameters:</strong> '?98471, '?98472          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L838-838" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Union entries by identical key, using the provided function to union sets of values</p>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">F# Compiler Services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

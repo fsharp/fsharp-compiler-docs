@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ErrorLogger - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>ErrorLogger</h1>
+<div class="xmldoc">
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+  <h2>Nested types and modules</h2>
+  <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-buildphase.html">BuildPhase</a>
+          </td>
+          <td class="xmldoc"><p>Closed enumeration of build phases.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-deprecated.html">Deprecated</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-error.html">Error</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-errorlogger.html">ErrorLogger</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-exiter.html">Exiter</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-experimental.html">Experimental</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-imperativeoperationresult.html">ImperativeOperationResult</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-internalerror.html">InternalError</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-libraryuseonly.html">LibraryUseOnly</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-numberederror.html">NumberedError</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-operationresult-1.html">OperationResult<'T></a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-phasederror.html">PhasedError</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-possibleunverifiablecode.html">PossibleUnverifiableCode</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-reportederror.html">ReportedError</a>
+          </td>
+          <td class="xmldoc"><p>Thrown when immediate, local error recovery is not possible. This indicates
+we've reported an error but need to make a non-local transfer of control.
+Error recovery may catch this and continue (see 'errorRecovery')</p>
+
+<p>The exception that caused the report is carried as data because in some
+situations (LazyWithContext) we may need to re-report the original error
+when a lazy thunk is re-evaluated.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-stopprocessing.html">StopProcessing</a>
+          </td>
+          <td class="xmldoc"><p>Thrown when we stop processing the F# Interactive interactive entry or #load.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-trackerrorsbuilder.html">TrackErrorsBuilder</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-unresolvedpathreference.html">UnresolvedPathReference</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-unresolvedpathreferencenorange.html">UnresolvedPathReferenceNoRange</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-unresolvedreferenceerror.html">UnresolvedReferenceError</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-unresolvedreferencenorange.html">UnresolvedReferenceNoRange</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-usercompilermessage.html">UserCompilerMessage</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-wrappederror.html">WrappedError</a>
+          </td>
+          <td class="xmldoc"><p>Thrown when want to add some range information to some .NET exception</p>
+</td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-buildphasesubcategory.html">BuildPhaseSubcategory</a>
+          </td>
+          <td class="xmldoc"><p>Literal build phase subcategory strings.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="microsoft-fsharp-compiler-errorlogger-errorloggerextensions.html">ErrorLoggerExtensions</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '32', 32)" onmouseover="showTip(event, '32', 32)">
+            ( ++ ) res f
+          </code>
+          <div class="tip" id="32">
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;?96638&gt; -&gt; f:(&#39;?96638 -&gt; OperationResult&lt;&#39;?96639&gt;) -&gt; OperationResult&lt;&#39;?96639&gt;<br />
+                          <strong>Type parameters:</strong> '?96638, '?96639          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L456-456" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>The bind in the monad. Stop on first error. Accumulate warnings and continue.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
+            AssertFalseErrorLogger 
+          </code>
+          <div class="tip" id="33">
+            <strong>Signature:</strong> ErrorLogger<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L254-254" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
+            AtLeastOneD f l
+          </code>
+          <div class="tip" id="34">
+            <strong>Signature:</strong> f:(&#39;?96670 -&gt; OperationResult&lt;bool&gt;) -&gt; l:&#39;?96670 list -&gt; OperationResult&lt;bool&gt;<br />
+                          <strong>Type parameters:</strong> '?96670          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L503-503" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
+            AttachRange m exn
+          </code>
+          <div class="tip" id="35">
+            <strong>Signature:</strong> m:range -&gt; exn:exn -&gt; exn<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L91-91" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
+            CheckNoErrorsAndGetWarnings res
+          </code>
+          <div class="tip" id="36">
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;?96636&gt; -&gt; exn list option<br />
+                          <strong>Type parameters:</strong> '?96636          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L453-453" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '37', 37)" onmouseover="showTip(event, '37', 37)">
+            CommitOperationResult res
+          </code>
+          <div class="tip" id="37">
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;?96627&gt; -&gt; &#39;?96627<br />
+                          <strong>Type parameters:</strong> '?96627          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L442-442" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '38', 38)" onmouseover="showTip(event, '38', 38)">
+            CompleteD 
+          </code>
+          <div class="tip" id="38">
+            <strong>Signature:</strong> OperationResult&lt;unit&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L451-451" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
+            conditionallySuppressErrorReporting (...)
+          </code>
+          <div class="tip" id="39">
+            <strong>Signature:</strong> cond:bool -&gt; f:(unit -&gt; &#39;?96623) -&gt; &#39;?96623<br />
+                          <strong>Type parameters:</strong> '?96623          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L423-423" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '40', 40)" onmouseover="showTip(event, '40', 40)">
+            deprecatedOperator m
+          </code>
+          <div class="tip" id="40">
+            <strong>Signature:</strong> m:range -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L407-407" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+            deprecatedWithError s m
+          </code>
+          <div class="tip" id="41">
+            <strong>Signature:</strong> s:string -&gt; m:range -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L401-401" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+            DiscardErrorsLogger 
+          </code>
+          <div class="tip" id="42">
+            <strong>Signature:</strong> ErrorLogger<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L245-245" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '43', 43)" onmouseover="showTip(event, '43', 43)">
+            error exn
+          </code>
+          <div class="tip" id="43">
+            <strong>Signature:</strong> exn:exn -&gt; &#39;?96604<br />
+                          <strong>Type parameters:</strong> '?96604          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L387-387" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
+            ErrorD err
+          </code>
+          <div class="tip" id="44">
+            <strong>Signature:</strong> err:exn -&gt; OperationResult&lt;&#39;?96630&gt;<br />
+                          <strong>Type parameters:</strong> '?96630          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L449-449" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
+            errorR exn
+          </code>
+          <div class="tip" id="45">
+            <strong>Signature:</strong> exn:exn -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L385-385" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
+            errorRecovery exn m
+          </code>
+          <div class="tip" id="46">
+            <strong>Signature:</strong> exn:exn -&gt; m:range -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L393-393" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
+            errorRecoveryNoRange exn
+          </code>
+          <div class="tip" id="47">
+            <strong>Signature:</strong> exn:exn -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L395-395" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
+            errorSink pe
+          </code>
+          <div class="tip" id="48">
+            <strong>Signature:</strong> pe:PhasedError -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L391-391" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
+            findOriginalException err
+          </code>
+          <div class="tip" id="49">
+            <strong>Signature:</strong> err:exn -&gt; exn<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L33-33" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+            Iterate2D f xs ys
+          </code>
+          <div class="tip" id="50">
+            <strong>Signature:</strong> f:(&#39;?96664 -&gt; &#39;?96665 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?96664 list -&gt; ys:&#39;?96665 list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> '?96664, '?96665          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L491-491" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Stop on first error. Accumulate warnings and continue.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
+            IterateD f xs
+          </code>
+          <div class="tip" id="51">
+            <strong>Signature:</strong> f:(&#39;?96641 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?96641 list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> '?96641          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L468-468" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Stop on first error. Accumulate warnings and continue.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
+            IterateIdxD f xs
+          </code>
+          <div class="tip" id="52">
+            <strong>Signature:</strong> f:(int -&gt; &#39;?96662 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?96662 list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> '?96662          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L486-486" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Stop on first error. Report index</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
+            libraryOnlyError m
+          </code>
+          <div class="tip" id="53">
+            <strong>Signature:</strong> m:range -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L405-405" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
+            libraryOnlyWarning m
+          </code>
+          <div class="tip" id="54">
+            <strong>Signature:</strong> m:range -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L406-406" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
+            MapD f xs
+          </code>
+          <div class="tip" id="55">
+            <strong>Signature:</strong> f:(&#39;?96644 -&gt; OperationResult&lt;&#39;?96645&gt;) -&gt; xs:&#39;?96644 list -&gt; OperationResult&lt;&#39;?96645 list&gt;<br />
+                          <strong>Type parameters:</strong> '?96644, '?96645          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L470-470" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
+            mlCompatWarning s m
+          </code>
+          <div class="tip" id="56">
+            <strong>Signature:</strong> s:String -&gt; m:range -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L408-408" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
+            NewlineifyErrorString message
+          </code>
+          <div class="tip" id="57">
+            <strong>Signature:</strong> message:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L510-510" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
+            NormalizeErrorString text
+          </code>
+          <div class="tip" id="58">
+            <strong>Signature:</strong> text:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L515-515" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>fixes given string by replacing all control chars with spaces.
+NOTE: newlines are recognized and replaced with stringThatIsAProxyForANewlineInFlatErrors (ASCII 29, the 'group separator'), 
+which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so that multi-line errors can be displayed in QuickInfo</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
+            OptionD f xs
+          </code>
+          <div class="tip" id="59">
+            <strong>Signature:</strong> f:(&#39;?96660 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?96660 option -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> '?96660          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L483-483" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Stop on first error. Accumulate warnings and continue.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
+            phasedError p
+          </code>
+          <div class="tip" id="60">
+            <strong>Signature:</strong> p:PhasedError -&gt; &#39;?96606<br />
+                          <strong>Type parameters:</strong> '?96606          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L389-389" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
+            protectAssemblyExploration dflt f
+          </code>
+          <div class="tip" id="61">
+            <strong>Signature:</strong> dflt:&#39;?96546 -&gt; f:(unit -&gt; &#39;?96546) -&gt; &#39;?96546<br />
+                          <strong>Type parameters:</strong> '?96546          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L69-69" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '62', 62)" onmouseover="showTip(event, '62', 62)">
+            protectAssemblyExplorationF dflt f
+          </code>
+          <div class="tip" id="62">
+            <strong>Signature:</strong> dflt:(string * string -&gt; &#39;?96548) -&gt; f:(unit -&gt; &#39;?96548) -&gt; &#39;?96548<br />
+                          <strong>Type parameters:</strong> '?96548          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L76-76" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '63', 63)" onmouseover="showTip(event, '63', 63)">
+            protectAssemblyExplorationNoReraise (...)
+          </code>
+          <div class="tip" id="63">
+            <strong>Signature:</strong> dflt1:&#39;?96550 -&gt; dflt2:&#39;?96550 -&gt; f:(unit -&gt; &#39;?96550) -&gt; &#39;?96550<br />
+                          <strong>Type parameters:</strong> '?96550          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L83-83" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '64', 64)" onmouseover="showTip(event, '64', 64)">
+            PushErrorLoggerPhaseUntilUnwind (...)
+          </code>
+          <div class="tip" id="64">
+            <strong>Signature:</strong> errorLoggerTransformer:(ErrorLogger -&gt; &#39;?96597) -&gt; IDisposable<br />
+                          <strong>Type parameters:</strong> '?96597          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L365-365" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>NOTE: The change will be undone when the returned "unwind" object disposes</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '65', 65)" onmouseover="showTip(event, '65', 65)">
+            PushThreadBuildPhaseUntilUnwind phase
+          </code>
+          <div class="tip" id="65">
+            <strong>Signature:</strong> phase:BuildPhase -&gt; IDisposable<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L358-358" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>NOTE: The change will be undone when the returned "unwind" object disposes</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '66', 66)" onmouseover="showTip(event, '66', 66)">
+            QuitProcessExiter 
+          </code>
+          <div class="tip" id="66">
+            <strong>Signature:</strong> Exiter<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L109-109" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '67', 67)" onmouseover="showTip(event, '67', 67)">
+            RaiseOperationResult res
+          </code>
+          <div class="tip" id="67">
+            <strong>Signature:</strong> res:OperationResult&lt;unit&gt; -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L447-447" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '68', 68)" onmouseover="showTip(event, '68', 68)">
+            RepeatWhileD ndeep body
+          </code>
+          <div class="tip" id="68">
+            <strong>Signature:</strong> ndeep:int -&gt; body:(int -&gt; OperationResult&lt;bool&gt;) -&gt; OperationResult&lt;unit&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L502-502" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '69', 69)" onmouseover="showTip(event, '69', 69)">
+            report f
+          </code>
+          <div class="tip" id="69">
+            <strong>Signature:</strong> f:(unit -&gt; &#39;?96613) -&gt; &#39;?96613<br />
+                          <strong>Type parameters:</strong> '?96613          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L398-398" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '70', 70)" onmouseover="showTip(event, '70', 70)">
+            reportLibraryOnlyFeatures 
+          </code>
+          <div class="tip" id="70">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L404-404" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '71', 71)" onmouseover="showTip(event, '71', 71)">
+            ReportWarnings warns
+          </code>
+          <div class="tip" id="71">
+            <strong>Signature:</strong> warns:&#39;?96625 list -&gt; unit<br />
+                          <strong>Type parameters:</strong> '?96625          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L437-437" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '72', 72)" onmouseover="showTip(event, '72', 72)">
+            ResultD x
+          </code>
+          <div class="tip" id="72">
+            <strong>Signature:</strong> x:&#39;?96634 -&gt; OperationResult&lt;&#39;?96634&gt;<br />
+                          <strong>Type parameters:</strong> '?96634          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L452-452" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
+            SetThreadBuildPhaseNoUnwind phase
+          </code>
+          <div class="tip" id="73">
+            <strong>Signature:</strong> phase:BuildPhase -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L380-380" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
+            SetThreadErrorLoggerNoUnwind errorLogger
+          </code>
+          <div class="tip" id="74">
+            <strong>Signature:</strong> errorLogger:ErrorLogger -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L381-381" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
+            SetUninitializedErrorLoggerFallback (...)
+          </code>
+          <div class="tip" id="75">
+            <strong>Signature:</strong> errLogger:ErrorLogger -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L382-382" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
+            stopProcessingRecovery exn m
+          </code>
+          <div class="tip" id="76">
+            <strong>Signature:</strong> exn:exn -&gt; m:range -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L394-394" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
+            stringThatIsAProxyForANewlineInFlatErrors (...)
+          </code>
+          <div class="tip" id="77">
+            <strong>Signature:</strong> String<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L508-508" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
+            suppressErrorReporting f
+          </code>
+          <div class="tip" id="78">
+            <strong>Signature:</strong> f:(unit -&gt; &#39;?96621) -&gt; &#39;?96621<br />
+                          <strong>Type parameters:</strong> '?96621          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L410-410" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
+            trackErrors 
+          </code>
+          <div class="tip" id="79">
+            <strong>Signature:</strong> TrackErrorsBuilder<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L480-480" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '80', 80)" onmouseover="showTip(event, '80', 80)">
+            TryD f g
+          </code>
+          <div class="tip" id="80">
+            <strong>Signature:</strong> f:(unit -&gt; OperationResult&lt;&#39;?96667&gt;) -&gt; g:(exn -&gt; OperationResult&lt;&#39;?96667&gt;) -&gt; OperationResult&lt;&#39;?96667&gt;<br />
+                          <strong>Type parameters:</strong> '?96667          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L497-497" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '81', 81)" onmouseover="showTip(event, '81', 81)">
+            uninitializedErrorLoggerFallback 
+          </code>
+          <div class="tip" id="81">
+            <strong>Signature:</strong> ErrorLogger ref<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L264-264" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>When no errorLogger is installed (on the thread) use this one.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '82', 82)" onmouseover="showTip(event, '82', 82)">
+            WarnD err
+          </code>
+          <div class="tip" id="82">
+            <strong>Signature:</strong> err:exn -&gt; OperationResult&lt;unit&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L450-450" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '83', 83)" onmouseover="showTip(event, '83', 83)">
+            warning exn
+          </code>
+          <div class="tip" id="83">
+            <strong>Signature:</strong> exn:exn -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L386-386" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '84', 84)" onmouseover="showTip(event, '84', 84)">
+            warnSink pe
+          </code>
+          <div class="tip" id="84">
+            <strong>Signature:</strong> pe:PhasedError -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L392-392" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '85', 85)" onmouseover="showTip(event, '85', 85)">
+            WhileD gd body
+          </code>
+          <div class="tip" id="85">
+            <strong>Signature:</strong> gd:(unit -&gt; bool) -&gt; body:(unit -&gt; OperationResult&lt;unit&gt;) -&gt; OperationResult&lt;unit&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L469-469" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">F# Compiler Services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

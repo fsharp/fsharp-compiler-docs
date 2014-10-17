@@ -149,7 +149,18 @@ type internal FsiValuePrinterMode =
     | PrintExpr 
     | PrintDecl
 
-type public FsiEvaluationSessionHostConfig = 
+type EvaluationEventArgs(name : string, displaycontext : FSharpDisplayContext, range : range, fsivalue : FsiValue) =
+    inherit EventArgs()
+    member x.Name = name
+    member x.DisplayContext = displaycontext
+    member x.Range = range
+    member x.FsiValue = fsivalue
+
+type EvaluationDelegate = delegate of obj * EvaluationEventArgs -> unit
+
+[<AbstractClass>]
+type public FsiEvaluationSessionHostConfig () = 
+    let evaluationEvent = new Event<EvaluationDelegate, EvaluationEventArgs> () 
     /// Called by the evaluation session to ask the host for parameters to format text for output
     abstract FormatProvider: System.IFormatProvider  
     /// Called by the evaluation session to ask the host for parameters to format text for output
@@ -216,7 +227,9 @@ type public FsiEvaluationSessionHostConfig =
     abstract UseFsiAuxLib : bool
 
     /// Hook for listening for evaluation bindings
-    abstract EvaluationListener : (string * FSharpDisplayContext * range * FsiValue -> unit) option with get, set
+    member x.OnEvaluation = evaluationEvent.Publish
+    member internal x.TriggerEvaluation (name, context, range, value) =
+        evaluationEvent.Trigger (null, EvaluationEventArgs (name, context, range, value) )
 
 /// Used to print value signatures along with their values, according to the current
 /// set of pretty printers installed in the system, and default printing rules.
@@ -1047,16 +1060,6 @@ type internal FsiDynamicCompiler
                   // Extend denv with a (Val -> layout option) function for printing of val bindings.
                   {denv with generatedValueLayout = (fun v -> //Extension to allow Val to be forwarded 
                                                               //at the point the layout function is invoked.
-//                                                              match fsiConfig.EvaluationListener with
-//                                                              | Some notify ->
-//                                                                 let optValue = ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(emEnv), v)
-//                                                                 match optValue with
-//                                                                 | Some (res, typ) ->
-//                                                                     let displayContext = FSharpDisplayContext(fun _ -> denv)
-//                                                                     let fsiVal = FsiValue(res, typ, FSharpType(tcGlobals, istate.tcState.Ccu, istate.tcImports, v.Type))
-//                                                                     notify(v.DisplayName, displayContext, v.Range, fsiVal)
-//                                                                 | None ->  ()
-//                                                              | None -> ()
                                                               valuePrinter.InvokeDeclLayout (emEnv, ilxGenerator, v)) }
                 else
                   // With #load items, the vals in the inferred signature do not tie up with those generated. Disable printing.
@@ -1136,10 +1139,9 @@ type internal FsiDynamicCompiler
                                                      vref.Range,
                                                      FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)))
                                              | None -> None )
-        fsiConfig.EvaluationListener
-        |> Option.iter (fun notify ->
-                            for (name, displayContext, range, fsiValue) in actualValues do 
-                                notify (name, displayContext, range, fsiValue))
+        
+        for (name, displayContext, range, fsiValue) in actualValues do 
+            fsiConfig.TriggerEvaluation (name, displayContext, range, fsiValue)
         newState
       
 
@@ -2740,28 +2742,25 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
 
         // We want to avoid modifying FSharp.Compiler.Interactive.Settings to avoid republishing that DLL.
         // So we access these via reflection
-        let makeConfig (evaluationNotify: ref<_>) =
-            { // Connect the configuration through to the 'fsi' object from FSharp.Compiler.Interactive.Settings
-                new FsiEvaluationSessionHostConfig with 
-                  member __.FormatProvider = getInstanceProperty fsiObj "FormatProvider"
-                  member __.FloatingPointFormat = getInstanceProperty fsiObj "FloatingPointFormat"
-                  member __.AddedPrinters = getInstanceProperty fsiObj "AddedPrinters"
-                  member __.ShowDeclarationValues = getInstanceProperty fsiObj "ShowDeclarationValues"
-                  member __.ShowIEnumerable = getInstanceProperty fsiObj "ShowIEnumerable"
-                  member __.ShowProperties = getInstanceProperty fsiObj "ShowProperties"
-                  member __.PrintSize = getInstanceProperty fsiObj "PrintSize"
-                  member __.PrintDepth = getInstanceProperty fsiObj "PrintDepth"
-                  member __.PrintWidth = getInstanceProperty fsiObj "PrintWidth"
-                  member __.PrintLength = getInstanceProperty fsiObj "PrintLength"
-                  member __.ReportUserCommandLineArgs args = setInstanceProperty fsiObj "CommandLineArgs" args
-                  member __.StartServer(fsiServerName) =  failwith "--fsi-server not implemented in the default configuration"
-                  member __.EventLoopRun() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "Run"   
-                  member __.EventLoopInvoke(f : unit -> 'T) =  callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") [|typeof<'T>|] "Invoke" f
-                  member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "ScheduleRestart"
-                  member __.UseFsiAuxLib = useFsiAuxLib
-                  member __.OptionalConsoleReadLine = None 
-                  member __.EvaluationListener with get() = !evaluationNotify and set(value) = evaluationNotify := value }
-        makeConfig (ref<_>(None))
+        { // Connect the configuration through to the 'fsi' object from FSharp.Compiler.Interactive.Settings
+            new FsiEvaluationSessionHostConfig () with 
+              member __.FormatProvider = getInstanceProperty fsiObj "FormatProvider"
+              member __.FloatingPointFormat = getInstanceProperty fsiObj "FloatingPointFormat"
+              member __.AddedPrinters = getInstanceProperty fsiObj "AddedPrinters"
+              member __.ShowDeclarationValues = getInstanceProperty fsiObj "ShowDeclarationValues"
+              member __.ShowIEnumerable = getInstanceProperty fsiObj "ShowIEnumerable"
+              member __.ShowProperties = getInstanceProperty fsiObj "ShowProperties"
+              member __.PrintSize = getInstanceProperty fsiObj "PrintSize"
+              member __.PrintDepth = getInstanceProperty fsiObj "PrintDepth"
+              member __.PrintWidth = getInstanceProperty fsiObj "PrintWidth"
+              member __.PrintLength = getInstanceProperty fsiObj "PrintLength"
+              member __.ReportUserCommandLineArgs args = setInstanceProperty fsiObj "CommandLineArgs" args
+              member __.StartServer(fsiServerName) =  failwith "--fsi-server not implemented in the default configuration"
+              member __.EventLoopRun() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "Run"   
+              member __.EventLoopInvoke(f : unit -> 'T) =  callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") [|typeof<'T>|] "Invoke" f
+              member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "ScheduleRestart"
+              member __.UseFsiAuxLib = useFsiAuxLib
+              member __.OptionalConsoleReadLine = None }
 
 
 //-------------------------------------------------------------------------------

@@ -25,7 +25,18 @@ type FsiValue =
     /// The type of the value, from the point of view of the F# type system
     member FSharpType : FSharpType
 
+[<Class>]
+type EvaluationEventArgs =
+    inherit System.EventArgs
+    //new : unit -> CompilerOutputStream
+    member Name : string
+    member DisplayContext : Microsoft.FSharp.Compiler.SourceCodeServices.FSharpDisplayContext
+    member Range : Microsoft.FSharp.Compiler.Range.range
+    member FsiValue : FsiValue
 
+type EvaluationDelegate = delegate of obj * EvaluationEventArgs -> unit
+
+[<AbstractClass>]
 type public FsiEvaluationSessionHostConfig = 
     /// Called by the evaluation session to ask the host for parameters to format text for output
     abstract FormatProvider: System.IFormatProvider  
@@ -51,7 +62,7 @@ type public FsiEvaluationSessionHostConfig =
     /// stripping things like "/use:file.fsx", "-r:Foo.dll" etc.
     abstract ReportUserCommandLineArgs : string [] -> unit
     /// Hook for listening for evaluation bindings
-    abstract EvaluationListener : (string * FSharpDisplayContext * Microsoft.FSharp.Compiler.Range.range * FsiValue -> unit) option with get, set
+    member OnEvaluation : IEvent<EvaluationDelegate, EvaluationEventArgs>
 
 
     ///<summary>

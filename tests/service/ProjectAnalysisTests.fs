@@ -3938,6 +3938,7 @@ module Project31 =
 module M
 open System
 open System.Collections.Generic
+open System.Diagnostics
 let f (x: List<'T>) = failwith ""
 let g = Console.ReadKey()        
 """
@@ -3970,7 +3971,7 @@ let ``Test project31 C# type attributes`` () =
             """(DefaultMemberAttribute, [(type Microsoft.FSharp.Core.string, "Item")], [])"""]
 
 [<Test>]
-let ``Test project31 C# methods attributes`` () =
+let ``Test project31 C# method attributes`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
     
     let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Console")
@@ -3988,3 +3989,33 @@ let ``Test project31 C# methods attributes`` () =
     |> shouldEqual 
           (set ["(SecuritySafeCriticalAttribute, [], [])";
                 "(CLSCompliantAttribute, [(type Microsoft.FSharp.Core.bool, false)], [])";])
+
+[<Test>]
+let ``Test project31 Format C# type attributes`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
+    
+    let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "List")
+    let objEntity = objSymbol.Symbol :?> FSharpEntity
+   
+    [ for attrib in objEntity.Attributes -> attrib.Format(objSymbol.DisplayContext) ]
+    |> shouldEqual
+           ["[<DebuggerTypeProxyAttribute (typeof<Mscorlib_CollectionDebugView<>>)>]";
+            """[<DebuggerDisplayAttribute ("Count = {Count}")>]""";
+            """[<Reflection.DefaultMemberAttribute ("Item")>]"""]
+
+[<Test>]
+let ``Test project31 Format C# method attributes`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
+    
+    let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Console")
+    let objEntity = objSymbol.Symbol :?> FSharpEntity
+  
+    let objMethodsAttributes = 
+        [ for x in objEntity.MembersFunctionsAndValues do 
+             for attrib in x.Attributes -> attrib.Format(objSymbol.DisplayContext) ]
+
+    objMethodsAttributes 
+    |> set
+    |> shouldEqual 
+          (set ["[<CLSCompliantAttribute (false)>]";
+                "[<Security.SecuritySafeCriticalAttribute ()>]"])

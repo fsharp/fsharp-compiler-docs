@@ -58,6 +58,7 @@
     <Compile Include="TokenizerTests.fs" />
     <Compile Include="FileSystemTests.fs" />
     <Compile Include="ProjectAnalysisTests.fs" />
+    <Compile Include="ProjectOptionsTests.fs" />
     <Compile Include="MultiProjectAnalysisTests.fs" />
     <Compile Include="PerfTests.fs" />
     <Compile Include="InteractiveCheckerTests.fs" />

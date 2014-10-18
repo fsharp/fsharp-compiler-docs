@@ -637,7 +637,7 @@ module private PrintTypes =
         match k with 
         | (ILAttrib(ilMethRef)) -> 
             let trimmedName = 
-                let name =  ilMethRef.EnclosingTypeRef.Name
+                let name = ilMethRef.EnclosingTypeRef.Name
                 match String.tryDropSuffix name "Attribute" with 
                 | Some shortName -> shortName
                 | None -> name
@@ -652,6 +652,47 @@ module private PrintTypes =
             let tcref = tcrefOfAppTy denv.g rty
             layoutTyconRef denv tcref ++ argsL
 
+    and layoutILAttribElement denv arg = 
+        match arg with 
+        | ILAttribElem.String (Some x)  -> wordL ("\"" + x + "\"")
+        | ILAttribElem.String None      -> wordL ""
+        | ILAttribElem.Bool x           -> if x then wordL "true" else wordL "false"
+        | ILAttribElem.Char x           -> wordL ("'" + x.ToString() + "'" )
+        | ILAttribElem.SByte x          -> wordL ((x |> string)+"y")
+        | ILAttribElem.Int16 x          -> wordL ((x |> string)+"s")
+        | ILAttribElem.Int32 x          -> wordL ((x |> string))
+        | ILAttribElem.Int64 x          -> wordL ((x |> string)+"L")
+        | ILAttribElem.Byte x           -> wordL ((x |> string)+"uy")
+        | ILAttribElem.UInt16 x         -> wordL ((x |> string)+"us")
+        | ILAttribElem.UInt32 x         -> wordL ((x |> string)+"u")
+        | ILAttribElem.UInt64 x         -> wordL ((x |> string)+"UL")
+        | ILAttribElem.Single x         -> 
+            let str =
+                let s = x.ToString("g12",System.Globalization.CultureInfo.InvariantCulture)
+                (if String.forall (fun c -> System.Char.IsDigit(c) || c = '-')  s 
+                 then s + ".0" 
+                 else s) + "f"
+            wordL str
+        | ILAttribElem.Double x         -> 
+            let str =
+                let s = x.ToString("g12",System.Globalization.CultureInfo.InvariantCulture)
+                if String.forall (fun c -> System.Char.IsDigit(c) || c = '-')  s 
+                then s + ".0" 
+                else s
+            wordL str
+        | ILAttribElem.Null             -> wordL "null"
+        | ILAttribElem.Array (_, xs)     -> 
+             leftL "[|" ^^ semiListL (List.map (layoutILAttribElement denv) xs) ^^ rightL "|]"
+        | ILAttribElem.Type (Some ty)    -> 
+            leftL "typeof<" ^^ PrintIL.layoutILType denv [] ty ^^ rightL ">"
+        | ILAttribElem.Type None        -> wordL ""
+        | ILAttribElem.TypeRef (Some ty) -> 
+            leftL "typedefof<" ^^ PrintIL.layoutILTypeRef denv ty ^^ rightL ">"
+        | ILAttribElem.TypeRef None     -> wordL ""
+
+    and layoutILAttrib denv (ty, args) = 
+        let argsL = bracketL (sepListL (rightL ",") (List.map (layoutILAttribElement denv) args))
+        PrintIL.layoutILType denv [] ty ++ argsL
 
     /// Layout '[<attribs>]' above another block 
     and layoutAttribs denv kind attrs restL = 
@@ -1802,7 +1843,9 @@ let prettyStringOfTy        denv x    = x |> PrintTypes.layoutPrettyType denv |>
 let stringOfRecdField       denv x    = x |> TastDefinitionPrinting.layoutRecdField false denv |> showL
 let stringOfUnionCase       denv x    = x |> TastDefinitionPrinting.layoutUnionCase denv (wordL "|")  |> showL
 let stringOfExnDef          denv x    = x |> TastDefinitionPrinting.layoutExnDefn denv |> showL
-let stringOfAttrib          denv x    = x |> PrintTypes.layoutAttrib denv |> squareAngleL |> showL
+
+let stringOfFSAttrib        denv x  = x |> PrintTypes.layoutAttrib denv |> squareAngleL |> showL
+let stringOfILAttrib        denv x  = x |> PrintTypes.layoutILAttrib denv |> squareAngleL |> showL
 
 let layoutInferredSigOfModuleExpr showHeader denv infoReader ad m expr = InferredSigPrinting.layoutInferredSigOfModuleExpr showHeader denv infoReader ad m expr 
 let layoutValOrMember denv v = PrintTastMemberOrVals.layoutValOrMember denv v 

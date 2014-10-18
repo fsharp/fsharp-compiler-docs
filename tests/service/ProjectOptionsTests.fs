@@ -9,6 +9,12 @@ module FSharp.Compiler.Service.Tests.ProjectOptionsTests
 
 let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e ->  false
 
+open NUnit.Framework
+open FsUnit
+open Microsoft.FSharp.Compiler.SourceCodeServices
+
+open FSharp.Compiler.Service.Tests.Common
+
 #if FX_ATLEAST_45
 
 let checkOption (opts:string[]) s = 

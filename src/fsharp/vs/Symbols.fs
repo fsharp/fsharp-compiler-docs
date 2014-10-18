@@ -1559,7 +1559,7 @@ and FSharpAttribute(g: TcGlobals, thisCcu, tcImports, attrib: AttribInfo) =
     member __.AttributeType =  
         FSharpEntity(g, thisCcu, tcImports,  attrib.TyconRef)
 
-    member __.IsUnresolved =  entityIsUnresolved(attrib.TyconRef)
+    member __.IsUnresolved = entityIsUnresolved(attrib.TyconRef)
 
     member __.ConstructorArguments = 
         attrib.ConstructorArguments 
@@ -1571,16 +1571,17 @@ and FSharpAttribute(g: TcGlobals, thisCcu, tcImports, attrib: AttribInfo) =
         |> List.map (fun (ty, nm, isField, obj) -> FSharpType(g, thisCcu, tcImports, ty), nm, isField, obj)
         |> makeReadOnlyCollection
 
-    member x.Format(denv: FSharpDisplayContext) = 
+    member __.Format(denv: FSharpDisplayContext) = 
         protect <| fun () -> 
             match attrib with
             | AttribInfo.FSAttribInfo(g, attrib) ->
-                NicePrint.stringOfAttrib (denv.Contents g) attrib
-            | _ -> "" 
+                NicePrint.stringOfFSAttrib (denv.Contents g) attrib
+            | AttribInfo.ILAttribInfo (g, _, scoref, cattr, _) -> 
+                let parms, _args = decodeILAttribData g.ilg cattr (Some scoref) 
+                NicePrint.stringOfILAttrib (denv.Contents g) (cattr.Method.EnclosingType, parms)
 
-    override x.ToString() = 
+    override __.ToString() = 
         if entityIsUnresolved attrib.TyconRef then "attribute ???" else "attribute " + attrib.TyconRef.CompiledName + "(...)" 
-
     
 and FSharpStaticParameter(g, thisCcu, tcImports:TcImports,  sp: Tainted< ExtensionTyping.ProvidedParameterInfo >, m) = 
     inherit FSharpSymbol(g, thisCcu, tcImports,  

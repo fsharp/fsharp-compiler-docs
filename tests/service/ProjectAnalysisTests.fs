@@ -3913,7 +3913,8 @@ let ``Test project30 event symbols`` () =
              yield x.Format(moduleSymbol.DisplayContext), x.Format(FSharpDisplayContext.Empty) ]
 
     moduleAttributes |> shouldEqual 
-          [("[<CompilationRepresentationAttribute (enum<CompilationRepresentationFlags> (4))>]", "[<Microsoft.FSharp.Core.CompilationRepresentationAttribute (enum<Microsoft.FSharp.Core.CompilationRepresentationFlags> (4))>]")]
+          [("[<CompilationRepresentationAttribute (enum<CompilationRepresentationFlags> (4))>]", 
+            "[<Microsoft.FSharp.Core.CompilationRepresentationAttribute (enum<Microsoft.FSharp.Core.CompilationRepresentationFlags> (4))>]")]
    
     let memberSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Member")
     let memberEntity = memberSymbol.Symbol :?> FSharpMemberFunctionOrValue
@@ -3923,7 +3924,8 @@ let ``Test project30 event symbols`` () =
              yield x.Format(memberSymbol.DisplayContext), x.Format(FSharpDisplayContext.Empty) ]
 
     memberAttributes |> shouldEqual 
-          ["""[<Obsolete ("hello")>]""", """[<System.Obsolete ("hello")>]"""]
+          [("""[<Obsolete ("hello")>]""", 
+            """[<System.Obsolete ("hello")>]""")]
 
 #if FX_ATLEAST_45
 
@@ -4017,4 +4019,3 @@ let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted
     checkOption options.OtherOptions "System.Runtime.dll"
     checkOption options.OtherOptions "System.Net.Requests.dll"
     checkOption options.OtherOptions "System.Xml.XmlSerializer.dll"
-#endif

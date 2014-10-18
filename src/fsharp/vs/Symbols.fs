@@ -1573,7 +1573,10 @@ and FSharpAttribute(g: TcGlobals, thisCcu, tcImports, attrib: AttribInfo) =
 
     member x.Format(denv: FSharpDisplayContext) = 
         protect <| fun () -> 
-            NicePrint.stringOfAttrib (denv.Contents g) attrib 
+            match attrib with
+            | AttribInfo.FSAttribInfo(g, attrib) ->
+                NicePrint.stringOfAttrib (denv.Contents g) attrib
+            | _ -> "" 
 
     override x.ToString() = 
         if entityIsUnresolved attrib.TyconRef then "attribute ???" else "attribute " + attrib.TyconRef.CompiledName + "(...)" 

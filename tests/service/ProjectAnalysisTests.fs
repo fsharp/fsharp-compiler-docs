@@ -3893,7 +3893,7 @@ type T() =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
-    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
 let ``Test project30 whole project errors`` () = 
 
@@ -3901,7 +3901,7 @@ let ``Test project30 whole project errors`` () =
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
-let ``Test project30 event symbols`` () = 
+let ``Test project30 Format attributes`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project30.options) |> Async.RunSynchronously
     
@@ -3927,95 +3927,64 @@ let ``Test project30 event symbols`` () =
           [("""[<Obsolete ("hello")>]""", 
             """[<System.Obsolete ("hello")>]""")]
 
-#if FX_ATLEAST_45
+module Project31 = 
+    open System.IO
 
-let checkOption (opts:string[]) s = 
-    let found = "Found '"+s+"'"
-    (if opts |> Array.exists (fun o -> o.EndsWith(s)) then found else "Failed to find '"+s+"'")
-       |> shouldEqual found
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+open System
+open System.Collections.Generic
+let f (x: List<'T>) = failwith ""
+let g = Console.ReadKey()        
+"""
+    File.WriteAllText(fileName1, fileSource1)
 
-let checkOptionNotPresent (opts:string[]) s = 
-    let found = "Found '"+s+"'"
-    let notFound = "Did not expect to find '"+s+"'"
-    (if opts |> Array.exists (fun o -> o.EndsWith(s)) then found else notFound)
-       |> shouldEqual notFound
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
 
-[<Test>]
-let ``Project file parsing example 1 Default Configuration`` () = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-//  if not runningOnMono then 
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
-    let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile)
-
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-
-    checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
-    checkOption options.OtherOptions "FileSystemTests.fs"
-    checkOption options.OtherOptions "--define:TRACE"
-    checkOption options.OtherOptions "--define:DEBUG"
-    checkOption options.OtherOptions "--flaterrors"
-    checkOption options.OtherOptions "--simpleresolution"
-    checkOption options.OtherOptions "--noframework"
+let ``Test project31 whole project errors`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
-let ``Project file parsing example 1 Release Configuration`` () = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-//  if not runningOnMono then 
-    let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
-    // Check with Configuration = Release
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
-
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-    checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
-    checkOption options.OtherOptions "FileSystemTests.fs"
-    checkOption options.OtherOptions "--define:TRACE"
-    checkOptionNotPresent options.OtherOptions "--define:DEBUG"
-    checkOption options.OtherOptions "--debug:pdbonly"
-
-[<Test>]
-let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-  if not runningOnMono then 
-    let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
-
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-
-    checkOption options.OtherOptions "--targetprofile:netcore"
-    checkOption options.OtherOptions "--tailcalls-"
-
-    checkOption options.OtherOptions "FSharp.Core.dll"
-    checkOption options.OtherOptions "Microsoft.CSharp.dll"
-    checkOption options.OtherOptions "System.Runtime.dll"
-    checkOption options.OtherOptions "System.Net.Requests.dll"
-    checkOption options.OtherOptions "System.Xml.XmlSerializer.dll"
+let ``Test project31 C# type attributes`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
+    
+    let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "List")
+    let objEntity = objSymbol.Symbol :?> FSharpEntity
+   
+    [ for attrib in objEntity.Attributes do 
+         let args = try Seq.toList attrib.ConstructorArguments with _ -> []
+         let namedArgs = try Seq.toList attrib.NamedArguments with _ -> []
+         let output = sprintf "%A" (attrib.AttributeType, args, namedArgs)
+         yield output.Replace("\r\n", "\n").Replace("\n", "") ]
+    |> shouldEqual
+           ["(DebuggerTypeProxyAttribute, [], [])";
+            """(DebuggerDisplayAttribute, [(type Microsoft.FSharp.Core.string, "Count = {Count}")], [])""";
+            """(DefaultMemberAttribute, [(type Microsoft.FSharp.Core.string, "Item")], [])"""]
 
 [<Test>]
-let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78``() = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-  if not runningOnMono then 
-    let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
+let ``Test project31 C# methods attributes`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
+    
+    let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Console")
+    let objEntity = objSymbol.Symbol :?> FSharpEntity
+  
+    let objMethodsAttributes = 
+        [ for x in objEntity.MembersFunctionsAndValues do 
+             for attrib in x.Attributes do 
+                let args = try Seq.toList attrib.ConstructorArguments with _ -> []
+                let namedArgs = try Seq.toList attrib.NamedArguments with _ -> []
+                yield sprintf "%A" (attrib.AttributeType, args, namedArgs) ]
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-    checkOption options.OtherOptions "--targetprofile:netcore"
-    checkOption options.OtherOptions "--tailcalls-"
-
-    checkOption options.OtherOptions "FSharp.Core.dll"
-    checkOption options.OtherOptions "Microsoft.CSharp.dll"
-    checkOption options.OtherOptions "System.Runtime.dll"
-    checkOption options.OtherOptions "System.Net.Requests.dll"
-    checkOption options.OtherOptions "System.Xml.XmlSerializer.dll"
+    objMethodsAttributes 
+    |> set
+    |> shouldEqual 
+          (set ["(SecuritySafeCriticalAttribute, [], [])";
+                "(CLSCompliantAttribute, [(type Microsoft.FSharp.Core.bool, false)], [])";])

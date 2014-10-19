@@ -3912,20 +3912,26 @@ let ``Test project30 Format attributes`` () =
         [ for x in moduleEntity.Attributes do 
              yield x.Format(moduleSymbol.DisplayContext), x.Format(FSharpDisplayContext.Empty) ]
 
-    moduleAttributes |> shouldEqual 
-          [("[<CompilationRepresentationAttribute (enum<CompilationRepresentationFlags> (4))>]", 
-            "[<Microsoft.FSharp.Core.CompilationRepresentationAttribute (enum<Microsoft.FSharp.Core.CompilationRepresentationFlags> (4))>]")]
+    moduleAttributes 
+    |> set
+    |> shouldEqual 
+         (set
+            [("[<CompilationRepresentationAttribute (enum<CompilationRepresentationFlags> (4))>]", 
+              "[<Microsoft.FSharp.Core.CompilationRepresentationAttribute (enum<Microsoft.FSharp.Core.CompilationRepresentationFlags> (4))>]")])
    
     let memberSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Member")
-    let memberEntity = memberSymbol.Symbol :?> FSharpMemberFunctionOrValue
+    let memberEntity = memberSymbol.Symbol :?> FSharpMemberOrFunctionOrValue
     
     let memberAttributes = 
         [ for x in memberEntity.Attributes do 
              yield x.Format(memberSymbol.DisplayContext), x.Format(FSharpDisplayContext.Empty) ]
 
-    memberAttributes |> shouldEqual 
-          [("""[<Obsolete ("hello")>]""", 
-            """[<System.Obsolete ("hello")>]""")]
+    memberAttributes
+    |> set 
+    |> shouldEqual 
+         (set
+              [("""[<Obsolete ("hello")>]""", 
+                """[<System.Obsolete ("hello")>]""")])
 
 module Project31 = 
     open System.IO
@@ -3965,30 +3971,32 @@ let ``Test project31 C# type attributes`` () =
          let namedArgs = try Seq.toList attrib.NamedArguments with _ -> []
          let output = sprintf "%A" (attrib.AttributeType, args, namedArgs)
          yield output.Replace("\r\n", "\n").Replace("\n", "") ]
+    |> set
     |> shouldEqual
-           ["(DebuggerTypeProxyAttribute, [], [])";
-            """(DebuggerDisplayAttribute, [(type Microsoft.FSharp.Core.string, "Count = {Count}")], [])""";
-            """(DefaultMemberAttribute, [(type Microsoft.FSharp.Core.string, "Item")], [])"""]
+         (set ["(DebuggerTypeProxyAttribute, [], [])";
+               """(DebuggerDisplayAttribute, [(type Microsoft.FSharp.Core.string, "Count = {Count}")], [])""";
+               """(DefaultMemberAttribute, [(type Microsoft.FSharp.Core.string, "Item")], [])"""])
 
 [<Test>]
 let ``Test project31 C# method attributes`` () =
-    let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
+    if not runningOnMono then 
+        let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
     
-    let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Console")
-    let objEntity = objSymbol.Symbol :?> FSharpEntity
+        let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Console")
+        let objEntity = objSymbol.Symbol :?> FSharpEntity
   
-    let objMethodsAttributes = 
-        [ for x in objEntity.MembersFunctionsAndValues do 
-             for attrib in x.Attributes do 
-                let args = try Seq.toList attrib.ConstructorArguments with _ -> []
-                let namedArgs = try Seq.toList attrib.NamedArguments with _ -> []
-                yield sprintf "%A" (attrib.AttributeType, args, namedArgs) ]
+        let objMethodsAttributes = 
+            [ for x in objEntity.MembersFunctionsAndValues do 
+                 for attrib in x.Attributes do 
+                    let args = try Seq.toList attrib.ConstructorArguments with _ -> []
+                    let namedArgs = try Seq.toList attrib.NamedArguments with _ -> []
+                    yield sprintf "%A" (attrib.AttributeType, args, namedArgs) ]
 
-    objMethodsAttributes 
-    |> set
-    |> shouldEqual 
-          (set ["(SecuritySafeCriticalAttribute, [], [])";
-                "(CLSCompliantAttribute, [(type Microsoft.FSharp.Core.bool, false)], [])";])
+        objMethodsAttributes 
+        |> set
+        |> shouldEqual 
+              (set ["(SecuritySafeCriticalAttribute, [], [])";
+                    "(CLSCompliantAttribute, [(type Microsoft.FSharp.Core.bool, false)], [])"])
 
 [<Test>]
 let ``Test project31 Format C# type attributes`` () =
@@ -3998,24 +4006,26 @@ let ``Test project31 Format C# type attributes`` () =
     let objEntity = objSymbol.Symbol :?> FSharpEntity
    
     [ for attrib in objEntity.Attributes -> attrib.Format(objSymbol.DisplayContext) ]
+    |> set
     |> shouldEqual
-           ["[<DebuggerTypeProxyAttribute (typeof<Mscorlib_CollectionDebugView<>>)>]";
-            """[<DebuggerDisplayAttribute ("Count = {Count}")>]""";
-            """[<Reflection.DefaultMemberAttribute ("Item")>]"""]
+         (set ["[<DebuggerTypeProxyAttribute (typeof<Mscorlib_CollectionDebugView<>>)>]";
+               """[<DebuggerDisplayAttribute ("Count = {Count}")>]""";
+               """[<Reflection.DefaultMemberAttribute ("Item")>]"""])
 
 [<Test>]
 let ``Test project31 Format C# method attributes`` () =
-    let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
+    if not runningOnMono then 
+        let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
     
-    let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Console")
-    let objEntity = objSymbol.Symbol :?> FSharpEntity
+        let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "Console")
+        let objEntity = objSymbol.Symbol :?> FSharpEntity
   
-    let objMethodsAttributes = 
-        [ for x in objEntity.MembersFunctionsAndValues do 
-             for attrib in x.Attributes -> attrib.Format(objSymbol.DisplayContext) ]
+        let objMethodsAttributes = 
+            [ for x in objEntity.MembersFunctionsAndValues do 
+                 for attrib in x.Attributes -> attrib.Format(objSymbol.DisplayContext) ]
 
-    objMethodsAttributes 
-    |> set
-    |> shouldEqual 
-          (set ["[<CLSCompliantAttribute (false)>]";
-                "[<Security.SecuritySafeCriticalAttribute ()>]"])
+        objMethodsAttributes 
+        |> set
+        |> shouldEqual 
+              (set ["[<CLSCompliantAttribute (false)>]";
+                    "[<Security.SecuritySafeCriticalAttribute ()>]"])

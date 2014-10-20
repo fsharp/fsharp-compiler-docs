@@ -378,6 +378,8 @@ type FSharpProjectFileInfo =
     member AssemblyName : string option
     /// The name of the output path for the project
     member OutputPath : string option
+    /// The full path to the project file
+    member FullPath : string 
 #endif
 #endif
 

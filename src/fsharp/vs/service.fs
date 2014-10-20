@@ -2228,7 +2228,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
     let mkAbsoluteOpt dir v =  Option.map (mkAbsolute dir) v
 
     // Use the old API on Mono, with ToolsVersion = 12.0
-    let rec CrackProjectOnMono(fsprojFile:string) = 
+    let rec CrackProjectUsingOldBuildAPI(fsprojFile:string) = 
         let engine = new Microsoft.Build.BuildEngine.Engine()
 #if FX_ATLEAST_45
         engine.DefaultToolsVersion <- "12.0"
@@ -2273,24 +2273,27 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
                 yield i.FinalItemSpec
                 for i in project.GetEvaluatedItemsByName("ProjectReference") do
                     let fsproj = mkAbsolute directory i.FinalItemSpec
-                    match (try Some (CrackProjectOnMono fsproj) with _ -> None) with  
-                    | Some (Some output, _, _, _, _) -> yield output
+                    match (try Some (CrackProjectUsingOldBuildAPI fsproj) with _ -> None) with  
+                    | Some (Some output, _, _, _, _, _) -> yield output
                     | _ -> ()  ]
 
-        outFileOpt, directory, getItems, references, getProp
+        outFileOpt, directory, getItems, references, getProp, project.FullFileName
 
-    let rec CrackProjectOnDotNet(fsprojFile) =
+    let rec CrackProjectUsingNewBuildAPI(fsprojFile) =
+        let fsprojFullPath = try FileSystem.GetFullPathShim(fsprojFile) with _ -> fsprojFile
+        let fsprojAbsDirectory = Path.GetDirectoryName fsprojFullPath
+
         use _pwd = 
             let dir = Environment.CurrentDirectory
-            Environment.CurrentDirectory <- Path.GetDirectoryName(fsprojFile)
+            Environment.CurrentDirectory <- fsprojAbsDirectory
             { new System.IDisposable with member x.Dispose() = Environment.CurrentDirectory <- dir }
 
         use engine = new Microsoft.Build.Evaluation.ProjectCollection()
 
-        use stream = FileSystem.FileStreamReadShim(fsprojFile)
+        use stream = FileSystem.FileStreamReadShim(fsprojFullPath)
         use xmlReader = System.Xml.XmlReader.Create(stream)
 
-        let project = engine.LoadProject(xmlReader, FullPath=fsprojFile)
+        let project = engine.LoadProject(xmlReader, FullPath=fsprojFullPath)
         for (prop, value) in properties do
             project.SetProperty(prop, value) |> ignore
 
@@ -2314,15 +2317,19 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
                    yield i.EvaluatedInclude
                  for cp in project.GetItems("ProjectReference") do
                    let fsproj = cp.GetMetadataValue("FullPath")
-                   match (try Some (CrackProjectOnDotNet fsproj) with _ -> None) with  
-                   | Some (Some output, _, _, _, _) -> yield output
+                   match (try Some (CrackProjectUsingNewBuildAPI fsproj) with _ -> None) with  
+                   | Some (Some output, _, _, _, _, _) -> yield output
                    | _ -> ()
               ]
-        (outFileOpt, directory, getItems, references, getprop)
+
+        (outFileOpt, directory, getItems, references, getprop, project.FullPath)
 
 
-    let outFileOpt, directory, getItems, references, getProp = 
-        if runningOnMono then  CrackProjectOnMono(fsprojFileName) else CrackProjectOnDotNet(fsprojFileName)
+    let outFileOpt, directory, getItems, references, getProp, fsprojFullPath = 
+        if runningOnMono then  
+            CrackProjectUsingOldBuildAPI(fsprojFileName) 
+        else 
+            CrackProjectUsingNewBuildAPI(fsprojFileName)
     
     let pages = getItems "Page"
     let embeddedResources = getItems "EmbeddedResource"
@@ -2493,6 +2500,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
     member x.Directory = directory
     member x.AssemblyName = assemblyNameOpt
     member x.OutputPath = outputPathOpt
+    member x.FullPath = fsprojFullPath
     static member Parse(fsprojFileName:string, ?properties) = new FSharpProjectFileInfo(fsprojFileName, ?properties=properties)
 #endif
 #endif

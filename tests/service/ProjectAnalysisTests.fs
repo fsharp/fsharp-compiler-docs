@@ -3908,6 +3908,33 @@ let ``Project file parsing example 1 Default Configuration`` () =
     checkOption options.OtherOptions "--noframework"
 
 [<Test>]
+let ``Project file parsing example 1 Default configuration relative path`` () = 
+  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
+//  if not runningOnMono then 
+
+    let projectFile = "FSharp.Compiler.Service.Tests.fsproj"
+    Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
+
+
+    let options = checker.GetProjectOptionsFromProjectFile(projectFile)
+    //let options = FSharpProjectFileInfo.Parse(projectFile)
+    //options.FullPath
+    //options.Options
+
+    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
+    printfn "PROJ FILE %s" projectFile
+    printfn "%A" options.OtherOptions
+    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
+
+    checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
+    checkOption options.OtherOptions "FileSystemTests.fs"
+    checkOption options.OtherOptions "--define:TRACE"
+    checkOption options.OtherOptions "--define:DEBUG"
+    checkOption options.OtherOptions "--flaterrors"
+    checkOption options.OtherOptions "--simpleresolution"
+    checkOption options.OtherOptions "--noframework"
+
+[<Test>]
 let ``Project file parsing example 1 Release Configuration`` () = 
   // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
 //  if not runningOnMono then 

@@ -282,3 +282,5 @@
 #### 0.0.71 - 
 * More renamings in SourceCodeServices API for more consistent use of 'FSharp' prefix
 
+#### 0.0.72 - 
+* Allow project parser to be used on project file with relative paths 

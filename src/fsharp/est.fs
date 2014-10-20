@@ -616,6 +616,9 @@ module internal ExtensionTyping =
         abstract GetXmlDocAttributes : provider:ITypeProvider -> string[]
         abstract GetHasTypeProviderEditorHideMethodsAttribute : provider:ITypeProvider -> bool
         abstract GetAttributeConstructorArgs: provider:ITypeProvider * attribName:string -> obj option list option
+#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
+        abstract GetAttributes : provider:ITypeProvider -> CustomAttributeData list
+#endif
 
     and ProvidedCustomAttributeProvider =
         static member Create (attributes :(ITypeProvider -> System.Collections.Generic.IList<CustomAttributeData>)) : IProvidedCustomAttributeProvider = 
@@ -631,6 +634,12 @@ module internal ExtensionTyping =
                             a.ConstructorArguments 
                             |> Seq.toList 
                             |> List.map (function Arg null -> None | Arg obj -> Some obj | _ -> None))
+
+#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
+                  member __.GetAttributes (provider) = 
+                      attributes(provider) 
+                        |> Seq.toList
+#endif
 
                   member __.GetHasTypeProviderEditorHideMethodsAttribute provider = 
                       attributes(provider) 

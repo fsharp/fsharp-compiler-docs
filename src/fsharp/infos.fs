@@ -2484,9 +2484,171 @@ open AccessibilityLogic
 exception ObsoleteWarning of string * range
 exception ObsoleteError of string * range
 
+let fail() = failwith "This custom attribute has an argument that can not yet be converted using this API"
+
+let rec evalILAttribElem e = 
+    match e with 
+    | ILAttribElem.String (Some x)  -> box x
+    | ILAttribElem.String None      -> null
+    | ILAttribElem.Bool x           -> box x
+    | ILAttribElem.Char x           -> box x
+    | ILAttribElem.SByte x          -> box x
+    | ILAttribElem.Int16 x          -> box x
+    | ILAttribElem.Int32 x          -> box x
+    | ILAttribElem.Int64 x          -> box x
+    | ILAttribElem.Byte x           -> box x
+    | ILAttribElem.UInt16 x         -> box x
+    | ILAttribElem.UInt32 x         -> box x
+    | ILAttribElem.UInt64 x         -> box x
+    | ILAttribElem.Single x         -> box x
+    | ILAttribElem.Double x         -> box x
+    | ILAttribElem.Null             -> null
+    | ILAttribElem.Array (_, a)     -> box [| for i in a -> evalILAttribElem i |]
+    // TODO: typeof<..> in attribute values
+    | ILAttribElem.Type (Some _t)    -> fail() 
+    | ILAttribElem.Type None        -> null
+    | ILAttribElem.TypeRef (Some _t) -> fail()
+    | ILAttribElem.TypeRef None     -> null
+
+let evalFSharpAttribArg e = 
+    match e with
+    | Expr.Const(c,_,_) -> 
+        match c with 
+        | Const.Bool b -> box b
+        | Const.SByte i  -> box i
+        | Const.Int16 i  -> box  i
+        | Const.Int32 i   -> box i
+        | Const.Int64 i   -> box i  
+        | Const.Byte i    -> box i
+        | Const.UInt16 i  -> box i
+        | Const.UInt32 i  -> box i
+        | Const.UInt64 i  -> box i
+        | Const.Single i   -> box i
+        | Const.Double i -> box i
+        | Const.Char i    -> box i
+        | Const.Zero -> null
+        | Const.String s ->  box s
+        | _ -> fail()
+    // TODO: typeof<..> in attribute values
+    // TODO: arrays in attribute values
+    | _ -> fail()
+
+type AttribInfo = 
+    | FSAttribInfo of TcGlobals * Attrib
+    | ILAttribInfo of TcGlobals * Import.ImportMap * ILScopeRef * ILAttribute * range
+#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
+    | ProvAttribInfo of Import.ImportMap * Tainted<System.Reflection.CustomAttributeData> * range
+#endif
+
+    member x.TyconRef = 
+         match x with 
+         | FSAttribInfo(_g,Attrib(tcref,_,_,_,_,_,_)) -> tcref
+         | ILAttribInfo (g, amap, scoref, a, m) -> 
+             let ty = ImportType scoref amap m [] a.Method.EnclosingType
+             tcrefOfAppTy g ty
+#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
+         | ProvAttribInfo(amap, cdata, m) -> 
+             let pty = cdata.PApply((fun a -> a.AttributeType),m) 
+             let ty = Import.ImportProvidedType amap m pty
+             tcrefOfAppTy g ty
+#endif
+
+    member x.ConstructorArguments = 
+         match x with 
+         | FSAttribInfo(g,Attrib(_,_,unnamedArgs,_,_,_,_)) -> 
+             unnamedArgs
+             |> List.map (fun (AttribExpr(origExpr,evaluatedExpr)) -> 
+                    let ty = tyOfExpr g origExpr
+                    let obj = evalFSharpAttribArg evaluatedExpr
+                    ty,obj) 
+         | ILAttribInfo (g, amap, scoref, cattr, m) -> 
+              let parms, _args = decodeILAttribData g.ilg cattr (Some scoref) 
+              [ for (argty,argval) in Seq.zip cattr.Method.FormalArgTypes parms ->
+                    let ty = ImportType scoref amap m [] argty
+                    let obj = evalILAttribElem argval
+                    ty,obj ]
+
+    member x.NamedArguments = 
+         match x with 
+         | FSAttribInfo(g,Attrib(_,_,_,namedArgs,_,_,_)) -> 
+             namedArgs
+             |> List.map (fun (AttribNamedArg(nm,_,isField,AttribExpr(origExpr,evaluatedExpr))) -> 
+                    let ty = tyOfExpr g origExpr
+                    let obj = evalFSharpAttribArg evaluatedExpr
+                    ty, nm, isField, obj) 
+         | ILAttribInfo (g, amap, scoref, cattr, m) -> 
+              let _parms, namedArgs = decodeILAttribData g.ilg cattr (Some scoref) 
+              [ for (nm, argty, isProp, argval) in namedArgs ->
+                    let ty = ImportType scoref amap m [] argty
+                    let obj = evalILAttribElem argval
+                    let isField = not isProp 
+                    ty, nm, isField, obj ]
+
+
 /// Check custom attributes. This is particularly messy because custom attributes come in in three different
 /// formats.
 module AttributeChecking = 
+
+
+    let AttribInfosOfIL g amap scoref m (attribs: ILAttributes) = 
+        attribs.AsList  |> List.map (fun a -> ILAttribInfo (g, amap, scoref, a, m))
+
+    let AttribInfosOfFS g attribs = 
+        attribs |> List.map (fun a -> FSAttribInfo (g, a))
+
+    let GetAttribInfosOfEntity g amap m (tcref:TyconRef) = 
+        match metadataOfTycon tcref.Deref with 
+#if EXTENSIONTYPING
+        // TODO: provided attributes
+        | ProvidedTypeMetadata _info -> []
+            //let provAttribs = info.ProvidedType.PApply((fun a -> (a :> IProvidedCustomAttributeProvider)),m)
+            //match provAttribs.PUntaint((fun a -> a. .GetAttributeConstructorArgs(provAttribs.TypeProvider.PUntaintNoFailure(id), atref.FullName)),m) with
+            //| Some args -> f3 args
+            //| None -> None
+#endif
+        | ILTypeMetadata (scoref,tdef) -> 
+            tdef.CustomAttrs |> AttribInfosOfIL g amap scoref m
+        | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> 
+            tcref.Attribs |> List.map (fun a -> FSAttribInfo (g, a))
+
+
+    let GetAttribInfosOfMethod amap m minfo = 
+        match minfo with 
+        | ILMeth (g,ilminfo,_) -> ilminfo.RawMetadata.CustomAttrs  |> AttribInfosOfIL g amap ilminfo.MetadataScope m
+        | FSMeth (g,_,vref,_) -> vref.Attribs |> AttribInfosOfFS g 
+        | DefaultStructCtor _ -> []
+#if EXTENSIONTYPING
+        // TODO: provided attributes
+        | ProvidedMeth (_,_mi,_,_m) -> 
+#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
+              let provAttribs = mi.PApply((fun st -> (st :> IProvidedCustomAttributeProvider)),m)
+              let cas = provAttribs.PUntaint((fun a -> a.GetAttributes(provAttribs.TypeProvider.PUntaintNoFailure(id))),m) 
+              cas |> AttribInfosOfProvided g 
+#else
+              []
+#endif
+
+#endif
+
+    let GetAttribInfosOfProp amap m pinfo = 
+        match pinfo with 
+        | ILProp(g,ilpinfo) -> ilpinfo.RawMetadata.CustomAttrs |> AttribInfosOfIL g amap ilpinfo.ILTypeInfo.ILScopeRef m
+        | FSProp(g,_,Some vref,_) 
+        | FSProp(g,_,_,Some vref) -> vref.Attribs |> AttribInfosOfFS g 
+        | FSProp _ -> failwith "GetAttribInfosOfProp: unreachable"
+#if EXTENSIONTYPING
+        // TODO: provided attributes
+        | ProvidedProp _ ->  []
+#endif
+
+    let GetAttribInfosOfEvent amap m einfo = 
+        match einfo with 
+        | ILEvent(g, x) -> x.RawMetadata.CustomAttrs  |> AttribInfosOfIL g amap x.ILTypeInfo.ILScopeRef m
+        | FSEvent(_, pi, _vref1, _vref2) -> GetAttribInfosOfProp amap m pi
+#if EXTENSIONTYPING
+        // TODO: provided attributes
+        | ProvidedEvent _ -> []
+#endif
 
     /// Analyze three cases for attributes declared on type definitions: IL-declared attributes, F#-declared attributes and
     /// provided attributes.

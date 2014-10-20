@@ -711,7 +711,7 @@ type MethodGroup = FSharpMethodGroup
 /// Renamed to FSharpProjectOptions
 type CheckOptions = FSharpProjectOptions
 
-[<Obsolete("This type has been renamed to ProjectOptions")>]
+[<Obsolete("This type has been renamed to FSharpProjectOptions")>]
 /// Renamed to FSharpProjectOptions
 type ProjectOptions = FSharpProjectOptions
 

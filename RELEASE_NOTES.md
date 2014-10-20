@@ -284,3 +284,4 @@
 
 #### 0.0.72 - 
 * Allow project parser to be used on project file with relative paths 
+* Expose attributes for non-F# symbols

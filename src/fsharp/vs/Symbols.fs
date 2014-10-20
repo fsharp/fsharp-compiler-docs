@@ -417,7 +417,8 @@ and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) =
 
     member __.Attributes = 
         if isUnresolved() then makeReadOnlyCollection[] else
-        entity.Attribs
+        let amap = tcImports.GetImportMap()
+        AttributeChecking.GetAttribInfosOfEntity g amap range0 entity
         |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a))
         |> makeReadOnlyCollection
 
@@ -487,7 +488,7 @@ and FSharpUnionCase(g:TcGlobals, thisCcu, tcImports, v: UnionCaseRef) =
 
     member __.Attributes = 
         if isUnresolved() then makeReadOnlyCollection [] else
-        v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
+        v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports, AttribInfo.FSAttribInfo(g, a))) |> makeReadOnlyCollection
 
     member __.Accessibility =  
         if isUnresolved() then FSharpAccessibility(taccessPublic) else
@@ -637,11 +638,11 @@ and FSharpField(g:TcGlobals, thisCcu, tcImports, d: FSharpFieldData)  =
 
     member __.FieldAttributes = 
         if isUnresolved() then makeReadOnlyCollection [] else 
-        d.RecdField.FieldAttribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
+        d.RecdField.FieldAttribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  AttribInfo.FSAttribInfo(g, a))) |> makeReadOnlyCollection
 
     member __.PropertyAttributes = 
         if isUnresolved() then makeReadOnlyCollection [] else 
-        d.RecdField.PropertyAttribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
+        d.RecdField.PropertyAttribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  AttribInfo.FSAttribInfo(g, a))) |> makeReadOnlyCollection
 
     member __.Accessibility : FSharpAccessibility =  
         if isUnresolved() then FSharpAccessibility(taccessPublic) else 
@@ -739,7 +740,11 @@ and FSharpGenericParameter(g:TcGlobals, thisCcu, tcImports, v:Typar) =
     member __.IsMeasure = (v.Kind = TyparKind.Measure)
     member __.XmlDoc = v.Data.typar_xmldoc |> makeXmlDoc
     member __.IsSolveAtCompileTime = (v.StaticReq = TyparStaticReq.HeadTypeStaticReq)
-    member __.Attributes = v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
+    member __.Attributes = 
+         // INCOMPLETENESS: If the type parameter comes from .NET then the .NET metadata for the type parameter
+         // has been lost (it is not accesible via Typar).  So we can't easily report the attributes in this 
+         // case.
+         v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  AttribInfo.FSAttribInfo(g, a))) |> makeReadOnlyCollection
     member __.Constraints = v.Constraints |> List.map (fun a -> FSharpGenericParameterConstraint(g, thisCcu, tcImports, a)) |> makeReadOnlyCollection
     
     member internal x.V = v
@@ -1299,6 +1304,8 @@ and FSharpMemberOrFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMembe
             
             let amap = tcImports.GetImportMap() 
             [ [ for (ParamData(isParamArrayArg,isOutArg,optArgInfo,nmOpt,pty)) in p.GetParamDatas(amap,range0) do 
+                // INCOMPLETENESS: Attribs is empty here, so we can't look at attributes for
+                // either .NET or F# parameters
                 let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }
                 yield FSharpParameter(g, thisCcu, tcImports,  pty, argInfo, x.DeclarationLocationOpt, isParamArrayArg, isOutArg, optArgInfo.IsOptional) ] 
                |> makeReadOnlyCollection  ]
@@ -1311,6 +1318,8 @@ and FSharpMemberOrFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMembe
             [ for argtys in m.GetParamDatas(amap,range0,m.FormalMethodInst) do 
                  yield 
                    [ for (ParamData(isParamArrayArg,isOutArg,optArgInfo,nmOpt,pty)) in argtys do 
+                // INCOMPLETENESS: Attribs is empty here, so we can't look at attributes for
+                // either .NET or F# parameters
                         let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }
                         yield FSharpParameter(g, thisCcu, tcImports,  pty, argInfo, x.DeclarationLocationOpt, isParamArrayArg, isOutArg, optArgInfo.IsOptional) ] 
                    |> makeReadOnlyCollection ]
@@ -1338,16 +1347,19 @@ and FSharpMemberOrFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMembe
         checkIsResolved()
         match d with 
         | E e -> 
+                // INCOMPLETENESS: Attribs is empty here, so we can't look at return attributes for .NET or F# methods
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
             let infoReader = InfoReader(g, tcImports.GetImportMap())
             let rty = PropTypOfEventInfo infoReader range0 AccessibleFromSomewhere e
             let _,rty, _cxs = PrettyTypes.PrettifyTypes1 g rty
             FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | P p -> 
-            let retInfo : ArgReprInfo = { Name=None; Attribs= [] }  
+                // INCOMPLETENESS: Attribs is empty here, so we can't look at return attributes for .NET or F# methods
+            let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
             let rty = p.GetPropertyType(tcImports.GetImportMap(),range0)
             FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | M m -> 
+                // INCOMPLETENESS: Attribs is empty here, so we can't look at return attributes for .NET or F# methods
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
             let rty = m.GetFSharpReturnTy(tcImports.GetImportMap(),range0,m.FormalMethodInst)
             FSharpParameter(g, thisCcu, tcImports,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
@@ -1364,9 +1376,17 @@ and FSharpMemberOrFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMembe
 
     member __.Attributes = 
         if isUnresolved() then makeReadOnlyCollection [] else 
-        match fsharpInfo() with 
-        | None -> [] 
-        | Some v -> v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) 
+        let amap = tcImports.GetImportMap()
+        let m = range0
+        match d with 
+        | E einfo -> 
+            AttributeChecking.GetAttribInfosOfEvent amap m einfo |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a))
+        | P pinfo -> 
+            AttributeChecking.GetAttribInfosOfProp amap m pinfo |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a))
+        | M minfo -> 
+            AttributeChecking.GetAttribInfosOfMethod amap m minfo |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a))
+        | V v -> 
+            v.Attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  AttribInfo.FSAttribInfo(g, a))) 
      |> makeReadOnlyCollection
      
 (*
@@ -1534,45 +1554,34 @@ and FSharpType(g:TcGlobals, thisCcu, tcImports, typ:TType) =
        protect <| fun () -> 
         "type " + NicePrint.stringOfTy (DisplayEnv.Empty(g)) typ 
 
-and FSharpAttribute(g: TcGlobals, thisCcu, tcImports, attrib) = 
-
-    let (Attrib(tcref,_kind,unnamedArgs,propVals,_,_,_)) = attrib
-    let fail() = failwith "This custom attribute has an argument that can not yet be converted using this API"
-    let evalArg e = 
-        match e with
-        | Expr.Const(c,_,_) -> 
-            match c with 
-            | Const.Bool b -> box b
-            | Const.SByte i  -> box i
-            | Const.Int16 i  -> box  i
-            | Const.Int32 i   -> box i
-            | Const.Int64 i   -> box i  
-            | Const.Byte i    -> box i
-            | Const.UInt16 i  -> box i
-            | Const.UInt32 i  -> box i
-            | Const.UInt64 i  -> box i
-            | Const.Single i   -> box i
-            | Const.Double i -> box i
-            | Const.Char i    -> box i
-            | Const.Zero -> null
-            | Const.String s ->  box s
-            | _ -> fail()
-        | _ -> fail()
+and FSharpAttribute(g: TcGlobals, thisCcu, tcImports, attrib: AttribInfo) = 
 
     member __.AttributeType =  
-        FSharpEntity(g, thisCcu, tcImports,  tcref)
+        FSharpEntity(g, thisCcu, tcImports,  attrib.TyconRef)
 
-    member __.IsUnresolved =  entityIsUnresolved(tcref)
+    member __.IsUnresolved = entityIsUnresolved(attrib.TyconRef)
 
     member __.ConstructorArguments = 
-        unnamedArgs |> List.map (fun (AttribExpr(_,e)) -> evalArg e) |> makeReadOnlyCollection
+        attrib.ConstructorArguments 
+        |> List.map (fun (ty, obj) -> FSharpType(g, thisCcu, tcImports, ty), obj)
+        |> makeReadOnlyCollection
 
     member __.NamedArguments = 
-        propVals |> List.map (fun (AttribNamedArg(nm,_,isField,AttribExpr(_, e))) -> (nm, isField, evalArg e)) |> makeReadOnlyCollection
+        attrib.NamedArguments 
+        |> List.map (fun (ty, nm, isField, obj) -> FSharpType(g, thisCcu, tcImports, ty), nm, isField, obj)
+        |> makeReadOnlyCollection
 
-    override x.ToString() = 
-        if entityIsUnresolved tcref then "attribute ???" else "attribute " + tcref.CompiledName + "(...)" 
+    member __.Format(denv: FSharpDisplayContext) = 
+        protect <| fun () -> 
+            match attrib with
+            | AttribInfo.FSAttribInfo(g, attrib) ->
+                NicePrint.stringOfFSAttrib (denv.Contents g) attrib
+            | AttribInfo.ILAttribInfo (g, _, scoref, cattr, _) -> 
+                let parms, _args = decodeILAttribData g.ilg cattr (Some scoref) 
+                NicePrint.stringOfILAttrib (denv.Contents g) (cattr.Method.EnclosingType, parms)
 
+    override __.ToString() = 
+        if entityIsUnresolved attrib.TyconRef then "attribute ???" else "attribute " + attrib.TyconRef.CompiledName + "(...)" 
     
 and FSharpStaticParameter(g, thisCcu, tcImports:TcImports,  sp: Tainted< ExtensionTyping.ProvidedParameterInfo >, m) = 
     inherit FSharpSymbol(g, thisCcu, tcImports,  
@@ -1625,7 +1634,8 @@ and FSharpParameter(g, thisCcu, tcImports, typ:TType, topArgInfo:ArgReprInfo, mO
     member __.Name = match idOpt with None -> None | Some v -> Some v.idText
     member __.Type = FSharpType(g, thisCcu, tcImports,  typ)
     member __.DeclarationLocation = match idOpt with None -> m | Some v -> v.idRange
-    member __.Attributes = attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  a)) |> makeReadOnlyCollection
+    member __.Attributes = 
+        attribs |> List.map (fun a -> FSharpAttribute(g, thisCcu, tcImports,  AttribInfo.FSAttribInfo(g, a))) |> makeReadOnlyCollection
     member __.IsParamArrayArg = isParamArrayArg
     member __.IsOutArg = isOutArg
     member __.IsOptionalArg = isOptionalArg

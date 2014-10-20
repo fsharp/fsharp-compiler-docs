@@ -11,7 +11,10 @@ open System.IO
 open System.Text
 open System.Threading
 open System.Collections.Generic
- 
+
+open Microsoft.Build.Framework
+open Microsoft.Build.Utilities
+
 open Microsoft.FSharp.Core.Printf
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal  
@@ -2214,21 +2217,46 @@ type BackgroundCompiler(projectCacheSize) as self =
 #if SILVERLIGHT
 #else
 #if FX_ATLEAST_45
+
+type internal BasicStringLogger() =
+  inherit Logger()
+
+  let sb = new StringBuilder()
+
+  let log (e: BuildEventArgs) =
+    sb.Append(e.Message) |> ignore
+    sb.AppendLine() |> ignore
+
+  override x.Initialize(eventSource:IEventSource) =
+    sb.Clear() |> ignore
+    eventSource.AnyEventRaised.Add(log)
+    
+  member x.Log = sb.ToString()
+
 //----------------------------------------------------------------------------
 // FSharpProjectFileInfo
 //
 [<Sealed; AutoSerializable(false)>]      
-type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
+type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) =
 
     let properties = defaultArg properties []
+    let enableLogging = defaultArg enableLogging false
     let mkAbsolute dir v = 
         if FileSystem.IsPathRootedShim v then v
         else Path.Combine(dir, v)
 
     let mkAbsoluteOpt dir v =  Option.map (mkAbsolute dir) v
 
+    let logOpt =
+        if enableLogging then
+            let log = new BasicStringLogger()
+            do log.Verbosity <- Microsoft.Build.Framework.LoggerVerbosity.Diagnostic
+            Some log
+        else
+            None
+
     // Use the old API on Mono, with ToolsVersion = 12.0
-    let rec CrackProjectUsingOldBuildAPI(fsprojFile:string) = 
+    let CrackProjectUsingOldBuildAPI(fsprojFile:string) = 
         let engine = new Microsoft.Build.BuildEngine.Engine()
 #if FX_ATLEAST_45
         engine.DefaultToolsVersion <- "12.0"
@@ -2236,33 +2264,34 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
         engine.DefaultToolsVersion <- "4.0"
 #endif
 
+        Option.iter (fun l -> engine.RegisterLogger(l)) logOpt
+
         let bpg = Microsoft.Build.BuildEngine.BuildPropertyGroup()
 
         for (prop, value) in properties do
-            bpg.SetProperty(prop, value) 
+            bpg.SetProperty(prop, value)
 
         engine.GlobalProperties <- bpg
 
         // We seem to need to pass 12.0/4.0 in here for some unknown reason
         let project = new Microsoft.Build.BuildEngine.Project(engine, engine.DefaultToolsVersion) 
 
-        project.Load(fsprojFile) 
+        project.Load(fsprojFile)
 
         project.Build([|"ResolveAssemblyReferences"; "ImplicitlyExpandTargetFramework"|])  |> ignore
 
-        let fullFileName = project.FullFileName
-        let directory = Path.GetDirectoryName fullFileName
+        let directory = Path.GetDirectoryName project.FullFileName
 
-        let getProp s = 
-            let v = project.GetEvaluatedProperty s
+        let getProp (p: Microsoft.Build.BuildEngine.Project) s = 
+            let v = p.GetEvaluatedProperty s
             if String.IsNullOrWhiteSpace v then None
             else Some v
 
-        let outdir = mkAbsoluteOpt directory (getProp "OutDir")
-        let outFileOpt = 
-            match outdir with 
+        let outdir p = mkAbsoluteOpt directory (getProp p "OutDir")
+        let outFileOpt p =
+            match outdir p with 
             | None -> None
-            | Some d -> mkAbsoluteOpt d (getProp "TargetFileName")
+            | Some d -> mkAbsoluteOpt d (getProp p "TargetFileName")
 
         let getItems s = 
             let fs  = project.GetEvaluatedItemsByName(s)
@@ -2270,16 +2299,18 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
 
         let references = 
             [  for i in project.GetEvaluatedItemsByName("ResolvedFiles") do
-                yield i.FinalItemSpec
-                for i in project.GetEvaluatedItemsByName("ProjectReference") do
-                    let fsproj = mkAbsolute directory i.FinalItemSpec
-                    match (try Some (CrackProjectUsingOldBuildAPI fsproj) with _ -> None) with  
-                    | Some (Some output, _, _, _, _, _) -> yield output
-                    | _ -> ()  ]
+                   yield i.FinalItemSpec
+               for i in project.GetEvaluatedItemsByName("ProjectReference") do
+                   let fsproj = mkAbsolute directory i.FinalItemSpec
+                   match (try let p' = new Microsoft.Build.BuildEngine.Project(engine, engine.DefaultToolsVersion)
+                              do p'.Load(fsproj)
+                              Some (outFileOpt p') with _ -> None) with  
+                   | Some (Some output) -> yield output
+                   | _ -> ()  ]
 
-        outFileOpt, directory, getItems, references, getProp, project.FullFileName
+        outFileOpt project, directory, getItems, references, getProp project, project.FullFileName
 
-    let rec CrackProjectUsingNewBuildAPI(fsprojFile) =
+    let CrackProjectUsingNewBuildAPI(fsprojFile) =
         let fsprojFullPath = try FileSystem.GetFullPathShim(fsprojFile) with _ -> fsprojFile
         let fsprojAbsDirectory = Path.GetDirectoryName fsprojFullPath
 
@@ -2287,7 +2318,6 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
             let dir = Environment.CurrentDirectory
             Environment.CurrentDirectory <- fsprojAbsDirectory
             { new System.IDisposable with member x.Dispose() = Environment.CurrentDirectory <- dir }
-
         use engine = new Microsoft.Build.Evaluation.ProjectCollection()
 
         use stream = FileSystem.FileStreamReadShim(fsprojFullPath)
@@ -2301,14 +2331,18 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
 
         let directory = project.Directory
 
-        let getprop s = 
-            let v = project.GetPropertyValue s
+        let getprop (p: Microsoft.Build.Execution.ProjectInstance) s =
+            let v = p.GetPropertyValue s
             if String.IsNullOrWhiteSpace v then None
             else Some v
 
-        let outFileOpt = mkAbsoluteOpt directory (getprop "TargetPath")
+        let outFileOpt p = mkAbsoluteOpt directory (getprop p "TargetPath")
 
-        project.Build([| "ResolveAssemblyReferences"; "ImplicitlyExpandTargetFramework" |], null) |> ignore
+        let log = match logOpt with
+                  | None -> []
+                  | Some l -> [l :> ILogger]
+
+        project.Build([| "ResolveAssemblyReferences"; "ImplicitlyExpandTargetFramework" |], log) |> ignore
 
         let getItems s = [ for f in project.GetItems(s) -> mkAbsolute directory f.EvaluatedInclude ]
 
@@ -2317,20 +2351,36 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
                    yield i.EvaluatedInclude
                  for cp in project.GetItems("ProjectReference") do
                    let fsproj = cp.GetMetadataValue("FullPath")
-                   match (try Some (CrackProjectUsingNewBuildAPI fsproj) with _ -> None) with  
-                   | Some (Some output, _, _, _, _, _) -> yield output
+                   match (try let p' = Microsoft.Build.Execution.ProjectInstance(fsproj)
+                              Some (outFileOpt p') with _ -> None) with
+                   | Some (Some output) -> yield output
                    | _ -> ()
               ]
 
-        (outFileOpt, directory, getItems, references, getprop, project.FullPath)
+        outFileOpt project, directory, getItems, references, getprop project, project.FullPath
 
-
-    let outFileOpt, directory, getItems, references, getProp, fsprojFullPath = 
-        if runningOnMono then  
-            CrackProjectUsingOldBuildAPI(fsprojFileName) 
-        else 
+    let outFileOpt, directory, getItems, references, getProp, fsprojFullPath =
+      try
+        if runningOnMono then
+            CrackProjectUsingOldBuildAPI(fsprojFileName)
+        else
             CrackProjectUsingNewBuildAPI(fsprojFileName)
-    
+      with
+        | :? Microsoft.Build.BuildEngine.InvalidProjectFileException as e ->
+             raise (Microsoft.Build.Exceptions.InvalidProjectFileException(
+                         e.ProjectFile,
+                         e.LineNumber,
+                         e.ColumnNumber,
+                         e.EndLineNumber,
+                         e.EndColumnNumber,
+                         e.Message,
+                         e.ErrorSubcategory,
+                         e.ErrorCode,
+                         e.HelpKeyword))
+        | :? ArgumentException as e -> raise (IO.FileNotFoundException(e.Message))
+
+
+    let logOutput = match logOpt with None -> "" | Some l -> l.Log
     let pages = getItems "Page"
     let embeddedResources = getItems "EmbeddedResource"
     let files = getItems "Compile"
@@ -2479,14 +2529,6 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
                 yield "-r:" + r 
             yield! files ]
     
-(*
-        // Finalization of the default BuildManager on Mono causes a thread to start when 'BuildNodeManager' is accessed
-        // in the finalizer on exit.  The thread start doesn't work when exiting, and an error is printed
-        // and even worse the thread is not marked as a background computation thread, so a console 
-        // application doesn't exit correctly.
-        if runningOnMono then 
-            System.GC.SuppressFinalize(Microsoft.Build.Execution.BuildManager.DefaultBuildManager)
-*)
     member x.Options = options
     member x.FrameworkVersion = fxVer
     member x.References = references
@@ -2501,7 +2543,8 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties) =
     member x.AssemblyName = assemblyNameOpt
     member x.OutputPath = outputPathOpt
     member x.FullPath = fsprojFullPath
-    static member Parse(fsprojFileName:string, ?properties) = new FSharpProjectFileInfo(fsprojFileName, ?properties=properties)
+    member x.LogOutput = logOutput
+    static member Parse(fsprojFileName:string, ?properties, ?enableLogging) = new FSharpProjectFileInfo(fsprojFileName, ?properties=properties, ?enableLogging=enableLogging)
 #endif
 #endif
 

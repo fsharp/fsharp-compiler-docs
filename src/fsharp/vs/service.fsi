@@ -355,7 +355,7 @@ type FSharpCheckFileAnswer =
 /// Represents the information gathered by parsing and processing a .fsproj project file format.
 type FSharpProjectFileInfo =
     /// Parse and process a .fsproj file 
-    static member Parse : fsprojFileName: string * ?properties: (string * string) list -> FSharpProjectFileInfo
+    static member Parse : fsprojFileName: string * ?properties: (string * string) list * ?enableLogging: bool -> FSharpProjectFileInfo
     /// The command-line arguments for compiling this project
     member Options : string list
     /// The FrameworkVersion for the project
@@ -380,6 +380,8 @@ type FSharpProjectFileInfo =
     member OutputPath : string option
     /// The full path to the project file
     member FullPath : string 
+    /// Logging output from the build if requested
+    member LogOutput : string
 #endif
 #endif
 

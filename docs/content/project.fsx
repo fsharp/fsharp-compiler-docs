@@ -6,7 +6,7 @@ Compiler Services: Project Analysis
 
 This tutorial demonstrates how to can analyze a whole project using services provided by the F# compiler.
 
-> **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published
+> **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.
 
 *)
 
@@ -293,11 +293,15 @@ correctly and then analyze each project in turn.
 > **NOTE:** Project references are in prototype.  Using project references may currently degrade the responsiveness of the 
   compiler service, because requests may not yet be serviced while dependent projects are being analyzed.
 
+*)
+
+(**
+
 > **NOTE:** Project references are disabled if the assembly being referred to contains type provider components - 
   specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will 
   still be required on disk.
 
-**)
+*)
 
 (**
 Cracking a project file
@@ -306,7 +310,7 @@ Cracking a project file
 F# projects normally use the '.fsproj' project file format.  You can get options corresponding to a project file
 using GetProjectOptionsFromProjectFile.  In this example we get the project options for one of the 
 project files in the F# Compiler Service project itself - you should also be able to use this technique
-for any project that cleans buildly using the command line tools 'xbuild' or 'msbuild'.
+for any project that builds cleanly using the command line tools 'xbuild' or 'msbuild'.
 
 
 *)
@@ -326,7 +330,7 @@ checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Releas
 
 (**
 
-Another utility is provided to simply get the command line arguments for a project file
+Another utility is provided to obtain a detailed view of the resolved and processed project file. The returned object can be used to access the fully resolved references, source files that will be included during compilation, and other options.
 
 *)
 
@@ -334,8 +338,12 @@ FSharpProjectFileInfo.Parse(projectFile, [("Configuration", "Release")])
 
 (**
 
-Here a detailed view of the resolved and processed project file is returned.
+For debugging purposes it is also possible to obtain a detailed log from the assembly resolution process.
+
 *)
+
+let p = FSharpProjectFileInfo.Parse(projectFile, enableLogging=true)
+Console.WriteLine(p.LogOutput)
 
 (**
 Summary

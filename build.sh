@@ -1,7 +1,23 @@
 #!/bin/bash
 
-mono .nuget/NuGet.exe install FAKE -OutputDirectory packages -ExcludeVersion
-mono .nuget/NuGet.exe install FSharp.Formatting -OutputDirectory packages -ExcludeVersion
-mono .nuget/NuGet.exe install SourceLink.Fake -OutputDirectory packages -ExcludeVersion
+if [[ ! -e ~/.config/.mono/certs ]];
+then
+    mozroots --import --sync --quiet
+fi
 
-mono packages/FAKE/tools/FAKE.exe build.fsx -d:MONO $@
+if [[ ! -e packages/FAKE/tools/FAKE.exe ]];
+then
+    mono .nuget/NuGet.exe install FAKE -OutputDirectory packages -ExcludeVersion
+fi
+
+if [[ ! -e packages/FSharp.Formatting/lib/net40/FSharp.Literate.dll ]];
+then
+    mono .nuget/NuGet.exe install FSharp.Formatting -OutputDirectory packages -ExcludeVersion
+fi
+
+if [[ ! -e packages/SourceLink.Fake/tools/SourceLink.dll ]];
+then
+    mono .nuget/NuGet.exe install SourceLink.Fake -OutputDirectory packages -ExcludeVersion
+fi
+
+mono packages/FAKE/tools/FAKE.exe build.fsx -d:MONO "$@"

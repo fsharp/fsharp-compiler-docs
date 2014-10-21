@@ -1177,7 +1177,7 @@ let (|ValUse|_|) (item:Item) =
 
 let (|ActivePatternCaseUse|_|) (item:Item) = 
     match item with 
-    | Item.ActivePatternCase(APElemRef(_, vref, idx)) -> Some (vref.Range, vref.ImplRange, idx)
+    | Item.ActivePatternCase(APElemRef(_, vref, idx)) -> Some (vref.SigRange, vref.ImplRange, idx)
     | Item.ActivePatternResult(ap, _, idx,_) -> Some (ap.Range, ap.Range, idx)
     | _ -> None
 
@@ -1197,10 +1197,11 @@ let unionCaseRefDefnEq g (uc1:UnionCaseRef) (uc2: UnionCaseRef) =
     uc1.CaseName = uc2.CaseName && tyconRefDefnEq g uc1.TyconRef uc2.TyconRef
 
 /// Given the Item 'orig' - returns function 'other : Item -> bool', that will yield true if other and orig represents the same item and false - otherwise
-let ItemsReferToSameDefinition g orig other = 
+let ItemsAreEffectivelyEqual g orig other = 
     match orig, other  with
     | EntityUse ty1, EntityUse ty2 -> 
         tyconRefDefnEq g ty1 ty2
+
     | Item.TypeVar (nm1,tp1), Item.TypeVar (nm2,tp2) -> 
         nm1 = nm2 && 
         (typeEquiv g (mkTyparTy tp1) (mkTyparTy tp2) || 
@@ -1212,29 +1213,53 @@ let ItemsReferToSameDefinition g orig other =
          | AbbrevOrAppTy tcref1, AbbrevOrAppTy tcref2 -> 
             tyconRefDefnEq g tcref1 tcref2
          | _ -> false)
+
     | ValUse vref1, ValUse vref2 -> 
         valRefDefnEq g vref1 vref2 
+
     | ActivePatternCaseUse (range1, range1i, idx1), ActivePatternCaseUse (range2, range2i, idx2) -> 
         (idx1 = idx2) && (range1 = range2 || range1i = range2i)
+
     | MethodUse minfo1, MethodUse minfo2 -> 
-        MethInfo.MethInfosUseIdenticalDefinitions minfo1 minfo2
+        MethInfo.MethInfosUseIdenticalDefinitions minfo1 minfo2 ||
+        // Allow for equality up to signature matching
+        match minfo1.ArbitraryValRef, minfo2.ArbitraryValRef with 
+        | Some vref1, Some vref2 -> valRefDefnEq g vref1 vref2 
+        | _ -> false
+
     | PropertyUse(pinfo1), PropertyUse(pinfo2) -> 
-        PropInfo.PropInfosUseIdenticalDefinitions pinfo1 pinfo2
+        PropInfo.PropInfosUseIdenticalDefinitions pinfo1 pinfo2 ||
+        // Allow for equality up to signature matching
+        match pinfo1.ArbitraryValRef, pinfo2.ArbitraryValRef with 
+        | Some vref1, Some vref2 -> valRefDefnEq g vref1 vref2 
+        | _ -> false
+
     | Item.ArgName (id1,_, _), Item.ArgName (id2,_, _) -> 
         (id1.idText = id2.idText && id1.idRange = id2.idRange)
+
     | (Item.ArgName (id,_, _), ValUse vref) | (ValUse vref, Item.ArgName (id, _, _)) -> 
         (id.idText = vref.DisplayName && 
          (id.idRange = vref.ImplRange || id.idRange = vref.SigRange))
+
     | ILFieldUse f1, ILFieldUse f2 -> 
         ILFieldInfo.ILFieldInfosUseIdenticalDefinitions f1 f2 
+
     | UnionCaseUse u1, UnionCaseUse u2 ->  
         unionCaseRefDefnEq g u1 u2
+
     | RecordFieldUse(name1, tcref1), RecordFieldUse(name2, tcref2) -> 
         name1 = name2 && tyconRefDefnEq g tcref1 tcref2
+
     | EventUse evt1, EventUse evt2 -> 
-       EventInfo.EventInfosUseIdenticalDefintions evt1 evt2 
+        EventInfo.EventInfosUseIdenticalDefintions evt1 evt2  ||
+        // Allow for equality up to signature matching
+        match evt1.ArbitraryValRef, evt2.ArbitraryValRef with 
+        | Some vref1, Some vref2 -> valRefDefnEq g vref1 vref2 
+        | _ -> false
+
     | Item.ModuleOrNamespaces modrefs1, Item.ModuleOrNamespaces modrefs2 ->
         modrefs1 |> List.exists (fun modref1 -> modrefs2 |> List.exists (fun r -> tyconRefDefnEq g modref1 r || fullDisplayTextOfModRef modref1 = fullDisplayTextOfModRef r))
+
     | _ -> false
 
 [<System.Diagnostics.DebuggerDisplay("{DebugToString()}")>]
@@ -1266,7 +1291,7 @@ type TcResolutions
 
     member this.GetUsesOfSymbol(item) = 
         [| for cnr in capturedNameResolutions do
-               if protectAssemblyExploration false (fun () -> ItemsReferToSameDefinition g item cnr.Item) then
+               if protectAssemblyExploration false (fun () -> ItemsAreEffectivelyEqual g item cnr.Item) then
                   yield cnr.ItemOccurence, cnr.DisplayEnv, cnr.Range |]
 
     member this.GetAllUsesOfSymbols() = 

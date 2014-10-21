@@ -90,8 +90,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             }
 
         /// Get the location of the declaration at the given position
-        member x.GetDeclarationLocationAlternate(line, col, names, isDecl) =
-            results.GetDeclarationLocationAlternate(line, col, source.[int line], names, isDecl)
+        member x.GetDeclarationLocationAlternate(line, col, names, preferSig) =
+            results.GetDeclarationLocationAlternate(line, col, source.[int line], names, preferSig)
 
         /// Get the full type checking results 
         member x.FullResults = results
@@ -101,7 +101,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         
         member x.GetF1Keyword(line, col, names) = x.GetF1KeywordAlternate(Line.fromZ line, col, names) |> Async.RunSynchronously
         member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipTextAlternate(Line.fromZ line, col, names, ?xmlCommentRetriever=xmlCommentRetriever) |> Async.RunSynchronously
-        member x.GetDeclarationLocation(line, col, names, isDecl) = x.GetDeclarationLocationAlternate(Line.fromZ line, col, names, isDecl) |> Async.RunSynchronously
+        member x.GetDeclarationLocation(line, col, names, preferSig) = x.GetDeclarationLocationAlternate(Line.fromZ line, col, names, preferSig) |> Async.RunSynchronously
         member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever) 
         member x.GetDeclarations(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) = x.GetDeclarationsAlternate(Line.fromZ line, col, qualifyingNames, partialName, ?xmlCommentRetriever=xmlCommentRetriever)
 

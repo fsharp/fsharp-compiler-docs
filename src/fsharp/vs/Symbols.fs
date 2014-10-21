@@ -96,29 +96,35 @@ type FSharpDisplayContext(denv: TcGlobals -> DisplayEnv) =
 type FSharpSymbol(g:TcGlobals, thisCcu, tcImports, item: (unit -> Item), access: (FSharpSymbol -> CcuThunk -> AccessorDomain -> bool)) =
 
     member x.Assembly = 
-        let ccu = defaultArg (ItemDescriptionsImpl.ccuOfItem g (item())) thisCcu 
+        let ccu = defaultArg (ItemDescriptionsImpl.ccuOfItem g x.Item) thisCcu 
         FSharpAssembly(g, thisCcu, tcImports,  ccu)
 
     member x.IsAccessible(rights: FSharpAccessibilityRights) = access x rights.ThisCcu rights.Contents
 
-    member x.FullName = ItemDescriptionsImpl.FullNameOfItem g (item()) 
+    member x.FullName = ItemDescriptionsImpl.FullNameOfItem g x.Item 
 
-    member x.DeclarationLocation = ItemDescriptionsImpl.rangeOfItem g true (item())
+    member x.DeclarationLocation = ItemDescriptionsImpl.rangeOfItem g None x.Item
 
-    member x.ImplementationLocation = ItemDescriptionsImpl.rangeOfItem g false (item())
+    member x.ImplementationLocation = ItemDescriptionsImpl.rangeOfItem g (Some(false)) x.Item
+    member x.SignatureLocation = ItemDescriptionsImpl.rangeOfItem g (Some(true)) x.Item
+    member x.IsEffectivelySameAs(y:FSharpSymbol) = 
+        x.Equals(y) || Nameres.ItemsAreEffectivelyEqual g x.Item y.Item
 
     member internal x.Item = item()
 
     member x.DisplayName = item().DisplayName
 
-    override x.ToString() = "symbol " + (try item().DisplayName with _ -> "?")
-
+    // This is actually overridden in all cases below. However some symbols are still just of type FSharpSymbol,
+    // see 'FSharpSymbol.Create' further below.
     override x.Equals(other : obj) =
         box x === other ||
         match other with
-        |   :? FSharpSymbol as otherSymbol -> Nameres.ItemsReferToSameDefinition g x.Item otherSymbol.Item
+        |   :? FSharpSymbol as otherSymbol -> Nameres.ItemsAreEffectivelyEqual g x.Item otherSymbol.Item
         |   _ -> false
+
     override x.GetHashCode() = hash x.ImplementationLocation  // TODO: this is not a great hash code, but most symbols override it below
+
+    override x.ToString() = "symbol " + (try item().DisplayName with _ -> "?")
 
 and FSharpEntity(g:TcGlobals, thisCcu, tcImports: TcImports, entity:EntityRef) = 
     inherit FSharpSymbol(g, thisCcu, tcImports,  
@@ -1416,10 +1422,18 @@ and FSharpMemberOrFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMembe
         | M m ->  FSharpAccessibility(taccessPublic,isProtected=m.IsProtectedAccessiblity)
         | V v -> FSharpAccessibility(v.Accessibility)
 
+    member x.Data = d
+
     override x.Equals(other : obj) =
         box x === other ||
         match other with
-        |   :? FSharpMemberOrFunctionOrValue as other -> ItemsReferToSameDefinition g x.Item other.Item
+        |   :? FSharpMemberOrFunctionOrValue as other ->
+            match d, other.Data with 
+            | E evt1, E evt2 -> EventInfo.EventInfosUseIdenticalDefintions evt1 evt2 
+            | P p1, P p2 ->  PropInfo.PropInfosUseIdenticalDefinitions p1 p2
+            | M m1, M m2 ->  MethInfo.MethInfosUseIdenticalDefinitions m1 m2
+            | V v1, V v2 -> valRefEq g v1 v2
+            | _ -> false
         |   _ -> false
 
     override x.GetHashCode() = hash (box x.LogicalName)

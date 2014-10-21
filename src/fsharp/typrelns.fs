@@ -535,7 +535,7 @@ module SignatureConformance = begin
 
             // Propagate defn location information from implementation to signature . 
             sigVal.SetOtherRange (implVal.Range, true)
-            implVal.SetOtherRange (implVal.Range, false)
+            implVal.SetOtherRange (sigVal.Range, false)
 
             let mk_err denv f = ValueNotContained(denv,implModRef,implVal,sigVal,f)
             let err denv f = errorR(mk_err denv f); false

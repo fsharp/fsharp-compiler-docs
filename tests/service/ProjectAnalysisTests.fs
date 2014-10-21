@@ -2488,6 +2488,10 @@ and D() =
 
 and E() = 
     member x.PE = 1
+
+and F = { Field1 : int; Field2 : int }
+and G = Case1 | Case2 of int
+
     """
     File.WriteAllText(fileName1, fileSource1)
 
@@ -2505,6 +2509,10 @@ and [<Class>] D =
 and [<Class>] E = 
     new : unit -> E
     member PE : int
+
+and F = { Field1 : int; Field2 : int }
+and G = Case1 | Case2 of int
+
     """
     File.WriteAllText(sigFileName1, sigFileSource1)
     let cleanFileName a = if a = fileName1 then "file1" elif a = sigFileName1 then "sig1"  else "??"
@@ -2543,41 +2551,76 @@ let ``Test Project16 all symbols`` () =
             ("ClassAttribute", "ClassAttribute", "sig1", ((12, 6), (12, 11)), ["type"],
              ["class"]);
             ("member .ctor", "ClassAttribute", "sig1", ((12, 6), (12, 11)), [],
-             ["member"]); ("C", "C", "sig1", ((4, 5), (4, 6)), ["defn"], ["class"]);
+             ["member"]);
+            ("int", "int", "sig1", ((16, 19), (16, 22)), ["type"], ["abbrev"]);
+            ("int", "int", "sig1", ((16, 33), (16, 36)), ["type"], ["abbrev"]);
+            ("int", "int", "sig1", ((17, 25), (17, 28)), ["type"], ["abbrev"]);
+            ("int", "int", "sig1", ((16, 19), (16, 22)), ["type"], ["abbrev"]);
+            ("int", "int", "sig1", ((16, 33), (16, 36)), ["type"], ["abbrev"]);
+            ("field Field1", "Field1", "sig1", ((16, 10), (16, 16)), ["defn"],
+             ["field"]);
+            ("field Field2", "Field2", "sig1", ((16, 24), (16, 30)), ["defn"],
+             ["field"]);
+            ("int", "int", "sig1", ((17, 25), (17, 28)), ["type"], ["abbrev"]);
+            ("Case1", "Case1", "sig1", ((17, 8), (17, 13)), ["defn"], []);
+            ("Case2", "Case2", "sig1", ((17, 16), (17, 21)), ["defn"], []);
+            ("C", "C", "sig1", ((4, 5), (4, 6)), ["defn"], ["class"]);
             ("unit", "unit", "sig1", ((5, 10), (5, 14)), ["type"], ["abbrev"]);
             ("C", "C", "sig1", ((5, 18), (5, 19)), ["type"], ["class"]);
             ("member .ctor", "( .ctor )", "sig1", ((5, 4), (5, 7)), ["defn"],
              ["member"]);
             ("int", "int", "sig1", ((6, 16), (6, 19)), ["type"], ["abbrev"]);
-            ("member get_PC", "PC", "sig1", ((6, 11), (6, 13)), ["defn"], ["member";"getter"]);
+            ("member get_PC", "PC", "sig1", ((6, 11), (6, 13)), ["defn"],
+             ["member"; "getter"]);
             ("D", "D", "sig1", ((8, 14), (8, 15)), ["defn"], ["class"]);
             ("unit", "unit", "sig1", ((9, 10), (9, 14)), ["type"], ["abbrev"]);
             ("D", "D", "sig1", ((9, 18), (9, 19)), ["type"], ["class"]);
             ("member .ctor", "( .ctor )", "sig1", ((9, 4), (9, 7)), ["defn"],
              ["member"]);
             ("int", "int", "sig1", ((10, 16), (10, 19)), ["type"], ["abbrev"]);
-            ("member get_PD", "PD", "sig1", ((10, 11), (10, 13)), ["defn"], ["member";"getter"]);
+            ("member get_PD", "PD", "sig1", ((10, 11), (10, 13)), ["defn"],
+             ["member"; "getter"]);
             ("E", "E", "sig1", ((12, 14), (12, 15)), ["defn"], ["class"]);
             ("unit", "unit", "sig1", ((13, 10), (13, 14)), ["type"], ["abbrev"]);
             ("E", "E", "sig1", ((13, 18), (13, 19)), ["type"], ["class"]);
             ("member .ctor", "( .ctor )", "sig1", ((13, 4), (13, 7)), ["defn"],
              ["member"]);
             ("int", "int", "sig1", ((14, 16), (14, 19)), ["type"], ["abbrev"]);
-            ("member get_PE", "PE", "sig1", ((14, 11), (14, 13)), ["defn"], ["member";"getter"]);
+            ("member get_PE", "PE", "sig1", ((14, 11), (14, 13)), ["defn"],
+             ["member"; "getter"]);
+            ("F", "F", "sig1", ((16, 4), (16, 5)), ["defn"], ["record"]);
+            ("G", "G", "sig1", ((17, 4), (17, 5)), ["defn"], ["union"]);
             ("Impl", "Impl", "sig1", ((2, 7), (2, 11)), ["defn"], ["module"]);
+            ("int", "int", "file1", ((13, 19), (13, 22)), ["type"], ["abbrev"]);
+            ("int", "int", "file1", ((13, 33), (13, 36)), ["type"], ["abbrev"]);
+            ("int", "int", "file1", ((14, 25), (14, 28)), ["type"], ["abbrev"]);
+            ("int", "int", "file1", ((13, 19), (13, 22)), ["type"], ["abbrev"]);
+            ("int", "int", "file1", ((13, 33), (13, 36)), ["type"], ["abbrev"]);
+            ("field Field1", "Field1", "file1", ((13, 10), (13, 16)), ["defn"],
+             ["field"]);
+            ("field Field2", "Field2", "file1", ((13, 24), (13, 30)), ["defn"],
+             ["field"]);
+            ("int", "int", "file1", ((14, 25), (14, 28)), ["type"], ["abbrev"]);
+            ("Case1", "Case1", "file1", ((14, 8), (14, 13)), ["defn"], []);
+            ("Case2", "Case2", "file1", ((14, 16), (14, 21)), ["defn"], []);
             ("C", "C", "file1", ((4, 5), (4, 6)), ["defn"], ["class"]);
             ("D", "D", "file1", ((7, 4), (7, 5)), ["defn"], ["class"]);
             ("E", "E", "file1", ((10, 4), (10, 5)), ["defn"], ["class"]);
+            ("F", "F", "file1", ((13, 4), (13, 5)), ["defn"], ["record"]);
+            ("G", "G", "file1", ((14, 4), (14, 5)), ["defn"], ["union"]);
             ("member .ctor", "( .ctor )", "file1", ((4, 5), (4, 6)), ["defn"],
              ["member"; "ctor"]);
-            ("member get_PC", "PC", "file1", ((5, 13), (5, 15)), ["defn"], ["member";"getter"]);
+            ("member get_PC", "PC", "file1", ((5, 13), (5, 15)), ["defn"],
+             ["member"; "getter"]);
             ("member .ctor", "( .ctor )", "file1", ((7, 4), (7, 5)), ["defn"],
              ["member"; "ctor"]);
-            ("member get_PD", "PD", "file1", ((8, 13), (8, 15)), ["defn"], ["member";"getter"]);
+            ("member get_PD", "PD", "file1", ((8, 13), (8, 15)), ["defn"],
+             ["member"; "getter"]);
             ("member .ctor", "( .ctor )", "file1", ((10, 4), (10, 5)), ["defn"],
              ["member"; "ctor"]);
             ("member get_PE", "PE", "file1", ((11, 13), (11, 15)), ["defn"],
-             ["member"; "getter"]); ("val x", "x", "file1", ((5, 11), (5, 12)), ["defn"], []);
+             ["member"; "getter"]);
+            ("val x", "x", "file1", ((5, 11), (5, 12)), ["defn"], []);
             ("val x", "x", "file1", ((8, 11), (8, 12)), ["defn"], []);
             ("val x", "x", "file1", ((11, 11), (11, 12)), ["defn"], []);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], ["module"])|]
@@ -2605,16 +2648,32 @@ let ``Test Project16 sig symbols are equal to impl symbols`` () =
     // implementation (or signature).
     let testFind (tag1,symbols1) (tag2,symbols2) = 
         for (symUse1: FSharpSymbolUse) in symbols1 do 
-          if symUse1.IsFromDefinition then
-            let ok = symbols2 |> Seq.exists (fun (symUse2:FSharpSymbolUse) -> symUse2.IsFromDefinition && symUse2.Symbol = symUse1.Symbol )
-            if not ok then 
-                failwith (sprintf "Didn't find symbol equivalent to '%s' symbol '%A' in '%s'" tag1 symUse1.Symbol tag2)
+
+          if symUse1.IsFromDefinition && 
+             (match symUse1.Symbol with 
+              | :? FSharpMemberOrFunctionOrValue as m -> m.IsModuleValueOrMember
+              | :? FSharpEntity -> true
+              | _ -> false) then
+
+            let ok = 
+                symbols2 
+                |> Seq.filter (fun (symUse2:FSharpSymbolUse) -> 
+                    //if symUse2.IsFromDefinition && symUse1.Symbol.DisplayName = symUse2.Symbol.DisplayName then 
+                    //   printfn "Comparing \n\t'%A' \n\t\t@ %A \n\t\t@@ %A and \n\t'%A' \n\t\t@ %A \n\t\t@@ %A" symUse1.Symbol symUse1.Symbol.ImplementationLocation symUse1.Symbol.SignatureLocation symUse2.Symbol symUse2.Symbol.ImplementationLocation symUse2.Symbol.SignatureLocation
+                    symUse2.Symbol.IsEffectivelySameAs(symUse1.Symbol) )
+                |> Seq.toList
+
+            match ok with 
+            | [] -> failwith (sprintf "Didn't find symbol equivalent to %s symbol '%A' in %s" tag1 symUse1.Symbol tag2)
+            | [sym] -> ()  
+            | [sym1;sym2] when sym1.Symbol.DisplayName = sym2.Symbol.DisplayName -> ()   // constructor and type
+            | syms -> failwith (sprintf "Found multiple symbols for %s '%A' in  %s: '%A'" tag1 symUse1.Symbol tag2 [for sym in syms -> sym.Symbol ] )
 
     testFind ("signature", symbolsSig) ("implementation", symbolsImpl)
     testFind ("implementation", symbolsImpl) ("signature", symbolsSig)  // test the other way around too, since this signature doesn't hide any definitions
 
     testFind ("implementation", symbolsImpl) ("implementation", symbolsImpl)  // of course this should pass...
-    testFind ("signature", symbolsSig) ("v", symbolsSig)  // of course this should pass...
+    testFind ("signature", symbolsSig) ("signature", symbolsSig)  // of course this should pass...
 
 
 

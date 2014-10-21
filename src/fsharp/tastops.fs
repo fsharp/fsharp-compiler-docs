@@ -4388,7 +4388,7 @@ and remapValData g tmenv d =
         val_type    = ty';
         val_actual_parent = d.val_actual_parent |> remapParentRef tmenv;
         val_repr_info = d.val_repr_info |> Option.map (remapValReprInfo g tmenv);
-        val_member_info   = d.val_member_info |> Option.map (remapMemberInfo g d.val_defn_range topValInfo ty ty' tmenv);
+        val_member_info   = d.val_member_info |> Option.map (remapMemberInfo g d.val_range topValInfo ty ty' tmenv);
         val_attribs       = d.val_attribs       |> remapAttribs g tmenv }
 
 and remapParentRef tyenv p =

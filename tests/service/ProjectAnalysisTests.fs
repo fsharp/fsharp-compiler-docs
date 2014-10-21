@@ -2582,6 +2582,40 @@ let ``Test Project16 all symbols`` () =
             ("val x", "x", "file1", ((11, 11), (11, 12)), ["defn"], []);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], ["module"])|]
 
+[<Test>]
+let ``Test Project16 sig symbols are equal to impl symbols`` () =
+
+    let checkResultsSig = 
+        checker.ParseAndCheckFileInProject(Project16.sigFileName1, 0, Project16.sigFileSource1, Project16.options)  |> Async.RunSynchronously
+        |> function 
+            | _, FSharpCheckFileAnswer.Succeeded(res) -> res
+            | _ -> failwithf "Parsing aborted unexpectedly..." 
+
+    let checkResultsImpl = 
+        checker.ParseAndCheckFileInProject(Project16.fileName1, 0, Project16.fileSource1, Project16.options)  |> Async.RunSynchronously
+        |> function 
+            | _, FSharpCheckFileAnswer.Succeeded(res) -> res
+            | _ -> failwithf "Parsing aborted unexpectedly..." 
+
+
+    let symbolsSig = checkResultsSig.GetAllUsesOfAllSymbolsInFile() |> Async.RunSynchronously
+    let symbolsImpl = checkResultsImpl.GetAllUsesOfAllSymbolsInFile() |> Async.RunSynchronously
+
+    // Test that all 'definition' symbols in the signature (or implementation) have a matching symbol in the 
+    // implementation (or signature).
+    let testFind (tag1,symbols1) (tag2,symbols2) = 
+        for (symUse1: FSharpSymbolUse) in symbols1 do 
+          if symUse1.IsFromDefinition then
+            let ok = symbols2 |> Seq.exists (fun (symUse2:FSharpSymbolUse) -> symUse2.IsFromDefinition && symUse2.Symbol = symUse1.Symbol )
+            if not ok then 
+                failwith (sprintf "Didn't find symbol equivalent to '%s' symbol '%A' in '%s'" tag1 symUse1.Symbol tag2)
+
+    testFind ("signature", symbolsSig) ("implementation", symbolsImpl)
+    testFind ("implementation", symbolsImpl) ("signature", symbolsSig)  // test the other way around too, since this signature doesn't hide any definitions
+
+    testFind ("implementation", symbolsImpl) ("implementation", symbolsImpl)  // of course this should pass...
+    testFind ("signature", symbolsSig) ("v", symbolsSig)  // of course this should pass...
+
 
 
 //-----------------------------------------------------------------------------------------

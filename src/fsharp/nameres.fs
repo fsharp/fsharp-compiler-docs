@@ -1184,12 +1184,14 @@ let (|ActivePatternCaseUse|_|) (item:Item) =
 let tyconRefDefnEq g (eref1:EntityRef) (eref2: EntityRef) =
     tyconRefEq g eref1 eref2 
     // Signature items considered equal to implementation items
-    || (eref1.ImplRange = eref2.ImplRange && eref1.LogicalName = eref2.LogicalName)
+    || ((eref1.ImplRange = eref2.ImplRange || eref1.SigRange = eref2.SigRange) &&
+        (eref1.LogicalName = eref2.LogicalName))
 
 let valRefDefnEq g (vref1:ValRef) (vref2: ValRef) =
     valRefEq g vref1 vref2 
     // Signature items considered equal to implementation items
-    || (vref1.ImplRange = vref2.ImplRange && vref1.LogicalName = vref2.LogicalName)
+    || ((vref1.ImplRange = vref2.ImplRange || vref1.SigRange = vref2.SigRange)) && 
+        (vref1.LogicalName = vref2.LogicalName)
 
 let unionCaseRefDefnEq g (uc1:UnionCaseRef) (uc2: UnionCaseRef) =
     uc1.CaseName = uc2.CaseName && tyconRefDefnEq g uc1.TyconRef uc2.TyconRef
@@ -1221,7 +1223,8 @@ let ItemsReferToSameDefinition g orig other =
     | Item.ArgName (id1,_, _), Item.ArgName (id2,_, _) -> 
         (id1.idText = id2.idText && id1.idRange = id2.idRange)
     | (Item.ArgName (id,_, _), ValUse vref) | (ValUse vref, Item.ArgName (id, _, _)) -> 
-        (id.idText = vref.DisplayName && id.idRange = vref.ImplRange)
+        (id.idText = vref.DisplayName && 
+         (id.idRange = vref.ImplRange || id.idRange = vref.SigRange))
     | ILFieldUse f1, ILFieldUse f2 -> 
         ILFieldInfo.ILFieldInfosUseIdenticalDefinitions f1 f2 
     | UnionCaseUse u1, UnionCaseUse u2 ->  

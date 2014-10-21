@@ -578,8 +578,14 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// Indicates if this is an extension member?
     member IsExtensionMember : bool
 
-    /// Indicates if this is an 'override' or explicit member (declared via 'default' keyword)?
+    [<System.Obsolete("Renamed to IsOverrideOrExplicitInterfaceImplementation")>]
     member IsOverrideOrExplicitMember : bool
+
+    /// Indicates if this is an 'override', 'default' or an explicit implementation of an interface member
+    member IsOverrideOrExplicitInterfaceImplementation : bool
+
+    /// Indicates if this is an explicit implementation of an interface member
+    member IsExplicitInterfaceImplementation : bool
 
     /// Indicates if this is a member, including extension members?
     member IsMember : bool

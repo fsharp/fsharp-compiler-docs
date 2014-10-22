@@ -24,3 +24,9 @@ val ConvExprPublic : Env.TcGlobals * Import.ImportMap * CcuThunk * IsReflectedDe
 val ConvMethodBase  : Env.TcGlobals * Import.ImportMap * CcuThunk -> QuotationTranslationEnv ->  string * Val  -> QuotationPickler.MethodBaseData
 
 
+val (|ModuleValueOrMemberUse|_|) : Env.TcGlobals -> Expr -> (ValRef * ValUseFlag * Expr * TType * TypeInst * Expr list) option
+val (|SimpleArrayLoopUpperBound|_|) : Expr -> unit option
+val (|SimpleArrayLoopBody|_|) : Env.TcGlobals -> Expr -> (Expr * TType * Expr) option
+val (|ObjectInitializationCheck|_|) : Env.TcGlobals -> Expr -> unit option
+val isSplice : Env.TcGlobals -> ValRef -> bool
+

@@ -1234,7 +1234,7 @@ open ItemDescriptionsImpl
           
 /// An intellisense declaration
 [<Sealed>]
-type FSharpDeclaration(name, glyph:int, info) =
+type FSharpDeclarationListItem(name, glyph:int, info) =
     let mutable descriptionTextHolder:FSharpToolTipText option = None
     let mutable task = null
 
@@ -1292,7 +1292,7 @@ type FSharpDeclaration(name, glyph:int, info) =
       
 /// A table of declarations for Intellisense completion 
 [<Sealed>]
-type FSharpDeclarationSet(declarations: FSharpDeclaration[]) = 
+type FSharpDeclarationListInfo(declarations: FSharpDeclarationListItem[]) = 
 
     member self.Items = declarations
     
@@ -1357,13 +1357,13 @@ type FSharpDeclarationSet(declarations: FSharpDeclaration[]) =
                 match itemsWithSameName with
                 | [] -> failwith "Unexpected empty bag"
                 | items -> 
-                    new FSharpDeclaration(nm, GlyphOfItem(denv,items.Head), Choice1Of2 (items, infoReader, m, denv, reactor, checkAlive)))
+                    new FSharpDeclarationListItem(nm, GlyphOfItem(denv,items.Head), Choice1Of2 (items, infoReader, m, denv, reactor, checkAlive)))
 
-        new FSharpDeclarationSet(Array.ofList decls)
+        new FSharpDeclarationListInfo(Array.ofList decls)
 
     
-    static member Error msg = new FSharpDeclarationSet([| new FSharpDeclaration("<Note>", 0, Choice2Of2 (FSharpToolTipText [FSharpToolTipElement.CompositionError msg])) |] )
-    static member Empty = new FSharpDeclarationSet([| |])
+    static member Error msg = new FSharpDeclarationListInfo([| new FSharpDeclarationListItem("<Note>", 0, Choice2Of2 (FSharpToolTipText [FSharpToolTipElement.CompositionError msg])) |] )
+    static member Empty = new FSharpDeclarationListInfo([| |])
 
      
 [<System.Obsolete("This type has been renamed to 'FSharpToolTipText'")>]
@@ -1371,12 +1371,21 @@ type DataTipText = FSharpToolTipText
 
 
 
-[<System.Obsolete("This type has been renamed to 'FSharpDeclaration'")>]
-type Declaration = FSharpDeclaration
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListItem'")>]
+type Declaration = FSharpDeclarationListItem
 
 
-[<System.Obsolete("This type has been renamed to 'FSharpDeclarationGroup'")>]
-type DeclarationGroup = FSharpDeclarationGroup
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListItem'")>]
+type FSharpDeclaration = FSharpDeclarationListItem
+
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListInfo'")>]
+type DeclarationGroup = FSharpDeclarationListInfo
+
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListInfo'")>]
+type DeclarationSet = FSharpDeclarationListInfo
+
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListInfo'")>]
+type FSharpDeclarationSet = FSharpDeclarationListInfo
 
 [<System.Obsolete("This type has been renamed to 'FSharpXmlDoc'")>]
 type XmlComment = FSharpXmlDoc

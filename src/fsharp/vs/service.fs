@@ -939,14 +939,14 @@ type TypeCheckInfo
             Range.range0 
             (fun () -> 
                 match GetDeclItemsForNamesAtPosition(parseResultsOpt, Some qualifyingNames, Some partialName, line, lineStr, colAtEndOfNamesAndResidue, ResolveTypeNamesToCtors, ResolveOverloads.Yes, hasTextChangedSinceLastTypecheck) with
-                | None -> FSharpDeclarationSet.Empty  
+                | None -> FSharpDeclarationListInfo.Empty  
                 | Some(items,denv,m) -> 
                     let items = items |> filterIntellisenseCompletionsBasedOnParseContext (parseResultsOpt |> Option.bind (fun x -> x.ParseTree)) (mkPos line colAtEndOfNamesAndResidue)
                     let items = if isInterfaceFile then items |> List.filter IsValidSignatureFileItem else items
-                    FSharpDeclarationSet.Create(infoReader,m,denv,items,reactorOps,checkAlive))
-            (fun msg -> FSharpDeclarationSet.Error msg)
+                    FSharpDeclarationListInfo.Create(infoReader,m,denv,items,reactorOps,checkAlive))
+            (fun msg -> FSharpDeclarationListInfo.Error msg)
 
-    member x.GetDeclarationSymbols (parseResultsOpt:FSharpParseFileResults option, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) =
+    member x.GetDeclarationListSymbols (parseResultsOpt:FSharpParseFileResults option, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck) =
         let isInterfaceFile = SourceFileImpl.IsInterfaceFile mainInputFileName
         ErrorScope.Protect 
             Range.range0 
@@ -1231,8 +1231,8 @@ module internal Parser =
         let lastLineLength = source.Length - source.LastIndexOf("\n",StringComparison.Ordinal) - 1
         lastLine, lastLineLength
          
-    let ReportError (tcConfig:TcConfig, allErrors, mainInputFileName, fileInfo, (exn, warn)) = 
-        [ let warn = warn && not (ReportWarningAsError tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn tcConfig.specificWarnAsError tcConfig.specificWarnAsWarn tcConfig.globalWarnAsError exn)                
+    let ReportError (tcConfig:TcConfig, allErrors, mainInputFileName, fileInfo, (exn, sev)) = 
+        [ let warn = (sev = FSharpErrorSeverity.Warning) && not (ReportWarningAsError tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn tcConfig.specificWarnAsError tcConfig.specificWarnAsWarn tcConfig.globalWarnAsError exn)                
           if (not warn || ReportWarning tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn exn) then 
             let oneError trim exn = 
                 [ // We use the first line of the file as a fallbackRange for reporting unexpected errors.
@@ -1262,7 +1262,7 @@ module internal Parser =
         let fileInfo = GetFileInfoForLastLineErrors source
          
         // This function gets called whenever an error happens during parsing or checking
-        let errorSink warn (exn:PhasedError) = 
+        let errorSink sev (exn:PhasedError) = 
             // Sanity check here. The phase of an error should be in a phase known to the language service.
             let exn =
                 if not(exn.IsPhaseInCompile()) then
@@ -1273,9 +1273,9 @@ module internal Parser =
                 else exn
             if reportErrors then 
                 let report exn = 
-                    for ei in ReportError (tcConfig, false, mainInputFileName, fileInfo, (exn, warn)) do
+                    for ei in ReportError (tcConfig, false, mainInputFileName, fileInfo, (exn, sev)) do
                         errorsAndWarningsCollector.Add ei
-                        if not warn then 
+                        if sev = FSharpErrorSeverity.Error then 
                             errorCount <- errorCount + 1
                       
                 match exn with
@@ -1290,8 +1290,8 @@ module internal Parser =
       
         let errorLogger = 
             { new ErrorLogger("ErrorHandler") with 
-                member x.WarnSinkImpl exn = errorSink true exn
-                member x.ErrorSinkImpl exn = errorSink false exn
+                member x.WarnSinkImpl exn = errorSink FSharpErrorSeverity.Warning exn
+                member x.ErrorSinkImpl exn = errorSink FSharpErrorSeverity.Error exn
                 member x.ErrorCount = errorCount }
       
       
@@ -1406,9 +1406,9 @@ module internal Parser =
            tcState: TcState,
            loadClosure: LoadClosure option,
            // These are the errors and warnings seen by the background compiler for the entire antecedant 
-           backgroundErrors: (PhasedError * bool) list,    
+           backgroundErrors: (PhasedError * FSharpErrorSeverity) list,    
            reactorOps: IReactorOperations,
-           // Used by 'FSharpDeclarationSet' to check the IncrementalBuilder is still alive.
+           // Used by 'FSharpDeclarationListInfo' to check the IncrementalBuilder is still alive.
            checkAlive : (unit -> bool),
            isResultObsolete: unit->bool,
            textSnapshotInfo : obj option) = 
@@ -1434,8 +1434,8 @@ module internal Parser =
             errHandler.TcConfig <- tcConfig
 
             // Play background errors and warnings for this file.
-            backgroundErrors
-            |> List.iter(fun (err,iserr) ->if iserr then errorSink err else warnSink err)
+            for (err,sev) in backgroundErrors do
+                if sev = FSharpErrorSeverity.Error then errorSink err else warnSink err
 
 
             // If additional references were brought in by the preprocessor then we need to process them
@@ -1476,16 +1476,16 @@ module internal Parser =
                         if sameFile (fst errorGroupedByFileName) hashLoadInFile then
                             for rangeOfHashLoad in snd hashLoadInFile do // Handle the case of two #loads of the same file
                                 let errorsAndWarnings = snd errorGroupedByFileName |> List.map(fun (pe,f)->pe.Exception,f) // Strip the build phase here. It will be replaced, in total, with TypeCheck
-                                let errors,warnings = errorsAndWarnings |> List.partition snd 
-                                let errors,warnings = errors |> List.map fst, warnings |> List.map fst
+                                let errors = [ for (err,sev) in errorsAndWarnings do if sev = FSharpErrorSeverity.Error then yield err ]
+                                let warnings = [ for (err,sev) in errorsAndWarnings do if sev = FSharpErrorSeverity.Warning then yield err ]
                                 
                                 let message = HashLoadedSourceHasIssues(warnings,errors,rangeOfHashLoad)
                                 if errors=[] then warning(message)
                                 else errorR(message)
 
                 // Replay other background errors.
-                for (phasedError,isWarning) in otherBackgroundErrors do
-                    if isWarning then warning phasedError.Exception else errorR phasedError.Exception
+                for (phasedError,sev) in otherBackgroundErrors do
+                    if sev = FSharpErrorSeverity.Warning then warning phasedError.Exception else errorR phasedError.Exception
 
             | None -> 
                 // For non-scripts, check for disallow #r and #load.
@@ -1617,7 +1617,7 @@ type FSharpSymbolUse(g:TcGlobals, denv: DisplayEnv, symbol:FSharpSymbol, itemOcc
 
 [<Sealed>]
 // 'details' is an option because the creation of the tcGlobals etc. for the project may have failed.
-type FSharpCheckProjectResults(errors: FSharpErrorInfo[], details:(TcGlobals*TcImports*CcuThunk*ModuleOrNamespaceType*TcResolutions list*Build.IRawFSharpAssemblyContents option * ILAssemblyRef * AccessorDomain) option, reactorOps: IReactorOperations) =
+type FSharpCheckProjectResults(keepAssemblyContents, errors: FSharpErrorInfo[], details:(TcGlobals*TcImports*CcuThunk*ModuleOrNamespaceType*TcResolutions list*Build.IRawFSharpAssemblyData option * ILAssemblyRef * AccessorDomain * TypedAssembly option) option, reactorOps: IReactorOperations) =
 
     let getDetails() = 
         match details with 
@@ -1629,12 +1629,21 @@ type FSharpCheckProjectResults(errors: FSharpErrorInfo[], details:(TcGlobals*TcI
     member info.HasCriticalErrors = details.IsNone
 
     member info.AssemblySignature =  
-        let (tcGlobals, tcImports, thisCcu, ccuSig, _tcResolutions, _assembly, _ilAssemRef, _ad) = getDetails()
+        let (tcGlobals, tcImports, thisCcu, ccuSig, _tcResolutions, _tcAssemblyData, _ilAssemRef, _ad, _tcAssemblyExpr) = getDetails()
         FSharpAssemblySignature(tcGlobals, thisCcu, tcImports, ccuSig)
+
+    member info.AssemblyContents =  
+        if not keepAssemblyContents then invalidOp "The 'keepAssemblyContents' flag must be set to tru on the FSharpChecker in order to access the checked contents of assemblies"
+        let (tcGlobals, tcImports, thisCcu, _ccuSig, _tcResolutions, _tcAssemblyData, _ilAssemRef, _ad, tcAssemblyExpr) = getDetails()
+        let mimpls = 
+            match tcAssemblyExpr with 
+            | None -> []
+            | Some (TAssembly mimpls) -> mimpls
+        FSharpAssemblyContents(tcGlobals, thisCcu, tcImports, mimpls)
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetUsesOfSymbol(symbol:FSharpSymbol) = 
-        let (tcGlobals, _tcImports, _thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef, _ad) = getDetails()
+        let (tcGlobals, _tcImports, _thisCcu, _ccuSig, tcResolutions, _tcAssemblyData, _ilAssemRef, _ad, _tcAssemblyExpr) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetUsesOfSymbol is immutable.
         reactorOps.EnqueueAndAwaitOpAsync(fun () -> 
             [| for r in tcResolutions do yield! r.GetUsesOfSymbol(symbol.Item) |] 
@@ -1644,7 +1653,7 @@ type FSharpCheckProjectResults(errors: FSharpErrorInfo[], details:(TcGlobals*TcI
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member info.GetAllUsesOfAllSymbols() = 
-        let (tcGlobals, tcImports, thisCcu, _ccuSig, tcResolutions, _assembly, _ilAssemRef, _ad) = getDetails()
+        let (tcGlobals, tcImports, thisCcu, _ccuSig, tcResolutions, _tcAssemblyData, _ilAssemRef, _ad, _tcAssemblyExpr) = getDetails()
         // This probably doesn't need to be run on the reactor since all data touched by GetAllUsesOfSymbols is immutable.
         reactorOps.EnqueueAndAwaitOpAsync(fun () -> 
             [| for r in tcResolutions do 
@@ -1653,18 +1662,18 @@ type FSharpCheckProjectResults(errors: FSharpErrorInfo[], details:(TcGlobals*TcI
                     yield FSharpSymbolUse(tcGlobals, denv, symbol, itemOcc, m) |]) 
 
     member info.ProjectContext = 
-        let (tcGlobals, tcImports, thisCcu, _ccuSig, _tcResolutions, _assembly, _ilAssemRef, ad) = getDetails()
+        let (tcGlobals, tcImports, thisCcu, _ccuSig, _tcResolutions, _tcAssemblyData, _ilAssemRef, ad, _tcAssemblyExpr) = getDetails()
         let assemblies = 
             [ for x in tcImports.GetImportedAssemblies() do 
                 yield FSharpAssembly(tcGlobals, thisCcu, tcImports, x.FSharpViewOfMetadata) ]
         FSharpProjectContext(thisCcu, assemblies, ad) 
 
-    member info.RawFSharpAssemblyContents = 
-        let (_tcGlobals, _tcImports, _thisCcu, _ccuSig, _tcResolutions, assembly, _ilAssemRef, _ad) = getDetails()
-        assembly
+    member info.RawFSharpAssemblyData = 
+        let (_tcGlobals, _tcImports, _thisCcu, _ccuSig, _tcResolutions, tcAssemblyData, _ilAssemRef, _ad, _tcAssemblyExpr) = getDetails()
+        tcAssemblyData
 
     member info.AssemblyFullName = 
-        let (_tcGlobals, _tcImports, _thisCcu, _ccuSig, _tcResolutions, _assembly, ilAssemRef, _ad) = getDetails()
+        let (_tcGlobals, _tcImports, _thisCcu, _ccuSig, _tcResolutions, _tcAssemblyData, ilAssemRef, _ad, _tcAssemblyExpr) = getDetails()
         ilAssemRef.QualifiedName
 
 [<Sealed>]
@@ -1733,13 +1742,13 @@ type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo 
     member info.HasFullTypeCheckInfo = details.IsSome
     
     /// Intellisense autocompletions
-    member info.GetDeclarationsAlternate(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
+    member info.GetDeclarationListInfo(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
         let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
-        reactorOp FSharpDeclarationSet.Empty (fun scope -> scope.GetDeclarations(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
+        reactorOp FSharpDeclarationListInfo.Empty (fun scope -> scope.GetDeclarations(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
 
-    member info.GetDeclarationSymbols(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
+    member info.GetDeclarationListSymbols(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
         let hasTextChangedSinceLastTypecheck = defaultArg hasTextChangedSinceLastTypecheck (fun _ -> false)
-        reactorOp List.empty (fun scope -> scope.GetDeclarationSymbols(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
+        reactorOp List.empty (fun scope -> scope.GetDeclarationListSymbols(parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, hasTextChangedSinceLastTypecheck))
 
     /// Resolve the names at the given location to give a data tip 
     member info.GetToolTipTextAlternate(line, colAtEndOfNames, lineStr, names, tokenTag) = 
@@ -1811,39 +1820,55 @@ type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo 
                   yield FSharpSymbolUse(scope.TcGlobals, denv, symbol, itemOcc, m) |])
 
     
-    // Obsolete
-
+    //deprecated
     member info.GetDeclarations(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
-        info.GetDeclarationsAlternate(parseResultsOpt, Line.fromZ line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck=(match hasTextChangedSinceLastTypecheck with None -> None | Some f -> Some (fun (a,b) -> f (a, Range.toZ b))))
+        info.GetDeclarationListInfo(parseResultsOpt, Line.fromZ line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck=(match hasTextChangedSinceLastTypecheck with None -> None | Some f -> Some (fun (a,b) -> f (a, Range.toZ b))))
 
+    //deprecated
     member info.GetExtraColorizations() =  
         info.GetExtraColorizationsAlternate() |> Array.map (fun (a,b) -> (Range.toZ a, b))
 
+    //deprecated
     member info.GetToolTipText(line, colAtEndOfNames, lineStr, names, tokenTag) = 
         info.GetToolTipTextAlternate(Line.fromZ line, colAtEndOfNames, lineStr, names, tokenTag)
         |> Async.RunSynchronously
 
+    //deprecated
     member info.GetDataTipText(line, colAtEndOfNames, lineStr, names, tokenTag) = 
         info.GetToolTipText(line, colAtEndOfNames, lineStr, names, tokenTag) 
 
+    //deprecated
     member info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, flag) = 
         info.GetDeclarationLocationAlternate (Line.fromZ line, colAtEndOfNames, lineStr, names, flag) 
         |> Async.RunSynchronously
 
+    //deprecated
     member info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, _tokenTag:int, flag) = 
         info.GetDeclarationLocation (line, colAtEndOfNames, lineStr, names, flag)
 
+    //deprecated
     member info.GetSymbolAtLocation (line, colAtEndOfNames, lineStr, names) = 
         info.GetSymbolAtLocationAlternate (Line.fromZ line, colAtEndOfNames, lineStr, names) 
         |> Async.RunSynchronously
 
+    //deprecated
     member info.GetF1Keyword (line,colAtEndOfNames,lineStr,names) =
         info.GetF1KeywordAlternate (Line.fromZ line,colAtEndOfNames,lineStr,names)
         |> Async.RunSynchronously
 
+    //deprecated
     member info.GetMethods (line, colAtEndOfNames,lineStr:string,names:Names option) =
         info.GetMethodsAlternate(Line.fromZ line, colAtEndOfNames,lineStr,names) 
         |> Async.RunSynchronously
+
+    //deprecated
+    member info.GetDeclarationSymbols(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
+        info.GetDeclarationListSymbols(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck=hasTextChangedSinceLastTypecheck) 
+
+    //deprecated
+    member info.GetDeclarationsAlternate(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck) = 
+        info.GetDeclarationListInfo(parseResultsOpt, line, colAtEndOfNamesAndResidue, lineStr, qualifyingNames, partialName, ?hasTextChangedSinceLastTypecheck=hasTextChangedSinceLastTypecheck) 
+
 
 //----------------------------------------------------------------------------
 // BackgroundCompiler
@@ -1863,7 +1888,7 @@ type (*internal*) IsResultObsolete =
 
         
 // There is only one instance of this type, held in FSharpChecker
-type BackgroundCompiler(projectCacheSize) as self =
+type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
     // STATIC ROOT: LanguageServiceState.FSharpChecker.backgroundCompiler.reactor: The one and only Reactor
     let reactor = Reactor.Reactor()
     let beforeFileChecked = Event<string>()
@@ -1892,7 +1917,7 @@ type BackgroundCompiler(projectCacheSize) as self =
                 { new IProjectReference with 
                         member x.EvaluateRawContents() = 
                             let r = self.ParseAndCheckProjectImpl(opts)
-                            match r.RawFSharpAssemblyContents with 
+                            match r.RawFSharpAssemblyData with 
                             | Some c -> c
                             | _ -> invalidOp ("errors in project '" + nm + "'")
                         member x.GetLogicalTimeStamp() = 
@@ -1905,7 +1930,7 @@ type BackgroundCompiler(projectCacheSize) as self =
             IncrementalFSharpBuild.IncrementalBuilder.TryCreateBackgroundBuilderForProjectOptions
                   (scriptClosure.TryGet options, Array.toList options.ProjectFileNames, 
                    Array.toList options.OtherOptions, projectReferences, options.ProjectDirectory, 
-                   options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment)
+                   options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment, keepAssemblyContents)
 
         // We're putting the builder in the cache, so increment its count.
         let decrement = 
@@ -2114,13 +2139,12 @@ type BackgroundCompiler(projectCacheSize) as self =
         let builderOpt,creationErrors,_ = getOrCreateBuilder options
         match builderOpt with 
         | None -> 
-            FSharpCheckProjectResults (Array.ofList creationErrors, None, reactorOps)
+            FSharpCheckProjectResults (keepAssemblyContents, Array.ofList creationErrors, None, reactorOps)
         | Some builder -> 
-            let (tcProj, ilAssemRef, assemblyOpt)  = builder.GetCheckResultsAndImplementationsForProject()
-                //.GetCheckResultsAfterLastFileInProject()
+            let (tcProj, ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt)  = builder.GetCheckResultsAndImplementationsForProject()
             let fileInfo = (Int32.MaxValue, Int32.MaxValue)
             let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcProj.TcConfig, true, Microsoft.FSharp.Compiler.Env.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcProj.Errors) |]
-            FSharpCheckProjectResults (errors, Some(tcProj.TcGlobals, tcProj.TcImports, tcProj.TcState.Ccu, tcProj.TcState.PartialAssemblySignature, tcProj.TcResolutions, assemblyOpt, ilAssemRef, tcProj.TcEnvAtEnd.AccessRights), reactorOps)
+            FSharpCheckProjectResults (keepAssemblyContents, errors, Some(tcProj.TcGlobals, tcProj.TcImports, tcProj.TcState.Ccu, tcProj.TcState.PartialAssemblySignature, tcProj.TcResolutions, tcAssemblyDataOpt, ilAssemRef, tcProj.TcEnvAtEnd.AccessRights, tcAssemblyExprOpt), reactorOps)
 
     /// Get the timestamp that would be on the output if fully built immediately
     member private bc.GetLogicalTimeStampForProject(options) =
@@ -2556,9 +2580,9 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
 [<Sealed>]
 [<AutoSerializable(false)>]
 // There is typically only one instance of this type in a Visual Studio process.
-type FSharpChecker(projectCacheSize) =
+type FSharpChecker(projectCacheSize, keepAssemblyContents) =
 
-    let backgroundCompiler = BackgroundCompiler(projectCacheSize)
+    let backgroundCompiler = BackgroundCompiler(projectCacheSize, keepAssemblyContents)
 
     static let mutable foregroundParseCount = 0
     static let mutable foregroundTypeCheckCount = 0
@@ -2631,12 +2655,13 @@ type FSharpChecker(projectCacheSize) =
              areSameForSubsumption=AreSubsumable3)
 
     static member Create() = 
-        new FSharpChecker(projectCacheSizeDefault)
+        new FSharpChecker(projectCacheSizeDefault,false)
 
     /// Instantiate an interactive checker.    
-    static member Create(?projectCacheSize) = 
+    static member Create(?projectCacheSize, ?keepAssemblyContents) = 
+        let keepAssemblyContents = defaultArg keepAssemblyContents false
         let projectCacheSizeReal = defaultArg projectCacheSize projectCacheSizeDefault
-        new FSharpChecker(projectCacheSize=projectCacheSizeReal)
+        new FSharpChecker(projectCacheSizeReal,keepAssemblyContents)
 
     member ic.MatchBracesAlternate(filename, source, options) =
         async { 
@@ -2826,6 +2851,7 @@ type FSharpChecker(projectCacheSize) =
     static member Instance = globalInstance
 
 type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, tcImports, tcState, loadClosure) =
+    let keepAssemblyContents = false
 
     member __.ParseAndCheckInteraction (source) =
 
@@ -2845,7 +2871,7 @@ type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, 
         | Parser.TypeCheckAborted.No scope ->
             let errors = [|  yield! parseErrors; yield! tcErrors |]
             let typeCheckResults = FSharpCheckFileResults (errors,Some scope, None, reactorOps)   
-            let projectResults = FSharpCheckProjectResults (errors, Some(tcGlobals, tcImports, scope.ThisCcu, scope.CcuSig, [scope.ScopeResolutions], None, mkSimpleAssRef "stdin", tcState.TcEnvFromImpls.AccessRights), reactorOps)
+            let projectResults = FSharpCheckProjectResults (keepAssemblyContents, errors, Some(tcGlobals, tcImports, scope.ThisCcu, scope.CcuSig, [scope.ScopeResolutions], None, mkSimpleAssRef "stdin", tcState.TcEnvFromImpls.AccessRights, None), reactorOps)
             parseResults, typeCheckResults, projectResults
         | _ -> 
             failwith "unexpected aborted"

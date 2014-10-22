@@ -18,6 +18,12 @@ open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Build
 
+module internal Impl = 
+    type internal cenv = 
+        new : TcGlobals * thisCcu:CcuThunk * tcImports: TcImports -> cenv
+        member amap: Import.ImportMap
+        member g: TcGlobals
+
 /// Represents the information needed to format types and other information in a style
 /// suitable for use in F# source text at a particular source location.
 ///
@@ -95,6 +101,8 @@ and [<Class>] FSharpAssemblySignature =
 /// A subtype of FSharpSymbol that represents a type definition or module as seen by the F# language
 and [<Class>] FSharpEntity = 
     inherit FSharpSymbol
+    
+    internal new : Impl.cenv * EntityRef -> FSharpEntity
 
     //   /// Return the FSharpEntity corresponding to a .NET type
     // static member FromType : System.Type -> FSharpEntity
@@ -268,6 +276,7 @@ and [<Class>] FSharpDelegateSignature =
 /// A subtype of FSharpSymbol that represents a union case as seen by the F# language
 and [<Class>] FSharpUnionCase =
     inherit FSharpSymbol
+    internal new : Impl.cenv * UnionCaseRef -> FSharpUnionCase
 
     /// Get the name of the union case 
     member Name: string 
@@ -307,6 +316,8 @@ and [<System.Obsolete("Renamed to FSharpField")>] FSharpRecordField = FSharpFiel
 and [<Class>] FSharpField =
 
     inherit FSharpSymbol
+    internal new : Impl.cenv * RecdFieldRef -> FSharpField
+    internal new : Impl.cenv * UnionCaseRef * int -> FSharpField
 
     /// Get the declaring entity of this field
     member DeclaringEntity: FSharpEntity
@@ -379,6 +390,7 @@ and [<Class>] FSharpAccessibility =
 and [<Class>] FSharpGenericParameter = 
 
     inherit FSharpSymbol
+    internal new : Impl.cenv * Typar -> FSharpGenericParameter
 
     /// Get the name of the generic parameter 
     member Name: string
@@ -547,6 +559,8 @@ and [<System.Obsolete("Renamed to FSharpMemberOrFunctionOrValue")>] FSharpMember
 and [<Class>] FSharpMemberOrFunctionOrValue = 
 
     inherit FSharpSymbol
+    internal new : Impl.cenv * ValRef -> FSharpMemberOrFunctionOrValue
+    internal new : Impl.cenv * Infos.MethInfo -> FSharpMemberOrFunctionOrValue
 
     /// Indicates if the member, function or value is in an unresolved assembly 
     member IsUnresolved : bool
@@ -637,30 +651,30 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// Indicates if this value or member is an F# active pattern
     member IsActivePattern : bool
       
-      /// Get the member name in compiled code
+    /// Get the member name in compiled code
     member CompiledName: string
 
-      /// Get the logical name of the member
+    /// Get the logical name of the member
     member LogicalName: string
 
-      /// Get the logical enclosing entity, which for an extension member is type being extended
+    /// Get the logical enclosing entity, which for an extension member is type being extended
     member LogicalEnclosingEntity: FSharpEntity
 
-      /// Get the name as presented in F# error messages and documentation
+    /// Get the name as presented in F# error messages and documentation
     member DisplayName : string
 
     member CurriedParameterGroups : IList<IList<FSharpParameter>>
 
     member ReturnParameter : FSharpParameter
 
-      /// Custom attributes attached to the value. These contain references to other values (i.e. constructors in types). Mutable to fixup  
-      /// these value references after copying a colelction of values. 
+    /// Custom attributes attached to the value. These contain references to other values (i.e. constructors in types). Mutable to fixup  
+    /// these value references after copying a colelction of values. 
     member Attributes: IList<FSharpAttribute>
 
     /// Get the in-memory XML documentation for the value, used when code is checked in-memory
     member XmlDoc: IList<string>
 
-      /// XML documentation signature for the value, used for .xml file lookup for compiled code
+    /// XML documentation signature for the value, used for .xml file lookup for compiled code
     member XmlDocSig: string
 
      
@@ -677,16 +691,9 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// Indicates if this is a [<Literal>] value, and if so what value?
     member LiteralValue : obj // may be null
 
-      /// Get the module, type or namespace where this value appears. For 
-      /// an extension member this is the type being extended 
-    member ApparentParent: FSharpEntity
-
-     /// Get the module, type or namespace where this value is compiled
-    member ActualParent: FSharpEntity
-
 #endif
 
-      /// How visible is this? 
+    /// Get the accessibility information for the member, function or value
     member Accessibility : FSharpAccessibility
 
 
@@ -718,6 +725,7 @@ and [<Class>] FSharpParameter =
 /// A subtype of FSharpSymbol that represents a single case within an active pattern
 and [<Class>] FSharpActivePatternCase =
     inherit FSharpSymbol
+
     /// The name of the active pattern case 
     member Name: string 
 
@@ -747,6 +755,7 @@ and [<Class>] FSharpActivePatternGroup =
 and [<Class>] FSharpType =
     /// Internal use only. Create a ground type.
     internal new : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * typ:TType -> FSharpType
+    internal new : Impl.cenv * typ:TType -> FSharpType
 
     /// Indicates this is a named type in an unresolved assembly 
     member IsUnresolved : bool
@@ -759,12 +768,6 @@ and [<Class>] FSharpType =
 
     /// Indicates if the type is constructed using a named entity, including array and byref types
     member HasTypeDefinition : bool
-
-    [<System.Obsolete("Renamed to HasTypeDefinition")>]
-    member IsNamedType : bool
-
-    [<System.Obsolete("Renamed to TypeDefinition")>]
-    member NamedEntity : FSharpEntity 
 
     /// Get the type definition for a type 
     member TypeDefinition : FSharpEntity 
@@ -798,6 +801,12 @@ and [<Class>] FSharpType =
     /// if it is an instantiation of a generic type.
     member BaseType : FSharpType option
 
+    [<System.Obsolete("Renamed to HasTypeDefinition")>]
+    member IsNamedType : bool
+
+    [<System.Obsolete("Renamed to TypeDefinition")>]
+    member NamedEntity : FSharpEntity 
+
 
 /// Represents a custom attribute attached to F# source code or a compiler .NET component
 and [<Class>] FSharpAttribute = 
@@ -816,4 +825,6 @@ and [<Class>] FSharpAttribute =
 
     /// Format the attribute using the rules of the given display context
     member Format : context: FSharpDisplayContext -> string
+
+
 

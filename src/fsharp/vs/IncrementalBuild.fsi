@@ -55,7 +55,7 @@ module internal IncrementalFSharpBuild =
         TcGlobals: Env.TcGlobals 
         TcConfig: Build.TcConfig 
         TcEnvAtEnd : TypeChecker.TcEnv 
-        Errors : (PhasedError * bool) list 
+        Errors : (PhasedError * FSharpErrorSeverity) list 
         TcResolutions: Nameres.TcResolutions list 
         TimeStamp: DateTime }
 
@@ -134,7 +134,7 @@ module internal IncrementalFSharpBuild =
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetCheckResultsAndImplementationsForProject : unit -> PartialCheckResults * IL.ILAssemblyRef * Build.IRawFSharpAssemblyContents option 
+      member GetCheckResultsAndImplementationsForProject : unit -> PartialCheckResults * IL.ILAssemblyRef * Build.IRawFSharpAssemblyData option * Tast.TypedAssembly option
 
       /// Get the logical time stamp that is associated with the output of the project if it were gully built immediately
       member GetLogicalTimeStampForProject: unit -> DateTime
@@ -142,9 +142,9 @@ module internal IncrementalFSharpBuild =
       /// Await the untyped parse results for a particular slot in the vector of parse results.
       ///
       /// This may be a marginally long-running operation (parses are relatively quick, only one file needs to be parsed)
-      member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * bool) list
+      member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * FSharpErrorSeverity) list
 
-      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool -> IncrementalBuilder option * FSharpErrorInfo list
+      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool * keepAssemblyContents: bool -> IncrementalBuilder option * FSharpErrorInfo list
 
 [<Obsolete("This type has been renamed to FSharpErrorInfo")>]
 /// Renamed to FSharpErrorInfo

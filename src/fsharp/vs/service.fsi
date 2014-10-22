@@ -173,7 +173,7 @@ type FSharpCheckFileResults =
     ///    and assume that we're going to repeat the operation later on.
     /// </param>
 
-    member GetDeclarationsAlternate : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpDeclarationSet>
+    member GetDeclarationListInfo : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpDeclarationListInfo>
 
     /// <summary>Get the items for a declaration list in FSharpSymbol format</summary>
     ///
@@ -196,7 +196,7 @@ type FSharpCheckFileResults =
     ///    callback to the client to check if the text has changed. If it has, then give up
     ///    and assume that we're going to repeat the operation later on.
     /// </param>
-    member GetDeclarationSymbols : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpSymbol list list>
+    member GetDeclarationListSymbols : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpSymbol list list>
 
 
     /// <summary>Compute a formatted tooltip for the given location</summary>
@@ -261,8 +261,8 @@ type FSharpCheckFileResults =
     [<Obsolete("This member has been replaced by GetExtraColorizationsAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member GetExtraColorizations : unit -> (Range01 * FSharpTokenColorKind)[]
 
-    [<Obsolete("This member has been replaced by GetDeclarationsAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetDeclarations : ParsedFileResultsOpt:FSharpParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<FSharpDeclarationSet>
+    [<Obsolete("This member has been replaced by GetDeclarationListInfo, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    member GetDeclarations : ParsedFileResultsOpt:FSharpParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<FSharpDeclarationListInfo>
 
     [<Obsolete("This member has been replaced by GetToolTipTextAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member GetToolTipText : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> ToolTipText
@@ -281,6 +281,11 @@ type FSharpCheckFileResults =
     [<Obsolete("This overload is obsolete. The tokenTag parameter is no longer required for this member")>]
     member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * preferSignature:bool -> FSharpFindDeclResult
 
+    [<Obsolete("This method has been renamed to 'GetDeclarationListInfo'")>]
+    member GetDeclarationsAlternate : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpDeclarationListInfo>
+
+    [<Obsolete("This method has been renamed to 'GetDeclarationListSymbols'")>]
+    member GetDeclarationSymbols : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpSymbol list list>
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -288,8 +293,11 @@ type FSharpCheckProjectResults =
     /// The errors returned by processing the project
     member Errors : FSharpErrorInfo[]
 
-    /// Get a view of the overall contents of the assembly. Only valid to use if HasCriticalErrors is false.
+    /// Get a view of the overall signature of the assembly. Only valid to use if HasCriticalErrors is false.
     member AssemblySignature : FSharpAssemblySignature
+
+    /// Get a view of the overall contents of the assembly. Only valid to use if HasCriticalErrors is false.
+    member AssemblyContents : FSharpAssemblyContents
 
     /// Get the resolution of the ProjectOptions 
     member ProjectContext : FSharpProjectContext
@@ -388,8 +396,13 @@ type FSharpProjectFileInfo =
 [<Sealed; AutoSerializable(false)>]      
 /// Used to parse and check F# source code.
 type FSharpChecker =
+    /// <summary>
     /// Create an instance of an FSharpChecker.  
-    static member Create : ?projectCacheSize: int -> FSharpChecker
+    /// </summary>
+    ///
+    /// <param name="projectCacheSize">The optional size of the project checking cache.</param>
+    /// <param name="keepAssemblyContents">Keep the checked contents of projects.</param>
+    static member Create : ?projectCacheSize: int * ?keepAssemblyContents: bool -> FSharpChecker
     /// Create an instance of an FSharpChecker.
     static member Create : unit -> FSharpChecker
 

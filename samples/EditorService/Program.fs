@@ -37,7 +37,7 @@ printfn "%A" tip
 
 // Get declarations (autocomplete) for a location
 let decls = 
-    parsed.GetDeclarationsAlternate(Some untyped, 5, 23, inputLines.[4], [], "msg") 
+    parsed.GetDeclarationListInfo(Some untyped, 5, 23, inputLines.[4], [], "msg") 
     |> Async.RunSynchronously
 
 for item in decls.Items do

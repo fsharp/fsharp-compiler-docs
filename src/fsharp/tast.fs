@@ -450,6 +450,8 @@ let definitionLocationOfProvidedItem (p : Tainted<#IProvidedCustomAttributeProvi
     
 #endif
 
+
+
 // Type definitions, exception definitions, module definitions and
 // namespace definitions are all 'entities'. These have too much in common to make it 
 // worth factoring them out as separate types.
@@ -513,11 +515,16 @@ type Entity =
 
     /// The range in the implementation, adjusted for an item in a signature
     member x.ImplRange = 
-        match x.Data.entity_impl_range with 
-        | None -> x.Range
-        | Some r -> r
+        match x.Data.entity_other_range with 
+        | Some (r, true) -> r
+        | _ -> x.Range
 
-    member x.SetImplRange m                              = x.Data.entity_impl_range <- Some m
+    member x.SigRange = 
+        match x.Data.entity_other_range with 
+        | Some (r, false) -> r
+        | _ -> x.Range
+
+    member x.SetOtherRange m                              = x.Data.entity_other_range <- Some m
 
     /// A unique stamp for this module, namespace or type definition within the context of this compilation. 
     /// Note that because of signatures, there are situations where in a single compilation the "same" 
@@ -966,9 +973,10 @@ and
       /// The declaration location for the type constructor 
       entity_range: range
       
-      /// The declaration location for the item in its implementation
       // MUTABILITY: the signature is adjusted when it is checked
-      mutable entity_impl_range: range option
+      /// If the flag is true, this is the implementation range for an item in a signature, otherwise it is 
+      /// the signature range for an item in an implementation
+      mutable entity_other_range: (range * bool) option
       
       /// The declared accessibility of the representation, not taking signatures into account 
       entity_tycon_repr_accessibility: Accessibility
@@ -1269,9 +1277,10 @@ and
       mutable XmlDocSig : string;
       /// Name/range of the case 
       Id: Ident; 
-      /// Location of the implementation
+      /// If the flag is true, this is the implementation range for an item in a signature, otherwise it is 
+      /// the signature range for an item in an implementation
       // MUTABILITY: used when propagating signature attributes into the implementation.
-      mutable ImplRangeOpt : range option
+      mutable OtherRangeOpt : (range * bool) option
       ///  Indicates the declared visibility of the union constructor, not taking signatures into account 
       Accessibility: Accessibility; 
       /// Attributes, attached to the generated static method to make instances of the case 
@@ -1279,7 +1288,14 @@ and
       mutable Attribs: Attribs; }
 
     member uc.Range = uc.Id.idRange
-    member uc.ImplRange = match uc.ImplRangeOpt with None -> uc.Range | Some m -> m
+    member uc.ImplRange = 
+        match uc.OtherRangeOpt with 
+        | Some (m,true) -> m
+        | _ -> uc.Range 
+    member uc.SigRange = 
+        match uc.OtherRangeOpt with 
+        | Some (m,false) -> m
+        | _ -> uc.Range 
     member uc.DisplayName = uc.Id.idText
     member uc.RecdFieldsArray = uc.FieldTable.FieldsByIndex 
     member uc.RecdFields = uc.FieldTable.FieldsByIndex |> Array.toList
@@ -1317,14 +1333,22 @@ and
       mutable rfield_fattribs: Attribs; 
       /// Name/declaration-location of the field 
       rfield_id: Ident 
-      /// Location of the implementation
+      /// If the flag is true, this is the implementation range for an item in a signature, otherwise it is 
+      /// the signature range for an item in an implementation
       // MUTABILITY: used when propagating signature attributes into the implementation.
-      mutable rfield_impl_range: range option }
+      mutable rfield_other_range: (range * bool) option }
     member v.Accessibility = v.rfield_access
     member v.PropertyAttribs = v.rfield_pattribs
     member v.FieldAttribs = v.rfield_fattribs
     member v.Range = v.rfield_id.idRange
-    member v.ImplRange = match v.rfield_impl_range with None -> v.Range | Some m -> m
+    member v.ImplRange = 
+        match v.rfield_other_range with 
+        | Some (m, true) -> m
+        | _ -> v.Range 
+    member v.SigRange = 
+        match v.rfield_other_range with 
+        | Some (m, false) -> m
+        | _ -> v.Range 
     member v.Id = v.rfield_id
     member v.Name = v.rfield_id.idText
     member v.IsCompilerGenerated = v.rfield_secret
@@ -1609,7 +1633,7 @@ and Construct =
             entity_compiled_name=None;
             entity_kind=kind;
             entity_range=m;
-            entity_impl_range=None;
+            entity_other_range=None;
             entity_flags=EntityFlags(usesPrefixDisplay=false, isModuleOrNamespace=false,preEstablishedHasDefaultCtor=false, hasSelfReferentialCtor=false);
             entity_attribs=[]; // fetched on demand via est.fs API
             entity_typars= LazyWithContext.NotLazy [];
@@ -1635,7 +1659,7 @@ and Construct =
           { entity_logical_name=id.idText
             entity_compiled_name=None
             entity_range = id.idRange
-            entity_impl_range = None
+            entity_other_range = None
             entity_stamp=stamp
             entity_kind=TyparKind.Type
             entity_modul_contents = mtype
@@ -1928,7 +1952,11 @@ and
 
     /// Range of the definition (implementation) of the value, used by Visual Studio 
     /// Updated by mutation when the implementation is matched against the signature. 
-    member x.ImplRange            = x.Data.val_defn_range
+    member x.ImplRange            =  x.Data.ImplRange
+
+    /// Range of the definition (signature) of the value, used by Visual Studio 
+    /// Updated by mutation when the implementation is matched against the signature. 
+    member x.SigRange            = x.Data.SigRange
 
     /// The value of a value or member marked with [<LiteralAttribute>] 
     member x.LiteralValue               = x.Data.val_const
@@ -2237,7 +2265,7 @@ and
     member x.SetIsCompiledAsStaticPropertyWithoutField() = x.Data.val_flags <- x.Data.val_flags.SetIsCompiledAsStaticPropertyWithoutField
     member x.SetValReprInfo info                          = x.Data.val_repr_info <- info
     member x.SetType ty                                  = x.Data.val_type <- ty
-    member x.SetImplRange m                              = x.Data.val_defn_range <- m
+    member x.SetOtherRange m                              = x.Data.val_other_range <- Some m
 
     /// Create a new value with empty, unlinked data. Only used during unpickling of F# metadata.
     static member NewUnlinked() : Val  = { Data = nullableSlotEmpty() }
@@ -2268,7 +2296,9 @@ and
     { val_logical_name: string
       val_compiled_name: string option
       val_range: range
-      mutable val_defn_range: range 
+      /// If the flag is true, this is the implementation range for an item in a signature, otherwise it is 
+      /// the signature range for an item in an implementation
+      mutable val_other_range: (range * bool) option 
       mutable val_type: TType
       val_stamp: Stamp 
       /// See vflags section further below for encoding/decodings here 
@@ -2312,6 +2342,15 @@ and
       /// XML documentation signature for the value
       mutable val_xmldocsig : string } 
 
+    member x.ImplRange            = 
+        match x.val_other_range with
+        | Some (m,true) -> m
+        | _ -> x.val_range
+
+    member x.SigRange            = 
+        match x.val_other_range with
+        | Some (m,false) -> m
+        | _ -> x.val_range
 and 
     [<NoEquality; NoComparison>]
     ValMemberInfo = 
@@ -2573,8 +2612,10 @@ and
     member x.CompiledRepresentation = x.Deref.CompiledRepresentation
     /// Gets the data indicating the compiled representation of a named type or module in terms of Abstract IL data structures.
     member x.CompiledRepresentationForNamedType = x.Deref.CompiledRepresentationForNamedType
-    /// The name of the namespace, module or type, possibly with mangling, e.g. List`1, List or FailureException 
+    /// The implementation definition location of the namespace, module or type
     member x.ImplRange = x.Deref.ImplRange
+    /// The signature definition location of the namespace, module or type
+    member x.SigRange = x.Deref.SigRange
     /// The name of the namespace, module or type, possibly with mangling, e.g. List`1, List or FailureException 
     member x.LogicalName = x.Deref.LogicalName
     /// The compiled name of the namespace, module or type, e.g. FSharpList`1, ListModule or FailureException 
@@ -2822,6 +2863,7 @@ and
     member x.ActualParent               = x.Deref.ActualParent
     member x.ApparentParent             = x.Deref.ApparentParent
     member x.ImplRange        = x.Deref.ImplRange
+    member x.SigRange        = x.Deref.SigRange
     member x.LiteralValue               = x.Deref.LiteralValue
     member x.Id                         = x.Deref.Id
     member x.PropertyName               = x.Deref.PropertyName
@@ -3792,6 +3834,7 @@ type UnionCaseRef with
     member x.Attribs = x.UnionCase.Attribs
     member x.Range = x.UnionCase.Range
     member x.ImplRange = x.UnionCase.ImplRange
+    member x.SigRange = x.UnionCase.ImplRange
     member x.Index = 
         let (UCRef(tcref,id)) = x
         try 
@@ -3813,6 +3856,7 @@ type RecdFieldRef with
     member x.PropertyAttribs = x.RecdField.PropertyAttribs
     member x.Range = x.RecdField.Range
     member x.ImplRange = x.RecdField.ImplRange
+    member x.SigRange = x.RecdField.ImplRange
 
     member x.Index =
         let (RFRef(tcref,id)) = x
@@ -4210,7 +4254,7 @@ let NewUnionCase id nm tys rty attribs docOption access =
       FieldTable = MakeRecdFieldsTable tys
       ReturnType = rty
       Attribs=attribs 
-      ImplRangeOpt = None } 
+      OtherRangeOpt = None } 
 
 let NewModuleOrNamespaceType mkind tycons vals = 
     ModuleOrNamespaceType(mkind, QueueList.ofList vals, QueueList.ofList tycons)
@@ -4225,7 +4269,7 @@ let NewExn cpath (id:Ident) access repr attribs doc =
         entity_logical_name=id.idText
         entity_compiled_name=None
         entity_range=id.idRange
-        entity_impl_range=None
+        entity_other_range=None
         entity_exn_info= repr
         entity_tycon_tcaug=TyconAugmentation.Create()
         entity_xmldoc=doc
@@ -4254,7 +4298,7 @@ let NewRecdField  stat konst id ty isMutable isVolatile pattribs fattribs docOpt
       rfield_xmldoc = docOption 
       rfield_xmldocsig = ""
       rfield_id=id 
-      rfield_impl_range = None }
+      rfield_other_range = None }
 
     
 let NewTycon (cpath, nm, m, access, reprAccess, kind, typars, docOption, usesPrefixDisplay, preEstablishedHasDefaultCtor, hasSelfReferentialCtor, mtyp) =
@@ -4265,7 +4309,7 @@ let NewTycon (cpath, nm, m, access, reprAccess, kind, typars, docOption, usesPre
         entity_compiled_name=None
         entity_kind=kind
         entity_range=m
-        entity_impl_range=None
+        entity_other_range=None
         entity_flags=EntityFlags(usesPrefixDisplay=usesPrefixDisplay, isModuleOrNamespace=false,preEstablishedHasDefaultCtor=preEstablishedHasDefaultCtor, hasSelfReferentialCtor=hasSelfReferentialCtor)
         entity_attribs=[] // fixed up after
         entity_typars=typars
@@ -4309,7 +4353,7 @@ let NewVal (logicalName:string,m:range,compiledName,ty,isMutable,isCompGen,arity
           val_logical_name=logicalName
           val_compiled_name= (match compiledName with Some v when v <> logicalName -> compiledName | _ -> None)
           val_range=m
-          val_defn_range=m
+          val_other_range=None
           val_defn=None
           val_repr_info= arity
           val_actual_parent= actualParent

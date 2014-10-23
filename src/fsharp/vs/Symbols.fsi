@@ -54,9 +54,20 @@ type [<Class>] FSharpSymbol =
     /// Gets the short display name for the symbol
     member DisplayName: string
 
-    /// Get the implementation location for the symbol of it wsa declared in a signature that has an implementation
+    /// Get the implementation location for the symbol if it was declared in a signature that has an implementation
     member ImplementationLocation: range option
 
+    /// Get the signature location for the symbol if it was declared in an implementation
+    member SignatureLocation: range option
+
+    /// Return true if two symbols are effectively the same when referred to in F# source code text.  
+    /// This sees through signatures (a symbol in a signature will be considered effectively the same as 
+    /// the matching symbol in an implementation).  In addition, other equivalances are applied
+    /// when the same F# source text implies the same declaration name - for example, constructors 
+    /// are considered to be effectively the same symbol as the corresponding type definition.
+    ///
+    /// This is the relation used by GetUsesOfSymbol and GetUsesOfSymbolInFile.
+    member IsEffectivelySameAs : other: FSharpSymbol -> bool
 
 
 

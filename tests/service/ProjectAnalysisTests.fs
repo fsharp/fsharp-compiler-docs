@@ -2488,6 +2488,10 @@ and D() =
 
 and E() = 
     member x.PE = 1
+
+and F = { Field1 : int; Field2 : int }
+and G = Case1 | Case2 of int
+
     """
     File.WriteAllText(fileName1, fileSource1)
 
@@ -2505,6 +2509,10 @@ and [<Class>] D =
 and [<Class>] E = 
     new : unit -> E
     member PE : int
+
+and F = { Field1 : int; Field2 : int }
+and G = Case1 | Case2 of int
+
     """
     File.WriteAllText(sigFileName1, sigFileSource1)
     let cleanFileName a = if a = fileName1 then "file1" elif a = sigFileName1 then "sig1"  else "??"
@@ -2543,44 +2551,129 @@ let ``Test Project16 all symbols`` () =
             ("ClassAttribute", "ClassAttribute", "sig1", ((12, 6), (12, 11)), ["type"],
              ["class"]);
             ("member .ctor", "ClassAttribute", "sig1", ((12, 6), (12, 11)), [],
-             ["member"]); ("C", "C", "sig1", ((4, 5), (4, 6)), ["defn"], ["class"]);
+             ["member"]);
+            ("int", "int", "sig1", ((16, 19), (16, 22)), ["type"], ["abbrev"]);
+            ("int", "int", "sig1", ((16, 33), (16, 36)), ["type"], ["abbrev"]);
+            ("int", "int", "sig1", ((17, 25), (17, 28)), ["type"], ["abbrev"]);
+            ("int", "int", "sig1", ((16, 19), (16, 22)), ["type"], ["abbrev"]);
+            ("int", "int", "sig1", ((16, 33), (16, 36)), ["type"], ["abbrev"]);
+            ("field Field1", "Field1", "sig1", ((16, 10), (16, 16)), ["defn"],
+             ["field"]);
+            ("field Field2", "Field2", "sig1", ((16, 24), (16, 30)), ["defn"],
+             ["field"]);
+            ("int", "int", "sig1", ((17, 25), (17, 28)), ["type"], ["abbrev"]);
+            ("Case1", "Case1", "sig1", ((17, 8), (17, 13)), ["defn"], []);
+            ("Case2", "Case2", "sig1", ((17, 16), (17, 21)), ["defn"], []);
+            ("C", "C", "sig1", ((4, 5), (4, 6)), ["defn"], ["class"]);
             ("unit", "unit", "sig1", ((5, 10), (5, 14)), ["type"], ["abbrev"]);
             ("C", "C", "sig1", ((5, 18), (5, 19)), ["type"], ["class"]);
             ("member .ctor", "( .ctor )", "sig1", ((5, 4), (5, 7)), ["defn"],
              ["member"]);
             ("int", "int", "sig1", ((6, 16), (6, 19)), ["type"], ["abbrev"]);
-            ("member get_PC", "PC", "sig1", ((6, 11), (6, 13)), ["defn"], ["member";"getter"]);
+            ("member get_PC", "PC", "sig1", ((6, 11), (6, 13)), ["defn"],
+             ["member"; "getter"]);
             ("D", "D", "sig1", ((8, 14), (8, 15)), ["defn"], ["class"]);
             ("unit", "unit", "sig1", ((9, 10), (9, 14)), ["type"], ["abbrev"]);
             ("D", "D", "sig1", ((9, 18), (9, 19)), ["type"], ["class"]);
             ("member .ctor", "( .ctor )", "sig1", ((9, 4), (9, 7)), ["defn"],
              ["member"]);
             ("int", "int", "sig1", ((10, 16), (10, 19)), ["type"], ["abbrev"]);
-            ("member get_PD", "PD", "sig1", ((10, 11), (10, 13)), ["defn"], ["member";"getter"]);
+            ("member get_PD", "PD", "sig1", ((10, 11), (10, 13)), ["defn"],
+             ["member"; "getter"]);
             ("E", "E", "sig1", ((12, 14), (12, 15)), ["defn"], ["class"]);
             ("unit", "unit", "sig1", ((13, 10), (13, 14)), ["type"], ["abbrev"]);
             ("E", "E", "sig1", ((13, 18), (13, 19)), ["type"], ["class"]);
             ("member .ctor", "( .ctor )", "sig1", ((13, 4), (13, 7)), ["defn"],
              ["member"]);
             ("int", "int", "sig1", ((14, 16), (14, 19)), ["type"], ["abbrev"]);
-            ("member get_PE", "PE", "sig1", ((14, 11), (14, 13)), ["defn"], ["member";"getter"]);
+            ("member get_PE", "PE", "sig1", ((14, 11), (14, 13)), ["defn"],
+             ["member"; "getter"]);
+            ("F", "F", "sig1", ((16, 4), (16, 5)), ["defn"], ["record"]);
+            ("G", "G", "sig1", ((17, 4), (17, 5)), ["defn"], ["union"]);
             ("Impl", "Impl", "sig1", ((2, 7), (2, 11)), ["defn"], ["module"]);
+            ("int", "int", "file1", ((13, 19), (13, 22)), ["type"], ["abbrev"]);
+            ("int", "int", "file1", ((13, 33), (13, 36)), ["type"], ["abbrev"]);
+            ("int", "int", "file1", ((14, 25), (14, 28)), ["type"], ["abbrev"]);
+            ("int", "int", "file1", ((13, 19), (13, 22)), ["type"], ["abbrev"]);
+            ("int", "int", "file1", ((13, 33), (13, 36)), ["type"], ["abbrev"]);
+            ("field Field1", "Field1", "file1", ((13, 10), (13, 16)), ["defn"],
+             ["field"]);
+            ("field Field2", "Field2", "file1", ((13, 24), (13, 30)), ["defn"],
+             ["field"]);
+            ("int", "int", "file1", ((14, 25), (14, 28)), ["type"], ["abbrev"]);
+            ("Case1", "Case1", "file1", ((14, 8), (14, 13)), ["defn"], []);
+            ("Case2", "Case2", "file1", ((14, 16), (14, 21)), ["defn"], []);
             ("C", "C", "file1", ((4, 5), (4, 6)), ["defn"], ["class"]);
             ("D", "D", "file1", ((7, 4), (7, 5)), ["defn"], ["class"]);
             ("E", "E", "file1", ((10, 4), (10, 5)), ["defn"], ["class"]);
+            ("F", "F", "file1", ((13, 4), (13, 5)), ["defn"], ["record"]);
+            ("G", "G", "file1", ((14, 4), (14, 5)), ["defn"], ["union"]);
             ("member .ctor", "( .ctor )", "file1", ((4, 5), (4, 6)), ["defn"],
              ["member"; "ctor"]);
-            ("member get_PC", "PC", "file1", ((5, 13), (5, 15)), ["defn"], ["member";"getter"]);
+            ("member get_PC", "PC", "file1", ((5, 13), (5, 15)), ["defn"],
+             ["member"; "getter"]);
             ("member .ctor", "( .ctor )", "file1", ((7, 4), (7, 5)), ["defn"],
              ["member"; "ctor"]);
-            ("member get_PD", "PD", "file1", ((8, 13), (8, 15)), ["defn"], ["member";"getter"]);
+            ("member get_PD", "PD", "file1", ((8, 13), (8, 15)), ["defn"],
+             ["member"; "getter"]);
             ("member .ctor", "( .ctor )", "file1", ((10, 4), (10, 5)), ["defn"],
              ["member"; "ctor"]);
             ("member get_PE", "PE", "file1", ((11, 13), (11, 15)), ["defn"],
-             ["member"; "getter"]); ("val x", "x", "file1", ((5, 11), (5, 12)), ["defn"], []);
+             ["member"; "getter"]);
+            ("val x", "x", "file1", ((5, 11), (5, 12)), ["defn"], []);
             ("val x", "x", "file1", ((8, 11), (8, 12)), ["defn"], []);
             ("val x", "x", "file1", ((11, 11), (11, 12)), ["defn"], []);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], ["module"])|]
+
+[<Test>]
+let ``Test Project16 sig symbols are equal to impl symbols`` () =
+
+    let checkResultsSig = 
+        checker.ParseAndCheckFileInProject(Project16.sigFileName1, 0, Project16.sigFileSource1, Project16.options)  |> Async.RunSynchronously
+        |> function 
+            | _, FSharpCheckFileAnswer.Succeeded(res) -> res
+            | _ -> failwithf "Parsing aborted unexpectedly..." 
+
+    let checkResultsImpl = 
+        checker.ParseAndCheckFileInProject(Project16.fileName1, 0, Project16.fileSource1, Project16.options)  |> Async.RunSynchronously
+        |> function 
+            | _, FSharpCheckFileAnswer.Succeeded(res) -> res
+            | _ -> failwithf "Parsing aborted unexpectedly..." 
+
+
+    let symbolsSig = checkResultsSig.GetAllUsesOfAllSymbolsInFile() |> Async.RunSynchronously
+    let symbolsImpl = checkResultsImpl.GetAllUsesOfAllSymbolsInFile() |> Async.RunSynchronously
+
+    // Test that all 'definition' symbols in the signature (or implementation) have a matching symbol in the 
+    // implementation (or signature).
+    let testFind (tag1,symbols1) (tag2,symbols2) = 
+        for (symUse1: FSharpSymbolUse) in symbols1 do 
+
+          if symUse1.IsFromDefinition && 
+             (match symUse1.Symbol with 
+              | :? FSharpMemberOrFunctionOrValue as m -> m.IsModuleValueOrMember
+              | :? FSharpEntity -> true
+              | _ -> false) then
+
+            let ok = 
+                symbols2 
+                |> Seq.filter (fun (symUse2:FSharpSymbolUse) -> 
+                    //if symUse2.IsFromDefinition && symUse1.Symbol.DisplayName = symUse2.Symbol.DisplayName then 
+                    //   printfn "Comparing \n\t'%A' \n\t\t@ %A \n\t\t@@ %A and \n\t'%A' \n\t\t@ %A \n\t\t@@ %A" symUse1.Symbol symUse1.Symbol.ImplementationLocation symUse1.Symbol.SignatureLocation symUse2.Symbol symUse2.Symbol.ImplementationLocation symUse2.Symbol.SignatureLocation
+                    symUse2.Symbol.IsEffectivelySameAs(symUse1.Symbol) )
+                |> Seq.toList
+
+            match ok with 
+            | [] -> failwith (sprintf "Didn't find symbol equivalent to %s symbol '%A' in %s" tag1 symUse1.Symbol tag2)
+            | [sym] -> ()  
+            | [sym1;sym2] when sym1.Symbol.DisplayName = sym2.Symbol.DisplayName -> ()   // constructor and type
+            | syms -> failwith (sprintf "Found multiple symbols for %s '%A' in  %s: '%A'" tag1 symUse1.Symbol tag2 [for sym in syms -> sym.Symbol ] )
+
+    testFind ("signature", symbolsSig) ("implementation", symbolsImpl)
+    testFind ("implementation", symbolsImpl) ("signature", symbolsSig)  // test the other way around too, since this signature doesn't hide any definitions
+
+    testFind ("implementation", symbolsImpl) ("implementation", symbolsImpl)  // of course this should pass...
+    testFind ("signature", symbolsSig) ("signature", symbolsSig)  // of course this should pass...
 
 
 
@@ -4031,180 +4124,74 @@ let ``Test project31 Format C# method attributes`` () =
         |> shouldEqual 
               (set ["[<CLSCompliantAttribute (false)>]";
                     "[<Security.SecuritySafeCriticalAttribute ()>]"])
-#if FX_ATLEAST_45
 
-let checkOption (opts:string[]) s = 
-    let found = "Found '"+s+"'"
-    (if opts |> Array.exists (fun o -> o.EndsWith(s)) then found else "Failed to find '"+s+"'")
-       |> shouldEqual found
+module Project32 = 
+    open System.IO
 
-let checkOptionNotPresent (opts:string[]) s = 
-    let found = "Found '"+s+"'"
-    let notFound = "Did not expect to find '"+s+"'"
-    (if opts |> Array.exists (fun o -> o.EndsWith(s)) then found else notFound)
-       |> shouldEqual notFound
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let sigFileName1 = Path.ChangeExtension(fileName1, ".fsi")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Sample
+let func x = x + 1
+    """
+    File.WriteAllText(fileName1, fileSource1)
 
-[<Test>]
-let ``Project file parsing example 1 Default Configuration`` () = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-//  if not runningOnMono then 
+    let sigFileSource1 = """
+module Sample
 
-    let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile)
+val func : int -> int
+    """
+    File.WriteAllText(sigFileName1, sigFileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" elif a = sigFileName1 then "sig1"  else "??"
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
+    let fileNames = [sigFileName1; fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
-    checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
-    checkOption options.OtherOptions "FileSystemTests.fs"
-    checkOption options.OtherOptions "--define:TRACE"
-    checkOption options.OtherOptions "--define:DEBUG"
-    checkOption options.OtherOptions "--flaterrors"
-    checkOption options.OtherOptions "--simpleresolution"
-    checkOption options.OtherOptions "--noframework"
 
 [<Test>]
-let ``Project file parsing example 1 Release Configuration`` () = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-//  if not runningOnMono then 
-    let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
-    // Check with Configuration = Release
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
+let ``Test Project32 whole project errors`` () = 
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-    checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
-    checkOption options.OtherOptions "FileSystemTests.fs"
-    checkOption options.OtherOptions "--define:TRACE"
-    checkOptionNotPresent options.OtherOptions "--define:DEBUG"
-    checkOption options.OtherOptions "--debug:pdbonly"
+    let wholeProjectResults = checker.ParseAndCheckProject(Project32.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
-let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-  if not runningOnMono then 
-    let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
+let ``Test Project32 should be able to find sig symbols`` () =
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project32.options) |> Async.RunSynchronously
+    let _sigBackgroundParseResults1, sigBackgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project32.sigFileName1, Project32.options) 
+        |> Async.RunSynchronously
 
-    checkOption options.OtherOptions "--targetprofile:netcore"
-    checkOption options.OtherOptions "--tailcalls-"
+    let sigSymbolUseOpt = sigBackgroundTypedParse1.GetSymbolUseAtLocation(4,5,"",["func"]) |> Async.RunSynchronously
+    let sigSymbol = sigSymbolUseOpt.Value.Symbol
+    
+    let usesOfSigSymbol = 
+        [ for su in wholeProjectResults.GetUsesOfSymbol(sigSymbol) |> Async.RunSynchronously do
+              yield Project32.cleanFileName su.FileName , tups su.RangeAlternate, attribsOfSymbol su.Symbol ]
 
-    checkOption options.OtherOptions "FSharp.Core.dll"
-    checkOption options.OtherOptions "Microsoft.CSharp.dll"
-    checkOption options.OtherOptions "System.Runtime.dll"
-    checkOption options.OtherOptions "System.Net.Requests.dll"
-    checkOption options.OtherOptions "System.Xml.XmlSerializer.dll"
+    usesOfSigSymbol |> shouldEqual
+       [("sig1", ((4, 4), (4, 8)), ["val"]); 
+        ("file1", ((3, 4), (3, 8)), ["val"])]
 
 [<Test>]
-let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78``() = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-  if not runningOnMono then 
-    let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
+let ``Test Project32 should be able to find impl symbols`` () =
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-    checkOption options.OtherOptions "--targetprofile:netcore"
-    checkOption options.OtherOptions "--tailcalls-"
+    let wholeProjectResults = checker.ParseAndCheckProject(Project32.options) |> Async.RunSynchronously
+    let _implBackgroundParseResults1, implBackgroundTypedParse1 = 
+        checker.GetBackgroundCheckResultsForFileInProject(Project32.fileName1, Project32.options) 
+        |> Async.RunSynchronously
 
-    checkOption options.OtherOptions "FSharp.Core.dll"
-    checkOption options.OtherOptions "Microsoft.CSharp.dll"
-    checkOption options.OtherOptions "System.Runtime.dll"
-    checkOption options.OtherOptions "System.Net.Requests.dll"
-    checkOption options.OtherOptions "System.Xml.XmlSerializer.dll"
+    let implSymbolUseOpt = implBackgroundTypedParse1.GetSymbolUseAtLocation(3,5,"",["func"]) |> Async.RunSynchronously
+    let implSymbol = implSymbolUseOpt.Value.Symbol
+    
+    let usesOfImplSymbol = 
+        [ for su in wholeProjectResults.GetUsesOfSymbol(implSymbol) |> Async.RunSynchronously do
+              yield Project32.cleanFileName su.FileName , tups su.RangeAlternate, attribsOfSymbol su.Symbol ]
 
-[<Test>]
-let ``Project file parsing -- compile files 1``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
-
-  p.CompileFiles
-  |> List.map Path.GetFileName
-  |> set
-  |> should equal (set [ "Test1File1.fs"; "Test1File2.fs" ])
-
-[<Test>]
-let ``Project file parsing -- compile files 2``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
-
-  p.CompileFiles
-  |> List.map Path.GetFileName
-  |> set
-  |> should equal (set [ "Test2File1.fs"; "Test2File2.fs" ])
-
-[<Test>]
-let ``Project file parsing -- bad project file``() =
-  (fun () -> FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Malformed.fsproj") |> ignore)
-  |> should throw typeof<Microsoft.Build.Exceptions.InvalidProjectFileException>
-
-[<Test>]
-let ``Project file parsing -- non-existent project file``() =
-  (fun () -> FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/DoesNotExist.fsproj") |> ignore)
-  |> should throw typeof<System.IO.FileNotFoundException>
-
-[<Test>]
-let ``Project file parsing -- output file``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
-
-  let expectedOutputPath =
-    (new Uri(__SOURCE_DIRECTORY__ + "/data/Test1/bin/Debug/Test1.dll")).LocalPath
-
-  p.OutputFile
-  |> should equal (Some expectedOutputPath)
-
-[<Test>]
-let ``Project file parsing -- references``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
-
-  checkOption (Array.ofList p.References) "FSharp.Core.dll"
-  checkOption (Array.ofList p.References) "mscorlib.dll"
-  checkOption (Array.ofList p.References) "System.Core.dll"
-  checkOption (Array.ofList p.References) "System.dll"
-  p.References |> should haveLength 4
-
-[<Test>]
-let ``Project file parsing -- 2nd level references``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
-
-  checkOption (Array.ofList p.References) "FSharp.Core.dll"
-  checkOption (Array.ofList p.References) "mscorlib.dll"
-  checkOption (Array.ofList p.References) "System.Core.dll"
-  checkOption (Array.ofList p.References) "System.dll"
-  checkOption (Array.ofList p.References) "Test1.dll"
-  p.References |> should haveLength 5
-
-[<Test>]
-let ``Project file parsing -- Tools Version 12``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
-
-  checkOption (Array.ofList p.References) "System.Core.dll"
-
-[<Test>]
-let ``Project file parsing -- Logging``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj", enableLogging=true)
-
-  if runningOnMono then
-    Assert.That(p.LogOutput, Is.StringContaining("Reference System.Core resolved"))
-    Assert.That(p.LogOutput, Is.StringContaining("Target named 'ImplicitlyExpandTargetFramework'"))
-    Assert.That(p.LogOutput, Is.StringContaining("Using task ResolveAssemblyReference from Microsoft.Build.Tasks.ResolveAssemblyReference, Microsoft.Build.Tasks.v12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"))
-  else
-    Assert.That(p.LogOutput, Is.StringContaining("""Using "ResolveAssemblyReference" task from assembly "Microsoft.Build.Tasks.v12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"."""))
-    Assert.That(p.LogOutput, Is.StringContaining("""target "ImplicitlyExpandTargetFramework"""))
-
-[<Test>]
-let ``Project file parsing -- Full path``() =
-  let f = (new Uri(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")).LocalPath
-  let p = FSharpProjectFileInfo.Parse(f)
-
-  p.FullPath |> should equal f
-#endif
+    usesOfImplSymbol |> shouldEqual
+       [("sig1", ((4, 4), (4, 8)), ["val"]); 
+        ("file1", ((3, 4), (3, 8)), ["val"])]

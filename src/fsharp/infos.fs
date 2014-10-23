@@ -344,6 +344,16 @@ type ValRef with
         let flags = membInfo.MemberFlags
         not flags.IsDispatchSlot && (flags.IsOverrideOrExplicitImpl || nonNil membInfo.ImplementedSlotSigs)
 
+    /// Check if an F#-declared member value is an  explicit interface member implementation
+    member vref.IsFSharpExplicitInterfaceImplementation g = 
+        match vref.MemberInfo with 
+        | None -> false
+        | Some membInfo ->
+        not membInfo.MemberFlags.IsDispatchSlot && 
+        (match membInfo.ImplementedSlotSigs with 
+         | TSlotSig(_,oty,_,_,_,_) :: _ -> isInterfaceTy g oty
+         | [] -> false)
+
 //-------------------------------------------------------------------------
 // Helper methods associated with using TAST metadata (F# members, values etc.) 
 // as backing data for MethInfo, PropInfo etc.
@@ -1017,6 +1027,15 @@ type MethInfo =
 #endif
            | DefaultStructCtor _ -> false))
 
+    /// Check if this method is an explicit implementation of an interface member
+    member x.IsFSharpExplicitInterfaceImplementation = 
+        match x with 
+        | ILMeth _ -> false
+        | FSMeth(g,_,vref,_) -> vref.IsFSharpExplicitInterfaceImplementation g
+        | DefaultStructCtor _ -> false
+#if EXTENSIONTYPING
+        | ProvidedMeth _ -> false 
+#endif
 
     /// Check if this method is marked 'override' and thus definitely overrides another method.
     member x.IsDefiniteFSharpOverride = 
@@ -1719,6 +1738,12 @@ type PropInfo =
         match x.ArbitraryValRef with 
         | Some vref -> vref.IsDefiniteFSharpOverrideMember
         | None -> false
+
+    member x.IsFSharpExplicitInterfaceImplementation = 
+        match x.ArbitraryValRef with 
+        | Some vref -> vref.IsFSharpExplicitInterfaceImplementation x.TcGlobals
+        | None -> false
+
 
     /// Indicates if this property is an indexer property, i.e. a property with arguments.
     member x.IsIndexer = 

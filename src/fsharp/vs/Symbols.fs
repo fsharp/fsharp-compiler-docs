@@ -1213,7 +1213,8 @@ and FSharpMemberOrFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMembe
         | M m -> m.IsExtensionMember
         | V v -> v.IsExtensionMember
 
-    member __.IsOverrideOrExplicitMember =
+    member this.IsOverrideOrExplicitMember = this.IsOverrideOrExplicitInterfaceImplementation
+    member __.IsOverrideOrExplicitInterfaceImplementation =
         if isUnresolved() then false else 
         match d with 
         | E e -> e.GetAddMethod().IsDefiniteFSharpOverride
@@ -1221,6 +1222,14 @@ and FSharpMemberOrFunctionOrValue(g:TcGlobals, thisCcu, tcImports, d:FSharpMembe
         | M m -> m.IsDefiniteFSharpOverride
         | V v -> 
             v.MemberInfo.IsSome && v.IsDefiniteFSharpOverrideMember
+
+    member __.IsExplicitInterfaceImplementation =
+        if isUnresolved() then false else 
+        match d with 
+        | E e -> e.GetAddMethod().IsFSharpExplicitInterfaceImplementation
+        | P p -> p.IsFSharpExplicitInterfaceImplementation
+        | M m -> m.IsFSharpExplicitInterfaceImplementation
+        | V v -> v.IsFSharpExplicitInterfaceImplementation g
 
     member __.IsImplicitConstructor = 
         if isUnresolved() then false else 

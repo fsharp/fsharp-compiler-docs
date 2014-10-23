@@ -85,7 +85,8 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsCompilerGenerated then yield "compgen"
             if v.IsImplicitConstructor then yield "ctor"
             if v.IsMutable then yield "mutable" 
-            if v.IsOverrideOrExplicitMember then yield "overridemem"
+            if v.IsOverrideOrExplicitInterfaceImplementation then yield "overridemem"
+            if v.IsExplicitInterfaceImplementation then yield "intfmem"
         | _ -> () ]
 
 module Project1 = 
@@ -1070,12 +1071,12 @@ let ``Test project3 all symbols in signature`` () =
              ("property BaseClassEvent", ["member"; "prop"; "overridemem"]);
              ("property BaseClassEvent", ["slot"; "member"; "prop"]);
              ("IFooImpl", ["class"]); ("member .ctor", ["member"; "ctor"]);
-             ("member InterfaceMethod", ["member"; "overridemem"]);
-             ("member add_InterfaceEvent", ["member"; "overridemem"]);
-             ("member get_InterfaceEvent", ["member"; "overridemem"]);
-             ("member get_InterfaceProperty", ["member"; "overridemem"]);
-             ("member remove_InterfaceEvent", ["member"; "overridemem"]);
-             ("member set_InterfacePropertySet", ["member"; "overridemem"]);
+             ("member InterfaceMethod", ["member"; "overridemem"; "intfmem"]);
+             ("member add_InterfaceEvent", ["member"; "overridemem"; "intfmem"]);
+             ("member get_InterfaceEvent", ["member"; "overridemem"; "intfmem"]);
+             ("member get_InterfaceProperty", ["member"; "overridemem"; "intfmem"]);
+             ("member remove_InterfaceEvent", ["member"; "overridemem"; "intfmem"]);
+             ("member set_InterfacePropertySet", ["member"; "overridemem"; "intfmem"]);
              ("CFooImpl", ["class"]); ("member .ctor", ["member"; "ctor"]);
              ("member AbstractClassMethod", ["member"; "overridemem"]);
              ("member add_AbstractClassEvent", ["member"; "add"; "overridemem"]);
@@ -1282,17 +1283,17 @@ let ``Test project3 all uses of all signature symbols`` () =
          ("IFooImpl", [("file1", ((31, 5), (31, 13)), ["defn"], ["class"])]);
          ("member .ctor", [("file1", ((31, 5), (31, 13)), ["defn"], ["member"; "ctor"])]);
          ("member InterfaceMethod",
-          [("file1", ((36, 20), (36, 35)), ["defn"], ["member"; "overridemem"])]);
+          [("file1", ((36, 20), (36, 35)), ["defn"], ["member"; "overridemem"; "intfmem"])]);
          ("member add_InterfaceEvent",
-          [("file1", ((38, 20), (38, 34)), ["defn"], ["member"; "overridemem"])]);
+          [("file1", ((38, 20), (38, 34)), ["defn"], ["member"; "overridemem"; "intfmem"])]);
          ("member get_InterfaceEvent",
-          [("file1", ((38, 20), (38, 34)), ["defn"], ["member"; "overridemem"])]);
+          [("file1", ((38, 20), (38, 34)), ["defn"], ["member"; "overridemem"; "intfmem"])]);
          ("member get_InterfaceProperty",
-          [("file1", ((34, 20), (34, 37)), ["defn"], ["member"; "overridemem"])]);
+          [("file1", ((34, 20), (34, 37)), ["defn"], ["member"; "overridemem"; "intfmem"])]);
          ("member remove_InterfaceEvent",
-          [("file1", ((38, 20), (38, 34)), ["defn"], ["member"; "overridemem"])]);
+          [("file1", ((38, 20), (38, 34)), ["defn"], ["member"; "overridemem"; "intfmem"])]);
          ("member set_InterfacePropertySet",
-          [("file1", ((35, 20), (35, 40)), ["defn"], ["member"; "overridemem"])]);
+          [("file1", ((35, 20), (35, 40)), ["defn"], ["member"; "overridemem"; "intfmem"])]);
          ("CFooImpl", [("file1", ((40, 5), (40, 13)), ["defn"], ["class"])]);
          ("member .ctor", [("file1", ((40, 5), (40, 13)), ["defn"], ["member"; "ctor"])]);
          ("member AbstractClassMethod",

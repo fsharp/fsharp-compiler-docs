@@ -1139,7 +1139,7 @@ type TypeCheckInfo
             (fun msg -> 
                 FSharpMethodGroup(msg,[| |]))
 
-    member scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, isDecl) =
+    member scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, preferFlag) =
           match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, colAtEndOfNames, ResolveTypeNamesToCtors,ResolveOverloads.Yes, fun _ -> false) with
           | None
           | Some ([], _, _) -> FSharpFindDeclResult.DeclNotFound FSharpFindDeclFailureReason.Unknown
@@ -1170,7 +1170,7 @@ type TypeCheckInfo
 #endif
                   | _ -> FSharpFindDeclResult.DeclNotFound defaultReason
 
-              match rangeOfItem g isDecl item with
+              match rangeOfItem g preferFlag item with
               | None   -> fail FSharpFindDeclFailureReason.Unknown 
               | Some itemRange -> 
 
@@ -1771,10 +1771,10 @@ type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo 
         reactorOp dflt (fun scope-> 
             scope.GetMethods (line, lineStr, colAtEndOfNames, names))
             
-    member info.GetDeclarationLocationAlternate (line, colAtEndOfNames, lineStr, names, flag) = 
+    member info.GetDeclarationLocationAlternate (line, colAtEndOfNames, lineStr, names, ?preferFlag) = 
         let dflt = FSharpFindDeclResult.DeclNotFound FSharpFindDeclFailureReason.Unknown
         reactorOp dflt (fun scope -> 
-            scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, flag))
+            scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, preferFlag))
 
     member info.GetSymbolUseAtLocation (line, colAtEndOfNames, lineStr, names) = 
         reactorOp None (fun scope -> 

@@ -98,7 +98,7 @@ module internal ItemDescriptionsImpl =
     val RemoveDuplicateItems : TcGlobals -> Item list -> Item list
     val RemoveExplicitlySuppressed : TcGlobals -> Item list -> Item list
     val GetF1Keyword : Item -> string option
-    val rangeOfItem : TcGlobals -> bool -> Item -> range option
+    val rangeOfItem : TcGlobals -> bool option -> Item -> range option
     val fileNameOfItem : TcGlobals -> string option -> range -> Item -> string
     val FullNameOfItem : TcGlobals -> Item -> string
     val ccuOfItem : TcGlobals -> Item -> CcuThunk option

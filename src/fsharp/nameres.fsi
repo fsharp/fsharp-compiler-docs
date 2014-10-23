@@ -184,7 +184,8 @@ type internal ItemOccurence =
     | Pattern 
     | Implemented 
   
-val ItemsReferToSameDefinition : TcGlobals -> Item -> Item -> bool
+/// Check for equality, up to signature matching
+val ItemsAreEffectivelyEqual : TcGlobals -> Item -> Item -> bool
 
 [<Class>]
 type internal CapturedNameResolution = 

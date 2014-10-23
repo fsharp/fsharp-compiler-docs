@@ -132,62 +132,81 @@ module internal ItemDescriptionsImpl =
                     else bprintf os "  %s: %a\n" (FSComp.SR.typeInfoImplements()) bufferL supertyL))
 #endif
            
-    let rangeOfValRef isDecl (vref:ValRef) =
-        if isDecl then vref.Range else vref.ImplRange 
+    let rangeOfValRef preferFlag (vref:ValRef) =
+        match preferFlag with 
+        | None -> vref.Range 
+        | Some false -> vref.ImplRange 
+        | Some true -> vref.SigRange
 
-    let rangeOfEntityRef isDecl (eref:EntityRef) =
-        if isDecl then eref.Range else eref.ImplRange 
+    let rangeOfEntityRef preferFlag (eref:EntityRef) =
+        match preferFlag with 
+        | None -> eref.Range 
+        | Some false -> eref.ImplRange 
+        | Some true -> eref.SigRange
+
    
-    let rangeOfPropInfo isDecl (pinfo:PropInfo) =
+    let rangeOfPropInfo preferFlag (pinfo:PropInfo) =
         match pinfo with
 #if EXTENSIONTYPING 
         |   ProvidedProp(_,pi,_) -> definitionLocationOfProvidedItem pi
 #endif
-        |   _ -> pinfo.ArbitraryValRef |> Option.map (rangeOfValRef isDecl)
+        |   _ -> pinfo.ArbitraryValRef |> Option.map (rangeOfValRef preferFlag)
 
-    let rangeOfMethInfo isDecl (minfo:MethInfo) = 
+    let rangeOfMethInfo preferFlag (minfo:MethInfo) = 
         match minfo with
 #if EXTENSIONTYPING 
         |   ProvidedMeth(_,mi,_,_) -> definitionLocationOfProvidedItem mi
 #endif
-        |   _ -> minfo.ArbitraryValRef |> Option.map (rangeOfValRef isDecl)
+        |   _ -> minfo.ArbitraryValRef |> Option.map (rangeOfValRef preferFlag)
 
-    let rangeOfEventInfo isDecl (einfo:EventInfo) = 
+    let rangeOfEventInfo preferFlag (einfo:EventInfo) = 
         match einfo with
 #if EXTENSIONTYPING 
         | ProvidedEvent (_,ei,_) -> definitionLocationOfProvidedItem ei
 #endif
-        | _ -> einfo.ArbitraryValRef |> Option.map (rangeOfValRef isDecl)
+        | _ -> einfo.ArbitraryValRef |> Option.map (rangeOfValRef preferFlag)
       
     // skip all default generated constructors for structs
     let (|FilterDefaultStructCtors|) ctors =
         ctors |> List.filter (function DefaultStructCtor _ -> false | _ -> true)
 
-    let rec rangeOfItem (g:TcGlobals) isDecl d = 
+    let rangeOfUnionCaseInfo preferFlag (ucinfo:UnionCaseInfo) =      
+        match preferFlag with 
+        | None -> ucinfo.UnionCase.Range 
+        | Some false -> ucinfo.UnionCase.ImplRange 
+        | Some true -> ucinfo.UnionCase.SigRange
+
+    let rangeOfRecdFieldInfo preferFlag (rfinfo:RecdFieldInfo) =      
+        match preferFlag with 
+        | None -> rfinfo.RecdField.Range 
+        | Some false -> rfinfo.RecdField.ImplRange 
+        | Some true -> rfinfo.RecdField.SigRange
+
+    let rec rangeOfItem (g:TcGlobals) preferFlag d = 
         match d with
-        | Item.Value vref  | Item.CustomBuilder (_,vref) -> Some (rangeOfValRef isDecl vref)
-        | Item.UnionCase ucinfo        -> Some (if isDecl then ucinfo.UnionCase.Range else ucinfo.UnionCase.ImplRange) 
-        | Item.ActivePatternCase apref -> Some (rangeOfValRef isDecl apref.ActivePatternVal)
+        | Item.Value vref  | Item.CustomBuilder (_,vref) -> Some (rangeOfValRef preferFlag vref)
+        | Item.UnionCase ucinfo        -> Some (rangeOfUnionCaseInfo preferFlag ucinfo)
+        | Item.ActivePatternCase apref -> Some (rangeOfValRef preferFlag apref.ActivePatternVal)
         | Item.ExnCase tcref           -> Some tcref.Range
-        | Item.RecdField rfinfo        -> Some (if isDecl then rfinfo.RecdFieldRef.Range else rfinfo.RecdFieldRef.ImplRange)
-        | Item.Event einfo             -> rangeOfEventInfo isDecl einfo
+        | Item.RecdField rfinfo        -> Some (rangeOfRecdFieldInfo preferFlag rfinfo)
+        | Item.Event einfo             -> rangeOfEventInfo preferFlag einfo
         | Item.ILField _               -> None
-        | Item.Property(_,pinfos)      -> rangeOfPropInfo isDecl pinfos.Head 
-        | Item.Types(_,typs)     -> typs |> List.tryPick (tryNiceEntityRefOfTy >> Option.map (rangeOfEntityRef isDecl))
-        | Item.CustomOperation (_,_,Some minfo)  -> rangeOfMethInfo isDecl minfo
+        | Item.Property(_,pinfos)      -> rangeOfPropInfo preferFlag pinfos.Head 
+        | Item.Types(_,typs)     -> typs |> List.tryPick (tryNiceEntityRefOfTy >> Option.map (rangeOfEntityRef preferFlag))
+        | Item.CustomOperation (_,_,Some minfo)  -> rangeOfMethInfo preferFlag minfo
         | Item.TypeVar (_,tp)  -> Some tp.Range
-        | Item.ModuleOrNamespaces(modrefs) -> modrefs |> List.tryPick (rangeOfEntityRef isDecl >> Some)
+        | Item.ModuleOrNamespaces(modrefs) -> modrefs |> List.tryPick (rangeOfEntityRef preferFlag >> Some)
         | Item.MethodGroup(_,minfos) 
-        | Item.CtorGroup(_,FilterDefaultStructCtors(minfos)) -> minfos |> List.tryPick (rangeOfMethInfo isDecl)
+        | Item.CtorGroup(_,FilterDefaultStructCtors(minfos)) -> minfos |> List.tryPick (rangeOfMethInfo preferFlag)
         | Item.ActivePatternResult(APInfo _,_, _, m) -> Some m
-        | Item.SetterArg (_,item) -> rangeOfItem g isDecl item
+        | Item.SetterArg (_,item) -> rangeOfItem g preferFlag item
         | Item.ArgName (id,_, _) -> Some id.idRange
-        | Item.CustomOperation (_,_,implOpt) -> implOpt |> Option.bind (rangeOfMethInfo isDecl)
+        | Item.CustomOperation (_,_,implOpt) -> implOpt |> Option.bind (rangeOfMethInfo preferFlag)
         | Item.ImplicitOp _ -> None
         | Item.NewDef id -> Some id.idRange
-        | Item.UnqualifiedType tcrefs -> tcrefs |> List.tryPick (rangeOfEntityRef isDecl >> Some)
+        | Item.UnqualifiedType tcrefs -> tcrefs |> List.tryPick (rangeOfEntityRef preferFlag >> Some)
         | Item.DelegateCtor typ 
-        | Item.FakeInterfaceCtor typ -> typ |> tryNiceEntityRefOfTy |> Option.map (rangeOfEntityRef isDecl)
+        | Item.FakeInterfaceCtor typ -> typ |> tryNiceEntityRefOfTy |> Option.map (rangeOfEntityRef preferFlag)
 
     let rec ccuOfItem (g:TcGlobals) d = 
         match d with

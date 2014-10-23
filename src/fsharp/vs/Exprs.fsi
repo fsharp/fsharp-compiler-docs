@@ -81,8 +81,9 @@ module BasicPatterns =
     /// Matches expressions which are let definitions
     val (|Let|_|) : FSharpExpr -> ((FSharpMemberOrFunctionOrValue * FSharpExpr) * FSharpExpr) option 
 
-    /// Matches expressions which are calls to members or module-defined functions
-    val (|Call|_|) : FSharpExpr -> (FSharpExpr option * FSharpMemberFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list list) option 
+    /// Matches expressions which are calls to members or module-defined functions. When calling curried functions and members the
+    /// arguments are collapsed to a single collection of arguments, as done in the compiled version of these.
+    val (|Call|_|) : FSharpExpr -> (FSharpExpr option * FSharpMemberFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list) option 
 
     /// Matches expressions which are calls to object constructors 
     val (|NewObject|_|) : FSharpExpr -> (FSharpMemberFunctionOrValue * FSharpType list * FSharpExpr list) option 
@@ -113,7 +114,10 @@ module BasicPatterns =
     val (|NewUnionCase|_|) : FSharpExpr -> (FSharpType * FSharpUnionCase * FSharpExpr list) option 
 
     /// Matches expressions which get a field from a union case
-    val (|UnionCaseGet|_|) : FSharpExpr -> (FSharpExpr * FSharpType  * FSharpField) option 
+    val (|UnionCaseGet|_|) : FSharpExpr -> (FSharpExpr * FSharpType  * FSharpUnionCase * FSharpField) option 
+
+    /// Matches expressions which gets the tag for a union case
+    val (|UnionCaseTag|_|) : FSharpExpr -> (FSharpExpr * FSharpType) option 
 
     /// Matches expressions which test if an expression corresponds to a particular union case
     val (|UnionCaseTest|_|) : FSharpExpr -> (FSharpExpr * FSharpType * FSharpUnionCase) option 

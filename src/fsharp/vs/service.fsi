@@ -361,6 +361,8 @@ type FSharpProjectFileInfo =
     member Options : string list
     /// The FrameworkVersion for the project
     member FrameworkVersion : string option
+    /// The paths to the project files referenced by this project
+    member ProjectReferences : string list
     /// The resolved references for the project
     member References : string list
     /// The list of files marked 'Compile' for the project

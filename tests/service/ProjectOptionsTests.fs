@@ -19,6 +19,8 @@ open FSharp.Compiler.Service.Tests.Common
 
 #if FX_ATLEAST_45
 
+let normalizePath s = (new Uri(s)).LocalPath
+
 let checkOption (opts:string[]) s = 
     let found = "Found '"+s+"'"
     (if opts |> Array.exists (fun o -> o.EndsWith(s)) then found else "Failed to find '"+s+"'")
@@ -32,9 +34,6 @@ let checkOptionNotPresent (opts:string[]) s =
 
 [<Test>]
 let ``Project file parsing example 1 Default Configuration`` () = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-//  if not runningOnMono then 
-
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
 
@@ -53,8 +52,6 @@ let ``Project file parsing example 1 Default Configuration`` () =
 
 [<Test>]
 let ``Project file parsing example 1 Release Configuration`` () = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-//  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     // Check with Configuration = Release
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
@@ -71,17 +68,10 @@ let ``Project file parsing example 1 Release Configuration`` () =
 
 [<Test>]
 let ``Project file parsing example 1 Default configuration relative path`` () = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-//  if not runningOnMono then 
-
     let projectFile = "FSharp.Compiler.Service.Tests.fsproj"
     Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
-
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
-    //let options = FSharpProjectFileInfo.Parse(projectFile)
-    //options.FullPath
-    //options.Options
 
     printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
     printfn "PROJ FILE %s" projectFile
@@ -170,7 +160,7 @@ let ``Project file parsing -- output file``() =
   let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
 
   let expectedOutputPath =
-    (new Uri(__SOURCE_DIRECTORY__ + "/data/Test1/bin/Debug/Test1.dll")).LocalPath
+    normalizePath (__SOURCE_DIRECTORY__ + "/data/Test1/bin/Debug/Test1.dll")
 
   p.OutputFile
   |> should equal (Some expectedOutputPath)
@@ -184,6 +174,7 @@ let ``Project file parsing -- references``() =
   checkOption (Array.ofList p.References) "System.Core.dll"
   checkOption (Array.ofList p.References) "System.dll"
   p.References |> should haveLength 4
+  p.ProjectReferences |> should be Empty
 
 [<Test>]
 let ``Project file parsing -- 2nd level references``() =
@@ -195,6 +186,8 @@ let ``Project file parsing -- 2nd level references``() =
   checkOption (Array.ofList p.References) "System.dll"
   checkOption (Array.ofList p.References) "Test1.dll"
   p.References |> should haveLength 5
+  p.ProjectReferences |> should haveLength 1
+  p.ProjectReferences |> should contain (normalizePath (__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj"))
 
 [<Test>]
 let ``Project file parsing -- Tools Version 12``() =
@@ -216,10 +209,20 @@ let ``Project file parsing -- Logging``() =
 
 [<Test>]
 let ``Project file parsing -- Full path``() =
-  let f = (new Uri(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")).LocalPath
+  let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
   let p = FSharpProjectFileInfo.Parse(f)
 
   p.FullPath |> should equal f
+
+[<Test>]
+let ``Project file parsing -- project references``() =
+  let f1 = normalizePath (__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
+  let f2 = normalizePath (__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
+  let options = checker.GetProjectOptionsFromProjectFile(f2)
+
+  options.ReferencedProjects |> should haveLength 1
+  fst options.ReferencedProjects.[0] |> should endWith "Test1.fsproj"
+  snd options.ReferencedProjects.[0] |> should equal (checker.GetProjectOptionsFromProjectFile(f1))
 
 #endif
 

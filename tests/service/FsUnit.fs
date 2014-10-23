@@ -26,6 +26,10 @@ let haveLength n = Has.Length.EqualTo(n)
 
 let haveCount n = Has.Count.EqualTo(n)
 
+let endWith (s:string) = new EndsWithConstraint(s)
+
+let startWith (s:string) = new StartsWithConstraint(s)
+
 let be = id
 
 let Null = new NullConstraint()

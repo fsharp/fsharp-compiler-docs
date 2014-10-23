@@ -2273,10 +2273,13 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
 
         engine.GlobalProperties <- bpg
 
-        // We seem to need to pass 12.0/4.0 in here for some unknown reason
-        let project = new Microsoft.Build.BuildEngine.Project(engine, engine.DefaultToolsVersion) 
+        let projectFromFile (fsprojFile:string) =
+            // We seem to need to pass 12.0/4.0 in here for some unknown reason
+            let project = new Microsoft.Build.BuildEngine.Project(engine, engine.DefaultToolsVersion)
+            do project.Load(fsprojFile)
+            project
 
-        project.Load(fsprojFile)
+        let project = projectFromFile fsprojFile
 
         project.Build([|"ResolveAssemblyReferences"; "ImplicitlyExpandTargetFramework"|])  |> ignore
 
@@ -2297,18 +2300,22 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             let fs  = project.GetEvaluatedItemsByName(s)
             [ for f in fs -> mkAbsolute directory f.FinalItemSpec ]
 
+        let projectReferences =
+            [  for i in project.GetEvaluatedItemsByName("ProjectReference") do
+                   yield mkAbsolute directory i.FinalItemSpec
+            ]
+
         let references = 
             [  for i in project.GetEvaluatedItemsByName("ResolvedFiles") do
                    yield i.FinalItemSpec
-               for i in project.GetEvaluatedItemsByName("ProjectReference") do
-                   let fsproj = mkAbsolute directory i.FinalItemSpec
-                   match (try let p' = new Microsoft.Build.BuildEngine.Project(engine, engine.DefaultToolsVersion)
+               for fsproj in projectReferences do
+                   match (try let p' = projectFromFile fsproj
                               do p'.Load(fsproj)
                               Some (outFileOpt p') with _ -> None) with  
                    | Some (Some output) -> yield output
                    | _ -> ()  ]
 
-        outFileOpt project, directory, getItems, references, getProp project, project.FullFileName
+        outFileOpt project, directory, getItems, references, projectReferences, getProp project, project.FullFileName
 
     let CrackProjectUsingNewBuildAPI(fsprojFile) =
         let fsprojFullPath = try FileSystem.GetFullPathShim(fsprojFile) with _ -> fsprojFile
@@ -2320,15 +2327,17 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             { new System.IDisposable with member x.Dispose() = Environment.CurrentDirectory <- dir }
         use engine = new Microsoft.Build.Evaluation.ProjectCollection()
 
-        use stream = FileSystem.FileStreamReadShim(fsprojFullPath)
-        use xmlReader = System.Xml.XmlReader.Create(stream)
+        let projectInstanceFromFullPath fsprojFullPath =
+            use stream = FileSystem.FileStreamReadShim(fsprojFullPath)
+            use xmlReader = System.Xml.XmlReader.Create(stream)
 
-        let project = engine.LoadProject(xmlReader, FullPath=fsprojFullPath)
-        for (prop, value) in properties do
-            project.SetProperty(prop, value) |> ignore
+            let project = engine.LoadProject(xmlReader, FullPath=fsprojFullPath)
+            for (prop, value) in properties do
+                project.SetProperty(prop, value) |> ignore
 
-        let project = project.CreateProjectInstance()
+            project.CreateProjectInstance()
 
+        let project = projectInstanceFromFullPath fsprojFullPath
         let directory = project.Directory
 
         let getprop (p: Microsoft.Build.Execution.ProjectInstance) s =
@@ -2346,20 +2355,24 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
 
         let getItems s = [ for f in project.GetItems(s) -> mkAbsolute directory f.EvaluatedInclude ]
 
+        let projectReferences =
+              [ for cp in project.GetItems("ProjectReference") do
+                    yield cp.GetMetadataValue("FullPath")
+              ]
+
         let references =
               [  for i in project.GetItems("ReferencePath") do
                    yield i.EvaluatedInclude
-                 for cp in project.GetItems("ProjectReference") do
-                   let fsproj = cp.GetMetadataValue("FullPath")
-                   match (try let p' = Microsoft.Build.Execution.ProjectInstance(fsproj)
+                 for fsproj in projectReferences do
+                   match (try let p' = projectInstanceFromFullPath fsproj
                               Some (outFileOpt p') with _ -> None) with
                    | Some (Some output) -> yield output
                    | _ -> ()
               ]
 
-        outFileOpt project, directory, getItems, references, getprop project, project.FullPath
+        outFileOpt project, directory, getItems, references, projectReferences, getprop project, project.FullPath
 
-    let outFileOpt, directory, getItems, references, getProp, fsprojFullPath =
+    let outFileOpt, directory, getItems, references, projectReferences, getProp, fsprojFullPath =
       try
         if runningOnMono then
             CrackProjectUsingOldBuildAPI(fsprojFileName)
@@ -2531,6 +2544,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
     
     member x.Options = options
     member x.FrameworkVersion = fxVer
+    member x.ProjectReferences = projectReferences
     member x.References = references
     member x.CompileFiles = files
     member x.ResourceFiles = resources
@@ -2766,7 +2780,14 @@ type FSharpChecker(projectCacheSize) =
     member ic.GetProjectOptionsFromProjectFile(projectFileName, ?properties : (string * string) list, ?loadedTimeStamp) = 
         let parsedProject = FSharpProjectFileInfo(projectFileName, ?properties=properties)
         let args = parsedProject.Options |> Array.ofList
-        ic.GetProjectOptionsFromCommandLineArgs(projectFileName, args, ?loadedTimeStamp=loadedTimeStamp)
+
+        let projectOptions = ic.GetProjectOptionsFromCommandLineArgs(projectFileName, args, ?loadedTimeStamp=loadedTimeStamp)
+        let referencedProjectOptions =
+          [| for file in parsedProject.ProjectReferences do
+               yield file, ic.GetProjectOptionsFromProjectFile(file, ?properties=properties, ?loadedTimeStamp=loadedTimeStamp) |]
+
+        { projectOptions
+          with ReferencedProjects = referencedProjectOptions }
 
 #endif
 #endif

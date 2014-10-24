@@ -50,10 +50,12 @@ and FSharpImplementationFileDeclaration =
 
 /// Represents a checked and reduced expression, as seen by the F# language.  The active patterns 
 /// in 'FSharp.Compiler.SourceCodeServices' can be used to analyze information about the expression.
-/// Pattern matching is eliminated in this view of expressions (reduced to conditional tests), and some other
-/// constructs may be represented in reduced form substantially different from their souorce original.
+///
+/// Pattern matching is reduced to decision trees and conditional tests. Some other
+/// constructs may be represented in reduced form.
 and [<Sealed>]  FSharpExpr =
     member Range : range
+    member Type : FSharpType
 
 /// Represents a checked method in an object expression, as seen by the F# language.  
 and [<Sealed>]  FSharpObjectExprOverride = 
@@ -103,7 +105,6 @@ module BasicPatterns =
 
     /// Matches expressions which are quotation literals
     val (|Quote|_|) : FSharpExpr -> FSharpExpr  option
-//    val (|Match|_|) : FSharpExpr -> (FSharpSwitch * (FSharpMemberOrFunctionOrValue list * FSharpExpr) list) option 
 
     /// Matches expressions which are let-rec definitions
     val (|LetRec|_|) : FSharpExpr -> ((FSharpMemberOrFunctionOrValue * FSharpExpr) list * FSharpExpr) option 
@@ -153,7 +154,8 @@ module BasicPatterns =
     /// Matches default-value expressions, including null expressions
     val (|DefaultValue|_|) : FSharpExpr -> FSharpType option 
 
-    /// Matches constant expressions, including signed and unsigned integers, strings, characters and booleans
+    /// Matches constant expressions, including signed and unsigned integers, strings, characters, booleans, arrays
+    /// of bytes and arrays of unit16.
     val (|Const|_|) : FSharpExpr -> (obj * FSharpType) option 
 
     /// Matches expressions which take the address of a location

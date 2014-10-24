@@ -30,7 +30,6 @@ module ExprTranslationImpl =
     type ExprTranslationEnv = 
         { //Map from Val to binding index
           vs: ValMap<unit>; 
-          nvs: int;
           //Map from typar stamps to binding index
           tyvs: StampMap<FSharpGenericParameter>;
           // Map for values bound by the 
@@ -42,7 +41,6 @@ module ExprTranslationImpl =
 
         static member Empty = 
             { vs=ValMap<_>.Empty; 
-              nvs=0;
               tyvs = Map.empty ;
               isinstVals = ValMap<_>.Empty 
               substVals = ValMap<_>.Empty }
@@ -53,18 +51,17 @@ module ExprTranslationImpl =
         member env.BindTypars vs = 
             (env, vs) ||> List.fold (fun env v -> env.BindTypar v) // fold left-to-right because indexes are left-to-right 
 
-    let bindVal env v = 
-        { env with vs = env.vs.Add v (); nvs = env.nvs + 1 }
+        member env.BindVal v = 
+            { env with vs = env.vs.Add v () }
 
-    let bindIsInstVal env v (ty,e) = 
-        { env with isinstVals =  env.isinstVals.Add v (ty,e) }
+        member env.BindIsInstVal v (ty,e) = 
+            { env with isinstVals =  env.isinstVals.Add v (ty,e) }
 
-    let bindSubstVal env v e = 
-        { env with substVals = env.substVals.Add v e  }
+        member env.BindSubstVal v e = 
+            { env with substVals = env.substVals.Add v e  }
 
-
-    let bindVals env vs = List.fold bindVal env vs // fold left-to-right because indexes are left-to-right 
-    let bindFlatVals env vs = FlatList.fold bindVal env vs // fold left-to-right because indexes are left-to-right 
+        member env.BindVals vs = (env,vs) ||> List.fold (fun env v -> env.BindVal v) 
+        member env.BindCurriedVals vsl = (env,vsl) ||> List.fold (fun env vs -> env.BindVals vs) 
 
     exception IgnoringPartOfQuotedTermWarning of string * Range.range
 
@@ -124,9 +121,10 @@ and E =
     | ILAsm of string * FSharpType list * FSharpExpr list
 
 
-and [<Sealed>] FSharpExpr (cenv, f: (unit -> FSharpExpr) option, e: E, m:range) =
+and [<Sealed>] FSharpExpr (cenv, f: (unit -> FSharpExpr) option, e: E, m:range, ty) =
 
     member x.Range = m
+    member x.Type = FSharpType(cenv, ty)
     member x.cenv = cenv
     member x.E = match f with None -> e | Some f -> f().E
     override __.ToString() = sprintf "%+A" e
@@ -180,10 +178,11 @@ module FSharpExprConvert =
         | _ -> expr
 
 
-    let Mk cenv m e = FSharpExpr(cenv,None,e,m)
+    let Mk cenv m ty e = FSharpExpr(cenv, None, e, m, ty)
+    let Mk2 cenv (orig:Expr) e = FSharpExpr(cenv, None, e, orig.Range, tyOfExpr cenv.g orig)
 
     let rec ConvLValueExpr (cenv:Impl.cenv) env expr = ConvExpr cenv env (exprOfExprAddr cenv expr)
-    and ConvExpr cenv env expr = Mk cenv expr.Range (ConvExprPrim cenv env expr) 
+    and ConvExpr cenv env expr = Mk2 cenv expr (ConvExprPrim cenv env expr) 
 
     // Tail recursive function to process the subset of expressions considered "linear"
     and ConvExprPrimLinear cenv env expr contf = 
@@ -195,7 +194,7 @@ module FSharpExprConvert =
             let typR = ConvType cenv (mkAppTy ucref.TyconRef tyargs)
             let e1R = ConvExpr cenv env e1
             // tail recursive 
-            ConvExprPrimLinear cenv env e2 (contf << (fun e2R -> E.NewUnionCase(typR, mkR, [e1R; Mk cenv e2.Range e2R]) ))
+            ConvExprPrimLinear cenv env e2 (contf << (fun e2R -> E.NewUnionCase(typR, mkR, [e1R; Mk2 cenv e2 e2R]) ))
 
         // Large sequences of let bindings
         | Expr.Let (bind,body,_,_) ->  
@@ -203,7 +202,7 @@ module FSharpExprConvert =
             | None, env -> ConvExprPrimLinear cenv env body contf
             | Some(bindR),env -> 
             // tail recursive 
-            ConvExprPrimLinear cenv env body (contf << (fun bodyR -> E.Let(bindR,Mk cenv body.Range bodyR)))
+            ConvExprPrimLinear cenv env body (contf << (fun bodyR -> E.Let(bindR,Mk2 cenv body bodyR)))
 
         // Remove initialization checks
         // Remove static initialization counter updates
@@ -221,7 +220,7 @@ module FSharpExprConvert =
         | Expr.Sequential (e1,e2,NormalSeq,_,_)  -> 
             let e1R = ConvExpr cenv env e1
             // tail recursive 
-            ConvExprPrimLinear cenv env e2 (contf << (fun e2R -> E.Sequential(e1R, Mk cenv e2.Range e2R)))
+            ConvExprPrimLinear cenv env e2 (contf << (fun e2R -> E.Sequential(e1R, Mk2 cenv e2 e2R)))
 
         | Expr.Sequential  (x0,x1,ThenDoSeq,_,_) ->  E.Sequential(ConvExpr cenv env x0, ConvExpr cenv env x1) 
 
@@ -293,7 +292,7 @@ module FSharpExprConvert =
             let contf2 = 
                 match laterArgs with 
                 | [] -> contf 
-                | _ -> (fun subCallR -> (subCallR, laterArgs) ||> List.fold (fun fR arg -> E.Application (Mk cenv m fR,[],[ConvExpr cenv env arg])))
+                | _ -> (fun subCallR -> (subCallR, laterArgs) ||> List.fold (fun fR arg -> E.Application (Mk2 cenv arg fR,[],[ConvExpr cenv env arg])))
                     
             if isMember then 
                 let callArgs = (objArgs::untupledCurriedArgs) |> List.concat
@@ -305,7 +304,7 @@ module FSharpExprConvert =
                 // tailcall
                 ConvObjectModelCallLinear cenv env (false, v, [], tyargs, List.concat untupledCurriedArgs) contf2
 
-    and ConvExprPrim (cenv:Impl.cenv) env expr = 
+    and ConvExprPrim (cenv:Impl.cenv) (env:ExprTranslationEnv) expr = 
         // Eliminate integer 'for' loops 
         let expr = DetectFastIntegerForLoops cenv.g expr
 
@@ -347,7 +346,7 @@ module FSharpExprConvert =
         | Expr.LetRec(binds,body,_,_) -> 
                 let vs = valsOfBinds binds
                 let vsR = vs |> FlatList.map (ConvVal cenv)
-                let env = bindFlatVals env vs
+                let env = env.BindVals vs
                 let bodyR = ConvExpr cenv env body 
                 let bindsR = FlatList.zip vsR (binds |> FlatList.map (fun b -> b.Expr |> ConvExpr cenv env))
                 E.LetRec(FlatList.toList bindsR,bodyR) 
@@ -355,7 +354,7 @@ module FSharpExprConvert =
         | Expr.Lambda(_,_,_,vs,b,_,_) -> 
             let v,b = MultiLambdaToTupledLambda vs b 
             let vR = ConvVal cenv v 
-            let bR  = ConvExpr cenv (bindVal env v) b 
+            let bR  = ConvExpr cenv (env.BindVal v) b 
             E.Lambda(vR, bR) 
 
         | Expr.Quote(ast,_,_,_,_) -> 
@@ -367,15 +366,14 @@ module FSharpExprConvert =
             E.TypeLambda(gps, ConvExpr cenv env b) 
 
         | Expr.Match (_spBind,m,dtree,tgs,_,retTy) ->
-            let typR = ConvType cenv retTy 
             let targetsR = 
                 [| for (TTarget(vars,rhs,_)) in tgs  do
                     let varsR = vars |> List.map (ConvVal cenv)
-                    let targetR = ConvExpr cenv (bindVals env vars) rhs
+                    let targetR = ConvExpr cenv (env.BindVals vars) rhs
                     yield (varsR, targetR) |]
             let (|E|) (x:FSharpExpr) = x.E
 
-            let dtreeR = ConvDecisionTree cenv env typR dtree m
+            let dtreeR = ConvDecisionTree cenv env retTy dtree m
             // If the match is really an "if-then-else" then return it as such.
             match dtreeR with 
             | E(E.IfThenElse(a,E(E.DecisionTreeSuccess(0,[])), E(E.DecisionTreeSuccess(1,[])))) ->
@@ -401,7 +399,7 @@ module FSharpExprConvert =
                     let vslR = List.map (List.map (ConvVal cenv)) tmvs 
                     let tpsR = [ for tp in tps -> FSharpGenericParameter(cenv,tp) ]
                     let env = ExprTranslationEnv.Empty.BindTypars (Seq.zip tps tpsR |> Seq.toList)
-                    let env = (env, tmvs) ||> List.fold bindVals
+                    let env = env.BindCurriedVals tmvs
                     let bodyR = ConvExpr cenv env body
                     FSharpObjectExprOverride(tpsR, vslR, bodyR) ]
             let overridesR = ConvertMethods overrides 
@@ -562,9 +560,9 @@ module FSharpExprConvert =
 
             | TOp.TryCatch _,[_resty],[Expr.Lambda(_,_,_,[_],e1,_,_); Expr.Lambda(_,_,_,[vf],ef,_,_); Expr.Lambda(_,_,_,[vh],eh,_,_)] -> 
                 let vfR = ConvVal cenv vf
-                let envf = bindVal env vf
+                let envf = env.BindVal vf
                 let vhR = ConvVal cenv vh
-                let envh = bindVal env vh
+                let envh = env.BindVal vh
                 E.TryWith(ConvExpr cenv env e1,vfR,ConvExpr cenv envf ef,vhR,ConvExpr cenv envh eh) 
 
             | TOp.Bytes bytes,[],[] -> E.Const(box bytes, ConvType cenv (tyOfExpr cenv.g expr))
@@ -594,25 +592,25 @@ module FSharpExprConvert =
         // It's bit annoying that pattern matching does this tranformation. Like all premature optimization we pay a 
         // cost here to undo it.
         | Expr.Op(TOp.ILAsm([ I_isinst _ ],_),[ty],[e],_) -> 
-            None, bindIsInstVal env bind.Var (ty,e)
+            None, env.BindIsInstVal bind.Var (ty,e)
     
         // Remove let <compilerGeneratedVar> = <var> from quotation tree
         | Expr.Val _ when bind.Var.IsCompilerGenerated -> 
-            None, bindSubstVal env bind.Var bind.Expr
+            None, env.BindSubstVal bind.Var bind.Expr
 
         // Remove let <compilerGeneratedVar> = () from quotation tree
         | Expr.Const(Const.Unit,_,_) when bind.Var.IsCompilerGenerated -> 
-            None, bindSubstVal env bind.Var bind.Expr
+            None, env.BindSubstVal bind.Var bind.Expr
 
         // Remove let unionCase = ... from quotation tree
         | Expr.Op(TOp.UnionCaseProof _,_,[e],_) -> 
-            None, bindSubstVal env bind.Var e
+            None, env.BindSubstVal bind.Var e
 
         | _ ->
             let v = bind.Var
             let vR = ConvVal cenv v 
             let rhsR = ConvExpr cenv env bind.Expr
-            let envinner = bindVal env v
+            let envinner = env.BindVal v
             Some(vR,rhsR),envinner
 
     and ConvObjectModelCallLinear cenv env (isNewObj, v:FSharpMemberFunctionOrValue, enclTyArgs, methTyArgs,callArgs) contf =
@@ -640,8 +638,8 @@ module FSharpExprConvert =
     and ConvExprsLinear cenv env args contf = 
         match args with 
         | [] -> contf []
-        | [arg] -> ConvExprPrimLinear cenv env arg (fun argR -> contf [Mk cenv arg.Range argR])
-        | arg::rest -> ConvExprPrimLinear cenv env arg (fun argR -> ConvExprsLinear cenv env rest (fun restR -> contf (Mk cenv arg.Range argR :: restR)))
+        | [arg] -> ConvExprPrimLinear cenv env arg (fun argR -> contf [Mk2 cenv arg argR])
+        | arg::rest -> ConvExprPrimLinear cenv env arg (fun argR -> ConvExprsLinear cenv env rest (fun restR -> contf (Mk2 cenv arg argR :: restR)))
 
     and ConvValRef cenv env m (vref:ValRef) =
         let v = vref.Deref
@@ -688,36 +686,36 @@ module FSharpExprConvert =
             | _ -> 
                 wfail("FSharp.Compiler.Service cannot yet return this kind of constant", m)
 
-    and ConvDecisionTree cenv env typR x m = 
-        ConvDecisionTreePrim cenv env typR x |> Mk cenv m
+    and ConvDecisionTree cenv env dtreeRetTy x m = 
+        ConvDecisionTreePrim cenv env dtreeRetTy x |> Mk cenv m dtreeRetTy
 
-    and ConvDecisionTreePrim cenv env typR x = 
+    and ConvDecisionTreePrim cenv env dtreeRetTy x = 
         match x with 
         | TDSwitch(e1,csl,dfltOpt,m) -> 
             let acc = 
                 match dfltOpt with 
-                | Some d -> ConvDecisionTreePrim cenv env typR d 
+                | Some d -> ConvDecisionTreePrim cenv env dtreeRetTy d 
                 | None -> wfail( "FSharp.Compiler.Service cannot yet return this kind of pattern match", m)
             (csl,acc) ||> List.foldBack (fun (TCase(discrim,dtree)) acc -> 
-                    let acc = acc |> Mk cenv m
+                    let acc = acc |> Mk cenv m dtreeRetTy
                     match discrim with 
                     | Test.UnionCase (ucref, tyargs) -> 
                         let objR = ConvExpr cenv env e1
                         let ucR = ConvUnionCaseRef cenv ucref 
-                        let typR = ConvType cenv (mkAppTy ucref.TyconRef tyargs)
-                        E.IfThenElse (E.UnionCaseTest (objR, typR, ucR) |> Mk cenv m, ConvDecisionTree cenv env typR dtree m, acc) 
+                        let utypR = ConvType cenv (mkAppTy ucref.TyconRef tyargs)
+                        E.IfThenElse (E.UnionCaseTest (objR, utypR, ucR) |> Mk cenv m cenv.g.bool_ty, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
                     | Test.Const (Const.Bool true) -> 
                         let e1R = ConvExpr cenv env e1
-                        E.IfThenElse (e1R, ConvDecisionTree cenv env typR dtree m, acc) 
+                        E.IfThenElse (e1R, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
                     | Test.Const (Const.Bool false) -> 
                         let e1R = ConvExpr cenv env e1
                         // Note, reverse the branches
-                        E.IfThenElse (e1R, acc, ConvDecisionTree cenv env typR dtree m) 
+                        E.IfThenElse (e1R, acc, ConvDecisionTree cenv env dtreeRetTy dtree m) 
                     | Test.Const c -> 
                         let ty = tyOfExpr cenv.g e1
                         let eq = mkCallEqualsOperator cenv.g m ty e1 (Expr.Const (c, m, ty))
                         let eqR = ConvExpr cenv env eq 
-                        E.IfThenElse (eqR, ConvDecisionTree cenv env typR dtree m, acc) 
+                        E.IfThenElse (eqR, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
                     | Test.IsNull -> 
                         // Decompile cached isinst tests
                         match e1 with 
@@ -726,15 +724,15 @@ module FSharpExprConvert =
                             let tyR = ConvType cenv ty
                             let eR = ConvExpr cenv env e
                             // note: reverse the branches - a null test is a failure of an isinst test
-                            E.IfThenElse (E.TypeTest (tyR,eR) |> Mk cenv m, acc, ConvDecisionTree cenv env typR dtree m) 
+                            E.IfThenElse (E.TypeTest (tyR,eR) |> Mk cenv m cenv.g.bool_ty, acc, ConvDecisionTree cenv env dtreeRetTy dtree m) 
                         | _ -> 
                             let ty = tyOfExpr cenv.g e1
                             let eq = mkCallEqualsOperator cenv.g m ty e1 (Expr.Const (Const.Zero, m, ty))
                             let eqR = ConvExpr cenv env eq 
-                            E.IfThenElse (eqR, ConvDecisionTree cenv env typR dtree m, acc) 
+                            E.IfThenElse (eqR, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
                     | Test.IsInst (_srcty, tgty) -> 
                         let e1R = ConvExpr cenv env e1
-                        E.IfThenElse (E.TypeTest (ConvType cenv tgty, e1R)  |> Mk cenv m, ConvDecisionTree cenv env typR dtree m, acc) 
+                        E.IfThenElse (E.TypeTest (ConvType cenv tgty, e1R)  |> Mk cenv m cenv.g.bool_ty, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
                     | Test.ActivePatternCase _ -> wfail("unexpected Test.ActivePatternCase test in quoted expression",m)
                     | Test.ArrayLength _ -> wfail("FSharp.Compiler.Service cannot yet return array pattern matching", m))
 
@@ -743,21 +741,19 @@ module FSharpExprConvert =
                 // TAST stores pattern bindings in reverse order for some reason
                 // Reverse them here to give a good presentation to the user
                 let args = List.rev (FlatList.toList args)
-                //let vars = List.rev (FlatList.toList vars)
-                let argsR = ConvExprs cenv env args
-          
-                //let varsR = vars |> List.map (ConvVal cenv)
-                //let targetR = ConvExprPrim cenv (bindVals env vars) rhs
+                let argsR = ConvExprs cenv env args          
                 E.DecisionTreeSuccess(n, argsR)
-                //(varsR,args,targetR) |||> List.foldBack2 (fun vR arg acc -> E.Let((vR,ConvExpr cenv env arg), acc |> Mk cenv arg.Range) ) 
           
         | TDBind(bind,rest) -> 
                 // The binding may be a compiler-generated binding that gets removed in the quotation presentation
                 match ConvLetBind cenv env bind with 
-                | None, env -> ConvDecisionTreePrim cenv env typR rest 
-                | Some(bindR),env -> E.Let(bindR,ConvDecisionTree cenv env typR rest bind.Var.Range) 
+                | None, env -> ConvDecisionTreePrim cenv env dtreeRetTy rest 
+                | Some(bindR),env -> E.Let(bindR,ConvDecisionTree cenv env dtreeRetTy rest bind.Var.Range) 
 
-    let ConvExprOnDemand cenv env expr = FSharpExpr(cenv,Some(fun () -> ConvExpr cenv env expr),E.Unused,expr.Range)
+    /// Wrap the conversion in a function to make it on-demand.  Any pattern matching on the FSharpExpr will
+    /// force the evaluation of the entire conversion process eagerly.
+    let ConvExprOnDemand cenv env expr = 
+        FSharpExpr(cenv, Some(fun () -> ConvExpr cenv env expr), E.Unused, expr.Range, tyOfExpr cenv.g expr)
 
 
 
@@ -781,19 +777,11 @@ and FSharpImplementationFileContents(cenv, mimpl) =
         assert v.IsCompiledAsTopLevel
         let topValInfo = InferArityOfExprBinding cenv.g v bind.Expr
         let tps,_ctorThisValOpt,_baseValOpt,vsl,body,_bodyty = IteratedAdjustArityOfLambda cenv.g cenv.amap topValInfo bind.Expr
-        //let env = { env with functionVal = (match vspec with None -> None | Some v -> Some (v,topValInfo)) }
-(*
-        let env = Option.foldBack (BindInternalValToUnknown cenv) ctorThisValOpt env
-        let env = Option.foldBack (BindInternalValToUnknown cenv) baseValOpt env
-        let env = bindT tps env
-        let env = List.foldBack (BindInternalValsToUnknown cenv) vsl env
-*)
         let v = FSharpMemberOrFunctionOrValue(cenv, mkLocalValRef v)
         let gps = v.GenericParameters
         let vslR = List.map (List.map (FSharpExprConvert.ConvVal cenv)) vsl 
         let env = ExprTranslationEnv.Empty.BindTypars (Seq.zip tps gps |> Seq.toList)
-        let env = (env, vsl ) ||> List.fold bindVals
-        //printfn "%d gps"
+        let env = env.BindCurriedVals vsl 
         let e = FSharpExprConvert.ConvExprOnDemand cenv env body
         FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(v, vslR, e) 
 

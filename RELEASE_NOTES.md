@@ -288,3 +288,6 @@
 
 #### 0.0.73 - 
 * Add AssemblyContents and FSharpExpr to allow access to resolved, checked expression trees
+* Populate ReferencedProjects using ProjectFileInfo
+* Fix finding symbols declared in signature files
+* Add logging to project cracking facility

@@ -124,6 +124,9 @@ module BasicPatterns =
     /// Matches expressions which get a field from a union case
     val (|UnionCaseGet|_|) : FSharpExpr -> (FSharpExpr * FSharpType  * FSharpUnionCase * FSharpField) option 
 
+    /// Matches expressions which set a field from a union case (only used in FSharp.Core itself)
+    val (|UnionCaseSet|_|) : FSharpExpr -> (FSharpExpr * FSharpType  * FSharpUnionCase * FSharpField * FSharpExpr) option 
+
     /// Matches expressions which gets the tag for a union case
     val (|UnionCaseTag|_|) : FSharpExpr -> (FSharpExpr * FSharpType) option 
 
@@ -190,4 +193,8 @@ module BasicPatterns =
 
     /// Matches object expressions, returning the base type, the base call, the overrides and the interface implementations
     val (|ObjectExpr|_|) : FSharpExpr -> (FSharpType * FSharpExpr * FSharpObjectExprOverride list * (FSharpType * FSharpObjectExprOverride list) list) option
+
+    /// Matches expressions for an unresolved call to a trait 
+    val (|TraitCall|_|) : FSharpExpr -> (FSharpType list * string * FSharpType list * FSharpType list * FSharpExpr list) option 
+
 

@@ -91,8 +91,10 @@ type E =
     | FSharpFieldSet of  FSharpExpr option * FSharpType * FSharpField * FSharpExpr 
     | NewUnionCase of FSharpType * FSharpUnionCase * FSharpExpr list  
     | UnionCaseGet of FSharpExpr * FSharpType * FSharpUnionCase * FSharpField 
+    | UnionCaseSet of FSharpExpr * FSharpType * FSharpUnionCase * FSharpField  * FSharpExpr
     | UnionCaseTag of FSharpExpr * FSharpType 
     | UnionCaseTest of FSharpExpr  * FSharpType * FSharpUnionCase 
+    | TraitCall of FSharpType list * string * FSharpType list * FSharpType list * FSharpExpr list
     | NewTuple of FSharpType * FSharpExpr list  
     | TupleGet of FSharpType * int * FSharpExpr 
     | Coerce of FSharpType * FSharpExpr  
@@ -428,11 +430,17 @@ module FSharpExprConvert =
                 let argsR = ConvExprs cenv env args
                 E.NewRecord(typR, argsR) 
 
-            | TOp.UnionCaseFieldGet (ucref,n),tyargs,[e] -> 
+            | TOp.UnionCaseFieldGet (ucref,n),tyargs,[e1] -> 
                 let mkR = ConvUnionCaseRef cenv ucref 
                 let typR = ConvType cenv (mkAppTy ucref.TyconRef tyargs)
                 let projR = FSharpField(cenv, ucref, n)
-                E.UnionCaseGet(ConvExpr cenv env e, typR, mkR, projR) 
+                E.UnionCaseGet(ConvExpr cenv env e1, typR, mkR, projR) 
+
+            | TOp.UnionCaseFieldSet (ucref,n),tyargs,[e1;e2] -> 
+                let mkR = ConvUnionCaseRef cenv ucref 
+                let typR = ConvType cenv (mkAppTy ucref.TyconRef tyargs)
+                let projR = FSharpField(cenv, ucref, n)
+                E.UnionCaseSet(ConvExpr cenv env e1, typR, mkR, projR, ConvExpr cenv env e2) 
 
             | TOp.ValFieldGetAddr(_rfref),_tyargs,_ -> 
                 E.AddressOf(ConvLValueExpr cenv env expr)
@@ -577,10 +585,15 @@ module FSharpExprConvert =
                 let typR = ConvType cenv (mkAppTy tycr tyargs)
                 E.UnionCaseTag(ConvExpr cenv env arg1, typR) 
 
-            | TOp.UnionCaseFieldSet (_c,_i),_tinst,[_cx;_x]     -> wfail("FSharp.Compiler.Service cannot yet return expressions that set union case fields", m)
+            | TOp.TraitCall (TTrait(tys,nm,_memFlags,argtys,_rty,_colution)),_,_                    -> 
+                let tysR = ConvTypes cenv tys
+                let tyargsR = ConvTypes cenv tyargs
+                let argtysR = ConvTypes cenv argtys
+                let argsR = ConvExprs cenv env args
+                E.TraitCall(tysR, nm, argtysR, tyargsR, argsR) 
+
             | TOp.ExnFieldSet(_tcref,_i),[],[_ex;_x] -> wfail("FSharp.Compiler.Service cannot yet return expressions that set fields in exception values", m)
             | TOp.RefAddrGet,_,_                       -> wfail("FSharp.Compiler.Service cannot yet return expressions that require byref pointers", m)
-            | TOp.TraitCall (_ss),_,_                    -> wfail("FSharp.Compiler.Service cannot yet return member constraint calls, or uses of operators that implicitly resolve to a member constraint call", m)
             | _ -> wfail("Unexpected expression shape",m)
         | _ -> 
             failwith (sprintf "unhandled construct in AST: %A" expr)
@@ -858,5 +871,7 @@ module BasicPatterns =
     let (|ObjectExpr|_|) (e:FSharpExpr) = match e.E with E.ObjectExpr (a,b,c,d) -> Some (a,b,c,d) | _ -> None
     let (|DecisionTree|_|) (e:FSharpExpr) = match e.E with E.DecisionTree (a,b) -> Some (a,b) | _ -> None
     let (|DecisionTreeSuccess|_|) (e:FSharpExpr) = match e.E with E.DecisionTreeSuccess (a,b) -> Some (a,b) | _ -> None
+    let (|UnionCaseSet|_|) (e:FSharpExpr) = match e.E with E.UnionCaseSet (a,b,c,d,e) -> Some (a,b,c,d,e) | _ -> None
+    let (|TraitCall|_|) (e:FSharpExpr) = match e.E with E.TraitCall (a,b,c,d,e) -> Some (a,b,c,d,e) | _ -> None
 
 

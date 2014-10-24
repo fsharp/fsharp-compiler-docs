@@ -689,8 +689,8 @@ let ``Test Declarations selfhost whole compiler`` () =
     Environment.CurrentDirectory <-  __SOURCE_DIRECTORY__ +  @"/../../src/fsharp/FSharp.Compiler.Service"
     let projectFile = __SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
 
-    //let v = FSharpProjectFileInfo.Parse(projectFile, [("Configuration", "Debug"); ("CodeAnalysis", "true")],enableLogging=true)
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug"); ("CodeAnalysis", "true")])
+    //let v = FSharpProjectFileInfo.Parse(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")],enableLogging=true)
+    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")])
 
     // For subsets of the compiler:
     //let options = { options with OtherOptions = options.OtherOptions.[0..51] }
@@ -714,6 +714,40 @@ let ``Test Declarations selfhost whole compiler`` () =
 
     // Quickish (~4.5 seconds for all of FSharp.Compiler.Service.dll)
     #time "on"
+    for file in (wholeProjectResults.AssemblyContents.ImplementationFiles |> List.toArray) do
+        for d in file.Declarations do 
+           for (e,m) in exprsOfDecl d do 
+              // This forces the computation of the expression
+              match e with
+              | BasicPatterns.Const _ -> () //printfn "%s" s
+              | _ -> () //printfn "%s" s
+
+    ()
+
+[<Test>]
+let ``Test Declarations selfhost FSharp.Core`` () =
+    
+    Environment.CurrentDirectory <-  __SOURCE_DIRECTORY__ +  @"/../../../fsharp/src/fsharp/FSharp.Core"
+    let projectFile = __SOURCE_DIRECTORY__ + @"/../../../fsharp/src/fsharp/FSharp.Core/FSharp.Core.fsproj"
+
+    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
+
+    let wholeProjectResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
+    
+    (wholeProjectResults.Errors |> Array.filter (fun x -> x.Severity = FSharpErrorSeverity.Error)).Length |> shouldEqual 0 
+
+    for file in (wholeProjectResults.AssemblyContents.ImplementationFiles |> List.toArray) do
+        for d in file.Declarations do 
+           for s in printDeclaration (Some (HashSet ["setFreshConsTail"])) d do 
+              printfn "%s" s
+
+    #time "on"
+
+    for file in (wholeProjectResults.AssemblyContents.ImplementationFiles |> List.toArray) do
+        for d in file.Declarations do 
+           for s in exprsOfDecl d do 
+              () 
+
     for file in (wholeProjectResults.AssemblyContents.ImplementationFiles |> List.toArray) do
         for d in file.Declarations do 
            for (e,m) in exprsOfDecl d do 

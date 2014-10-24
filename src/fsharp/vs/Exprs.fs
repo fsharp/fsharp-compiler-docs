@@ -129,7 +129,7 @@ and [<Sealed>] FSharpExpr (cenv, f: (unit -> FSharpExpr) option, e: E, m:range, 
     member x.Type = FSharpType(cenv, ty)
     member x.cenv = cenv
     member x.E = match f with None -> e | Some f -> f().E
-    override __.ToString() = sprintf "%+A" e
+    override x.ToString() = sprintf "%+A" x.E
 
 /// The implementation of the conversion operation
 module FSharpExprConvert =
@@ -210,8 +210,8 @@ module FSharpExprConvert =
             match ConvLetBind cenv env bind with 
             | None, env -> ConvExprPrimLinear cenv env body contf
             | Some(bindR),env -> 
-            // tail recursive 
-            ConvExprLinear cenv env body (contf << (fun bodyR -> E.Let(bindR,bodyR)))
+                // tail recursive 
+                ConvExprLinear cenv env body (contf << (fun bodyR -> E.Let(bindR,bodyR)))
 
         // Remove initialization checks
         // Remove static initialization counter updates
@@ -239,7 +239,7 @@ module FSharpExprConvert =
         | Expr.Match (_spBind,m,dtree,tgs,_,retTy) ->
             let dtreeR = ConvDecisionTree cenv env retTy dtree m
             // tailcall 
-            ConvTargetsLinear cenv env (List.ofArray tgs) (fun (targetsR: _ list) -> 
+            ConvTargetsLinear cenv env (List.ofArray tgs) (contf << fun (targetsR: _ list) -> 
                 let (|E|) (x:FSharpExpr) = x.E
 
                 // If the match is really an "if-then-else" then return it as such.

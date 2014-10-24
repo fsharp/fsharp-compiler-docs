@@ -285,3 +285,6 @@
 #### 0.0.72 - 
 * Allow project parser to be used on project file with relative paths 
 * Expose attributes for non-F# symbols
+
+#### 0.0.73 - 
+* Add AssemblyContents and FSharpExpr to allow access to resolved, checked expression trees

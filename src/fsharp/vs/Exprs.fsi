@@ -72,6 +72,13 @@ module BasicPatterns =
     /// Matches expressions which are type abstractions
     val (|TypeLambda|_|) : FSharpExpr -> (FSharpGenericParameter list * FSharpExpr) option   
 
+    /// Matches expressions with a decision expression, each branch of which ends in DecisionTreeSuccess pasing control and values to one of the targets.
+    val (|DecisionTree|_|) : FSharpExpr -> (FSharpExpr * (FSharpMemberOrFunctionOrValue list * FSharpExpr) list) option
+
+    /// Special expressions at the end of a conditional decision structure in the decision expression node of a DecisionTree .
+    /// The given expressions are passed as values to the decision tree target.
+    val (|DecisionTreeSuccess|_|) : FSharpExpr -> (int * FSharpExpr list) option
+
     /// Matches expressions which are lambda abstractions
     val (|Lambda|_|) : FSharpExpr -> (FSharpMemberOrFunctionOrValue * FSharpExpr) option   
 

@@ -131,7 +131,8 @@ Target "SourceLink" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests" (fun _ ->
-    !! "./bin/**/FSharp.Compiler.Service.Tests.dll"
+    !! (if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll" 
+        else "./bin/**/FSharp.Compiler.Service.Tests.dll")
     |> NUnit (fun p ->
         { p with
             Framework = "v4.0.30319"

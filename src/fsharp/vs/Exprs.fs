@@ -187,7 +187,11 @@ module FSharpExprConvert =
 
     let rec ConvLValueExpr (cenv:Impl.cenv) env expr = ConvExpr cenv env (exprOfExprAddr cenv expr)
 
-    and ConvExpr cenv env expr = Mk2 cenv expr (ConvExprPrim cenv env expr) 
+    and ConvExpr cenv env expr = 
+        Mk2 cenv expr (ConvExprPrim cenv env expr) 
+
+    and ConvExprLinear cenv env expr contf = 
+        ConvExprPrimLinear cenv env expr (fun exprR -> contf (Mk2 cenv expr exprR))
 
     // Tail recursive function to process the subset of expressions considered "linear"
     and ConvExprPrimLinear cenv env expr contf = 
@@ -199,7 +203,7 @@ module FSharpExprConvert =
             let typR = ConvType cenv (mkAppTy ucref.TyconRef tyargs)
             let e1R = ConvExpr cenv env e1
             // tail recursive 
-            ConvExprPrimLinear cenv env e2 (contf << (fun e2R -> E.NewUnionCase(typR, mkR, [e1R; Mk2 cenv e2 e2R]) ))
+            ConvExprLinear cenv env e2 (contf << (fun e2R -> E.NewUnionCase(typR, mkR, [e1R; e2R]) ))
 
         // Large sequences of let bindings
         | Expr.Let (bind,body,_,_) ->  
@@ -207,7 +211,7 @@ module FSharpExprConvert =
             | None, env -> ConvExprPrimLinear cenv env body contf
             | Some(bindR),env -> 
             // tail recursive 
-            ConvExprPrimLinear cenv env body (contf << (fun bodyR -> E.Let(bindR,Mk2 cenv body bodyR)))
+            ConvExprLinear cenv env body (contf << (fun bodyR -> E.Let(bindR,bodyR)))
 
         // Remove initialization checks
         // Remove static initialization counter updates
@@ -225,12 +229,23 @@ module FSharpExprConvert =
         | Expr.Sequential (e1,e2,NormalSeq,_,_)  -> 
             let e1R = ConvExpr cenv env e1
             // tail recursive 
-            ConvExprPrimLinear cenv env e2 (contf << (fun e2R -> E.Sequential(e1R, Mk2 cenv e2 e2R)))
+            ConvExprLinear cenv env e2 (contf << (fun e2R -> E.Sequential(e1R, e2R)))
 
         | Expr.Sequential  (x0,x1,ThenDoSeq,_,_) ->  E.Sequential(ConvExpr cenv env x0, ConvExpr cenv env x1) 
 
         | ModuleValueOrMemberUse cenv.g (vref,vFlags,_f,_fty,tyargs,curriedArgs) when (nonNil tyargs || nonNil curriedArgs) && vref.IsMemberOrModuleBinding ->
             ConvModuleValueOrMemberUseLinear cenv env (expr,vref,vFlags,tyargs,curriedArgs) contf
+
+        | Expr.Match (_spBind,m,dtree,tgs,_,retTy) ->
+            let dtreeR = ConvDecisionTree cenv env retTy dtree m
+            // tailcall 
+            ConvTargetsLinear cenv env (List.ofArray tgs) (fun (targetsR: _ list) -> 
+                let (|E|) (x:FSharpExpr) = x.E
+
+                // If the match is really an "if-then-else" then return it as such.
+                match dtreeR with 
+                | E(E.IfThenElse(a,E(E.DecisionTreeSuccess(0,[])), E(E.DecisionTreeSuccess(1,[])))) -> E.IfThenElse(a,snd targetsR.[0],snd targetsR.[1])
+                | _ -> E.DecisionTree(dtreeR,targetsR))
 
         | _ -> 
             ConvExprPrim cenv env expr |> contf
@@ -328,8 +343,9 @@ module FSharpExprConvert =
 
         // These cases are the start of a "linear" sequence where we use tail recursion to allow use to 
         // deal with large expressions.
-        | Expr.Op(TOp.UnionCase _,_,[_;_],_) 
-        | Expr.Let _ 
+        | Expr.Op(TOp.UnionCase _,_,[_;_],_) // big lists
+        | Expr.Let _   // big linear sequences of 'let'
+        | Expr.Match _   // big linear sequences of 'match ... -> ....' 
         | Expr.Sequential _ ->
             ConvExprPrimLinear cenv env expr (fun e -> e)
 
@@ -369,21 +385,6 @@ module FSharpExprConvert =
             let gps = [ for tp in tps -> FSharpGenericParameter(cenv,tp) ]
             let env = env.BindTypars (Seq.zip tps gps |> Seq.toList)
             E.TypeLambda(gps, ConvExpr cenv env b) 
-
-        | Expr.Match (_spBind,m,dtree,tgs,_,retTy) ->
-            let targetsR = 
-                [| for (TTarget(vars,rhs,_)) in tgs  do
-                    let varsR = vars |> List.map (ConvVal cenv)
-                    let targetR = ConvExpr cenv (env.BindVals vars) rhs
-                    yield (varsR, targetR) |]
-            let (|E|) (x:FSharpExpr) = x.E
-
-            let dtreeR = ConvDecisionTree cenv env retTy dtree m
-            // If the match is really an "if-then-else" then return it as such.
-            match dtreeR with 
-            | E(E.IfThenElse(a,E(E.DecisionTreeSuccess(0,[])), E(E.DecisionTreeSuccess(1,[])))) ->
-                 E.IfThenElse(a,snd targetsR.[0],snd targetsR.[1])
-            | _ -> E.DecisionTree(dtreeR,List.ofArray targetsR)
 
         | Expr.Obj (_,typ,_,_,[TObjExprMethod(TSlotSig(_,ctyp, _,_,_,_),_,tps,[tmvs],e,_) as tmethod],_,m) when isDelegateTy cenv.g typ -> 
                 let f = mkLambdas m tps tmvs (e,GetFSharpViewOfReturnType cenv.g (returnTyOfMethod cenv.g tmethod))
@@ -517,6 +518,14 @@ module FSharpExprConvert =
                 let objR = ConvExpr cenv env (mkCoerceExpr (obj, mkAppTy tcref [], m, cenv.g.exn_ty))
                 E.FSharpFieldGet(Some objR, typR, ConvRecdFieldRef cenv fref) 
 
+            | TOp.ExnFieldSet(tcref,i),[],[obj;e2] -> 
+                let exnc = stripExnEqns tcref
+                let fspec = exnc.TrueInstanceFieldsAsList.[i]
+                let fref = mkRecdFieldRef tcref fspec.Name
+                let typR = ConvType cenv (mkAppTy tcref tyargs)
+                let objR = ConvExpr cenv env (mkCoerceExpr (obj, mkAppTy tcref [], m, cenv.g.exn_ty))
+                E.FSharpFieldSet(Some objR, typR, ConvRecdFieldRef cenv fref, ConvExpr cenv env e2) 
+
             | TOp.Coerce,[tgtTy;srcTy],[x]  -> 
                 if typeEquiv cenv.g tgtTy srcTy then 
                     ConvExprPrim cenv env x
@@ -592,11 +601,13 @@ module FSharpExprConvert =
                 let argsR = ConvExprs cenv env args
                 E.TraitCall(tysR, nm, argtysR, tyargsR, argsR) 
 
-            | TOp.ExnFieldSet(_tcref,_i),[],[_ex;_x] -> wfail("FSharp.Compiler.Service cannot yet return expressions that set fields in exception values", m)
-            | TOp.RefAddrGet,_,_                       -> wfail("FSharp.Compiler.Service cannot yet return expressions that require byref pointers", m)
-            | _ -> wfail("Unexpected expression shape",m)
+            | TOp.RefAddrGet,[ty],[e]  -> 
+                let replExpr = mkRecdFieldGetAddrViaExprAddr(e, mkRefCellContentsRef cenv.g, [ty],m)
+                ConvExprPrim cenv env replExpr
+
+            | _ -> wfail (sprintf "unhandled construct in AST", m)
         | _ -> 
-            failwith (sprintf "unhandled construct in AST: %A" expr)
+            wfail (sprintf "unhandled construct in AST", expr.Range)
 
 
     and ConvLetBind cenv env (bind : Binding) = 
@@ -654,8 +665,17 @@ module FSharpExprConvert =
     and ConvExprsLinear cenv env args contf = 
         match args with 
         | [] -> contf []
-        | [arg] -> ConvExprPrimLinear cenv env arg (fun argR -> contf [Mk2 cenv arg argR])
-        | arg::rest -> ConvExprPrimLinear cenv env arg (fun argR -> ConvExprsLinear cenv env rest (fun restR -> contf (Mk2 cenv arg argR :: restR)))
+        | [arg] -> ConvExprLinear cenv env arg (fun argR -> contf [argR])
+        | arg::rest -> ConvExprLinear cenv env arg (fun argR -> ConvExprsLinear cenv env rest (fun restR -> contf (argR :: restR)))
+
+    and ConvTargetsLinear cenv env tgs contf = 
+        match tgs with 
+        | [] -> contf []
+        | TTarget(vars,rhs,_)::rest -> 
+            let varsR = (List.rev vars) |> List.map (ConvVal cenv)
+            ConvExprLinear cenv env rhs (fun targetR -> 
+            ConvTargetsLinear cenv env rest (fun restR -> 
+            contf ((varsR, targetR) :: restR)))
 
     and ConvValRef cenv env m (vref:ValRef) =
         let v = vref.Deref
@@ -753,7 +773,6 @@ module FSharpExprConvert =
                     | Test.ArrayLength _ -> wfail("FSharp.Compiler.Service cannot yet return array pattern matching", m))
 
         | TDSuccess (args,n) -> 
-                //let (TTarget(vars,rhs,_)) = tgs.[n] 
                 // TAST stores pattern bindings in reverse order for some reason
                 // Reverse them here to give a good presentation to the user
                 let args = List.rev (FlatList.toList args)

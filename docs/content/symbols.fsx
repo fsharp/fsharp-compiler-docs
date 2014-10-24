@@ -10,7 +10,7 @@ for information on symbol references.
 > **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.
 
 As usual we start by referencing `FSharp.Compiler.Service.dll`, opening the relevant namespace and creating an instance
-of `InteractiveChecker`:
+of `FSharpChecker`:
 
 *)
 // Reference F# compiler API
@@ -55,7 +55,7 @@ checking of the given file through the `PartialAssemblySignature` property of th
 The full signature information is available for modules, types, attributes, members, values, functions, 
 union cases, record types, units of measure and other F# language constructs.
 
-The typed expression tree is not available via this route (as yet).
+The typed expression trees are also available, see [typed tree tutorial](typedtree.html).
 
 *)
 

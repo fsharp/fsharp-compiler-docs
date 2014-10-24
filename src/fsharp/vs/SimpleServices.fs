@@ -74,8 +74,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.Errors = results.Errors
 
         /// Get the declarations at the given code location.
-        member x.GetDeclarationsAlternate(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
-            async { let! items = results.GetDeclarationsAlternate(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
+        member x.GetDeclarationListInfo(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
+            async { let! items = results.GetDeclarationListInfo(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
                     return [| for i in items.Items -> SimpleDeclaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
 
         /// Get the Visual Studio F1-help keyword for the item at the given position
@@ -103,7 +103,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipTextAlternate(Line.fromZ line, col, names, ?xmlCommentRetriever=xmlCommentRetriever) |> Async.RunSynchronously
         member x.GetDeclarationLocation(line, col, names, preferSig) = x.GetDeclarationLocationAlternate(Line.fromZ line, col, names, preferSig) |> Async.RunSynchronously
         member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever) 
-        member x.GetDeclarations(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) = x.GetDeclarationsAlternate(Line.fromZ line, col, qualifyingNames, partialName, ?xmlCommentRetriever=xmlCommentRetriever)
+        member x.GetDeclarations(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) = x.GetDeclarationListInfo(Line.fromZ line, col, qualifyingNames, partialName, ?xmlCommentRetriever=xmlCommentRetriever)
 
     /// Provides simple services for checking and compiling F# scripts
     type public SimpleSourceCodeServices() =

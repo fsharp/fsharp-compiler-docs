@@ -70,12 +70,14 @@
     <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
       <Link>AssemblyInfo/assemblyinfo.shared.fs</Link>
     </Compile>
-    <FsSrGen Include="..\FSComp.txt">
+    <FsSrGen Include="..\FSComp.txt" Condition="'$(NoFsSrGenTask)' != 'true'">
       <Link>FSComp.txt</Link>
     </FsSrGen>
-    <FsSrGen Include="..\fsi\FSIstrings.txt">
+    <FsSrGen Include="..\fsi\FSIstrings.txt" Condition="'$(NoFsSrGenTask)' != 'true'">
       <Link>FSIstrings.txt</Link>
     </FsSrGen>
+    <Compile Include="$(IntermediateOutputPath)\FSComp.fs" Condition="'$(NoFsSrGenTask)' == 'true'" />
+    <Compile Include="$(IntermediateOutputPath)\FSIstrings.fs" Condition="'$(NoFsSrGenTask)' == 'true'" />
     <EmbeddedResource Include="..\FSStrings.resx">
       <Link>FSStrings.resx</Link>
     </EmbeddedResource>
@@ -128,12 +130,6 @@
     </Compile>
     <Compile Include="..\..\utils\prim-parsing.fs">
       <Link>LexYaccRuntime/prim-parsing.fs</Link>
-    </Compile>
-    <Compile Include="..\ExtensibleDumper.fsi">
-      <Link>Utilities/ExtensibleDumper.fsi</Link>
-    </Compile>
-    <Compile Include="..\ExtensibleDumper.fs">
-      <Link>Utilities/ExtensibleDumper.fs</Link>
     </Compile>
     <Compile Include="..\..\utils\resizearray.fsi">
       <Link>Utilities/resizearray.fsi</Link>
@@ -538,6 +534,12 @@
     </Compile>
     <Compile Include="..\vs\Symbols.fs">
       <Link>Service/Symbols.fs</Link>
+    </Compile>
+    <Compile Include="..\vs\Exprs.fsi">
+      <Link>Service/Exprs.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\Exprs.fs">
+      <Link>Service/Exprs.fs</Link>
     </Compile>
     <Compile Include="..\vs\ServiceLexing.fsi">
       <Link>Service/ServiceLexing.fsi</Link>

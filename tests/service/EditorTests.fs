@@ -51,7 +51,7 @@ let ``Intro test`` () =
     let tip = typeCheckResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken) |> Async.RunSynchronously
     (sprintf "%A" tip).Replace("\n","") |> shouldEqual """FSharpToolTipText [Single ("val foo : unit -> unitFull name: Test.foo",None)]"""
     // Get declarations (autocomplete) for a location
-    let decls =  typeCheckResults.GetDeclarationsAlternate(Some untyped, 7, 23, inputLines.[6], [], "msg", fun _ -> false)|> Async.RunSynchronously
+    let decls =  typeCheckResults.GetDeclarationListInfo(Some untyped, 7, 23, inputLines.[6], [], "msg", fun _ -> false)|> Async.RunSynchronously
     [ for item in decls.Items -> item.Name ] |> shouldEqual
           ["Chars"; "Clone"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
            "GetEnumerator"; "GetHashCode"; "GetType"; "GetTypeCode"; "IndexOf";
@@ -195,7 +195,7 @@ let ``Expression typing test`` () =
     // gives the results for the string type. 
     // 
     for col in 42..43 do 
-        let decls =  typeCheckResults.GetDeclarationsAlternate(Some untyped, 2, col, inputLines.[1], [], "", fun _ -> false)|> Async.RunSynchronously
+        let decls =  typeCheckResults.GetDeclarationListInfo(Some untyped, 2, col, inputLines.[1], [], "", fun _ -> false)|> Async.RunSynchronously
         set [ for item in decls.Items -> item.Name ] |> shouldEqual
            (set
               ["Chars"; "Clone"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
@@ -218,7 +218,7 @@ type Test() =
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
 
-    let decls = typeCheckResults.GetDeclarationsAlternate(Some untyped, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let decls = typeCheckResults.GetDeclarationListInfo(Some untyped, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     let item = decls.Items |> Array.tryFind (fun d -> d.Name = "abc")
     match item with
     | Some item -> 
@@ -239,7 +239,7 @@ type Test() =
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
 
-    let decls = typeCheckResults.GetDeclarationsAlternate(Some untyped, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let decls = typeCheckResults.GetDeclarationListInfo(Some untyped, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     let item = decls.Items |> Array.tryFind (fun d -> d.Name = "abc")
     match item with
     | Some item -> 
@@ -260,7 +260,7 @@ type Test() =
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
 
-    let decls = typeCheckResults.GetDeclarationsAlternate(Some untyped, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let decls = typeCheckResults.GetDeclarationListInfo(Some untyped, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
 
 [<Test; Ignore("Currently failing, see #139")>]
@@ -276,7 +276,7 @@ type Test() =
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
 
-    let decls = typeCheckResults.GetDeclarationSymbols(Some untyped, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let decls = typeCheckResults.GetDeclarationListSymbols(Some untyped, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     let item = decls |> List.tryFind (fun d -> d.Head.DisplayName = "abc")
     match item with
     | Some items -> 
@@ -298,7 +298,7 @@ type Test() =
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
 
-    let decls = typeCheckResults.GetDeclarationSymbols(Some untyped, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let decls = typeCheckResults.GetDeclarationListSymbols(Some untyped, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     let item = decls |> List.tryFind (fun d -> d.Head.DisplayName = "abc")
     match item with
     | Some items -> 
@@ -321,6 +321,6 @@ type Test() =
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
 
-    let decls = typeCheckResults.GetDeclarationSymbols(Some untyped, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
+    let decls = typeCheckResults.GetDeclarationListSymbols(Some untyped, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     decls|> Seq .exists (fun d -> d.Head.DisplayName = "abc") |> shouldEqual true
  

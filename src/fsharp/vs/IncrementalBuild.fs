@@ -958,21 +958,14 @@ type FSharpErrorInfo(fileName, s:pos, e:pos, severity: FSharpErrorSeverity, mess
     member __.FileName = fileName
     member __.WithStart(newStart) = FSharpErrorInfo(fileName, newStart, e, severity, message, subcategory)
     member __.WithEnd(newEnd) = FSharpErrorInfo(fileName, s, newEnd, severity, message, subcategory)
-    override e.ToString()=
-        sprintf "%s (%d,%d)-(%d,%d) %s %s %s" 
-            e.FileName
-            (int e.StartLineAlternate) (e.StartColumn + 1) (int e.EndLineAlternate) (e.EndColumn + 1)
-            e.Subcategory
-            (if e.Severity=FSharpErrorSeverity.Warning then "warning" else "error") 
-            e.Message    
+    override __.ToString()= sprintf "%s (%d,%d)-(%d,%d) %s %s %s" fileName (int s.Line) (s.Column + 1) (int e.Line) (e.Column + 1) subcategory (if severity=FSharpErrorSeverity.Warning then "warning" else "error")  message
             
     /// Decompose a warning or error into parts: position, severity, message
     static member (*internal*) CreateFromException(exn,warn,trim:bool,fallbackRange:range) = 
         let m = match RangeOfError exn with Some m -> m | None -> fallbackRange 
-        let s = m.Start
-        let e = (if trim then m.Start else m.End)
+        let e = if trim then m.Start else m.End
         let msg = bufs (fun buf -> OutputPhasedError buf exn false)
-        FSharpErrorInfo(m.FileName, s, e, (if warn then FSharpErrorSeverity.Warning else FSharpErrorSeverity.Error), msg, exn.Subcategory())
+        FSharpErrorInfo(m.FileName, m.Start, e, (if warn then FSharpErrorSeverity.Warning else FSharpErrorSeverity.Error), msg, exn.Subcategory())
         
     /// Decompose a warning or error into parts: position, severity, message
     static member internal CreateFromExceptionAndAdjustEof(exn,warn,trim:bool,fallbackRange:range, (linesCount:int, lastLength:int)) = 
@@ -1075,7 +1068,7 @@ module internal IncrementalFSharpBuild =
           tcResolutions: Nameres.TcResolutions list
           topAttribs:TopAttribs option
           typedImplFiles:TypedImplFile list
-          tcErrors:(PhasedError * bool) list } // errors=true, warnings=false
+          tcErrors:(PhasedError * FSharpErrorSeverity) list } // errors=true, warnings=false
 
     /// Maximum time share for a piece of background work before it should (cooperatively) yield
     /// to enable other requests to be serviced. Yielding means returning a continuation function
@@ -1140,8 +1133,8 @@ module internal IncrementalFSharpBuild =
         override x.ErrorCount = errorsSeenInScope.Count
 
         member x.GetErrors() = 
-            let errorsAndWarnings = (errorsSeenInScope |> ResizeArray.toList |> List.map(fun e->e,true)) @ (warningsSeenInScope |> ResizeArray.toList |> List.map(fun e->e,false))
-            errorsAndWarnings
+            [ for e in errorsSeenInScope -> e,FSharpErrorSeverity.Error 
+              for e in warningsSeenInScope -> e,FSharpErrorSeverity.Warning ]
 
 
     /// This represents the global state established as each task function runs as part of the build
@@ -1173,7 +1166,7 @@ module internal IncrementalFSharpBuild =
         TcGlobals: Env.TcGlobals 
         TcConfig: Build.TcConfig 
         TcEnvAtEnd : TypeChecker.TcEnv 
-        Errors : (PhasedError * bool) list 
+        Errors : (PhasedError * FSharpErrorSeverity) list 
         TcResolutions: Nameres.TcResolutions list 
         TimeStamp: System.DateTime }
 
@@ -1190,7 +1183,7 @@ module internal IncrementalFSharpBuild =
 
     type IncrementalBuilder(tcConfig : TcConfig, projectDirectory, outfile, assemblyName, niceNameGen : Ast.NiceNameGenerator, lexResourceManager,
                             sourceFiles:string list, projectReferences: IProjectReference list, ensureReactive, 
-                            keepGeneratedTypedAssembly:bool)
+                            keepAssemblyContents:bool)
                =
         let tcConfigP = TcConfigProvider.Constant(tcConfig)
         let importsInvalidated = new Event<string>()
@@ -1233,7 +1226,7 @@ module internal IncrementalFSharpBuild =
                             DateTime.Now                               
                     with e -> 
                         // Note we are not calling errorLogger.GetErrors() anywhere for this task. This warning will not be reported...
-                        // REVIEW: Consider if this is ok. I believe so, because this is a background build and we aren'T currently reporting errors from the background build. 
+                        // REVIEW: Consider if this is ok. I believe so, because this is a background build and we aren't currently reporting errors from the background build. 
                         errorLogger.Warning(e)
                         DateTime.Now                               
                 yield (Choice1Of2 r.resolvedPath,originalTimeStamp)  
@@ -1295,7 +1288,7 @@ module internal IncrementalFSharpBuild =
         /// Timestamps of referenced assemblies are taken from the file's timestamp.
         let TimestampReferencedAssemblyTask (ref, originalTimeStamp) =
             assertNotDisposed()
-            // Note: we are not calling errorLogger.GetErrors() anywhere. Is this a problem?
+            // Note: we are not calling errorLogger.GetErrors() anywhere. Not a problem because timestamping can't really fail
             let errorLogger = CompilationErrorLogger("TimestampReferencedAssemblyTask", tcConfig)
             // Return the disposable object that cleans up
             use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parameter, projectDirectory) // Parameter because -r reference
@@ -1392,7 +1385,7 @@ module internal IncrementalFSharpBuild =
                                                          tcAcc.tcState,input)
                         
                         /// Only keep the typed interface files when doing a "full" build for fsc.exe, otherwise just throw them away
-                        let typedImplFiles = if keepGeneratedTypedAssembly then typedImplFiles else []
+                        let typedImplFiles = if keepAssemblyContents then typedImplFiles else []
                         let tcResolution = sink.GetTcResolutions()  
                         fileChecked.Trigger filename
                         return {tcAcc with tcState=tcState 
@@ -1429,28 +1422,44 @@ module internal IncrementalFSharpBuild =
         /// Finish up the typechecking to produce outputs for the rest of the compilation process
         let FinalizeTypeCheckTask (tcStates:TypeCheckAccumulator[]) = 
           assertNotDisposed()
-          let finalAcc = tcStates.[tcStates.Length-1]
-          let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnvAtEndOfFile, defaultArg acc.topAttribs EmptyTopAttrs, acc.typedImplFiles)
-          let (_tcEnvAtEndOfLastFile,topAttrs,mimpls),tcState = TypecheckMultipleInputsFinish (results,finalAcc.tcState)
+          let errorLogger = CompilationErrorLogger("CombineImportedAssembliesTask", tcConfig)
+          use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.TypeCheck, projectDirectory)
 
-          let oldContents = tcState.Ccu.Deref.Contents
+          // Get the state at the end of the type-checking of the last file
+          let finalAcc = tcStates.[tcStates.Length-1]
+
+          // Finish the checking
+          let (_tcEnvAtEndOfLastFile,topAttrs,mimpls),tcState = 
+              let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnvAtEndOfFile, defaultArg acc.topAttribs EmptyTopAttrs, acc.typedImplFiles)
+              TypecheckMultipleInputsFinish (results,finalAcc.tcState)
+
   
-          let ilAssemRef, assemblyInfoOpt = 
+          let ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt = 
             try
+              // TypecheckClosedInputSetFinish fills in tcState.Ccu but in incrfemental scenarios we don't want this,
+              // so we make this temporary here
+              let oldContents = tcState.Ccu.Deref.Contents
               try
-                let tcState,_tassembly = TypecheckClosedInputSetFinish (mimpls,tcState)
+                let tcState,tcAssemblyExpr = TypecheckClosedInputSetFinish (mimpls,tcState)
 
                 /// Try to find an attribute that takes a string argument
                 let TryFindStringAttribute tcGlobals attribSpec attribs =
                     match TryFindFSharpAttribute tcGlobals attribSpec attribs with
-                    | Some (Attrib(_,_,[ AttribStringArg(s) ],_,_,_,_))  -> Some (s)
+                    | Some (Attrib(_,_,[ AttribStringArg(s) ],_,_,_,_))  -> Some s
                     | _ -> None
 
+                // Compute the identity of the generated assembly based on attributes, options etc.
+                // Some of this is duplicated from fsc.fs
                 let ilAssemRef = 
-                    // Compute the identity of the generated assembly based on attributes, options etc.
-                    // Some of this is duplicated from fsc.fs
-                    let signingInfo = Driver.ValidateKeySigningAttributes tcConfig tcGlobals topAttrs
-                    let signer = Driver.GetSigner signingInfo
+                    let publicKey = 
+                        try 
+                            let signingInfo = Driver.ValidateKeySigningAttributes tcConfig tcGlobals topAttrs
+                            match Driver.GetSigner signingInfo with 
+                            | None -> None
+                            | Some s -> Some (PublicKey.KeyAsToken(s.PublicKey))
+                        with e -> 
+                           errorRecoveryNoRange e
+                           None
                     let locale = TryFindStringAttribute tcGlobals (mkMscorlibAttrib tcGlobals "System.Reflection.AssemblyCultureAttribute") topAttrs.assemblyAttrs
                     let assemVerFromAttrib = 
                         TryFindStringAttribute tcGlobals (mkMscorlibAttrib tcGlobals "System.Reflection.AssemblyVersionAttribute") topAttrs.assemblyAttrs 
@@ -1459,61 +1468,62 @@ module internal IncrementalFSharpBuild =
                         match assemVerFromAttrib with 
                         | None -> tcConfig.version.GetVersionInfo(tcConfig.implicitIncludeDir)
                         | Some v -> v
-                    let publicKey = 
-                        match signer with 
-                        | None -> None
-                        | Some s -> Some (PublicKey.KeyAsToken(s.PublicKey))
                     ILAssemblyRef.Create(assemblyName, None, publicKey, false, Some ver, locale)
                 
-                let assemblyOpt = 
-                  // Assemblies containing type provider components can not successfully be used via cross-assembly references.
-                  // We simply return 'None' for the assembly portion of the cross-assembly reference.
-                  let hasTypeProviderAssemblyAttrib = 
-                      topAttrs.assemblyAttrs |> List.exists (fun (Attrib(tcref,_,_,_,_,_,_)) -> tcref.CompiledRepresentationForNamedType.BasicQualifiedName = typeof<Microsoft.FSharp.Core.CompilerServices.TypeProviderAssemblyAttribute>.FullName)
-                  if hasTypeProviderAssemblyAttrib then
-                    None
-                  else
-                    let generatedCcu = tcState.Ccu
-                    let exportRemapping = MakeExportRemapping generatedCcu generatedCcu.Contents
+                // Here we construct the build data (IRawFSharpAssemblyData) representing the assembly when used 
+                // as a cross-assembly reference.  Note the assembly has not been generated on disk, so this is
+                // a virtualized view of the assembly contents as computed by background checking.
+                let tcAssemblyDataOpt = 
+                  try
+                      // Assemblies containing type provider components can not successfully be used via cross-assembly references.
+                      // We return 'None' for the assembly portion of the cross-assembly reference 
+                      let hasTypeProviderAssemblyAttrib = 
+                          topAttrs.assemblyAttrs |> List.exists (fun (Attrib(tcref,_,_,_,_,_,_)) -> tcref.CompiledRepresentationForNamedType.BasicQualifiedName = typeof<Microsoft.FSharp.Core.CompilerServices.TypeProviderAssemblyAttribute>.FullName)
+                      if hasTypeProviderAssemblyAttrib then
+                        None
+                      else
+                        let generatedCcu = tcState.Ccu
+                        let exportRemapping = MakeExportRemapping generatedCcu generatedCcu.Contents
                       
+                        let sigData = 
+                            let _sigDataAttributes,sigDataResources = Driver.EncodeInterfaceData(tcConfig,tcGlobals,exportRemapping,generatedCcu,outfile)
+                            [ for r in sigDataResources  do
+                                let ccuName = GetSignatureDataResourceName r
+                                let bytes = 
+                                    match r.Location with 
+                                    | ILResourceLocation.Local b -> b()
+                                    | _-> assert false; failwith "unreachable"
+                                yield (ccuName, bytes) ]
 
-                    let sigData = 
-                        let _sigDataAttributes,sigDataResources = Driver.EncodeInterfaceData(tcConfig,tcGlobals,exportRemapping,generatedCcu,outfile)
-                        [ for r in sigDataResources  do
-                            let ccuName = GetSignatureDataResourceName r
-                            let bytes = 
-                                match r.Location with 
-                                | ILResourceLocation.Local b -> b()
-                                | _-> assert false; failwith "unreachable"
-                            yield (ccuName, bytes) ]
-
-                    let autoOpenAttrs = topAttrs.assemblyAttrs |> List.choose (List.singleton >> TryFindStringAttribute tcGlobals tcGlobals.attrib_AutoOpenAttribute)
-                    let ivtAttrs = topAttrs.assemblyAttrs |> List.choose (List.singleton >> TryFindStringAttribute tcGlobals tcGlobals.attrib_InternalsVisibleToAttribute)
-                    let assembly = 
-                        { new IRawFSharpAssemblyContents with 
-                             member __.GetAutoOpenAttributes(_ilg) = autoOpenAttrs
-                             member __.GetInternalsVisibleToAttributes(_ilg) =  ivtAttrs
-                             member __.TryGetRawILModule() = None
-                             member __.GetRawFSharpSignatureData(m,ilShortAssemName,filename) = sigData
-                             member __.GetRawFSharpOptimizationData(m,ilShortAssemName,filename) = [ ]
-                             member __.GetRawTypeForwarders() = mkILExportedTypes []  // TODO: cross-project references with type forwarders
-                             member __.ShortAssemblyName = assemblyName
-                             member __.ILScopeRef = IL.ILScopeRef.Assembly ilAssemRef
-                             member __.ILAssemblyRefs = [] // These are not significant for service scenarios
-                             member __.HasAnyFSharpSignatureDataAttribute(ilg) =  true
-                             member __.HasMatchingFSharpSignatureDataAttribute(ilg) = true
-                            }
-                    Some assembly
-                ilAssemRef, assemblyOpt
+                        let autoOpenAttrs = topAttrs.assemblyAttrs |> List.choose (List.singleton >> TryFindStringAttribute tcGlobals tcGlobals.attrib_AutoOpenAttribute)
+                        let ivtAttrs = topAttrs.assemblyAttrs |> List.choose (List.singleton >> TryFindStringAttribute tcGlobals tcGlobals.attrib_InternalsVisibleToAttribute)
+                        let tcAssemblyData = 
+                            { new IRawFSharpAssemblyData with 
+                                 member __.GetAutoOpenAttributes(_ilg) = autoOpenAttrs
+                                 member __.GetInternalsVisibleToAttributes(_ilg) =  ivtAttrs
+                                 member __.TryGetRawILModule() = None
+                                 member __.GetRawFSharpSignatureData(m,ilShortAssemName,filename) = sigData
+                                 member __.GetRawFSharpOptimizationData(m,ilShortAssemName,filename) = [ ]
+                                 member __.GetRawTypeForwarders() = mkILExportedTypes []  // TODO: cross-project references with type forwarders
+                                 member __.ShortAssemblyName = assemblyName
+                                 member __.ILScopeRef = IL.ILScopeRef.Assembly ilAssemRef
+                                 member __.ILAssemblyRefs = [] // These are not significant for service scenarios
+                                 member __.HasAnyFSharpSignatureDataAttribute(ilg) =  true
+                                 member __.HasMatchingFSharpSignatureDataAttribute(ilg) = true
+                                }
+                        Some tcAssemblyData
+                    with e -> 
+                        errorRecoveryNoRange e
+                        None
+                ilAssemRef, tcAssemblyDataOpt, Some tcAssemblyExpr
               finally 
                   tcState.Ccu.Deref.Contents <- oldContents
             with e -> 
-                assert false
-                // If anything goes wrong in preparing either the version or the cross-assembly reference, just give up
-                // We don't have good ways to report errors here.
-                mkSimpleAssRef assemblyName, None
+                errorRecoveryNoRange e
+                mkSimpleAssRef assemblyName, None, None
 
-          ilAssemRef, assemblyInfoOpt, finalAcc
+          let finalAccWithErrors =  { finalAcc with tcErrors = finalAcc.tcErrors @ errorLogger.GetErrors() }
+          ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt, finalAccWithErrors
 
         // END OF BUILD TASK FUNCTIONS
         // ---------------------------------------------------------------------------------------------            
@@ -1661,7 +1671,8 @@ module internal IncrementalFSharpBuild =
         member __.GetCheckResultsAndImplementationsForProject() = 
             let build = EvalAndKeepOutput finalizedTypeCheckNode None
             match GetScalarResult(finalizedTypeCheckNode,build) with
-            | Some((ilAssemRef, assemblyOpt, tcAcc), timestamp) -> GetPartialCheckResults (tcAcc,timestamp), ilAssemRef, assemblyOpt
+            | Some((ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt, tcAcc), timestamp) -> 
+                GetPartialCheckResults (tcAcc,timestamp), ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt
             | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
         
         member __.GetLogicalTimeStampForProject() = 
@@ -1698,7 +1709,7 @@ module internal IncrementalFSharpBuild =
 
         /// CreateIncrementalBuilder (for background type checking). Note that fsc.fs also
         /// creates an incremental builder used by the command line compiler.
-        static member TryCreateBackgroundBuilderForProjectOptions (scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectReferences, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment) =
+        static member TryCreateBackgroundBuilderForProjectOptions (scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectReferences, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment, keepAssemblyContents) =
     
           // Trap and report warnings and errors from creation.
           use errorScope = new ErrorScope()
@@ -1777,7 +1788,7 @@ module internal IncrementalFSharpBuild =
                 let builder = 
                     new IncrementalBuilder(tcConfig, projectDirectory, outfile, assemblyName, niceNameGen,
                                            resourceManager, sourceFilesNew, projectReferences, ensureReactive=true, 
-                                           keepGeneratedTypedAssembly=false)
+                                           keepAssemblyContents=keepAssemblyContents)
                 Some builder
              with e -> 
                errorRecoveryNoRange e

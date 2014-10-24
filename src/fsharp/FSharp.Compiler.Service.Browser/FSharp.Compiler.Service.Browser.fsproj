@@ -545,6 +545,12 @@
     <Compile Include="..\vs\Symbols.fs">
       <Link>Service/Symbols.fs</Link>
     </Compile>
+    <Compile Include="..\vs\Exprs.fsi">
+      <Link>Service/Exprs.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\Exprs.fs">
+      <Link>Service/Exprs.fs</Link>
+    </Compile>
     <Compile Include="..\vs\ServiceLexing.fsi">
       <Link>Service/ServiceLexing.fsi</Link>
     </Compile>

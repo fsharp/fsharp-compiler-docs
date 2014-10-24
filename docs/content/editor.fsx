@@ -154,14 +154,14 @@ This can be called on any identifier or in any scope (in which case you get a li
 in the scope) or immediately after `.` to get a list of members of some object. Here, we get a 
 list of members of the string value `msg`.
 
-To do this, we call `GetDeclarationsAlternate` with the location of the `.` symbol on the last line 
+To do this, we call `GetDeclarationListInfo` with the location of the `.` symbol on the last line 
 (ending with `printfn "%s" msg.`). The offsets are one-based, so the location is `7, 23`.
 We also need to specify a function that says that the text has not changed and the current identifer
 where we need to perform the completion.
 *)
 // Get declarations (autocomplete) for a location
 let decls = 
-    checkFileResults.GetDeclarationsAlternate
+    checkFileResults.GetDeclarationListInfo
       (Some parseFileResults, 7, 23, inputLines.[6], [], "msg", fun _ -> false)
     |> Async.RunSynchronously
 
@@ -172,7 +172,7 @@ for item in decls.Items do
 (**
 
 > **NOTE:** `v` is an alternative name for the old `GetDeclarations`. The old `GetDeclarations` was
-deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  `GetDeclarationsAlternate` will be renamed back to `GetDeclarations`.
+deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  `GetDeclarationListInfo` will be renamed back to `GetDeclarations`.
 *)
 
 (**

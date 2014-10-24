@@ -43,7 +43,7 @@ type SimpleCheckFileResults =
 
     /// Get the declarations at the given code location.
     [<System.Obsolete("This type has been deprecated. Use the SourceCodeServices API directly. See http://fsharp.github.io/FSharp.Compiler.Service/editor.html")>] 
-    member GetDeclarationsAlternate: line:int * col:int * qualifyingNames:string list * partialName:string * ?xmlCommentRetriever:(string * string -> string) -> Async<SimpleDeclaration []>
+    member GetDeclarationListInfo: line:int * col:int * qualifyingNames:string list * partialName:string * ?xmlCommentRetriever:(string * string -> string) -> Async<SimpleDeclaration []>
 
     /// Get the Visual Studio F1-help keyword for the item at the given position
     [<System.Obsolete("This type has been deprecated. Use the SourceCodeServices API directly. See http://fsharp.github.io/FSharp.Compiler.Service/editor.html")>] 
@@ -64,7 +64,7 @@ type SimpleCheckFileResults =
     [<System.Obsolete("This method has been renamed to GetToolTipText")>] 
     member GetDataTipText: line:Line0 * col:int * names:string list * ?xmlCommentRetriever:(string * string -> string) -> string
 
-    [<System.Obsolete("This member has been replaced by GetDeclarationsAlternate, which accepts 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
+    [<System.Obsolete("This member has been replaced by GetDeclarationListInfo, which accepts 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
     member GetDeclarations: line:Line0 * col:int * qualifyingNames:string list * partialName:string * ?xmlCommentRetriever:(string * string -> string) -> Async<SimpleDeclaration []>
 
     [<System.Obsolete("This member has been replaced by GetF1KeywordAlternate, which accepts 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]

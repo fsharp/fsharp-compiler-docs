@@ -53,7 +53,7 @@ type FSharpToolTipText =
 /// Returned by GetDeclarations.
 //
 // Note: this type holds a weak reference to compiler resources. 
-type FSharpDeclaration =
+type FSharpDeclarationListItem =
     /// Get the display name for the declaration.
     member Name : string
     /// Get the description text for the declaration. Commputing this property may require using compiler
@@ -71,13 +71,13 @@ type FSharpDeclaration =
 /// Returned by GetDeclarations.
 //
 // Note: this type holds a weak reference to compiler resources. 
-type FSharpDeclarationSet =
-    member Items : FSharpDeclaration[]
+type FSharpDeclarationListInfo =
+    member Items : FSharpDeclarationListItem[]
 
     // Implementation details used by other code in the compiler    
-    static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * items:Item list * reactor:IReactorOperations * checkAlive:(unit -> bool) -> FSharpDeclarationSet
-    static member internal Error : message:string -> FSharpDeclarationSet
-    static member Empty : FSharpDeclarationSet
+    static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * items:Item list * reactor:IReactorOperations * checkAlive:(unit -> bool) -> FSharpDeclarationListInfo
+    static member internal Error : message:string -> FSharpDeclarationListInfo
+    static member Empty : FSharpDeclarationListInfo
 
 
 // implementation details used by other code in the compiler    
@@ -105,14 +105,22 @@ module internal ItemDescriptionsImpl =
 
 
 
-[<System.Obsolete("This type has been renamed to 'FSharpDeclaration'")>]
-/// Renamed to FSharpDeclaration
-type Declaration = FSharpDeclaration
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListItem'")>]
+/// Renamed to FSharpDeclarationListItem
+type Declaration = FSharpDeclarationListItem
+
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListItem'")>]
+/// Renamed to FSharpDeclarationListItem
+type FSharpDeclaration = FSharpDeclarationListItem
 
 
-[<System.Obsolete("This type has been renamed to 'FSharpDeclarationGroup'")>]
-/// Renamed to FSharpDeclarationGroup
-type DeclarationGroup = FSharpDeclarationGroup
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListInfo'")>]
+/// Renamed to FSharpDeclarationListInfo
+type DeclarationGroup = FSharpDeclarationListInfo
+
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListInfo'")>]
+/// Renamed to FSharpDeclarationListInfo
+type DeclarationSet = FSharpDeclarationListInfo
 
 [<System.Obsolete("This type has been renamed to 'FSharpXmlDoc'")>]
 /// Renamed to FSharpXmlDoc
@@ -121,6 +129,10 @@ type XmlComment = FSharpXmlDoc
 [<System.Obsolete("This type has been renamed to 'FSharpToolTipElement'")>]
 /// Renamed to FSharpToolTipElement
 type ToolTipElement = FSharpToolTipElement
+
+[<System.Obsolete("This type has been renamed to 'FSharpDeclarationListInfo'")>]
+/// Renamed to FSharpDeclarationListInfo
+type FSharpDeclarationSet = FSharpDeclarationListInfo
 
 [<System.Obsolete("This type has been renamed to 'FSharpToolTipText'")>]
 /// Renamed to FSharpToolTipText

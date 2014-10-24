@@ -363,14 +363,13 @@ module FSharpExprConvert =
         | Expr.Const(c,m,ty) -> 
             ConvConst cenv env m c ty
 
-
         | Expr.LetRec(binds,body,_,_) -> 
-                let vs = valsOfBinds binds
-                let vsR = vs |> FlatList.map (ConvVal cenv)
-                let env = env.BindVals vs
-                let bodyR = ConvExpr cenv env body 
-                let bindsR = FlatList.zip vsR (binds |> FlatList.map (fun b -> b.Expr |> ConvExpr cenv env))
-                E.LetRec(FlatList.toList bindsR,bodyR) 
+            let vs = valsOfBinds binds
+            let vsR = vs |> FlatList.map (ConvVal cenv)
+            let env = env.BindVals vs
+            let bodyR = ConvExpr cenv env body 
+            let bindsR = FlatList.zip vsR (binds |> FlatList.map (fun b -> b.Expr |> ConvExpr cenv env))
+            E.LetRec(FlatList.toList bindsR,bodyR) 
   
         | Expr.Lambda(_,_,_,vs,b,_,_) -> 
             let v,b = MultiLambdaToTupledLambda vs b 
@@ -387,10 +386,10 @@ module FSharpExprConvert =
             E.TypeLambda(gps, ConvExpr cenv env b) 
 
         | Expr.Obj (_,typ,_,_,[TObjExprMethod(TSlotSig(_,ctyp, _,_,_,_),_,tps,[tmvs],e,_) as tmethod],_,m) when isDelegateTy cenv.g typ -> 
-                let f = mkLambdas m tps tmvs (e,GetFSharpViewOfReturnType cenv.g (returnTyOfMethod cenv.g tmethod))
-                let fR = ConvExpr cenv env f 
-                let tyargR = ConvType cenv ctyp 
-                E.NewDelegate(tyargR, fR) 
+            let f = mkLambdas m tps tmvs (e,GetFSharpViewOfReturnType cenv.g (returnTyOfMethod cenv.g tmethod))
+            let fR = ConvExpr cenv env f 
+            let tyargR = ConvType cenv ctyp 
+            E.NewDelegate(tyargR, fR) 
 
         | Expr.StaticOptimization (_,_,x,_) -> 
             ConvExprPrim cenv env x

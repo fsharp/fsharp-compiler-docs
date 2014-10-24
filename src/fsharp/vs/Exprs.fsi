@@ -54,15 +54,21 @@ and FSharpImplementationFileDeclaration =
 /// Pattern matching is reduced to decision trees and conditional tests. Some other
 /// constructs may be represented in reduced form.
 and [<Sealed>]  FSharpExpr =
+    /// The range of the expression
     member Range : range
+    /// The type of the expression
     member Type : FSharpType
 
 /// Represents a checked method in an object expression, as seen by the F# language.  
 and [<Sealed>]  FSharpObjectExprOverride = 
+    /// The generic parameters of the method
     member GenericParameters : FSharpGenericParameter list
+    /// The parameters of the method
     member CurriedParameterGroups : FSharpMemberFunctionOrValue list list
+    /// The expression that forms the body of the method
     member Body : FSharpExpr
 
+/// A collection of active patterns to analyze expressions
 module BasicPatterns =
 
     /// Matches expressions which are uses of values 

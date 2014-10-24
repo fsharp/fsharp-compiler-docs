@@ -662,7 +662,7 @@ let ``Test expressions of declarations stress big expressions`` () =
     let file1 = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
 
     // This should not stack overflow
-    printDeclarations None (List.ofSeq file1.Declarations) |> Seq.toList  
+    printDeclarations None (List.ofSeq file1.Declarations) |> Seq.toList |> ignore
 
 
 #if SELF_HOST_STRESS

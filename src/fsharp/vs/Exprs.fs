@@ -68,20 +68,14 @@ module ExprTranslationImpl =
     let wfail (msg,m:range) = failwith (msg + sprintf " at %s" (m.ToString()))
 
 
-type FSharpValue = FSharpMemberFunctionOrValue
-
-and [<Sealed>]  FSharpObjectExprOverride(gps: FSharpGenericParameter list, args:FSharpMemberFunctionOrValue list list, body: FSharpExpr) = 
-    member __.GenericParameters = gps
-    member __.CurriedParameterGroups = args
-    member __.Body = body
-
-and E =
-
-    | Value  of FSharpValue
+/// The core tree of data produced by converting F# compiler TAST expressions into the form which we make available through the compiler API
+/// through active patterns.
+type E =
+    | Value  of FSharpMemberFunctionOrValue
     | ThisValue  of FSharpType 
     | BaseValue  of FSharpType 
     | Application of FSharpExpr * FSharpType list * FSharpExpr list  
-    | Lambda of FSharpValue * FSharpExpr  
+    | Lambda of FSharpMemberFunctionOrValue * FSharpExpr  
     | TypeLambda of FSharpGenericParameter list * FSharpExpr  
     | Quote  of FSharpExpr  
     | IfThenElse   of FSharpExpr * FSharpExpr * FSharpExpr  
@@ -89,8 +83,8 @@ and E =
     | DecisionTreeSuccess of int * FSharpExpr list
     | Call of FSharpExpr option * FSharpMemberOrFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list 
     | NewObject of FSharpMemberOrFunctionOrValue * FSharpType list * FSharpExpr list 
-    | LetRec of ( FSharpValue * FSharpExpr) list * FSharpExpr  
-    | Let of (FSharpValue * FSharpExpr) * FSharpExpr 
+    | LetRec of ( FSharpMemberFunctionOrValue * FSharpExpr) list * FSharpExpr  
+    | Let of (FSharpMemberFunctionOrValue * FSharpExpr) * FSharpExpr 
     | NewRecord of FSharpType * FSharpExpr list 
     | ObjectExpr of FSharpType * FSharpExpr * FSharpObjectExprOverride list * (FSharpType * FSharpObjectExprOverride list) list
     | FSharpFieldGet of  FSharpExpr option * FSharpType * FSharpField 
@@ -114,13 +108,19 @@ and E =
     | FastIntegerForLoop of FSharpExpr * FSharpExpr * FSharpExpr * bool
     | WhileLoop of FSharpExpr * FSharpExpr  
     | TryFinally of FSharpExpr * FSharpExpr  
-    | TryWith of FSharpExpr * FSharpValue * FSharpExpr * FSharpValue * FSharpExpr  
+    | TryWith of FSharpExpr * FSharpMemberFunctionOrValue * FSharpExpr * FSharpMemberFunctionOrValue * FSharpExpr  
     | NewDelegate of FSharpType * FSharpExpr  
     | ILFieldGet of FSharpExpr option * FSharpType * string 
     | ILFieldSet of FSharpExpr option * FSharpType * string  * FSharpExpr 
     | ILAsm of string * FSharpType list * FSharpExpr list
 
+/// Used to represent the information at an object expression member 
+and [<Sealed>]  FSharpObjectExprOverride(gps: FSharpGenericParameter list, args:FSharpMemberFunctionOrValue list list, body: FSharpExpr) = 
+    member __.GenericParameters = gps
+    member __.CurriedParameterGroups = args
+    member __.Body = body
 
+/// The type of expressions provided through the compiler API.
 and [<Sealed>] FSharpExpr (cenv, f: (unit -> FSharpExpr) option, e: E, m:range, ty) =
 
     member x.Range = m
@@ -129,6 +129,7 @@ and [<Sealed>] FSharpExpr (cenv, f: (unit -> FSharpExpr) option, e: E, m:range, 
     member x.E = match f with None -> e | Some f -> f().E
     override __.ToString() = sprintf "%+A" e
 
+/// The implementation of the conversion operation
 module FSharpExprConvert =
 
     let IsStaticInitializationField (rfref: RecdFieldRef)  = 
@@ -179,9 +180,11 @@ module FSharpExprConvert =
 
 
     let Mk cenv m ty e = FSharpExpr(cenv, None, e, m, ty)
+
     let Mk2 cenv (orig:Expr) e = FSharpExpr(cenv, None, e, orig.Range, tyOfExpr cenv.g orig)
 
     let rec ConvLValueExpr (cenv:Impl.cenv) env expr = ConvExpr cenv env (exprOfExprAddr cenv expr)
+
     and ConvExpr cenv env expr = Mk2 cenv expr (ConvExprPrim cenv env expr) 
 
     // Tail recursive function to process the subset of expressions considered "linear"
@@ -757,6 +760,7 @@ module FSharpExprConvert =
 
 
 
+/// The contents of the F# assembly as provided through the compiler API
 type FSharpAssemblyContents(cenv: Impl.cenv, mimpls: TypedImplFile list) = 
 
     new (g, thisCcu, tcImports, mimpls) = FSharpAssemblyContents(Impl.cenv(g,thisCcu,tcImports), mimpls)
@@ -770,7 +774,7 @@ and FSharpImplementationFileDeclaration =
     | InitAction of FSharpExpr
 
 and FSharpImplementationFileContents(cenv, mimpl) = 
-    let (TImplFile(_qname,_pragmas,ModuleOrNamespaceExprWithSig(_mty,mdef,_),hasExplicitEntryPoint,isScript)) = mimpl 
+    let (TImplFile(qname,_pragmas,ModuleOrNamespaceExprWithSig(_mty,mdef,_),hasExplicitEntryPoint,isScript)) = mimpl 
     let rec getDecls2 (ModuleOrNamespaceExprWithSig(_mty,def,_m)) = getDecls def
     and getBind (bind: Binding) = 
         let v = bind.Var
@@ -805,6 +809,8 @@ and FSharpImplementationFileContents(cenv, mimpl) =
         | TMDefs(mdefs) -> 
             [ for mdef in mdefs do yield! getDecls mdef ]
 
+    member __.QualifiedName = qname.Text
+    member __.FileName = qname.Range.FileName
     member __.Declarations = getDecls mdef 
     member __.HasExplicitEntryPoint = hasExplicitEntryPoint
     member __.IsScript = isScript

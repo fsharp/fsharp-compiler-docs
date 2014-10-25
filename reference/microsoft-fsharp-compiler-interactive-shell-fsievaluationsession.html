@@ -48,10 +48,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3691', 3691)" onmouseover="showTip(event, '3691', 3691)">
+          <code onmouseout="hideTip(event, '3132', 3132)" onmouseover="showTip(event, '3132', 3132)">
             new(...)
           </code>
-          <div class="tip" id="3691">
+          <div class="tip" id="3132">
             <strong>Signature:</strong> (fsiConfig:FsiEvaluationSessionHostConfig * argv:string [] * inReader:TextReader * outWriter:TextWriter * errorWriter:TextWriter) -&gt; FsiEvaluationSession<br />
                       </div>
         </td>
@@ -75,10 +75,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3700', 3700)" onmouseover="showTip(event, '3700', 3700)">
+          <code onmouseout="hideTip(event, '3133', 3133)" onmouseover="showTip(event, '3133', 3133)">
             CurrentPartialAssemblySignature
           </code>
-          <div class="tip" id="3700">
+          <div class="tip" id="3133">
             <strong>Signature:</strong> FSharpAssemblySignature<br />
                       </div>
         </td>
@@ -94,29 +94,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3701', 3701)" onmouseover="showTip(event, '3701', 3701)">
-            CurrentPartialAssemblySignature
-          </code>
-          <div class="tip" id="3701">
-            <strong>Signature:</strong> FSharpAssemblySignature<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2498-2498" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Get a handle to the resolved view of the current signature of the incrementally generated assembly.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3702', 3702)" onmouseover="showTip(event, '3702', 3702)">
+          <code onmouseout="hideTip(event, '3134', 3134)" onmouseover="showTip(event, '3134', 3134)">
             EvalExpression(code)
           </code>
-          <div class="tip" id="3702">
+          <div class="tip" id="3134">
             <strong>Signature:</strong> code:string -&gt; FsiValue option<br />
                       </div>
         </td>
@@ -139,10 +120,10 @@ by input from 'stdin'.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3703', 3703)" onmouseover="showTip(event, '3703', 3703)">
+          <code onmouseout="hideTip(event, '3135', 3135)" onmouseover="showTip(event, '3135', 3135)">
             EvalInteraction(code)
           </code>
-          <div class="tip" id="3703">
+          <div class="tip" id="3135">
             <strong>Signature:</strong> code:string -&gt; unit<br />
                       </div>
         </td>
@@ -164,10 +145,10 @@ by input from 'stdin'.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3704', 3704)" onmouseover="showTip(event, '3704', 3704)">
+          <code onmouseout="hideTip(event, '3136', 3136)" onmouseover="showTip(event, '3136', 3136)">
             EvalScript(filePath)
           </code>
-          <div class="tip" id="3704">
+          <div class="tip" id="3136">
             <strong>Signature:</strong> filePath:string -&gt; unit<br />
                       </div>
         </td>
@@ -188,10 +169,10 @@ by input from 'stdin'.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3705', 3705)" onmouseover="showTip(event, '3705', 3705)">
+          <code onmouseout="hideTip(event, '3137', 3137)" onmouseover="showTip(event, '3137', 3137)">
             GetCompletions(longIdent)
           </code>
-          <div class="tip" id="3705">
+          <div class="tip" id="3137">
             <strong>Signature:</strong> longIdent:string -&gt; seq&lt;string&gt;<br />
                       </div>
         </td>
@@ -210,10 +191,10 @@ by input from 'stdin'.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3706', 3706)" onmouseover="showTip(event, '3706', 3706)">
+          <code onmouseout="hideTip(event, '3138', 3138)" onmouseover="showTip(event, '3138', 3138)">
             InteractiveChecker
           </code>
-          <div class="tip" id="3706">
+          <div class="tip" id="3138">
             <strong>Signature:</strong> InteractiveChecker<br />
                       </div>
         </td>
@@ -233,33 +214,10 @@ for additional checking operations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3707', 3707)" onmouseover="showTip(event, '3707', 3707)">
-            InteractiveChecker
-          </code>
-          <div class="tip" id="3707">
-            <strong>Signature:</strong> InteractiveChecker<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2584-2584" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>The single, global interactive checker to use in conjunction with other operations
-on the FsiEvaluationSession.</p>
-
-<p>If you are using an FsiEvaluationSession in this process, you should only use this InteractiveChecker 
-for additional checking operations.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3708', 3708)" onmouseover="showTip(event, '3708', 3708)">
+          <code onmouseout="hideTip(event, '3139', 3139)" onmouseover="showTip(event, '3139', 3139)">
             Interrupt()
           </code>
-          <div class="tip" id="3708">
+          <div class="tip" id="3139">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
@@ -275,10 +233,10 @@ for additional checking operations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3709', 3709)" onmouseover="showTip(event, '3709', 3709)">
+          <code onmouseout="hideTip(event, '3140', 3140)" onmouseover="showTip(event, '3140', 3140)">
             IsGui
           </code>
-          <div class="tip" id="3709">
+          <div class="tip" id="3140">
             <strong>Signature:</strong> bool<br />
                       </div>
         </td>
@@ -294,29 +252,10 @@ for additional checking operations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3710', 3710)" onmouseover="showTip(event, '3710', 3710)">
-            IsGui
-          </code>
-          <div class="tip" id="3710">
-            <strong>Signature:</strong> bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2502-2502" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>A host calls this to determine if the --gui parameter is active</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3711', 3711)" onmouseover="showTip(event, '3711', 3711)">
+          <code onmouseout="hideTip(event, '3141', 3141)" onmouseover="showTip(event, '3141', 3141)">
             LCID
           </code>
-          <div class="tip" id="3711">
+          <div class="tip" id="3141">
             <strong>Signature:</strong> int option<br />
                       </div>
         </td>
@@ -332,29 +271,10 @@ for additional checking operations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3712', 3712)" onmouseover="showTip(event, '3712', 3712)">
-            LCID
-          </code>
-          <div class="tip" id="3712">
-            <strong>Signature:</strong> int option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2505-2505" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>A host calls this to get the active language ID if provided by fsi-server-lcid</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3713', 3713)" onmouseover="showTip(event, '3713', 3713)">
+          <code onmouseout="hideTip(event, '3142', 3142)" onmouseover="showTip(event, '3142', 3142)">
             ParseAndCheckInteraction(code)
           </code>
-          <div class="tip" id="3713">
+          <div class="tip" id="3142">
             <strong>Signature:</strong> code:string -&gt; FSharpParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults<br />
                       </div>
         </td>
@@ -377,10 +297,10 @@ by input from 'stdin'.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3714', 3714)" onmouseover="showTip(event, '3714', 3714)">
+          <code onmouseout="hideTip(event, '3143', 3143)" onmouseover="showTip(event, '3143', 3143)">
             PartialAssemblySignatureUpdated
           </code>
-          <div class="tip" id="3714">
+          <div class="tip" id="3143">
             <strong>Signature:</strong> IEvent&lt;unit&gt;<br />
                       </div>
         </td>
@@ -399,32 +319,10 @@ type checking state.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3715', 3715)" onmouseover="showTip(event, '3715', 3715)">
-            PartialAssemblySignatureUpdated
-          </code>
-          <div class="tip" id="3715">
-            <strong>Signature:</strong> IEvent&lt;unit&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2582-2582" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Raised when an interaction is successfully typechecked and executed, resulting in an update to the
-type checking state.</p>
-
-<p>This event is triggered after parsing and checking, either via input from 'stdin', or via a call to EvalInteraction.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3716', 3716)" onmouseover="showTip(event, '3716', 3716)">
+          <code onmouseout="hideTip(event, '3144', 3144)" onmouseover="showTip(event, '3144', 3144)">
             ReportUnhandledException(exn)
           </code>
-          <div class="tip" id="3716">
+          <div class="tip" id="3144">
             <strong>Signature:</strong> exn:exn -&gt; unit<br />
                       </div>
         </td>
@@ -440,10 +338,10 @@ type checking state.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3717', 3717)" onmouseover="showTip(event, '3717', 3717)">
+          <code onmouseout="hideTip(event, '3145', 3145)" onmouseover="showTip(event, '3145', 3145)">
             Run()
           </code>
-          <div class="tip" id="3717">
+          <div class="tip" id="3145">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
@@ -475,10 +373,10 @@ if interacting, start the background thread to read the standard input.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3718', 3718)" onmouseover="showTip(event, '3718', 3718)">
+          <code onmouseout="hideTip(event, '3146', 3146)" onmouseover="showTip(event, '3146', 3146)">
             Create(...)
           </code>
-          <div class="tip" id="3718">
+          <div class="tip" id="3146">
             <strong>Signature:</strong> (fsiConfig:FsiEvaluationSessionHostConfig * argv:string [] * inReader:TextReader * outWriter:TextWriter * errorWriter:TextWriter * collectible:bool option) -&gt; FsiEvaluationSession<br />
                       </div>
         </td>
@@ -502,10 +400,10 @@ if interacting, start the background thread to read the standard input.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3719', 3719)" onmouseover="showTip(event, '3719', 3719)">
+          <code onmouseout="hideTip(event, '3147', 3147)" onmouseover="showTip(event, '3147', 3147)">
             GetDefaultConfiguration()
           </code>
-          <div class="tip" id="3719">
+          <div class="tip" id="3147">
             <strong>Signature:</strong> unit -&gt; FsiEvaluationSessionHostConfig<br />
                       </div>
         </td>
@@ -522,10 +420,10 @@ implicitly reference FSharp.Compiler.Interactive.Settings.dll.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3720', 3720)" onmouseover="showTip(event, '3720', 3720)">
+          <code onmouseout="hideTip(event, '3148', 3148)" onmouseover="showTip(event, '3148', 3148)">
             GetDefaultConfiguration(fsiObj)
           </code>
-          <div class="tip" id="3720">
+          <div class="tip" id="3148">
             <strong>Signature:</strong> fsiObj:obj -&gt; FsiEvaluationSessionHostConfig<br />
                       </div>
         </td>
@@ -543,10 +441,10 @@ FSharp.Compiler.Interactive.Settings.dll  is referenced by default.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3721', 3721)" onmouseover="showTip(event, '3721', 3721)">
+          <code onmouseout="hideTip(event, '3149', 3149)" onmouseover="showTip(event, '3149', 3149)">
             GetDefaultConfiguration(...)
           </code>
-          <div class="tip" id="3721">
+          <div class="tip" id="3149">
             <strong>Signature:</strong> (fsiObj:obj * useFsiAuxLib:bool) -&gt; FsiEvaluationSessionHostConfig<br />
                       </div>
         </td>
@@ -588,6 +486,7 @@ The flag indicates if FSharp.Compiler.Interactive.Settings.dll  is referenced by
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>

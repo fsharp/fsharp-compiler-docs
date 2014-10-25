@@ -43,7 +43,7 @@ for information on symbol references.</p>
 </blockquote>
 
 <p>As usual we start by referencing <code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
-of <code>InteractiveChecker</code>:</p>
+of <code>FSharpChecker</code>:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
@@ -121,7 +121,7 @@ checking of the given file through the <code>PartialAssemblySignature</code> pro
 <p>The full signature information is available for modules, types, attributes, members, values, functions, 
 union cases, record types, units of measure and other F# language constructs.</p>
 
-<p>The typed expression tree is not available via this route (as yet).</p>
+<p>The typed expression trees are also available, see <a href="typedtree.html">typed tree tutorial</a>.</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
@@ -566,6 +566,7 @@ a specification of a larger project.</p>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>

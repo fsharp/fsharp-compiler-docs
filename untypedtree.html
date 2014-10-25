@@ -49,10 +49,10 @@ from <a href="editor.html">editor services</a>.</p>
 
 <h2>Getting the untyped AST</h2>
 
-<p>To access the untyped AST, you need to create an instance of <code>InteractiveChecker</code>.
+<p>To access the untyped AST, you need to create an instance of <code>FSharpChecker</code>.
 This type represents a context for type checking and parsing and corresponds either
 to a stand-alone F# script file (e.g. opened in Visual Studio) or to a loaded project
-file with multiple files. Once you have an instance of <code>InteractiveChecker</code>, you can
+file with multiple files. Once you have an instance of <code>FSharpChecker</code>, you can
 use it to perform "untyped parse" which is the first step of type-checking. The
 second phase is "typed parse" and is used by <a href="editor.html">editor services</a>.</p>
 
@@ -77,7 +77,7 @@ second phase is "typed parse" and is used by <a href="editor.html">editor servic
 
 <p>The untyped parse operation is very fast (compared to type checking, which can 
 take notable amount of time) and so we can perform it synchronously. First, we
-need to create <code>InteractiveChecker</code> - the constructor takes an argument that
+need to create <code>FSharpChecker</code> - the constructor takes an argument that
 can be used to notify the checker about file changes (which we ignore).</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -136,10 +136,6 @@ return the <code>ParseTree</code> property:</p>
 </td>
 </tr>
 </table>
-
-<p>The documentation for <code>InteractiveChecker</code> is currently work in progress, but
-you can find some information in the inline comments in the F# source code 
-repository (<a href="https://github.com/fsharp/fsharp/blob/fsharp_31/src/fsharp/vs/service.fsi">see <code>service.fsi</code> source code</a>).</p>
 
 <h2>Walking over the AST</h2>
 
@@ -356,7 +352,7 @@ down to expressions and patterns), we can get AST of a sample input and run the 
 
 <h2>Putting things together</h2>
 
-<p>As already discussed, the <code>getUntypedTree</code> function uses <code>InteractiveChecker</code> to run the first
+<p>As already discussed, the <code>getUntypedTree</code> function uses <code>FSharpChecker</code> to run the first
 phase (parsing) on the AST and get back the tree. The function requires F# source code together
 with location of the file. The location does not have to exist (it is used only for location 
 information) and it can be in both Unix and Windows formats:</p>
@@ -547,6 +543,7 @@ tutorial.</p>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>

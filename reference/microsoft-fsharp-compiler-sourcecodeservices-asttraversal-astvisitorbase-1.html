@@ -47,10 +47,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3297', 3297)" onmouseover="showTip(event, '3297', 3297)">
+          <code onmouseout="hideTip(event, '3211', 3211)" onmouseover="showTip(event, '3211', 3211)">
             new()
           </code>
-          <div class="tip" id="3297">
+          <div class="tip" id="3211">
             <strong>Signature:</strong> unit -&gt; AstVisitorBase&lt;&#39;T&gt;<br />
                       </div>
         </td>
@@ -73,10 +73,29 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3304', 3304)" onmouseover="showTip(event, '3304', 3304)">
+          <code onmouseout="hideTip(event, '3212', 3212)" onmouseover="showTip(event, '3212', 3212)">
+            VisitBinding(defaultTraverse, binding)
+          </code>
+          <div class="tip" id="3212">
+            <strong>Signature:</strong> (defaultTraverse:(SynBinding -&gt; &#39;T option) * binding:SynBinding) -&gt; &#39;T option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceParseTreeWalk.fs#L67-67" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>VisitBinding allows overriding binding behavior (note: by default it would defaultTraverse expression)</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3213', 3213)" onmouseover="showTip(event, '3213', 3213)">
             VisitBinding(arg1, arg2)
           </code>
-          <div class="tip" id="3304">
+          <div class="tip" id="3213">
             <strong>Signature:</strong> ((SynBinding -&gt; &#39;T option) * SynBinding) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -93,10 +112,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3305', 3305)" onmouseover="showTip(event, '3305', 3305)">
+          <code onmouseout="hideTip(event, '3214', 3214)" onmouseover="showTip(event, '3214', 3214)">
             VisitExpr(arg1, arg2, arg3, arg4)
           </code>
-          <div class="tip" id="3305">
+          <div class="tip" id="3214">
             <strong>Signature:</strong> (TraversePath * (SynExpr -&gt; &#39;T option) * (SynExpr -&gt; &#39;T option) * SynExpr) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -118,10 +137,29 @@ path helps to track AST nodes that were passed during traversal</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3306', 3306)" onmouseover="showTip(event, '3306', 3306)">
+          <code onmouseout="hideTip(event, '3215', 3215)" onmouseover="showTip(event, '3215', 3215)">
             VisitImplicitInherit(...)
           </code>
-          <div class="tip" id="3306">
+          <div class="tip" id="3215">
+            <strong>Signature:</strong> (defaultTraverse:(SynExpr -&gt; &#39;T option) * _ty:SynType * expr:SynExpr * _m:range) -&gt; &#39;T option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceParseTreeWalk.fs#L61-61" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>VisitImplicitInherit(defaultTraverse,ty,expr,m), defaults to just visiting expr</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3216', 3216)" onmouseover="showTip(event, '3216', 3216)">
+            VisitImplicitInherit(...)
+          </code>
+          <div class="tip" id="3216">
             <strong>Signature:</strong> ((SynExpr -&gt; &#39;T option) * SynType * SynExpr * range) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -138,10 +176,28 @@ path helps to track AST nodes that were passed during traversal</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3307', 3307)" onmouseover="showTip(event, '3307', 3307)">
+          <code onmouseout="hideTip(event, '3217', 3217)" onmouseover="showTip(event, '3217', 3217)">
             VisitInheritSynMemberDefn(...)
           </code>
-          <div class="tip" id="3307">
+          <div class="tip" id="3217">
+            <strong>Signature:</strong> (_componentInfo:SynComponentInfo * _typeDefnKind:SynTypeDefnKind * _synType:SynType * _members:SynMemberDefns * _range:range) -&gt; &#39;T option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceParseTreeWalk.fs#L73-73" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3218', 3218)" onmouseover="showTip(event, '3218', 3218)">
+            VisitInheritSynMemberDefn(...)
+          </code>
+          <div class="tip" id="3218">
             <strong>Signature:</strong> (SynComponentInfo * SynTypeDefnKind * SynType * SynMemberDefns * range) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -157,10 +213,28 @@ path helps to track AST nodes that were passed during traversal</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3308', 3308)" onmouseover="showTip(event, '3308', 3308)">
+          <code onmouseout="hideTip(event, '3219', 3219)" onmouseover="showTip(event, '3219', 3219)">
+            VisitInterfaceSynMemberDefnType(...)
+          </code>
+          <div class="tip" id="3219">
+            <strong>Signature:</strong> _synType:SynType -&gt; &#39;T option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceParseTreeWalk.fs#L76-76" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3220', 3220)" onmouseover="showTip(event, '3220', 3220)">
             VisitInterfaceSynMemberDefnType(arg1)
           </code>
-          <div class="tip" id="3308">
+          <div class="tip" id="3220">
             <strong>Signature:</strong> SynType -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -176,10 +250,29 @@ path helps to track AST nodes that were passed during traversal</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3309', 3309)" onmouseover="showTip(event, '3309', 3309)">
+          <code onmouseout="hideTip(event, '3221', 3221)" onmouseover="showTip(event, '3221', 3221)">
+            VisitMatchClause(defaultTraverse, mc)
+          </code>
+          <div class="tip" id="3221">
+            <strong>Signature:</strong> (defaultTraverse:(SynMatchClause -&gt; &#39;T option) * mc:SynMatchClause) -&gt; &#39;T option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceParseTreeWalk.fs#L70-70" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>VisitMatchClause allows overriding clause behavior (note: by default it would defaultTraverse expression)</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3222', 3222)" onmouseover="showTip(event, '3222', 3222)">
             VisitMatchClause(arg1, arg2)
           </code>
-          <div class="tip" id="3309">
+          <div class="tip" id="3222">
             <strong>Signature:</strong> ((SynMatchClause -&gt; &#39;T option) * SynMatchClause) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -196,10 +289,29 @@ path helps to track AST nodes that were passed during traversal</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3310', 3310)" onmouseover="showTip(event, '3310', 3310)">
+          <code onmouseout="hideTip(event, '3223', 3223)" onmouseover="showTip(event, '3223', 3223)">
+            VisitModuleDecl(defaultTraverse, decl)
+          </code>
+          <div class="tip" id="3223">
+            <strong>Signature:</strong> (defaultTraverse:(SynModuleDecl -&gt; &#39;T option) * decl:SynModuleDecl) -&gt; &#39;T option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceParseTreeWalk.fs#L64-64" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>VisitModuleDecl allows overriding module declaration behavior</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3224', 3224)" onmouseover="showTip(event, '3224', 3224)">
             VisitModuleDecl(arg1, arg2)
           </code>
-          <div class="tip" id="3310">
+          <div class="tip" id="3224">
             <strong>Signature:</strong> ((SynModuleDecl -&gt; &#39;T option) * SynModuleDecl) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -216,10 +328,28 @@ path helps to track AST nodes that were passed during traversal</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3311', 3311)" onmouseover="showTip(event, '3311', 3311)">
+          <code onmouseout="hideTip(event, '3225', 3225)" onmouseover="showTip(event, '3225', 3225)">
+            VisitRecordField(...)
+          </code>
+          <div class="tip" id="3225">
+            <strong>Signature:</strong> (_path:TraversePath * _copyOpt:SynExpr option * _recordField:LongIdentWithDots option) -&gt; &#39;T option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceParseTreeWalk.fs#L79-79" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3226', 3226)" onmouseover="showTip(event, '3226', 3226)">
             VisitRecordField(arg1, arg2, arg3)
           </code>
-          <div class="tip" id="3311">
+          <div class="tip" id="3226">
             <strong>Signature:</strong> (TraversePath * SynExpr option * LongIdentWithDots option) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -235,10 +365,29 @@ path helps to track AST nodes that were passed during traversal</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3312', 3312)" onmouseover="showTip(event, '3312', 3312)">
+          <code onmouseout="hideTip(event, '3227', 3227)" onmouseover="showTip(event, '3227', 3227)">
+            VisitTypeAbbrev(_ty, _m)
+          </code>
+          <div class="tip" id="3227">
+            <strong>Signature:</strong> (_ty:SynType * _m:range) -&gt; &#39;T option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceParseTreeWalk.fs#L58-58" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>VisitTypeAbbrev(ty,m), defaults to ignoring this leaf of the AST</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3228', 3228)" onmouseover="showTip(event, '3228', 3228)">
             VisitTypeAbbrev(arg1, arg2)
           </code>
-          <div class="tip" id="3312">
+          <div class="tip" id="3228">
             <strong>Signature:</strong> (SynType * range) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -279,6 +428,7 @@ path helps to track AST nodes that were passed during traversal</p>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>

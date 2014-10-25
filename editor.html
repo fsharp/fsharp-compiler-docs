@@ -263,7 +263,7 @@ This can be called on any identifier or in any scope (in which case you get a li
 in the scope) or immediately after <code>.</code> to get a list of members of some object. Here, we get a 
 list of members of the string value <code>msg</code>.</p>
 
-<p>To do this, we call <code>GetDeclarationsAlternate</code> with the location of the <code>.</code> symbol on the last line 
+<p>To do this, we call <code>GetDeclarationListInfo</code> with the location of the <code>.</code> symbol on the last line 
 (ending with <code>printfn "%s" msg.</code>). The offsets are one-based, so the location is <code>7, 23</code>.
 We also need to specify a function that says that the text has not changed and the current identifer
 where we need to perform the completion.</p>
@@ -283,20 +283,20 @@ where we need to perform the completion.</p>
 <td class="snippet"><pre class="fssnip">
 <span class="c">// Get declarations (autocomplete) for a location</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs38', 72)" onmouseover="showTip(event, 'fs38', 72)" class="i">decls</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs24', 73)" onmouseover="showTip(event, 'fs24', 73)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 74)" onmouseover="showTip(event, 'fs39', 74)" class="i">GetDeclarationsAlternate</span>
-      (<span onmouseout="hideTip(event, 'fs40', 75)" onmouseover="showTip(event, 'fs40', 75)" class="i">Some</span> <span onmouseout="hideTip(event, 'fs17', 76)" onmouseover="showTip(event, 'fs17', 76)" class="i">parseFileResults</span>, <span class="n">7</span>, <span class="n">23</span>, <span onmouseout="hideTip(event, 'fs10', 77)" onmouseover="showTip(event, 'fs10', 77)" class="i">inputLines</span><span class="o">.</span>[<span class="n">6</span>], [], <span class="s">&quot;</span><span class="s">msg</span><span class="s">&quot;</span>, <span class="k">fun</span> _ <span class="k">-&gt;</span> <span class="k">false</span>)
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 78)" onmouseover="showTip(event, 'fs15', 78)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 79)" onmouseover="showTip(event, 'fs16', 79)" class="i">RunSynchronously</span>
+    <span onmouseout="hideTip(event, 'fs24', 73)" onmouseover="showTip(event, 'fs24', 73)" class="i">checkFileResults</span><span class="o">.</span><span class="i">GetDeclarationListInfo</span>
+      (<span onmouseout="hideTip(event, 'fs39', 74)" onmouseover="showTip(event, 'fs39', 74)" class="i">Some</span> <span onmouseout="hideTip(event, 'fs17', 75)" onmouseover="showTip(event, 'fs17', 75)" class="i">parseFileResults</span>, <span class="n">7</span>, <span class="n">23</span>, <span onmouseout="hideTip(event, 'fs10', 76)" onmouseover="showTip(event, 'fs10', 76)" class="i">inputLines</span><span class="o">.</span>[<span class="n">6</span>], [], <span class="s">&quot;</span><span class="s">msg</span><span class="s">&quot;</span>, <span class="k">fun</span> _ <span class="k">-&gt;</span> <span class="k">false</span>)
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 77)" onmouseover="showTip(event, 'fs15', 77)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 78)" onmouseover="showTip(event, 'fs16', 78)" class="i">RunSynchronously</span>
 
 <span class="c">// Print the names of available items</span>
-<span class="k">for</span> <span onmouseout="hideTip(event, 'fs41', 80)" onmouseover="showTip(event, 'fs41', 80)" class="i">item</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs38', 81)" onmouseover="showTip(event, 'fs38', 81)" class="i">decls</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 82)" onmouseover="showTip(event, 'fs42', 82)" class="i">Items</span> <span class="k">do</span>
-    <span onmouseout="hideTip(event, 'fs37', 83)" onmouseover="showTip(event, 'fs37', 83)" class="i">printfn</span> <span class="s">&quot;</span><span class="s"> </span><span class="s">-</span><span class="s"> </span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs41', 84)" onmouseover="showTip(event, 'fs41', 84)" class="i">item</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 85)" onmouseover="showTip(event, 'fs43', 85)" class="i">Name</span></pre>
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs40', 79)" onmouseover="showTip(event, 'fs40', 79)" class="i">item</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs38', 80)" onmouseover="showTip(event, 'fs38', 80)" class="i">decls</span><span class="o">.</span><span class="i">Items</span> <span class="k">do</span>
+    <span onmouseout="hideTip(event, 'fs37', 81)" onmouseover="showTip(event, 'fs37', 81)" class="i">printfn</span> <span class="s">&quot;</span><span class="s"> </span><span class="s">-</span><span class="s"> </span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs40', 82)" onmouseover="showTip(event, 'fs40', 82)" class="i">item</span><span class="o">.</span><span class="i">Name</span></pre>
 </td>
 </tr>
 </table>
 
 <blockquote>
   <p><strong>NOTE:</strong> <code>v</code> is an alternative name for the old <code>GetDeclarations</code>. The old <code>GetDeclarations</code> was
-deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  <code>GetDeclarationsAlternate</code> will be renamed back to <code>GetDeclarations</code>.</p>
+deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  <code>GetDeclarationListInfo</code> will be renamed back to <code>GetDeclarations</code>.</p>
 </blockquote>
 
 <p>When you run the code, you should get a list containing the usual string methods such as 
@@ -329,15 +329,15 @@ changes):</p>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">// Get overloads of the String.Concat method</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs44', 86)" onmouseover="showTip(event, 'fs44', 86)" class="i">methods</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs24', 87)" onmouseover="showTip(event, 'fs24', 87)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 88)" onmouseover="showTip(event, 'fs45', 88)" class="i">GetMethodsAlternate</span>(<span class="n">5</span>, <span class="n">27</span>, <span onmouseout="hideTip(event, 'fs10', 89)" onmouseover="showTip(event, 'fs10', 89)" class="i">inputLines</span><span class="o">.</span>[<span class="n">4</span>], <span onmouseout="hideTip(event, 'fs40', 90)" onmouseover="showTip(event, 'fs40', 90)" class="i">Some</span> [<span class="s">&quot;</span><span class="s">String</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">Concat</span><span class="s">&quot;</span>])
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 91)" onmouseover="showTip(event, 'fs15', 91)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 92)" onmouseover="showTip(event, 'fs16', 92)" class="i">RunSynchronously</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 83)" onmouseover="showTip(event, 'fs41', 83)" class="i">methods</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs24', 84)" onmouseover="showTip(event, 'fs24', 84)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 85)" onmouseover="showTip(event, 'fs42', 85)" class="i">GetMethodsAlternate</span>(<span class="n">5</span>, <span class="n">27</span>, <span onmouseout="hideTip(event, 'fs10', 86)" onmouseover="showTip(event, 'fs10', 86)" class="i">inputLines</span><span class="o">.</span>[<span class="n">4</span>], <span onmouseout="hideTip(event, 'fs39', 87)" onmouseover="showTip(event, 'fs39', 87)" class="i">Some</span> [<span class="s">&quot;</span><span class="s">String</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">Concat</span><span class="s">&quot;</span>])
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 88)" onmouseover="showTip(event, 'fs15', 88)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 89)" onmouseover="showTip(event, 'fs16', 89)" class="i">RunSynchronously</span>
 
 <span class="c">// Print concatenated parameter lists</span>
-<span class="k">for</span> <span onmouseout="hideTip(event, 'fs46', 93)" onmouseover="showTip(event, 'fs46', 93)" class="i">mi</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs44', 94)" onmouseover="showTip(event, 'fs44', 94)" class="i">methods</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 95)" onmouseover="showTip(event, 'fs47', 95)" class="i">Methods</span> <span class="k">do</span>
-    [ <span class="k">for</span> <span onmouseout="hideTip(event, 'fs48', 96)" onmouseover="showTip(event, 'fs48', 96)" class="i">p</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs46', 97)" onmouseover="showTip(event, 'fs46', 97)" class="i">mi</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs49', 98)" onmouseover="showTip(event, 'fs49', 98)" class="i">Parameters</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs48', 99)" onmouseover="showTip(event, 'fs48', 99)" class="i">p</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 100)" onmouseover="showTip(event, 'fs50', 100)" class="i">Display</span> ]
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs51', 101)" onmouseover="showTip(event, 'fs51', 101)" class="i">String</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs52', 102)" onmouseover="showTip(event, 'fs52', 102)" class="i">concat</span> <span class="s">&quot;</span><span class="s">,</span><span class="s"> </span><span class="s">&quot;</span> 
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs37', 103)" onmouseover="showTip(event, 'fs37', 103)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">(</span><span class="s">%</span><span class="s">s</span><span class="s">)</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs44', 104)" onmouseover="showTip(event, 'fs44', 104)" class="i">methods</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 105)" onmouseover="showTip(event, 'fs53', 105)" class="i">MethodName</span></pre>
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs43', 90)" onmouseover="showTip(event, 'fs43', 90)" class="i">mi</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs41', 91)" onmouseover="showTip(event, 'fs41', 91)" class="i">methods</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs44', 92)" onmouseover="showTip(event, 'fs44', 92)" class="i">Methods</span> <span class="k">do</span>
+    [ <span class="k">for</span> <span onmouseout="hideTip(event, 'fs45', 93)" onmouseover="showTip(event, 'fs45', 93)" class="i">p</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs43', 94)" onmouseover="showTip(event, 'fs43', 94)" class="i">mi</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 95)" onmouseover="showTip(event, 'fs46', 95)" class="i">Parameters</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs45', 96)" onmouseover="showTip(event, 'fs45', 96)" class="i">p</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 97)" onmouseover="showTip(event, 'fs47', 97)" class="i">Display</span> ]
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs48', 98)" onmouseover="showTip(event, 'fs48', 98)" class="i">String</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs49', 99)" onmouseover="showTip(event, 'fs49', 99)" class="i">concat</span> <span class="s">&quot;</span><span class="s">,</span><span class="s"> </span><span class="s">&quot;</span> 
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs37', 100)" onmouseover="showTip(event, 'fs37', 100)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">(</span><span class="s">%</span><span class="s">s</span><span class="s">)</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs41', 101)" onmouseover="showTip(event, 'fs41', 101)" class="i">methods</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 102)" onmouseover="showTip(event, 'fs50', 102)" class="i">MethodName</span></pre>
 </td>
 </tr>
 </table>
@@ -412,22 +412,19 @@ you can call many of the methods discussed here via a command line interface tha
 <div class="tip" id="fs35">val tip : Async&lt;ToolTipText&gt;<br /><br />Full name: Editor.tip</div>
 <div class="tip" id="fs36">member FSharpCheckFileResults.GetToolTipTextAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -&gt; Async&lt;ToolTipText&gt;</div>
 <div class="tip" id="fs37">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fs38">val decls : FSharpDeclarationSet<br /><br />Full name: Editor.decls</div>
-<div class="tip" id="fs39">member FSharpCheckFileResults.GetDeclarationsAlternate : ParsedFileResultsOpt:FSharpParseFileResults option * line:int * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * ?hasTextChangedSinceLastTypecheck:(obj * Range.range -&gt; bool) -&gt; Async&lt;FSharpDeclarationSet&gt;</div>
-<div class="tip" id="fs40">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
-<div class="tip" id="fs41">val item : FSharpDeclaration</div>
-<div class="tip" id="fs42">property FSharpDeclarationSet.Items: FSharpDeclaration []</div>
-<div class="tip" id="fs43">property FSharpDeclaration.Name: string</div>
-<div class="tip" id="fs44">val methods : FSharpMethodGroup<br /><br />Full name: Editor.methods</div>
-<div class="tip" id="fs45">member FSharpCheckFileResults.GetMethodsAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list option -&gt; Async&lt;FSharpMethodGroup&gt;</div>
-<div class="tip" id="fs46">val mi : FSharpMethodGroupItem</div>
-<div class="tip" id="fs47">property FSharpMethodGroup.Methods: FSharpMethodGroupItem []</div>
-<div class="tip" id="fs48">val p : FSharpMethodGroupItemParameter</div>
-<div class="tip" id="fs49">property FSharpMethodGroupItem.Parameters: FSharpMethodGroupItemParameter []</div>
-<div class="tip" id="fs50">property FSharpMethodGroupItemParameter.Display: string</div>
-<div class="tip" id="fs51">Multiple items<br />type String =<br />&#160;&#160;new : value:char -&gt; string + 7 overloads<br />&#160;&#160;member Chars : int -&gt; char<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;member Contains : value:string -&gt; bool<br />&#160;&#160;member CopyTo : sourceIndex:int * destination:char[] * destinationIndex:int * count:int -&gt; unit<br />&#160;&#160;member EndsWith : value:string -&gt; bool + 2 overloads<br />&#160;&#160;member Equals : obj:obj -&gt; bool + 2 overloads<br />&#160;&#160;member GetEnumerator : unit -&gt; CharEnumerator<br />&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;...<br /><br />Full name: System.String<br /><br />--------------------<br />String(value: nativeptr&lt;char&gt;) : unit<br />String(value: nativeptr&lt;sbyte&gt;) : unit<br />String(value: char []) : unit<br />String(c: char, count: int) : unit<br />String(value: nativeptr&lt;char&gt;, startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int) : unit<br />String(value: char [], startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int, enc: Text.Encoding) : unit</div>
-<div class="tip" id="fs52">val concat : sep:string -&gt; strings:seq&lt;string&gt; -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.String.concat</div>
-<div class="tip" id="fs53">property FSharpMethodGroup.MethodName: string</div>
+<div class="tip" id="fs38">val decls : obj<br /><br />Full name: Editor.decls</div>
+<div class="tip" id="fs39">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs40">val item : obj</div>
+<div class="tip" id="fs41">val methods : FSharpMethodGroup<br /><br />Full name: Editor.methods</div>
+<div class="tip" id="fs42">member FSharpCheckFileResults.GetMethodsAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list option -&gt; Async&lt;FSharpMethodGroup&gt;</div>
+<div class="tip" id="fs43">val mi : FSharpMethodGroupItem</div>
+<div class="tip" id="fs44">property FSharpMethodGroup.Methods: FSharpMethodGroupItem []</div>
+<div class="tip" id="fs45">val p : FSharpMethodGroupItemParameter</div>
+<div class="tip" id="fs46">property FSharpMethodGroupItem.Parameters: FSharpMethodGroupItemParameter []</div>
+<div class="tip" id="fs47">property FSharpMethodGroupItemParameter.Display: string</div>
+<div class="tip" id="fs48">Multiple items<br />type String =<br />&#160;&#160;new : value:char -&gt; string + 7 overloads<br />&#160;&#160;member Chars : int -&gt; char<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;member Contains : value:string -&gt; bool<br />&#160;&#160;member CopyTo : sourceIndex:int * destination:char[] * destinationIndex:int * count:int -&gt; unit<br />&#160;&#160;member EndsWith : value:string -&gt; bool + 2 overloads<br />&#160;&#160;member Equals : obj:obj -&gt; bool + 2 overloads<br />&#160;&#160;member GetEnumerator : unit -&gt; CharEnumerator<br />&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;...<br /><br />Full name: System.String<br /><br />--------------------<br />String(value: nativeptr&lt;char&gt;) : unit<br />String(value: nativeptr&lt;sbyte&gt;) : unit<br />String(value: char []) : unit<br />String(c: char, count: int) : unit<br />String(value: nativeptr&lt;char&gt;, startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int) : unit<br />String(value: char [], startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int, enc: Text.Encoding) : unit</div>
+<div class="tip" id="fs49">val concat : sep:string -&gt; strings:seq&lt;string&gt; -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.String.concat</div>
+<div class="tip" id="fs50">property FSharpMethodGroup.MethodName: string</div>
 
         </div>
         <div class="span3">
@@ -453,6 +450,7 @@ you can call many of the methods discussed here via a command line interface tha
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>

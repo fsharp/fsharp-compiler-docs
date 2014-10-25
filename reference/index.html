@@ -327,14 +327,14 @@ it formats the XML content for you (apart from ones read from XML doc files usin
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-declaration.html">Declaration</a>
           </td>
-          <td class="xmldoc"><p>Renamed to FSharpDeclarationListItem</p>
+          <td class="xmldoc"><p>Renamed to FSharpDeclaration</p>
 </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-declarationgroup.html">DeclarationGroup</a>
           </td>
-          <td class="xmldoc"><p>Renamed to FSharpDeclarationListInfo</p>
+          <td class="xmldoc"><p>Renamed to FSharpDeclarationGroup</p>
 </td>
         </tr>
         <tr>
@@ -349,13 +349,6 @@ it formats the XML content for you (apart from ones read from XML doc files usin
             <a href="microsoft-fsharp-compiler-sourcecodeservices-declarationitemkind.html">DeclarationItemKind</a>
           </td>
           <td class="xmldoc"><p>Renamed to FSharpNavigationDeclarationItemKind</p>
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-declarationset.html">DeclarationSet</a>
-          </td>
-          <td class="xmldoc"><p>Renamed to FSharpDeclarationListInfo</p>
 </td>
         </tr>
         <tr>
@@ -391,13 +384,6 @@ it formats the XML content for you (apart from ones read from XML doc files usin
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpassembly.html">FSharpAssembly</a>
           </td>
           <td class="xmldoc"><p>Represents an assembly as seen by the F# language</p>
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpassemblycontents.html">FSharpAssemblyContents</a>
-          </td>
-          <td class="xmldoc"><p>Represents the definitional contents of an assembly, as seen by the F# language</p>
 </td>
         </tr>
         <tr>
@@ -446,21 +432,6 @@ it formats the XML content for you (apart from ones read from XML doc files usin
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpdeclaration.html">FSharpDeclaration</a>
           </td>
-          <td class="xmldoc"><p>Renamed to FSharpDeclarationListItem</p>
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpdeclarationlistinfo.html">FSharpDeclarationListInfo</a>
-          </td>
-          <td class="xmldoc"><p>Represents a set of declarations in F# source code, with information attached ready for display by an editor.
-Returned by GetDeclarations.</p>
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpdeclarationlistitem.html">FSharpDeclarationListItem</a>
-          </td>
           <td class="xmldoc"><p>Represents a declaration in F# source code, with information attached ready for display by an editor.
 Returned by GetDeclarations.</p>
 </td>
@@ -469,7 +440,8 @@ Returned by GetDeclarations.</p>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpdeclarationset.html">FSharpDeclarationSet</a>
           </td>
-          <td class="xmldoc"><p>Renamed to FSharpDeclarationListInfo</p>
+          <td class="xmldoc"><p>Represents a set of declarations in F# source code, with information attached ready for display by an editor.
+Returned by GetDeclarations.</p>
 </td>
         </tr>
         <tr>
@@ -495,17 +467,6 @@ to the Format method on FSharpType and other methods.</p>
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpentity.html">FSharpEntity</a>
           </td>
           <td class="xmldoc"><p>A subtype of FSharpSymbol that represents a type definition or module as seen by the F# language</p>
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpexpr.html">FSharpExpr</a>
-          </td>
-          <td class="xmldoc"><p>Represents a checked and reduced expression, as seen by the F# language.  The active patterns 
-in 'FSharp.Compiler.SourceCodeServices' can be used to analyze information about the expression.</p>
-
-<p>Pattern matching is reduced to decision trees and conditional tests. Some other
-constructs may be represented in reduced form.</p>
 </td>
         </tr>
         <tr>
@@ -562,20 +523,6 @@ constructs may be represented in reduced form.</p>
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpgenericparametermemberconstraint.html">FSharpGenericParameterMemberConstraint</a>
           </td>
           <td class="xmldoc"><p>Represents further information about a member constraint on a generic type parameter</p>
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpimplementationfilecontents.html">FSharpImplementationFileContents</a>
-          </td>
-          <td class="xmldoc"><p>Represents the definitional contents of a single file or fragment in an assembly, as seen by the F# language</p>
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpimplementationfiledeclaration.html">FSharpImplementationFileDeclaration</a>
-          </td>
-          <td class="xmldoc"><p>Represents a declaration in an implementation file, as seen by the F# language</p>
 </td>
         </tr>
         <tr>
@@ -676,13 +623,6 @@ with nested declarations (that can be shown in the member drop-down)</p>
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpnoteworthyparaminfolocations.html">FSharpNoteworthyParamInfoLocations</a>
           </td>
           <td class="xmldoc"></td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpobjectexproverride.html">FSharpObjectExprOverride</a>
-          </td>
-          <td class="xmldoc"><p>Represents a checked method in an object expression, as seen by the F# language.</p>
-</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -1055,13 +995,6 @@ of intellisense results in some situations.</p>
         </tr>
         <tr>
           <td class="module-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-basicpatterns.html">BasicPatterns</a>
-          </td>
-          <td class="xmldoc"><p>A collection of active patterns to analyze expressions</p>
-</td>
-        </tr>
-        <tr>
-          <td class="module-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-compilerenvironment.html">CompilerEnvironment</a>
           </td>
           <td class="xmldoc"><p>Information about the compilation environment</p>
@@ -1122,7 +1055,6 @@ of intellisense results in some situations.</p>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>

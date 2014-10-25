@@ -37,7 +37,8 @@
 
 <h1>FSharpDeclaration</h1>
 <div class="xmldoc">
-<p>Renamed to FSharpDeclarationListItem</p>
+<p>Represents a declaration in F# source code, with information attached ready for display by an editor.
+Returned by GetDeclarations.</p>
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -48,15 +49,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3370', 3370)" onmouseover="showTip(event, '3370', 3370)">
+          <code onmouseout="hideTip(event, '3313', 3313)" onmouseover="showTip(event, '3313', 3313)">
             DescriptionText
           </code>
-          <div class="tip" id="3370">
+          <div class="tip" id="3313">
             <strong>Signature:</strong> FSharpToolTipText<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1276-1276" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1257-1257" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -70,15 +71,37 @@ resources and may trigger execution of a type provider method to retrieve docume
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3371', 3371)" onmouseover="showTip(event, '3371', 3371)">
+          <code onmouseout="hideTip(event, '3314', 3314)" onmouseover="showTip(event, '3314', 3314)">
+            DescriptionText
+          </code>
+          <div class="tip" id="3314">
+            <strong>Signature:</strong> FSharpToolTipText<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1257-1257" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the description text for the declaration. Commputing this property may require using compiler
+resources and may trigger execution of a type provider method to retrieve documentation.</p>
+
+<p>May return "Loading..." if timeout occurs</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3315', 3315)" onmouseover="showTip(event, '3315', 3315)">
             DescriptionTextAsync
           </code>
-          <div class="tip" id="3371">
+          <div class="tip" id="3315">
             <strong>Signature:</strong> Async&lt;FSharpToolTipText&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1262-1262" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1243-1243" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -89,15 +112,34 @@ resources and may trigger execution of a type provider method to retrieve docume
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3372', 3372)" onmouseover="showTip(event, '3372', 3372)">
+          <code onmouseout="hideTip(event, '3316', 3316)" onmouseover="showTip(event, '3316', 3316)">
+            DescriptionTextAsync
+          </code>
+          <div class="tip" id="3316">
+            <strong>Signature:</strong> Async&lt;FSharpToolTipText&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1243-1243" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the description text, asynchronously.  Never returns "Loading...".</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3317', 3317)" onmouseover="showTip(event, '3317', 3317)">
             Glyph
           </code>
-          <div class="tip" id="3372">
+          <div class="tip" id="3317">
             <strong>Signature:</strong> int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1310-1310" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1291-1291" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -108,15 +150,53 @@ resources and may trigger execution of a type provider method to retrieve docume
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3373', 3373)" onmouseover="showTip(event, '3373', 3373)">
+          <code onmouseout="hideTip(event, '3318', 3318)" onmouseover="showTip(event, '3318', 3318)">
+            Glyph
+          </code>
+          <div class="tip" id="3318">
+            <strong>Signature:</strong> int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1291-1291" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the glyph integer for the declaration as used by Visual Studio.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3319', 3319)" onmouseover="showTip(event, '3319', 3319)">
             Name
           </code>
-          <div class="tip" id="3373">
+          <div class="tip" id="3319">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1260-1260" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1241-1241" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the display name for the declaration.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3320', 3320)" onmouseover="showTip(event, '3320', 3320)">
+            Name
+          </code>
+          <div class="tip" id="3320">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1241-1241" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -151,7 +231,6 @@ resources and may trigger execution of a type provider method to retrieve docume
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>

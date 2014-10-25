@@ -38,7 +38,7 @@
 <p>This tutorial demonstrates how to can analyze a whole project using services provided by the F# compiler.</p>
 
 <blockquote>
-  <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.</p>
+  <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
 </blockquote>
 
 <h2>Getting whole-project results</h2>
@@ -577,21 +577,20 @@ correctly and then analyze each project in turn.</p>
 
 <blockquote>
   <p><strong>NOTE:</strong> Project references are in prototype.  Using project references may currently degrade the responsiveness of the 
-  compiler service, because requests may not yet be serviced while dependent projects are being analyzed.</p>
-</blockquote>
-
-<blockquote>
-  <p><strong>NOTE:</strong> Project references are disabled if the assembly being referred to contains type provider components - 
+  compiler service, because requests may not yet be serviced while dependent projects are being analyzed.
+<strong>NOTE:</strong> Project references are disabled if the assembly being referred to contains type provider components - 
   specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will 
   still be required on disk.</p>
 </blockquote>
+
+<p>*</p>
 
 <h2>Cracking a project file</h2>
 
 <p>F# projects normally use the '.fsproj' project file format.  You can get options corresponding to a project file
 using GetProjectOptionsFromProjectFile.  In this example we get the project options for one of the 
 project files in the F# Compiler Service project itself - you should also be able to use this technique
-for any project that builds cleanly using the command line tools 'xbuild' or 'msbuild'.</p>
+for any project that cleans buildly using the command line tools 'xbuild' or 'msbuild'.</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
@@ -619,7 +618,7 @@ for any project that builds cleanly using the command line tools 'xbuild' or 'ms
 </tr>
 </table>
 
-<p>Another utility is provided to obtain a detailed view of the resolved and processed project file. The returned object can be used to access the fully resolved references, source files that will be included during compilation, and other options.</p>
+<p>Another utility is provided to simply get the command line arguments for a project file</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
@@ -631,19 +630,7 @@ for any project that builds cleanly using the command line tools 'xbuild' or 'ms
 </tr>
 </table>
 
-<p>For debugging purposes it is also possible to obtain a detailed log from the assembly resolution process.</p>
-
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs117', 315)" onmouseover="showTip(event, 'fs117', 315)" class="i">p</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs115', 316)" onmouseover="showTip(event, 'fs115', 316)" class="i">FSharpProjectFileInfo</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs116', 317)" onmouseover="showTip(event, 'fs116', 317)" class="i">Parse</span>(<span onmouseout="hideTip(event, 'fs113', 318)" onmouseover="showTip(event, 'fs113', 318)" class="i">projectFile</span>, <span class="i">enableLogging</span><span class="o">=</span><span class="k">true</span>)
-<span onmouseout="hideTip(event, 'fs118', 319)" onmouseover="showTip(event, 'fs118', 319)" class="i">Console</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs119', 320)" onmouseover="showTip(event, 'fs119', 320)" class="i">WriteLine</span>(<span onmouseout="hideTip(event, 'fs117', 321)" onmouseover="showTip(event, 'fs117', 321)" class="i">p</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs120', 322)" onmouseover="showTip(event, 'fs120', 322)" class="i">LogOutput</span>)</pre>
-</td>
-</tr>
-</table>
+<p>Here a detailed view of the resolved and processed project file is returned.</p>
 
 <h2>Summary</h2>
 
@@ -764,12 +751,8 @@ such as symbol references. To learn more about working with symbols, see <a href
 <div class="tip" id="fs112">val allUsesOfXSymbolInFile2 : FSharpSymbolUse []<br /><br />Full name: Project.allUsesOfXSymbolInFile2</div>
 <div class="tip" id="fs113">val projectFile : string<br /><br />Full name: Project.projectFile</div>
 <div class="tip" id="fs114">member FSharpChecker.GetProjectOptionsFromProjectFile : projectFileName:string * ?properties:(string * string) list * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions</div>
-<div class="tip" id="fs115">type FSharpProjectFileInfo<br />member AssemblyName : string option<br />member CompileFiles : string list<br />member ContentFiles : string list<br />member Directory : string<br />member FrameworkVersion : string option<br />member FullPath : string<br />member LogOutput : string<br />member Options : string list<br />member OtherFiles : string list<br />member OutputFile : string option<br />member OutputPath : string option<br />member References : string list<br />member ResourceFiles : string list<br />static member Parse : fsprojFileName:string * ?properties:(string * string) list * ?enableLogging:bool -&gt; FSharpProjectFileInfo<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpProjectFileInfo</div>
-<div class="tip" id="fs116">static member FSharpProjectFileInfo.Parse : fsprojFileName:string * ?properties:(string * string) list * ?enableLogging:bool -&gt; FSharpProjectFileInfo</div>
-<div class="tip" id="fs117">val p : FSharpProjectFileInfo<br /><br />Full name: Project.p</div>
-<div class="tip" id="fs118">type Console =<br />&#160;&#160;static member BackgroundColor : ConsoleColor with get, set<br />&#160;&#160;static member Beep : unit -&gt; unit + 1 overload<br />&#160;&#160;static member BufferHeight : int with get, set<br />&#160;&#160;static member BufferWidth : int with get, set<br />&#160;&#160;static member CapsLock : bool<br />&#160;&#160;static member Clear : unit -&gt; unit<br />&#160;&#160;static member CursorLeft : int with get, set<br />&#160;&#160;static member CursorSize : int with get, set<br />&#160;&#160;static member CursorTop : int with get, set<br />&#160;&#160;static member CursorVisible : bool with get, set<br />&#160;&#160;...<br /><br />Full name: System.Console</div>
-<div class="tip" id="fs119">Console.WriteLine() : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: string) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: obj) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: uint64) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: int64) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: uint32) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: int) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: float32) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: float) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: decimal) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em></div>
-<div class="tip" id="fs120">property FSharpProjectFileInfo.LogOutput: string</div>
+<div class="tip" id="fs115">type FSharpProjectFileInfo<br />member AssemblyName : string option<br />member CompileFiles : string list<br />member ContentFiles : string list<br />member Directory : string<br />member FrameworkVersion : string option<br />member Options : string list<br />member OtherFiles : string list<br />member OutputFile : string option<br />member OutputPath : string option<br />member References : string list<br />member ResourceFiles : string list<br />static member Parse : fsprojFileName:string * ?properties:(string * string) list -&gt; FSharpProjectFileInfo<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpProjectFileInfo</div>
+<div class="tip" id="fs116">static member FSharpProjectFileInfo.Parse : fsprojFileName:string * ?properties:(string * string) list -&gt; FSharpProjectFileInfo</div>
 
         </div>
         <div class="span3">

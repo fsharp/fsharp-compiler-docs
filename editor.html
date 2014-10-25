@@ -263,7 +263,7 @@ This can be called on any identifier or in any scope (in which case you get a li
 in the scope) or immediately after <code>.</code> to get a list of members of some object. Here, we get a 
 list of members of the string value <code>msg</code>.</p>
 
-<p>To do this, we call <code>GetDeclarationsAlternate</code> with the location of the <code>.</code> symbol on the last line 
+<p>To do this, we call <code>GetDeclarationListInfo</code> with the location of the <code>.</code> symbol on the last line 
 (ending with <code>printfn "%s" msg.</code>). The offsets are one-based, so the location is <code>7, 23</code>.
 We also need to specify a function that says that the text has not changed and the current identifer
 where we need to perform the completion.</p>
@@ -283,7 +283,7 @@ where we need to perform the completion.</p>
 <td class="snippet"><pre class="fssnip">
 <span class="c">// Get declarations (autocomplete) for a location</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs38', 72)" onmouseover="showTip(event, 'fs38', 72)" class="i">decls</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs24', 73)" onmouseover="showTip(event, 'fs24', 73)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 74)" onmouseover="showTip(event, 'fs39', 74)" class="i">GetDeclarationsAlternate</span>
+    <span onmouseout="hideTip(event, 'fs24', 73)" onmouseover="showTip(event, 'fs24', 73)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 74)" onmouseover="showTip(event, 'fs39', 74)" class="i">GetDeclarationListInfo</span>
       (<span onmouseout="hideTip(event, 'fs40', 75)" onmouseover="showTip(event, 'fs40', 75)" class="i">Some</span> <span onmouseout="hideTip(event, 'fs17', 76)" onmouseover="showTip(event, 'fs17', 76)" class="i">parseFileResults</span>, <span class="n">7</span>, <span class="n">23</span>, <span onmouseout="hideTip(event, 'fs10', 77)" onmouseover="showTip(event, 'fs10', 77)" class="i">inputLines</span><span class="o">.</span>[<span class="n">6</span>], [], <span class="s">&quot;</span><span class="s">msg</span><span class="s">&quot;</span>, <span class="k">fun</span> _ <span class="k">-&gt;</span> <span class="k">false</span>)
     <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 78)" onmouseover="showTip(event, 'fs15', 78)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 79)" onmouseover="showTip(event, 'fs16', 79)" class="i">RunSynchronously</span>
 
@@ -296,7 +296,7 @@ where we need to perform the completion.</p>
 
 <blockquote>
   <p><strong>NOTE:</strong> <code>v</code> is an alternative name for the old <code>GetDeclarations</code>. The old <code>GetDeclarations</code> was
-deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  <code>GetDeclarationsAlternate</code> will be renamed back to <code>GetDeclarations</code>.</p>
+deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  <code>GetDeclarationListInfo</code> will be renamed back to <code>GetDeclarations</code>.</p>
 </blockquote>
 
 <p>When you run the code, you should get a list containing the usual string methods such as 
@@ -412,11 +412,11 @@ you can call many of the methods discussed here via a command line interface tha
 <div class="tip" id="fs35">val tip : Async&lt;ToolTipText&gt;<br /><br />Full name: Editor.tip</div>
 <div class="tip" id="fs36">member FSharpCheckFileResults.GetToolTipTextAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -&gt; Async&lt;ToolTipText&gt;</div>
 <div class="tip" id="fs37">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fs38">val decls : FSharpDeclarationSet<br /><br />Full name: Editor.decls</div>
-<div class="tip" id="fs39">member FSharpCheckFileResults.GetDeclarationsAlternate : ParsedFileResultsOpt:FSharpParseFileResults option * line:int * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * ?hasTextChangedSinceLastTypecheck:(obj * Range.range -&gt; bool) -&gt; Async&lt;FSharpDeclarationSet&gt;</div>
+<div class="tip" id="fs38">val decls : FSharpDeclarationListInfo<br /><br />Full name: Editor.decls</div>
+<div class="tip" id="fs39">member FSharpCheckFileResults.GetDeclarationListInfo : ParsedFileResultsOpt:FSharpParseFileResults option * line:int * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * ?hasTextChangedSinceLastTypecheck:(obj * Range.range -&gt; bool) -&gt; Async&lt;FSharpDeclarationListInfo&gt;</div>
 <div class="tip" id="fs40">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
 <div class="tip" id="fs41">val item : FSharpDeclaration</div>
-<div class="tip" id="fs42">property FSharpDeclarationSet.Items: FSharpDeclaration []</div>
+<div class="tip" id="fs42">property FSharpDeclarationListInfo.Items: FSharpDeclaration []</div>
 <div class="tip" id="fs43">property FSharpDeclaration.Name: string</div>
 <div class="tip" id="fs44">val methods : FSharpMethodGroup<br /><br />Full name: Editor.methods</div>
 <div class="tip" id="fs45">member FSharpCheckFileResults.GetMethodsAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list option -&gt; Async&lt;FSharpMethodGroup&gt;</div>

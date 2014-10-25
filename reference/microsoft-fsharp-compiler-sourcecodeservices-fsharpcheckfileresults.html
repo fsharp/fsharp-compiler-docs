@@ -182,7 +182,7 @@
             GetDeclarations(...)
           </code>
           <div class="tip" id="3500">
-            <strong>Signature:</strong> (ParsedFileResultsOpt:FSharpParseFileResults option * line:Line0 * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * hasTextChangedSinceLastTypecheck:(obj * Range01 -&gt; bool) option) -&gt; Async&lt;FSharpDeclarationSet&gt;<br />
+            <strong>Signature:</strong> (ParsedFileResultsOpt:FSharpParseFileResults option * line:Line0 * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * hasTextChangedSinceLastTypecheck:(obj * Range01 -&gt; bool) option) -&gt; Async&lt;FSharpDeclarationListInfo&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -197,10 +197,10 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '3501', 3501)" onmouseover="showTip(event, '3501', 3501)">
-            GetDeclarationsAlternate(...)
+            GetDeclarationListInfo(...)
           </code>
           <div class="tip" id="3501">
-            <strong>Signature:</strong> (ParsedFileResultsOpt:FSharpParseFileResults option * line:int * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * hasTextChangedSinceLastTypecheck:(obj * range -&gt; bool) option) -&gt; Async&lt;FSharpDeclarationSet&gt;<br />
+            <strong>Signature:</strong> (ParsedFileResultsOpt:FSharpParseFileResults option * line:int * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * hasTextChangedSinceLastTypecheck:(obj * range -&gt; bool) option) -&gt; Async&lt;FSharpDeclarationListInfo&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -216,7 +216,7 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '3502', 3502)" onmouseover="showTip(event, '3502', 3502)">
-            GetDeclarationSymbols(...)
+            GetDeclarationListSymbols(...)
           </code>
           <div class="tip" id="3502">
             <strong>Signature:</strong> (ParsedFileResultsOpt:FSharpParseFileResults option * line:int * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * hasTextChangedSinceLastTypecheck:(obj * range -&gt; bool) option) -&gt; Async&lt;FSharpSymbol list list&gt;<br />

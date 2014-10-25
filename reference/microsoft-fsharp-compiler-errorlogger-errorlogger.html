@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ErrorLogger - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>ErrorLogger</h1>
+<div class="xmldoc">
+</div>
+  <h3>Constructors</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Constructor</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1315', 1315)" onmouseover="showTip(event, '1315', 1315)">
+            new(nameForDebugging)
+          </code>
+          <div class="tip" id="1315">
+            <strong>Signature:</strong> nameForDebugging:string -&gt; ErrorLogger<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L229-229" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1316', 1316)" onmouseover="showTip(event, '1316', 1316)">
+            DebugDisplay()
+          </code>
+          <div class="tip" id="1316">
+            <strong>Signature:</strong> unit -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L238-238" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1317', 1317)" onmouseover="showTip(event, '1317', 1317)">
+            ErrorCount
+          </code>
+          <div class="tip" id="1317">
+            <strong>Signature:</strong> int<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L230-230" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1318', 1318)" onmouseover="showTip(event, '1318', 1318)">
+            ErrorNumbers
+          </code>
+          <div class="tip" id="1318">
+            <strong>Signature:</strong> int list<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L240-240" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1319', 1319)" onmouseover="showTip(event, '1319', 1319)">
+            ErrorNumbers
+          </code>
+          <div class="tip" id="1319">
+            <strong>Signature:</strong> int list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L242-242" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1320', 1320)" onmouseover="showTip(event, '1320', 1320)">
+            ErrorSink(err)
+          </code>
+          <div class="tip" id="1320">
+            <strong>Signature:</strong> err:PhasedError -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L236-236" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1321', 1321)" onmouseover="showTip(event, '1321', 1321)">
+            ErrorSinkImpl(arg1)
+          </code>
+          <div class="tip" id="1321">
+            <strong>Signature:</strong> PhasedError -&gt; unit<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L233-233" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1322', 1322)" onmouseover="showTip(event, '1322', 1322)">
+            WarningNumbers
+          </code>
+          <div class="tip" id="1322">
+            <strong>Signature:</strong> int list<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L241-241" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1323', 1323)" onmouseover="showTip(event, '1323', 1323)">
+            WarningNumbers
+          </code>
+          <div class="tip" id="1323">
+            <strong>Signature:</strong> int list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L243-243" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1324', 1324)" onmouseover="showTip(event, '1324', 1324)">
+            WarnSink(err)
+          </code>
+          <div class="tip" id="1324">
+            <strong>Signature:</strong> err:PhasedError -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L234-234" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1325', 1325)" onmouseover="showTip(event, '1325', 1325)">
+            WarnSinkImpl(arg1)
+          </code>
+          <div class="tip" id="1325">
+            <strong>Signature:</strong> PhasedError -&gt; unit<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L232-232" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">F# Compiler Services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Parser - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>Parser</h1>
+<div class="xmldoc">
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+  <h2>Nested types and modules</h2>
+  <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-parser-bindingset.html">BindingSet</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-parser-nonterminalid.html">nonTerminalId</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-parser-token.html">token</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-parser-tokenid.html">tokenId</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '213', 213)" onmouseover="showTip(event, '213', 213)">
+            _fsyacc_action_rows 
+          </code>
+          <div class="tip" id="213">
+            <strong>Signature:</strong> int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '214', 214)" onmouseover="showTip(event, '214', 214)">
+            _fsyacc_actionTableElements 
+          </code>
+          <div class="tip" id="214">
+            <strong>Signature:</strong> uint16 []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '215', 215)" onmouseover="showTip(event, '215', 215)">
+            _fsyacc_actionTableRowOffsets 
+          </code>
+          <div class="tip" id="215">
+            <strong>Signature:</strong> uint16 []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '216', 216)" onmouseover="showTip(event, '216', 216)">
+            _fsyacc_dataOfToken t
+          </code>
+          <div class="tip" id="216">
+            <strong>Signature:</strong> t:token -&gt; obj<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '217', 217)" onmouseover="showTip(event, '217', 217)">
+            _fsyacc_endOfInputTag 
+          </code>
+          <div class="tip" id="217">
+            <strong>Signature:</strong> int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '218', 218)" onmouseover="showTip(event, '218', 218)">
+            _fsyacc_gotos 
+          </code>
+          <div class="tip" id="218">
+            <strong>Signature:</strong> uint16 []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '219', 219)" onmouseover="showTip(event, '219', 219)">
+            _fsyacc_immediateActions 
+          </code>
+          <div class="tip" id="219">
+            <strong>Signature:</strong> uint16 []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '220', 220)" onmouseover="showTip(event, '220', 220)">
+            _fsyacc_productionToNonTerminalTable 
+          </code>
+          <div class="tip" id="220">
+            <strong>Signature:</strong> uint16 []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '221', 221)" onmouseover="showTip(event, '221', 221)">
+            _fsyacc_reductions ()
+          </code>
+          <div class="tip" id="221">
+            <strong>Signature:</strong> unit -&gt; (IParseState -&gt; obj) []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '222', 222)" onmouseover="showTip(event, '222', 222)">
+            _fsyacc_reductionSymbolCounts 
+          </code>
+          <div class="tip" id="222">
+            <strong>Signature:</strong> uint16 []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '223', 223)" onmouseover="showTip(event, '223', 223)">
+            _fsyacc_sparseGotoTableRowOffsets 
+          </code>
+          <div class="tip" id="223">
+            <strong>Signature:</strong> uint16 []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '224', 224)" onmouseover="showTip(event, '224', 224)">
+            _fsyacc_stateToProdIdxsTableElements 
+          </code>
+          <div class="tip" id="224">
+            <strong>Signature:</strong> uint16 []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '225', 225)" onmouseover="showTip(event, '225', 225)">
+            _fsyacc_stateToProdIdxsTableRowOffsets 
+          </code>
+          <div class="tip" id="225">
+            <strong>Signature:</strong> uint16 []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '226', 226)" onmouseover="showTip(event, '226', 226)">
+            _fsyacc_tagOfErrorTerminal 
+          </code>
+          <div class="tip" id="226">
+            <strong>Signature:</strong> int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '227', 227)" onmouseover="showTip(event, '227', 227)">
+            addAttribs attrs p
+          </code>
+          <div class="tip" id="227">
+            <strong>Signature:</strong> attrs:SynAttributes -&gt; p:SynPat -&gt; SynPat<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '228', 228)" onmouseover="showTip(event, '228', 228)">
+            checkEndOfFileError t
+          </code>
+          <div class="tip" id="228">
+            <strong>Signature:</strong> t:LexerWhitespaceContinuation -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '229', 229)" onmouseover="showTip(event, '229', 229)">
+            checkForMultipleAugmentations m a1 a2
+          </code>
+          <div class="tip" id="229">
+            <strong>Signature:</strong> m:range -&gt; a1:&#39;?9842 list -&gt; a2:&#39;?9842 list -&gt; &#39;?9842 list<br />
+                          <strong>Type parameters:</strong> '?9842          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '230', 230)" onmouseover="showTip(event, '230', 230)">
+            debugPrint s
+          </code>
+          <div class="tip" id="230">
+            <strong>Signature:</strong> s:&#39;?9815 -&gt; unit<br />
+                          <strong>Type parameters:</strong> '?9815          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '231', 231)" onmouseover="showTip(event, '231', 231)">
+            engine lexer lexbuf startState
+          </code>
+          <div class="tip" id="231">
+            <strong>Signature:</strong> lexer:(LexBuffer&lt;char&gt; -&gt; token) -&gt; lexbuf:LexBuffer&lt;char&gt; -&gt; startState:int -&gt; obj<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '232', 232)" onmouseover="showTip(event, '232', 232)">
+            exprFromParseError e
+          </code>
+          <div class="tip" id="232">
+            <strong>Signature:</strong> e:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '233', 233)" onmouseover="showTip(event, '233', 233)">
+            grabXmlDoc (parseState, elemIdx)
+          </code>
+          <div class="tip" id="233">
+            <strong>Signature:</strong> (parseState:IParseState * elemIdx:int) -&gt; PreXmlDoc<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '234', 234)" onmouseover="showTip(event, '234', 234)">
+            idOfPat m p
+          </code>
+          <div class="tip" id="234">
+            <strong>Signature:</strong> m:range -&gt; p:SynPat -&gt; Ident<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '235', 235)" onmouseover="showTip(event, '235', 235)">
+            implementationFile lexer lexbuf
+          </code>
+          <div class="tip" id="235">
+            <strong>Signature:</strong> lexer:(LexBuffer&lt;char&gt; -&gt; token) -&gt; lexbuf:LexBuffer&lt;char&gt; -&gt; ParsedImplFile<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '236', 236)" onmouseover="showTip(event, '236', 236)">
+            interaction lexer lexbuf
+          </code>
+          <div class="tip" id="236">
+            <strong>Signature:</strong> lexer:(LexBuffer&lt;char&gt; -&gt; token) -&gt; lexbuf:LexBuffer&lt;char&gt; -&gt; ParsedFsiInteraction<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '237', 237)" onmouseover="showTip(event, '237', 237)">
+            mkClassMemberLocalBindings (...)
+          </code>
+          <div class="tip" id="237">
+            <strong>Signature:</strong> (isStatic:bool * initialRangeOpt:range option * attrs:SynAttributes * vis:SynAccess option * BindingSet) -&gt; SynMemberDefn<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '238', 238)" onmouseover="showTip(event, '238', 238)">
+            mkDefnBindings (...)
+          </code>
+          <div class="tip" id="238">
+            <strong>Signature:</strong> (mWhole:range * BindingSet * attrs:SynAttributes * vis:SynAccess option * attrsm:range) -&gt; SynModuleDecl list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '239', 239)" onmouseover="showTip(event, '239', 239)">
+            mkLocalBindings (mWhole, arg2, body)
+          </code>
+          <div class="tip" id="239">
+            <strong>Signature:</strong> (mWhole:range * BindingSet * body:SynExpr) -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '240', 240)" onmouseover="showTip(event, '240', 240)">
+            mkRecdField lidwd
+          </code>
+          <div class="tip" id="240">
+            <strong>Signature:</strong> lidwd:&#39;?9825 -&gt; &#39;?9825 * bool<br />
+                          <strong>Type parameters:</strong> '?9825          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '241', 241)" onmouseover="showTip(event, '241', 241)">
+            mkSynDoBinding (vis, strict, expr, m)
+          </code>
+          <div class="tip" id="241">
+            <strong>Signature:</strong> (vis:&#39;?9827 option * strict:bool * expr:SynExpr * m:range) -&gt; SynBinding<br />
+                          <strong>Type parameters:</strong> '?9827          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '242', 242)" onmouseover="showTip(event, '242', 242)">
+            mkSynDoDecl e
+          </code>
+          <div class="tip" id="242">
+            <strong>Signature:</strong> e:SynExpr -&gt; SynModuleDecl<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '243', 243)" onmouseover="showTip(event, '243', 243)">
+            mkSynOptionalExpr m xopt
+          </code>
+          <div class="tip" id="243">
+            <strong>Signature:</strong> m:range -&gt; xopt:SynExpr option -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '244', 244)" onmouseover="showTip(event, '244', 244)">
+            mkUnderscoreRecdField m
+          </code>
+          <div class="tip" id="244">
+            <strong>Signature:</strong> m:range -&gt; LongIdentWithDots * bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '245', 245)" onmouseover="showTip(event, '245', 245)">
+            parse_error_rich 
+          </code>
+          <div class="tip" id="245">
+            <strong>Signature:</strong> (ParseErrorContext&lt;&#39;?9831&gt; -&gt; unit) option<br />
+                          <strong>Type parameters:</strong> '?9831          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '246', 246)" onmouseover="showTip(event, '246', 246)">
+            patFromParseError e
+          </code>
+          <div class="tip" id="246">
+            <strong>Signature:</strong> e:SynPat -&gt; SynPat<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '247', 247)" onmouseover="showTip(event, '247', 247)">
+            prodIdxToNonTerminal prodIdx
+          </code>
+          <div class="tip" id="247">
+            <strong>Signature:</strong> prodIdx:int -&gt; nonTerminalId<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>This function maps production indexes returned in syntax errors to strings representing the non terminal that would be produced by that production</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '248', 248)" onmouseover="showTip(event, '248', 248)">
+            raiseParseErrorAt m (arg2, arg3)
+          </code>
+          <div class="tip" id="248">
+            <strong>Signature:</strong> m:range -&gt; (int * string) -&gt; &#39;?9835<br />
+                          <strong>Type parameters:</strong> '?9835          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '249', 249)" onmouseover="showTip(event, '249', 249)">
+            rangeOfLongIdent lid
+          </code>
+          <div class="tip" id="249">
+            <strong>Signature:</strong> lid:LongIdent -&gt; range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '250', 250)" onmouseover="showTip(event, '250', 250)">
+            rangeOfNonNilAttrs attrs
+          </code>
+          <div class="tip" id="250">
+            <strong>Signature:</strong> attrs:SynAttributes -&gt; range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '251', 251)" onmouseover="showTip(event, '251', 251)">
+            rebindRanges (arg1, arg2) fields lastSep
+          </code>
+          <div class="tip" id="251">
+            <strong>Signature:</strong> (&#39;?9820 * &#39;?9821) -&gt; fields:((&#39;?9820 * &#39;?9821) * &#39;?9822) list -&gt; lastSep:&#39;?9822 -&gt; (&#39;?9820 * &#39;?9821 * &#39;?9822) list<br />
+                          <strong>Type parameters:</strong> '?9820, '?9821, '?9822          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '252', 252)" onmouseover="showTip(event, '252', 252)">
+            reportParseErrorAt m (arg2, arg3)
+          </code>
+          <div class="tip" id="252">
+            <strong>Signature:</strong> m:range -&gt; (int * string) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '253', 253)" onmouseover="showTip(event, '253', 253)">
+            signatureFile lexer lexbuf
+          </code>
+          <div class="tip" id="253">
+            <strong>Signature:</strong> lexer:(LexBuffer&lt;char&gt; -&gt; token) -&gt; lexbuf:LexBuffer&lt;char&gt; -&gt; ParsedSigFile<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '254', 254)" onmouseover="showTip(event, '254', 254)">
+            tables ()
+          </code>
+          <div class="tip" id="254">
+            <strong>Signature:</strong> unit -&gt; Tables&lt;token&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '255', 255)" onmouseover="showTip(event, '255', 255)">
+            tagOfToken t
+          </code>
+          <div class="tip" id="255">
+            <strong>Signature:</strong> t:token -&gt; int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '256', 256)" onmouseover="showTip(event, '256', 256)">
+            token_to_string t
+          </code>
+          <div class="tip" id="256">
+            <strong>Signature:</strong> t:token -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '257', 257)" onmouseover="showTip(event, '257', 257)">
+            tokenTagToTokenId tokenIdx
+          </code>
+          <div class="tip" id="257">
+            <strong>Signature:</strong> tokenIdx:int -&gt; tokenId<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '258', 258)" onmouseover="showTip(event, '258', 258)">
+            typedSeqExprEOF lexer lexbuf
+          </code>
+          <div class="tip" id="258">
+            <strong>Signature:</strong> lexer:(LexBuffer&lt;char&gt; -&gt; token) -&gt; lexbuf:LexBuffer&lt;char&gt; -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '259', 259)" onmouseover="showTip(event, '259', 259)">
+            typEOF lexer lexbuf
+          </code>
+          <div class="tip" id="259">
+            <strong>Signature:</strong> lexer:(LexBuffer&lt;char&gt; -&gt; token) -&gt; lexbuf:LexBuffer&lt;char&gt; -&gt; SynType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '260', 260)" onmouseover="showTip(event, '260', 260)">
+            unionRangeWithListBy (...)
+          </code>
+          <div class="tip" id="260">
+            <strong>Signature:</strong> projectRangeFromThing:(&#39;?9845 -&gt; range) -&gt; m:range -&gt; listOfThing:&#39;?9845 list -&gt; range<br />
+                          <strong>Type parameters:</strong> '?9845          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '261', 261)" onmouseover="showTip(event, '261', 261)">
+            unionRangeWithPos r p
+          </code>
+          <div class="tip" id="261">
+            <strong>Signature:</strong> r:range -&gt; p:pos -&gt; range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">F# Compiler Services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

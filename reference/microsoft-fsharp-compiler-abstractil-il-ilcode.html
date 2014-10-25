@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ILCode - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>ILCode</h1>
+<div class="xmldoc">
+<p>ILCode</p>
+
+<p>The code for a method is made up of a "code" object.  Each "code"
+object gives the contents of the method in a "semi-structured" form, i.e.
+  1. The structure implicit in the IL exception handling tables
+     has been made explicit
+  2. No relative offsets are used in the code: all branches and
+     switch targets are made explicit as labels.
+  3. All "fallthroughs" from one basic block to the next have
+     been made explicit, by adding extra "branch" instructions to
+     the end of basic blocks which simply fallthrough to another basic
+     block.</p>
+
+<p>You can convert a straight-line sequence of instructions to structured
+code by using buildILCode and 
+Most of the interesting code is contained in BasicBlocks. If you're
+just interested in getting started with the format then begin
+by simply considering methods which do not contain any branch 
+instructions, or methods which do not contain any exception handling
+constructs.</p>
+
+<p>The above format has the great advantage that you can insert and 
+delete new code blocks without needing to fixup relative offsets
+or exception tables.</p>
+
+<p>ILBasicBlock(bblock)
+  See above</p>
+
+<p>GroupBlock(localDebugInfo, blocks)
+  A set of blocks, with interior branching between the blocks.  For example
+      B1:  ldarg 1
+           br B2</p>
+
+<pre><code>  B2:  pop
+       ret
+</code></pre>
+
+<p>will be two basic blocks
+      let b1 = ILBasicBlock("B1", [| I<em>ldarg(1); I</em>br("B2") |])
+      let b2 = ILBasicBlock("B2", [| I<em>arith(AI</em>pop); I_ret |])
+      GroupBlock([], [b1; b2])</p>
+
+<p>A GroupBlock can include a list of debug info records for locally 
+  scoped local variables.  These indicate that within the given blocks
+  the given local variables are used for the given Debug info 
+  will only be recorded for local variables
+  declared in these nodes, and the local variable will only appear live 
+  in the debugger for the instructions covered by this node. So if you 
+  omit or erase these nodes then no debug info will be emitted for local 
+  variables.  If necessary you can have one outer ScopeBlock which specifies 
+  the information for all the local variables</p>
+
+<p>Not all the destination labels used within a group of blocks need
+  be satisfied by that group alone.  For example, the interior "try" code
+  of "try"-"catch" construct may be:
+      B1:  ldarg 1
+           br B2</p>
+
+<pre><code>  B2:  pop
+       leave B3
+</code></pre>
+
+<p>Again there will be two basic blocks grouped together:
+      let b1 = ILBasicBlock("B1", [| I<em>ldarg(1); I</em>br("B2") |])
+      let b2 = ILBasicBlock("B2", [| I<em>arith(AI</em>pop); I_leave("B3") |])
+      GroupBlock([], [b1; b2])
+  Here the code must be embedded in a method where "B3" is a label 
+  somewhere in the method.</p>
+
+<p>RestrictBlock(labels,code) 
+  This block hides labels, i.e. the given set of labels represent
+  wiring which is purely internal to the given code block, and may not
+  be used as the target of a branch by any blocks which this block
+  is placed alongside.</p>
+
+<p>For example, if a method is made up of:
+      B1:  ldarg 1
+           br B2</p>
+
+<pre><code>  B2:  ret
+</code></pre>
+
+<p>then the label "B2" is internal.  The overall code will
+  be two basic blocks grouped together, surrounded by a RestrictBlock.
+  The label "B1" is then the only remaining visible entry to the method
+  and execution will begin at that label.</p>
+
+<pre><code>  let b1 = ILBasicBlock("B1", [| I_ldarg(1); I_br("B2") |])
+  let b2 = ILBasicBlock("B2", [| I_arith(AI_pop); I_leave("B3") |])
+  let gb1 = GroupBlock([], [b1; b2])
+  RestrictBlock(["B2"], gb1)
+</code></pre>
+
+<p>RestrictBlock is necessary to build well-formed code.</p>
+
+<p>TryBlock(trycode,seh)</p>
+
+<p>A try-catch, try-finally or try-fault block.<br />
+  If an exception is raised while executing
+  an instruction in 'trycode' then the exception handler given by
+  'seh' is executed.</p>
+
+<p>Well-formedness conditions for code:</p>
+
+<p>Well-formed code includes nodes which explicitly "hide" interior labels.
+  For example, the code object for a method may have only one entry
+  label which is not hidden, and this label will be the label where 
+  execution begins.</p>
+
+<p>Both filter and catch blocks must have one 
+  and only one entry.  These entry labels are not visible 
+  outside the filter and catch blocks. Filter has no 
+  exits (it always uses endfilter), catch may have exits. 
+  The "try" block can have multiple entries, i.e. you can branch 
+  into a try from outside.  They can have multiple exits, each of 
+  which will be a "leave".</p>
+</div>
+  <h3>Union Cases</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Union Case</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2285', 2285)" onmouseover="showTip(event, '2285', 2285)">
+            GroupBlock(...)
+          </code>
+          <div class="tip" id="2285">
+            <strong>Signature:</strong> ILDebugMapping list * ILCode list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L830-830" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2286', 2286)" onmouseover="showTip(event, '2286', 2286)">
+            ILBasicBlock(ILBasicBlock)
+          </code>
+          <div class="tip" id="2286">
+            <strong>Signature:</strong> ILBasicBlock<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L829-829" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2287', 2287)" onmouseover="showTip(event, '2287', 2287)">
+            RestrictBlock(ILCodeLabel list,ILCode)
+          </code>
+          <div class="tip" id="2287">
+            <strong>Signature:</strong> ILCodeLabel list * ILCode<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L831-831" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2288', 2288)" onmouseover="showTip(event, '2288', 2288)">
+            TryBlock(ILCode,ILExceptionBlock)
+          </code>
+          <div class="tip" id="2288">
+            <strong>Signature:</strong> ILCode * ILExceptionBlock<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L832-832" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">F# Compiler Services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

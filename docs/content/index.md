@@ -38,6 +38,9 @@ The libraries contain additional public API that can be used, but is not documen
  * [**Working with signatures, types, and resolved symbols**](symbols.html) - many services related to type checking
    return resolved symbols, representing inferred types, and the signatures of whole assemblies. 
   
+ * [**Working with resolved expressions**](typedtree.html) - services related to working with
+   type-checked expressions and declarations, where names have been resolved to symbols. 
+  
  * [**Working with projects and project-wide analysis**](project.html) - you can request a check of
    an entire project, and ask for the results of whole-project analyses such as find-all-references.
    

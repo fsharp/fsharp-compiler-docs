@@ -3210,6 +3210,33 @@ let ``Test Project23 property`` () =
            ("StaticProperty", ["member"; "prop"]); 
            ("Property", ["member"; "prop"])]
 
+    let getterModuleUse = allSymbolsUses |> Array.find (fun su -> su.Symbol.DisplayName = "Getter")
+    let getterModuleDefn = getterModuleUse.Symbol :?> FSharpEntity
+
+    [ for x in getterModuleDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x ]
+      |> shouldEqual 
+              [("get_Zero", ["member"; "extmem"; "getter"]);
+               ("Zero", ["member"; "prop"; "extmem"]);
+               ("get_Value", ["member"; "extmem"; "getter"]);
+               ("Value", ["member"; "prop"; "extmem"])]
+
+    let extensionProps = getterModuleDefn.MembersFunctionsAndValues |> Seq.toArray |> Array.filter (fun su -> su.LogicalName = "Value" || su.LogicalName = "Zero" )
+    let extensionPropsRelated = 
+        extensionProps
+        |> Array.collect (fun f -> 
+            [|  if f.HasGetterMethod then
+                    yield (f.EnclosingEntity.FullName, f.GetterMethod.CompiledName, f.GetterMethod.EnclosingEntity.FullName, attribsOfSymbol f)
+                if f.HasSetterMethod then
+                    yield (f.EnclosingEntity.FullName, f.SetterMethod.CompiledName, f.SetterMethod.EnclosingEntity.FullName, attribsOfSymbol f)
+            |])
+        |> Array.toList
+
+    extensionPropsRelated  |> shouldEqual
+          [("System.Int32", "Int32.get_Zero.Static", "Impl.Getter",
+            ["member"; "prop"; "extmem"]);
+           ("System.Int32", "Int32.get_Value", "Impl.Getter",
+            ["member"; "prop"; "extmem"])]       
+
     allSymbolsUses 
     |> Array.map (fun x -> x.Symbol)
     |> Array.choose (function 

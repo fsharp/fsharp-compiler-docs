@@ -712,3 +712,20 @@ let ``Test active patterns' XmlDocSig declared in referenced projects`` () =
     divisibleByGroup.OverallType.Format(divisibleBySymbolUse.Value.DisplayContext) |> shouldEqual "int -> int -> unit option"
 
 //------------------------------------------------------------------------------------
+
+#if FX_ATLEAST_45
+
+[<Test>]
+let ``Type provider project references should not throw exceptions`` () =
+    let projectFile = __SOURCE_DIRECTORY__ + @"/data/TypeProviderConsole/TypeProviderConsole.fsproj"
+    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
+    //printfn "options: %A" options
+    let fileName = __SOURCE_DIRECTORY__ + @"/data/TypeProviderConsole/Program.fs"    
+    let fileSource = File.ReadAllText(fileName)
+    let fileCheckResults, _ = checker.ParseAndCheckFileInProject(fileName, 0, fileSource, options) |> Async.RunSynchronously
+    //printfn "Errors: %A" fileCheckResults.Errors
+    fileCheckResults.Errors |> Array.exists (fun error -> error.Severity = FSharpErrorSeverity.Error) |> shouldEqual false
+
+#endif
+
+//------------------------------------------------------------------------------------

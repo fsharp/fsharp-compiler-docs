@@ -1917,9 +1917,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
                 { new IProjectReference with 
                         member x.EvaluateRawContents() = 
                             let r = self.ParseAndCheckProjectImpl(opts)
-                            match r.RawFSharpAssemblyData with 
-                            | Some c -> c
-                            | _ -> invalidOp ("errors in project '" + nm + "'")
+                            r.RawFSharpAssemblyData 
                         member x.GetLogicalTimeStamp() = 
                             self.GetLogicalTimeStampForProject(opts)
                         member x.FileName = nm } ]

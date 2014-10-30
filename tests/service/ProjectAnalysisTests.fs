@@ -4223,3 +4223,47 @@ let ``Test Project32 should be able to find impl symbols`` () =
     usesOfImplSymbol |> shouldEqual
        [("sig1", ((4, 4), (4, 8)), ["val"]); 
         ("file1", ((3, 4), (3, 8)), ["val"])]
+
+module Project33 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Impl
+open System.Runtime.CompilerServices
+
+type System.Int32 with
+    member x.SetValue (_: int) = ()
+    member x.GetValue () = x
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test Project33 whole project errors`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project33.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+[<Test>]
+let ``Test Project33 extension methods`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project33.options) |> Async.RunSynchronously
+    let allSymbolsUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+    
+    let implModuleUse = allSymbolsUses |> Array.find (fun su -> su.Symbol.DisplayName = "Impl")
+    let implModuleDefn = implModuleUse.Symbol :?> FSharpEntity
+
+    [ 
+      for x in implModuleDefn.MembersFunctionsAndValues -> x.LogicalName, attribsOfSymbol x
+    ]
+    |> shouldEqual 
+            [("SetValue", ["member"; "extmem"]); 
+             ("GetValue", ["member"; "extmem"])]

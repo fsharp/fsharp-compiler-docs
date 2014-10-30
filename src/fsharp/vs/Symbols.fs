@@ -377,9 +377,23 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
            for einfo in events do
                 yield FSharpMemberOrFunctionOrValue(cenv, E einfo, Item.Event einfo)
 
-           // Emit the values and functions in a module
+           // Emit the values, functions and F#-declared extension members in a module
            for v in entity.ModuleOrNamespaceType.AllValsAndMembers do
-               if not v.IsMember then
+               if v.IsExtensionMember then
+
+                   // For F#-declared extension members, yield a value-backed member and a property info if possible
+                   let vref = mkNestedValRef entity v
+                   yield FSharpMemberOrFunctionOrValue(cenv,  V vref, Item.Value vref) 
+                   match v.MemberInfo.Value.MemberFlags.MemberKind, v.ApparentParent with
+                   | MemberKind.PropertyGet, Parent p -> 
+                        let pinfo = FSProp(cenv.g, generalizedTyconRef p, Some vref, None)
+                        yield FSharpMemberOrFunctionOrValue(cenv,  P pinfo, Item.Property (pinfo.PropertyName, [pinfo]))
+                   | MemberKind.PropertySet, Parent p -> 
+                        let pinfo = FSProp(cenv.g, generalizedTyconRef p, None, Some vref)
+                        yield FSharpMemberOrFunctionOrValue(cenv,  P pinfo, Item.Property (pinfo.PropertyName, [pinfo]))
+                   | _ -> ()
+
+               elif not v.IsMember then
                    let vref = mkNestedValRef entity v
                    yield FSharpMemberOrFunctionOrValue(cenv,  V vref, Item.Value vref) ]  
          |> makeReadOnlyCollection)

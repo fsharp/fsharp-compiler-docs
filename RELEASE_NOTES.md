@@ -291,3 +291,7 @@
 * Populate ReferencedProjects using ProjectFileInfo
 * Fix finding symbols declared in signature files
 * Add logging to project cracking facility
+
+#### 0.0.74 - 
+* Extension members are returned as members of current modules
+* Fix exceptions while cross-reference a type provider project 

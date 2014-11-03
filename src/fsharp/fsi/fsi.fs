@@ -156,11 +156,9 @@ type EvaluationEventArgs(name : string, displaycontext : FSharpDisplayContext, r
     member x.Range = range
     member x.FsiValue = fsivalue
 
-type EvaluationDelegate = delegate of obj * EvaluationEventArgs -> unit
-
 [<AbstractClass>]
 type public FsiEvaluationSessionHostConfig () = 
-    let evaluationEvent = new Event<EvaluationDelegate, EvaluationEventArgs> () 
+    let evaluationEvent = new Event<EvaluationEventArgs> () 
     /// Called by the evaluation session to ask the host for parameters to format text for output
     abstract FormatProvider: System.IFormatProvider  
     /// Called by the evaluation session to ask the host for parameters to format text for output
@@ -229,7 +227,7 @@ type public FsiEvaluationSessionHostConfig () =
     /// Hook for listening for evaluation bindings
     member x.OnEvaluation = evaluationEvent.Publish
     member internal x.TriggerEvaluation (name, context, range, value) =
-        evaluationEvent.Trigger (null, EvaluationEventArgs (name, context, range, value) )
+        evaluationEvent.Trigger (EvaluationEventArgs (name, context, range, value) )
 
 /// Used to print value signatures along with their values, according to the current
 /// set of pretty printers installed in the system, and default printing rules.

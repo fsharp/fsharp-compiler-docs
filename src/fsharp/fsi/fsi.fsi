@@ -34,8 +34,6 @@ type EvaluationEventArgs =
     member Range : Microsoft.FSharp.Compiler.Range.range
     member FsiValue : FsiValue
 
-type EvaluationDelegate = delegate of obj * EvaluationEventArgs -> unit
-
 [<AbstractClass>]
 type public FsiEvaluationSessionHostConfig = 
     /// Called by the evaluation session to ask the host for parameters to format text for output
@@ -62,7 +60,7 @@ type public FsiEvaluationSessionHostConfig =
     /// stripping things like "/use:file.fsx", "-r:Foo.dll" etc.
     abstract ReportUserCommandLineArgs : string [] -> unit
     /// Hook for listening for evaluation bindings
-    member OnEvaluation : IEvent<EvaluationDelegate, EvaluationEventArgs>
+    member OnEvaluation : IEvent<EvaluationEventArgs>
 
 
     ///<summary>

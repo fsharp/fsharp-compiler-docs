@@ -1863,7 +1863,7 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
 
     // See Bug 735819 
     let lcidFromCodePage = 
-#if SILVERLIGHT
+#if LIMITED_CONSOLE
         None
 #else
         if (System.Console.OutputEncoding.CodePage <> 65001) &&
@@ -1882,7 +1882,7 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
         let curDir = Directory.GetCurrentDirectory()
 #endif
         getTcImportsFromCommandLine(None, argv, defaultFSharpBinariesDir, curDir, lcidFromCodePage, (fun tcConfigB ->
-#if SILVERLIGHT
+#if LIMITED_CONSOLE
                           ()
 #else
                           tcConfigB.openBinariesInMemory <- openBinariesInMemory

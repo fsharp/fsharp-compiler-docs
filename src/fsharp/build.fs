@@ -5421,7 +5421,7 @@ let compilerOptionUsage (CompilerOption(s,tag,spec,_,_)) =
 let printCompilerOption (CompilerOption(_s,_tag,_spec,_,help) as compilerOption) =
     let flagWidth = 30 // fixed width for printing of flags, e.g. --warnaserror:<warn;...>
     let defaultLineWidth = 80 // the fallback width
-#if SILVERLIGHT
+#if LIMITED_CONSOLE
     let lineWidth = defaultLineWidth
 #else        
     let lineWidth = try System.Console.BufferWidth with e -> defaultLineWidth

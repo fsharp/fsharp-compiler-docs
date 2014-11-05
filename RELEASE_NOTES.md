@@ -301,3 +301,4 @@
 
 #### 0.0.76 - 
 * Fix #249 - Fix TryFullName when used on namespaces of provided erased type definitions
+* Add OnEvaluation event to FCS to allow detailed information to be exposed

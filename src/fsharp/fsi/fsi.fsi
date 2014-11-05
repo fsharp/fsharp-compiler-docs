@@ -36,6 +36,7 @@ type EvaluationEventArgs =
 
 [<AbstractClass>]
 type public FsiEvaluationSessionHostConfig = 
+    new : unit -> FsiEvaluationSessionHostConfig
     /// Called by the evaluation session to ask the host for parameters to format text for output
     abstract FormatProvider: System.IFormatProvider  
     /// Called by the evaluation session to ask the host for parameters to format text for output

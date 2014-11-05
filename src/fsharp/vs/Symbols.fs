@@ -202,15 +202,14 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
         
     member x.FullName = 
         checkIsResolved()
-        let fail() = invalidOp (sprintf "the type '%s' does not have a qualified name" x.LogicalName)
-        if entity.IsTypeAbbrev || entity.IsProvidedErasedTycon || entity.IsNamespace then fail()
-        match entity.CompiledRepresentation with 
-        | CompiledTypeRepr.ILAsmNamed(tref,_,_) -> tref.FullName
-        | CompiledTypeRepr.ILAsmOpen _ -> fail()
+        match x.TryFullName with 
+        | None -> invalidOp (sprintf "the type '%s' does not have a qualified name" x.LogicalName)
+        | Some nm -> nm
     
     member x.TryFullName = 
         if isUnresolved() then None
-        elif entity.IsTypeAbbrev || entity.IsProvidedErasedTycon || entity.IsNamespace then None
+        elif entity.IsTypeAbbrev || entity.IsProvidedErasedTycon then None
+        elif entity.IsNamespace  then Some entity.DemangledModuleOrNamespaceName 
         else
             match entity.CompiledRepresentation with 
             | CompiledTypeRepr.ILAsmNamed(tref,_,_) -> Some tref.FullName
@@ -257,7 +256,7 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
 
     member __.IsProvidedAndGenerated  = 
         isResolved() &&
-        entity.IsProvidedErasedTycon
+        entity.IsProvidedGeneratedTycon
 
     member __.IsClass = 
         isResolved() &&

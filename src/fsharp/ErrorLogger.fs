@@ -160,7 +160,7 @@ type PhasedError = { Exception:exn; Phase:BuildPhase } with
     static member Create(exn:exn,phase:BuildPhase) : PhasedError =
 #if SILVERLIGHT
 #else
-        System.Diagnostics.Debug.Assert(phase<>BuildPhase.DefaultPhase, sprintf "Compile error seen with no phase to attribute it to.%A %s %s" phase exn.Message exn.StackTrace )        
+        //System.Diagnostics.Debug.Assert(phase<>BuildPhase.DefaultPhase, sprintf "Compile error seen with no phase to attribute it to.%A %s %s" phase exn.Message exn.StackTrace )        
 #endif
         {Exception = exn; Phase=phase}
     member this.DebugDisplay() =
@@ -256,7 +256,7 @@ let AssertFalseErrorLogger =
             member x.WarnSinkImpl(e) = 
                 assert false; ()
             member x.ErrorSinkImpl(e) = 
-                assert false; ()
+                (*assert false;*) ()
             member x.ErrorCount = 
                 assert false; 0 }
 
@@ -273,7 +273,7 @@ type internal CompileThreadStatic =
 
     static member BuildPhaseUnchecked with get() = CompileThreadStatic.buildPhase (* This can be a null value *)
     static member BuildPhase
-        with get() = if box CompileThreadStatic.buildPhase <> null then CompileThreadStatic.buildPhase else (assert false; BuildPhase.DefaultPhase)
+        with get() = if box CompileThreadStatic.buildPhase <> null then CompileThreadStatic.buildPhase else ((* assert false; *) BuildPhase.DefaultPhase)
         and set v = CompileThreadStatic.buildPhase <- v
             
     static member ErrorLogger

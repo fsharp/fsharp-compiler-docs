@@ -339,4 +339,16 @@ let x = 3 + 4
         compile true PdbOnly "Foo" code [] |> ignore
 
 #endif
+
+[<Test>]
+let ``Check read of mscorlib`` () =
+    let options = Microsoft.FSharp.Compiler.AbstractIL.ILBinaryReader.mkDefault  Microsoft.FSharp.Compiler.AbstractIL.IL.EcmaILGlobals
+    let options = { options with optimizeForMemory=true}
+    let reader = Microsoft.FSharp.Compiler.AbstractIL.ILBinaryReader.OpenILModuleReaderAfterReadingAllBytes "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\mscorlib.dll" options
+    let greg = reader.ILModuleDef.TypeDefs.FindByName "System.Globalization.GregorianCalendar"
+    for attr in greg.CustomAttrs.AsList do 
+        printfn "%A" attr.Method
+
+
+
   

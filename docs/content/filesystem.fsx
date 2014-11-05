@@ -10,9 +10,7 @@ is not available.
   
 > **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.
 
-*)
 
-(*
 Setting the FileSystem 
 ----------------------
 

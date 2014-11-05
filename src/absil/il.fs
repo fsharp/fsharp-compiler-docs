@@ -65,10 +65,10 @@ let rec splitNamespaceAux (nm:string) =
 
 /// Global State. All namespace splits ever seen
 // ++GLOBAL MUTABLE STATE
-let memoizeNamespaceTable = new Dictionary<string,string list>(10)
+let memoizeNamespaceTable = new Concurrent.ConcurrentDictionary<string,string list>()
 
 //  ++GLOBAL MUTABLE STATE
-let memoizeNamespaceRightTable = new Dictionary<string,string option * string>(100)
+let memoizeNamespaceRightTable = new Concurrent.ConcurrentDictionary<string,string option * string>()
 
 
 let splitNamespace nm =
@@ -82,7 +82,7 @@ let splitNamespaceMemoized nm = splitNamespace nm
 
 // ++GLOBAL MUTABLE STATE
 let memoizeNamespaceArrayTable = 
-    Dictionary<string,string[]>(10)
+    Concurrent.ConcurrentDictionary<string,string[]>()
 
 let splitNamespaceToArray nm =
     let mutable res = Unchecked.defaultof<_>

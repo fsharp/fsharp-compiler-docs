@@ -9,6 +9,8 @@ open System.Reflection
 [<assembly:AssemblyCopyright("\169 Microsoft Corporation and other contributors.  Apache 2.0 License.")>]
 [<assembly:AssemblyProduct("F# Compiler Service (open source edition)")>]
 
+[<assembly:System.Runtime.CompilerServices.InternalsVisibleTo("FSharp.Compiler.Service.Tests")>]
+
 #if NO_STRONG_NAMES
 [<assembly:System.Runtime.CompilerServices.InternalsVisibleTo("fsc")>]
 [<assembly:System.Runtime.CompilerServices.InternalsVisibleTo("fsi")>]

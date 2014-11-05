@@ -295,3 +295,6 @@
 #### 0.0.74 - 
 * Extension members are returned as members of current modules
 * Fix exceptions while cross-reference a type provider project 
+
+#### 0.0.75 - 
+* Do not use shared cursor for IL binaries (https://github.com/fsprojects/VisualFSharpPowerTools/issues/822)

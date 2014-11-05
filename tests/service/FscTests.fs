@@ -340,6 +340,8 @@ let x = 3 + 4
 
 #endif
 
+(*
+
 [<Test>]
 let ``Check read of mscorlib`` () =
     let options = Microsoft.FSharp.Compiler.AbstractIL.ILBinaryReader.mkDefault  Microsoft.FSharp.Compiler.AbstractIL.IL.EcmaILGlobals
@@ -349,6 +351,7 @@ let ``Check read of mscorlib`` () =
     for attr in greg.CustomAttrs.AsList do 
         printfn "%A" attr.Method
 
+*)
 
 
   

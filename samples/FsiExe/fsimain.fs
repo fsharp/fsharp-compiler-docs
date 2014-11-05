@@ -129,10 +129,18 @@ let internal TrySetUnhandledExceptionMode() =
 // Mark the main thread as STAThread since it is a GUI thread
 [<EntryPoint>]
 [<STAThread()>]    
+[<LoaderOptimization(LoaderOptimization.MultiDomainHost)>]     
 let MainMain argv = 
-    ignore argv
-    let argv = System.Environment.GetCommandLineArgs()
+  ignore argv
+  let argv = System.Environment.GetCommandLineArgs()
 
+  let isShadowCopy x = (x = "/shadowcopyreferences" || x = "--shadowcopyreferences" || x = "/shadowcopyreferences+" || x = "--shadowcopyreferences+")
+  if AppDomain.CurrentDomain.IsDefaultAppDomain() && argv |> Array.exists isShadowCopy then
+      let setupInformation = AppDomain.CurrentDomain.SetupInformation
+      setupInformation.ShadowCopyFiles <- "true"
+      let helper = AppDomain.CreateDomain("FSI_Domain", null, setupInformation)
+      helper.ExecuteAssemblyByName(Assembly.GetExecutingAssembly().GetName()) 
+  else
     // When VFSI is running, set the input/output encoding to UTF8.
     // Otherwise, unicode gets lost during redirection.
     // It is required only under Net4.5 or above (with unicode console feature).

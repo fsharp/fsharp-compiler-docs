@@ -1125,21 +1125,19 @@ type internal FsiDynamicCompiler
                             | _ -> None)
 
         let actualValues =
-            filteredByVal
-            |> List.choose (fun (vref, i) -> let optValue = newState.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(newState.emEnv), vref.Deref)
-                                             match optValue with
-                                             | Some (res, typ) ->
-                                                //let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, i)
-                                                let displayEnv = newState.tcState.TcEnvFromImpls.DisplayEnv
-                                                let displayContext = FSharpDisplayContext(fun _ -> displayEnv)
-                                                Some(vref.DisplayName,
-                                                     displayContext,
-                                                     vref.Range,
-                                                     FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)))
-                                             | None -> None )
+            filteredByVal|> List.choose (fun (vref, _) -> 
+                let optValue = newState.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(newState.emEnv), vref.Deref)
+                match optValue with
+                | Some (res, typ) ->
+                    //let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, i)
+                    let displayEnv = newState.tcState.TcEnvFromImpls.DisplayEnv
+                    let displayContext = FSharpDisplayContext(fun _ -> displayEnv)
+                    Some(vref.DisplayName,displayContext,vref.Range,FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)))
+                | None -> None )
         
         for (name, displayContext, range, fsiValue) in actualValues do 
             fsiConfig.TriggerEvaluation (name, displayContext, range, fsiValue)
+
         newState
       
 

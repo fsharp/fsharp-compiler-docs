@@ -302,3 +302,6 @@
 #### 0.0.76 - 
 * Fix #249 - Fix TryFullName when used on namespaces of provided erased type definitions
 * Add OnEvaluation event to FCS to allow detailed information to be exposed
+
+#### 0.0.77 - 
+* Update to github.com/fsharp/fsharp 05f426cee85609f2fe51b71473b07d7928bb01c8

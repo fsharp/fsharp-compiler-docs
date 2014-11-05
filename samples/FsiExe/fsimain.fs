@@ -172,7 +172,7 @@ let MainMain argv =
         
         let rec fsiConfig = 
             { // Update the configuration to include 'StartServer' and 'OptionalConsoleReadLine'
-              new FsiEvaluationSessionHostConfig with 
+              new FsiEvaluationSessionHostConfig () with 
                 member __.FormatProvider = fsiConfig0.FormatProvider
                 member __.FloatingPointFormat = fsiConfig0.FloatingPointFormat
                 member __.AddedPrinters = fsiConfig0.AddedPrinters

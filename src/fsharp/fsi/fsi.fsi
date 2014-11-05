@@ -15,7 +15,28 @@ module Microsoft.FSharp.Compiler.Interactive.Shell
 open System.IO
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
+[<Class>]
+/// Represents an evaluated F# value
+type FsiValue = 
+    /// The value, as an object
+    member ReflectionValue : obj
+    /// The type of the value, from the point of view of the .NET type system
+    member ReflectionType : System.Type
+    /// The type of the value, from the point of view of the F# type system
+    member FSharpType : FSharpType
+
+[<Class>]
+type EvaluationEventArgs =
+    inherit System.EventArgs
+    //new : unit -> CompilerOutputStream
+    member Name : string
+    member DisplayContext : Microsoft.FSharp.Compiler.SourceCodeServices.FSharpDisplayContext
+    member Range : Microsoft.FSharp.Compiler.Range.range
+    member FsiValue : FsiValue
+
+[<AbstractClass>]
 type public FsiEvaluationSessionHostConfig = 
+    new : unit -> FsiEvaluationSessionHostConfig
     /// Called by the evaluation session to ask the host for parameters to format text for output
     abstract FormatProvider: System.IFormatProvider  
     /// Called by the evaluation session to ask the host for parameters to format text for output
@@ -39,6 +60,8 @@ type public FsiEvaluationSessionHostConfig =
     /// The evaluation session calls this to report the preferred view of the command line arguments after 
     /// stripping things like "/use:file.fsx", "-r:Foo.dll" etc.
     abstract ReportUserCommandLineArgs : string [] -> unit
+    /// Hook for listening for evaluation bindings
+    member OnEvaluation : IEvent<EvaluationEventArgs>
 
 
     ///<summary>
@@ -78,16 +101,6 @@ type public FsiEvaluationSessionHostConfig =
     /// Implicitly reference FSharp.Compiler.Interactive.Settings.dll
     abstract UseFsiAuxLib : bool 
 
-
-[<Class>]
-/// Represents an evaluated F# value
-type FsiValue = 
-    /// The value, as an object
-    member ReflectionValue : obj
-    /// The type of the value, from the point of view of the .NET type system
-    member ReflectionType : System.Type
-    /// The type of the value, from the point of view of the F# type system
-    member FSharpType : FSharpType
 
 /// Represents an F# Interactive evaluation session.
 type FsiEvaluationSession = 

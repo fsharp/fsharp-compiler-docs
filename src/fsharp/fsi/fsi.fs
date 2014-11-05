@@ -149,7 +149,16 @@ type internal FsiValuePrinterMode =
     | PrintExpr 
     | PrintDecl
 
-type public FsiEvaluationSessionHostConfig = 
+type EvaluationEventArgs(name : string, displaycontext : FSharpDisplayContext, range : range, fsivalue : FsiValue) =
+    inherit EventArgs()
+    member x.Name = name
+    member x.DisplayContext = displaycontext
+    member x.Range = range
+    member x.FsiValue = fsivalue
+
+[<AbstractClass>]
+type public FsiEvaluationSessionHostConfig () = 
+    let evaluationEvent = new Event<EvaluationEventArgs> () 
     /// Called by the evaluation session to ask the host for parameters to format text for output
     abstract FormatProvider: System.IFormatProvider  
     /// Called by the evaluation session to ask the host for parameters to format text for output
@@ -215,6 +224,10 @@ type public FsiEvaluationSessionHostConfig =
     /// Implicitly reference FSharp.Compiler.Interactive.Settings.dll
     abstract UseFsiAuxLib : bool
 
+    /// Hook for listening for evaluation bindings
+    member x.OnEvaluation = evaluationEvent.Publish
+    member internal x.TriggerEvaluation (name, context, range, value) =
+        evaluationEvent.Trigger (EvaluationEventArgs (name, context, range, value) )
 
 /// Used to print value signatures along with their values, according to the current
 /// set of pretty printers installed in the system, and default printing rules.
@@ -1043,7 +1056,9 @@ type internal FsiDynamicCompiler
             let denv = 
                 if isIncrementalFragment then
                   // Extend denv with a (Val -> layout option) function for printing of val bindings.
-                  {denv with generatedValueLayout = (fun v -> valuePrinter.InvokeDeclLayout (emEnv, ilxGenerator, v)) }
+                  {denv with generatedValueLayout = (fun v -> //Extension to allow Val to be forwarded 
+                                                              //at the point the layout function is invoked.
+                                                              valuePrinter.InvokeDeclLayout (emEnv, ilxGenerator, v)) }
                 else
                   // With #load items, the vals in the inferred signature do not tie up with those generated. Disable printing.
                   denv 
@@ -1098,7 +1113,34 @@ type internal FsiDynamicCompiler
         let input = ParsedInput.ImplFile(ParsedImplFileInput(filename,true, QualFileNameOfUniquePath (rangeStdin,prefixPath),[],[],[impl],true (* isLastCompiland *) ))
         let istate,tcEnvAtEndOfLastInput = ProcessInputs (istate, [input], showTypes, true, isInteractiveItExpr, prefix)
         let tcState = istate.tcState 
-        { istate with tcState = tcState.NextStateAfterIncrementalFragment(tcEnvAtEndOfLastInput) }
+        let newState = { istate with tcState = tcState.NextStateAfterIncrementalFragment(tcEnvAtEndOfLastInput) }
+
+        //grab all the uqualified Items and notify the EvaluationListener
+        let allNames = newState.tcState.TcEnvFromImpls.NameEnv.eUnqualifiedItems.Values
+
+        let filteredByVal =
+            allNames
+            |> List.choose (function
+                            | Nameres.Item.Value vref -> Some (vref, i)
+                            | _ -> None)
+
+        let actualValues =
+            filteredByVal
+            |> List.choose (fun (vref, i) -> let optValue = newState.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(newState.emEnv), vref.Deref)
+                                             match optValue with
+                                             | Some (res, typ) ->
+                                                //let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, i)
+                                                let displayEnv = newState.tcState.TcEnvFromImpls.DisplayEnv
+                                                let displayContext = FSharpDisplayContext(fun _ -> displayEnv)
+                                                Some(vref.DisplayName,
+                                                     displayContext,
+                                                     vref.Range,
+                                                     FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)))
+                                             | None -> None )
+        
+        for (name, displayContext, range, fsiValue) in actualValues do 
+            fsiConfig.TriggerEvaluation (name, displayContext, range, fsiValue)
+        newState
       
 
     /// Evaluate the given expression and produce a new interactive state.
@@ -2699,7 +2741,7 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
         // We want to avoid modifying FSharp.Compiler.Interactive.Settings to avoid republishing that DLL.
         // So we access these via reflection
         { // Connect the configuration through to the 'fsi' object from FSharp.Compiler.Interactive.Settings
-            new FsiEvaluationSessionHostConfig with 
+            new FsiEvaluationSessionHostConfig () with 
               member __.FormatProvider = getInstanceProperty fsiObj "FormatProvider"
               member __.FloatingPointFormat = getInstanceProperty fsiObj "FloatingPointFormat"
               member __.AddedPrinters = getInstanceProperty fsiObj "AddedPrinters"

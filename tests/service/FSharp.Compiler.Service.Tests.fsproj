@@ -36,7 +36,7 @@
     </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <DefineConstants Condition="$(TargetFrameworkVersion) == 'v4.5'">$(DefineConstants);FX_ATLEAST_45</DefineConstants>
+    <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5'">$(DefineConstants);FX_ATLEAST_45</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_ATLEAST_40</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>

@@ -46,7 +46,7 @@ FSharpChecker maintains a set of caches. These are
   amortize cracking the DLLs.
 
 * ``frameworkTcImportsCache`` - an aged lookup of strong size 8 which caches the process of setting up type checking against a set of system
-  components (e.g. a particular version of mscorlib, FSharp.Core and other system DLLs).  These resources can be shared between multiple
+  components (e.g. a particular version of mscorlib, FSharp.Core and other system DLLs).  These resources are automatically shared between multiple
   project checkers which happen to reference the same set of system assemblies.
 
 Profiling the memory used by the various caches can be done by looking for the corresponding static roots in memory profiling traces.

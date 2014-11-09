@@ -352,4 +352,7 @@ Summary
 As you have seen, the `ParseAndCheckProject` lets you access results of project-wide analysis 
 such as symbol references. To learn more about working with symbols, see [Symbols](symbols.html).
 
+Using the FSharpChecker component in multi-project, incremental and interactive editing situations may involve
+knowledge of the [FSharpChecker operations queue](queue.html) and the [FSharpChecker caches](caches.html).
+
 *)

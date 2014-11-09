@@ -238,8 +238,13 @@ The `CheckFileAnswer` object contains other useful methods that were not covered
 can use it to get location of a declaration for a given identifier, additional colorization information
 (the F# 3.1 colorizes computation builder identifiers & query operators) and others.
 
+Using the FSharpChecker component in multi-project, incremental and interactive editing situations may involve
+knowledge of the [FSharpChecker operations queue](queue.html) and the [FSharpChecker caches](caches.html).
+
+
 Finally, if you are implementing an editor support for an editor that cannot directly call .NET API,
 you can call many of the methods discussed here via a command line interface that is available in the
 [FSharp.AutoComplete](https://github.com/fsharp/fsharpbinding/tree/master/FSharp.AutoComplete) project.
+
 
 *)

@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{B6B6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{83FEE492-6701-4E59-9184-16B1D30E91F8}"
 	ProjectSection(SolutionItems) = preProject
+		docs\content\caches.fsx = docs\content\caches.fsx
 		docs\content\devnotes.md = docs\content\devnotes.md
 		docs\content\editor.fsx = docs\content\editor.fsx
 		docs\content\filesystem.fsx = docs\content\filesystem.fsx
@@ -20,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{83FEE492-6
 		docs\content\index.md = docs\content\index.md
 		docs\content\interactive.fsx = docs\content\interactive.fsx
 		docs\content\project.fsx = docs\content\project.fsx
+		docs\content\queue.fsx = docs\content\queue.fsx
 		docs\content\symbols.fsx = docs\content\symbols.fsx
 		docs\content\tokenizer.fsx = docs\content\tokenizer.fsx
 		docs\content\typedtree.fsx = docs\content\typedtree.fsx
@@ -30,7 +32,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{0554567F
 	ProjectSection(SolutionItems) = preProject
 		docs\tools\generate.fsx = docs\tools\generate.fsx
 		docs\tools\templates\template.cshtml = docs\tools\templates\template.cshtml
-		docs\content\typedtree.fsx = docs\content\typedtree.fsx
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Compiler.Service", "src\fsharp\FSharp.Compiler.Service\FSharp.Compiler.Service.fsproj", "{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}"

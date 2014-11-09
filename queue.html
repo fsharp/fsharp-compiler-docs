@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiler Services: Notes on the FSharpChecker operations queue
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1>Compiler Services: Notes on the FSharpChecker operations queue</h1>
+
+<p>This is a design note on the FSharpChecker component and its operations queue.  See also the notes on the <a href="caches.html">FSharpChecker caches</a></p>
+
+<p>FSharpChecker maintains an operations queue. Items from the FSharpChecker operations queue are currently processed 
+sequentially and in order.</p>
+
+<p>In addition to operations in the queue, there is also a low-priority, interleaved background operation
+to bring the checking of the checking of "the current background project" up-to-date.  When the queue is empty
+this operation is conducted in small incremental fragments of parse/check work (cooperatively time-sliced to be approximately &lt;50ms, 
+see maxTimeShareMilliseconds in IncrementalBuild.fs). For a working definition of "current background project" 
+you currently  have to see the calls to  StartBackgroundCompile 
+in <a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs">service.fs</a>,
+where an API call which in turn calls StartBackgroundCompile indicates that the current background project has been specified.</p>
+
+<p>Many calls to the FSharpChecker API enqueue an operation in the FSharpChecker compiler queue. These correspond to the 
+calls to EnqueueAndAwaitOpAsync in <a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs">service.fs</a>.</p>
+
+<ul>
+<li><p>For example, calling ParseAndCheckProject enqueues a ParseAndCheckProjectImpl operation. The length of the 
+operation will depend on how much work is required to bring the project analysis up-to-date.</p></li>
+<li><p>Likewise, calling any of GetUsesOfSymbol, GetAllUsesOfAllSymbols, ParseFileInProject, 
+GetBackgroundParseResultsForFileInProject, MatchBraces, CheckFileInProjectIfReady, ParseAndCheckFileInProject, GetBackgroundCheckResultsForFileInProject,
+ParseAndCheckProject, GetProjectOptionsFromScript, InvalidateConfiguration, InvaidateAll and operations
+on FSharpCheckResults will cause an operation to be enqueued. The length of the operation will
+vary - many will be very fast - but they won't be processed until other operations already in the queue are complete.</p></li>
+</ul>
+
+<p>Some operations do not enqueue anything on the FSharpChecker operations queue - notably any accesses to the Symbol APIs.
+These are multi-threaded access to the TAST data produced by other FSharpChecker operations.</p>
+
+<p>In advanced interactive scenarios you may need to consider contributing design changes and extensions to how the FSharpChecker queue works, 
+in order to better serve your needs. Some tools throw a lot of interactive work at the FSharpChecker operations queue. 
+If you are writing such a component, we encourage you to get more involved in making carefully considered 
+changes, cleanup and documentation to how the queue works, to ensure it is suitable for your needs.</p>
+
+<p>For example, from the FCS point of view, it is plausible to consider changing of extending how the 
+FSharpChecker operations queue works - the design of the queue and its processing is not sacred. 
+In theory you could submit extensions and documentation that allow prioritization of operations, or interleaving of 
+operations, or cancellation of operations, or more explicitness about the "current background project", and so on.</p>
+
+<p>Finally, for those writing interactive editors which use FCS, in the current state of affairs you 
+should be cautious about having any auto-operation  (e.g. operations like "Find Unused Declarations" 
+which run automatically and are unassociated with a user action, but not operations like "FindAllReferences" 
+which a user explicitly triggers) request a check of  the entire project. That will cause very long operations 
+and contention on the FSharpChecker operations queue. Any such very-long-running request should normally be associated 
+with a user action, and preferably it should be cancellable.</p>
+
+<p>Alternatively, it is reasonable to trigger these 
+kinds of auto-operations when the ProjectChecked event is triggered on FSharpChecker. This event indicates the 
+completion of interleaved checking of the "current background project" (specified above). Again, if 
+the spec of "current background project" is not suitable or sufficiently controlled for your needs, please 
+help to document it and adjust it.</p>
+
+<h2>Summary</h2>
+
+<p>In this design note, you learned that the FSharpChecker component keeps an operations queue. When using FSharpChecker
+in highly interactive situations, you should carefully consider the characteristics of the operations you are 
+enqueueing.</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">F# Compiler Services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

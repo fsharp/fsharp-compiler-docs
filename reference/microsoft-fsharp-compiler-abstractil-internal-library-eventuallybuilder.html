@@ -77,8 +77,8 @@
             Bind(e, k)
           </code>
           <div class="tip" id="3064">
-            <strong>Signature:</strong> (e:Eventually&lt;&#39;?13524&gt; * k:(&#39;?13524 -&gt; Eventually&lt;&#39;?13525&gt;)) -&gt; Eventually&lt;&#39;?13525&gt;<br />
-                          <strong>Type parameters:</strong> '?13524, '?13525          </div>
+            <strong>Signature:</strong> (e:Eventually&lt;&#39;?13531&gt; * k:(&#39;?13531 -&gt; Eventually&lt;&#39;?13532&gt;)) -&gt; Eventually&lt;&#39;?13532&gt;<br />
+                          <strong>Type parameters:</strong> '?13531, '?13532          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L674-674" class="github-link">
@@ -95,8 +95,8 @@
             Combine(e1, e2)
           </code>
           <div class="tip" id="3065">
-            <strong>Signature:</strong> (e1:Eventually&lt;unit&gt; * e2:Eventually&lt;&#39;?13531&gt;) -&gt; Eventually&lt;&#39;?13531&gt;<br />
-                          <strong>Type parameters:</strong> '?13531          </div>
+            <strong>Signature:</strong> (e1:Eventually&lt;unit&gt; * e2:Eventually&lt;&#39;?13538&gt;) -&gt; Eventually&lt;&#39;?13538&gt;<br />
+                          <strong>Type parameters:</strong> '?13538          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L677-677" class="github-link">
@@ -113,8 +113,8 @@
             Delay(f)
           </code>
           <div class="tip" id="3066">
-            <strong>Signature:</strong> (f:(unit -&gt; Eventually&lt;&#39;?13537&gt;)) -&gt; Eventually&lt;&#39;?13537&gt;<br />
-                          <strong>Type parameters:</strong> '?13537          </div>
+            <strong>Signature:</strong> (f:(unit -&gt; Eventually&lt;&#39;?13544&gt;)) -&gt; Eventually&lt;&#39;?13544&gt;<br />
+                          <strong>Type parameters:</strong> '?13544          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L680-680" class="github-link">
@@ -131,8 +131,8 @@
             Return(v)
           </code>
           <div class="tip" id="3067">
-            <strong>Signature:</strong> v:&#39;?13527 -&gt; Eventually&lt;&#39;?13527&gt;<br />
-                          <strong>Type parameters:</strong> '?13527          </div>
+            <strong>Signature:</strong> v:&#39;?13534 -&gt; Eventually&lt;&#39;?13534&gt;<br />
+                          <strong>Type parameters:</strong> '?13534          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L675-675" class="github-link">
@@ -149,8 +149,8 @@
             ReturnFrom(v)
           </code>
           <div class="tip" id="3068">
-            <strong>Signature:</strong> v:&#39;?13529 -&gt; &#39;?13529<br />
-                          <strong>Type parameters:</strong> '?13529          </div>
+            <strong>Signature:</strong> v:&#39;?13536 -&gt; &#39;?13536<br />
+                          <strong>Type parameters:</strong> '?13536          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L676-676" class="github-link">
@@ -167,8 +167,8 @@
             TryFinally(e, compensation)
           </code>
           <div class="tip" id="3069">
-            <strong>Signature:</strong> (e:Eventually&lt;&#39;?13535&gt; * compensation:(unit -&gt; unit)) -&gt; Eventually&lt;&#39;?13535&gt;<br />
-                          <strong>Type parameters:</strong> '?13535          </div>
+            <strong>Signature:</strong> (e:Eventually&lt;&#39;?13542&gt; * compensation:(unit -&gt; unit)) -&gt; Eventually&lt;&#39;?13542&gt;<br />
+                          <strong>Type parameters:</strong> '?13542          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L679-679" class="github-link">
@@ -185,8 +185,8 @@
             TryWith(e, handler)
           </code>
           <div class="tip" id="3070">
-            <strong>Signature:</strong> (e:Eventually&lt;&#39;?13533&gt; * handler:(Exception -&gt; Eventually&lt;&#39;?13533&gt;)) -&gt; Eventually&lt;&#39;?13533&gt;<br />
-                          <strong>Type parameters:</strong> '?13533          </div>
+            <strong>Signature:</strong> (e:Eventually&lt;&#39;?13540&gt; * handler:(Exception -&gt; Eventually&lt;&#39;?13540&gt;)) -&gt; Eventually&lt;&#39;?13540&gt;<br />
+                          <strong>Type parameters:</strong> '?13540          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L678-678" class="github-link">
@@ -246,6 +246,10 @@
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)

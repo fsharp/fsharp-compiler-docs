@@ -19,22 +19,22 @@ FSharpChecker maintains a set of caches. These are
   Increasing the size of this cache can dramatically decrease incremental computation of project-wide checking, or of checking
   individual files within a project, but can very greatly increase memory usage.
 
-* ``braceMatchCache`` - an MRU cache of size ``braceMatchCacheSize`` (= 5) keeping the results of calls to MatchBraces, keyed by filename, source and project options.
+* ``braceMatchCache`` - an MRU cache of size ``braceMatchCacheSize`` (default = 5) keeping the results of calls to MatchBraces, keyed by filename, source and project options.
 
-* ``parseFileInProjectCache`` - an MRU cache of size ``parseFileInProjectCacheSize`` (= 2) keeping the results of ParseFileInProject, 
+* ``parseFileInProjectCache`` - an MRU cache of size ``parseFileInProjectCacheSize`` (default = 2) keeping the results of ParseFileInProject, 
   keyed by filename, source and project options.
 
-* ``parseAndCheckFileInProjectCache`` - an MRU cache of size ``incrementalTypeCheckCacheSize`` (= 5) keeping the results of 
+* ``parseAndCheckFileInProjectCache`` - an MRU cache of size ``incrementalTypeCheckCacheSize`` (default = 5) keeping the results of 
   ParseAndCheckFileInProject, CheckFileInProject and/or CheckFileInProjectIfReady. This is keyed by filename, file source 
   and project options.  The results held in this cache are only returned if they would reflect an accurate parse and check of the
   file.
 
-* ``parseAndCheckFileInProjectCachePossiblyStale`` - a somewhat peculiar MRU cache of size ``incrementalTypeCheckCacheSize`` (= 5) 
+* ``parseAndCheckFileInProjectCachePossiblyStale`` - a somewhat peculiar MRU cache of size ``incrementalTypeCheckCacheSize`` (default = 5) 
   keeping the results of ParseAndCheckFileInProject, CheckFileInProject and CheckFileInProjectIfReady, 
   keyed by filename and project options. This cache is accessed by TryGetRecentTypeCheckResultsForFile. Because the results
   are accessed regardless of the content of the file, the checking results returned may be "stale".
 
-* ``getToolTipTextCache`` - an aged lookup cache of strong size ``getToolTipTextSize`` (= 5) computing the results of GetToolTipText.
+* ``getToolTipTextCache`` - an aged lookup cache of strong size ``getToolTipTextSize`` (default = 5) computing the results of GetToolTipText.
 
 * ``ilModuleReaderCache`` - an aged lookup of weak references to "readers" for references .NET binaries. Because these
   are all weak references, you can generally ignore this cache, since its entries will be automatically collected.
@@ -51,7 +51,7 @@ FSharpChecker maintains a set of caches. These are
 
 Profiling the memory used by the various caches can be done by looking for the corresponding static roots in memory profiling traces.
 
-The sizes of some of these caches can be adjusted by giving parameters to FSharpChecker.  Unless otehrwise noted, 
+The sizes of some of these caches can be adjusted by giving parameters to FSharpChecker.  Unless otherwise noted, 
 the cache sizes above indicate the "strong" size of the cache, where memory is held regardless of the memory 
 pressure on the system. Some of the caches can also hold "weak" references which can be collected at will by the GC.
 

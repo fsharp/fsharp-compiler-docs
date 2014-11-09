@@ -78,7 +78,7 @@ let buildDocumentation () =
     let sub = if dir.Length > content.Length then dir.Substring(content.Length + 1) else "."
     Literate.ProcessDirectory
       ( dir, docTemplate, outputJa @@ sub, replacements = ("root", root)::info,
-        layoutRoots = layoutRoots )
+        layoutRoots = layoutRoots, generateAnchors = true )
 
 // Generate
 copyFiles()

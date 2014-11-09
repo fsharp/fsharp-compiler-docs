@@ -7,12 +7,15 @@ Compiler Services: Notes on the FSharpChecker operations queue
 This is a design note on the FSharpChecker component and its operations queue.  See also the notes on the [FSharpChecker caches](caches.html)
 
 FSharpChecker maintains an operations queue. Items from the FSharpChecker operations queue are currently processed 
-sequentially and in order. They are also leaved with small incremental fragments of parse/check work 
-(<50ms, see maxTimeShareMilliseconds) to bring the checking of the "current background project" up-to-date. 
+sequentially and in order. 
 
-For a working definition of "current background project" you currently  have to see the calls to 
-StartBackgroundCompile in [service.fs](https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs) - an API call which in turn calls StartBackgroundCompile 
-indicates that the current background project has been specified. 
+In addition to operations in the queue, there is also a low-priority, interleaved background operation
+to bring the checking of the checking of "the current background project" up-to-date.  When the queue is empty
+this operation is conducted in small incremental fragments of parse/check work (cooperatively time-sliced to be approximately <50ms, 
+see maxTimeShareMilliseconds in IncrementalBuild.fs). For a working definition of "current background project" 
+you currently  have to see the calls to  StartBackgroundCompile 
+in [service.fs](https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs),
+where an API call which in turn calls StartBackgroundCompile indicates that the current background project has been specified.
 
 Many calls to the FSharpChecker API enqueue an operation in the FSharpChecker compiler queue. These correspond to the 
 calls to EnqueueAndAwaitOpAsync in [service.fs](https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs).

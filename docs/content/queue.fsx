@@ -12,20 +12,20 @@ sequentially and in order.
 In addition to operations in the queue, there is also a low-priority, interleaved background operation
 to bring the checking of the checking of "the current background project" up-to-date.  When the queue is empty
 this operation is conducted in small incremental fragments of parse/check work (cooperatively time-sliced to be approximately <50ms, 
-see maxTimeShareMilliseconds in IncrementalBuild.fs). For a working definition of "current background project" 
-you currently  have to see the calls to  StartBackgroundCompile 
+see `maxTimeShareMilliseconds` in IncrementalBuild.fs). For a working definition of "current background project" 
+you currently  have to see the calls to  `StartBackgroundCompile` 
 in [service.fs](https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs),
 where an API call which in turn calls StartBackgroundCompile indicates that the current background project has been specified.
 
 Many calls to the FSharpChecker API enqueue an operation in the FSharpChecker compiler queue. These correspond to the 
 calls to EnqueueAndAwaitOpAsync in [service.fs](https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs).
 
-* For example, calling ParseAndCheckProject enqueues a ParseAndCheckProjectImpl operation. The length of the 
+* For example, calling `ParseAndCheckProject` enqueues a `ParseAndCheckProjectImpl` operation. The length of the 
   operation will depend on how much work is required to bring the project analysis up-to-date.
 
-* Likewise, calling any of GetUsesOfSymbol, GetAllUsesOfAllSymbols, ParseFileInProject, 
-  GetBackgroundParseResultsForFileInProject, MatchBraces, CheckFileInProjectIfReady, ParseAndCheckFileInProject, GetBackgroundCheckResultsForFileInProject, 
-  ParseAndCheckProject, GetProjectOptionsFromScript, InvalidateConfiguration, InvaidateAll and operations 
+* Likewise, calling any of `GetUsesOfSymbol`, `GetAllUsesOfAllSymbols`, `ParseFileInProject`, 
+  `GetBackgroundParseResultsForFileInProject`, `MatchBraces`, `CheckFileInProjectIfReady`, `ParseAndCheckFileInProject`, `GetBackgroundCheckResultsForFileInProject`, 
+  `ParseAndCheckProject`, `GetProjectOptionsFromScript`, `InvalidateConfiguration`, `InvaidateAll` and operations 
   on FSharpCheckResults will cause an operation to be enqueued. The length of the operation will 
   vary - many will be very fast - but they won't be processed until other operations already in the queue are complete.
 
@@ -44,7 +44,7 @@ operations, or cancellation of operations, or more explicitness about the "curre
 
 Finally, for those writing interactive editors which use FCS, in the current state of affairs you 
 should be cautious about having any auto-operation  (e.g. operations like "Find Unused Declarations" 
-which run automatically and are unassociated with a user action, but not operations like "FindAllReferences" 
+which run automatically and are unassociated with a user action, but not operations like "Find All References" 
 which a user explicitly triggers) request a check of  the entire project. That will cause very long operations 
 and contention on the FSharpChecker operations queue. Any such very-long-running request should normally be associated 
 with a user action, and preferably it should be cancellable. 

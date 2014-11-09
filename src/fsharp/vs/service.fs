@@ -1901,9 +1901,9 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
                 member __.EnqueueAndAwaitOpAsync op = reactor.EnqueueAndAwaitOpAsync op
                 member __.EnqueueOp op = reactor.EnqueueOp op }
 
-    // STATIC ROOT: LanguageServiceState.FSharpChecker.backgroundCompiler.scriptClosure 
+    // STATIC ROOT: LanguageServiceState.FSharpChecker.backgroundCompiler.scriptClosureCache 
     /// Information about the derived script closure.
-    let scriptClosure = 
+    let scriptClosureCache = 
         MruCache<FSharpProjectOptions,LoadClosure>(projectCacheSize, 
             areSame=FSharpProjectOptions.AreSameForChecking, 
             areSameForSubsumption=FSharpProjectOptions.AreSubsumable)
@@ -1923,10 +1923,8 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
                         member x.FileName = nm } ]
 
         let builderOpt, errorsAndWarnings = 
-            // PROBLEM: This call can currently fail if an error happens while setting up the TcConfig
-            // This leaves us completely horked.
             IncrementalFSharpBuild.IncrementalBuilder.TryCreateBackgroundBuilderForProjectOptions
-                  (scriptClosure.TryGet options, Array.toList options.ProjectFileNames, 
+                  (scriptClosureCache.TryGet options, Array.toList options.ProjectFileNames, 
                    Array.toList options.OtherOptions, projectReferences, options.ProjectDirectory, 
                    options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment, keepAssemblyContents)
 
@@ -2005,7 +2003,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
 #if TYPE_PROVIDER_SECURITY
             ExtensionTyping.GlobalsTheLanguageServiceCanPoke.theMostRecentFileNameWeChecked <- Some filename
 #endif
-            let builderOpt,creationErrors,_ = getOrCreateBuilder options // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
+            let builderOpt,creationErrors,_ = getOrCreateBuilder options 
             match builderOpt with
             | None -> FSharpParseFileResults(List.toArray creationErrors, None, true, [])
             | Some builder -> 
@@ -2050,7 +2048,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
         
                     // Get additional script #load closure information if applicable.
                     // For scripts, this will have been recorded by GetProjectOptionsFromScript.
-                    let loadClosure = scriptClosure.TryGet options 
+                    let loadClosure = scriptClosureCache.TryGet options 
                 
                     // Run the type checking.
                     let tcErrors, tcFileResult = 
@@ -2069,7 +2067,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
             | None -> FSharpCheckFileAnswer.Succeeded (MakeCheckFileResultsEmpty(creationErrors))
             | Some builder -> 
             let tcPrior = builder.GetCheckResultsBeforeFileInProject filename 
-            let loadClosure = scriptClosure.TryGet options 
+            let loadClosure = scriptClosureCache.TryGet options 
             let tcErrors, tcFileResult = 
                 Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcPrior.TcConfig,tcPrior.TcGlobals,tcPrior.TcImports,  tcPrior.TcState,
                                         loadClosure,tcPrior.Errors,reactorOps,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
@@ -2100,7 +2098,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
             let parseErrors, _matchPairs, inputOpt, anyErrors = Parser.ParseOneFile (source, false, true, filename, builder.ProjectFileNames, builder.TcConfig)
                  
             let parseResults = FSharpParseFileResults(parseErrors, inputOpt, anyErrors, builder.Dependencies)
-            let loadClosure = scriptClosure.TryGet options 
+            let loadClosure = scriptClosureCache.TryGet options 
             let tcErrors, tcFileResult = 
                 Parser.TypeCheckOneFile(parseResults,source,filename,options.ProjectFileName,tcPrior.TcConfig,tcPrior.TcGlobals,tcPrior.TcImports,  tcPrior.TcState,
                                         loadClosure,tcPrior.Errors,reactorOps,(fun () -> builder.IsAlive),isResultObsolete,textSnapshotInfo)
@@ -2123,7 +2121,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
                 let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, untypedErrors) |]
                 let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, tcProj.Errors) |]
                 let parseResults = FSharpParseFileResults(errors = untypedErrors, input = inputOpt, parseHadErrors = false, dependencyFiles = builder.Dependencies)
-                let loadClosure = scriptClosure.TryGet options 
+                let loadClosure = scriptClosureCache.TryGet options 
                 let scope = 
                     TypeCheckInfo(tcProj.TcConfig, tcProj.TcGlobals, tcProj.TcState.PartialAssemblySignature, tcProj.TcState.Ccu, tcProj.TcImports, tcProj.TcEnvAtEnd.AccessRights,
                                   options.ProjectFileName, filename, List.last tcProj.TcResolutions, tcProj.TcEnvAtEnd.NameEnv,
@@ -2185,7 +2183,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
                     LoadTime = loadedTimeStamp
                     UnresolvedReferences = Some (UnresolvedReferencesSet(fas.UnresolvedReferences))
                 }
-            scriptClosure.Set(co,fas) // Save the full load closure for later correlation.
+            scriptClosureCache.Set(co,fas) // Save the full load closure for later correlation.
             co)
             
     member bc.InvalidateConfiguration(options : FSharpProjectOptions) =
@@ -2632,35 +2630,35 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents) =
         backgroundCompiler.MatchBraces(filename,source,options)
     
 
-    // STATIC ROOT: LanguageServiceState.FSharpChecker.braceMatchMru. Most recently used cache for brace matching. Accessed on the
+    // STATIC ROOT: LanguageServiceState.FSharpChecker.braceMatchCache. Most recently used cache for brace matching. Accessed on the
     // background UI thread, not on the compiler thread.
-    let braceMatchMru = 
+    let braceMatchCache = 
         MruCache<(string*string*FSharpProjectOptions),_>(braceMatchCacheSize,
             areSame=AreSameForParsing3,
             areSameForSubsumption=AreSubsumable3) 
 
-    // STATIC ROOT: LanguageServiceState.FSharpChecker.parseFileInProjectMru. Most recently used cache for parsing files.
-    let parseFileInProjectMru = 
+    // STATIC ROOT: LanguageServiceState.FSharpChecker.parseFileInProjectCache. Most recently used cache for parsing files.
+    let parseFileInProjectCache = 
         MruCache<_, _>(parseFileInProjectCacheSize, 
             areSame=AreSameForParsing3,
             areSameForSubsumption=AreSubsumable3)
 
-    // STATIC ROOT: LanguageServiceState.FSharpChecker.typeCheckLookup 
-    // STATIC ROOT: LanguageServiceState.FSharpChecker.typeCheckLookup2
+    // STATIC ROOT: LanguageServiceState.FSharpChecker.parseAndCheckFileInProjectCachePossiblyStale 
+    // STATIC ROOT: LanguageServiceState.FSharpChecker.parseAndCheckFileInProjectCache
     //
     /// Cache which holds recently seen type-checks.
     /// This cache may hold out-of-date entries, in two senses
     ///    - there may be a more recent antecedent state available because the background build has made it available
     ///    - the source for the file may have changed
     
-    let typeCheckLookup = 
+    let parseAndCheckFileInProjectCachePossiblyStale = 
         MruCache<string * FSharpProjectOptions, FSharpParseFileResults * FSharpCheckFileResults * int>
             (keepStrongly=incrementalTypeCheckCacheSize,
              areSame=AreSameForChecking2,
              areSameForSubsumption=AreSubsumable2)
 
     // Also keyed on source. This can only be out of date if the antecedent is out of date
-    let typeCheckLookup2 = 
+    let parseAndCheckFileInProjectCache = 
         MruCache<string * string * FSharpProjectOptions, FSharpParseFileResults * FSharpCheckFileResults * int>
             (keepStrongly=incrementalTypeCheckCacheSize,
              areSame=AreSameForChecking3,
@@ -2677,22 +2675,22 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents) =
 
     member ic.MatchBracesAlternate(filename, source, options) =
         async { 
-            match braceMatchMru.TryGet (filename, source, options) with 
+            match braceMatchCache.TryGet (filename, source, options) with 
             | Some res -> return res
             | None -> 
                 let! res = ComputeBraceMatching (filename, source, options)
-                braceMatchMru.Set ((filename, source, options), res)
+                braceMatchCache.Set ((filename, source, options), res)
                 return res 
          }
 
     member ic.ParseFileInProject(filename, source, options) =
         async { 
-            match parseFileInProjectMru.TryGet (filename, source, options) with 
+            match parseFileInProjectCache.TryGet (filename, source, options) with 
             | Some res -> return res
             | None -> 
                 foregroundParseCount <- foregroundParseCount + 1
                 let! res = backgroundCompiler.ParseFileInProject(filename, source, options)
-                parseFileInProjectMru.Set ((filename, source, options), res)
+                parseFileInProjectCache.Set ((filename, source, options), res)
                 return res 
          }
         
@@ -2705,8 +2703,8 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents) =
     /// Try to get recent approximate type check results for a file. 
     member ic.TryGetRecentTypeCheckResultsForFile(filename: string, options:FSharpProjectOptions, ?source) =
         match source with 
-        | Some sourceText -> typeCheckLookup2.TryGet((filename,sourceText,options)) 
-        | None -> typeCheckLookup.TryGet((filename,options)) 
+        | Some sourceText -> parseAndCheckFileInProjectCache.TryGet((filename,sourceText,options)) 
+        | None -> parseAndCheckFileInProjectCachePossiblyStale.TryGet((filename,options)) 
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.
@@ -2719,10 +2717,10 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents) =
     // This is for unit testing only
     member ic.ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients() =
         ic.InvalidateAll()
-        typeCheckLookup.Clear()
-        typeCheckLookup2.Clear()
-        braceMatchMru.Clear()
-        parseFileInProjectMru.Clear()
+        parseAndCheckFileInProjectCachePossiblyStale.Clear()
+        parseAndCheckFileInProjectCache.Clear()
+        braceMatchCache.Clear()
+        parseFileInProjectCache.Clear()
         for i in 0 .. 2 do 
             System.GC.Collect()
             System.GC.WaitForPendingFinalizers() 
@@ -2744,8 +2742,8 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents) =
             backgroundCompiler.StartBackgroundCompile(options) 
         | Some (FSharpCheckFileAnswer.Succeeded typedResults) -> 
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
-            typeCheckLookup.Set((filename,options),(parseResults,typedResults,fileVersion))            
-            typeCheckLookup2.Set((filename,source,options),(parseResults,typedResults,fileVersion))            
+            parseAndCheckFileInProjectCachePossiblyStale.Set((filename,options),(parseResults,typedResults,fileVersion))            
+            parseAndCheckFileInProjectCache.Set((filename,source,options),(parseResults,typedResults,fileVersion))            
 
     /// Typecheck a source code file, returning a handle to the results of the 
     /// parse including the reconstructed types in the file.
@@ -2770,7 +2768,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents) =
     /// Typecheck a source code file, returning a handle to the results of the 
     /// parse including the reconstructed types in the file.
     member ic.ParseAndCheckFileInProject(filename:string, fileVersion:int, source:string, options:FSharpProjectOptions, ?isResultObsolete, ?textSnapshotInfo:obj) =        
-        let cachedResults = typeCheckLookup2.TryGet((filename,source,options)) 
+        let cachedResults = parseAndCheckFileInProjectCache.TryGet((filename,source,options)) 
         let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
         async {
             let! parseResults, checkAnswer, usedCachedResults = backgroundCompiler.ParseAndCheckFileInProject(filename,source,options,isResultObsolete,textSnapshotInfo,cachedResults)

@@ -59,8 +59,7 @@ file.</p></li>
 <li><p><code>parseAndCheckFileInProjectCachePossiblyStale</code> - a somewhat peculiar MRU cache of size <code>incrementalTypeCheckCacheSize</code> (= 5) 
 keeping the results of ParseAndCheckFileInProject, CheckFileInProject and CheckFileInProjectIfReady,
 keyed by filename and project options. This cache is accessed by TryGetRecentTypeCheckResultsForFile. Because the results
-are accessed regardless of the content of the file, the checking results returned may be "stale".</p>
-<ul>
+are accessed regardless of the content of the file, the checking results returned may be "stale".</p></li>
 <li><p><code>getToolTipTextCache</code> - an aged lookup cache of strong size <code>getToolTipTextSize</code> (= 5) computing the results of GetToolTipText.</p></li>
 <li><p><code>ilModuleReaderCache</code> - an aged lookup of weak references to "readers" for references .NET binaries. Because these
 are all weak references, you can generally ignore this cache, since its entries will be automatically collected.
@@ -69,7 +68,6 @@ Strong references to binary readers will be kept by other FCS data structures, e
 open or memory-mapped when using FSharpChecker (as opposed to FsiEvaluationSession, which loads assemblies using reflection). 
 The purpose of this cache is mainly to ensure that while setting up compilation, the reads of mscorlib, FSharp.Core and so on
 amortize cracking the DLLs.</p></li>
-</ul></li>
 <li><p><code>frameworkTcImportsCache</code> - an aged lookup of strong size 8 which caches the process of setting up type checking against a set of system
 components (e.g. a particular version of mscorlib, FSharp.Core and other system DLLs).  These resources can be shared between multiple
 project checkers which happen to reference the same set of system assemblies.</p></li>

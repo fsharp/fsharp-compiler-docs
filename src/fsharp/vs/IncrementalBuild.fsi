@@ -57,6 +57,7 @@ module internal IncrementalFSharpBuild =
         TcEnvAtEnd : TypeChecker.TcEnv 
         Errors : (PhasedError * FSharpErrorSeverity) list 
         TcResolutions: Nameres.TcResolutions list 
+        TcSymbolUses: Nameres.TcSymbolUses list 
         TimeStamp: DateTime }
 
   [<Class>]

@@ -1066,6 +1066,7 @@ module internal IncrementalFSharpBuild =
           tcConfig:TcConfig
           tcEnvAtEndOfFile: TcEnv
           tcResolutions: Nameres.TcResolutions list
+          tcSymbolUses: Nameres.TcSymbolUses list
           topAttribs:TopAttribs option
           typedImplFiles:TypedImplFile list
           tcErrors:(PhasedError * FSharpErrorSeverity) list } // errors=true, warnings=false
@@ -1168,6 +1169,7 @@ module internal IncrementalFSharpBuild =
         TcEnvAtEnd : TypeChecker.TcEnv 
         Errors : (PhasedError * FSharpErrorSeverity) list 
         TcResolutions: Nameres.TcResolutions list 
+        TcSymbolUses: Nameres.TcSymbolUses list 
         TimeStamp: System.DateTime }
 
     let GetPartialCheckResults (tcAcc: TypeCheckAccumulator, timestamp) = 
@@ -1178,6 +1180,7 @@ module internal IncrementalFSharpBuild =
         TcEnvAtEnd = tcAcc.tcEnvAtEndOfFile
         Errors = tcAcc.tcErrors
         TcResolutions = tcAcc.tcResolutions
+        TcSymbolUses = tcAcc.tcSymbolUses
         TimeStamp = timestamp }
 
 
@@ -1354,6 +1357,7 @@ module internal IncrementalFSharpBuild =
                   tcConfig=tcConfig
                   tcEnvAtEndOfFile=tcEnv0
                   tcResolutions=[]
+                  tcSymbolUses=[]
                   topAttribs=None
                   typedImplFiles=[]
                   tcErrors=errorLogger.GetErrors() }   
@@ -1386,13 +1390,15 @@ module internal IncrementalFSharpBuild =
                         
                         /// Only keep the typed interface files when doing a "full" build for fsc.exe, otherwise just throw them away
                         let typedImplFiles = if keepAssemblyContents then typedImplFiles else []
-                        let tcResolution = sink.GetTcResolutions(keepAllBackgroundResolutions)  
+                        let tcResolutions = if keepAllBackgroundResolutions then sink.GetResolutions() else Nameres.TcResolutions.Empty
+                        let tcSymbolUses = sink.GetSymbolUses()  
                         fileChecked.Trigger filename
                         return {tcAcc with tcState=tcState 
                                            tcEnvAtEndOfFile=tcEnvAtEndOfFile
                                            topAttribs=Some topAttribs
                                            typedImplFiles=typedImplFiles
-                                           tcResolutions=tcAcc.tcResolutions @ [tcResolution]
+                                           tcResolutions=tcAcc.tcResolutions @ [tcResolutions]
+                                           tcSymbolUses=tcAcc.tcSymbolUses @ [tcSymbolUses]
                                            tcErrors = tcAcc.tcErrors @ parseErrors @ capturingErrorLogger.GetErrors() } 
                     }
                     

@@ -1275,19 +1275,24 @@ type CapturedNameResolution(p:pos, i:Item, io:ItemOccurence, de:DisplayEnv, nre:
         sprintf "%A: %+A" (p.Line, p.Column) i
 
 /// Represents container for all name resolutions that were met so far when typechecking some particular file
-/// Has reference to the container for the previous file so at some point we can access results of all name resolution that happen before
 type TcResolutions
-    (g,
-     capturedEnvs : (range * NameResolutionEnv * AccessorDomain)[],
-     capturedExprTypes : (pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range)[],
-     capturedNameResolutions : CapturedNameResolution[],
-     capturedMethodGroupResolutions : CapturedNameResolution[]
-    ) = 
+    (capturedEnvs : ResizeArray<range * NameResolutionEnv * AccessorDomain>,
+     capturedExprTypes : ResizeArray<pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range>,
+     capturedNameResolutions : ResizeArray<CapturedNameResolution>,
+     capturedMethodGroupResolutions : ResizeArray<CapturedNameResolution>) = 
 
+    static let empty = TcResolutions(ResizeArray(0),ResizeArray(0),ResizeArray(0),ResizeArray(0))
+    
     member this.CapturedEnvs = capturedEnvs
     member this.CapturedExpressionTypings = capturedExprTypes
     member this.CapturedNameResolutions = capturedNameResolutions
     member this.CapturedMethodGroupResolutions = capturedMethodGroupResolutions
+
+    static member Empty = empty
+
+
+/// Represents container for all name resolutions that were met so far when typechecking some particular file
+type TcSymbolUses(g,capturedNameResolutions : ResizeArray<CapturedNameResolution>) = 
 
     member this.GetUsesOfSymbol(item) = 
         [| for cnr in capturedNameResolutions do
@@ -1311,11 +1316,11 @@ type TcResultsSinkImpl(g) =
     let capturedMethodGroupResolutions = ResizeArray<_>()
     let allowedRange (m:range) = not m.IsSynthetic       
 
-    member this.GetTcResolutions(keepAllBackgroundResolutions) = 
-        if keepAllBackgroundResolutions then 
-            TcResolutions(g, [| |], [| |], capturedNameResolutions.ToArray(), [| |])
-        else 
-            TcResolutions(g, capturedEnvs.ToArray(), capturedExprTypings.ToArray(), capturedNameResolutions.ToArray(), capturedMethodGroupResolutions.ToArray())
+    member this.GetResolutions() = 
+        TcResolutions(capturedEnvs, capturedExprTypings, capturedNameResolutions, capturedMethodGroupResolutions)
+
+    member this.GetSymbolUses() = 
+        TcSymbolUses(g, capturedNameResolutions)
 
     interface ITypecheckResultsSink with
         member sink.NotifyEnvWithScope(m,nenv,ad) = 

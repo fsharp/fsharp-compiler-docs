@@ -1182,9 +1182,9 @@ module internal IncrementalFSharpBuild =
 
 
     type IncrementalBuilder(tcConfig : TcConfig, projectDirectory, outfile, assemblyName, niceNameGen : Ast.NiceNameGenerator, lexResourceManager,
-                            sourceFiles:string list, projectReferences: IProjectReference list, ensureReactive, 
-                            keepAssemblyContents:bool)
-               =
+                            sourceFiles, projectReferences: IProjectReference list, ensureReactive, 
+                            keepAssemblyContents, keepAllBackgroundResolutions) =
+
         let tcConfigP = TcConfigProvider.Constant(tcConfig)
         let importsInvalidated = new Event<string>()
         let fileParsed = new Event<_>()
@@ -1386,7 +1386,7 @@ module internal IncrementalFSharpBuild =
                         
                         /// Only keep the typed interface files when doing a "full" build for fsc.exe, otherwise just throw them away
                         let typedImplFiles = if keepAssemblyContents then typedImplFiles else []
-                        let tcResolution = sink.GetTcResolutions()  
+                        let tcResolution = sink.GetTcResolutions(keepAllBackgroundResolutions)  
                         fileChecked.Trigger filename
                         return {tcAcc with tcState=tcState 
                                            tcEnvAtEndOfFile=tcEnvAtEndOfFile
@@ -1709,7 +1709,7 @@ module internal IncrementalFSharpBuild =
 
         /// CreateIncrementalBuilder (for background type checking). Note that fsc.fs also
         /// creates an incremental builder used by the command line compiler.
-        static member TryCreateBackgroundBuilderForProjectOptions (scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectReferences, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment, keepAssemblyContents) =
+        static member TryCreateBackgroundBuilderForProjectOptions (scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectReferences, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment, keepAssemblyContents, keepAllBackgroundResolutions) =
     
           // Trap and report warnings and errors from creation.
           use errorScope = new ErrorScope()
@@ -1788,7 +1788,8 @@ module internal IncrementalFSharpBuild =
                 let builder = 
                     new IncrementalBuilder(tcConfig, projectDirectory, outfile, assemblyName, niceNameGen,
                                            resourceManager, sourceFilesNew, projectReferences, ensureReactive=true, 
-                                           keepAssemblyContents=keepAssemblyContents)
+                                           keepAssemblyContents=keepAssemblyContents, 
+                                           keepAllBackgroundResolutions=keepAllBackgroundResolutions)
                 Some builder
              with e -> 
                errorRecoveryNoRange e

@@ -440,7 +440,7 @@ type TypeCheckInfo
         let bestSoFar = ref None
 
         // Find the most deeply nested enclosing scope that contains given position
-        sResolutions.CapturedEnvs |> ResizeArray.iter (fun (possm,env,ad) -> 
+        sResolutions.CapturedEnvs |> Array.iter (fun (possm,env,ad) -> 
             if rangeContainsPos possm cursorPos then
                 match !bestSoFar with 
                 | Some (bestm,_,_) -> 
@@ -459,7 +459,7 @@ type TypeCheckInfo
 
         let bestAlmostIncludedSoFar = ref None 
 
-        sResolutions.CapturedEnvs |> ResizeArray.iter (fun (possm,env,ad) -> 
+        sResolutions.CapturedEnvs |> Array.iter (fun (possm,env,ad) -> 
             // take only ranges that strictly do not include cursorPos (all ranges that touch cursorPos were processed during 'Strict Inclusion' part)
             if rangeBeforePos possm cursorPos && not (posEq possm.End cursorPos) then 
                 let contained = 
@@ -505,9 +505,9 @@ type TypeCheckInfo
 
         let quals = 
             (match resolveOverloads with ResolveOverloads.Yes -> sResolutions.CapturedNameResolutions | ResolveOverloads.No -> sResolutions.CapturedMethodGroupResolutions)
-            |> ResizeArray.filter (fun cnr ->  posEq cnr.Pos endOfNamesPos)
+            |> Array.filter (fun cnr ->  posEq cnr.Pos endOfNamesPos)
         
-        let items = quals |> ResizeArray.toList |> List.rev  // Logic below expects the list to be in reverse order of resolution
+        let items = quals |> Array.toList |> List.rev  // Logic below expects the list to be in reverse order of resolution
         
         // Filter items to show only valid & return Some if there are any
         let returnItemsOfType items g denv (m:range) f =
@@ -1526,7 +1526,7 @@ module internal Parser =
                                 //typedImplFiles,
                                 projectFileName, 
                                 mainInputFileName, 
-                                sink.GetTcResolutions(), 
+                                sink.GetTcResolutions(keepAllBackgroundResolutions=true), 
                                 tcEnvAtEnd.NameEnv,
                                 loadClosure,
                                 reactorOps,
@@ -1888,7 +1888,7 @@ type (*internal*) IsResultObsolete =
 
         
 // There is only one instance of this type, held in FSharpChecker
-type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
+type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions) as self =
     // STATIC ROOT: LanguageServiceState.FSharpChecker.backgroundCompiler.reactor: The one and only Reactor
     let reactor = Reactor.Reactor()
     let beforeFileChecked = Event<string>()
@@ -1926,7 +1926,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents) as self =
             IncrementalFSharpBuild.IncrementalBuilder.TryCreateBackgroundBuilderForProjectOptions
                   (scriptClosureCache.TryGet options, Array.toList options.ProjectFileNames, 
                    Array.toList options.OtherOptions, projectReferences, options.ProjectDirectory, 
-                   options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment, keepAssemblyContents)
+                   options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment, keepAssemblyContents, keepAllBackgroundResolutions)
 
         // We're putting the builder in the cache, so increment its count.
         let decrement = 
@@ -2590,9 +2590,9 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
 [<Sealed>]
 [<AutoSerializable(false)>]
 // There is typically only one instance of this type in a Visual Studio process.
-type FSharpChecker(projectCacheSize, keepAssemblyContents) =
+type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions) =
 
-    let backgroundCompiler = BackgroundCompiler(projectCacheSize, keepAssemblyContents)
+    let backgroundCompiler = BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions)
 
     static let mutable foregroundParseCount = 0
     static let mutable foregroundTypeCheckCount = 0
@@ -2665,13 +2665,14 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents) =
              areSameForSubsumption=AreSubsumable3)
 
     static member Create() = 
-        new FSharpChecker(projectCacheSizeDefault,false)
+        new FSharpChecker(projectCacheSizeDefault,false,true)
 
     /// Instantiate an interactive checker.    
-    static member Create(?projectCacheSize, ?keepAssemblyContents) = 
+    static member Create(?projectCacheSize, ?keepAssemblyContents, ?keepAllBackgroundResolutions) = 
         let keepAssemblyContents = defaultArg keepAssemblyContents false
+        let keepAllBackgroundResolutions = defaultArg keepAllBackgroundResolutions true
         let projectCacheSizeReal = defaultArg projectCacheSize projectCacheSizeDefault
-        new FSharpChecker(projectCacheSizeReal,keepAssemblyContents)
+        new FSharpChecker(projectCacheSizeReal,keepAssemblyContents, keepAllBackgroundResolutions)
 
     member ic.MatchBracesAlternate(filename, source, options) =
         async { 

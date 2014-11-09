@@ -204,16 +204,22 @@ type internal CapturedNameResolution =
 
 [<Class>]
 type internal TcResolutions = 
+
     /// Name resolution environments for every interesting region in the file. These regions may
     /// overlap, in which case the smallest region applicable should be used.
-    member CapturedEnvs : ResizeArray<range * NameResolutionEnv * AccessorDomain>
+    member CapturedEnvs : (range * NameResolutionEnv * AccessorDomain)[]
+
     /// Information of exact types found for expressions, that can be to the left of a dot.
     /// typ - the inferred type for an expression
-    member CapturedExpressionTypings : ResizeArray<pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range>
+    member CapturedExpressionTypings : (pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range)[]
+
     /// Exact name resolutions
-    member CapturedNameResolutions : ResizeArray<CapturedNameResolution>
-    member CapturedMethodGroupResolutions : ResizeArray<CapturedNameResolution>
+    member CapturedNameResolutions : CapturedNameResolution[]
+
+    member CapturedMethodGroupResolutions : CapturedNameResolution[]
+
     member GetUsesOfSymbol : Item -> (ItemOccurence * DisplayEnv * range)[]
+
     member GetAllUsesOfSymbols : unit -> (Item * ItemOccurence * DisplayEnv * range)[]
 
 /// An abstract type for reporting the results of name resolution and type checking
@@ -224,7 +230,7 @@ type ITypecheckResultsSink =
 
 type internal TcResultsSinkImpl =
     new : tcGlobals : TcGlobals -> TcResultsSinkImpl
-    member GetTcResolutions : unit -> TcResolutions
+    member GetTcResolutions : keepAllBackgroundResolutions:bool -> TcResolutions
     interface ITypecheckResultsSink
 
 /// An abstract type for reporting the results of name resolution and type checking, and which allows

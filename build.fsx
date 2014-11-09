@@ -211,10 +211,8 @@ Target "All" DoNothing
   ==> "NuGet"
   ==> "Release"
 
-"Release"
-  ==> "CleanDocs"
-
-"GenerateDocsJa"
+"CleanDocs"
+  ==> "GenerateDocsJa"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
 

@@ -10,7 +10,7 @@ FSharpChecker maintains a set of caches. These are
 
 * ``scriptClosureCache`` - an MRU cache of default size ``projectCacheSize`` that caches the 
   computation of GetProjectOptionsFromScript. This computation can be lengthy as it can involve processing the transative closure
-   of all ``#load`` directives, which in turn can mean parsing an unbounded number of script files
+  of all ``#load`` directives, which in turn can mean parsing an unbounded number of script files
 
 * ``incrementalBuildersCache`` - an MRU cache of projects where a handle is being kept to their incremental checking state, 
   of default size ``projectCacheSize`` (= 3 unless explicitly set as a parameter).  
@@ -30,24 +30,24 @@ FSharpChecker maintains a set of caches. These are
   file.
 
 * ``parseAndCheckFileInProjectCachePossiblyStale`` - a somewhat peculiar MRU cache of size ``incrementalTypeCheckCacheSize`` (= 5) 
-   keeping the results of ParseAndCheckFileInProject, CheckFileInProject and CheckFileInProjectIfReady, 
-   keyed by filename and project options. This cache is accessed by TryGetRecentTypeCheckResultsForFile. Because the results
-   are accessed regardless of the content of the file, the checking results returned may be "stale".
+  keeping the results of ParseAndCheckFileInProject, CheckFileInProject and CheckFileInProjectIfReady, 
+  keyed by filename and project options. This cache is accessed by TryGetRecentTypeCheckResultsForFile. Because the results
+  are accessed regardless of the content of the file, the checking results returned may be "stale".
 
- * ``getToolTipTextCache`` - an aged lookup cache of strong size ``getToolTipTextSize`` (= 5) computing the results of GetToolTipText.
+* ``getToolTipTextCache`` - an aged lookup cache of strong size ``getToolTipTextSize`` (= 5) computing the results of GetToolTipText.
 
- * ``ilModuleReaderCache`` - an aged lookup of weak references to "readers" for references .NET binaries. Because these
-   are all weak references, you can generally ignore this cache, since its entries will be automatically collected.
-   Strong references to binary readers will be kept by other FCS data structures, e.g. any project checkers, symbols or project checking results.
+* ``ilModuleReaderCache`` - an aged lookup of weak references to "readers" for references .NET binaries. Because these
+  are all weak references, you can generally ignore this cache, since its entries will be automatically collected.
+  Strong references to binary readers will be kept by other FCS data structures, e.g. any project checkers, symbols or project checking results.
 
-   In more detail, the bytes for referenced .NET binaries are read into memory all at once, eagerly. Files are not left 
-   open or memory-mapped when using FSharpChecker (as opposed to FsiEvaluationSession, which loads assemblies using reflection). 
-   The purpose of this cache is mainly to ensure that while setting up compilation, the reads of mscorlib, FSharp.Core and so on
-   amortize cracking the DLLs.
+  In more detail, the bytes for referenced .NET binaries are read into memory all at once, eagerly. Files are not left 
+  open or memory-mapped when using FSharpChecker (as opposed to FsiEvaluationSession, which loads assemblies using reflection). 
+  The purpose of this cache is mainly to ensure that while setting up compilation, the reads of mscorlib, FSharp.Core and so on
+  amortize cracking the DLLs.
 
 * ``frameworkTcImportsCache`` - an aged lookup of strong size 8 which caches the process of setting up type checking against a set of system
-   components (e.g. a particular version of mscorlib, FSharp.Core and other system DLLs).  These resources can be shared between multiple
-   project checkers which happen to reference the same set of system assemblies.
+  components (e.g. a particular version of mscorlib, FSharp.Core and other system DLLs).  These resources can be shared between multiple
+  project checkers which happen to reference the same set of system assemblies.
 
 Profiling the memory used by the various caches can be done by looking for the corresponding static roots in memory profiling traces.
 

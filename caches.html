@@ -69,7 +69,7 @@ open or memory-mapped when using FSharpChecker (as opposed to FsiEvaluationSessi
 The purpose of this cache is mainly to ensure that while setting up compilation, the reads of mscorlib, FSharp.Core and so on
 amortize cracking the DLLs.</p></li>
 <li><p><code>frameworkTcImportsCache</code> - an aged lookup of strong size 8 which caches the process of setting up type checking against a set of system
-components (e.g. a particular version of mscorlib, FSharp.Core and other system DLLs).  These resources can be shared between multiple
+components (e.g. a particular version of mscorlib, FSharp.Core and other system DLLs).  These resources are automatically shared between multiple
 project checkers which happen to reference the same set of system assemblies.</p></li>
 </ul>
 

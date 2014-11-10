@@ -1,3 +1,8 @@
+#### 0.0.78 - 
+* Reduce background checker memory usage
+* add docs on FSharp.Core
+* docs on caches and queues
+
 #### 0.0.77 - 
 * Update to github.com/fsharp/fsharp 05f426cee85609f2fe51b71473b07d7928bb01c8
 

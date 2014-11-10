@@ -7,23 +7,23 @@ Compiler Services: Notes on FSharp.Core.dll
 Shipping an FSharp.Core with your application
 ---------------------------------------------
 
+When building applications or plug-in components which use FSharp.Compiler.Service.dll, you will normally also
+include a copy of FSharp.Core.dll as part of your application.  
 
-When building applications or plug-in components which use FSharp.Compiler.Service.dll, you will normally need
-to ship a copy of FSharp.Core.dll as part of your application.  
-
-For example, if you build a HostedCompiler.exe, you will normally place an FSharp.Core.dll (say 4.3.1.0) alongside
-your HostedCompiler.exe.  
+For example, if you build a ``HostedCompiler.exe``, you will normally place an FSharp.Core.dll (say 4.3.1.0) alongside
+your ``HostedCompiler.exe``.  
 
 If doing dynamic compilation and execution you may also need to include 
-an FSharp.Core.optdata and FSharp.Core.sigdata, see below.
+an FSharp.Core.optdata and FSharp.Core.sigdata, see below for guidance.
 
 Binding redirects for your application
 --------------------------------------
 
 The FSharp.Compiler.Service.dll component depends on FSharp.Core 4.3.0.0.  Normally your application will target
-a later version of FSharp.Core.  This means you will also need a binding-redirect file to make sure
-that FSharp.Core 4.3.0.0 forwards to which ever final version of FSharp.Core.dll your application runs correctly.
-Binding redirect files are normally generated automatically by build tooling. If not, you can use a 
+a later version of FSharp.Core, and you will need a [binding redirect](http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.110).aspx) to ensure
+that FSharp.Core 4.3.0.0 forwards to which the final version of FSharp.Core.dll your application uses.
+Binding redirect files are normally generated automatically by build tooling. If not, you can use one like this
+(if your tool is called ``HostedCompiler.exe``, the binding redirect file is called ``HostedCompiler.exe.config``)
 
     <?xml version="1.0" encoding="utf-8" ?>
     <configuration>
@@ -64,7 +64,7 @@ arguments are always making an explicit reference, then you should _not_ include
 
 
 If you do _not_ explicitly reference an FSharp.Core.dll from an SDK location, then an implicit reference will be made
-to whichever FSharp.Core.dll your tool is running.  This means your tool will almost certainly implicitly reference the FSharp.Core.dll
+to which ever version of FSharp.Core.dll your tool is running.  This means your tool will almost certainly implicitly reference the FSharp.Core.dll
 that is part of your application.  In this case, you may either get an error that FSharp.Core.optdata and FSharp.Core.sigdata are not
 found alongside FSharp.Core.dll.  If you want to implicitly reference the FSharp.Core.dll you are including in your application,
 then also add FSharp.Core.sigdata and FSharp.Core.optdata as two additional files to your application.  When using CompileToDynamicAssembly, this problem

@@ -65,12 +65,14 @@ Some of the projects using the F# Compiler Services are:
  * [**The Emacs Plugin for F#**](https://github.com/fsharp/fsharpbinding/blob/master/emacs/README.md) 
  * [**The Vim Plugin for F#**](https://github.com/fsharp/fsharpbinding/blob/master/vim/README.md) 
  * [**iFSharp**](https://github.com/BayardRock/IfSharp)  - iPython-style notebook engine for F#
- * [**CloudSharper**](http://cloudsharper.com/) 
- * [**Tsunami**](http://tsunami.io) 
+ * [**CloudSharper**](http://cloudsharper.com/) - Online web and mobile programming with big data and charting
+ * [**Tsunami**](http://tsunami.io) - Tsunami enhances applications and workflows with the power of Type Safe Scripting
  * [**FQuake3**](https://github.com/TIHan/FQuake3/)  - integrates F# as an interactive game scripting engine
- * [**FCell**](http://fcell.io) 
- * [**FSharpLint**](https://github.com/fsprojects/FSharpLint) 
- * [**FsReveal**](http://kimsk.github.io/FsReveal/)
+ * [**FCell**](http://fcell.io) - Deliver the power of .NET from within Microsoft Excel
+ * [**FSharpLint**](http://fsprojects.github.io/FSharpLint/) - Lint tool for F#
+ * [**FsReveal**](http://fsprojects.github.io/FsReveal//) - FsReveal parses markdown and F# script file and generate reveal.js slides
+ * [**Elucidate**](https://github.com/rookboom/Elucidate) - Visual Studio extension for rich inlined comments using MarkDown
+
 
 
 Contributing and copyright

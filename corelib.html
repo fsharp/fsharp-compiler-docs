@@ -38,32 +38,51 @@
 
 <h2><a name="Shipping-an-FSharp-Core-with-your-application" class="anchor" href="#Shipping-an-FSharp-Core-with-your-application">Shipping an FSharp.Core with your application</a></h2>
 
-<p>When building applications or plug-in components which use <code>FSharp.Compiler.Service.dll</code>, you will normally need
-to ship a copy of <code>FSharp.Core.dll</code> as part of your application.</p>
+<p>When building applications or plug-in components which use FSharp.Compiler.Service.dll, you will normally need
+to ship a copy of FSharp.Core.dll as part of your application.</p>
 
-<p>For example, if you build a HostedCompiler.exe, you will normally place an <code>FSharp.Core.dll</code> (say 4.3.1.0) alongside
+<p>For example, if you build a HostedCompiler.exe, you will normally place an FSharp.Core.dll (say 4.3.1.0) alongside
 your HostedCompiler.exe.</p>
 
-<p>Sometimes you will also need to include an <code>FSharp.Core.optdata</code> and <code>FSharp.Core.sigdata</code>, see below.</p>
+<p>If doing dynamic compilation and execution you may also need to include 
+an FSharp.Core.optdata and FSharp.Core.sigdata, see below.</p>
 
 <h2><a name="Binding-redirects-for-your-application" class="anchor" href="#Binding-redirects-for-your-application">Binding redirects for your application</a></h2>
 
-<p>The <code>FSharp.Compiler.Service.dll</code> component depends on FSharp.Core 4.3.0.0.  Normally your application will target
+<p>The FSharp.Compiler.Service.dll component depends on FSharp.Core 4.3.0.0.  Normally your application will target
 a later version of FSharp.Core.  This means you will also need a binding-redirect file to make sure
-that FSharp.Core 4.3.0.0 forwards to which ever final version of <code>FSharp.Core.dll</code> your application runs correctly.
+that FSharp.Core 4.3.0.0 forwards to which ever final version of FSharp.Core.dll your application runs correctly.
 Binding redirect files are normally generated automatically by build tooling. If not, you can use a</p>
 
-<p><code>&lt;?xml version="1.0" encoding="utf-8" ?&gt;
-&lt;configuration&gt;
-    &lt;runtime&gt;
-      &lt;assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"&gt;
-        &lt;dependentAssembly&gt;
-          &lt;assemblyIdentity name="FSharp.Core" publicKeyToken="b03f5f7f11d50a3a" culture="neutral"/&gt;
-          &lt;bindingRedirect oldVersion="2.0.0.0-4.3.0.0" newVersion="4.3.1.0"/&gt;
-        &lt;/dependentAssembly&gt;
-      &lt;/assemblyBinding&gt;
-    &lt;/runtime&gt;  
-&lt;/configuration&gt;</code></p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="o">&lt;?</span><span class="i">xml</span> <span class="i">version</span><span class="o">=</span><span class="s">&quot;</span><span class="s">1</span><span class="s">.</span><span class="s">0</span><span class="s">&quot;</span> <span class="i">encoding</span><span class="o">=</span><span class="s">&quot;</span><span class="s">utf</span><span class="s">-</span><span class="s">8</span><span class="s">&quot;</span> <span class="o">?&gt;</span>
+<span class="o">&lt;</span><span class="i">configuration</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="i">runtime</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="i">assemblyBinding</span> <span class="i">xmlns</span><span class="o">=</span><span class="s">&quot;</span><span class="s">urn</span><span class="s">:</span><span class="s">schemas</span><span class="s">-</span><span class="s">microsoft</span><span class="s">-</span><span class="s">com</span><span class="s">:</span><span class="s">asm</span><span class="s">.</span><span class="s">v1</span><span class="s">&quot;</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
+          <span class="o">&lt;</span><span class="i">assemblyIdentity</span> <span class="i">name</span><span class="o">=</span><span class="s">&quot;</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Core</span><span class="s">&quot;</span> <span class="i">publicKeyToken</span><span class="o">=</span><span class="s">&quot;</span><span class="s">b03f5f7f11d50a3a</span><span class="s">&quot;</span> <span class="i">culture</span><span class="o">=</span><span class="s">&quot;</span><span class="s">neutral</span><span class="s">&quot;</span><span class="o">/&gt;</span>
+          <span class="o">&lt;</span><span class="i">bindingRedirect</span> <span class="i">oldVersion</span><span class="o">=</span><span class="s">&quot;</span><span class="s">2</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">0</span><span class="s">-</span><span class="s">4</span><span class="s">.</span><span class="s">3</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">0</span><span class="s">&quot;</span> <span class="i">newVersion</span><span class="o">=</span><span class="s">&quot;</span><span class="s">4</span><span class="s">.</span><span class="s">3</span><span class="s">.</span><span class="s">1</span><span class="s">.</span><span class="s">0</span><span class="s">&quot;</span><span class="o">/&gt;</span>
+        <span class="o">&lt;/</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
+      <span class="o">&lt;/</span><span class="i">assemblyBinding</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="i">runtime</span><span class="o">&gt;</span>  
+<span class="o">&lt;/</span><span class="i">configuration</span><span class="o">&gt;</span></pre>
+</td>
+</tr>
+</table>
 
 <h2><a name="Which-FSharp-Core-and-NET-Framework-gets-referenced-in-compilation" class="anchor" href="#Which-FSharp-Core-and-NET-Framework-gets-referenced-in-compilation">Which FSharp.Core and .NET Framework gets referenced in compilation?</a></h2>
 
@@ -74,27 +93,37 @@ assemblies in the command line arguments (different to the FSharp.Core and a .NE
 <p>To target a specific FSharp.Core and/or .NET Framework assemblies, use the <code>--noframework</code> argument
 and the appropriate command-line arguments:</p>
 
-<p>let errors2, exitCode2 = 
-        scs.Compile([| "fsc.exe"; "--noframework"; "-r"; @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp.NETFramework\v4.0\4.3.1.0\FSharp.Core.dll"; "-r"; @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll"; "-o"; fn3; "-a"; fn2 |])</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span class="i">errors2</span>, <span class="i">exitCode2</span> <span class="o">=</span> 
+    <span class="i">scs</span><span class="o">.</span><span class="i">Compile</span>([| <span class="s">&quot;</span><span class="s">fsc</span><span class="s">.</span><span class="s">exe</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">-</span><span class="s">-</span><span class="s">noframework</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">-</span><span class="s">r</span><span class="s">&quot;</span>; <span class="s">@&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\</span><span class="s">Program</span><span class="s"> </span><span class="s">Files</span><span class="s"> </span><span class="s">(</span><span class="s">x86</span><span class="s">)</span><span class="s">\</span><span class="s">Reference</span><span class="s"> </span><span class="s">Assemblies</span><span class="s">\</span><span class="s">Microsoft</span><span class="s">\</span><span class="s">FSharp</span><span class="s">\</span><span class="s">.</span><span class="s">NETFramework</span><span class="s">\</span><span class="s">v4</span><span class="s">.</span><span class="s">0</span><span class="s">\</span><span class="s">4</span><span class="s">.</span><span class="s">3</span><span class="s">.</span><span class="s">1</span><span class="s">.</span><span class="s">0</span><span class="s">\</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Core</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">-</span><span class="s">r</span><span class="s">&quot;</span>; <span class="s">@&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\</span><span class="s">Windows</span><span class="s">\</span><span class="s">Microsoft</span><span class="s">.</span><span class="s">NET</span><span class="s">\</span><span class="s">Framework</span><span class="s">\</span><span class="s">v4</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">30319</span><span class="s">\</span><span class="s">mscorlib</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">-</span><span class="s">o</span><span class="s">&quot;</span>; <span class="i">fn3</span>; <span class="s">&quot;</span><span class="s">-</span><span class="s">a</span><span class="s">&quot;</span>; <span class="i">fn2</span> |])</pre>
+</td>
+</tr>
+</table>
 
 <p>You will need to determine the location of these assemblies.  The easiest ways to locate these DLLs in a cross-platform way and
 convert them to command-line arguments is to <a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">crack an F# project file</a>.<br />
 Alternatively you can compute SDK paths yourself, and some helpers to do this are in <a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/8a943dd3b545648690cb3bed652a469bdb6dd869/tests/service/Common.fs#L54">the tests for FSharp.Compiler.Service.dll</a>.</p>
 
-<h2><a name="Do-I-need-to-include-and" class="anchor" href="#Do-I-need-to-include-and">Do I need to include <code>FSharp.Core.optdata</code> and <code>FSharp.Core.sigdata</code>?</a></h2>
+<h2><a name="Do-I-need-to-include-FSharp-Core-optdata-and-FSharp-Core-sigdata" class="anchor" href="#Do-I-need-to-include-FSharp-Core-optdata-and-FSharp-Core-sigdata">Do I need to include FSharp.Core.optdata and FSharp.Core.sigdata?</a></h2>
 
-<p>If your compilation arguments explicitly reference an <code>FSharp.Core.dll</code> from an SDK location, then <code>FSharp.Core.sigdata</code> and <code>FSharp.Core.optdata</code> should be alongside the DLL
+<p>If your compilation arguments explicitly reference an FSharp.Core.dll from an SDK location, then FSharp.Core.sigdata and FSharp.Core.optdata should be alongside the DLL
 (if these files are not installed, then that's a bug in the F# SDK installation).  If your compilation
-arguments are always making an explicit reference, then you should <em>not</em> include <code>FSharp.Core.optdata</code> and <code>FSharp.Core.sigdata</code> as part of your application.</p>
+arguments are always making an explicit reference, then you should <em>not</em> include FSharp.Core.optdata and FSharp.Core.sigdata as part of your application.</p>
 
-<p>If you do <em>not</em> explicitly reference an <code>FSharp.Core.dll</code> from an SDK location, then an implicit reference will be made
+<p>If you do <em>not</em> explicitly reference an FSharp.Core.dll from an SDK location, then an implicit reference will be made
 to whichever FSharp.Core.dll your tool is running.  This means your tool will almost certainly implicitly reference the FSharp.Core.dll
-that is part of your application.  In this case, you may either get an error that <code>FSharp.Core.optdata</code> and <code>FSharp.Core.sigdata</code> are not
-found alongside FSharp.Core.dll.  If you want to implicitly reference the <code>FSharp.Core.dll</code> you are including in your application,
-then also add <code>FSharp.Core.sigdata</code> and <code>FSharp.Core.optdata</code> as two additional files to your application.  When using CompileToDynamicAssembly, this problem
+that is part of your application.  In this case, you may either get an error that FSharp.Core.optdata and FSharp.Core.sigdata are not
+found alongside FSharp.Core.dll.  If you want to implicitly reference the FSharp.Core.dll you are including in your application,
+then also add FSharp.Core.sigdata and FSharp.Core.optdata as two additional files to your application.  When using CompileToDynamicAssembly, this problem
 can also manifest itself as <a href="https://github.com/fsharp/FSharp.Compiler.Service/issues/258">a stack overflow during assembly resolution</a>.</p>
 
-<p>Tools that dynamically compile and execute code (e.g. a <code>HostedExecution.exe</code>) normally make an implicit reference to FSharp.Core.dll.</p>
+<p>Tools that dynamically compile and execute code (e.g. a <code>HostedExecution.exe</code>) often make an implicit 
+reference to FSharp.Core.dll, which means they normally also include FSharp.Core.optdata and FSharp.Core.sigdata.</p>
 
 <h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
 

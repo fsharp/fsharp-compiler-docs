@@ -14,6 +14,7 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,12 +34,12 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>Developer notes</h1>
+<h1><a name="Developer-notes" class="anchor" href="#Developer-notes">Developer notes</a></h1>
 
 <p>Modified clone of F# compiler exposing additional functionality for editing clients and embedding F# compiler
 and F# interactive as services.</p>
 
-<h2>Components</h2>
+<h2><a name="Components" class="anchor" href="#Components">Components</a></h2>
 
 <p>There is one component, <code>FSharp.Compiler.Service.dll</code>. The first one contains minor modifications in visibility 
 to allow refactoring editing and other tools to have access to the full F# AST and parser.
@@ -69,7 +70,7 @@ F# Interactive service to implement the evaluation functions.</p></li>
 <p>If language or compiler addiitons are committed to <code>fsharp/fsharp</code>, they should be merged into 
 this repo and a new NuGet package released.</p>
 
-<h2>Building and NuGet</h2>
+<h2><a name="Building-and-NuGet" class="anchor" href="#Building-and-NuGet">Building and NuGet</a></h2>
 
 <p>The build process follows the standard recommended by <a href="https://github.com/fsprojects/FSharp.ProjectScaffold">F# project scaffold</a>
 If you want to build the project yourself then you can follow these instructions:</p>
@@ -82,7 +83,7 @@ The output will be located in the <code>bin</code> directory. If you also wish t
 and NuGet package, run <code>build Release</code> (this also attempts to publish the documentation to
 GitHub, which only works if you have access to the GitHub repository).</p>
 
-<h2>Clients</h2>
+<h2><a name="Clients" class="anchor" href="#Clients">Clients</a></h2>
 
 <p>Some of the known tools that use this component are:</p>
 
@@ -101,7 +102,11 @@ GitHub, which only works if you have access to the GitHub repository).</p>
             <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
@@ -128,6 +133,7 @@ GitHub, which only works if you have access to the GitHub repository).</p>
             <li class="nav-header">Design Notes</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)

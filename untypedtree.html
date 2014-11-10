@@ -14,6 +14,7 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,7 +34,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>Compiler Services: Processing untyped syntax tree</h1>
+<h1><a name="Compiler-Services-Processing-untyped-syntax-tree" class="anchor" href="#Compiler-Services-Processing-untyped-syntax-tree">Compiler Services: Processing untyped syntax tree</a></h1>
 
 <p>This tutorial demonstrates how to get the untyped abstract syntax tree (AST)
 for F# code and how to walk over the tree. This can be used for creating tools
@@ -47,7 +48,7 @@ from <a href="editor.html">editor services</a>.</p>
   <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
 </blockquote>
 
-<h2>Getting the untyped AST</h2>
+<h2><a name="Getting-the-untyped-AST" class="anchor" href="#Getting-the-untyped-AST">Getting the untyped AST</a></h2>
 
 <p>To access the untyped AST, you need to create an instance of <code>FSharpChecker</code>.
 This type represents a context for type checking and parsing and corresponds either
@@ -73,7 +74,7 @@ second phase is "typed parse" and is used by <a href="editor.html">editor servic
 </tr>
 </table>
 
-<h3>Performing untyped parse</h3>
+<h3><a name="Performing-untyped-parse" class="anchor" href="#Performing-untyped-parse">Performing untyped parse</a></h3>
 
 <p>The untyped parse operation is very fast (compared to type checking, which can 
 take notable amount of time) and so we can perform it synchronously. First, we
@@ -137,7 +138,7 @@ return the <code>ParseTree</code> property:</p>
 </tr>
 </table>
 
-<h2>Walking over the AST</h2>
+<h2><a name="Walking-over-the-AST" class="anchor" href="#Walking-over-the-AST">Walking over the AST</a></h2>
 
 <p>The abstract syntax tree is defined as a number of discriminated unions that represent
 different syntactical elements (such as expressions, patterns, declarations etc.). The best
@@ -162,7 +163,7 @@ that need to be supported - the top-level element is module or namespace declara
 containing declarations inside a module (let bindings, types etc.). A let declaration inside
 a module then contains expression, which can contain patterns.</p>
 
-<h3>Walking over patterns and expressions</h3>
+<h3><a name="Walking-over-patterns-and-expressions" class="anchor" href="#Walking-over-patterns-and-expressions">Walking over patterns and expressions</a></h3>
 
 <p>We start by looking at functions that walk over expressions and patterns - as we walk,
 we print information about the visited elements. For patterns, the input is of type
@@ -271,7 +272,7 @@ options). In the following, we only show how to handle <code>if .. then ..</code
 declarations inside a module. In this tutorial, we ignore types and members, but that would
 be another source of calls to <code>visitExpression</code>.</p>
 
-<h3>Walking over declarations</h3>
+<h3><a name="Walking-over-declarations" class="anchor" href="#Walking-over-declarations">Walking over declarations</a></h3>
 
 <p>As mentioned earlier, the AST of a file contains a number of module or namespace declarations
 (top-level node) that contain declarations inside a module (let bindings or types) or inisde
@@ -350,7 +351,7 @@ with multiple <code>namespace Foo</code> declarations:</p>
 <p>Now that we have functions that walk over the elements of the AST (starting from declaration,
 down to expressions and patterns), we can get AST of a sample input and run the above function.</p>
 
-<h2>Putting things together</h2>
+<h2><a name="Putting-things-together" class="anchor" href="#Putting-things-together">Putting things together</a></h2>
 
 <p>As already discussed, the <code>getUntypedTree</code> function uses <code>FSharpChecker</code> to run the first
 phase (parsing) on the AST and get back the tree. The function requires F# source code together
@@ -419,7 +420,7 @@ in the previous step:</p>
 </tr>
 </table>
 
-<h2>Summary</h2>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
 
 <p>In this tutorial, we looked at basic of working with the untyped abstract syntax tree. This is a 
 comprehensive topic, so it is not possible to explain everything in a single article. The 
@@ -434,8 +435,8 @@ tutorial.</p>
 <div class="tip" id="fs4">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs5">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs6">val checker : FSharpChecker<br /><br />Full name: Untypedtree.checker</div>
-<div class="tip" id="fs7">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimeStamp:DateTime * otherFlags:string [] -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromProjectFile : projectFileName:string * ?properties:(string * string) list * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member GetProjectOptionsFromScriptRoot : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; FSharpProjectOptions<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBraces : filename:string * source:string * options:FSharpProjectOptions -&gt; (Range01 * Range01) []<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member StartBackgroundCompile : options:FSharpProjectOptions -&gt; unit<br />member StopBackgroundCompile : unit -&gt; unit<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member TypeCheckSource : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * isResultObsolete:IsResultObsolete * textSnapshotInfo:obj -&gt; FSharpCheckFileAnswer option<br />member UntypedParse : filename:string * source:string * options:FSharpProjectOptions -&gt; FSharpParseFileResults<br />member WaitForBackgroundCompile : unit -&gt; unit<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member FileTypeCheckStateIsDirty : IEvent&lt;string&gt;<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
-<div class="tip" id="fs8">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool -&gt; FSharpChecker</div>
+<div class="tip" id="fs7">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimeStamp:DateTime * otherFlags:string [] -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromProjectFile : projectFileName:string * ?properties:(string * string) list * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member GetProjectOptionsFromScriptRoot : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; FSharpProjectOptions<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBraces : filename:string * source:string * options:FSharpProjectOptions -&gt; (Range01 * Range01) []<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member StartBackgroundCompile : options:FSharpProjectOptions -&gt; unit<br />member StopBackgroundCompile : unit -&gt; unit<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member TypeCheckSource : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * isResultObsolete:IsResultObsolete * textSnapshotInfo:obj -&gt; FSharpCheckFileAnswer option<br />member UntypedParse : filename:string * source:string * options:FSharpProjectOptions -&gt; FSharpParseFileResults<br />member WaitForBackgroundCompile : unit -&gt; unit<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member FileTypeCheckStateIsDirty : IEvent&lt;string&gt;<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
+<div class="tip" id="fs8">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker</div>
 <div class="tip" id="fs9">val getUntypedTree : file:string * input:string -&gt; Compiler.Ast.ParsedInput<br /><br />Full name: Untypedtree.getUntypedTree<br /><em><br /><br />&#160;Get untyped tree for a specified input</em></div>
 <div class="tip" id="fs10">val file : string</div>
 <div class="tip" id="fs11">val input : string</div>
@@ -525,7 +526,11 @@ tutorial.</p>
             <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
@@ -552,6 +557,7 @@ tutorial.</p>
             <li class="nav-header">Design Notes</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)

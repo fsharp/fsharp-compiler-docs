@@ -14,6 +14,7 @@
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
     <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,7 +34,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>インタラクティブサービス: F# Interactiveの組み込み</h1>
+<h1><a name="インタラクティブサービス-F-Interactiveの組み込み" class="anchor" href="#インタラクティブサービス-F-Interactiveの組み込み">インタラクティブサービス: F# Interactiveの組み込み</a></h1>
 
 <p>このチュートリアルでは、独自のアプリケーションに
 F# Interactiveを組み込む方法について紹介します。
@@ -60,7 +61,7 @@ F#の評価機能を追加できます。</p>
 機能限定されたF#コード(たとえば独自のDSLによって生成されたコード)だけを
 実行させることが出来るという便利さがあります。</p>
 
-<h2>F# Interactiveの開始</h2>
+<h2><a name="F-Interactiveの開始" class="anchor" href="#F-Interactiveの開始">F# Interactiveの開始</a></h2>
 
 <p>まずF# Interactiveサービスを含むライブラリへの参照を追加します:</p>
 
@@ -120,7 +121,7 @@ F#の評価機能を追加できます。</p>
 </tr>
 </table>
 
-<h2>コードの評価および実行</h2>
+<h2><a name="コードの評価および実行" class="anchor" href="#コードの評価および実行">コードの評価および実行</a></h2>
 
 <p>F# Interactiveサービスにはサービスとやりとりするためのメソッドが2つ用意されています。
 1つは <code>EvalExpression</code> で、式を評価してその結果を返します。
@@ -202,7 +203,7 @@ F# Interactiveコンソールには入力できるようなものなど、
 </tr>
 </table>
 
-<h2>評価コンテキスト内での型チェック</h2>
+<h2><a name="評価コンテキスト内での型チェック" class="anchor" href="#評価コンテキスト内での型チェック">評価コンテキスト内での型チェック</a></h2>
 
 <p>F# Interactiveの一連のスクリプティングセッション中で
 コードの型チェックを実行したいような状況を考えてみましょう。
@@ -276,7 +277,7 @@ F# Interactiveコンソールには入力できるようなものなど、
 </tr>
 </table>
 
-<h2>例外処理</h2>
+<h2><a name="例外処理" class="anchor" href="#例外処理">例外処理</a></h2>
 
 <p>コンパイルエラーをもっと洗練された形で処理して、
 使い勝手のよいエラーメッセージを出力させたい場合には
@@ -375,7 +376,11 @@ F# Interactiveコンソールには入力できるようなものなど、
             <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>

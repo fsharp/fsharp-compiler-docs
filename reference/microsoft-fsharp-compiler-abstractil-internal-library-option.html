@@ -13,6 +13,7 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -54,8 +55,8 @@
             fold f z x
           </code>
           <div class="tip" id="712">
-            <strong>Signature:</strong> f:(&#39;?196985 -&gt; &#39;?196986 -&gt; &#39;?196985) -&gt; z:&#39;?196985 -&gt; x:&#39;?196986 option -&gt; &#39;?196985<br />
-                          <strong>Type parameters:</strong> '?196985, '?196986          </div>
+            <strong>Signature:</strong> f:(&#39;?197120 -&gt; &#39;?197121 -&gt; &#39;?197120) -&gt; z:&#39;?197120 -&gt; x:&#39;?197121 option -&gt; &#39;?197120<br />
+                          <strong>Type parameters:</strong> '?197120, '?197121          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L161-161" class="github-link">
@@ -72,8 +73,8 @@
             foldMap f z l
           </code>
           <div class="tip" id="713">
-            <strong>Signature:</strong> f:(&#39;?196981 -&gt; &#39;?196982 -&gt; &#39;?196981 * &#39;?196983) -&gt; z:&#39;?196981 -&gt; l:&#39;?196982 option -&gt; &#39;?196981 * &#39;?196983 option<br />
-                          <strong>Type parameters:</strong> '?196981, '?196982, '?196983          </div>
+            <strong>Signature:</strong> f:(&#39;?197116 -&gt; &#39;?197117 -&gt; &#39;?197116 * &#39;?197118) -&gt; z:&#39;?197116 -&gt; l:&#39;?197117 option -&gt; &#39;?197116 * &#39;?197118 option<br />
+                          <strong>Type parameters:</strong> '?197116, '?197117, '?197118          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L155-155" class="github-link">
@@ -90,8 +91,8 @@
             mapFold f s opt
           </code>
           <div class="tip" id="714">
-            <strong>Signature:</strong> f:(&#39;?196975 -&gt; &#39;?196976 -&gt; &#39;?196977 * &#39;?196975) -&gt; s:&#39;?196975 -&gt; opt:&#39;?196976 option -&gt; &#39;?196977 option * &#39;?196975<br />
-                          <strong>Type parameters:</strong> '?196975, '?196976, '?196977          </div>
+            <strong>Signature:</strong> f:(&#39;?197110 -&gt; &#39;?197111 -&gt; &#39;?197112 * &#39;?197110) -&gt; s:&#39;?197110 -&gt; opt:&#39;?197111 option -&gt; &#39;?197112 option * &#39;?197110<br />
+                          <strong>Type parameters:</strong> '?197110, '?197111, '?197112          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L144-144" class="github-link">
@@ -108,8 +109,8 @@
             otherwise opt dflt
           </code>
           <div class="tip" id="715">
-            <strong>Signature:</strong> opt:&#39;?196979 option -&gt; dflt:&#39;?196979 -&gt; &#39;?196979<br />
-                          <strong>Type parameters:</strong> '?196979          </div>
+            <strong>Signature:</strong> opt:&#39;?197114 option -&gt; dflt:&#39;?197114 -&gt; &#39;?197114<br />
+                          <strong>Type parameters:</strong> '?197114          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L149-149" class="github-link">
@@ -128,7 +129,11 @@
             <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
@@ -155,6 +160,7 @@
             <li class="nav-header">Design Notes</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)

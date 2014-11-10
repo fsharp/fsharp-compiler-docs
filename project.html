@@ -14,6 +14,7 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,7 +34,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>Compiler Services: Project Analysis</h1>
+<h1><a name="Compiler-Services-Project-Analysis" class="anchor" href="#Compiler-Services-Project-Analysis">Compiler Services: Project Analysis</a></h1>
 
 <p>This tutorial demonstrates how to can analyze a whole project using services provided by the F# compiler.</p>
 
@@ -41,7 +42,7 @@
   <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.</p>
 </blockquote>
 
-<h2>Getting whole-project results</h2>
+<h2><a name="Getting-whole-project-results" class="anchor" href="#Getting-whole-project-results">Getting whole-project results</a></h2>
 
 <p>As in the <a href="untypedtree.html">previous tutorial (using untyped AST)</a>, we start by referencing
 <code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
@@ -557,7 +558,7 @@ in the project are still read from disk, unless you are using the <a href="files
 </tr>
 </table>
 
-<h2>Analyzing multiple projects</h2>
+<h2><a name="Analyzing-multiple-projects" class="anchor" href="#Analyzing-multiple-projects">Analyzing multiple projects</a></h2>
 
 <p>If you have multiple F# projects to analyze which include references from some projects to others, 
 then the simplest way to do this is to build the projects and specify the cross-project references using 
@@ -586,7 +587,7 @@ correctly and then analyze each project in turn.</p>
   still be required on disk.</p>
 </blockquote>
 
-<h2>Cracking a project file</h2>
+<h2><a name="Cracking-a-project-file" class="anchor" href="#Cracking-a-project-file">Cracking a project file</a></h2>
 
 <p>F# projects normally use the '.fsproj' project file format.  You can get options corresponding to a project file
 using GetProjectOptionsFromProjectFile.  In this example we get the project options for one of the 
@@ -645,7 +646,7 @@ for any project that builds cleanly using the command line tools 'xbuild' or 'ms
 </tr>
 </table>
 
-<h2>Summary</h2>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
 
 <p>As you have seen, the <code>ParseAndCheckProject</code> lets you access results of project-wide analysis 
 such as symbol references. To learn more about working with symbols, see <a href="symbols.html">Symbols</a>.</p>
@@ -661,8 +662,8 @@ knowledge of the <a href="queue.html">FSharpChecker operations queue</a> and the
 <div class="tip" id="fs6">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs7">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs8">val checker : FSharpChecker<br /><br />Full name: Project.checker</div>
-<div class="tip" id="fs9">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimeStamp:DateTime * otherFlags:string [] -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromProjectFile : projectFileName:string * ?properties:(string * string) list * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member GetProjectOptionsFromScriptRoot : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; FSharpProjectOptions<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBraces : filename:string * source:string * options:FSharpProjectOptions -&gt; (Range01 * Range01) []<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member StartBackgroundCompile : options:FSharpProjectOptions -&gt; unit<br />member StopBackgroundCompile : unit -&gt; unit<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member TypeCheckSource : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * isResultObsolete:IsResultObsolete * textSnapshotInfo:obj -&gt; FSharpCheckFileAnswer option<br />member UntypedParse : filename:string * source:string * options:FSharpProjectOptions -&gt; FSharpParseFileResults<br />member WaitForBackgroundCompile : unit -&gt; unit<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member FileTypeCheckStateIsDirty : IEvent&lt;string&gt;<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
-<div class="tip" id="fs10">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool -&gt; FSharpChecker</div>
+<div class="tip" id="fs9">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetCheckOptionsFromScriptRoot : filename:string * source:string * loadedTimeStamp:DateTime * otherFlags:string [] -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromProjectFile : projectFileName:string * ?properties:(string * string) list * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member GetProjectOptionsFromScriptRoot : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; FSharpProjectOptions<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBraces : filename:string * source:string * options:FSharpProjectOptions -&gt; (Range01 * Range01) []<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member StartBackgroundCompile : options:FSharpProjectOptions -&gt; unit<br />member StopBackgroundCompile : unit -&gt; unit<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member TypeCheckSource : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * isResultObsolete:IsResultObsolete * textSnapshotInfo:obj -&gt; FSharpCheckFileAnswer option<br />member UntypedParse : filename:string * source:string * options:FSharpProjectOptions -&gt; FSharpParseFileResults<br />member WaitForBackgroundCompile : unit -&gt; unit<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member FileTypeCheckStateIsDirty : IEvent&lt;string&gt;<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
+<div class="tip" id="fs10">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker</div>
 <div class="tip" id="fs11">namespace System.IO</div>
 <div class="tip" id="fs12">val base1 : string<br /><br />Full name: Project.Inputs.base1</div>
 <div class="tip" id="fs13">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : params paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string<br />&#160;&#160;static member GetExtension : path:string -&gt; string<br />&#160;&#160;static member GetFileName : path:string -&gt; string<br />&#160;&#160;...<br /><br />Full name: System.IO.Path</div>
@@ -780,7 +781,11 @@ knowledge of the <a href="queue.html">FSharpChecker operations queue</a> and the
             <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
@@ -807,6 +812,7 @@ knowledge of the <a href="queue.html">FSharpChecker operations queue</a> and the
             <li class="nav-header">Design Notes</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)

@@ -14,6 +14,7 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,7 +34,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>Compiler Services: Notes on the FSharpChecker caches</h1>
+<h1><a name="Compiler-Services-Notes-on-the-FSharpChecker-caches" class="anchor" href="#Compiler-Services-Notes-on-the-FSharpChecker-caches">Compiler Services: Notes on the FSharpChecker caches</a></h1>
 
 <p>This is a design note on the FSharpChecker component and its caches.  See also the notes on the <a href="queue.html">FSharpChecker operations queue</a></p>
 
@@ -49,18 +50,18 @@ The "current background project" (see the <a href="queue.html">FSharpChecker ope
 will be one of these projects.  When analyzing large collections of projects, this cache usually occupies by far the most memory.
 Increasing the size of this cache can dramatically decrease incremental computation of project-wide checking, or of checking
 individual files within a project, but can very greatly increase memory usage.</p></li>
-<li><p><code>braceMatchCache</code> - an MRU cache of size <code>braceMatchCacheSize</code> (= 5) keeping the results of calls to MatchBraces, keyed by filename, source and project options.</p></li>
-<li><p><code>parseFileInProjectCache</code> - an MRU cache of size <code>parseFileInProjectCacheSize</code> (= 2) keeping the results of ParseFileInProject, 
+<li><p><code>braceMatchCache</code> - an MRU cache of size <code>braceMatchCacheSize</code> (default = 5) keeping the results of calls to MatchBraces, keyed by filename, source and project options.</p></li>
+<li><p><code>parseFileInProjectCache</code> - an MRU cache of size <code>parseFileInProjectCacheSize</code> (default = 2) keeping the results of ParseFileInProject, 
 keyed by filename, source and project options.</p></li>
-<li><p><code>parseAndCheckFileInProjectCache</code> - an MRU cache of size <code>incrementalTypeCheckCacheSize</code> (= 5) keeping the results of 
+<li><p><code>parseAndCheckFileInProjectCache</code> - an MRU cache of size <code>incrementalTypeCheckCacheSize</code> (default = 5) keeping the results of 
 ParseAndCheckFileInProject, CheckFileInProject and/or CheckFileInProjectIfReady. This is keyed by filename, file source
 and project options.  The results held in this cache are only returned if they would reflect an accurate parse and check of the
 file.</p></li>
-<li><p><code>parseAndCheckFileInProjectCachePossiblyStale</code> - a somewhat peculiar MRU cache of size <code>incrementalTypeCheckCacheSize</code> (= 5) 
+<li><p><code>parseAndCheckFileInProjectCachePossiblyStale</code> - a somewhat peculiar MRU cache of size <code>incrementalTypeCheckCacheSize</code> (default = 5) 
 keeping the results of ParseAndCheckFileInProject, CheckFileInProject and CheckFileInProjectIfReady,
 keyed by filename and project options. This cache is accessed by TryGetRecentTypeCheckResultsForFile. Because the results
 are accessed regardless of the content of the file, the checking results returned may be "stale".</p></li>
-<li><p><code>getToolTipTextCache</code> - an aged lookup cache of strong size <code>getToolTipTextSize</code> (= 5) computing the results of GetToolTipText.</p></li>
+<li><p><code>getToolTipTextCache</code> - an aged lookup cache of strong size <code>getToolTipTextSize</code> (default = 5) computing the results of GetToolTipText.</p></li>
 <li><p><code>ilModuleReaderCache</code> - an aged lookup of weak references to "readers" for references .NET binaries. Because these
 are all weak references, you can generally ignore this cache, since its entries will be automatically collected.
 Strong references to binary readers will be kept by other FCS data structures, e.g. any project checkers, symbols or project checking results.</p>
@@ -75,11 +76,11 @@ project checkers which happen to reference the same set of system assemblies.</p
 
 <p>Profiling the memory used by the various caches can be done by looking for the corresponding static roots in memory profiling traces.</p>
 
-<p>The sizes of some of these caches can be adjusted by giving parameters to FSharpChecker.  Unless otehrwise noted, 
+<p>The sizes of some of these caches can be adjusted by giving parameters to FSharpChecker.  Unless otherwise noted, 
 the cache sizes above indicate the "strong" size of the cache, where memory is held regardless of the memory 
 pressure on the system. Some of the caches can also hold "weak" references which can be collected at will by the GC.</p>
 
-<h2>Summary</h2>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
 
 <p>In this design note, you learned that the FSharpChecker component keeps a set of caches in order to support common
 incremental analysis scenarios reasonably efficiently. They correspond roughly to the original caches and sizes 
@@ -95,7 +96,11 @@ consider the cache sizes you are using and the tradeoffs involved between increm
             <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
@@ -122,6 +127,7 @@ consider the cache sizes you are using and the tradeoffs involved between increm
             <li class="nav-header">Design Notes</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)

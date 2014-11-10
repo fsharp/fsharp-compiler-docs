@@ -14,6 +14,7 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,7 +34,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>F# Compiler README</h1>
+<h1><a name="F-Compiler-README" class="anchor" href="#F-Compiler-README">F# Compiler README</a></h1>
 
 <blockquote>
   <p><strong>NOTE:</strong> This readme file is the original <code>README.md</code> document from the F# compiler
@@ -46,7 +47,7 @@ here for reference.</p>
 The <code>master</code> branch is for the latest version of F# (currently F# 3.0).
 To bootstrap the compiler, binaries built from an earlier version of this project are used.</p>
 
-<h2>Requirements</h2>
+<h2><a name="Requirements" class="anchor" href="#Requirements">Requirements</a></h2>
 
 <p>Requires mono 2.9 or higher.  Prefer Mono 3.0.</p>
 
@@ -54,9 +55,9 @@ To bootstrap the compiler, binaries built from an earlier version of this projec
 
 <table class="pre"><tr><td><pre lang="text">brew install automake</pre></td></tr></table>
 
-<h2>Building</h2>
+<h2><a name="Building" class="anchor" href="#Building">Building</a></h2>
 
-<h3>On Linux and other Unix systems:</h3>
+<h3><a name="On-Linux-and-other-Unix-systems" class="anchor" href="#On-Linux-and-other-Unix-systems">On Linux and other Unix systems:</a></h3>
 
 <p>The usual:</p>
 
@@ -66,7 +67,7 @@ sudo make install</pre></td></tr></table>
 
 <p>By default that makes optimized binaries. To make debug, use <code>make CONFIG=debug</code></p>
 
-<h3>On MacOS (OSX)</h3>
+<h3><a name="On-MacOS-OSX" class="anchor" href="#On-MacOS-OSX">On MacOS (OSX)</a></h3>
 
 <p>Use a prefix to your version of Mono:</p>
 
@@ -76,7 +77,7 @@ sudo make install</pre></td></tr></table>
 
 <p>By default that makes optimized binaries. To make debug, use <code>make CONFIG=debug</code></p>
 
-<h3>On Windows, using msbuild (e.g.. if .NET is installed)</h3>
+<h3><a name="On-Windows-using-msbuild-e-g-if-NET-is-installed" class="anchor" href="#On-Windows-using-msbuild-e-g-if-NET-is-installed">On Windows, using msbuild (e.g.. if .NET is installed)</a></h3>
 
 <p>If you have only VS2012 installed, and not VS2010, you'll need to install the F# 2.0 Runtime (<a href="http://www.microsoft.com/en-us/download/details.aspx?id=13450)">http://www.microsoft.com/en-us/download/details.aspx?id=13450)</a></p>
 
@@ -104,7 +105,7 @@ msbuild fsharp-compiler-build.proj /p:TargetFramework=sl5-compiler /p:Configurat
 
 <p>Change to <code>/p:Configuration=Debug</code> for debug binaries.</p>
 
-<h3>On Windows, using xbuild (e.g. if no .NET is installed and only Mono 3.0 is installed):</h3>
+<h3><a name="On-Windows-using-xbuild-e-g-if-no-NET-is-installed-and-only-Mono-3-0-is-installed" class="anchor" href="#On-Windows-using-xbuild-e-g-if-no-NET-is-installed-and-only-Mono-3-0-is-installed">On Windows, using xbuild (e.g. if no .NET is installed and only Mono 3.0 is installed):</a></h3>
 
 <table class="pre"><tr><td><pre lang="text">cd src
 xbuild fsharp-proto-build.proj
@@ -114,14 +115,14 @@ xbuild fsharp-compiler-build.proj</pre></td></tr></table>
 <p>Building using xbuild does not yet lay down a Mono-ready distribution (see src/fsharp/targets.make), so should only
 be used for private development rather than preparing distributions.</p>
 
-<h2>Strong Names</h2>
+<h2><a name="Strong-Names" class="anchor" href="#Strong-Names">Strong Names</a></h2>
 
 <p>The FSharp.Core.dll produced is only delay-signed (Mono does not require strong names). 
 If a strong-name signed FSharp.Core.dll is needed then use the one in</p>
 
 <table class="pre"><tr><td><pre lang="text">lib\bootstrap\signed\3.0\v4.0\FSharp.Core.dll</pre></td></tr></table>
 
-<h2>What you get</h2>
+<h2><a name="What-you-get" class="anchor" href="#What-you-get">What you get</a></h2>
 
 <p>Once built the main compiler binaries go in</p>
 
@@ -159,9 +160,9 @@ lib/release/2.1monotouch</pre></td></tr></table>
 <p>/usr/bin/fsharpc   (F# compiler)
    /usr/bin/fsharpi   (F# Interactive)</p>
 
-<h2>Development notes</h2>
+<h2><a name="Development-notes" class="anchor" href="#Development-notes">Development notes</a></h2>
 
-<h3>Continuous Integration Build</h3>
+<h3><a name="Continuous-Integration-Build" class="anchor" href="#Continuous-Integration-Build">Continuous Integration Build</a></h3>
 
 <p>We have a CI build set up with the JetBrains/Teamcity server as part of the F# community projects there:</p>
 
@@ -169,7 +170,7 @@ lib/release/2.1monotouch</pre></td></tr></table>
 
 <p>@forki controls access. Right now this builds both a Mono 'make' install  and a Windows 'cd src; msbuild fsharp-build.proj' build.  No binaries are saved from  the build, it is just for sanity checking.</p>
 
-<h3>Editing the Compiler with Visual Studio or MonoDevelop</h3>
+<h3><a name="Editing-the-Compiler-with-Visual-Studio-or-MonoDevelop" class="anchor" href="#Editing-the-Compiler-with-Visual-Studio-or-MonoDevelop">Editing the Compiler with Visual Studio or MonoDevelop</a></h3>
 
 <p>Open <code>all-vs2012.sln</code>, and edit in modes Debug or Release. The compiler takes a good while to compile and that
 can be a bit invasive to the work flow, so it's normally better to do the actual compilation from 
@@ -178,7 +179,7 @@ the command line, see above.</p>
 <p>The F# support in MonoDevelop uses an in-process background compiler. On the Mac this causes pausing garbage
 collections to kick in which makes editing the compiler in MonoDevelop awkward.</p>
 
-<h3>Building F# Core Unit Tests for .NET 4.x (optional)</h3>
+<h3><a name="Building-F-Core-Unit-Tests-for-NET-4-x-optional" class="anchor" href="#Building-F-Core-Unit-Tests-for-NET-4-x-optional">Building F# Core Unit Tests for .NET 4.x (optional)</a></h3>
 
 <p>This uses the proto compiler to build the unit tests that check some parts of <code>FSharp.Core.dll</code> and <code>FSharp.Compiler.dll</code>. There is also another set of tests under <code>tests\fsharp</code>.</p>
 
@@ -186,7 +187,7 @@ collections to kick in which makes editing the compiler in MonoDevelop awkward.<
 
 <p><em>Note: You must have NUnit installed to build the unit tests.</em></p>
 
-<h3>Validation and Use</h3>
+<h3><a name="Validation-and-Use" class="anchor" href="#Validation-and-Use">Validation and Use</a></h3>
 
 <p>Here are some simple tests to validate what you have built by checking <code>fsi.exe</code> (F# Interactive) starts up:</p>
 
@@ -199,7 +200,7 @@ echo printfn &quot;hello world&quot; &gt; hello.fs
 lib\debug\4.0\fsc.exe hello.fs
 hello.exe</pre></td></tr></table>
 
-<h3>Running Compiler tests (on Windows)</h3>
+<h3><a name="Running-Compiler-tests-on-Windows" class="anchor" href="#Running-Compiler-tests-on-Windows">Running Compiler tests (on Windows)</a></h3>
 
 <p>There are language tests under <code>tests\fsharp\core</code>. The test apparatus is primitive and unfortunately uses batch files. You can run these on Windows using:</p>
 
@@ -221,7 +222,7 @@ tests\fsharp\core\queriesOverIEnumerable
 
 <p>You can then go to the relevant directory and run <code>build.bat</code> and <code>run.bat</code>.</p>
 
-<h2>History</h2>
+<h2><a name="History" class="anchor" href="#History">History</a></h2>
 
 <p>F# compiler sources dropped by Microsoft are available from <a href="http://fsharppowerpack.codeplex.com">fsharppowerpack.codeplex.com</a>.</p>
 
@@ -234,7 +235,11 @@ tests\fsharp\core\queriesOverIEnumerable
             <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
@@ -261,6 +266,7 @@ tests\fsharp\core\queriesOverIEnumerable
             <li class="nav-header">Design Notes</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)

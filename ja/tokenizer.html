@@ -14,6 +14,7 @@
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
     <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,7 +34,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>コンパイラサービス：F#トークナイザを使用する</h1>
+<h1><a name="コンパイラサービス-F-トークナイザを使用する" class="anchor" href="#コンパイラサービス-F-トークナイザを使用する">コンパイラサービス：F#トークナイザを使用する</a></h1>
 
 <p>このチュートリアルではF#言語トークナイザの呼び出し方を紹介します。
 F#のソースコードに対して、トークナイザは
@@ -47,7 +48,7 @@ F#のソースコードに対して、トークナイザは
   新しいnugetパッケージの公開に伴って変更される可能性があります。</p>
 </blockquote>
 
-<h2>トークナイザの作成</h2>
+<h2><a name="トークナイザの作成" class="anchor" href="#トークナイザの作成">トークナイザの作成</a></h2>
 
 <p>トークナイザを使用するには、 <code>FSharp.Compiler.Service.dll</code> への参照を追加した後に
 <code>SourceCodeServices</code> 名前空間をオープンします：</p>
@@ -86,7 +87,7 @@ F#のソースコードに対して、トークナイザは
 <p><code>sourceTok</code> オブジェクトを使用することでF#ソースコードの各行を
 (繰り返し)トークン化することができます。</p>
 
-<h2>F#コードのトークン化</h2>
+<h2><a name="F-コードのトークン化" class="anchor" href="#F-コードのトークン化">F#コードのトークン化</a></h2>
 
 <p>トークナイザはソースファイル全体ではなく、行単位で処理を行います。
 トークンを取得した後、トークナイザは新しいステートを( <code>int64</code> 値として)返します。
@@ -95,7 +96,7 @@ F#のソースコードに対して、トークナイザは
 再度トークン化する必要はありません。
 変更された部分だけをトークン化すればよいのです。</p>
 
-<h3>1行をトークン化する</h3>
+<h3><a name="1行をトークン化する" class="anchor" href="#1行をトークン化する">1行をトークン化する</a></h3>
 
 <p>1行をトークン化するには、先ほど作成した <code>FSharpSourceTokenizer</code> オブジェクトに対して
 <code>CreateLineTokenizer</code> を呼び、 <code>FSharpLineTokenizer</code> を作成します:</p>
@@ -170,7 +171,7 @@ F#のソースコードに対して、トークナイザは
 つまり、1行を複数回トークン化したい場合にはその都度 <code>CreateLineTokenizer</code> を
 呼び出す必要があります。</p>
 
-<h3>サンプルコードのトークン化</h3>
+<h3><a name="サンプルコードのトークン化" class="anchor" href="#サンプルコードのトークン化">サンプルコードのトークン化</a></h3>
 
 <p>トークナイザをもっと長いサンプルコードやファイル全体に対して実行する場合、
 サンプル入力を <code>string</code> のコレクションとして読み取る必要があります:</p>
@@ -295,7 +296,11 @@ Line 3
             <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>

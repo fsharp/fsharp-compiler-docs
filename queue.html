@@ -14,6 +14,7 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,7 +34,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>Compiler Services: Notes on the FSharpChecker operations queue</h1>
+<h1><a name="Compiler-Services-Notes-on-the-FSharpChecker-operations-queue" class="anchor" href="#Compiler-Services-Notes-on-the-FSharpChecker-operations-queue">Compiler Services: Notes on the FSharpChecker operations queue</a></h1>
 
 <p>This is a design note on the FSharpChecker component and its operations queue.  See also the notes on the <a href="caches.html">FSharpChecker caches</a></p>
 
@@ -43,8 +44,8 @@ sequentially and in order.</p>
 <p>In addition to operations in the queue, there is also a low-priority, interleaved background operation
 to bring the checking of the checking of "the current background project" up-to-date.  When the queue is empty
 this operation is conducted in small incremental fragments of parse/check work (cooperatively time-sliced to be approximately &lt;50ms, 
-see maxTimeShareMilliseconds in IncrementalBuild.fs). For a working definition of "current background project" 
-you currently  have to see the calls to  StartBackgroundCompile 
+see <code>maxTimeShareMilliseconds</code> in IncrementalBuild.fs). For a working definition of "current background project" 
+you currently  have to see the calls to  <code>StartBackgroundCompile</code> 
 in <a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs">service.fs</a>,
 where an API call which in turn calls StartBackgroundCompile indicates that the current background project has been specified.</p>
 
@@ -52,11 +53,11 @@ where an API call which in turn calls StartBackgroundCompile indicates that the 
 calls to EnqueueAndAwaitOpAsync in <a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs">service.fs</a>.</p>
 
 <ul>
-<li><p>For example, calling ParseAndCheckProject enqueues a ParseAndCheckProjectImpl operation. The length of the 
+<li><p>For example, calling <code>ParseAndCheckProject</code> enqueues a <code>ParseAndCheckProjectImpl</code> operation. The length of the 
 operation will depend on how much work is required to bring the project analysis up-to-date.</p></li>
-<li><p>Likewise, calling any of GetUsesOfSymbol, GetAllUsesOfAllSymbols, ParseFileInProject, 
-GetBackgroundParseResultsForFileInProject, MatchBraces, CheckFileInProjectIfReady, ParseAndCheckFileInProject, GetBackgroundCheckResultsForFileInProject,
-ParseAndCheckProject, GetProjectOptionsFromScript, InvalidateConfiguration, InvaidateAll and operations
+<li><p>Likewise, calling any of <code>GetUsesOfSymbol</code>, <code>GetAllUsesOfAllSymbols</code>, <code>ParseFileInProject</code>, 
+<code>GetBackgroundParseResultsForFileInProject</code>, <code>MatchBraces</code>, <code>CheckFileInProjectIfReady</code>, <code>ParseAndCheckFileInProject</code>, <code>GetBackgroundCheckResultsForFileInProject</code>,
+<code>ParseAndCheckProject</code>, <code>GetProjectOptionsFromScript</code>, <code>InvalidateConfiguration</code>, <code>InvaidateAll</code> and operations
 on FSharpCheckResults will cause an operation to be enqueued. The length of the operation will
 vary - many will be very fast - but they won't be processed until other operations already in the queue are complete.</p></li>
 </ul>
@@ -76,7 +77,7 @@ operations, or cancellation of operations, or more explicitness about the "curre
 
 <p>Finally, for those writing interactive editors which use FCS, in the current state of affairs you 
 should be cautious about having any auto-operation  (e.g. operations like "Find Unused Declarations" 
-which run automatically and are unassociated with a user action, but not operations like "FindAllReferences" 
+which run automatically and are unassociated with a user action, but not operations like "Find All References" 
 which a user explicitly triggers) request a check of  the entire project. That will cause very long operations 
 and contention on the FSharpChecker operations queue. Any such very-long-running request should normally be associated 
 with a user action, and preferably it should be cancellable.</p>
@@ -87,7 +88,7 @@ completion of interleaved checking of the "current background project" (specifie
 the spec of "current background project" is not suitable or sufficiently controlled for your needs, please 
 help to document it and adjust it.</p>
 
-<h2>Summary</h2>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
 
 <p>In this design note, you learned that the FSharpChecker component keeps an operations queue. When using FSharpChecker
 in highly interactive situations, you should carefully consider the characteristics of the operations you are 
@@ -100,7 +101,11 @@ enqueueing.</p>
             <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
@@ -127,6 +132,7 @@ enqueueing.</p>
             <li class="nav-header">Design Notes</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)

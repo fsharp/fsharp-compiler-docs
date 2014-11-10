@@ -14,6 +14,7 @@
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
     <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,7 +34,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>Compiler Services: Using the F# tokenizer</h1>
+<h1><a name="Compiler-Services-Using-the-F-tokenizer" class="anchor" href="#Compiler-Services-Using-the-F-tokenizer">Compiler Services: Using the F# tokenizer</a></h1>
 
 <p>This tutorial demonstrates how to call the F# language tokenizer. Given F# 
 source code, the tokenizer generates a list of source code lines that contain
@@ -45,7 +46,7 @@ identifier, number, operator, etc.).</p>
   <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
 </blockquote>
 
-<h2>Creating the tokenizer</h2>
+<h2><a name="Creating-the-tokenizer" class="anchor" href="#Creating-the-tokenizer">Creating the tokenizer</a></h2>
 
 <p>To use the tokenizer, reference <code>FSharp.Compiler.Service.dll</code> and open the
 <code>SourceCodeServices</code> namespace:</p>
@@ -81,14 +82,14 @@ locations of the source code (and it does not have to exist):</p>
 <p>Using the <code>sourceTok</code> object, we can now (repeatedly) tokenize lines of 
 F# source code.</p>
 
-<h2>Tokenizing F# code</h2>
+<h2><a name="Tokenizing-F-code" class="anchor" href="#Tokenizing-F-code">Tokenizing F# code</a></h2>
 
 <p>The tokenizer operates on individual lines rather than on the entire source
 file. After getting a token, the tokenizer also returns new state (as <code>int64</code> value).
 This can be used to tokenize F# code more efficiently. When source code changes,
 you do not need to re-tokenize the entire file - only the parts that have changed.</p>
 
-<h3>Tokenizing single line</h3>
+<h3><a name="Tokenizing-single-line" class="anchor" href="#Tokenizing-single-line">Tokenizing single line</a></h3>
 
 <p>To tokenize a single line, we create a <code>FSharpLineTokenizer</code> by calling <code>CreateLineTokenizer</code>
 on the <code>FSharpSourceTokenizer</code> object that we created earlier:</p>
@@ -159,7 +160,7 @@ can be used for colorizing F# code.</li>
 <p>Note that the tokenizer is stateful - if you want to tokenize single line multiple times,
 you need to call <code>CreateLineTokenizer</code> again.</p>
 
-<h3>Tokenizing sample code</h3>
+<h3><a name="Tokenizing-sample-code" class="anchor" href="#Tokenizing-sample-code">Tokenizing sample code</a></h3>
 
 <p>To run the tokenizer on a longer sample code or an entire file, you need to read the
 sample input as a collection of <code>string</code> values:</p>
@@ -280,7 +281,11 @@ tokens.</p>
             <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
@@ -307,6 +312,7 @@ tokens.</p>
             <li class="nav-header">Design Notes</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a> (Preliminary)

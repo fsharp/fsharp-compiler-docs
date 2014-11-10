@@ -14,6 +14,7 @@
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
     <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -33,7 +34,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>F# コンパイラのREADME</h1>
+<h1><a name="F-コンパイラのREADME" class="anchor" href="#F-コンパイラのREADME">F# コンパイラのREADME</a></h1>
 
 <blockquote>
   <p><strong>注意:</strong> このreadmeファイルはF# コンパイラソースコード
@@ -50,7 +51,7 @@ F# Compiler Servicesプロジェクトは元々F# Compilerプロジェクトか�
 なおコンパイラをブートストラップするために、
 このプロジェクトの以前のバージョンでビルドされたバイナリが使用されます。</p>
 
-<h2>必須要件</h2>
+<h2><a name="必須要件" class="anchor" href="#必須要件">必須要件</a></h2>
 
 <p>Mono 2.9以上のバージョンが必要です。Mono 3.0が推奨されます。</p>
 
@@ -60,9 +61,9 @@ F# Compiler Servicesプロジェクトは元々F# Compilerプロジェクトか�
 
 <table class="pre"><tr><td><pre lang="text">brew install automake</pre></td></tr></table>
 
-<h2>ビルド</h2>
+<h2><a name="ビルド" class="anchor" href="#ビルド">ビルド</a></h2>
 
-<h3>Linuxおよびその他のUnixシステムの場合</h3>
+<h3><a name="Linuxおよびその他のUnixシステムの場合" class="anchor" href="#Linuxおよびその他のUnixシステムの場合">Linuxおよびその他のUnixシステムの場合</a></h3>
 
 <p>通常の手順は以下の通りです:</p>
 
@@ -73,7 +74,7 @@ sudo make install</pre></td></tr></table>
 <p>デフォルトでは最適化されたバイナリが生成されます。
 デバッグ版をビルドする場合は <code>make CONFIG=debug</code> とします。</p>
 
-<h3>MacOS (OSX)の場合</h3>
+<h3><a name="MacOS-OSX-の場合" class="anchor" href="#MacOS-OSX-の場合">MacOS (OSX)の場合</a></h3>
 
 <p>Monoのバージョンを指定するprefixを設定します:</p>
 
@@ -84,7 +85,7 @@ sudo make install</pre></td></tr></table>
 <p>デフォルトでは最適化されたバイナリが生成されます。
 デバッグ版をビルドする場合は <code>make CONFIG=debug</code> とします。</p>
 
-<h3>Windows上でmsbuildを使用する(つまり.NETがインストールされている)場合</h3>
+<h3><a name="Windows上でmsbuildを使用する-つまり-NETがインストールされている-場合" class="anchor" href="#Windows上でmsbuildを使用する-つまり-NETがインストールされている-場合">Windows上でmsbuildを使用する(つまり.NETがインストールされている)場合</a></h3>
 
 <p>VS2010がインストールされておらず、VS2012しかインストールされていない場合には
 <a href="http://www.microsoft.com/en-us/download/details.aspx?id=13450">F# 2.0 ランタイム</a>
@@ -118,7 +119,7 @@ msbuild fsharp-compiler-build.proj /p:TargetFramework=sl5-compiler /p:Configurat
 
 <p>デバッグ版バイナリを出力する場合は <code>/p:Configuration=Debug</code> に変更します。</p>
 
-<h3>Windows上でxbuildを使用する(つまり.NETがインストールされておらず、Mono 3.0だけがインストールされている)場合</h3>
+<h3><a name="Windows上でxbuildを使用する-つまり-NETがインストールされておらず-Mono-3-0だけがインストールされている-場合" class="anchor" href="#Windows上でxbuildを使用する-つまり-NETがインストールされておらず-Mono-3-0だけがインストールされている-場合">Windows上でxbuildを使用する(つまり.NETがインストールされておらず、Mono 3.0だけがインストールされている)場合</a></h3>
 
 <table class="pre"><tr><td><pre lang="text">cd src
 xbuild fsharp-proto-build.proj
@@ -129,7 +130,7 @@ xbuild fsharp-compiler-build.proj</pre></td></tr></table>
 (src/fsharp/targets.make を参照)、個人的な使用にとどめ、
 公開用のビルドには使用してはいけません。</p>
 
-<h2>厳密名</h2>
+<h2><a name="厳密名" class="anchor" href="#厳密名">厳密名</a></h2>
 
 <p>生成されたFSharp.Core.dllには遅延署名だけが行われます
 (Monoでは厳密名が必須ではありません)。
@@ -137,7 +138,7 @@ xbuild fsharp-compiler-build.proj</pre></td></tr></table>
 
 <table class="pre"><tr><td><pre lang="text">lib\bootstrap\signed\3.0\v4.0\FSharp.Core.dll</pre></td></tr></table>
 
-<h2>生成されるファイル</h2>
+<h2><a name="生成されるファイル" class="anchor" href="#生成されるファイル">生成されるファイル</a></h2>
 
 <p>ビルドが完了すると、メインのコンパイラバイナリは以下の場所に生成されます:</p>
 
@@ -176,9 +177,9 @@ Microsoft.FSharp.Targetsファイル内における正式名です)</p>
 <table class="pre"><tr><td><pre lang="text">/usr/bin/fsharpc   (F# コンパイラ)
 /usr/bin/fsharpi   (F# Interactive)</pre></td></tr></table>
 
-<h2>開発者用メモ</h2>
+<h2><a name="開発者用メモ" class="anchor" href="#開発者用メモ">開発者用メモ</a></h2>
 
-<h3>継続的インテグレーションビルド</h3>
+<h3><a name="継続的インテグレーションビルド" class="anchor" href="#継続的インテグレーションビルド">継続的インテグレーションビルド</a></h3>
 
 <p>このプロジェクトはJetBrains/Teamcityサーバー上において、
 F#コミュニティプロジェクトの一部として継続的インテグレーション
@@ -192,7 +193,7 @@ Windows用に 'cd src; msbuild fsharp-build.proj' のビルドが行われてい
 ビルドされたバイナリは保存されておらず、
 単にサニティチェックだけが対象になっています。</p>
 
-<h3>Visual StudioまたはMonoDevelop上でコンパイラを編集する</h3>
+<h3><a name="Visual-StudioまたはMonoDevelop上でコンパイラを編集する" class="anchor" href="#Visual-StudioまたはMonoDevelop上でコンパイラを編集する">Visual StudioまたはMonoDevelop上でコンパイラを編集する</a></h3>
 
 <p><code>all-vs2012.sln</code> を開いてモードをDebugまたはReleaseに設定します。
 コンパイラはコンパイル中でも気を利かせてワークフローに若干介入することがあるため、
@@ -204,7 +205,7 @@ Windows用に 'cd src; msbuild fsharp-build.proj' のビルドが行われてい
 Mac上ではこれが原因でガベージコレクションを止めることがあり、
 MonoDevelop上でのコンパイラの編集がしづらくなる場合があります。</p>
 
-<h3>.NET 4.x用にF# Coreの単体テストをビルドする(省略可)</h3>
+<h3><a name="NET-4-x用にF-Coreの単体テストをビルドする-省略可" class="anchor" href="#NET-4-x用にF-Coreの単体テストをビルドする-省略可">.NET 4.x用にF# Coreの単体テストをビルドする(省略可)</a></h3>
 
 <p>このプロジェクトでは、 <code>FSharp.Core.dll</code> や <code>FSharp.Compiler.dll</code> の一部を
 チェックする単体テストをビルドするためにprotoコンパイラを使用しています。
@@ -214,7 +215,7 @@ MonoDevelop上でのコンパイラの編集がしづらくなる場合があり
 
 <p><em>注意: 単体テストをビルドする場合、NUnitをインストールしておく必要があります。</em></p>
 
-<h3>検証および使用方法</h3>
+<h3><a name="検証および使用方法" class="anchor" href="#検証および使用方法">検証および使用方法</a></h3>
 
 <p>ビルドされたバイナリを簡単に検証するには、以下のようにして <code>fsi.exe</code>
 (F# Interactive) を起動してみるとよいでしょう:</p>
@@ -228,7 +229,7 @@ echo printfn &quot;hello world&quot; &gt; hello.fs
 lib\debug\4.0\fsc.exe hello.fs
 hello.exe</pre></td></tr></table>
 
-<h3>(Windows上で)コンパイラのテストを実行する</h3>
+<h3><a name="Windows上で-コンパイラのテストを実行する" class="anchor" href="#Windows上で-コンパイラのテストを実行する">(Windows上で)コンパイラのテストを実行する</a></h3>
 
 <p><code>tests\fsharp\core</code> 以下には言語機能のテストがあります。
 テスト機構は素朴なもので、残念なことにバッチファイルを使用しています。
@@ -255,7 +256,7 @@ tests\fsharp\core\queriesOverIEnumerable
 <p>この場合、関連するディレクトリに移動した後、
 <code>build.bat</code> および <code>run.bat</code> を実行します。</p>
 
-<h2>歴史</h2>
+<h2><a name="歴史" class="anchor" href="#歴史">歴史</a></h2>
 
 <p>Microsoftから公開されたF#コンパイラのソースは
 <a href="http://fsharppowerpack.codeplex.com">fsharppowerpack.codeplex.com</a> にあります。</p>
@@ -272,7 +273,11 @@ tests\fsharp\core\queriesOverIEnumerable
             <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Compiler Services</li>
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
             <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>

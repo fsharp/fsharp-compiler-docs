@@ -1275,19 +1275,24 @@ type CapturedNameResolution(p:pos, i:Item, io:ItemOccurence, de:DisplayEnv, nre:
         sprintf "%A: %+A" (p.Line, p.Column) i
 
 /// Represents container for all name resolutions that were met so far when typechecking some particular file
-/// Has reference to the container for the previous file so at some point we can access results of all name resolution that happen before
 type TcResolutions
-    (g,
-     capturedEnvs : ResizeArray<range * NameResolutionEnv * AccessorDomain>,
+    (capturedEnvs : ResizeArray<range * NameResolutionEnv * AccessorDomain>,
      capturedExprTypes : ResizeArray<pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range>,
      capturedNameResolutions : ResizeArray<CapturedNameResolution>,
-     capturedMethodGroupResolutions : ResizeArray<CapturedNameResolution>
-    ) = 
+     capturedMethodGroupResolutions : ResizeArray<CapturedNameResolution>) = 
 
+    static let empty = TcResolutions(ResizeArray(0),ResizeArray(0),ResizeArray(0),ResizeArray(0))
+    
     member this.CapturedEnvs = capturedEnvs
     member this.CapturedExpressionTypings = capturedExprTypes
     member this.CapturedNameResolutions = capturedNameResolutions
     member this.CapturedMethodGroupResolutions = capturedMethodGroupResolutions
+
+    static member Empty = empty
+
+
+/// Represents container for all name resolutions that were met so far when typechecking some particular file
+type TcSymbolUses(g,capturedNameResolutions : ResizeArray<CapturedNameResolution>) = 
 
     member this.GetUsesOfSymbol(item) = 
         [| for cnr in capturedNameResolutions do
@@ -1300,17 +1305,23 @@ type TcResolutions
 
 /// An accumulator for the results being emitted into the tcSink.
 type TcResultsSinkImpl(g) =
-    let capturedEnvs = new ResizeArray<_>(100)
-    let capturedExprTypings = new ResizeArray<_>(100)
-    let capturedNameResolutions = new ResizeArray<_>(100)
+    let capturedEnvs = ResizeArray<_>()
+    let capturedExprTypings = ResizeArray<_>()
+    let capturedNameResolutions = ResizeArray<_>()
     let capturedNameResolutionIdentifiers = 
         new System.Collections.Generic.Dictionary<pos * string, unit>
             ( { new IEqualityComparer<_> with 
                     member __.GetHashCode((p:pos,i)) = p.Line + 101 * p.Column + hash i
                     member __.Equals((p1,i1),(p2,i2)) = posEq p1 p2 && i1 =  i2 } )
-    let capturedMethodGroupResolutions = new ResizeArray<_>(100)
+    let capturedMethodGroupResolutions = ResizeArray<_>()
     let allowedRange (m:range) = not m.IsSynthetic       
-    member this.GetTcResolutions() = TcResolutions(g, capturedEnvs, capturedExprTypings, capturedNameResolutions, capturedMethodGroupResolutions)
+
+    member this.GetResolutions() = 
+        TcResolutions(capturedEnvs, capturedExprTypings, capturedNameResolutions, capturedMethodGroupResolutions)
+
+    member this.GetSymbolUses() = 
+        TcSymbolUses(g, capturedNameResolutions)
+
     interface ITypecheckResultsSink with
         member sink.NotifyEnvWithScope(m,nenv,ad) = 
             if allowedRange m then 

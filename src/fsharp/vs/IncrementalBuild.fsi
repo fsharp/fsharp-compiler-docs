@@ -57,6 +57,7 @@ module internal IncrementalFSharpBuild =
         TcEnvAtEnd : TypeChecker.TcEnv 
         Errors : (PhasedError * FSharpErrorSeverity) list 
         TcResolutions: Nameres.TcResolutions list 
+        TcSymbolUses: Nameres.TcSymbolUses list 
         TimeStamp: DateTime }
 
   [<Class>]
@@ -144,7 +145,7 @@ module internal IncrementalFSharpBuild =
       /// This may be a marginally long-running operation (parses are relatively quick, only one file needs to be parsed)
       member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * FSharpErrorSeverity) list
 
-      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool * keepAssemblyContents: bool -> IncrementalBuilder option * FSharpErrorInfo list
+      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool * keepAssemblyContents: bool * keepAllBackgroundResolutions: bool -> IncrementalBuilder option * FSharpErrorInfo list 
 
 [<Obsolete("This type has been renamed to FSharpErrorInfo")>]
 /// Renamed to FSharpErrorInfo

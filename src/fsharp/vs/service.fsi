@@ -405,7 +405,9 @@ type FSharpChecker =
     ///
     /// <param name="projectCacheSize">The optional size of the project checking cache.</param>
     /// <param name="keepAssemblyContents">Keep the checked contents of projects.</param>
-    static member Create : ?projectCacheSize: int * ?keepAssemblyContents: bool -> FSharpChecker
+    /// <param name="keepAllBackgroundResolutions">If false, do not keep full intermediate checking results from background checking suitable for returning from GetBackgroundCheckResultsForFileInProject. This reduces memory usage.</param>
+    static member Create : ?projectCacheSize: int * ?keepAssemblyContents: bool * ?keepAllBackgroundResolutions: bool -> FSharpChecker
+
     /// Create an instance of an FSharpChecker.
     static member Create : unit -> FSharpChecker
 

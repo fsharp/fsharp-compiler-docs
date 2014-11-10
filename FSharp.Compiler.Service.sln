@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{83FEE492-6701-4E59-9184-16B1D30E91F8}"
 	ProjectSection(SolutionItems) = preProject
 		docs\content\caches.fsx = docs\content\caches.fsx
+		docs\content\corelib.fsx = docs\content\corelib.fsx
 		docs\content\devnotes.md = docs\content\devnotes.md
 		docs\content\editor.fsx = docs\content\editor.fsx
 		docs\content\filesystem.fsx = docs\content\filesystem.fsx

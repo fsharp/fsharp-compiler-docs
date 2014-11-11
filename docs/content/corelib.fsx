@@ -22,7 +22,7 @@ Binding redirects for your application
 The FSharp.Compiler.Service.dll component depends on FSharp.Core 4.3.0.0.  Normally your application will target
 a later version of FSharp.Core, and you will need a [binding redirect](http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.110).aspx) to ensure
 that FSharp.Core 4.3.0.0 forwards to which the final version of FSharp.Core.dll your application uses.
-Binding redirect files are normally generated automatically by build tooling. If not, you can use one like this
+Binding redirect files are normally generated automatically by build tools. If not, you can use one like this
 (if your tool is called ``HostedCompiler.exe``, the binding redirect file is called ``HostedCompiler.exe.config``)
 
     <?xml version="1.0" encoding="utf-8" ?>
@@ -47,10 +47,18 @@ assemblies in the command line arguments (different to the FSharp.Core and a .NE
 To target a specific FSharp.Core and/or .NET Framework assemblies, use the ``--noframework`` argument
 and the appropriate command-line arguments:
 
+    [<Literal>]
+    let fsharpCorePath = 
+        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.1.0\FSharp.Core.dll"
     let errors2, exitCode2 = 
-        scs.Compile([| "fsc.exe"; "--noframework"; "-r"; @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.1.0\FSharp.Core.dll"; "-r"; @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll"; "-o"; fn3; "-a"; fn2 |])
+      scs.Compile(
+        [| "fsc.exe"; "--noframework"; 
+           "-r"; fsharpCorePath; 
+           "-r"; @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll"; 
+           "-o"; fn3; 
+           "-a"; fn2 |])
 
-You will need to determine the location of these assemblies.  The easiest ways to locate these DLLs in a cross-platform way and
+You will need to determine the location of these assemblies.  The easiest way to locate these DLLs in a cross-platform way and
 convert them to command-line arguments is to [crack an F# project file](http://fsharp.github.io/FSharp.Compiler.Service/project.html).  
 Alternatively you can compute SDK paths yourself, and some helpers to do this are in [the tests for FSharp.Compiler.Service.dll](https://github.com/fsharp/FSharp.Compiler.Service/blob/8a943dd3b545648690cb3bed652a469bdb6dd869/tests/service/Common.fs#L54).
 
@@ -66,8 +74,8 @@ arguments are always making an explicit reference, then you should _not_ include
 If you do _not_ explicitly reference an FSharp.Core.dll from an SDK location, then an implicit reference will be made
 to which ever version of FSharp.Core.dll your tool is running.  This means your tool will almost certainly implicitly reference the FSharp.Core.dll
 that is part of your application.  In this case, you may either get an error that FSharp.Core.optdata and FSharp.Core.sigdata are not
-found alongside FSharp.Core.dll.  If you want to implicitly reference the FSharp.Core.dll you are including in your application,
-then also add FSharp.Core.sigdata and FSharp.Core.optdata as two additional files to your application.  When using CompileToDynamicAssembly, this problem
+found alongside FSharp.Core.dll.  **If you want to implicitly reference the FSharp.Core.dll you are including in your application,
+then also add FSharp.Core.sigdata and FSharp.Core.optdata as two additional files to your application**.  When using ``CompileToDynamicAssembly``, this problem
 can also manifest itself as [a stack overflow during assembly resolution](https://github.com/fsharp/FSharp.Compiler.Service/issues/258).
 
 Tools that dynamically compile and execute code (e.g. a ``HostedExecution.exe``) often make an implicit 
@@ -76,10 +84,10 @@ reference to FSharp.Core.dll, which means they normally also include FSharp.Core
 Summary
 -------
 
-In this design note we've discussed three things
+In this design note we have discussed three things:
 
-- which FSharp.Core.dll is used to run your compilation tool
-- how  to configure binding redirects for the FSharp.Core.dll used to run your compilation tool
-- which FSharp.Core.dll and/or framework assemblies are  referenced during the checking and compilations performed by your tool.
+- which FSharp.Core.dll is used to run your compilation tools
+- how  to configure binding redirects for the FSharp.Core.dll used to run your compilation tools
+- which FSharp.Core.dll and/or framework assemblies are  referenced during the checking and compilations performed by your tools.
 
 *)

@@ -224,5 +224,17 @@ let ``Project file parsing -- project references``() =
   fst options.ReferencedProjects.[0] |> should endWith "Test1.fsproj"
   snd options.ReferencedProjects.[0] |> should equal (checker.GetProjectOptionsFromProjectFile(f1))
 
+[<Test>]
+let ``Project file parsing -- multi language project``() =
+  let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/MultiLanguageProject/ConsoleApplication1.fsproj")
+
+  let options = checker.GetProjectOptionsFromProjectFile(f)
+
+  options.ReferencedProjects |> should haveLength 1
+  options.ReferencedProjects.[0] |> fst |> should endWith "ConsoleApplication2.fsproj"
+
+  checkOption options.OtherOptions "ConsoleApplication2.exe"
+  checkOption options.OtherOptions "ConsoleApplication3.exe"
+
 #endif
 

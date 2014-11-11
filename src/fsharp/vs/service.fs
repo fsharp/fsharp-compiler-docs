@@ -2812,7 +2812,8 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         let projectOptions = ic.GetProjectOptionsFromCommandLineArgs(projectFileName, args, ?loadedTimeStamp=loadedTimeStamp)
         let referencedProjectOptions =
           [| for file in parsedProject.ProjectReferences do
-               yield file, ic.GetProjectOptionsFromProjectFile(file, ?properties=properties, ?loadedTimeStamp=loadedTimeStamp) |]
+                 if Path.GetExtension(file) = ".fsproj" then
+                     yield file, ic.GetProjectOptionsFromProjectFile(file, ?properties=properties, ?loadedTimeStamp=loadedTimeStamp) |]
 
         { projectOptions
           with ReferencedProjects = referencedProjectOptions }

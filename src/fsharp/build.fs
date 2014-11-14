@@ -2447,7 +2447,7 @@ type AssemblyResolution =
                 | Some aref -> aref
                 | None -> 
                     let readerSettings : ILBinaryReader.ILReaderOptions = {pdbPath=None;ilGlobals = EcmaILGlobals;optimizeForMemory=false} // ??
-                    let reader = ILBinaryReader.OpenILModuleReader this.resolvedPath readerSettings
+                    let reader = ILBinaryReader.OpenILModuleReaderAfterReadingAllBytes this.resolvedPath readerSettings
                     try
                         mkRefToILAssembly reader.ILModuleDef.ManifestOfAssembly
                     finally 
@@ -2874,7 +2874,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
                     else 
                         try
                             let readerSettings : ILBinaryReader.ILReaderOptions = {pdbPath=None;ilGlobals = EcmaILGlobals;optimizeForMemory=false}
-                            let reader = ILBinaryReader.OpenILModuleReader resolved readerSettings
+                            let reader = ILBinaryReader.OpenILModuleReaderAfterReadingAllBytes resolved readerSettings
                             try
                                 let assRef = mkRefToILAssembly reader.ILModuleDef.ManifestOfAssembly
                                 assRef.QualifiedName

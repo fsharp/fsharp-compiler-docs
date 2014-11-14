@@ -3975,7 +3975,7 @@ let OpenILModuleReader infile opts =
           dispose = (fun () -> 
             mmap.Close();
             ClosePdbReader pdb) }
-    with :? System.DllNotFoundException ->
+    with _ ->
 #endif
         let mc = ByteFile.OpenIn infile
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader infile mc opts

@@ -1,3 +1,7 @@
+#### 0.0.79 - 
+* Do not use memory mapped files when cracking a DLL to get an assembly reference
+* Fix for multilanguage projects in project cracker
+
 #### 0.0.78 - 
 * Reduce background checker memory usage
 * add docs on FSharp.Core

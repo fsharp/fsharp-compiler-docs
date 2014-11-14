@@ -48,7 +48,7 @@ let newInfo ()=
     addZeros       = false;
     precision      = false}
 
-let ParseFormatString m g fmt bty cty dty = 
+let ParseFormatString (m:Range.range) g report fmt bty cty dty = 
     let len = String.length fmt
 
     let rec parseLoop acc i = 
@@ -68,6 +68,7 @@ let ParseFormatString m g fmt bty cty dty =
           let c = fmt.[i]
           match c with
           | '%' ->
+              let start = i
               let i = i+1 
               if i >= len then failwithf "%s" <| FSComp.SR.forMissingFormatSpecifier()
               let info = newInfo()
@@ -162,12 +163,18 @@ let ParseFormatString m g fmt bty cty dty =
                   checkNoZeroFlag c; 
                   checkNoNumericPrefix c
 
+              let reportLocation i = 
+                  report (Range.mkFileIndexRange m.FileIndex (Range.mkPos m.StartLine (m.StartColumn + start)) ((Range.mkPos m.StartLine (m.StartColumn + i + 1))))
+
+
               let ch = fmt.[i]
               match ch with
-              | '%' -> parseLoop acc (i+1) 
+              | '%' -> 
+                  parseLoop acc (i+1) 
 
               | ('d' | 'i' | 'o' | 'u' | 'x' | 'X') ->
                   if info.precision then failwithf "%s" <| FSComp.SR.forFormatDoesntSupportPrecision(ch.ToString());
+                  reportLocation i
                   parseLoop ((posi, mkFlexibleIntFormatTypar g m) :: acc) (i+1)
 
               | ('l' | 'L') ->
@@ -181,6 +188,7 @@ let ParseFormatString m g fmt bty cty dty =
                   failwithf "%s" <| FSComp.SR.forLIsUnnecessary()
                   match fmt.[i] with
                   | ('d' | 'i' | 'o' | 'u' | 'x' | 'X') -> 
+                      reportLocation i
                       parseLoop ((posi, mkFlexibleIntFormatTypar g m) :: acc)  (i+1)
                   | _ -> failwithf "%s" <| FSComp.SR.forBadFormatSpecifier()
 
@@ -188,6 +196,7 @@ let ParseFormatString m g fmt bty cty dty =
                   failwithf "%s" <| FSComp.SR.forHIsUnnecessary()
 
               | 'M' -> 
+                  reportLocation i
                   parseLoop ((posi, g.decimal_ty) :: acc) (i+1)
 
               | ('f' | 'F' | 'e' | 'E' | 'g' | 'G') ->  

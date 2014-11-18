@@ -231,11 +231,14 @@ type PdbData =
 #if SILVERLIGHT
 #else
 let WritePdbInfo fixupOverlappingSequencePoints showTimes f fpdb info = 
-    (try FileSystem.FileDelete fpdb with _ -> ());
+    let pdbf =
+        try
+            FileSystem.FileStreamCreateShim fpdb
+        with _ -> error (Error(FSComp.SR.ilwriteErrorCreatingPdb(fpdb), rangeCmdArgs))
     let pdbw = ref Unchecked.defaultof<PdbWriter>
     
     try
-        pdbw := pdbInitialize f fpdb
+        pdbw := pdbInitialize f fpdb pdbf
     with _ -> error(Error(FSComp.SR.ilwriteErrorCreatingPdb(fpdb), rangeCmdArgs))
 
     match info.EntryPoint with 

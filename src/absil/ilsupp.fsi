@@ -11,13 +11,14 @@ module internal Microsoft.FSharp.Compiler.AbstractIL.Internal.Support
 type PdbReader
 type PdbWriter
 val pdbReadClose: PdbReader -> unit
-val pdbInitialize : string -> string -> PdbWriter
+val pdbInitialize : string -> string -> System.IO.Stream -> PdbWriter
 val absilWriteGetTimeStamp: unit -> int32
 
 
 #if SILVERLIGHT
 #else
 open System
+open System.IO
 open System.Runtime.InteropServices
 open System.Diagnostics.SymbolStore
 open Internal.Utilities
@@ -96,6 +97,7 @@ type idd =
 val pdbInitialize: 
     string (* .exe/.dll already written and closed *) -> 
     string  (* .pdb to write *) ->
+    Stream (* stream to write to *) ->
     PdbWriter
 val pdbClose: PdbWriter -> unit
 val pdbCloseDocument : PdbDocumentWriter -> unit

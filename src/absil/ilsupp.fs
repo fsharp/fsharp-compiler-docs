@@ -1024,7 +1024,39 @@ type idd =
       iddType: int32;
       iddData: byte[];}
 
-let pdbInitialize (binaryName:string) (pdbName:string) =
+let comWrap (stream:Stream) =
+    let ofNativeInt = Microsoft.FSharp.NativeInterop.NativePtr.ofNativeInt
+    let write = Microsoft.FSharp.NativeInterop.NativePtr.write
+
+    { new IStream with
+      member s.Commit grfCommitFlags = stream.Flush ()
+      member s.Read (pv, cb, pcbRead) =
+        let bytesRead = stream.Read (pv, 0, cb)
+        if not (pcbRead = 0n) then
+            let ptr = pcbRead |> ofNativeInt
+            write ptr bytesRead
+      member s.Seek (dlibMove, origin, plibNewPosition) =
+        let newPosition = stream.Seek (dlibMove, origin |> enum)
+        if not (plibNewPosition = 0n) then
+            let ptr = plibNewPosition |> ofNativeInt
+            write ptr newPosition
+      member s.SetSize (libNewSize) = stream.SetLength libNewSize
+      member s.Stat (psatstg, grfStatFlag) =
+        let mutable tmp = new ComTypes.STATSTG ()
+        tmp.cbSize <- stream.Length
+        psatstg <- tmp
+      member s.Write (pv, cb, pcbWritten) =
+        stream.Write (pv, 0, cb)
+        if not (pcbWritten = 0n) then
+            let ptr = pcbWritten |> ofNativeInt
+            write ptr cb
+      member s.Clone (_) = raise (new NotSupportedException ())
+      member s.CopyTo (_, _, _, _) = raise (new NotSupportedException ())
+      member s.LockRegion (_, _, _) = raise (new NotSupportedException ())
+      member s.Revert () = raise (new NotSupportedException ())
+      member s.UnlockRegion (_, _, _) = raise (new NotSupportedException ()) }
+
+let pdbInitialize (binaryName:string) (pdbName:string) (stream:Stream) =
     // collect necessary COM types
     let CorMetaDataDispenser = System.Type.GetTypeFromProgID("CLRMetaData.CorMetaDataDispenser")
   
@@ -1036,8 +1068,9 @@ let pdbInitialize (binaryName:string) (pdbName:string) =
     let emitterPtr = Marshal.GetComInterfaceForObject(o, typeof<IMetadataEmit>)
     let writer = 
         try 
+            let stream = stream |> comWrap
             let writer = Activator.CreateInstance(System.Type.GetTypeFromProgID("CorSymWriter_SxS")) :?> ISymUnmanagedWriter2
-            writer.Initialize(emitterPtr, pdbName, Unchecked.defaultof<IStream>, true)
+            writer.Initialize(emitterPtr, pdbName, stream, true)
             writer
         finally  
             // Marshal.GetComInterfaceForObject adds an extra ref for emitterPtr

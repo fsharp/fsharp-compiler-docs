@@ -50,6 +50,7 @@ let newInfo ()=
 
 let ParseFormatString (m: Range.range) g (source: string option) report fmt bty cty dty = 
     let len = String.length fmt
+
     let sourcePositions =
         lazy(source
              |> Option.map (fun content ->
@@ -59,6 +60,26 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                  |> Seq.scan (+) 0
                  |> Seq.toArray)
              |> fun arg -> defaultArg arg [||])
+
+    // Offset to adjust ranges depending on whether input string is regular, verbatim or triple-quote
+    let offset = 
+       lazy(if m.StartLine = m.EndLine then
+                // The offset can only be 1 ("), 2 (@") or 3(""")
+                min (max (m.EndColumn - m.StartColumn - len - 1) 1) 3
+            else
+                match source with
+                | Some source ->
+                    let positions = sourcePositions.Value
+                    let length = source.Length
+                    if m.StartLine < positions.Length then
+                        let startIndex = positions.[m.StartLine-1] + m.StartColumn
+                        if startIndex <= length-3 && source.[startIndex..startIndex+2] = "\"\"\"" then
+                            3
+                        elif startIndex <= length-2 && source.[startIndex..startIndex+1] = "@\"" then
+                            2
+                        else 1
+                    else 1
+                | None -> 1)
 
     let rec parseLoop acc (i, relLine, relCol) = 
        if i >= len then
@@ -151,17 +172,23 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                       if p = None then None, i else p, i'
                   | _ -> None, i
 
-              let oldI = i
-              let posi, i = position i
-              let relCol = relCol + i - oldI
+              let posi, i, relCol =
+                  let oldI = i
+                  let posi, i = position i
+                  let relCol = relCol + i - oldI
+                  posi, i, relCol
 
-              let oldI = i
-              let i = flags i 
-              let relCol = relCol + i - oldI
+              let i, relCol =
+                  let oldI = i
+                  let i = flags i 
+                  let relCol = relCol + i - oldI
+                  i, relCol
 
-              let oldI = i
-              let widthArg,(precisionArg,i) = widthAndPrecision i 
-              let relCol = relCol + i - oldI
+              let widthArg, precisionArg, i, relCol =
+                  let oldI = i
+                  let widthArg,(precisionArg,i) = widthAndPrecision i 
+                  let relCol = relCol + i - oldI
+                  widthArg, precisionArg, i, relCol
 
               if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision();
 
@@ -179,36 +206,16 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   checkNoZeroFlag c; 
                   checkNoNumericPrefix c
 
-              // Offset to adjust ranges depending on whether input string is regular, verbatim or triple-quote strings
-              let offset = 
-                  if m.StartLine = m.EndLine then
-                      // The offset can only be 1 ("), 2 (@") or 3(""")
-                      min (max (m.EndColumn - m.StartColumn - len - 1) 1) 3
-                  else
-                      match source with
-                      | Some source ->
-                          let positions = sourcePositions.Value
-                          let length = source.Length
-                          if m.StartLine < positions.Length then
-                              let startIndex = positions.[m.StartLine-1] + m.StartColumn
-                              if startIndex <= length-3 && source.[startIndex..startIndex+2] = "\"\"\"" then
-                                  3
-                              elif startIndex <= length-2 && source.[startIndex..startIndex+1] = "@\"" then
-                                  2
-                              else 1
-                          else 1
-                      | None -> 1
-
               let reportLocation relLine relCol = 
                   match relLine with
                   | 0 ->
                       report (Range.mkFileIndexRange m.FileIndex 
-                                (Range.mkPos m.StartLine (startCol + offset)) 
-                                ((Range.mkPos m.StartLine (relCol + offset))))
+                                (Range.mkPos m.StartLine (startCol + offset.Value)) 
+                                (Range.mkPos m.StartLine (relCol + offset.Value)))
                   | _ ->
                       report (Range.mkFileIndexRange m.FileIndex 
                                 (Range.mkPos (m.StartLine + relLine) startCol) 
-                                ((Range.mkPos (m.StartLine + relLine) relCol)))
+                                (Range.mkPos (m.StartLine + relLine) relCol))
 
               let ch = fmt.[i]
               match ch with

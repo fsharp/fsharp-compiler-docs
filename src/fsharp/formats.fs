@@ -40,13 +40,13 @@ type FormatInfoRegister =
   { mutable leftJustify    : bool; 
     mutable numPrefixIfPos : char option;
     mutable addZeros       : bool;
-    mutable precision      : bool}
+    mutable precision      : bool }
 
 let newInfo ()= 
   { leftJustify    = false;
     numPrefixIfPos = None;
     addZeros       = false;
-    precision      = false}
+    precision      = false }
 
 let ParseFormatString (m:Range.range) g report fmt bty cty dty = 
     let len = String.length fmt
@@ -149,9 +149,9 @@ let ParseFormatString (m:Range.range) g report fmt bty cty dty =
 
               if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision();
 
-              let acc = if precisionArg then (Option.map ((+)1) posi, g.int_ty) :: acc else acc 
+              let acc = if precisionArg then (Option.map ((+) 1) posi, g.int_ty) :: acc else acc 
 
-              let acc = if widthArg then (Option.map ((+)1) posi, g.int_ty) :: acc else acc 
+              let acc = if widthArg then (Option.map ((+) 1) posi, g.int_ty) :: acc else acc 
 
               let checkNoPrecision     c = if info.precision then failwithf "%s" <| FSComp.SR.forFormatDoesntSupportPrecision(c.ToString())
               let checkNoZeroFlag      c = if info.addZeros then failwithf "%s" <| FSComp.SR.forDoesNotSupportZeroFlag(c.ToString())
@@ -163,9 +163,15 @@ let ParseFormatString (m:Range.range) g report fmt bty cty dty =
                   checkNoZeroFlag c; 
                   checkNoNumericPrefix c
 
-              let reportLocation i = 
-                  report (Range.mkFileIndexRange m.FileIndex (Range.mkPos m.StartLine (m.StartColumn + start)) ((Range.mkPos m.StartLine (m.StartColumn + i + 1))))
+              let offset = 
+                  if m.StartLine = m.EndLine then
+                     // The offset can only be 1 ("), 2 (@") or 3(""")
+                     min (max (m.EndColumn - m.StartColumn - len - 1) 1) 3
+                  else 1
 
+              printfn "fmt: %A with offset: %i" fmt offset
+              let reportLocation i = 
+                  report (Range.mkFileIndexRange m.FileIndex (Range.mkPos m.StartLine (m.StartColumn + start + offset)) ((Range.mkPos m.StartLine (m.StartColumn + i + offset))))
 
               let ch = fmt.[i]
               match ch with
@@ -199,39 +205,48 @@ let ParseFormatString (m:Range.range) g report fmt bty cty dty =
                   reportLocation i
                   parseLoop ((posi, g.decimal_ty) :: acc) (i+1)
 
-              | ('f' | 'F' | 'e' | 'E' | 'g' | 'G') ->  
+              | ('f' | 'F' | 'e' | 'E' | 'g' | 'G') ->
+                  reportLocation i  
                   parseLoop ((posi, mkFlexibleFloatFormatTypar g m) :: acc) (i+1)
 
               | 'b' ->
                   checkOtherFlags ch;
+                  reportLocation i
                   parseLoop ((posi, g.bool_ty)  :: acc) (i+1)
 
               | 'c' ->
                   checkOtherFlags ch;
+                  reportLocation i
                   parseLoop ((posi, g.char_ty)  :: acc) (i+1)
 
               | 's' ->
                   checkOtherFlags ch;
+                  reportLocation i
                   parseLoop ((posi, g.string_ty)  :: acc) (i+1)
 
               | 'O' ->
                   checkOtherFlags ch;
-                  parseLoop ((posi, NewInferenceType ()) :: acc)  (i+1)
+                  reportLocation i
+                  parseLoop ((posi, NewInferenceType ()) :: acc) (i+1)
 
               | 'A' ->
                   match info.numPrefixIfPos with
                   | None     // %A has BindingFlags=Public, %+A has BindingFlags=Public | NonPublic
-                  | Some '+' -> parseLoop ((posi, NewInferenceType ()) :: acc)  (i+1)
+                  | Some '+' -> 
+                      reportLocation i
+                      parseLoop ((posi, NewInferenceType ()) :: acc)  (i+1)
                   | Some _   -> failwithf "%s" <| FSComp.SR.forDoesNotSupportPrefixFlag(ch.ToString(), (Option.get info.numPrefixIfPos).ToString())
 
               | 'a' ->
                   checkOtherFlags ch;
                   let xty = NewInferenceType () 
                   let fty = bty --> (xty --> cty)
-                  parseLoop ((Option.map ((+)1) posi, xty) ::  (posi, fty) :: acc) (i+1)
+                  reportLocation i
+                  parseLoop ((Option.map ((+) 1) posi, xty) ::  (posi, fty) :: acc) (i+1)
 
               | 't' ->
                   checkOtherFlags ch;
+                  reportLocation i
                   parseLoop ((posi, bty --> cty) :: acc)  (i+1)
 
               | c -> failwithf "%s" <| FSComp.SR.forBadFormatSpecifierGeneral(String.make 1 c) 

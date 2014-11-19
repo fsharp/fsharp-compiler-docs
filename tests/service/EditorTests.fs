@@ -323,4 +323,67 @@ type Test() =
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some untyped, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     decls|> Seq .exists (fun d -> d.Head.DisplayName = "abc") |> shouldEqual true
+
+[<Test>]
+let ``Printf specifiers for regular and verbatim strings`` () = 
+    let input = 
+      """
+let _ = Microsoft.FSharp.Core.Printf.printf "%A" 0
+let _ = Printf.printf "%A" 0
+let _ = Printf.kprintf (fun _ -> ()) "%A" 1
+let _ = Printf.bprintf null "%A" 1
+let _ = sprintf "%*d" 1
+let _ = sprintf "%7.1f" 1.0
+let _ = sprintf "%-8.1e+567" 1.0
+let _ = sprintf @"%-5s" "value"
+let _ = printfn @"%-A" -10
+"""
+
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+
+    typeCheckResults.Errors |> shouldEqual [||]
+    typeCheckResults.GetFormatSpecifierLocations() 
+    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
+    |> shouldEqual [|(2, 45, 2, 46); 
+                     (3, 23, 3, 24); 
+                     (4, 38, 4, 39); 
+                     (5, 29, 5, 30); 
+                     (6, 17, 6, 19);
+                     (7, 17, 7, 21); 
+                     (8, 17, 8, 22);
+                     (9, 18, 9, 21); 
+                     (10, 18, 10, 20)|]
+
+[<Test>]
+let ``Printf specifiers for triple-quote strings`` () = 
+    let input = 
+      "
+let _ = sprintf \"\"\"%-A\"\"\" -10
+"
+
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+
+    typeCheckResults.Errors |> shouldEqual [||]
+    typeCheckResults.GetFormatSpecifierLocations() 
+    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
+    |> shouldEqual [|(2, 19, 2, 21)|]
+ 
+[<Test>]
+let ``Printf specifiers for user-defined functions`` () = 
+    let input = 
+      """
+let debug msg = Printf.kprintf System.Diagnostics.Debug.WriteLine msg
+let _ = debug "Message: %i - %O" 1 "Ok"
+"""
+
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+
+    typeCheckResults.Errors |> shouldEqual [||]
+    typeCheckResults.GetFormatSpecifierLocations() 
+    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
+    |> shouldEqual [|(3, 24, 3, 25); 
+                     (3, 29, 3, 30)|]
  

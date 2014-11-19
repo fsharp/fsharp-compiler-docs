@@ -1797,7 +1797,7 @@ type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo 
         threadSafeOp 
            (fun () -> [| |]) 
            (fun (scope, _builder, _reactor) -> 
-            // This operation is not asynchronous - GetExtraColorizations can be run on the calling thread
+            // This operation is not asynchronous - GetFormatSpecifierLocations can be run on the calling thread
             scope.GetFormatSpecifierLocations())
 
     member info.GetExtraColorizationsAlternate() = 

@@ -40,13 +40,13 @@ type FormatInfoRegister =
   { mutable leftJustify    : bool; 
     mutable numPrefixIfPos : char option;
     mutable addZeros       : bool;
-    mutable precision      : bool }
+    mutable precision      : bool}
 
 let newInfo ()= 
   { leftJustify    = false;
     numPrefixIfPos = None;
     addZeros       = false;
-    precision      = false }
+    precision      = false}
 
 let ParseFormatString (m: Range.range) g (source: string option) report fmt bty cty dty = 
     let len = String.length fmt
@@ -171,30 +171,24 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                       let p, i' = digitsPosition (int c - int '0') (i+1)
                       if p = None then None, i else p, i'
                   | _ -> None, i
+              
+              let oldI = i
+              let posi, i = position i
+              let relCol = relCol + i - oldI
 
-              let posi, i, relCol =
-                  let oldI = i
-                  let posi, i = position i
-                  let relCol = relCol + i - oldI
-                  posi, i, relCol
+              let oldI = i
+              let i = flags i 
+              let relCol = relCol + i - oldI
 
-              let i, relCol =
-                  let oldI = i
-                  let i = flags i 
-                  let relCol = relCol + i - oldI
-                  i, relCol
-
-              let widthArg, precisionArg, i, relCol =
-                  let oldI = i
-                  let widthArg,(precisionArg,i) = widthAndPrecision i 
-                  let relCol = relCol + i - oldI
-                  widthArg, precisionArg, i, relCol
+              let oldI = i
+              let widthArg,(precisionArg,i) = widthAndPrecision i 
+              let relCol = relCol + i - oldI
 
               if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision();
 
-              let acc = if precisionArg then (Option.map ((+) 1) posi, g.int_ty) :: acc else acc 
+              let acc = if precisionArg then (Option.map ((+)1) posi, g.int_ty) :: acc else acc 
 
-              let acc = if widthArg then (Option.map ((+) 1) posi, g.int_ty) :: acc else acc 
+              let acc = if widthArg then (Option.map ((+)1) posi, g.int_ty) :: acc else acc 
 
               let checkNoPrecision     c = if info.precision then failwithf "%s" <| FSComp.SR.forFormatDoesntSupportPrecision(c.ToString())
               let checkNoZeroFlag      c = if info.addZeros then failwithf "%s" <| FSComp.SR.forDoesNotSupportZeroFlag(c.ToString())
@@ -287,7 +281,7 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   let xty = NewInferenceType () 
                   let fty = bty --> (xty --> cty)
                   reportLocation relLine relCol
-                  parseLoop ((Option.map ((+) 1) posi, xty) ::  (posi, fty) :: acc) (i+1, relLine, relCol+1)
+                  parseLoop ((Option.map ((+)1) posi, xty) ::  (posi, fty) :: acc) (i+1, relLine, relCol+1)
 
               | 't' ->
                   checkOtherFlags ch;

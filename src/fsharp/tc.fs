@@ -1713,7 +1713,8 @@ let MakeAndPublishSimpleVals cenv env m names mergeNamesInOneNameresEnv =
                         member this.NotifyEnvWithScope(_, _, _) = () // ignore EnvWithScope reports
                         member this.NotifyNameResolution(pos, a, b, occurence, denv, nenv, ad, m) = nameResolutions.Add(pos, a, b, occurence, denv, nenv, ad, m)
                         member this.NotifyExprHasType(_, _, _, _, _, _) = assert false // no expr typings in MakeSimpleVals
-                        member this.NotifyFormatSpecifierLocation _ = () } 
+                        member this.NotifyFormatSpecifierLocation _ = ()
+                        member this.CurrentSource = None } 
 
                 use _h = WithNewTypecheckResultsSink(sink, cenv.tcSink)
                 MakeSimpleVals cenv env names
@@ -6213,7 +6214,9 @@ and TcConstStringExpr cenv overallTy env m tpenv s  =
       if (not (isObjTy cenv.g overallTy) && AddCxTypeMustSubsumeTypeUndoIfFailed env.DisplayEnv cenv.css m overallTy ty') then 
         // Parse the format string to work out the phantom types 
         let report m = match cenv.tcSink.CurrentSink with None -> () | Some sink  -> sink.NotifyFormatSpecifierLocation m
-        let aty',ety' = (try Formats.ParseFormatString m cenv.g report s bty cty dty with Failure s -> error (Error(FSComp.SR.tcUnableToParseFormatString(s),m)))
+        let source = match cenv.tcSink.CurrentSink with None -> None | Some sink -> sink.CurrentSource
+        
+        let aty',ety' = (try Formats.ParseFormatString m cenv.g source report (s.Replace("\r\n", "\n").Replace("\r", "\n")) bty cty dty with Failure s -> error (Error(FSComp.SR.tcUnableToParseFormatString(s),m)))
         UnifyTypes cenv env m aty aty'
         UnifyTypes cenv env m ety ety'
         mkCallNewFormat cenv.g m aty bty cty dty ety (mkString cenv.g m s),tpenv

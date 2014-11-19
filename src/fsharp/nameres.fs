@@ -1099,6 +1099,7 @@ type ITypecheckResultsSink =
     abstract NotifyExprHasType : pos * TType * Tastops.DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
     abstract NotifyNameResolution : pos * Item * Item * ItemOccurence * Tastops.DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
     abstract NotifyFormatSpecifierLocation : range -> unit
+    abstract CurrentSource : string option
 
 let (|ValRefOfProp|_|) (pi : PropInfo) = pi.ArbitraryValRef
 let (|ValRefOfMeth|_|) (mi : MethInfo) = mi.ArbitraryValRef
@@ -1308,7 +1309,7 @@ type TcSymbolUses(g, capturedNameResolutions : ResizeArray<CapturedNameResolutio
 
 
 /// An accumulator for the results being emitted into the tcSink.
-type TcResultsSinkImpl(g) =
+type TcResultsSinkImpl(g, ?source: string) =
     let capturedEnvs = ResizeArray<_>()
     let capturedExprTypings = ResizeArray<_>()
     let capturedNameResolutions = ResizeArray<_>()
@@ -1361,6 +1362,8 @@ type TcResultsSinkImpl(g) =
 
         member sink.NotifyFormatSpecifierLocation(m) = 
             capturedFormatSpecifierLocations.Add(m)
+
+        member sink.CurrentSource = source
 
 
 /// An abstract type for reporting the results of name resolution and type checking, and which allows

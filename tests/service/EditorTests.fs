@@ -337,6 +337,11 @@ let _ = sprintf "%7.1f" 1.0
 let _ = sprintf "%-8.1e+567" 1.0
 let _ = sprintf @"%-5s" "value"
 let _ = printfn @"%-A" -10
+let _ = printf @"
+            %-O" -10
+let _ = sprintf "
+
+            %-O" -10
 """
 
     let file = "/home/user/Test.fsx"
@@ -353,13 +358,18 @@ let _ = printfn @"%-A" -10
                      (7, 17, 7, 21); 
                      (8, 17, 8, 22);
                      (9, 18, 9, 21); 
-                     (10, 18, 10, 20)|]
+                     (10, 18, 10, 20);
+                     (12, 12, 12, 14); 
+                     (15, 12, 15, 14)|]
 
 [<Test>]
 let ``Printf specifiers for triple-quote strings`` () = 
     let input = 
       "
 let _ = sprintf \"\"\"%-A\"\"\" -10
+let _ = printfn \"\"\"
+            %-A
+                \"\"\" -10
 "
 
     let file = "/home/user/Test.fsx"
@@ -368,7 +378,8 @@ let _ = sprintf \"\"\"%-A\"\"\" -10
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocations() 
     |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
-    |> shouldEqual [|(2, 19, 2, 21)|]
+    |> shouldEqual [|(2, 19, 2, 21);
+                     (4, 12, 4, 14)|]
  
 [<Test>]
 let ``Printf specifiers for user-defined functions`` () = 

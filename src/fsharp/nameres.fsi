@@ -237,9 +237,10 @@ type ITypecheckResultsSink =
     abstract NotifyExprHasType    : pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
     abstract NotifyNameResolution : pos * Item * Item * ItemOccurence * DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
     abstract NotifyFormatSpecifierLocation : range -> unit
+    abstract CurrentSource : string option
 
 type internal TcResultsSinkImpl =
-    new : tcGlobals : TcGlobals -> TcResultsSinkImpl
+    new : tcGlobals : TcGlobals * ?source:string -> TcResultsSinkImpl
     member GetResolutions : unit -> TcResolutions
     member GetSymbolUses : unit -> TcSymbolUses
     interface ITypecheckResultsSink

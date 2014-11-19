@@ -1502,7 +1502,7 @@ module internal Parser =
             tcState.NiceNameGenerator.Reset()
             
             // Typecheck the real input.  
-            let sink = TcResultsSinkImpl(tcGlobals)
+            let sink = TcResultsSinkImpl(tcGlobals, source = source)
 
             let tcEnvAtEndOpt =
                 try

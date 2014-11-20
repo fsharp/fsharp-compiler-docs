@@ -4286,7 +4286,9 @@ module Dummy
     let args = 
         [|
             yield! mkProjectCommandLineArgs (dllName, fileNames)
-            yield @"-r:" + sysLib "System.Data"
+            // We use .NET-buit version of System.Data.dll since the tests depend on implementation details
+            // i.e. the private type System.Data.Listeners may not be available on Mono.
+            yield @"-r:" + Path.Combine(__SOURCE_DIRECTORY__, "System.Data.dll")
         |]
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 

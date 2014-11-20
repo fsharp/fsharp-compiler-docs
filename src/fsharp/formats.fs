@@ -51,35 +51,26 @@ let newInfo ()=
 let ParseFormatString (m: Range.range) g (source: string option) report fmt bty cty dty = 
     let len = String.length fmt
 
-    let sourcePositions =
-        lazy(source
-             |> Option.map (fun content ->
-                 let content = content.Replace("\r\n", "\n").Replace("\r", "\n")
-                 content.Split('\n')
-                 |> Seq.map (fun s -> String.length s + 1)
-                 |> Seq.scan (+) 0
-                 |> Seq.toArray)
-             |> fun arg -> defaultArg arg [||])
-
     // Offset to adjust ranges depending on whether input string is regular, verbatim or triple-quote
     let offset = 
-       lazy(if m.StartLine = m.EndLine then
-                // The offset can only be 1 ("), 2 (@") or 3(""")
-                min (max (m.EndColumn - m.StartColumn - len - 1) 1) 3
-            else
-                match source with
-                | Some source ->
-                    let positions = sourcePositions.Value
-                    let length = source.Length
-                    if m.StartLine < positions.Length then
-                        let startIndex = positions.[m.StartLine-1] + m.StartColumn
-                        if startIndex <= length-3 && source.[startIndex..startIndex+2] = "\"\"\"" then
-                            3
-                        elif startIndex <= length-2 && source.[startIndex..startIndex+1] = "@\"" then
-                            2
-                        else 1
-                    else 1
-                | None -> 1)
+        match source with
+        | Some source ->
+            let source = source.Replace("\r\n", "\n").Replace("\r", "\n")
+            let positions =
+                source.Split('\n')
+                |> Seq.map (fun s -> String.length s + 1)
+                |> Seq.scan (+) 0
+                |> Seq.toArray
+            let length = source.Length
+            if m.StartLine < positions.Length then
+                let startIndex = positions.[m.StartLine-1] + m.StartColumn
+                if startIndex <= length-3 && source.[startIndex..startIndex+2] = "\"\"\"" then
+                    3
+                elif startIndex <= length-2 && source.[startIndex..startIndex+1] = "@\"" then
+                    2
+                else 1
+            else 1
+        | None -> 1
 
     let rec parseLoop acc (i, relLine, relCol) = 
        if i >= len then
@@ -204,8 +195,8 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   match relLine with
                   | 0 ->
                       report (Range.mkFileIndexRange m.FileIndex 
-                                (Range.mkPos m.StartLine (startCol + offset.Value)) 
-                                (Range.mkPos m.StartLine (relCol + offset.Value)))
+                                (Range.mkPos m.StartLine (startCol + offset)) 
+                                (Range.mkPos m.StartLine (relCol + offset)))
                   | _ ->
                       report (Range.mkFileIndexRange m.FileIndex 
                                 (Range.mkPos (m.StartLine + relLine) startCol) 

@@ -150,6 +150,59 @@ let B = File1.A + File1.A"""
     use mock =
         Fake.readReferences references
         >> Fake.readFiles files
+        |> Fake.create
+        |> Fake.set
+
+    let results = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
+
+    printfn "WRITTEN FILE!!!: \n%A" written.Value
+
+    results.Errors.Length |> shouldEqual 0
+    results.AssemblySignature.Entities.Count |> shouldEqual 2
+    results.AssemblySignature.Entities.[0].MembersFunctionsAndValues.Count |> shouldEqual 1
+    results.AssemblySignature.Entities.[0].MembersFunctionsAndValues.[0].DisplayName |> shouldEqual "B"
+
+[<Test>]
+let ``Writes artifacts to shimmed filesystem`` () =
+    let files =
+        Map.empty
+        |> Map.add @"c:\mycode\test1.fs" """
+module File1
+let A = 1"""
+        |> Map.add @"c:\mycode\test2.fs" """
+module File2
+let B = File1.A + File1.A"""
+
+    let projectOptions = 
+        let allFlags = 
+            [| yield "--simpleresolution"; 
+               yield "--noframework"; 
+               yield "--debug:full"; 
+               yield "--define:DEBUG"; 
+               yield "--optimize-"; 
+               yield "--doc:test.xml"; 
+               yield "--warn:3"; 
+               yield "--fullpaths"; 
+               yield "--flaterrors"; 
+               yield "--target:library"; 
+               for r in references do 
+                     yield "-r:" + r |]
+
+        let fileNames, _ = Map.toList files |> List.unzip
+ 
+        { ProjectFileName = @"c:\mycode\compilation.fsproj" // Make a name that is unique in this directory.
+          ProjectFileNames = fileNames |> Array.ofList
+          OtherOptions = allFlags 
+          ReferencedProjects = Array.empty
+          IsIncompleteTypeCheckEnvironment = false
+          UseScriptResolutionRules = true 
+          LoadTime = System.DateTime.Now // Not 'now', we don't want to force reloading
+          UnresolvedReferences = None }
+
+    let written = ref []
+    use mock =
+        Fake.readReferences references
+        >> Fake.readFiles files
         >> Fake.writeFiles (fun name ->
             written := name :: written.Value
             Some (new MemoryStream () :> Stream))

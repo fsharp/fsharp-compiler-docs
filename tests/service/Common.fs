@@ -35,6 +35,26 @@ let getBackgroundCheckResultsForScriptText (input) =
     let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
     checker.GetBackgroundCheckResultsForFileInProject(file.Name, checkOptions) |> Async.RunSynchronously
 
+module FrameworkReferenceResolver =
+    let netVersion = "4.5"
+    let isMono = not (System.Type.GetType("Mono.Runtime") = null)
+
+    let mutable cache =
+        match isMono with
+        | false -> Map.empty
+        | true ->
+            let mscorlibLocationOnThisRunningMonoInstance = typeof<System.Object>.Assembly.Location
+
+            let libPath = mscorlibLocationOnThisRunningMonoInstance |> Path.GetDirectoryName |> Path.GetDirectoryName
+            let targetFrameworkPath = Path.Combine (libPath, netVersion)
+
+            match targetFrameworkPath |> Directory.Exists with
+            | false -> failwith "Target framework does not exist"
+            | true ->
+                Map.empty
+                |> populateAssemblies targetFrameworkPath
+                |> populateAssemblies (Path.Combine (targetFrameworkPath, "Facades"))
+
 
 let sysLib nm = 
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 

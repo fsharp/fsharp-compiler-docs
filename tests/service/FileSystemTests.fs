@@ -18,6 +18,7 @@ open System.Text
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Interactive.Shell
 open Microsoft.FSharp.Compiler.SourceCodeServices
+open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open FSharp.Compiler.Service.Tests.Common
 
@@ -47,10 +48,14 @@ module Fake =
                 | None -> defaultFileSystem.FileStreamReadShim fileName
             
             member fs.FileStreamCreateShim fileName = 
-                defaultFileSystem.FileStreamCreateShim fileName
+                match mock.WriteFile fileName with
+                | Some stream -> stream
+                | None -> defaultFileSystem.FileStreamCreateShim fileName
 
             member fs.FileStreamWriteExistingShim fileName = 
-                defaultFileSystem.FileStreamWriteExistingShim fileName
+                match mock.WriteFile fileName with
+                | Some stream -> stream
+                | None -> defaultFileSystem.FileStreamWriteExistingShim fileName
 
             member fs.ReadAllBytesShim fileName = 
                 match mock.ReadFile fileName with
@@ -146,7 +151,6 @@ let B = File1.A + File1.A"""
           LoadTime = System.DateTime.Now // Not 'now', we don't want to force reloading
           UnresolvedReferences = None }
 
-    let written = ref []
     use mock =
         Fake.readReferences references
         >> Fake.readFiles files
@@ -154,8 +158,6 @@ let B = File1.A + File1.A"""
         |> Fake.set
 
     let results = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
-
-    printfn "WRITTEN FILE!!!: \n%A" written.Value
 
     results.Errors.Length |> shouldEqual 0
     results.AssemblySignature.Entities.Count |> shouldEqual 2
@@ -173,31 +175,25 @@ let A = 1"""
 module File2
 let B = File1.A + File1.A"""
 
-    let projectOptions = 
-        let allFlags = 
-            [| yield "--simpleresolution"; 
-               yield "--noframework"; 
-               yield "--debug:full"; 
-               yield "--define:DEBUG"; 
-               yield "--optimize-"; 
-               yield "--doc:test.xml"; 
-               yield "--warn:3"; 
-               yield "--fullpaths"; 
-               yield "--flaterrors"; 
-               yield "--target:library"; 
-               for r in references do 
-                     yield "-r:" + r |]
-
+    let compilerFlags = 
         let fileNames, _ = Map.toList files |> List.unzip
- 
-        { ProjectFileName = @"c:\mycode\compilation.fsproj" // Make a name that is unique in this directory.
-          ProjectFileNames = fileNames |> Array.ofList
-          OtherOptions = allFlags 
-          ReferencedProjects = Array.empty
-          IsIncompleteTypeCheckEnvironment = false
-          UseScriptResolutionRules = true 
-          LoadTime = System.DateTime.Now // Not 'now', we don't want to force reloading
-          UnresolvedReferences = None }
+
+        [|  yield "--simpleresolution"; 
+            yield "--noframework"; 
+            yield "--debug:full"; 
+            yield "--define:DEBUG"; 
+            yield "--optimize-"; 
+            yield "--doc:test.xml"; 
+            yield "--out:test.dll";
+            yield "--pdb:test.pdb";
+            yield "--warn:3"; 
+            yield "--fullpaths"; 
+            yield "--flaterrors"; 
+            yield "--target:library";
+            for r in references do 
+                  yield "-r:" + r;
+            for f in fileNames do
+                  yield f; |]
 
     let written = ref []
     use mock =
@@ -209,11 +205,16 @@ let B = File1.A + File1.A"""
         |> Fake.create
         |> Fake.set
 
-    let results = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
+    let sscs = new SimpleSourceCodeServices ()
+    let errors, result = sscs.Compile compilerFlags
+    
+    let cdirPath n = Path.Combine (Directory.GetCurrentDirectory (), n)
 
-    printfn "WRITTEN FILE!!!: \n%A" written.Value
-
-    results.Errors.Length |> shouldEqual 0
-    results.AssemblySignature.Entities.Count |> shouldEqual 2
-    results.AssemblySignature.Entities.[0].MembersFunctionsAndValues.Count |> shouldEqual 1
-    results.AssemblySignature.Entities.[0].MembersFunctionsAndValues.[0].DisplayName |> shouldEqual "B"
+    printfn "ERRORS!!!!!!!: \n%A" errors
+    result |> shouldEqual 0
+    errors.Length |> shouldEqual 0
+    let written = !written |> Array.ofList
+    written.Length |> shouldEqual 3
+    written.[0] |> shouldEqual (cdirPath "test.dll")
+    written.[1] |> shouldEqual (cdirPath "test.pdb")
+    written.[2] |> shouldEqual (cdirPath "test.xml")

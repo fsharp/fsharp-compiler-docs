@@ -2408,12 +2408,14 @@ module AccessibilityLogic =
 
     let GetILAccessOfILPropInfo (ILPropInfo(tinfo,pdef)) =
         let tdef = tinfo.RawMetadata
-        match pdef.GetMethod with 
-        | Some mref -> (resolveILMethodRef tdef mref).Access 
-        | None -> 
-            match pdef.SetMethod with 
-            | None -> ILMemberAccess.Public
-            | Some mref -> (resolveILMethodRef tdef mref).Access
+        let ilAccess =
+            match pdef.GetMethod with 
+            | Some mref -> (resolveILMethodRef tdef mref).Access 
+            | None -> 
+                match pdef.SetMethod with 
+                | None -> ILMemberAccess.Public
+                | Some mref -> (resolveILMethodRef tdef mref).Access
+        ilAccess
 
     let IsILPropInfoAccessible g amap m ad pinfo =
         let ilAccess = GetILAccessOfILPropInfo pinfo

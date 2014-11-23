@@ -2394,26 +2394,32 @@ module AccessibilityLogic =
             IsProvidedMemberAccessible amap m ad pfi.EnclosingType access
 #endif
 
-    let IsILEventInfoAccessible g amap m ad (ILEventInfo (tinfo,edef)) =
-        let access = (resolveILMethodRef tinfo.RawMetadata edef.AddMethod).Access 
-        IsILTypeAndMemberAccessible g amap m ad ad tinfo access
+    let GetILAccessOfILEventInfo (ILEventInfo (tinfo,edef)) =
+        (resolveILMethodRef tinfo.RawMetadata edef.AddMethod).Access 
+
+    let IsILEventInfoAccessible g amap m ad einfo =
+        let access = GetILAccessOfILEventInfo einfo
+        IsILTypeAndMemberAccessible g amap m ad ad einfo.ILTypeInfo access
 
     let private IsILMethInfoAccessible g amap m adType ad ilminfo = 
         match ilminfo with 
         | ILMethInfo (_,typ,None,mdef,_) -> IsILTypeAndMemberAccessible g amap m adType ad (ILTypeInfo.FromType g typ) mdef.Access 
         | ILMethInfo (_,_,Some declaringTyconRef,mdef,_) -> IsILMemberAccessible g amap m declaringTyconRef ad mdef.Access
 
-    let IsILPropInfoAccessible g amap m ad (ILPropInfo(tinfo,pdef)) =
+    let GetILAccessOfILPropInfo (ILPropInfo(tinfo,pdef)) =
         let tdef = tinfo.RawMetadata
-        let ilAccess = 
+        let ilAccess =
             match pdef.GetMethod with 
             | Some mref -> (resolveILMethodRef tdef mref).Access 
             | None -> 
                 match pdef.SetMethod with 
                 | None -> ILMemberAccess.Public
                 | Some mref -> (resolveILMethodRef tdef mref).Access
+        ilAccess
 
-        IsILTypeAndMemberAccessible g amap m ad ad tinfo ilAccess
+    let IsILPropInfoAccessible g amap m ad pinfo =
+        let ilAccess = GetILAccessOfILPropInfo pinfo
+        IsILTypeAndMemberAccessible g amap m ad ad pinfo.ILTypeInfo ilAccess
 
     let IsValAccessible ad (vref:ValRef) = 
         vref.Accessibility |> IsAccessible ad

@@ -82,6 +82,45 @@ module Impl =
             cpaths2 |> List.exists (canAccessFromCrossProject taccess1) 
         | _ -> true // otherwise use the normal check
 
+
+    /// Convert an IL member accessibility into an F# accessibility
+    let getApproxFSharpAccessibilityOfMember (declaringEntity: EntityRef) (ilAccess : ILMemberAccess) = 
+        match ilAccess with 
+        | ILMemberAccess.FamilyAndAssembly 
+        | ILMemberAccess.Assembly -> 
+            taccessPrivate  (CompPath(declaringEntity.CompilationPath.ILScopeRef,[]))
+
+        | ILMemberAccess.CompilerControlled
+        | ILMemberAccess.Private ->
+            taccessPrivate  declaringEntity.CompilationPath
+
+        // This is an approximation - the thing may actually be nested in a private class, in which case it is not actually "public"
+        | ILMemberAccess.Public
+        // This is an approximation - the thing is actually "protected", but F# accessibilities can't express "protected", so we report it as "public"
+        | ILMemberAccess.FamilyOrAssembly
+        | ILMemberAccess.Family ->
+            taccessPublic 
+
+    /// Convert an IL type definition accessibility into an F# accessibility
+    let getApproxFSharpAccessibilityOfEntity (entity: EntityRef) = 
+        match metadataOfTycon entity.Deref with 
+        | ProvidedTypeMetadata _info -> 
+            // This is an approximation - for generative type providers some type definitions can be private.
+            taccessPublic
+
+        | ILTypeMetadata (_,td) -> 
+            match td.Access with 
+            | ILTypeDefAccess.Public 
+            | ILTypeDefAccess.Nested ILMemberAccess.Public -> taccessPublic 
+            | ILTypeDefAccess.Private  -> taccessPrivate  (CompPath(entity.CompilationPath.ILScopeRef,[]))
+            | ILTypeDefAccess.Nested nested -> getApproxFSharpAccessibilityOfMember entity nested
+
+        | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> 
+            entity.Accessibility
+
+
+            
+
     type cenv(g:TcGlobals, thisCcu: CcuThunk , tcImports: TcImports) = 
         let amapV = tcImports.GetImportMap()
         let infoReaderV = InfoReader(g, amapV)
@@ -145,7 +184,7 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
                               if entity.IsModule then Item.ModuleOrNamespaces [entity] 
                               else Item.UnqualifiedType [entity]), 
                          (fun _this thisCcu2 ad -> 
-                             checkForCrossProjectAccessibility (thisCcu2, ad) (cenv.thisCcu, entity.Accessibility)) 
+                             checkForCrossProjectAccessibility (thisCcu2, ad) (cenv.thisCcu, getApproxFSharpAccessibilityOfEntity entity)) 
                              // && AccessibilityLogic.IsEntityAccessible cenv.amap range0 ad entity)
                              )
 
@@ -321,7 +360,8 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
 
     member __.Accessibility = 
         if isUnresolved() then FSharpAccessibility(taccessPublic) else
-        FSharpAccessibility(entity.Accessibility) 
+
+        FSharpAccessibility(getApproxFSharpAccessibilityOfEntity entity) 
 
     member __.RepresentationAccessibility = 
         if isUnresolved() then FSharpAccessibility(taccessPublic) else
@@ -1433,15 +1473,46 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
 *)
 
       /// How visible is this? 
-    member __.Accessibility : FSharpAccessibility  = 
+    member this.Accessibility : FSharpAccessibility  = 
         if isUnresolved() then FSharpAccessibility(taccessPublic) else 
         match fsharpInfo() with 
         | Some v -> FSharpAccessibility(v.Accessibility)
         | None ->  
+        
+        // Note, returning "public" is wrong for IL members that are private
         match d with 
-        | E _ ->  FSharpAccessibility(taccessPublic)
-        | P _ ->  FSharpAccessibility(taccessPublic)
-        | M m ->  FSharpAccessibility(taccessPublic,isProtected=m.IsProtectedAccessiblity)
+        | E e ->  
+            // For IL events, we get an approximate accessiblity that at least reports "internal" as "internal" and "private" as "private"
+            let access = 
+                match e with 
+                | ILEvent (_,x) -> 
+                    let ilAccess = AccessibilityLogic.GetILAccessOfILEventInfo x
+                    getApproxFSharpAccessibilityOfMember this.EnclosingEntity.Entity  ilAccess
+                | _ -> taccessPublic
+
+            FSharpAccessibility(access)
+
+        | P p ->  
+            // For IL  properties, we get an approximate accessiblity that at least reports "internal" as "internal" and "private" as "private"
+            let access = 
+                match p with 
+                | ILProp (_,x) -> 
+                    let ilAccess = AccessibilityLogic.GetILAccessOfILPropInfo x
+                    getApproxFSharpAccessibilityOfMember this.EnclosingEntity.Entity  ilAccess
+                | _ -> taccessPublic
+
+            FSharpAccessibility(access)
+
+        | M m ->  
+
+            // For IL  methods, we get an approximate accessiblity that at least reports "internal" as "internal" and "private" as "private"
+            let access = 
+                match m with 
+                | ILMeth (_,x,_) -> getApproxFSharpAccessibilityOfMember x.DeclaringTyconRef x.RawMetadata.Access 
+                | _ -> taccessPublic
+
+            FSharpAccessibility(access,isProtected=m.IsProtectedAccessiblity)
+
         | V v -> FSharpAccessibility(v.Accessibility)
 
     member x.Data = d

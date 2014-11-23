@@ -4268,3 +4268,60 @@ let ``Test Project33 extension methods`` () =
     |> shouldEqual 
             [("SetValue", ["member"; "extmem"]); 
              ("GetValue", ["member"; "extmem"])]
+
+module Project34 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module Dummy
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = 
+        [|
+            yield! mkProjectCommandLineArgs (dllName, fileNames)
+            // We use .NET-buit version of System.Data.dll since the tests depend on implementation details
+            // i.e. the private type System.Data.Listeners may not be available on Mono.
+            yield @"-r:" + Path.Combine(__SOURCE_DIRECTORY__, "System.Data.dll")
+        |]
+    let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test Project34 whole project errors`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project34.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+[<Test>]
+let ``Test project34 should report correct accessibility for System.Data.Listeners`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project34.options) |> Async.RunSynchronously
+    let rec getNestedEntities (entity: FSharpEntity) = 
+        seq { yield entity
+              for e in entity.NestedEntities do
+                  yield! getNestedEntities e }
+    let listenerEntity =
+        wholeProjectResults.ProjectContext.GetReferencedAssemblies()
+        |> List.tryPick (fun asm -> if asm.SimpleName.Contains("System.Data") then Some asm.Contents.Entities else None)
+        |> Option.get
+        |> Seq.collect getNestedEntities
+        |> Seq.tryFind (fun entity -> 
+            entity.TryFullName 
+            |> Option.map (fun s -> s.Contains("System.Data.Listeners")) 
+            |> fun arg -> defaultArg arg false)
+        |> Option.get
+    listenerEntity.Accessibility.IsPrivate |> shouldEqual true
+
+    let listenerFuncEntity =
+        listenerEntity.NestedEntities
+        |> Seq.tryFind (fun entity -> 
+            entity.TryFullName 
+            |> Option.map (fun s -> s.Contains("Func")) 
+            |> fun arg -> defaultArg arg false)
+        |> Option.get
+
+    listenerFuncEntity.Accessibility.IsPrivate |> shouldEqual true

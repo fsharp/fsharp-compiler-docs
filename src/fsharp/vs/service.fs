@@ -1197,6 +1197,9 @@ type TypeCheckInfo
         [ for x in tcImports.GetImportedAssemblies() do 
                 yield FSharpAssembly(g, thisCcu, tcImports, x.FSharpViewOfMetadata) ]
 
+    // Not, this does not have to be a SyncOp, it can be called from any thread
+    member scope.GetFormatSpecifierLocations() = 
+         sSymbolUses.GetFormatSpecifierLocations() 
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member scope.GetExtraColorizations() = 
@@ -1499,7 +1502,7 @@ module internal Parser =
             tcState.NiceNameGenerator.Reset()
             
             // Typecheck the real input.  
-            let sink = TcResultsSinkImpl(tcGlobals)
+            let sink = TcResultsSinkImpl(tcGlobals, source = source)
 
             let tcEnvAtEndOpt =
                 try
@@ -1789,6 +1792,13 @@ type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo 
             scope.GetSymbolUseAtLocation (line, lineStr, colAtEndOfNames, names)
             |> Option.map (fun (sym,_,_) -> sym))
 
+
+    member info.GetFormatSpecifierLocations() = 
+        threadSafeOp 
+           (fun () -> [| |]) 
+           (fun (scope, _builder, _reactor) -> 
+            // This operation is not asynchronous - GetFormatSpecifierLocations can be run on the calling thread
+            scope.GetFormatSpecifierLocations())
 
     member info.GetExtraColorizationsAlternate() = 
         threadSafeOp 

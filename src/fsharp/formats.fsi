@@ -12,4 +12,4 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Tast 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal 
 
-val ParseFormatString : Range.range -> Env.TcGlobals -> string -> TType -> TType -> TType -> TType * TType
+val ParseFormatString : Range.range -> Env.TcGlobals -> string option -> (Range.range -> unit) -> string -> TType -> TType -> TType -> TType * TType

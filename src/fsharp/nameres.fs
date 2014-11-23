@@ -1098,6 +1098,8 @@ type ITypecheckResultsSink =
     abstract NotifyEnvWithScope : range * NameResolutionEnv * AccessorDomain -> unit
     abstract NotifyExprHasType : pos * TType * Tastops.DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
     abstract NotifyNameResolution : pos * Item * Item * ItemOccurence * Tastops.DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
+    abstract NotifyFormatSpecifierLocation : range -> unit
+    abstract CurrentSource : string option
 
 let (|ValRefOfProp|_|) (pi : PropInfo) = pi.ArbitraryValRef
 let (|ValRefOfMeth|_|) (mi : MethInfo) = mi.ArbitraryValRef
@@ -1292,7 +1294,7 @@ type TcResolutions
 
 
 /// Represents container for all name resolutions that were met so far when typechecking some particular file
-type TcSymbolUses(g,capturedNameResolutions : ResizeArray<CapturedNameResolution>) = 
+type TcSymbolUses(g, capturedNameResolutions : ResizeArray<CapturedNameResolution>, formatSpecifierLocations: range[]) = 
 
     member this.GetUsesOfSymbol(item) = 
         [| for cnr in capturedNameResolutions do
@@ -1303,11 +1305,15 @@ type TcSymbolUses(g,capturedNameResolutions : ResizeArray<CapturedNameResolution
         [| for cnr in capturedNameResolutions do
               yield (cnr.Item, cnr.ItemOccurence, cnr.DisplayEnv, cnr.Range) |]
 
+    member this.GetFormatSpecifierLocations() =  formatSpecifierLocations
+
+
 /// An accumulator for the results being emitted into the tcSink.
-type TcResultsSinkImpl(g) =
+type TcResultsSinkImpl(g, ?source: string) =
     let capturedEnvs = ResizeArray<_>()
     let capturedExprTypings = ResizeArray<_>()
     let capturedNameResolutions = ResizeArray<_>()
+    let capturedFormatSpecifierLocations = ResizeArray<_>()
     let capturedNameResolutionIdentifiers = 
         new System.Collections.Generic.Dictionary<pos * string, unit>
             ( { new IEqualityComparer<_> with 
@@ -1320,15 +1326,17 @@ type TcResultsSinkImpl(g) =
         TcResolutions(capturedEnvs, capturedExprTypings, capturedNameResolutions, capturedMethodGroupResolutions)
 
     member this.GetSymbolUses() = 
-        TcSymbolUses(g, capturedNameResolutions)
+        TcSymbolUses(g, capturedNameResolutions, capturedFormatSpecifierLocations.ToArray())
 
     interface ITypecheckResultsSink with
         member sink.NotifyEnvWithScope(m,nenv,ad) = 
             if allowedRange m then 
                 capturedEnvs.Add((m,nenv,ad)) 
+
         member sink.NotifyExprHasType(endPos,ty,denv,nenv,ad,m) = 
             if allowedRange m then 
                 capturedExprTypings.Add((endPos,ty,denv,nenv,ad,m))
+
         member sink.NotifyNameResolution(endPos,item,itemMethodGroup,occurenceType,denv,nenv,ad,m) = 
             // Desugaring some F# constructs (notably computation expressions with custom operators)
             // results in duplication of textual variables. So we ensure we never record two name resolutions 
@@ -1351,6 +1359,11 @@ type TcResultsSinkImpl(g) =
                 if not alreadyDone then 
                     capturedNameResolutions.Add(CapturedNameResolution(endPos,item,occurenceType,denv,nenv,ad,m)) 
                     capturedMethodGroupResolutions.Add(CapturedNameResolution(endPos,itemMethodGroup,occurenceType,denv,nenv,ad,m)) 
+
+        member sink.NotifyFormatSpecifierLocation(m) = 
+            capturedFormatSpecifierLocations.Add(m)
+
+        member sink.CurrentSource = source
 
 
 /// An abstract type for reporting the results of name resolution and type checking, and which allows

@@ -246,6 +246,9 @@ type FSharpCheckFileResults =
     /// <summary>Get any extra colorization info that is available after the typecheck</summary>
     member GetExtraColorizationsAlternate : unit -> (range * FSharpTokenColorKind)[]
 
+    /// <summary>Get the locations of format specifiers</summary>
+    member GetFormatSpecifierLocations : unit -> range[]
+
     /// Get all textual usages of all symbols throughout the file
     member GetAllUsesOfAllSymbolsInFile : unit -> Async<FSharpSymbolUse[]>
 

@@ -152,11 +152,12 @@ module internal ItemDescriptionsImpl =
 #endif
         |   _ -> pinfo.ArbitraryValRef |> Option.map (rangeOfValRef preferFlag)
 
-    let rangeOfMethInfo preferFlag (minfo:MethInfo) = 
+    let rangeOfMethInfo (g:TcGlobals) preferFlag (minfo:MethInfo) = 
         match minfo with
 #if EXTENSIONTYPING 
         |   ProvidedMeth(_,mi,_,_) -> definitionLocationOfProvidedItem mi
 #endif
+        |   DefaultStructCtor(_, AppTy g (tcref, _)) -> Some(rangeOfEntityRef preferFlag tcref)
         |   _ -> minfo.ArbitraryValRef |> Option.map (rangeOfValRef preferFlag)
 
     let rangeOfEventInfo preferFlag (einfo:EventInfo) = 
@@ -166,10 +167,6 @@ module internal ItemDescriptionsImpl =
 #endif
         | _ -> einfo.ArbitraryValRef |> Option.map (rangeOfValRef preferFlag)
       
-    // skip all default generated constructors for structs
-    let (|FilterDefaultStructCtors|) ctors =
-        ctors |> List.filter (function DefaultStructCtor _ -> false | _ -> true)
-
     let rangeOfUnionCaseInfo preferFlag (ucinfo:UnionCaseInfo) =      
         match preferFlag with 
         | None -> ucinfo.UnionCase.Range 
@@ -193,44 +190,64 @@ module internal ItemDescriptionsImpl =
         | Item.ILField _               -> None
         | Item.Property(_,pinfos)      -> rangeOfPropInfo preferFlag pinfos.Head 
         | Item.Types(_,typs)     -> typs |> List.tryPick (tryNiceEntityRefOfTy >> Option.map (rangeOfEntityRef preferFlag))
-        | Item.CustomOperation (_,_,Some minfo)  -> rangeOfMethInfo preferFlag minfo
+        | Item.CustomOperation (_,_,Some minfo)  -> rangeOfMethInfo g preferFlag minfo
         | Item.TypeVar (_,tp)  -> Some tp.Range
         | Item.ModuleOrNamespaces(modrefs) -> modrefs |> List.tryPick (rangeOfEntityRef preferFlag >> Some)
         | Item.MethodGroup(_,minfos) 
-        | Item.CtorGroup(_,FilterDefaultStructCtors(minfos)) -> minfos |> List.tryPick (rangeOfMethInfo preferFlag)
+        | Item.CtorGroup(_,minfos) -> minfos |> List.tryPick (rangeOfMethInfo g preferFlag)
         | Item.ActivePatternResult(APInfo _,_, _, m) -> Some m
         | Item.SetterArg (_,item) -> rangeOfItem g preferFlag item
         | Item.ArgName (id,_, _) -> Some id.idRange
-        | Item.CustomOperation (_,_,implOpt) -> implOpt |> Option.bind (rangeOfMethInfo preferFlag)
+        | Item.CustomOperation (_,_,implOpt) -> implOpt |> Option.bind (rangeOfMethInfo g preferFlag)
         | Item.ImplicitOp _ -> None
         | Item.NewDef id -> Some id.idRange
         | Item.UnqualifiedType tcrefs -> tcrefs |> List.tryPick (rangeOfEntityRef preferFlag >> Some)
         | Item.DelegateCtor typ 
         | Item.FakeInterfaceCtor typ -> typ |> tryNiceEntityRefOfTy |> Option.map (rangeOfEntityRef preferFlag)
 
+    // Provided type definitions do not have a useful F# CCU for the purposes of goto-definition.
+    let computeCcuOfTyconRef (tcref:TyconRef) = 
+#if EXTENSIONTYPING
+        if tcref.IsProvided then None else 
+#endif
+        ccuOfTyconRef tcref
+
+    let ccuOfMethInfo (g:TcGlobals) (minfo:MethInfo) = 
+        match minfo with
+        | DefaultStructCtor(_, AppTy g (tcref, _)) -> computeCcuOfTyconRef tcref
+        | _ -> 
+            minfo.ArbitraryValRef 
+            |> Option.bind ccuOfValRef 
+            |> Option.orElse (fun () -> minfo.DeclaringEntityRef |> computeCcuOfTyconRef)
+
+
     let rec ccuOfItem (g:TcGlobals) d = 
         match d with
         | Item.Value vref | Item.CustomBuilder (_,vref) -> ccuOfValRef vref 
-        | Item.UnionCase ucinfo                -> ccuOfTyconRef ucinfo.TyconRef
+        | Item.UnionCase ucinfo                -> computeCcuOfTyconRef ucinfo.TyconRef
         | Item.ActivePatternCase apref         -> ccuOfValRef apref.ActivePatternVal
-        | Item.ExnCase tcref                   -> ccuOfTyconRef tcref
-        | Item.RecdField rfinfo                -> ccuOfTyconRef rfinfo.RecdFieldRef.TyconRef
-        | Item.Event einfo                     -> einfo.EnclosingType  |> tcrefOfAppTy g |> ccuOfTyconRef
-        | Item.ILField finfo                   -> finfo.EnclosingType |> tcrefOfAppTy g |> ccuOfTyconRef
-        | Item.Property(_,(pinfo :: _))        -> 
-            match pinfo.ArbitraryValRef with 
-            | Some v -> ccuOfValRef v 
-            | None -> pinfo.EnclosingType |> tcrefOfAppTy g |> ccuOfTyconRef
+        | Item.ExnCase tcref                   -> computeCcuOfTyconRef tcref
+        | Item.RecdField rfinfo                -> computeCcuOfTyconRef rfinfo.RecdFieldRef.TyconRef
+        | Item.Event einfo                     -> einfo.EnclosingType  |> tcrefOfAppTy g |> computeCcuOfTyconRef
+        | Item.ILField finfo                   -> finfo.EnclosingType |> tcrefOfAppTy g |> computeCcuOfTyconRef
+        | Item.Property(_,pinfos)              -> 
+            pinfos |> List.tryPick (fun pinfo -> 
+                pinfo.ArbitraryValRef 
+                |> Option.bind ccuOfValRef
+                |> Option.orElse (fun () -> pinfo.EnclosingType |> tcrefOfAppTy g |> computeCcuOfTyconRef))
 
-        | Item.ArgName (_,_,Some (ArgumentContainer.Method minfo)) 
-        | Item.MethodGroup(_,(minfo :: _)) 
-        | Item.CtorGroup(_,FilterDefaultStructCtors(minfo :: _)) 
-        | Item.CustomOperation (_,_,Some minfo)       -> minfo.DeclaringEntityRef |> ccuOfTyconRef
+        | Item.ArgName (_,_,Some (ArgumentContainer.Method minfo))  -> ccuOfMethInfo g minfo
 
-        | Item.Types(_,(typ :: _))             -> tryNiceEntityRefOfTy typ |> Option.bind ccuOfTyconRef
-        | Item.ArgName (_,_,Some (ArgumentContainer.Type eref)) 
-        | Item.ModuleOrNamespaces(eref :: _) 
-        | Item.UnqualifiedType(eref :: _) -> ccuOfTyconRef eref
+        | Item.MethodGroup(_,minfos)
+        | Item.CtorGroup(_,minfos) -> minfos |> List.tryPick (ccuOfMethInfo g)
+        | Item.CustomOperation (_,_,Some minfo)       -> ccuOfMethInfo g minfo
+
+        | Item.Types(_,typs)             -> typs |> List.tryPick (tryNiceEntityRefOfTy >> Option.bind computeCcuOfTyconRef)
+
+        | Item.ArgName (_,_,Some (ArgumentContainer.Type eref)) -> computeCcuOfTyconRef eref
+
+        | Item.ModuleOrNamespaces(erefs) 
+        | Item.UnqualifiedType(erefs) -> erefs |> List.tryPick computeCcuOfTyconRef 
 
         | Item.SetterArg (_,item) -> ccuOfItem g item
         | Item.TypeVar _  -> None

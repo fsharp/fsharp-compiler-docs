@@ -156,12 +156,6 @@ exception InternalCommandLineOption of string * range
 exception HashLoadedSourceHasIssues of (*warnings*) exn list * (*errors*) exn list * range
 exception HashLoadedScriptConsideredSource of range  
 
-type PrimaryAssembly = 
-    | Mscorlib
-    | NamedMscorlib of string
-    | DotNetCore
-    member Name : string
-
 //----------------------------------------------------------------------------
 
 /// Represents a reference to an F# assembly. May be backed by a real assembly on disk (read by Abstract IL), or a cross-project

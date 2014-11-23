@@ -44,7 +44,7 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
-    <LkgPath>..\..\..\lib\bootstrap\2.0</LkgPath>
+    <LkgPath>..\..\..\lib\bootstrap\4.0</LkgPath>
     <FsSrGenToolPath>$(LkgPath)</FsSrGenToolPath>
     <FsLexToolPath>$(LkgPath)</FsLexToolPath>
     <FsYaccToolPath>$(LkgPath)</FsYaccToolPath>
@@ -621,6 +621,6 @@
   </PropertyGroup>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <Import Project="$(LkgPath)\FSharp.SRGen.targets" />
-  <Import Project="$(LkgPath)\FSharp.PowerPack.targets" />
+  <Import Project="$(LkgPath)\FsLexYacc.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>

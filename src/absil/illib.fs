@@ -151,6 +151,11 @@ module Option =
         | None -> dflt 
         | Some x -> x
 
+    let orElse dflt opt = 
+        match opt with 
+        | None -> dflt()
+        | res -> res
+
     // REVIEW: systematically eliminate foldMap/mapFold duplication
     let foldMap f z l = 
         match l with 

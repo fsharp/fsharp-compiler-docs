@@ -124,7 +124,7 @@ module internal Utils =
 type internal Cursor =
     static member ResetTo(top,left) = 
         Utils.guard(fun () -> 
-           Console.CursorTop <- top;
+           Console.CursorTop <- min top (Console.BufferHeight - 1);
            Console.CursorLeft <- left)
     static member Move(inset, delta) =
         let position = Console.CursorTop * (Console.BufferWidth - inset) + (Console.CursorLeft - inset) + delta
@@ -209,6 +209,7 @@ type internal ReadLineConsole() =
             if currLeft < x.Inset then 
                 if currLeft = 0 then Console.Write (if prompt then x.Prompt2 else String(' ',x.Inset))
                 Utils.guard(fun () -> 
+                    Console.CursorTop <- min Console.CursorTop (Console.BufferHeight - 1);
                     Console.CursorLeft <- x.Inset);
 
         // The caller writes the primary prompt.  If we are reading the 2nd and subsequent lines of the

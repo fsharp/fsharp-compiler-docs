@@ -1,3 +1,8 @@
+#### 0.0.80 - 
+* Update to latest F# 3.1.3 (inclunding updated FsLex/FsYacc used in build of FCS)
+* Report printf specifiers from Service API
+* Improve Accessibility of non-F# symbols 
+
 #### 0.0.79 - 
 * Do not use memory mapped files when cracking a DLL to get an assembly reference
 * Fix for multilanguage projects in project cracker

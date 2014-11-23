@@ -4291,6 +4291,11 @@ module Dummy
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
 [<Test>]
+let ``Test Project34 whole project errors`` () = 
+    let wholeProjectResults = checker.ParseAndCheckProject(Project34.options) |> Async.RunSynchronously
+    wholeProjectResults.Errors.Length |> shouldEqual 0
+
+[<Test>]
 let ``Test project34 should report correct accessibility for System.Data.Listeners`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project34.options) |> Async.RunSynchronously
     let rec getNestedEntities (entity: FSharpEntity) = 

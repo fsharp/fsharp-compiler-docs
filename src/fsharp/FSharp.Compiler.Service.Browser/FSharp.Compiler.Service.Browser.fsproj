@@ -73,7 +73,7 @@
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">
       <Link>AssemblyInfo/assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
     </Compile>
-    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs">
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs" Condition="Exists('..\..\assemblyinfo\assemblyinfo.shared.fs')">
       <Link>AssemblyInfo/assemblyinfo.shared.fs</Link>
     </Compile>
     <FsSrGen Include="..\FSComp.txt">

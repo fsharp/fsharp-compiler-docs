@@ -1,5 +1,6 @@
 init:
   - git config --global core.autocrlf input
+  - '"C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v8.1A\\bin\\NETFX 4.5.1 Tools\\x64\\gacutil.exe" /i "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\FSharp\\.NETFramework\\v4.0\\4.3.0.0\\FSharp.Core.dll"'
 build_script:
   - cmd: build.cmd Release
 test: off

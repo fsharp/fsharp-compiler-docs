@@ -5,7 +5,7 @@
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
-module FileSystemTests
+module FSharp.Compiler.Service.Tests.FileSystemTests
 #endif
 
 
@@ -21,6 +21,11 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open FSharp.Compiler.Service.Tests.Common
+
+let originalFileSystem = Shim.FileSystem
+[<TearDown>]
+let teardown () =
+    Shim.FileSystem <- originalFileSystem
 
 let references = 
     @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll" ::

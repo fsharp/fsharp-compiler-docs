@@ -566,7 +566,7 @@ module InterfaceFileWriter =
         /// Use a UTF-8 Encoding with no Byte Order Mark
         let os = 
             if tcConfig.printSignatureFile="" then System.Console.Out
-            else (File.CreateText tcConfig.printSignatureFile :> TextWriter)
+            else (Shim.FileSystem.CreateText tcConfig.printSignatureFile :> TextWriter)
 
         if tcConfig.printSignatureFile <> "" && not (List.exists (Filename.checkSuffix tcConfig.printSignatureFile) lightSyntaxDefaultExtensions) then
             fprintfn os "#light" 
@@ -674,7 +674,7 @@ module XmlDocWriter =
        
         doModule generatedCcu.Contents;
 
-        use os = File.CreateText(xmlfile)
+        use os = Shim.FileSystem.CreateText(xmlfile)
 
         fprintfn os ("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         fprintfn os ("<doc>");
@@ -729,7 +729,7 @@ let EncodeInterfaceData(tcConfig:TcConfig,tcGlobals,exportRemapping,generatedCcu
         let isCompilerServiceDll = outFileNoExtension.Contains("FSharp.LanguageService.Compiler")
         if tcConfig.useOptimizationDataFile || tcGlobals.compilingFslib || isCompilerServiceDll then 
             let sigDataFileName = (Filename.chopExtension outfile)+".sigdata"
-            File.WriteAllBytes(sigDataFileName,resource.Bytes);
+            Shim.FileSystem.WriteAllBytes(sigDataFileName,resource.Bytes);
         let sigAttr = mkSignatureDataVersionAttr tcGlobals (IL.parseILVersion Internal.Utilities.FSharpEnvironment.FSharpBinaryMetadataFormatRevision) 
         // The resource gets written to a file for FSharp.Core
         let resources = 
@@ -759,7 +759,7 @@ let EncodeOptimizationData(tcGlobals,tcConfig,outfile,exportRemapping,data) =
             let ccu,modulInfo = data
             let bytes = Pickle.pickleObjWithDanglingCcus outfile tcGlobals ccu Opt.p_LazyModuleInfo modulInfo
             let optDataFileName = (Filename.chopExtension outfile)+".optdata"
-            File.WriteAllBytes(optDataFileName,bytes);
+            Shim.FileSystem.WriteAllBytes(optDataFileName,bytes);
         // As with the sigdata file, the optdata gets written to a file for FSharp.Core, FSharp.Compiler.Silverlight and FSharp.LanguageService.Compiler
         if tcGlobals.compilingFslib || isCompilerServiceDll then 
             []
@@ -1380,7 +1380,7 @@ module StaticLinker =
 #if SILVERLIGHT
         ()
 #else
-        use os = File.CreateText(outfile) :> TextWriter
+        use os = Shim.FileSystem.CreateText(outfile) :> TextWriter
         ILAsciiWriter.output_module os x  
 #endif
 #endif
@@ -2084,7 +2084,7 @@ let main2(Args(tcConfig,tcImports,frameworkTcImports : TcImports,tcGlobals,error
                                | _ -> 
                                    failwith "unreachable: expected a local resource" |]
             let sigDataFileName = (Filename.chopExtension outfile)+".fsdata"
-            File.WriteAllBytes(sigDataFileName,bytes)
+            Shim.FileSystem.WriteAllBytes(sigDataFileName,bytes)
             [], []
         else
             sigDataResources, generatedOptData

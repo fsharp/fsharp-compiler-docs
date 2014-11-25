@@ -198,12 +198,12 @@ let B = File1.A + File1.A"""
             for f in fileNames do
                   yield f; |]
 
-    let written = ref []
+    let written = ref Set.empty
     use mock =
         Fake.readReferences references
         >> Fake.readFiles files
         >> Fake.writeFiles (fun name ->
-            written := name :: written.Value
+            written := Set.add name !written
             Some (new MemoryStream () :> Stream))
         |> Fake.create
         |> Fake.set
@@ -213,11 +213,12 @@ let B = File1.A + File1.A"""
     
     let cdirPath n = Path.Combine (Directory.GetCurrentDirectory (), n)
 
-    printfn "ERRORS!!!!!!!: \n%A" errors
     result |> shouldEqual 0
     errors.Length |> shouldEqual 0
-    let written = !written |> Array.ofList
-    written.Length |> shouldEqual 3
-    written.[0] |> shouldEqual (cdirPath "test.dll")
-    written.[1] |> shouldEqual (cdirPath "test.pdb")
-    written.[2] |> shouldEqual (cdirPath "test.xml")
+    let written = !written
+    Seq.length written |> shouldEqual 3
+    written |> should contain (cdirPath "test.dll")
+    written |> should contain (cdirPath "test.pdb")
+    written |> should contain (cdirPath "test.xml")
+
+    //TODO: capture and test file content?

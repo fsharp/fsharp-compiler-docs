@@ -20,6 +20,7 @@ open Microsoft.FSharp.Compiler.AbstractIL.Internal
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Bytes
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
+open Microsoft.FSharp.Compiler.AbstractIL.Internal.Pdb
 
 open System
 open System.IO
@@ -873,18 +874,6 @@ type IMetaDataDispenser =
     abstract OpenScope : [<In ; MarshalAs(UnmanagedType.LPWStr)>] szScope : string * [<In>] dwOpenFlags:Int32 * [<In>] riid : System.Guid byref * [<Out ; MarshalAs(UnmanagedType.IUnknown)>] punk:Object byref -> unit
 
 [<ComImport; Interface>]
-[<Guid("7DAC8207-D3AE-4c75-9B67-92801A497D44"); InterfaceType(ComInterfaceType.InterfaceIsIUnknown)>]
-[<CLSCompliant(true)>]
-type IMetadataImport =
-    abstract Placeholder : unit -> unit
-    
-[<ComImport; Interface>]
-[<Guid("BA3FEE4C-ECB9-4E41-83B7-183FA41CD859"); InterfaceType(ComInterfaceType.InterfaceIsIUnknown)>]
-[<CLSCompliant(true)>]
-type IMetadataEmit =
-    abstract Placeholder : unit -> unit
-
-[<ComImport; Interface>]
 [< Guid("B01FAFEB-C450-3A4D-BEEC-B4CEEC01E006") ; InterfaceType(ComInterfaceType.InterfaceIsIUnknown) >]
 [< ComVisible(false) >]
 type ISymUnmanagedDocumentWriter =
@@ -965,7 +954,7 @@ type ISymUnmanagedWriter2 =
                                   endDoc : ISymUnmanagedDocumentWriter *
                                   endLine : int *
                                   endColumn : int -> unit
-    abstract Initialize : emitter : nativeint *
+    abstract Initialize : [<MarshalAs(UnmanagedType.IUnknown)>] emitter : obj *
                     [<MarshalAs(UnmanagedType.LPWStr)>] filename : string *
                     stream : IStream *
                     fullBuild : bool -> unit
@@ -1024,7 +1013,7 @@ type idd =
       iddType: int32;
       iddData: byte[];}
 
-let comWrap (stream:Stream) =
+let comWrapStream (stream:Stream) =
     let ofNativeInt = Microsoft.FSharp.NativeInterop.NativePtr.ofNativeInt
     let write = Microsoft.FSharp.NativeInterop.NativePtr.write
 
@@ -1056,26 +1045,29 @@ let comWrap (stream:Stream) =
       member s.Revert () = raise (new NotSupportedException ())
       member s.UnlockRegion (_, _, _) = raise (new NotSupportedException ()) }
 
-let pdbInitialize (binaryName:string) (pdbName:string) (stream:Stream) =
-    // collect necessary COM types
-    let CorMetaDataDispenser = System.Type.GetTypeFromProgID("CLRMetaData.CorMetaDataDispenser")
-  
-    // get the importer pointer 
-    let mdd = System.Activator.CreateInstance(CorMetaDataDispenser) :?> IMetaDataDispenser
-    let mutable IID_IMetaDataEmit = new Guid("BA3FEE4C-ECB9-4E41-83B7-183FA41CD859");
-    let mutable o = Object()
-    mdd.OpenScope(binaryName, 0x1, &IID_IMetaDataEmit, &o) // 0x1 = ofWrite
-    let emitterPtr = Marshal.GetComInterfaceForObject(o, typeof<IMetadataEmit>)
+let comWrapPdbData (pdbData:PdbData) =
+    new PdbMetadataWrapper (pdbData)
+
+let pdbInitialize (_:string) (pdbName:string) (stream:Stream) (pdbData:PdbData) =
+//    // collect necessary COM types
+//    let CorMetaDataDispenser = System.Type.GetTypeFromProgID("CLRMetaData.CorMetaDataDispenser")
+//  
+//    // get the importer pointer 
+//    let mdd = System.Activator.CreateInstance(CorMetaDataDispenser) :?> IMetaDataDispenser
+//    let mutable IID_IMetaDataEmit = new Guid("BA3FEE4C-ECB9-4E41-83B7-183FA41CD859");
+//    let mutable o = Object()
+//    mdd.OpenScope(binaryName, 0x1, &IID_IMetaDataEmit, &o) // 0x1 = ofWrite
+//    let emitterPtr = Marshal.GetComInterfaceForObject(o, typeof<IMetadataEmit>)
     let writer = 
-        try 
-            let stream = stream |> comWrap
+//        try 
+            let stream = stream |> comWrapStream
             let writer = Activator.CreateInstance(System.Type.GetTypeFromProgID("CorSymWriter_SxS")) :?> ISymUnmanagedWriter2
-            writer.Initialize(emitterPtr, pdbName, stream, true)
+            writer.Initialize(pdbData |> comWrapPdbData, pdbName, stream, true)
             writer
-        finally  
-            // Marshal.GetComInterfaceForObject adds an extra ref for emitterPtr
-            if IntPtr.Zero <> emitterPtr then
-                Marshal.Release(emitterPtr) |> ignore
+//        finally  
+//            // Marshal.GetComInterfaceForObject adds an extra ref for emitterPtr
+//            if IntPtr.Zero <> emitterPtr then
+//                Marshal.Release(emitterPtr) |> ignore
           
     { symWriter = writer }
 

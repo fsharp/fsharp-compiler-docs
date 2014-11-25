@@ -34,8 +34,8 @@ module Fake =
 
         with
             static member Empty: FileSystemHandler =
-                { ReadFile = fun name -> failwithf "Unconfigured read '%s'" name;
-                  WriteFile = fun name -> failwithf "Unconfigured write '%s'" name }
+                { ReadFile = fun name -> raise (new System.UnauthorizedAccessException(sprintf "Unconfigured read '%s'" name));
+                  WriteFile = fun name -> raise (new System.UnauthorizedAccessException(sprintf "Unconfigured write '%s'" name)) }
 
     let create (init: FileSystemHandler -> FileSystemHandler) (defaultFileSystem: IFileSystem) =
         let mock =
@@ -112,7 +112,10 @@ module Fake =
         let original = Shim.FileSystem
         let fs = ctor original
         Shim.FileSystem <- fs
-        { new IDisposable with member x.Dispose() = Shim.FileSystem <- original }
+        { new IDisposable with 
+            member x.Dispose() = 
+                printfn "Resetting file system"
+                Shim.FileSystem <- original }
 
 [<Test>]
 let ``Reads sources from shimmed filesystem`` () =

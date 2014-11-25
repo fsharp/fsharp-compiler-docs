@@ -15,6 +15,7 @@ open Microsoft.FSharp.Compiler.AbstractIL.Internal
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.BinaryConstants 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Support 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
+open Microsoft.FSharp.Compiler.AbstractIL.Internal.Pdb
 open Microsoft.FSharp.Compiler.DiagnosticMessage
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Range
@@ -160,69 +161,6 @@ let applyFixup32 (data:byte[]) offset v =
     data.[offset+2] <- b2 v;
     data.[offset+3] <- b3 v
 
-// -------------------------------------------------------------------- 
-// PDB data
-// --------------------------------------------------------------------  
-
-type PdbDocumentData = ILSourceDocument
-
-type PdbLocalVar = 
-    { Name: string;
-      Signature: byte[]; 
-      /// the local index the name corresponds to
-      Index: int32  }
-
-type PdbMethodScope = 
-    { Children: PdbMethodScope array;
-      StartOffset: int;
-      EndOffset: int;
-      Locals: PdbLocalVar array;
-      (* REVIEW open_namespaces: pdb_namespace array; *) }
-
-type PdbSourceLoc = 
-    { Document: int;
-      Line: int;
-      Column: int; }
-      
-type PdbSequencePoint = 
-    { Document: int;
-      Offset: int;
-      Line: int;
-      Column: int;
-      EndLine: int;
-      EndColumn: int; }
-    override x.ToString() = sprintf "(%d,%d)-(%d,%d)" x.Line x.Column x.EndLine x.EndColumn
-
-type PdbMethodData = 
-    { MethToken: int32;
-      MethName:string;
-      Params: PdbLocalVar array;
-      RootScope: PdbMethodScope;
-      Range: (PdbSourceLoc * PdbSourceLoc) option;
-      SequencePoints: PdbSequencePoint array; }
-
-module SequencePoint = 
-    let orderBySource sp1 sp2 = 
-        let c1 = compare sp1.Document sp2.Document
-        if c1 <> 0 then c1 else 
-        let c1 = compare sp1.Line sp2.Line
-        if c1 <> 0 then c1 else 
-        compare sp1.Column sp2.Column 
-        
-    let orderByOffset sp1 sp2 = 
-        compare sp1.Offset sp2.Offset 
-
-/// 28 is the size of the IMAGE_DEBUG_DIRECTORY in ntimage.h 
-let sizeof_IMAGE_DEBUG_DIRECTORY = 28 
-
-[<NoEquality; NoComparison>]
-type PdbData = 
-    { EntryPoint: int32 option;
-      // MVID of the generated .NET module (used by MDB files to identify debug info)
-      ModuleID: byte[];
-      Documents: PdbDocumentData[];
-      Methods: PdbMethodData[] }
-
 //---------------------------------------------------------------------
 // PDB Writer.  The function [WritePdbInfo] abstracts the 
 // imperative calls to the Symbol Writer API.
@@ -238,7 +176,7 @@ let WritePdbInfo fixupOverlappingSequencePoints showTimes f fpdb info =
     let pdbw = ref Unchecked.defaultof<PdbWriter>
     
     try
-        pdbw := pdbInitialize f fpdb pdbf
+        pdbw := pdbInitialize f fpdb pdbf info
     with _ -> error(Error(FSComp.SR.ilwriteErrorCreatingPdb(fpdb), rangeCmdArgs))
 
     match info.EntryPoint with 
@@ -295,6 +233,7 @@ let WritePdbInfo fixupOverlappingSequencePoints showTimes f fpdb info =
           begin match minfo.Range with 
           | None -> () 
           | Some (a,b) ->
+              printfn "open method: %d" minfo.MethToken
               pdbOpenMethod !pdbw minfo.MethToken;
 
               pdbSetMethodRange !pdbw 
@@ -334,6 +273,7 @@ let WritePdbInfo fixupOverlappingSequencePoints showTimes f fpdb info =
                       pdbCloseScope !pdbw sco.EndOffset;
               writePdbScope true minfo.RootScope; 
 
+              printfn "close method: %d" minfo.MethToken
               pdbCloseMethod !pdbw
           end);
     reportTime showTimes "PDB: Wrote methods";

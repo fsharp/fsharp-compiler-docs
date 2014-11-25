@@ -11,7 +11,7 @@ module internal Microsoft.FSharp.Compiler.AbstractIL.Internal.Support
 type PdbReader
 type PdbWriter
 val pdbReadClose: PdbReader -> unit
-val pdbInitialize : string -> string -> System.IO.Stream -> PdbWriter
+val pdbInitialize : string -> string -> System.IO.Stream -> Microsoft.FSharp.Compiler.AbstractIL.Internal.Pdb.PdbData -> PdbWriter
 val absilWriteGetTimeStamp: unit -> int32
 
 
@@ -24,6 +24,7 @@ open System.Diagnostics.SymbolStore
 open Internal.Utilities
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal
+open Microsoft.FSharp.Compiler.AbstractIL.Internal.Pdb
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
 
 type IStream = System.Runtime.InteropServices.ComTypes.IStream
@@ -98,6 +99,7 @@ val pdbInitialize:
     string (* .exe/.dll already written and closed *) -> 
     string  (* .pdb to write *) ->
     Stream (* stream to write to *) ->
+    PdbData (* pdb data *) ->
     PdbWriter
 val pdbClose: PdbWriter -> unit
 val pdbCloseDocument : PdbDocumentWriter -> unit

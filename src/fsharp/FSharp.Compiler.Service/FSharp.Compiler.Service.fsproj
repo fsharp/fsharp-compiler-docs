@@ -261,6 +261,9 @@
     <Compile Include="..\..\absil\ilmorph.fs">
       <Link>AbsIL/ilmorph.fs</Link>
     </Compile>
+    <Compile Include="..\..\absil\ilpdb.fs">
+      <Link>AbsIL/ilpdb.fs</Link>
+    </Compile>
     <Compile Include="..\..\absil\ilsupp.fsi">
       <Link>AbsIL/ilsupp.fsi</Link>
     </Compile>

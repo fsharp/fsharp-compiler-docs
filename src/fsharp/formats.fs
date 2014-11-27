@@ -49,28 +49,30 @@ let newInfo ()=
     precision      = false}
 
 let ParseFormatString (m: Range.range) g (source: string option) report fmt bty cty dty = 
-    let len = String.length fmt
-
-    // Offset to adjust ranges depending on whether input string is regular, verbatim or triple-quote
-    let offset = 
+    // Offset is to adjust ranges depending on whether input string is regular, verbatim or triple-quote.
+    // We construct a new 'fmt' string since the current 'fmt' string doesn't distinguish between "\n" and transformed "\\n".
+    let (offset, fmt) = 
         match source with
-        | Some source ->
-            let source = source.Replace("\r\n", "\n").Replace("\r", "\n")
+        | Some source ->     
+            let source = source.Replace("\r\n", "\n").Replace("\r", "\n")       
             let positions =
                 source.Split('\n')
                 |> Seq.map (fun s -> String.length s + 1)
                 |> Seq.scan (+) 0
                 |> Seq.toArray
             let length = source.Length
-            if m.StartLine < positions.Length then
+            if m.EndLine < positions.Length then
                 let startIndex = positions.[m.StartLine-1] + m.StartColumn
-                if startIndex <= length-3 && source.[startIndex..startIndex+2] = "\"\"\"" then
-                    3
-                elif startIndex <= length-2 && source.[startIndex..startIndex+1] = "@\"" then
-                    2
-                else 1
-            else 1
-        | None -> 1
+                let endIndex = positions.[m.EndLine-1] + m.EndColumn
+                if startIndex < length-3 && source.[startIndex..startIndex+2] = "\"\"\"" then
+                    (3, source.[startIndex+3..endIndex-3])
+                elif startIndex < length-2 && source.[startIndex..startIndex+1] = "@\"" then
+                    (2, source.[startIndex+2..endIndex-1])
+                else (1, source.[startIndex+1..endIndex-1])
+            else (1, fmt)
+        | None -> (1, fmt)
+
+    let len = String.length fmt
 
     let rec parseLoop acc (i, relLine, relCol) = 
        if i >= len then
@@ -281,7 +283,7 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
 
               | c -> failwithf "%s" <| FSComp.SR.forBadFormatSpecifierGeneral(String.make 1 c) 
           
-          | '\n' -> parseLoop acc (i+1, relLine+1, 0)    
+          | '\n' -> parseLoop acc (i+1, relLine+1, 0)   
           | _ -> parseLoop acc (i+1, relLine, relCol+1) 
     parseLoop [] (0, 0, m.StartColumn)
 

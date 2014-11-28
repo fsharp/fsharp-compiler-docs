@@ -50,7 +50,7 @@ let newInfo ()=
 
 let ParseFormatString (m: Range.range) g (source: string option) report fmt bty cty dty = 
     // Offset is to adjust ranges depending on whether input string is regular, verbatim or triple-quote.
-    // We construct a new 'fmt' string since the current 'fmt' string doesn't distinguish between "\n" and transformed "\\n".
+    // We construct a new 'fmt' string since the current 'fmt' string doesn't distinguish between "\n" and escaped "\\n".
     let (offset, fmt) = 
         match source with
         | Some source ->     
@@ -73,6 +73,8 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
         | None -> (1, fmt)
 
     let len = String.length fmt
+
+    let specifierLocations = ResizeArray()
 
     let rec parseLoop acc (i, relLine, relCol) = 
        if i >= len then
@@ -193,14 +195,16 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   checkNoZeroFlag c; 
                   checkNoNumericPrefix c
 
-              let reportLocation relLine relCol = 
+              let collectSpecifierLocation relLine relCol = 
                   match relLine with
                   | 0 ->
-                      report (Range.mkFileIndexRange m.FileIndex 
+                      specifierLocations.Add(
+                        Range.mkFileIndexRange m.FileIndex 
                                 (Range.mkPos m.StartLine (startCol + offset)) 
                                 (Range.mkPos m.StartLine (relCol + offset)))
                   | _ ->
-                      report (Range.mkFileIndexRange m.FileIndex 
+                      specifierLocations.Add(
+                        Range.mkFileIndexRange m.FileIndex 
                                 (Range.mkPos (m.StartLine + relLine) startCol) 
                                 (Range.mkPos (m.StartLine + relLine) relCol))
 
@@ -211,7 +215,7 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
 
               | ('d' | 'i' | 'o' | 'u' | 'x' | 'X') ->
                   if info.precision then failwithf "%s" <| FSComp.SR.forFormatDoesntSupportPrecision(ch.ToString());
-                  reportLocation relLine relCol
+                  collectSpecifierLocation relLine relCol
                   parseLoop ((posi, mkFlexibleIntFormatTypar g m) :: acc) (i+1, relLine, relCol+1)
 
               | ('l' | 'L') ->
@@ -226,7 +230,7 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   failwithf "%s" <| FSComp.SR.forLIsUnnecessary()
                   match fmt.[i] with
                   | ('d' | 'i' | 'o' | 'u' | 'x' | 'X') -> 
-                      reportLocation relLine relCol
+                      collectSpecifierLocation relLine relCol
                       parseLoop ((posi, mkFlexibleIntFormatTypar g m) :: acc)  (i+1, relLine, relCol+1)
                   | _ -> failwithf "%s" <| FSComp.SR.forBadFormatSpecifier()
 
@@ -234,38 +238,38 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   failwithf "%s" <| FSComp.SR.forHIsUnnecessary()
 
               | 'M' -> 
-                  reportLocation relLine relCol
+                  collectSpecifierLocation relLine relCol
                   parseLoop ((posi, g.decimal_ty) :: acc) (i+1, relLine, relCol+1)
 
               | ('f' | 'F' | 'e' | 'E' | 'g' | 'G') ->
-                  reportLocation relLine relCol
+                  collectSpecifierLocation relLine relCol
                   parseLoop ((posi, mkFlexibleFloatFormatTypar g m) :: acc) (i+1, relLine, relCol+1)
 
               | 'b' ->
                   checkOtherFlags ch;
-                  reportLocation relLine relCol
+                  collectSpecifierLocation relLine relCol
                   parseLoop ((posi, g.bool_ty)  :: acc) (i+1, relLine, relCol+1)
 
               | 'c' ->
                   checkOtherFlags ch;
-                  reportLocation relLine relCol
+                  collectSpecifierLocation relLine relCol
                   parseLoop ((posi, g.char_ty)  :: acc) (i+1, relLine, relCol+1)
 
               | 's' ->
                   checkOtherFlags ch;
-                  reportLocation relLine relCol
+                  collectSpecifierLocation relLine relCol
                   parseLoop ((posi, g.string_ty)  :: acc) (i+1, relLine, relCol+1)
 
               | 'O' ->
                   checkOtherFlags ch;
-                  reportLocation relLine relCol
+                  collectSpecifierLocation relLine relCol
                   parseLoop ((posi, NewInferenceType ()) :: acc) (i+1, relLine, relCol+1)
 
               | 'A' ->
                   match info.numPrefixIfPos with
                   | None     // %A has BindingFlags=Public, %+A has BindingFlags=Public | NonPublic
                   | Some '+' -> 
-                      reportLocation relLine relCol
+                      collectSpecifierLocation relLine relCol
                       parseLoop ((posi, NewInferenceType ()) :: acc)  (i+1, relLine, relCol+1)
                   | Some _   -> failwithf "%s" <| FSComp.SR.forDoesNotSupportPrefixFlag(ch.ToString(), (Option.get info.numPrefixIfPos).ToString())
 
@@ -273,17 +277,21 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   checkOtherFlags ch;
                   let xty = NewInferenceType () 
                   let fty = bty --> (xty --> cty)
-                  reportLocation relLine relCol
+                  collectSpecifierLocation relLine relCol
                   parseLoop ((Option.map ((+)1) posi, xty) ::  (posi, fty) :: acc) (i+1, relLine, relCol+1)
 
               | 't' ->
                   checkOtherFlags ch;
-                  reportLocation relLine relCol
+                  collectSpecifierLocation relLine relCol
                   parseLoop ((posi, bty --> cty) :: acc)  (i+1, relLine, relCol+1)
 
               | c -> failwithf "%s" <| FSComp.SR.forBadFormatSpecifierGeneral(String.make 1 c) 
           
           | '\n' -> parseLoop acc (i+1, relLine+1, 0)   
-          | _ -> parseLoop acc (i+1, relLine, relCol+1) 
-    parseLoop [] (0, 0, m.StartColumn)
-
+          | _ -> parseLoop acc (i+1, relLine, relCol+1)
+           
+    let results = parseLoop [] (0, 0, m.StartColumn)
+    // Only report specifier locations if entire format strings are well-formed.
+    for specifierLocation in specifierLocations do
+        report specifierLocation
+    results

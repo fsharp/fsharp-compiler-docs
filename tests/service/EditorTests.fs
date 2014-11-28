@@ -351,7 +351,7 @@ let _ = sprintf @"%O\n%-5s" "1" "2"
 """
 
     let file = "/home/user/Test.fsx"
-    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+    let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocations() 
@@ -387,7 +387,7 @@ let _ = List.iter(printfn \"\"\"%-A
 "
 
     let file = "/home/user/Test.fsx"
-    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+    let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocations() 
@@ -407,7 +407,7 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
 """
 
     let file = "/home/user/Test.fsx"
-    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+    let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocations() 
@@ -415,4 +415,19 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
     |> shouldEqual [|(3, 24, 3, 25); 
                      (3, 29, 3, 30);
                      (4, 58, 4, 59); (4, 75, 4, 76); (4, 82, 4, 83); (4, 108, 4, 109)|]
+
+[<Test>]
+let ``should not report format specifiers for illformed format strings`` () = 
+    let input = 
+      """
+let _ = sprintf "%.7f %7.1A %7.f %--8.1f"
+let _ = sprintf "%%A"
+let _ = sprintf "ABCDE"
+"""
+
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
+    typeCheckResults.GetFormatSpecifierLocations() 
+    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
+    |> shouldEqual [||]
  

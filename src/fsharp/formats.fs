@@ -61,7 +61,7 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                 |> Seq.scan (+) 0
                 |> Seq.toArray
             let length = source.Length
-            if m.EndLine < positions.Length then
+            if m.EndLine <= positions.Length then
                 let startIndex = positions.[m.StartLine-1] + m.StartColumn
                 let endIndex = positions.[m.EndLine-1] + m.EndColumn
                 if startIndex < length-3 && source.[startIndex..startIndex+2] = "\"\"\"" then

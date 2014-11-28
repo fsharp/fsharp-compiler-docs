@@ -347,8 +347,7 @@ let _ = List.map (sprintf @"%A
 let _ = (10, 12) ||> sprintf "%A
                               %O"
 let _ = sprintf "\n%-8.1e+567" 1.0
-let _ = sprintf @"%O\n%-5s" "1" "2"
-"""
+let _ = sprintf @"%O\n%-5s" "1" "2" """
 
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
@@ -383,8 +382,7 @@ let _ = printfn \"\"\"
                 \"\"\" -10
 let _ = List.iter(printfn \"\"\"%-A
                              %i\\n%O
-                             \"\"\" 1 2)
-"
+                             \"\"\" 1 2)"
 
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 

@@ -49,21 +49,21 @@ let newInfo ()=
     precision      = false}
 
 let ParseFormatString (m: Range.range) g (source: string option) report fmt bty cty dty = 
-    // Offset is to adjust ranges depending on whether input string is regular, verbatim or triple-quote.
+    // Offset is used to adjust ranges depending on whether input string is regular, verbatim or triple-quote.
     // We construct a new 'fmt' string since the current 'fmt' string doesn't distinguish between "\n" and escaped "\\n".
     let (offset, fmt) = 
         match source with
-        | Some source ->     
-            let source = source.Replace("\r\n", "\n").Replace("\r", "\n")       
+        | Some source ->
+            let source = source.Replace("\r\n", "\n").Replace("\r", "\n")
             let positions =
                 source.Split('\n')
                 |> Seq.map (fun s -> String.length s + 1)
                 |> Seq.scan (+) 0
                 |> Seq.toArray
             let length = source.Length
-            if m.EndLine <= positions.Length then
+            if m.EndLine < positions.Length then
                 let startIndex = positions.[m.StartLine-1] + m.StartColumn
-                let endIndex = positions.[m.EndLine-1] + m.EndColumn
+                let endIndex = positions.[m.EndLine-1] + m.EndColumn - 1
                 if startIndex < length-3 && source.[startIndex..startIndex+2] = "\"\"\"" then
                     (3, source.[startIndex+3..endIndex-3])
                 elif startIndex < length-2 && source.[startIndex..startIndex+1] = "@\"" then

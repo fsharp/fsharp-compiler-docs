@@ -346,10 +346,11 @@ let _ = List.map (sprintf @"%A
                            ")
 let _ = (10, 12) ||> sprintf "%A
                               %O"
-"""
+let _ = sprintf "\n%-8.1e+567" 1.0
+let _ = sprintf @"%O\n%-5s" "1" "2" """
 
     let file = "/home/user/Test.fsx"
-    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+    let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocations() 
@@ -367,7 +368,9 @@ let _ = (10, 12) ||> sprintf "%A
                      (15, 12, 15, 14);
                      (16, 28, 16, 29); 
                      (18, 30, 18, 31);
-                     (19, 30, 19, 31)|]
+                     (19, 30, 19, 31);
+                     (20, 19, 20, 24); 
+                     (21, 18, 21, 19); (21, 22, 21, 25)|]
 
 [<Test>]
 let ``Printf specifiers for triple-quote strings`` () = 
@@ -378,19 +381,19 @@ let _ = printfn \"\"\"
             %-A
                 \"\"\" -10
 let _ = List.iter(printfn \"\"\"%-A
-                        
-                             \"\"\")
-"
+                             %i\\n%O
+                             \"\"\" 1 2)"
 
     let file = "/home/user/Test.fsx"
-    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+    let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocations() 
     |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
     |> shouldEqual [|(2, 19, 2, 21);
                      (4, 12, 4, 14);
-                     (6, 29, 6, 31)|]
+                     (6, 29, 6, 31);
+                     (7, 29, 7, 30); (7, 33, 7, 34)|]
  
 [<Test>]
 let ``Printf specifiers for user-defined functions`` () = 
@@ -398,14 +401,31 @@ let ``Printf specifiers for user-defined functions`` () =
       """
 let debug msg = Printf.kprintf System.Diagnostics.Debug.WriteLine msg
 let _ = debug "Message: %i - %O" 1 "Ok"
+let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A and %A.\nResulting exception: %A" "1" "2" "3" "4"
 """
 
     let file = "/home/user/Test.fsx"
-    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
+    let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocations() 
     |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
     |> shouldEqual [|(3, 24, 3, 25); 
-                     (3, 29, 3, 30)|]
+                     (3, 29, 3, 30);
+                     (4, 58, 4, 59); (4, 75, 4, 76); (4, 82, 4, 83); (4, 108, 4, 109)|]
+
+[<Test>]
+let ``should not report format specifiers for illformed format strings`` () = 
+    let input = 
+      """
+let _ = sprintf "%.7f %7.1A %7.f %--8.1f"
+let _ = sprintf "%%A"
+let _ = sprintf "ABCDE"
+"""
+
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
+    typeCheckResults.GetFormatSpecifierLocations() 
+    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
+    |> shouldEqual [||]
  

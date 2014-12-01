@@ -1625,12 +1625,13 @@ module internal MagicAssemblyResolution =
 // Reading stdin 
 //----------------------------------------------------------------------------
 
-type internal FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon, 
-                                    fsiConsoleInput : FsiConsoleInput, 
-                                    fsiConsoleOutput : FsiConsoleOutput, 
-                                    fsiOptions : FsiCommandLineOptions,
-                                    lexResourceManager : LexResourceManager,
-                                    errorLogger) = 
+type internal FsiStdinLexerProvider
+                          (tcConfigB, fsiStdinSyphon, 
+                           fsiConsoleInput : FsiConsoleInput, 
+                           fsiConsoleOutput : FsiConsoleOutput, 
+                           fsiOptions : FsiCommandLineOptions,
+                           lexResourceManager : LexResourceManager,
+                           errorLogger) = 
 
     // #light is the default for FSI
     let interactiveInputLightSyntaxStatus = 
@@ -1640,7 +1641,6 @@ type internal FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon,
     let LexbufFromLineReader (fsiStdinSyphon: FsiStdinSyphon) readf = 
         UnicodeLexing.FunctionAsLexbuf 
           (fun (buf: char[], start, len) -> 
-            if !progress then printfn "calling readf..."
             //fprintf fsiConsoleOutput.Out "Calling ReadLine\n";
             let inputOption = try Some(readf()) with :? EndOfStreamException -> None
             inputOption |> Option.iter (fun t -> fsiStdinSyphon.Add (t + "\n"));
@@ -1680,13 +1680,9 @@ type internal FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon,
                     match fsiConsoleInput.TryGetFirstLine() with 
                     | Some firstLine -> firstLine
                     | None -> 
-                          if !progress then printfn "have console... calling ReadLine..."
                           console())
             | _ -> 
-              
-               LexbufFromLineReader fsiStdinSyphon (fun () -> 
-                   if !progress then printfn "no console... calling ReadLine..."
-                   fsiConsoleInput.In.ReadLine() |> removeZeroCharsFromString)
+                LexbufFromLineReader fsiStdinSyphon (fun () -> fsiConsoleInput.In.ReadLine() |> removeZeroCharsFromString)
 #endif                
 
         fsiStdinSyphon.Reset();
@@ -1781,7 +1777,6 @@ type internal FsiInteractionProcessor
                     Parser.interaction lexerWhichSavesLastToken tokenizer.LexBuffer)
             Some input
         with e ->
-            if !progress then fprintfn fsiConsoleOutput.Out "Error in parseInteraction: %s" (e.ToString())
             // On error, consume tokens until to ;; or EOF.
             // Caveat: Unless the error parse ended on ;; - so check the lastToken returned by the lexer function.
             // Caveat: What if this was a look-ahead? That's fine! Since we need to skip to the ;; anyway.     
@@ -2665,8 +2660,6 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
         use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Interactive)
 
         if fsiOptions.Interact then 
-
-            if !progress then fprintfn fsiConsoleOutput.Out "Run: Interact..."
             // page in the type check env 
             fsiInteractionProcessor.LoadDummyInteraction()
             if !progress then fprintfn fsiConsoleOutput.Out "MAIN: InstallKillThread!";

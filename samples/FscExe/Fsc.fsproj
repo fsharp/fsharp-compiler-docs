@@ -2,37 +2,53 @@
 <!-- Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information. -->
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <FSharpSourcesRoot>$(MSBuildProjectDirectory)\..\..</FSharpSourcesRoot>
-  </PropertyGroup>
-  <Import Project="$(FSharpSourcesRoot)\FSharpSource.Settings.targets" />
-  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <!--
-        fsc.exe and fsi.exe only runs on x86 (emulates on ia64, x64) due to 
-        Win32 DLLs and memory mapping dependencies...
-        -->
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <PlatformTarget>x86</PlatformTarget>
     <ProjectGuid>{C94C257C-3C0A-4858-B5D8-D746498D1F08}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <NoWarn>$(NoWarn);62;44</NoWarn>
-    <AssemblyName>fsc</AssemblyName>
+    <AssemblyName>FscExe</AssemblyName>
+    <Name>FscExe</Name>
     <DefineConstants>EXTENSIONTYPING;COMPILER;$(DefineConstants)</DefineConstants>
     <AllowCrossTargeting>true</AllowCrossTargeting>
     <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
-  <!-- MonoDevelop likes these here to recognise the configurations -->
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Debug\FsiExe.XML</DocumentationFile>
+    <Prefer32Bit>true</Prefer32Bit>
+    <StartArguments>
+    </StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Release\FsiExe.XML</DocumentationFile>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="InternalsVisibleTo.fs" />
-    <Compile Include="..\..\assemblyinfo\assemblyinfo.fsc.exe.fs">
+    <Compile Include="..\..\src\assemblyinfo\assemblyinfo.fsc.exe.fs">
       <Link>Resources/assemblyinfo.fsc.exe.fs</Link>
     </Compile>
-    <Compile Include="..\fscmain.fs">
+    <Compile Include="..\..\src\fsharp\fscmain.fs">
       <Link>Driver/fscmain.fs</Link>
     </Compile>
     <None Include="fsc.exe.config">
-      <Link>Driver/fsc.exe.config</Link>
       <Link>fsc.exe.config</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -40,16 +56,23 @@
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Runtime.Remoting" />
-    <ProjectReference Include="..\FSharp.Compiler\FSharp.Compiler.fsproj">
+    <ProjectReference Include="..\..\src\fsharp\FSharp.Compiler.Service\FSharp.Compiler.Service.fsproj">
       <Project>{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}</Project>
-      <Name>FSharp.Compiler</Name>
+      <Name>FSharp.Compiler.Service</Name>
     </ProjectReference>
     <ProjectReference Include="..\FSharp.Core\FSharp.Core.fsproj">
       <Project>{DED3BBD7-53F4-428A-8C9F-27968E768605}</Project>
       <Name>FSharp.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(FSharpSourcesRoot)\FSharpSource.targets" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '10.0' OR '$(VisualStudioVersion)' == '11.0'">
+    <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+  </PropertyGroup>
+  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
 </Project>

@@ -6,14 +6,12 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.AbstractIL.IL // runningOnMono 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.Driver
-open Internal.Utilities
-open Microsoft.FSharp.Compiler.Lib
-open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.Build
+open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open System.Runtime.CompilerServices
 
 type TypeInThisAssembly() = member x.Dummy = 1
+
+let progress = ref false
 
 /// Implement the optional resident compilation service
 module FSharpResidentCompiler = 
@@ -35,10 +33,12 @@ module FSharpResidentCompiler =
             { new TextWriter() with 
                  member x.Write(c:char) = lock output (fun () -> output.Add (isOut, (try Some System.Console.ForegroundColor with _ -> None) ,c)) 
                  member x.Encoding = Encoding.UTF8 }
+        do System.Console.SetOut (outWriter true)
+        do System.Console.SetError (outWriter false)
         member x.GetTextAndClear() = lock output (fun () -> let res = output.ToArray() in output.Clear(); res)
 
     /// The compilation server, which runs in the server process. Accessed by clients using .NET remoting.
-    type FSharpCompilationServer(exiter:Exiter)  =
+    type FSharpCompilationServer()  =
         inherit MarshalByRefObject()  
 
         static let onWindows = 
@@ -64,16 +64,10 @@ module FSharpResidentCompiler =
                           while true do 
                               let! (pwd,argv, reply: AsyncReplyChannel<_>) = inbox.Receive()
                               if !progress then printfn "server agent: got compilation request, argv = %A" argv
-                              let exitCode = 
-                                  try 
-                                      Environment.CurrentDirectory <- pwd
-                                      mainCompile (argv, true, exiter); 
-                                      if !progress then printfn "server: finished compilation request, argv = %A" argv
-                                      0
-                                  with e -> 
-                                      if !progress then printfn "server: finished compilation request with errors, argv = %A, e = %s" argv (e.ToString())
-                                      stopProcessingRecovery e range0
-                                      1
+                              Environment.CurrentDirectory <- pwd
+                              let errors, exitCode = SimpleSourceCodeServices().Compile (argv); 
+                              for error in errors do eprintfn "%s" (error.ToString())
+                              if !progress then printfn "server: finished compilation request, argv = %A" argv
                               let output = outputCollector.GetTextAndClear()
                               if !progress then printfn "ouput: %A" output
                               if !progress then printfn "sending reply..." 
@@ -114,10 +108,9 @@ module FSharpResidentCompiler =
                 lease.RenewOnCallTime <- TimeSpan.FromDays(1.0);
             box lease
             
-        static member RunServer(exiter:Exiter) =
-            progress := !progress ||  condition "FSHARP_SERVER_PROGRESS"
+        static member RunServer() =
             if !progress then printfn "server: initializing server object" 
-            let server = new FSharpCompilationServer(exiter)
+            let server = new FSharpCompilationServer()
             let chan = new Ipc.IpcChannel(channelName) 
             ChannelServices.RegisterChannel(chan,false);
             RemotingServices.Marshal(server,serverName)  |> ignore
@@ -154,7 +147,6 @@ module FSharpResidentCompiler =
             // Enable these lines to write a log file, e.g. when running under xbuild
             //let os = System.IO.File.CreateText "/tmp/fsc-client-log"
             //let printfn fmt = Printf.kfprintf (fun () -> fprintfn os ""; os.Flush()) os fmt
-            progress := !progress ||  condition "FSHARP_SERVER_PROGRESS"
             let pwd = System.Environment.CurrentDirectory
             let clientOpt = 
                 if !progress then printfn "client: creating client"
@@ -228,7 +220,7 @@ module FSharpResidentCompiler =
                         try client.Compile (pwd, argv) 
                         with e -> 
                            printfn "server error: %s" (e.ToString())
-                           raise (Error (FSComp.SR.fscRemotingError(), rangeStartup))
+                           failwith "remoting error"
                         
                     if !progress then printfn "client: returned from client.Compile(%A), res = %d" argv exitCode
                     use holder = 
@@ -246,9 +238,7 @@ module FSharpResidentCompiler =
                         c |> (if isOut then System.Console.Out.Write else System.Console.Error.Write)
                     Some exitCode
                 with err -> 
-                   let sb = System.Text.StringBuilder()
-                   OutputErrorOrWarning (pwd,true,false,ErrorStyle.DefaultErrors,true) sb (PhasedError.Create(err,BuildPhase.Compile))
-                   eprintfn "%s" (sb.ToString())
+                   eprintfn "%s" (err.ToString())
                    // We continue on and compile in-process - the server appears to have died half way through.
                    None
             | None -> 
@@ -269,27 +259,27 @@ module Driver =
         if runningOnMono && hasArgument "resident" argv then 
             let argv = stripArgument "resident" argv
 
-            if not (hasArgument "nologo" argv) then 
-                printfn "%s" (FSComp.SR.buildProductName(FSharpEnvironment.FSharpTeamVersionNumber))
-                printfn "%s" (FSComp.SR.optsCopyright())
+            //if not (hasArgument "nologo" argv) then 
+            //    printfn "%s" (FSComp.SR.buildProductName(FSharpEnvironment.FSharpTeamVersionNumber))
+            //    printfn "%s" (FSComp.SR.optsCopyright())
 
             let fscServerExe = typeof<TypeInThisAssembly>.Assembly.Location
             let exitCodeOpt = FSharpResidentCompiler.FSharpCompilationServer.TryCompileUsingServer (fscServerExe, argv)
             match exitCodeOpt with 
             | Some exitCode -> exitCode
             | None -> 
-                mainCompile (argv, true, QuitProcessExiter)
-                0
+                let errors, exitCode = SimpleSourceCodeServices().Compile (argv) 
+                for error in errors do eprintfn "%s" (error.ToString())
+                exitCode
 
         elif runningOnMono && hasArgument "server" argv then 
-            // Install the right exiter so we can catch "StopProcessing" without exiting the server
-            let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
-            FSharpResidentCompiler.FSharpCompilationServer.RunServer(exiter)        
+            FSharpResidentCompiler.FSharpCompilationServer.RunServer()        
             0
         
         else
-            mainCompile (argv, false, QuitProcessExiter)
-            0 
+            let errors, exitCode = SimpleSourceCodeServices().Compile (argv)
+            for error in errors do eprintfn "%s" (error.ToString())
+            exitCode
 
 
 
@@ -301,7 +291,6 @@ do ()
 let main(argv) =
     System.Runtime.GCSettings.LatencyMode <- System.Runtime.GCLatencyMode.Batch
     use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parameter)    
-    if not runningOnMono then Lib.UnmanagedProcessExecutionOptions.EnableHeapTerminationOnCorruption() (* SDL recommendation *)
 
     try 
         Driver.main(Array.append [| "fsc.exe" |] argv); 

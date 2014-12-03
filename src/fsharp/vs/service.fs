@@ -395,6 +395,27 @@ type GetPreciseCompletionListFromExprTypingsResult =
 
 type Names = string list 
 
+[<Sealed>]
+type FSharpSymbolUse(g:TcGlobals, denv: DisplayEnv, symbol:FSharpSymbol, itemOcc, range: range) = 
+    member __.Symbol  = symbol
+    member __.DisplayContext  = FSharpDisplayContext(fun _ -> denv)
+    member x.IsDefinition = x.IsFromDefinition
+    member __.IsFromDefinition = (match itemOcc with ItemOccurence.Binding -> true | _ -> false)
+    member __.IsFromPattern = (match itemOcc with ItemOccurence.Pattern -> true | _ -> false)
+    member __.IsFromType = (match itemOcc with ItemOccurence.UseInType -> true | _ -> false)
+    member __.IsFromAttribute = (match itemOcc with ItemOccurence.UseInAttribute -> true | _ -> false)
+    member __.IsFromDispatchSlotImplementation = (match itemOcc with ItemOccurence.Implemented -> true | _ -> false)
+    member __.IsFromComputationExpression = 
+        match symbol.Item, itemOcc with 
+        // 'seq' in 'seq { ... }' gets colored as keywords
+        | (Item.Value vref), ItemOccurence.Use when valRefEq g g.seq_vref vref ->  true
+        // custom builders, custom operations get colored as keywords
+        | (Item.CustomBuilder _ | Item.CustomOperation _), ItemOccurence.Use ->  true
+        | _ -> false
+
+    member __.FileName = range.FileName
+    member __.Range = Range.toZ range
+    member __.RangeAlternate = range
 
 // A scope represents everything we get back from the typecheck of a file.
 // It acts like an in-memory database about the file.
@@ -1006,7 +1027,10 @@ type TypeCheckInfo
                         items |> List.map (fun (_nm,itemsWithSameName) -> 
                             match itemsWithSameName with
                             | [] -> failwith "Unexpected empty bag"
-                            | items -> items |> List.map (fun item -> FSharpSymbol.Create(g, thisCcu, tcImports, item)))
+                            | items ->
+                                items 
+                                |> List.map (fun item -> let symbol = FSharpSymbol.Create(g, thisCcu, tcImports, item)
+                                                         FSharpSymbolUse(g, _denv, symbol, ItemOccurence.Use, _m)))
 
                     //end filtering
                     items)
@@ -1598,28 +1622,6 @@ type FSharpProjectContext(thisCcu: CcuThunk, assemblies: FSharpAssembly list, ad
 
     member __.AccessibilityRights = FSharpAccessibilityRights(thisCcu, ad)
 
-
-[<Sealed>]
-type FSharpSymbolUse(g:TcGlobals, denv: DisplayEnv, symbol:FSharpSymbol, itemOcc, range: range) = 
-    member __.Symbol  = symbol
-    member __.DisplayContext  = FSharpDisplayContext(fun _ -> denv)
-    member x.IsDefinition = x.IsFromDefinition
-    member __.IsFromDefinition = (match itemOcc with ItemOccurence.Binding -> true | _ -> false)
-    member __.IsFromPattern = (match itemOcc with ItemOccurence.Pattern -> true | _ -> false)
-    member __.IsFromType = (match itemOcc with ItemOccurence.UseInType -> true | _ -> false)
-    member __.IsFromAttribute = (match itemOcc with ItemOccurence.UseInAttribute -> true | _ -> false)
-    member __.IsFromDispatchSlotImplementation = (match itemOcc with ItemOccurence.Implemented -> true | _ -> false)
-    member __.IsFromComputationExpression = 
-        match symbol.Item, itemOcc with 
-        // 'seq' in 'seq { ... }' gets colored as keywords
-        | (Item.Value vref), ItemOccurence.Use when valRefEq g g.seq_vref vref ->  true
-        // custom builders, custom operations get colored as keywords
-        | (Item.CustomBuilder _ | Item.CustomOperation _), ItemOccurence.Use ->  true
-        | _ -> false
-
-    member __.FileName = range.FileName
-    member __.Range = Range.toZ range
-    member __.RangeAlternate = range
 
 [<Sealed>]
 // 'details' is an option because the creation of the tcGlobals etc. for the project may have failed.

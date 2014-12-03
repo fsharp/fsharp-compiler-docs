@@ -277,13 +277,13 @@ type Test() =
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some untyped, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
-    let item = decls |> List.tryFind (fun d -> d.Head.DisplayName = "abc")
+    let item = decls |> List.tryFind (fun d -> d.Head.Symbol.DisplayName = "abc")
     match item with
     | Some items -> 
-       for symbol in items do
-           printf "%s" symbol.DisplayName
+       for symbolUse in items do
+           printf "%s" symbolUse.Symbol.DisplayName
     | _ -> ()
-    decls |> Seq.exists (fun d -> d.Head.DisplayName = "abc") |> shouldEqual true
+    decls |> Seq.exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
 
 [<Test>]
 let ``Symbol based find function from member 2`` () = 
@@ -299,13 +299,13 @@ type Test() =
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some untyped, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
-    let item = decls |> List.tryFind (fun d -> d.Head.DisplayName = "abc")
+    let item = decls |> List.tryFind (fun d -> d.Head.Symbol.DisplayName = "abc")
     match item with
     | Some items -> 
-       for symbol in items do
-           printf "%s" symbol.DisplayName
+       for symbolUse in items do
+           printf "%s" symbolUse.Symbol.DisplayName
     | _ -> ()
-    decls |> Seq.exists (fun d -> d.Head.DisplayName = "abc") |> shouldEqual true
+    decls |> Seq.exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
     true |> should equal true
 
 [<Test>]
@@ -322,7 +322,7 @@ type Test() =
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some untyped, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
-    decls|> Seq .exists (fun d -> d.Head.DisplayName = "abc") |> shouldEqual true
+    decls|> Seq .exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
 
 [<Test>]
 let ``Printf specifiers for regular and verbatim strings`` () = 

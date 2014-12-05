@@ -100,6 +100,9 @@ type FSharpProjectContext =
 /// Represents the use of an F# symbol from F# source code
 [<Sealed>]
 type FSharpSymbolUse = 
+    // For internal use only
+    internal new : g:Env.TcGlobals * denv: Tastops.DisplayEnv * symbol:FSharpSymbol * itemOcc:Nameres.ItemOccurence * range: range -> FSharpSymbolUse
+
     /// The symbol referenced
     member Symbol : FSharpSymbol 
 

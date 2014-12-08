@@ -1,3 +1,7 @@
+#### 0.0.81 - 
+* Update GetDeclarationListSymbols to expose FSharpSymbolUse
+* Improve reporting of format specifiers
+
 #### 0.0.80 - 
 * Update to latest F# 3.1.3 (inclunding updated FsLex/FsYacc used in build of FCS)
 * Report printf specifiers from Service API

@@ -90,7 +90,7 @@
     <Reference Include="Microsoft.Build, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="CSharp_Analysis\CSharp_Analysis\CSharp_Analysis.csproj">
+    <ProjectReference Include="data\CSharp_Analysis\CSharp_Analysis.csproj">
       <Name>CSharp_Analysis</Name>
       <Project>{887630a3-4b1d-40ea-b8b3-2d842e9c40db}</Project>
       <Private>True</Private>

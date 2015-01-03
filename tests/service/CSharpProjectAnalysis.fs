@@ -87,4 +87,5 @@ let ``Test that csharp references are recognized as such`` () =
         //String.IsNullOrWhiteSpace(members.["InterfaceEvent"].XmlDocSig) |> shouldEqual false
 
         ()
-    | None -> ()
+    | None -> 
+        Assert.Fail ("CSharpClass was not found in CSharp_Analysis assembly!")

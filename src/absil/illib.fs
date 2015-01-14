@@ -970,8 +970,8 @@ module Shim =
     open System.Windows
     open System
 
-    let mutable FileSystem = 
-        { new IFileSystem with 
+    type DefaultFileSystem() =
+        interface IFileSystem with
             member this.ReadAllBytesShim (fileName:string) = 
                 use stream = this.FileStreamReadShim fileName
                 let len = stream.Length
@@ -1039,12 +1039,10 @@ module Shim =
                 match Application.GetResourceStream(System.Uri(fileName,System.UriKind.Relative)) with 
                 | null -> IsolatedStorageFile.GetUserStoreForApplication().DeleteFile fileName
                 | _resStream -> ()
-            
-          }
 #else
 
-    let mutable FileSystem = 
-        { new IFileSystem with 
+    type DefaultFileSystem() =
+        interface IFileSystem with
             member __.AssemblyLoadFrom(fileName:string) = 
     #if FX_ATLEAST_40_COMPILER_LOCATION
                 System.Reflection.Assembly.UnsafeLoadFrom fileName
@@ -1077,7 +1075,7 @@ module Shim =
 
             member __.GetLastWriteTimeShim (fileName:string) = File.GetLastWriteTime fileName
             member __.SafeExists (fileName:string) = System.IO.File.Exists fileName 
-            member __.FileDelete (fileName:string) = System.IO.File.Delete fileName }       
+            member __.FileDelete (fileName:string) = System.IO.File.Delete fileName
 #endif
 
     type System.Text.Encoding with 
@@ -1088,3 +1086,4 @@ module Shim =
                 System.Text.Encoding.GetEncoding(n)
 #endif                
 
+    let mutable FileSystem = DefaultFileSystem() :> IFileSystem 

@@ -1,3 +1,7 @@
+#### 0.0.82 - 
+* Better support for Metadata of C# (and other) Assemblies.
+* Expose the DefaultFileSystem as a type instead of anonymous
+
 #### 0.0.81 - 
 * Update GetDeclarationListSymbols to expose FSharpSymbolUse
 * Improve reporting of format specifiers

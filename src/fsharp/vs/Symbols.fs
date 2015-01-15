@@ -194,7 +194,7 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
     let isResolvedAndFSharp() = 
         match entity with
         | ERefNonLocal(NonLocalEntityRef(ccu, _)) -> not ccu.IsUnresolvedReference && ccu.IsFSharp
-        | _ -> true
+        | _ -> cenv.thisCcu.IsFSharp
 
     let isUnresolved() = entityIsUnresolved entity
     let isResolved() = not (isUnresolved())
@@ -1788,7 +1788,7 @@ and FSharpAssembly internal (cenv, ccu: CcuThunk) =
     member __.FileName = ccu.FileName
     member __.SimpleName = ccu.AssemblyName 
     member __.IsProviderGenerated = ccu.IsProviderGenerated
-    member __.Contents = FSharpAssemblySignature(cenv,  ccu.Contents.ModuleOrNamespaceType)
+    member __.Contents = FSharpAssemblySignature((if ccu.IsUnresolvedReference then cenv else (new cenv(cenv.g, ccu, cenv.tcImports))),  ccu.Contents.ModuleOrNamespaceType)
                  
     override x.ToString() = x.QualifiedName
 

@@ -222,6 +222,32 @@ let ``Disposing interactive session (collectible)``() =
         printfn "iteration %d" i
         createSession i
 
+[<Test>]
+let ``interactive session events``() =
+
+        let defaultArgs = [|"fsi.exe";"--noninteractive";"--nologo";"--gui-"|]
+        let sbOut = StringBuilder()
+        use inStream = new StringReader("")
+        use outStream = new StringWriter(sbOut)
+        let sbErr = StringBuilder("")
+        use errStream = new StringWriter(sbErr)
+
+        let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
+        let evals = ResizeArray()
+        use evaluator = fsiConfig.OnEvaluation.Subscribe (fun eval -> evals.Add (eval.FsiValue, eval.Name, eval.SymbolUse))
+
+        use session = FsiEvaluationSession.Create(fsiConfig, defaultArgs, inStream, outStream, errStream, collectible=true)
+        session.EvalInteraction  "let x = 42"
+        
+        let value, name, symbol = evals.[0]
+        // name should be x 
+        // value should be 42
+        // symbol type should be a FSharpMemberOrFunctionOrValue and display name "x"
+        name |> should equal "x"
+        value.ReflectionValue |> should equal 42
+        symbol.Symbol.GetType() |> should equal typeof<FSharpMemberOrFunctionOrValue>
+        symbol.Symbol.DisplayName |> should equal "x"
+
 
 let RunManually() = 
   ``EvalExpression test 1``() 
@@ -240,6 +266,7 @@ let RunManually() =
   ``Bad arguments to session creation 1``()
   ``Bad arguments to session creation 2``()
   ``EvalScript accepts paths verbatim``()
+  ``interactive session events``()
   ``Disposing interactive session (collectible)``() 
 
 //#endif

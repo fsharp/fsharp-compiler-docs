@@ -79,3 +79,4 @@ TestResults.xml
 extras
 ossreadme*.txt
 *.XML
+src/assemblyinfo/assemblyinfo.shared.fs

@@ -149,12 +149,11 @@ type internal FsiValuePrinterMode =
     | PrintExpr 
     | PrintDecl
 
-type EvaluationEventArgs(name : string, displaycontext : FSharpDisplayContext, range : range, fsivalue : FsiValue) =
+type EvaluationEventArgs(name : string, fsivalue : FsiValue, symbolUse : FSharpSymbolUse) =
     inherit EventArgs()
     member x.Name = name
-    member x.DisplayContext = displaycontext
-    member x.Range = range
     member x.FsiValue = fsivalue
+    member x.SymbolUse = symbolUse
 
 [<AbstractClass>]
 type public FsiEvaluationSessionHostConfig () = 
@@ -226,8 +225,8 @@ type public FsiEvaluationSessionHostConfig () =
 
     /// Hook for listening for evaluation bindings
     member x.OnEvaluation = evaluationEvent.Publish
-    member internal x.TriggerEvaluation (name, context, range, value) =
-        evaluationEvent.Trigger (EvaluationEventArgs (name, context, range, value) )
+    member internal x.TriggerEvaluation (name, value, symbolUse) =
+        evaluationEvent.Trigger (EvaluationEventArgs (name, value, symbolUse) )
 
 /// Used to print value signatures along with their values, according to the current
 /// set of pretty printers installed in the system, and default printing rules.
@@ -1120,23 +1119,23 @@ type internal FsiDynamicCompiler
 
         let filteredByVal =
             allNames
-            |> List.choose (function
+            |> List.choose (fun i ->
+                            match i with
                             | Nameres.Item.Value vref -> Some (vref, i)
                             | _ -> None)
 
         let actualValues =
-            filteredByVal|> List.choose (fun (vref, _) -> 
+            filteredByVal |> List.choose (fun (vref, i) -> 
                 let optValue = newState.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(newState.emEnv), vref.Deref)
                 match optValue with
                 | Some (res, typ) ->
-                    //let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, i)
-                    let displayEnv = newState.tcState.TcEnvFromImpls.DisplayEnv
-                    let displayContext = FSharpDisplayContext(fun _ -> displayEnv)
-                    Some(vref.DisplayName,displayContext,vref.Range,FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)))
+                    let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, i)
+                    let symbolUse = FSharpSymbolUse(tcGlobals, newState.tcState.TcEnvFromImpls.DisplayEnv, symbol, ItemOccurence.Binding, vref.Range)
+                    Some(vref.DisplayName,FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)), symbolUse)
                 | None -> None )
         
-        for (name, displayContext, range, fsiValue) in actualValues do 
-            fsiConfig.TriggerEvaluation (name, displayContext, range, fsiValue)
+        for (name, fsiValue, symbolUse) in actualValues do 
+            fsiConfig.TriggerEvaluation (name, fsiValue, symbolUse)
 
         newState
       

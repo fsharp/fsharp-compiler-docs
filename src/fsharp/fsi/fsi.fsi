@@ -30,9 +30,8 @@ type EvaluationEventArgs =
     inherit System.EventArgs
     //new : unit -> CompilerOutputStream
     member Name : string
-    member DisplayContext : Microsoft.FSharp.Compiler.SourceCodeServices.FSharpDisplayContext
-    member Range : Microsoft.FSharp.Compiler.Range.range
     member FsiValue : FsiValue
+    member SymbolUse : FSharpSymbolUse
 
 [<AbstractClass>]
 type public FsiEvaluationSessionHostConfig = 

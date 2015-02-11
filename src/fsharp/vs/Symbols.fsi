@@ -683,8 +683,8 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     member CurriedParameterGroups : IList<IList<FSharpParameter>>
 
     /// Gets the overloads for the current method
-    /// matchParamterNumber indicates whether to filter the overloads to match the number of parameters in the current symbol
-    member Overloads : bool -> FSharpMemberOrFunctionOrValue list option
+    /// matchParameterNumber indicates whether to filter the overloads to match the number of parameters in the current symbol
+    member Overloads : bool -> IList<FSharpMemberOrFunctionOrValue> option
 
     member ReturnParameter : FSharpParameter
 

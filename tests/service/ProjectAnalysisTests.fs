@@ -4325,3 +4325,63 @@ let ``Test project34 should report correct accessibility for System.Data.Listene
         |> Option.get
 
     listenerFuncEntity.Accessibility.IsPrivate |> shouldEqual true
+
+module Project35 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+type Test =
+    let curriedFunction (one:int) (two:float) (three:string) =
+        one + int two + int three
+    let tupleFunction (one:int, two:float, three:string) =
+        one + int two + int three
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test project35 CurriedParameterGroups should be available for nested functions`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project35.options) |> Async.RunSynchronously
+    let allSymbolUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+    let findByDisplayName name = 
+        Array.find (fun (su:FSharpSymbolUse) -> su.Symbol.DisplayName = name)
+           
+    let curriedFunction = allSymbolUses |> findByDisplayName "curriedFunction"
+    match curriedFunction.Symbol with
+    | :? FSharpMemberOrFunctionOrValue as mfv ->
+        let curriedParamGroups =
+            mfv.CurriedParameterGroups
+            |> Seq.map Seq.toList
+            |> Seq.toList
+        match curriedParamGroups with
+        | [[param1];[param2];[param3]] ->
+            param1.Type.TypeDefinition.DisplayName |> should equal "int"
+            param2.Type.TypeDefinition.DisplayName |> should equal "float"
+            param3.Type.TypeDefinition.DisplayName |> should equal "string"
+        | _ -> failwith "Unexpected parameters"
+    | _ -> failwith "Unexpected symbol type"
+
+    let tupledFunction = allSymbolUses |> findByDisplayName "tupleFunction"
+    match tupledFunction.Symbol with
+    | :? FSharpMemberOrFunctionOrValue as mfv ->
+        let curriedParamGroups =
+            mfv.CurriedParameterGroups
+            |> Seq.map Seq.toList
+            |> Seq.toList
+        match curriedParamGroups with
+        | [[param1;param2;param3]] ->
+            param1.Type.TypeDefinition.DisplayName |> should equal "int"
+            param2.Type.TypeDefinition.DisplayName |> should equal "float"
+            param3.Type.TypeDefinition.DisplayName |> should equal "string"
+        | _ -> failwith "Unexpected parameters"
+    | _ -> failwith "Unexpected symbol type"
+

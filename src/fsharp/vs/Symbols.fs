@@ -1397,7 +1397,29 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
 
         | V v -> 
         match v.ValReprInfo with 
-        | None -> failwith "not a module let binding or member"
+        | None ->
+            let _, tau = v.TypeScheme
+            if isFunTy cenv.g tau then
+                let typeArguments, _typ = stripFunTy cenv.g tau
+                [ for typ in typeArguments do
+                    let allArguments =
+                        if isTupleTy cenv.g typ
+                        then tryDestTupleTy cenv.g typ
+                        else [typ]
+                    yield
+                      [for typ in allArguments do
+                          match typ with
+                          | TType_var tp ->
+                              let isParamArrayArg = HasFSharpAttribute cenv.g cenv.g.attrib_ParamArrayAttribute tp.Attribs
+                              let isOutArg = HasFSharpAttribute cenv.g cenv.g.attrib_OutAttribute tp.Attribs && isByrefTy cenv.g typ
+                              let isOptionalArg = HasFSharpAttribute cenv.g cenv.g.attrib_OptionalArgumentAttribute tp.Attribs
+                              let argInfo : ArgReprInfo = { Name=None; Attribs= [] }
+                              yield FSharpParameter(cenv,  tp.AsType, argInfo, x.DeclarationLocationOpt, isParamArrayArg, isOutArg, isOptionalArg)
+                          | _ -> () ]
+                      |> makeReadOnlyCollection ]
+                |> makeReadOnlyCollection
+            else
+                failwith "not a module let binding or member"
         | Some (ValReprInfo(_typars,curriedArgInfos,_retInfo)) -> 
             let tau = v.TauType
             let argtysl,_ = GetTopTauTypeInFSharpForm cenv.g curriedArgInfos tau range0

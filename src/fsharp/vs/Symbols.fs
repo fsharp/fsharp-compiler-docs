@@ -1034,15 +1034,20 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         | Some v -> Some v.Range
         | None -> base.DeclarationLocation 
 
-    member x.Overloads =
+    member x.Overloads matchParameterNumber =
         checkIsResolved()
         match d with
         | M m ->
             match item with
-            | Item.MethodGroup (_name, methodInfos) -> 
-                methodInfos
-                |> List.filter (fun methodInfo -> not (methodInfo.NumArgs = m.NumArgs) )
+            | Item.MethodGroup (_name, methodInfos) ->
+                let methods =
+                    if matchParameterNumber then
+                        methodInfos
+                        |> List.filter (fun methodInfo -> not (methodInfo.NumArgs = m.NumArgs) )
+                    else methodInfos
+                methods
                 |> List.map (fun mi -> FSharpMemberOrFunctionOrValue(cenv, M mi, item))
+                |> makeReadOnlyCollection
                 |> Some
             | _ -> None
         | _ -> None

@@ -99,18 +99,19 @@ let ``GetMethodsAsSymbols should return all overloads of a method as FSharpSymbo
     | Some methods ->
         [ for ms in methods do
             yield ms.Symbol.DisplayName, extractCurriedParams ms ]
+        |> List.sortBy (fun (name, parameters) -> parameters.Length, (parameters |> List.map snd ))
         |> shouldEqual
-            [("Concat", [("arg0", "obj")])
-             ("Concat", [("args", "obj []")])
-             ("Concat", [("values", "string []")])
-             ("Concat", [("values", "Collections.Generic.IEnumerable<string>")])
-             ("Concat", [("values", "Collections.Generic.IEnumerable<'T>")])
-             ("Concat", [("arg0", "obj"); ("arg1", "obj")])
-             ("Concat", [("str0", "string"); ("str1", "string")])
-             ("Concat", [("arg0", "obj"); ("arg1", "obj"); ("arg2", "obj")])
-             ("Concat", [("str0", "string"); ("str1", "string"); ("str2", "string")])
-             ("Concat", [("arg0", "obj"); ("arg1", "obj"); ("arg2", "obj");("arg3", "obj")]);
-             ("Concat", [("str0", "string"); ("str1", "string"); ("str2", "string");("str3", "string")])]
+            [("Concat", [("values", "Collections.Generic.IEnumerable<'T>")]);
+             ("Concat", [("values", "Collections.Generic.IEnumerable<string>")]);
+             ("Concat", [("arg0", "obj")]);
+             ("Concat", [("args", "obj []")]);
+             ("Concat", [("values", "string []")]);
+             ("Concat", [("arg0", "obj"); ("arg1", "obj")]);
+             ("Concat", [("str0", "string"); ("str1", "string")]);
+             ("Concat", [("arg0", "obj"); ("arg1", "obj"); ("arg2", "obj")]);
+             ("Concat", [("str0", "string"); ("str1", "string"); ("str2", "string")]);
+             ("Concat", [("arg0", "obj"); ("arg1", "obj"); ("arg2", "obj"); ("arg3", "obj")]);
+             ("Concat", [("str0", "string"); ("str1", "string"); ("str2", "string"); ("str3", "string")])]
     | None -> failwith "No symbols returned"
 
 

@@ -79,6 +79,39 @@ let ``Intro test`` () =
                ("Concat", ["arg0: obj"; "arg1: obj"; "arg2: obj"; "arg3: obj"]);
                ("Concat", ["str0: string"; "str1: string"; "str2: string"; "str3: string"])]
 
+[<Test>]
+let ``GetMethodsAsSymbols should return all overloads of a method as FSharpSymbolUse`` () =
+
+    let extractCurriedParams (symbol:FSharpSymbolUse) =
+        match symbol.Symbol with
+        | :? FSharpMemberOrFunctionOrValue as mvf ->
+            [for pg in mvf.CurriedParameterGroups do 
+                for (p:FSharpParameter) in pg do 
+                    yield p.DisplayName, p.Type.Format (symbol.DisplayContext)]
+        | _ -> []
+
+    // Split the input & define file name
+    let inputLines = input.Split('\n')
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input)
+    let methodsSymbols = typeCheckResults.GetMethodsAsSymbols(5, 27, inputLines.[4], ["String"; "Concat"]) |> Async.RunSynchronously
+    match methodsSymbols with
+    | Some methods ->
+        [ for ms in methods do
+            yield ms.Symbol.DisplayName, extractCurriedParams ms ]
+        |> shouldEqual
+            [("Concat", [("arg0", "obj")])
+             ("Concat", [("args", "obj []")])
+             ("Concat", [("values", "string []")])
+             ("Concat", [("values", "Collections.Generic.IEnumerable<string>")])
+             ("Concat", [("values", "Collections.Generic.IEnumerable<'T>")])
+             ("Concat", [("arg0", "obj"); ("arg1", "obj")])
+             ("Concat", [("str0", "string"); ("str1", "string")])
+             ("Concat", [("arg0", "obj"); ("arg1", "obj"); ("arg2", "obj")])
+             ("Concat", [("str0", "string"); ("str1", "string"); ("str2", "string")])
+             ("Concat", [("arg0", "obj"); ("arg1", "obj"); ("arg2", "obj");("arg3", "obj")]);
+             ("Concat", [("str0", "string"); ("str1", "string"); ("str2", "string");("str3", "string")])]
+    | None -> failwith "No symbols returned"
 
 
 let input2 = 

@@ -99,7 +99,7 @@ let ``GetMethodsAsSymbols should return all overloads of a method as FSharpSymbo
     | Some methods ->
         [ for ms in methods do
             yield ms.Symbol.DisplayName, extractCurriedParams ms ]
-        |> List.sortBy (fun (name, parameters) -> parameters.Length, (parameters |> List.map snd ))
+        |> List.sortBy (fun (_name, parameters) -> parameters.Length, (parameters |> List.map snd ))
         |> shouldEqual
             [("Concat", [("values", "Collections.Generic.IEnumerable<'T>")]);
              ("Concat", [("values", "Collections.Generic.IEnumerable<string>")]);

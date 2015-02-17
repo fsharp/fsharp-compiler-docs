@@ -1407,15 +1407,8 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
                         then tryDestTupleTy cenv.g typ
                         else [typ]
                     yield
-                      [for typ in allArguments do
-                          match typ with
-                          | TType_var tp ->
-                              let isParamArrayArg = HasFSharpAttribute cenv.g cenv.g.attrib_ParamArrayAttribute tp.Attribs
-                              let isOutArg = HasFSharpAttribute cenv.g cenv.g.attrib_OutAttribute tp.Attribs && isByrefTy cenv.g typ
-                              let isOptionalArg = HasFSharpAttribute cenv.g cenv.g.attrib_OptionalArgumentAttribute tp.Attribs
-                              let argInfo : ArgReprInfo = { Name=None; Attribs= [] }
-                              yield FSharpParameter(cenv,  tp.AsType, argInfo, x.DeclarationLocationOpt, isParamArrayArg, isOutArg, isOptionalArg)
-                          | _ -> () ]
+                      allArguments
+                      |> List.map (fun arg -> FSharpParameter(cenv,  arg, { Name=None; Attribs= [] }, x.DeclarationLocationOpt, false, false, false))
                       |> makeReadOnlyCollection ]
                 |> makeReadOnlyCollection
             else

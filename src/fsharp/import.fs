@@ -2,6 +2,8 @@
 
 module internal Microsoft.FSharp.Compiler.Import
 
+#nowarn "44" // This construct is deprecated. please use List.item
+
 open System.Reflection
 open System.Collections.Generic
 open Internal.Utilities
@@ -519,7 +521,7 @@ let ImportILAssembly(amap:(unit -> ImportMap),m,auxModuleLoader,sref,sourceDir,f
 
         let ccuData = 
           { IsFSharp=false;
-            UsesQuotations=false;
+            UsesFSharp20PlusQuotations=false;
 #if EXTENSIONTYPING
             InvalidateEvent=invalidateCcu;
             IsProviderGenerated = false;

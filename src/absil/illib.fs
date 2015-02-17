@@ -171,6 +171,8 @@ module Option =
 
 module List = 
 
+    let item n xs = List.nth xs n
+
     let sortWithOrder (c: IComparer<'T>) elements = List.sortWith (Order.toFunction c) elements
     
     let splitAfter n l = 

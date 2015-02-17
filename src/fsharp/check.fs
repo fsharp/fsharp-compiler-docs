@@ -261,19 +261,16 @@ let CheckEscapes cenv allowProtected m syntacticArgs body = (* m is a range suit
         let cantBeFree v = 
            // First, if v is a syntactic argument, then it can be free since it was passed in. 
            // The following can not be free: 
-           //   a) "Local" mutables, being mutables such that: 
-           //         i)  the mutable has no arity (since arity implies top-level storage, top level mutables...) 
-           //             Note: "this" arguments to instance members on mutable structs are mutable arguments. 
-           //   b) BaseVal can never escape. 
-           //   c) Byref typed values can never escape. 
+           //   a) BaseVal can never escape. 
+           //   b) Byref typed values can never escape. 
+           // Note that: Local mutables can be free, as they will be boxed later.
 
            // These checks must correspond to the tests governing the error messages below. 
            let passedIn = ListSet.contains valEq v syntacticArgs 
            if passedIn then
                false
            else
-               (v.IsMutable && v.ValReprInfo.IsNone) ||
-               (v.BaseOrThisInfo = BaseVal  && not passedIn) ||
+               (v.BaseOrThisInfo = BaseVal) ||
                (isByrefLikeTy cenv.g v.Type)
 
         let frees = freeInExpr CollectLocals body
@@ -288,8 +285,6 @@ let CheckEscapes cenv allowProtected m syntacticArgs body = (* m is a range suit
                 // As such, partial applications involving byref arguments could lead to closures containing byrefs. 
                 // For safety, such functions are assumed to have no known arity, and so can not accept byrefs. 
                 errorR(Error(FSComp.SR.chkByrefUsedInInvalidWay(v.DisplayName), m))
-            elif v.IsMutable then 
-                errorR(Error(FSComp.SR.chkMutableUsedInInvalidWay(v.DisplayName), m))
             elif v.BaseOrThisInfo = BaseVal then
                 errorR(Error(FSComp.SR.chkBaseUsedInInvalidWay(), m))
             else
@@ -478,11 +473,11 @@ and CheckExprInContext (cenv:cenv) (env:env) expr (context:ByrefCallContext) =
           if cenv.reportErrors then 
               cenv.usesQuotations <- true
               try 
-                  let conv = QuotationTranslator.ConvExprPublic 
-                                (cenv.g, cenv.amap, cenv.viewCcu, QuotationTranslator.IsReflectedDefinition.No) 
-                                QuotationTranslator.QuotationTranslationEnv.Empty ast  
-                  match !savedConv with 
-                  | None -> savedConv:= Some conv
+                  let qscope = QuotationTranslator.QuotationGenerationScope.Create (cenv.g,cenv.amap,cenv.viewCcu, QuotationTranslator.IsReflectedDefinition.No) 
+                  let qdata = QuotationTranslator.ConvExprPublic qscope QuotationTranslator.QuotationTranslationEnv.Empty ast  
+                  let typeDefs,spliceTypes,spliceExprs = qscope.Close()
+                  match savedConv.Value with 
+                  | None -> savedConv:= Some (typeDefs, List.map fst spliceTypes, List.map fst spliceExprs, qdata)
                   | Some _ -> ()
               with QuotationTranslator.InvalidQuotedTerm e -> 
                   errorRecovery e m
@@ -495,9 +490,10 @@ and CheckExprInContext (cenv:cenv) (env:env) expr (context:ByrefCallContext) =
           CheckInterfaceImpls cenv env basev iimpls;
           CheckTypePermitByrefs cenv m typ
           let interfaces = 
-              [ yield! AllSuperTypesOfType cenv.g cenv.amap m AllowMultiIntfInstantiations.Yes typ
+              [ if isInterfaceTy cenv.g typ then 
+                    yield! AllSuperTypesOfType cenv.g cenv.amap m AllowMultiIntfInstantiations.Yes typ
                 for (ty,_) in iimpls do
-                    yield! AllSuperTypesOfType cenv.g cenv.amap m AllowMultiIntfInstantiations.Yes ty ]
+                    yield! AllSuperTypesOfType cenv.g cenv.amap m AllowMultiIntfInstantiations.Yes ty  ]
               |> List.filter (isInterfaceTy cenv.g)
           CheckMultipleInterfaceInstantiations cenv interfaces m
 
@@ -905,14 +901,7 @@ and CheckAttribs cenv env (attribs: Attribs) =
         |> Seq.map fst 
         |> Seq.toList
         // Filter for allowMultiple = false
-        |> List.filter (fun (tcref,m) -> 
-                let allowMultiple = 
-                    Infos.AttributeChecking.TryBindTyconRefAttribute cenv.g m cenv.g.attrib_AttributeUsageAttribute tcref 
-                             (fun (_,named)             -> named |> List.tryPick (function ("AllowMultiple",_,_,ILAttribElem.Bool res) -> Some res | _ -> None))
-                             (fun (Attrib(_,_,_,named,_,_,_)) -> named |> List.tryPick (function AttribNamedArg("AllowMultiple",_,_,AttribBoolArg(res) ) -> Some res | _ -> None))
-                             (fun _ -> None)
-                
-                (allowMultiple <> Some(true)))
+        |> List.filter (fun (tcref,m) -> TryFindAttributeUsageAttribute cenv.g m tcref <> Some(true))
     if cenv.reportErrors then 
        for (tcref,m) in duplicates do
           errorR(Error(FSComp.SR.chkAttrHasAllowMultiFalse(tcref.DisplayName), m))
@@ -1007,12 +996,12 @@ and CheckBinding cenv env alwaysCheckNoReraise (TBind(v,e,_) as bind) =
                       | Expr.TyLambda (_,tps,b,_,_) -> tps,b,applyForallTy cenv.g ety (List.map mkTyparTy tps)
                       | _ -> [],e,ety
                     let env = QuotationTranslator.QuotationTranslationEnv.Empty.BindTypars tps
-                    let _,argExprs,_ = QuotationTranslator.ConvExprPublic 
-                                            (cenv.g,cenv.amap,cenv.viewCcu, QuotationTranslator.IsReflectedDefinition.Yes) 
-                                            env taue 
-                    if nonNil(argExprs) then 
-                        errorR(Error(FSComp.SR.chkReflectedDefCantSplice(), v.Range));
-                    QuotationTranslator.ConvMethodBase (cenv.g,cenv.amap,cenv.viewCcu) env (v.CompiledName, v) |> ignore
+                    let qscope = QuotationTranslator.QuotationGenerationScope.Create (cenv.g,cenv.amap,cenv.viewCcu, QuotationTranslator.IsReflectedDefinition.Yes) 
+                    QuotationTranslator.ConvExprPublic qscope env taue  |> ignore
+                    let _,_,argExprs = qscope.Close()
+                    if nonNil argExprs then 
+                        errorR(Error(FSComp.SR.chkReflectedDefCantSplice(), v.Range))
+                    QuotationTranslator.ConvMethodBase qscope env (v.CompiledName, v) |> ignore
                 with 
                   | QuotationTranslator.InvalidQuotedTerm e -> 
                           errorR(e)
@@ -1251,8 +1240,8 @@ let CheckEntityDefn cenv env (tycon:Entity) =
 
             if minfo.NumArgs.Length > 1 && 
                (minfo.GetParamDatas(cenv.amap, m, minfo.FormalMethodInst) 
-                |> List.existsSquared (fun (ParamData(isParamArrayArg, isOutArg, optArgInfo, _, ty)) -> 
-                    isParamArrayArg || isOutArg || optArgInfo.IsOptional || isByrefTy cenv.g ty)) then 
+                |> List.existsSquared (fun (ParamData(isParamArrayArg, isOutArg, optArgInfo, _, reflArgInfo, ty)) -> 
+                    isParamArrayArg || isOutArg || reflArgInfo.AutoQuote || optArgInfo.IsOptional || isByrefTy cenv.g ty)) then 
                 errorR(Error(FSComp.SR.chkCurriedMethodsCantHaveOutParams(), m))
 
         for pinfo in immediateProps do
@@ -1379,6 +1368,11 @@ let CheckEntityDefn cenv env (tycon:Entity) =
  
     if cenv.reportErrors then 
         if not tycon.IsTypeAbbrev then 
+            let typ = generalizedTyconRef (mkLocalTyconRef tycon)
+            let immediateInterfaces = GetImmediateInterfacesOfType cenv.g cenv.amap m typ
+            let interfaces = 
+              [ for ty in immediateInterfaces do
+                    yield! AllSuperTypesOfType cenv.g cenv.amap m AllowMultiIntfInstantiations.Yes ty  ]
             CheckMultipleInterfaceInstantiations cenv interfaces m
         
         // Check struct fields. We check these late because we have to have first checked that the structs are
@@ -1389,7 +1383,7 @@ let CheckEntityDefn cenv env (tycon:Entity) =
                 let zeroInitUnsafe = TryFindFSharpBoolAttribute cenv.g cenv.g.attrib_DefaultValueAttribute f.FieldAttribs
                 if zeroInitUnsafe = Some(true) then
                    let ty' = generalizedTyconRef (mkLocalTyconRef tycon)
-                   if not (TypeHasDefaultValue cenv.g ty') then 
+                   if not (TypeHasDefaultValue cenv.g m ty') then 
                        errorR(Error(FSComp.SR.chkValueWithDefaultValueMustHaveDefaultValue(), m));
             )
         match tycon.TypeAbbrev with                          (* And type abbreviations *)
@@ -1477,6 +1471,6 @@ let CheckTopImpl (g,amap,reportErrors,infoReader,internalsVisibleToPaths,viewCcu
 
     CheckModuleExpr cenv env mexpr;
     CheckAttribs cenv env extraAttribs;
-    if cenv.usesQuotations then 
-        viewCcu.UsesQuotations <- true
+    if cenv.usesQuotations && QuotationTranslator.QuotationGenerationScope.ComputeQuotationFormat(cenv.g) = QuotationTranslator.FSharp_20_Plus then 
+        viewCcu.UsesFSharp20PlusQuotations <- true
     cenv.entryPointGiven

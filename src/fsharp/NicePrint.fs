@@ -6,6 +6,8 @@
 
 module internal Microsoft.FSharp.Compiler.NicePrint
 
+#nowarn "44" // This construct is deprecated. please use List.item
+
 open Internal.Utilities
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
@@ -14,6 +16,7 @@ open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics
 open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.Rational
 open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Tast
@@ -853,14 +856,16 @@ module private PrintTypes =
     and private layoutMeasure denv unt =
         let sortVars vs = vs |> List.sortBy (fun (v:Typar,_) -> v.DisplayName) 
         let sortCons cs = cs |> List.sortBy (fun (c:TyconRef,_) -> c.DisplayName) 
-        let negvs,posvs = ListMeasureVarOccsWithNonZeroExponents              unt |> sortVars |> List.partition (fun (_,e) -> e<0)
-        let negcs,poscs = ListMeasureConOccsWithNonZeroExponents denv.g false unt |> sortCons |> List.partition (fun (_,e) -> e<0)
+        let negvs,posvs = ListMeasureVarOccsWithNonZeroExponents              unt |> sortVars |> List.partition (fun (_,e) -> SignRational e < 0)
+        let negcs,poscs = ListMeasureConOccsWithNonZeroExponents denv.g false unt |> sortCons |> List.partition (fun (_,e) -> SignRational e < 0)
         let unparL uv = layoutTyparRef denv uv
         let unconL tc = layoutTyconRef denv tc
-        let prefix = spaceListL  (List.map (fun (v,e) -> if e=1  then unparL v else unparL v -- wordL (sprintf "^ %d" e)) posvs @
-                                  List.map (fun (c,e) -> if e=1  then unconL c else unconL c -- wordL (sprintf "^ %d" e)) poscs)
-        let postfix = spaceListL (List.map (fun (v,e) -> if e= -1 then unparL v else unparL v -- wordL (sprintf "^ %d" (-e))) negvs @
-                                  List.map (fun (c,e) -> if e= -1 then unconL c else unconL c -- wordL (sprintf "^ %d" (-e))) negcs)
+        let rationalL e = wordL (RationalToString e)
+        let measureToPowerL x e = if e = OneRational then x else x -- wordL "^" -- rationalL e
+        let prefix = spaceListL  (List.map (fun (v,e) -> measureToPowerL (unparL v) e) posvs @
+                                  List.map (fun (c,e) -> measureToPowerL (unconL c) e) poscs)
+        let postfix = spaceListL (List.map (fun (v,e) -> measureToPowerL (unparL v) (NegRational e)) negvs @
+                                  List.map (fun (c,e) -> measureToPowerL (unconL c) (NegRational e)) negcs)
         match (negvs,negcs) with 
         | [],[] -> (match posvs,poscs with [],[] -> wordL "1" | _ -> prefix)
         | _ -> prefix ^^ sepL "/" ^^ (if List.length negvs + List.length negcs > 1 then sepL "(" ^^ postfix ^^ sepL ")" else postfix)
@@ -1169,7 +1174,7 @@ module InfoMemberPrinting =
     /// Format the arguments of a method to a buffer. 
     ///
     /// This uses somewhat "old fashioned" printf-style buffer printing.
-    let formatParamDataToBuffer denv os (ParamData(isParamArray,_isOutArg,optArgInfo,nmOpt,pty)) =
+    let formatParamDataToBuffer denv os (ParamData(isParamArray, _isOutArg, optArgInfo, nmOpt, _reflArgInfo, pty)) =
         let isOptArg = optArgInfo.IsOptional
         match isParamArray, nmOpt, isOptArg, tryDestOptionTy denv.g pty with 
         // Layout an optional argument 
@@ -1426,8 +1431,7 @@ module private TastDefinitionPrinting =
                 GetImmediateInterfacesOfType g amap m ty |> List.map (fun ity -> wordL (if isInterfaceTy g ty then "inherit" else "interface") --- layoutType denv ity)
 
         let props = 
-            //GetImmediateIntrinsicPropInfosOfType  (None,ad) g amap m ty 
-            GetIntrinsicPropInfosOfType infoReader (None,ad,AllowMultiIntfInstantiations.No)  PreferOverrides m ty 
+            GetIntrinsicPropInfosOfType infoReader (None,ad,AllowMultiIntfInstantiations.Yes)  PreferOverrides m ty 
 
         let events = 
             infoReader.GetEventInfosOfType(None,ad,m,ty) 
@@ -1541,7 +1545,8 @@ module private TastDefinitionPrinting =
                                       // Don't print individual methods forming interface implementations - these are currently never exported 
                                       not (isInterfaceTy denv.g oty)
                                   | [] -> true)
-              |> List.filter (fun v -> denv.showObsoleteMembers || not (HasFSharpAttribute denv.g denv.g.attrib_SystemObsolete v.Attribs))
+              |> List.filter (fun v -> denv.showObsoleteMembers || not (Infos.AttributeChecking.CheckFSharpAttributesForObsolete denv.g v.Attribs))
+              |> List.filter (fun v -> denv.showHiddenMembers || not (Infos.AttributeChecking.CheckFSharpAttributesForHidden denv.g v.Attribs))
           // sort 
           let sortKey (v:ValRef) = (not v.IsConstructor,    // constructors before others 
                                     v.Id.idText,            // sort by name 

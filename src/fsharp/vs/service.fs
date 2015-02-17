@@ -85,23 +85,35 @@ module internal Params =
         // now printing will see a .NET-like canonical representation, that is good for sorting overloads into a reasonable order (see bug 94520)
         NicePrint.stringOfTy denv strippedType
 
-    let ParamOfRecdField g denv f decription =
+    let ParamOfRecdField g denv f =
         FSharpMethodGroupItemParameter(
           name = f.rfield_id.idText,
           canonicalTypeTextForSorting = printCanonicalizedTypeName g denv f.rfield_type,
           display = NicePrint.prettyStringOfTy denv f.rfield_type,
-          description = decription
+          description = ""
         )
     
     let ParamOfUnionCaseField g denv isGenerated (i : int) f = 
-        let description = if isGenerated i f then "" else NicePrint.stringOfParamData denv (ParamData(false, false, NotOptional, Some f.rfield_id, f.rfield_type)) 
-        ParamOfRecdField g denv f description
+        let initial = ParamOfRecdField g denv f
+        let description = if isGenerated i f then initial.Description else NicePrint.stringOfParamData denv (ParamData(false, false, NotOptional, Some f.rfield_id, ReflectedArgInfo.None, f.rfield_type)) 
+        FSharpMethodGroupItemParameter(
+          name=initial.Name, 
+          canonicalTypeTextForSorting=initial.CanonicalTypeTextForSorting, 
+          display=initial.Display,
+          description=description)
+
+    let ParamOfParamData g denv (ParamData(_isParamArrayArg, _isOutArg, _optArgInfo, nmOpt, _reflArgInfo, pty) as paramData) =
+        FSharpMethodGroupItemParameter(
+          name = (match nmOpt with None -> "" | Some pn -> pn.idText),
+          canonicalTypeTextForSorting = printCanonicalizedTypeName g denv pty,
+          display = NicePrint.stringOfParamData denv paramData,
+          description = "")
 
     // TODO this code is similar to NicePrint.fs:formatParamDataToBuffer, refactor or figure out why different?
     let ParamsOfParamDatas g denv (paramDatas:ParamData list) rty = 
         let paramNames,paramPrefixes,paramTypes = 
             paramDatas 
-            |> List.map (fun (ParamData(isParamArrayArg,_,optArgInfo,nmOpt,pty)) -> 
+            |> List.map (fun (ParamData(isParamArrayArg, _isOutArg, optArgInfo, nmOpt, _reflArgInfo, pty)) -> 
                 let isOptArg = optArgInfo.IsOptional
                 match nmOpt, isOptArg, tryDestOptionTy denv.g pty with 
                 // Layout an optional argument 
@@ -186,7 +198,7 @@ module internal Params =
                     let paramDatas = 
                         argInfo
                         |> List.map ParamNameAndType.FromArgInfo
-                        |> List.map (fun (ParamNameAndType(nm,pty)) -> ParamData(false, false, NotOptional, nm, pty))
+                        |> List.map (fun (ParamNameAndType(nmOpt, pty)) -> ParamData(false, false, NotOptional, nmOpt, ReflectedArgInfo.None, pty))
                     ParamsOfParamDatas g denv paramDatas returnTy
         | Item.UnionCase(ucr)   -> 
             match ucr.UnionCase.RecdFields with
@@ -216,7 +228,7 @@ module internal Params =
             | None -> 
                 let argNamesAndTys = ItemDescriptionsImpl.ParamNameAndTypesOfUnaryCustomOperation g minfo 
                 let _, argTys, _ = PrettyTypes.PrettifyTypesN g (argNamesAndTys |> List.map (fun (ParamNameAndType(_,ty)) -> ty))
-                let paramDatas = (argNamesAndTys, argTys) ||> List.map2 (fun (ParamNameAndType(nm,_)) argTy -> ParamData(false,false,NotOptional,nm,argTy))
+                let paramDatas = (argNamesAndTys, argTys) ||> List.map2 (fun (ParamNameAndType(nmOpt, _)) argTy -> ParamData(false, false, NotOptional, nmOpt, ReflectedArgInfo.None,argTy))
                 let rty = minfo.GetFSharpReturnTy(amap, m, minfo.FormalMethodInst)
                 ParamsOfParamDatas g denv paramDatas rty
             | Some _ -> 
@@ -225,7 +237,7 @@ module internal Params =
         | Item.FakeInterfaceCtor _ -> []
         | Item.DelegateCtor delty -> 
             let (SigOfFunctionForDelegate(_, _, _, fty)) = GetSigOfFunctionForDelegate infoReader delty m AccessibleFromSomeFSharpCode
-            ParamsOfParamDatas g denv [ParamData(false,false,NotOptional,None, fty)] delty
+            ParamsOfParamDatas g denv [ParamData(false, false, NotOptional, None, ReflectedArgInfo.None, fty)] delty
 #if EXTENSIONTYPING
         | ItemIsTypeWithStaticArguments g tyconRef ->
             // similar code to TcProvidedTypeAppToStaticConstantArgs 

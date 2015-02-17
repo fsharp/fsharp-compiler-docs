@@ -29,9 +29,16 @@ type FsiValue =
 type EvaluationEventArgs =
     inherit System.EventArgs
     //new : unit -> CompilerOutputStream
+    /// The display name of the symbol defined
     member Name : string
-    member FsiValue : FsiValue
+    /// The value of the symbol defined, if any
+    member FsiValue : FsiValue option
+    /// The FSharpSymbolUse for the symbol defined
     member SymbolUse : FSharpSymbolUse
+    /// The symbol defined
+    member Symbol : FSharpSymbol
+    /// The details of the expression defined
+    member ImplementationDeclaration : FSharpImplementationFileDeclaration
 
 [<AbstractClass>]
 type public FsiEvaluationSessionHostConfig = 

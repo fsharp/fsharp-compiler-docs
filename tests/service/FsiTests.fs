@@ -240,14 +240,26 @@ let ``interactive session events``() =
         session.EvalInteraction  "let x = 42"
         
         let value, name, symbol = evals.[0]
-        // name should be x 
-        // value should be 42
-        // symbol type should be a FSharpMemberOrFunctionOrValue and display name "x"
         name |> should equal "x"
-        value.ReflectionValue |> should equal 42
+        value.IsSome |> should equal true
+        value.Value.ReflectionValue |> should equal 42
         symbol.Symbol.GetType() |> should equal typeof<FSharpMemberOrFunctionOrValue>
         symbol.Symbol.DisplayName |> should equal "x"
 
+        session.EvalInteraction  "type C() = member x.P = 1"
+        
+        let value, name, symbol = evals.[1]
+        name |> should equal "C"
+        value.IsNone |> should equal true
+        symbol.Symbol.GetType() |> should equal typeof<FSharpEntity>
+        symbol.Symbol.DisplayName |> should equal "C"
+
+        session.EvalInteraction  "module M = let x = ref 1"
+        let value, name, symbol = evals.[2]
+        name |> should equal "M"
+        value.IsNone |> should equal true
+        symbol.Symbol.GetType() |> should equal typeof<FSharpEntity>
+        symbol.Symbol.DisplayName |> should equal "M"
 
 let RunManually() = 
   ``EvalExpression test 1``() 

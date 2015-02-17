@@ -708,7 +708,7 @@ module internal ItemDescriptionsImpl =
         // Active pattern tag inside the declaration (result)             
         | Item.ActivePatternResult(apinfo, ty, idx, _) ->
             let text = bufs (fun os -> 
-                bprintf os "%s %s: " (FSComp.SR.typeInfoActivePatternResult()) (List.nth apinfo.ActiveTags idx) 
+                bprintf os "%s %s: " (FSComp.SR.typeInfoActivePatternResult()) (List.item idx apinfo.ActiveTags ) 
                 NicePrint.outputTy denv os ty)
             let xml = GetXmlComment (XmlDoc [||]) infoReader m d
             FSharpToolTipElement.Single(text, xml)
@@ -973,7 +973,7 @@ module internal ItemDescriptionsImpl =
             let apnames = apinfo.Names
             let aparity = apnames.Length
             
-            let rty = if aparity <= 1 then res else List.nth (argsOfAppTy g res) apref.CaseIndex
+            let rty = if aparity <= 1 then res else List.item apref.CaseIndex (argsOfAppTy g res)
             NicePrint.outputTy denv os rty
         | Item.ExnCase _ -> 
             bufferL os (NicePrint.layoutPrettifiedTypeAndConstraints denv [] g.exn_ty) 

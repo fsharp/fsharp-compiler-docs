@@ -30,6 +30,7 @@
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
     <DefineConstants>$(DefineConstants);CROSS_PLATFORM_COMPILER</DefineConstants>
     <DefineConstants Condition="$(TargetFrameworkVersion) == 'v4.5'">$(DefineConstants);FX_ATLEAST_45</DefineConstants>
+    <DefineConstants Condition="$(TargetFrameworkVersion) == 'v4.0'">$(DefineConstants);FX_NO_GENERIC_WEAKREFERENCE</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_ATLEAST_40</DefineConstants>
     <DefineConstants>$(DefineConstants);BE_SECURITY_TRANSPARENT</DefineConstants>
     <DefineConstants>$(DefineConstants);TYPE_PROVIDER_SECURITY</DefineConstants>
@@ -209,6 +210,12 @@
     <Compile Include="..\TraceCall.fs">
       <Link>Utilities/TraceCall.fs</Link>
     </Compile>
+    <Compile Include="..\rational.fsi">
+      <Link>ErrorLogging\rational.fsi</Link>
+    </Compile>
+    <Compile Include="..\rational.fs">
+      <Link>ErrorLogging\rational.fs</Link>
+    </Compile>
     <Compile Include="..\range.fsi">
       <Link>ErrorLogging/range.fsi</Link>
     </Compile>
@@ -319,11 +326,21 @@
       <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
       <Link>ParserAndUntypedAST/lex.fsl</Link>
     </FsLex>
+    <FsLex Include="..\pplex.fsl">
+      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
+      <Link>ParserAndUntypedAST/pplex.fsl</Link>
+    </FsLex>
     <FsYacc Include="..\pars.fsy">
       <Module>Microsoft.FSharp.Compiler.Parser</Module>
       <Open>Microsoft.FSharp.Compiler</Open>
       <OtherFlags>--lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
       <Link>ParserAndUntypedAST/pars.fsy</Link>
+    </FsYacc>
+    <FsYacc Include="..\pppars.fsy">
+      <Module>Microsoft.FSharp.Compiler.PPParser</Module>
+      <Open>Microsoft.FSharp.Compiler</Open>
+      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
+      <Link>ParserAndUntypedAST/pppars.fsy</Link>
     </FsYacc>
     <Compile Include="..\unilex.fsi">
       <Link>ParserAndUntypedAST/unilex.fsi</Link>
@@ -340,6 +357,9 @@
     <Compile Include="..\ast.fs">
       <Link>ParserAndUntypedAST/ast.fs</Link>
     </Compile>
+    <Compile Include="pppars.fs">
+      <Link>ParserAndUntypedAST/pppars.fs</Link>
+    </Compile>
     <Compile Include="pars.fs">
       <Link>ParserAndUntypedAST/pars.fs</Link>
     </Compile>
@@ -348,6 +368,9 @@
     </Compile>
     <Compile Include="..\lexhelp.fs">
       <Link>ParserAndUntypedAST/lexhelp.fs</Link>
+    </Compile>
+    <Compile Include="pplex.fs">
+      <Link>ParserAndUntypedAST/pplex.fs</Link>
     </Compile>
     <Compile Include="lex.fs">
       <Link>ParserAndUntypedAST/lex.fs</Link>
@@ -484,6 +507,9 @@
     <Compile Include="..\lowertop.fs">
       <Link>Optimize/lowertop.fs</Link>
     </Compile>
+    <Compile Include="..\autobox.fs">
+      <Link>Optimize\autobox.fs</Link>
+    </Compile>
     <Compile Include="..\ilxgen.fsi">
       <Link>CodeGen/ilxgen.fsi</Link>
     </Compile>
@@ -591,6 +617,7 @@
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.Build.Framework" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
     <Reference Include="Microsoft.Build.Engine" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />

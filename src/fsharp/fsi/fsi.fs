@@ -149,11 +149,13 @@ type internal FsiValuePrinterMode =
     | PrintExpr 
     | PrintDecl
 
-type EvaluationEventArgs(name : string, fsivalue : FsiValue, symbolUse : FSharpSymbolUse) =
+type EvaluationEventArgs(fsivalue : FsiValue option, symbolUse : FSharpSymbolUse, decl: FSharpImplementationFileDeclaration) =
     inherit EventArgs()
-    member x.Name = name
+    member x.Name = symbolUse.Symbol.DisplayName
     member x.FsiValue = fsivalue
     member x.SymbolUse = symbolUse
+    member x.Symbol = symbolUse.Symbol
+    member x.ImplementationDeclaration = decl
 
 [<AbstractClass>]
 type public FsiEvaluationSessionHostConfig () = 
@@ -225,8 +227,8 @@ type public FsiEvaluationSessionHostConfig () =
 
     /// Hook for listening for evaluation bindings
     member x.OnEvaluation = evaluationEvent.Publish
-    member internal x.TriggerEvaluation (name, value, symbolUse) =
-        evaluationEvent.Trigger (EvaluationEventArgs (name, value, symbolUse) )
+    member internal x.TriggerEvaluation (value, symbolUse, decl) =
+        evaluationEvent.Trigger (EvaluationEventArgs (value, symbolUse, decl) )
 
 /// Used to print value signatures along with their values, according to the current
 /// set of pretty printers installed in the system, and default printing rules.
@@ -302,10 +304,11 @@ type internal FsiValuePrinter(fsiConfig: FsiEvaluationSessionHostConfig, ilGloba
 
     /// Get the evaluation context used when inverting the storage mapping of the ILRuntimeWriter.
     member __.GetEvaluationContext emEnv = 
+        let cenv = { ilg = ilGlobals ; generatePdb = generateDebugInfo; resolvePath=resolvePath }
         { LookupFieldRef = ILRuntimeWriter.LookupFieldRef emEnv >> Option.get
           LookupMethodRef = ILRuntimeWriter.LookupMethodRef emEnv >> Option.get
-          LookupTypeRef = ILRuntimeWriter.LookupTypeRef emEnv >> Option.get
-          LookupType = ILRuntimeWriter.LookupType { ilg = ilGlobals ; generatePdb = generateDebugInfo; resolvePath=resolvePath } emEnv }
+          LookupTypeRef = ILRuntimeWriter.LookupTypeRef cenv emEnv 
+          LookupType = ILRuntimeWriter.LookupType cenv emEnv }
 
     /// Generate a layout for an actual F# value, where we know the value has the given static type.
     member __.PrintValue (printMode, opts:FormatOptions, x:obj, ty:System.Type) = 
@@ -1030,9 +1033,17 @@ type internal FsiDynamicCompiler
         // Explicitly register the resources with the QuotationPickler module 
         // We would save them as resources into the dynamic assembly but there is missing 
         // functionality System.Reflection for dynamic modules that means they can't be read back out 
-        for bytes in codegenResults.quotationResourceBytes do 
+#if COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_4_0_0
+        for (referencedTypeDefs, bytes) in codegenResults.quotationResourceInfo do 
+            let cenv = { ilg = ilGlobals ; generatePdb = generateDebugInfo; resolvePath=resolvePath }
+            let referencedTypes = 
+                [| for tref in referencedTypeDefs do 
+                      yield ILRuntimeWriter.LookupTypeRef cenv emEnv tref  |]
+            Microsoft.FSharp.Quotations.Expr.RegisterReflectedDefinitions (assemblyBuilder, fragName, bytes, referencedTypes);
+#else
+        for (_referencedTypeDefs, bytes) in codegenResults.quotationResourceInfo do 
             Microsoft.FSharp.Quotations.Expr.RegisterReflectedDefinitions (assemblyBuilder, fragName, bytes);
-            
+#endif            
 
         ReportTime tcConfig "Run Bindings";
         timeReporter.TimeOpIf istate.timing (fun () -> 
@@ -1082,7 +1093,7 @@ type internal FsiDynamicCompiler
                                    tcState   = tcState  }
         
         // Return the new state and the environment at the end of the last input, ready for further inputs.
-        (istate,tcEnvAtEndOfLastInput)
+        (istate,tcEnvAtEndOfLastInput,declaredImpls)
 
     let nextFragmentId() = fragmentId <- fragmentId + 1; fragmentId
 
@@ -1099,7 +1110,7 @@ type internal FsiDynamicCompiler
         let prefix = mkFragmentPath i 
         // Ensure the path includes the qualifying name 
         let inputs = inputs |> List.map (PrependPathToInput prefix) 
-        let istate,_ = ProcessInputs (istate, inputs, true, false, false, prefix)
+        let istate,_,_ = ProcessInputs (istate, inputs, true, false, false, prefix)
         istate
 
     /// Evaluate the given definitions and produce a new interactive state.
@@ -1110,32 +1121,45 @@ type internal FsiDynamicCompiler
         let prefixPath = pathOfLid prefix
         let impl = SynModuleOrNamespace(prefix,(* isModule: *) true,defs,PreXmlDoc.Empty,[],None,rangeStdin)
         let input = ParsedInput.ImplFile(ParsedImplFileInput(filename,true, QualFileNameOfUniquePath (rangeStdin,prefixPath),[],[],[impl],true (* isLastCompiland *) ))
-        let istate,tcEnvAtEndOfLastInput = ProcessInputs (istate, [input], showTypes, true, isInteractiveItExpr, prefix)
+        let istate,tcEnvAtEndOfLastInput,declaredImpls = ProcessInputs (istate, [input], showTypes, true, isInteractiveItExpr, prefix)
         let tcState = istate.tcState 
         let newState = { istate with tcState = tcState.NextStateAfterIncrementalFragment(tcEnvAtEndOfLastInput) }
 
-        //grab all the uqualified Items and notify the EvaluationListener
-        let allNames = newState.tcState.TcEnvFromImpls.NameEnv.eUnqualifiedItems.Values
+        // Find all new declarations the EvaluationListener
+        begin
+            let (TAssembly(mimpls)) = declaredImpls
+            let contents = FSharpAssemblyContents(tcGlobals, tcState.Ccu, tcImports, mimpls)
+            let contentFile = contents.ImplementationFiles.[0]
+            // Skip the "FSI_NNNN"
+            match contentFile.Declarations with 
+            | [FSharpImplementationFileDeclaration.Entity (_eFakeModule,modDecls) ] -> 
+                for decl in modDecls do 
+                    match decl with 
+                    | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue (v,_,_) ->
+                        // Report a top-level function or value definition
+                      if v.IsModuleValueOrMember && not v.IsMember then 
+                        let fsiValueOpt = 
+                            match v.Item with 
+                            | Item.Value vref ->
+                                let optValue = newState.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(newState.emEnv), vref.Deref)
+                                match optValue with
+                                | Some (res, typ) -> Some(FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)))
+                                | None -> None 
+                            | _ -> None
 
-        let filteredByVal =
-            allNames
-            |> List.choose (fun i ->
-                            match i with
-                            | Nameres.Item.Value vref -> Some (vref, i)
-                            | _ -> None)
-
-        let actualValues =
-            filteredByVal |> List.choose (fun (vref, i) -> 
-                let optValue = newState.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(newState.emEnv), vref.Deref)
-                match optValue with
-                | Some (res, typ) ->
-                    let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, i)
-                    let symbolUse = FSharpSymbolUse(tcGlobals, newState.tcState.TcEnvFromImpls.DisplayEnv, symbol, ItemOccurence.Binding, vref.Range)
-                    Some(vref.DisplayName,FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)), symbolUse)
-                | None -> None )
-        
-        for (name, fsiValue, symbolUse) in actualValues do 
-            fsiConfig.TriggerEvaluation (name, fsiValue, symbolUse)
+                        let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, v.Item)
+                        let symbolUse = FSharpSymbolUse(tcGlobals, newState.tcState.TcEnvFromImpls.DisplayEnv, symbol, ItemOccurence.Binding, v.DeclarationLocation)
+                        fsiConfig.TriggerEvaluation (fsiValueOpt, symbolUse, decl)
+                    | FSharpImplementationFileDeclaration.Entity (e,_) ->
+                        // Report a top-level module or namespace definition
+                        let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, e.Item)
+                        let symbolUse = FSharpSymbolUse(tcGlobals, newState.tcState.TcEnvFromImpls.DisplayEnv, symbol, ItemOccurence.Binding, e.DeclarationLocation)
+                        fsiConfig.TriggerEvaluation (None, symbolUse, decl)
+                    | FSharpImplementationFileDeclaration.InitAction _ ->
+                        // Top level 'do' bindings are not reported as incremental declarations
+                        ()
+            | _ -> ()
+        end
 
         newState
       

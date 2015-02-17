@@ -43,12 +43,22 @@ src/fsharp/FSharp.Compiler/ilpars.fsi
 src/fsharp/FSharp.Compiler/lex.fs
 src/fsharp/FSharp.Compiler/pars.fs
 src/fsharp/FSharp.Compiler/pars.fsi
+src/fsharp/FSharp.Compiler/pplex.fs
+src/fsharp/FSharp.Compiler/pppars.fs
+src/fsharp/FSharp.Compiler/pppars.fsi
 src/fsharp/FSharp.Compiler-proto/illex.fs
 src/fsharp/FSharp.Compiler-proto/ilpars.fs
 src/fsharp/FSharp.Compiler-proto/ilpars.fsi
 src/fsharp/FSharp.Compiler-proto/lex.fs
 src/fsharp/FSharp.Compiler-proto/pars.fs
 src/fsharp/FSharp.Compiler-proto/pars.fsi
+src/fsharp/FSharp.Compiler.Silverlight/lex.fs
+src/fsharp/FSharp.Compiler.Silverlight/pars.fs
+src/fsharp/FSharp.Compiler.Silverlight/pars.fsi
+src/fsharp/FSharp.Compiler-proto/pplex.fs
+src/fsharp/FSharp.Compiler-proto/pppars.fs
+src/fsharp/FSharp.Compiler-proto/pppars.fsi
+
 *~
 tests/projects/Sample_VS2012_FSharp_ConsoleApp_net45_with_resource/Sample_VS2012_FSharp_ConsoleApp_net45/Sample_VS2012_FSharp_ConsoleApp_net45.sln
 tests/projects/Sample_VS2012_FSharp_ConsoleApp_net45_with_resource/Sample_VS2012_FSharp_ConsoleApp_net45/Sample_VS2012_FSharp_ConsoleApp_net45.userprefs
@@ -80,3 +90,4 @@ extras
 ossreadme*.txt
 *.XML
 src/assemblyinfo/assemblyinfo.shared.fs
+*.csproj.user

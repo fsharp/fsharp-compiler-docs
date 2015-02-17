@@ -1411,8 +1411,7 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
                       |> List.map (fun arg -> FSharpParameter(cenv,  arg, { Name=None; Attribs= [] }, x.DeclarationLocationOpt, false, false, false))
                       |> makeReadOnlyCollection ]
                 |> makeReadOnlyCollection
-            else
-                failwith "not a module let binding or member"
+            else makeReadOnlyCollection []
         | Some (ValReprInfo(_typars,curriedArgInfos,_retInfo)) -> 
             let tau = v.TauType
             let argtysl,_ = GetTopTauTypeInFSharpForm cenv.g curriedArgInfos tau range0

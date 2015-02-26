@@ -1,3 +1,10 @@
+#### 0.0.84 - 
+* Added curried parameter groups for nested functions
+
+#### 0.0.83 - 
+* Add Overloads to the symbols signature so it is publicly visible
+* Update OnEvaluation event to have FSharpSymbolUse information available
+
 #### 0.0.82 - 
 * Better support for Metadata of C# (and other) Assemblies.
 * Expose the DefaultFileSystem as a type instead of anonymous

@@ -4336,9 +4336,9 @@ module Project35 =
     let fileSource1 = """
 type Test =
     let curriedFunction (one:int) (two:float) (three:string) =
-        one + int two + int three
+        float32 (one + int two + int three)
     let tupleFunction (one:int, two:float, three:string) =
-        one + int two + int three
+        float32 (one + int two + int three)
 """
     File.WriteAllText(fileName1, fileSource1)
     let cleanFileName a = if a = fileName1 then "file1" else "??"
@@ -4356,32 +4356,49 @@ let ``Test project35 CurriedParameterGroups should be available for nested funct
         Array.find (fun (su:FSharpSymbolUse) -> su.Symbol.DisplayName = name)
            
     let curriedFunction = allSymbolUses |> findByDisplayName "curriedFunction"
+
     match curriedFunction.Symbol with
     | :? FSharpMemberOrFunctionOrValue as mfv ->
+
         let curriedParamGroups =
             mfv.CurriedParameterGroups
             |> Seq.map Seq.toList
             |> Seq.toList
+
+        //check the parameters
         match curriedParamGroups with
         | [[param1];[param2];[param3]] ->
-            param1.Type.TypeDefinition.DisplayName |> should equal "int"
-            param2.Type.TypeDefinition.DisplayName |> should equal "float"
-            param3.Type.TypeDefinition.DisplayName |> should equal "string"
+            param1.Type.TypeDefinition.DisplayName |> shouldEqual "int"
+            param2.Type.TypeDefinition.DisplayName |> shouldEqual "float"
+            param3.Type.TypeDefinition.DisplayName |> shouldEqual "string"
         | _ -> failwith "Unexpected parameters"
+
+        //now check the return type
+        let retTyp = mfv.ReturnParameter
+        retTyp.Type.TypeDefinition.DisplayName |> shouldEqual "float32"
+
     | _ -> failwith "Unexpected symbol type"
 
     let tupledFunction = allSymbolUses |> findByDisplayName "tupleFunction"
     match tupledFunction.Symbol with
     | :? FSharpMemberOrFunctionOrValue as mfv ->
+
         let curriedParamGroups =
             mfv.CurriedParameterGroups
             |> Seq.map Seq.toList
             |> Seq.toList
+
+        //check the parameters
         match curriedParamGroups with
         | [[param1;param2;param3]] ->
-            param1.Type.TypeDefinition.DisplayName |> should equal "int"
-            param2.Type.TypeDefinition.DisplayName |> should equal "float"
-            param3.Type.TypeDefinition.DisplayName |> should equal "string"
+            param1.Type.TypeDefinition.DisplayName |> shouldEqual "int"
+            param2.Type.TypeDefinition.DisplayName |> shouldEqual "float"
+            param3.Type.TypeDefinition.DisplayName |> shouldEqual "string"
         | _ -> failwith "Unexpected parameters"
+
+        //now check the return type
+        let retTyp = mfv.ReturnParameter
+        retTyp.Type.TypeDefinition.DisplayName |> shouldEqual "float32"
+
     | _ -> failwith "Unexpected symbol type"
 

@@ -1453,7 +1453,13 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
             FSharpParameter(cenv,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | V v -> 
         match v.ValReprInfo with 
-        | None -> failwith "not a module let binding or member" 
+        | None ->
+            let _, tau = v.TypeScheme
+            if isFunTy cenv.g tau then
+                let _typeArguments, rty = stripFunTy cenv.g tau
+                FSharpParameter(cenv,  rty, { Name=None; Attribs= [] }, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false)
+            else
+                failwith "not a module let binding or member" 
         | Some (ValReprInfo(_typars,argInfos,retInfo)) -> 
         
             let tau = v.TauType

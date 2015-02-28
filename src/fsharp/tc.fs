@@ -13961,6 +13961,7 @@ module EstablishTypeDefinitionCores = begin
                     noAllowNullLiteralAttributeCheck()
                     TcRecdUnionAndEnumDeclarations.CheckUnionCaseName  cenv unionCaseName.idText unionCaseName.idRange
                     let unionCase = NewUnionCase unionCaseName unionCaseName.idText [] thisTy [] XmlDoc.Empty tycon.Accessibility
+                    writeFakeUnionCtorsToSink [ unionCase ]
                     MakeUnionRepr [ unionCase ], None, NoSafeInitInfo
 
                 | SynTypeDefnSimpleRepr.TypeAbbrev(ParserDetail.ThereWereSignificantParseErrorsSoDoNotTypecheckThisNode, _rhsType,_) ->

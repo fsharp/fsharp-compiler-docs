@@ -462,4 +462,21 @@ let _ = sprintf "ABCDE"
     typeCheckResults.GetFormatSpecifierLocations() 
     |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
     |> shouldEqual [||]
+
+[<Test>]
+let ``Single case discreminated union type definition`` () = 
+    let input = 
+      """
+type DU = Case1
+"""
+
+    let file = "/home/user/Test.fsx"
+    let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
+    typeCheckResults.GetAllUsesOfAllSymbolsInFile()
+    |> Async.RunSynchronously
+    |> Array.map (fun su -> 
+        let r = su.RangeAlternate 
+        r.StartLine, r.StartColumn, r.EndLine, r.EndColumn)
+    |> shouldEqual [|(2, 10, 2, 15); (2, 5, 2, 7); (1, 0, 1, 0)|]
+
  

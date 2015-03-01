@@ -1,3 +1,8 @@
+
+#### 0.0.85 - 
+* Fix for FSharpSymbolUse for single case union type #301
+* Added supprt for ReturnParameter in nested functions
+
 #### 0.0.84 - 
 * Added curried parameter groups for nested functions
 

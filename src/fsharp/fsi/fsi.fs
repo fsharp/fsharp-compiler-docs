@@ -2358,6 +2358,9 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
     let defaultFSharpBinariesDir = System.AppDomain.CurrentDomain.BaseDirectory
     let currentDirectory = Directory.GetCurrentDirectory()
 #endif
+    // When used as part of FCS we cannot assume the current process is fsi.exe
+    // So we try to fallback to the default compiler dir.
+    let defaultFSharpBinariesDir = Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
 
     let tcConfigB = Build.TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, 
                                                     true, // long running: optimizeForMemory 

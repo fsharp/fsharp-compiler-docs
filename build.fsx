@@ -108,6 +108,8 @@ Target "SourceLink" (fun _ ->
             // generated and in fsproj as Compile, but in .gitignore, not source indexed
             -- "src/fsharp/FSharp.Compiler.Service/illex.fs" // <FsLex Include="..\..\absil\illex.fsl">
             -- "src/fsharp/FSharp.Compiler.Service/ilpars.fs"
+            -- "src/fsharp/FSharp.Compiler.Service/pplex.fs" // <FsLex Include="..\..\absil\illex.fsl">
+            -- "src/fsharp/FSharp.Compiler.Service/pppars.fs"
             -- "src/fsharp/FSharp.Compiler.Service/lex.fs"
             -- "src/fsharp/FSharp.Compiler.Service/pars.fs"
         repo.VerifyChecksums gitFiles

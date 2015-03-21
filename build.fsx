@@ -120,6 +120,8 @@ Target "SourceLink" (fun _ ->
             ++ "src/absil/ilpars.fsy"
             ++ "src/fsharp/fsharp.compiler.service/obj/x86/release/fscomp.fs"
             ++ "src/fsharp/fsharp.compiler.service/obj/x86/release/fsistrings.fs"
+            ++ "src/fsharp/pplex.fsl"
+            ++ "src/fsharp/pppars.fsy"
             ++ "src/fsharp/lex.fsl"
             ++ "src/fsharp/pars.fsy"
         proj.VerifyPdbChecksums pdbFiles

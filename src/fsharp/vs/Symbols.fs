@@ -1402,7 +1402,21 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
 
         | V v -> 
         match v.ValReprInfo with 
-        | None -> failwith "not a module let binding or member"
+        | None ->
+            let _, tau = v.TypeScheme
+            if isFunTy cenv.g tau then
+                let typeArguments, _typ = stripFunTy cenv.g tau
+                [ for typ in typeArguments do
+                    let allArguments =
+                        if isTupleTy cenv.g typ
+                        then tryDestTupleTy cenv.g typ
+                        else [typ]
+                    yield
+                      allArguments
+                      |> List.map (fun arg -> FSharpParameter(cenv,  arg, { Name=None; Attribs= [] }, x.DeclarationLocationOpt, false, false, false))
+                      |> makeReadOnlyCollection ]
+                |> makeReadOnlyCollection
+            else makeReadOnlyCollection []
         | Some (ValReprInfo(_typars,curriedArgInfos,_retInfo)) -> 
             let tau = v.TauType
             let argtysl,_ = GetTopTauTypeInFSharpForm cenv.g curriedArgInfos tau range0
@@ -1439,7 +1453,13 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
             FSharpParameter(cenv,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | V v -> 
         match v.ValReprInfo with 
-        | None -> failwith "not a module let binding or member" 
+        | None ->
+            let _, tau = v.TypeScheme
+            if isFunTy cenv.g tau then
+                let _typeArguments, rty = stripFunTy cenv.g tau
+                FSharpParameter(cenv,  rty, { Name=None; Attribs= [] }, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false)
+            else
+                failwith "not a module let binding or member" 
         | Some (ValReprInfo(_typars,argInfos,retInfo)) -> 
         
             let tau = v.TauType

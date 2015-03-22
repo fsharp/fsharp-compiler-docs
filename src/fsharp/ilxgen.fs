@@ -1538,7 +1538,7 @@ let discardAndReturnVoid = DiscardThen ReturnVoid
 // the bodies of methods in a couple of places
 //------------------------------------------------------------------------- 
  
-let CodeGenThen mgbuf (zapFirstSeqPointToStart,entryPointInfo,methodName,eenv,alreadyUsedArgs,alreadyUsedLocals,codeGenFunction,m) = 
+let CodeGenThen cenv mgbuf (zapFirstSeqPointToStart,entryPointInfo,methodName,eenv,alreadyUsedArgs,alreadyUsedLocals,codeGenFunction,m) = 
     let cgbuf = new CodeGenBuffer(m,mgbuf,methodName,alreadyUsedArgs,alreadyUsedLocals,zapFirstSeqPointToStart)
     let start = CG.GenerateMark cgbuf "mstart"
     let innerVals = entryPointInfo |> List.map (fun (v,kind) -> (v,(kind,start))) 
@@ -1558,7 +1558,21 @@ let CodeGenThen mgbuf (zapFirstSeqPointToStart,entryPointInfo,methodName,eenv,al
             { locRange=(start.CodeLabel, finish.CodeLabel);
               locInfos= [{ LocalIndex=i; LocalName=nm }] })
 
-    (List.map (snd >> mkILLocal) locals, 
+    let ilLocals =
+        locals
+        |> List.map (fun (infos, ty) ->
+            // in interactive environment, attach name and range info to locals to improve debug experience
+            if cenv.opts.isInteractive && cenv.opts.generateDebugSymbols then
+                match infos with
+                | [(nm, (start, finish))] -> mkILLocal ty (Some(nm, start.CodeLabel, finish.CodeLabel))
+                // REVIEW: what do these cases represent?
+                | _ :: _
+                | [] -> mkILLocal ty None 
+            // if not interactive, don't bother adding this info
+            else
+                mkILLocal ty None)
+
+    (ilLocals, 
      maxStack,
      computeCodeLabelToPC,
      code,
@@ -1570,7 +1584,7 @@ let CodeGenMethod cenv mgbuf (zapFirstSeqPointToStart,entryPointInfo,methodName,
     (* Codegen the method. REVIEW: change this to generate the AbsIL code tree directly... *)
 
     let locals,maxStack,computeCodeLabelToPC,instrs,exns,localDebugSpecs,hasSequencePoints = 
-      CodeGenThen mgbuf (zapFirstSeqPointToStart,entryPointInfo,methodName,eenv,alreadyUsedArgs,alreadyUsedLocals,codeGenFunction,m)
+      CodeGenThen cenv mgbuf (zapFirstSeqPointToStart,entryPointInfo,methodName,eenv,alreadyUsedArgs,alreadyUsedLocals,codeGenFunction,m)
 
     let dump() = 
        instrs |> Array.iteri (fun i instr -> dprintf "%s: %d: %A\n" methodName i instr);
@@ -2236,14 +2250,11 @@ and GenFieldStore isStatic cenv cgbuf eenv (rfref:RecdFieldRef,tyargs,m) sequel 
     if fld.IsMutable && not (useGenuineField rfref.Tycon fld) then
         let cconv = if isStatic then ILCallingConv.Static else ILCallingConv.Instance
         let mspec = mkILMethSpecInTy (fspec.EnclosingType, cconv, "set_" + fld.rfield_id.idText, [fspec.FormalType],ILType.Void,[])
-        
         CG.EmitInstr cgbuf (mk_field_pops isStatic 1) Push0 (mkNormalCall mspec)
     else
-        // Within assemblies we do generate some set-field operations 
-        // for immutable fields even when resolving recursive bindings. 
-        // However we do not generate "set" properties for these. 
-        // Hence we just set the field directly in this case. 
-        CG.EmitInstr cgbuf (mk_field_pops isStatic 1) Push0 (if isStatic then mkNormalStsfld fspec else mkNormalStfld fspec); 
+        let vol = if rfref.RecdField.IsVolatile then Volatile else Nonvolatile
+        let instr = if isStatic then I_stsfld (vol, fspec) else I_stfld (ILAlignment.Aligned, vol, fspec)
+        CG.EmitInstr cgbuf (mk_field_pops isStatic 1) Push0 instr; 
     GenUnitThenSequel cenv eenv m eenv.cloc cgbuf sequel
 
 //--------------------------------------------------------------------------
@@ -2754,7 +2765,7 @@ and GenNamedLocalTyFuncCall cenv (cgbuf: CodeGenBuffer) eenv typ cloinfo tyargs 
 
     let ilContractTy = mkILBoxedTy ilContractCloTySpec.TypeRef ilContractClassTyargs
     
-    if not (ilContractMethTyargs.Length = tyargs.Length) then errorR(Error(FSComp.SR.ilIncorrectNumberOfTypeArguments(),m));
+    if not (ilContractMethTyargs.Length = ilTyArgs.Length) then errorR(Error(FSComp.SR.ilIncorrectNumberOfTypeArguments(),m));
 
     // Local TyFunc are represented as a $contract type. they currently get stored in a value of type object
     // Recover result (value or reference types) via unbox_any.

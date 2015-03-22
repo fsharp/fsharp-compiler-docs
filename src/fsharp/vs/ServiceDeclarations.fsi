@@ -86,11 +86,11 @@ module internal ItemDescriptionsImpl =
     val ParamNameAndTypesOfUnaryCustomOperation : TcGlobals -> MethInfo -> ParamNameAndType list
 
     val GetXmlDocSigOfEntityRef : InfoReader -> range -> EntityRef -> (string option * string) option
-    val GetXmlDocSigOfValRef : TcGlobals -> TyconRef -> ValRef -> (string option * string) option
+    val GetXmlDocSigOfScopedValRef : TcGlobals -> TyconRef -> ValRef -> (string option * string) option
     val GetXmlDocSigOfRecdFieldInfo : RecdFieldInfo -> (string option * string) option
     val GetXmlDocSigOfUnionCaseInfo : UnionCaseInfo -> (string option * string) option
     val GetXmlDocSigOfMethInfo : InfoReader -> range -> MethInfo -> (string option * string) option
-    val GetXmlDocSigOfActivePatternCase : TcGlobals -> ValRef -> (string option * string) option
+    val GetXmlDocSigOfValRef : TcGlobals -> ValRef -> (string option * string) option
     val GetXmlDocSigOfProp : InfoReader -> range -> PropInfo -> (string option * string) option
     val GetXmlDocSigOfEvent : InfoReader -> range -> EventInfo -> (string option * string) option
     val FormatDescriptionOfItem : bool -> InfoReader -> range -> DisplayEnv -> Item -> FSharpToolTipElement

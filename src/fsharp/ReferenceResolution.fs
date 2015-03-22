@@ -297,6 +297,7 @@ module internal MSBuildResolver =
 #if BUILDING_WITH_LKG
         ignore targetProcessorArchitecture
 #else       
+        rar.TargetProcessorArchitecture <- targetProcessorArchitecture
         let targetedRuntimeVersionValue = typeof<obj>.Assembly.ImageRuntimeVersion
 #if CROSS_PLATFORM_COMPILER 
         // The properties TargetedRuntimeVersion and CopyLocalDependenciesWhenParentReferenceInGac 
@@ -310,8 +311,7 @@ module internal MSBuildResolver =
         rar.TargetedRuntimeVersion <- targetedRuntimeVersionValue
         rar.CopyLocalDependenciesWhenParentReferenceInGac <- true
 #endif
-#endif        
-        rar.TargetProcessorArchitecture <- targetProcessorArchitecture
+#endif
         rar.Assemblies <- [|for (referenceName,baggage) in references -> 
                                         let item = new Microsoft.Build.Utilities.TaskItem(referenceName)
                                         item.SetMetadata("Baggage", baggage)

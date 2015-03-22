@@ -3,6 +3,7 @@
 #light
 namespace Microsoft.FSharp
 open System.Reflection
+open System.Runtime.InteropServices
 
 [<assembly:AssemblyDescription("FSharp.Compiler.Service.dll")>]
 [<assembly:AssemblyTitle("FSharp.Compiler.Service.dll")>]
@@ -10,6 +11,7 @@ open System.Reflection
 [<assembly:AssemblyProduct("F# Compiler Service (open source edition)")>]
 
 [<assembly:System.Runtime.CompilerServices.InternalsVisibleTo("FSharp.Compiler.Service.Tests")>]
+[<assembly:ComVisible(false)>]
 
 #if NO_STRONG_NAMES
 [<assembly:System.Runtime.CompilerServices.InternalsVisibleTo("fsc")>]

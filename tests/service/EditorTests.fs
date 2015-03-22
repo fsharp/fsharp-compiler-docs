@@ -68,8 +68,8 @@ let ``Intro test`` () =
     [ for mi in methods.Methods do
         yield methods.MethodName , [ for p in mi.Parameters do yield p.Display ] ]
         |> shouldEqual
-              [("Concat", ["params args: obj []"]);
-               ("Concat", ["params values: string []"]);
+              [("Concat", ["[<ParamArray>] args: obj []"]);
+               ("Concat", ["[<ParamArray>] values: string []"]);
                ("Concat", ["values: Collections.Generic.IEnumerable<'T>"]);
                ("Concat", ["values: Collections.Generic.IEnumerable<string>"]);
                ("Concat", ["arg0: obj"]); ("Concat", ["arg0: obj"; "arg1: obj"]);

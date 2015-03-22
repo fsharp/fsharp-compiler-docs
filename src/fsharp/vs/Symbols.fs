@@ -506,7 +506,7 @@ and FSharpUnionCase(cenv, v: UnionCaseRef) =
     inherit FSharpSymbol (cenv,   
                           (fun () -> 
                                checkEntityIsResolved v.TyconRef
-                               Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))),
+                               Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v),false)),
                           (fun _this thisCcu2 ad -> 
                                checkForCrossProjectAccessibility (thisCcu2, ad) (cenv.thisCcu, v.UnionCase.Accessibility)) 
                                //&& AccessibilityLogic.IsUnionCaseAccessible cenv.amap range0 ad v)
@@ -595,7 +595,7 @@ and FSharpField(cenv, d: FSharpFieldData)  =
                                     Item.RecdField(RecdFieldInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))
                                 | Union (v,_) -> 
                                     // This is not correct: there is no "Item" for a named union case field
-                                    Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))),
+                                    Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v),false)),
                           (fun this thisCcu2 ad -> 
                                 checkForCrossProjectAccessibility (thisCcu2, ad) (cenv.thisCcu, (this :?> FSharpField).Accessibility.Contents)) 
                                 //&&
@@ -786,7 +786,7 @@ and FSharpActivePatternCase(cenv, apinfo: PrettyNaming.ActivePatternInfo, typ, n
     member __.XmlDocSig = 
         let xmlsig = 
             match valOpt with
-            | Some valref -> ItemDescriptionsImpl.GetXmlDocSigOfActivePatternCase cenv.g valref
+            | Some valref -> ItemDescriptionsImpl.GetXmlDocSigOfValRef cenv.g valref
             | None -> None
         match xmlsig with
         | Some (_, docsig) -> docsig
@@ -1361,7 +1361,7 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         | V v ->
             match v.ActualParent with 
             | Parent entityRef -> 
-                match ItemDescriptionsImpl.GetXmlDocSigOfValRef cenv.g entityRef v with
+                match ItemDescriptionsImpl.GetXmlDocSigOfScopedValRef cenv.g entityRef v with
                 | Some (_, docsig) -> docsig
                 | _ -> ""
             | ParentNone -> "" 
@@ -1827,7 +1827,7 @@ type FSharpSymbol with
         let dflt() = FSharpSymbol(cenv,  (fun () -> item), (fun _ _ _ -> true)) 
         match item with 
         | Item.Value v -> FSharpMemberOrFunctionOrValue(cenv,  V v, item) :> _
-        | Item.UnionCase uinfo -> FSharpUnionCase(cenv,  uinfo.UnionCaseRef) :> _
+        | Item.UnionCase (uinfo,_) -> FSharpUnionCase(cenv,  uinfo.UnionCaseRef) :> _
         | Item.ExnCase tcref -> FSharpEntity(cenv,  tcref) :>_
         | Item.RecdField rfinfo -> FSharpField(cenv,  Recd rfinfo.RecdFieldRef) :> _
         

@@ -1176,6 +1176,39 @@ type TypeCheckInfo
             (fun msg -> 
                 FSharpMethodGroup(msg,[| |]))
 
+    member scope.GetMethodsAsSymbols (line, lineStr, colAtEndOfNames, names) =
+        match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, colAtEndOfNames, ResolveTypeNamesToCtors, ResolveOverloads.No, fun _ -> false) with
+        | None | Some ([], _, _) -> None
+        | Some (items, denv, m) ->
+            let allItems =
+                items
+                |> List.collect (fun item ->
+                    match item with 
+                    | Item.MethodGroup(nm,minfos) -> minfos |> List.map (fun minfo -> Item.MethodGroup(nm,[minfo]))  
+                    | Item.CtorGroup(nm,cinfos) -> cinfos |> List.map (fun minfo -> Item.CtorGroup(nm,[minfo])) 
+                    | Item.FakeInterfaceCtor _
+                    | Item.DelegateCtor _ -> [item]
+                    | Item.NewDef _ 
+                    | Item.ILField _ -> []
+                    | Item.Event _ -> []
+                    | Item.RecdField(rfinfo) -> if isFunction g rfinfo.FieldType then [item] else []
+                    | Item.Value v -> if isFunction g v.Type then [item] else []
+                    | Item.UnionCase(ucr) -> if not ucr.UnionCase.IsNullary then [item] else []
+                    | Item.ExnCase(ecr) -> if recdFieldsOfExnDefRef ecr |> nonNil then [item] else []
+                    | Item.Property(_,pinfos) -> 
+                        let pinfo = List.head pinfos 
+                        if pinfo.IsIndexer then [item] else []
+#if EXTENSIONTYPING
+                    | Params.ItemIsTypeWithStaticArguments g _ -> [item] // we pretend that provided-types-with-static-args are method-like in order to get ParamInfo for them
+#endif
+                    | Item.CustomOperation(_name, _helpText, _minfo) -> [item]
+                    | Item.TypeVar _ -> []
+                    | Item.CustomBuilder _ -> []
+                    | _ -> [] )
+
+            let symbols = allItems |> List.map (fun item -> FSharpSymbol.Create(g, thisCcu, tcImports, item))
+            Some (symbols, denv, m)
+
     member scope.GetDeclarationLocation (line, lineStr, colAtEndOfNames, names, preferFlag) =
           match GetDeclItemsForNamesAtPosition (None,Some(names), None, line, lineStr, colAtEndOfNames, ResolveTypeNamesToCtors,ResolveOverloads.Yes, fun _ -> false) with
           | None
@@ -1800,6 +1833,12 @@ type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo 
         reactorOp None (fun scope -> 
             scope.GetSymbolUseAtLocation (line, lineStr, colAtEndOfNames, names)
             |> Option.map (fun (sym,denv,m) -> FSharpSymbolUse(scope.TcGlobals,denv,sym,ItemOccurence.Use,m)))
+
+    member info.GetMethodsAsSymbols (line, colAtEndOfNames, lineStr, names) = 
+        reactorOp None (fun scope -> 
+            scope.GetMethodsAsSymbols (line, lineStr, colAtEndOfNames, names)
+            |> Option.map (fun (symbols,denv,m) ->
+                symbols |> List.map (fun sym -> FSharpSymbolUse(scope.TcGlobals,denv,sym,ItemOccurence.Use,m))))
 
     member info.GetSymbolAtLocationAlternate (line, colAtEndOfNames, lineStr, names) = 
         reactorOp None (fun scope -> 

@@ -647,6 +647,7 @@ type FSharpLineTokenizer(lexbuf: UnicodeLexing.Lexbuf,
                     | true,"I" 
                     | true,"load" 
                     | true,"time" 
+                    | true,"dbgbreak" 
                     | true,"cd" 
 #if DEBUG
                     | true,"terms" 

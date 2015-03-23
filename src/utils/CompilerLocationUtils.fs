@@ -243,10 +243,10 @@ module internal FSharpEnvironment =
                 | Some p when safeExists (Path.Combine(p,"fsc.exe")) || safeExists (Path.Combine(p,"Fsc.exe")) -> Some p 
                 | _ -> 
                 
-                    // On windows the location of the compiler is via a registry key
+                // On windows the location of the compiler is via a registry key
 
-                    // Note: If the keys below change, be sure to update code in:
-                    // Property pages (ApplicationPropPage.vb)
+                // Note: If the keys below change, be sure to update code in:
+                // Property pages (ApplicationPropPage.vb)
 
                     let key20 = @"Software\Microsoft\.NETFramework\AssemblyFolders\Microsoft.FSharp-" + FSharpTeamVersionNumber 
                     let key40a = @"Software\Microsoft\FSharp\4.0\Runtime\v4.0"
@@ -306,6 +306,7 @@ module internal FSharpEnvironment =
             None
 
 #if FX_ATLEAST_45_COMPILER_LOCATION
+
     // Apply the given function to the registry entry corresponding to the subkey.
     // The reg key is dispoed at the end of the scope.
     let useKey subkey f =

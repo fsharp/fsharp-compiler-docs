@@ -182,7 +182,7 @@ module internal ItemDescriptionsImpl =
     let rec rangeOfItem (g:TcGlobals) preferFlag d = 
         match d with
         | Item.Value vref  | Item.CustomBuilder (_,vref) -> Some (rangeOfValRef preferFlag vref)
-        | Item.UnionCase ucinfo        -> Some (rangeOfUnionCaseInfo preferFlag ucinfo)
+        | Item.UnionCase(ucinfo,_)     -> Some (rangeOfUnionCaseInfo preferFlag ucinfo)
         | Item.ActivePatternCase apref -> Some (rangeOfValRef preferFlag apref.ActivePatternVal)
         | Item.ExnCase tcref           -> Some tcref.Range
         | Item.RecdField rfinfo        -> Some (rangeOfRecdFieldInfo preferFlag rfinfo)
@@ -224,7 +224,7 @@ module internal ItemDescriptionsImpl =
     let rec ccuOfItem (g:TcGlobals) d = 
         match d with
         | Item.Value vref | Item.CustomBuilder (_,vref) -> ccuOfValRef vref 
-        | Item.UnionCase ucinfo                -> computeCcuOfTyconRef ucinfo.TyconRef
+        | Item.UnionCase(ucinfo,_)             -> computeCcuOfTyconRef ucinfo.TyconRef
         | Item.ActivePatternCase apref         -> ccuOfValRef apref.ActivePatternVal
         | Item.ExnCase tcref                   -> computeCcuOfTyconRef tcref
         | Item.RecdField rfinfo                -> computeCcuOfTyconRef rfinfo.RecdFieldRef.TyconRef
@@ -317,7 +317,7 @@ module internal ItemDescriptionsImpl =
                 m.XmlDocSig <- XmlDocSigOfEntity eref
             Some (ccuFileName, m.XmlDocSig)
 
-    let GetXmlDocSigOfValRef g (tcref:TyconRef) (vref:ValRef) = 
+    let GetXmlDocSigOfScopedValRef g (tcref:TyconRef) (vref:ValRef) = 
         let ccuFileName = libFileOfEntityRef tcref
         let v = vref.Deref
         if v.XmlDocSig = "" then
@@ -342,7 +342,7 @@ module internal ItemDescriptionsImpl =
         let amap = infoReader.amap
         match minfo with
         | FSMeth (g,_,vref,_) ->
-            GetXmlDocSigOfValRef g minfo.DeclaringEntityRef vref
+            GetXmlDocSigOfScopedValRef g minfo.DeclaringEntityRef vref
         | ILMeth (g,ilminfo,_) ->            
             let actualTypeName = ilminfo.DeclaringTyconRef.CompiledRepresentationForNamedType.FullName
             let fmtps = ilminfo.FormalMethodTypars            
@@ -367,7 +367,7 @@ module internal ItemDescriptionsImpl =
         | ProvidedMeth _ -> None
 #endif
 
-    let GetXmlDocSigOfActivePatternCase g (vref:ValRef) =
+    let GetXmlDocSigOfValRef g (vref:ValRef) =
         if not vref.IsLocalRef then
             let ccuFileName = vref.nlr.Ccu.FileName
             let v = vref.Deref
@@ -386,7 +386,7 @@ module internal ItemDescriptionsImpl =
             let tcref = tcrefOfAppTy g typ
             match fspinfo.ArbitraryValRef with 
             | None -> None
-            | Some vref -> GetXmlDocSigOfValRef g tcref vref
+            | Some vref -> GetXmlDocSigOfScopedValRef g tcref vref
         | ILProp(g, (ILPropInfo(tinfo,pdef))) -> 
             let tcref = tinfo.TyconRef
             match metaInfoOfEntityRef infoReader m tcref  with
@@ -413,8 +413,8 @@ module internal ItemDescriptionsImpl =
         match d with
         | Item.ActivePatternCase (APElemRef(_, vref, _))        
         | Item.Value vref | Item.CustomBuilder (_,vref) -> 
-            mkXmlComment (GetXmlDocSigOfActivePatternCase g vref)
-        | Item.UnionCase  ucinfo -> mkXmlComment (GetXmlDocSigOfUnionCaseInfo ucinfo)
+            mkXmlComment (GetXmlDocSigOfValRef g vref)
+        | Item.UnionCase  (ucinfo,_) -> mkXmlComment (GetXmlDocSigOfUnionCaseInfo ucinfo)
         | Item.ExnCase tcref -> mkXmlComment (GetXmlDocSigOfEntityRef infoReader m tcref)
         | Item.RecdField rfinfo -> mkXmlComment (GetXmlDocSigOfRecdFieldInfo rfinfo)
         | Item.NewDef _ -> FSharpXmlDoc.None
@@ -550,7 +550,7 @@ module internal ItemDescriptionsImpl =
               | Wrap(Item.Value vref1 | Item.CustomBuilder (_,vref1)), Wrap(Item.Value vref2 | Item.CustomBuilder (_,vref2)) -> valRefEq g vref1 vref2
               | Wrap(Item.ActivePatternCase(APElemRef(_apinfo1, vref1, idx1))), Wrap(Item.ActivePatternCase(APElemRef(_apinfo2, vref2, idx2))) ->
                   idx1 = idx2 && valRefEq g vref1 vref2
-              | Wrap(Item.UnionCase(UnionCaseInfo(_, ur1))), Wrap(Item.UnionCase(UnionCaseInfo(_, ur2))) -> g.unionCaseRefEq ur1 ur2
+              | Wrap(Item.UnionCase(UnionCaseInfo(_, ur1),_)), Wrap(Item.UnionCase(UnionCaseInfo(_, ur2),_)) -> g.unionCaseRefEq ur1 ur2
               | Wrap(Item.RecdField(RecdFieldInfo(_, RFRef(tcref1, n1)))), Wrap(Item.RecdField(RecdFieldInfo(_, RFRef(tcref2, n2)))) -> 
                   (tyconRefEq g tcref1 tcref2) && (n1 = n2) // there is no direct function as in the previous case
               | Wrap(Item.Property(_, pi1s)), Wrap(Item.Property(_, pi2s)) -> 
@@ -581,7 +581,7 @@ module internal ItemDescriptionsImpl =
               | Wrap(Item.Value vref | Item.CustomBuilder (_,vref)) -> hash vref.LogicalName
               | Wrap(Item.ActivePatternCase(APElemRef(_apinfo, vref, idx))) -> hash (vref.LogicalName, idx)
               | Wrap(Item.ExnCase(tcref)) -> hash tcref.Stamp
-              | Wrap(Item.UnionCase(UnionCaseInfo(_, UCRef(tcref, n)))) -> hash(tcref.Stamp, n)
+              | Wrap(Item.UnionCase(UnionCaseInfo(_, UCRef(tcref, n)),_)) -> hash(tcref.Stamp, n)
               | Wrap(Item.RecdField(RecdFieldInfo(_, RFRef(tcref, n)))) -> hash(tcref.Stamp, n)
               | Wrap(Item.Event evt) -> evt.ComputeHashCode()
               | Wrap(Item.Property(_name, pis)) -> hash (pis |> List.map (fun pi -> pi.ComputeHashCode()))
@@ -631,7 +631,7 @@ module internal ItemDescriptionsImpl =
         match d with
         | Item.ImplicitOp(_, { contents = Some(TraitConstraintSln.FSMethSln(_, vref, _)) }) 
         | Item.Value vref | Item.CustomBuilder (_,vref) -> fullDisplayTextOfValRef vref
-        | Item.UnionCase ucinfo -> fullDisplayTextOfUnionCaseRef  ucinfo.UnionCaseRef
+        | Item.UnionCase (ucinfo,_) -> fullDisplayTextOfUnionCaseRef  ucinfo.UnionCaseRef
         | Item.ActivePatternResult(apinfo, _ty, idx, _) -> apinfo.Names.[idx]
         | Item.ActivePatternCase apref -> FullNameOfItem g (Item.Value apref.ActivePatternVal)  + "." + apref.Name 
         | Item.ExnCase ecref -> fullDisplayTextOfExnRef ecref 
@@ -686,7 +686,7 @@ module internal ItemDescriptionsImpl =
             FSharpToolTipElement.Single(text, xml)
 
         // Union tags (constructors)
-        | Item.UnionCase ucinfo -> 
+        | Item.UnionCase(ucinfo,_) -> 
             let uc = ucinfo.UnionCase 
             let rty = generalizedTyconRef ucinfo.TyconRef
             let recd = uc.RecdFields 
@@ -962,7 +962,7 @@ module internal ItemDescriptionsImpl =
               bufferL os tpcsL
             else
               bufferL os (NicePrint.layoutPrettifiedTypeAndConstraints denv [] tau) 
-        | Item.UnionCase ucinfo -> 
+        | Item.UnionCase(ucinfo,_) -> 
             let rty = generalizedTyconRef ucinfo.TyconRef
             NicePrint.outputTy denv os rty
         | Item.ActivePatternCase(apref) -> 
@@ -1046,7 +1046,7 @@ module internal ItemDescriptionsImpl =
         | Item.Value vref | Item.CustomBuilder (_,vref) -> getKeywordForValRef vref
         | Item.ActivePatternCase apref -> apref.ActivePatternVal |> getKeywordForValRef
 
-        | Item.UnionCase ucinfo -> 
+        | Item.UnionCase(ucinfo,_) -> 
             (ucinfo.TyconRef |> ticksAndArgCountTextOfTyconRef)+"."+ucinfo.Name |> Some
 
         | Item.RecdField rfi -> 

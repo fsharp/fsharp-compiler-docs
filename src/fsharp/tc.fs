@@ -282,8 +282,8 @@ let emptyTcEnv g  =
     { eNameResEnv = NameResolutionEnv.Empty(g)
       eUngeneralizableItems=[]
       ePath=[]
-      eCompPath=cpath 
-      eAccessPath=cpath  
+      eCompPath=cpath // dummy 
+      eAccessPath=cpath // dummy 
       eAccessRights=computeAccessRights cpath [] None // compute this field 
       eInternalsVisibleCompPaths=[]
       eModuleOrNamespaceTypeAccumulator= ref (NewEmptyModuleOrNamespaceType Namespace)
@@ -1832,7 +1832,7 @@ let BuildFieldMap cenv env isPartial ty flds m =
             let frefSet = ResolveField cenv.tcSink cenv.nameResolver env.eNameResEnv ad ty fld
             fld,frefSet, fldExpr)
     let relevantTypeSets = 
-        frefSets |> List.map (fun (_,frefSet,_) -> frefSet |> List.choose (fun rfref -> Some rfref.TyconRef))
+        frefSets |> List.map (fun (_,frefSet,_) -> frefSet |> List.choose (fun (FieldResolution(rfref,_)) -> Some rfref.TyconRef))
     
     let tcref = 
         match List.fold (ListSet.intersect (tyconRefEq cenv.g)) (List.head relevantTypeSets) (List.tail relevantTypeSets) with
@@ -1844,13 +1844,13 @@ let BuildFieldMap cenv env isPartial ty flds m =
             // We're going to get an error of some kind below. 
             // Just choose one field ref and let the error come later 
             let (_,frefSet1,_) = List.head frefSets
-            let fref1 = List.head frefSet1
+            let (FieldResolution(fref1,_))= List.head frefSet1
             fref1.TyconRef
     
     let fldsmap,rfldsList = 
         ((Map.empty,[]), frefSets) ||> List.fold (fun (fs,rfldsList) (fld,frefs,fldExpr) -> 
-                match frefs |> List.filter (fun fref2 -> tyconRefEq cenv.g tcref fref2.TyconRef) with
-                | [fref2] -> 
+                match frefs |> List.filter (fun (FieldResolution(fref2,_)) -> tyconRefEq cenv.g tcref fref2.TyconRef) with
+                | [FieldResolution(fref2,showDeprecated)] -> 
 
                     // Record the precise resolution of the field for intellisense
                     let item = FreshenRecdFieldRef cenv.nameResolver m fref2
@@ -1860,9 +1860,12 @@ let BuildFieldMap cenv env isPartial ty flds m =
                     CheckFSharpAttributes cenv.g fref2.PropertyAttribs m |> CommitOperationResult        
                     if  Map.containsKey fref2.FieldName fs then 
                         errorR (Error(FSComp.SR.tcFieldAppearsTwiceInRecord(fref2.FieldName),m))
+                    if showDeprecated then
+                        warning(Deprecated(FSComp.SR.nrRecordTypeNeedsQualifiedAccess(fref2.FieldName,fref2.Tycon.DisplayName) |> snd,m))
+                        
                     if  not (tyconRefEq cenv.g tcref fref2.TyconRef) then 
                         let (_,frefSet1,_) = List.head frefSets
-                        let fref1 = List.head frefSet1
+                        let (FieldResolution(fref1,_)) = List.head frefSet1
                         errorR (FieldsFromDifferentTypes(env.DisplayEnv,fref1,fref2,m))
                         (fs,rfldsList)
                     else (Map.add fref2.FieldName fldExpr fs,
@@ -1880,7 +1883,10 @@ let rec ApplyUnionCaseOrExn (makerForUnionCase,makerForExnTag) m cenv env overal
         let mkf = makerForExnTag(ecref)
         mkf,recdFieldTysOfExnDefRef ecref, [ for f in (recdFieldsOfExnDefRef ecref) -> f.Id ]
 
-    | Item.UnionCase ucinfo ->   
+    | Item.UnionCase(ucinfo,showDeprecated) ->   
+        if showDeprecated then
+            warning(Deprecated(FSComp.SR.nrUnionTypeNeedsQualifiedAccess(ucinfo.Name,ucinfo.Tycon.DisplayName) |> snd,m))
+ 
         let ucref = ucinfo.UnionCaseRef 
         CheckUnionCaseAttributes cenv.g ucref m  |> CommitOperationResult
         CheckUnionCaseAccessible cenv.amap m ad ucref |> ignore
@@ -3016,11 +3022,16 @@ let GetMethodArgs arg =
         | SynExpr.Const (SynConst.Unit,_) -> []
         | SynExprParen(SynExpr.Tuple (args,_,_),_,_,_) | SynExpr.Tuple (args,_,_) -> args
         | SynExprParen(arg,_,_,_) | arg -> [arg]
-    let unnamedCallerArgs,namedCallerArgs = List.takeUntil IsNamedArg args
+    let unnamedCallerArgs,namedCallerArgs = 
+        args |> List.takeUntil IsNamedArg
     let namedCallerArgs = 
         namedCallerArgs |> List.choose (fun e -> 
-          if not (IsNamedArg e) then 
-              error(Error(FSComp.SR.tcNameArgumentsMustAppearLast(), e.Range)) 
+          if not (IsNamedArg e) then
+              // ignore errors to avoid confusing error messages in cases like foo(a = 1,) 
+              // do not abort overload resolution in case if named arguments are mixed with errors
+              match e with
+              | SynExpr.ArbitraryAfterError _ -> ()
+              | _ -> error(Error(FSComp.SR.tcNameArgumentsMustAppearLast(), e.Range)) 
           TryGetNamedArg e)
     unnamedCallerArgs, namedCallerArgs
 
@@ -4892,7 +4903,7 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
                         | None -> 
                             let caseName = 
                                 match item with
-                                | Item.UnionCase uci -> uci.Name
+                                | Item.UnionCase(uci,_) -> uci.Name
                                 | Item.ExnCase tcref -> tcref.DisplayName
                                 | _ -> failwith "impossible"
                             error(Error(FSComp.SR.tcUnionCaseConstructorDoesNotHaveFieldWithGivenName(caseName, id.idText), id.idRange))
@@ -4901,7 +4912,7 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
                             | null -> 
                                 result.[idx] <- pat
                                 let argContainerOpt = match item with
-                                                      | Item.UnionCase uci -> Some(ArgumentContainer.UnionCase(uci))
+                                                      | Item.UnionCase(uci,_) -> Some(ArgumentContainer.UnionCase(uci))
                                                       | Item.ExnCase tref -> Some(ArgumentContainer.Type(tref))
                                                       | _ -> None
                                 let argItem = Item.ArgName (argNames.[idx], argtys.[idx], argContainerOpt)   
@@ -7901,7 +7912,7 @@ and TcItemThen cenv overallTy env tpenv (item,mItem,rest,afterOverloadResolution
                   let ucref = mkChoiceCaseRef cenv.g mItem aparity n
                   let _,_,tinst,_ = infoOfTyconRef mItem ucref.TyconRef
                   let ucinfo = UnionCaseInfo(tinst,ucref)
-                  ApplyUnionCaseOrExnTypes mItem cenv env ucaseAppTy (Item.UnionCase ucinfo)
+                  ApplyUnionCaseOrExnTypes mItem cenv env ucaseAppTy (Item.UnionCase(ucinfo,false))
           | _ -> 
               ApplyUnionCaseOrExnTypes mItem cenv env ucaseAppTy item
         let nargtys = List.length argtys
@@ -7957,7 +7968,7 @@ and TcItemThen cenv overallTy env tpenv (item,mItem,rest,afterOverloadResolution
                             if box fittedArgs.[i] = null then
                                 fittedArgs.[i] <- arg
                                 let argContainerOpt = match item with
-                                                      | Item.UnionCase uci -> Some(ArgumentContainer.UnionCase(uci))
+                                                      | Item.UnionCase(uci,_) -> Some(ArgumentContainer.UnionCase(uci))
                                                       | Item.ExnCase tref -> Some(ArgumentContainer.Type(tref))
                                                       | _ -> None
                                 let argItem = Item.ArgName (argNames.[i], argtys.[i], argContainerOpt)   
@@ -7986,7 +7997,7 @@ and TcItemThen cenv overallTy env tpenv (item,mItem,rest,afterOverloadResolution
                             else
                                 let caseName = 
                                     match item with
-                                    | Item.UnionCase uci -> uci.Name
+                                    | Item.UnionCase(uci,_) -> uci.Name
                                     | Item.ExnCase tcref -> tcref.DisplayName
                                     | _ -> failwith "impossible"
                                 error(Error(FSComp.SR.tcUnionCaseConstructorDoesNotHaveFieldWithGivenName(caseName, id.idText),  id.idRange))
@@ -14072,9 +14083,9 @@ module EstablishTypeDefinitionCores = begin
                 // Constructors should be visible from IntelliSense, so add fake names for them 
                 for unionCase in unionCases do
                     let info = UnionCaseInfo(thisTyInst,mkUnionCaseRef thisTyconRef unionCase.Id.idText)
-                    let nenv' = AddFakeNameToNameEnv unionCase.Id.idText nenv (Item.UnionCase info) 
+                    let nenv' = AddFakeNameToNameEnv unionCase.Id.idText nenv (Item.UnionCase(info,false)) 
                     // Report to both - as in previous function
-                    let item = Item.UnionCase info
+                    let item = Item.UnionCase(info,false)
                     CallNameResolutionSink cenv.tcSink (unionCase.Range,nenv,item,item,ItemOccurence.Binding,envinner.DisplayEnv,ad)
                     CallEnvSink cenv.tcSink (unionCase.Id.idRange, nenv', ad)
             

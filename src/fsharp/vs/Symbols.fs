@@ -1688,6 +1688,32 @@ and FSharpType(cenv, typ:TType) =
        protect <| fun () -> 
         "type " + NicePrint.stringOfTy (DisplayEnv.Empty(cenv.g)) typ 
 
+    member x.Symbol =
+       match typ with
+       /// Indicates the type is a universal type, only used for types of values and members 
+       | TType_forall (typars, tType) ->
+          None
+       /// Indicates the type is build from a named type and a number of type arguments
+       | TType_app (tyconRef, typeInst) ->
+          let item = Item.Types(tyconRef.DisplayName, [typ])
+          let symbol = FSharpSymbol.Create(cenv, item)
+          Some symbol
+       /// Indicates the type is a tuple type. elementTypes must be of length 2 or greater.
+       | TType_tuple (tTypes) ->
+          None
+       /// Indicates the type is a function type 
+       | TType_fun (tTypeA, tTypeB) ->
+          None
+       /// TType_ucase(unionCaseRef, typeInstantiation)
+       | TType_ucase (unionCaseRef, typeInst) ->
+          None
+       /// Indicates the type is a variable type, whether declared, generalized or an inference type parameter  
+       | TType_var (typar ) ->
+          None
+       /// Indicates the type is a unit-of-measure expression being used as an argument to a type or member
+       | TType_measure (measureExpr) ->
+          None
+
 and FSharpAttribute(cenv: cenv, attrib: AttribInfo) = 
 
     member __.AttributeType =  
@@ -1817,7 +1843,7 @@ and FSharpAssembly internal (cenv, ccu: CcuThunk) =
                  
     override x.ToString() = x.QualifiedName
 
-type FSharpSymbol with 
+and FSharpSymbol with 
     // TODO: there are several cases where we may need to report more interesting
     // symbol information below. By default we return a vanilla symbol.
     static member Create(g, thisCcu, tcImports,  item) : FSharpSymbol = 

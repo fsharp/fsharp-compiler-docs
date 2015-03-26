@@ -828,6 +828,9 @@ and [<Class>] FSharpType =
     [<System.Obsolete("Renamed to TypeDefinition")>]
     member NamedEntity : FSharpEntity 
 
+    /// Get the symbol for the type, if available 
+    member Symbol : FSharpSymbol option
+
 
 /// Represents a custom attribute attached to F# source code or a compiler .NET component
 and [<Class>] FSharpAttribute = 

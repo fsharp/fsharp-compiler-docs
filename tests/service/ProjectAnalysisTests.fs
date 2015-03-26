@@ -4402,3 +4402,74 @@ let ``Test project35 CurriedParameterGroups should be available for nested funct
 
     | _ -> failwith "Unexpected symbol type"
 
+module Project36 =
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+
+type Foo(test:string) =
+    abstract AbstractMethod: int -> string
+
+type FooImpl(test:string) =
+    inherit Foo(test)
+    override __.AbstractMethod _ = "v" + test
+    member x.Property = 42
+
+let fooImp = FooImpl()
+let aFooProperty = fooImp.Property
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let wholeProjectResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
+    let allSymbols = allSymbolsInEntities true wholeProjectResults.AssemblySignature.Entities |> List.toArray
+    let entities = allSymbols |> Array.choose (function :? FSharpEntity as s -> Some s | _ -> None)
+    let memberOrVal = allSymbols |> Array.choose (function :? FSharpMemberOrFunctionOrValue as s -> Some s | _ -> None)
+
+[<Test>]
+let ``Test project36 Test for FooImp BaseType Symbol being equal to Foos symbol`` () = 
+    let fooSymbol = Project36.entities |> Array.find (fun e -> e.DisplayName = "Foo")
+    let fooImplSymbol = Project36.entities |> Array.find (fun e -> e.DisplayName = "FooImpl")
+
+    match fooImplSymbol.BaseType with
+    | Some baseType ->
+        match baseType.Symbol with
+        | Some baseTypeSymbol -> baseTypeSymbol |> shouldEqual (upcast fooSymbol)
+        | _ -> failwith "No base type symbol found"
+    | None ->  failwith "No base type found"
+
+[<Test>]
+let ``Test Project36 Test that aFooProperty has a ReturnParameter Type Symbol that is an int`` () =
+    let aFooPropertySymbol = Project36.memberOrVal |> Array.find (fun m -> m.DisplayName = "aFooProperty")
+    let afpReturnTypeSymbol = aFooPropertySymbol.ReturnParameter.Type.Symbol
+    match afpReturnTypeSymbol with 
+    | Some rs -> rs.DisplayName |> shouldEqual "int"
+    | _ -> failwith "No symbol found"
+
+[<Test>]
+let ``Test Project 36 Test that a BaseType symbol can be used with GetUsesOfSymbol`` () =
+    let fooImplSymbol = Project36.entities |> Array.find (fun e -> e.DisplayName = "FooImpl")
+    match fooImplSymbol.BaseType with
+    | Some baseType ->
+        match baseType.Symbol with
+        | Some baseTypeSymbol ->
+            let baseTypeSymbolUses =
+                //Use the Symbol property of the BaseType as GetUsesOfSymbol input
+                Project36.wholeProjectResults.GetUsesOfSymbol baseTypeSymbol
+                |> Async.RunSynchronously
+                |> Seq.map (fun s ->s.FileName, tups s.RangeAlternate)
+                |> Seq.distinct
+                |> Seq.toList
+
+            baseTypeSymbolUses
+            |> shouldEqual [Project36.fileName1, ((4,5), (4,8))
+                            Project36.fileName1, ((8,12), (8,15))]
+        | _ -> failwith "No base type symbol found"
+    | None ->  failwith "No base type found" 
+

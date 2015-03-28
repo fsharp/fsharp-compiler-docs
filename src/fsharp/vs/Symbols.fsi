@@ -773,6 +773,9 @@ and [<Class>] FSharpActivePatternGroup =
     /// Get the type indicating signature of the active pattern
     member OverallType : FSharpType
 
+    /// Try to get the enclosing entity of the active pattern
+    member EnclosingEntity : FSharpEntity option
+
 and [<Class>] FSharpType =
     /// Internal use only. Create a ground type.
     internal new : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * typ:TType -> FSharpType

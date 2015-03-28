@@ -1711,7 +1711,9 @@ let MakeAndPublishSimpleVals cenv env m names mergeNamesInOneNameresEnv =
                 let sink =
                     { new ITypecheckResultsSink with
                         member this.NotifyEnvWithScope(_, _, _) = () // ignore EnvWithScope reports
-                        member this.NotifyNameResolution(pos, a, b, occurence, denv, nenv, ad, m) = nameResolutions.Add(pos, a, b, occurence, denv, nenv, ad, m)
+                        member this.NotifyNameResolution(pos, a, b, occurence, denv, nenv, ad, m) = 
+                            if not m.IsSynthetic then
+                                nameResolutions.Add(pos, a, b, occurence, denv, nenv, ad, m)
                         member this.NotifyExprHasType(_, _, _, _, _, _) = assert false // no expr typings in MakeSimpleVals
                         member this.NotifyFormatSpecifierLocation _ = ()
                         member this.CurrentSource = None } 

@@ -87,4 +87,18 @@ namespace FSharp.Compiler.Service.Tests
             remove { throw new NotImplementedException(); }
         }
     }
+
+    public class CSharpOuterClass
+    {
+        public enum InnerEnum { Case1 }
+
+        public class InnerClass
+        {
+            public static int StaticMember()
+            {
+                return 0;
+            }
+        }
+    }
+
 }

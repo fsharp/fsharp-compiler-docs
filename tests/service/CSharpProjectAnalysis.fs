@@ -1,6 +1,7 @@
 ﻿
 #if INTERACTIVE
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
+#r "../../bin/v4.5/CSharp_Analysis.dll"
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
@@ -16,18 +17,19 @@ open System.IO
 open System.Collections.Generic
 
 open Microsoft.FSharp.Compiler
+open FSharp.Compiler.Service.Tests
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open FSharp.Compiler.Service.Tests.Common
 
-let getProjectReferences (dllFiles, libDirs, otherFlags) = 
+let getProjectReferences (content, dllFiles, libDirs, otherFlags) = 
     let otherFlags = defaultArg otherFlags []
     let libDirs = defaultArg libDirs []
     let base1 = Path.GetTempFileName()
     let dllName = Path.ChangeExtension(base1, ".dll")
     let fileName1 = Path.ChangeExtension(base1, ".fs")
     let projFileName = Path.ChangeExtension(base1, ".fsproj")
-    File.WriteAllText(fileName1, """module M""")
+    File.WriteAllText(fileName1, content)
     let options =
         checker.GetProjectOptionsFromCommandLineArgs(projFileName,
             [| yield "--debug:full" 
@@ -49,18 +51,19 @@ let getProjectReferences (dllFiles, libDirs, otherFlags) =
     if results.HasCriticalErrors then
         let builder = new System.Text.StringBuilder()
         for err in results.Errors do
-            builder.AppendLine(sprintf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.Severity.Error then "error" else "warning") err.Message)
+            builder.AppendLine(sprintf "**** %s: %s" (if err.Severity = FSharpErrorSeverity.Error then "error" else "warning") err.Message)
             |> ignore
         failwith (builder.ToString())
-
-    results.ProjectContext.GetReferencedAssemblies()
+    let assemblies =
+        results.ProjectContext.GetReferencedAssemblies()
         |> List.map(fun x -> x.SimpleName, x)
         |> dict
+    results, assemblies
 
 [<Test>]
 let ``Test that csharp references are recognized as such`` () = 
     let csharpAssembly = typeof<CSharpClass>.Assembly.Location
-    let table = getProjectReferences([csharpAssembly], None, None)
+    let _, table = getProjectReferences("""module M""", [csharpAssembly], None, None)
     let ass = table.["CSharp_Analysis"]
     match ass.Contents.Entities |> Seq.tryFind (fun e -> e.DisplayName = "CSharpClass") with
     | Some found ->
@@ -89,3 +92,23 @@ let ``Test that csharp references are recognized as such`` () =
         ()
     | None -> 
         Assert.Fail ("CSharpClass was not found in CSharp_Analysis assembly!")
+
+[<Test; Ignore("Failing test for https://github.com/fsharp/FSharp.Compiler.Service/issues/177")>]
+let ``Test that symbols of csharp inner classes/enums are reported`` () = 
+    let csharpAssembly = typeof<CSharpClass>.Assembly.Location
+    let content = """
+module NestedEnumClass
+open FSharp.Compiler.Service.Tests
+
+let _ = CSharpOuterClass.InnerEnum.Case1
+let _ = CSharpOuterClass.InnerClass.StaticMember()
+"""
+
+    let results, _ = getProjectReferences(content, [csharpAssembly], None, None)
+    results.GetAllUsesOfAllSymbols()
+    |> Async.RunSynchronously
+    |> Array.map (fun su -> su.Symbol.ToString())
+    |> shouldEqual 
+        [|"CSharpOuterClass"; "InnerEnum"; "symbol Case1"; 
+          "CSharpOuterClass"; "InnerClass"; "val StaticMember"; 
+          "NestedEnumClass"|]

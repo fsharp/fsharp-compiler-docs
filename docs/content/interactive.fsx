@@ -11,10 +11,12 @@ your application.
 
 > **NOTE:** There is a number of options for embedding F# Interactive. The easiest one is to use the 
 `fsi.exe` process and communicate with it using standard input and standard output. In this
-tutorial, we look at calling F# interactive directly through .NET API. However, if you have
+tutorial, we look at calling F# Interactive directly through .NET API. However, if you have
 no control over the input, it is a good idea to run F# interactive in a separate process.
 One reason is that there is no way to handle `StackOverflowException` and so a poorly written
-script can terminate the host process.
+script can terminate the host process. **Remember that while calling F# Interactive through .NET API, 
+` --shadowcopyreferences` option will be ignored**. For detailed discussion, please take a look at 
+[this thread](https://github.com/fsharp/FSharp.Compiler.Service/issues/292).
 
 However, the F# interactive service is still useful, because you might want to wrap it in your
 own executable that is then executed (and communicates with the rest of your application), or

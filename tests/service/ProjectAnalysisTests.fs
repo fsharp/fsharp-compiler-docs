@@ -1635,6 +1635,8 @@ let ``Test complete active patterns' exact ranges from uses of symbols`` () =
     oddGroup.IsTotal |> shouldEqual true
     oddGroup.Names |> Seq.toList |> shouldEqual ["Even"; "Odd"]
     oddGroup.OverallType.Format(oddSymbolUse.Value.DisplayContext) |> shouldEqual "int -> Choice<unit,unit>"
+    let oddEntity = oddGroup.EnclosingEntity.Value
+    oddEntity.ToString() |> shouldEqual "ActivePatterns"
 
     let evenSymbolUse = backgroundTypedParse1.GetSymbolUseAtLocation(10,9,"",["Even"]) |> Async.RunSynchronously
     evenSymbolUse.IsSome |> shouldEqual true  
@@ -1647,6 +1649,8 @@ let ``Test complete active patterns' exact ranges from uses of symbols`` () =
     evenGroup.IsTotal |> shouldEqual true
     evenGroup.Names |> Seq.toList |> shouldEqual ["Even"; "Odd"]
     evenGroup.OverallType.Format(evenSymbolUse.Value.DisplayContext) |> shouldEqual "int -> Choice<unit,unit>"
+    let evenEntity = evenGroup.EnclosingEntity.Value
+    evenEntity.ToString() |> shouldEqual "ActivePatterns"
 
     let usesOfEvenSymbol = 
         wholeProjectResults.GetUsesOfSymbol(evenSymbol) 
@@ -1689,6 +1693,8 @@ let ``Test partial active patterns' exact ranges from uses of symbols`` () =
     floatGroup.IsTotal |> shouldEqual false
     floatGroup.Names |> Seq.toList |> shouldEqual ["Float"]
     floatGroup.OverallType.Format(floatSymbolUse.Value.DisplayContext) |> shouldEqual "string -> float option"
+    let evenEntity = floatGroup.EnclosingEntity.Value
+    evenEntity.ToString() |> shouldEqual "ActivePatterns"
 
     let usesOfFloatSymbol = 
         wholeProjectResults.GetUsesOfSymbol(floatSymbol) 

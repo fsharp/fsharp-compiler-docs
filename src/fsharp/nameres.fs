@@ -2594,10 +2594,12 @@ let ResolveLongIdentAsExprAndComputeRange (sink:TcResultsSink) (ncenv:NameResolv
     
     // Record the precise resolution of the field for intellisense
     let item = FilterMethodGroups ncenv itemRange item true
-    // The fake idents 'Microsoft.FSharp.Core.None' have identical ranges for each part
+    // Fake idents e.g. 'Microsoft.FSharp.Core.None' have identical ranges for each part
     let isFakeIdents =
-        lid |> List.forall (fun id -> id.idRange.IsSynthetic) || 
-        (not lid.IsEmpty && lid |> List.forall (fun id -> id.idRange = lid.[0].idRange))
+        match lid with
+        | [] | [_] -> false
+        | head :: ids ->
+            ids |> List.forall (fun id -> id.idRange = head.idRange)
 
     let callSink refinedItem =
         if not isFakeIdents then

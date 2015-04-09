@@ -2383,7 +2383,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             ]
 
         let references = 
-            [  for i in project.GetEvaluatedItemsByName("ResolvedFiles") do
+            [  for i in project.GetEvaluatedItemsByName("ReferencePath") do
                    yield i.FinalItemSpec
                for fsproj in projectReferences do
                    match (try let p' = projectFromFile fsproj

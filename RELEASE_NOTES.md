@@ -1,5 +1,5 @@
 
-#### 0.0.86 - 
+#### 0.0.87 - 
 * Don't report fake symbols in indexing #325
 * Add EnclosingEntity for an active pattern group #327
 * Add ImmediateSubExpressions #284

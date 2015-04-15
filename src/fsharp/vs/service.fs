@@ -2367,9 +2367,9 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             if String.IsNullOrWhiteSpace v then None
             else Some v
 
-        let outdir p = mkAbsoluteOpt directory (getProp p "OutDir")
+        let outdir = mkAbsoluteOpt directory (getProp project "OutDir")
         let outFileOpt p =
-            match outdir p with 
+            match outdir with
             | None -> None
             | Some d -> mkAbsoluteOpt d (getProp p "TargetFileName")
 

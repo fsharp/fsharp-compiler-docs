@@ -1,3 +1,5 @@
+#### 0.0.89 - 
+* Fix output location of referenced projects
 
 #### 0.0.88 - 
 * Added Fix to allow implicit PCL references to be retrieved

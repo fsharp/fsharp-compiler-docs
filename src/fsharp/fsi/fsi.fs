@@ -913,8 +913,8 @@ type internal FsiDynamicCompiler
         errorLogger.AbortOnError(fsiConsoleOutput);
             
         let fragName = textOfLid prefixPath 
-        let codegenResults = GenerateIlxCode (IlReflectBackend, isInteractiveItExpr, runningOnMono, tcConfig, topCustomAttrs, optimizedImpls, fragName, true, ilxGenerator)
-        errorLogger.AbortOnError(fsiConsoleOutput);
+        let codegenResults = GenerateIlxCode (IlReflectBackend, isInteractiveItExpr, runningOnMono, tcConfig, topCustomAttrs, optimizedImpls, fragName, true, ilxGenerator, [])
+        errorLogger.AbortOnError();
 
         // Each input is like a small separately compiled extension to a single source file. 
         // The incremental extension to the environment is dictated by the "signature" of the values as they come out 

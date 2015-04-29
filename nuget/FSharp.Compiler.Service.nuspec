@@ -16,11 +16,24 @@
       <tags>@tags@</tags>
     </metadata>
     <files>
+      <!-- .NET 4.0 assemblies -->
       <file src="..\bin\v4.0\FSharp.Compiler.Service.dll" target="lib/net40" />
       <file src="..\bin\v4.0\FSharp.Compiler.Service.xml" target="lib/net40" />
       <file src="..\bin\v4.0\FSharp.Compiler.Service.pdb" target="lib/net40" />
+      <file src="..\bin\v4.0\Microsoft.Build.dll" target="lib/net40" />
+      <file src="..\bin\v4.0\Microsoft.Build.Engine.dll" target="lib/net40" />
+      <file src="..\bin\v4.0\Microsoft.Build.Framework.dll" target="lib/net40" />
+      <file src="..\bin\v4.0\Microsoft.Build.Tasks.v4.0.dll" target="lib/net40" />
+      <file src="..\bin\v4.0\Microsoft.Build.Utilities.v4.0.dll" target="lib/net40" />
+
+      <!-- .NET 4.5 assemblies -->
       <file src="..\bin\v4.5\FSharp.Compiler.Service.dll" target="lib/net45" />
       <file src="..\bin\v4.5\FSharp.Compiler.Service.xml" target="lib/net45" />
       <file src="..\bin\v4.5\FSharp.Compiler.Service.pdb" target="lib/net45" />
-   </files>
+      <file src="..\bin\v4.5\Microsoft.Build.dll" target="lib/net45" />
+      <file src="..\bin\v4.5\Microsoft.Build.Engine.dll" target="lib/net45" />
+      <file src="..\bin\v4.5\Microsoft.Build.Framework.dll" target="lib/net45" />
+      <file src="..\bin\v4.5\Microsoft.Build.Tasks.v12.0.dll" target="lib/net45" />
+      <file src="..\bin\v4.5\Microsoft.Build.Utilities.v12.0.dll" target="lib/net45" />
+    </files>
 </package>

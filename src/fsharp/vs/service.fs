@@ -2450,7 +2450,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
                    | Some (Some output) -> yield output
                    | _ -> ()
               ]
-
+        engine.UnloadAllProjects()
         outFileOpt project, directory, getItems, references, projectReferences, getprop project, project.FullPath
 
     let outFileOpt, directory, getItems, references, projectReferences, getProp, fsprojFullPath =

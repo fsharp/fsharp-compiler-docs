@@ -1,12 +1,12 @@
 // --------------------------------------------------------------------------------------
-// FAKE build script 
+// FAKE build script
 // --------------------------------------------------------------------------------------
 
 #I "packages/FAKE/tools"
 #r "packages/FAKE/tools/FakeLib.dll"
 #load "packages/SourceLink.Fake/tools/SourceLink.fsx"
 open System
-open Fake 
+open Fake
 open Fake.Git
 open Fake.ReleaseNotesHelper
 open Fake.AssemblyInfoFile
@@ -22,8 +22,9 @@ let summary = "F# compiler services for creating IDE tools, language extensions 
 let description = """
   The F# compiler services package contains a custom build of the F# compiler that
   exposes additional functionality for implementing F# language bindings, additional
-  tools based on the compiler or refactoring tools. The package also includes F# 
+  tools based on the compiler or refactoring tools. The package also includes F#
   interactive service that can be used for embedding F# scripting into your applications."""
+let standalone = "This is a standalone version of the package that bundles MSBUILD assemblies."
 let tags = "F# fsharp interactive compiler editor"
 
 let gitHome = "https://github.com/fsharp"
@@ -31,15 +32,18 @@ let gitName = "FSharp.Compiler.Service"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.githubusercontent.com/fsharp"
 
 let netFrameworks = ["v4.0"; "v4.5"]
+let nugetPackages =
+  [ "FSharp.Compiler.Service", summary, description
+    "FSharp.Compiler.Service.Standalone", summary + standalone, description + standalone]
 
 // --------------------------------------------------------------------------------------
-// The rest of the code is standard F# build script 
+// The rest of the code is standard F# build script
 // --------------------------------------------------------------------------------------
 
 // Read release notes & version info from RELEASE_NOTES.md
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let isAppVeyorBuild = environVar "APPVEYOR" <> null
-let nugetVersion = 
+let nugetVersion =
     if isAppVeyorBuild then sprintf "%s-a%s" release.NugetVersion (DateTime.UtcNow.ToString "yyMMddHHmm")
     else release.NugetVersion
 
@@ -52,7 +56,7 @@ Target "AssemblyInfo" (fun _ ->
   let fileName = "src/assemblyinfo/assemblyinfo.shared.fs"
   CreateFSharpAssemblyInfo fileName
       [ Attribute.Version release.AssemblyVersion
-        Attribute.FileVersion release.AssemblyVersion] 
+        Attribute.FileVersion release.AssemblyVersion]
 )
 
 // --------------------------------------------------------------------------------------
@@ -71,9 +75,9 @@ Target "CleanDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
-Target "GenerateFSIStrings" (fun _ -> 
+Target "GenerateFSIStrings" (fun _ ->
     // Generate FSIStrings using the FSSrGen tool
-    execProcess (fun p -> 
+    execProcess (fun p ->
       let dir = __SOURCE_DIRECTORY__ @@ "src/fsharp/fsi"
       p.Arguments <- "FSIstrings.txt FSIstrings.fs FSIstrings.resx"
       p.WorkingDirectory <- dir
@@ -83,7 +87,7 @@ Target "GenerateFSIStrings" (fun _ ->
 
 Target "Build" (fun _ ->
     netFrameworks
-    |> List.iter (fun framework -> 
+    |> List.iter (fun framework ->
         let outputPath = "bin/" + framework
         !! (project + ".sln")
         |> MSBuild outputPath "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
@@ -95,13 +99,13 @@ Target "SourceLink" (fun _ ->
     ()
     #else
     netFrameworks
-    |> List.iter (fun framework -> 
+    |> List.iter (fun framework ->
         let f = !! "src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj" |> Seq.head
         use repo = new GitRepo(__SOURCE_DIRECTORY__)
         let outputPath = __SOURCE_DIRECTORY__ @@ "bin/" + framework
         let proj = VsProj.Load f ["Configuration","Release"; "TargetFrameworkVersion",framework; "OutputPath",outputPath]
         logfn "indexing %s" proj.OutputFilePdb
-        let compiles = proj.Compiles.SetBaseDirectory __SOURCE_DIRECTORY__ 
+        let compiles = proj.Compiles.SetBaseDirectory __SOURCE_DIRECTORY__
         let gitFiles =
             compiles
             -- "src/assemblyinfo/assemblyinfo*.fs" // not source indexed
@@ -111,7 +115,7 @@ Target "SourceLink" (fun _ ->
             -- "src/fsharp/FSharp.Compiler.Service/lex.fs"
             -- "src/fsharp/FSharp.Compiler.Service/pars.fs"
         repo.VerifyChecksums gitFiles
-        let pdbFiles =  
+        let pdbFiles =
             compiles
             // generated, not in the fsproj as Compile, not source indexed
             ++ "src/absil/illex.fsl"
@@ -131,7 +135,7 @@ Target "SourceLink" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests" (fun _ ->
-    !! (if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll" 
+    !! (if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll"
         else "./bin/**/FSharp.Compiler.Service.Tests.dll")
     |> NUnit (fun p ->
         { p with
@@ -145,19 +149,20 @@ Target "RunTests" (fun _ ->
 // Build a NuGet package
 
 Target "NuGet" (fun _ ->
-    NuGet (fun p -> 
-        { p with   
-            Authors = authors
-            Project = project
-            Summary = summary
-            Description = description
-            Version = nugetVersion
-            ReleaseNotes = release.Notes |> toLines
-            Tags = tags
-            OutputPath = "bin"
-            AccessKey = getBuildParamOrDefault "nugetkey" ""
-            Publish = hasBuildParam "nugetkey" })
-        ("nuget/" + project + ".nuspec")
+    for package, summary, description in nugetPackages do
+      NuGet (fun p ->
+          { p with
+              Authors = authors
+              Project = project
+              Summary = summary
+              Description = description
+              Version = nugetVersion
+              ReleaseNotes = release.Notes |> toLines
+              Tags = tags
+              OutputPath = "bin"
+              AccessKey = getBuildParamOrDefault "nugetkey" ""
+              Publish = hasBuildParam "nugetkey" })
+          ("nuget/" + package + ".nuspec")
 )
 
 // --------------------------------------------------------------------------------------
@@ -176,7 +181,7 @@ Target "GenerateDocsJa" (fun _ ->
 
 Target "ReleaseDocs" (fun _ ->
     let tempDocsDir = "temp/gh-pages"
-    if not (System.IO.Directory.Exists tempDocsDir) then 
+    if not (System.IO.Directory.Exists tempDocsDir) then
         Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") "gh-pages" tempDocsDir
 
     fullclean tempDocsDir
@@ -206,7 +211,7 @@ Target "All" DoNothing
   ==> "All"
 
 "All"
-  ==> "PrepareRelease" 
+  ==> "PrepareRelease"
   ==> "SourceLink"
   ==> "NuGet"
   ==> "Release"

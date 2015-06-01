@@ -2358,8 +2358,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
 
         let project = projectFromFile fsprojFile
 
-        project.Build([|"ResolveAssemblyReferences"; "ImplicitlyExpandTargetFramework"|])  |> ignore
-
+        project.Build([| "ResolveReferences" |])  |> ignore
         let directory = Path.GetDirectoryName project.FullFileName
 
         let getProp (p: Microsoft.Build.BuildEngine.Project) s = 
@@ -2432,7 +2431,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
                   | None -> []
                   | Some l -> [l :> ILogger]
 
-        project.Build([| "ResolveAssemblyReferences"; "ImplicitlyExpandTargetFramework" |], log) |> ignore
+        project.Build([| "ResolveReferences"; |], log) |> ignore
 
         let getItems s = [ for f in project.GetItems(s) -> mkAbsolute directory f.EvaluatedInclude ]
 

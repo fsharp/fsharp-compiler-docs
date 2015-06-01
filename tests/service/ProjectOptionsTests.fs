@@ -251,7 +251,6 @@ let ``Project file parsing -- multi language project``() =
 
 [<Test>]
 let ``Project file parsing -- PCL profile7 project``() =
-  if Environment.OSVersion.Platform <> PlatformID.Unix then
 
     let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj")
 
@@ -300,7 +299,6 @@ let ``Project file parsing -- PCL profile7 project``() =
 
 [<Test>]
 let ``Project file parsing -- PCL profile78 project``() =
-  if Environment.OSVersion.Platform <> PlatformID.Unix then
 
     let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj")
 
@@ -340,7 +338,6 @@ let ``Project file parsing -- PCL profile78 project``() =
 
 [<Test>]
 let ``Project file parsing -- PCL profile259 project``() =
-  if Environment.OSVersion.Platform <> PlatformID.Unix then
 
     let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile259/Sample_VS2013_FSharp_Portable_Library_net451.fsproj")
 
@@ -378,7 +375,6 @@ let ``Project file parsing -- PCL profile259 project``() =
 
 [<Test>]
 let ``Project file parsing -- Exe with a PCL reference``() =
-  if Environment.OSVersion.Platform <> PlatformID.Unix then
 
     let f = normalizePath(__SOURCE_DIRECTORY__ + @"/../projects/sqlite-net-spike/sqlite-net-spike.fsproj")
 

@@ -2340,6 +2340,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
 
         let bpg = Microsoft.Build.BuildEngine.BuildPropertyGroup()
 
+        bpg.SetProperty("BuildingInsideVisualStudio", "true")
         for (prop, value) in properties do
             bpg.SetProperty(prop, value)
 
@@ -2351,10 +2352,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             project
 
         let project = projectFromFile fsprojFile
-
-        project.Build([| "ResolveAssemblyReferences";
-                         "ImplicitlyExpandTargetFramework";
-                         "ImplicitlyExpandDesignTimeFacades" |])  |> ignore
+        project.Build([| "ResolveReferences" |])  |> ignore
         let directory = Path.GetDirectoryName project.FullFileName
 
         let getProp (p: Microsoft.Build.BuildEngine.Project) s = 
@@ -2362,11 +2360,10 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             if String.IsNullOrWhiteSpace v then None
             else Some v
 
-        let outDirOpt = mkAbsoluteOpt directory (getProp project "OutDir")
-        let outFileOpt p =
-            match outDirOpt with
+        let outFileOpt =
+            match mkAbsoluteOpt directory (getProp project "OutDir") with
             | None -> None
-            | Some d -> mkAbsoluteOpt d (getProp p "TargetFileName")
+            | Some d -> mkAbsoluteOpt d (getProp project "TargetFileName")
 
         let getItems s = 
             let fs  = project.GetEvaluatedItemsByName(s)
@@ -2378,16 +2375,12 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             ]
 
         let references = 
-            [  for i in project.GetEvaluatedItemsByName("ReferencePath") do
-                   yield i.FinalItemSpec
-               for fsproj in projectReferences do
-                   match (try let p' = projectFromFile fsproj
-                              do p'.Load(fsproj)
-                              Some (outFileOpt p') with _ -> None) with  
-                   | Some (Some output) -> yield output
-                   | _ -> ()  ]
+            [ for i in project.GetEvaluatedItemsByName("ReferencePath") do
+                yield i.FinalItemSpec
+              for i in project.GetEvaluatedItemsByName("ChildProjectReferences") do
+                yield i.FinalItemSpec ]
 
-        outFileOpt project, directory, getItems, references, projectReferences, getProp project, project.FullFileName
+        outFileOpt, directory, getItems, references, projectReferences, getProp project, project.FullFileName
 
     let CrackProjectUsingNewBuildAPI(fsprojFile) =
         let fsprojFullPath = try FileSystem.GetFullPathShim(fsprojFile) with _ -> fsprojFile
@@ -2404,6 +2397,8 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             use xmlReader = System.Xml.XmlReader.Create(stream)
 
             let project = engine.LoadProject(xmlReader, FullPath=fsprojFullPath)
+
+            project.SetGlobalProperty("BuildingInsideVisualStudio", "true") |> ignore
             for (prop, value) in properties do
                 project.SetProperty(prop, value) |> ignore
 
@@ -2417,19 +2412,13 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             if String.IsNullOrWhiteSpace v then None
             else Some v
 
-        let outDirOpt = Option.map Path.GetDirectoryName (getprop project "TargetPath")
-        let outFileOpt p =
-            match outDirOpt with
-              | None -> None
-              | Some outDir -> mkAbsoluteOpt outDir (getprop p "TargetFileName")
+        let outFileOpt = getprop project "TargetPath"
 
         let log = match logOpt with
                   | None -> []
                   | Some l -> [l :> ILogger]
 
-        project.Build([| "ResolveAssemblyReferences";
-                         "ImplicitlyExpandTargetFramework";
-                         "ImplicitlyExpandDesignTimeFacades" |], log) |> ignore
+        project.Build([| "ResolveReferences" |], log) |> ignore
 
         let getItems s = [ for f in project.GetItems(s) -> mkAbsolute directory f.EvaluatedInclude ]
 
@@ -2439,16 +2428,12 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
               ]
 
         let references =
-              [  for i in project.GetItems("ReferencePath") do
-                   yield i.EvaluatedInclude
-                 for fsproj in projectReferences do
-                   match (try let p' = projectInstanceFromFullPath fsproj
-                              Some (outFileOpt p') with _ -> None) with
-                   | Some (Some output) -> yield output
-                   | _ -> ()
-              ]
+              [ for i in project.GetItems("ReferencePath") do
+                  yield i.EvaluatedInclude
+                for i in project.GetItems("ChildProjectReferences") do
+                  yield i.EvaluatedInclude ]
 
-        outFileOpt project, directory, getItems, references, projectReferences, getprop project, project.FullPath
+        outFileOpt, directory, getItems, references, projectReferences, getprop project, project.FullPath
 
     let outFileOpt, directory, getItems, references, projectReferences, getProp, fsprojFullPath =
       try

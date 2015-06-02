@@ -2335,11 +2335,6 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
     // Use the old API on Mono, with ToolsVersion = 12.0
     let CrackProjectUsingOldBuildAPI(fsprojFile:string) = 
         let engine = new Microsoft.Build.BuildEngine.Engine()
-#if FX_ATLEAST_45
-        engine.DefaultToolsVersion <- "12.0"
-#else
-        engine.DefaultToolsVersion <- "4.0"
-#endif
 
         Option.iter (fun l -> engine.RegisterLogger(l)) logOpt
 
@@ -2351,14 +2346,15 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
         engine.GlobalProperties <- bpg
 
         let projectFromFile (fsprojFile:string) =
-            // We seem to need to pass 12.0/4.0 in here for some unknown reason
             let project = new Microsoft.Build.BuildEngine.Project(engine, engine.DefaultToolsVersion)
             do project.Load(fsprojFile)
             project
 
         let project = projectFromFile fsprojFile
 
-        project.Build([| "ResolveReferences" |])  |> ignore
+        project.Build([| "ResolveAssemblyReferences";
+                         "ImplicitlyExpandTargetFramework";
+                         "ImplicitlyExpandDesignTimeFacades" |])  |> ignore
         let directory = Path.GetDirectoryName project.FullFileName
 
         let getProp (p: Microsoft.Build.BuildEngine.Project) s = 
@@ -2431,7 +2427,9 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
                   | None -> []
                   | Some l -> [l :> ILogger]
 
-        project.Build([| "ResolveReferences"; |], log) |> ignore
+        project.Build([| "ResolveAssemblyReferences";
+                         "ImplicitlyExpandTargetFramework";
+                         "ImplicitlyExpandDesignTimeFacades" |], log) |> ignore
 
         let getItems s = [ for f in project.GetItems(s) -> mkAbsolute directory f.EvaluatedInclude ]
 

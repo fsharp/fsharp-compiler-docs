@@ -37,11 +37,6 @@ let ``Project file parsing example 1 Default Configuration`` () =
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
     checkOption options.OtherOptions "FileSystemTests.fs"
     checkOption options.OtherOptions "--define:TRACE"
@@ -56,10 +51,6 @@ let ``Project file parsing example 1 Release Configuration`` () =
     // Check with Configuration = Release
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
     checkOption options.OtherOptions "FileSystemTests.fs"
     checkOption options.OtherOptions "--define:TRACE"
@@ -73,11 +64,6 @@ let ``Project file parsing example 1 Default configuration relative path`` () =
 
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
     checkOption options.OtherOptions "FileSystemTests.fs"
     checkOption options.OtherOptions "--define:TRACE"
@@ -88,15 +74,8 @@ let ``Project file parsing example 1 Default configuration relative path`` () =
 
 [<Test>]
 let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
-
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
 
     checkOption options.OtherOptions "--targetprofile:netcore"
     checkOption options.OtherOptions "--tailcalls-"
@@ -109,15 +88,9 @@ let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() =
 
 [<Test>]
 let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78``() = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
     checkOption options.OtherOptions "--targetprofile:netcore"
     checkOption options.OtherOptions "--tailcalls-"
 
@@ -378,13 +351,13 @@ let ``Project file parsing -- PCL profile259 project``() =
 [<Test>]
 let ``Project file parsing -- Exe with a PCL reference``() =
 
-    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/../projects/sqlite-net-spike/sqlite-net-spike.fsproj")
+    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/sqlite-net-spike/sqlite-net-spike.fsproj")
 
-    let options = checker.GetProjectOptionsFromProjectFile(f)
+    let p = FSharpProjectFileInfo.Parse(f) 
     let references =
-      options.OtherOptions
-      |> Array.choose (fun o -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
-      |> Set.ofArray
+      p.References
+      |> List.map (fun o -> o |> Path.GetFileName)
+      |> Set.ofList
     references
     |> shouldEqual
         (set [|"FSharp.Core.dll";"SQLite.Net.Platform.Generic.dll";"SQLite.Net.Platform.Win32.dll";

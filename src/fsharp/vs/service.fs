@@ -2960,8 +2960,12 @@ type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, 
 // CompilerEnvironment, DebuggerEnvironment
 //
 
+type CompilerEnvironment =
+  static member BinFolderOfDefaultFSharpCompiler ?probePoint =
+      Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler probePoint
 
-/// Information about the compilation environment    
+/// Information about the compilation environment
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module CompilerEnvironment =
     /// These are the names of assemblies that should be referenced for .fs, .ml, .fsi, .mli files that
     /// are not asscociated with a project

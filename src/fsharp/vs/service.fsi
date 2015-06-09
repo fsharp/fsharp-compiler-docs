@@ -698,7 +698,13 @@ type internal FsiInteractiveChecker =
     internal new : ops: IReactorOperations * tcConfig: Build.TcConfig * tcGlobals: Env.TcGlobals * tcImports: Build.TcImports * tcState: Build.TcState * loadClosure: Build.LoadClosure option ->  FsiInteractiveChecker 
     member internal ParseAndCheckInteraction : source:string -> FSharpParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults
 
-/// Information about the compilation environment    
+/// Information about the compilation environment
+type [<Class>] CompilerEnvironment =
+    /// The default location of FSharp.Core.dll and fsc.exe based on the version of fsc.exe that is running
+    static member BinFolderOfDefaultFSharpCompiler : string option -> string option
+
+/// Information about the compilation environment 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]   
 module CompilerEnvironment =
     /// These are the names of assemblies that should be referenced for .fs or .fsi files that
     /// are not asscociated with a project.

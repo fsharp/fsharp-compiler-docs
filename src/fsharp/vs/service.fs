@@ -2310,6 +2310,10 @@ type internal BasicStringLogger() =
     
   member x.Log = sb.ToString()
 
+type internal HostCompile() =
+    member th.Compile(_, _, _) = 0
+    interface ITaskHost
+
 //----------------------------------------------------------------------------
 // FSharpProjectFileInfo
 //
@@ -2397,6 +2401,8 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
             Environment.CurrentDirectory <- fsprojAbsDirectory
             { new System.IDisposable with member x.Dispose() = Environment.CurrentDirectory <- dir }
         use engine = new Microsoft.Build.Evaluation.ProjectCollection()
+        let host = new HostCompile()
+        engine.HostServices.RegisterHostObject(fsprojFullPath, "CoreCompile", "Fsc", host)
 
         let projectInstanceFromFullPath fsprojFullPath =
             use stream = FileSystem.FileStreamReadShim(fsprojFullPath)
@@ -2424,7 +2430,8 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
                   | None -> []
                   | Some l -> [l :> ILogger]
 
-        project.Build([| "ResolveReferences" |], log) |> ignore
+        project.Build([| "Build" |], log) |> ignore
+        //engine.UnloadProject(project.ToProjectRootElement())
 
         let getItems s = [ for f in project.GetItems(s) -> mkAbsolute directory f.EvaluatedInclude ]
 

@@ -353,37 +353,22 @@ let ``Project file parsing -- Exe with a PCL reference``() =
 
     let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/sqlite-net-spike/sqlite-net-spike.fsproj")
 
-    let p = FSharpProjectFileInfo.Parse(f) 
+    let p = FSharpProjectFileInfo.Parse(f)
     let references =
       p.References
       |> List.map (fun o -> o |> Path.GetFileName)
       |> Set.ofList
-    references
-    |> shouldEqual
-        (set [|"FSharp.Core.dll";"SQLite.Net.Platform.Generic.dll";"SQLite.Net.Platform.Win32.dll";
-                "SQLite.Net.dll";"System.Collections.Concurrent.dll";"System.Collections.dll";
-                "System.ComponentModel.Annotations.dll";"System.ComponentModel.EventBasedAsync.dll";
-                "System.ComponentModel.dll";"System.Core.dll";"System.Diagnostics.Contracts.dll";
-                "System.Diagnostics.Debug.dll";"System.Diagnostics.Tools.dll";
-                "System.Diagnostics.Tracing.dll";"System.Dynamic.Runtime.dll";
-                "System.Globalization.dll";"System.IO.dll";"System.Linq.Expressions.dll";
-                "System.Linq.Parallel.dll";"System.Linq.Queryable.dll";"System.Linq.dll";
-                "System.Net.NetworkInformation.dll";"System.Net.Primitives.dll";
-                "System.Net.Requests.dll";"System.Numerics.dll";"System.ObjectModel.dll";
-                "System.Reflection.Emit.ILGeneration.dll";"System.Reflection.Emit.Lightweight.dll";
-                "System.Reflection.Emit.dll";"System.Reflection.Extensions.dll";
-                "System.Reflection.Primitives.dll";"System.Reflection.dll";
-                "System.Resources.ResourceManager.dll";"System.Runtime.Extensions.dll";
-                "System.Runtime.InteropServices.WindowsRuntime.dll";"System.Runtime.InteropServices.dll";
-                "System.Runtime.Numerics.dll";"System.Runtime.Serialization.Json.dll";
-                "System.Runtime.Serialization.Primitives.dll";"System.Runtime.Serialization.Xml.dll";
-                "System.Runtime.dll";"System.Security.Principal.dll";"System.ServiceModel.Http.dll";
-                "System.ServiceModel.Primitives.dll";"System.ServiceModel.Security.dll";
-                "System.Text.Encoding.Extensions.dll";"System.Text.Encoding.dll";
-                "System.Text.RegularExpressions.dll";"System.Threading.Tasks.Parallel.dll";
-                "System.Threading.Tasks.dll";"System.Threading.Timer.dll";"System.Threading.dll";
-                "System.Xml.ReaderWriter.dll";"System.Xml.XDocument.dll";"System.Xml.XmlSerializer.dll";
-                "System.dll";"mscorlib.dll"|])
-
+    references |> should contain "FSharp.Core.dll"
+    references |> should contain "SQLite.Net.Platform.Generic.dll"
+    references |> should contain "SQLite.Net.Platform.Win32.dll"
+    references |> should contain "SQLite.Net.dll"
+    references |> should contain "System.Collections.Concurrent.dll"
+    references |> should contain "System.Linq.Queryable.dll"
+    references |> should contain "System.Resources.ResourceManager.dll"
+    references |> should contain "System.Threading.dll"
+    references |> should contain "System.dll"
+    references |> should contain "mscorlib.dll"
+    references |> should contain "System.Reflection.dll"
+    references |> should contain "System.Reflection.Emit.Lightweight.dll"
 #endif
 

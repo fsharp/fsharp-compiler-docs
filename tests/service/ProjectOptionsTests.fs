@@ -189,9 +189,7 @@ let ``Project file parsing -- Logging``() =
 
   if runningOnMono then
     Assert.That(p.LogOutput, Is.StringContaining("Reference System.Core resolved"))
-    Assert.That(p.LogOutput, Is.StringContaining("Using task ResolveAssemblyReference from Microsoft.Build.Tasks.ResolveAssemblyReference"
-                                                 //", Microsoft.Build.Tasks.v12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
-                                                 ))
+    Assert.That(p.LogOutput, Is.StringContaining("Using task ResolveAssemblyReference from Microsoft.Build.Tasks.ResolveAssemblyReference"))
   else
     Assert.That(p.LogOutput, Is.StringContaining("""Using "ResolveAssemblyReference" task from assembly "Microsoft.Build.Tasks.v12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"."""))
 

@@ -2431,7 +2431,6 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
                   | Some l -> [l :> ILogger]
 
         project.Build([| "Build" |], log) |> ignore
-        //engine.UnloadProject(project.ToProjectRootElement())
 
         let getItems s = [ for f in project.GetItems(s) -> mkAbsolute directory f.EvaluatedInclude ]
 

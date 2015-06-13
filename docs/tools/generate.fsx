@@ -6,7 +6,7 @@
 // Binaries that have XML documentation (in a corresponding generated XML file)
 let referenceBinaries = [ "FSharp.Compiler.Service.dll" ] 
 // Web site location for the generated documentation
-let website = "http://fsharp.github.io/FSharp.Compiler.Service"
+let website = "https://fsharp.github.io/FSharp.Compiler.Service"
 
 // Specify more information about your project
 let info =

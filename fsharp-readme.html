@@ -13,9 +13,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
-	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
-    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
+    <script type="text/javascript" src="https://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -53,7 +53,10 @@ To bootstrap the compiler, binaries built from an earlier version of this projec
 
 <p>On OSX, requires automake 2.69. To install from <a href="http://mxcl.github.com/homebrew">homebrew</a>:</p>
 
-<table class="pre"><tr><td><pre lang="text">brew install automake</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">brew install automake
+</code></pre></td></tr></table>
 
 <h2><a name="Building" class="anchor" href="#Building">Building</a></h2>
 
@@ -61,9 +64,14 @@ To bootstrap the compiler, binaries built from an earlier version of this projec
 
 <p>The usual:</p>
 
-<table class="pre"><tr><td><pre lang="text">./autogen.sh
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">./autogen.sh
 make
-sudo make install</pre></td></tr></table>
+sudo make install
+</code></pre></td></tr></table>
 
 <p>By default that makes optimized binaries. To make debug, use <code>make CONFIG=debug</code></p>
 
@@ -71,9 +79,14 @@ sudo make install</pre></td></tr></table>
 
 <p>Use a prefix to your version of Mono:</p>
 
-<table class="pre"><tr><td><pre lang="text">./autogen.sh --prefix=/Library/Frameworks/Mono.framework/Versions/Current/
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">./autogen.sh --prefix=/Library/Frameworks/Mono.framework/Versions/Current/
 make
-sudo make install</pre></td></tr></table>
+sudo make install
+</code></pre></td></tr></table>
 
 <p>By default that makes optimized binaries. To make debug, use <code>make CONFIG=debug</code></p>
 
@@ -81,36 +94,63 @@ sudo make install</pre></td></tr></table>
 
 <p>If you have only VS2012 installed, and not VS2010, you'll need to install the F# 2.0 Runtime (<a href="http://www.microsoft.com/en-us/download/details.aspx?id=13450)">http://www.microsoft.com/en-us/download/details.aspx?id=13450)</a></p>
 
-<table class="pre"><tr><td><pre lang="text">cd src
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">cd src
 msbuild fsharp-proto-build.proj
 ngen install ..\lib\proto\4.0\fsc-proto.exe (optional)
 msbuild fsharp-library-build.proj /p:Configuration=Release
-msbuild fsharp-compiler-build.proj /p:Configuration=Release</pre></td></tr></table>
+msbuild fsharp-compiler-build.proj /p:Configuration=Release
+</code></pre></td></tr></table>
 
 <p>You can also build the FSharp.Core for .NET 2.0, Mono 2.1, MonoTouch, Silverlight 5.0, Windows Phone 7.1, Portable Profile47 (net45+sl5+win8), Portable Profile88 (net4+sl4+wp71+win8) and XNA 4.0 for Xbox 360 profiles:</p>
 
-<table class="pre"><tr><td><pre lang="text">msbuild fsharp-library-build.proj /p:TargetFramework=net20 /p:Configuration=Release
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">msbuild fsharp-library-build.proj /p:TargetFramework=net20 /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=mono21 /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=monotouch /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=portable-net45+sl5+win8 /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=portable-net4+sl4+wp71+win8 /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=sl5 /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=wp7 /p:Configuration=Release
-msbuild fsharp-library-build.proj /p:TargetFramework=net40-xna40-xbox360 /p:Configuration=Release</pre></td></tr></table>
+msbuild fsharp-library-build.proj /p:TargetFramework=net40-xna40-xbox360 /p:Configuration=Release
+</code></pre></td></tr></table>
 
 <p>You can also build the FSharp.Core and FSharp.Compiler.Silverlight.dll for Silverlight 5.0:</p>
 
-<table class="pre"><tr><td><pre lang="text">msbuild fsharp-library-build.proj /p:TargetFramework=sl5-compiler  /p:Configuration=Release
-msbuild fsharp-compiler-build.proj /p:TargetFramework=sl5-compiler /p:Configuration=Release</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">msbuild fsharp-library-build.proj /p:TargetFramework=sl5-compiler  /p:Configuration=Release
+msbuild fsharp-compiler-build.proj /p:TargetFramework=sl5-compiler /p:Configuration=Release
+</code></pre></td></tr></table>
 
 <p>Change to <code>/p:Configuration=Debug</code> for debug binaries.</p>
 
 <h3><a name="On-Windows-using-xbuild-e-g-if-no-NET-is-installed-and-only-Mono-3-0-is-installed" class="anchor" href="#On-Windows-using-xbuild-e-g-if-no-NET-is-installed-and-only-Mono-3-0-is-installed">On Windows, using xbuild (e.g. if no .NET is installed and only Mono 3.0 is installed):</a></h3>
 
-<table class="pre"><tr><td><pre lang="text">cd src
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">cd src
 xbuild fsharp-proto-build.proj
 xbuild fsharp-library-build.proj
-xbuild fsharp-compiler-build.proj</pre></td></tr></table>
+xbuild fsharp-compiler-build.proj
+</code></pre></td></tr></table>
 
 <p>Building using xbuild does not yet lay down a Mono-ready distribution (see src/fsharp/targets.make), so should only
 be used for private development rather than preparing distributions.</p>
@@ -120,23 +160,46 @@ be used for private development rather than preparing distributions.</p>
 <p>The FSharp.Core.dll produced is only delay-signed (Mono does not require strong names). 
 If a strong-name signed FSharp.Core.dll is needed then use the one in</p>
 
-<table class="pre"><tr><td><pre lang="text">lib\bootstrap\signed\3.0\v4.0\FSharp.Core.dll</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">lib\bootstrap\signed\3.0\v4.0\FSharp.Core.dll
+</code></pre></td></tr></table>
 
 <h2><a name="What-you-get" class="anchor" href="#What-you-get">What you get</a></h2>
 
 <p>Once built the main compiler binaries go in</p>
 
-<table class="pre"><tr><td><pre lang="text">lib/release/4.0</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">lib/release/4.0
+</code></pre></td></tr></table>
 
 <p>There are versions of FSharp.Core for .NET 2.0, MonoAndroid, MonoTouch (Mono profile 2.1) in</p>
 
-<table class="pre"><tr><td><pre lang="text">lib/release/2.0
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">lib/release/2.0
 lib/release/2.1
-lib/release/2.1monotouch</pre></td></tr></table>
+lib/release/2.1monotouch
+</code></pre></td></tr></table>
 
 <p>On <code>make install</code> the binaries etc. go in the prefix, e.g.</p>
 
-<table class="pre"><tr><td><pre lang="text">/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/2.0/FSharp.Core.dll
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/2.0/FSharp.Core.dll
 /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/2.1/FSharp.Core.dll
 /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.0/fsc.exe
 /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.0/FSharp.Compiler.dll
@@ -146,12 +209,17 @@ lib/release/2.1monotouch</pre></td></tr></table>
 ...
 /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/gac/.../FSharp.Compiler.dll
 /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/gac/.../FSharp.Compiler.dll
-...</pre></td></tr></table>
+...
+</code></pre></td></tr></table>
 
 <p>plus some files for xbuild support</p>
 
-<table class="pre"><tr><td><pre lang="text">/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/Microsoft\ F#/v4.0/*
-/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/Microsoft\ SDKs/F#/3.0/Framework/*</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/Microsoft\ F#/v4.0/*
+/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/Microsoft\ SDKs/F#/3.0/Framework/*
+</code></pre></td></tr></table>
 
 <p>(these names are the canonical names for Microsoft.FSharp.Targets used by project files coming from Visual Studio)</p>
 
@@ -183,7 +251,10 @@ collections to kick in which makes editing the compiler in MonoDevelop awkward.<
 
 <p>This uses the proto compiler to build the unit tests that check some parts of <code>FSharp.Core.dll</code> and <code>FSharp.Compiler.dll</code>. There is also another set of tests under <code>tests\fsharp</code>.</p>
 
-<table class="pre"><tr><td><pre lang="text">msbuild fsharp-library-unittests-build.proj /p:TargetFramework=net40</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">msbuild fsharp-library-unittests-build.proj /p:TargetFramework=net40
+</code></pre></td></tr></table>
 
 <p><em>Note: You must have NUnit installed to build the unit tests.</em></p>
 
@@ -191,34 +262,59 @@ collections to kick in which makes editing the compiler in MonoDevelop awkward.<
 
 <p>Here are some simple tests to validate what you have built by checking <code>fsi.exe</code> (F# Interactive) starts up:</p>
 
-<table class="pre"><tr><td><pre lang="text">lib\debug\4.0\fsi.exe
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">lib\debug\4.0\fsi.exe
 1 + 1;;
 \#q;;
 lib\debug\4.0\fsi.exe /help
 lib\debug\4.0\fsc.exe /help
-echo printfn &quot;hello world&quot; &gt; hello.fs
+echo printfn "hello world" > hello.fs
 lib\debug\4.0\fsc.exe hello.fs
-hello.exe</pre></td></tr></table>
+hello.exe
+</code></pre></td></tr></table>
 
 <h3><a name="Running-Compiler-tests-on-Windows" class="anchor" href="#Running-Compiler-tests-on-Windows">Running Compiler tests (on Windows)</a></h3>
 
 <p>There are language tests under <code>tests\fsharp\core</code>. The test apparatus is primitive and unfortunately uses batch files. You can run these on Windows using:</p>
 
-<table class="pre"><tr><td><pre lang="text">cd ..\tests\fsharp\core
-..\..\build-and-run-all-installed-ilx-configs.bat results.log</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">cd ..\tests\fsharp\core
+..\..\build-and-run-all-installed-ilx-configs.bat results.log
+</code></pre></td></tr></table>
 
 <p>The results file will contain one entry for each test directory, plus any reported errors.</p>
 
-<table class="pre"><tr><td><pre lang="text">tests\fsharp\core
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">tests\fsharp\core
 tests\fsharp\core\queriesCustomQueryOps
 tests\fsharp\core\queriesLeafExpressionConvert
 tests\fsharp\core\queriesNullableOperators
 tests\fsharp\core\queriesOverIEnumerable
-...</pre></td></tr></table>
+...
+</code></pre></td></tr></table>
 
 <p>Some tests for LINQ queries require SQL Server be installed. A failing test will look like this:</p>
 
-<table class="pre"><tr><td><pre lang="text">ERRORLEVEL=1: in tests\fsharp\core\csfromfs\build.bat</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">ERRORLEVEL=1: in tests\fsharp\core\csfromfs\build.bat
+</code></pre></td></tr></table>
 
 <p>You can then go to the relevant directory and run <code>build.bat</code> and <code>run.bat</code>.</p>
 
@@ -232,15 +328,15 @@ tests\fsharp\core\queriesOverIEnumerable
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
-            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			<a href="https://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
@@ -248,28 +344,28 @@ tests\fsharp\core\queriesOverIEnumerable
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
 
             <li class="nav-header">Available services</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Design Notes</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
             </li>
           </ul>
         </div>

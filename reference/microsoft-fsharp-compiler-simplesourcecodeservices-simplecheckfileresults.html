@@ -12,9 +12,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
-	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
-    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
+    <script type="text/javascript" src="https://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -37,9 +37,14 @@
 
 
 <h1>SimpleCheckFileResults</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler.SimpleSourceCodeServices</span><br />
+</p>
 <div class="xmldoc">
 <p>Represents the results of type checking. A mild simplification of SourceCodeService's CheckFileResults.
 Normally it is better to use the full CheckFileResults directly, available from 'FullResults'.</p>
+
+
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -50,10 +55,10 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3192', 3192)" onmouseover="showTip(event, '3192', 3192)">
+          <code onmouseout="hideTip(event, '3224', 3224)" onmouseover="showTip(event, '3224', 3224)">
             Errors
           </code>
-          <div class="tip" id="3192">
+          <div class="tip" id="3224">
             <strong>Signature:</strong> FSharpErrorInfo []<br />
                       </div>
         </td>
@@ -64,15 +69,17 @@ Normally it is better to use the full CheckFileResults directly, available from 
             </a>
           <p>Return the errors resulting from the type-checking</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3193', 3193)" onmouseover="showTip(event, '3193', 3193)">
+          <code onmouseout="hideTip(event, '3225', 3225)" onmouseover="showTip(event, '3225', 3225)">
             FullResults
           </code>
-          <div class="tip" id="3193">
+          <div class="tip" id="3225">
             <strong>Signature:</strong> CheckFileResults<br />
                       </div>
         </td>
@@ -83,15 +90,17 @@ Normally it is better to use the full CheckFileResults directly, available from 
             </a>
           <p>Get the full type checking results</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3194', 3194)" onmouseover="showTip(event, '3194', 3194)">
+          <code onmouseout="hideTip(event, '3226', 3226)" onmouseover="showTip(event, '3226', 3226)">
             GetDataTipText(...)
           </code>
-          <div class="tip" id="3194">
+          <div class="tip" id="3226">
             <strong>Signature:</strong> (line:Line0 * col:int * names:string list * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; string<br />
                       </div>
         </td>
@@ -106,10 +115,10 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3195', 3195)" onmouseover="showTip(event, '3195', 3195)">
+          <code onmouseout="hideTip(event, '3227', 3227)" onmouseover="showTip(event, '3227', 3227)">
             GetDeclarationListInfo(...)
           </code>
-          <div class="tip" id="3195">
+          <div class="tip" id="3227">
             <strong>Signature:</strong> (line:int * col:int * qualifyingNames:string list * partialName:string * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; Async&lt;SimpleDeclaration []&gt;<br />
                       </div>
         </td>
@@ -120,15 +129,17 @@ Normally it is better to use the full CheckFileResults directly, available from 
             </a>
           <p>Get the declarations at the given code location.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3196', 3196)" onmouseover="showTip(event, '3196', 3196)">
+          <code onmouseout="hideTip(event, '3228', 3228)" onmouseover="showTip(event, '3228', 3228)">
             GetDeclarationLocation(...)
           </code>
-          <div class="tip" id="3196">
+          <div class="tip" id="3228">
             <strong>Signature:</strong> (line:Line0 * col:int * names:string list * isDecl:bool) -&gt; FindDeclResult<br />
                       </div>
         </td>
@@ -143,10 +154,10 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3197', 3197)" onmouseover="showTip(event, '3197', 3197)">
+          <code onmouseout="hideTip(event, '3229', 3229)" onmouseover="showTip(event, '3229', 3229)">
             GetDeclarationLocationAlternate(...)
           </code>
-          <div class="tip" id="3197">
+          <div class="tip" id="3229">
             <strong>Signature:</strong> (line:int * col:int * names:string list * isDecl:bool) -&gt; Async&lt;FindDeclResult&gt;<br />
                       </div>
         </td>
@@ -157,15 +168,17 @@ Normally it is better to use the full CheckFileResults directly, available from 
             </a>
           <p>Get the location of the declaration at the given position</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3198', 3198)" onmouseover="showTip(event, '3198', 3198)">
+          <code onmouseout="hideTip(event, '3230', 3230)" onmouseover="showTip(event, '3230', 3230)">
             GetDeclarations(...)
           </code>
-          <div class="tip" id="3198">
+          <div class="tip" id="3230">
             <strong>Signature:</strong> (line:Line0 * col:int * qualifyingNames:string list * partialName:string * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; Async&lt;SimpleDeclaration []&gt;<br />
                       </div>
         </td>
@@ -180,10 +193,10 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3199', 3199)" onmouseover="showTip(event, '3199', 3199)">
+          <code onmouseout="hideTip(event, '3231', 3231)" onmouseover="showTip(event, '3231', 3231)">
             GetF1Keyword(line, col, names)
           </code>
-          <div class="tip" id="3199">
+          <div class="tip" id="3231">
             <strong>Signature:</strong> (line:Line0 * col:int * names:string list) -&gt; string option<br />
                       </div>
         </td>
@@ -198,10 +211,10 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3200', 3200)" onmouseover="showTip(event, '3200', 3200)">
+          <code onmouseout="hideTip(event, '3232', 3232)" onmouseover="showTip(event, '3232', 3232)">
             GetF1KeywordAlternate(line, col, names)
           </code>
-          <div class="tip" id="3200">
+          <div class="tip" id="3232">
             <strong>Signature:</strong> (line:int * col:int * names:string list) -&gt; Async&lt;string option&gt;<br />
                       </div>
         </td>
@@ -212,15 +225,17 @@ Normally it is better to use the full CheckFileResults directly, available from 
             </a>
           <p>Get the Visual Studio F1-help keyword for the item at the given position</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3201', 3201)" onmouseover="showTip(event, '3201', 3201)">
+          <code onmouseout="hideTip(event, '3233', 3233)" onmouseover="showTip(event, '3233', 3233)">
             GetToolTipText(...)
           </code>
-          <div class="tip" id="3201">
+          <div class="tip" id="3233">
             <strong>Signature:</strong> (line:Line0 * col:int * names:string list * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; string<br />
                       </div>
         </td>
@@ -235,10 +250,10 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3202', 3202)" onmouseover="showTip(event, '3202', 3202)">
+          <code onmouseout="hideTip(event, '3234', 3234)" onmouseover="showTip(event, '3234', 3234)">
             GetToolTipTextAlternate(...)
           </code>
-          <div class="tip" id="3202">
+          <div class="tip" id="3234">
             <strong>Signature:</strong> (line:int * col:int * names:string list * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; Async&lt;string&gt;<br />
                       </div>
         </td>
@@ -249,6 +264,8 @@ Normally it is better to use the full CheckFileResults directly, available from 
             </a>
           <p>Get the data tip text at the given position</p>
 
+
+
         </td>
       </tr>
     </tbody>
@@ -257,15 +274,15 @@ Normally it is better to use the full CheckFileResults directly, available from 
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
-            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			<a href="https://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
@@ -273,28 +290,28 @@ Normally it is better to use the full CheckFileResults directly, available from 
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
 
             <li class="nav-header">Available services</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Design Notes</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
             </li>
           </ul>
         </div>

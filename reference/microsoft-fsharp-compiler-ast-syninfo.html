@@ -12,9 +12,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
-	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
-    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
+    <script type="text/javascript" src="https://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -37,6 +37,10 @@
 
 
 <h1>SynInfo</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler</span><br />
+  <span>Parent Module: <a href="microsoft-fsharp-compiler-ast.html">Ast</a></span>
+</p>
 <div class="xmldoc">
 <p>Operations related to the syntactic analysis of arguments of value, function and member definitions and signatures.</p>
 
@@ -44,19 +48,21 @@
 the arity from the syntax.</p>
 
 <p>For example, we record the arity for: 
-StaticProperty --> [1]               -- for unit arg
-this.InstanceProperty --> [1;1]        -- for unit arg
-StaticMethod(args) --> map InferSynArgInfoFromSimplePat args
-this.InstanceMethod() --> 1 :: map InferSynArgInfoFromSimplePat args
-this.InstanceProperty with get(argpat) --> 1 :: [InferSynArgInfoFromSimplePat argpat]
-StaticProperty with get(argpat) --> [InferSynArgInfoFromSimplePat argpat]
-this.InstanceProperty with get() --> 1 :: [InferSynArgInfoFromSimplePat argpat]
-StaticProperty with get() --> [InferSynArgInfoFromSimplePat argpat]</p>
+StaticProperty --&gt; [1]               -- for unit arg
+this.InstanceProperty --&gt; [1;1]        -- for unit arg
+StaticMethod(args) --&gt; map InferSynArgInfoFromSimplePat args
+this.InstanceMethod() --&gt; 1 :: map InferSynArgInfoFromSimplePat args
+this.InstanceProperty with get(argpat) --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat]
+StaticProperty with get(argpat) --&gt; [InferSynArgInfoFromSimplePat argpat]
+this.InstanceProperty with get() --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat]
+StaticProperty with get() --&gt; [InferSynArgInfoFromSimplePat argpat]</p>
 
-<p>this.InstanceProperty with set(argpat)(v) --> 1 :: [InferSynArgInfoFromSimplePat argpat; 1]
-StaticProperty with set(argpat)(v) --> [InferSynArgInfoFromSimplePat argpat; 1]
-this.InstanceProperty with set(v) --> 1 :: [1]
-StaticProperty with set(v) --> [1]</p>
+<p>this.InstanceProperty with set(argpat)(v) --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat; 1]
+StaticProperty with set(argpat)(v) --&gt; [InferSynArgInfoFromSimplePat argpat; 1]
+this.InstanceProperty with set(v) --&gt; 1 :: [1]
+StaticProperty with set(v) --&gt; [1]</p>
+
+
 </div>
 
 <!-- Render nested types and modules, if there are any -->
@@ -70,10 +76,10 @@ StaticProperty with set(v) --> [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '88', 88)" onmouseover="showTip(event, '88', 88)">
+          <code onmouseout="hideTip(event, '90', 90)" onmouseover="showTip(event, '90', 90)">
             AdjustArgsForUnitElimination (...)
           </code>
-          <div class="tip" id="88">
+          <div class="tip" id="90">
             <strong>Signature:</strong> infosForArgs:SynArgInfo list list -&gt; SynArgInfo list list<br />
                       </div>
         </td>
@@ -84,17 +90,19 @@ StaticProperty with set(v) --> [1]</p>
             </a>
           <p>Make sure only a solitary unit argument has unit elimination</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '89', 89)" onmouseover="showTip(event, '89', 89)">
+          <code onmouseout="hideTip(event, '91', 91)" onmouseover="showTip(event, '91', 91)">
             AdjustMemberArgs memFlags infosForArgs
           </code>
-          <div class="tip" id="89">
-            <strong>Signature:</strong> memFlags:MemberKind -&gt; infosForArgs:&#39;?198062 list list -&gt; &#39;?198062 list list<br />
-                          <strong>Type parameters:</strong> '?198062          </div>
+          <div class="tip" id="91">
+            <strong>Signature:</strong> memFlags:MemberKind -&gt; infosForArgs:&#39;?203127 list list -&gt; &#39;?203127 list list<br />
+                          <strong>Type parameters:</strong> '?203127          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1915-1915" class="github-link">
@@ -105,15 +113,17 @@ StaticProperty with set(v) --> [1]</p>
 This is similar to IncorporateEmptyTupledArgForPropertyGetter, but applies to member definitions
 rather than member signatures.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '90', 90)" onmouseover="showTip(event, '90', 90)">
+          <code onmouseout="hideTip(event, '92', 92)" onmouseover="showTip(event, '92', 92)">
             AritiesOfArgs arg1
           </code>
-          <div class="tip" id="90">
+          <div class="tip" id="92">
             <strong>Signature:</strong> SynValInfo -&gt; int list<br />
                       </div>
         </td>
@@ -124,15 +134,17 @@ rather than member signatures.</p>
             </a>
           <p>Get the argument counts for each curried argument group. Used in some adhoc places in tc.fs.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '91', 91)" onmouseover="showTip(event, '91', 91)">
+          <code onmouseout="hideTip(event, '93', 93)" onmouseover="showTip(event, '93', 93)">
             AttribsOfArgData arg1
           </code>
-          <div class="tip" id="91">
+          <div class="tip" id="93">
             <strong>Signature:</strong> SynArgInfo -&gt; SynAttributes<br />
                       </div>
         </td>
@@ -143,15 +155,17 @@ rather than member signatures.</p>
             </a>
           <p>Get the argument attributes from the syntactic information for an argument.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '92', 92)" onmouseover="showTip(event, '92', 92)">
+          <code onmouseout="hideTip(event, '94', 94)" onmouseover="showTip(event, '94', 94)">
             emptySynValData 
           </code>
-          <div class="tip" id="92">
+          <div class="tip" id="94">
             <strong>Signature:</strong> SynValData<br />
                       </div>
         </td>
@@ -166,10 +180,10 @@ rather than member signatures.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '93', 93)" onmouseover="showTip(event, '93', 93)">
+          <code onmouseout="hideTip(event, '95', 95)" onmouseover="showTip(event, '95', 95)">
             HasNoArgs arg1
           </code>
-          <div class="tip" id="93">
+          <div class="tip" id="95">
             <strong>Signature:</strong> SynValInfo -&gt; bool<br />
                       </div>
         </td>
@@ -180,15 +194,17 @@ rather than member signatures.</p>
             </a>
           <p>Determine if a syntactic information represents a member without arguments (which is implicitly a property getter)</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '94', 94)" onmouseover="showTip(event, '94', 94)">
+          <code onmouseout="hideTip(event, '96', 96)" onmouseover="showTip(event, '96', 96)">
             HasOptionalArgs arg1
           </code>
-          <div class="tip" id="94">
+          <div class="tip" id="96">
             <strong>Signature:</strong> SynValInfo -&gt; bool<br />
                       </div>
         </td>
@@ -200,15 +216,17 @@ rather than member signatures.</p>
           <p>Check if there are any optional arguments in the syntactic argument information. Used when adjusting the
 types of optional arguments for function and member signatures.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '95', 95)" onmouseover="showTip(event, '95', 95)">
+          <code onmouseout="hideTip(event, '97', 97)" onmouseover="showTip(event, '97', 97)">
             IncorporateEmptyTupledArgForPropertyGetter (...)
           </code>
-          <div class="tip" id="95">
+          <div class="tip" id="97">
             <strong>Signature:</strong> SynValInfo -&gt; SynValInfo<br />
                       </div>
         </td>
@@ -220,15 +238,17 @@ types of optional arguments for function and member signatures.</p>
           <p>Add a parameter entry to the syntactic value information to represent the '()' argument to a property getter. This is 
 used for the implicit '()' argument in property getter signature specifications.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '96', 96)" onmouseover="showTip(event, '96', 96)">
+          <code onmouseout="hideTip(event, '98', 98)" onmouseover="showTip(event, '98', 98)">
             IncorporateSelfArg arg1
           </code>
-          <div class="tip" id="96">
+          <div class="tip" id="98">
             <strong>Signature:</strong> SynValInfo -&gt; SynValInfo<br />
                       </div>
         </td>
@@ -240,15 +260,17 @@ used for the implicit '()' argument in property getter signature specifications.
           <p>Add a parameter entry to the syntactic value information to represent the 'this' argument. This is 
 used for the implicit 'this' argument in member signature specifications.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '97', 97)" onmouseover="showTip(event, '97', 97)">
+          <code onmouseout="hideTip(event, '99', 99)" onmouseover="showTip(event, '99', 99)">
             IncorporateSetterArg arg1
           </code>
-          <div class="tip" id="97">
+          <div class="tip" id="99">
             <strong>Signature:</strong> SynValInfo -&gt; SynValInfo<br />
                       </div>
         </td>
@@ -260,15 +282,17 @@ used for the implicit 'this' argument in member signature specifications.</p>
           <p>Add a parameter entry to the syntactic value information to represent the value argument for a property setter. This is 
 used for the implicit value argument in property setter signature specifications.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '98', 98)" onmouseover="showTip(event, '98', 98)">
+          <code onmouseout="hideTip(event, '100', 100)" onmouseover="showTip(event, '100', 100)">
             InferLambdaArgs origRhsExpr
           </code>
-          <div class="tip" id="98">
+          <div class="tip" id="100">
             <strong>Signature:</strong> origRhsExpr:SynExpr -&gt; SynArgInfo list list<br />
                       </div>
         </td>
@@ -278,18 +302,20 @@ used for the implicit value argument in property setter signature specifications
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>For 'let' definitions, we infer syntactic argument information from the r.h.s. of a definition, if it
-is an immediate 'fun ... -> ...' or 'function ...' expression. This is noted in the F# language specification.
+is an immediate 'fun ... -&gt; ...' or 'function ...' expression. This is noted in the F# language specification.
 This does not apply to member definitions.</p>
+
+
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '99', 99)" onmouseover="showTip(event, '99', 99)">
+          <code onmouseout="hideTip(event, '101', 101)" onmouseover="showTip(event, '101', 101)">
             InferSynArgInfoFromPat p
           </code>
-          <div class="tip" id="99">
+          <div class="tip" id="101">
             <strong>Signature:</strong> p:SynPat -&gt; SynArgInfo list<br />
                       </div>
         </td>
@@ -300,15 +326,17 @@ This does not apply to member definitions.</p>
             </a>
           <p>Infer the syntactic argument info for one or more arguments a pattern.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '100', 100)" onmouseover="showTip(event, '100', 100)">
+          <code onmouseout="hideTip(event, '102', 102)" onmouseover="showTip(event, '102', 102)">
             InferSynArgInfoFromSimplePat attribs p
           </code>
-          <div class="tip" id="100">
+          <div class="tip" id="102">
             <strong>Signature:</strong> attribs:SynAttributes -&gt; p:SynSimplePat -&gt; SynArgInfo<br />
                       </div>
         </td>
@@ -319,15 +347,17 @@ This does not apply to member definitions.</p>
             </a>
           <p>Infer the syntactic argument info for a single argument from a simple pattern.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '101', 101)" onmouseover="showTip(event, '101', 101)">
+          <code onmouseout="hideTip(event, '103', 103)" onmouseover="showTip(event, '103', 103)">
             InferSynArgInfoFromSimplePats x
           </code>
-          <div class="tip" id="101">
+          <div class="tip" id="103">
             <strong>Signature:</strong> x:SynSimplePats -&gt; SynArgInfo list<br />
                       </div>
         </td>
@@ -338,15 +368,17 @@ This does not apply to member definitions.</p>
             </a>
           <p>Infer the syntactic argument info for one or more arguments one or more simple patterns.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '102', 102)" onmouseover="showTip(event, '102', 102)">
+          <code onmouseout="hideTip(event, '104', 104)" onmouseover="showTip(event, '104', 104)">
             InferSynReturnData retInfo
           </code>
-          <div class="tip" id="102">
+          <div class="tip" id="104">
             <strong>Signature:</strong> retInfo:SynReturnInfo option -&gt; SynArgInfo<br />
                       </div>
         </td>
@@ -361,10 +393,10 @@ This does not apply to member definitions.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '103', 103)" onmouseover="showTip(event, '103', 103)">
+          <code onmouseout="hideTip(event, '105', 105)" onmouseover="showTip(event, '105', 105)">
             InferSynValData (...)
           </code>
-          <div class="tip" id="103">
+          <div class="tip" id="105">
             <strong>Signature:</strong> (memberFlagsOpt:MemberFlags option * pat:SynPat option * retInfo:SynReturnInfo option * origRhsExpr:SynExpr) -&gt; SynValData<br />
                       </div>
         </td>
@@ -377,15 +409,17 @@ This does not apply to member definitions.</p>
 any declared return information (e.g. .NET attributes on the return element), and the r.h.s. expression
 in the case of 'let' definitions.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '104', 104)" onmouseover="showTip(event, '104', 104)">
+          <code onmouseout="hideTip(event, '106', 106)" onmouseover="showTip(event, '106', 106)">
             IsOptionalArg arg1
           </code>
-          <div class="tip" id="104">
+          <div class="tip" id="106">
             <strong>Signature:</strong> SynArgInfo -&gt; bool<br />
                       </div>
         </td>
@@ -397,15 +431,17 @@ in the case of 'let' definitions.</p>
           <p>Check if one particular argument is an optional argument. Used when adjusting the
 types of optional arguments for function and member signatures.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '105', 105)" onmouseover="showTip(event, '105', 105)">
+          <code onmouseout="hideTip(event, '107', 107)" onmouseover="showTip(event, '107', 107)">
             selfMetadata 
           </code>
-          <div class="tip" id="105">
+          <div class="tip" id="107">
             <strong>Signature:</strong> SynArgInfo list<br />
                       </div>
         </td>
@@ -416,15 +452,17 @@ types of optional arguments for function and member signatures.</p>
             </a>
           <p>The 'argument' information for the 'this'/'self' parameter in the cases where it is not given explicitly</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '106', 106)" onmouseover="showTip(event, '106', 106)">
+          <code onmouseout="hideTip(event, '108', 108)" onmouseover="showTip(event, '108', 108)">
             unitArgData 
           </code>
-          <div class="tip" id="106">
+          <div class="tip" id="108">
             <strong>Signature:</strong> SynArgInfo list<br />
                       </div>
         </td>
@@ -435,15 +473,17 @@ types of optional arguments for function and member signatures.</p>
             </a>
           <p>The argument information for a '()' argument</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '107', 107)" onmouseover="showTip(event, '107', 107)">
+          <code onmouseout="hideTip(event, '109', 109)" onmouseover="showTip(event, '109', 109)">
             unnamedRetVal 
           </code>
-          <div class="tip" id="107">
+          <div class="tip" id="109">
             <strong>Signature:</strong> SynArgInfo<br />
                       </div>
         </td>
@@ -454,15 +494,17 @@ types of optional arguments for function and member signatures.</p>
             </a>
           <p>The 'argument' information for a return value where no attributes are given for the return value (the normal case)</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '108', 108)" onmouseover="showTip(event, '108', 108)">
+          <code onmouseout="hideTip(event, '110', 110)" onmouseover="showTip(event, '110', 110)">
             unnamedTopArg 
           </code>
-          <div class="tip" id="108">
+          <div class="tip" id="110">
             <strong>Signature:</strong> SynArgInfo list<br />
                       </div>
         </td>
@@ -473,15 +515,17 @@ types of optional arguments for function and member signatures.</p>
             </a>
           <p>The argument information for a curried argument without a name</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '109', 109)" onmouseover="showTip(event, '109', 109)">
+          <code onmouseout="hideTip(event, '111', 111)" onmouseover="showTip(event, '111', 111)">
             unnamedTopArg1 
           </code>
-          <div class="tip" id="109">
+          <div class="tip" id="111">
             <strong>Signature:</strong> SynArgInfo<br />
                       </div>
         </td>
@@ -492,6 +536,8 @@ types of optional arguments for function and member signatures.</p>
             </a>
           <p>The argument information for an argument without a name</p>
 
+
+
         </td>
       </tr>
     </tbody>
@@ -500,15 +546,15 @@ types of optional arguments for function and member signatures.</p>
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
-            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			<a href="https://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
@@ -516,28 +562,28 @@ types of optional arguments for function and member signatures.</p>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
 
             <li class="nav-header">Available services</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Design Notes</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
             </li>
           </ul>
         </div>

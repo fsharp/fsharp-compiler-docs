@@ -49,8 +49,7 @@
 <p>これまでと同じく、 <code>FSharp.Compiler.Service.dll</code> への参照を追加した後、
 適切な名前空間をオープンし、 <code>FSharpChecker</code> のインスタンスを作成します:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
@@ -59,26 +58,23 @@
 <span class="l">7: </span>
 <span class="l">8: </span>
 <span class="l">9: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="c">// F#コンパイラAPIへの参照</span>
-<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Compiler</span><span class="s">.</span><span class="s">Service</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// F#コンパイラAPIへの参照</span>
+<span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
 
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">System</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 2)" onmouseover="showTip(event, 'fs1', 2)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">IO</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="i">Compiler</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="i">SourceCodeServices</span>
 
 <span class="c">// インタラクティブチェッカーのインスタンスを作成</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="i">checker</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="i">FSharpChecker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="i">Create</span>()</pre>
-</td>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="i">checker</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="t">FSharpChecker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="f">Create</span>()
+</code></pre></td>
 </tr>
 </table>
 
 <p>そして特定の入力値に対して型チェックを行います:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -94,26 +90,24 @@
 <span class="l">14: </span>
 <span class="l">15: </span>
 <span class="l">16: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="i">parseAndTypeCheckSingleFile</span> (<span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">input</span>) <span class="o">=</span> 
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="f">parseAndTypeCheckSingleFile</span> (<span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">input</span>) <span class="o">=</span> 
     <span class="c">// スタンドアロンの(スクリプト)ファイルを表すコンテキストを取得</span>
     <span class="k">let</span> <span onmouseout="hideTip(event, 'fs13', 14)" onmouseover="showTip(event, 'fs13', 14)" class="i">projOptions</span> <span class="o">=</span> 
-        <span onmouseout="hideTip(event, 'fs7', 15)" onmouseover="showTip(event, 'fs7', 15)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">GetProjectOptionsFromScript</span>(<span onmouseout="hideTip(event, 'fs11', 17)" onmouseover="showTip(event, 'fs11', 17)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs12', 18)" onmouseover="showTip(event, 'fs12', 18)" class="i">input</span>)
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 19)" onmouseover="showTip(event, 'fs15', 19)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 20)" onmouseover="showTip(event, 'fs16', 20)" class="i">RunSynchronously</span>
+        <span onmouseout="hideTip(event, 'fs7', 15)" onmouseover="showTip(event, 'fs7', 15)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="f">GetProjectOptionsFromScript</span>(<span onmouseout="hideTip(event, 'fs11', 17)" onmouseover="showTip(event, 'fs11', 17)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs12', 18)" onmouseover="showTip(event, 'fs12', 18)" class="i">input</span>)
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 19)" onmouseover="showTip(event, 'fs15', 19)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 20)" onmouseover="showTip(event, 'fs16', 20)" class="f">RunSynchronously</span>
 
     <span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="i">parseFileResults</span>, <span onmouseout="hideTip(event, 'fs18', 22)" onmouseover="showTip(event, 'fs18', 22)" class="i">checkFileResults</span> <span class="o">=</span> 
-        <span onmouseout="hideTip(event, 'fs7', 23)" onmouseover="showTip(event, 'fs7', 23)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 24)" onmouseover="showTip(event, 'fs19', 24)" class="i">ParseAndCheckFileInProject</span>(<span onmouseout="hideTip(event, 'fs11', 25)" onmouseover="showTip(event, 'fs11', 25)" class="i">file</span>, <span class="n">0</span>, <span onmouseout="hideTip(event, 'fs12', 26)" onmouseover="showTip(event, 'fs12', 26)" class="i">input</span>, <span onmouseout="hideTip(event, 'fs13', 27)" onmouseover="showTip(event, 'fs13', 27)" class="i">projOptions</span>) 
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 28)" onmouseover="showTip(event, 'fs15', 28)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 29)" onmouseover="showTip(event, 'fs16', 29)" class="i">RunSynchronously</span>
+        <span onmouseout="hideTip(event, 'fs7', 23)" onmouseover="showTip(event, 'fs7', 23)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 24)" onmouseover="showTip(event, 'fs19', 24)" class="f">ParseAndCheckFileInProject</span>(<span onmouseout="hideTip(event, 'fs11', 25)" onmouseover="showTip(event, 'fs11', 25)" class="i">file</span>, <span class="n">0</span>, <span onmouseout="hideTip(event, 'fs12', 26)" onmouseover="showTip(event, 'fs12', 26)" class="i">input</span>, <span onmouseout="hideTip(event, 'fs13', 27)" onmouseover="showTip(event, 'fs13', 27)" class="i">projOptions</span>) 
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 28)" onmouseover="showTip(event, 'fs15', 28)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 29)" onmouseover="showTip(event, 'fs16', 29)" class="f">RunSynchronously</span>
 
     <span class="c">// 型チェックが成功(あるいは100%に到達)するまで待機</span>
     <span class="k">match</span> <span onmouseout="hideTip(event, 'fs18', 30)" onmouseover="showTip(event, 'fs18', 30)" class="i">checkFileResults</span> <span class="k">with</span>
-    | <span onmouseout="hideTip(event, 'fs20', 31)" onmouseover="showTip(event, 'fs20', 31)" class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 32)" onmouseover="showTip(event, 'fs21', 32)" class="i">Succeeded</span>(<span onmouseout="hideTip(event, 'fs22', 33)" onmouseover="showTip(event, 'fs22', 33)" class="i">res</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs17', 34)" onmouseover="showTip(event, 'fs17', 34)" class="i">parseFileResults</span>, <span onmouseout="hideTip(event, 'fs22', 35)" onmouseover="showTip(event, 'fs22', 35)" class="i">res</span>
-    | <span onmouseout="hideTip(event, 'fs23', 36)" onmouseover="showTip(event, 'fs23', 36)" class="i">res</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs24', 37)" onmouseover="showTip(event, 'fs24', 37)" class="i">failwithf</span> <span class="s">&quot;</span><span class="s">Parsing</span><span class="s"> </span><span class="s">did</span><span class="s"> </span><span class="s">not</span><span class="s"> </span><span class="s">finish</span><span class="s">.</span><span class="s">.</span><span class="s">.</span><span class="s"> </span><span class="s">(</span><span class="s">%</span><span class="s">A</span><span class="s">)</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs23', 38)" onmouseover="showTip(event, 'fs23', 38)" class="i">res</span>
+    | <span onmouseout="hideTip(event, 'fs20', 31)" onmouseover="showTip(event, 'fs20', 31)" class="t">FSharpCheckFileAnswer</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 32)" onmouseover="showTip(event, 'fs21', 32)" class="p">Succeeded</span>(<span onmouseout="hideTip(event, 'fs22', 33)" onmouseover="showTip(event, 'fs22', 33)" class="i">res</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs17', 34)" onmouseover="showTip(event, 'fs17', 34)" class="i">parseFileResults</span>, <span onmouseout="hideTip(event, 'fs22', 35)" onmouseover="showTip(event, 'fs22', 35)" class="i">res</span>
+    | <span onmouseout="hideTip(event, 'fs23', 36)" onmouseover="showTip(event, 'fs23', 36)" class="i">res</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs24', 37)" onmouseover="showTip(event, 'fs24', 37)" class="f">failwithf</span> <span class="s">&quot;Parsing did not finish... (</span><span class="pf">%A</span><span class="s">)&quot;</span> <span onmouseout="hideTip(event, 'fs23', 38)" onmouseover="showTip(event, 'fs23', 38)" class="i">res</span>
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 39)" onmouseover="showTip(event, 'fs25', 39)" class="i">file</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">/</span><span class="s">home</span><span class="s">/</span><span class="s">user</span><span class="s">/</span><span class="s">Test</span><span class="s">.</span><span class="s">fsx</span><span class="s">&quot;</span></pre>
-</td>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 39)" onmouseover="showTip(event, 'fs25', 39)" class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
+</code></pre></td>
 </tr>
 </table>
 
@@ -129,8 +123,7 @@
 
 <p>ただし型付き式ツリーに対する情報は(今のところ)この方法では利用できません。</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -144,87 +137,72 @@
 <span class="l">12: </span>
 <span class="l">13: </span>
 <span class="l">14: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 40)" onmouseover="showTip(event, 'fs26', 40)" class="i">input2</span> <span class="o">=</span> 
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 40)" onmouseover="showTip(event, 'fs26', 40)" class="i">input2</span> <span class="o">=</span> 
       <span class="s">&quot;&quot;&quot;</span>
-<span class="s">[</span><span class="s">&lt;</span><span class="s">System</span><span class="s">.</span><span class="s">CLSCompliant</span><span class="s">(</span><span class="s">true</span><span class="s">)</span><span class="s">&gt;</span><span class="s">]</span>
-<span class="s">let</span><span class="s"> </span><span class="s">foo</span><span class="s">(</span><span class="s">x</span><span class="s">,</span><span class="s"> </span><span class="s">y</span><span class="s">)</span><span class="s"> </span><span class="s">=</span><span class="s"> </span>
-<span class="s">    </span><span class="s">let</span><span class="s"> </span><span class="s">msg</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">String</span><span class="s">.</span><span class="s">Concat</span><span class="s">(</span><span class="s">&quot;</span><span class="s">Hello</span><span class="s">&quot;</span><span class="s">,</span><span class="s">&quot;</span><span class="s"> </span><span class="s">&quot;</span><span class="s">,</span><span class="s">&quot;</span><span class="s">world</span><span class="s">&quot;</span><span class="s">)</span>
-<span class="s">    </span><span class="s">if</span><span class="s"> </span><span class="s">true</span><span class="s"> </span><span class="s">then</span><span class="s"> </span>
-<span class="s">        </span><span class="s">printfn</span><span class="s"> </span><span class="s">&quot;</span><span class="s">x</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s">,</span><span class="s"> </span><span class="s">y</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span><span class="s"> </span><span class="s">x</span><span class="s"> </span><span class="s">y</span><span class="s"> </span>
-<span class="s">        </span><span class="s">printfn</span><span class="s"> </span><span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span><span class="s"> </span><span class="s">msg</span>
+<span class="s">[&lt;System.CLSCompliant(true)&gt;]</span>
+<span class="s">let foo(x, y) = </span>
+<span class="s">    let msg = String.Concat(&quot;Hello&quot;,&quot; &quot;,&quot;world&quot;)</span>
+<span class="s">    if true then </span>
+<span class="s">        printfn &quot;x = %d, y = %d&quot; x y </span>
+<span class="s">        printfn &quot;%s&quot; msg</span>
 
-<span class="s">type</span><span class="s"> </span><span class="s">C</span><span class="s">(</span><span class="s">)</span><span class="s"> </span><span class="s">=</span><span class="s"> </span>
-<span class="s">    </span><span class="s">member</span><span class="s"> </span><span class="s">x</span><span class="s">.</span><span class="s">P</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">1</span>
-<span class="s">      </span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">type C() = </span>
+<span class="s">    member x.P = 1</span>
+<span class="s">      &quot;&quot;&quot;</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs27', 41)" onmouseover="showTip(event, 'fs27', 41)" class="i">parseFileResults</span>, <span onmouseout="hideTip(event, 'fs28', 42)" onmouseover="showTip(event, 'fs28', 42)" class="i">checkFileResults</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs10', 43)" onmouseover="showTip(event, 'fs10', 43)" class="i">parseAndTypeCheckSingleFile</span>(<span onmouseout="hideTip(event, 'fs25', 44)" onmouseover="showTip(event, 'fs25', 44)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs26', 45)" onmouseover="showTip(event, 'fs26', 45)" class="i">input2</span>)</pre>
-</td>
+    <span onmouseout="hideTip(event, 'fs10', 43)" onmouseover="showTip(event, 'fs10', 43)" class="f">parseAndTypeCheckSingleFile</span>(<span onmouseout="hideTip(event, 'fs25', 44)" onmouseover="showTip(event, 'fs25', 44)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs26', 45)" onmouseover="showTip(event, 'fs26', 45)" class="i">input2</span>)
+</code></pre></td>
 </tr>
 </table>
 
 <p>これでコードに対する部分的なアセンブリのシグネチャが取得できるようになります:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs29', 46)" onmouseover="showTip(event, 'fs29', 46)" class="i">partialAssemblySignature</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs28', 47)" onmouseover="showTip(event, 'fs28', 47)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 48)" onmouseover="showTip(event, 'fs30', 48)" class="i">PartialAssemblySignature</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs29', 46)" onmouseover="showTip(event, 'fs29', 46)" class="i">partialAssemblySignature</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs28', 47)" onmouseover="showTip(event, 'fs28', 47)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 48)" onmouseover="showTip(event, 'fs30', 48)" class="i">PartialAssemblySignature</span>
 
-<span onmouseout="hideTip(event, 'fs29', 49)" onmouseover="showTip(event, 'fs29', 49)" class="i">partialAssemblySignature</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 50)" onmouseover="showTip(event, 'fs31', 50)" class="i">Entities</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 51)" onmouseover="showTip(event, 'fs32', 51)" class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// エンティティは1つ</span></pre>
-</td>
+<span onmouseout="hideTip(event, 'fs29', 49)" onmouseover="showTip(event, 'fs29', 49)" class="i">partialAssemblySignature</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 50)" onmouseover="showTip(event, 'fs31', 50)" class="i">Entities</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 51)" onmouseover="showTip(event, 'fs32', 51)" class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// エンティティは1つ</span>
+</code></pre></td>
 </tr>
 </table>
 
 <p>そしてコードを含むモジュールに関連したエンティティを取得します:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 52)" onmouseover="showTip(event, 'fs33', 52)" class="i">moduleEntity</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 53)" onmouseover="showTip(event, 'fs29', 53)" class="i">partialAssemblySignature</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 54)" onmouseover="showTip(event, 'fs31', 54)" class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 52)" onmouseover="showTip(event, 'fs33', 52)" class="i">moduleEntity</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 53)" onmouseover="showTip(event, 'fs29', 53)" class="i">partialAssemblySignature</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 54)" onmouseover="showTip(event, 'fs31', 54)" class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]
 
-<span onmouseout="hideTip(event, 'fs33', 55)" onmouseover="showTip(event, 'fs33', 55)" class="i">moduleEntity</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 56)" onmouseover="showTip(event, 'fs34', 56)" class="i">DisplayName</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">Test</span><span class="s">&quot;</span></pre>
-</td>
+<span onmouseout="hideTip(event, 'fs33', 55)" onmouseover="showTip(event, 'fs33', 55)" class="i">moduleEntity</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 56)" onmouseover="showTip(event, 'fs34', 56)" class="i">DisplayName</span> <span class="o">=</span> <span class="s">&quot;Test&quot;</span>
+</code></pre></td>
 </tr>
 </table>
 
 <p>そしてコード内の型定義に関連したエンティティを取得します:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 57)" onmouseover="showTip(event, 'fs35', 57)" class="i">classEntity</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs33', 58)" onmouseover="showTip(event, 'fs33', 58)" class="i">moduleEntity</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 59)" onmouseover="showTip(event, 'fs36', 59)" class="i">NestedEntities</span><span class="o">.</span>[<span class="n">0</span>]</pre>
-</td>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 57)" onmouseover="showTip(event, 'fs35', 57)" class="i">classEntity</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs33', 58)" onmouseover="showTip(event, 'fs33', 58)" class="i">moduleEntity</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 59)" onmouseover="showTip(event, 'fs36', 59)" class="i">NestedEntities</span><span class="o">.</span>[<span class="n">0</span>]
+</code></pre></td>
 </tr>
 </table>
 
 <p>そしてコード内で定義された関数に関連した値を取得します:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs37', 60)" onmouseover="showTip(event, 'fs37', 60)" class="i">fnVal</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs33', 61)" onmouseover="showTip(event, 'fs33', 61)" class="i">moduleEntity</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 62)" onmouseover="showTip(event, 'fs38', 62)" class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]</pre>
-</td>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs37', 60)" onmouseover="showTip(event, 'fs37', 60)" class="i">fnVal</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs33', 61)" onmouseover="showTip(event, 'fs33', 61)" class="i">moduleEntity</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 62)" onmouseover="showTip(event, 'fs38', 62)" class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]
+</code></pre></td>
 </tr>
 </table>
 
 <p>関数値に関するプロパティの値を確認してみましょう。</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -247,10 +225,8 @@
 <span class="l">21: </span>
 <span class="l">22: </span>
 <span class="l">23: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs37', 63)" onmouseover="showTip(event, 'fs37', 63)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 64)" onmouseover="showTip(event, 'fs39', 64)" class="i">Attributes</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 65)" onmouseover="showTip(event, 'fs32', 65)" class="i">Count</span> <span class="c">// 1</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs37', 63)" onmouseover="showTip(event, 'fs37', 63)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 64)" onmouseover="showTip(event, 'fs39', 64)" class="i">Attributes</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 65)" onmouseover="showTip(event, 'fs32', 65)" class="i">Count</span> <span class="c">// 1</span>
 <span onmouseout="hideTip(event, 'fs37', 66)" onmouseover="showTip(event, 'fs37', 66)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 67)" onmouseover="showTip(event, 'fs40', 67)" class="i">CurriedParameterGroups</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 68)" onmouseover="showTip(event, 'fs32', 68)" class="i">Count</span> <span class="c">// 1</span>
 <span onmouseout="hideTip(event, 'fs37', 69)" onmouseover="showTip(event, 'fs37', 69)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 70)" onmouseover="showTip(event, 'fs40', 70)" class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Count</span> <span class="c">// 2</span>
 <span onmouseout="hideTip(event, 'fs37', 71)" onmouseover="showTip(event, 'fs37', 71)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 72)" onmouseover="showTip(event, 'fs40', 72)" class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Name</span> <span class="c">// &quot;x&quot;</span>
@@ -272,8 +248,8 @@
 <span onmouseout="hideTip(event, 'fs37', 108)" onmouseover="showTip(event, 'fs37', 108)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs56', 109)" onmouseover="showTip(event, 'fs56', 109)" class="i">IsModuleValueOrMember</span> <span class="c">// true</span>
 <span onmouseout="hideTip(event, 'fs37', 110)" onmouseover="showTip(event, 'fs37', 110)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs57', 111)" onmouseover="showTip(event, 'fs57', 111)" class="i">IsMutable</span> <span class="c">// false</span>
 <span onmouseout="hideTip(event, 'fs37', 112)" onmouseover="showTip(event, 'fs37', 112)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs58', 113)" onmouseover="showTip(event, 'fs58', 113)" class="i">IsPropertySetterMethod</span> <span class="c">// false</span>
-<span onmouseout="hideTip(event, 'fs37', 114)" onmouseover="showTip(event, 'fs37', 114)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs59', 115)" onmouseover="showTip(event, 'fs59', 115)" class="i">IsTypeFunction</span> <span class="c">// false</span></pre>
-</td>
+<span onmouseout="hideTip(event, 'fs37', 114)" onmouseover="showTip(event, 'fs37', 114)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs59', 115)" onmouseover="showTip(event, 'fs59', 115)" class="i">IsTypeFunction</span> <span class="c">// false</span>
+</code></pre></td>
 </tr>
 </table>
 
@@ -281,25 +257,22 @@
 (ちなみに <code>CurriedParameterGroups</code> プロパティには引数の名前など、
 より多くの情報も含まれています)</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
 <span class="l">5: </span>
 <span class="l">6: </span>
 <span class="l">7: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs37', 116)" onmouseover="showTip(event, 'fs37', 116)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 117)" onmouseover="showTip(event, 'fs60', 117)" class="i">FullType</span> <span class="c">// int * int -&gt; unit</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs37', 116)" onmouseover="showTip(event, 'fs37', 116)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 117)" onmouseover="showTip(event, 'fs60', 117)" class="i">FullType</span> <span class="c">// int * int -&gt; unit</span>
 <span onmouseout="hideTip(event, 'fs37', 118)" onmouseover="showTip(event, 'fs37', 118)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 119)" onmouseover="showTip(event, 'fs60', 119)" class="i">FullType</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs61', 120)" onmouseover="showTip(event, 'fs61', 120)" class="i">IsFunctionType</span> <span class="c">// true</span>
 <span onmouseout="hideTip(event, 'fs37', 121)" onmouseover="showTip(event, 'fs37', 121)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 122)" onmouseover="showTip(event, 'fs60', 122)" class="i">FullType</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs62', 123)" onmouseover="showTip(event, 'fs62', 123)" class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>] <span class="c">// int * int </span>
 <span onmouseout="hideTip(event, 'fs37', 124)" onmouseover="showTip(event, 'fs37', 124)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 125)" onmouseover="showTip(event, 'fs60', 125)" class="i">FullType</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs62', 126)" onmouseover="showTip(event, 'fs62', 126)" class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">IsTupleType</span> <span class="c">// true</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs63', 127)" onmouseover="showTip(event, 'fs63', 127)" class="i">argTy1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs37', 128)" onmouseover="showTip(event, 'fs37', 128)" class="i">fnVal</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 129)" onmouseover="showTip(event, 'fs60', 129)" class="i">FullType</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs62', 130)" onmouseover="showTip(event, 'fs62', 130)" class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]
 
-<span onmouseout="hideTip(event, 'fs63', 131)" onmouseover="showTip(event, 'fs63', 131)" class="i">argTy1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 132)" onmouseover="showTip(event, 'fs64', 132)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 133)" onmouseover="showTip(event, 'fs34', 133)" class="i">DisplayName</span> <span class="c">// int</span></pre>
-</td>
+<span onmouseout="hideTip(event, 'fs63', 131)" onmouseover="showTip(event, 'fs63', 131)" class="i">argTy1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 132)" onmouseover="showTip(event, 'fs64', 132)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 133)" onmouseover="showTip(event, 'fs34', 133)" class="i">DisplayName</span> <span class="c">// int</span>
+</code></pre></td>
 </tr>
 </table>
 
@@ -308,47 +281,38 @@
 また、以下のようにすると 'int' 型についてのより詳細な情報が取得でき、
 それが名前付きの型であり、F#の型省略形 <code>type int = int32</code> であることがわかります:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs63', 134)" onmouseover="showTip(event, 'fs63', 134)" class="i">argTy1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs65', 135)" onmouseover="showTip(event, 'fs65', 135)" class="i">HasTypeDefinition</span> <span class="c">// true</span>
-<span onmouseout="hideTip(event, 'fs63', 136)" onmouseover="showTip(event, 'fs63', 136)" class="i">argTy1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 137)" onmouseover="showTip(event, 'fs64', 137)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs66', 138)" onmouseover="showTip(event, 'fs66', 138)" class="i">IsFSharpAbbreviation</span> <span class="c">// true</span></pre>
-</td>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs63', 134)" onmouseover="showTip(event, 'fs63', 134)" class="i">argTy1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs65', 135)" onmouseover="showTip(event, 'fs65', 135)" class="i">HasTypeDefinition</span> <span class="c">// true</span>
+<span onmouseout="hideTip(event, 'fs63', 136)" onmouseover="showTip(event, 'fs63', 136)" class="i">argTy1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 137)" onmouseover="showTip(event, 'fs64', 137)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs66', 138)" onmouseover="showTip(event, 'fs66', 138)" class="i">IsFSharpAbbreviation</span> <span class="c">// true</span>
+</code></pre></td>
 </tr>
 </table>
 
 <p>型省略形の右辺、つまり <code>int32</code> についてもチェックしてみましょう:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs67', 139)" onmouseover="showTip(event, 'fs67', 139)" class="i">argTy1b</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs63', 140)" onmouseover="showTip(event, 'fs63', 140)" class="i">argTy1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 141)" onmouseover="showTip(event, 'fs64', 141)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs68', 142)" onmouseover="showTip(event, 'fs68', 142)" class="i">AbbreviatedType</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs67', 139)" onmouseover="showTip(event, 'fs67', 139)" class="i">argTy1b</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs63', 140)" onmouseover="showTip(event, 'fs63', 140)" class="i">argTy1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 141)" onmouseover="showTip(event, 'fs64', 141)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs68', 142)" onmouseover="showTip(event, 'fs68', 142)" class="i">AbbreviatedType</span>
 <span onmouseout="hideTip(event, 'fs67', 143)" onmouseover="showTip(event, 'fs67', 143)" class="i">argTy1b</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 144)" onmouseover="showTip(event, 'fs64', 144)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs69', 145)" onmouseover="showTip(event, 'fs69', 145)" class="i">Namespace</span> <span class="c">// Some &quot;Microsoft.FSharp.Core&quot; </span>
-<span onmouseout="hideTip(event, 'fs67', 146)" onmouseover="showTip(event, 'fs67', 146)" class="i">argTy1b</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 147)" onmouseover="showTip(event, 'fs64', 147)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs70', 148)" onmouseover="showTip(event, 'fs70', 148)" class="i">CompiledName</span> <span class="c">// &quot;int32&quot; </span></pre>
-</td>
+<span onmouseout="hideTip(event, 'fs67', 146)" onmouseover="showTip(event, 'fs67', 146)" class="i">argTy1b</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 147)" onmouseover="showTip(event, 'fs64', 147)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs70', 148)" onmouseover="showTip(event, 'fs70', 148)" class="i">CompiledName</span> <span class="c">// &quot;int32&quot; </span>
+</code></pre></td>
 </tr>
 </table>
 
 <p>そして再び型省略形 <code>type int32 = System.Int32</code> から型に関する完全な情報が取得できます:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs71', 149)" onmouseover="showTip(event, 'fs71', 149)" class="i">argTy1c</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs67', 150)" onmouseover="showTip(event, 'fs67', 150)" class="i">argTy1b</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 151)" onmouseover="showTip(event, 'fs64', 151)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs68', 152)" onmouseover="showTip(event, 'fs68', 152)" class="i">AbbreviatedType</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs71', 149)" onmouseover="showTip(event, 'fs71', 149)" class="i">argTy1c</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs67', 150)" onmouseover="showTip(event, 'fs67', 150)" class="i">argTy1b</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 151)" onmouseover="showTip(event, 'fs64', 151)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs68', 152)" onmouseover="showTip(event, 'fs68', 152)" class="i">AbbreviatedType</span>
 <span onmouseout="hideTip(event, 'fs71', 153)" onmouseover="showTip(event, 'fs71', 153)" class="i">argTy1c</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 154)" onmouseover="showTip(event, 'fs64', 154)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs69', 155)" onmouseover="showTip(event, 'fs69', 155)" class="i">Namespace</span> <span class="c">// Some &quot;System&quot; </span>
-<span onmouseout="hideTip(event, 'fs71', 156)" onmouseover="showTip(event, 'fs71', 156)" class="i">argTy1c</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 157)" onmouseover="showTip(event, 'fs64', 157)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs70', 158)" onmouseover="showTip(event, 'fs70', 158)" class="i">CompiledName</span> <span class="c">// &quot;Int32&quot; </span></pre>
-</td>
+<span onmouseout="hideTip(event, 'fs71', 156)" onmouseover="showTip(event, 'fs71', 156)" class="i">argTy1c</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs64', 157)" onmouseover="showTip(event, 'fs64', 157)" class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs70', 158)" onmouseover="showTip(event, 'fs70', 158)" class="i">CompiledName</span> <span class="c">// &quot;Int32&quot; </span>
+</code></pre></td>
 </tr>
 </table>
 
@@ -356,23 +320,20 @@
 コンパイル時に使用されたプロジェクト(あるいはスクリプト)のオプションに関する
 <code>ProjectContext</code> と呼ばれる情報も含まれています:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
 <span class="l">5: </span>
 <span class="l">6: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs72', 159)" onmouseover="showTip(event, 'fs72', 159)" class="i">projectContext</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs28', 160)" onmouseover="showTip(event, 'fs28', 160)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs73', 161)" onmouseover="showTip(event, 'fs73', 161)" class="i">ProjectContext</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs72', 159)" onmouseover="showTip(event, 'fs72', 159)" class="i">projectContext</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs28', 160)" onmouseover="showTip(event, 'fs28', 160)" class="i">checkFileResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs73', 161)" onmouseover="showTip(event, 'fs73', 161)" class="i">ProjectContext</span>
 
-<span class="k">for</span> <span onmouseout="hideTip(event, 'fs74', 162)" onmouseover="showTip(event, 'fs74', 162)" class="i">ass</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs72', 163)" onmouseover="showTip(event, 'fs72', 163)" class="i">projectContext</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs75', 164)" onmouseover="showTip(event, 'fs75', 164)" class="i">GetReferencedAssemblies</span>() <span class="k">do</span>
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs74', 162)" onmouseover="showTip(event, 'fs74', 162)" class="i">ass</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs72', 163)" onmouseover="showTip(event, 'fs72', 163)" class="i">projectContext</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs75', 164)" onmouseover="showTip(event, 'fs75', 164)" class="f">GetReferencedAssemblies</span>() <span class="k">do</span>
     <span class="k">match</span> <span onmouseout="hideTip(event, 'fs74', 165)" onmouseover="showTip(event, 'fs74', 165)" class="i">ass</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs76', 166)" onmouseover="showTip(event, 'fs76', 166)" class="i">FileName</span> <span class="k">with</span> 
-    | <span onmouseout="hideTip(event, 'fs77', 167)" onmouseover="showTip(event, 'fs77', 167)" class="i">None</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs78', 168)" onmouseover="showTip(event, 'fs78', 168)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">コンパイル時にファイルの存在しないアセンブリを参照しました</span><span class="s">&quot;</span>
-    | <span onmouseout="hideTip(event, 'fs79', 169)" onmouseover="showTip(event, 'fs79', 169)" class="i">Some</span> <span onmouseout="hideTip(event, 'fs80', 170)" onmouseover="showTip(event, 'fs80', 170)" class="i">s</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs78', 171)" onmouseover="showTip(event, 'fs78', 171)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">コンパイル時にアセンブリ</span><span class="s"> </span><span class="s">&#39;</span><span class="s">%</span><span class="s">s&#39;</span><span class="s"> </span><span class="s">を参照しました</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs80', 172)" onmouseover="showTip(event, 'fs80', 172)" class="i">s</span></pre>
-</td>
+    | <span onmouseout="hideTip(event, 'fs77', 167)" onmouseover="showTip(event, 'fs77', 167)" class="p">None</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs78', 168)" onmouseover="showTip(event, 'fs78', 168)" class="f">printfn</span> <span class="s">&quot;コンパイル時にファイルの存在しないアセンブリを参照しました&quot;</span>
+    | <span onmouseout="hideTip(event, 'fs79', 169)" onmouseover="showTip(event, 'fs79', 169)" class="p">Some</span> <span onmouseout="hideTip(event, 'fs80', 170)" onmouseover="showTip(event, 'fs80', 170)" class="i">s</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs78', 171)" onmouseover="showTip(event, 'fs78', 171)" class="f">printfn</span> <span class="s">&quot;コンパイル時にアセンブリ &#39;</span><span class="pf">%s</span><span class="s">&#39; を参照しました&quot;</span> <span onmouseout="hideTip(event, 'fs80', 172)" onmouseover="showTip(event, 'fs80', 172)" class="i">s</span>
+</code></pre></td>
 </tr>
 </table>
 
@@ -395,8 +356,7 @@ IsUnresolvedによる例外に対処できるよう、堅牢なコードにし�
 異なる "projOptions" を指定すると、巨大なプロジェクトに対する設定を
 構成することもできます。</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -406,62 +366,54 @@ IsUnresolvedによる例外に対処できるよう、堅牢なコードにし�
 <span class="l"> 8: </span>
 <span class="l"> 9: </span>
 <span class="l">10: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs81', 173)" onmouseover="showTip(event, 'fs81', 173)" class="i">parseAndCheckScript</span> (<span onmouseout="hideTip(event, 'fs11', 174)" onmouseover="showTip(event, 'fs11', 174)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs12', 175)" onmouseover="showTip(event, 'fs12', 175)" class="i">input</span>) <span class="o">=</span> 
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs81', 173)" onmouseover="showTip(event, 'fs81', 173)" class="f">parseAndCheckScript</span> (<span onmouseout="hideTip(event, 'fs11', 174)" onmouseover="showTip(event, 'fs11', 174)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs12', 175)" onmouseover="showTip(event, 'fs12', 175)" class="i">input</span>) <span class="o">=</span> 
     <span class="k">let</span> <span onmouseout="hideTip(event, 'fs13', 176)" onmouseover="showTip(event, 'fs13', 176)" class="i">projOptions</span> <span class="o">=</span> 
-        <span onmouseout="hideTip(event, 'fs7', 177)" onmouseover="showTip(event, 'fs7', 177)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 178)" onmouseover="showTip(event, 'fs14', 178)" class="i">GetProjectOptionsFromScript</span>(<span onmouseout="hideTip(event, 'fs11', 179)" onmouseover="showTip(event, 'fs11', 179)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs12', 180)" onmouseover="showTip(event, 'fs12', 180)" class="i">input</span>)
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 181)" onmouseover="showTip(event, 'fs15', 181)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 182)" onmouseover="showTip(event, 'fs16', 182)" class="i">RunSynchronously</span>
+        <span onmouseout="hideTip(event, 'fs7', 177)" onmouseover="showTip(event, 'fs7', 177)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 178)" onmouseover="showTip(event, 'fs14', 178)" class="f">GetProjectOptionsFromScript</span>(<span onmouseout="hideTip(event, 'fs11', 179)" onmouseover="showTip(event, 'fs11', 179)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs12', 180)" onmouseover="showTip(event, 'fs12', 180)" class="i">input</span>)
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 181)" onmouseover="showTip(event, 'fs15', 181)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 182)" onmouseover="showTip(event, 'fs16', 182)" class="f">RunSynchronously</span>
 
     <span class="k">let</span> <span onmouseout="hideTip(event, 'fs82', 183)" onmouseover="showTip(event, 'fs82', 183)" class="i">projResults</span> <span class="o">=</span> 
-        <span onmouseout="hideTip(event, 'fs7', 184)" onmouseover="showTip(event, 'fs7', 184)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs83', 185)" onmouseover="showTip(event, 'fs83', 185)" class="i">ParseAndCheckProject</span>(<span onmouseout="hideTip(event, 'fs13', 186)" onmouseover="showTip(event, 'fs13', 186)" class="i">projOptions</span>) 
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 187)" onmouseover="showTip(event, 'fs15', 187)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 188)" onmouseover="showTip(event, 'fs16', 188)" class="i">RunSynchronously</span>
+        <span onmouseout="hideTip(event, 'fs7', 184)" onmouseover="showTip(event, 'fs7', 184)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs83', 185)" onmouseover="showTip(event, 'fs83', 185)" class="f">ParseAndCheckProject</span>(<span onmouseout="hideTip(event, 'fs13', 186)" onmouseover="showTip(event, 'fs13', 186)" class="i">projOptions</span>) 
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 187)" onmouseover="showTip(event, 'fs15', 187)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 188)" onmouseover="showTip(event, 'fs16', 188)" class="f">RunSynchronously</span>
 
-    <span onmouseout="hideTip(event, 'fs82', 189)" onmouseover="showTip(event, 'fs82', 189)" class="i">projResults</span></pre>
-</td>
+    <span onmouseout="hideTip(event, 'fs82', 189)" onmouseover="showTip(event, 'fs82', 189)" class="i">projResults</span>
+</code></pre></td>
 </tr>
 </table>
 
 <p>そして特定の入力に対してこの関数を呼び出します:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs84', 190)" onmouseover="showTip(event, 'fs84', 190)" class="i">tmpFile</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs85', 191)" onmouseover="showTip(event, 'fs85', 191)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs86', 192)" onmouseover="showTip(event, 'fs86', 192)" class="i">ChangeExtension</span>(<span onmouseout="hideTip(event, 'fs1', 193)" onmouseover="showTip(event, 'fs1', 193)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 194)" onmouseover="showTip(event, 'fs2', 194)" class="i">IO</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs85', 195)" onmouseover="showTip(event, 'fs85', 195)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs87', 196)" onmouseover="showTip(event, 'fs87', 196)" class="i">GetTempFileName</span>() , <span class="s">&quot;</span><span class="s">fs</span><span class="s">&quot;</span>)
-<span onmouseout="hideTip(event, 'fs88', 197)" onmouseover="showTip(event, 'fs88', 197)" class="i">File</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs89', 198)" onmouseover="showTip(event, 'fs89', 198)" class="i">WriteAllText</span>(<span onmouseout="hideTip(event, 'fs84', 199)" onmouseover="showTip(event, 'fs84', 199)" class="i">tmpFile</span>, <span onmouseout="hideTip(event, 'fs26', 200)" onmouseover="showTip(event, 'fs26', 200)" class="i">input2</span>)
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs84', 190)" onmouseover="showTip(event, 'fs84', 190)" class="i">tmpFile</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs85', 191)" onmouseover="showTip(event, 'fs85', 191)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs86', 192)" onmouseover="showTip(event, 'fs86', 192)" class="f">ChangeExtension</span>(<span onmouseout="hideTip(event, 'fs1', 193)" onmouseover="showTip(event, 'fs1', 193)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 194)" onmouseover="showTip(event, 'fs2', 194)" class="i">IO</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs85', 195)" onmouseover="showTip(event, 'fs85', 195)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs87', 196)" onmouseover="showTip(event, 'fs87', 196)" class="f">GetTempFileName</span>() , <span class="s">&quot;fs&quot;</span>)
+<span onmouseout="hideTip(event, 'fs88', 197)" onmouseover="showTip(event, 'fs88', 197)" class="t">File</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs89', 198)" onmouseover="showTip(event, 'fs89', 198)" class="f">WriteAllText</span>(<span onmouseout="hideTip(event, 'fs84', 199)" onmouseover="showTip(event, 'fs84', 199)" class="i">tmpFile</span>, <span onmouseout="hideTip(event, 'fs26', 200)" onmouseover="showTip(event, 'fs26', 200)" class="i">input2</span>)
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs90', 201)" onmouseover="showTip(event, 'fs90', 201)" class="i">projectResults</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs81', 202)" onmouseover="showTip(event, 'fs81', 202)" class="i">parseAndCheckScript</span>(<span onmouseout="hideTip(event, 'fs84', 203)" onmouseover="showTip(event, 'fs84', 203)" class="i">tmpFile</span>, <span onmouseout="hideTip(event, 'fs26', 204)" onmouseover="showTip(event, 'fs26', 204)" class="i">input2</span>)</pre>
-</td>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs90', 201)" onmouseover="showTip(event, 'fs90', 201)" class="i">projectResults</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs81', 202)" onmouseover="showTip(event, 'fs81', 202)" class="f">parseAndCheckScript</span>(<span onmouseout="hideTip(event, 'fs84', 203)" onmouseover="showTip(event, 'fs84', 203)" class="i">tmpFile</span>, <span onmouseout="hideTip(event, 'fs26', 204)" onmouseover="showTip(event, 'fs26', 204)" class="i">input2</span>)
+</code></pre></td>
 </tr>
 </table>
 
 <p>結果は以下の通りです:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
 <span class="l">5: </span>
 <span class="l">6: </span>
 <span class="l">7: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs91', 205)" onmouseover="showTip(event, 'fs91', 205)" class="i">assemblySig</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs90', 206)" onmouseover="showTip(event, 'fs90', 206)" class="i">projectResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs92', 207)" onmouseover="showTip(event, 'fs92', 207)" class="i">AssemblySignature</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs91', 205)" onmouseover="showTip(event, 'fs91', 205)" class="i">assemblySig</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs90', 206)" onmouseover="showTip(event, 'fs90', 206)" class="i">projectResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs92', 207)" onmouseover="showTip(event, 'fs92', 207)" class="i">AssemblySignature</span>
 
 <span onmouseout="hideTip(event, 'fs91', 208)" onmouseover="showTip(event, 'fs91', 208)" class="i">assemblySig</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 209)" onmouseover="showTip(event, 'fs31', 209)" class="i">Entities</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 210)" onmouseover="showTip(event, 'fs32', 210)" class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// エンティティは1つ</span>
 <span onmouseout="hideTip(event, 'fs91', 211)" onmouseover="showTip(event, 'fs91', 211)" class="i">assemblySig</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 212)" onmouseover="showTip(event, 'fs31', 212)" class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Namespace</span>  <span class="c">// null</span>
 <span onmouseout="hideTip(event, 'fs91', 213)" onmouseover="showTip(event, 'fs91', 213)" class="i">assemblySig</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 214)" onmouseover="showTip(event, 'fs31', 214)" class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;Tmp28D0&quot;</span>
 <span onmouseout="hideTip(event, 'fs91', 215)" onmouseover="showTip(event, 'fs91', 215)" class="i">assemblySig</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 216)" onmouseover="showTip(event, 'fs31', 216)" class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1 </span>
-<span onmouseout="hideTip(event, 'fs91', 217)" onmouseover="showTip(event, 'fs91', 217)" class="i">assemblySig</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 218)" onmouseover="showTip(event, 'fs31', 218)" class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot; </span></pre>
-</td>
+<span onmouseout="hideTip(event, 'fs91', 217)" onmouseover="showTip(event, 'fs91', 217)" class="i">assemblySig</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 218)" onmouseover="showTip(event, 'fs31', 218)" class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot; </span>
+</code></pre></td>
 </tr>
 </table>
 

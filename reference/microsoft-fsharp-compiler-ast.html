@@ -12,9 +12,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
-	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
-    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
+    <script type="text/javascript" src="https://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -37,6 +37,9 @@
 
 
 <h1>Ast</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler</span><br />
+</p>
 <div class="xmldoc">
 </div>
 
@@ -53,6 +56,8 @@
             <a href="microsoft-fsharp-compiler-ast-blockseparator.html">BlockSeparator</a>
           </td>
           <td class="xmldoc"><p>denotes location of the separator block + optional position of the semicolon (used for tooling support)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -80,6 +85,8 @@
           <td class="xmldoc"><p>Specifies how the 'endline' function in the lexer should continue after
 it reaches end of line or eof. The options are to continue with 'token' function
 or to continue with 'skip' function.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -108,6 +115,8 @@ or to continue with 'skip' function.</p>
 comments eliminated by the lexer.  These carry a specification of
 a continuation for the lexer for continued processing after we've dealt with
 the whitespace.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -133,6 +142,8 @@ the whitespace.</p>
             <a href="microsoft-fsharp-compiler-ast-memberkind.html">MemberKind</a>
           </td>
           <td class="xmldoc"><p>Note the member kind is actually computed partially by a syntax tree transformation in tc.fs</p>
+
+
 </td>
         </tr>
         <tr>
@@ -141,6 +152,8 @@ the whitespace.</p>
           </td>
           <td class="xmldoc"><p>Generates compiler-generated names. Each name generated also includes the StartLine number of the range passed in
 at the point of first generation.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -219,6 +232,8 @@ most importantly the ones that simply contribute fragments to a namespace (i.e. 
 There may be multiple such fragments in a single assembly.  There may thus also 
 be multiple matching pairs of these in an assembly, all contributing types to the same 
 namespace.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -226,6 +241,8 @@ namespace.</p>
             <a href="microsoft-fsharp-compiler-ast-recordfieldname.html">RecordFieldName</a>
           </td>
           <td class="xmldoc"><p>stores pair: record field name + (true if given record field name is syntactically correct and can be used in name resolution)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -238,7 +255,9 @@ namespace.</p>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-ast-seqexpronly.html">SeqExprOnly</a>
           </td>
-          <td class="xmldoc"><p>Indicates if a for loop is 'for x in e1 -> e2', only valid in sequence expressions</p>
+          <td class="xmldoc"><p>Indicates if a for loop is 'for x in e1 -&gt; e2', only valid in sequence expressions</p>
+
+
 </td>
         </tr>
         <tr>
@@ -296,6 +315,8 @@ namespace.</p>
           <td class="xmldoc"><p>Generates compiler-generated names marked up with a source code location, but if given the same unique value then
 return precisely the same name. Each name generated also includes the StartLine number of the range passed in
 at the point of first generation.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -309,6 +330,8 @@ at the point of first generation.</p>
             <a href="microsoft-fsharp-compiler-ast-synarginfo.html">SynArgInfo</a>
           </td>
           <td class="xmldoc"><p>The argument names and other metadata for a parameter for a member or function</p>
+
+
 </td>
         </tr>
         <tr>
@@ -340,6 +363,8 @@ at the point of first generation.</p>
             <a href="microsoft-fsharp-compiler-ast-synbindingkind.html">SynBindingKind</a>
           </td>
           <td class="xmldoc"><p>The kind associated with a binding - "let", "do" or a standalone expression</p>
+
+
 </td>
         </tr>
         <tr>
@@ -358,6 +383,8 @@ in signature or implementation.</p>
 <p>THis includes the name, attributes, type parameters, constraints, documentation and accessibility 
 for a type definition or module. For modules, entries such as the type parameters are
 always empty.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -365,6 +392,8 @@ always empty.</p>
             <a href="microsoft-fsharp-compiler-ast-synconst.html">SynConst</a>
           </td>
           <td class="xmldoc"><p>The unchecked abstract syntax tree of constants in F# types and expressions.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -390,6 +419,8 @@ always empty.</p>
             <a href="microsoft-fsharp-compiler-ast-synexceptiondefn.html">SynExceptionDefn</a>
           </td>
           <td class="xmldoc"><p>'exception E = ... with ...'</p>
+
+
 </td>
         </tr>
         <tr>
@@ -397,6 +428,8 @@ always empty.</p>
             <a href="microsoft-fsharp-compiler-ast-synexceptionrepr.html">SynExceptionRepr</a>
           </td>
           <td class="xmldoc"><p>'exception E = ... '</p>
+
+
 </td>
         </tr>
         <tr>
@@ -416,6 +449,8 @@ always empty.</p>
             <a href="microsoft-fsharp-compiler-ast-synfield.html">SynField</a>
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for a field declaration in a record or class</p>
+
+
 </td>
         </tr>
         <tr>
@@ -448,6 +483,8 @@ always empty.</p>
           </td>
           <td class="xmldoc"><p>The unchecked abstract syntax tree of F# unit of measure annotaitons. 
 This should probably be merged with the represenation of SynType.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -468,6 +505,8 @@ This should probably be merged with the represenation of SynType.</p>
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for a member signature, used in signature files, abstract member declarations
 and member constraints.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -493,6 +532,8 @@ and member constraints.</p>
             <a href="microsoft-fsharp-compiler-ast-synmoduleornamespace.html">SynModuleOrNamespace</a>
           </td>
           <td class="xmldoc"><p>SynModuleOrNamespace(lid,isModule,decls,xmlDoc,attribs,SynAccess,m)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -527,6 +568,8 @@ and member constraints.</p>
 mostly dummy information to make the return element look like an argument,
 the important thing is that (a) you can give a return type for the function or method, and 
 (b) you can associate .NET attributes to return of a function or method and these get stored in .NET metadata.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -547,8 +590,10 @@ the important thing is that (a) you can give a return type for the function or m
           </td>
           <td class="xmldoc"><p>Represents a simple set of variable bindings a, (a,b) or (a:Type,b:Type) at a lambda,
 function definition or other binding point, after the elimination of pattern matching
-from the construct, e.g. after changing a "function pat1 -> rule1 | ..." to a 
-"fun v -> match v with ..."</p>
+from the construct, e.g. after changing a "function pat1 -&gt; rule1 | ..." to a 
+"fun v -&gt; match v with ..."</p>
+
+
 </td>
         </tr>
         <tr>
@@ -568,6 +613,8 @@ from the construct, e.g. after changing a "function pat1 -> rule1 | ..." to a
             <a href="microsoft-fsharp-compiler-ast-syntypardecl.html">SynTyparDecl</a>
           </td>
           <td class="xmldoc"><p>Represents the explicit declaration of a type parameter</p>
+
+
 </td>
         </tr>
         <tr>
@@ -575,6 +622,8 @@ from the construct, e.g. after changing a "function pat1 -> rule1 | ..." to a
             <a href="microsoft-fsharp-compiler-ast-syntype.html">SynType</a>
           </td>
           <td class="xmldoc"><p>The unchecked abstract syntax tree of F# types</p>
+
+
 </td>
         </tr>
         <tr>
@@ -582,6 +631,8 @@ from the construct, e.g. after changing a "function pat1 -> rule1 | ..." to a
             <a href="microsoft-fsharp-compiler-ast-syntypeconstraint.html">SynTypeConstraint</a>
           </td>
           <td class="xmldoc"><p>The unchecked abstract syntax tree of F# type constraints</p>
+
+
 </td>
         </tr>
         <tr>
@@ -607,6 +658,8 @@ from the construct, e.g. after changing a "function pat1 -> rule1 | ..." to a
             <a href="microsoft-fsharp-compiler-ast-syntypedefnsig.html">SynTypeDefnSig</a>
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for a type definition in a signature</p>
+
+
 </td>
         </tr>
         <tr>
@@ -616,6 +669,8 @@ from the construct, e.g. after changing a "function pat1 -> rule1 | ..." to a
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for the right-hand-side of a type definition in a signature.
 Note: in practice, using a discriminated union to make a distinction between 
 "simple" types and "object oriented" types is not particularly useful.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -624,6 +679,8 @@ Note: in practice, using a discriminated union to make a distinction between
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for the core of a simple type definition, in either signature
 or implementation.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -638,6 +695,8 @@ or implementation.</p>
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for the right-hand-side of union definition, excluding members,
 in either a signature or implementation.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -657,6 +716,8 @@ in either a signature or implementation.</p>
             <a href="microsoft-fsharp-compiler-ast-synvalinfo.html">SynValInfo</a>
           </td>
           <td class="xmldoc"><p>The argument names and other metadata for a member or function</p>
+
+
 </td>
         </tr>
         <tr>
@@ -670,6 +731,8 @@ in either a signature or implementation.</p>
             <a href="microsoft-fsharp-compiler-ast-synvaltypardecls.html">SynValTyparDecls</a>
           </td>
           <td class="xmldoc"><p>The names and other metadata for the type parameters for a member or function</p>
+
+
 </td>
         </tr>
         <tr>
@@ -680,6 +743,8 @@ in either a signature or implementation.</p>
 when a syntax error occurs. The first object is the ParseErrorContext which contains a dump of
 information about the grammar at the point where the error occured, e.g. what tokens
 are valid to shift next at that point in the grammar. This information is processed in build.fs.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -699,6 +764,8 @@ are valid to shift next at that point in the grammar. This information is proces
             <a href="microsoft-fsharp-compiler-ast-xmldoccollector.html">XmlDocCollector</a>
           </td>
           <td class="xmldoc"><p>Used to collect XML documentation during lexing and parsing.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -732,6 +799,8 @@ are valid to shift next at that point in the grammar. This information is proces
           </td>
           <td class="xmldoc"><p>XmlDoc F# lexer/parser state, held in the BufferLocalStore for the lexer.
 This is the only use of the lexer BufferLocalStore in the codebase.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -744,19 +813,21 @@ This is the only use of the lexer BufferLocalStore in the codebase.</p>
 the arity from the syntax.</p>
 
 <p>For example, we record the arity for: 
-StaticProperty --> [1]               -- for unit arg
-this.InstanceProperty --> [1;1]        -- for unit arg
-StaticMethod(args) --> map InferSynArgInfoFromSimplePat args
-this.InstanceMethod() --> 1 :: map InferSynArgInfoFromSimplePat args
-this.InstanceProperty with get(argpat) --> 1 :: [InferSynArgInfoFromSimplePat argpat]
-StaticProperty with get(argpat) --> [InferSynArgInfoFromSimplePat argpat]
-this.InstanceProperty with get() --> 1 :: [InferSynArgInfoFromSimplePat argpat]
-StaticProperty with get() --> [InferSynArgInfoFromSimplePat argpat]</p>
+StaticProperty --&gt; [1]               -- for unit arg
+this.InstanceProperty --&gt; [1;1]        -- for unit arg
+StaticMethod(args) --&gt; map InferSynArgInfoFromSimplePat args
+this.InstanceMethod() --&gt; 1 :: map InferSynArgInfoFromSimplePat args
+this.InstanceProperty with get(argpat) --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat]
+StaticProperty with get(argpat) --&gt; [InferSynArgInfoFromSimplePat argpat]
+this.InstanceProperty with get() --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat]
+StaticProperty with get() --&gt; [InferSynArgInfoFromSimplePat argpat]</p>
 
-<p>this.InstanceProperty with set(argpat)(v) --> 1 :: [InferSynArgInfoFromSimplePat argpat; 1]
-StaticProperty with set(argpat)(v) --> [InferSynArgInfoFromSimplePat argpat; 1]
-this.InstanceProperty with set(v) --> 1 :: [1]
-StaticProperty with set(v) --> [1]</p>
+<p>this.InstanceProperty with set(argpat)(v) --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat; 1]
+StaticProperty with set(argpat)(v) --&gt; [InferSynArgInfoFromSimplePat argpat; 1]
+this.InstanceProperty with set(v) --&gt; 1 :: [1]
+StaticProperty with set(v) --&gt; [1]</p>
+
+
 </td>
         </tr>
     </tbody>
@@ -795,8 +866,8 @@ StaticProperty with set(v) --> [1]</p>
             appFunOpt funOpt x
           </code>
           <div class="tip" id="2">
-            <strong>Signature:</strong> funOpt:(&#39;?197864 -&gt; &#39;?197864) option -&gt; x:&#39;?197864 -&gt; &#39;?197864<br />
-                          <strong>Type parameters:</strong> '?197864          </div>
+            <strong>Signature:</strong> funOpt:(&#39;?202929 -&gt; &#39;?202929) option -&gt; x:&#39;?202929 -&gt; &#39;?202929<br />
+                          <strong>Type parameters:</strong> '?202929          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1611-1611" class="github-link">
@@ -867,8 +938,8 @@ StaticProperty with set(v) --> [1]</p>
             composeFunOpt funOpt1 funOpt2
           </code>
           <div class="tip" id="6">
-            <strong>Signature:</strong> funOpt1:(&#39;?197866 -&gt; &#39;?197866) option -&gt; funOpt2:(&#39;?197866 -&gt; &#39;?197866) option -&gt; (&#39;?197866 -&gt; &#39;?197866) option<br />
-                          <strong>Type parameters:</strong> '?197866          </div>
+            <strong>Signature:</strong> funOpt1:(&#39;?202931 -&gt; &#39;?202931) option -&gt; funOpt2:(&#39;?202931 -&gt; &#39;?202931) option -&gt; (&#39;?202931 -&gt; &#39;?202931) option<br />
+                          <strong>Type parameters:</strong> '?202931          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1612-1612" class="github-link">
@@ -912,6 +983,8 @@ StaticProperty with set(v) --> [1]</p>
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The prefix of the names used for the fake namespace path added to all dynamic code entries in FSI.EXE</p>
+
+
 
         </td>
       </tr>
@@ -967,6 +1040,8 @@ StaticProperty with set(v) --> [1]</p>
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>This affects placement of sequence points</p>
+
+
 
         </td>
       </tr>
@@ -1599,6 +1674,8 @@ StaticProperty with set(v) --> [1]</p>
             </a>
           <p>Get an F# compiler range from a lexer range</p>
 
+
+
         </td>
       </tr>
       <tr>
@@ -1798,6 +1875,8 @@ StaticProperty with set(v) --> [1]</p>
             </a>
           <p>Helper for parsing the inline IL fragments.</p>
 
+
+
         </td>
       </tr>
       <tr>
@@ -1816,6 +1895,8 @@ StaticProperty with set(v) --> [1]</p>
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Helper for parsing the inline IL fragments.</p>
+
+
 
         </td>
       </tr>
@@ -1872,6 +1953,8 @@ StaticProperty with set(v) --> [1]</p>
             </a>
           <p>Get an F# compiler position from a lexer position</p>
 
+
+
         </td>
       </tr>
       <tr>
@@ -1889,12 +1972,14 @@ StaticProperty with set(v) --> [1]</p>
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>"fun (UnionCase x) (UnionCase y) -> body" 
-      ==> 
-  "fun tmp1 tmp2 -> 
+          <p>"fun (UnionCase x) (UnionCase y) -&gt; body" 
+      ==&gt; 
+  "fun tmp1 tmp2 -&gt; 
        let (UnionCase x) = tmp1 in 
        let (UnionCase y) = tmp2 in 
        body"</p>
+
+
 
         </td>
       </tr>
@@ -1951,6 +2036,8 @@ StaticProperty with set(v) --> [1]</p>
             </a>
           <p>Push non-simple parts of a patten match over onto the r.h.s. of a lambda.
 Return a simple pattern and a function to build a match on the r.h.s. if the pattern is complex</p>
+
+
 
         </td>
       </tr>
@@ -2082,6 +2169,50 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       </tr>
     </tbody>
   </table>
+  <h3>Type extensions</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Type extension</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
+            LexemeRange
+          </code>
+          <div class="tip" id="73">
+            <strong>Signature:</strong> range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2075-2075" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
+            LexemeRange
+          </code>
+          <div class="tip" id="74">
+            <strong>Signature:</strong> range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2075-2075" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
   <h3>Active patterns</h3>
   <table class="table table-bordered member-list">
     <thead>
@@ -2091,10 +2222,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
+          <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
             ( |LongOrSingleIdent|_| ) inp
           </code>
-          <div class="tip" id="73">
+          <div class="tip" id="75">
             <strong>Signature:</strong> inp:SynExpr -&gt; (bool * LongIdentWithDots * SynSimplePatAlternativeIdInfo ref option * range) option<br />
                       </div>
         </td>
@@ -2105,15 +2236,17 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
             </a>
           <p>Match a long identifier, including the case for single identifiers which gets a more optimized node in the syntax tree.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
+          <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
             ( |SingleIdent|_| ) inp
           </code>
-          <div class="tip" id="74">
+          <div class="tip" id="76">
             <strong>Signature:</strong> inp:SynExpr -&gt; Ident option<br />
                       </div>
         </td>
@@ -2128,10 +2261,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
+          <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
             ( |SynExprErrorSkip| ) p
           </code>
-          <div class="tip" id="75">
+          <div class="tip" id="77">
             <strong>Signature:</strong> p:SynExpr -&gt; SynExpr<br />
                       </div>
         </td>
@@ -2146,10 +2279,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
+          <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
             ( |SynExprParen|_| ) e
           </code>
-          <div class="tip" id="76">
+          <div class="tip" id="78">
             <strong>Signature:</strong> e:SynExpr -&gt; (SynExpr * range * range option * range) option<br />
                       </div>
         </td>
@@ -2164,10 +2297,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
+          <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
             ( |SynPatErrorSkip| ) p
           </code>
-          <div class="tip" id="77">
+          <div class="tip" id="79">
             <strong>Signature:</strong> p:SynPat -&gt; SynPat<br />
                       </div>
         </td>
@@ -2182,10 +2315,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
+          <code onmouseout="hideTip(event, '80', 80)" onmouseover="showTip(event, '80', 80)">
             ( |SynPatForConstructorDecl|_| ) x
           </code>
-          <div class="tip" id="78">
+          <div class="tip" id="80">
             <strong>Signature:</strong> x:SynPat -&gt; SynPat option<br />
                       </div>
         </td>
@@ -2196,15 +2329,17 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
             </a>
           <p>Extract the argument for patterns corresponding to the declaration of 'new ... = ...'</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
+          <code onmouseout="hideTip(event, '81', 81)" onmouseover="showTip(event, '81', 81)">
             ( |SynPatForNullaryArgs|_| ) x
           </code>
-          <div class="tip" id="79">
+          <div class="tip" id="81">
             <strong>Signature:</strong> x:SynPat -&gt; unit option<br />
                       </div>
         </td>
@@ -2215,6 +2350,8 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
             </a>
           <p>Recognize the '()' in 'new()'</p>
 
+
+
         </td>
       </tr>
     </tbody>
@@ -2223,15 +2360,15 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
-            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			<a href="https://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
@@ -2239,28 +2376,28 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
 
             <li class="nav-header">Available services</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Design Notes</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
             </li>
           </ul>
         </div>

@@ -12,9 +12,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
-	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
-    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
+    <script type="text/javascript" src="https://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -37,8 +37,13 @@
 
 
 <h1>BasicPatterns</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler.SourceCodeServices</span><br />
+</p>
 <div class="xmldoc">
 <p>A collection of active patterns to analyze expressions</p>
+
+
 </div>
 
 <!-- Render nested types and modules, if there are any -->
@@ -52,421 +57,21 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '745', 745)" onmouseover="showTip(event, '745', 745)">
+          <code onmouseout="hideTip(event, '766', 766)" onmouseover="showTip(event, '766', 766)">
             ( |AddressOf|_| ) arg1
           </code>
-          <div class="tip" id="745">
+          <div class="tip" id="766">
             <strong>Signature:</strong> FSharpExpr -&gt; FSharpExpr option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L883-883" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L936-936" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Matches expressions which take the address of a location</p>
 
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '746', 746)" onmouseover="showTip(event, '746', 746)">
-            ( |AddressSet|_| ) arg1
-          </code>
-          <div class="tip" id="746">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L881-881" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which set the contents of an address</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '747', 747)" onmouseover="showTip(event, '747', 747)">
-            ( |Application|_| ) arg1
-          </code>
-          <div class="tip" id="747">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType list * FSharpExpr list) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L855-855" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which are the application of function values</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '748', 748)" onmouseover="showTip(event, '748', 748)">
-            ( |BaseValue|_| ) arg1
-          </code>
-          <div class="tip" id="748">
-            <strong>Signature:</strong> FSharpExpr -&gt; FSharpType option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L885-885" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which are uses of the 'base' value</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '749', 749)" onmouseover="showTip(event, '749', 749)">
-            ( |Call|_| ) arg1
-          </code>
-          <div class="tip" id="749">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpMemberFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L863-863" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which are calls to members or module-defined functions. When calling curried functions and members the
-arguments are collapsed to a single collection of arguments, as done in the compiled version of these.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '750', 750)" onmouseover="showTip(event, '750', 750)">
-            ( |Coerce|_| ) arg1
-          </code>
-          <div class="tip" id="750">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L871-871" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which coerce the type of a value</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '751', 751)" onmouseover="showTip(event, '751', 751)">
-            ( |Const|_| ) arg1
-          </code>
-          <div class="tip" id="751">
-            <strong>Signature:</strong> FSharpExpr -&gt; (obj * FSharpType) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L852-852" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches constant expressions, including signed and unsigned integers, strings, characters, booleans, arrays
-of bytes and arrays of unit16.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '752', 752)" onmouseover="showTip(event, '752', 752)">
-            ( |DecisionTree|_| ) arg1
-          </code>
-          <div class="tip" id="752">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * (FSharpMemberOrFunctionOrValue list * FSharpExpr) list) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L890-890" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions with a decision expression, each branch of which ends in DecisionTreeSuccess pasing control and values to one of the targets.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '753', 753)" onmouseover="showTip(event, '753', 753)">
-            ( |DecisionTreeSuccess|_| ) arg1
-          </code>
-          <div class="tip" id="753">
-            <strong>Signature:</strong> FSharpExpr -&gt; (int * FSharpExpr list) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L891-891" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Special expressions at the end of a conditional decision structure in the decision expression node of a DecisionTree .
-The given expressions are passed as values to the decision tree target.</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '754', 754)" onmouseover="showTip(event, '754', 754)">
-            ( |DefaultValue|_| ) arg1
-          </code>
-          <div class="tip" id="754">
-            <strong>Signature:</strong> FSharpExpr -&gt; FSharpType option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L880-880" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches default-value expressions, including null expressions</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '755', 755)" onmouseover="showTip(event, '755', 755)">
-            ( |FastIntegerForLoop|_| ) arg1
-          </code>
-          <div class="tip" id="755">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr * FSharpExpr * bool) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L875-875" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches fast-integer loops (up or down)</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '756', 756)" onmouseover="showTip(event, '756', 756)">
-            ( |FSharpFieldGet|_| ) arg1
-          </code>
-          <div class="tip" id="756">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * FSharpField) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L865-865" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which get a field from a record or class</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '757', 757)" onmouseover="showTip(event, '757', 757)">
-            ( |FSharpFieldSet|_| ) arg1
-          </code>
-          <div class="tip" id="757">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * FSharpField * FSharpExpr) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L866-866" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which set a field in a record or class</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '758', 758)" onmouseover="showTip(event, '758', 758)">
-            ( |IfThenElse|_| ) arg1
-          </code>
-          <div class="tip" id="758">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr * FSharpExpr) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L856-856" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which are conditionals</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '759', 759)" onmouseover="showTip(event, '759', 759)">
-            ( |ILAsm|_| ) arg1
-          </code>
-          <div class="tip" id="759">
-            <strong>Signature:</strong> FSharpExpr -&gt; (string * FSharpType list * FSharpExpr list) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L886-886" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which are IL assembly code</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '760', 760)" onmouseover="showTip(event, '760', 760)">
-            ( |ILFieldGet|_| ) arg1
-          </code>
-          <div class="tip" id="760">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * string) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L887-887" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which fetch a field from a .NET type</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '761', 761)" onmouseover="showTip(event, '761', 761)">
-            ( |ILFieldSet|_| ) arg1
-          </code>
-          <div class="tip" id="761">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * string * FSharpExpr) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L888-888" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which set a field in a .NET type</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '762', 762)" onmouseover="showTip(event, '762', 762)">
-            ( |Lambda|_| ) arg1
-          </code>
-          <div class="tip" id="762">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpExpr) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L854-854" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which are lambda abstractions</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '763', 763)" onmouseover="showTip(event, '763', 763)">
-            ( |Let|_| ) arg1
-          </code>
-          <div class="tip" id="763">
-            <strong>Signature:</strong> FSharpExpr -&gt; ((FSharpMemberOrFunctionOrValue * FSharpExpr) * FSharpExpr) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L857-857" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which are let definitions</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '764', 764)" onmouseover="showTip(event, '764', 764)">
-            ( |LetRec|_| ) arg1
-          </code>
-          <div class="tip" id="764">
-            <strong>Signature:</strong> FSharpExpr -&gt; ((FSharpMemberOrFunctionOrValue * FSharpExpr) list * FSharpExpr) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L858-858" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which are let-rec definitions</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '765', 765)" onmouseover="showTip(event, '765', 765)">
-            ( |NewArray|_| ) arg1
-          </code>
-          <div class="tip" id="765">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L870-870" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches array expressions</p>
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '766', 766)" onmouseover="showTip(event, '766', 766)">
-            ( |NewDelegate|_| ) arg1
-          </code>
-          <div class="tip" id="766">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L879-879" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Matches expressions which create an instance of a delegate type</p>
 
         </td>
       </tr>
@@ -474,18 +79,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '767', 767)" onmouseover="showTip(event, '767', 767)">
-            ( |NewObject|_| ) arg1
+            ( |AddressSet|_| ) arg1
           </code>
           <div class="tip" id="767">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpMemberFunctionOrValue * FSharpType list * FSharpExpr list) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L864-864" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L934-934" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which are calls to object constructors</p>
+          <p>Matches expressions which set the contents of an address</p>
+
+
 
         </td>
       </tr>
@@ -493,18 +100,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '768', 768)" onmouseover="showTip(event, '768', 768)">
-            ( |NewRecord|_| ) arg1
+            ( |Application|_| ) arg1
           </code>
           <div class="tip" id="768">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType list * FSharpExpr list) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L859-859" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L908-908" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches record expressions</p>
+          <p>Matches expressions which are the application of function values</p>
+
+
 
         </td>
       </tr>
@@ -512,18 +121,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '769', 769)" onmouseover="showTip(event, '769', 769)">
-            ( |NewTuple|_| ) arg1
+            ( |BaseValue|_| ) arg1
           </code>
           <div class="tip" id="769">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpType option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L861-861" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L938-938" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches tuple expressions</p>
+          <p>Matches expressions which are uses of the 'base' value</p>
+
+
 
         </td>
       </tr>
@@ -531,18 +142,21 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '770', 770)" onmouseover="showTip(event, '770', 770)">
-            ( |NewUnionCase|_| ) arg1
+            ( |Call|_| ) arg1
           </code>
           <div class="tip" id="770">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpUnionCase * FSharpExpr list) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpMemberFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L860-860" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L916-916" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which create an object corresponding to a union case</p>
+          <p>Matches expressions which are calls to members or module-defined functions. When calling curried functions and members the
+arguments are collapsed to a single collection of arguments, as done in the compiled version of these.</p>
+
+
 
         </td>
       </tr>
@@ -550,18 +164,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '771', 771)" onmouseover="showTip(event, '771', 771)">
-            ( |ObjectExpr|_| ) arg1
+            ( |Coerce|_| ) arg1
           </code>
           <div class="tip" id="771">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr * FSharpObjectExprOverride list * (FSharpType * FSharpObjectExprOverride list) list) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L889-889" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L924-924" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches object expressions, returning the base type, the base call, the overrides and the interface implementations</p>
+          <p>Matches expressions which coerce the type of a value</p>
+
+
 
         </td>
       </tr>
@@ -569,18 +185,21 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '772', 772)" onmouseover="showTip(event, '772', 772)">
-            ( |Quote|_| ) arg1
+            ( |Const|_| ) arg1
           </code>
           <div class="tip" id="772">
-            <strong>Signature:</strong> FSharpExpr -&gt; FSharpExpr option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (obj * FSharpType) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L872-872" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L905-905" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which are quotation literals</p>
+          <p>Matches constant expressions, including signed and unsigned integers, strings, characters, booleans, arrays
+of bytes and arrays of unit16.</p>
+
+
 
         </td>
       </tr>
@@ -588,18 +207,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '773', 773)" onmouseover="showTip(event, '773', 773)">
-            ( |Sequential|_| ) arg1
+            ( |DecisionTree|_| ) arg1
           </code>
           <div class="tip" id="773">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * (FSharpMemberOrFunctionOrValue list * FSharpExpr) list) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L874-874" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L943-943" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches sequential expressions</p>
+          <p>Matches expressions with a decision expression, each branch of which ends in DecisionTreeSuccess pasing control and values to one of the targets.</p>
+
+
 
         </td>
       </tr>
@@ -607,18 +228,21 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '774', 774)" onmouseover="showTip(event, '774', 774)">
-            ( |ThisValue|_| ) arg1
+            ( |DecisionTreeSuccess|_| ) arg1
           </code>
           <div class="tip" id="774">
-            <strong>Signature:</strong> FSharpExpr -&gt; FSharpType option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (int * FSharpExpr list) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L884-884" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L944-944" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which are uses of the 'this' value</p>
+          <p>Special expressions at the end of a conditional decision structure in the decision expression node of a DecisionTree .
+The given expressions are passed as values to the decision tree target.</p>
+
+
 
         </td>
       </tr>
@@ -626,18 +250,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '775', 775)" onmouseover="showTip(event, '775', 775)">
-            ( |TraitCall|_| ) arg1
+            ( |DefaultValue|_| ) arg1
           </code>
           <div class="tip" id="775">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType list * string * FSharpType list * FSharpType list * FSharpExpr list) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpType option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L893-893" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L933-933" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions for an unresolved call to a trait</p>
+          <p>Matches default-value expressions, including null expressions</p>
+
+
 
         </td>
       </tr>
@@ -645,18 +271,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '776', 776)" onmouseover="showTip(event, '776', 776)">
-            ( |TryFinally|_| ) arg1
+            ( |FastIntegerForLoop|_| ) arg1
           </code>
           <div class="tip" id="776">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr * FSharpExpr * bool) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L877-877" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L928-928" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches try/finally expressions</p>
+          <p>Matches fast-integer loops (up or down)</p>
+
+
 
         </td>
       </tr>
@@ -664,18 +292,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '777', 777)" onmouseover="showTip(event, '777', 777)">
-            ( |TryWith|_| ) arg1
+            ( |FSharpFieldGet|_| ) arg1
           </code>
           <div class="tip" id="777">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpMemberOrFunctionOrValue * FSharpExpr * FSharpMemberOrFunctionOrValue * FSharpExpr) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * FSharpField) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L878-878" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L918-918" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches try/with expressions</p>
+          <p>Matches expressions which get a field from a record or class</p>
+
+
 
         </td>
       </tr>
@@ -683,18 +313,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '778', 778)" onmouseover="showTip(event, '778', 778)">
-            ( |TupleGet|_| ) arg1
+            ( |FSharpFieldSet|_| ) arg1
           </code>
           <div class="tip" id="778">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * int * FSharpExpr) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * FSharpField * FSharpExpr) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L862-862" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L919-919" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which get a value from a tuple</p>
+          <p>Matches expressions which set a field in a record or class</p>
+
+
 
         </td>
       </tr>
@@ -702,18 +334,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '779', 779)" onmouseover="showTip(event, '779', 779)">
-            ( |TypeLambda|_| ) arg1
+            ( |IfThenElse|_| ) arg1
           </code>
           <div class="tip" id="779">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpGenericParameter list * FSharpExpr) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr * FSharpExpr) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L853-853" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L909-909" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which are type abstractions</p>
+          <p>Matches expressions which are conditionals</p>
+
+
 
         </td>
       </tr>
@@ -721,18 +355,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '780', 780)" onmouseover="showTip(event, '780', 780)">
-            ( |TypeTest|_| ) arg1
+            ( |ILAsm|_| ) arg1
           </code>
           <div class="tip" id="780">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (string * FSharpType list * FSharpExpr list) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L873-873" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L939-939" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which test the runtime type of a value</p>
+          <p>Matches expressions which are IL assembly code</p>
+
+
 
         </td>
       </tr>
@@ -740,18 +376,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '781', 781)" onmouseover="showTip(event, '781', 781)">
-            ( |UnionCaseGet|_| ) arg1
+            ( |ILFieldGet|_| ) arg1
           </code>
           <div class="tip" id="781">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * FSharpUnionCase * FSharpField) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * string) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L867-867" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L940-940" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which get a field from a union case</p>
+          <p>Matches expressions which fetch a field from a .NET type</p>
+
+
 
         </td>
       </tr>
@@ -759,18 +397,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '782', 782)" onmouseover="showTip(event, '782', 782)">
-            ( |UnionCaseSet|_| ) arg1
+            ( |ILFieldSet|_| ) arg1
           </code>
           <div class="tip" id="782">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * FSharpUnionCase * FSharpField * FSharpExpr) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * string * FSharpExpr) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L892-892" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L941-941" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which set a field from a union case (only used in FSharp.Core itself)</p>
+          <p>Matches expressions which set a field in a .NET type</p>
+
+
 
         </td>
       </tr>
@@ -778,18 +418,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '783', 783)" onmouseover="showTip(event, '783', 783)">
-            ( |UnionCaseTag|_| ) arg1
+            ( |Lambda|_| ) arg1
           </code>
           <div class="tip" id="783">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpExpr) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L868-868" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L907-907" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which gets the tag for a union case</p>
+          <p>Matches expressions which are lambda abstractions</p>
+
+
 
         </td>
       </tr>
@@ -797,18 +439,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '784', 784)" onmouseover="showTip(event, '784', 784)">
-            ( |UnionCaseTest|_| ) arg1
+            ( |Let|_| ) arg1
           </code>
           <div class="tip" id="784">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * FSharpUnionCase) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; ((FSharpMemberOrFunctionOrValue * FSharpExpr) * FSharpExpr) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L869-869" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L910-910" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which test if an expression corresponds to a particular union case</p>
+          <p>Matches expressions which are let definitions</p>
+
+
 
         </td>
       </tr>
@@ -816,18 +460,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '785', 785)" onmouseover="showTip(event, '785', 785)">
-            ( |Value|_| ) arg1
+            ( |LetRec|_| ) arg1
           </code>
           <div class="tip" id="785">
-            <strong>Signature:</strong> FSharpExpr -&gt; FSharpMemberOrFunctionOrValue option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; ((FSharpMemberOrFunctionOrValue * FSharpExpr) list * FSharpExpr) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L851-851" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L911-911" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which are uses of values</p>
+          <p>Matches expressions which are let-rec definitions</p>
+
+
 
         </td>
       </tr>
@@ -835,18 +481,20 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '786', 786)" onmouseover="showTip(event, '786', 786)">
-            ( |ValueSet|_| ) arg1
+            ( |NewArray|_| ) arg1
           </code>
           <div class="tip" id="786">
-            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpExpr) option<br />
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L882-882" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L923-923" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Matches expressions which set the contents of a mutable variable</p>
+          <p>Matches array expressions</p>
+
+
 
         </td>
       </tr>
@@ -854,18 +502,461 @@ The given expressions are passed as values to the decision tree target.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '787', 787)" onmouseover="showTip(event, '787', 787)">
-            ( |WhileLoop|_| ) arg1
+            ( |NewDelegate|_| ) arg1
           </code>
           <div class="tip" id="787">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L932-932" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which create an instance of a delegate type</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '788', 788)" onmouseover="showTip(event, '788', 788)">
+            ( |NewObject|_| ) arg1
+          </code>
+          <div class="tip" id="788">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpMemberFunctionOrValue * FSharpType list * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L917-917" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which are calls to object constructors</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '789', 789)" onmouseover="showTip(event, '789', 789)">
+            ( |NewRecord|_| ) arg1
+          </code>
+          <div class="tip" id="789">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L912-912" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches record expressions</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '790', 790)" onmouseover="showTip(event, '790', 790)">
+            ( |NewTuple|_| ) arg1
+          </code>
+          <div class="tip" id="790">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L914-914" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches tuple expressions</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '791', 791)" onmouseover="showTip(event, '791', 791)">
+            ( |NewUnionCase|_| ) arg1
+          </code>
+          <div class="tip" id="791">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpUnionCase * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L913-913" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which create an object corresponding to a union case</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '792', 792)" onmouseover="showTip(event, '792', 792)">
+            ( |ObjectExpr|_| ) arg1
+          </code>
+          <div class="tip" id="792">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr * FSharpObjectExprOverride list * (FSharpType * FSharpObjectExprOverride list) list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L942-942" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches object expressions, returning the base type, the base call, the overrides and the interface implementations</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '793', 793)" onmouseover="showTip(event, '793', 793)">
+            ( |Quote|_| ) arg1
+          </code>
+          <div class="tip" id="793">
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpExpr option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L925-925" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which are quotation literals</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '794', 794)" onmouseover="showTip(event, '794', 794)">
+            ( |Sequential|_| ) arg1
+          </code>
+          <div class="tip" id="794">
             <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L876-876" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L927-927" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches sequential expressions</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '795', 795)" onmouseover="showTip(event, '795', 795)">
+            ( |ThisValue|_| ) arg1
+          </code>
+          <div class="tip" id="795">
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpType option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L937-937" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which are uses of the 'this' value</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '796', 796)" onmouseover="showTip(event, '796', 796)">
+            ( |TraitCall|_| ) arg1
+          </code>
+          <div class="tip" id="796">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType list * string * FSharpType list * FSharpType list * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L946-946" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions for an unresolved call to a trait</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '797', 797)" onmouseover="showTip(event, '797', 797)">
+            ( |TryFinally|_| ) arg1
+          </code>
+          <div class="tip" id="797">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L930-930" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches try/finally expressions</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '798', 798)" onmouseover="showTip(event, '798', 798)">
+            ( |TryWith|_| ) arg1
+          </code>
+          <div class="tip" id="798">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpMemberOrFunctionOrValue * FSharpExpr * FSharpMemberOrFunctionOrValue * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L931-931" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches try/with expressions</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '799', 799)" onmouseover="showTip(event, '799', 799)">
+            ( |TupleGet|_| ) arg1
+          </code>
+          <div class="tip" id="799">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * int * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L915-915" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which get a value from a tuple</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '800', 800)" onmouseover="showTip(event, '800', 800)">
+            ( |TypeLambda|_| ) arg1
+          </code>
+          <div class="tip" id="800">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpGenericParameter list * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L906-906" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which are type abstractions</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '801', 801)" onmouseover="showTip(event, '801', 801)">
+            ( |TypeTest|_| ) arg1
+          </code>
+          <div class="tip" id="801">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L926-926" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which test the runtime type of a value</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '802', 802)" onmouseover="showTip(event, '802', 802)">
+            ( |UnionCaseGet|_| ) arg1
+          </code>
+          <div class="tip" id="802">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * FSharpUnionCase * FSharpField) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L920-920" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which get a field from a union case</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '803', 803)" onmouseover="showTip(event, '803', 803)">
+            ( |UnionCaseSet|_| ) arg1
+          </code>
+          <div class="tip" id="803">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * FSharpUnionCase * FSharpField * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L945-945" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which set a field from a union case (only used in FSharp.Core itself)</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '804', 804)" onmouseover="showTip(event, '804', 804)">
+            ( |UnionCaseTag|_| ) arg1
+          </code>
+          <div class="tip" id="804">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L921-921" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which gets the tag for a union case</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '805', 805)" onmouseover="showTip(event, '805', 805)">
+            ( |UnionCaseTest|_| ) arg1
+          </code>
+          <div class="tip" id="805">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * FSharpUnionCase) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L922-922" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which test if an expression corresponds to a particular union case</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '806', 806)" onmouseover="showTip(event, '806', 806)">
+            ( |Value|_| ) arg1
+          </code>
+          <div class="tip" id="806">
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpMemberOrFunctionOrValue option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L904-904" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which are uses of values</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '807', 807)" onmouseover="showTip(event, '807', 807)">
+            ( |ValueSet|_| ) arg1
+          </code>
+          <div class="tip" id="807">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L935-935" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Matches expressions which set the contents of a mutable variable</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '808', 808)" onmouseover="showTip(event, '808', 808)">
+            ( |WhileLoop|_| ) arg1
+          </code>
+          <div class="tip" id="808">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Exprs.fs#L929-929" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Matches while loops</p>
+
+
 
         </td>
       </tr>
@@ -875,15 +966,15 @@ The given expressions are passed as values to the decision tree target.</p>
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
-            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			<a href="https://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
@@ -891,28 +982,28 @@ The given expressions are passed as values to the decision tree target.</p>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
 
             <li class="nav-header">Available services</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Design Notes</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
             </li>
           </ul>
         </div>

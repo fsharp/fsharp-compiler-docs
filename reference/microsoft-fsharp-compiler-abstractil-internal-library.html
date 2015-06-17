@@ -12,9 +12,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
-	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
-    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
+    <script type="text/javascript" src="https://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -37,6 +37,9 @@
 
 
 <h1>Library</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler.AbstractIL.Internal</span><br />
+</p>
 <div class="xmldoc">
 </div>
 
@@ -62,6 +65,8 @@ captured by the NotYetDone closure. Computations do not need to be restartable.<
 <li>The key thing is that you can take an Eventually value and run it with 
 Eventually.repeatedlyProgressUntilDoneOrTimeShareOver</li>
 </ul>
+
+
 </td>
         </tr>
         <tr>
@@ -87,6 +92,8 @@ Eventually.repeatedlyProgressUntilDoneOrTimeShareOver</li>
             <a href="microsoft-fsharp-compiler-abstractil-internal-library-layeredmultimap-2.html">LayeredMultiMap<'Key, 'Value></a>
           </td>
           <td class="xmldoc"><p>Immutable map collection, with explicit flattening to a backing dictionary</p>
+
+
 </td>
         </tr>
         <tr>
@@ -95,6 +102,8 @@ Eventually.repeatedlyProgressUntilDoneOrTimeShareOver</li>
           </td>
           <td class="xmldoc"><p>Just like "Lazy" but EVERY forcer must provide an instance of "ctxt", e.g. to help track errors
 on forcing back to at least one sensible user location</p>
+
+
 </td>
         </tr>
         <tr>
@@ -268,12 +277,12 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '571', 571)" onmouseover="showTip(event, '571', 571)">
+          <code onmouseout="hideTip(event, '580', 580)" onmouseover="showTip(event, '580', 580)">
             ( === ) x y
           </code>
-          <div class="tip" id="571">
-            <strong>Signature:</strong> x:&#39;?198346 -&gt; y:&#39;?198346 -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?198346          </div>
+          <div class="tip" id="580">
+            <strong>Signature:</strong> x:&#39;?203411 -&gt; y:&#39;?203411 -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?203411          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L26-26" class="github-link">
@@ -286,10 +295,10 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '572', 572)" onmouseover="showTip(event, '572', 572)">
+          <code onmouseout="hideTip(event, '581', 581)" onmouseover="showTip(event, '581', 581)">
             ( &gt;&gt;&gt;&amp; ) x n
           </code>
-          <div class="tip" id="572">
+          <div class="tip" id="581">
             <strong>Signature:</strong> x:int32 -&gt; n:int32 -&gt; int32<br />
                       </div>
         </td>
@@ -304,15 +313,15 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '573', 573)" onmouseover="showTip(event, '573', 573)">
+          <code onmouseout="hideTip(event, '582', 582)" onmouseover="showTip(event, '582', 582)">
             eventually 
           </code>
-          <div class="tip" id="573">
+          <div class="tip" id="582">
             <strong>Signature:</strong> EventuallyBuilder<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L684-684" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L689-689" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -322,12 +331,12 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '574', 574)" onmouseover="showTip(event, '574', 574)">
+          <code onmouseout="hideTip(event, '583', 583)" onmouseover="showTip(event, '583', 583)">
             foldOn p f z x
           </code>
-          <div class="tip" id="574">
-            <strong>Signature:</strong> p:(&#39;?198348 -&gt; &#39;?198349) -&gt; f:(&#39;?198350 -&gt; &#39;?198349 -&gt; &#39;?198351) -&gt; z:&#39;?198350 -&gt; x:&#39;?198348 -&gt; &#39;?198351<br />
-                          <strong>Type parameters:</strong> '?198348, '?198349, '?198350, '?198351          </div>
+          <div class="tip" id="583">
+            <strong>Signature:</strong> p:(&#39;?203413 -&gt; &#39;?203414) -&gt; f:(&#39;?203415 -&gt; &#39;?203414 -&gt; &#39;?203416) -&gt; z:&#39;?203415 -&gt; x:&#39;?203413 -&gt; &#39;?203416<br />
+                          <strong>Type parameters:</strong> '?203413, '?203414, '?203415, '?203416          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L32-32" class="github-link">
@@ -340,31 +349,33 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '575', 575)" onmouseover="showTip(event, '575', 575)">
+          <code onmouseout="hideTip(event, '584', 584)" onmouseover="showTip(event, '584', 584)">
             getHole r
           </code>
-          <div class="tip" id="575">
-            <strong>Signature:</strong> r:&#39;?198355 option ref -&gt; &#39;?198355<br />
-                          <strong>Type parameters:</strong> '?198355          </div>
+          <div class="tip" id="584">
+            <strong>Signature:</strong> r:&#39;?203420 option ref -&gt; &#39;?203420<br />
+                          <strong>Type parameters:</strong> '?203420          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L492-492" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L497-497" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get an initialization hole</p>
+
+
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '576', 576)" onmouseover="showTip(event, '576', 576)">
+          <code onmouseout="hideTip(event, '585', 585)" onmouseover="showTip(event, '585', 585)">
             isNil x
           </code>
-          <div class="tip" id="576">
-            <strong>Signature:</strong> x:&#39;?198336 list -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?198336          </div>
+          <div class="tip" id="585">
+            <strong>Signature:</strong> x:&#39;?203401 list -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?203401          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L21-21" class="github-link">
@@ -377,12 +388,12 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '577', 577)" onmouseover="showTip(event, '577', 577)">
+          <code onmouseout="hideTip(event, '586', 586)" onmouseover="showTip(event, '586', 586)">
             isNone x
           </code>
-          <div class="tip" id="577">
-            <strong>Signature:</strong> x:&#39;?198334 option -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?198334          </div>
+          <div class="tip" id="586">
+            <strong>Signature:</strong> x:&#39;?203399 option -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?203399          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L20-20" class="github-link">
@@ -395,10 +406,10 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '578', 578)" onmouseover="showTip(event, '578', 578)">
+          <code onmouseout="hideTip(event, '587', 587)" onmouseover="showTip(event, '587', 587)">
             isNonNull x
           </code>
-          <div class="tip" id="578">
+          <div class="tip" id="587">
             <strong>Signature:</strong> x:&#39;T -&gt; bool<br />
                           <strong>Type parameters:</strong> 'T          </div>
         </td>
@@ -413,10 +424,10 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '579', 579)" onmouseover="showTip(event, '579', 579)">
+          <code onmouseout="hideTip(event, '588', 588)" onmouseover="showTip(event, '588', 588)">
             isNull x
           </code>
-          <div class="tip" id="579">
+          <div class="tip" id="588">
             <strong>Signature:</strong> x:&#39;T -&gt; bool<br />
                           <strong>Type parameters:</strong> 'T          </div>
         </td>
@@ -431,12 +442,12 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '580', 580)" onmouseover="showTip(event, '580', 580)">
+          <code onmouseout="hideTip(event, '589', 589)" onmouseover="showTip(event, '589', 589)">
             isSome x
           </code>
-          <div class="tip" id="580">
-            <strong>Signature:</strong> x:&#39;?198332 option -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?198332          </div>
+          <div class="tip" id="589">
+            <strong>Signature:</strong> x:&#39;?203397 option -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?203397          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L19-19" class="github-link">
@@ -449,12 +460,12 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '581', 581)" onmouseover="showTip(event, '581', 581)">
+          <code onmouseout="hideTip(event, '590', 590)" onmouseover="showTip(event, '590', 590)">
             nonNil x
           </code>
-          <div class="tip" id="581">
-            <strong>Signature:</strong> x:&#39;?198338 list -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?198338          </div>
+          <div class="tip" id="590">
+            <strong>Signature:</strong> x:&#39;?203403 list -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?203403          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L22-22" class="github-link">
@@ -467,12 +478,12 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '582', 582)" onmouseover="showTip(event, '582', 582)">
+          <code onmouseout="hideTip(event, '591', 591)" onmouseover="showTip(event, '591', 591)">
             nonNull msg x
           </code>
-          <div class="tip" id="582">
-            <strong>Signature:</strong> msg:string -&gt; x:&#39;?198344 -&gt; &#39;?198344<br />
-                          <strong>Type parameters:</strong> '?198344          </div>
+          <div class="tip" id="591">
+            <strong>Signature:</strong> msg:string -&gt; x:&#39;?203409 -&gt; &#39;?203409<br />
+                          <strong>Type parameters:</strong> '?203409          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L25-25" class="github-link">
@@ -485,12 +496,12 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '583', 583)" onmouseover="showTip(event, '583', 583)">
+          <code onmouseout="hideTip(event, '592', 592)" onmouseover="showTip(event, '592', 592)">
             notFound ()
           </code>
-          <div class="tip" id="583">
-            <strong>Signature:</strong> unit -&gt; &#39;?198353<br />
-                          <strong>Type parameters:</strong> '?198353          </div>
+          <div class="tip" id="592">
+            <strong>Signature:</strong> unit -&gt; &#39;?203418<br />
+                          <strong>Type parameters:</strong> '?203418          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L34-34" class="github-link">
@@ -503,15 +514,203 @@ on forcing back to at least one sensible user location</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '584', 584)" onmouseover="showTip(event, '584', 584)">
+          <code onmouseout="hideTip(event, '593', 593)" onmouseover="showTip(event, '593', 593)">
             notlazy v
           </code>
-          <div class="tip" id="584">
-            <strong>Signature:</strong> v:&#39;?198330 -&gt; Lazy&lt;&#39;?198330&gt;<br />
-                          <strong>Type parameters:</strong> '?198330          </div>
+          <div class="tip" id="593">
+            <strong>Signature:</strong> v:&#39;?203395 -&gt; Lazy&lt;&#39;?203395&gt;<br />
+                          <strong>Type parameters:</strong> '?203395          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L17-17" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Type extensions</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Type extension</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '594', 594)" onmouseover="showTip(event, '594', 594)">
+            AddAndMarkAsCollapsible(kvs)
+          </code>
+          <div class="tip" id="594">
+            <strong>Signature:</strong> (kvs:KeyValuePair&lt;&#39;Key,&#39;Value&gt; []) -&gt; Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L928-928" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '595', 595)" onmouseover="showTip(event, '595', 595)">
+            Elements
+          </code>
+          <div class="tip" id="595">
+            <strong>Signature:</strong> KeyValuePair&lt;&#39;Key,&#39;Value&gt; list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L927-927" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '596', 596)" onmouseover="showTip(event, '596', 596)">
+            Elements
+          </code>
+          <div class="tip" id="596">
+            <strong>Signature:</strong> KeyValuePair&lt;&#39;Key,&#39;Value&gt; list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L927-927" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '597', 597)" onmouseover="showTip(event, '597', 597)">
+            Empty
+          </code>
+          <div class="tip" id="597">
+            <strong>Signature:</strong> Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L919-919" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '598', 598)" onmouseover="showTip(event, '598', 598)">
+            Empty
+          </code>
+          <div class="tip" id="598">
+            <strong>Signature:</strong> Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L919-919" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '599', 599)" onmouseover="showTip(event, '599', 599)">
+            LinearTryModifyThenLaterFlatten(key, f)
+          </code>
+          <div class="tip" id="599">
+            <strong>Signature:</strong> (key:&#39;Key * f:(&#39;Value option -&gt; &#39;Value)) -&gt; Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L929-929" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '600', 600)" onmouseover="showTip(event, '600', 600)">
+            MarkAsCollapsible()
+          </code>
+          <div class="tip" id="600">
+            <strong>Signature:</strong> unit -&gt; Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L930-930" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '601', 601)" onmouseover="showTip(event, '601', 601)">
+            TryGetValue(key, res)
+          </code>
+          <div class="tip" id="601">
+            <strong>Signature:</strong> (key:&#39;Key * res:byref&lt;&#39;Value&gt;) -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L921-921" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '602', 602)" onmouseover="showTip(event, '602', 602)">
+            Values
+          </code>
+          <div class="tip" id="602">
+            <strong>Signature:</strong> &#39;Value list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L926-926" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '603', 603)" onmouseover="showTip(event, '603', 603)">
+            Values
+          </code>
+          <div class="tip" id="603">
+            <strong>Signature:</strong> &#39;Value list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L926-926" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -524,15 +723,15 @@ on forcing back to at least one sensible user location</p>
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
-            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			<a href="https://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
@@ -540,28 +739,28 @@ on forcing back to at least one sensible user location</p>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
 
             <li class="nav-header">Available services</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Design Notes</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
             </li>
           </ul>
         </div>

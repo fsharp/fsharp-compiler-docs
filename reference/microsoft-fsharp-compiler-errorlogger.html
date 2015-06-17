@@ -12,9 +12,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
-	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
-    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
+    <script type="text/javascript" src="https://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -37,6 +37,9 @@
 
 
 <h1>ErrorLogger</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler</span><br />
+</p>
 <div class="xmldoc">
 </div>
 
@@ -53,6 +56,8 @@
             <a href="microsoft-fsharp-compiler-errorlogger-buildphase.html">BuildPhase</a>
           </td>
           <td class="xmldoc"><p>Closed enumeration of build phases.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -138,6 +143,8 @@ Error recovery may catch this and continue (see 'errorRecovery')</p>
 <p>The exception that caused the report is carried as data because in some
 situations (LazyWithContext) we may need to re-report the original error
 when a lazy thunk is re-evaluated.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -145,6 +152,8 @@ when a lazy thunk is re-evaluated.</p>
             <a href="microsoft-fsharp-compiler-errorlogger-stopprocessing.html">StopProcessing</a>
           </td>
           <td class="xmldoc"><p>Thrown when we stop processing the F# Interactive interactive entry or #load.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -188,6 +197,8 @@ when a lazy thunk is re-evaluated.</p>
             <a href="microsoft-fsharp-compiler-errorlogger-wrappederror.html">WrappedError</a>
           </td>
           <td class="xmldoc"><p>Thrown when want to add some range information to some .NET exception</p>
+
+
 </td>
         </tr>
     </tbody>
@@ -202,6 +213,8 @@ when a lazy thunk is re-evaluated.</p>
             <a href="microsoft-fsharp-compiler-errorlogger-buildphasesubcategory.html">BuildPhaseSubcategory</a>
           </td>
           <td class="xmldoc"><p>Literal build phase subcategory strings.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -224,12 +237,12 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '110', 110)" onmouseover="showTip(event, '110', 110)">
+          <code onmouseout="hideTip(event, '112', 112)" onmouseover="showTip(event, '112', 112)">
             ( ++ ) res f
           </code>
-          <div class="tip" id="110">
-            <strong>Signature:</strong> res:OperationResult&lt;&#39;?196992&gt; -&gt; f:(&#39;?196992 -&gt; OperationResult&lt;&#39;?196993&gt;) -&gt; OperationResult&lt;&#39;?196993&gt;<br />
-                          <strong>Type parameters:</strong> '?196992, '?196993          </div>
+          <div class="tip" id="112">
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;?202065&gt; -&gt; f:(&#39;?202065 -&gt; OperationResult&lt;&#39;?202066&gt;) -&gt; OperationResult&lt;&#39;?202066&gt;<br />
+                          <strong>Type parameters:</strong> '?202065, '?202066          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L456-456" class="github-link">
@@ -238,15 +251,17 @@ when a lazy thunk is re-evaluated.</p>
             </a>
           <p>The bind in the monad. Stop on first error. Accumulate warnings and continue.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '111', 111)" onmouseover="showTip(event, '111', 111)">
+          <code onmouseout="hideTip(event, '113', 113)" onmouseover="showTip(event, '113', 113)">
             AssertFalseErrorLogger 
           </code>
-          <div class="tip" id="111">
+          <div class="tip" id="113">
             <strong>Signature:</strong> ErrorLogger<br />
                       </div>
         </td>
@@ -261,12 +276,12 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '112', 112)" onmouseover="showTip(event, '112', 112)">
+          <code onmouseout="hideTip(event, '114', 114)" onmouseover="showTip(event, '114', 114)">
             AtLeastOneD f l
           </code>
-          <div class="tip" id="112">
-            <strong>Signature:</strong> f:(&#39;?197024 -&gt; OperationResult&lt;bool&gt;) -&gt; l:&#39;?197024 list -&gt; OperationResult&lt;bool&gt;<br />
-                          <strong>Type parameters:</strong> '?197024          </div>
+          <div class="tip" id="114">
+            <strong>Signature:</strong> f:(&#39;?202097 -&gt; OperationResult&lt;bool&gt;) -&gt; l:&#39;?202097 list -&gt; OperationResult&lt;bool&gt;<br />
+                          <strong>Type parameters:</strong> '?202097          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L503-503" class="github-link">
@@ -279,10 +294,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '113', 113)" onmouseover="showTip(event, '113', 113)">
+          <code onmouseout="hideTip(event, '115', 115)" onmouseover="showTip(event, '115', 115)">
             AttachRange m exn
           </code>
-          <div class="tip" id="113">
+          <div class="tip" id="115">
             <strong>Signature:</strong> m:range -&gt; exn:exn -&gt; exn<br />
                       </div>
         </td>
@@ -297,12 +312,12 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '114', 114)" onmouseover="showTip(event, '114', 114)">
+          <code onmouseout="hideTip(event, '116', 116)" onmouseover="showTip(event, '116', 116)">
             CheckNoErrorsAndGetWarnings res
           </code>
-          <div class="tip" id="114">
-            <strong>Signature:</strong> res:OperationResult&lt;&#39;?196990&gt; -&gt; exn list option<br />
-                          <strong>Type parameters:</strong> '?196990          </div>
+          <div class="tip" id="116">
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;?202063&gt; -&gt; exn list option<br />
+                          <strong>Type parameters:</strong> '?202063          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L453-453" class="github-link">
@@ -315,12 +330,12 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '115', 115)" onmouseover="showTip(event, '115', 115)">
+          <code onmouseout="hideTip(event, '117', 117)" onmouseover="showTip(event, '117', 117)">
             CommitOperationResult res
           </code>
-          <div class="tip" id="115">
-            <strong>Signature:</strong> res:OperationResult&lt;&#39;?196981&gt; -&gt; &#39;?196981<br />
-                          <strong>Type parameters:</strong> '?196981          </div>
+          <div class="tip" id="117">
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;?202054&gt; -&gt; &#39;?202054<br />
+                          <strong>Type parameters:</strong> '?202054          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L442-442" class="github-link">
@@ -333,10 +348,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '116', 116)" onmouseover="showTip(event, '116', 116)">
+          <code onmouseout="hideTip(event, '118', 118)" onmouseover="showTip(event, '118', 118)">
             CompleteD 
           </code>
-          <div class="tip" id="116">
+          <div class="tip" id="118">
             <strong>Signature:</strong> OperationResult&lt;unit&gt;<br />
                       </div>
         </td>
@@ -351,12 +366,12 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '117', 117)" onmouseover="showTip(event, '117', 117)">
+          <code onmouseout="hideTip(event, '119', 119)" onmouseover="showTip(event, '119', 119)">
             conditionallySuppressErrorReporting (...)
           </code>
-          <div class="tip" id="117">
-            <strong>Signature:</strong> cond:bool -&gt; f:(unit -&gt; &#39;?196977) -&gt; &#39;?196977<br />
-                          <strong>Type parameters:</strong> '?196977          </div>
+          <div class="tip" id="119">
+            <strong>Signature:</strong> cond:bool -&gt; f:(unit -&gt; &#39;?202050) -&gt; &#39;?202050<br />
+                          <strong>Type parameters:</strong> '?202050          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L423-423" class="github-link">
@@ -369,10 +384,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '118', 118)" onmouseover="showTip(event, '118', 118)">
+          <code onmouseout="hideTip(event, '120', 120)" onmouseover="showTip(event, '120', 120)">
             deprecatedOperator m
           </code>
-          <div class="tip" id="118">
+          <div class="tip" id="120">
             <strong>Signature:</strong> m:range -&gt; unit<br />
                       </div>
         </td>
@@ -387,10 +402,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '119', 119)" onmouseover="showTip(event, '119', 119)">
+          <code onmouseout="hideTip(event, '121', 121)" onmouseover="showTip(event, '121', 121)">
             deprecatedWithError s m
           </code>
-          <div class="tip" id="119">
+          <div class="tip" id="121">
             <strong>Signature:</strong> s:string -&gt; m:range -&gt; unit<br />
                       </div>
         </td>
@@ -405,10 +420,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '120', 120)" onmouseover="showTip(event, '120', 120)">
+          <code onmouseout="hideTip(event, '122', 122)" onmouseover="showTip(event, '122', 122)">
             DiscardErrorsLogger 
           </code>
-          <div class="tip" id="120">
+          <div class="tip" id="122">
             <strong>Signature:</strong> ErrorLogger<br />
                       </div>
         </td>
@@ -423,12 +438,12 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '121', 121)" onmouseover="showTip(event, '121', 121)">
+          <code onmouseout="hideTip(event, '123', 123)" onmouseover="showTip(event, '123', 123)">
             error exn
           </code>
-          <div class="tip" id="121">
-            <strong>Signature:</strong> exn:exn -&gt; &#39;?196958<br />
-                          <strong>Type parameters:</strong> '?196958          </div>
+          <div class="tip" id="123">
+            <strong>Signature:</strong> exn:exn -&gt; &#39;?202031<br />
+                          <strong>Type parameters:</strong> '?202031          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L387-387" class="github-link">
@@ -441,12 +456,12 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '122', 122)" onmouseover="showTip(event, '122', 122)">
+          <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
             ErrorD err
           </code>
-          <div class="tip" id="122">
-            <strong>Signature:</strong> err:exn -&gt; OperationResult&lt;&#39;?196984&gt;<br />
-                          <strong>Type parameters:</strong> '?196984          </div>
+          <div class="tip" id="124">
+            <strong>Signature:</strong> err:exn -&gt; OperationResult&lt;&#39;?202057&gt;<br />
+                          <strong>Type parameters:</strong> '?202057          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L449-449" class="github-link">
@@ -459,10 +474,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '123', 123)" onmouseover="showTip(event, '123', 123)">
+          <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
             errorR exn
           </code>
-          <div class="tip" id="123">
+          <div class="tip" id="125">
             <strong>Signature:</strong> exn:exn -&gt; unit<br />
                       </div>
         </td>
@@ -477,10 +492,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
+          <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
             errorRecovery exn m
           </code>
-          <div class="tip" id="124">
+          <div class="tip" id="126">
             <strong>Signature:</strong> exn:exn -&gt; m:range -&gt; unit<br />
                       </div>
         </td>
@@ -495,10 +510,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
+          <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
             errorRecoveryNoRange exn
           </code>
-          <div class="tip" id="125">
+          <div class="tip" id="127">
             <strong>Signature:</strong> exn:exn -&gt; unit<br />
                       </div>
         </td>
@@ -513,10 +528,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
+          <code onmouseout="hideTip(event, '128', 128)" onmouseover="showTip(event, '128', 128)">
             errorSink pe
           </code>
-          <div class="tip" id="126">
+          <div class="tip" id="128">
             <strong>Signature:</strong> pe:PhasedError -&gt; unit<br />
                       </div>
         </td>
@@ -531,10 +546,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
+          <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
             findOriginalException err
           </code>
-          <div class="tip" id="127">
+          <div class="tip" id="129">
             <strong>Signature:</strong> err:exn -&gt; exn<br />
                       </div>
         </td>
@@ -549,12 +564,12 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '128', 128)" onmouseover="showTip(event, '128', 128)">
+          <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
             Iterate2D f xs ys
           </code>
-          <div class="tip" id="128">
-            <strong>Signature:</strong> f:(&#39;?197018 -&gt; &#39;?197019 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?197018 list -&gt; ys:&#39;?197019 list -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?197018, '?197019          </div>
+          <div class="tip" id="130">
+            <strong>Signature:</strong> f:(&#39;?202091 -&gt; &#39;?202092 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?202091 list -&gt; ys:&#39;?202092 list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> '?202091, '?202092          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L491-491" class="github-link">
@@ -563,17 +578,19 @@ when a lazy thunk is re-evaluated.</p>
             </a>
           <p>Stop on first error. Accumulate warnings and continue.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
+          <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
             IterateD f xs
           </code>
-          <div class="tip" id="129">
-            <strong>Signature:</strong> f:(&#39;?196995 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?196995 list -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?196995          </div>
+          <div class="tip" id="131">
+            <strong>Signature:</strong> f:(&#39;?202068 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?202068 list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> '?202068          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L468-468" class="github-link">
@@ -582,17 +599,19 @@ when a lazy thunk is re-evaluated.</p>
             </a>
           <p>Stop on first error. Accumulate warnings and continue.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
+          <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
             IterateIdxD f xs
           </code>
-          <div class="tip" id="130">
-            <strong>Signature:</strong> f:(int -&gt; &#39;?197016 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?197016 list -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?197016          </div>
+          <div class="tip" id="132">
+            <strong>Signature:</strong> f:(int -&gt; &#39;?202089 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?202089 list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> '?202089          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L486-486" class="github-link">
@@ -601,15 +620,17 @@ when a lazy thunk is re-evaluated.</p>
             </a>
           <p>Stop on first error. Report index</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
+          <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
             libraryOnlyError m
           </code>
-          <div class="tip" id="131">
+          <div class="tip" id="133">
             <strong>Signature:</strong> m:range -&gt; unit<br />
                       </div>
         </td>
@@ -624,10 +645,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
+          <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
             libraryOnlyWarning m
           </code>
-          <div class="tip" id="132">
+          <div class="tip" id="134">
             <strong>Signature:</strong> m:range -&gt; unit<br />
                       </div>
         </td>
@@ -642,12 +663,12 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
+          <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
             MapD f xs
           </code>
-          <div class="tip" id="133">
-            <strong>Signature:</strong> f:(&#39;?196998 -&gt; OperationResult&lt;&#39;?196999&gt;) -&gt; xs:&#39;?196998 list -&gt; OperationResult&lt;&#39;?196999 list&gt;<br />
-                          <strong>Type parameters:</strong> '?196998, '?196999          </div>
+          <div class="tip" id="135">
+            <strong>Signature:</strong> f:(&#39;?202071 -&gt; OperationResult&lt;&#39;?202072&gt;) -&gt; xs:&#39;?202071 list -&gt; OperationResult&lt;&#39;?202072 list&gt;<br />
+                          <strong>Type parameters:</strong> '?202071, '?202072          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L470-470" class="github-link">
@@ -660,10 +681,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
+          <code onmouseout="hideTip(event, '136', 136)" onmouseover="showTip(event, '136', 136)">
             mlCompatWarning s m
           </code>
-          <div class="tip" id="134">
+          <div class="tip" id="136">
             <strong>Signature:</strong> s:String -&gt; m:range -&gt; unit<br />
                       </div>
         </td>
@@ -678,10 +699,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
+          <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
             NewlineifyErrorString message
           </code>
-          <div class="tip" id="135">
+          <div class="tip" id="137">
             <strong>Signature:</strong> message:string -&gt; string<br />
                       </div>
         </td>
@@ -696,10 +717,10 @@ when a lazy thunk is re-evaluated.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '136', 136)" onmouseover="showTip(event, '136', 136)">
+          <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
             NormalizeErrorString text
           </code>
-          <div class="tip" id="136">
+          <div class="tip" id="138">
             <strong>Signature:</strong> text:string -&gt; string<br />
                       </div>
         </td>
@@ -712,17 +733,19 @@ when a lazy thunk is re-evaluated.</p>
 NOTE: newlines are recognized and replaced with stringThatIsAProxyForANewlineInFlatErrors (ASCII 29, the 'group separator'), 
 which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so that multi-line errors can be displayed in QuickInfo</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
+          <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
             OptionD f xs
           </code>
-          <div class="tip" id="137">
-            <strong>Signature:</strong> f:(&#39;?197014 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?197014 option -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?197014          </div>
+          <div class="tip" id="139">
+            <strong>Signature:</strong> f:(&#39;?202087 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?202087 option -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> '?202087          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L483-483" class="github-link">
@@ -731,17 +754,19 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             </a>
           <p>Stop on first error. Accumulate warnings and continue.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
+          <code onmouseout="hideTip(event, '140', 140)" onmouseover="showTip(event, '140', 140)">
             phasedError p
           </code>
-          <div class="tip" id="138">
-            <strong>Signature:</strong> p:PhasedError -&gt; &#39;?196960<br />
-                          <strong>Type parameters:</strong> '?196960          </div>
+          <div class="tip" id="140">
+            <strong>Signature:</strong> p:PhasedError -&gt; &#39;?202033<br />
+                          <strong>Type parameters:</strong> '?202033          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L389-389" class="github-link">
@@ -754,12 +779,12 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
+          <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
             protectAssemblyExploration dflt f
           </code>
-          <div class="tip" id="139">
-            <strong>Signature:</strong> dflt:&#39;?196900 -&gt; f:(unit -&gt; &#39;?196900) -&gt; &#39;?196900<br />
-                          <strong>Type parameters:</strong> '?196900          </div>
+          <div class="tip" id="141">
+            <strong>Signature:</strong> dflt:&#39;?201973 -&gt; f:(unit -&gt; &#39;?201973) -&gt; &#39;?201973<br />
+                          <strong>Type parameters:</strong> '?201973          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L69-69" class="github-link">
@@ -772,12 +797,12 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '140', 140)" onmouseover="showTip(event, '140', 140)">
+          <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
             protectAssemblyExplorationF dflt f
           </code>
-          <div class="tip" id="140">
-            <strong>Signature:</strong> dflt:(string * string -&gt; &#39;?196902) -&gt; f:(unit -&gt; &#39;?196902) -&gt; &#39;?196902<br />
-                          <strong>Type parameters:</strong> '?196902          </div>
+          <div class="tip" id="142">
+            <strong>Signature:</strong> dflt:(string * string -&gt; &#39;?201975) -&gt; f:(unit -&gt; &#39;?201975) -&gt; &#39;?201975<br />
+                          <strong>Type parameters:</strong> '?201975          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L76-76" class="github-link">
@@ -790,12 +815,12 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
+          <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
             protectAssemblyExplorationNoReraise (...)
           </code>
-          <div class="tip" id="141">
-            <strong>Signature:</strong> dflt1:&#39;?196904 -&gt; dflt2:&#39;?196904 -&gt; f:(unit -&gt; &#39;?196904) -&gt; &#39;?196904<br />
-                          <strong>Type parameters:</strong> '?196904          </div>
+          <div class="tip" id="143">
+            <strong>Signature:</strong> dflt1:&#39;?201977 -&gt; dflt2:&#39;?201977 -&gt; f:(unit -&gt; &#39;?201977) -&gt; &#39;?201977<br />
+                          <strong>Type parameters:</strong> '?201977          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L83-83" class="github-link">
@@ -808,12 +833,12 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
+          <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
             PushErrorLoggerPhaseUntilUnwind (...)
           </code>
-          <div class="tip" id="142">
-            <strong>Signature:</strong> errorLoggerTransformer:(ErrorLogger -&gt; &#39;?196951) -&gt; IDisposable<br />
-                          <strong>Type parameters:</strong> '?196951          </div>
+          <div class="tip" id="144">
+            <strong>Signature:</strong> errorLoggerTransformer:(ErrorLogger -&gt; &#39;?202024) -&gt; IDisposable<br />
+                          <strong>Type parameters:</strong> '?202024          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L365-365" class="github-link">
@@ -822,15 +847,17 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             </a>
           <p>NOTE: The change will be undone when the returned "unwind" object disposes</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
+          <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
             PushThreadBuildPhaseUntilUnwind phase
           </code>
-          <div class="tip" id="143">
+          <div class="tip" id="145">
             <strong>Signature:</strong> phase:BuildPhase -&gt; IDisposable<br />
                       </div>
         </td>
@@ -841,15 +868,17 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             </a>
           <p>NOTE: The change will be undone when the returned "unwind" object disposes</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
+          <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
             QuitProcessExiter 
           </code>
-          <div class="tip" id="144">
+          <div class="tip" id="146">
             <strong>Signature:</strong> Exiter<br />
                       </div>
         </td>
@@ -864,10 +893,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
+          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
             RaiseOperationResult res
           </code>
-          <div class="tip" id="145">
+          <div class="tip" id="147">
             <strong>Signature:</strong> res:OperationResult&lt;unit&gt; -&gt; unit<br />
                       </div>
         </td>
@@ -882,10 +911,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
+          <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
             RepeatWhileD ndeep body
           </code>
-          <div class="tip" id="146">
+          <div class="tip" id="148">
             <strong>Signature:</strong> ndeep:int -&gt; body:(int -&gt; OperationResult&lt;bool&gt;) -&gt; OperationResult&lt;unit&gt;<br />
                       </div>
         </td>
@@ -900,12 +929,12 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
+          <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
             report f
           </code>
-          <div class="tip" id="147">
-            <strong>Signature:</strong> f:(unit -&gt; &#39;?196967) -&gt; &#39;?196967<br />
-                          <strong>Type parameters:</strong> '?196967          </div>
+          <div class="tip" id="149">
+            <strong>Signature:</strong> f:(unit -&gt; &#39;?202040) -&gt; &#39;?202040<br />
+                          <strong>Type parameters:</strong> '?202040          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L398-398" class="github-link">
@@ -918,10 +947,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
+          <code onmouseout="hideTip(event, '150', 150)" onmouseover="showTip(event, '150', 150)">
             reportLibraryOnlyFeatures 
           </code>
-          <div class="tip" id="148">
+          <div class="tip" id="150">
             <strong>Signature:</strong> bool<br />
                       </div>
         </td>
@@ -936,12 +965,12 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
+          <code onmouseout="hideTip(event, '151', 151)" onmouseover="showTip(event, '151', 151)">
             ReportWarnings warns
           </code>
-          <div class="tip" id="149">
-            <strong>Signature:</strong> warns:&#39;?196979 list -&gt; unit<br />
-                          <strong>Type parameters:</strong> '?196979          </div>
+          <div class="tip" id="151">
+            <strong>Signature:</strong> warns:&#39;?202052 list -&gt; unit<br />
+                          <strong>Type parameters:</strong> '?202052          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L437-437" class="github-link">
@@ -954,12 +983,12 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '150', 150)" onmouseover="showTip(event, '150', 150)">
+          <code onmouseout="hideTip(event, '152', 152)" onmouseover="showTip(event, '152', 152)">
             ResultD x
           </code>
-          <div class="tip" id="150">
-            <strong>Signature:</strong> x:&#39;?196988 -&gt; OperationResult&lt;&#39;?196988&gt;<br />
-                          <strong>Type parameters:</strong> '?196988          </div>
+          <div class="tip" id="152">
+            <strong>Signature:</strong> x:&#39;?202061 -&gt; OperationResult&lt;&#39;?202061&gt;<br />
+                          <strong>Type parameters:</strong> '?202061          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L452-452" class="github-link">
@@ -972,10 +1001,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '151', 151)" onmouseover="showTip(event, '151', 151)">
+          <code onmouseout="hideTip(event, '153', 153)" onmouseover="showTip(event, '153', 153)">
             SetThreadBuildPhaseNoUnwind phase
           </code>
-          <div class="tip" id="151">
+          <div class="tip" id="153">
             <strong>Signature:</strong> phase:BuildPhase -&gt; unit<br />
                       </div>
         </td>
@@ -990,10 +1019,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '152', 152)" onmouseover="showTip(event, '152', 152)">
+          <code onmouseout="hideTip(event, '154', 154)" onmouseover="showTip(event, '154', 154)">
             SetThreadErrorLoggerNoUnwind errorLogger
           </code>
-          <div class="tip" id="152">
+          <div class="tip" id="154">
             <strong>Signature:</strong> errorLogger:ErrorLogger -&gt; unit<br />
                       </div>
         </td>
@@ -1008,10 +1037,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '153', 153)" onmouseover="showTip(event, '153', 153)">
+          <code onmouseout="hideTip(event, '155', 155)" onmouseover="showTip(event, '155', 155)">
             SetUninitializedErrorLoggerFallback (...)
           </code>
-          <div class="tip" id="153">
+          <div class="tip" id="155">
             <strong>Signature:</strong> errLogger:ErrorLogger -&gt; unit<br />
                       </div>
         </td>
@@ -1026,10 +1055,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '154', 154)" onmouseover="showTip(event, '154', 154)">
+          <code onmouseout="hideTip(event, '156', 156)" onmouseover="showTip(event, '156', 156)">
             stopProcessingRecovery exn m
           </code>
-          <div class="tip" id="154">
+          <div class="tip" id="156">
             <strong>Signature:</strong> exn:exn -&gt; m:range -&gt; unit<br />
                       </div>
         </td>
@@ -1044,10 +1073,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '155', 155)" onmouseover="showTip(event, '155', 155)">
+          <code onmouseout="hideTip(event, '157', 157)" onmouseover="showTip(event, '157', 157)">
             stringThatIsAProxyForANewlineInFlatErrors (...)
           </code>
-          <div class="tip" id="155">
+          <div class="tip" id="157">
             <strong>Signature:</strong> String<br />
                       </div>
         </td>
@@ -1062,12 +1091,12 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '156', 156)" onmouseover="showTip(event, '156', 156)">
+          <code onmouseout="hideTip(event, '158', 158)" onmouseover="showTip(event, '158', 158)">
             suppressErrorReporting f
           </code>
-          <div class="tip" id="156">
-            <strong>Signature:</strong> f:(unit -&gt; &#39;?196975) -&gt; &#39;?196975<br />
-                          <strong>Type parameters:</strong> '?196975          </div>
+          <div class="tip" id="158">
+            <strong>Signature:</strong> f:(unit -&gt; &#39;?202048) -&gt; &#39;?202048<br />
+                          <strong>Type parameters:</strong> '?202048          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L410-410" class="github-link">
@@ -1080,10 +1109,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '157', 157)" onmouseover="showTip(event, '157', 157)">
+          <code onmouseout="hideTip(event, '159', 159)" onmouseover="showTip(event, '159', 159)">
             trackErrors 
           </code>
-          <div class="tip" id="157">
+          <div class="tip" id="159">
             <strong>Signature:</strong> TrackErrorsBuilder<br />
                       </div>
         </td>
@@ -1098,12 +1127,12 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '158', 158)" onmouseover="showTip(event, '158', 158)">
+          <code onmouseout="hideTip(event, '160', 160)" onmouseover="showTip(event, '160', 160)">
             TryD f g
           </code>
-          <div class="tip" id="158">
-            <strong>Signature:</strong> f:(unit -&gt; OperationResult&lt;&#39;?197021&gt;) -&gt; g:(exn -&gt; OperationResult&lt;&#39;?197021&gt;) -&gt; OperationResult&lt;&#39;?197021&gt;<br />
-                          <strong>Type parameters:</strong> '?197021          </div>
+          <div class="tip" id="160">
+            <strong>Signature:</strong> f:(unit -&gt; OperationResult&lt;&#39;?202094&gt;) -&gt; g:(exn -&gt; OperationResult&lt;&#39;?202094&gt;) -&gt; OperationResult&lt;&#39;?202094&gt;<br />
+                          <strong>Type parameters:</strong> '?202094          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L497-497" class="github-link">
@@ -1116,10 +1145,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '159', 159)" onmouseover="showTip(event, '159', 159)">
+          <code onmouseout="hideTip(event, '161', 161)" onmouseover="showTip(event, '161', 161)">
             uninitializedErrorLoggerFallback 
           </code>
-          <div class="tip" id="159">
+          <div class="tip" id="161">
             <strong>Signature:</strong> ErrorLogger ref<br />
                       </div>
         </td>
@@ -1130,15 +1159,17 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             </a>
           <p>When no errorLogger is installed (on the thread) use this one.</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '160', 160)" onmouseover="showTip(event, '160', 160)">
+          <code onmouseout="hideTip(event, '162', 162)" onmouseover="showTip(event, '162', 162)">
             WarnD err
           </code>
-          <div class="tip" id="160">
+          <div class="tip" id="162">
             <strong>Signature:</strong> err:exn -&gt; OperationResult&lt;unit&gt;<br />
                       </div>
         </td>
@@ -1153,10 +1184,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '161', 161)" onmouseover="showTip(event, '161', 161)">
+          <code onmouseout="hideTip(event, '163', 163)" onmouseover="showTip(event, '163', 163)">
             warning exn
           </code>
-          <div class="tip" id="161">
+          <div class="tip" id="163">
             <strong>Signature:</strong> exn:exn -&gt; unit<br />
                       </div>
         </td>
@@ -1171,10 +1202,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '162', 162)" onmouseover="showTip(event, '162', 162)">
+          <code onmouseout="hideTip(event, '164', 164)" onmouseover="showTip(event, '164', 164)">
             warnSink pe
           </code>
-          <div class="tip" id="162">
+          <div class="tip" id="164">
             <strong>Signature:</strong> pe:PhasedError -&gt; unit<br />
                       </div>
         </td>
@@ -1189,10 +1220,10 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '163', 163)" onmouseover="showTip(event, '163', 163)">
+          <code onmouseout="hideTip(event, '165', 165)" onmouseover="showTip(event, '165', 165)">
             WhileD gd body
           </code>
-          <div class="tip" id="163">
+          <div class="tip" id="165">
             <strong>Signature:</strong> gd:(unit -&gt; bool) -&gt; body:(unit -&gt; OperationResult&lt;unit&gt;) -&gt; OperationResult&lt;unit&gt;<br />
                       </div>
         </td>
@@ -1210,15 +1241,15 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
-            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			<a href="https://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
@@ -1226,28 +1257,28 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
 
             <li class="nav-header">Available services</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Design Notes</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
             </li>
           </ul>
         </div>

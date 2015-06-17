@@ -12,9 +12,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
-	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
-    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
+    <script type="text/javascript" src="https://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -37,9 +37,14 @@
 
 
 <h1>Lexfilter</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler</span><br />
+</p>
 <div class="xmldoc">
 <p>LexFilter - process the token stream prior to parsing.
 Implements the offside rule and a copule of other lexical transformations.</p>
+
+
 </div>
 
 <!-- Render nested types and modules, if there are any -->
@@ -85,6 +90,8 @@ Implements the offside rule and a copule of other lexical transformations.</p>
             <a href="microsoft-fsharp-compiler-lexfilter-lexbufstate.html">LexbufState</a>
           </td>
           <td class="xmldoc"><p>Used to save some aspects of the lexbuffer state</p>
+
+
 </td>
         </tr>
         <tr>
@@ -92,6 +99,8 @@ Implements the offside rule and a copule of other lexical transformations.</p>
             <a href="microsoft-fsharp-compiler-lexfilter-tokentup.html">TokenTup</a>
           </td>
           <td class="xmldoc"><p>Used to save the state related to a token</p>
+
+
 </td>
         </tr>
     </tbody>
@@ -108,10 +117,10 @@ Implements the offside rule and a copule of other lexical transformations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '178', 178)" onmouseover="showTip(event, '178', 178)">
+          <code onmouseout="hideTip(event, '187', 187)" onmouseover="showTip(event, '187', 187)">
             debug 
           </code>
-          <div class="tip" id="178">
+          <div class="tip" id="187">
             <strong>Signature:</strong> bool<br />
                       </div>
         </td>
@@ -126,10 +135,10 @@ Implements the offside rule and a copule of other lexical transformations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '179', 179)" onmouseover="showTip(event, '179', 179)">
+          <code onmouseout="hideTip(event, '188', 188)" onmouseover="showTip(event, '188', 188)">
             infixTokenLength token
           </code>
-          <div class="tip" id="179">
+          <div class="tip" id="188">
             <strong>Signature:</strong> token:token -&gt; int<br />
                       </div>
         </td>
@@ -144,10 +153,10 @@ Implements the offside rule and a copule of other lexical transformations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '180', 180)" onmouseover="showTip(event, '180', 180)">
+          <code onmouseout="hideTip(event, '189', 189)" onmouseover="showTip(event, '189', 189)">
             isAtomicExprEndToken token
           </code>
-          <div class="tip" id="180">
+          <div class="tip" id="189">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -162,10 +171,10 @@ Implements the offside rule and a copule of other lexical transformations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '181', 181)" onmouseover="showTip(event, '181', 181)">
+          <code onmouseout="hideTip(event, '190', 190)" onmouseover="showTip(event, '190', 190)">
             isDoContinuator token
           </code>
-          <div class="tip" id="181">
+          <div class="tip" id="190">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -180,10 +189,10 @@ Implements the offside rule and a copule of other lexical transformations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '182', 182)" onmouseover="showTip(event, '182', 182)">
+          <code onmouseout="hideTip(event, '191', 191)" onmouseover="showTip(event, '191', 191)">
             isForLoopContinuator token
           </code>
-          <div class="tip" id="182">
+          <div class="tip" id="191">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -198,10 +207,10 @@ Implements the offside rule and a copule of other lexical transformations.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '183', 183)" onmouseover="showTip(event, '183', 183)">
+          <code onmouseout="hideTip(event, '192', 192)" onmouseover="showTip(event, '192', 192)">
             isIfBlockContinuator token
           </code>
-          <div class="tip" id="183">
+          <div class="tip" id="192">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -213,15 +222,17 @@ Implements the offside rule and a copule of other lexical transformations.</p>
           <p>Determine the tokens that may align with the 'if' of an 'if/then/elif/else' without closing
 the construct</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '184', 184)" onmouseover="showTip(event, '184', 184)">
+          <code onmouseout="hideTip(event, '193', 193)" onmouseover="showTip(event, '193', 193)">
             isInfix token
           </code>
-          <div class="tip" id="184">
+          <div class="tip" id="193">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -236,10 +247,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '185', 185)" onmouseover="showTip(event, '185', 185)">
+          <code onmouseout="hideTip(event, '194', 194)" onmouseover="showTip(event, '194', 194)">
             isInterfaceContinuator token
           </code>
-          <div class="tip" id="185">
+          <div class="tip" id="194">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -254,10 +265,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '186', 186)" onmouseover="showTip(event, '186', 186)">
+          <code onmouseout="hideTip(event, '195', 195)" onmouseover="showTip(event, '195', 195)">
             isLetContinuator token
           </code>
-          <div class="tip" id="186">
+          <div class="tip" id="195">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -272,10 +283,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '187', 187)" onmouseover="showTip(event, '187', 187)">
+          <code onmouseout="hideTip(event, '196', 196)" onmouseover="showTip(event, '196', 196)">
             isLongIdentifier token
           </code>
-          <div class="tip" id="187">
+          <div class="tip" id="196">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -290,10 +301,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '188', 188)" onmouseover="showTip(event, '188', 188)">
+          <code onmouseout="hideTip(event, '197', 197)" onmouseover="showTip(event, '197', 197)">
             isLongIdentifierOrGlobal token
           </code>
-          <div class="tip" id="188">
+          <div class="tip" id="197">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -308,10 +319,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '189', 189)" onmouseover="showTip(event, '189', 189)">
+          <code onmouseout="hideTip(event, '198', 198)" onmouseover="showTip(event, '198', 198)">
             isNamespaceContinuator token
           </code>
-          <div class="tip" id="189">
+          <div class="tip" id="198">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -326,10 +337,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '190', 190)" onmouseover="showTip(event, '190', 190)">
+          <code onmouseout="hideTip(event, '199', 199)" onmouseover="showTip(event, '199', 199)">
             isNonAssocInfixToken token
           </code>
-          <div class="tip" id="190">
+          <div class="tip" id="199">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -344,10 +355,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '191', 191)" onmouseover="showTip(event, '191', 191)">
+          <code onmouseout="hideTip(event, '200', 200)" onmouseover="showTip(event, '200', 200)">
             isSeqBlockElementContinuator token
           </code>
-          <div class="tip" id="191">
+          <div class="tip" id="200">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -362,10 +373,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '192', 192)" onmouseover="showTip(event, '192', 192)">
+          <code onmouseout="hideTip(event, '201', 201)" onmouseover="showTip(event, '201', 201)">
             isThenBlockContinuator token
           </code>
-          <div class="tip" id="192">
+          <div class="tip" id="201">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -380,10 +391,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '193', 193)" onmouseover="showTip(event, '193', 193)">
+          <code onmouseout="hideTip(event, '202', 202)" onmouseover="showTip(event, '202', 202)">
             isTryBlockContinuator token
           </code>
-          <div class="tip" id="193">
+          <div class="tip" id="202">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -395,15 +406,17 @@ the construct</p>
           <p>Determine the token that may align with the 'try' of a 'try/catch' or 'try/finally' without closing
 the construct</p>
 
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '194', 194)" onmouseover="showTip(event, '194', 194)">
+          <code onmouseout="hideTip(event, '203', 203)" onmouseover="showTip(event, '203', 203)">
             isTypeContinuator token
           </code>
-          <div class="tip" id="194">
+          <div class="tip" id="203">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -418,10 +431,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '195', 195)" onmouseover="showTip(event, '195', 195)">
+          <code onmouseout="hideTip(event, '204', 204)" onmouseover="showTip(event, '204', 204)">
             isTypeSeqBlockElementContinuator token
           </code>
-          <div class="tip" id="195">
+          <div class="tip" id="204">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -436,10 +449,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '196', 196)" onmouseover="showTip(event, '196', 196)">
+          <code onmouseout="hideTip(event, '205', 205)" onmouseover="showTip(event, '205', 205)">
             isWhileBlockContinuator token
           </code>
-          <div class="tip" id="196">
+          <div class="tip" id="205">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -454,10 +467,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '197', 197)" onmouseover="showTip(event, '197', 197)">
+          <code onmouseout="hideTip(event, '206', 206)" onmouseover="showTip(event, '206', 206)">
             isWithAugmentBlockContinuator token
           </code>
-          <div class="tip" id="197">
+          <div class="tip" id="206">
             <strong>Signature:</strong> token:token -&gt; bool<br />
                       </div>
         </td>
@@ -472,10 +485,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '198', 198)" onmouseover="showTip(event, '198', 198)">
+          <code onmouseout="hideTip(event, '207', 207)" onmouseover="showTip(event, '207', 207)">
             outputPos os p
           </code>
-          <div class="tip" id="198">
+          <div class="tip" id="207">
             <strong>Signature:</strong> os:TextWriter -&gt; p:Position -&gt; unit<br />
                       </div>
         </td>
@@ -490,10 +503,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '199', 199)" onmouseover="showTip(event, '199', 199)">
+          <code onmouseout="hideTip(event, '208', 208)" onmouseover="showTip(event, '208', 208)">
             parenTokensBalance t1 t2
           </code>
-          <div class="tip" id="199">
+          <div class="tip" id="208">
             <strong>Signature:</strong> t1:token -&gt; t2:token -&gt; bool<br />
                       </div>
         </td>
@@ -508,10 +521,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '200', 200)" onmouseover="showTip(event, '200', 200)">
+          <code onmouseout="hideTip(event, '209', 209)" onmouseover="showTip(event, '209', 209)">
             stringOfPos p
           </code>
-          <div class="tip" id="200">
+          <div class="tip" id="209">
             <strong>Signature:</strong> p:Position -&gt; string<br />
                       </div>
         </td>
@@ -526,10 +539,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '201', 201)" onmouseover="showTip(event, '201', 201)">
+          <code onmouseout="hideTip(event, '210', 210)" onmouseover="showTip(event, '210', 210)">
             token lexargs skip
           </code>
-          <div class="tip" id="201">
+          <div class="tip" id="210">
             <strong>Signature:</strong> lexargs:lexargs -&gt; skip:bool -&gt; LexBuffer&lt;char&gt; -&gt; token<br />
                       </div>
         </td>
@@ -544,10 +557,10 @@ the construct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '202', 202)" onmouseover="showTip(event, '202', 202)">
+          <code onmouseout="hideTip(event, '211', 211)" onmouseover="showTip(event, '211', 211)">
             warningStringOfPos p
           </code>
-          <div class="tip" id="202">
+          <div class="tip" id="211">
             <strong>Signature:</strong> p:Position -&gt; string<br />
                       </div>
         </td>
@@ -559,6 +572,8 @@ the construct</p>
           <p>Used for warning strings, which should display columns as 1-based and display 
 the lines after taking '# line' directives into account (i.e. do not use
 p.OriginalLine)</p>
+
+
 
         </td>
       </tr>
@@ -573,10 +588,10 @@ p.OriginalLine)</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '203', 203)" onmouseover="showTip(event, '203', 203)">
+          <code onmouseout="hideTip(event, '212', 212)" onmouseover="showTip(event, '212', 212)">
             ( |TyparsCloseOp|_| ) txt
           </code>
-          <div class="tip" id="203">
+          <div class="tip" id="212">
             <strong>Signature:</strong> txt:string -&gt; ((bool -&gt; token) [] * token option) option<br />
                       </div>
         </td>
@@ -594,15 +609,15 @@ p.OriginalLine)</p>
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
-            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			<a href="https://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
@@ -610,28 +625,28 @@ p.OriginalLine)</p>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
 
             <li class="nav-header">Available services</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Design Notes</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
             </li>
           </ul>
         </div>

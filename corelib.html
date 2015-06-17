@@ -13,9 +13,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
-	<link type="text/css" rel="stylesheet" href="http://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
-    <script type="text/javascript" src="http://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/style.css" />
+	<link type="text/css" rel="stylesheet" href="https://fsharp.github.io/FSharp.Compiler.Service/content/fcs.css" />
+    <script type="text/javascript" src="https://fsharp.github.io/FSharp.Compiler.Service/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -55,8 +55,7 @@ that FSharp.Core 4.3.0.0 forwards to which the final version of FSharp.Core.dll 
 Binding redirect files are normally generated automatically by build tools. If not, you can use one like this
 (if your tool is called <code>HostedCompiler.exe</code>, the binding redirect file is called <code>HostedCompiler.exe.config</code>)</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -67,21 +66,19 @@ Binding redirect files are normally generated automatically by build tools. If n
 <span class="l"> 9: </span>
 <span class="l">10: </span>
 <span class="l">11: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="o">&lt;?</span><span class="i">xml</span> <span class="i">version</span><span class="o">=</span><span class="s">&quot;</span><span class="s">1</span><span class="s">.</span><span class="s">0</span><span class="s">&quot;</span> <span class="i">encoding</span><span class="o">=</span><span class="s">&quot;</span><span class="s">utf</span><span class="s">-</span><span class="s">8</span><span class="s">&quot;</span> <span class="o">?&gt;</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="o">&lt;?</span><span class="i">xml</span> <span class="i">version</span><span class="o">=</span><span class="s">&quot;1.0&quot;</span> <span class="i">encoding</span><span class="o">=</span><span class="s">&quot;utf-8&quot;</span> <span class="o">?&gt;</span>
 <span class="o">&lt;</span><span class="i">configuration</span><span class="o">&gt;</span>
     <span class="o">&lt;</span><span class="i">runtime</span><span class="o">&gt;</span>
-      <span class="o">&lt;</span><span class="i">assemblyBinding</span> <span class="i">xmlns</span><span class="o">=</span><span class="s">&quot;</span><span class="s">urn</span><span class="s">:</span><span class="s">schemas</span><span class="s">-</span><span class="s">microsoft</span><span class="s">-</span><span class="s">com</span><span class="s">:</span><span class="s">asm</span><span class="s">.</span><span class="s">v1</span><span class="s">&quot;</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="i">assemblyBinding</span> <span class="i">xmlns</span><span class="o">=</span><span class="s">&quot;urn:schemas-microsoft-com:asm.v1&quot;</span><span class="o">&gt;</span>
         <span class="o">&lt;</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
-          <span class="o">&lt;</span><span class="i">assemblyIdentity</span> <span class="i">name</span><span class="o">=</span><span class="s">&quot;</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Core</span><span class="s">&quot;</span> <span class="i">publicKeyToken</span><span class="o">=</span><span class="s">&quot;</span><span class="s">b03f5f7f11d50a3a</span><span class="s">&quot;</span> <span class="i">culture</span><span class="o">=</span><span class="s">&quot;</span><span class="s">neutral</span><span class="s">&quot;</span><span class="o">/&gt;</span>
-          <span class="o">&lt;</span><span class="i">bindingRedirect</span> <span class="i">oldVersion</span><span class="o">=</span><span class="s">&quot;</span><span class="s">2</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">0</span><span class="s">-</span><span class="s">4</span><span class="s">.</span><span class="s">3</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">0</span><span class="s">&quot;</span> <span class="i">newVersion</span><span class="o">=</span><span class="s">&quot;</span><span class="s">4</span><span class="s">.</span><span class="s">3</span><span class="s">.</span><span class="s">1</span><span class="s">.</span><span class="s">0</span><span class="s">&quot;</span><span class="o">/&gt;</span>
+          <span class="o">&lt;</span><span class="i">assemblyIdentity</span> <span class="i">name</span><span class="o">=</span><span class="s">&quot;FSharp.Core&quot;</span> <span class="i">publicKeyToken</span><span class="o">=</span><span class="s">&quot;b03f5f7f11d50a3a&quot;</span> <span class="i">culture</span><span class="o">=</span><span class="s">&quot;neutral&quot;</span><span class="o">/&gt;</span>
+          <span class="o">&lt;</span><span class="i">bindingRedirect</span> <span class="i">oldVersion</span><span class="o">=</span><span class="s">&quot;2.0.0.0-4.3.0.0&quot;</span> <span class="i">newVersion</span><span class="o">=</span><span class="s">&quot;4.3.1.0&quot;</span><span class="o">/&gt;</span>
         <span class="o">&lt;/</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
       <span class="o">&lt;/</span><span class="i">assemblyBinding</span><span class="o">&gt;</span>
     <span class="o">&lt;/</span><span class="i">runtime</span><span class="o">&gt;</span>  
-<span class="o">&lt;/</span><span class="i">configuration</span><span class="o">&gt;</span></pre>
-</td>
+<span class="o">&lt;/</span><span class="i">configuration</span><span class="o">&gt;</span>
+</code></pre></td>
 </tr>
 </table>
 
@@ -94,8 +91,7 @@ assemblies in the command line arguments (different to the FSharp.Core and a .NE
 <p>To target a specific FSharp.Core and/or .NET Framework assemblies, use the <code>--noframework</code> argument
 and the appropriate command-line arguments:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -105,20 +101,18 @@ and the appropriate command-line arguments:</p>
 <span class="l"> 8: </span>
 <span class="l"> 9: </span>
 <span class="l">10: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-[&lt;<span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">Literal</span>&gt;]
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[&lt;<span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">Literal</span>&gt;]
 <span class="k">let</span> <span class="i">fsharpCorePath</span> <span class="o">=</span> 
-    <span class="s">@&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\</span><span class="s">Program</span><span class="s"> </span><span class="s">Files</span><span class="s"> </span><span class="s">(</span><span class="s">x86</span><span class="s">)</span><span class="s">\</span><span class="s">Reference</span><span class="s"> </span><span class="s">Assemblies</span><span class="s">\</span><span class="s">Microsoft</span><span class="s">\</span><span class="s">FSharp</span><span class="s">\</span><span class="s">.</span><span class="s">NETFramework</span><span class="s">\</span><span class="s">v4</span><span class="s">.</span><span class="s">0</span><span class="s">\</span><span class="s">4</span><span class="s">.</span><span class="s">3</span><span class="s">.</span><span class="s">1</span><span class="s">.</span><span class="s">0</span><span class="s">\</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Core</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
+    <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.1.0\FSharp.Core.dll&quot;</span>
 <span class="k">let</span> <span class="i">errors2</span>, <span class="i">exitCode2</span> <span class="o">=</span> 
   <span class="i">scs</span><span class="o">.</span><span class="i">Compile</span>(
-    [| <span class="s">&quot;</span><span class="s">fsc</span><span class="s">.</span><span class="s">exe</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">-</span><span class="s">-</span><span class="s">noframework</span><span class="s">&quot;</span>; 
-       <span class="s">&quot;</span><span class="s">-</span><span class="s">r</span><span class="s">&quot;</span>; <span class="i">fsharpCorePath</span>; 
-       <span class="s">&quot;</span><span class="s">-</span><span class="s">r</span><span class="s">&quot;</span>; <span class="s">@&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\</span><span class="s">Windows</span><span class="s">\</span><span class="s">Microsoft</span><span class="s">.</span><span class="s">NET</span><span class="s">\</span><span class="s">Framework</span><span class="s">\</span><span class="s">v4</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">30319</span><span class="s">\</span><span class="s">mscorlib</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>; 
-       <span class="s">&quot;</span><span class="s">-</span><span class="s">o</span><span class="s">&quot;</span>; <span class="i">fn3</span>; 
-       <span class="s">&quot;</span><span class="s">-</span><span class="s">a</span><span class="s">&quot;</span>; <span class="i">fn2</span> |])</pre>
-</td>
+    [| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;--noframework&quot;</span>; 
+       <span class="s">&quot;-r&quot;</span>; <span class="i">fsharpCorePath</span>; 
+       <span class="s">&quot;-r&quot;</span>; <span class="s">@&quot;C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll&quot;</span>; 
+       <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; 
+       <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |])
+</code></pre></td>
 </tr>
 </table>
 
@@ -157,15 +151,15 @@ reference to FSharp.Core.dll, which means they normally also include FSharp.Core
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="http://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="http://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
-            <a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="http://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
+			<a href="https://fsharp.github.io/FSharp.Compiler.Service/ja/index.html" class="nflag"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/ja.png" /></a>
+            <a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html" class="nflag nflag2"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
@@ -173,28 +167,28 @@ reference to FSharp.Core.dll, which means they normally also include FSharp.Core
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/index.html">Home page</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/devnotes.html">Developer notes</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/fsharp-readme.html">F# compiler readme</a></li>
 
             <li class="nav-header">Available services</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/editor.html">Using editor (IDE) services</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/symbols.html">Using resolved symbols</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/typedtree.html">Using resolved expressions</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/project.html">Whole-project analysis</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/interactive.html">Embedding F# interactive</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/compiler.html">Embedding F# compiler</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/filesystem.html">Virtualized file system</a></li>
 
             <li class="nav-header">Design Notes</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/caches.html">The FSharpChecker caches</a></li>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">Notes on FSharp.Core.dll</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="http://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
+            <li><a href="https://fsharp.github.io/FSharp.Compiler.Service/reference/index.html">API Reference</a>
             </li>
           </ul>
         </div>

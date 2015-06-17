@@ -20,12 +20,13 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
+#I "../../packages/FSharpVSPowerTools.Core/lib/net45"
 #I "../../packages/FSharp.Formatting/lib/net40"
-#I "../../packages/RazorEngine/lib/net40"
-#r "../../packages/Microsoft.AspNet.Razor/lib/net40/System.Web.Razor.dll"
 #I "../../packages/FSharp.Compiler.Service/lib/net45"
 #I "../../packages/FAKE/tools"
-#r "../../packages/FAKE/tools/FakeLib.dll"
+#r "FSharpVSPowerTools.Core.dll"
+#r "System.Web.Razor.dll"
+#r "FakeLib.dll"
 #r "FSharp.Compiler.Service.dll"
 #r "RazorEngine.dll"
 #r "FSharp.Literate.dll"

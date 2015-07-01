@@ -11,9 +11,11 @@ NUGET
     NuGet.CommandLine (2.8.5)
     NUnit (2.6.3)
     NUnit.Runners (2.6.3)
-    SourceLink.Fake (0.5.0)
     sqlite-net-wp8 (3.8.5) - framework: wpv8.0
     SQLite.Net-PCL (3.0.5)
       sqlite-net-wp8 (>= 3.8.5) - framework: wpv8.0
     SQLite.Net.Platform.Generic (2.4.1)
       SQLite.Net-PCL
+  remote: https://ci.appveyor.com/nuget/sourcelink-helmesfwai2a
+  specs:
+    SourceLink.Fake (0.6.0-b239)

@@ -1,5 +1,4 @@
 source https://www.nuget.org/api/v2/
-source https://ci.appveyor.com/nuget/sourcelink-helmesfwai2a
 
 nuget NUnit 2.6.3
 nuget NUnit.Runners 2.6.3
@@ -10,4 +9,4 @@ nuget SQLite.Net.Platform.Generic 2.4.1
 nuget NuGet.CommandLine
 nuget FAKE
 nuget FSharp.Formatting
-nuget SourceLink.Fake 0.6.0-b239
+nuget SourceLink.Fake

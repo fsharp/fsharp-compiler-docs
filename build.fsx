@@ -192,7 +192,7 @@ Target "All" DoNothing
 
 "All"
   ==> "PrepareRelease" 
-//  ==> "SourceLink"
+  ==> "SourceLink"
   ==> "NuGet"
   ==> "Release"
 

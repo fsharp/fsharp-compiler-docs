@@ -2532,6 +2532,8 @@ type FsiEvaluationSession (fsiConfig: FsiEvaluationSessionHostConfig, argv:strin
     member x.CurrentPartialAssemblySignature = 
         fsiDynamicCompiler.CurrentPartialAssemblySignature (fsiInteractionProcessor.CurrentState)  
 
+    member x.DynamicAssembly = 
+        fsiDynamicCompiler.DynamicAssembly
     /// A host calls this to determine if the --gui parameter is active
     member x.IsGui = fsiOptions.Gui 
 

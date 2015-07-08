@@ -368,7 +368,7 @@ type internal ReadLineConsole() =
         let rec read() = 
             let key = Console.ReadKey true
 
-            match key.Key with
+            match (key.Key) with
             | ConsoleKey.Backspace ->  
                 backspace();
                 change() 

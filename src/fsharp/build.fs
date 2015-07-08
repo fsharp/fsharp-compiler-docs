@@ -1663,7 +1663,8 @@ let SystemAssemblies (primaryAssembly, mscorlibVersion: System.Version, primaryA
       yield "System.Windows.Forms"
       yield "System.Core"
       yield "System.Runtime"
-      yield "System.Observable"
+      if primaryAssemblyIsSilverlight then 
+          yield "System.Observable"
       yield "System.Numerics"] 
 #endif
 

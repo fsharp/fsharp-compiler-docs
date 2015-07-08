@@ -369,7 +369,7 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
 
     member x.DeclaredInterfaces = 
         if isUnresolved() then makeReadOnlyCollection [] else
-        [ for ty in GetImmediateInterfacesOfType cenv.g cenv.amap range0 (generalizedTyconRef entity) do 
+        [ for ty in GetImmediateInterfacesOfType SkipUnrefInterfaces.Yes cenv.g cenv.amap range0 (generalizedTyconRef entity) do 
              yield FSharpType(cenv,  ty) ]
         |> makeReadOnlyCollection
 

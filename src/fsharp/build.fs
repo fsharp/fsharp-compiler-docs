@@ -4213,6 +4213,10 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
         let phase2 () = 
 #if EXTENSIONTYPING
             ccuinfo.TypeProviders <- tcImports.ImportTypeProviderExtensions (tpApprovals, displayPSTypeProviderSecurityDialogBlockingUI, tcConfig, filename, ilScopeRef, ilModule.ManifestOfAssembly.CustomAttrs.AsList, ccu.Contents, invalidateCcu, m)
+#else
+            // to prevent unused parameter warning
+            ignore tpApprovals
+            ignore displayPSTypeProviderSecurityDialogBlockingUI
 #endif
             [ResolvedImportedAssembly(ccuinfo)]
         phase2
@@ -4309,6 +4313,10 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
                      | Some ilModule ->
                          ccuinfo.TypeProviders <- tcImports.ImportTypeProviderExtensions (tpApprovals, displayPSTypeProviderSecurityDialogBlockingUI, tcConfig, filename, ilScopeRef, ilModule.ManifestOfAssembly.CustomAttrs.AsList, ccu.Contents, invalidateCcu, m)
 #else
+                     // to prevent unused parameter warning
+                     ignore tpApprovals
+                     ignore displayPSTypeProviderSecurityDialogBlockingUI
+
                      ()
 #endif
                 data,ccuinfo,phase2)
@@ -4856,7 +4864,7 @@ module private ScriptPreprocessClosure =
         let projectDir = Path.GetDirectoryName(filename)
         let isInteractive = (codeContext = CodeContext.Evaluation)
         let isInvalidationSupported = (codeContext = CodeContext.Editing)
-        
+        // always use primary assembly = mscorlib for scripts
         let tcConfigB = TcConfigBuilder.CreateNew(Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value, true (* optimize for memory *), projectDir, isInteractive, isInvalidationSupported) 
         applyCommandLineArgs tcConfigB
         match basicReferences with 

@@ -30,7 +30,8 @@ let debugPrint(s) = ignore s
 let exprFromParseError (e:SynExpr) = SynExpr.FromParseError(e,e.Range)
 let patFromParseError (e:SynPat) = SynPat.FromParseError(e, e.Range)
 
-let mkSynOptionalExpr m xopt = 
+let mkSynOptionalExpr (m: range) xopt = 
+    let m = m.MakeSynthetic()
     match xopt with 
     | None -> mkSynLidGet m Ast.FSharpLib.CorePath "None"
     | Some x  -> SynExpr.App(ExprAtomicFlag.NonAtomic, false, mkSynLidGet m Ast.FSharpLib.CorePath "Some",x,m)

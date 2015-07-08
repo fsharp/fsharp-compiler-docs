@@ -37,11 +37,6 @@ let ``Project file parsing example 1 Default Configuration`` () =
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
     checkOption options.OtherOptions "FileSystemTests.fs"
     checkOption options.OtherOptions "--define:TRACE"
@@ -56,10 +51,6 @@ let ``Project file parsing example 1 Release Configuration`` () =
     // Check with Configuration = Release
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
     checkOption options.OtherOptions "FileSystemTests.fs"
     checkOption options.OtherOptions "--define:TRACE"
@@ -73,11 +64,6 @@ let ``Project file parsing example 1 Default configuration relative path`` () =
 
     let options = checker.GetProjectOptionsFromProjectFile(projectFile)
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
-
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
     checkOption options.OtherOptions "FileSystemTests.fs"
     checkOption options.OtherOptions "--define:TRACE"
@@ -88,15 +74,8 @@ let ``Project file parsing example 1 Default configuration relative path`` () =
 
 [<Test>]
 let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
-
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
 
     checkOption options.OtherOptions "--targetprofile:netcore"
     checkOption options.OtherOptions "--tailcalls-"
@@ -109,15 +88,9 @@ let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() =
 
 [<Test>]
 let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78``() = 
-  // BUG - see https://github.com/fsharp/FSharp.Compiler.Service/issues/237
-  if not runningOnMono then 
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj"
     let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
 
-    printfn "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv" 
-    printfn "PROJ FILE %s" projectFile
-    printfn "%A" options.OtherOptions
-    printfn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" 
     checkOption options.OtherOptions "--targetprofile:netcore"
     checkOption options.OtherOptions "--tailcalls-"
 
@@ -190,6 +163,21 @@ let ``Project file parsing -- 2nd level references``() =
   p.ProjectReferences |> should contain (normalizePath (__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj"))
 
 [<Test>]
+let ``Project file parsing -- reference project output file``() =
+  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/DifferingOutputDir/Dir2/Test2.fsproj")
+
+  let expectedOutputPath =
+    normalizePath (__SOURCE_DIRECTORY__ + "/data/DifferingOutputDir/Dir2/OutputDir2/Test2.exe")
+
+  p.OutputFile
+  |> should equal (Some expectedOutputPath)
+
+  p.References
+  |> List.map (fun (s: string) -> s.Replace("//", "/"))
+  |> should contain (normalizePath (__SOURCE_DIRECTORY__ + @"/data/DifferingOutputDir/Dir1/OutputDir1/Test1.dll"))
+
+
+[<Test>]
 let ``Project file parsing -- Tools Version 12``() =
   let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
 
@@ -201,11 +189,9 @@ let ``Project file parsing -- Logging``() =
 
   if runningOnMono then
     Assert.That(p.LogOutput, Is.StringContaining("Reference System.Core resolved"))
-    Assert.That(p.LogOutput, Is.StringContaining("Target named 'ImplicitlyExpandTargetFramework'"))
-    Assert.That(p.LogOutput, Is.StringContaining("Using task ResolveAssemblyReference from Microsoft.Build.Tasks.ResolveAssemblyReference, Microsoft.Build.Tasks.v12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"))
+    Assert.That(p.LogOutput, Is.StringContaining("Using task ResolveAssemblyReference from Microsoft.Build.Tasks.ResolveAssemblyReference"))
   else
     Assert.That(p.LogOutput, Is.StringContaining("""Using "ResolveAssemblyReference" task from assembly "Microsoft.Build.Tasks.v12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"."""))
-    Assert.That(p.LogOutput, Is.StringContaining("""target "ImplicitlyExpandTargetFramework"""))
 
 [<Test>]
 let ``Project file parsing -- Full path``() =
@@ -236,5 +222,151 @@ let ``Project file parsing -- multi language project``() =
   checkOption options.OtherOptions "ConsoleApplication2.exe"
   checkOption options.OtherOptions "ConsoleApplication3.exe"
 
+[<Test>]
+let ``Project file parsing -- PCL profile7 project``() =
+
+    let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj")
+
+    let options = checker.GetProjectOptionsFromProjectFile(f)
+    let references =
+      options.OtherOptions
+      |> Array.choose (fun o -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
+      |> Set.ofArray
+    references
+    |> shouldEqual
+        (set [|"FSharp.Core.dll"; "Microsoft.CSharp.dll"; "Microsoft.VisualBasic.dll";
+               "System.Collections.Concurrent.dll"; "System.Collections.dll";
+               "System.ComponentModel.Annotations.dll";
+               "System.ComponentModel.DataAnnotations.dll";
+               "System.ComponentModel.EventBasedAsync.dll"; "System.ComponentModel.dll";
+               "System.Core.dll"; "System.Diagnostics.Contracts.dll";
+               "System.Diagnostics.Debug.dll"; "System.Diagnostics.Tools.dll";
+               "System.Diagnostics.Tracing.dll"; "System.Dynamic.Runtime.dll";
+               "System.Globalization.dll"; "System.IO.Compression.dll"; "System.IO.dll";
+               "System.Linq.Expressions.dll"; "System.Linq.Parallel.dll";
+               "System.Linq.Queryable.dll"; "System.Linq.dll"; "System.Net.Http.dll";
+               "System.Net.NetworkInformation.dll"; "System.Net.Primitives.dll";
+               "System.Net.Requests.dll"; "System.Net.dll"; "System.Numerics.dll";
+               "System.ObjectModel.dll"; "System.Reflection.Context.dll";
+               "System.Reflection.Extensions.dll"; "System.Reflection.Primitives.dll";
+               "System.Reflection.dll"; "System.Resources.ResourceManager.dll";
+               "System.Runtime.Extensions.dll";
+               "System.Runtime.InteropServices.WindowsRuntime.dll";
+               "System.Runtime.InteropServices.dll"; "System.Runtime.Numerics.dll";
+               "System.Runtime.Serialization.Json.dll";
+               "System.Runtime.Serialization.Primitives.dll";
+               "System.Runtime.Serialization.Xml.dll"; "System.Runtime.Serialization.dll";
+               "System.Runtime.dll"; "System.Security.Principal.dll";
+               "System.ServiceModel.Duplex.dll"; "System.ServiceModel.Http.dll";
+               "System.ServiceModel.NetTcp.dll"; "System.ServiceModel.Primitives.dll";
+               "System.ServiceModel.Security.dll"; "System.ServiceModel.Web.dll";
+               "System.ServiceModel.dll"; "System.Text.Encoding.Extensions.dll";
+               "System.Text.Encoding.dll"; "System.Text.RegularExpressions.dll";
+               "System.Threading.Tasks.Parallel.dll"; "System.Threading.Tasks.dll";
+               "System.Threading.dll"; "System.Windows.dll"; "System.Xml.Linq.dll";
+               "System.Xml.ReaderWriter.dll"; "System.Xml.Serialization.dll";
+               "System.Xml.XDocument.dll"; "System.Xml.XmlSerializer.dll"; "System.Xml.dll";
+               "System.dll"; "mscorlib.dll"|])
+
+    checkOption options.OtherOptions "--targetprofile:netcore"
+
+[<Test>]
+let ``Project file parsing -- PCL profile78 project``() =
+
+    let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj")
+
+    let options = checker.GetProjectOptionsFromProjectFile(f)
+    let references =
+      options.OtherOptions
+      |> Array.choose (fun o -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
+      |> Set.ofArray
+    references
+    |> shouldEqual
+        (set [|"FSharp.Core.dll"; "Microsoft.CSharp.dll"; "System.Collections.dll";
+               "System.ComponentModel.EventBasedAsync.dll"; "System.ComponentModel.dll";
+               "System.Core.dll"; "System.Diagnostics.Contracts.dll";
+               "System.Diagnostics.Debug.dll"; "System.Diagnostics.Tools.dll";
+               "System.Dynamic.Runtime.dll"; "System.Globalization.dll"; "System.IO.dll";
+               "System.Linq.Expressions.dll"; "System.Linq.Queryable.dll"; "System.Linq.dll";
+               "System.Net.NetworkInformation.dll"; "System.Net.Primitives.dll";
+               "System.Net.Requests.dll"; "System.Net.dll"; "System.ObjectModel.dll";
+               "System.Reflection.Extensions.dll"; "System.Reflection.Primitives.dll";
+               "System.Reflection.dll"; "System.Resources.ResourceManager.dll";
+               "System.Runtime.Extensions.dll";
+               "System.Runtime.InteropServices.WindowsRuntime.dll";
+               "System.Runtime.Serialization.Json.dll";
+               "System.Runtime.Serialization.Primitives.dll";
+               "System.Runtime.Serialization.Xml.dll"; "System.Runtime.Serialization.dll";
+               "System.Runtime.dll"; "System.Security.Principal.dll";
+               "System.ServiceModel.Http.dll"; "System.ServiceModel.Primitives.dll";
+               "System.ServiceModel.Security.dll"; "System.ServiceModel.Web.dll";
+               "System.ServiceModel.dll"; "System.Text.Encoding.Extensions.dll";
+               "System.Text.Encoding.dll"; "System.Text.RegularExpressions.dll";
+               "System.Threading.Tasks.dll"; "System.Threading.dll"; "System.Windows.dll";
+               "System.Xml.Linq.dll"; "System.Xml.ReaderWriter.dll";
+               "System.Xml.Serialization.dll"; "System.Xml.XDocument.dll";
+               "System.Xml.XmlSerializer.dll"; "System.Xml.dll"; "System.dll"; "mscorlib.dll"|])
+
+    checkOption options.OtherOptions "--targetprofile:netcore"
+
+[<Test>]
+let ``Project file parsing -- PCL profile259 project``() =
+
+    let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile259/Sample_VS2013_FSharp_Portable_Library_net451.fsproj")
+
+    let options = checker.GetProjectOptionsFromProjectFile(f)
+    let references =
+      options.OtherOptions
+      |> Array.choose (fun o -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
+      |> Set.ofArray
+    references
+    |> shouldEqual
+        (set [|"FSharp.Core.dll"; "Microsoft.CSharp.dll"; "System.Collections.dll";
+               "System.ComponentModel.EventBasedAsync.dll"; "System.ComponentModel.dll";
+               "System.Core.dll"; "System.Diagnostics.Contracts.dll";
+               "System.Diagnostics.Debug.dll"; "System.Diagnostics.Tools.dll";
+               "System.Dynamic.Runtime.dll"; "System.Globalization.dll"; "System.IO.dll";
+               "System.Linq.Expressions.dll"; "System.Linq.Queryable.dll"; "System.Linq.dll";
+               "System.Net.NetworkInformation.dll"; "System.Net.Primitives.dll";
+               "System.Net.Requests.dll"; "System.Net.dll"; "System.ObjectModel.dll";
+               "System.Reflection.Extensions.dll"; "System.Reflection.Primitives.dll";
+               "System.Reflection.dll"; "System.Resources.ResourceManager.dll";
+               "System.Runtime.Extensions.dll";
+               "System.Runtime.InteropServices.WindowsRuntime.dll";
+               "System.Runtime.Serialization.Json.dll";
+               "System.Runtime.Serialization.Primitives.dll";
+               "System.Runtime.Serialization.Xml.dll"; "System.Runtime.Serialization.dll";
+               "System.Runtime.dll"; "System.Security.Principal.dll";
+               "System.ServiceModel.Web.dll"; "System.Text.Encoding.Extensions.dll";
+               "System.Text.Encoding.dll"; "System.Text.RegularExpressions.dll";
+               "System.Threading.Tasks.dll"; "System.Threading.dll"; "System.Windows.dll";
+               "System.Xml.Linq.dll"; "System.Xml.ReaderWriter.dll";
+               "System.Xml.Serialization.dll"; "System.Xml.XDocument.dll";
+               "System.Xml.XmlSerializer.dll"; "System.Xml.dll"; "System.dll"; "mscorlib.dll"|])
+
+    checkOption options.OtherOptions "--targetprofile:netcore"
+
+[<Test>]
+let ``Project file parsing -- Exe with a PCL reference``() =
+
+    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/sqlite-net-spike/sqlite-net-spike.fsproj")
+
+    let p = FSharpProjectFileInfo.Parse(f)
+    let references =
+      p.References
+      |> List.map (fun o -> o |> Path.GetFileName)
+      |> Set.ofList
+    references |> should contain "FSharp.Core.dll"
+    references |> should contain "SQLite.Net.Platform.Generic.dll"
+    references |> should contain "SQLite.Net.Platform.Win32.dll"
+    references |> should contain "SQLite.Net.dll"
+    references |> should contain "System.Collections.Concurrent.dll"
+    references |> should contain "System.Linq.Queryable.dll"
+    references |> should contain "System.Resources.ResourceManager.dll"
+    references |> should contain "System.Threading.dll"
+    references |> should contain "System.dll"
+    references |> should contain "mscorlib.dll"
+    references |> should contain "System.Reflection.dll"
+    references |> should contain "System.Reflection.Emit.Lightweight.dll"
 #endif
 

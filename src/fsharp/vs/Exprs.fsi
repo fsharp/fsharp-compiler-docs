@@ -56,8 +56,12 @@ and FSharpImplementationFileDeclaration =
 and [<Sealed>]  FSharpExpr =
     /// The range of the expression
     member Range : range
+
     /// The type of the expression
     member Type : FSharpType
+
+    /// The immediate sub-expressions of the expression.  
+    member ImmediateSubExpressions : FSharpExpr list
 
 /// Represents a checked method in an object expression, as seen by the F# language.  
 and [<Sealed>]  FSharpObjectExprOverride = 

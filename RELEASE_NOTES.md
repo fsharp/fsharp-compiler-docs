@@ -1,3 +1,19 @@
+#### 0.0.90 - 
+* Add fix for #343 Use ResolveReferences task
+* Expose BinFolderOfDefaultFSharpCompiler to editors
+* Fix the registry checking on mono to avoid unnecessary exceptions being thrown
+
+#### 0.0.89 - 
+* Fix output location of referenced projects
+
+#### 0.0.88 - 
+* Added Fix to allow implicit PCL references to be retrieved
+
+#### 0.0.87 - 
+* Don't report fake symbols in indexing #325
+* Add EnclosingEntity for an active pattern group #327
+* Add ImmediateSubExpressions #284
+* integrate fsharp/fsharp master into master
 
 #### 0.0.85 - 
 * Fix for FSharpSymbolUse for single case union type #301

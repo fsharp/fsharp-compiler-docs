@@ -146,9 +146,15 @@ module internal FSharpEnvironment =
                 null)
 
     let is32Bit = IntPtr.Size = 4
-    
+
+    let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e-> false
+
     let tryRegKey(subKey:string) = 
 
+        //if we are runing on mono simply return None
+        // GetDefaultRegistryStringValueViaDotNet will result in an access denied by default, 
+        // and Get32BitRegistryStringValueViaPInvoke will fail due to Advapi32.dll not existing
+        if runningOnMono then None else
         if is32Bit then
             let s = GetDefaultRegistryStringValueViaDotNet(subKey)
             // If we got here AND we're on a 32-bit OS then we can validate that Get32BitRegistryStringValueViaPInvoke(...) works

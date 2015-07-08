@@ -777,7 +777,7 @@ and FSharpActivePatternCase(cenv, apinfo: PrettyNaming.ActivePatternInfo, typ, n
 
     member __.DeclarationLocation = snd apinfo.ActiveTagsWithRanges.[n]
 
-    member __.Group = FSharpActivePatternGroup(cenv, apinfo, typ)
+    member __.Group = FSharpActivePatternGroup(cenv, apinfo, typ, valOpt)
 
     member __.XmlDoc = 
         defaultArg (valOpt |> Option.map (fun vref -> vref.XmlDoc)) XmlDoc.Empty
@@ -792,13 +792,20 @@ and FSharpActivePatternCase(cenv, apinfo: PrettyNaming.ActivePatternInfo, typ, n
         | Some (_, docsig) -> docsig
         | _ -> ""
 
-and FSharpActivePatternGroup(cenv, apinfo:PrettyNaming.ActivePatternInfo, typ) =
+and FSharpActivePatternGroup(cenv, apinfo:PrettyNaming.ActivePatternInfo, typ, valOpt) =
     
     member __.Names = makeReadOnlyCollection apinfo.Names
 
     member __.IsTotal = apinfo.IsTotal
 
     member __.OverallType = FSharpType(cenv, typ)
+
+    member __.EnclosingEntity = 
+        valOpt 
+        |> Option.bind (fun vref -> 
+            match vref.ActualParent with 
+            | ParentNone -> None
+            | Parent p -> Some (FSharpEntity(cenv,  p)))
 
 and FSharpGenericParameter(cenv, v:Typar) = 
 

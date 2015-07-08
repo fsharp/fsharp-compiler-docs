@@ -131,6 +131,59 @@ and [<Sealed>] FSharpExpr (cenv, f: (unit -> FSharpExpr) option, e: E, m:range, 
     member x.E = match f with None -> e | Some f -> f().E
     override x.ToString() = sprintf "%+A" x.E
 
+    member x.ImmediateSubExpressions = 
+        match x.E with 
+        | E.Value _v -> []
+        | E.Const (_constValue, _ty) -> []
+        | E.TypeLambda (_v, body) -> [body]
+        | E.Lambda (_v, body) -> [body]
+        | E.Application (f, _tyargs, arg) -> f :: arg
+        | E.IfThenElse (e1, e2, e3) -> [e1;e2;e3]
+        | E.Let ((_bindingVar, bindingExpr), b) -> [bindingExpr;b]
+        | E.LetRec (ves, b) -> (List.map snd ves) @ [b]
+        | E.NewRecord (_recordType, es) -> es
+        | E.NewUnionCase (_unionType, _unionCase, es) -> es
+        | E.NewTuple (_tupleType, es) -> es
+        | E.TupleGet (_tupleType, _itemIndex, tupleExpr) -> [tupleExpr]
+        | E.Call (objOpt, _b, _c, _d, es) -> (match objOpt with None -> es | Some x -> x::es)
+        | E.NewObject (_a, _b, c) -> c
+        | E.FSharpFieldGet (objOpt, _b, _c) -> (match objOpt with None -> [] | Some x -> [x])
+        | E.FSharpFieldSet (objOpt, _b, _c, d) -> (match objOpt with None -> [d] | Some x -> [x;d])
+        | E.UnionCaseGet (obj, _b, _c, _d) -> [obj]
+        | E.UnionCaseTag (obj, _b) -> [obj]
+        | E.UnionCaseTest (obj, _b, _c) -> [obj]
+        | E.NewArray (_ty, elems) -> elems
+        | E.Coerce (_ty, b) -> [b]
+        | E.Quote (a) -> [a]
+        | E.TypeTest (_ty, b) -> [b]
+        | E.Sequential (a, b) -> [a;b]
+        | E.FastIntegerForLoop (a, b, c, _dir) -> [a;b;c]
+        | E.WhileLoop (guard, body) -> [guard; body]
+        | E.TryFinally (body, b) -> [body; b]
+        | E.TryWith (body, _b, _c, _d, handler) -> [body; handler]
+        | E.NewDelegate (_ty, body) -> [body]
+        | E.DefaultValue (_ty) -> []
+        | E.AddressSet (lvalueExpr, rvalueExpr) -> [lvalueExpr; rvalueExpr]
+        | E.ValueSet (_v, rvalueExpr) -> [rvalueExpr]
+        | E.AddressOf (lvalueExpr) -> [lvalueExpr]
+        | E.ThisValue (_ty) -> []
+        | E.BaseValue (_ty) -> []
+        | E.ILAsm (_code, _tyargs, argExprs) -> argExprs
+        | E.ILFieldGet (objOpt, _ty, _fieldName) -> (match objOpt with None -> [] | Some x -> [x])
+        | E.ILFieldSet (objOpt, _ty, _fieldName, d) -> (match objOpt with None -> [d] | Some x -> [x;d])
+        | E.ObjectExpr (_ty, basecall, overrides, interfaceImpls) -> 
+             [ yield basecall; 
+               for m in overrides do yield m.Body
+               for (_, ms) in interfaceImpls do for m in ms do yield m.Body ]
+        | E.DecisionTree (inputExpr, targetCases) -> 
+            [ yield inputExpr; 
+              for (_targetVars, targetExpr) in targetCases do yield targetExpr ]
+        | E.DecisionTreeSuccess (_targetNumber, targetArgs) -> targetArgs
+        | E.UnionCaseSet (obj, _unionType, _unionCase, _unionField, valueExpr) -> [ yield obj; yield valueExpr ]
+        | E.TraitCall (_sourceTypes, _traitName, _paramTypes, _retTypes, args) -> args
+        | E.Unused -> [] // unexpected
+
+
 /// The implementation of the conversion operation
 module FSharpExprConvert =
 
@@ -891,5 +944,6 @@ module BasicPatterns =
     let (|DecisionTreeSuccess|_|) (e:FSharpExpr) = match e.E with E.DecisionTreeSuccess (a,b) -> Some (a,b) | _ -> None
     let (|UnionCaseSet|_|) (e:FSharpExpr) = match e.E with E.UnionCaseSet (a,b,c,d,e) -> Some (a,b,c,d,e) | _ -> None
     let (|TraitCall|_|) (e:FSharpExpr) = match e.E with E.TraitCall (a,b,c,d,e) -> Some (a,b,c,d,e) | _ -> None
+
 
 

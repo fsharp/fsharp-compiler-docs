@@ -40,6 +40,7 @@ val compileOfAst :
     targetDll:string * 
     targetPdb:string option * 
     dependencies:string list * 
+    noframework:bool *
     exiter:Exiter * 
     loggerProvider: ErrorLoggerProvider * 
     inputs:ParsedInput list *

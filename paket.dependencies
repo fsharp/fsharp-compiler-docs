@@ -1,0 +1,12 @@
+source https://www.nuget.org/api/v2/
+
+nuget NUnit 2.6.3
+nuget NUnit.Runners 2.6.3
+nuget SQLite.Net-PCL 3.0.5
+nuget SQLite.Net.Platform.Generic 2.4.1
+
+# build dependencies
+nuget NuGet.CommandLine
+nuget FAKE
+nuget FSharp.Formatting
+nuget SourceLink.Fake

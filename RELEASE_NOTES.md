@@ -1,3 +1,10 @@
+#### 0.0.90 - 
+* Add fix for #343 Use ResolveReferences task
+* Expose BinFolderOfDefaultFSharpCompiler to editors
+* Fix the registry checking on mono to avoid unnecessary exceptions being thrown
+
+#### 0.0.89 - 
+* Fix output location of referenced projects
 
 #### 0.0.88 - 
 * Added Fix to allow implicit PCL references to be retrieved

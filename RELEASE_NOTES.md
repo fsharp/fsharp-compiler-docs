@@ -1,3 +1,7 @@
+#### 1.3.1.0 -
+* simplified source indexing with new SourceLink
+* Add noframework option in AST compiler methods
+
 #### 0.0.90 - 
 * Add fix for #343 Use ResolveReferences task
 * Expose BinFolderOfDefaultFSharpCompiler to editors

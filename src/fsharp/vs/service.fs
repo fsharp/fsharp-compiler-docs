@@ -967,7 +967,7 @@ type TypeCheckInfo
                 | _ -> None
 
         match UntypedParseImpl.TryGetCompletionContext(mkPos line colAtEndOfNamesAndResidue, parseResultsOpt) with
-        | Some Invalid -> None
+        | Some CompletionContext.Invalid -> None
         | Some (CompletionContext.Inherit(InheritanceContext.Class, (plid, _))) ->
             FindInEnv(plid, false) 
             |> FilterRelevantItemsBy None GetBaseClassCandidates

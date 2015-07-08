@@ -1,3 +1,6 @@
+#### 1.4.0.0-beta - F# 4.0 support
+* Integrate F# 4.0 support into FSharp.Compiler.Service
+
 #### 0.0.90 - 
 * Add fix for #343 Use ResolveReferences task
 * Expose BinFolderOfDefaultFSharpCompiler to editors

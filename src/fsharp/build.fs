@@ -1612,9 +1612,18 @@ let DefaultBasicReferencesForOutOfProjectSources =
       // Note: this is not a partiuclarly good technique as it relying on the environment the compiler is executing in
       // to determine the default references. However, System.Core will only fail to load on machines with only .NET 2.0,
       // in which case the compiler will also be running as a .NET 2.0 process.
+      //
+      // NOTE: it seems this can now be removed now that .NET 4.x is minimally assumed when using this toolchain
       if (try System.Reflection.Assembly.Load "System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" |> ignore; true with _ -> false) then 
           yield "System.Core" 
 
+#if CROSS_PLATFORM_COMPILER
+      // Mono doesn't have System.Runtime available on all versions, or at least the
+      // reference is not foun by reference resolution. This is a temporary 
+      // but inadequate workaround for that issue.
+#else
+      yield "System.Runtime"
+#endif
       yield "System.Web"
       yield "System.Web.Services"
       yield "System.Windows.Forms" ]
@@ -1652,13 +1661,11 @@ let SystemAssemblies (primaryAssembly, mscorlibVersion: System.Version, primaryA
       yield "System.Web"
       yield "System.Web.Services"
       yield "System.Windows.Forms"
-      // Include System.Observable in the potential-system-assembly set
-      // on sl3-wp.  Note that earlier versions of silverlight did not have this DLL, but
-      // it is OK to over-approximate the system assembly set.
+      yield "System.Core"
+      yield "System.Runtime"
       if primaryAssemblyIsSilverlight then 
           yield "System.Observable"
-      if mscorlibVersion.Major >= 4 then 
-          yield "System.Numerics"] 
+      yield "System.Numerics"] 
 #endif
 
 // The set of references entered into the TcConfigBuilder for scripts prior to computing
@@ -4132,9 +4139,9 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
             // Add the invalidation signal handlers to each provider
             for provider in providers do 
                 provider.PUntaint((fun tp -> 
-                    let handler = tp.Invalidate.Subscribe(fun _ -> invalidateCcu.Trigger ("The provider '" + fileNameOfRuntimeAssembly + "' reported a change"))
-                    tcImports.AttachDisposeAction(fun () -> try handler.Dispose() with _ -> ())), m)
-            
+                    let handler = tp.Invalidate.Subscribe(fun _ -> invalidateCcu.Trigger ("The provider '" + fileNameOfRuntimeAssembly + "' reported a change"))  
+                    tcImports.AttachDisposeAction(fun () -> try handler.Dispose() with _ -> ())), m)  
+                
             match providers with
             | [] -> 
                 if wasApproved then
@@ -4877,7 +4884,7 @@ module private ScriptPreprocessClosure =
         let projectDir = Path.GetDirectoryName(filename)
         let isInteractive = (codeContext = CodeContext.Evaluation)
         let isInvalidationSupported = (codeContext = CodeContext.Editing)
-        
+        // always use primary assembly = mscorlib for scripts
         let tcConfigB = TcConfigBuilder.CreateNew(Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value, true (* optimize for memory *), projectDir, isInteractive, isInvalidationSupported) 
         applyCommandLineArgs tcConfigB
         match basicReferences with 

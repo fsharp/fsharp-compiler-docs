@@ -3,6 +3,6 @@ init:
 build_script:
   - cmd: build.cmd Release
 test: off
-version: {build}
+version: '{build}'
 artifacts:
   - path: bin\*.nupkg

@@ -47,7 +47,7 @@ let buildDate = DateTime.UtcNow
 let buildVersion = 
     if hasRepoVersionTag then assemblyVersion
     else if isAppVeyorBuild then sprintf "%s-b%s" assemblyVersion AppVeyorEnvironment.BuildNumber
-    else sprintf "%s-a%s" release.NugetVersion (buildDate.ToString "yyMMddHHmm")
+    else sprintf "%s-a%s" assemblyVersion (buildDate.ToString "yyMMddHHmm")
 
 Target "BuildVersion" (fun _ ->
     Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" buildVersion) |> ignore
@@ -151,7 +151,7 @@ Target "NuGet" (fun _ ->
             Project = project
             Summary = summary
             Description = description
-            Version = nugetVersion
+            Version = buildVersion
             ReleaseNotes = release.Notes |> toLines
             Tags = tags
             OutputPath = "bin"
@@ -182,7 +182,7 @@ Target "ReleaseDocs" (fun _ ->
     fullclean tempDocsDir
     CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
     StageAll tempDocsDir
-    Commit tempDocsDir (sprintf "Update generated documentation for version %s" release.NugetVersion)
+    Commit tempDocsDir (sprintf "Update generated documentation for version %s" buildVersion)
     Branches.push "temp/gh-pages"
 )
 

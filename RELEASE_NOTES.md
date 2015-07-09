@@ -1,4 +1,6 @@
-#### 1.3.1.0 -
+#### 1.3.2 -
+
+#### 1.3.1 -
 * simplified source indexing with new SourceLink
 * Add noframework option in AST compiler methods
 

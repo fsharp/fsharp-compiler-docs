@@ -43,8 +43,8 @@ Here are some options for specifying the dependency:
 ```
 nuget FSharp.Compiler.Service
 nuget FSharp.Compiler.Service prerelease
-nuget FSharp.Compiler.Service 1.3.1
-nuget FSharp.Compiler.Service 1.3.2-b400
+nuget FSharp.Compiler.Service 1.3.1.0
+nuget FSharp.Compiler.Service 1.3.1.1-b402
 ```
 
 Dev Guide

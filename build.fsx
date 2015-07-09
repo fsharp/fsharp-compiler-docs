@@ -6,8 +6,8 @@
 #r "packages/FAKE/tools/FakeLib.dll"
 #load "packages/SourceLink.Fake/tools/SourceLink.fsx"
 open System
-open Fake
 open Fake.AppVeyor
+open Fake
 open Fake.Git
 open Fake.ReleaseNotesHelper
 open Fake.AssemblyInfoFile

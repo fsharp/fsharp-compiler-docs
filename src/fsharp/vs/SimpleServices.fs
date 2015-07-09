@@ -153,7 +153,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         
             errors.ToArray(), result
 
-        let compileFromAsts (asts, assemblyName, outFile, dependencies, pdbFile, executable, tcImportsCapture, dynamicAssemblyCreator) =
+        let compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, pdbFile, executable, tcImportsCapture, dynamicAssemblyCreator) =
 
             let errors, errorLogger, loggerProvider = mkCompilationErorHandlers()
      
@@ -162,7 +162,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
      
             let result = 
                 tryCompile errorLogger (fun exiter -> 
-                    compileOfAst ((*openBinariesInMemory=*)true, assemblyName, target, outFile, pdbFile, dependencies, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator))
+                    compileOfAst ((*openBinariesInMemory=*)true, assemblyName, target, outFile, pdbFile, dependencies, noframework, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator))
 
             errors.ToArray(), result
 
@@ -280,8 +280,9 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.Compile (argv: string[])  = 
             compileFromArgs (argv, None, None)
 
-        member x.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool) =
-            compileFromAsts (ast, assemblyName, outFile, dependencies, pdbFile, executable, None, None)
+        member x.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool, ?noframework:bool) =
+            let noframework = defaultArg noframework false
+            compileFromAsts (ast, assemblyName, outFile, dependencies, noframework, pdbFile, executable, None, None)
 
         member x.CompileToDynamicAssembly (otherFlags: string[], execute: (TextWriter * TextWriter) option)  = 
             setOutputStreams execute
@@ -306,7 +307,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
             errorsAndWarnings, result, assemblyOpt
 
-        member x.CompileToDynamicAssembly (asts:ParsedInput list, assemblyName:string, dependencies:string list, execute: (TextWriter * TextWriter) option, ?debug) =
+        member x.CompileToDynamicAssembly (asts:ParsedInput list, assemblyName:string, dependencies:string list, execute: (TextWriter * TextWriter) option, ?debug:bool, ?noframework:bool) =
             setOutputStreams execute
 
             // References used to capture the results of compilation
@@ -315,6 +316,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
 
             let debugInfo = defaultArg debug false
+            let noframework = defaultArg noframework false
             let location = Path.Combine(Path.GetTempPath(),"test"+string(hash assemblyName))
             try Directory.CreateDirectory(location) |> ignore with _ -> ()
 
@@ -325,7 +327,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
             // Perform the compilation, given the above capturing function.
             let errorsAndWarnings, result = 
-                compileFromAsts (asts, assemblyName, outFile, dependencies, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
+                compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
 
             // Retrieve and return the results
             let assemblyOpt = 

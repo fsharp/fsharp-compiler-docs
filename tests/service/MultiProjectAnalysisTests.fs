@@ -710,6 +710,8 @@ let ``Test active patterns' XmlDocSig declared in referenced projects`` () =
     divisibleByGroup.IsTotal |> shouldEqual false
     divisibleByGroup.Names |> Seq.toList |> shouldEqual ["DivisibleBy"]
     divisibleByGroup.OverallType.Format(divisibleBySymbolUse.Value.DisplayContext) |> shouldEqual "int -> int -> unit option"
+    let divisibleByEntity = divisibleByGroup.EnclosingEntity.Value
+    divisibleByEntity.ToString() |> shouldEqual "Project3A"
 
 //------------------------------------------------------------------------------------
 

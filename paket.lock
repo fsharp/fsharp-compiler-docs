@@ -1,0 +1,19 @@
+NUGET
+  remote: https://www.nuget.org/api/v2
+  specs:
+    FAKE (3.35.5)
+    FSharp.Compiler.Service (0.0.90)
+    FSharp.Formatting (2.9.10)
+      FSharp.Compiler.Service (>= 0.0.87)
+      FSharpVSPowerTools.Core (1.8.0)
+    FSharpVSPowerTools.Core (1.8.0)
+      FSharp.Compiler.Service (>= 0.0.87)
+    NuGet.CommandLine (2.8.5)
+    NUnit (2.6.3)
+    NUnit.Runners (2.6.3)
+    SourceLink.Fake (0.6.1)
+    sqlite-net-wp8 (3.8.5) - framework: wpv8.0
+    SQLite.Net-PCL (3.0.5)
+      sqlite-net-wp8 (>= 3.8.5) - framework: wpv8.0
+    SQLite.Net.Platform.Generic (2.4.1)
+      SQLite.Net-PCL

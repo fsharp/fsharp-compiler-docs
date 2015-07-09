@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
 # Copyright (c) 2002-2011 Microsoft Corporation. 
 #
@@ -41,7 +41,6 @@
     <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
@@ -624,15 +623,14 @@
     <Reference Include="Microsoft.Build" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
     <Reference Include="Microsoft.Build.Tasks.v4.0" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
-    
-    <Reference Include="Microsoft.Build.Framework, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" >
-        <SpecificVersion>True</SpecificVersion>
+    <Reference Include="Microsoft.Build.Framework, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'">
+      <SpecificVersion>True</SpecificVersion>
     </Reference>
-    <Reference Include="Microsoft.Build.Engine, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" >
-        <SpecificVersion>True</SpecificVersion>
+    <Reference Include="Microsoft.Build.Engine, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'">
+      <SpecificVersion>True</SpecificVersion>
     </Reference>
-    <Reference Include="Microsoft.Build, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" >
-        <SpecificVersion>True</SpecificVersion>
+    <Reference Include="Microsoft.Build, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'">
+      <SpecificVersion>True</SpecificVersion>
     </Reference>
     <Reference Include="Microsoft.Build.Utilities.v12.0" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" />
     <Reference Include="Microsoft.Build.Tasks.v12.0" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" />
@@ -649,5 +647,4 @@
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <Import Project="$(LkgPath)\FSharp.SRGen.targets" />
   <Import Project="$(LkgPath)\FsLexYacc.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>

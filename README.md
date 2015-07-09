@@ -27,7 +27,7 @@ NuGet Feed
 Stable builds are available in the NuGet Gallery:
 [https://www.nuget.org/packages/FSharp.Compiler.Service](https://www.nuget.org/packages/FSharp.Compiler.Service)
 
-All AppVeyor builds are available using the NuGet feed: https://ci.appveyor.com/nuget/fsgit-fsharp
+All AppVeyor builds are available using the NuGet feed: https://ci.appveyor.com/nuget/fsgit-fsharp-compiler-service
 
 If using Paket, add the source at the top of `paket.dependencies`.
 

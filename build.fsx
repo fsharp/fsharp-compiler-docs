@@ -6,7 +6,8 @@
 #r "packages/FAKE/tools/FakeLib.dll"
 #load "packages/SourceLink.Fake/tools/SourceLink.fsx"
 open System
-open Fake 
+open Fake.AppVeyor
+open Fake
 open Fake.Git
 open Fake.ReleaseNotesHelper
 open Fake.AssemblyInfoFile
@@ -38,21 +39,35 @@ let netFrameworks = ["v4.0"; "v4.5"]
 
 // Read release notes & version info from RELEASE_NOTES.md
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
-let isAppVeyorBuild = environVar "APPVEYOR" <> null
-let nugetVersion = 
-    if isAppVeyorBuild then sprintf "%s-a%s" release.NugetVersion (DateTime.UtcNow.ToString "yyMMddHHmm")
-    else release.NugetVersion
+let isAppVeyorBuild = buildServer = BuildServer.AppVeyor
+let isVersionTag tag = Version.TryParse tag |> fst
+let hasRepoVersionTag = isAppVeyorBuild && AppVeyorEnvironment.RepoTag && isVersionTag AppVeyorEnvironment.RepoTagName
+let assemblyVersion = if hasRepoVersionTag then AppVeyorEnvironment.RepoTagName else release.NugetVersion
+let buildDate = DateTime.UtcNow
+let buildVersion = 
+    if hasRepoVersionTag then assemblyVersion
+    else if isAppVeyorBuild then sprintf "%s-b%s" assemblyVersion AppVeyorEnvironment.BuildNumber
+    else sprintf "%s-a%s" assemblyVersion (buildDate.ToString "yyMMddHHmm")
 
 Target "BuildVersion" (fun _ ->
-    Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" nugetVersion) |> ignore
+    Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" buildVersion) |> ignore
 )
 
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
-  let fileName = "src/assemblyinfo/assemblyinfo.shared.fs"
-  CreateFSharpAssemblyInfo fileName
-      [ Attribute.Version release.AssemblyVersion
-        Attribute.FileVersion release.AssemblyVersion] 
+    let fileName = "src/assemblyinfo/assemblyinfo.shared.fs"
+    // add json info to the informational version
+    let iv = Text.StringBuilder() // json
+    iv.Appendf "{\\\"buildVersion\\\":\\\"%s\\\"" buildVersion
+    iv.Appendf ",\\\"buildDate\\\":\\\"%s\\\"" (buildDate.ToString "yyyy'-'MM'-'dd'T'HH':'mm':'sszzz")
+    if isAppVeyorBuild then
+        iv.Appendf ",\\\"gitCommit\\\":\\\"%s\\\"" AppVeyor.AppVeyorEnvironment.RepoCommit
+        iv.Appendf ",\\\"gitBranch\\\":\\\"%s\\\"" AppVeyor.AppVeyorEnvironment.RepoBranch
+    iv.Appendf "}"
+    CreateFSharpAssemblyInfo fileName
+          [ Attribute.Version assemblyVersion
+            Attribute.FileVersion assemblyVersion
+            Attribute.InformationalVersion iv.String ]
 )
 
 // --------------------------------------------------------------------------------------
@@ -136,7 +151,7 @@ Target "NuGet" (fun _ ->
             Project = project
             Summary = summary
             Description = description
-            Version = nugetVersion
+            Version = buildVersion
             ReleaseNotes = release.Notes |> toLines
             Tags = tags
             OutputPath = "bin"
@@ -167,7 +182,7 @@ Target "ReleaseDocs" (fun _ ->
     fullclean tempDocsDir
     CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
     StageAll tempDocsDir
-    Commit tempDocsDir (sprintf "Update generated documentation for version %s" release.NugetVersion)
+    Commit tempDocsDir (sprintf "Update generated documentation for version %s" buildVersion)
     Branches.push "temp/gh-pages"
 )
 

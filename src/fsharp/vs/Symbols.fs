@@ -118,7 +118,28 @@ module Impl =
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> 
             entity.Accessibility
 
-
+    let getLiteralValue = function
+        | Some lv  ->
+            match lv with
+            | Const.Bool    v -> Some(box v)
+            | Const.SByte   v -> Some(box v)
+            | Const.Byte    v -> Some(box v)
+            | Const.Int16   v -> Some(box v)
+            | Const.UInt16  v -> Some(box v)
+            | Const.Int32   v -> Some(box v)
+            | Const.UInt32  v -> Some(box v)
+            | Const.Int64   v -> Some(box v)
+            | Const.UInt64  v -> Some(box v)
+            | Const.IntPtr  v -> Some(box v)
+            | Const.UIntPtr v -> Some(box v)
+            | Const.Single  v -> Some(box v)
+            | Const.Double  v -> Some(box v)
+            | Const.Char    v -> Some(box v)
+            | Const.String  v -> Some(box v)
+            | Const.Decimal v -> Some(box v)
+            | Const.Unit
+            | Const.Zero      -> None
+        | None -> None
             
 
     type cenv(g:TcGlobals, thisCcu: CcuThunk , tcImports: TcImports) = 
@@ -638,29 +659,9 @@ and FSharpField(cenv, d: FSharpFieldData)  =
         d.RecdField.LiteralValue.IsSome
 
     member __.LiteralValue = 
-        if isUnresolved() then None else 
-        match d.RecdField.LiteralValue with
-        | Some lv ->
-            match lv with
-            | Const.Bool    v -> Some(box v)
-            | Const.SByte   v -> Some(box v)
-            | Const.Byte    v -> Some(box v)
-            | Const.Int16   v -> Some(box v)
-            | Const.UInt16  v -> Some(box v)
-            | Const.Int32   v -> Some(box v)
-            | Const.UInt32  v -> Some(box v)
-            | Const.Int64   v -> Some(box v)
-            | Const.UInt64  v -> Some(box v)
-            | Const.IntPtr  v -> Some(box v)
-            | Const.UIntPtr v -> Some(box v)
-            | Const.Single  v -> Some(box v)
-            | Const.Double  v -> Some(box v)
-            | Const.Char    v -> Some(box v)
-            | Const.String  v -> Some(box v)
-            | Const.Decimal v -> Some(box v)
-            | Const.Unit
-            | Const.Zero      -> None
-        | None -> None
+        if isUnresolved()
+        then None
+        else getLiteralValue d.RecdField.LiteralValue
 
     member __.IsVolatile = 
         if isUnresolved() then false else 
@@ -1489,20 +1490,35 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
             v.Attribs |> List.map (fun a -> FSharpAttribute(cenv,  AttribInfo.FSAttribInfo(cenv.g, a))) 
      |> makeReadOnlyCollection
      
-(*
+
     /// Is this "base" in "base.M(...)"
-    member __.IsBaseValue : bool
+    member __.IsBaseValue =
+        if isUnresolved() then false else
+        match d with
+        | M _ | P _ | E _ -> false
+        | V v -> match v.BaseOrThisInfo with BaseVal -> true | _ -> false
+
 
     /// Is this the "x" in "type C() as x = ..."
-    member __.IsConstructorThisValue : bool
+    member __.IsConstructorThisValue =
+        if isUnresolved() then false else
+        match d with
+        | M _ | P _ | E _ -> false
+        | V v -> match v.BaseOrThisInfo with CtorThisVal -> true | _ -> false
 
-    /// Is this the "x" in "member __.M = ..."
-    member __.IsMemberThisValue : bool
+    /// Is this the "x" in "member x.M = ..."
+    member __.IsMemberThisValue =
+        if isUnresolved() then false else
+        match d with
+        | M _ | P _ | E _ -> false
+        | V v -> match v.BaseOrThisInfo with MemberThisVal -> true | _ -> false
 
-    /// Is this a [<Literal>] value, and if so what value?
-    member __.LiteralValue : obj // may be null
-
-*)
+    /// Is this a [<Literal>] value, and if so what value? (may be null)
+    member __.LiteralValue =
+        if isUnresolved() then None else
+        match d with
+        | M _ | P _ | E _ -> None
+        | V v -> getLiteralValue v.LiteralValue
 
       /// How visible is this? 
     member this.Accessibility : FSharpAccessibility  = 

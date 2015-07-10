@@ -17,6 +17,8 @@ One reason is that there is no way to handle `StackOverflowException` and so a p
 script can terminate the host process. **Remember that while calling F# Interactive through .NET API, 
 ` --shadowcopyreferences` option will be ignored**. For detailed discussion, please take a look at 
 [this thread](https://github.com/fsharp/FSharp.Compiler.Service/issues/292).
+> **NOTE:** If `FsiEvaluationSession.Create` fails with an error saying that `FSharp.Core.dll` cannot be found,
+add the `FSharp.Core.sigdata` and `FSharp.Core.optdata` files. More info [here](https://fsharp.github.io/FSharp.Compiler.Service/corelib.html).
 
 However, the F# interactive service is still useful, because you might want to wrap it in your
 own executable that is then executed (and communicates with the rest of your application), or

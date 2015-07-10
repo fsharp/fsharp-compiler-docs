@@ -88,6 +88,9 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsMutable then yield "mutable" 
             if v.IsOverrideOrExplicitInterfaceImplementation then yield "overridemem"
             if v.IsExplicitInterfaceImplementation then yield "intfmem"
+//            if v.IsConstructorThisValue then yield "ctorthis"
+//            if v.IsMemberThisValue then yield "this"
+//            if v.LiteralValue.IsSome then yield "literal"
         | _ -> () ]
 
 module Project1 = 
@@ -4408,3 +4411,75 @@ let ``Test project35 CurriedParameterGroups should be available for nested funct
 
     | _ -> failwith "Unexpected symbol type"
 
+module Project36 =
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+type B(i:int) as b =
+    let a = b.Overload(i)
+    member x.Overload() = a
+    member x.Overload(y: int) = y + y
+
+let [<Literal>] lit = 1.0
+let notLit = 1.0
+let callToOverload = B(5).Overload(4)
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let keepAssemblyContentsChecker = FSharpChecker.Create(keepAssemblyContents=true)
+    let options =  keepAssemblyContentsChecker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let wholeProjectResults =
+        keepAssemblyContentsChecker.ParseAndCheckProject(options)
+        |> Async.RunSynchronously
+    let declarations =
+        let checkedFile = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
+        match checkedFile.Declarations.[0] with
+        | FSharpImplementationFileDeclaration.Entity (_, subDecls) -> subDecls
+        | _ -> failwith "unexpected"
+    let getExpr exprIndex =
+        match declarations.[exprIndex] with
+        | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(_,_,e) -> e
+        | FSharpImplementationFileDeclaration.InitAction e -> e
+        | _ -> failwith "unexpected"
+
+[<Test>]
+let ``Test project36 FSharpMemberOrFunctionOrValue properties`` () =
+    match Project36.getExpr 1 with
+    | BasicPatterns.Let((b,_),_)
+        when b.IsConstructorThisValue && not b.IsMemberThisValue -> ()
+    | _ -> failwith "val b in type B constructor must be ConstructorThis"
+
+    match Project36.getExpr 2 with
+    | BasicPatterns.FSharpFieldGet(Some(BasicPatterns.Value x),_,_)
+        when x.IsMemberThisValue && not x.IsConstructorThisValue -> ()
+    | _ -> failwith "val x in B.Overload() must be MemberThis"
+
+    match Project36.getExpr 3 with
+    | BasicPatterns.Call(_,_,_,_,[BasicPatterns.Value s;_])
+        when not s.IsMemberThisValue && not s.IsConstructorThisValue -> ()
+    | _ -> failwith "val s in B.Overload(s) must not be MemberThis"
+
+    let project36Module = Project36.wholeProjectResults.AssemblySignature.Entities.[0]
+    let lit = project36Module.MembersFunctionsAndValues.[0]
+    let notLit = project36Module.MembersFunctionsAndValues.[1]
+    if lit.LiteralValue.IsNone || notLit.LiteralValue.IsSome then
+        failwith "val lit must be LiteralValue while notLit musn't"
+
+[<Test>]
+let ``Test project36 FSharpMemberOrFunctionOrValue.Overloads(false)`` () =
+    match Project36.getExpr 6 with
+    | BasicPatterns.Call(_,meth,_,_,_)->
+        if meth.Overloads(false).IsSome then ()
+        else failwithf "Cannot check method %s is overloaded from typed expression" meth.FullName
+    | _ -> failwith "unexpected"
+
+    let typeB = Project36.wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities.[0]
+    if typeB.MembersFunctionsAndValues.[2].Overloads(false).Value.Count < 2 then
+        failwith "type B has two overloaded methods named Overload"

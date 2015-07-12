@@ -1504,14 +1504,14 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         if isUnresolved() then false else
         match d with
         | M _ | P _ | E _ -> false
-        | V v -> match v.BaseOrThisInfo with CtorThisVal -> true | _ -> false
+        | V v -> v.BaseOrThisInfo = CtorThisVal
 
     /// Is this the "x" in "member x.M = ..."
     member __.IsMemberThisValue =
         if isUnresolved() then false else
         match d with
         | M _ | P _ | E _ -> false
-        | V v -> match v.BaseOrThisInfo with MemberThisVal -> true | _ -> false
+        | V v -> v.BaseOrThisInfo = MemberThisVal
 
     /// Is this a [<Literal>] value, and if so what value? (may be null)
     member __.LiteralValue =

@@ -4442,44 +4442,38 @@ let callToOverload = B(5).Overload(4)
         let checkedFile = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
         match checkedFile.Declarations.[0] with
         | FSharpImplementationFileDeclaration.Entity (_, subDecls) -> subDecls
-        | _ -> failwith "unexpected"
+        | _ -> failwith "unexpected declaration"
     let getExpr exprIndex =
         match declarations.[exprIndex] with
         | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(_,_,e) -> e
         | FSharpImplementationFileDeclaration.InitAction e -> e
-        | _ -> failwith "unexpected"
+        | _ -> failwith "unexpected declaration"
 
 [<Test>]
-let ``Test project36 FSharpMemberOrFunctionOrValue properties`` () =
+let ``Test project36 FSharpMemberOrFunctionOrValue.IsConstructorThisValue & IsMemberThisValue`` () =
     match Project36.getExpr 1 with
-    | BasicPatterns.Let((b,_),_)
-        when b.IsConstructorThisValue && not b.IsMemberThisValue -> ()
-    | _ -> failwith "val b in type B constructor must be ConstructorThis"
+    | BasicPatterns.Let((b,_),_) ->
+        b.IsConstructorThisValue && not b.IsMemberThisValue
+    | _ -> failwith "unexpected expression"
+    |> shouldEqual true
 
     match Project36.getExpr 2 with
-    | BasicPatterns.FSharpFieldGet(Some(BasicPatterns.Value x),_,_)
-        when x.IsMemberThisValue && not x.IsConstructorThisValue -> ()
-    | _ -> failwith "val x in B.Overload() must be MemberThis"
+    | BasicPatterns.FSharpFieldGet(Some(BasicPatterns.Value x),_,_) ->
+        x.IsMemberThisValue && not x.IsConstructorThisValue
+    | _ -> failwith "unexpected expression"
+    |> shouldEqual true
 
     match Project36.getExpr 3 with
-    | BasicPatterns.Call(_,_,_,_,[BasicPatterns.Value s;_])
-        when not s.IsMemberThisValue && not s.IsConstructorThisValue -> ()
-    | _ -> failwith "val s in B.Overload(s) must not be MemberThis"
-
-    let project36Module = Project36.wholeProjectResults.AssemblySignature.Entities.[0]
-    let lit = project36Module.MembersFunctionsAndValues.[0]
-    let notLit = project36Module.MembersFunctionsAndValues.[1]
-    if lit.LiteralValue.IsNone || notLit.LiteralValue.IsSome then
-        failwith "val lit must be LiteralValue while notLit musn't"
+    | BasicPatterns.Call(_,_,_,_,[BasicPatterns.Value s;_]) ->
+        not s.IsMemberThisValue && not s.IsConstructorThisValue
+    | _ -> failwith "unexpected expression"
+    |> shouldEqual true
 
 [<Test>]
-let ``Test project36 FSharpMemberOrFunctionOrValue.Overloads(false)`` () =
-    match Project36.getExpr 6 with
-    | BasicPatterns.Call(_,meth,_,_,_)->
-        if meth.Overloads(false).IsSome then ()
-        else failwithf "Cannot check method %s is overloaded from typed expression" meth.FullName
-    | _ -> failwith "unexpected"
+let ``Test project36 FSharpMemberOrFunctionOrValue.LiteralValue`` () =
+    let project36Module = Project36.wholeProjectResults.AssemblySignature.Entities.[0]
+    let lit = project36Module.MembersFunctionsAndValues.[0]
+    shouldEqual true (lit.LiteralValue.Value |> unbox |> (=) 1.)
 
-    let typeB = Project36.wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities.[0]
-    if typeB.MembersFunctionsAndValues.[2].Overloads(false).Value.Count < 2 then
-        failwith "type B has two overloaded methods named Overload"
+    let notLit = project36Module.MembersFunctionsAndValues.[1]
+    shouldEqual true notLit.LiteralValue.IsNone

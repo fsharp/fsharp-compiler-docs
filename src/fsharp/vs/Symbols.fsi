@@ -698,10 +698,8 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// XML documentation signature for the value, used for .xml file lookup for compiled code
     member XmlDocSig: string
 
-#if TODO
     /// Indicates if this is "base" in "base.M(...)"
     member IsBaseValue : bool
-#endif
 
     /// Indicates if this is the "x" in "type C() as x = ..."
     member IsConstructorThisValue : bool

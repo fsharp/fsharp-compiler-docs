@@ -1490,14 +1490,12 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
             v.Attribs |> List.map (fun a -> FSharpAttribute(cenv,  AttribInfo.FSAttribInfo(cenv.g, a))) 
      |> makeReadOnlyCollection
      
-(*
     /// Is this "base" in "base.M(...)"
     member __.IsBaseValue =
         if isUnresolved() then false else
         match d with
         | M _ | P _ | E _ -> false
-        | V v -> match v.BaseOrThisInfo with BaseVal -> true | _ -> false
-*)
+        | V v -> v.BaseOrThisInfo = BaseVal
 
     /// Is this the "x" in "type C() as x = ..."
     member __.IsConstructorThisValue =

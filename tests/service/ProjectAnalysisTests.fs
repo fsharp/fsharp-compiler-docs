@@ -4419,10 +4419,15 @@ module Project36 =
     let dllName = Path.ChangeExtension(base2, ".dll")
     let projFileName = Path.ChangeExtension(base2, ".fsproj")
     let fileSource1 = """
+type A(i:int) =
+    member x.Value = i
+
 type B(i:int) as b =
+    inherit A(i*2)
     let a = b.Overload(i)
     member x.Overload() = a
     member x.Overload(y: int) = y + y
+    member x.BaseValue = base.Value
 
 let [<Literal>] lit = 1.0
 let notLit = 1.0
@@ -4450,20 +4455,34 @@ let callToOverload = B(5).Overload(4)
         | _ -> failwith "unexpected declaration"
 
 [<Test>]
+let ``Test project36 FSharpMemberOrFunctionOrValue.IsBaseValue`` () =
+    Project36.wholeProjectResults.GetAllUsesOfAllSymbols()
+    |> Async.RunSynchronously
+    |> Array.pick (fun (su:FSharpSymbolUse) ->
+        if su.Symbol.DisplayName = "base"
+        then Some (su.Symbol :?> FSharpMemberOrFunctionOrValue)
+        else None)
+    |> fun baseSymbol -> shouldEqual true baseSymbol.IsBaseValue
+
+[<Test>]
 let ``Test project36 FSharpMemberOrFunctionOrValue.IsConstructorThisValue & IsMemberThisValue`` () =
-    match Project36.getExpr 1 with
+    // Instead of checking the symbol uses directly, walk the typed tree to check
+    // the correct values are also visible from there. Also note you cannot use
+    // BasicPatterns.ThisValue in these cases, this is only used when the symbol
+    // is implicit in the constructor
+    match Project36.getExpr 4 with
     | BasicPatterns.Let((b,_),_) ->
         b.IsConstructorThisValue && not b.IsMemberThisValue
     | _ -> failwith "unexpected expression"
     |> shouldEqual true
 
-    match Project36.getExpr 2 with
+    match Project36.getExpr 5 with
     | BasicPatterns.FSharpFieldGet(Some(BasicPatterns.Value x),_,_) ->
         x.IsMemberThisValue && not x.IsConstructorThisValue
     | _ -> failwith "unexpected expression"
     |> shouldEqual true
 
-    match Project36.getExpr 3 with
+    match Project36.getExpr 6 with
     | BasicPatterns.Call(_,_,_,_,[BasicPatterns.Value s;_]) ->
         not s.IsMemberThisValue && not s.IsConstructorThisValue
     | _ -> failwith "unexpected expression"

@@ -88,6 +88,9 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsMutable then yield "mutable" 
             if v.IsOverrideOrExplicitInterfaceImplementation then yield "overridemem"
             if v.IsExplicitInterfaceImplementation then yield "intfmem"
+//            if v.IsConstructorThisValue then yield "ctorthis"
+//            if v.IsMemberThisValue then yield "this"
+//            if v.LiteralValue.IsSome then yield "literal"
         | _ -> () ]
 
 module Project1 = 
@@ -4408,3 +4411,88 @@ let ``Test project35 CurriedParameterGroups should be available for nested funct
 
     | _ -> failwith "Unexpected symbol type"
 
+module Project36 =
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+type A(i:int) =
+    member x.Value = i
+
+type B(i:int) as b =
+    inherit A(i*2)
+    let a = b.Overload(i)
+    member x.Overload() = a
+    member x.Overload(y: int) = y + y
+    member x.BaseValue = base.Value
+
+let [<Literal>] lit = 1.0
+let notLit = 1.0
+let callToOverload = B(5).Overload(4)
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let keepAssemblyContentsChecker = FSharpChecker.Create(keepAssemblyContents=true)
+    let options =  keepAssemblyContentsChecker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let wholeProjectResults =
+        keepAssemblyContentsChecker.ParseAndCheckProject(options)
+        |> Async.RunSynchronously
+    let declarations =
+        let checkedFile = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
+        match checkedFile.Declarations.[0] with
+        | FSharpImplementationFileDeclaration.Entity (_, subDecls) -> subDecls
+        | _ -> failwith "unexpected declaration"
+    let getExpr exprIndex =
+        match declarations.[exprIndex] with
+        | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(_,_,e) -> e
+        | FSharpImplementationFileDeclaration.InitAction e -> e
+        | _ -> failwith "unexpected declaration"
+
+[<Test>]
+let ``Test project36 FSharpMemberOrFunctionOrValue.IsBaseValue`` () =
+    Project36.wholeProjectResults.GetAllUsesOfAllSymbols()
+    |> Async.RunSynchronously
+    |> Array.pick (fun (su:FSharpSymbolUse) ->
+        if su.Symbol.DisplayName = "base"
+        then Some (su.Symbol :?> FSharpMemberOrFunctionOrValue)
+        else None)
+    |> fun baseSymbol -> shouldEqual true baseSymbol.IsBaseValue
+
+[<Test>]
+let ``Test project36 FSharpMemberOrFunctionOrValue.IsConstructorThisValue & IsMemberThisValue`` () =
+    // Instead of checking the symbol uses directly, walk the typed tree to check
+    // the correct values are also visible from there. Also note you cannot use
+    // BasicPatterns.ThisValue in these cases, this is only used when the symbol
+    // is implicit in the constructor
+    match Project36.getExpr 4 with
+    | BasicPatterns.Let((b,_),_) ->
+        b.IsConstructorThisValue && not b.IsMemberThisValue
+    | _ -> failwith "unexpected expression"
+    |> shouldEqual true
+
+    match Project36.getExpr 5 with
+    | BasicPatterns.FSharpFieldGet(Some(BasicPatterns.Value x),_,_) ->
+        x.IsMemberThisValue && not x.IsConstructorThisValue
+    | _ -> failwith "unexpected expression"
+    |> shouldEqual true
+
+    match Project36.getExpr 6 with
+    | BasicPatterns.Call(_,_,_,_,[BasicPatterns.Value s;_]) ->
+        not s.IsMemberThisValue && not s.IsConstructorThisValue
+    | _ -> failwith "unexpected expression"
+    |> shouldEqual true
+
+[<Test>]
+let ``Test project36 FSharpMemberOrFunctionOrValue.LiteralValue`` () =
+    let project36Module = Project36.wholeProjectResults.AssemblySignature.Entities.[0]
+    let lit = project36Module.MembersFunctionsAndValues.[0]
+    shouldEqual true (lit.LiteralValue.Value |> unbox |> (=) 1.)
+
+    let notLit = project36Module.MembersFunctionsAndValues.[1]
+    shouldEqual true notLit.LiteralValue.IsNone

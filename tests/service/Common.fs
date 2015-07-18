@@ -35,6 +35,64 @@ let getBackgroundCheckResultsForScriptText (input) =
     let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
     checker.GetBackgroundCheckResultsForFileInProject(file.Name, checkOptions) |> Async.RunSynchronously
 
+module FrameworkReferenceResolver =
+    let netVersion = "4.5"
+    let isMono = not (System.Type.GetType("Mono.Runtime") = null)
+    let referenceAssembliesPath =
+        let programFiles = System.Environment.GetEnvironmentVariable ("ProgramFiles(x86)")
+        let programFiles =
+            match programFiles |> System.String.IsNullOrEmpty with
+            | true -> System.Environment.GetEnvironmentVariable ("ProgramFiles")
+            | false -> programFiles
+        match programFiles |> System.String.IsNullOrEmpty with
+        | true -> failwith "Program files not found"
+        | false -> Path.Combine (programFiles, "Reference Assemblies", "Microsoft", "Framework", ".NETFramework", "v" + netVersion)
+    let facadesPath = Path.Combine (referenceAssembliesPath, "Facades")
+
+    // TODO: Find FSHarp.Core????
+
+
+    let mutable cache =
+        match isMono with
+        | false -> Map.empty
+        | true ->
+            let mscorlibLocationOnThisRunningMonoInstance = typeof<System.Object>.Assembly.Location
+
+            let libPath = mscorlibLocationOnThisRunningMonoInstance |> Path.GetDirectoryName |> Path.GetDirectoryName
+            let targetFrameworkPath = Path.Combine (libPath, netVersion)
+
+            match targetFrameworkPath |> Directory.Exists with
+            | false -> failwith "Target framework does not exist"
+            | true ->
+                let findAssemblies path map =
+                    let rec findA files map =
+                        match files with
+                        | [] -> map
+                        | h :: t ->
+                            findA t (Map.add (h |> Path.GetFileNameWithoutExtension) h map)
+                    findA (Directory.EnumerateFiles (path, "*.dll", SearchOption.AllDirectories) |> List.ofSeq) map
+
+                Map.empty
+                |> findAssemblies targetFrameworkPath
+                |> findAssemblies (Path.Combine (targetFrameworkPath, "Facades"))
+
+    let find assemblyName =
+        match Map.tryFind assemblyName cache with
+        | Some assembly -> assembly
+        | None ->
+            let fileName = assemblyName + ".dll"
+            let referenceFileName = Path.Combine (referenceAssembliesPath, fileName)
+            match referenceFileName |> File.Exists with
+            | true ->
+                cache <- Map.add assemblyName referenceFileName cache
+                referenceFileName
+            | false ->
+                let referenceFileName = Path.Combine (facadesPath, fileName)
+                match referenceFileName |> File.Exists with
+                | true ->
+                    cache <- Map.add assemblyName referenceFileName cache
+                    referenceFileName
+                | false -> failwith "Reference assembly not found"
 
 let sysLib nm = 
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 

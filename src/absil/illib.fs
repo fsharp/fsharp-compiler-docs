@@ -965,6 +965,17 @@ module Shim =
         abstract AssemblyLoadFrom: fileName:string -> System.Reflection.Assembly 
         abstract AssemblyLoad: assemblyName:System.Reflection.AssemblyName -> System.Reflection.Assembly 
 
+    [<AutoOpen>]
+    module Extensions =
+        type IFileSystem with
+            member fs.CreateText (path: string) =
+                new StreamWriter (fs.FileStreamCreateShim path)
+            member fs.WriteAllBytes (path: string, data: byte array) =
+                use stream = fs.FileStreamCreateShim path
+                stream.Write (data, 0, data.Length)
+                
+        
+
 #if SILVERLIGHT
     open System.IO.IsolatedStorage
     open System.Windows

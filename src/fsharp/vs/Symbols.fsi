@@ -698,8 +698,6 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// XML documentation signature for the value, used for .xml file lookup for compiled code
     member XmlDocSig: string
 
-     
-#if TODO
     /// Indicates if this is "base" in "base.M(...)"
     member IsBaseValue : bool
 
@@ -709,10 +707,8 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// Indicates if this is the "x" in "member x.M = ..."
     member IsMemberThisValue : bool
 
-    /// Indicates if this is a [<Literal>] value, and if so what value?
-    member LiteralValue : obj // may be null
-
-#endif
+    /// Indicates if this is a [<Literal>] value, and if so what value? (may be null)
+    member LiteralValue : obj option
 
     /// Get the accessibility information for the member, function or value
     member Accessibility : FSharpAccessibility

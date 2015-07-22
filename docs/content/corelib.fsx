@@ -63,6 +63,23 @@ convert them to command-line arguments is to [crack an F# project file](http://f
 Alternatively you can compute SDK paths yourself, and some helpers to do this are in [the tests for FSharp.Compiler.Service.dll](https://github.com/fsharp/FSharp.Compiler.Service/blob/8a943dd3b545648690cb3bed652a469bdb6dd869/tests/service/Common.fs#L54).
 
 
+What about if I am processing a script or using ``GetCheckOptionsFromScriptRoot``
+-------------------------------------------------------------------------
+
+If you do _not_ explicitly reference an FSharp.Core.dll from an SDK location, or if you are processing a script
+using ``FsiEvaluationSession`` or ``GetCheckOptionsFromScriptRoot``, then an implicit reference to FSharp.Core will be made
+by the following choice:
+
+1. The version of FSharp.Core.dll statically referenced by the host assembly returned by ``System.Reflection.Assembly.GetEntryAssembly()``. 
+
+2. If there is no static reference to FSharp.Core in the host assembly, then 
+
+   - For FSharp.Compiler.Service 0.x series, a reference to FSharp.Core version 4.3.0.0 is added
+
+   - For FSharp.Compiler.Service 1.3.1.x (F# 3.1 series), a reference to FSharp.Core version 4.3.1.0 is added
+
+   - For FSharp.Compiler.Service 1.4.0.x (F# 4.0 series), a reference to FSharp.Core version 4.4.0.0 is added
+
 Do I need to include FSharp.Core.optdata and FSharp.Core.sigdata?
 --------------------------------------
 
@@ -70,9 +87,7 @@ If your compilation arguments explicitly reference an FSharp.Core.dll from an SD
 (if these files are not installed, then that's a bug in the F# SDK installation).  If your compilation
 arguments are always making an explicit reference, then you should _not_ include FSharp.Core.optdata and FSharp.Core.sigdata as part of your application.
 
-
-If you do _not_ explicitly reference an FSharp.Core.dll from an SDK location, then an implicit reference will be made
-to which ever version of FSharp.Core.dll your tool is running.  This means your tool will almost certainly implicitly reference the FSharp.Core.dll
+If you are relying on an implicit reference (e.g. for script processing, see above), this means your tool may reference the FSharp.Core.dll
 that is part of your application.  In this case, you may either get an error that FSharp.Core.optdata and FSharp.Core.sigdata are not
 found alongside FSharp.Core.dll.  **If you want to implicitly reference the FSharp.Core.dll you are including in your application,
 then also add FSharp.Core.sigdata and FSharp.Core.optdata as two additional files to your application**.  When using ``CompileToDynamicAssembly``, this problem

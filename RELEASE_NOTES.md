@@ -1,6 +1,8 @@
 #### 1.4.0.0-beta - F# 4.0 support
 * Integrate F# 4.0 support into FSharp.Compiler.Service
 
+#### 1.3.1.1 - Updated version number
+
 #### 1.3.1.0 -
 * simplified source indexing with new SourceLink
 * Add noframework option in AST compiler methods

@@ -1006,8 +1006,6 @@ and FSharpModuleOrNamespaces = FSharpMemberOrFunctionOrValue
 and FSharpSetterArg = FSharpMemberOrFunctionOrValue
 and FSharpCustomBuilder = FSharpMemberOrFunctionOrValue
 and FSharpCustomOperation = FSharpMemberOrFunctionOrValue
-// TODO: duplicate type def - might be a custom CE keyword
-//and FSharpCustomOperation = FSharpMemberOrFunctionOrValue
 and FSharpTypeVar = FSharpMemberOrFunctionOrValue
 and FSharpActivePatternResult = FSharpMemberOrFunctionOrValue
 and FSharpArgName = FSharpMemberOrFunctionOrValue

@@ -49,7 +49,9 @@ no control over the input, it is a good idea to run F# interactive in a separate
 One reason is that there is no way to handle <code>StackOverflowException</code> and so a poorly written
 script can terminate the host process. <strong>Remember that while calling F# Interactive through .NET API, 
 <code>--shadowcopyreferences</code> option will be ignored</strong>. For detailed discussion, please take a look at 
-<a href="https://github.com/fsharp/FSharp.Compiler.Service/issues/292">this thread</a>.</p>
+<a href="https://github.com/fsharp/FSharp.Compiler.Service/issues/292">this thread</a>.
+<strong>NOTE:</strong> If <code>FsiEvaluationSession.Create</code> fails with an error saying that <code>FSharp.Core.dll</code> cannot be found,
+add the <code>FSharp.Core.sigdata</code> and <code>FSharp.Core.optdata</code> files. More info <a href="https://fsharp.github.io/FSharp.Compiler.Service/corelib.html">here</a>.</p>
 </blockquote>
 
 <p>However, the F# interactive service is still useful, because you might want to wrap it in your

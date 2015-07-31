@@ -1,3 +1,7 @@
+#### 1.3.1.2 -
+* #387 - types and arrays in F# attribute contructor arguments
+* #383 - Use FSharp.Core 4.3.1.0 by default in script analysis if no FSharp.Core referenced by host project
+
 #### 1.3.1.1 -
 
 #### 1.3.1.0 -

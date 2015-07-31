@@ -2541,7 +2541,7 @@ let rec evalILAttribElem e =
     | ILAttribElem.TypeRef (Some _t) -> fail()
     | ILAttribElem.TypeRef None     -> null
 
-let evalFSharpAttribArg e = 
+let rec evalFSharpAttribArg g e = 
     match e with
     | Expr.Const(c,_,_) -> 
         match c with 
@@ -2560,8 +2560,9 @@ let evalFSharpAttribArg e =
         | Const.Zero -> null
         | Const.String s ->  box s
         | _ -> fail()
-    // TODO: typeof<..> in attribute values
-    // TODO: arrays in attribute values
+    | Expr.Op (TOp.Array,_,a,_) -> box [| for i in a -> evalFSharpAttribArg g i |]
+    | TypeOfExpr g ty -> box ty
+    // TODO: | TypeDefOfExpr g ty
     | _ -> fail()
 
 type AttribInfo = 
@@ -2590,7 +2591,7 @@ type AttribInfo =
              unnamedArgs
              |> List.map (fun (AttribExpr(origExpr,evaluatedExpr)) -> 
                     let ty = tyOfExpr g origExpr
-                    let obj = evalFSharpAttribArg evaluatedExpr
+                    let obj = evalFSharpAttribArg g evaluatedExpr
                     ty,obj) 
          | ILAttribInfo (g, amap, scoref, cattr, m) -> 
               let parms, _args = decodeILAttribData g.ilg cattr (Some scoref) 
@@ -2605,7 +2606,7 @@ type AttribInfo =
              namedArgs
              |> List.map (fun (AttribNamedArg(nm,_,isField,AttribExpr(origExpr,evaluatedExpr))) -> 
                     let ty = tyOfExpr g origExpr
-                    let obj = evalFSharpAttribArg evaluatedExpr
+                    let obj = evalFSharpAttribArg g evaluatedExpr
                     ty, nm, isField, obj) 
          | ILAttribInfo (g, amap, scoref, cattr, m) -> 
               let _parms, namedArgs = decodeILAttribData g.ilg cattr (Some scoref) 

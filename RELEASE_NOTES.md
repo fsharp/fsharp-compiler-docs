@@ -1,3 +1,6 @@
+#### 1.4.0.2 - 
+* #387 - types and arrays in F# attribute contructor arguments  
+
 #### 1.4.0.1 - F# 4.0 support
 * Use FSharp.Core 4.4.0.0 by default for scripting scenarios if not FSharp.Core referenced by host process
 

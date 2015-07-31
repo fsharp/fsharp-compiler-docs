@@ -1711,6 +1711,12 @@ and FSharpType(cenv, typ:TType) =
 
 and FSharpAttribute(cenv: cenv, attrib: AttribInfo) = 
 
+    let rec resolveArgObj (arg: obj) =
+        match arg with
+        | :? TType as t -> box (FSharpType(cenv, t)) 
+        | :? (obj[]) as a -> a |> Array.map resolveArgObj |> box
+        | _ -> arg
+
     member __.AttributeType =  
         FSharpEntity(cenv,  attrib.TyconRef)
 
@@ -1718,12 +1724,12 @@ and FSharpAttribute(cenv: cenv, attrib: AttribInfo) =
 
     member __.ConstructorArguments = 
         attrib.ConstructorArguments 
-        |> List.map (fun (ty, obj) -> FSharpType(cenv, ty), obj)
+        |> List.map (fun (ty, obj) -> FSharpType(cenv, ty), resolveArgObj obj)
         |> makeReadOnlyCollection
 
     member __.NamedArguments = 
         attrib.NamedArguments 
-        |> List.map (fun (ty, nm, isField, obj) -> FSharpType(cenv, ty), nm, isField, obj)
+        |> List.map (fun (ty, nm, isField, obj) -> FSharpType(cenv, ty), nm, isField, resolveArgObj obj)
         |> makeReadOnlyCollection
 
     member __.Format(denv: FSharpDisplayContext) = 

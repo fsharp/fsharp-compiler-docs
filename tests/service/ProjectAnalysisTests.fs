@@ -4496,3 +4496,83 @@ let ``Test project36 FSharpMemberOrFunctionOrValue.LiteralValue`` () =
 
     let notLit = project36Module.MembersFunctionsAndValues.[1]
     shouldEqual true notLit.LiteralValue.IsNone
+
+module Project37 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+[<System.AttributeUsage(System.AttributeTargets.Method)>]
+type AttrTestAttribute() =
+    inherit System.Attribute()
+
+    new (t: System.Type) = AttrTestAttribute()
+    new (t: System.Type[]) = AttrTestAttribute()
+    new (t: int[]) = AttrTestAttribute()
+
+type TestUnion = | A of string
+type TestRecord = { B : int }
+
+module Test =
+    [<AttrTest(typeof<int>)>]
+    let withType = 0
+    [<AttrTest(typeof<list<int>>)>]
+    let withGenericType = 0
+    [<AttrTest(typeof<int * int>)>]
+    let withTupleType = 0
+    [<AttrTest(typeof<int -> int>)>]
+    let withFuncType = 0
+    [<AttrTest([| typeof<TestUnion>; typeof<TestRecord> |])>]
+    let withTypeArray = 0
+    [<AttrTest([| 0; 1; 2 |])>]
+    let withIntArray = 0
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let wholeProjectResults =
+        checker.ParseAndCheckProject(options)
+        |> Async.RunSynchronously
+
+[<Test>]
+let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
+    let allSymbolsUses = Project37.wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+    for su in allSymbolsUses do
+        match su.Symbol with
+        | :? FSharpMemberOrFunctionOrValue as funcSymbol ->
+            let getAttrArg() =
+                let arg = funcSymbol.Attributes.[0].ConstructorArguments.[0] |> snd      
+                arg :?> FSharpType 
+            match funcSymbol.DisplayName with
+            | "withType" ->
+                let t = getAttrArg()
+                t.TypeDefinition.DisplayName |> shouldEqual "int"
+            | "withGenericType" ->
+                let t = getAttrArg()
+                t.TypeDefinition.DisplayName |> shouldEqual "list"
+                t.GenericArguments.[0].TypeDefinition.DisplayName |> shouldEqual "int"
+            | "withTupleType" ->
+                let t = getAttrArg()
+                t.IsTupleType |> shouldEqual true
+                t.GenericArguments.[0].TypeDefinition.DisplayName |> shouldEqual "int"
+                t.GenericArguments.[1].TypeDefinition.DisplayName |> shouldEqual "int"
+            | "withFuncType" ->
+                let t = getAttrArg()
+                t.IsFunctionType |> shouldEqual true
+                t.GenericArguments.[0].TypeDefinition.DisplayName |> shouldEqual "int"
+                t.GenericArguments.[1].TypeDefinition.DisplayName |> shouldEqual "int"
+            | "withTypeArray" ->
+                let attr = funcSymbol.Attributes.[0].ConstructorArguments.[0] |> snd      
+                let ta = attr :?> obj[] |> Array.map (fun t -> t :?> FSharpType)
+                ta.[0].TypeDefinition.DisplayName |> shouldEqual "TestUnion"
+                ta.[1].TypeDefinition.DisplayName |> shouldEqual "TestRecord"
+            | "withIntArray" ->
+                let attr = funcSymbol.Attributes.[0].ConstructorArguments.[0] |> snd      
+                let a = attr :?> obj[] |> Array.map (fun t -> t :?> int)
+                a |> shouldEqual [| 0; 1; 2 |] 
+            | _ -> ()
+        | _ -> ()

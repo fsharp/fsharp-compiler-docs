@@ -1576,10 +1576,8 @@ let GetFSharpCoreReferenceUsedByCompiler(useMonoResolution) =
     match foundReference with
     | Some fsharpCore -> fsharpCore
     | None ->                        
-        typeof<TypeInThisAssembly>.Assembly.GetReferencedAssemblies()
-        |> Array.pick (fun name ->
-            if name.Name = fsCoreName then Some(name.ToString())
-            else None)
+        // FSharp.Compiler.Service for F# 4.0 defaults to FSharp.Core 4.4.0.0 if no FSharp.Core is referenced statically by the host process.
+        "FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
 
 let GetFsiLibraryName () = "FSharp.Compiler.Interactive.Settings"  
 #endif

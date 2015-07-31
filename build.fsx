@@ -47,7 +47,7 @@ let buildDate = DateTime.UtcNow
 let buildVersion = 
     if hasRepoVersionTag then assemblyVersion
     else if isAppVeyorBuild then sprintf "%s-b%s" assemblyVersion AppVeyorEnvironment.BuildNumber
-    else sprintf "%s-a%s" assemblyVersion (buildDate.ToString "yyMMddHHmm")
+    else assemblyVersion
 
 Target "BuildVersion" (fun _ ->
     Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" buildVersion) |> ignore

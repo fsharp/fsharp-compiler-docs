@@ -38,7 +38,7 @@ let netFrameworks = ["v4.0"; "v4.5"]
 // --------------------------------------------------------------------------------------
 
 // Read release notes & version info from RELEASE_NOTES.md
-let release = LoadReleaseNotes "RELEASE_NOTES.md"
+let release = LoadReleaseNotes (__SOURCE_DIRECTORY__ + "/RELEASE_NOTES.md")
 let isAppVeyorBuild = buildServer = BuildServer.AppVeyor
 let isVersionTag tag = Version.TryParse tag |> fst
 let hasRepoVersionTag = isAppVeyorBuild && AppVeyorEnvironment.RepoTag && isVersionTag AppVeyorEnvironment.RepoTagName
@@ -47,7 +47,7 @@ let buildDate = DateTime.UtcNow
 let buildVersion = 
     if hasRepoVersionTag then assemblyVersion
     else if isAppVeyorBuild then sprintf "%s-b%s" assemblyVersion AppVeyorEnvironment.BuildNumber
-    else sprintf "%s-a%s" assemblyVersion (buildDate.ToString "yyMMddHHmm")
+    else assemblyVersion
 
 Target "BuildVersion" (fun _ ->
     Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" buildVersion) |> ignore

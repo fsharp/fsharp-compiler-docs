@@ -1388,7 +1388,7 @@ module internal IncrementalFSharpBuild =
                                                          tcConfig,tcAcc.tcImports,
                                                          tcAcc.tcGlobals,
                                                          None,
-                                                         NameResolution.TcResultsSink.NoSink,
+                                                         TcResultsSink.WithSink sink,
                                                          tcAcc.tcState,input)
                         
                         /// Only keep the typed interface files when doing a "full" build for fsc.exe, otherwise just throw them away

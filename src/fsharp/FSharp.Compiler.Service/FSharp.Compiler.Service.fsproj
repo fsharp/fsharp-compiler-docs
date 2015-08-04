@@ -368,8 +368,8 @@
     <Compile Include="lex.fs">
       <Link>ParserAndUntypedAST/lex.fs</Link>
     </Compile>
-    <Compile Include="..\lexfilter.fs">
-      <Link>ParserAndUntypedAST/lexfilter.fs</Link>
+    <Compile Include="..\LexFilter.fs">
+      <Link>ParserAndUntypedAST/LexFilter.fs</Link>
     </Compile>
     <Compile Include="..\tainted.fsi">
       <Link>TypedAST/tainted.fsi</Link>

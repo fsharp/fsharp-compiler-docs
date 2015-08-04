@@ -56,18 +56,10 @@ Target "BuildVersion" (fun _ ->
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
     let fileName = "src/assemblyinfo/assemblyinfo.shared.fs"
-    // add json info to the informational version
-    let iv = Text.StringBuilder() // json
-    iv.Appendf "{\\\"buildVersion\\\":\\\"%s\\\"" buildVersion
-    iv.Appendf ",\\\"buildDate\\\":\\\"%s\\\"" (buildDate.ToString "yyyy'-'MM'-'dd'T'HH':'mm':'sszzz")
-    if isAppVeyorBuild then
-        iv.Appendf ",\\\"gitCommit\\\":\\\"%s\\\"" AppVeyor.AppVeyorEnvironment.RepoCommit
-        iv.Appendf ",\\\"gitBranch\\\":\\\"%s\\\"" AppVeyor.AppVeyorEnvironment.RepoBranch
-    iv.Appendf "}"
     CreateFSharpAssemblyInfo fileName
           [ Attribute.Version assemblyVersion
             Attribute.FileVersion assemblyVersion
-            Attribute.InformationalVersion iv.String ]
+            Attribute.InformationalVersion assemblyVersion ]
 )
 
 // --------------------------------------------------------------------------------------

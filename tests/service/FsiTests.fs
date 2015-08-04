@@ -196,7 +196,7 @@ let ``EvalScript accepts paths verbatim``() =
         | e ->
             // Microsoft.FSharp.Compiler.Build is internal, so we can't access the exception class here
             String.Equals(e.InnerException.GetType().FullName,
-                          "Microsoft.FSharp.Compiler.Build+FileNameNotResolved",
+                          "Microsoft.FSharp.Compiler.CompileOps+FileNameNotResolved",
                           StringComparison.InvariantCultureIgnoreCase))
     |> shouldEqual true
 

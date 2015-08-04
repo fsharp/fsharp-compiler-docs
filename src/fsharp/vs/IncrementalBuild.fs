@@ -13,8 +13,11 @@ open System
 
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.Build
+open Microsoft.FSharp.Compiler.CompileOps
+open Microsoft.FSharp.Compiler.NameResolution
+open Microsoft.FSharp.Compiler.CompileOptions
 open Microsoft.FSharp.Compiler.Tastops
+open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Lib
 open Microsoft.FSharp.Compiler.AbstractIL
@@ -962,7 +965,7 @@ type FSharpErrorInfo(fileName, s:pos, e:pos, severity: FSharpErrorSeverity, mess
             
     /// Decompose a warning or error into parts: position, severity, message
     static member (*internal*) CreateFromException(exn,warn,trim:bool,fallbackRange:range) = 
-        let m = match RangeOfError exn with Some m -> m | None -> fallbackRange 
+        let m = match GetRangeOfError exn with Some m -> m | None -> fallbackRange 
         let e = if trim then m.Start else m.End
         let msg = bufs (fun buf -> OutputPhasedError buf exn false)
         FSharpErrorInfo(m.FileName, m.Start, e, (if warn then FSharpErrorSeverity.Warning else FSharpErrorSeverity.Error), msg, exn.Subcategory())
@@ -1041,11 +1044,11 @@ module internal IncrementalFSharpBuild =
     open Internal.Utilities.Collections
 
     open IncrementalBuild
-    open Microsoft.FSharp.Compiler.Build
-    open Microsoft.FSharp.Compiler.Fscopts
+    open Microsoft.FSharp.Compiler.CompileOps
+    open Microsoft.FSharp.Compiler.CompileOptions
     open Microsoft.FSharp.Compiler.Ast
     open Microsoft.FSharp.Compiler.ErrorLogger
-    open Microsoft.FSharp.Compiler.Env
+    open Microsoft.FSharp.Compiler.TcGlobals
     open Microsoft.FSharp.Compiler.TypeChecker
     open Microsoft.FSharp.Compiler.Tast 
     open Microsoft.FSharp.Compiler.Range
@@ -1065,8 +1068,8 @@ module internal IncrementalFSharpBuild =
           tcGlobals:TcGlobals
           tcConfig:TcConfig
           tcEnvAtEndOfFile: TcEnv
-          tcResolutions: Nameres.TcResolutions list
-          tcSymbolUses: Nameres.TcSymbolUses list
+          tcResolutions: TcResolutions list
+          tcSymbolUses: TcSymbolUses list
           topAttribs:TopAttribs option
           typedImplFiles:TypedImplFile list
           tcErrors:(PhasedError * FSharpErrorSeverity) list } // errors=true, warnings=false
@@ -1123,10 +1126,10 @@ module internal IncrementalFSharpBuild =
         let errorsSeenInScope = new ResizeArray<_>()
             
         let warningOrError warn exn = 
-            let warn = warn && not (ReportWarningAsError tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn tcConfig.specificWarnAsError tcConfig.specificWarnAsWarn tcConfig.globalWarnAsError exn)                
+            let warn = warn && not (ReportWarningAsError (tcConfig.globalWarnLevel, tcConfig.specificWarnOff, tcConfig.specificWarnOn, tcConfig.specificWarnAsError, tcConfig.specificWarnAsWarn, tcConfig.globalWarnAsError) exn)                
             if not warn then
                 errorsSeenInScope.Add(exn)
-            else if ReportWarning tcConfig.globalWarnLevel tcConfig.specificWarnOff tcConfig.specificWarnOn exn then 
+            else if ReportWarning (tcConfig.globalWarnLevel, tcConfig.specificWarnOff, tcConfig.specificWarnOn) exn then 
                 warningsSeenInScope.Add(exn)
 
         override x.WarnSinkImpl(exn) = warningOrError true exn
@@ -1162,14 +1165,14 @@ module internal IncrementalFSharpBuild =
     //-----------------------------------------------------------------------------------
 
     type PartialCheckResults = 
-      { TcState : Build.TcState 
-        TcImports: Build.TcImports 
-        TcGlobals: Env.TcGlobals 
-        TcConfig: Build.TcConfig 
-        TcEnvAtEnd : TypeChecker.TcEnv 
+      { TcState : TcState 
+        TcImports: TcImports 
+        TcGlobals: TcGlobals 
+        TcConfig: TcConfig 
+        TcEnvAtEnd : TcEnv 
         Errors : (PhasedError * FSharpErrorSeverity) list 
-        TcResolutions: Nameres.TcResolutions list 
-        TcSymbolUses: Nameres.TcSymbolUses list 
+        TcResolutions: TcResolutions list 
+        TcSymbolUses: TcSymbolUses list 
         TimeStamp: System.DateTime }
 
     let GetPartialCheckResults (tcAcc: TypeCheckAccumulator, timestamp) = 
@@ -1348,8 +1351,8 @@ module internal IncrementalFSharpBuild =
                     errorLogger.Warning(e)
                     frameworkTcImports           
 
-            let tcEnv0 = GetInitialTypecheckerEnv (Some assemblyName) rangeStartup tcConfig tcImports tcGlobals
-            let tcState0 = TypecheckInitialState (rangeStartup,assemblyName,tcConfig,tcGlobals,tcImports,niceNameGen,tcEnv0)
+            let tcEnv0 = GetInitialTcEnv (Some assemblyName, rangeStartup, tcConfig, tcImports, tcGlobals)
+            let tcState0 = GetInitialTcState (rangeStartup, assemblyName, tcConfig, tcGlobals, tcImports, niceNameGen, tcEnv0)
             let tcAcc = 
                 { tcGlobals=tcGlobals
                   tcImports=tcImports
@@ -1377,20 +1380,20 @@ module internal IncrementalFSharpBuild =
                         beforeTypeCheckFile.Trigger filename
 
                         ApplyMetaCommandsFromInputToTcConfig tcConfig (input, Path.GetDirectoryName filename) |> ignore
-                        let sink = Nameres.TcResultsSinkImpl(tcAcc.tcGlobals)
+                        let sink = TcResultsSinkImpl(tcAcc.tcGlobals)
                         let hadParseErrors = not (List.isEmpty parseErrors)
 
                         let! (tcEnvAtEndOfFile,topAttribs,typedImplFiles),tcState = 
-                            TypecheckOneInputEventually ((fun () -> hadParseErrors || errorLogger.ErrorCount > 0),
+                            TypeCheckOneInputEventually ((fun () -> hadParseErrors || errorLogger.ErrorCount > 0),
                                                          tcConfig,tcAcc.tcImports,
                                                          tcAcc.tcGlobals,
                                                          None,
-                                                         Nameres.TcResultsSink.WithSink sink,
+                                                         NameResolution.TcResultsSink.NoSink,
                                                          tcAcc.tcState,input)
                         
                         /// Only keep the typed interface files when doing a "full" build for fsc.exe, otherwise just throw them away
                         let typedImplFiles = if keepAssemblyContents then typedImplFiles else []
-                        let tcResolutions = if keepAllBackgroundResolutions then sink.GetResolutions() else Nameres.TcResolutions.Empty
+                        let tcResolutions = if keepAllBackgroundResolutions then sink.GetResolutions() else TcResolutions.Empty
                         let tcSymbolUses = sink.GetSymbolUses()  
                         fileChecked.Trigger filename
                         return {tcAcc with tcState=tcState 
@@ -1437,16 +1440,16 @@ module internal IncrementalFSharpBuild =
           // Finish the checking
           let (_tcEnvAtEndOfLastFile,topAttrs,mimpls),tcState = 
               let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnvAtEndOfFile, defaultArg acc.topAttribs EmptyTopAttrs, acc.typedImplFiles)
-              TypecheckMultipleInputsFinish (results,finalAcc.tcState)
+              TypeCheckMultipleInputsFinish (results,finalAcc.tcState)
 
   
           let ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt = 
             try
-              // TypecheckClosedInputSetFinish fills in tcState.Ccu but in incrfemental scenarios we don't want this,
+              // TypeCheckClosedInputSetFinish fills in tcState.Ccu but in incrfemental scenarios we don't want this,
               // so we make this temporary here
               let oldContents = tcState.Ccu.Deref.Contents
               try
-                let tcState,tcAssemblyExpr = TypecheckClosedInputSetFinish (mimpls,tcState)
+                let tcState,tcAssemblyExpr = TypeCheckClosedInputSetFinish (mimpls,tcState)
 
                 /// Try to find an attribute that takes a string argument
                 let TryFindStringAttribute tcGlobals attribSpec attribs =
@@ -1459,7 +1462,7 @@ module internal IncrementalFSharpBuild =
                 let ilAssemRef = 
                     let publicKey = 
                         try 
-                            let signingInfo = Driver.ValidateKeySigningAttributes tcConfig tcGlobals topAttrs
+                            let signingInfo = Driver.ValidateKeySigningAttributes (tcConfig, tcGlobals, topAttrs)
                             match Driver.GetSigner signingInfo with 
                             | None -> None
                             | Some s -> Some (PublicKey.KeyAsToken(s.PublicKey))
@@ -1753,7 +1756,7 @@ module internal IncrementalFSharpBuild =
                         try
                             let sourceFilesAcc = ResizeArray(sourceFiles)
                             let collect name = if not (Filename.isDll name) then sourceFilesAcc.Add name
-                            ParseCompilerOptions collect (Fscopts.GetCoreServiceCompilerOptions tcConfigB) commandLineArgs 
+                            ParseCompilerOptions (collect, GetCoreServiceCompilerOptions tcConfigB, commandLineArgs)
                             sourceFilesAcc |> ResizeArray.toList
                         with e ->
                             errorRecovery e range0

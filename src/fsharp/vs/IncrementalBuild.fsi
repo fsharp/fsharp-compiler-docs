@@ -8,7 +8,9 @@ open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
-open Microsoft.FSharp.Compiler.Build
+open Microsoft.FSharp.Compiler.TcGlobals
+open Microsoft.FSharp.Compiler.CompileOps
+open Microsoft.FSharp.Compiler.NameResolution
 
 
 [<RequireQualifiedAccess>]
@@ -47,17 +49,17 @@ type internal ErrorScope =
 module internal IncrementalFSharpBuild =
 
   /// Lookup the global static cache for building the FrameworkTcImports
-  val GetFrameworkTcImports : TcConfig -> Env.TcGlobals * TcImports * AssemblyResolution list * UnresolvedAssemblyReference list
+  val GetFrameworkTcImports : TcConfig -> TcGlobals * TcImports * AssemblyResolution list * UnresolvedAssemblyReference list
 
   type PartialCheckResults = 
-      { TcState : Build.TcState 
-        TcImports: Build.TcImports 
-        TcGlobals: Env.TcGlobals 
-        TcConfig: Build.TcConfig 
+      { TcState : TcState 
+        TcImports: TcImports 
+        TcGlobals: TcGlobals 
+        TcConfig: TcConfig 
         TcEnvAtEnd : TypeChecker.TcEnv 
         Errors : (PhasedError * FSharpErrorSeverity) list 
-        TcResolutions: Nameres.TcResolutions list 
-        TcSymbolUses: Nameres.TcSymbolUses list 
+        TcResolutions: TcResolutions list 
+        TcSymbolUses: TcSymbolUses list 
         TimeStamp: DateTime }
 
   [<Class>]
@@ -71,7 +73,7 @@ module internal IncrementalFSharpBuild =
       member IsAlive : bool
 
       /// The TcConfig passed in to the builder creation.
-      member TcConfig : Build.TcConfig
+      member TcConfig : TcConfig
 
       /// The full set of source files including those from options
       member ProjectFileNames : string list
@@ -135,7 +137,7 @@ module internal IncrementalFSharpBuild =
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetCheckResultsAndImplementationsForProject : unit -> PartialCheckResults * IL.ILAssemblyRef * Build.IRawFSharpAssemblyData option * Tast.TypedAssembly option
+      member GetCheckResultsAndImplementationsForProject : unit -> PartialCheckResults * IL.ILAssemblyRef * IRawFSharpAssemblyData option * Tast.TypedAssembly option
 
       /// Get the logical time stamp that is associated with the output of the project if it were gully built immediately
       member GetLogicalTimeStampForProject: unit -> DateTime

@@ -1,3 +1,6 @@
+#### 1.4.0.3 - 
+* integrate Microsoft/visualfsharp OOB cleanup via fsharp/fsharp
+
 #### 1.4.0.2 - 
 * #387 - types and arrays in F# attribute contructor arguments  
 

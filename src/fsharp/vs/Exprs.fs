@@ -19,10 +19,10 @@ open Microsoft.FSharp.Compiler.Lib
 open Microsoft.FSharp.Compiler.Infos
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Tast
-open Microsoft.FSharp.Compiler.Env
+open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.Tastops
 open Microsoft.FSharp.Compiler.QuotationTranslator
-open Microsoft.FSharp.Compiler.Typrelns
+open Microsoft.FSharp.Compiler.TypeRelations
 
 
 [<AutoOpen>]
@@ -448,7 +448,7 @@ module FSharpExprConvert =
             ConvExprPrim cenv env x
 
         | Expr.TyChoose _  -> 
-            ConvExprPrim cenv env (Typrelns.ChooseTyparSolutionsForFreeChoiceTypars cenv.g cenv.amap expr)
+            ConvExprPrim cenv env (ChooseTyparSolutionsForFreeChoiceTypars cenv.g cenv.amap expr)
 
         | Expr.Obj (_lambdaId,typ,_basev,basecall,overrides, iimpls,_m)      -> 
             let basecallR = ConvExpr cenv env basecall

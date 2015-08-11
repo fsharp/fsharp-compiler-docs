@@ -2,7 +2,7 @@ os: Windows Server 2012 R2
 init:
   - git config --global core.autocrlf input
 build_script:
-  - cmd: build.cmd Release
+  - cmd: build.cmd NuGet
 test: off
 version: '{build}'
 artifacts:

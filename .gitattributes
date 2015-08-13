@@ -2,8 +2,6 @@
 * text=auto
 
 # Custom for Visual Studio
-*.fs eol=lf
-*.fsi eol=lf
 *.cs     text diff=csharp
 *.sln    text eol=crlf merge=union
 *.csproj text merge=union

@@ -48,6 +48,27 @@
     <DefineConstants>$(DefineConstants);NO_PDB_WRITER</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_INLINE_IL_PARSER</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_REFLECTION_EMITS_CUSTOM_ATTRIBUTES_USING_BUILDER</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_SYSTEM_DIAGNOSTICS_STOPWATCH</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_NATIVE_MEMORY_MAPPED_FILES</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_FILE_SYSTEM_USES_ISOLATED_STORAGE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_GET_ENCODING_BY_INTEGER</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_GET_ENVIRONMENT_VARIABLE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_SYSTEM_ENVIRONMENT_EXIT</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_WATSON_DUMPS</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_PROCESS_DIAGNOSTICS</DefineConstants>
+    <DefineConstants>$(DefineConstants);DYNAMIC_CODE_EMITS_INTERRUPT_CHECKS</DefineConstants>
+    <DefineConstants>$(DefineConstants);DYNAMIC_CODE_REWRITES_CONSOLE_WRITE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_REFLECTION_EMIT_CALLI</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_REFLECTION_EMIT_PINVOKE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_REFLECTION_EMIT_STATIC_DATA</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_REFLECTION_EMIT_SAVE_ASSEMBLY</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_TYPE_RESOLVE_EVENT</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_INVOKE_MEMBER</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_INDIRECT_TAILCALLS</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_SECURITY_ELEMENT_ESCAPE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_ASSEMBLY_GET_NAME</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_OPERATION_CANCELED</DefineConstants>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup>

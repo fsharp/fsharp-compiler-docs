@@ -221,7 +221,7 @@ type LayoutRenderer<'a,'b> =
     abstract Finish   : 'b -> 'a
       
 let renderL (rr: LayoutRenderer<_,_>) layout =
-#if SILVERLIGHT
+#if FX_NO_INDIRECT_TAILCALLS
 // Use non-indirect-tailcalling version on silverlight
     let rec addL z pos i = function
         (* pos is tab level *)

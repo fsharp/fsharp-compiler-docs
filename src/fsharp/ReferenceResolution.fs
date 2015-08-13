@@ -31,7 +31,7 @@ module internal MSBuildResolver =
         | RuntimeLike 
         | DesigntimeLike
     
-#if SILVERLIGHT
+#if NO_MSBUILD_REFERENCE_RESOLUTION
     let HighestInstalledNetFrameworkVersionMajorMinor() =
         4,"v5.0"
 #else

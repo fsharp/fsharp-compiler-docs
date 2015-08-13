@@ -2467,7 +2467,6 @@ let GetAutoOpenAttributes ilg ilModule =
 let GetInternalsVisibleToAttributes ilg ilModule = 
     ilModule |> GetCustomAttributesOfIlModule |> List.choose (TryFindInternalsVisibleToAttr ilg)
     
-
 //----------------------------------------------------------------------------
 // TcConfig 
 //--------------------------------------------------------------------------
@@ -4237,10 +4236,10 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
         let ilModule = dllinfo.RawMetadata 
         let ilScopeRef = dllinfo.ILScopeRef 
         let ilShortAssemName = getNameOfScopeRef ilScopeRef 
-        if verbose then dprintn ("Converting F# assembly to F# data structures "+(getNameOfScopeRef ilScopeRef));
+        if verbose then dprintn ("Converting F# assembly to F# data structures "+(getNameOfScopeRef ilScopeRef))
         //let attrs = GetCustomAttributesOfIlModule ilModule 
         //assert (List.exists IsSignatureDataVersionAttr attrs);
-        if verbose then dprintn ("Relinking interface info from F# assembly "+ilShortAssemName);
+        if verbose then dprintn ("Relinking interface info from F# assembly "+ilShortAssemName)
         //if not(List.contains ilShortAssemName externalSigAndOptData) then 
         //    assert (List.exists IsSignatureDataResource resources);
         let optDataReaders = ilModule.GetRawFSharpOptimizationData(m, ilShortAssemName, filename)
@@ -4317,7 +4316,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
                 let phase2() = 
 #if EXTENSIONTYPING
                      match ilModule.TryGetRawILModule() with 
-                     | None -> () // no type providers can be sued without a real IL Module present
+                     | None -> () // no type providers can be used without a real IL Module present
                      | Some ilModule ->
                          ccuinfo.TypeProviders <- tcImports.ImportTypeProviderExtensions (tpApprovals, displayPSTypeProviderSecurityDialogBlockingUI, tcConfig, filename, ilScopeRef, ilModule.ManifestOfAssembly.CustomAttrs.AsList, ccu.Contents, invalidateCcu, m)
 #else
@@ -4479,7 +4478,8 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
             match resolutions.TryFindByResolvedPath assemblyReference.Text with 
             | Some assemblyResolution -> 
                 ResultD [assemblyResolution]
-            | None ->                                  
+            | None ->      
+                                  
                 if tcConfigP.Get().useMonoResolution then
                     let resolved = [tcConfig.ResolveLibWithDirectories CcuLoadFailureAction.RaiseError assemblyReference |> Option.get]
                     resolutions <- resolutions.AddResolutionResults resolved
@@ -5033,7 +5033,7 @@ module private ScriptPreprocessClosure =
               RootWarnings = rootWarnings}       
 
         result
-        
+
     /// Given source text, find the full load closure. Used from service.fs, when editing a script file
     let GetFullClosureOfScriptSource(filename,source,codeContext,useMonoResolution,useFsiAuxLib,lexResourceManager:Lexhelp.LexResourceManager,applyCommmandLineArgs) = 
         // Resolve the basic references such as FSharp.Core.dll first, before processing any #I directives in the script
@@ -5133,7 +5133,7 @@ let CheckSimulateException(tcConfig:TcConfig) =
     | Some("tc-ma") -> raise(System.MemberAccessException())
     | Some("tc-ni") -> raise(System.NotImplementedException())
     | Some("tc-nr") -> raise(System.NullReferenceException())
-#if SILVERLIGHT    
+#if FX_NO_OPERATION_CANCELED
 #else    
     | Some("tc-oc") -> raise(System.OperationCanceledException())
 #endif

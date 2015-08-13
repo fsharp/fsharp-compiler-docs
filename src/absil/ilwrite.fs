@@ -4,10 +4,7 @@ module internal Microsoft.FSharp.Compiler.AbstractIL.ILBinaryWriter
 
 open Internal.Utilities
 open Microsoft.FSharp.Compiler.AbstractIL 
-#if SILVERLIGHT
-#else
 open Microsoft.FSharp.Compiler.AbstractIL.ILAsciiWriter 
-#endif
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
 open Microsoft.FSharp.Compiler.AbstractIL.Extensions.ILX.Types  
@@ -31,7 +28,7 @@ let showEntryLookups = false
 //---------------------------------------------------------------------
 
 let reportTime =
-#if SILVERLIGHT
+#if FX_NO_PROCESS_DIAGNOSTICS
     (fun _ _ -> ())
 #else
     let tFirst = ref None     
@@ -228,7 +225,7 @@ type PdbData =
 // imperative calls to the Symbol Writer API.
 //---------------------------------------------------------------------
 
-#if SILVERLIGHT
+#if NO_PDB_WRITER
 #else
 let WritePdbInfo fixupOverlappingSequencePoints showTimes f fpdb info = 
     (try FileSystem.FileDelete fpdb with _ -> ())
@@ -3436,10 +3433,6 @@ let count f arr =
 
 module FileSystemUtilites = 
     open System.Reflection
-#if SILVERLIGHT
-    let progress = false
-    let setExecutablePermission _filename = ()
-#else
     let progress = try System.Environment.GetEnvironmentVariable("FSharp_DebugSetFilePermissions") <> null with _ -> false
     let setExecutablePermission filename =
 
@@ -3455,7 +3448,6 @@ module FileSystemUtilites =
         with e -> 
             if progress then eprintf "failure: %s...\n" (e.ToString())
             // Fail silently
-#endif
         
 let writeILMetadataAndCode (generatePdb,desiredMetadataVersion,ilg,emitTailcalls,showTimes) modul noDebugData cilStartAddress = 
 
@@ -4519,7 +4511,7 @@ let writeBinaryAndReportMappings (outfile, ilg, pdbfile: string option, signer: 
     if dumpDebugInfo then 
         DumpDebugInfo outfile pdbData
 
-#if SILVERLIGHT
+#if NO_PDB_WRITER
 #else
     // Now we've done the bulk of the binary, do the PDB file and fixup the binary. 
     begin match pdbfile with

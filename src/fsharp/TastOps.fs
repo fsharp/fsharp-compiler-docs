@@ -1560,7 +1560,7 @@ let isStructTy g ty =
     (isAppTy g ty && (tyconOfAppTy g ty).IsStructOrEnumTycon) || isTupleStructTy g ty
 
 // ECMA C# LANGUAGE SPECIFICATION, 27.2
-// An unmanaged-type is any type that isnt a reference-type, a type-parameter, or a generic struct-type and
+// An unmanaged-type is any type that isn’t a reference-type, a type-parameter, or a generic struct-type and
 // contains no fields whose type is not an unmanaged-type. In other words, an unmanaged-type is one of the
 // following:
 // - sbyte, byte, short, ushort, int, uint, long, ulong, char, float, double, decimal, or bool.

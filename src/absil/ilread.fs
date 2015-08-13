@@ -105,7 +105,7 @@ type BinaryFile() =
     abstract CountUtf8String : addr:int -> int
     abstract ReadUTF8String : addr: int -> string
 
-#if SILVERLIGHT
+#if FX_NO_NATIVE_MEMORY_MAPPED_FILES
 
 #else
 
@@ -2530,7 +2530,7 @@ and seekReadCustomAttr ctxt (TaggedIndex(cat,idx),b) =
 and seekReadCustomAttrUncached ctxtH (CustomAttrIdx (cat,idx,valIdx)) = 
     let ctxt = getHole ctxtH
     { Method=seekReadCustomAttrType ctxt (TaggedIndex(cat,idx));
-#if SILVERLIGHT
+#if FX_REFLECTION_EMITS_CUSTOM_ATTRIBUTES_USING_BUILDER
       Arguments = [], []
 #endif
       Data=
@@ -3973,7 +3973,7 @@ let ClosePdbReader pdb =
 
 let OpenILModuleReader infile opts = 
 
-#if SILVERLIGHT
+#if FX_NO_NATIVE_MEMORY_MAPPED_FILES
 #else
    try 
         let mmap = MemoryMappedFile.Create infile

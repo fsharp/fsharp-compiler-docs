@@ -519,6 +519,19 @@ type TcConfig =
     member TargetMscorlibVersion : System.Version
     member TargetIsSilverlight : bool
 
+/// Represents a computation to return a TcConfig. Normally this is just a constant immutable TcConfig,
+/// but for F# Interactive it may be based on an underlying mutable TcConfigBuilder.
+[<Sealed>]
+type TcConfigProvider = 
+
+    member Get : unit -> TcConfig
+
+    /// Get a TcConfigProvider which will return only the exact TcConfig.
+    static member Constant : TcConfig -> TcConfigProvider
+
+    /// Get a TcConfigProvider which will continue to respect changes in the underlying
+    /// TcConfigBuilder rather than delivering snapshots.
+    static member BasedOnMutableBuilder : TcConfigBuilder -> TcConfigProvider
 
 //----------------------------------------------------------------------------
 // Tables of referenced DLLs 
@@ -559,19 +572,6 @@ type TcAssemblyResolutions =
     static member BuildFromPriorResolutions     : TcConfig * AssemblyResolution list * UnresolvedAssemblyReference list -> TcAssemblyResolutions 
     
 
-/// Represents a computation to return a TcConfig. Normally this is just a constant immutable TcConfig,
-/// but for F# Interactive it may be based on an underlying mutable TcConfigBuilder.
-[<Sealed>]
-type TcConfigProvider = 
-
-    member Get : unit -> TcConfig
-
-    /// Get a TcConfigProvider which will return only the exact TcConfig.
-    static member Constant : TcConfig -> TcConfigProvider
-
-    /// Get a TcConfigProvider which will continue to respect changes in the underlying
-    /// TcConfigBuilder rather than delivering snapshots.
-    static member BasedOnMutableBuilder : TcConfigBuilder -> TcConfigProvider
 
 /// Repreesnts a table of imported assemblies with their resolutions.
 [<Sealed>] 
@@ -688,6 +688,7 @@ val GetInitialTcEnv : string option * range * TcConfig * TcImports * TcGlobals -
 /// Represents the incremental type checking state for a set of inputs
 type TcState =
     member NiceNameGenerator : Ast.NiceNameGenerator
+
     /// The CcuThunk for the current assembly being checked
     member Ccu : CcuThunk
     

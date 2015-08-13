@@ -27,7 +27,7 @@ module internal MSBuildResolver =
         | RuntimeLike      // Don't allow stubbed-out reference assemblies
         | DesigntimeLike 
 
-#if SILVERLIGHT
+#if NO_MSBUILD_REFERENCE_RESOLUTION
 #else
 
     /// Get the Reference Assemblies directory for the .NET Framework on Window

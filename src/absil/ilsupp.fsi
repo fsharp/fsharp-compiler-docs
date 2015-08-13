@@ -15,7 +15,7 @@ val pdbInitialize : string -> string -> PdbWriter
 val absilWriteGetTimeStamp: unit -> int32
 
 
-#if SILVERLIGHT
+#if NO_PDB_READER
 #else
 open System
 open System.Runtime.InteropServices

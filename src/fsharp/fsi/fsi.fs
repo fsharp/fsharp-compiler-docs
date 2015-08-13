@@ -56,7 +56,6 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open Internal.Utilities.Collections
 open Internal.Utilities.StructuredFormat
-open Internal.Utilities.FileSystem
 
 #if SILVERLIGHT
 let internal exit (_ : int) = ()

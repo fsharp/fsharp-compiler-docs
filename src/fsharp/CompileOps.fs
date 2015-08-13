@@ -40,7 +40,6 @@ open Microsoft.FSharp.Compiler.MSBuildResolver
 open Microsoft.FSharp.Compiler.TypeRelations
 open Microsoft.FSharp.Compiler.NameResolution
 open Microsoft.FSharp.Compiler.PrettyNaming
-open Internal.Utilities.FileSystem
 open Internal.Utilities.Collections
 open Internal.Utilities.Filename
 open Microsoft.FSharp.Compiler.Import

@@ -3,7 +3,6 @@
 namespace Microsoft.FSharp.Compiler
 #nowarn "57"
 open Internal.Utilities.Debug
-open Internal.Utilities.FileSystem
 open System
 open System.IO
 open System.Reflection             

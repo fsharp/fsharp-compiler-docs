@@ -169,12 +169,12 @@ let testILCall2 = System.Console.WriteLine(176)
 
 // Test recursive values in a module
 let rec recValNeverUsedAtRuntime = recFuncIgnoresFirstArg (fun _ -> recValNeverUsedAtRuntime) 1
-and recFuncIgnoresFirstArg (g:int->int) v = v
+and recFuncIgnoresFirstArg g v = v
 
 let testFun4() = 
     // Test recursive values in expression position
     let rec recValNeverUsedAtRuntime = recFuncIgnoresFirstArg (fun _ -> recValNeverUsedAtRuntime) 1
-    and recFuncIgnoresFirstArg (g:int->int) v = v
+    and recFuncIgnoresFirstArg g v = v
 
     recValNeverUsedAtRuntime
 

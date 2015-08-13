@@ -379,7 +379,7 @@ module FSharpExprConvert =
 
     and ConvExprPrim (cenv:Impl.cenv) (env:ExprTranslationEnv) expr = 
         // Eliminate integer 'for' loops 
-        let expr = DetectFastIntegerForLoops cenv.g expr
+        let expr = DetectAndOptimizeForExpression cenv.g OptimizeIntRangesOnly expr
 
         // Eliminate subsumption coercions for functions. This must be done post-typechecking because we need
         // complete inference types.

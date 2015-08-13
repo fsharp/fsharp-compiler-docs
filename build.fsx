@@ -226,5 +226,6 @@ Target "All" DoNothing
   ==> "GenerateDocsJa"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
+  ==> "Release"
 
 RunTargetOrDefault "All"

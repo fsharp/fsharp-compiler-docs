@@ -1,11 +1,11 @@
 ﻿
 #if INTERACTIVE
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
-#r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
+#r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
-module FSharp.Compiler.Service.Tests.ExpeTests
+module FSharp.Compiler.Service.Tests.ExprTests
 #endif
 
 

@@ -392,7 +392,7 @@ let ``Test Declarations project1`` () =
                "let tyfuncEx1 = Operators.TypeOf<'T> () @ (26,20--26,26)";
                "let testILCall1 = new Object() @ (27,18--27,27)";
                "let testILCall2 = Console.WriteLine (176) @ (28,18--28,47)";
-               "let recFuncIgnoresFirstArg(g) (v) = v @ (32,44--32,45)";
+               "let recFuncIgnoresFirstArg(g) (v) = v @ (32,33--32,34)";
                "let recValNeverUsedAtRuntime = recValNeverUsedAtRuntime@31.Force<Microsoft.FSharp.Core.int>(()) @ (31,8--31,32)";
                "let testFun4(unitVar0) = let rec ... in recValNeverUsedAtRuntime @ (36,4--39,28)";
                "type ClassWithImplicitConstructor";

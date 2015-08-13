@@ -17,7 +17,6 @@ module internal ExtensionTyping =
     open Microsoft.FSharp.Compiler.AbstractIL.IL
     open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics // dprintfn
     open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library // frontAndBack
-    open Internal.Utilities.FileSystem
 
 #if TYPE_PROVIDER_SECURITY
     module internal GlobalsTheLanguageServiceCanPoke =

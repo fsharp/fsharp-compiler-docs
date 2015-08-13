@@ -1,7 +1,14 @@
+#### 1.4.0.3 - 
+* integrate Microsoft/visualfsharp OOB cleanup via fsharp/fsharp
+
+#### 1.4.0.2 - 
+* #387 - types and arrays in F# attribute contructor arguments  
+
+#### 1.4.0.1 - F# 4.0 support
+* Use FSharp.Core 4.4.0.0 by default for scripting scenarios if not FSharp.Core referenced by host process
+
 #### 1.4.0.0-beta - F# 4.0 support
 * Integrate F# 4.0 support into FSharp.Compiler.Service
-
-#### 1.3.1.1 - Updated version number
 
 #### 1.3.1.0 -
 * simplified source indexing with new SourceLink

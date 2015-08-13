@@ -10,6 +10,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     open Microsoft.FSharp.Compiler.Driver
     open Microsoft.FSharp.Compiler
     open Microsoft.FSharp.Compiler.Ast
+    open Microsoft.FSharp.Compiler.CompileOps
     open Microsoft.FSharp.Compiler.ErrorLogger
     open Microsoft.FSharp.Compiler.AbstractIL
     open Microsoft.FSharp.Compiler.AbstractIL.IL
@@ -116,7 +117,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let errors = ResizeArray<_>()
 
             let errorSink warn exn = 
-                let mainError,relatedErrors = Build.SplitRelatedErrors exn 
+                let mainError,relatedErrors = SplitRelatedErrors exn 
                 let oneError trim e = errors.Add(ErrorInfo.CreateFromException (e, warn, trim, Range.range0))
                 oneError false mainError
                 List.iter (oneError true) relatedErrors
@@ -158,7 +159,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let errors, errorLogger, loggerProvider = mkCompilationErorHandlers()
      
             let executable = defaultArg executable true
-            let target = if executable then Build.CompilerTarget.ConsoleExe else Build.CompilerTarget.Dll
+            let target = if executable then CompilerTarget.ConsoleExe else CompilerTarget.Dll
      
             let result = 
                 tryCompile errorLogger (fun exiter -> 
@@ -166,7 +167,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
             errors.ToArray(), result
 
-        let dynamicAssemblyCreator (debugInfo:bool,tcImportsRef: Build.TcImports option ref, execute: _ option, assemblyBuilderRef: _ option ref) (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) =
+        let dynamicAssemblyCreator (debugInfo:bool,tcImportsRef: TcImports option ref, execute: _ option, assemblyBuilderRef: _ option ref) (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) =
 
             // Create an assembly builder
             let assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile),System.Reflection.Emit.AssemblyBuilderAccess.Run)
@@ -199,7 +200,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
             // Register the reflected definitions for the dynamically generated assembly
             for resource in ilxMainModule.Resources.AsList do 
-                if Build.IsReflectedDefinitionsResource resource then 
+                if IsReflectedDefinitionsResource resource then 
                     Quotations.Expr.RegisterReflectedDefinitions(assemblyBuilder, moduleBuilder.Name, resource.Bytes)
 
             // Save the result
@@ -288,7 +289,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             setOutputStreams execute
             
             // References used to capture the results of compilation
-            let tcImportsRef = ref (None: Build.TcImports option)
+            let tcImportsRef = ref (None: TcImports option)
             let assemblyBuilderRef = ref None
             let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
 
@@ -311,7 +312,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             setOutputStreams execute
 
             // References used to capture the results of compilation
-            let tcImportsRef = ref (None: Build.TcImports option)
+            let tcImportsRef = ref (None: TcImports option)
             let assemblyBuilderRef = ref None
             let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
 

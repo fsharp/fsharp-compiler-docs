@@ -21,13 +21,13 @@ open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.Infos
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
-open Microsoft.FSharp.Compiler.Build
+open Microsoft.FSharp.Compiler.CompileOps
 open Microsoft.FSharp.Compiler.Tast
-open Microsoft.FSharp.Compiler.Nameres
-open Microsoft.FSharp.Compiler.Env
+open Microsoft.FSharp.Compiler.NameResolution
+open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.Lib
 open Microsoft.FSharp.Compiler.Tastops
-open Microsoft.FSharp.Compiler.Pickle
+open Microsoft.FSharp.Compiler.TastPickle
 open Microsoft.FSharp.Compiler.PrettyNaming
 
 [<AutoOpen>]
@@ -179,7 +179,7 @@ type FSharpSymbol(cenv:cenv, item: (unit -> Item), access: (FSharpSymbol -> CcuT
     member x.SignatureLocation = ItemDescriptionsImpl.rangeOfItem cenv.g (Some(true)) x.Item
 
     member x.IsEffectivelySameAs(y:FSharpSymbol) = 
-        x.Equals(y) || Nameres.ItemsAreEffectivelyEqual cenv.g x.Item y.Item
+        x.Equals(y) || ItemsAreEffectivelyEqual cenv.g x.Item y.Item
 
     member internal x.Item = item()
 
@@ -190,7 +190,7 @@ type FSharpSymbol(cenv:cenv, item: (unit -> Item), access: (FSharpSymbol -> CcuT
     override x.Equals(other : obj) =
         box x === other ||
         match other with
-        |   :? FSharpSymbol as otherSymbol -> Nameres.ItemsAreEffectivelyEqual cenv.g x.Item otherSymbol.Item
+        |   :? FSharpSymbol as otherSymbol -> ItemsAreEffectivelyEqual cenv.g x.Item otherSymbol.Item
         |   _ -> false
 
     override x.GetHashCode() = hash x.ImplementationLocation  
@@ -481,7 +481,7 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
         if isUnresolved() then makeReadOnlyCollection[] else
         entity.ModuleOrNamespaceType.AllEntities 
         |> QueueList.toList
-        |> List.map (fun x -> FSharpEntity(cenv,  entity.MkNestedTyconRef x))
+        |> List.map (fun x -> FSharpEntity(cenv,  entity.NestedTyconRef x))
         |> makeReadOnlyCollection
 
     member x.UnionCases = 
@@ -1711,6 +1711,12 @@ and FSharpType(cenv, typ:TType) =
 
 and FSharpAttribute(cenv: cenv, attrib: AttribInfo) = 
 
+    let rec resolveArgObj (arg: obj) =
+        match arg with
+        | :? TType as t -> box (FSharpType(cenv, t)) 
+        | :? (obj[]) as a -> a |> Array.map resolveArgObj |> box
+        | _ -> arg
+
     member __.AttributeType =  
         FSharpEntity(cenv,  attrib.TyconRef)
 
@@ -1718,12 +1724,12 @@ and FSharpAttribute(cenv: cenv, attrib: AttribInfo) =
 
     member __.ConstructorArguments = 
         attrib.ConstructorArguments 
-        |> List.map (fun (ty, obj) -> FSharpType(cenv, ty), obj)
+        |> List.map (fun (ty, obj) -> FSharpType(cenv, ty), resolveArgObj obj)
         |> makeReadOnlyCollection
 
     member __.NamedArguments = 
         attrib.NamedArguments 
-        |> List.map (fun (ty, nm, isField, obj) -> FSharpType(cenv, ty), nm, isField, obj)
+        |> List.map (fun (ty, nm, isField, obj) -> FSharpType(cenv, ty), nm, isField, resolveArgObj obj)
         |> makeReadOnlyCollection
 
     member __.Format(denv: FSharpDisplayContext) = 

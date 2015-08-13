@@ -11,6 +11,9 @@ open System.Collections.Generic
 
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.TcGlobals
+open Microsoft.FSharp.Compiler.NameResolution
+open Microsoft.FSharp.Compiler.CompileOps
 
 /// Represents one parameter for one method (or other item) in a group. 
 [<Sealed>]
@@ -101,7 +104,7 @@ type FSharpProjectContext =
 [<Sealed>]
 type FSharpSymbolUse = 
     // For internal use only
-    internal new : g:Env.TcGlobals * denv: Tastops.DisplayEnv * symbol:FSharpSymbol * itemOcc:Nameres.ItemOccurence * range: range -> FSharpSymbolUse
+    internal new : g:TcGlobals * denv: Tastops.DisplayEnv * symbol:FSharpSymbol * itemOcc:ItemOccurence * range: range -> FSharpSymbolUse
 
     /// The symbol referenced
     member Symbol : FSharpSymbol 
@@ -695,7 +698,7 @@ type FSharpChecker =
 // An object to typecheck source in a given typechecking environment.
 // Used internally to provide intellisense over F# Interactive.
 type internal FsiInteractiveChecker =
-    internal new : ops: IReactorOperations * tcConfig: Build.TcConfig * tcGlobals: Env.TcGlobals * tcImports: Build.TcImports * tcState: Build.TcState * loadClosure: Build.LoadClosure option ->  FsiInteractiveChecker 
+    internal new : ops: IReactorOperations * tcConfig: TcConfig * tcGlobals: TcGlobals * tcImports: TcImports * tcState: TcState * loadClosure: LoadClosure option ->  FsiInteractiveChecker 
     member internal ParseAndCheckInteraction : source:string -> FSharpParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults
 
 /// Information about the compilation environment

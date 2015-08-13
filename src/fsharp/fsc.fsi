@@ -6,8 +6,8 @@ open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.Build
-open Microsoft.FSharp.Compiler.Env
+open Microsoft.FSharp.Compiler.CompileOps
+open Microsoft.FSharp.Compiler.TcGlobals
 
 //----------------------------------------------------------------------------
 // Public helpers - entry point for fsc.exe
@@ -49,7 +49,7 @@ val compileOfAst :
       -> unit
 
 val EncodeInterfaceData: tcConfig:TcConfig * tcGlobals:TcGlobals * exportRemapping:Tastops.Remap * generatedCcu: Tast.CcuThunk * outfile: string -> ILAttribute list * ILResource list
-val ValidateKeySigningAttributes : tcConfig:TcConfig -> tcGlobals:TcGlobals -> TypeChecker.TopAttribs -> SigningInfo
+val ValidateKeySigningAttributes : tcConfig:TcConfig * tcGlobals:TcGlobals * TypeChecker.TopAttribs -> SigningInfo
 val GetSigner : SigningInfo -> ILBinaryWriter.ILStrongNameSigner option
 
 //----------------------------------------------------------------------------
@@ -61,12 +61,12 @@ type ILResource with
 
 
 //----------------------------------------------------------------------------
-/// Internal helpers used to implement the Visual Studio hosted CodeServices API.
-///
-/// The F# project system calls this to pop up type provider security dialog if needed.
-val internal runFromCommandLineToImportingAssemblies : (string -> unit) * string[] * string * string * Exiter -> unit
+// Internal helpers used to implement the Visual Studio hosted CodeServices API.
+//
+// /// The F# project system calls this to pop up type provider security dialog if needed.
+//val internal GetTcImportsFromCommandLine : (string -> unit) * string[] * string * string * Exiter -> unit
 
-/// Proccess the given set of command line arguments
-val internal ProcessCommandLineFlags : TcConfigBuilder * argv:string[] -> string list
+// /// Proccess the given set of command line arguments
+//val internal ProcessCommandLineFlags : TcConfigBuilder * argv:string[] -> string list
 
 #endif

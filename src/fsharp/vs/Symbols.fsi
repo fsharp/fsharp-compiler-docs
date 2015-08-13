@@ -13,10 +13,10 @@ namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
 open System.Collections.Generic
 open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.Env
+open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.Build
+open Microsoft.FSharp.Compiler.CompileOps
 
 module internal Impl = 
     type internal cenv = 
@@ -40,12 +40,12 @@ type [<Class>] FSharpDisplayContext =
 /// or FSharpActivePatternCase.
 type [<Class>] FSharpSymbol = 
     /// Internal use only. 
-    static member internal Create : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * item:Nameres.Item -> FSharpSymbol
+    static member internal Create : g:TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * item:NameResolution.Item -> FSharpSymbol
 
     /// Computes if the symbol is accessible for the given accessibilty rights
     member IsAccessible: FSharpAccessibilityRights -> bool
         
-    member internal Item: Nameres.Item
+    member internal Item: NameResolution.Item
         
     /// Get the assembly declaring this symbol
     member Assembly: FSharpAssembly 

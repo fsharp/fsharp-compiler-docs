@@ -123,5 +123,7 @@ FSharp.Core.Nuget/*.nupkg
 *.jrs
 *.chk
 *.bak
+FSharp.Compiler.Tools.Nuget/*.nupkg
+FSharp.Core.Nuget/*.nupkg
 *.orig
 .paket/paket.exe

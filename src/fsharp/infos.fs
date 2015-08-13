@@ -19,7 +19,7 @@ open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Tastops
 open Microsoft.FSharp.Compiler.Tastops.DebugPrint
-open Microsoft.FSharp.Compiler.Env
+open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
 open Microsoft.FSharp.Compiler.Lib
 open Microsoft.FSharp.Core.Printf
@@ -2598,7 +2598,7 @@ let rec evalILAttribElem e =
     | ILAttribElem.TypeRef (Some _t) -> fail()
     | ILAttribElem.TypeRef None     -> null
 
-let evalFSharpAttribArg e = 
+let rec evalFSharpAttribArg g e = 
     match e with
     | Expr.Const(c,_,_) -> 
         match c with 
@@ -2617,8 +2617,9 @@ let evalFSharpAttribArg e =
         | Const.Zero -> null
         | Const.String s ->  box s
         | _ -> fail()
-    // TODO: typeof<..> in attribute values
-    // TODO: arrays in attribute values
+    | Expr.Op (TOp.Array,_,a,_) -> box [| for i in a -> evalFSharpAttribArg g i |]
+    | TypeOfExpr g ty -> box ty
+    // TODO: | TypeDefOfExpr g ty
     | _ -> fail()
 
 type AttribInfo = 
@@ -2647,7 +2648,7 @@ type AttribInfo =
              unnamedArgs
              |> List.map (fun (AttribExpr(origExpr,evaluatedExpr)) -> 
                     let ty = tyOfExpr g origExpr
-                    let obj = evalFSharpAttribArg evaluatedExpr
+                    let obj = evalFSharpAttribArg g evaluatedExpr
                     ty,obj) 
          | ILAttribInfo (g, amap, scoref, cattr, m) -> 
               let parms, _args = decodeILAttribData g.ilg cattr (Some scoref) 
@@ -2662,7 +2663,7 @@ type AttribInfo =
              namedArgs
              |> List.map (fun (AttribNamedArg(nm,_,isField,AttribExpr(origExpr,evaluatedExpr))) -> 
                     let ty = tyOfExpr g origExpr
-                    let obj = evalFSharpAttribArg evaluatedExpr
+                    let obj = evalFSharpAttribArg g evaluatedExpr
                     ty, nm, isField, obj) 
          | ILAttribInfo (g, amap, scoref, cattr, m) -> 
               let _parms, namedArgs = decodeILAttribData g.ilg cattr (Some scoref) 
@@ -3240,7 +3241,7 @@ type PropertyCollector(g,amap,m,typ,optFilter,ad) =
         else
             props.[pinfo] <- pinfo
 
-    member x.Collect(membInfo,vref:ValRef) = 
+    member x.Collect(membInfo:ValMemberInfo,vref:ValRef) = 
         match membInfo.MemberFlags.MemberKind with 
         | MemberKind.PropertyGet ->
             let pinfo = FSProp(g,typ,Some vref,None) 
@@ -3368,8 +3369,8 @@ type InfoReader(g:TcGlobals, amap:Import.ImportMap) =
         infos 
 
     /// Make a reference to a record or class field
-    let MakeRecdFieldInfo g typ tcref fspec = 
-        RecdFieldInfo(argsOfAppTy g typ,mkNestedRecdFieldRef tcref fspec)
+    let MakeRecdFieldInfo g typ (tcref:TyconRef) fspec = 
+        RecdFieldInfo(argsOfAppTy g typ,tcref.MakeNestedRecdFieldRef fspec)
 
     /// Get the F#-declared record fields or class 'val' fields of a type
     let GetImmediateIntrinsicRecdOrClassFieldsOfType (optFilter,_ad) _m typ =

@@ -31,26 +31,3 @@ All AppVeyor builds are available using the NuGet feed: https://ci.appveyor.com/
 
 If using Paket, add the source at the top of `paket.dependencies`.
 
-```
-source https://www.nuget.org/api/v2
-source https://ci.appveyor.com/nuget/fsgit-fsharp-compiler-service
-```
-
-See the build history for a list of available versions: https://ci.appveyor.com/project/fsgit/fsharp-compiler-service/history
-
-Here are some options for specifying the dependency:
-
-```
-nuget FSharp.Compiler.Service
-nuget FSharp.Compiler.Service prerelease
-nuget FSharp.Compiler.Service 1.3.1.0
-nuget FSharp.Compiler.Service 1.3.1.1-b402
-```
-
-Dev Guide
-----------
-
-To integrate latest changes from http://github.com/fsharp/fsharp, use
-
-git remote add fsc https://github.com/fsharp/fsharp
-git pull fsc master

@@ -46,6 +46,7 @@
     <DefineConstants>$(DefineConstants);FX_ATLEAST_SILVERLIGHT_50</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_PDB_READER</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_PDB_WRITER</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_NATIVE_RESOURCE_WRITER</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_INLINE_IL_PARSER</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_REFLECTION_EMITS_CUSTOM_ATTRIBUTES_USING_BUILDER</DefineConstants>

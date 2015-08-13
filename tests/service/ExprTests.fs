@@ -1,11 +1,11 @@
 ﻿
 #if INTERACTIVE
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
-#r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
+#r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
-module FSharp.Compiler.Service.Tests.ExpeTests
+module FSharp.Compiler.Service.Tests.ExprTests
 #endif
 
 
@@ -169,12 +169,12 @@ let testILCall2 = System.Console.WriteLine(176)
 
 // Test recursive values in a module
 let rec recValNeverUsedAtRuntime = recFuncIgnoresFirstArg (fun _ -> recValNeverUsedAtRuntime) 1
-and recFuncIgnoresFirstArg g v = v
+and recFuncIgnoresFirstArg (g:int->int) v = v
 
 let testFun4() = 
     // Test recursive values in expression position
     let rec recValNeverUsedAtRuntime = recFuncIgnoresFirstArg (fun _ -> recValNeverUsedAtRuntime) 1
-    and recFuncIgnoresFirstArg g v = v
+    and recFuncIgnoresFirstArg (g:int->int) v = v
 
     recValNeverUsedAtRuntime
 
@@ -392,7 +392,7 @@ let ``Test Declarations project1`` () =
                "let tyfuncEx1 = Operators.TypeOf<'T> () @ (26,20--26,26)";
                "let testILCall1 = new Object() @ (27,18--27,27)";
                "let testILCall2 = Console.WriteLine (176) @ (28,18--28,47)";
-               "let recFuncIgnoresFirstArg(g) (v) = v @ (32,33--32,34)";
+               "let recFuncIgnoresFirstArg(g) (v) = v @ (32,44--32,45)";
                "let recValNeverUsedAtRuntime = recValNeverUsedAtRuntime@31.Force<Microsoft.FSharp.Core.int>(()) @ (31,8--31,32)";
                "let testFun4(unitVar0) = let rec ... in recValNeverUsedAtRuntime @ (36,4--39,28)";
                "type ClassWithImplicitConstructor";

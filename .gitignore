@@ -127,3 +127,4 @@ FSharp.Compiler.Tools.Nuget/*.nupkg
 FSharp.Core.Nuget/*.nupkg
 *.orig
 .paket/paket.exe
+paket-files

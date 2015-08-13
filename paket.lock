@@ -8,12 +8,25 @@ NUGET
       FSharpVSPowerTools.Core (1.8.0)
     FSharpVSPowerTools.Core (1.8.0)
       FSharp.Compiler.Service (>= 0.0.87)
+    Microsoft.Bcl (1.1.10)
+      Microsoft.Bcl.Build (>= 1.0.14)
+    Microsoft.Bcl.Build (1.0.21)
+    Microsoft.Net.Http (2.2.29)
+      Microsoft.Bcl (>= 1.1.10)
+      Microsoft.Bcl.Build (>= 1.0.14)
     NuGet.CommandLine (2.8.6)
     NUnit (2.6.3)
     NUnit.Runners (2.6.3)
+    Octokit (0.14.0) - framework: wpv8.0
+      Microsoft.Net.Http
     SourceLink.Fake (1.0.0)
     sqlite-net-wp8 (3.8.5) - framework: wpv8.0
     SQLite.Net-PCL (3.0.5)
       sqlite-net-wp8 (>= 3.8.5) - framework: wpv8.0
     SQLite.Net.Platform.Generic (2.4.1)
       SQLite.Net-PCL
+GITHUB
+  remote: fsharp/FAKE
+  specs:
+    modules/Octokit/Octokit.fsx (16296d960f02a6192baa9e3f9facb32aca7184bb)
+      Octokit

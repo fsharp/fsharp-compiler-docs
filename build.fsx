@@ -27,7 +27,9 @@ let description = """
   interactive service that can be used for embedding F# scripting into your applications."""
 let tags = "F# fsharp interactive compiler editor"
 
-let gitHome = "https://github.com/fsharp"
+let gitOwner = "fsharp"
+let gitHome = "https://github.com/" + gitOwner
+
 let gitName = "FSharp.Compiler.Service"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.githubusercontent.com/fsharp"
 
@@ -36,6 +38,8 @@ let netFrameworks = ["v4.0"; "v4.5"]
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script 
 // --------------------------------------------------------------------------------------
+
+let buildDir = "bin"
 
 // Read release notes & version info from RELEASE_NOTES.md
 let release = LoadReleaseNotes (__SOURCE_DIRECTORY__ + "/RELEASE_NOTES.md")
@@ -65,10 +69,8 @@ Target "AssemblyInfo" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Clean build results & restore NuGet packages
 
-Target "RestorePackages" RestorePackages
-
 Target "Clean" (fun _ ->
-    CleanDirs ["bin" ]
+    CleanDirs [ buildDir ]
 )
 
 Target "CleanDocs" (fun _ ->
@@ -81,7 +83,7 @@ Target "CleanDocs" (fun _ ->
 Target "GenerateFSIStrings" (fun _ -> 
     // Generate FSIStrings using the FSSrGen tool
     execProcess (fun p -> 
-      let dir = __SOURCE_DIRECTORY__ @@ "src/fsharp/fsi"
+      let dir = __SOURCE_DIRECTORY__ </> "src/fsharp/fsi"
       p.Arguments <- "FSIstrings.txt FSIstrings.fs FSIstrings.resx"
       p.WorkingDirectory <- dir
       p.FileName <- !! "lib/bootstrap/4.0/fssrgen.exe" |> Seq.head ) TimeSpan.MaxValue
@@ -91,7 +93,7 @@ Target "GenerateFSIStrings" (fun _ ->
 Target "Build" (fun _ ->
     netFrameworks
     |> List.iter (fun framework -> 
-        let outputPath = "bin/" + framework
+        let outputPath = buildDir </> framework
         !! (project + ".sln")
         |> MSBuild outputPath "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
         |> Log (".NET " + framework + " Build-Output: "))
@@ -103,7 +105,7 @@ Target "SourceLink" (fun _ ->
     #else
     netFrameworks
     |> List.iter (fun framework -> 
-        let outputPath = __SOURCE_DIRECTORY__ @@ "bin/" + framework
+        let outputPath = __SOURCE_DIRECTORY__ </> buildDir </> framework
         let proj = VsProj.Load "src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
                         ["Configuration","Release"; "TargetFrameworkVersion",framework; "OutputPath",outputPath]
         let sourceFiles = 
@@ -140,7 +142,7 @@ Target "RunTests" (fun _ ->
 
 Target "NuGet" (fun _ ->
     NuGet (fun p -> 
-        { p with   
+        { p with 
             Authors = authors
             Project = project
             Summary = summary
@@ -148,7 +150,7 @@ Target "NuGet" (fun _ ->
             Version = buildVersion
             ReleaseNotes = release.Notes |> toLines
             Tags = tags
-            OutputPath = "bin"
+            OutputPath = buildDir
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey" })
         ("nuget/" + project + ".nuspec")
@@ -180,7 +182,23 @@ Target "ReleaseDocs" (fun _ ->
     Branches.push "temp/gh-pages"
 )
 
-Target "Release" DoNothing
+#load "paket-files/fsharp/FAKE/modules/Octokit/Octokit.fsx"
+open Octokit
+
+Target "Release" (fun _ ->
+    StageAll ""
+    Git.Commit.Commit "" (sprintf "Bump version to %s" release.NugetVersion)
+    Branches.push ""
+
+    Branches.tag "" release.NugetVersion
+    Branches.pushTag "" "origin" release.NugetVersion
+    
+    // release on github
+    createClient (getBuildParamOrDefault "github-user" "") (getBuildParamOrDefault "github-pw" "")
+    |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes 
+    |> releaseDraft
+    |> Async.RunSynchronously
+)
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
@@ -191,7 +209,6 @@ Target "All" DoNothing
 
 "Clean"
   =?> ("BuildVersion", isAppVeyorBuild)
-  ==> "RestorePackages"
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
   ==> "Prepare"

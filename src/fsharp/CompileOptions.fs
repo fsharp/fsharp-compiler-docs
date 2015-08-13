@@ -35,12 +35,9 @@ open Microsoft.FSharp.Compiler.IlxGen
 module Attributes = 
     open System.Runtime.CompilerServices
 
-#if SILVERLIGHT
-#else
     //[<assembly: System.Security.SecurityTransparent>]
     [<Dependency("FSharp.Core",LoadHint.Always)>] 
     do()
-#endif
 
 //----------------------------------------------------------------------------
 // Compiler option parser
@@ -753,10 +750,7 @@ let internalFlags (tcConfigB:TcConfigBuilder) =
   [
     CompilerOption("use-incremental-build", tagNone, OptionUnit (fun () -> tcConfigB.useIncrementalBuilder <- true), None, None)
     CompilerOption("stamps", tagNone, OptionUnit (fun () -> ()), Some(InternalCommandLineOption("--stamps", rangeCmdArgs)), None);
-#if SILVERLIGHT
-#else
     CompilerOption("ranges", tagNone, OptionSet Tastops.DebugPrint.layoutRanges, Some(InternalCommandLineOption("--ranges", rangeCmdArgs)), None);  
-#endif
     CompilerOption("terms" , tagNone, OptionUnit (fun () -> tcConfigB.showTerms <- true), Some(InternalCommandLineOption("--terms", rangeCmdArgs)), None);
     CompilerOption("termsfile" , tagNone, OptionUnit (fun () -> tcConfigB.writeTermsToFiles <- true), Some(InternalCommandLineOption("--termsfile", rangeCmdArgs)), None);
     CompilerOption("use-incremental-build", tagNone, OptionUnit (fun () -> tcConfigB.useIncrementalBuilder <- true), None, None)
@@ -878,10 +872,7 @@ let DisplayBannerText tcConfigB =
 let displayHelpFsc tcConfigB (blocks:CompilerOptionBlock list) =
     DisplayBannerText tcConfigB;
     PrintCompilerOptionBlocks blocks
-#if SILVERLIGHT
-#else        
     exit 0
-#endif
       
 let miscFlagsBoth tcConfigB = 
     [   CompilerOption("nologo", tagNone, OptionUnit (fun () -> tcConfigB.showBanner <- false), None, Some (FSComp.SR.optsNologo()));
@@ -1080,18 +1071,13 @@ let ReportTime (tcConfig:TcConfig) descr =
         | Some("fsc-ma") -> raise(System.MemberAccessException())
         | Some("fsc-ni") -> raise(System.NotImplementedException())
         | Some("fsc-nr") -> raise(System.NullReferenceException())
-#if SILVERLIGHT
-#else        
         | Some("fsc-oc") -> raise(System.OperationCanceledException())
-#endif
         | Some("fsc-fail") -> failwith "simulated"
         | _ -> ()
 
 
 
 
-#if SILVERLIGHT
-#else
     if (tcConfig.showTimes || verbose) then 
         // Note that timing calls are relatively expensive on the startup path so we don't
         // make this call unless showTimes has been turned on.
@@ -1113,7 +1099,6 @@ let ReportTime (tcConfig:TcConfig) descr =
 
         | _ -> ()
         tPrev := Some (timeNow,gcNow)
-#endif
 
     nPrev := Some descr
 

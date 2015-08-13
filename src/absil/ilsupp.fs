@@ -7,7 +7,7 @@ let DateTime1970Jan01 = new System.DateTime(1970,1,1,0,0,0,System.DateTimeKind.U
 let absilWriteGetTimeStamp () = (System.DateTime.UtcNow - DateTime1970Jan01).TotalSeconds |> int
 
 
-#if SILVERLIGHT
+#if NO_PDB_READER
 type PdbReader = | NeverImplemented
 let pdbReadClose (_pdb:PdbReader) = ()
 type PdbWriter = | NeverImplemented

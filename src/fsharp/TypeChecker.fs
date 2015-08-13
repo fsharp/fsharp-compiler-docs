@@ -1719,8 +1719,8 @@ let MakeAndPublishSimpleVals cenv env m names mergeNamesInOneNameresEnv =
         else
             // reason: now during typecheck we create new name resolution environment for all components of tupled arguments in lambda. 
             // When trying to find best environment for the given position first we pick the most deeply nested scope that contains given position 
-            // (and that will be lambda body ﾖ correct one), then we look for the better subtree on the left hand side 
-            // (and that will be name resolution environment containing second parameter parameter ﾖ without the first one).
+            // (and that will be lambda body - correct one), then we look for the better subtree on the left hand side 
+            // (and that will be name resolution environment containing second parameter parameter - without the first one).
             // fix: I've tried to make fix as local as possible to reduce overall impact on the source code. 
             // Idea of the fix: replace existing typecheck results sink and capture all reported name resolutions (this will be all parameters in lambda). 
             // After that - we restore the sink back, generate new name resolution environment that contains all captured names and report generated environment 
@@ -9154,7 +9154,7 @@ and TcMethodApplication
                                   let mref = mkILCtorMethSpecForTy(tref,[cenv.g.ilg.typ_Object]).MethodRef
                                   let expr = Expr.Op(TOp.ILCall(false,false,false,false,CtorValUsedAsSuperInit,false,false,mref,[],[],[cenv.g.obj_ty]),[],[mkDefault(mMethExpr,currCalledArgTy)],mMethExpr)
                                   emptyPreBinder,expr
-                          | PassByRef (ty, dfltVal2) -> 
+                          | PassByRef (ty, dfltVal2) ->
                               let v,_ = mkCompGenLocal mMethExpr "defaultByrefArg" ty
                               let wrapper2,rhs = build currCalledArgTy dfltVal2
                               (wrapper2 >> mkCompGenLet mMethExpr v rhs), mkValAddr mMethExpr (mkLocalValRef v)
@@ -9604,7 +9604,7 @@ and TcNormalizedBinding declKind (cenv:cenv) env tpenv overallTy safeThisValOpt 
             match NameMap.range nameToPrelimValSchemeMap with 
             | [PrelimValScheme1(id,_,ty,_,_,_,_,_,_,_,_) ] -> 
                 match ActivePatternInfoOfValName id.idText id.idRange  with 
-                | Some apinfo ->  Some (apinfo, ty, id.idRange)
+                | Some apinfo ->  Some (apinfo,ty, id.idRange)
                 | None -> None
             | _ -> None
 

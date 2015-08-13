@@ -545,8 +545,6 @@ let ImportILAssembly(amap:(unit -> ImportMap),m,auxModuleLoader,sref,sourceDir,f
             | _ -> error(InternalError("ImportILAssembly: cannot reference .NET netmodules directly, reference the containing assembly instead",m))
         let nm = aref.Name
         let mty = ImportILAssemblyTypeDefs(amap,m,auxModuleLoader,aref,ilModule)
-
-
         let ccuData : CcuData = 
           { IsFSharp=false
             UsesFSharp20PlusQuotations=false

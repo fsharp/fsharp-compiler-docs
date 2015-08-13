@@ -118,7 +118,7 @@ type PublicKey =
     member IsKeyToken: bool
     member Key: byte[]
     member KeyToken: byte[]
-    static member KeyAsToken: byte[] -> PublicKey
+    static member KeyAsToken: byte[] -> PublicKey 
 
 type ILVersionInfo = uint16 * uint16 * uint16 * uint16
 
@@ -1028,7 +1028,7 @@ type ILAttributeNamedArg = string * ILType * bool * ILAttribElem
 /// to ILAttribElem's as best as possible.  
 type ILAttribute =
     { Method: ILMethodSpec;  
-#if SILVERLIGHT
+#if FX_REFLECTION_EMITS_CUSTOM_ATTRIBUTES_USING_BUILDER
       Arguments: ILAttribElem list * ILAttributeNamedArg list
 #endif
       Data: byte[] }

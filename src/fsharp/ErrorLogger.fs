@@ -109,7 +109,7 @@ type Exiter =
 let QuitProcessExiter = 
     { new Exiter with 
         member x.Exit(n) = 
-#if SILVERLIGHT
+#if FX_NO_SYSTEM_ENVIRONMENT_EXIT
 #else                    
             try 
               System.Environment.Exit(n)
@@ -158,10 +158,7 @@ module BuildPhaseSubcategory =
 type PhasedError = { Exception:exn; Phase:BuildPhase } with
     /// Construct a phased error
     static member Create(exn:exn,phase:BuildPhase) : PhasedError =
-#if SILVERLIGHT
-#else
         //System.Diagnostics.Debug.Assert(phase<>BuildPhase.DefaultPhase, sprintf "Compile error seen with no phase to attribute it to.%A %s %s" phase exn.Message exn.StackTrace )        
-#endif
         {Exception = exn; Phase=phase}
     member this.DebugDisplay() =
         sprintf "%s: %s" (this.Subcategory()) this.Exception.Message
@@ -285,7 +282,7 @@ type internal CompileThreadStatic =
 module ErrorLoggerExtensions = 
     open System.Reflection
 
-#if SILVERLIGHT
+#if NO_WATSON_DUMPS
 #else
     // Instruct the exception not to reset itself when thrown again.
     // Why don?t we just not catch these in the first place? Because we made the design choice to ask the user to send mail to fsbugs@microsoft.com. 
@@ -333,7 +330,7 @@ module ErrorLoggerExtensions =
             | _ ->
                 try  
                     x.ErrorR (AttachRange m exn) // may raise exceptions, e.g. an fsi error sink raises StopProcessing.
-#if SILVERLIGHT
+#if NO_WATSON_DUMPS
 #else
                     ReraiseIfWatsonable(exn)
 #endif

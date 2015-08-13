@@ -628,7 +628,7 @@ module Eventually =
     let force e = Option.get (forceWhile (fun () -> true) e)
         
     /// Keep running the computation bit by bit until a time limit is reached.
-#if SILVERLIGHT
+#if FX_NO_SYSTEM_DIAGNOSTICS_STOPWATCH
     // There is no Stopwatch on Silverlight, so use DateTime.Now. I'm not sure of the pros and cons of this.
     // An alternative is just to always force the computation all the way to the end.
     //let repeatedlyProgressUntilDoneOrTimeShareOver _timeShareInMilliseconds runner e = 
@@ -990,7 +990,7 @@ module Shim =
         abstract AssemblyLoadFrom: fileName:string -> System.Reflection.Assembly 
         abstract AssemblyLoad: assemblyName:System.Reflection.AssemblyName -> System.Reflection.Assembly 
 
-#if SILVERLIGHT
+#if FX_FILE_SYSTEM_USES_ISOLATED_STORAGE
     open System.IO.IsolatedStorage
     open System.Windows
     open System
@@ -1105,7 +1105,7 @@ module Shim =
 
     type System.Text.Encoding with 
         static member GetEncodingShim(n:int) = 
-#if SILVERLIGHT
+#if FX_NO_GET_ENCODING_BY_INTEGER
                 System.Text.Encoding.GetEncoding(n.ToString())
 #else                
                 System.Text.Encoding.GetEncoding(n)

@@ -37,15 +37,15 @@ let mkFlexibleFloatFormatTypar g m =
 let isDigit c = ('0' <= c && c <= '9')
 
 type FormatInfoRegister = 
-  { mutable leftJustify    : bool; 
-    mutable numPrefixIfPos : char option;
-    mutable addZeros       : bool;
+  { mutable leftJustify    : bool 
+    mutable numPrefixIfPos : char option
+    mutable addZeros       : bool
     mutable precision      : bool}
 
 let newInfo ()= 
-  { leftJustify    = false;
-    numPrefixIfPos = None;
-    addZeros       = false;
+  { leftJustify    = false
+    numPrefixIfPos = None
+    addZeros       = false
     precision      = false}
 
 let ParseFormatString (m: Range.range) g (source: string option) report fmt bty cty dty = 
@@ -103,58 +103,58 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                 if i >= len then failwithf "%s" <| FSComp.SR.forMissingFormatSpecifier()
                 match fmt.[i] with
                 | '-' -> 
-                    if info.leftJustify then failwithf "%s" <| FSComp.SR.forFlagSetTwice("-");
-                    info.leftJustify <- true;
+                    if info.leftJustify then failwithf "%s" <| FSComp.SR.forFlagSetTwice("-")
+                    info.leftJustify <- true
                     flags(i+1)
                 | '+' -> 
                     if info.numPrefixIfPos <> None then failwithf "%s" <| FSComp.SR.forPrefixFlagSpacePlusSetTwice()
-                    info.numPrefixIfPos <- Some '+';
+                    info.numPrefixIfPos <- Some '+'
                     flags(i+1)
                 | '0' -> 
-                    if info.addZeros then failwithf "%s" <| FSComp.SR.forFlagSetTwice("0");
-                    info.addZeros <- true;
+                    if info.addZeros then failwithf "%s" <| FSComp.SR.forFlagSetTwice("0")
+                    info.addZeros <- true
                     flags(i+1)
                 | ' ' -> 
-                    if info.numPrefixIfPos <> None then failwithf "%s" <| FSComp.SR.forPrefixFlagSpacePlusSetTwice();
-                    info.numPrefixIfPos <- Some ' ';
+                    if info.numPrefixIfPos <> None then failwithf "%s" <| FSComp.SR.forPrefixFlagSpacePlusSetTwice()
+                    info.numPrefixIfPos <- Some ' '
                     flags(i+1)
-                | '#' -> failwithf "%s" <| FSComp.SR.forHashSpecifierIsInvalid(); 
+                | '#' -> failwithf "%s" <| FSComp.SR.forHashSpecifierIsInvalid() 
                 | _ -> i
 
               let rec digitsPrecision i = 
-                if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision();
+                if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision()
                 match fmt.[i] with
                 | c when isDigit c -> digitsPrecision (i+1)
                 | _ -> i 
 
               let precision i = 
-                if i >= len then failwithf "%s" <| FSComp.SR.forBadWidth();
+                if i >= len then failwithf "%s" <| FSComp.SR.forBadWidth()
                 match fmt.[i] with
                 | c when isDigit c -> info.precision <- true; false,digitsPrecision (i+1)
                 | '*' -> info.precision <- true; true,(i+1)
                 | _ -> failwithf "%s" <| FSComp.SR.forPrecisionMissingAfterDot()
 
               let optionalDotAndPrecision i = 
-                if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision();
+                if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision()
                 match fmt.[i] with
                 | '.' -> precision (i+1)
                 | _ -> false,i
 
               let rec digitsWidthAndPrecision i = 
-                if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision();
+                if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision()
                 match fmt.[i] with
                 | c when isDigit c -> digitsWidthAndPrecision (i+1)
                 | _ -> optionalDotAndPrecision i
 
               let widthAndPrecision i = 
-                if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision();
+                if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision()
                 match fmt.[i] with
                 | c when isDigit c -> false,digitsWidthAndPrecision i
                 | '*' -> true,optionalDotAndPrecision (i+1)
                 | _ -> false,optionalDotAndPrecision i
 
               let rec digitsPosition n i =
-                  if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision();
+                  if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision()
                   match fmt.[i] with
                   | c when isDigit c -> digitsPosition (n*10 + int c - int '0') (i+1)
                   | '$' -> Some n, i+1
@@ -179,7 +179,7 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
               let widthArg,(precisionArg,i) = widthAndPrecision i 
               let relCol = relCol + i - oldI
 
-              if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision();
+              if i >= len then failwithf "%s" <| FSComp.SR.forBadPrecision()
 
               let acc = if precisionArg then (Option.map ((+)1) posi, g.int_ty) :: acc else acc 
 
@@ -191,8 +191,8 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                                               failwithf "%s" <| FSComp.SR.forDoesNotSupportPrefixFlag(c.ToString(), (Option.get info.numPrefixIfPos).ToString())
 
               let checkOtherFlags c = 
-                  checkNoPrecision c; 
-                  checkNoZeroFlag c; 
+                  checkNoPrecision c 
+                  checkNoZeroFlag c 
                   checkNoNumericPrefix c
 
               let collectSpecifierLocation relLine relCol = 
@@ -214,12 +214,12 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   parseLoop acc (i+1, relLine, relCol+1) 
 
               | ('d' | 'i' | 'o' | 'u' | 'x' | 'X') ->
-                  if info.precision then failwithf "%s" <| FSComp.SR.forFormatDoesntSupportPrecision(ch.ToString());
+                  if info.precision then failwithf "%s" <| FSComp.SR.forFormatDoesntSupportPrecision(ch.ToString())
                   collectSpecifierLocation relLine relCol
                   parseLoop ((posi, mkFlexibleIntFormatTypar g m) :: acc) (i+1, relLine, relCol+1)
 
               | ('l' | 'L') ->
-                  if info.precision then failwithf "%s" <| FSComp.SR.forFormatDoesntSupportPrecision(ch.ToString());
+                  if info.precision then failwithf "%s" <| FSComp.SR.forFormatDoesntSupportPrecision(ch.ToString())
                   let relCol = relCol+1
                   let i = i+1
                   
@@ -246,22 +246,22 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   parseLoop ((posi, mkFlexibleFloatFormatTypar g m) :: acc) (i+1, relLine, relCol+1)
 
               | 'b' ->
-                  checkOtherFlags ch;
+                  checkOtherFlags ch
                   collectSpecifierLocation relLine relCol
                   parseLoop ((posi, g.bool_ty)  :: acc) (i+1, relLine, relCol+1)
 
               | 'c' ->
-                  checkOtherFlags ch;
+                  checkOtherFlags ch
                   collectSpecifierLocation relLine relCol
                   parseLoop ((posi, g.char_ty)  :: acc) (i+1, relLine, relCol+1)
 
               | 's' ->
-                  checkOtherFlags ch;
+                  checkOtherFlags ch
                   collectSpecifierLocation relLine relCol
                   parseLoop ((posi, g.string_ty)  :: acc) (i+1, relLine, relCol+1)
 
               | 'O' ->
-                  checkOtherFlags ch;
+                  checkOtherFlags ch
                   collectSpecifierLocation relLine relCol
                   parseLoop ((posi, NewInferenceType ()) :: acc) (i+1, relLine, relCol+1)
 
@@ -274,14 +274,14 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
                   | Some _   -> failwithf "%s" <| FSComp.SR.forDoesNotSupportPrefixFlag(ch.ToString(), (Option.get info.numPrefixIfPos).ToString())
 
               | 'a' ->
-                  checkOtherFlags ch;
+                  checkOtherFlags ch
                   let xty = NewInferenceType () 
                   let fty = bty --> (xty --> cty)
                   collectSpecifierLocation relLine relCol
                   parseLoop ((Option.map ((+)1) posi, xty) ::  (posi, fty) :: acc) (i+1, relLine, relCol+1)
 
               | 't' ->
-                  checkOtherFlags ch;
+                  checkOtherFlags ch
                   collectSpecifierLocation relLine relCol
                   parseLoop ((posi, bty --> cty) :: acc)  (i+1, relLine, relCol+1)
 

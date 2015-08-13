@@ -47,11 +47,7 @@ let AddNonUserCompilerGeneratedAttribs g (mdef:ILMethodDef) = addMethodGenerated
 
 let debugDisplayMethodName = "__DebugDisplay"
 
-#if SILVERLIGHT
-let useHiddenInitCode = false
-#else
 let useHiddenInitCode = true
-#endif
 
 //--------------------------------------------------------------------------
 // misc

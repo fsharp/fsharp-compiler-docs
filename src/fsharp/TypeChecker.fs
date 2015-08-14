@@ -6307,7 +6307,7 @@ and TcConstStringExpr cenv overallTy env m tpenv s  =
         | None -> () 
         | Some sink  -> 
             for specifierLocation in specifierLocations do
-                sink.NotifyFormatSpecifierLocation m
+                sink.NotifyFormatSpecifierLocation specifierLocation
 
         UnifyTypes cenv env m aty aty'
         UnifyTypes cenv env m ety ety'

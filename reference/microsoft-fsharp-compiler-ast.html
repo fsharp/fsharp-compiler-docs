@@ -757,7 +757,7 @@ in either a signature or implementation.</p>
           <td class="xmldoc"><p>The error raised by the parse<em>error</em>rich function, which is called by the parser engine
 when a syntax error occurs. The first object is the ParseErrorContext which contains a dump of
 information about the grammar at the point where the error occured, e.g. what tokens
-are valid to shift next at that point in the grammar. This information is processed in build.fs.</p>
+are valid to shift next at that point in the grammar. This information is processed in CompileOps.fs.</p>
 
 
 </td>
@@ -881,8 +881,8 @@ StaticProperty with set(v) --&gt; [1]</p>
             appFunOpt funOpt x
           </code>
           <div class="tip" id="2">
-            <strong>Signature:</strong> funOpt:(&#39;?241012 -&gt; &#39;?241012) option -&gt; x:&#39;?241012 -&gt; &#39;?241012<br />
-                          <strong>Type parameters:</strong> '?241012          </div>
+            <strong>Signature:</strong> funOpt:(&#39;?240912 -&gt; &#39;?240912) option -&gt; x:&#39;?240912 -&gt; &#39;?240912<br />
+                          <strong>Type parameters:</strong> '?240912          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1620-1620" class="github-link">
@@ -953,8 +953,8 @@ StaticProperty with set(v) --&gt; [1]</p>
             composeFunOpt funOpt1 funOpt2
           </code>
           <div class="tip" id="6">
-            <strong>Signature:</strong> funOpt1:(&#39;?241014 -&gt; &#39;?241014) option -&gt; funOpt2:(&#39;?241014 -&gt; &#39;?241014) option -&gt; (&#39;?241014 -&gt; &#39;?241014) option<br />
-                          <strong>Type parameters:</strong> '?241014          </div>
+            <strong>Signature:</strong> funOpt1:(&#39;?240914 -&gt; &#39;?240914) option -&gt; funOpt2:(&#39;?240914 -&gt; &#39;?240914) option -&gt; (&#39;?240914 -&gt; &#39;?240914) option<br />
+                          <strong>Type parameters:</strong> '?240914          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1621-1621" class="github-link">
@@ -1694,30 +1694,9 @@ StaticProperty with set(v) --&gt; [1]</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
-            mkSynRange p1 p2
-          </code>
-          <div class="tip" id="47">
-            <strong>Signature:</strong> p1:Position -&gt; p2:Position -&gt; range<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2091-2091" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Get an F# compiler range from a lexer range</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
             mkSynSimplePatVar isOpt id
           </code>
-          <div class="tip" id="48">
+          <div class="tip" id="47">
             <strong>Signature:</strong> isOpt:bool -&gt; id:Ident -&gt; SynSimplePat<br />
                       </div>
         </td>
@@ -1732,10 +1711,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
+          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
             mkSynThisPatVar id
           </code>
-          <div class="tip" id="49">
+          <div class="tip" id="48">
             <strong>Signature:</strong> id:Ident -&gt; SynPat<br />
                       </div>
         </td>
@@ -1750,10 +1729,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
             mkSynTrifix m oper x1 x2 x3
           </code>
-          <div class="tip" id="50">
+          <div class="tip" id="49">
             <strong>Signature:</strong> m:range -&gt; oper:string -&gt; x1:SynExpr -&gt; x2:SynExpr -&gt; x3:SynExpr -&gt; SynExpr<br />
                       </div>
         </td>
@@ -1768,10 +1747,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
+          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
             mkSynUnit m
           </code>
-          <div class="tip" id="51">
+          <div class="tip" id="50">
             <strong>Signature:</strong> m:range -&gt; SynExpr<br />
                       </div>
         </td>
@@ -1786,10 +1765,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
+          <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
             mkSynUnitPat m
           </code>
-          <div class="tip" id="52">
+          <div class="tip" id="51">
             <strong>Signature:</strong> m:range -&gt; SynPat<br />
                       </div>
         </td>
@@ -1804,10 +1783,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
+          <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
             noInferredTypars 
           </code>
-          <div class="tip" id="53">
+          <div class="tip" id="52">
             <strong>Signature:</strong> SynValTyparDecls<br />
                       </div>
         </td>
@@ -1822,10 +1801,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
+          <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
             NonVirtualMemberFlags k
           </code>
-          <div class="tip" id="54">
+          <div class="tip" id="53">
             <strong>Signature:</strong> k:MemberKind -&gt; MemberFlags<br />
                       </div>
         </td>
@@ -1840,10 +1819,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
+          <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
             opNameParenGet 
           </code>
-          <div class="tip" id="55">
+          <div class="tip" id="54">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
@@ -1858,10 +1837,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
+          <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
             opNameQMark 
           </code>
-          <div class="tip" id="56">
+          <div class="tip" id="55">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
@@ -1876,10 +1855,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
+          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
             OverrideMemberFlags k
           </code>
-          <div class="tip" id="57">
+          <div class="tip" id="56">
             <strong>Signature:</strong> k:MemberKind -&gt; MemberFlags<br />
                       </div>
         </td>
@@ -1894,10 +1873,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
+          <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
             ParseAssemblyCodeInstructions s m
           </code>
-          <div class="tip" id="58">
+          <div class="tip" id="57">
             <strong>Signature:</strong> s:string -&gt; m:range -&gt; ILInstr array<br />
                       </div>
         </td>
@@ -1915,10 +1894,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
+          <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
             ParseAssemblyCodeType s m
           </code>
-          <div class="tip" id="59">
+          <div class="tip" id="58">
             <strong>Signature:</strong> s:string -&gt; m:range -&gt; ILType<br />
                       </div>
         </td>
@@ -1936,10 +1915,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
+          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
             pathOfLid lid
           </code>
-          <div class="tip" id="60">
+          <div class="tip" id="59">
             <strong>Signature:</strong> lid:Ident list -&gt; string list<br />
                       </div>
         </td>
@@ -1954,10 +1933,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
             pathToSynLid m p
           </code>
-          <div class="tip" id="61">
+          <div class="tip" id="60">
             <strong>Signature:</strong> m:range -&gt; p:string list -&gt; Ident list<br />
                       </div>
         </td>
@@ -1972,31 +1951,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '62', 62)" onmouseover="showTip(event, '62', 62)">
-            posOfLexPosition p
-          </code>
-          <div class="tip" id="62">
-            <strong>Signature:</strong> p:Position -&gt; pos<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2087-2087" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Get an F# compiler position from a lexer position</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '63', 63)" onmouseover="showTip(event, '63', 63)">
+          <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
             PushCurriedPatternsToExpr (...)
           </code>
-          <div class="tip" id="63">
+          <div class="tip" id="61">
             <strong>Signature:</strong> synArgNameGenerator:SynArgNameGenerator -&gt; wholem:range -&gt; isMember:bool -&gt; pats:SynPat list -&gt; rhs:SynExpr -&gt; SynSimplePats list * SynExpr<br />
                       </div>
         </td>
@@ -2019,10 +1977,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '64', 64)" onmouseover="showTip(event, '64', 64)">
+          <code onmouseout="hideTip(event, '62', 62)" onmouseover="showTip(event, '62', 62)">
             PushPatternToExpr (...)
           </code>
-          <div class="tip" id="64">
+          <div class="tip" id="62">
             <strong>Signature:</strong> synArgNameGenerator:SynArgNameGenerator -&gt; isMember:bool -&gt; pat:SynPat -&gt; rhs:SynExpr -&gt; SynSimplePats * SynExpr<br />
                       </div>
         </td>
@@ -2037,10 +1995,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '65', 65)" onmouseover="showTip(event, '65', 65)">
+          <code onmouseout="hideTip(event, '63', 63)" onmouseover="showTip(event, '63', 63)">
             rangeOfLid lid
           </code>
-          <div class="tip" id="65">
+          <div class="tip" id="63">
             <strong>Signature:</strong> lid:Ident list -&gt; range<br />
                       </div>
         </td>
@@ -2055,10 +2013,10 @@ StaticProperty with set(v) --&gt; [1]</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '66', 66)" onmouseover="showTip(event, '66', 66)">
+          <code onmouseout="hideTip(event, '64', 64)" onmouseover="showTip(event, '64', 64)">
             SimplePatOfPat synArgNameGenerator p
           </code>
-          <div class="tip" id="66">
+          <div class="tip" id="64">
             <strong>Signature:</strong> synArgNameGenerator:SynArgNameGenerator -&gt; p:SynPat -&gt; SynSimplePat * (SynExpr -&gt; SynExpr) option<br />
                       </div>
         </td>
@@ -2077,10 +2035,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '67', 67)" onmouseover="showTip(event, '67', 67)">
+          <code onmouseout="hideTip(event, '65', 65)" onmouseover="showTip(event, '65', 65)">
             SimplePatsOfPat synArgNameGenerator p
           </code>
-          <div class="tip" id="67">
+          <div class="tip" id="65">
             <strong>Signature:</strong> synArgNameGenerator:SynArgNameGenerator -&gt; p:SynPat -&gt; SynSimplePats * (SynExpr -&gt; SynExpr) option<br />
                       </div>
         </td>
@@ -2095,10 +2053,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '68', 68)" onmouseover="showTip(event, '68', 68)">
+          <code onmouseout="hideTip(event, '66', 66)" onmouseover="showTip(event, '66', 66)">
             StaticMemberFlags k
           </code>
-          <div class="tip" id="68">
+          <div class="tip" id="66">
             <strong>Signature:</strong> k:MemberKind -&gt; MemberFlags<br />
                       </div>
         </td>
@@ -2113,10 +2071,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '69', 69)" onmouseover="showTip(event, '69', 69)">
+          <code onmouseout="hideTip(event, '67', 67)" onmouseover="showTip(event, '67', 67)">
             synExprContainsError inpExpr
           </code>
-          <div class="tip" id="69">
+          <div class="tip" id="67">
             <strong>Signature:</strong> inpExpr:SynExpr -&gt; bool<br />
                       </div>
         </td>
@@ -2131,10 +2089,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '70', 70)" onmouseover="showTip(event, '70', 70)">
+          <code onmouseout="hideTip(event, '68', 68)" onmouseover="showTip(event, '68', 68)">
             textOfArrPath path
           </code>
-          <div class="tip" id="70">
+          <div class="tip" id="68">
             <strong>Signature:</strong> path:string [] -&gt; string<br />
                       </div>
         </td>
@@ -2149,10 +2107,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '71', 71)" onmouseover="showTip(event, '71', 71)">
+          <code onmouseout="hideTip(event, '69', 69)" onmouseover="showTip(event, '69', 69)">
             textOfId id
           </code>
-          <div class="tip" id="71">
+          <div class="tip" id="69">
             <strong>Signature:</strong> id:Ident -&gt; string<br />
                       </div>
         </td>
@@ -2167,10 +2125,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '72', 72)" onmouseover="showTip(event, '72', 72)">
+          <code onmouseout="hideTip(event, '70', 70)" onmouseover="showTip(event, '70', 70)">
             textOfLid lid
           </code>
-          <div class="tip" id="72">
+          <div class="tip" id="70">
             <strong>Signature:</strong> lid:Ident list -&gt; string<br />
                       </div>
         </td>
@@ -2185,59 +2143,15 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
+          <code onmouseout="hideTip(event, '71', 71)" onmouseover="showTip(event, '71', 71)">
             textOfPath path
           </code>
-          <div class="tip" id="73">
+          <div class="tip" id="71">
             <strong>Signature:</strong> path:seq&lt;string&gt; -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1424-1424" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <h3>Type extensions</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Type extension</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
-            LexemeRange
-          </code>
-          <div class="tip" id="74">
-            <strong>Signature:</strong> range<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2095-2095" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
-            LexemeRange
-          </code>
-          <div class="tip" id="75">
-            <strong>Signature:</strong> range<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2095-2095" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2255,10 +2169,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
+          <code onmouseout="hideTip(event, '72', 72)" onmouseover="showTip(event, '72', 72)">
             ( |LongOrSingleIdent|_| ) inp
           </code>
-          <div class="tip" id="76">
+          <div class="tip" id="72">
             <strong>Signature:</strong> inp:SynExpr -&gt; (bool * LongIdentWithDots * SynSimplePatAlternativeIdInfo ref option * range) option<br />
                       </div>
         </td>
@@ -2276,10 +2190,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
+          <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
             ( |SingleIdent|_| ) inp
           </code>
-          <div class="tip" id="77">
+          <div class="tip" id="73">
             <strong>Signature:</strong> inp:SynExpr -&gt; Ident option<br />
                       </div>
         </td>
@@ -2294,10 +2208,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
+          <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
             ( |SynExprErrorSkip| ) p
           </code>
-          <div class="tip" id="78">
+          <div class="tip" id="74">
             <strong>Signature:</strong> p:SynExpr -&gt; SynExpr<br />
                       </div>
         </td>
@@ -2312,10 +2226,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
+          <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
             ( |SynExprParen|_| ) e
           </code>
-          <div class="tip" id="79">
+          <div class="tip" id="75">
             <strong>Signature:</strong> e:SynExpr -&gt; (SynExpr * range * range option * range) option<br />
                       </div>
         </td>
@@ -2330,10 +2244,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '80', 80)" onmouseover="showTip(event, '80', 80)">
+          <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
             ( |SynPatErrorSkip| ) p
           </code>
-          <div class="tip" id="80">
+          <div class="tip" id="76">
             <strong>Signature:</strong> p:SynPat -&gt; SynPat<br />
                       </div>
         </td>
@@ -2348,10 +2262,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '81', 81)" onmouseover="showTip(event, '81', 81)">
+          <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
             ( |SynPatForConstructorDecl|_| ) x
           </code>
-          <div class="tip" id="81">
+          <div class="tip" id="77">
             <strong>Signature:</strong> x:SynPat -&gt; SynPat option<br />
                       </div>
         </td>
@@ -2369,10 +2283,10 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '82', 82)" onmouseover="showTip(event, '82', 82)">
+          <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
             ( |SynPatForNullaryArgs|_| ) x
           </code>
-          <div class="tip" id="82">
+          <div class="tip" id="78">
             <strong>Signature:</strong> x:SynPat -&gt; unit option<br />
                       </div>
         </td>

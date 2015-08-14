@@ -86,15 +86,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '296', 296)" onmouseover="showTip(event, '296', 296)">
+          <code onmouseout="hideTip(event, '181', 181)" onmouseover="showTip(event, '181', 181)">
             ActivePatternInfoOfValName nm m
           </code>
-          <div class="tip" id="296">
+          <div class="tip" id="181">
             <strong>Signature:</strong> nm:string -&gt; m:range -&gt; ActivePatternInfo option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L417-417" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L578-578" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -104,33 +104,60 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '297', 297)" onmouseover="showTip(event, '297', 297)">
+          <code onmouseout="hideTip(event, '182', 182)" onmouseover="showTip(event, '182', 182)">
             ChopPropertyName s
           </code>
-          <div class="tip" id="297">
+          <div class="tip" id="182">
             <strong>Signature:</strong> s:string -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L342-342" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L506-506" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Try to chop "get<em>" or "set</em>" from a string.
+If the string does not start with "get<em>" or "set</em>", this function raises an exception.</p>
+
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '298', 298)" onmouseover="showTip(event, '298', 298)">
+          <code onmouseout="hideTip(event, '183', 183)" onmouseover="showTip(event, '183', 183)">
             CompileOpName 
           </code>
-          <div class="tip" id="298">
+          <div class="tip" id="183">
             <strong>Signature:</strong> string -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L124-124" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L180-180" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Compiles an operator into a mangled operator name.
+For example, "!%" becomes "op_DereferencePercent".
+This function accepts both built-in and custom operators.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '184', 184)" onmouseover="showTip(event, '184', 184)">
+            CompilerGeneratedName nm
+          </code>
+          <div class="tip" id="184">
+            <strong>Signature:</strong> nm:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L433-433" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -140,11 +167,65 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '299', 299)" onmouseover="showTip(event, '299', 299)">
-            CompilerGeneratedName nm
+          <code onmouseout="hideTip(event, '185', 185)" onmouseover="showTip(event, '185', 185)">
+            CompilerGeneratedNameSuffix (...)
           </code>
-          <div class="tip" id="299">
-            <strong>Signature:</strong> nm:string -&gt; string<br />
+          <div class="tip" id="185">
+            <strong>Signature:</strong> basicName:string -&gt; suffix:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L441-441" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '186', 186)" onmouseover="showTip(event, '186', 186)">
+            computeMangledNameWithoutDefaultArgValues (...)
+          </code>
+          <div class="tip" id="186">
+            <strong>Signature:</strong> (nm:string * staticArgs:obj [] * defaultArgValues:(string * string option) []) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L642-642" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '187', 187)" onmouseover="showTip(event, '187', 187)">
+            DecodeGenericTypeName n
+          </code>
+          <div class="tip" id="187">
+            <strong>Signature:</strong> n:string -&gt; NameArityPair<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L460-460" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '188', 188)" onmouseover="showTip(event, '188', 188)">
+            DecompileOpName 
+          </code>
+          <div class="tip" id="188">
+            <strong>Signature:</strong> string -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -152,93 +233,26 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Decompiles a mangled operator name back into an operator.
+For example, "op_DereferencePercent" becomes "!%".
+This function accepts mangled names for both built-in and custom operators.</p>
+
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '300', 300)" onmouseover="showTip(event, '300', 300)">
-            CompilerGeneratedNameSuffix (...)
-          </code>
-          <div class="tip" id="300">
-            <strong>Signature:</strong> basicName:string -&gt; suffix:string -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L278-278" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '301', 301)" onmouseover="showTip(event, '301', 301)">
-            computeMangledNameWithoutDefaultArgValues (...)
-          </code>
-          <div class="tip" id="301">
-            <strong>Signature:</strong> (nm:string * staticArgs:obj [] * defaultArgValues:(string * string option) []) -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L482-482" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '302', 302)" onmouseover="showTip(event, '302', 302)">
-            DecodeGenericTypeName n
-          </code>
-          <div class="tip" id="302">
-            <strong>Signature:</strong> n:string -&gt; NameArityPair<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L297-297" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '303', 303)" onmouseover="showTip(event, '303', 303)">
-            DecompileOpName 
-          </code>
-          <div class="tip" id="303">
-            <strong>Signature:</strong> string -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L142-142" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '304', 304)" onmouseover="showTip(event, '304', 304)">
+          <code onmouseout="hideTip(event, '189', 189)" onmouseover="showTip(event, '189', 189)">
             DemangleGenericTypeName n
           </code>
-          <div class="tip" id="304">
+          <div class="tip" id="189">
             <strong>Signature:</strong> n:string -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L305-305" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L468-468" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -248,218 +262,11 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '305', 305)" onmouseover="showTip(event, '305', 305)">
+          <code onmouseout="hideTip(event, '190', 190)" onmouseover="showTip(event, '190', 190)">
             DemangleOperatorName nm
           </code>
-          <div class="tip" id="305">
+          <div class="tip" id="190">
             <strong>Signature:</strong> nm:string -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L350-350" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '306', 306)" onmouseover="showTip(event, '306', 306)">
-            demangleProvidedTypeName typeLogicalName
-          </code>
-          <div class="tip" id="306">
-            <strong>Signature:</strong> typeLogicalName:string -&gt; string * (string * string) []<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L456-456" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '307', 307)" onmouseover="showTip(event, '307', 307)">
-            FSharpModuleSuffix 
-          </code>
-          <div class="tip" id="307">
-            <strong>Signature:</strong> string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L386-386" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '308', 308)" onmouseover="showTip(event, '308', 308)">
-            GetBasicNameOfPossibleCompilerGeneratedName (...)
-          </code>
-          <div class="tip" id="308">
-            <strong>Signature:</strong> name:string -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L273-273" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '309', 309)" onmouseover="showTip(event, '309', 309)">
-            IllegalCharactersInTypeAndNamespaceNames (...)
-          </code>
-          <div class="tip" id="309">
-            <strong>Signature:</strong> char []<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L390-390" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '310', 310)" onmouseover="showTip(event, '310', 310)">
-            IsActivePatternName nm
-          </code>
-          <div class="tip" id="310">
-            <strong>Signature:</strong> nm:string -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L392-392" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '311', 311)" onmouseover="showTip(event, '311', 311)">
-            IsCompilerGeneratedName nm
-          </code>
-          <div class="tip" id="311">
-            <strong>Signature:</strong> nm:string -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L267-267" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '312', 312)" onmouseover="showTip(event, '312', 312)">
-            IsIdentifierFirstCharacter c
-          </code>
-          <div class="tip" id="312">
-            <strong>Signature:</strong> c:char -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L182-182" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>The characters that are allowed to be the first character of an identifier.</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '313', 313)" onmouseover="showTip(event, '313', 313)">
-            IsIdentifierPartCharacter c
-          </code>
-          <div class="tip" id="313">
-            <strong>Signature:</strong> c:char -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L194-194" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>The characters that are allowed to be in an identifier.</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '314', 314)" onmouseover="showTip(event, '314', 314)">
-            IsInfixOperator s
-          </code>
-          <div class="tip" id="314">
-            <strong>Signature:</strong> s:string -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L232-232" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '315', 315)" onmouseover="showTip(event, '315', 315)">
-            IsLongIdentifierPartCharacter c
-          </code>
-          <div class="tip" id="315">
-            <strong>Signature:</strong> c:char -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L210-210" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Is this character a part of a long identifier</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '316', 316)" onmouseover="showTip(event, '316', 316)">
-            IsMangledGenericName n
-          </code>
-          <div class="tip" id="316">
-            <strong>Signature:</strong> n:string -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -473,15 +280,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '317', 317)" onmouseover="showTip(event, '317', 317)">
-            IsMangledOpName n
+          <code onmouseout="hideTip(event, '191', 191)" onmouseover="showTip(event, '191', 191)">
+            demangleProvidedTypeName typeLogicalName
           </code>
-          <div class="tip" id="317">
-            <strong>Signature:</strong> n:string -&gt; bool<br />
+          <div class="tip" id="191">
+            <strong>Signature:</strong> typeLogicalName:string -&gt; string * (string * string) []<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L140-140" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L616-616" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -491,105 +298,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '318', 318)" onmouseover="showTip(event, '318', 318)">
-            IsOpName n
+          <code onmouseout="hideTip(event, '192', 192)" onmouseover="showTip(event, '192', 192)">
+            FSharpModuleSuffix 
           </code>
-          <div class="tip" id="318">
-            <strong>Signature:</strong> n:string -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L120-120" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '319', 319)" onmouseover="showTip(event, '319', 319)">
-            IsPrefixOperator s
-          </code>
-          <div class="tip" id="319">
-            <strong>Signature:</strong> s:string -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L223-223" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '320', 320)" onmouseover="showTip(event, '320', 320)">
-            IsTernaryOperator s
-          </code>
-          <div class="tip" id="320">
-            <strong>Signature:</strong> s:string -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L229-229" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '321', 321)" onmouseover="showTip(event, '321', 321)">
-            IsValidPrefixOperatorDefinitionName s
-          </code>
-          <div class="tip" id="321">
-            <strong>Signature:</strong> s:string -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L218-218" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '322', 322)" onmouseover="showTip(event, '322', 322)">
-            IsValidPrefixOperatorUse s
-          </code>
-          <div class="tip" id="322">
-            <strong>Signature:</strong> s:string -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L213-213" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '323', 323)" onmouseover="showTip(event, '323', 323)">
-            MangledGlobalName 
-          </code>
-          <div class="tip" id="323">
+          <div class="tip" id="192">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L388-388" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L543-543" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -599,15 +316,315 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '324', 324)" onmouseover="showTip(event, '324', 324)">
+          <code onmouseout="hideTip(event, '193', 193)" onmouseover="showTip(event, '193', 193)">
+            GetBasicNameOfPossibleCompilerGeneratedName (...)
+          </code>
+          <div class="tip" id="193">
+            <strong>Signature:</strong> name:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L436-436" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '194', 194)" onmouseover="showTip(event, '194', 194)">
+            IllegalCharactersInTypeAndNamespaceNames (...)
+          </code>
+          <div class="tip" id="194">
+            <strong>Signature:</strong> char []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L547-547" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '195', 195)" onmouseover="showTip(event, '195', 195)">
+            IsActivePatternName nm
+          </code>
+          <div class="tip" id="195">
+            <strong>Signature:</strong> nm:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L550-550" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Determines if the specified name is a valid name for an active pattern.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '196', 196)" onmouseover="showTip(event, '196', 196)">
+            IsCompilerGeneratedName nm
+          </code>
+          <div class="tip" id="196">
+            <strong>Signature:</strong> nm:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L430-430" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '197', 197)" onmouseover="showTip(event, '197', 197)">
+            IsIdentifierFirstCharacter c
+          </code>
+          <div class="tip" id="197">
+            <strong>Signature:</strong> c:char -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L300-300" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>The characters that are allowed to be the first character of an identifier.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '198', 198)" onmouseover="showTip(event, '198', 198)">
+            IsIdentifierPartCharacter c
+          </code>
+          <div class="tip" id="198">
+            <strong>Signature:</strong> c:char -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L314-314" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>The characters that are allowed to be in an identifier.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '199', 199)" onmouseover="showTip(event, '199', 199)">
+            IsInfixOperator 
+          </code>
+          <div class="tip" id="199">
+            <strong>Signature:</strong> string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L373-373" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '200', 200)" onmouseover="showTip(event, '200', 200)">
+            IsLongIdentifierPartCharacter c
+          </code>
+          <div class="tip" id="200">
+            <strong>Signature:</strong> c:char -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L335-335" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Is this character a part of a long identifier?</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '201', 201)" onmouseover="showTip(event, '201', 201)">
+            IsMangledGenericName n
+          </code>
+          <div class="tip" id="201">
+            <strong>Signature:</strong> n:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L450-450" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '202', 202)" onmouseover="showTip(event, '202', 202)">
+            IsMangledOpName n
+          </code>
+          <div class="tip" id="202">
+            <strong>Signature:</strong> n:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L127-127" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '203', 203)" onmouseover="showTip(event, '203', 203)">
+            IsOpName name
+          </code>
+          <div class="tip" id="203">
+            <strong>Signature:</strong> name:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L122-122" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '204', 204)" onmouseover="showTip(event, '204', 204)">
+            IsPrefixOperator s
+          </code>
+          <div class="tip" id="204">
+            <strong>Signature:</strong> s:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L359-359" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '205', 205)" onmouseover="showTip(event, '205', 205)">
+            IsTernaryOperator s
+          </code>
+          <div class="tip" id="205">
+            <strong>Signature:</strong> s:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L370-370" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '206', 206)" onmouseover="showTip(event, '206', 206)">
+            IsValidPrefixOperatorDefinitionName s
+          </code>
+          <div class="tip" id="206">
+            <strong>Signature:</strong> s:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L349-349" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '207', 207)" onmouseover="showTip(event, '207', 207)">
+            IsValidPrefixOperatorUse s
+          </code>
+          <div class="tip" id="207">
+            <strong>Signature:</strong> s:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L339-339" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '208', 208)" onmouseover="showTip(event, '208', 208)">
+            MangledGlobalName 
+          </code>
+          <div class="tip" id="208">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L545-545" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '209', 209)" onmouseover="showTip(event, '209', 209)">
             mangleProvidedTypeName (...)
           </code>
-          <div class="tip" id="324">
+          <div class="tip" id="209">
             <strong>Signature:</strong> (typeLogicalName:string * nonDefaultArgs:(string * string) []) -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L470-470" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L630-630" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -617,15 +634,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '325', 325)" onmouseover="showTip(event, '325', 325)">
+          <code onmouseout="hideTip(event, '210', 210)" onmouseover="showTip(event, '210', 210)">
             opNameCons 
           </code>
-          <div class="tip" id="325">
+          <div class="tip" id="210">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L173-173" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L292-292" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -635,15 +652,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '326', 326)" onmouseover="showTip(event, '326', 326)">
+          <code onmouseout="hideTip(event, '211', 211)" onmouseover="showTip(event, '211', 211)">
             opNameEquals 
           </code>
-          <div class="tip" id="326">
+          <div class="tip" id="211">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L175-175" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L294-294" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -653,15 +670,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '327', 327)" onmouseover="showTip(event, '327', 327)">
+          <code onmouseout="hideTip(event, '212', 212)" onmouseover="showTip(event, '212', 212)">
             opNameEqualsNullable 
           </code>
-          <div class="tip" id="327">
+          <div class="tip" id="212">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L176-176" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L295-295" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -671,15 +688,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '328', 328)" onmouseover="showTip(event, '328', 328)">
+          <code onmouseout="hideTip(event, '213', 213)" onmouseover="showTip(event, '213', 213)">
             opNameNil 
           </code>
-          <div class="tip" id="328">
+          <div class="tip" id="213">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L174-174" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L293-293" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -689,15 +706,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '329', 329)" onmouseover="showTip(event, '329', 329)">
+          <code onmouseout="hideTip(event, '214', 214)" onmouseover="showTip(event, '214', 214)">
             opNameNullableEquals 
           </code>
-          <div class="tip" id="329">
+          <div class="tip" id="214">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L177-177" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L296-296" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -707,15 +724,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '330', 330)" onmouseover="showTip(event, '330', 330)">
+          <code onmouseout="hideTip(event, '215', 215)" onmouseover="showTip(event, '215', 215)">
             opNameNullableEqualsNullable 
           </code>
-          <div class="tip" id="330">
+          <div class="tip" id="215">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L178-178" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L297-297" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -725,10 +742,67 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '331', 331)" onmouseover="showTip(event, '331', 331)">
+          <code onmouseout="hideTip(event, '216', 216)" onmouseover="showTip(event, '216', 216)">
+            opNamePrefix 
+          </code>
+          <div class="tip" id="216">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L28-28" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Prefix for compiled (mangled) operator names.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '217', 217)" onmouseover="showTip(event, '217', 217)">
             parenGet 
           </code>
-          <div class="tip" id="331">
+          <div class="tip" id="217">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L22-22" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '218', 218)" onmouseover="showTip(event, '218', 218)">
+            parenSet 
+          </code>
+          <div class="tip" id="218">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L23-23" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '219', 219)" onmouseover="showTip(event, '219', 219)">
+            qmark 
+          </code>
+          <div class="tip" id="219">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
@@ -737,19 +811,16 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Anything to do with special names of identifiers and other lexical rules</p>
-
-
-
+          
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '332', 332)" onmouseover="showTip(event, '332', 332)">
-            parenSet 
+          <code onmouseout="hideTip(event, '220', 220)" onmouseover="showTip(event, '220', 220)">
+            qmarkSet 
           </code>
-          <div class="tip" id="332">
+          <div class="tip" id="220">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
@@ -764,51 +835,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '333', 333)" onmouseover="showTip(event, '333', 333)">
-            qmark 
-          </code>
-          <div class="tip" id="333">
-            <strong>Signature:</strong> string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L26-26" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '334', 334)" onmouseover="showTip(event, '334', 334)">
-            qmarkSet 
-          </code>
-          <div class="tip" id="334">
-            <strong>Signature:</strong> string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L27-27" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '335', 335)" onmouseover="showTip(event, '335', 335)">
+          <code onmouseout="hideTip(event, '221', 221)" onmouseover="showTip(event, '221', 221)">
             SplitNamesForILPath s
           </code>
-          <div class="tip" id="335">
+          <div class="tip" id="221">
             <strong>Signature:</strong> s:string -&gt; string list<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L354-354" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L512-512" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -818,15 +853,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '336', 336)" onmouseover="showTip(event, '336', 336)">
+          <code onmouseout="hideTip(event, '222', 222)" onmouseover="showTip(event, '222', 222)">
             TryChopPropertyName s
           </code>
-          <div class="tip" id="336">
+          <div class="tip" id="222">
             <strong>Signature:</strong> s:string -&gt; string option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L328-328" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L491-491" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -847,15 +882,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '337', 337)" onmouseover="showTip(event, '337', 337)">
+          <code onmouseout="hideTip(event, '223', 223)" onmouseover="showTip(event, '223', 223)">
             ( |Control|Equality|Relational|Indexer|FixedTypes|Other| ) (...)
           </code>
-          <div class="tip" id="337">
+          <div class="tip" id="223">
             <strong>Signature:</strong> opName:string -&gt; Choice&lt;unit,unit,unit,unit,unit,unit&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L256-256" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/PrettyNaming.fs#L412-412" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

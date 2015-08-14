@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>LongUnicodeLexResult - F# Compiler Services</title>
+    <title>FSharpTokenTag - F# Compiler Services</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
@@ -36,71 +36,64 @@
 
 
 
-<h1>LongUnicodeLexResult</h1>
+<h1>FSharpTokenTag</h1>
 <p>
-  <span>Namespace: Microsoft.FSharp.Compiler</span><br />
-  <span>Parent Module: <a href="microsoft-fsharp-compiler-lexhelp.html">Lexhelp</a></span>
+  <span>Namespace: Microsoft.FSharp.Compiler.SourceCodeServices</span><br />
 </p>
 <div class="xmldoc">
+<p>Some of the values in the field FSharpTokenInfo.Tag</p>
+
+
 </div>
-  <h3>Union Cases</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Union Case</td><td>Description</td></tr>
+      <tr><td>Function or value</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1478', 1478)" onmouseover="showTip(event, '1478', 1478)">
-            Invalid
+          <code onmouseout="hideTip(event, '729', 729)" onmouseover="showTip(event, '729', 729)">
+            Identifier 
           </code>
-          <div class="tip" id="1478">
-            <strong>Signature:</strong> <br />
+          <div class="tip" id="729">
+            <strong>Signature:</strong> int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/lexhelp.fsi#L39-39" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fs#L28-28" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Indicates the token is an identifier</p>
+
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1479', 1479)" onmouseover="showTip(event, '1479', 1479)">
-            SingleChar(uint16)
+          <code onmouseout="hideTip(event, '730', 730)" onmouseover="showTip(event, '730', 730)">
+            String 
           </code>
-          <div class="tip" id="1479">
-            <strong>Signature:</strong> uint16<br />
+          <div class="tip" id="730">
+            <strong>Signature:</strong> int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/lexhelp.fsi#L38-38" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fs#L29-29" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
+          <p>Indicates the token is a string</p>
 
-          <code onmouseout="hideTip(event, '1480', 1480)" onmouseover="showTip(event, '1480', 1480)">
-            SurrogatePair(uint16,uint16)
-          </code>
-          <div class="tip" id="1480">
-            <strong>Signature:</strong> uint16 * uint16<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/lexhelp.fsi#L37-37" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
+
+
         </td>
       </tr>
     </tbody>

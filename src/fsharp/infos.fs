@@ -2651,7 +2651,7 @@ type AttribInfo =
                     let obj = evalFSharpAttribArg g evaluatedExpr
                     ty,obj) 
          | ILAttribInfo (g, amap, scoref, cattr, m) -> 
-              let parms, _args = decodeILAttribData g.ilg cattr (Some scoref) 
+              let parms, _args = decodeILAttribData g.ilg cattr 
               [ for (argty,argval) in Seq.zip cattr.Method.FormalArgTypes parms ->
                     let ty = ImportType scoref amap m [] argty
                     let obj = evalILAttribElem argval
@@ -2666,7 +2666,7 @@ type AttribInfo =
                     let obj = evalFSharpAttribArg g evaluatedExpr
                     ty, nm, isField, obj) 
          | ILAttribInfo (g, amap, scoref, cattr, m) -> 
-              let _parms, namedArgs = decodeILAttribData g.ilg cattr (Some scoref) 
+              let _parms, namedArgs = decodeILAttribData g.ilg cattr 
               [ for (nm, argty, isProp, argval) in namedArgs ->
                     let ty = ImportType scoref amap m [] argty
                     let obj = evalILAttribElem argval
@@ -2753,7 +2753,7 @@ module AttributeChecking =
             | None -> None
 #endif
         | ILTypeMetadata (_,tdef) -> 
-            match TryDecodeILAttribute g atref (Some(atref.Scope)) tdef.CustomAttrs with 
+            match TryDecodeILAttribute g atref tdef.CustomAttrs with 
             | Some attr -> f1 attr
             | _ -> None
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> 

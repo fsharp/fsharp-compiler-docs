@@ -518,7 +518,7 @@ type Entity =
         x.Data.entity_range
 
     /// The range in the implementation, adjusted for an item in a signature
-    member x.ImplRange = 
+    member x.DefinitionRange = 
         match x.Data.entity_other_range with 
         | Some (r, true) -> r
         | _ -> x.Range
@@ -977,7 +977,7 @@ and
       entity_range: range
       
       // MUTABILITY: the signature is adjusted when it is checked
-      /// If the flag is true, this is the implementation range for an item in a signature, otherwise it is 
+      /// If this field is populated, this is the implementation range for an item in a signature, otherwise it is 
       /// the signature range for an item in an implementation
       mutable entity_other_range: (range * bool) option
       
@@ -1303,7 +1303,7 @@ and
       /// Name/range of the case 
       Id: Ident 
 
-      /// If the flag is true, this is the implementation range for an item in a signature, otherwise it is 
+      /// If this field is populated, this is the implementation range for an item in a signature, otherwise it is 
       /// the signature range for an item in an implementation
       // MUTABILITY: used when propagating signature attributes into the implementation.
       mutable OtherRangeOpt : (range * bool) option
@@ -1316,14 +1316,17 @@ and
       mutable Attribs: Attribs }
 
     member uc.Range = uc.Id.idRange
-    member uc.ImplRange = 
+
+    member uc.DefinitionRange = 
         match uc.OtherRangeOpt with 
         | Some (m,true) -> m
         | _ -> uc.Range 
+
     member uc.SigRange = 
         match uc.OtherRangeOpt with 
         | Some (m,false) -> m
         | _ -> uc.Range 
+
     member uc.DisplayName = uc.Id.idText
     member uc.RecdFieldsArray = uc.FieldTable.FieldsByIndex 
     member uc.RecdFields = uc.FieldTable.FieldsByIndex |> Array.toList
@@ -1373,7 +1376,7 @@ and
       /// Name/declaration-location of the field 
       rfield_id: Ident 
 
-      /// If the flag is true, this is the implementation range for an item in a signature, otherwise it is 
+      /// If this field is populated, this is the implementation range for an item in a signature, otherwise it is 
       /// the signature range for an item in an implementation
       // MUTABILITY: used when propagating signature attributes into the implementation.
       mutable rfield_other_range: (range * bool) option }
@@ -1389,10 +1392,12 @@ and
 
     /// Declaration-location of the field 
     member v.Range = v.rfield_id.idRange
-    member v.ImplRange = 
+
+    member v.DefinitionRange = 
         match v.rfield_other_range with 
         | Some (m, true) -> m
         | _ -> v.Range 
+
     member v.SigRange = 
         match v.rfield_other_range with 
         | Some (m, false) -> m
@@ -2050,11 +2055,9 @@ and
     member x.Accessibility              = x.Data.val_access
 
     /// Range of the definition (implementation) of the value, used by Visual Studio 
-    /// Updated by mutation when the implementation is matched against the signature. 
-    member x.ImplRange            =  x.Data.ImplRange
+    member x.DefinitionRange            =  x.Data.DefinitionRange
 
     /// Range of the definition (signature) of the value, used by Visual Studio 
-    /// Updated by mutation when the implementation is matched against the signature. 
     member x.SigRange            = x.Data.SigRange
 
     /// The value of a value or member marked with [<LiteralAttribute>] 
@@ -2392,7 +2395,7 @@ and
     { val_logical_name: string
       val_compiled_name: string option
       val_range: range
-      /// If the flag is true, this is the implementation range for an item in a signature, otherwise it is 
+      /// If this field is populated, this is the implementation range for an item in a signature, otherwise it is 
       /// the signature range for an item in an implementation
       mutable val_other_range: (range * bool) option 
       mutable val_type: TType
@@ -2438,7 +2441,7 @@ and
       /// XML documentation signature for the value
       mutable val_xmldocsig : string } 
 
-    member x.ImplRange            = 
+    member x.DefinitionRange            = 
         match x.val_other_range with
         | Some (m,true) -> m
         | _ -> x.val_range
@@ -2711,7 +2714,7 @@ and
     member x.CompiledRepresentationForNamedType = x.Deref.CompiledRepresentationForNamedType
 
     /// The implementation definition location of the namespace, module or type
-    member x.ImplRange = x.Deref.ImplRange
+    member x.DefinitionRange = x.Deref.DefinitionRange
 
     /// The signature definition location of the namespace, module or type
     member x.SigRange = x.Deref.SigRange
@@ -3051,7 +3054,7 @@ and
     /// For other values it is just the actual parent.
     member x.ApparentParent             = x.Deref.ApparentParent
 
-    member x.ImplRange        = x.Deref.ImplRange
+    member x.DefinitionRange            = x.Deref.DefinitionRange
 
     member x.SigRange        = x.Deref.SigRange
 
@@ -3186,11 +3189,16 @@ and UnionCaseRef =
         match x.TyconRef.GetUnionCaseByName x.CaseName with 
         | Some res -> res
         | None -> error(InternalError(sprintf "union case %s not found in type %s" x.CaseName x.TyconRef.LogicalName, x.TyconRef.Range))
+
     member x.TryUnionCase =  x.TyconRef.TryDeref |> Option.bind (fun tcref -> tcref.GetUnionCaseByName x.CaseName)
+
     member x.Attribs = x.UnionCase.Attribs
     member x.Range = x.UnionCase.Range
-    member x.ImplRange = x.UnionCase.ImplRange
-    member x.SigRange = x.UnionCase.ImplRange
+
+    member x.DefinitionRange = x.UnionCase.DefinitionRange
+
+    member x.SigRange = x.UnionCase.DefinitionRange
+
     member x.Index = 
         try 
            // REVIEW: this could be faster, e.g. by storing the index in the NameMap 
@@ -3211,11 +3219,15 @@ and RecdFieldRef =
         match tcref.GetFieldByName id with 
         | Some res -> res
         | None -> error(InternalError(sprintf "field %s not found in type %s" id tcref.LogicalName, tcref.Range))
+
     member x.TryRecdField =  x.TyconRef.TryDeref |> Option.bind (fun tcref -> tcref.GetFieldByName x.FieldName)
+
     member x.PropertyAttribs = x.RecdField.PropertyAttribs
     member x.Range = x.RecdField.Range
-    member x.ImplRange = x.RecdField.ImplRange
-    member x.SigRange = x.RecdField.ImplRange
+
+    member x.DefinitionRange = x.RecdField.DefinitionRange
+
+    member x.SigRange = x.RecdField.DefinitionRange
 
     member x.Index =
         let (RFRef(tcref,id)) = x

@@ -1737,8 +1737,8 @@ and FSharpAttribute(cenv: cenv, attrib: AttribInfo) =
             match attrib with
             | AttribInfo.FSAttribInfo(g, attrib) ->
                 NicePrint.stringOfFSAttrib (denv.Contents g) attrib
-            | AttribInfo.ILAttribInfo (g, _, scoref, cattr, _) -> 
-                let parms, _args = decodeILAttribData g.ilg cattr (Some scoref) 
+            | AttribInfo.ILAttribInfo (g, _, _scoref, cattr, _) -> 
+                let parms, _args = decodeILAttribData g.ilg cattr 
                 NicePrint.stringOfILAttrib (denv.Contents g) (cattr.Method.EnclosingType, parms)
 
     override __.ToString() = 

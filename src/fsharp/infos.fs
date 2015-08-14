@@ -763,7 +763,7 @@ type ILMethInfo =
     member x.IsDllImport g = 
         match g.attrib_DllImportAttribute with
         | None -> false
-        | Some (AttribInfo(tref,_)) ->x.RawMetadata.CustomAttrs |> TryDecodeILAttribute g tref (Some tref.Scope)  |> isSome
+        | Some (AttribInfo(tref,_)) ->x.RawMetadata.CustomAttrs |> TryDecodeILAttribute g tref  |> isSome
 
     /// Get the (zero or one) 'self'/'this'/'object' arguments associated with an IL method. 
     /// An instance extension method returns one object argument.
@@ -1252,7 +1252,7 @@ type MethInfo =
             [ [ for p in ilMethInfo.ParamMetadata do
                  let isParamArrayArg = TryFindILAttribute g.attrib_ParamArrayAttribute p.CustomAttrs
                  let reflArgInfo = 
-                     match TryDecodeILAttribute g g.attrib_ReflectedDefinitionAttribute.TypeRef (Some(g.attrib_ReflectedDefinitionAttribute.TypeRef.Scope)) p.CustomAttrs with 
+                     match TryDecodeILAttribute g g.attrib_ReflectedDefinitionAttribute.TypeRef p.CustomAttrs with 
                      | Some ([ILAttribElem.Bool b ],_) ->  ReflectedArgInfo.Quote b
                      | Some _ -> ReflectedArgInfo.Quote false
                      | _ -> ReflectedArgInfo.None
@@ -2651,7 +2651,7 @@ type AttribInfo =
                     let obj = evalFSharpAttribArg g evaluatedExpr
                     ty,obj) 
          | ILAttribInfo (g, amap, scoref, cattr, m) -> 
-              let parms, _args = decodeILAttribData g.ilg cattr (Some scoref) 
+              let parms, _args = decodeILAttribData g.ilg cattr 
               [ for (argty,argval) in Seq.zip cattr.Method.FormalArgTypes parms ->
                     let ty = ImportType scoref amap m [] argty
                     let obj = evalILAttribElem argval
@@ -2666,7 +2666,7 @@ type AttribInfo =
                     let obj = evalFSharpAttribArg g evaluatedExpr
                     ty, nm, isField, obj) 
          | ILAttribInfo (g, amap, scoref, cattr, m) -> 
-              let _parms, namedArgs = decodeILAttribData g.ilg cattr (Some scoref) 
+              let _parms, namedArgs = decodeILAttribData g.ilg cattr 
               [ for (nm, argty, isProp, argval) in namedArgs ->
                     let ty = ImportType scoref amap m [] argty
                     let obj = evalILAttribElem argval
@@ -2753,7 +2753,7 @@ module AttributeChecking =
             | None -> None
 #endif
         | ILTypeMetadata (_,tdef) -> 
-            match TryDecodeILAttribute g atref (Some(atref.Scope)) tdef.CustomAttrs with 
+            match TryDecodeILAttribute g atref tdef.CustomAttrs with 
             | Some attr -> f1 attr
             | _ -> None
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> 
@@ -2782,7 +2782,7 @@ module AttributeChecking =
         ignore f3
 #endif
         BindMethInfoAttributes m minfo 
-            (fun ilAttribs -> TryDecodeILAttribute g atref (Some(atref.Scope)) ilAttribs |> Option.bind f1)
+            (fun ilAttribs -> TryDecodeILAttribute g atref ilAttribs |> Option.bind f1)
             (fun fsAttribs -> TryFindFSharpAttribute g attribSpec fsAttribs |> Option.bind f2)
 #if EXTENSIONTYPING
             (fun provAttribs -> 
@@ -2815,7 +2815,7 @@ module AttributeChecking =
     /// Check IL attributes for 'ObsoleteAttribute', returning errors and warnings as data
     let private CheckILAttributes g cattrs m = 
         let (AttribInfo(tref,_)) = g.attrib_SystemObsolete
-        match TryDecodeILAttribute g tref (Some(tref.Scope)) cattrs with 
+        match TryDecodeILAttribute g tref cattrs with 
         | Some ([ILAttribElem.String (Some msg) ],_) -> 
              WarnD(ObsoleteWarning(msg,m))
         | Some ([ILAttribElem.String (Some msg); ILAttribElem.Bool isError ],_) -> 
@@ -2900,7 +2900,7 @@ module AttributeChecking =
     /// Indicate if a list of IL attributes contains 'ObsoleteAttribute'. Used to suppress the item in intellisense.
     let CheckILAttributesForUnseen g cattrs _m = 
         let (AttribInfo(tref,_)) = g.attrib_SystemObsolete
-        isSome (TryDecodeILAttribute g tref (Some(tref.Scope)) cattrs)
+        isSome (TryDecodeILAttribute g tref cattrs)
 
     /// Checks the attributes for CompilerMessageAttribute, which has an IsHidden argument that allows
     /// items to be suppressed from intellisense.

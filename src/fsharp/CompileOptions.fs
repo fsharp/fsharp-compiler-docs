@@ -1217,9 +1217,7 @@ let GenerateIlxCode (ilxBackend, isInteractiveItExpr, isInteractiveOnMono, tcCon
     if !progress then dprintf "Generating ILX code...\n";
     let ilxGenOpts : IlxGenOptions = 
         { generateFilterBlocks = tcConfig.generateFilterBlocks;
-          emitConstantArraysUsingStaticDataBlobs = 
-              // Don't use static array blobs for dynamic code on Mono or Silverlight
-              not isInteractiveOnMono && not (ilxBackend = IlxGenBackend.IlReflectBackend && tcConfig.TargetIsSilverlight);  
+          emitConstantArraysUsingStaticDataBlobs = not isInteractiveOnMono;
           workAroundReflectionEmitBugs=tcConfig.isInteractive; // REVIEW: is this still required? 
           generateDebugSymbols= tcConfig.debuginfo;
           fragName = fragName;

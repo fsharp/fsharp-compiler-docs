@@ -46,7 +46,7 @@ let logRefEmitCalls = false
 
 type System.AppDomain with 
     member x.DefineDynamicAssemblyAndLog(asmName,flags,asmDir:string)  =
-        let asmB = x.DefineDynamicAssembly(asmName,flags,asmDir) 
+        let asmB = x.DefineDynamicAssembly(asmName,flags,asmDir)
         if logRefEmitCalls then 
             printfn "open System"
             printfn "open System.Reflection"
@@ -56,7 +56,7 @@ type System.AppDomain with
         
 
 type System.Reflection.Emit.AssemblyBuilder with 
-    member asmB.DefineDynamicModuleAndLog(a,b,c) =
+    member asmB.DefineDynamicModuleAndLog(a,b,c) =  
         let modB = asmB.DefineDynamicModule(a,b,c)
         if logRefEmitCalls then printfn "let moduleBuilder%d = assemblyBuilder%d.DefineDynamicModule(%A,%A,%A)" (abs <| hash modB) (abs <| hash asmB) a b c
         modB
@@ -199,7 +199,7 @@ type System.Reflection.Emit.TypeBuilder with
 #if FX_NO_INVOKE_MEMBER
 #else
     member typB.InvokeMemberAndLog(nm,flags,args)        = 
-        if logRefEmitCalls then printfn "typeBuilder%d.InvokeMember(\"%s\",enum %d,null,null,%A,Globalization.CultureInfo.InvariantCulture)" (abs <| hash typB) nm (LanguagePrimitives.EnumToValue flags) args
+        if logRefEmitCalls then printfn "typeBuilder%d.InvokeMember(\"%s\",enum %d,null,null,%A,Globalization.CultureInfo.InvariantCulture)" (abs <| hash typB) nm (LanguagePrimitives.EnumToValue flags) args     
         typB.InvokeMember(nm,flags,null,null,args,Globalization.CultureInfo.InvariantCulture)
 #endif
 
@@ -339,9 +339,9 @@ let convTypeRefAux (cenv:cenv) (tref:ILTypeRef) =
     match tref.Scope with
     | ILScopeRef.Assembly asmref ->
         let assembly = 
-            match cenv.resolvePath asmref with
+            match cenv.resolvePath asmref with                     
             | Some (Choice1Of2 path) ->
-                FileSystem.AssemblyLoadFrom(path)
+                FileSystem.AssemblyLoadFrom(path)              
             | Some (Choice2Of2 assembly) ->
                 assembly
             | None ->
@@ -1068,7 +1068,7 @@ let rec emitInstr cenv (modB : ModuleBuilder) emEnv (ilG:ILGenerator) instr =
     | I_callvirt       (tail,mspec,varargs)   -> emitSilverlightCheck ilG
                                                  emitInstrCall cenv emEnv ilG OpCodes.Callvirt tail mspec varargs
     | I_callconstraint (tail,typ,mspec,varargs) -> ilG.Emit(OpCodes.Constrained,convType cenv emEnv typ); 
-                                                   emitInstrCall cenv emEnv ilG OpCodes.Callvirt tail mspec varargs   
+                                                   emitInstrCall cenv emEnv ilG OpCodes.Callvirt tail mspec varargs                                                     
 #if FX_NO_REFLECTION_EMIT_CALLI                                                   
     | I_calli (tail,_callsig,None)             -> emitInstrTail ilG tail (fun () -> ())
     | I_calli (tail,_callsig,Some _vartyps)     -> emitInstrTail ilG tail (fun () -> ())
@@ -1085,7 +1085,7 @@ let rec emitInstr cenv (modB : ModuleBuilder) emEnv (ilG:ILGenerator) instr =
                                                                  convCallConv callsig.CallingConv,
                                                                  convType cenv emEnv callsig.ReturnType,
                                                                  convTypesToArray cenv emEnv callsig.ArgTypes,
-                                                                 convTypesToArray cenv emEnv vartyps))
+                                                                 convTypesToArray cenv emEnv vartyps))                                                                
 #endif                                                                 
     | I_ldftn mspec                           -> ilG.EmitAndLog(OpCodes.Ldftn,convMethodSpec cenv emEnv mspec)
     | I_newobj (mspec,varargs)                -> emitInstrNewobj cenv emEnv ilG mspec varargs
@@ -1954,7 +1954,7 @@ let createTypeRef (visited : Dictionary<_,_>, created : Dictionary<_,_>) emEnv t
         if not (visited.ContainsKey(tref)) || visited.[tref] > priority then 
             visited.[tref] <- priority;
             let tdef = envGetTypeDef emEnv tref
-            if verbose2 then dprintf "- traversing type %s\n" typB.FullName;
+            if verbose2 then dprintf "- traversing type %s\n" typB.FullName;        
 #if FX_NO_TYPE_RESOLVE_EVENT
             traverseTypeDef priority tref tdef;
 #else            
@@ -1975,7 +1975,7 @@ let createTypeRef (visited : Dictionary<_,_>, created : Dictionary<_,_>) emEnv t
             try
                 traverseTypeDef priority tref tdef;
             finally
-               System.AppDomain.CurrentDomain.remove_TypeResolve typeCreationHandler
+               System.AppDomain.CurrentDomain.remove_TypeResolve typeCreationHandler           
 #endif               
             if not (created.ContainsKey(tref)) then 
                 created.[tref] <- true;   
@@ -2049,7 +2049,7 @@ let buildModuleFragment cenv emEnv (asmB : AssemblyBuilder) (modB : ModuleBuilde
 
 let mkDynamicAssemblyAndModule (assemblyName, optimize, debugInfo, collectible) =
     let filename = assemblyName ^ ".dll"
-    let currentDom  = System.AppDomain.CurrentDomain
+    let currentDom  = System.AppDomain.CurrentDomain   
     let asmName = new AssemblyName()
     asmName.Name <- assemblyName
 #if FX_NO_REFLECTION_EMIT_SAVE_ASSEMBLY
@@ -2085,7 +2085,7 @@ let emitModuleFragment (ilg, emEnv, asmB : AssemblyBuilder, modB : ModuleBuilder
        emitCustomAttrs cenv emEnv asmB.SetCustomAttributeAndLog mani.CustomAttrs;    
     // invoke entry point methods
     let execEntryPtFun ((typB : TypeBuilder),methodName) () =
-      try 
+      try        
 #if FX_NO_INVOKE_MEMBER
         let mi = typB.GetMethod(methodName, BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.Static)
         System.Diagnostics.Debug.WriteLine("mi: {0}", string(mi.ToString()))
@@ -2096,7 +2096,7 @@ let emitModuleFragment (ilg, emEnv, asmB : AssemblyBuilder, modB : ModuleBuilder
         let invokedm = dm.CreateDelegate(typeof<EntryDelegate>)
         invokedm.DynamicInvoke(null) |> ignore
 #else          
-        ignore (typB.InvokeMemberAndLog(methodName,BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.Static,[| |]));
+        ignore (typB.InvokeMemberAndLog(methodName,BindingFlags.InvokeMethod ||| BindingFlags.Public ||| BindingFlags.Static,[| |]));       
 #endif        
         None
       with 

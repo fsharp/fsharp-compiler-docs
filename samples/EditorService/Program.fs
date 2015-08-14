@@ -28,10 +28,10 @@ let input =
 let inputLines = input.Split('\n')
 let file = "/home/user/Test.fsx"
 
-let identToken = Parser.tagOfToken (Parser.token.IDENT(""))
+let identTokenTag = FSharpTokenTag.Identifier
 let untyped, parsed = parseWithTypeInfo (file, input)
 // Get tool tip at the specified location
-let tip = parsed.GetToolTipTextAlternate(2, 7, inputLines.[1], [ "foo" ], identToken)
+let tip = parsed.GetToolTipTextAlternate(2, 7, inputLines.[1], [ "foo" ], identTokenTag)
 
 printfn "%A" tip
 

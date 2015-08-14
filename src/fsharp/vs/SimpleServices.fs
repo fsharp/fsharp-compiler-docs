@@ -68,7 +68,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                                 results:Microsoft.FSharp.Compiler.SourceCodeServices.CheckFileResults,
                                 source: string[]) = 
 
-        let identToken = Microsoft.FSharp.Compiler.Parser.tagOfToken (Microsoft.FSharp.Compiler.Parser.IDENT "")
+        let identToken = FSharpTokenTag.Identifier
         let hasChangedSinceLastTypeCheck _ = false
 
         /// Return the errors resulting from the type-checking

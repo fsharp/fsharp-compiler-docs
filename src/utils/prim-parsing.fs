@@ -11,7 +11,7 @@ exception RecoverableParseError
 exception Accept of obj
 
 [<Sealed>]
-type (*internal*) IParseState(ruleStartPoss:Position[],ruleEndPoss:Position[],lhsPos:Position[],ruleValues:obj[],lexbuf:LexBuffer<char>) = 
+type internal IParseState(ruleStartPoss:Position[],ruleEndPoss:Position[],lhsPos:Position[],ruleValues:obj[],lexbuf:LexBuffer<char>) = 
     member p.LexBuffer = lexbuf
     member p.InputRange n = ruleStartPoss.[n-1], ruleEndPoss.[n-1]; 
     member p.InputStartPosition n = ruleStartPoss.[n-1]
@@ -26,7 +26,7 @@ type (*internal*) IParseState(ruleStartPoss:Position[],ruleEndPoss:Position[],lh
 // This context is passed to the error reporter when a syntax error occurs
 
 [<Sealed>]
-type (*internal*) ParseErrorContext<'tok>
+type internal ParseErrorContext<'tok>
          (//lexbuf: LexBuffer<_>,
           stateStack:int list,
           parseState: IParseState, 
@@ -48,7 +48,7 @@ type (*internal*) ParseErrorContext<'tok>
 //-------------------------------------------------------------------------
 // This is the data structure emitted as code by FSYACC.  
 
-type (*internal*) Tables<'tok> = 
+type internal Tables<'tok> = 
     { reductions: (IParseState -> obj)[];
       endOfInputTag: int;
       tagOfToken: 'tok -> int;

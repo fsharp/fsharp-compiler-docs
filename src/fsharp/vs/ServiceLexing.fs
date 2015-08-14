@@ -23,6 +23,10 @@ open Microsoft.FSharp.Compiler.Lib
 
 type Position = int * int
 type Range = Position * Position
+
+module FSharpTokenTag = 
+    let Identifier = tagOfToken (IDENT "a")
+    let String = tagOfToken (STRING "a")
            
 /// This corresponds to a token categorization originally used in Visual Studio 2003.
 /// 

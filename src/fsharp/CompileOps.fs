@@ -4008,18 +4008,21 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
                 let name = System.Reflection.AssemblyName.GetAssemblyName(resolution.resolvedPath)
                 name.Version
 
-            // The callback captured by the TypeProviderConfig. Disconnect when things are disposed
-            let systemRuntimeContainsType =
-                let systemRuntimeContainsTypeRef = ref tcImports.SystemRuntimeContainsType
-                tcImports.AttachDisposeAction(fun () -> systemRuntimeContainsTypeRef := (fun _ -> raise (System.ObjectDisposedException("The type provider has been disposed"))))
-                fun arg -> systemRuntimeContainsTypeRef.Value arg
-                
             let typeProviderEnvironment = 
                  { resolutionFolder       = tcConfig.implicitIncludeDir
                    outputFile             = tcConfig.outputFile
                    showResolutionMessages = tcConfig.showExtensionTypeMessages 
                    referencedAssemblies   = [| for r in resolutions.GetAssemblyResolutions() -> r.resolvedPath |]
                    temporaryFolder        = FileSystem.GetTempPathShim() }
+
+            // The type provider should not hold strong references to disposed
+            // TcImport objects.  So the callbacks provided in the type provider config
+            // dispatch via a thunk which gets set to a non-resource-capturing 
+            // failing function when the object is disposed. 
+            let systemRuntimeContainsType =  
+                let systemRuntimeContainsTypeRef = ref tcImports.SystemRuntimeContainsType  
+                tcImports.AttachDisposeAction(fun () -> systemRuntimeContainsTypeRef := (fun _ -> raise (System.ObjectDisposedException("The type provider has been disposed"))))  
+                fun arg -> systemRuntimeContainsTypeRef.Value arg  
 
             let providers = 
                 [ for assemblyName in providerAssemblies do
@@ -5278,5 +5281,7 @@ let TypeCheckClosedInputSet (checkForErrors, tcConfig, tcImports, tcGlobals, pre
     let (tcEnvAtEndOfLastFile, topAttrs, mimpls),tcState = TypeCheckMultipleInputs (checkForErrors, tcConfig, tcImports, tcGlobals, prefixPathOpt, tcState, inputs)
     let tcState,tassembly = TypeCheckClosedInputSetFinish (mimpls, tcState)
     tcState, topAttrs, tassembly, tcEnvAtEndOfLastFile
+
+
 
 

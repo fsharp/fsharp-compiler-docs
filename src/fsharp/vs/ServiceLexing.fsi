@@ -72,6 +72,13 @@ type FSharpTokenCharKind =
     | WhiteSpace  = 0x00000008
     | LineComment = 0x00000009
     | Comment     = 0x0000000A    
+
+/// Some of the values in the field FSharpTokenInfo.Tag
+module FSharpTokenTag = 
+    /// Indicates the token is an identifier
+    val Identifier: int
+    /// Indicates the token is a string
+    val String : int
     
 /// Information about a particular token from the tokenizer
 type FSharpTokenInfo = 

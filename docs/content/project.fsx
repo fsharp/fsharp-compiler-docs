@@ -283,15 +283,14 @@ In some situations, e.g. in an IDE, you may wish to allow references to other F#
 a DLL. To do this, fill in the ProjectReferences entry in ProjectOptions, which recursively specifies the project
 options for dependent projects. Each project reference still needs a corresponding `-r:path-to-output-of-project.dll`
 command line argument in ProjectOptions, along with an entry in ProjectReferences.
+The first element of each tuple in the ProjectReferences entry should be the DLL name, i.e. `path-to-output-of-project.dll`.
+This should be the same as the text used in the `-r` project reference.
 
 When a project reference is used, the analysis will make use of the results of incremental
 analysis of the referenced F# project from source files, without requiring the compilation of these files to DLLs.
 
 To efficiently analyze a set of F# projects which include cross-references, you should populate the ProjectReferences
 correctly and then analyze each project in turn.   
-
-> **NOTE:** Project references are in prototype.  Using project references may currently degrade the responsiveness of the 
-  compiler service, because requests may not yet be serviced while dependent projects are being analyzed.
 
 *)
 

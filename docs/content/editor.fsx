@@ -125,7 +125,7 @@ identifier (the other option lets you get tooltip with full assembly location wh
 *)
 // Get tag of the IDENT token to be used as the last argument
 open Microsoft.FSharp.Compiler
-let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
+let identToken = FSharpTokenTag.Identifier
 
 // Get tool tip at the specified location
 let tip = checkFileResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken)

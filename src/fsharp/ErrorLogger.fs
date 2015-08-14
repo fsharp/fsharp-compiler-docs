@@ -108,13 +108,13 @@ type Exiter =
 
 let QuitProcessExiter = 
     { new Exiter with 
-        member x.Exit(n) = 
+        member x.Exit(n) =                    
 #if FX_NO_SYSTEM_ENVIRONMENT_EXIT
 #else                    
             try 
               System.Environment.Exit(n)
             with _ -> 
-              ()
+              ()            
 #endif              
             failwithf "%s" <| FSComp.SR.elSysEnvExitDidntExit() }
 

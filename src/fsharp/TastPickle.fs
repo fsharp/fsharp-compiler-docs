@@ -1840,7 +1840,7 @@ and p_ValData x st =
       ( x.val_logical_name,
         x.val_compiled_name,
         // only keep range information on published values, not on optimization data
-        (if x.val_repr_info.IsSome then Some(x.val_range, x.ImplRange) else None),
+        (if x.val_repr_info.IsSome then Some(x.val_range, x.DefinitionRange) else None),
         x.val_type,
         x.val_flags.PickledBits,
         x.val_member_info,

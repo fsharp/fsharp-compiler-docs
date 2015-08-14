@@ -24,7 +24,7 @@ let lowestDefaultPriority = 0 (* See comment on TyparConstraint.DefaultsTo *)
 
 let mkFlexibleFormatTypar m tys dflt = 
     let tp = NewTypar (TyparKind.Type,TyparRigidity.Rigid,Typar(mkSynId m "fmt",HeadTypeStaticReq,true),false,TyparDynamicReq.Yes,[],false,false)
-    tp.FixupConstraints [ TyparConstraint.SimpleChoice (tys,m); TyparConstraint.DefaultsTo (lowestDefaultPriority,dflt,m)];
+    tp.FixupConstraints [ TyparConstraint.SimpleChoice (tys,m); TyparConstraint.DefaultsTo (lowestDefaultPriority,dflt,m)]
     copyAndFixupFormatTypar m tp
 
 let mkFlexibleIntFormatTypar g m = 
@@ -48,7 +48,7 @@ let newInfo ()=
     addZeros       = false
     precision      = false}
 
-let ParseFormatString (m: Range.range) g (source: string option) report fmt bty cty dty = 
+let ParseFormatString (m: Range.range) g (source: string option) fmt bty cty dty = 
     // Offset is used to adjust ranges depending on whether input string is regular, verbatim or triple-quote.
     // We construct a new 'fmt' string since the current 'fmt' string doesn't distinguish between "\n" and escaped "\\n".
     let (offset, fmt) = 
@@ -291,7 +291,4 @@ let ParseFormatString (m: Range.range) g (source: string option) report fmt bty 
           | _ -> parseLoop acc (i+1, relLine, relCol+1)
            
     let results = parseLoop [] (0, 0, m.StartColumn)
-    // Only report specifier locations if entire format strings are well-formed.
-    for specifierLocation in specifierLocations do
-        report specifierLocation
-    results
+    results, Seq.toList specifierLocations

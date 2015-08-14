@@ -4115,7 +4115,7 @@ and TcTyparOrMeasurePar optKind cenv (env:TcEnv) newOk tpenv (Typar(id,_,_) as t
         | _, _ -> 
             let item = Item.TypeVar(id.idText, res)
             CallNameResolutionSink cenv.tcSink (id.idRange,env.NameEnv,item,item,ItemOccurence.UseInType,env.DisplayEnv,env.eAccessRights)
-            // // record the ' as well for tokenization
+            // record the ' as well for tokenization
             // CallNameResolutionSink cenv.tcSink (tp.Range.StartRange,env.NameEnv,item,item,ItemOccurence.UseInType,env.DisplayEnv,env.eAccessRights)
             res, tpenv
     let key = id.idText
@@ -6299,10 +6299,16 @@ and TcConstStringExpr cenv overallTy env m tpenv s  =
       let ty' = mkPrintfFormatTy cenv.g aty bty cty dty ety
       if (not (isObjTy cenv.g overallTy) && AddCxTypeMustSubsumeTypeUndoIfFailed env.DisplayEnv cenv.css m overallTy ty') then 
         // Parse the format string to work out the phantom types 
-        let report m = match cenv.tcSink.CurrentSink with None -> () | Some sink  -> sink.NotifyFormatSpecifierLocation m
         let source = match cenv.tcSink.CurrentSink with None -> None | Some sink -> sink.CurrentSource
         
-        let aty',ety' = (try CheckFormatStrings.ParseFormatString m cenv.g source report (s.Replace("\r\n", "\n").Replace("\r", "\n")) bty cty dty with Failure s -> error (Error(FSComp.SR.tcUnableToParseFormatString(s),m)))
+        let (aty',ety'), specifierLocations = (try CheckFormatStrings.ParseFormatString m cenv.g source (s.Replace("\r\n", "\n").Replace("\r", "\n")) bty cty dty with Failure s -> error (Error(FSComp.SR.tcUnableToParseFormatString(s),m)))
+
+        match cenv.tcSink.CurrentSink with 
+        | None -> () 
+        | Some sink  -> 
+            for specifierLocation in specifierLocations do
+                sink.NotifyFormatSpecifierLocation specifierLocation
+
         UnifyTypes cenv env m aty aty'
         UnifyTypes cenv env m ety ety'
         mkCallNewFormat cenv.g m aty bty cty dty ety (mkString cenv.g m s),tpenv

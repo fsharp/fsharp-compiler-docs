@@ -549,7 +549,7 @@ let global_g = ref (None : TcGlobals option)
 #endif
 
 let mkTcGlobals (compilingFslib,sysCcu,ilg,fslibCcu,directoryToResolveRelativePaths,mlCompatibility,
-                 using40environment,isInteractive,getTypeCcu, emitDebugInfoInQuotations) =
+                 using40environment,isInteractive,getTypeCcu, emitDebugInfoInQuotations) = 
 
   let vara = NewRigidTypar "a" envRange
   let varb = NewRigidTypar "b" envRange

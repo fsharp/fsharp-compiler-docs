@@ -13,4 +13,4 @@ open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.AbstractIL.Internal 
 
-val ParseFormatString : Range.range -> TcGlobals -> string option -> (Range.range -> unit) -> string -> TType -> TType -> TType -> TType * TType
+val ParseFormatString : Range.range -> TcGlobals -> source: string option -> fmt: string -> bty: TType -> cty: TType -> dty: TType -> (TType * TType) * Range.range list

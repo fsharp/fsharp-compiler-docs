@@ -516,9 +516,6 @@ type TcConfig =
  
     static member Create : TcConfigBuilder * validate: bool -> TcConfig
 
-    member TargetMscorlibVersion : System.Version
-    member TargetIsSilverlight : bool
-
 /// Represents a computation to return a TcConfig. Normally this is just a constant immutable TcConfig,
 /// but for F# Interactive it may be based on an underlying mutable TcConfigBuilder.
 [<Sealed>]
@@ -578,7 +575,6 @@ type TcAssemblyResolutions =
 type TcImports =
     interface System.IDisposable
     //new : TcImports option -> TcImports
-    member Base : TcImports option
     member SetBase : TcImports -> unit
     member DllTable : NameMap<ImportedBinary> with get
     member GetImportedAssemblies : unit -> ImportedAssembly list

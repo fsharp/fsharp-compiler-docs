@@ -79,6 +79,34 @@ module FSharpTokenTag =
     val Identifier: int
     /// Indicates the token is a string
     val String : int
+    /// Indicates the token is an identifier (synonym for FSharpTokenTag.Identifer)
+    val IDENT : int
+    /// Indicates the token is an string (synonym for FSharpTokenTag.String)
+    val STRING : int
+    /// Indicates the token is a `(`
+    val LPAREN : int
+    /// Indicates the token is a `)`
+    val RPAREN : int
+    /// Indicates the token is a `[`
+    val LBRACK : int
+    /// Indicates the token is a `]`
+    val RBRACK : int
+    /// Indicates the token is a `{`
+    val LBRACE : int
+    /// Indicates the token is a `}`
+    val RBRACE : int
+    /// Indicates the token is a `[<`
+    val LBRACK_LESS : int
+    /// Indicates the token is a `>]`
+    val GREATER_RBRACK : int
+    /// Indicates the token is a `<`
+    val LESS : int
+    /// Indicates the token is a `>`
+    val GREATER : int
+    /// Indicates the token is a `[|`
+    val LBRACK_BAR : int
+    /// Indicates the token is a `|]`
+    val BAR_RBRACK : int
     
 /// Information about a particular token from the tokenizer
 type FSharpTokenInfo = 

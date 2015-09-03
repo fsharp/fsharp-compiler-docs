@@ -1,5 +1,10 @@
+#### 1.4.0.4 - 
+* add more entries to FSharpTokenTag 
+* add PrettyNaming.QuoteIdentifierIfNeeded and PrettyNaming.KeywordNames
+
 #### 1.4.0.3 - 
 * integrate Microsoft/visualfsharp OOB cleanup via fsharp/fsharp
+* Make Parser and Lexer private
 
 #### 1.4.0.2 - 
 * #387 - types and arrays in F# attribute contructor arguments  

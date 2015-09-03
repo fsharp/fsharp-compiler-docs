@@ -27,6 +27,21 @@ type Range = Position * Position
 module FSharpTokenTag = 
     let Identifier = tagOfToken (IDENT "a")
     let String = tagOfToken (STRING "a")
+
+    let IDENT = tagOfToken (IDENT "a")
+    let STRING = tagOfToken (STRING "a")
+    let LPAREN = tagOfToken LPAREN
+    let RPAREN = tagOfToken RPAREN
+    let LBRACK = tagOfToken LBRACK
+    let RBRACK = tagOfToken RBRACK
+    let LBRACE = tagOfToken LBRACE
+    let RBRACE = tagOfToken RBRACE
+    let LBRACK_LESS = tagOfToken LBRACK_LESS
+    let GREATER_RBRACK = tagOfToken GREATER_RBRACK
+    let LESS = tagOfToken (LESS true)
+    let GREATER = tagOfToken (GREATER true)
+    let LBRACK_BAR = tagOfToken LBRACK_BAR
+    let BAR_RBRACK = tagOfToken BAR_RBRACK
            
 /// This corresponds to a token categorization originally used in Visual Studio 2003.
 /// 

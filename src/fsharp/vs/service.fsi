@@ -729,9 +729,14 @@ module PrettyNaming =
     val IsIdentifierPartCharacter     : char -> bool
     val IsLongIdentifierPartCharacter : char -> bool
     val GetLongNameFromString         : string -> string list
-    // Temporary workaround for no localized resources in FSharp.LanguageService.dll
+
     val FormatAndOtherOverloadsString : int -> string
 
+    /// A utility to help determine if an identifier needs to be quoted 
+    val QuoteIdentifierIfNeeded : string -> string
+
+    /// All the keywords in the F# langauge 
+    val KeywordNames : string list
 
 [<Obsolete("This type has been renamed to FSharpMethodGroupItemParameter")>]
 /// Renamed to FSharpMethodGroupItemParameter

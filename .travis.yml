@@ -1,5 +1,7 @@
 language: csharp
 
+sudo: false
+
 install:
 
 script: 

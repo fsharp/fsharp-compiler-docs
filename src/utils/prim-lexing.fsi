@@ -10,9 +10,8 @@ open Microsoft.FSharp.Core
 open Microsoft.FSharp.Control
 
 /// Position information stored for lexing tokens
-[<Sealed>]
+[<Struct>]
 type internal Position = 
-     interface System.IComparable
      /// The file index for the file associated with the input stream, use fileOfFileIndex in range.fs to decode
      member FileIndex : int
      /// The line number in the input stream, assuming fresh positions have been updated 

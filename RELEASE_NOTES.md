@@ -1,3 +1,6 @@
+#### 1.4.0.5 - 
+* add more entries to FSharpTokenTag 
+
 #### 1.4.0.4 - 
 * add more entries to FSharpTokenTag 
 * add PrettyNaming.QuoteIdentifierIfNeeded and PrettyNaming.KeywordNames

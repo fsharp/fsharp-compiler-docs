@@ -10,48 +10,55 @@ namespace Internal.Utilities.Text.Lexing
     open System.Collections.Generic
 
     [<Struct>]
-    type internal Position(posFileIndex: int, posLineNum: int, posOriginalLineNum: int, posStartOfLineOffset: int, posColumnOffset: int) =
-        member __.FileIndex = posFileIndex
-        member __.Line = posLineNum
-        member __.OriginalLine = posOriginalLineNum
-        member __.AbsoluteOffset = posColumnOffset
-        member __.StartOfLineAbsoluteOffset = posStartOfLineOffset
-        member __.Column = posColumnOffset - posStartOfLineOffset
+    type internal Position =
+        val FileIndex: int
+        val Line: int
+        val OriginalLine: int
+        val AbsoluteOffset: int
+        val StartOfLineAbsoluteOffset: int
+        member x.Column = x.AbsoluteOffset - x.StartOfLineAbsoluteOffset
 
-        member __.NextLine = 
-            Position (posFileIndex,
-                      posLineNum + 1,
-                      posOriginalLineNum + 1,
-                      posColumnOffset,
-                      posColumnOffset)
+        new (fileIndex: int, line: int, originalLine: int, startOfLineAbsoluteOffset: int, absoluteOffset: int) =
+            { FileIndex = fileIndex
+              Line = line
+              OriginalLine = originalLine
+              AbsoluteOffset = absoluteOffset
+              StartOfLineAbsoluteOffset = startOfLineAbsoluteOffset }
 
-        member __.EndOfToken n = 
-            Position (posFileIndex,
-                      posLineNum,
-                      posOriginalLineNum,
-                      posStartOfLineOffset,
-                      posColumnOffset + n)
+        member x.NextLine = 
+            Position (x.FileIndex,
+                      x.Line + 1,
+                      x.OriginalLine + 1,
+                      x.AbsoluteOffset,
+                      x.AbsoluteOffset)
 
-        member __.ShiftColumnBy by = 
-            Position (posFileIndex,
-                      posLineNum,
-                      posOriginalLineNum,
-                      posStartOfLineOffset,
-                      posColumnOffset + by)
+        member x.EndOfToken n = 
+            Position (x.FileIndex,
+                      x.Line,
+                      x.OriginalLine,
+                      x.StartOfLineAbsoluteOffset,
+                      x.AbsoluteOffset + n)
 
-        member __.ColumnMinusOne = 
-            Position (posFileIndex,
-                      posLineNum,
-                      posOriginalLineNum,
-                      posStartOfLineOffset,
-                      posStartOfLineOffset - 1)
+        member x.ShiftColumnBy by = 
+            Position (x.FileIndex,
+                      x.Line,
+                      x.OriginalLine,
+                      x.StartOfLineAbsoluteOffset,
+                      x.AbsoluteOffset + by)
 
-        member __.ApplyLineDirective (fileIdx, line) =
+        member x.ColumnMinusOne = 
+            Position (x.FileIndex,
+                      x.Line,
+                      x.OriginalLine,
+                      x.StartOfLineAbsoluteOffset,
+                      x.StartOfLineAbsoluteOffset - 1)
+
+        member x.ApplyLineDirective (fileIdx, line) =
             Position (fileIdx,
                       line,
-                      posOriginalLineNum,
-                      posColumnOffset,
-                      posColumnOffset)
+                      x.OriginalLine,
+                      x.AbsoluteOffset,
+                      x.AbsoluteOffset)
 
         static member Empty = Position ()
 

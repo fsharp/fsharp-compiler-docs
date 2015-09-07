@@ -107,6 +107,60 @@ module FSharpTokenTag =
     val LBRACK_BAR : int
     /// Indicates the token is a `|]`
     val BAR_RBRACK : int
+    /// Indicates the token is a `+` or `-`
+    val PLUS_MINUS_OP : int
+    /// Indicates the token is a `-`
+    val MINUS : int
+    /// Indicates the token is a `*`
+    val STAR : int
+    /// Indicates the token is a `%`
+    val INFIX_STAR_DIV_MOD_OP : int
+    /// Indicates the token is a `%`
+    val PERCENT_OP : int
+    /// Indicates the token is a `^`
+    val INFIX_AT_HAT_OP : int
+    /// Indicates the token is a `?`
+    val QMARK : int
+    /// Indicates the token is a `:`
+    val COLON : int
+    /// Indicates the token is a `=`
+    val EQUALS : int
+    /// Indicates the token is a `;`
+    val SEMICOLON : int
+    /// Indicates the token is a `,`
+    val COMMA : int
+    /// Indicates the token is a `.`
+    val DOT : int
+    /// Indicates the token is a `..`
+    val DOT_DOT : int
+    /// Indicates the token is a `..`
+    val INT32_DOT_DOT : int
+    /// Indicates the token is a `..`
+    val UNDERSCORE : int
+    /// Indicates the token is a `_`
+    val BAR : int
+    /// Indicates the token is a `:>`
+    val COLON_GREATER : int
+    /// Indicates the token is a `:?>`
+    val COLON_QMARK_GREATER : int
+    /// Indicates the token is a `:?`
+    val COLON_QMARK : int
+    /// Indicates the token is a `|`
+    val INFIX_BAR_OP : int
+    /// Indicates the token is a `|`
+    val INFIX_COMPARE_OP : int
+    /// Indicates the token is a `::`
+    val COLON_COLON : int
+    /// Indicates the token is a `@@`
+    val AMP_AMP : int
+    /// Indicates the token is a `~`
+    val PREFIX_OP : int
+    /// Indicates the token is a `:=`
+    val COLON_EQUALS : int
+    /// Indicates the token is a `||`
+    val BAR_BAR : int
+    /// Indicates the token is a `->`
+    val RARROW : int
     
 /// Information about a particular token from the tokenizer
 type FSharpTokenInfo = 

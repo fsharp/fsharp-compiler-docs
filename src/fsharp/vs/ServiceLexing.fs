@@ -42,6 +42,33 @@ module FSharpTokenTag =
     let GREATER = tagOfToken (GREATER true)
     let LBRACK_BAR = tagOfToken LBRACK_BAR
     let BAR_RBRACK = tagOfToken BAR_RBRACK
+    let PLUS_MINUS_OP = tagOfToken (PLUS_MINUS_OP "a")
+    let MINUS = tagOfToken MINUS
+    let STAR = tagOfToken STAR
+    let INFIX_STAR_DIV_MOD_OP = tagOfToken (INFIX_STAR_DIV_MOD_OP "a")
+    let PERCENT_OP = tagOfToken (PERCENT_OP "a")
+    let INFIX_AT_HAT_OP = tagOfToken (INFIX_AT_HAT_OP "a")
+    let QMARK = tagOfToken QMARK
+    let COLON = tagOfToken COLON
+    let EQUALS = tagOfToken EQUALS
+    let SEMICOLON = tagOfToken SEMICOLON
+    let COMMA = tagOfToken COMMA
+    let DOT = tagOfToken DOT
+    let DOT_DOT = tagOfToken DOT_DOT
+    let INT32_DOT_DOT = tagOfToken (INT32_DOT_DOT(0, true))
+    let UNDERSCORE = tagOfToken UNDERSCORE
+    let BAR = tagOfToken BAR
+    let COLON_GREATER = tagOfToken COLON_GREATER
+    let COLON_QMARK_GREATER = tagOfToken COLON_QMARK_GREATER
+    let COLON_QMARK = tagOfToken COLON_QMARK
+    let INFIX_BAR_OP = tagOfToken (INFIX_BAR_OP "a")
+    let INFIX_COMPARE_OP = tagOfToken (INFIX_COMPARE_OP "a")
+    let COLON_COLON = tagOfToken COLON_COLON
+    let AMP_AMP = tagOfToken AMP_AMP
+    let PREFIX_OP = tagOfToken (PREFIX_OP "a")
+    let COLON_EQUALS = tagOfToken COLON_EQUALS
+    let BAR_BAR = tagOfToken BAR_BAR
+    let RARROW = tagOfToken RARROW
            
 /// This corresponds to a token categorization originally used in Visual Studio 2003.
 /// 

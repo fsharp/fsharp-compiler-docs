@@ -161,6 +161,8 @@ module FSharpTokenTag =
     val BAR_BAR : int
     /// Indicates the token is a `->`
     val RARROW : int
+    /// Indicates the token is a `"`
+    val QUOTE : int
     
 /// Information about a particular token from the tokenizer
 type FSharpTokenInfo = 

@@ -69,6 +69,8 @@ module FSharpTokenTag =
     let COLON_EQUALS = tagOfToken COLON_EQUALS
     let BAR_BAR = tagOfToken BAR_BAR
     let RARROW = tagOfToken RARROW
+    let QUOTE = tagOfToken QUOTE
+
            
 /// This corresponds to a token categorization originally used in Visual Studio 2003.
 /// 

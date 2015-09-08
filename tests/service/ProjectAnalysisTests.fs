@@ -4505,7 +4505,7 @@ module Project37 =
     let dllName = Path.ChangeExtension(base2, ".dll")
     let projFileName = Path.ChangeExtension(base2, ".fsproj")
     let fileSource1 = """
-[<System.AttributeUsage(System.AttributeTargets.Method)>]
+[<System.AttributeUsage(System.AttributeTargets.Method ||| System.AttributeTargets.Assembly)>]
 type AttrTestAttribute() =
     inherit System.Attribute()
 
@@ -4529,6 +4529,9 @@ module Test =
     let withTypeArray = 0
     [<AttrTest([| 0; 1; 2 |])>]
     let withIntArray = 0
+
+[<assembly: AttrTest()>]
+do ()
 """
     File.WriteAllText(fileName1, fileSource1)
     let fileNames = [fileName1]
@@ -4576,3 +4579,6 @@ let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
                 a |> shouldEqual [| 0; 1; 2 |] 
             | _ -> ()
         | _ -> ()
+    Project37.wholeProjectResults.AssemblySignature.Attributes
+    |> Seq.map (fun a -> a.AttributeType.CompiledName)
+    |> Array.ofSeq |> shouldEqual [| "AttrTestAttribute" |]

@@ -1252,7 +1252,7 @@ type internal FsiDynamicCompiler
         } 
 
     member __.CurrentPartialAssemblySignature(istate) = 
-        FSharpAssemblySignature(istate.tcGlobals, istate.tcState.Ccu, istate.tcImports, istate.tcState.PartialAssemblySignature)
+        FSharpAssemblySignature(istate.tcGlobals, istate.tcState.Ccu, istate.tcImports, None, istate.tcState.PartialAssemblySignature)
 
 
 //----------------------------------------------------------------------------

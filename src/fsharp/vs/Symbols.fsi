@@ -104,10 +104,15 @@ and [<Class>] FSharpAssembly =
 /// Represents an inferred signature of part of an assembly as seen by the F# language
 and [<Class>] FSharpAssemblySignature = 
 
-    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * contents: ModuleOrNamespaceType -> FSharpAssemblySignature
+    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * topAttribs: TypeChecker.TopAttribs option * contents: ModuleOrNamespaceType -> FSharpAssemblySignature
 
     /// The (non-nested) module and type definitions in this signature
     member Entities:  IList<FSharpEntity>
+
+    /// Get the declared attributes for the assembly.
+    /// Only available when parsing an entire project. 
+    member Attributes: IList<FSharpAttribute>     
+
 
 /// A subtype of FSharpSymbol that represents a type definition or module as seen by the F# language
 and [<Class>] FSharpEntity = 

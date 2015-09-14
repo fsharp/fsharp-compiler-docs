@@ -1172,6 +1172,7 @@ module internal IncrementalFSharpBuild =
         Errors : (PhasedError * FSharpErrorSeverity) list 
         TcResolutions: TcResolutions list 
         TcSymbolUses: TcSymbolUses list 
+        TopAttribs: TopAttribs option
         TimeStamp: System.DateTime }
 
     let GetPartialCheckResults (tcAcc: TypeCheckAccumulator, timestamp) = 
@@ -1183,6 +1184,7 @@ module internal IncrementalFSharpBuild =
         Errors = tcAcc.tcErrors
         TcResolutions = tcAcc.tcResolutions
         TcSymbolUses = tcAcc.tcSymbolUses
+        TopAttribs = tcAcc.topAttribs
         TimeStamp = timestamp }
 
 

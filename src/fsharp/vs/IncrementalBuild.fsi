@@ -61,6 +61,7 @@ module internal IncrementalFSharpBuild =
         Errors : (PhasedError * FSharpErrorSeverity) list 
         TcResolutions: TcResolutions list 
         TcSymbolUses: TcSymbolUses list 
+        TopAttribs: TypeChecker.TopAttribs option
         TimeStamp: DateTime }
 
   [<Class>]

@@ -1813,9 +1813,9 @@ and FSharpParameter(cenv, typ:TType, topArgInfo:ArgReprInfo, mOpt, isParamArrayA
     override x.ToString() = 
         "parameter " + (match x.Name with None -> "<unnamed" | Some s -> s)
 
-and FSharpAssemblySignature internal (cenv, mtyp: ModuleOrNamespaceType) = 
+and FSharpAssemblySignature internal (cenv, topAttribs: TypeChecker.TopAttribs option, mtyp: ModuleOrNamespaceType) = 
 
-    new (g, thisCcu, tcImports, mtyp) = FSharpAssemblySignature(cenv(g,thisCcu,tcImports), mtyp)
+    new (g, thisCcu, tcImports, topAttribs, mtyp) = FSharpAssemblySignature(cenv(g,thisCcu,tcImports), topAttribs, mtyp)
 
     member __.Entities = 
 
@@ -1827,6 +1827,13 @@ and FSharpAssemblySignature internal (cenv, mtyp: ModuleOrNamespaceType) =
                        yield FSharpEntity(cenv,  mkLocalEntityRef entity) |]
         
         loop mtyp |> makeReadOnlyCollection
+
+    member __.Attributes =
+        match topAttribs with
+        | None -> makeReadOnlyCollection []
+        | Some tA ->
+            tA.assemblyAttrs
+            |> List.map (fun a -> FSharpAttribute(cenv,  AttribInfo.FSAttribInfo(cenv.g, a))) |> makeReadOnlyCollection
 
     override x.ToString() = "<assembly signature>"
 
@@ -1840,7 +1847,7 @@ and FSharpAssembly internal (cenv, ccu: CcuThunk) =
     member __.FileName = ccu.FileName
     member __.SimpleName = ccu.AssemblyName 
     member __.IsProviderGenerated = ccu.IsProviderGenerated
-    member __.Contents = FSharpAssemblySignature((if ccu.IsUnresolvedReference then cenv else (new cenv(cenv.g, ccu, cenv.tcImports))),  ccu.Contents.ModuleOrNamespaceType)
+    member __.Contents = FSharpAssemblySignature((if ccu.IsUnresolvedReference then cenv else (new cenv(cenv.g, ccu, cenv.tcImports))), None, ccu.Contents.ModuleOrNamespaceType)
                  
     override x.ToString() = x.QualifiedName
 

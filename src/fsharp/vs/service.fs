@@ -2999,6 +2999,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         parseAndCheckFileInProjectCache.Clear()
         braceMatchCache.Clear()
         parseFileInProjectCache.Clear()
+        IncrementalFSharpBuild.ClearFrameworkTcImportsCache()
         for i in 0 .. 2 do 
             System.GC.Collect()
             System.GC.WaitForPendingFinalizers() 

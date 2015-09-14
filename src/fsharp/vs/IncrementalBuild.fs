@@ -1088,7 +1088,7 @@ module internal IncrementalFSharpBuild =
     /// Global service state
     type FrameworkImportsCacheKey = (*resolvedpath*)string list * string * (*ClrRoot*)string list* (*fsharpBinaries*)string
     let private frameworkTcImportsCache = AgedLookup<FrameworkImportsCacheKey,(TcGlobals * TcImports)>(8, areSame=(fun (x,y) -> x = y)) 
-
+    let ClearFrameworkTcImportsCache() = frameworkTcImportsCache.Clear()
     /// This function strips the "System" assemblies from the tcConfig and returns a age-cached TcImports for them.
     let GetFrameworkTcImports(tcConfig:TcConfig) =
         // Split into installed and not installed.

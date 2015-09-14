@@ -50,7 +50,8 @@ module internal IncrementalFSharpBuild =
 
   /// Lookup the global static cache for building the FrameworkTcImports
   val GetFrameworkTcImports : TcConfig -> TcGlobals * TcImports * AssemblyResolution list * UnresolvedAssemblyReference list
-
+  val ClearFrameworkTcImportsCache: unit -> unit
+  
   type PartialCheckResults = 
       { TcState : TcState 
         TcImports: TcImports 

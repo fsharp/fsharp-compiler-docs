@@ -35,7 +35,7 @@ let ``Intro test`` () =
     let inputLines = input.Split('\n')
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input) 
-    let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
+    let identToken = FSharpTokenTag.IDENT
 
     // We only expect one reported error. However,
     // on Unix, using filenames like /home/user/Test.fsx gives a second copy of all parse errors due to the
@@ -216,7 +216,7 @@ let ``Expression typing test`` () =
     let inputLines = input3.Split('\n')
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults =  parseAndTypeCheckFileInProject(file, input3) 
-    let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
+    let identToken = FSharpTokenTag.IDENT
 
     // We only expect one reported error. However,
     // on Unix, using filenames like /home/user/Test.fsx gives a second copy of all parse errors due to the
@@ -238,6 +238,10 @@ let ``Expression typing test`` () =
                "Length"; "Normalize"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
                "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
                "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"])
+
+// The underlying problem is that the parser error recovery doesn't include _any_ information for
+// the incomplete member:
+//    member x.Test = 
 
 [<Test; Ignore("Currently failing, see #139")>]
 let ``Find function from member 1`` () = 

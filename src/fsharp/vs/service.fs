@@ -1473,7 +1473,7 @@ type TypeCheckInfo
 
     member scope.GetReferencedAssemblies() = 
         [ for x in tcImports.GetImportedAssemblies() do 
-                yield FSharpAssembly(g, thisCcu, tcImports, x.FSharpViewOfMetadata) ]
+                yield FSharpAssembly(g, tcImports, x.FSharpViewOfMetadata) ]
 
     // Not, this does not have to be a SyncOp, it can be called from any thread
     member scope.GetFormatSpecifierLocations() = 
@@ -1928,7 +1928,7 @@ type FSharpCheckProjectResults(keepAssemblyContents, errors: FSharpErrorInfo[], 
         let (tcGlobals, tcImports, thisCcu, _ccuSig, _tcSymbolUses, _topAttribs, _tcAssemblyData, _ilAssemRef, ad, _tcAssemblyExpr) = getDetails()
         let assemblies = 
             [ for x in tcImports.GetImportedAssemblies() do
-                yield FSharpAssembly(tcGlobals, thisCcu, tcImports, x.FSharpViewOfMetadata) ]
+                yield FSharpAssembly(tcGlobals, tcImports, x.FSharpViewOfMetadata) ]
         FSharpProjectContext(thisCcu, assemblies, ad) 
 
     member info.RawFSharpAssemblyData = 

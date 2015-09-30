@@ -65,33 +65,35 @@ let ``Test that csharp references are recognized as such`` () =
     let csharpAssembly = typeof<CSharpClass>.Assembly.Location
     let _, table = getProjectReferences("""module M""", [csharpAssembly], None, None)
     let ass = table.["CSharp_Analysis"]
-    match ass.Contents.Entities |> Seq.tryFind (fun e -> e.DisplayName = "CSharpClass") with
-    | Some found ->
-        // this is no F# thing
-        found.IsFSharp |> shouldEqual false
+    let search = ass.Contents.Entities |> Seq.tryFind (fun e -> e.DisplayName = "CSharpClass") 
+    Assert.True search.IsSome
+    let found = search.Value
+    // this is no F# thing
+    found.IsFSharp |> shouldEqual false
         
-        // Check that we have members
-        let members = found.MembersFunctionsAndValues |> Seq.map (fun e -> e.CompiledName, e) |> dict
-        members.ContainsKey ".ctor" |> shouldEqual true
-        members.ContainsKey "Method" |> shouldEqual true
-        members.ContainsKey "Property" |> shouldEqual true
-        members.ContainsKey "Event" |> shouldEqual true
-        members.ContainsKey "InterfaceMethod" |> shouldEqual true
-        members.ContainsKey "InterfaceProperty" |> shouldEqual true
-        members.ContainsKey "InterfaceEvent" |> shouldEqual true
+    // Check that we have members
+    let members = found.MembersFunctionsAndValues |> Seq.map (fun e -> e.CompiledName, e) |> dict
+    members.ContainsKey ".ctor" |> shouldEqual true
+    members.ContainsKey "Method" |> shouldEqual true
+    members.ContainsKey "Property" |> shouldEqual true
+    members.ContainsKey "Event" |> shouldEqual true
+    members.ContainsKey "InterfaceMethod" |> shouldEqual true
+    members.ContainsKey "InterfaceProperty" |> shouldEqual true
+    members.ContainsKey "InterfaceEvent" |> shouldEqual true
+    members.["Event"].IsEvent |> shouldEqual true
+    members.["Event"].EventIsStandard |> shouldEqual true
+    members.["Event"].EventAddMethod.DisplayName |> shouldEqual "add_Event"
+    members.["Event"].EventRemoveMethod.DisplayName |> shouldEqual "remove_Event"
+    members.["Event"].EventDelegateType.ToString() |> shouldEqual "type System.EventHandler"
 
-        //// Check that we get xml docs
-        //String.IsNullOrWhiteSpace(members.[".ctor"].XmlDocSig) |> shouldEqual false
-        //String.IsNullOrWhiteSpace(members.["Method"].XmlDocSig) |> shouldEqual false
-        //String.IsNullOrWhiteSpace(members.["Property"].XmlDocSig) |> shouldEqual false
-        //String.IsNullOrWhiteSpace(members.["Event"].XmlDocSig) |> shouldEqual false
-        //String.IsNullOrWhiteSpace(members.["InterfaceMethod"].XmlDocSig) |> shouldEqual false
-        //String.IsNullOrWhiteSpace(members.["InterfaceProperty"].XmlDocSig) |> shouldEqual false
-        //String.IsNullOrWhiteSpace(members.["InterfaceEvent"].XmlDocSig) |> shouldEqual false
-
-        ()
-    | None -> 
-        Assert.Fail ("CSharpClass was not found in CSharp_Analysis assembly!")
+    //// Check that we get xml docs
+    members.[".ctor"].XmlDocSig |> shouldEqual "M:FSharp.Compiler.Service.Tests.CSharpClass.#ctor(System.Int32,System.String)"
+    members.["Method"].XmlDocSig |> shouldEqual "M:FSharp.Compiler.Service.Tests.CSharpClass.Method(System.String)"
+    members.["Property"].XmlDocSig |> shouldEqual "P:FSharp.Compiler.Service.Tests.CSharpClass.Property"
+    members.["Event"].XmlDocSig |> shouldEqual "E:FSharp.Compiler.Service.Tests.CSharpClass.Event"
+    members.["InterfaceMethod"].XmlDocSig |> shouldEqual "M:FSharp.Compiler.Service.Tests.CSharpClass.InterfaceMethod(System.String)"
+    members.["InterfaceProperty"].XmlDocSig |> shouldEqual "P:FSharp.Compiler.Service.Tests.CSharpClass.InterfaceProperty"
+    members.["InterfaceEvent"].XmlDocSig |> shouldEqual "E:FSharp.Compiler.Service.Tests.CSharpClass.InterfaceEvent"
 
 [<Test>]
 let ``Test that symbols of csharp inner classes/enums are reported`` () = 

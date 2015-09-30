@@ -80,7 +80,7 @@ type [<Class>] FSharpSymbol =
 /// Represents an assembly as seen by the F# language
 and [<Class>] FSharpAssembly = 
 
-    internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * tcImports: TcImports * ccu: CcuThunk -> FSharpAssembly
+    internal new : tcGlobals: TcGlobals * tcImports: TcImports * ccu: CcuThunk -> FSharpAssembly
 
     /// The qualified name of the assembly
     member QualifiedName: string 
@@ -623,17 +623,31 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// Indicates if this is a property member
     member IsProperty : bool
 
-    /// Indicates if this is a property then there exists an associated getter method
+    /// Indicates if this is a property and there exists an associated getter method
     member HasGetterMethod : bool
 
     /// Get an associated getter method of the property
     member GetterMethod : FSharpMemberOrFunctionOrValue
 
-    /// Indicates if this is a property then there exists an associated setter method
+    /// Indicates if this is a property and there exists an associated setter method
     member HasSetterMethod : bool
 
     /// Get an associated setter method of the property
     member SetterMethod : FSharpMemberOrFunctionOrValue
+
+    /// Get an associated add method of an event
+    member EventAddMethod : FSharpMemberOrFunctionOrValue
+
+    /// Get an associated remove method of an event
+    member EventRemoveMethod : FSharpMemberOrFunctionOrValue
+
+    /// Get an associated delegate type of an event
+    member EventDelegateType : FSharpType
+
+    /// Indicate if an event can be considered to be a property for the F# type system of type IEvent or IDelegateEvent. 
+    /// In this case ReturnParameter will have a type corresponding to the property type.  For 
+    /// non-standard events, ReturnParameter will have a type corresponding to the delegate type.
+    member EventIsStandard: bool
 
     /// Indicates if this is an event member
     member IsEvent : bool

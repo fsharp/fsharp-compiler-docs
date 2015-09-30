@@ -1115,9 +1115,37 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         | P m -> 
             let minfo = m.GetterMethod
             FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
-        | E _
-        | M _
-        | V _ -> invalidOp "the value or member doesn't have an associated getter method" 
+        | E _ | M _ | V _ -> invalidOp "the value or member doesn't have an associated getter method" 
+
+    member __.EventAddMethod =
+        checkIsResolved()
+        match d with 
+        | E e -> 
+            let minfo = e.GetAddMethod()
+            FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | P _ | M _  | V _ -> invalidOp "the value or member doesn't have an associated add method" 
+
+    member __.EventRemoveMethod =
+        checkIsResolved()
+        match d with 
+        | E e -> 
+            let minfo = e.GetRemoveMethod()
+            FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | P _ | M _  | V _ -> invalidOp "the value or member doesn't have an associated remove method" 
+
+    member __.EventDelegateType =
+        checkIsResolved()
+        match d with 
+        | E e -> FSharpType(cenv, e.GetDelegateType(cenv.amap,range0))
+        | P _ | M _  | V _ -> invalidOp "the value or member doesn't have an associated event delegate type" 
+
+    member __.EventIsStandard =
+        checkIsResolved()
+        match d with 
+        | E e -> 
+            let dty = e.GetDelegateType(cenv.amap,range0)
+            TryDestStandardDelegateTyp cenv.infoReader range0 AccessibleFromSomewhere dty |> isSome
+        | P _ | M _  | V _ -> invalidOp "the value or member is not an event" 
 
     member __.HasSetterMethod =
         if isUnresolved() then false
@@ -1446,9 +1474,15 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         | E e -> 
                 // INCOMPLETENESS: Attribs is empty here, so we can't look at return attributes for .NET or F# methods
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
-            let rty = PropTypOfEventInfo cenv.infoReader range0 AccessibleFromSomewhere e
-            let _,rty, _cxs = PrettyTypes.PrettifyTypes1 cenv.g rty
+            let rty = 
+                try PropTypOfEventInfo cenv.infoReader range0 AccessibleFromSomewhere e
+                with _ -> 
+                    // For non-standard events, just use the delegate type as the ReturnParameter type
+                    e.GetDelegateType(cenv.amap,range0)
+
+            let _, rty, _cxs = PrettyTypes.PrettifyTypes1 cenv.g rty
             FSharpParameter(cenv,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
+
         | P p -> 
                 // INCOMPLETENESS: Attribs is empty here, so we can't look at return attributes for .NET or F# methods
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
@@ -1815,7 +1849,7 @@ and FSharpParameter(cenv, typ:TType, topArgInfo:ArgReprInfo, mOpt, isParamArrayA
 
 and FSharpAssemblySignature internal (cenv, topAttribs: TypeChecker.TopAttribs option, mtyp: ModuleOrNamespaceType) = 
 
-    new (g, thisCcu, tcImports, topAttribs, mtyp) = FSharpAssemblySignature(cenv(g,thisCcu,tcImports), topAttribs, mtyp)
+    new (g, thisCcu, tcImports, topAttribs, mtyp) = FSharpAssemblySignature(cenv(g, thisCcu, tcImports), topAttribs, mtyp)
 
     member __.Entities = 
 
@@ -1824,7 +1858,11 @@ and FSharpAssemblySignature internal (cenv, topAttribs: TypeChecker.TopAttribs o
                    if entity.IsNamespace then 
                        yield! loop entity.ModuleOrNamespaceType
                    else 
-                       yield FSharpEntity(cenv,  mkLocalEntityRef entity) |]
+                       let entityRef = 
+                           match tryRescopeEntity cenv.thisCcu entity with 
+                           | None -> mkLocalEntityRef entity
+                           | Some eref -> eref
+                       yield FSharpEntity(cenv,  entityRef) |]
         
         loop mtyp |> makeReadOnlyCollection
 
@@ -1839,7 +1877,7 @@ and FSharpAssemblySignature internal (cenv, topAttribs: TypeChecker.TopAttribs o
 
 and FSharpAssembly internal (cenv, ccu: CcuThunk) = 
 
-    new (g, thisCcu, tcImports, ccu) = FSharpAssembly(cenv(g,thisCcu,tcImports), ccu)
+    new (g, tcImports, ccu) = FSharpAssembly(cenv(g, ccu, tcImports), ccu)
 
     member __.RawCcuThunk = ccu
     member __.QualifiedName = match ccu.QualifiedName with None -> "" | Some s -> s

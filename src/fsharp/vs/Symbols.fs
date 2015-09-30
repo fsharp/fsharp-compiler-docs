@@ -41,7 +41,10 @@ module Impl =
         System.Collections.ObjectModel.ReadOnlyCollection<_>(Seq.toArray arr) :> IList<_>
     let makeXmlDoc (XmlDoc x) = makeReadOnlyCollection (x)
     
-    let rescopeEntity viewedCcu (entity : Entity) = 
+    let rescopeEntity optViewedCcu (entity : Entity) = 
+        match optViewedCcu with 
+        | None -> mkLocalEntityRef entity
+        | Some viewedCcu -> 
         match tryRescopeEntity viewedCcu entity with
         | None -> mkLocalEntityRef entity
         | Some eref -> eref
@@ -1847,9 +1850,13 @@ and FSharpParameter(cenv, typ:TType, topArgInfo:ArgReprInfo, mOpt, isParamArrayA
     override x.ToString() = 
         "parameter " + (match x.Name with None -> "<unnamed" | Some s -> s)
 
-and FSharpAssemblySignature internal (cenv, topAttribs: TypeChecker.TopAttribs option, mtyp: ModuleOrNamespaceType) = 
+and FSharpAssemblySignature private (cenv, topAttribs: TypeChecker.TopAttribs option, optViewedCcu: CcuThunk option, mtyp: ModuleOrNamespaceType) = 
 
-    new (g, thisCcu, tcImports, topAttribs, mtyp) = FSharpAssemblySignature(cenv(g, thisCcu, tcImports), topAttribs, mtyp)
+    // Assembly signature for a referenced/linked assembly
+    new (cenv, ccu: CcuThunk) = FSharpAssemblySignature((if ccu.IsUnresolvedReference then cenv else (new cenv(cenv.g, ccu, cenv.tcImports))), None, Some ccu, ccu.Contents.ModuleOrNamespaceType)
+    
+    // Assembly signature for an assembly produced via type-checking.
+    new (g, thisCcu, tcImports, topAttribs, mtyp) = FSharpAssemblySignature(cenv(g, thisCcu, tcImports), topAttribs, None, mtyp)
 
     member __.Entities = 
 
@@ -1858,10 +1865,7 @@ and FSharpAssemblySignature internal (cenv, topAttribs: TypeChecker.TopAttribs o
                    if entity.IsNamespace then 
                        yield! loop entity.ModuleOrNamespaceType
                    else 
-                       let entityRef = 
-                           match tryRescopeEntity cenv.thisCcu entity with 
-                           | None -> mkLocalEntityRef entity
-                           | Some eref -> eref
+                       let entityRef = rescopeEntity optViewedCcu entity 
                        yield FSharpEntity(cenv,  entityRef) |]
         
         loop mtyp |> makeReadOnlyCollection
@@ -1885,7 +1889,7 @@ and FSharpAssembly internal (cenv, ccu: CcuThunk) =
     member __.FileName = ccu.FileName
     member __.SimpleName = ccu.AssemblyName 
     member __.IsProviderGenerated = ccu.IsProviderGenerated
-    member __.Contents = FSharpAssemblySignature((if ccu.IsUnresolvedReference then cenv else (new cenv(cenv.g, ccu, cenv.tcImports))), None, ccu.Contents.ModuleOrNamespaceType)
+    member __.Contents = FSharpAssemblySignature(cenv, ccu)
                  
     override x.ToString() = x.QualifiedName
 

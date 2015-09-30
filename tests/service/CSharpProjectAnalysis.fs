@@ -93,7 +93,7 @@ let ``Test that csharp references are recognized as such`` () =
     | None -> 
         Assert.Fail ("CSharpClass was not found in CSharp_Analysis assembly!")
 
-[<Test; Ignore("Failing test for https://github.com/fsharp/FSharp.Compiler.Service/issues/177")>]
+[<Test>]
 let ``Test that symbols of csharp inner classes/enums are reported`` () = 
     let csharpAssembly = typeof<CSharpClass>.Assembly.Location
     let content = """
@@ -109,6 +109,5 @@ let _ = CSharpOuterClass.InnerClass.StaticMember()
     |> Async.RunSynchronously
     |> Array.map (fun su -> su.Symbol.ToString())
     |> shouldEqual 
-        [|"CSharpOuterClass"; "InnerEnum"; "symbol Case1"; 
-          "CSharpOuterClass"; "InnerClass"; "val StaticMember"; 
-          "NestedEnumClass"|]
+          [|"InnerEnum"; "CSharpOuterClass"; "symbol Case1"; "InnerClass";
+            "CSharpOuterClass"; "member StaticMember"; "NestedEnumClass"|]

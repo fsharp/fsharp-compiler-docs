@@ -1884,11 +1884,14 @@ let rec ResolveLongIdentInTypePrim (ncenv:NameResolver) nenv lookupKind (resInfo
                     | ResolveTypeNamesToTypeRefs -> 
                         OneSuccess (resInfo,Item.Types (nm,nestedTypes),rest)
             else 
-                ResolveLongIdentInTypes ncenv nenv lookupKind resInfo (depth+1) m ad rest findFlag typeNameResInfo nestedTypes
+                ResolveLongIdentInNestedTypes ncenv nenv lookupKind resInfo (depth+1) id m ad rest findFlag typeNameResInfo nestedTypes
         (OneResult contentsSearchAccessible +++ nestedSearchAccessible)
         
-and ResolveLongIdentInTypes (ncenv:NameResolver) nenv lookupKind resInfo depth m ad lid findFlag typeNameResInfo typs = 
-    typs |> CollectResults (ResolveLongIdentInTypePrim ncenv nenv lookupKind resInfo depth m ad lid findFlag typeNameResInfo >> AtMostOneResult m) 
+and ResolveLongIdentInNestedTypes (ncenv:NameResolver) nenv lookupKind resInfo depth id m ad lid findFlag typeNameResInfo typs = 
+    typs |> CollectResults (fun typ -> 
+        let resInfo = if isAppTy ncenv.g typ then resInfo.AddEntity(id.idRange,tcrefOfAppTy ncenv.g typ) else resInfo
+        ResolveLongIdentInTypePrim ncenv nenv lookupKind resInfo depth m ad lid findFlag typeNameResInfo typ 
+        |> AtMostOneResult m) 
 
 /// Resolve a long identifer using type-qualified name resolution.
 let ResolveLongIdentInType sink ncenv nenv lookupKind m ad lid findFlag typeNameResInfo typ =

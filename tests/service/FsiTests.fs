@@ -142,7 +142,7 @@ let ``ParseAndCheckInteraction test 1``() =
 
     // Check we can't get a declaration location for text in the F# interactive state (because the file doesn't exist)
     // TODO: check that if we use # line directives, then the file will exist correctly
-    let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
+    let identToken = FSharpTokenTag.IDENT
     typedResults.GetDeclarationLocationAlternate(1,6,"xxxxxx",["xxxxxx"]) |> Async.RunSynchronously |> shouldEqual (FSharpFindDeclResult.DeclNotFound  FSharpFindDeclFailureReason.NoSourceCode) 
 
     // Check we can get a tooltip for text in the F# interactive state

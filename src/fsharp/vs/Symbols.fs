@@ -41,7 +41,10 @@ module Impl =
         System.Collections.ObjectModel.ReadOnlyCollection<_>(Seq.toArray arr) :> IList<_>
     let makeXmlDoc (XmlDoc x) = makeReadOnlyCollection (x)
     
-    let rescopeEntity viewedCcu (entity : Entity) = 
+    let rescopeEntity optViewedCcu (entity : Entity) = 
+        match optViewedCcu with 
+        | None -> mkLocalEntityRef entity
+        | Some viewedCcu -> 
         match tryRescopeEntity viewedCcu entity with
         | None -> mkLocalEntityRef entity
         | Some eref -> eref
@@ -1115,9 +1118,37 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         | P m -> 
             let minfo = m.GetterMethod
             FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
-        | E _
-        | M _
-        | V _ -> invalidOp "the value or member doesn't have an associated getter method" 
+        | E _ | M _ | V _ -> invalidOp "the value or member doesn't have an associated getter method" 
+
+    member __.EventAddMethod =
+        checkIsResolved()
+        match d with 
+        | E e -> 
+            let minfo = e.GetAddMethod()
+            FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | P _ | M _  | V _ -> invalidOp "the value or member doesn't have an associated add method" 
+
+    member __.EventRemoveMethod =
+        checkIsResolved()
+        match d with 
+        | E e -> 
+            let minfo = e.GetRemoveMethod()
+            FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | P _ | M _  | V _ -> invalidOp "the value or member doesn't have an associated remove method" 
+
+    member __.EventDelegateType =
+        checkIsResolved()
+        match d with 
+        | E e -> FSharpType(cenv, e.GetDelegateType(cenv.amap,range0))
+        | P _ | M _  | V _ -> invalidOp "the value or member doesn't have an associated event delegate type" 
+
+    member __.EventIsStandard =
+        checkIsResolved()
+        match d with 
+        | E e -> 
+            let dty = e.GetDelegateType(cenv.amap,range0)
+            TryDestStandardDelegateTyp cenv.infoReader range0 AccessibleFromSomewhere dty |> isSome
+        | P _ | M _  | V _ -> invalidOp "the value or member is not an event" 
 
     member __.HasSetterMethod =
         if isUnresolved() then false
@@ -1446,9 +1477,15 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         | E e -> 
                 // INCOMPLETENESS: Attribs is empty here, so we can't look at return attributes for .NET or F# methods
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
-            let rty = PropTypOfEventInfo cenv.infoReader range0 AccessibleFromSomewhere e
-            let _,rty, _cxs = PrettyTypes.PrettifyTypes1 cenv.g rty
+            let rty = 
+                try PropTypOfEventInfo cenv.infoReader range0 AccessibleFromSomewhere e
+                with _ -> 
+                    // For non-standard events, just use the delegate type as the ReturnParameter type
+                    e.GetDelegateType(cenv.amap,range0)
+
+            let _, rty, _cxs = PrettyTypes.PrettifyTypes1 cenv.g rty
             FSharpParameter(cenv,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
+
         | P p -> 
                 // INCOMPLETENESS: Attribs is empty here, so we can't look at return attributes for .NET or F# methods
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
@@ -1813,9 +1850,13 @@ and FSharpParameter(cenv, typ:TType, topArgInfo:ArgReprInfo, mOpt, isParamArrayA
     override x.ToString() = 
         "parameter " + (match x.Name with None -> "<unnamed" | Some s -> s)
 
-and FSharpAssemblySignature internal (cenv, topAttribs: TypeChecker.TopAttribs option, mtyp: ModuleOrNamespaceType) = 
+and FSharpAssemblySignature private (cenv, topAttribs: TypeChecker.TopAttribs option, optViewedCcu: CcuThunk option, mtyp: ModuleOrNamespaceType) = 
 
-    new (g, thisCcu, tcImports, topAttribs, mtyp) = FSharpAssemblySignature(cenv(g,thisCcu,tcImports), topAttribs, mtyp)
+    // Assembly signature for a referenced/linked assembly
+    new (cenv, ccu: CcuThunk) = FSharpAssemblySignature((if ccu.IsUnresolvedReference then cenv else (new cenv(cenv.g, ccu, cenv.tcImports))), None, Some ccu, ccu.Contents.ModuleOrNamespaceType)
+    
+    // Assembly signature for an assembly produced via type-checking.
+    new (g, thisCcu, tcImports, topAttribs, mtyp) = FSharpAssemblySignature(cenv(g, thisCcu, tcImports), topAttribs, None, mtyp)
 
     member __.Entities = 
 
@@ -1824,7 +1865,8 @@ and FSharpAssemblySignature internal (cenv, topAttribs: TypeChecker.TopAttribs o
                    if entity.IsNamespace then 
                        yield! loop entity.ModuleOrNamespaceType
                    else 
-                       yield FSharpEntity(cenv,  mkLocalEntityRef entity) |]
+                       let entityRef = rescopeEntity optViewedCcu entity 
+                       yield FSharpEntity(cenv,  entityRef) |]
         
         loop mtyp |> makeReadOnlyCollection
 
@@ -1839,7 +1881,7 @@ and FSharpAssemblySignature internal (cenv, topAttribs: TypeChecker.TopAttribs o
 
 and FSharpAssembly internal (cenv, ccu: CcuThunk) = 
 
-    new (g, thisCcu, tcImports, ccu) = FSharpAssembly(cenv(g,thisCcu,tcImports), ccu)
+    new (g, tcImports, ccu) = FSharpAssembly(cenv(g, ccu, tcImports), ccu)
 
     member __.RawCcuThunk = ccu
     member __.QualifiedName = match ccu.QualifiedName with None -> "" | Some s -> s
@@ -1847,7 +1889,7 @@ and FSharpAssembly internal (cenv, ccu: CcuThunk) =
     member __.FileName = ccu.FileName
     member __.SimpleName = ccu.AssemblyName 
     member __.IsProviderGenerated = ccu.IsProviderGenerated
-    member __.Contents = FSharpAssemblySignature((if ccu.IsUnresolvedReference then cenv else (new cenv(cenv.g, ccu, cenv.tcImports))), None, ccu.Contents.ModuleOrNamespaceType)
+    member __.Contents = FSharpAssemblySignature(cenv, ccu)
                  
     override x.ToString() = x.QualifiedName
 

@@ -1,3 +1,11 @@
+#### 1.4.0.6 - 
+* fix 423 - Symbols for non-standard C# events
+* fix 235 - XmlDocSigs for references assemblies
+* fix 177 - GetAllUsesOfAllSymbolsInFile returns nothing for C# nested enum
+* make Internal.Utilities.Text.Lexing.Position a struct
+* Exposing assembly attributes on FSharpAssemblySignature
+* clean up IncrementalFSharpBuild.frameworkTcImportsCache
+
 #### 1.4.0.5 - 
 * add more entries to FSharpTokenTag 
 

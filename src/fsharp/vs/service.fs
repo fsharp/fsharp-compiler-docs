@@ -2562,7 +2562,9 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
     let CrackProjectUsingOldBuildAPI(fsprojFile:string) = 
         let engine = new Microsoft.Build.BuildEngine.Engine()
 #if FX_ATLEAST_45
-        engine.DefaultToolsVersion <- "12.0"
+        try
+           engine.DefaultToolsVersion <- "12.0"
+        with | _ -> engine.DefaultToolsVersion <- "4.0"
 #else
         engine.DefaultToolsVersion <- "4.0"
 #endif

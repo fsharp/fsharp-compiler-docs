@@ -4502,16 +4502,23 @@ module Project37 =
 
     let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
     let base2 = Path.GetTempFileName()
+    let fileName2 = Path.ChangeExtension(base2, ".fs")
     let dllName = Path.ChangeExtension(base2, ".dll")
     let projFileName = Path.ChangeExtension(base2, ".fsproj")
     let fileSource1 = """
-[<System.AttributeUsage(System.AttributeTargets.Method ||| System.AttributeTargets.Assembly)>]
+namespace AttrTests
+
+[<System.AttributeUsage(System.AttributeTargets.Method ||| System.AttributeTargets.Assembly) >]
 type AttrTestAttribute() =
     inherit System.Attribute()
 
     new (t: System.Type) = AttrTestAttribute()
     new (t: System.Type[]) = AttrTestAttribute()
     new (t: int[]) = AttrTestAttribute()
+
+[<System.AttributeUsage(System.AttributeTargets.Assembly) >]
+type AttrTest2Attribute() =
+    inherit System.Attribute()
 
 type TestUnion = | A of string
 type TestRecord = { B : int }
@@ -4534,7 +4541,14 @@ module Test =
 do ()
 """
     File.WriteAllText(fileName1, fileSource1)
-    let fileNames = [fileName1]
+    let fileSource2 = """
+namespace AttrTests
+
+[<assembly: AttrTest2()>]
+do ()
+"""
+    File.WriteAllText(fileName2, fileSource2)
+    let fileNames = [fileName1; fileName2]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let wholeProjectResults =
@@ -4581,4 +4595,4 @@ let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
         | _ -> ()
     Project37.wholeProjectResults.AssemblySignature.Attributes
     |> Seq.map (fun a -> a.AttributeType.CompiledName)
-    |> Array.ofSeq |> shouldEqual [| "AttrTestAttribute" |]
+    |> Array.ofSeq |> shouldEqual [| "AttrTestAttribute"; "AttrTest2Attribute" |]

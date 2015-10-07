@@ -1532,7 +1532,11 @@ module internal IncrementalFSharpBuild =
                 errorRecoveryNoRange e
                 mkSimpleAssRef assemblyName, None, None
 
-          let finalAccWithErrors =  { finalAcc with tcErrors = finalAcc.tcErrors @ errorLogger.GetErrors() }
+          let finalAccWithErrors = 
+            { finalAcc with 
+                tcErrors = finalAcc.tcErrors @ errorLogger.GetErrors() 
+                topAttribs = Some topAttrs
+            }
           ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt, finalAccWithErrors
 
         // END OF BUILD TASK FUNCTIONS

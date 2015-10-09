@@ -1761,8 +1761,6 @@ and FSharpType(cenv, typ:TType) =
        protect <| fun () -> 
         "type " + NicePrint.stringOfTy (DisplayEnv.Empty(cenv.g)) typ 
 
-
-
 and FSharpAttribute(cenv: cenv, attrib: AttribInfo) = 
 
     let rec resolveArgObj (arg: obj) =

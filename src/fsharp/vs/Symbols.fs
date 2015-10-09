@@ -1100,7 +1100,8 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
                 let rty = m.GetFSharpReturnTy(cenv.amap,range0,m.FormalMethodInst)
                 let argtysl = m.GetParamTypes(cenv.amap,range0,m.FormalMethodInst) 
                 mkIteratedFunTy (List.map (mkTupledTy cenv.g) argtysl) rty
-            | V v -> v.TauType
+            | V v -> let _, typ, _ = PrettyTypes.PrettifyTypes1 cenv.g v.TauType
+                     typ
         FSharpType(cenv,  ty)
 
     member __.HasGetterMethod =
@@ -1421,8 +1422,9 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
             [ [ for (ParamData(isParamArrayArg,isOutArg,optArgInfo,nmOpt,_reflArgInfo,pty)) in p.GetParamDatas(cenv.amap,range0) do 
                 // INCOMPLETENESS: Attribs is empty here, so we can't look at attributes for
                 // either .NET or F# parameters
+                let _, prettyTyp, _cxs = PrettyTypes.PrettifyTypes1 cenv.g pty
                 let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }
-                yield FSharpParameter(cenv,  pty, argInfo, x.DeclarationLocationOpt, isParamArrayArg, isOutArg, optArgInfo.IsOptional) ] 
+                yield FSharpParameter(cenv,prettyTyp , argInfo, x.DeclarationLocationOpt, isParamArrayArg, isOutArg, optArgInfo.IsOptional) ] 
                |> makeReadOnlyCollection  ]
            |> makeReadOnlyCollection
 
@@ -1430,8 +1432,15 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         | M m -> 
             
             [ for argtys in m.GetParamDatas(cenv.amap,range0,m.FormalMethodInst) do 
-                 yield 
-                   [ for (ParamData(isParamArrayArg,isOutArg,optArgInfo,nmOpt,_reflArgInfo,pty)) in argtys do 
+                 let _, prettyTyps, _cxs =
+                     argtys
+                     |> List.map (function ParamData(isParamArrayArg,isOutArg,optArgInfo,nmOpt,_reflArgInfo,pty) -> pty)
+                     |> PrettyTypes.PrettifyTypesN cenv.g
+                 let combined =
+                   List.map2 (fun pty (ParamData(isParamArrayArg,isOutArg,optArgInfo,nmOpt,reflArgInfo,_pty)) ->
+                                  isParamArrayArg,isOutArg,optArgInfo,nmOpt,reflArgInfo,pty) prettyTyps argtys
+                 yield
+                   [ for (isParamArrayArg,isOutArg,optArgInfo,nmOpt,_reflArgInfo,pty) in combined do 
                 // INCOMPLETENESS: Attribs is empty here, so we can't look at attributes for
                 // either .NET or F# parameters
                         let argInfo : ArgReprInfo = { Name=nmOpt; Attribs= [] }
@@ -1450,8 +1459,9 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
                         if isTupleTy cenv.g typ
                         then tryDestTupleTy cenv.g typ
                         else [typ]
+                    let _, prettyTyps, _cxs = allArguments |> PrettyTypes.PrettifyTypesN cenv.g
                     yield
-                      allArguments
+                      prettyTyps
                       |> List.map (fun arg -> FSharpParameter(cenv,  arg, { Name=None; Attribs= [] }, x.DeclarationLocationOpt, false, false, false))
                       |> makeReadOnlyCollection ]
                 |> makeReadOnlyCollection
@@ -1460,8 +1470,8 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
             let tau = v.TauType
             let argtysl,_ = GetTopTauTypeInFSharpForm cenv.g curriedArgInfos tau range0
             let argtysl = if v.IsInstanceMember then argtysl.Tail else argtysl
-            
-            [ for argtys in argtysl do 
+            let prettyArgtysl = argtysl |> List.map (fun a -> PrettyTypes.PrettifyTypesN1 cenv.g (a, tau)) 
+            [ for (_, (argtys,_),_cxs) in prettyArgtysl do 
                  yield 
                    [ for argty, argInfo in argtys do 
                         let isParamArrayArg = HasFSharpAttribute cenv.g cenv.g.attrib_ParamArrayAttribute argInfo.Attribs
@@ -1490,27 +1500,32 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
                 // INCOMPLETENESS: Attribs is empty here, so we can't look at return attributes for .NET or F# methods
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
             let rty = p.GetPropertyType(cenv.amap,range0)
+            let _, rty, _cxs = PrettyTypes.PrettifyTypes1 cenv.g rty
             FSharpParameter(cenv,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | M m -> 
                 // INCOMPLETENESS: Attribs is empty here, so we can't look at return attributes for .NET or F# methods
             let retInfo : ArgReprInfo = { Name=None; Attribs= [] }
             let rty = m.GetFSharpReturnTy(cenv.amap,range0,m.FormalMethodInst)
+            let _, rty, _cxs = PrettyTypes.PrettifyTypes1 cenv.g rty
             FSharpParameter(cenv,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
         | V v -> 
         match v.ValReprInfo with 
         | None ->
             let _, tau = v.TypeScheme
             if isFunTy cenv.g tau then
-                let _typeArguments, rty = stripFunTy cenv.g tau
-                FSharpParameter(cenv,  rty, { Name=None; Attribs= [] }, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false)
+                let typeArguments, rty = stripFunTy cenv.g tau
+                let empty : ArgReprInfo  = { Name=None; Attribs= [] }
+                let uncurriedArgInfos = typeArguments |> List.map (fun t -> (t,  empty ) )
+                let _, (_argtys, rty), _csx = PrettyTypes.PrettifyTypesN1 cenv.g (uncurriedArgInfos, rty)
+                FSharpParameter(cenv,  rty, empty, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false)
             else
                 failwith "not a module let binding or member" 
-        | Some (ValReprInfo(_typars,argInfos,retInfo)) -> 
+        | Some (ValReprInfo(typars,argInfos,retInfo)) -> 
         
             let tau = v.TauType
-            let _,rty = GetTopTauTypeInFSharpForm cenv.g argInfos tau range0
-            
-            FSharpParameter(cenv,  rty, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
+            let c,rty = GetTopTauTypeInFSharpForm cenv.g argInfos tau range0
+            let (typar, (_types, _, prettyReturn), _cxs) = PrettyTypes.PrettifyTypesNM1 cenv.g ([tau], c, rty)
+            FSharpParameter(cenv,  prettyReturn, retInfo, x.DeclarationLocationOpt, isParamArrayArg=false, isOutArg=false, isOptionalArg=false) 
 
 
     member __.Attributes = 
@@ -1745,6 +1760,8 @@ and FSharpType(cenv, typ:TType) =
     override x.ToString() = 
        protect <| fun () -> 
         "type " + NicePrint.stringOfTy (DisplayEnv.Empty(cenv.g)) typ 
+
+
 
 and FSharpAttribute(cenv: cenv, attrib: AttribInfo) = 
 

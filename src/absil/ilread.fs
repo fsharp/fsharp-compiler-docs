@@ -216,8 +216,6 @@ type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
         new System.String(NativePtr.ofNativeInt (m.Addr i), 0, n, System.Text.Encoding.UTF8)
 
 
-#endif
-
 //---------------------------------------------------------------------
 // Read file from memory blocks 
 //---------------------------------------------------------------------
@@ -3984,7 +3982,6 @@ let OpenILModuleReader infile opts =
             mmap.Close();
             ClosePdbReader pdb) }
     with _ ->
-#endif
         let mc = ByteFile.OpenIn infile
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader infile mc opts
         { modul = modul; 

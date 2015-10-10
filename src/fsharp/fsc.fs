@@ -129,7 +129,7 @@ let ConsoleErrorLoggerThatQuitsAfterMaxErrors (tcConfigB:TcConfigBuilder, exiter
                     )
     } :> _
 
-/// This error logger delays the messages it recieves. At the end, call ForwardDelayedErrorsAndWarnings
+/// This error logger delays the messages it receives. At the end, call ForwardDelayedErrorsAndWarnings
 /// to send the held messages.     
 type DelayAndForwardErrorLogger(exiter: Exiter, errorLoggerProvider: ErrorLoggerProvider) =
     inherit ErrorLogger("DelayAndForwardErrorLogger")
@@ -248,33 +248,6 @@ let AdjustForScriptCompile(tcConfigB:TcConfigBuilder,commandLineSourceFiles,lexR
 
     List.rev !allSources
 
-
-
-let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder, argv) =
-    let inputFilesRef   = ref ([] : string list)
-    let collect name = 
-        let lower = String.lowercase name
-        if List.exists (Filename.checkSuffix lower) [".resx"]  then
-            warning(Error(FSComp.SR.fscResxSourceFileDeprecated name,rangeStartup))
-            tcConfigB.AddEmbeddedResource name
-        else
-            inputFilesRef := name :: !inputFilesRef
-    let abbrevArgs = GetAbbrevFlagSet tcConfigB true
-    
-    // This is where flags are interpreted by the command line fsc.exe.
-    ParseCompilerOptions (collect, GetCoreFscCompilerOptions tcConfigB, List.tail (PostProcessCompilerArgs abbrevArgs argv))
-    let inputFiles = List.rev !inputFilesRef
-
-    (* step - get dll references *)
-    let dllFiles,sourceFiles = List.partition Filename.isDll inputFiles
-    match dllFiles with
-    | [] -> ()
-    | h::_ -> errorR (Error(FSComp.SR.fscReferenceOnCommandLine(h),rangeStartup))
-
-    dllFiles |> List.iter (fun f->tcConfigB.AddReferencedAssemblyByPath(rangeStartup,f))
-    sourceFiles
-          
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This code has logic for a prefix of the compile that is also used by the project system to do the front-end
 // logic that starts at command-line arguments and gets as far as importing all references (used for deciding
@@ -285,8 +258,7 @@ let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder, argv) =
 // This code used to be in fsc.exe.  The PS only references FSharp.LanguageService.Compiler, so this code moved from fsc.exe to FS.C.S.dll so that the PS can re-use it.
 // A great deal of the logic of this function is repeated in fsi.fs, so maybe should refactor fsi.fs to call into this as well.
 let GetTcImportsFromCommandLine
-        (displayPSTypeProviderSecurityDialogBlockingUI : (string->unit) option,
-         argv : string[], 
+        (argv : string[], 
          defaultFSharpBinariesDir : string, 
          directoryBuildingFrom : string, 
          lcidFromCodePage : int option, 
@@ -296,7 +268,6 @@ let GetTcImportsFromCommandLine
          exiter : Exiter,
          errorLoggerProvider : ErrorLoggerProvider,
          disposables : DisposablesTracker) =
-    
 
     let tcConfigB = TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, optimizeForMemory, directoryBuildingFrom, isInteractive=false, isInvalidationSupported=false)
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
@@ -415,10 +386,17 @@ let GetTcImportsFromCommandLine
     let tcConfig = (tcConfig,inputs) ||> List.fold ApplyMetaCommandsFromInputToTcConfig 
     let tcConfigP = TcConfigProvider.Constant(tcConfig)
 
+<<<<<<< HEAD
     ReportTime tcConfig "Import non-system references"
     let tcGlobals,tcImports =  
         let tcImports = TcImports.BuildNonFrameworkTcImports(displayPSTypeProviderSecurityDialogBlockingUI,tcConfigP,tcGlobals,frameworkTcImports,otherRes,knownUnresolved)
         tcGlobals,tcImports
+=======
+            ReportTime tcConfig "Import non-system references"
+            let tcGlobals,tcImports =  
+                let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,otherRes,knownUnresolved)
+                tcGlobals,tcImports
+>>>>>>> 17b7f2060894d90481aef7c9625b78faa50eddd2
 
     // register tcImports to be disposed in future
     disposables.Register tcImports
@@ -442,40 +420,6 @@ let GetTcImportsFromCommandLine
     ReportTime tcConfig "Typechecked"
 
     tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger
-
-// only called from the project system, as a way to run the front end of the compiler far enough to determine if we need to pop up the dialog (and do so if necessary)
-let ProcessCommandLineArgsAndImportAssemblies
-        (displayPSTypeProviderSecurityDialogBlockingUI : (string -> unit),
-         argv : string[], 
-         defaultFSharpBinariesDir : string, 
-         directoryBuildingFrom : string, 
-         exiter : Exiter) =
-
-    use disposables = new DisposablesTracker() // ensure that any resources that can be allocated in GetTcImportsFromCommandLine will be correctly disposed
-
-    // We don't care about the result, we just called 'GetTcImportsFromCommandLine' to have the effect of popping up the dialog if the TP is unknown
-    GetTcImportsFromCommandLine
-        (Some displayPSTypeProviderSecurityDialogBlockingUI, 
-         argv, 
-         defaultFSharpBinariesDir, 
-         directoryBuildingFrom, 
-         None, 
-         (fun _ -> ()),  // setProcessThreadLocals
-         (fun tcConfigB -> 
-                // (kind of abusing this lambda for an unintended purpose, but this is a convenient and correctly-timed place to poke the tcConfigB)
-                tcConfigB.importAllReferencesOnly <- true // stop after importing assemblies (do not typecheck, we don't need typechecking)
-                // for flags below, see IncrementalBuilder.fs:CreateBackgroundBuilderForProjectOptions, as there are many similarities, as these are the two places that we create this from VS code-paths
-                tcConfigB.openBinariesInMemory <- true    // uses more memory but means we don't take read-exclusions on the DLLs we reference (important for VS code path)
-                tcConfigB.openDebugInformationForLaterStaticLinking <- false // Never open PDB files for the PS, even if --standalone is specified
-                if tcConfigB.framework then
-                    Debug.Assert(false, "Project system requires --noframework flag")
-                    tcConfigB.framework<-false),   
-         true, // optimizeForMemory - want small memory footprint in VS
-         exiter, 
-         DefaultLoggerProvider(), // this function always use default set of loggers
-         disposables)
-     |> ignore
-
 
 #if NO_COMPILER_BACKEND
 #else
@@ -1795,7 +1739,7 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
 
     let tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger = 
         GetTcImportsFromCommandLine
-            (None, argv, defaultFSharpBinariesDir, Directory.GetCurrentDirectory(), 
+            (argv, defaultFSharpBinariesDir, Directory.GetCurrentDirectory(), 
              lcidFromCodePage, 
              // setProcessThreadLocals
              (fun tcConfigB ->
@@ -1869,7 +1813,7 @@ let main1(tcGlobals,tcImports : TcImports,frameworkTcImports,generatedCcu,typedA
     end;
 
 
-    // Pass on only the minimimum information required for the next phase to ensure GC kicks in.
+    // Pass on only the minimum information required for the next phase to ensure GC kicks in.
     // In principle the JIT should be able to do good liveness analysis to clean things up, but the
     // data structures involved here are so large we can't take the risk.
     Args(tcConfig, tcImports, frameworkTcImports, tcGlobals, errorLogger, generatedCcu, outfile, typedAssembly, topAttrs, pdbfile, assemblyName, assemVerFromAttrib, signingInfo, exiter)
@@ -1992,7 +1936,7 @@ let main2(Args(tcConfig, tcImports, frameworkTcImports: TcImports, tcGlobals, er
         else
             sigDataResources, optDataResources
     
-    // Pass on only the minimimum information required for the next phase to ensure GC kicks in.
+    // Pass on only the minimum information required for the next phase to ensure GC kicks in.
     // In principle the JIT should be able to do good liveness analysis to clean things up, but the
     // data structures involved here are so large we can't take the risk.
     Args(tcConfig,tcImports,tcGlobals,errorLogger,generatedCcu,outfile,optimizedImpls,topAttrs,pdbfile,assemblyName, (sigDataAttributes, sigDataResources), optDataResources,assemVerFromAttrib,signingInfo,metadataVersion,exiter)

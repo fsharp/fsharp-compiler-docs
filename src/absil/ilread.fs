@@ -216,9 +216,6 @@ type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
         new System.String(NativePtr.ofNativeInt (m.Addr i), 0, n, System.Text.Encoding.UTF8)
 
 
-<<<<<<< HEAD
-#endif
-
 //---------------------------------------------------------------------
 // Read file from memory blocks 
 //---------------------------------------------------------------------
@@ -238,27 +235,6 @@ type ByteFile(bytes:byte[]) =
             p <- p + 1
         p - addr
 
-=======
-//---------------------------------------------------------------------
-// Read file from memory blocks 
-//---------------------------------------------------------------------
-
-
-type ByteFile(bytes:byte[]) = 
-    inherit BinaryFile()
-
-    static member OpenIn f = ByteFile(FileSystem.ReadAllBytesShim f)
-    static member OpenBytes bytes = ByteFile(bytes)
-
-    override mc.ReadByte addr = bytes.[addr]
-    override mc.ReadBytes addr len = Array.sub bytes addr len
-    override m.CountUtf8String addr = 
-        let mutable p = addr
-        while bytes.[p] <> 0uy do
-            p <- p + 1
-        p - addr
-
->>>>>>> 17b7f2060894d90481aef7c9625b78faa50eddd2
     override m.ReadUTF8String addr = 
         let n = m.CountUtf8String addr 
         System.Text.Encoding.UTF8.GetString (bytes, addr, n)
@@ -4006,10 +3982,6 @@ let OpenILModuleReader infile opts =
             mmap.Close();
             ClosePdbReader pdb) }
     with _ ->
-<<<<<<< HEAD
-#endif
-=======
->>>>>>> 17b7f2060894d90481aef7c9625b78faa50eddd2
         let mc = ByteFile.OpenIn infile
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader infile mc opts
         { modul = modul; 

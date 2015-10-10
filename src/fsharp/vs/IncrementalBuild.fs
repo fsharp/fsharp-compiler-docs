@@ -69,7 +69,7 @@ module internal IncrementalBuild =
 
         /// VectorInput (uniqueRuleId, outputName, initialAccumulator, inputs, taskFunction)
         ///
-        /// A build rule representing the scan-left combinining a single scalar accumulator input with a vector of inputs
+        /// A build rule representing the scan-left combining a single scalar accumulator input with a vector of inputs
         | VectorScanLeft of Id * string * ScalarBuildRule * VectorBuildRule * (obj->obj->Eventually<obj>)
 
         /// VectorMap (uniqueRuleId, outputName, inputs, taskFunction)
@@ -219,11 +219,11 @@ module internal IncrementalBuild =
         | InProgress of (unit -> Eventually<obj>) * DateTime 
         | Available of obj * DateTime * InputSignature
         /// Get the available result. Throw an exception if not available.
-        member x.GetAvailable() = match x with Available(o,_,_) ->o  | _->failwith "No available result"
-        /// Get the time stamp if available. Otheriwse MaxValue.        
-        member x.Timestamp = match x with Available(_,ts,_) ->ts | InProgress(_,ts) -> ts | _-> DateTime.MaxValue
-        /// Get what this result depends on 
-        member x.InputSignature = match x with Available(_,_,signature) ->signature | _-> UnevaluatedInput
+        static member GetAvailable = function Available(o,_,_) ->o  | _->failwith "No available result"
+        /// Get the time stamp if available. Otherwise MaxValue.        
+        static member Timestamp = function Available(_,ts,_) ->ts | InProgress(_,ts) -> ts | _-> DateTime.MaxValue
+        /// Get the time stamp if available. Otherwise MaxValue.        
+        static member InputSignature = function Available(_,_,signature) ->signature | _-> UnevaluatedInput
         
         member x.ResultIsInProgress =  match x with | InProgress _ -> true | _ -> false
         member x.GetInProgressContinuation() =  match x with | InProgress (f,_) -> f() | _ -> failwith "not in progress"
@@ -935,9 +935,10 @@ module internal IncrementalBuild =
         member b.DeclareScalarOutput(output:Scalar<'T>)=
             outputs <- NamedScalarOutput(output) :: outputs
         /// Declare a named vector output.
-        member b.DeclareVectorOutput(output:Vector<'T>)=
-            outputs <- NamedVectorOutput(output) :: outputs
-        /// Set the conrete inputs for this build
+        member b.DeclareVectorOutput(name,output:Vector<'t>)=
+            let output:IVector = output:?>IVector
+            outputs <- NamedVectorOutput(name,output) :: outputs
+        /// Set the concrete inputs for this build
         member b.GetInitialPartialBuild(vectorinputs,scalarinputs) =
             ToBound(ToBuild outputs,vectorinputs,scalarinputs)   
 
@@ -1102,7 +1103,7 @@ module internal IncrementalFSharpBuild =
             //
             // The data elements in this key are very important. There should be nothing else in the TcConfig that logically affects
             // the import of a set of framework DLLs into F# CCUs. That is, the F# CCUs that result from a set of DLLs (including
-            // FSharp.Core.dll andb mscorlib.dll) must be logically invariant of all the other compiler configuration parameters.
+            // FSharp.Core.dll and mscorlib.dll) must be logically invariant of all the other compiler configuration parameters.
             let key = (frameworkDLLsKey,
                        tcConfig.primaryAssembly.Name, 
                        tcConfig.ClrRoot,
@@ -1332,7 +1333,8 @@ module internal IncrementalFSharpBuild =
                     // of the partial build to be re-evaluated.
                     disposeCleanupItem()
 
-                    let tcImports = TcImports.BuildNonFrameworkTcImports(None,tcConfigP,tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences)  
+                    Trace.PrintLine("FSharpBackgroundBuild", fun _ -> "About to (re)create tcImports")
+                    let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences)  
 #if EXTENSIONTYPING
                     for ccu in tcImports.GetCcusExcludingBase() do
                         // When a CCU reports an invalidation, merge them together and just report a 
@@ -1581,7 +1583,7 @@ module internal IncrementalFSharpBuild =
         let buildInputs = [VectorInput (fileNamesNode, sourceFiles)
                            VectorInput (referencedAssembliesNode, nonFrameworkAssemblyInputs) ]
 
-        // This is the intial representation of progress through the build, i.e. we have made no progress.
+        // This is the initial representation of progress through the build, i.e. we have made no progress.
         let mutable partialBuild = buildDescription.GetInitialPartialBuild (buildInputs, [])
 
         let EvalAndKeepOutput (output:INode) optSlot = 
@@ -1793,7 +1795,39 @@ module internal IncrementalFSharpBuild =
 
                 let niceNameGen = NiceNameGenerator()
         
-                let outfile, _, assemblyName = tcConfigB.DecideNames sourceFilesNew
+                if tcConfigB.framework then
+                    // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
+                    // If you see a failure here running unittests consider whether it caused by 
+                    // a mismatched version of Microsoft.Build.Framework. Run unittests under a debugger. If
+                    // you see an old version of Microsoft.Build.*.dll getting loaded, it is likely caused by
+                    // using an old ITask or ITaskItem from some tasks assembly.
+                    // I solved this problem by adding a Unittests.config.dll which has a binding redirect to 
+                    // the current (right now, 4.0.0.0) version of the tasks assembly.
+                    // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
+                    System.Diagnostics.Debug.Assert(false, "Language service requires --noframework flag")
+                    tcConfigB.framework<-false
+                tcConfigB 
+            match scriptClosureOptions with
+            | Some closure -> 
+                let dllReferences = 
+                    [for reference in tcConfigB.referencedDLLs do
+                        // If there's (one or more) resolutions of closure references then yield them all
+                        match closure.References  |> List.tryFind (fun (resolved,_)->resolved=reference.Text) with
+                        | Some(resolved,closureReferences) -> 
+                            for closureReference in closureReferences do
+                                yield AssemblyReference(closureReference.originalReference.Range, resolved)
+                        | None -> yield reference]
+                tcConfigB.referencedDLLs<-[]
+                // Add one by one to remove duplicates
+                for dllReference in dllReferences do
+                    tcConfigB.AddReferencedAssemblyByPath(dllReference.Range,dllReference.Text)
+                tcConfigB.knownUnresolvedReferences<-closure.UnresolvedReferences
+            | None -> ()
+            // Make sure System.Numerics is referenced for out-of-project .fs files
+            if isIncompleteTypeCheckEnvironment then 
+                tcConfigB.addVersionSpecificFrameworkReferences <- true 
+
+            let _, _, assemblyName = tcConfigB.DecideNames sourceFiles
         
                 let builder = 
                     new IncrementalBuilder(tcConfig, projectDirectory, outfile, assemblyName, niceNameGen,

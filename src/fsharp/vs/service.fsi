@@ -361,10 +361,37 @@ type FSharpProjectOptions =
     member ProjectOptions: string[] 
          
           
-/// Callback which can be used by the host to indicate to the checker that a requested result has become obsolete,
-/// e.g. because of typing by the user in the editor window. This can be used to marginally increase accuracy
-/// of intellisense results in some situations.
-type IsResultObsolete = 
+/// Information about the compilation environment    
+module internal CompilerEnvironment =
+    /// These are the names of assemblies that should be referenced for .fs, .ml, .fsi, .mli files that
+    /// are not associated with a project.
+    val DefaultReferencesForOrphanSources : string list
+    /// Return the compilation defines that should be used when editing the given file.
+    val GetCompilationDefinesForEditing : filename : string * compilerFlags : string list -> string list
+    /// Return true if this is a subcategory of error or warning message that the language service can emit
+    val IsCheckerSupportedSubcategory : string -> bool
+
+/// Information about the debugging environment
+module internal DebuggerEnvironment =
+    /// Return the language ID, which is the expression evaluator id that the
+    /// debugger will use.
+    val GetLanguageID : unit -> System.Guid
+    
+/// This file has become eligible to be re-typechecked.
+/// This notifies the language service that it needs to set the dirty flag on files whose typecheck antecedents have changed.
+type internal NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
+        
+/// Identical to _VSFILECHANGEFLAGS in vsshell.idl
+type internal DependencyChangeCode =
+    | NoChange = 0x0
+    | FileChanged = 0x00000001
+    | TimeChanged = 0x00000002
+    | Deleted = 0x00000008
+    | Added = 0x00000010   
+    
+/// Callback that indicates whether a requested result has become obsolete.    
+[<NoComparison;NoEquality>]
+type internal IsResultObsolete = 
     | IsResultObsolete of (unit->bool)
 
 /// The result of calling TypeCheckResult including the possibility of abort and background compiler not caught up.
@@ -412,131 +439,9 @@ type FSharpProjectFileInfo =
 #endif
 #endif
 
-[<Sealed; AutoSerializable(false)>]      
-/// Used to parse and check F# source code.
-type FSharpChecker =
-    /// <summary>
-    /// Create an instance of an FSharpChecker.  
-    /// </summary>
-    ///
-    /// <param name="projectCacheSize">The optional size of the project checking cache.</param>
-    /// <param name="keepAssemblyContents">Keep the checked contents of projects.</param>
-    /// <param name="keepAllBackgroundResolutions">If false, do not keep full intermediate checking results from background checking suitable for returning from GetBackgroundCheckResultsForFileInProject. This reduces memory usage.</param>
-    static member Create : ?projectCacheSize: int * ?keepAssemblyContents: bool * ?keepAllBackgroundResolutions: bool -> FSharpChecker
-
-    /// Create an instance of an FSharpChecker.
-    static member Create : unit -> FSharpChecker
-
-    /// <summary>
-    ///   Parse a source code file, returning information about brace matching in the file.
-    ///   Return an enumeration of the matching parethetical tokens in the file.
-    /// </summary>
-    ///
-    /// <param name="filename">The filename for the file, used to help caching of results.</param>
-    /// <param name="source">The full source for the file.</param>
-    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member MatchBracesAlternate : filename : string * source: string * options: FSharpProjectOptions -> Async<(range * range)[]>
-
-    [<Obsolete("This member has been replaced by MatchBracesAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member MatchBraces : filename : string * source: string * options: FSharpProjectOptions -> (Range01 * Range01)[]
-
-    /// <summary>
-    /// <para>Parse a source code file, returning a handle that can be used for obtaining navigation bar information
-    /// To get the full information, call 'CheckFileInProject' method on the result</para>
-    /// <para>All files except the one being checked are read from the FileSystem API</para>
-    /// </summary>
-    ///
-    /// <param name="filename">The filename for the file.</param>
-    /// <param name="source">The full source for the file.</param>
-    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member ParseFileInProject : filename: string * source: string * options: FSharpProjectOptions -> Async<FSharpParseFileResults>
-
-    /// <summary>
-    /// <para>Check a source code file, returning a handle to the results of the parse including
-    /// the reconstructed types in the file.</para>
-    ///
-    /// <para>All files except the one being checked are read from the FileSystem API</para>
-    /// <para>Note: returns NoAntecedent if the background builder is not yet done prepring the type check context for the 
-    /// file (e.g. loading references and parsing/checking files in the project that this file depends upon). 
-    /// In this case, the caller can either retry, or wait for FileTypeCheckStateIsDirty to be raised for this file.
-    /// </para>
-    /// </summary>
-    ///
-    /// <param name="parsed">The results of ParseFileInProject for this file.</param>
-    /// <param name="filename">The name of the file in the project whose source is being checked.</param>
-    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
-    /// <param name="source">The full source for the file.</param>
-    /// <param name="options">The options for the project or script.</param>
-    /// <param name="isResultObsolete">
-    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
-    //      source code in the editor. Type checking is abandoned when this returns 'true'.
-    /// </param>
-    /// <param name="textSnapshotInfo">
-    ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
-    ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 
-    ///     can be used to marginally increase accuracy of intellisense results in some situations.
-    /// </param>
-    ///
-    member CheckFileInProjectIfReady : parsed: FSharpParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpCheckFileAnswer option>
-
-    /// <summary>
-    /// <para>
-    ///   Check a source code file, returning a handle to the results
-    /// </para>
-    /// <para>
-    ///    Note: all files except the one being checked are read from the FileSystem API
-    /// </para>
-    /// <para>
-    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available or if the check
-    ////  was abandoned due to isResultObsolete returning 'true' at some checkpoint during type checking.
-    /// </para>
-    /// </summary>
-    ///
-    /// <param name="parsed">The results of ParseFileInProject for this file.</param>
-    /// <param name="filename">The name of the file in the project whose source is being checked.</param>
-    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
-    /// <param name="source">The full source for the file.</param>
-    /// <param name="options">The options for the project or script.</param>
-    /// <param name="isResultObsolete">
-    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
-    //      source code in the editor. Type checking is abandoned when this returns 'true'.
-    /// </param>
-    /// <param name="textSnapshotInfo">
-    ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
-    ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 
-    ///     can be used to marginally increase accuracy of intellisense results in some situations.
-    /// </param>
-    ///
-    member CheckFileInProject : parsed: FSharpParseFileResults * filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpCheckFileAnswer>
-
-    /// <summary>
-    /// <para>
-    ///   Parse and check a source code file, returning a handle to the results 
-    /// </para>
-    /// <para>
-    ///    Note: all files except the one being checked are read from the FileSystem API
-    /// </para>
-    /// <para>
-    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available or if the check
-    ////  was abandoned due to isResultObsolete returning 'true' at some checkpoint during type checking.
-    /// </para>
-    /// </summary>
-    ///
-    /// <param name="filename">The name of the file in the project whose source is being checked.</param>
-    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
-    /// <param name="source">The full source for the file.</param>
-    /// <param name="options">The options for the project or script.</param>
-    /// <param name="isResultObsolete">
-    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
-    //      source code in the editor. Type checking is abandoned when this returns 'true'.
-    /// </param>
-    /// <param name="textSnapshotInfo">
-    ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
-    ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 
-    ///     can be used to marginally increase accuracy of intellisense results in some situations.
-    /// </param>
-    ///
-    member ParseAndCheckFileInProject : filename: string * fileversion: int * source: string * options: FSharpProjectOptions * ?isResultObsolete: IsResultObsolete * ?textSnapshotInfo: obj -> Async<FSharpParseFileResults * FSharpCheckFileAnswer>
+    /// Parse a source code file, returning information about brace matching in the file
+    /// Return an enumeration of the matching parenthetical tokens in the file
+    member MatchBraces : filename : string * source: string * options: CheckOptions -> (Range * Range)[]
 
     /// <summary>
     /// <para>Parse and typecheck all files in a project.</para>
@@ -551,72 +456,27 @@ type FSharpChecker =
     /// <para>All files are read from the FileSystem API, except the file being checked.</para>
     /// </summary>
     ///
-    /// <param name="filename">Used to differentiate between scripts, to consider each script a separate project.
-    /// Also used in formatted error messages.</param>
-    ///
-    /// <param name="loadedTimeStamp">Indicates when the script was loaded into the editing environment,
-    /// so that an 'unload' and 'reload' action will cause the script to be considered as a new project,
-    /// so that references are re-resolved.</param>
-    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> Async<FSharpProjectOptions>
-
-    /// <summary>
-    /// <para>Get the FSharpProjectOptions implied by a set of command line arguments.</para>
-    /// </summary>
-    ///
-    /// <param name="projectFileName">Used to differentiate between projects and for the base directory of the project.</param>
-    /// <param name="argv">The command line arguments for the project build.</param>
-    /// <param name="loadedTimeStamp">Indicates when the script was loaded into the editing environment,
-    /// so that an 'unload' and 'reload' action will cause the script to be considered as a new project,
-    /// so that references are re-resolved.</param>
-    member GetProjectOptionsFromCommandLineArgs : projectFileName: string * argv: string[] * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
-           
-#if SILVERLIGHT
+    /// Return None if the background builder is not yet done preparing the type check results for the antecedent to the 
+    /// file.
+    member TypeCheckSource : parsed: UntypedParseInfo * filename: string * fileversion: int * source: string * options: CheckOptions * isResultObsolete: IsResultObsolete * textSnapshotInfo: obj -> TypeCheckAnswer
+    
+    /// For a given script file, get the CheckOptions implied by the #load closure
+    member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimestamp : System.DateTime -> CheckOptions
+        
+#if NO_QUICK_SEARCH_HELPERS // only used in QuickSearch prototype
 #else
-#if FX_ATLEAST_45
+    /// For QuickSearch index - not used by VS2008/VS2010/VS11
+    member GetSlotsCount : options : CheckOptions -> int
+    /// For QuickSearch index - not used by VS2008/VS2010/VS11
+    member UntypedParseForSlot : slot:int * options : CheckOptions -> UntypedParseInfo
+#endif // QUICK_SEARCH
 
-    /// <summary>
-    /// <para>Get the project options implied by a standard F# project file in the xbuild/msbuild format.</para>
-    /// </summary>
-    ///
-    /// <param name="projectFileName">Used to differentiate between projects and for the base directory of the project.</param>
-    /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
-    /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
-    /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
-    member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
-#endif
-#endif
-
-    [<Obsolete("This member has been renamed to 'GetProjectOptionsFromScript'")>]
-    member GetProjectOptionsFromScriptRoot : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> FSharpProjectOptions
-
-    /// <summary>
-    /// <para>Like ParseFileInProject, but uses results from the background builder.</para>
-    /// <para>All files are read from the FileSystem API, including the file being checked.</para>
-    /// </summary>
-    ///
-    /// <param name="filename">The filename for the file.</param>
-    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member GetBackgroundParseResultsForFileInProject : filename : string * options : FSharpProjectOptions -> Async<FSharpParseFileResults>
-
-    /// <summary>
-    /// <para>Like ParseFileInProject, but uses the existing results from the background builder.</para>
-    /// <para>All files are read from the FileSystem API, including the file being checked.</para>
-    /// </summary>
-    ///
-    /// <param name="filename">The filename for the file.</param>
-    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    member GetBackgroundCheckResultsForFileInProject : filename : string * options : FSharpProjectOptions -> Async<FSharpParseFileResults * FSharpCheckFileResults>
-
-    /// <summary>
-    /// Try to get type check results for a file. This looks up the results of recent type checks of the
-    /// same file, regardless of contents. The version tag specified in the original check of the file is returned.
-    /// If the source of the file has changed the results returned by this function may be out of date, though may
-    /// still be usable for generating intellsense menus and information.
-    /// </summary>
-    /// <param name="filename">The filename for the file.</param>
-    /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
-    /// <param name="source">Optionally, specify source that must match the previous parse precisely.</param>
-    member TryGetRecentTypeCheckResultsForFile : filename: string * options:FSharpProjectOptions * ?source: string -> (FSharpParseFileResults * FSharpCheckFileResults * (*version*)int) option
+    /// Try to get recent type check results for a file. This may arbitrarily refuse to return any
+    /// results if the InteractiveChecker would like a chance to recheck the file, in which case
+    /// UntypedParse and TypeCheckSource should be called. If the source of the file
+    /// has changed the results returned by this function may be out of date, though may
+    /// still be usable for generating intellisense menus and information.
+    member TryGetRecentTypeCheckResultsForFile : filename: string * options:CheckOptions -> (UntypedParseInfo * TypeCheckResults * (*version*)int) option
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.

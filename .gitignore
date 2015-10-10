@@ -104,11 +104,12 @@ src/fsharp/FSharp.LanguageService.Compiler/lex.*
 src/fsharp/FSharp.LanguageService.Compiler/pars.*
 tests/fsharp/typecheck/sigs/*.dll
 tests/fsharp/typecheck/sigs/*.exe
+src/fsharp/FSharp.LanguageService.Compiler/pplex.fs
+src/fsharp/FSharp.LanguageService.Compiler/pppars.fs
+src/fsharp/FSharp.LanguageService.Compiler/pppars.fsi
 vsintegration/src/unittests/Unittests.fsi
 tests/fsharpqa/Source/CodeGen/EmittedIL/StaticInit/StaticInit_Module01.dll
 tests/fsharpqa/Source/CodeGen/EmittedIL/StaticInit/StaticInit_Module01.pdb
-tests/fsharp/typeProviders/helloWorld/bincompat1/
-tests/fsharp/typeProviders/helloWorld/bincompat2/
 tests/XFSharpQA_Failures.log.*
 vsintegration/src/vs/FsPkgs/FSharp.Project/FS/FSharp.ProjectSystem.FSharp.fsi
 vsintegration/src/vs/FsPkgs/FSharp.Project/FS/ctofiles/
@@ -118,6 +119,8 @@ packages
 FSharp.Compiler.Tools.Nuget/*.nupkg
 FSharp.Core.Nuget/*.nupkg
 *.csproj.user
+*.sln.DotSettings.user
+
 *.ide
 *.log
 *.jrs
@@ -128,3 +131,5 @@ FSharp.Core.Nuget/*.nupkg
 *.orig
 .paket/paket.exe
 paket-files
+*.mdf
+*.ldf

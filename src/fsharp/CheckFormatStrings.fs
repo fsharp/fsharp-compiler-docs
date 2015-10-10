@@ -48,30 +48,7 @@ let newInfo ()=
     addZeros       = false
     precision      = false}
 
-let ParseFormatString (m: Range.range) g (source: string option) fmt bty cty dty = 
-    // Offset is used to adjust ranges depending on whether input string is regular, verbatim or triple-quote.
-    // We construct a new 'fmt' string since the current 'fmt' string doesn't distinguish between "\n" and escaped "\\n".
-    let (offset, fmt) = 
-        match source with
-        | Some source ->
-            let source = source.Replace("\r\n", "\n").Replace("\r", "\n")
-            let positions =
-                source.Split('\n')
-                |> Seq.map (fun s -> String.length s + 1)
-                |> Seq.scan (+) 0
-                |> Seq.toArray
-            let length = source.Length
-            if m.EndLine < positions.Length then
-                let startIndex = positions.[m.StartLine-1] + m.StartColumn
-                let endIndex = positions.[m.EndLine-1] + m.EndColumn - 1
-                if startIndex < length-3 && source.[startIndex..startIndex+2] = "\"\"\"" then
-                    (3, source.[startIndex+3..endIndex-3])
-                elif startIndex < length-2 && source.[startIndex..startIndex+1] = "@\"" then
-                    (2, source.[startIndex+2..endIndex-1])
-                else (1, source.[startIndex+1..endIndex-1])
-            else (1, fmt)
-        | None -> (1, fmt)
-
+let parseFormatStringInternal m g fmt bty cty = 
     let len = String.length fmt
 
     let specifierLocations = ResizeArray()
@@ -83,10 +60,7 @@ let ParseFormatString (m: Range.range) g (source: string option) fmt bty cty dty
                    acc |> List.map snd |> List.rev
                else  
                    failwithf "%s" <| FSComp.SR.forPositionalSpecifiersNotPermitted()
-          
-           let aty = List.foldBack (-->) argtys dty
-           let ety = mkTupledTy g argtys
-           aty,ety
+           argtys
        elif System.Char.IsSurrogatePair(fmt,i) then 
           parseLoop acc (i+2, relLine, relCol+2)
        else 
@@ -286,9 +260,19 @@ let ParseFormatString (m: Range.range) g (source: string option) fmt bty cty dty
                   parseLoop ((posi, bty --> cty) :: acc)  (i+1, relLine, relCol+1)
 
               | c -> failwithf "%s" <| FSComp.SR.forBadFormatSpecifierGeneral(String.make 1 c) 
-          
-          | '\n' -> parseLoop acc (i+1, relLine+1, 0)   
-          | _ -> parseLoop acc (i+1, relLine, relCol+1)
-           
-    let results = parseLoop [] (0, 0, m.StartColumn)
-    results, Seq.toList specifierLocations
+          | _ -> parseLoop acc (i+1) 
+    parseLoop [] 0
+
+let ParseFormatString m g fmt bty cty dty = 
+    let argtys = parseFormatStringInternal m g fmt bty cty
+    let aty = List.foldBack (-->) argtys dty
+    let ety = mkTupledTy g argtys
+    aty, ety
+
+let TryCountFormatStringArguments m g fmt bty cty =
+    try
+        parseFormatStringInternal m g fmt bty cty
+        |> List.length
+        |> Some
+    with _ ->
+        None

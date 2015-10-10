@@ -429,7 +429,7 @@ type FSharpChecker =
 
     /// <summary>
     ///   Parse a source code file, returning information about brace matching in the file.
-    ///   Return an enumeration of the matching parethetical tokens in the file.
+    ///   Return an enumeration of the matching parenthetical tokens in the file.
     /// </summary>
     ///
     /// <param name="filename">The filename for the file, used to help caching of results.</param>
@@ -456,7 +456,7 @@ type FSharpChecker =
     /// the reconstructed types in the file.</para>
     ///
     /// <para>All files except the one being checked are read from the FileSystem API</para>
-    /// <para>Note: returns NoAntecedent if the background builder is not yet done prepring the type check context for the 
+    /// <para>Note: returns NoAntecedent if the background builder is not yet done preparing the type check context for the 
     /// file (e.g. loading references and parsing/checking files in the project that this file depends upon). 
     /// In this case, the caller can either retry, or wait for FileTypeCheckStateIsDirty to be raised for this file.
     /// </para>
@@ -611,7 +611,7 @@ type FSharpChecker =
     /// Try to get type check results for a file. This looks up the results of recent type checks of the
     /// same file, regardless of contents. The version tag specified in the original check of the file is returned.
     /// If the source of the file has changed the results returned by this function may be out of date, though may
-    /// still be usable for generating intellsense menus and information.
+    /// still be usable for generating intellisense menus and information.
     /// </summary>
     /// <param name="filename">The filename for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>

@@ -69,7 +69,7 @@ module internal IncrementalBuild =
 
         /// VectorInput (uniqueRuleId, outputName, initialAccumulator, inputs, taskFunction)
         ///
-        /// A build rule representing the scan-left combinining a single scalar accumulator input with a vector of inputs
+        /// A build rule representing the scan-left combining a single scalar accumulator input with a vector of inputs
         | VectorScanLeft of Id * string * ScalarBuildRule * VectorBuildRule * (obj->obj->Eventually<obj>)
 
         /// VectorMap (uniqueRuleId, outputName, inputs, taskFunction)
@@ -220,9 +220,9 @@ module internal IncrementalBuild =
         | Available of obj * DateTime * InputSignature
         /// Get the available result. Throw an exception if not available.
         member x.GetAvailable() = match x with Available(o,_,_) ->o  | _->failwith "No available result"
-        /// Get the time stamp if available. Otheriwse MaxValue.        
+        /// Get the time stamp if available. Otherwise MaxValue.        
         member x.Timestamp = match x with Available(_,ts,_) ->ts | InProgress(_,ts) -> ts | _-> DateTime.MaxValue
-        /// Get what this result depends on 
+        /// Get the time stamp if available. Otheriwse MaxValue.        
         member x.InputSignature = match x with Available(_,_,signature) ->signature | _-> UnevaluatedInput
         
         member x.ResultIsInProgress =  match x with | InProgress _ -> true | _ -> false
@@ -937,7 +937,7 @@ module internal IncrementalBuild =
         /// Declare a named vector output.
         member b.DeclareVectorOutput(output:Vector<'T>)=
             outputs <- NamedVectorOutput(output) :: outputs
-        /// Set the conrete inputs for this build
+        /// Set the concrete inputs for this build
         member b.GetInitialPartialBuild(vectorinputs,scalarinputs) =
             ToBound(ToBuild outputs,vectorinputs,scalarinputs)   
 
@@ -1102,7 +1102,7 @@ module internal IncrementalFSharpBuild =
             //
             // The data elements in this key are very important. There should be nothing else in the TcConfig that logically affects
             // the import of a set of framework DLLs into F# CCUs. That is, the F# CCUs that result from a set of DLLs (including
-            // FSharp.Core.dll andb mscorlib.dll) must be logically invariant of all the other compiler configuration parameters.
+            // FSharp.Core.dll and mscorlib.dll) must be logically invariant of all the other compiler configuration parameters.
             let key = (frameworkDLLsKey,
                        tcConfig.primaryAssembly.Name, 
                        tcConfig.ClrRoot,
@@ -1332,7 +1332,7 @@ module internal IncrementalFSharpBuild =
                     // of the partial build to be re-evaluated.
                     disposeCleanupItem()
 
-                    let tcImports = TcImports.BuildNonFrameworkTcImports(None,tcConfigP,tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences)  
+                    let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences)  
 #if EXTENSIONTYPING
                     for ccu in tcImports.GetCcusExcludingBase() do
                         // When a CCU reports an invalidation, merge them together and just report a 
@@ -1581,7 +1581,7 @@ module internal IncrementalFSharpBuild =
         let buildInputs = [VectorInput (fileNamesNode, sourceFiles)
                            VectorInput (referencedAssembliesNode, nonFrameworkAssemblyInputs) ]
 
-        // This is the intial representation of progress through the build, i.e. we have made no progress.
+        // This is the initial representation of progress through the build, i.e. we have made no progress.
         let mutable partialBuild = buildDescription.GetInitialPartialBuild (buildInputs, [])
 
         let EvalAndKeepOutput (output:INode) optSlot = 

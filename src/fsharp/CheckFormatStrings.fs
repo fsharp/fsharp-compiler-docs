@@ -37,15 +37,15 @@ let mkFlexibleFloatFormatTypar g m =
 let isDigit c = ('0' <= c && c <= '9')
 
 type FormatInfoRegister = 
-  { mutable leftJustify    : bool 
-    mutable numPrefixIfPos : char option
-    mutable addZeros       : bool
+  { mutable leftJustify    : bool; 
+    mutable numPrefixIfPos : char option;
+    mutable addZeros       : bool;
     mutable precision      : bool}
 
 let newInfo ()= 
-  { leftJustify    = false
-    numPrefixIfPos = None
-    addZeros       = false
+  { leftJustify    = false;
+    numPrefixIfPos = None;
+    addZeros       = false;
     precision      = false}
 
 let ParseFormatString (m: Range.range) g (source: string option) fmt bty cty dty = 

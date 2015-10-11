@@ -107,8 +107,6 @@ tests/fsharp/typecheck/sigs/*.exe
 vsintegration/src/unittests/Unittests.fsi
 tests/fsharpqa/Source/CodeGen/EmittedIL/StaticInit/StaticInit_Module01.dll
 tests/fsharpqa/Source/CodeGen/EmittedIL/StaticInit/StaticInit_Module01.pdb
-tests/fsharp/typeProviders/helloWorld/bincompat1/
-tests/fsharp/typeProviders/helloWorld/bincompat2/
 tests/XFSharpQA_Failures.log.*
 vsintegration/src/vs/FsPkgs/FSharp.Project/FS/FSharp.ProjectSystem.FSharp.fsi
 vsintegration/src/vs/FsPkgs/FSharp.Project/FS/ctofiles/

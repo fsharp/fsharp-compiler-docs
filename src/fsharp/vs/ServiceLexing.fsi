@@ -10,29 +10,16 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open System.Collections.Generic
 
-/// Represents encode, internal information for the state of the laxing engine at the end of a line
-type FSharpTokenizerLexState = int64
+/// Represents encoded information for the end-of-line continuation of lexing
+type internal LexState = int64
 
-/// Represents stable information for the state of the laxing engine at the end of a line
-type FSharpTokenizerColorState =
-    | Token = 1
-    | IfDefSkip = 3
-    | String = 4
-    | Comment = 5
-    | StringInComment = 6
-    | VerbatimStringInComment = 7
-    | CamlOnly = 8
-    | VerbatimString = 9
-    | SingleLineComment = 10
-    | EndLineThenSkip = 11
-    | EndLineThenToken = 12
-    | TripleQuoteString = 13
-    | TripleQuoteStringInComment = 14
-    | InitialState = 0 
-    
+/// A line/column pair
+type internal Position = int * int
 
-/// Gives an indicattion of the color class to assign to the token an IDE
-type FSharpTokenColorKind =
+/// A start-position/end-position pair
+type internal Range = Position * Position
+
+type internal TokenColorKind =
     | Default = 0
     | Text = 0
     | Keyword = 1

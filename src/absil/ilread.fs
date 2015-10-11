@@ -105,10 +105,6 @@ type BinaryFile() =
     abstract CountUtf8String : addr:int -> int
     abstract ReadUTF8String : addr: int -> string
 
-#if FX_NO_NATIVE_MEMORY_MAPPED_FILES
-
-#else
-
 /// Read file from memory mapped files
 module MemoryMapping = 
 
@@ -215,8 +211,6 @@ type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
         let n = m.CountUtf8String i
         new System.String(NativePtr.ofNativeInt (m.Addr i), 0, n, System.Text.Encoding.UTF8)
 
-
-#endif
 
 //---------------------------------------------------------------------
 // Read file from memory blocks 
@@ -3984,7 +3978,6 @@ let OpenILModuleReader infile opts =
             mmap.Close();
             ClosePdbReader pdb) }
     with _ ->
-#endif
         let mc = ByteFile.OpenIn infile
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader infile mc opts
         { modul = modul; 

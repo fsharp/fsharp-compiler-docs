@@ -30,4 +30,3 @@ Stable builds are available in the NuGet Gallery:
 All AppVeyor builds are available using the NuGet feed: https://ci.appveyor.com/nuget/fsgit-fsharp-compiler-service
 
 If using Paket, add the source at the top of `paket.dependencies`.
-

@@ -129,7 +129,7 @@ let ConsoleErrorLoggerThatQuitsAfterMaxErrors (tcConfigB:TcConfigBuilder, exiter
                     )
     } :> _
 
-/// This error logger delays the messages it recieves. At the end, call ForwardDelayedErrorsAndWarnings
+/// This error logger delays the messages it receives. At the end, call ForwardDelayedErrorsAndWarnings
 /// to send the held messages.     
 type DelayAndForwardErrorLogger(exiter: Exiter, errorLoggerProvider: ErrorLoggerProvider) =
     inherit ErrorLogger("DelayAndForwardErrorLogger")
@@ -248,8 +248,6 @@ let AdjustForScriptCompile(tcConfigB:TcConfigBuilder,commandLineSourceFiles,lexR
 
     List.rev !allSources
 
-
-
 let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder, argv) =
     let inputFilesRef   = ref ([] : string list)
     let collect name = 
@@ -285,8 +283,7 @@ let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder, argv) =
 // This code used to be in fsc.exe.  The PS only references FSharp.LanguageService.Compiler, so this code moved from fsc.exe to FS.C.S.dll so that the PS can re-use it.
 // A great deal of the logic of this function is repeated in fsi.fs, so maybe should refactor fsi.fs to call into this as well.
 let GetTcImportsFromCommandLine
-        (displayPSTypeProviderSecurityDialogBlockingUI : (string->unit) option,
-         argv : string[], 
+        (argv : string[], 
          defaultFSharpBinariesDir : string, 
          directoryBuildingFrom : string, 
          lcidFromCodePage : int option, 
@@ -296,7 +293,6 @@ let GetTcImportsFromCommandLine
          exiter : Exiter,
          errorLoggerProvider : ErrorLoggerProvider,
          disposables : DisposablesTracker) =
-    
 
     let tcConfigB = TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, optimizeForMemory, directoryBuildingFrom, isInteractive=false, isInvalidationSupported=false)
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
@@ -1795,7 +1791,7 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
 
     let tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger = 
         GetTcImportsFromCommandLine
-            (None, argv, defaultFSharpBinariesDir, Directory.GetCurrentDirectory(), 
+            (argv, defaultFSharpBinariesDir, Directory.GetCurrentDirectory(), 
              lcidFromCodePage, 
              // setProcessThreadLocals
              (fun tcConfigB ->
@@ -1869,7 +1865,7 @@ let main1(tcGlobals,tcImports : TcImports,frameworkTcImports,generatedCcu,typedA
     end;
 
 
-    // Pass on only the minimimum information required for the next phase to ensure GC kicks in.
+    // Pass on only the minimum information required for the next phase to ensure GC kicks in.
     // In principle the JIT should be able to do good liveness analysis to clean things up, but the
     // data structures involved here are so large we can't take the risk.
     Args(tcConfig, tcImports, frameworkTcImports, tcGlobals, errorLogger, generatedCcu, outfile, typedAssembly, topAttrs, pdbfile, assemblyName, assemVerFromAttrib, signingInfo, exiter)
@@ -1992,7 +1988,7 @@ let main2(Args(tcConfig, tcImports, frameworkTcImports: TcImports, tcGlobals, er
         else
             sigDataResources, optDataResources
     
-    // Pass on only the minimimum information required for the next phase to ensure GC kicks in.
+    // Pass on only the minimum information required for the next phase to ensure GC kicks in.
     // In principle the JIT should be able to do good liveness analysis to clean things up, but the
     // data structures involved here are so large we can't take the risk.
     Args(tcConfig,tcImports,tcGlobals,errorLogger,generatedCcu,outfile,optimizedImpls,topAttrs,pdbfile,assemblyName, (sigDataAttributes, sigDataResources), optDataResources,assemVerFromAttrib,signingInfo,metadataVersion,exiter)

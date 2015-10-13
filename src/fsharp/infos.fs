@@ -375,6 +375,11 @@ type ValRef with
          | TSlotSig(_,oty,_,_,_,_) :: _ -> isInterfaceTy g oty
          | [] -> false)
 
+    member vref.ImplementedSlotSignatures =
+        match vref.MemberInfo with
+        | None -> []
+        | Some membInfo -> membInfo.ImplementedSlotSigs
+
 //-------------------------------------------------------------------------
 // Helper methods associated with using TAST metadata (F# members, values etc.) 
 // as backing data for MethInfo, PropInfo etc.
@@ -1090,6 +1095,11 @@ type MethInfo =
         | ProvidedMeth _ -> false 
 #endif
 
+    member x.ImplementedSlotSignatures =
+        match x with 
+        | FSMeth(_,_,vref,_) -> vref.ImplementedSlotSignatures
+        | _ -> failwith "not supported"
+
     /// Indicates if this is an extension member. 
     member x.IsExtensionMember = x.IsCSharpStyleExtensionMember || x.IsFSharpStyleExtensionMember
 
@@ -1795,6 +1805,9 @@ type PropInfo =
         match x.ArbitraryValRef with 
         | Some vref -> vref.IsDefiniteFSharpOverrideMember
         | None -> false
+
+    member x.ImplementedSlotSignatures =
+        x.ArbitraryValRef.Value.ImplementedSlotSignatures  
 
     member x.IsFSharpExplicitInterfaceImplementation = 
         match x.ArbitraryValRef with 

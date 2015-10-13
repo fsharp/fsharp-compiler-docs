@@ -855,6 +855,57 @@ and FSharpDelegateSignature(cenv, info : SlotSig) =
         | Some ty -> FSharpType(cenv,  ty)
     override x.ToString() = "<delegate signature>"
 
+and FSharpAbstractParameter(cenv, info : SlotParam) =
+
+    member __.Name =    
+        let (TSlotParam(name, _, _, _, _, _)) = info
+        name
+
+    member __.Type = FSharpType(cenv, info.Type)
+
+    member __.IsInArg =
+        let (TSlotParam(_, _, isIn, _, _, _)) = info
+        isIn
+
+    member __.IsOutArg =
+        let (TSlotParam(_, _, _, isOut, _, _)) = info
+        isOut
+
+    member __.IsOptionalArg =
+        let (TSlotParam(_, _, _, _, isOptional, _)) = info
+        isOptional
+
+    member __.Attributes =
+        let (TSlotParam(_, _, _, _, _, attribs)) = info
+        attribs |> List.map (fun a -> FSharpAttribute(cenv, AttribInfo.FSAttribInfo(cenv.g, a)))
+        |> makeReadOnlyCollection
+
+and FSharpAbstractSignature(cenv, info : SlotSig) =
+
+    member __.AbstractArguments = 
+        info.FormalParams
+        |> List.map (List.map (fun p -> FSharpAbstractParameter(cenv, p)) >> makeReadOnlyCollection)
+        |> makeReadOnlyCollection
+
+    member __.AbstractReturnType = 
+        match info.FormalReturnType with
+        | None -> FSharpType(cenv,  cenv.g.unit_ty)
+        | Some ty -> FSharpType(cenv,  ty)
+
+    member __.DeclaringTypeGenericParameters =
+        info.ClassTypars 
+        |> List.map (fun t -> FSharpGenericParameter(cenv, t))
+        |> makeReadOnlyCollection
+        
+    member __.MethodGenericParameters =
+        info.MethodTypars 
+        |> List.map (fun t -> FSharpGenericParameter(cenv, t))
+        |> makeReadOnlyCollection
+
+    member __.Name = info.Name 
+    
+    member __.DeclaringType = FSharpType(cenv, info.ImplementedType)
+
 and FSharpGenericParameterMemberConstraint(cenv, info : TraitConstraintInfo) = 
     let (TTrait(tys,nm,flags,atys,rty,_)) = info 
     member __.MemberSources = 
@@ -1337,6 +1388,17 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         | P p -> p.IsFSharpExplicitInterfaceImplementation
         | M m -> m.IsFSharpExplicitInterfaceImplementation
         | V v -> v.IsFSharpExplicitInterfaceImplementation cenv.g
+
+    member __.ImplementedAbstractSignatures =
+        checkIsResolved()
+        let sigs =
+            match d with
+            | E e -> e.GetAddMethod().ImplementedSlotSignatures
+            | P p -> p.ImplementedSlotSignatures
+            | M m -> m.ImplementedSlotSignatures
+            | V v -> v.ImplementedSlotSignatures
+        sigs |> List.map (fun s -> FSharpAbstractSignature (cenv, s))
+        |> makeReadOnlyCollection
 
     member __.IsImplicitConstructor = 
         if isUnresolved() then false else 

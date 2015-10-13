@@ -289,6 +289,48 @@ and [<Class>] FSharpDelegateSignature =
     /// Get the return type of the delegate signature
     member DelegateReturnType : FSharpType
 
+/// Represents a parameter in an abstract method of a class or interface
+and [<Class>] FSharpAbstractParameter =
+
+    /// The optional name of the parameter
+    member Name : string option
+    
+    /// The declared or inferred type of the parameter
+    member Type : FSharpType
+
+    /// Indicate this is an in argument
+    member IsInArg : bool
+
+    /// Indicate this is an out argument
+    member IsOutArg : bool
+
+    /// Indicate this is an optional argument
+    member IsOptionalArg : bool
+
+    /// The declared attributes of the parameter 
+    member Attributes : IList<FSharpAttribute>     
+
+/// Represents the signature of an abstract slot of a class or interface 
+and [<Class>] FSharpAbstractSignature =
+
+    /// Get the arguments of the abstract slot
+    member AbstractArguments : IList<IList<FSharpAbstractParameter>>
+
+    /// Get the return type of the abstract slot
+    member AbstractReturnType : FSharpType
+
+    /// Get the generic arguments of the type defining the abstract slot
+    member DeclaringTypeGenericParameters : IList<FSharpGenericParameter>
+        
+    /// Get the generic arguments of the abstract slot
+    member MethodGenericParameters : IList<FSharpGenericParameter>
+
+    /// Get the name of the abstract slot
+    member Name : string
+    
+    /// Get the declaring type of the abstract slot
+    member DeclaringType : FSharpType
+
 /// A subtype of FSharpSymbol that represents a union case as seen by the F# language
 and [<Class>] FSharpUnionCase =
     inherit FSharpSymbol
@@ -616,6 +658,9 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
 
     /// Indicates if this is an explicit implementation of an interface member
     member IsExplicitInterfaceImplementation : bool
+
+    /// Gets the list of the abstract slot signatures implemented by the member
+    member ImplementedAbstractSignatures : IList<FSharpAbstractSignature>
 
     /// Indicates if this is a member, including extension members?
     member IsMember : bool

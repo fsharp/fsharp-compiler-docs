@@ -80,6 +80,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsPropertyGetterMethod then yield "getter"
             if v.IsPropertySetterMethod then yield "setter"
             if v.IsEvent then yield "event"
+            if v.EventForFSharpProperty.IsSome then yield "clievent"
             if v.IsEventAddMethod then yield "add"
             if v.IsEventRemoveMethod then yield "remove"
             if v.IsTypeFunction then yield "typefun"
@@ -1043,7 +1044,7 @@ let ``Test project3 all symbols in signature`` () =
              ("member set_InterfacePropertySet", ["slot"; "member"; "setter"]);
              ("property InterfacePropertySet", ["slot"; "member"; "prop"]);
              ("property InterfaceProperty", ["slot"; "member"; "prop"]);
-             ("property InterfaceEvent", ["slot"; "member"; "prop"]); 
+             ("property InterfaceEvent", ["slot"; "member"; "prop"; "clievent"]); 
              ("CFoo", ["class"]);
              ("member .ctor", ["member"; "ctor"]);
              ("member AbstractClassMethod", ["slot"; "member"]);
@@ -1054,7 +1055,7 @@ let ``Test project3 all symbols in signature`` () =
              ("member set_AbstractClassPropertySet", ["slot"; "member"; "setter"]);
              ("property AbstractClassPropertySet", ["slot"; "member"; "prop"]);
              ("property AbstractClassProperty", ["slot"; "member"; "prop"]);
-             ("property AbstractClassEvent", ["slot"; "member"; "prop"]);
+             ("property AbstractClassEvent", ["slot"; "member"; "prop"; "clievent"]);
              ("CBaseFoo", ["class"]); ("member .ctor", ["member"; "ctor"]);
              ("member BaseClassMethod", ["slot"; "member"]);
              ("member BaseClassMethod", ["member"; "overridemem"]);
@@ -1090,7 +1091,7 @@ let ``Test project3 all symbols in signature`` () =
              ("member set_AbstractClassPropertySet", ["member"; "setter"; "overridemem"]);
              ("property AbstractClassPropertySet", ["member"; "prop"; "overridemem"]);
              ("property AbstractClassProperty", ["member"; "prop"; "overridemem"]);
-             ("property AbstractClassEvent", ["member"; "prop"; "overridemem"]);
+             ("property AbstractClassEvent", ["member"; "prop"; "clievent"; "overridemem"]);
              ("CBaseFooImpl", ["class"]); ("member .ctor", ["member"; "ctor"]);
              ("member BaseClassMethod", ["member"; "overridemem"]);
              ("member add_BaseClassEvent", ["member"; "add"; "overridemem"]);
@@ -1100,7 +1101,7 @@ let ``Test project3 all symbols in signature`` () =
              ("member set_BaseClassPropertySet", ["member"; "setter"; "overridemem"]);
              ("property BaseClassPropertySet", ["member"; "prop"; "overridemem"]);
              ("property BaseClassProperty", ["member"; "prop"; "overridemem"]);
-             ("property BaseClassEvent", ["member"; "prop"; "overridemem"])]
+             ("property BaseClassEvent", ["member"; "prop"; "clievent"; "overridemem"])]
 
 [<Test>]
 let ``Test project3 all uses of all signature symbols`` () = 
@@ -1171,9 +1172,9 @@ let ``Test project3 all uses of all signature symbols`` () =
            ("file1", ((76, 23), (76, 44)), [], ["slot"; "member"; "prop"]);
            ("file1", ((34, 20), (34, 37)), ["override"], ["slot"; "member"; "prop"])]);
          ("property InterfaceEvent",
-          [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"; "prop"]);
-           ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"; "prop"]);
-           ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"; "prop"])]);
+          [("file1", ((8, 13), (8, 27)), ["defn"], ["slot"; "member"; "prop"; "clievent"]);
+           ("file1", ((65, 20), (65, 34)), ["override"], ["slot"; "member"; "prop"; "clievent"]);
+           ("file1", ((38, 20), (38, 34)), ["override"], ["slot"; "member"; "prop"; "clievent"])]);
          ("CFoo",
           [("file1", ((11, 5), (11, 9)), ["defn"], ["class"]);
            ("file1", ((41, 12), (41, 16)), ["type"], ["class"]);
@@ -1219,9 +1220,9 @@ let ``Test project3 all uses of all signature symbols`` () =
            ("file1", ((70, 22), (70, 43)), ["override"], ["slot"; "member"; "prop"]);
            ("file1", ((43, 18), (43, 39)), ["override"], ["slot"; "member"; "prop"])]);
          ("property AbstractClassEvent",
-          [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"; "prop"]);
-           ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"; "prop"]);
-           ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"; "prop"])]);
+          [("file1", ((16, 13), (16, 31)), ["defn"], ["slot"; "member"; "prop"; "clievent"]);
+           ("file1", ((74, 22), (74, 40)), ["override"], ["slot"; "member"; "prop"; "clievent"]);
+           ("file1", ((47, 18), (47, 36)), ["override"], ["slot"; "member"; "prop"; "clievent"])]);
          ("CBaseFoo",
           [("file1", ((18, 5), (18, 13)), ["defn"], ["class"]);
            ("file1", ((50, 12), (50, 20)), ["type"], ["class"]);
@@ -1317,7 +1318,7 @@ let ``Test project3 all uses of all signature symbols`` () =
          ("property AbstractClassProperty",
           [("file1", ((43, 18), (43, 39)), ["defn"], ["member"; "prop"; "overridemem"])]);
          ("property AbstractClassEvent",
-          [("file1", ((47, 18), (47, 36)), ["defn"], ["member"; "prop"; "overridemem"])]);
+          [("file1", ((47, 18), (47, 36)), ["defn"], ["member"; "prop"; "clievent"; "overridemem"])]);
          ("CBaseFooImpl", [("file1", ((49, 5), (49, 17)), ["defn"], ["class"])]);
          ("member .ctor", [("file1", ((49, 5), (49, 17)), ["defn"], ["member"; "ctor"])]);
          ("member BaseClassMethod",
@@ -1337,7 +1338,7 @@ let ``Test project3 all uses of all signature symbols`` () =
          ("property BaseClassProperty",
           [("file1", ((52, 18), (52, 35)), ["defn"], ["member"; "prop"; "overridemem"])]);
          ("property BaseClassEvent",
-          [("file1", ((56, 18), (56, 32)), ["defn"], ["member"; "prop"; "overridemem"])])]
+          [("file1", ((56, 18), (56, 32)), ["defn"], ["member"; "prop"; "clievent"; "overridemem"])])]
     set allUsesOfAllSymbols - set expected |> shouldEqual Set.empty
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true

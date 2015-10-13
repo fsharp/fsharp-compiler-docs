@@ -1,6 +1,7 @@
 #### 1.4.0.7 - 
 * fix 410 - Symbols for C# fields (and especially enum fields)
 * Expose implemented abstract slots
+* Fix problem with obscure filenames caught by Microsoft\visualfsharp tests
 * Integrate with visualfsharp master
 
 #### 1.4.0.6 - 

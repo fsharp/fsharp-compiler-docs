@@ -697,6 +697,13 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// Indicates if this is an event member
     member IsEvent : bool
 
+    /// Gets the event symbol implied by the use of a property,
+    /// for the case where the property is actually an F#-declared CLIEvent.
+    /// 
+    /// Uses of F#-declared events are considered to be properties as far as the language specification 
+    /// and this API are concerned.  
+    member EventForFSharpProperty : FSharpMemberOrFunctionOrValue option
+
     /// Indicates if this is an abstract member?
     member IsDispatchSlot : bool
 

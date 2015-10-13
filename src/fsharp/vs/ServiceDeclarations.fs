@@ -406,6 +406,12 @@ module internal ItemDescriptionsImpl =
             | _ -> None
         | _ -> None
 
+    let GetXmlDocSigOfILFieldInfo infoReader m (finfo:ILFieldInfo) =
+        match metaInfoOfEntityRef infoReader m (tcrefOfAppTy infoReader.g finfo.EnclosingType) with
+        | Some (ccuFileName,_,formalTypeInfo) ->
+            Some(ccuFileName,"F:"+formalTypeInfo.ILTypeRef.FullName+"."+finfo.FieldName)
+        | _ -> None
+
     /// This function gets the signature to pass to Visual Studio to use its lookup functions for .NET stuff. 
     let rec GetXmlDocHelpSigOfItemForLookup (infoReader:InfoReader) m d = 
         let g = infoReader.g
@@ -418,12 +424,7 @@ module internal ItemDescriptionsImpl =
         | Item.ExnCase tcref -> mkXmlComment (GetXmlDocSigOfEntityRef infoReader m tcref)
         | Item.RecdField rfinfo -> mkXmlComment (GetXmlDocSigOfRecdFieldInfo rfinfo)
         | Item.NewDef _ -> FSharpXmlDoc.None
-        | Item.ILField(ILFieldInfo(tinfo, fdef)) -> 
-              match metaInfoOfEntityRef infoReader m tinfo.TyconRef  with
-              | Some (Some(ccuFileName),_,formalTypeInfo) ->
-                  FSharpXmlDoc.XmlDocFileSignature(ccuFileName,"F:"+formalTypeInfo.ILTypeRef.FullName+"."+fdef.Name)
-              | _ -> FSharpXmlDoc.None
-
+        | Item.ILField finfo -> mkXmlComment (GetXmlDocSigOfILFieldInfo infoReader m finfo)
         | Item.Types(_,((TType_app(tcref,_)) :: _)) ->  mkXmlComment (GetXmlDocSigOfEntityRef infoReader m tcref)
         | Item.CustomOperation (_,_,Some minfo) -> mkXmlComment (GetXmlDocSigOfMethInfo infoReader  m minfo)
         | Item.TypeVar _  -> FSharpXmlDoc.None

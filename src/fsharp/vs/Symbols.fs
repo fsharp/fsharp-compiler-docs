@@ -1323,10 +1323,9 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
 
     member x.EventForFSharpProperty = 
         match d with 
-        | P p when p.IsFSharpEventProperty && p.PropertyName.StartsWith "get_" ->
-            let nm = p.PropertyName.[4..]
-            let minfos1 = GetImmediateIntrinsicMethInfosOfType (Some("add_"+nm),AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 p.EnclosingType 
-            let minfos2 = GetImmediateIntrinsicMethInfosOfType (Some("remove_"+nm),AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 p.EnclosingType
+        | P p when p.IsFSharpEventProperty  ->
+            let minfos1 = GetImmediateIntrinsicMethInfosOfType (Some("add_"+p.PropertyName),AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 p.EnclosingType 
+            let minfos2 = GetImmediateIntrinsicMethInfosOfType (Some("remove_"+p.PropertyName),AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 p.EnclosingType
             match  minfos1,minfos2 with 
             | [addMeth],[removeMeth] -> 
                 match addMeth.ArbitraryValRef, removeMeth.ArbitraryValRef with 

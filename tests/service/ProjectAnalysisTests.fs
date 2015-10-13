@@ -1044,7 +1044,7 @@ let ``Test project3 all symbols in signature`` () =
              ("member set_InterfacePropertySet", ["slot"; "member"; "setter"]);
              ("property InterfacePropertySet", ["slot"; "member"; "prop"]);
              ("property InterfaceProperty", ["slot"; "member"; "prop"]);
-             ("property InterfaceEvent", ["slot"; "member"; "prop"]); 
+             ("property InterfaceEvent", ["slot"; "member"; "prop"; "clievent"]); 
              ("CFoo", ["class"]);
              ("member .ctor", ["member"; "ctor"]);
              ("member AbstractClassMethod", ["slot"; "member"]);
@@ -1055,7 +1055,7 @@ let ``Test project3 all symbols in signature`` () =
              ("member set_AbstractClassPropertySet", ["slot"; "member"; "setter"]);
              ("property AbstractClassPropertySet", ["slot"; "member"; "prop"]);
              ("property AbstractClassProperty", ["slot"; "member"; "prop"]);
-             ("property AbstractClassEvent", ["slot"; "member"; "prop"]);
+             ("property AbstractClassEvent", ["slot"; "member"; "prop"; "clievent"]);
              ("CBaseFoo", ["class"]); ("member .ctor", ["member"; "ctor"]);
              ("member BaseClassMethod", ["slot"; "member"]);
              ("member BaseClassMethod", ["member"; "overridemem"]);
@@ -1091,7 +1091,7 @@ let ``Test project3 all symbols in signature`` () =
              ("member set_AbstractClassPropertySet", ["member"; "setter"; "overridemem"]);
              ("property AbstractClassPropertySet", ["member"; "prop"; "overridemem"]);
              ("property AbstractClassProperty", ["member"; "prop"; "overridemem"]);
-             ("property AbstractClassEvent", ["member"; "prop"; "overridemem"]);
+             ("property AbstractClassEvent", ["member"; "prop"; "clievent"; "overridemem"]);
              ("CBaseFooImpl", ["class"]); ("member .ctor", ["member"; "ctor"]);
              ("member BaseClassMethod", ["member"; "overridemem"]);
              ("member add_BaseClassEvent", ["member"; "add"; "overridemem"]);
@@ -1101,7 +1101,7 @@ let ``Test project3 all symbols in signature`` () =
              ("member set_BaseClassPropertySet", ["member"; "setter"; "overridemem"]);
              ("property BaseClassPropertySet", ["member"; "prop"; "overridemem"]);
              ("property BaseClassProperty", ["member"; "prop"; "overridemem"]);
-             ("property BaseClassEvent", ["member"; "prop"; "overridemem"])]
+             ("property BaseClassEvent", ["member"; "prop"; "clievent"; "overridemem"])]
 
 [<Test>]
 let ``Test project3 all uses of all signature symbols`` () = 

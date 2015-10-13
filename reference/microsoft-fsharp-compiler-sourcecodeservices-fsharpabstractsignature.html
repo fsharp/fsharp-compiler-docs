@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>FSharpDeclaration - F# Compiler Services</title>
+    <title>FSharpAbstractSignature - F# Compiler Services</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
@@ -36,12 +36,12 @@
 
 
 
-<h1>FSharpDeclaration</h1>
+<h1>FSharpAbstractSignature</h1>
 <p>
   <span>Namespace: Microsoft.FSharp.Compiler.SourceCodeServices</span><br />
 </p>
 <div class="xmldoc">
-<p>Renamed to FSharpDeclarationListItem</p>
+<p>Represents the signature of an abstract slot of a class or interface</p>
 
 
 </div>
@@ -54,22 +54,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2559', 2559)" onmouseover="showTip(event, '2559', 2559)">
-            DescriptionText
+          <code onmouseout="hideTip(event, '2454', 2454)" onmouseover="showTip(event, '2454', 2454)">
+            AbstractArguments
           </code>
-          <div class="tip" id="2559">
-            <strong>Signature:</strong> FSharpToolTipText<br />
+          <div class="tip" id="2454">
+            <strong>Signature:</strong> IList&lt;IList&lt;FSharpAbstractParameter&gt;&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1294-1294" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L928-928" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the description text for the declaration. Commputing this property may require using compiler
-resources and may trigger execution of a type provider method to retrieve documentation.</p>
-
-<p>May return "Loading..." if timeout occurs</p>
+          <p>Get the arguments of the abstract slot</p>
 
 
 
@@ -78,19 +75,19 @@ resources and may trigger execution of a type provider method to retrieve docume
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2560', 2560)" onmouseover="showTip(event, '2560', 2560)">
-            DescriptionTextAsync
+          <code onmouseout="hideTip(event, '2455', 2455)" onmouseover="showTip(event, '2455', 2455)">
+            AbstractReturnType
           </code>
-          <div class="tip" id="2560">
-            <strong>Signature:</strong> Async&lt;FSharpToolTipText&gt;<br />
+          <div class="tip" id="2455">
+            <strong>Signature:</strong> FSharpType<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1280-1280" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L933-933" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the description text, asynchronously.  Never returns "Loading...".</p>
+          <p>Get the return type of the abstract slot</p>
 
 
 
@@ -99,19 +96,19 @@ resources and may trigger execution of a type provider method to retrieve docume
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2561', 2561)" onmouseover="showTip(event, '2561', 2561)">
-            Glyph
+          <code onmouseout="hideTip(event, '2456', 2456)" onmouseover="showTip(event, '2456', 2456)">
+            DeclaringType
           </code>
-          <div class="tip" id="2561">
-            <strong>Signature:</strong> int<br />
+          <div class="tip" id="2456">
+            <strong>Signature:</strong> FSharpType<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1328-1328" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L950-950" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the glyph integer for the declaration as used by Visual Studio.</p>
+          <p>Get the declaring type of the abstract slot</p>
 
 
 
@@ -120,19 +117,61 @@ resources and may trigger execution of a type provider method to retrieve docume
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2562', 2562)" onmouseover="showTip(event, '2562', 2562)">
+          <code onmouseout="hideTip(event, '2457', 2457)" onmouseover="showTip(event, '2457', 2457)">
+            DeclaringTypeGenericParameters
+          </code>
+          <div class="tip" id="2457">
+            <strong>Signature:</strong> IList&lt;FSharpGenericParameter&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L938-938" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the generic arguments of the type defining the abstract slot</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2458', 2458)" onmouseover="showTip(event, '2458', 2458)">
+            MethodGenericParameters
+          </code>
+          <div class="tip" id="2458">
+            <strong>Signature:</strong> IList&lt;FSharpGenericParameter&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L943-943" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the generic arguments of the abstract slot</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2459', 2459)" onmouseover="showTip(event, '2459', 2459)">
             Name
           </code>
-          <div class="tip" id="2562">
+          <div class="tip" id="2459">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fs#L1278-1278" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L948-948" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the display name for the declaration.</p>
+          <p>Get the name of the abstract slot</p>
 
 
 

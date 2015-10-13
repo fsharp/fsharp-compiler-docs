@@ -86,7 +86,7 @@
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>App(exprAtomicFlag, isInfix, funcExpr, argExpr, m)
- - exprAtomicFlag: indicates if the applciation is syntactically atomic, e.g. f.[1] is atomic, but 'f x' is not
+ - exprAtomicFlag: indicates if the application is syntactically atomic, e.g. f.[1] is atomic, but 'f x' is not
  - isInfix is true for the first app of an infix operator, e.g. 1+2 becomes App(App(+,1),2), where the inner node is marked isInfix 
      (or more generally, for higher operator fixities, if App(x,y) is such that y comes before x in the source code, then the node is marked isInfix=true)</p>
 

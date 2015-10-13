@@ -565,7 +565,7 @@ type LexFilterImpl (lightSyntaxStatus:LightSyntaxStatus, compilingFsLib, lexer, 
         let tokenLexbufState = getLexbufState()
         savedLexbufState <- tokenLexbufState
         haveLexbufState <- true
-        TokenTup(token, tokenLexbufState, PositionTuple(lastTokenStart, lastTokenEnd))
+        TokenTup(token,tokenLexbufState,PositionTuple(lastTokenStart,lastTokenEnd))
 
     //----------------------------------------------------------------------------
     // Fetch a raw token, either from the old lexer or from our delayedStack
@@ -635,7 +635,7 @@ type LexFilterImpl (lightSyntaxStatus:LightSyntaxStatus, compilingFsLib, lexer, 
     let pushCtxt tokenTup (newCtxt:Context) =
         let rec unindentationLimit strict stack = 
             match newCtxt,stack with 
-            | _, [] -> PositionWithColumn (newCtxt.StartPos, -1) 
+            | _, [] -> PositionWithColumn(newCtxt.StartPos, -1) 
 
             // ignore Vanilla because a SeqBlock is always coming 
             | _, (CtxtVanilla _ :: rest) -> unindentationLimit strict rest
@@ -647,8 +647,8 @@ type LexFilterImpl (lightSyntaxStatus:LightSyntaxStatus, compilingFsLib, lexer, 
             // '(match' limited by minimum of two  
             | _,(((CtxtMatch _) as ctxt1) :: CtxtSeqBlock _ :: (CtxtParen ((BEGIN | LPAREN),_) as ctxt2) :: _rest)
                       -> if ctxt1.StartCol <= ctxt2.StartCol 
-                         then PositionWithColumn (ctxt1.StartPos,ctxt1.StartCol) 
-                         else PositionWithColumn (ctxt2.StartPos,ctxt2.StartCol) 
+                         then PositionWithColumn(ctxt1.StartPos,ctxt1.StartCol) 
+                         else PositionWithColumn(ctxt2.StartPos,ctxt2.StartCol) 
 
              // 'let ... = function' limited by 'let', precisely  
              // This covers the common form 
@@ -657,7 +657,7 @@ type LexFilterImpl (lightSyntaxStatus:LightSyntaxStatus, compilingFsLib, lexer, 
              //     | Case1 -> ...       
              //     | Case2 -> ...       
             | (CtxtMatchClauses _), (CtxtFunction _ :: CtxtSeqBlock _ :: (CtxtLetDecl  _ as limitCtxt) :: _rest)
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol)
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol)
 
             // Otherwise 'function ...' places no limit until we hit a CtxtLetDecl etc...  (Recursive) 
             | (CtxtMatchClauses _), (CtxtFunction _ :: rest)
@@ -665,7 +665,7 @@ type LexFilterImpl (lightSyntaxStatus:LightSyntaxStatus, compilingFsLib, lexer, 
 
             // 'try ... with'  limited by 'try'  
             | _,(CtxtMatchClauses _ :: (CtxtTry _ as limitCtxt) :: _rest)
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol)
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol)
 
             // 'fun ->' places no limit until we hit a CtxtLetDecl etc...  (Recursive) 
             | _,(CtxtFun _ :: rest)
@@ -684,7 +684,7 @@ type LexFilterImpl (lightSyntaxStatus:LightSyntaxStatus, compilingFsLib, lexer, 
             // This is a serious thing to allow, but is required since there is no "return" in this language.
             // Without it there is no way of escaping special cases in large bits of code without indenting the main case.
             | CtxtSeqBlock _, (CtxtElse _  :: (CtxtIf _ as limitCtxt) :: _rest) 
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol)
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol)
 
             // Permitted inner-construct precise block alighnment: 
             //           interface ...
@@ -695,7 +695,7 @@ type LexFilterImpl (lightSyntaxStatus:LightSyntaxStatus, compilingFsLib, lexer, 
             //           with ... 
             //           end 
             | CtxtWithAsAugment _,((CtxtInterfaceHead _ | CtxtMemberHead _ | CtxtException _ | CtxtTypeDefns _) as limitCtxt  :: _rest)
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol) 
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol) 
 
             // Permit unindentation via parentheses (or begin/end) following a 'then', 'else' or 'do':
             //        if nr > 0 then (  
@@ -766,12 +766,12 @@ type LexFilterImpl (lightSyntaxStatus:LightSyntaxStatus, compilingFsLib, lexer, 
             // 'type C = interface ... '       limited by 'type' 
             // 'type C = struct ... '       limited by 'type' 
             | _,(CtxtParen ((CLASS | STRUCT | INTERFACE),_) :: CtxtSeqBlock _ :: (CtxtTypeDefns _ as limitCtxt) ::  _)
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol + 1) 
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol + 1) 
 
             // REVIEW: document these 
             | _,(CtxtSeqBlock _ :: CtxtParen((BEGIN | LPAREN | LBRACK | LBRACK_BAR),_) :: CtxtVanilla _ :: (CtxtSeqBlock _ as limitCtxt) :: _)
             | (CtxtSeqBlock _),(CtxtParen ((BEGIN | LPAREN | LBRACE | LBRACK | LBRACK_BAR)      ,_) :: CtxtSeqBlock _ :: ((CtxtTypeDefns _ | CtxtLetDecl _ | CtxtMemberBody _ | CtxtWithAsLet _) as limitCtxt) ::  _)
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol + 1) 
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol + 1) 
 
             // Permitted inner-construct (e.g. "then" block and "else" block in overall 
             // "if-then-else" block ) block alighnment: 
@@ -780,22 +780,22 @@ type LexFilterImpl (lightSyntaxStatus:LightSyntaxStatus, compilingFsLib, lexer, 
             //           elif expr  
             //           else expr  
             | (CtxtIf   _ | CtxtElse _ | CtxtThen _), (CtxtIf _ as limitCtxt) :: _rest  
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol)
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol)
             // Permitted inner-construct precise block alighnment: 
             //           while  ... 
             //           do expr
             //           done   
             | (CtxtDo _), ((CtxtFor  _ | CtxtWhile _) as limitCtxt) :: _rest  
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol)
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol)
 
 
             // These contexts all require indentation by at least one space 
             | _,((CtxtInterfaceHead _ | CtxtNamespaceHead _ | CtxtModuleHead _ | CtxtException _ | CtxtModuleBody (_,false) | CtxtIf _ | CtxtWithAsLet _ | CtxtLetDecl _ | CtxtMemberHead _ | CtxtMemberBody _) as limitCtxt :: _) 
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol + 1) 
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol + 1) 
 
             // These contexts can have their contents exactly aligning 
             | _,((CtxtParen _ | CtxtFor _ | CtxtWhen _ | CtxtWhile _ | CtxtTypeDefns _ | CtxtMatch _  | CtxtModuleBody (_,true) | CtxtNamespaceBody _ | CtxtTry _ | CtxtMatchClauses _ | CtxtSeqBlock _) as limitCtxt :: _)
-                      -> PositionWithColumn (limitCtxt.StartPos,limitCtxt.StartCol) 
+                      -> PositionWithColumn(limitCtxt.StartPos,limitCtxt.StartCol) 
        
         match newCtxt with 
         // Don't bother to check pushes of Vanilla blocks since we've 

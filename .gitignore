@@ -128,3 +128,4 @@ docs/tools/FSharp.Formatting.svclog
 src/fsharp/FSharp.Compiler.Service/pplex.fs
 src/fsharp/FSharp.Compiler.Service/pppars.fs
 src/fsharp/FSharp.Compiler.Service/pppars.fsi
+.fake

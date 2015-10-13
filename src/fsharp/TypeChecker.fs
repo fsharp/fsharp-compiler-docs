@@ -4714,7 +4714,14 @@ and TcPatBindingName cenv env id ty isMemberThis vis1 topValData (inlineFlag,dec
     (fun (TcPatPhase2Input (values, isLeftMost)) -> 
         let (vspec,typeScheme) = 
             match values.TryFind id.idText with
-            | Some x -> x
+            | Some value ->
+                let name = id.idText
+                if not (String.IsNullOrEmpty name) && Char.IsLower(name.[0]) then
+                    match TryFindPatternByName name env.eNameResEnv with
+                    | Some (Item.Value vref) when vref.LiteralValue.IsSome ->
+                        warning(Error(FSComp.SR.checkLowercaseLiteralBindingInPattern(id.idText),id.idRange))
+                    | Some _ | None -> ()
+                value
             | None -> error(Error(FSComp.SR.tcNameNotBoundInPattern(id.idText),id.idRange))
 
         // isLeftMost indcates we are processing the left-most path through a disjunctive or- attern.

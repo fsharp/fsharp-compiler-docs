@@ -48,9 +48,9 @@ let identsAndRanges (input: Ast.ParsedInput) =
         (identAndRange (longIdentToString longIdent) range) :: (moduleDecls |> List.collect extractFromModuleDecl)
 
     match input with
-    | Ast.ImplFile(Ast.ParsedImplFileInput(_, _, _, _, _, modulesOrNamespaces, _)) ->
+    | Ast.ParsedInput.ImplFile(Ast.ParsedImplFileInput(_, _, _, _, _, modulesOrNamespaces, _)) ->
          modulesOrNamespaces |> List.collect extractFromModuleOrNamespace
-    | Ast.SigFile _ -> []
+    | Ast.ParsedInput.SigFile _ -> []
 
 let parseAndExtractRanges code =
     let file = "/home/user/Test.fsx"

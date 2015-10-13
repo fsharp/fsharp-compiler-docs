@@ -599,27 +599,32 @@ and FSharpUnionCase(cenv, v: UnionCaseRef) =
 
 
 and FSharpFieldData = 
-    | Recd of RecdFieldRef
+    | ILField of TcGlobals * ILFieldInfo
+    | RecdOrClass of RecdFieldRef
     | Union of UnionCaseRef * int
-    member x.RecdField =
+    member x.TryRecdField =
         match x with 
-        | Recd v -> v.RecdField
-        | Union (v,n) -> v.FieldByIndex(n)
+        | RecdOrClass v -> v.RecdField |> Choice1Of2
+        | Union (v,n) -> v.FieldByIndex(n) |> Choice1Of2
+        | ILField (_,f) -> f |> Choice2Of2
     member x.DeclaringTyconRef =
         match x with 
-        | Recd v -> v.TyconRef
+        | RecdOrClass v -> v.TyconRef
         | Union (v,_) -> v.TyconRef
+        | ILField (g,f) -> tcrefOfAppTy g f.EnclosingType
 
 and FSharpField(cenv, d: FSharpFieldData)  =
     inherit FSharpSymbol (cenv,  
                           (fun () -> 
                                 match d with 
-                                | Recd v -> 
+                                | RecdOrClass v -> 
                                     checkEntityIsResolved v.TyconRef
                                     Item.RecdField(RecdFieldInfo(generalizeTypars v.TyconRef.TyparsNoRange,v))
                                 | Union (v,_) -> 
                                     // This is not correct: there is no "Item" for a named union case field
-                                    Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v),false)),
+                                    Item.UnionCase(UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v),false)
+                                | ILField (_, f) -> 
+                                    Item.ILField(f)),
                           (fun this thisCcu2 ad -> 
                                 checkForCrossProjectAccessibility (thisCcu2, ad) (cenv.thisCcu, (this :?> FSharpField).Accessibility.Contents)) 
                                 //&&
@@ -629,23 +634,25 @@ and FSharpField(cenv, d: FSharpFieldData)  =
                                 )
 
     let isUnresolved() = 
+        entityIsUnresolved d.DeclaringTyconRef ||
         match d with 
-        | Recd v -> entityIsUnresolved v.TyconRef || v.TryRecdField.IsNone 
-        | Union (v,_) -> entityIsUnresolved v.TyconRef || v.TryUnionCase.IsNone 
+        | RecdOrClass v ->  v.TryRecdField.IsNone 
+        | Union (v,_) -> v.TryUnionCase.IsNone 
+        | ILField _ -> false
 
     let checkIsResolved() = 
+        checkEntityIsResolved d.DeclaringTyconRef
         match d with 
-        | Recd v -> 
-            checkEntityIsResolved v.TyconRef
+        | RecdOrClass v -> 
             if v.TryRecdField.IsNone then 
                 invalidOp (sprintf "The record field '%s' could not be found in the target type" v.FieldName)
         | Union (v,_) -> 
-            checkEntityIsResolved v.TyconRef
             if v.TryUnionCase.IsNone then 
                 invalidOp (sprintf "The union case '%s' could not be found in the target type" v.CaseName)
+        | ILField _ -> ()
 
     new (cenv, ucref, n) = FSharpField(cenv, FSharpFieldData.Union(ucref,n))
-    new (cenv, rfref) = FSharpField(cenv, FSharpFieldData.Recd(rfref))
+    new (cenv, rfref) = FSharpField(cenv, FSharpFieldData.RecdOrClass(rfref))
 
     member __.DeclaringEntity = 
         FSharpEntity(cenv, d.DeclaringTyconRef)
@@ -655,74 +662,110 @@ and FSharpField(cenv, d: FSharpFieldData)  =
 
     member __.IsMutable = 
         if isUnresolved() then false else 
-        d.RecdField.IsMutable
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.IsMutable
+        | Choice2Of2 f -> not f.IsInitOnly
 
     member __.IsLiteral = 
         if isUnresolved() then false else 
-        d.RecdField.LiteralValue.IsSome
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.LiteralValue.IsSome
+        | Choice2Of2 f -> f.LiteralValue.IsSome
 
     member __.LiteralValue = 
-        if isUnresolved()
-        then None
-        else getLiteralValue d.RecdField.LiteralValue
+        if isUnresolved() then None else 
+        match d.TryRecdField with 
+        | Choice1Of2 r -> getLiteralValue r.LiteralValue
+        | Choice2Of2 f -> f.LiteralValue |> Option.map AbstractIL.ILRuntimeWriter.convFieldInit 
 
     member __.IsVolatile = 
         if isUnresolved() then false else 
-        d.RecdField.IsVolatile
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.IsVolatile
+        | Choice2Of2 _ -> false // F# doesn't actually respect "volatile" from other assemblies in any case
 
     member __.IsDefaultValue = 
         if isUnresolved() then false else 
-        d.RecdField.IsZeroInit
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.IsZeroInit
+        | Choice2Of2 _ -> false 
 
     member __.XmlDocSig = 
         checkIsResolved()
         let xmlsig =
             match d with 
-            | Recd v -> 
+            | RecdOrClass v -> 
                 let recd = RecdFieldInfo(generalizeTypars v.TyconRef.TyparsNoRange,v)
                 ItemDescriptionsImpl.GetXmlDocSigOfRecdFieldInfo recd
             | Union (v,_) -> 
                 let unionCase = UnionCaseInfo(generalizeTypars v.TyconRef.TyparsNoRange,v)
                 ItemDescriptionsImpl.GetXmlDocSigOfUnionCaseInfo unionCase
+            | ILField (_,f) -> 
+                ItemDescriptionsImpl.GetXmlDocSigOfILFieldInfo cenv.infoReader range0 f
         match xmlsig with
         | Some (_, docsig) -> docsig
         | _ -> ""
 
     member __.XmlDoc = 
         if isUnresolved() then XmlDoc.Empty  |> makeXmlDoc else
-        d.RecdField.XmlDoc |> makeXmlDoc
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.XmlDoc 
+        | Choice2Of2 _ -> XmlDoc.Empty
+        |> makeXmlDoc
 
     member __.FieldType = 
         checkIsResolved()
-        FSharpType(cenv,  d.RecdField.FormalType)
+        let fty = 
+            match d.TryRecdField with 
+            | Choice1Of2 r -> r.FormalType
+            | Choice2Of2 f -> f.FieldType(cenv.amap, range0)
+        FSharpType(cenv,  fty)
 
     member __.IsStatic = 
         if isUnresolved() then false else 
-        d.RecdField.IsStatic
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.IsStatic
+        | Choice2Of2 f -> f.IsStatic
 
     member __.Name = 
         checkIsResolved()
-        d.RecdField.Name
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.Name
+        | Choice2Of2 f -> f.FieldName
 
     member __.IsCompilerGenerated = 
         if isUnresolved() then false else 
-        d.RecdField.IsCompilerGenerated
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.IsCompilerGenerated
+        | Choice2Of2 _ -> false
 
     member __.DeclarationLocation = 
         checkIsResolved()
-        d.RecdField.Range
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.Range
+        | Choice2Of2 _ -> range0
 
     member __.FieldAttributes = 
         if isUnresolved() then makeReadOnlyCollection [] else 
-        d.RecdField.FieldAttribs |> List.map (fun a -> FSharpAttribute(cenv,  AttribInfo.FSAttribInfo(cenv.g, a))) |> makeReadOnlyCollection
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.FieldAttribs |> List.map (fun a -> FSharpAttribute(cenv,  AttribInfo.FSAttribInfo(cenv.g, a))) 
+        | Choice2Of2 _ -> [] 
+        |> makeReadOnlyCollection
 
     member __.PropertyAttributes = 
         if isUnresolved() then makeReadOnlyCollection [] else 
-        d.RecdField.PropertyAttribs |> List.map (fun a -> FSharpAttribute(cenv,  AttribInfo.FSAttribInfo(cenv.g, a))) |> makeReadOnlyCollection
+        match d.TryRecdField with 
+        | Choice1Of2 r -> r.PropertyAttribs |> List.map (fun a -> FSharpAttribute(cenv,  AttribInfo.FSAttribInfo(cenv.g, a))) 
+        | Choice2Of2 _ -> [] 
+        |> makeReadOnlyCollection
 
     member __.Accessibility : FSharpAccessibility =  
         if isUnresolved() then FSharpAccessibility(taccessPublic) else 
-        FSharpAccessibility(d.RecdField.Accessibility) 
+        let access = 
+            match d.TryRecdField with 
+            | Choice1Of2 r -> r.Accessibility
+            | Choice2Of2 _ -> taccessPublic
+        FSharpAccessibility(access) 
 
     member private x.V = d
     override x.Equals(other : obj) =
@@ -730,7 +773,7 @@ and FSharpField(cenv, d: FSharpFieldData)  =
         match other with
         |   :? FSharpField as uc -> 
             match d, uc.V with 
-            | Recd r1, Recd r2 -> recdFieldRefOrder.Compare(r1, r2) = 0
+            | RecdOrClass r1, RecdOrClass r2 -> recdFieldRefOrder.Compare(r1, r2) = 0
             | Union (u1,n1), Union (u2,n2) -> cenv.g.unionCaseRefEq u1 u2 && n1 = n2
             | _ -> false
         |   _ -> false
@@ -1967,7 +2010,9 @@ type FSharpSymbol with
         | Item.Value v -> FSharpMemberOrFunctionOrValue(cenv,  V v, item) :> _
         | Item.UnionCase (uinfo,_) -> FSharpUnionCase(cenv,  uinfo.UnionCaseRef) :> _
         | Item.ExnCase tcref -> FSharpEntity(cenv,  tcref) :>_
-        | Item.RecdField rfinfo -> FSharpField(cenv,  Recd rfinfo.RecdFieldRef) :> _
+        | Item.RecdField rfinfo -> FSharpField(cenv,  RecdOrClass rfinfo.RecdFieldRef) :> _
+
+        | Item.ILField finfo -> FSharpField(cenv,  ILField (cenv.g, finfo)) :> _
         
         | Item.Event einfo -> 
             FSharpMemberOrFunctionOrValue(cenv,  E einfo, item) :> _

@@ -2906,7 +2906,7 @@ let ``Test Project19 all symbols`` () =
             ("DayOfWeek", "DayOfWeek", "file1", ((10, 15), (10, 24)), [],
              ["enum"; "valuetype"]);
             ("System", "System", "file1", ((10, 8), (10, 14)), [], ["namespace"]);
-            ("symbol Monday", "Monday", "file1", ((10, 8), (10, 31)), [], []);
+            ("field Monday", "Monday", "file1", ((10, 8), (10, 31)), [], ["field"; "mutable"; "static"; "1"]);
             ("val s", "s", "file1", ((10, 4), (10, 5)), ["defn"], ["val"]);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], ["module"])|]
 

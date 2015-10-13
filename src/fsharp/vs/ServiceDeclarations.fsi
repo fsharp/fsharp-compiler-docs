@@ -87,6 +87,7 @@ module internal ItemDescriptionsImpl =
 
     val GetXmlDocSigOfEntityRef : InfoReader -> range -> EntityRef -> (string option * string) option
     val GetXmlDocSigOfScopedValRef : TcGlobals -> TyconRef -> ValRef -> (string option * string) option
+    val GetXmlDocSigOfILFieldInfo : InfoReader -> range -> ILFieldInfo -> (string option * string) option
     val GetXmlDocSigOfRecdFieldInfo : RecdFieldInfo -> (string option * string) option
     val GetXmlDocSigOfUnionCaseInfo : UnionCaseInfo -> (string option * string) option
     val GetXmlDocSigOfMethInfo : InfoReader -> range -> MethInfo -> (string option * string) option

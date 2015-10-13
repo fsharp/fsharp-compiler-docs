@@ -1,4 +1,5 @@
 #### 1.4.0.7 - 
+* fix 427 - Make event information available for properties which represent first-class uses of F#-declared events
 * fix 410 - Symbols for C# fields (and especially enum fields)
 * Expose implemented abstract slots
 * Fix problem with obscure filenames caught by Microsoft\visualfsharp tests

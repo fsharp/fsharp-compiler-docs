@@ -2011,6 +2011,8 @@ type FSharpSymbol with
         | Item.UnionCase (uinfo,_) -> FSharpUnionCase(cenv,  uinfo.UnionCaseRef) :> _
         | Item.ExnCase tcref -> FSharpEntity(cenv,  tcref) :>_
         | Item.RecdField rfinfo -> FSharpField(cenv,  RecdOrClass rfinfo.RecdFieldRef) :> _
+
+        | Item.ILField finfo -> FSharpField(cenv,  ILField (cenv.g, finfo)) :> _
         
         | Item.Event einfo -> 
             FSharpMemberOrFunctionOrValue(cenv,  E einfo, item) :> _

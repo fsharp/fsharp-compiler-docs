@@ -4596,3 +4596,96 @@ let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
     Project37.wholeProjectResults.AssemblySignature.Attributes
     |> Seq.map (fun a -> a.AttributeType.CompiledName)
     |> Array.ofSeq |> shouldEqual [| "AttrTestAttribute"; "AttrTest2Attribute" |]
+
+module Project38 =
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+namespace OverrideTests
+
+type I<'X> =
+    abstract Method : unit -> unit
+    abstract Generic : named:'X -> unit
+    abstract Generic<'Y> : 'X * 'Y -> unit
+    abstract Property : int 
+
+[<AbstractClass>]
+type B<'Y>() =
+    abstract Method : unit -> unit
+    abstract Generic : 'Y -> unit
+    abstract Property : int
+    [<CLIEvent>]
+    abstract Event : IEvent<unit>
+
+type A<'XX, 'YY>() =
+    inherit B<'YY>()
+    
+    let ev = Event<unit>()
+
+    override this.Method() = ()
+    override this.Generic (a: 'YY) = ()
+    override this.Property = 0
+    [<CLIEvent>]
+    override this.Event = ev.Publish
+
+    member this.NotOverride() = ()
+
+    interface I<'XX> with
+        member this.Method() = ()
+        member this.Generic (a: 'XX) = ()
+        member this.Generic<'Y> (a: 'XX, b: 'Y) = ()
+        member this.Property = 1
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let wholeProjectResults =
+        checker.ParseAndCheckProject(options)
+        |> Async.RunSynchronously
+
+[<Test>]
+let ``Test project38 abstract slot information`` () =
+    let printAbstractSignature (s: FSharpAbstractSignature) =
+        let printType (t: FSharpType) = (string t).[5 ..]       
+        let args = 
+            (s.AbstractArguments |> Seq.concat |> Seq.map (fun a -> 
+                (match a.Name with Some n -> n + ":" | _ -> "") + printType a.Type) |> String.concat " * ")
+            |> function "" -> "()" | a -> a
+        let tgen =
+            match s.DeclaringTypeGenericParameters |> Seq.map (fun m -> "'" + m.Name) |> String.concat "," with
+            | "" -> ""
+            | g -> " original generics: <" + g + ">" 
+        let mgen =
+            match s.MethodGenericParameters |> Seq.map (fun m -> "'" + m.Name) |> String.concat "," with
+            | "" -> ""
+            | g -> "<" + g + ">" 
+        "type " + printType s.DeclaringType + tgen + " with member " + s.Name + mgen + " : " + args + " -> " +
+        printType s.AbstractReturnType
+    
+    let a2ent = Project38.wholeProjectResults.AssemblySignature.Entities |> Seq.find (fun e -> e.FullName = "OverrideTests.A`2")
+    a2ent.MembersFunctionsAndValues |> Seq.map (fun m ->
+        m.CompiledName, (m.ImplementedAbstractSignatures |> Seq.map printAbstractSignature |> Array.ofSeq) 
+    )
+    |> Array.ofSeq
+    |> shouldEqual 
+        [|
+            ".ctor", [||]
+            "Generic", [|"type OverrideTests.B<'YY> original generics: <'Y> with member Generic : 'Y -> Microsoft.FSharp.Core.unit"|]
+            "OverrideTests-I`1-Generic", [|"type OverrideTests.I<'XX> original generics: <'X> with member Generic : named:'X -> Microsoft.FSharp.Core.unit"|]
+            "OverrideTests-I`1-Generic", [|"type OverrideTests.I<'XX> original generics: <'X> with member Generic<'Y> : 'X * 'Y -> Microsoft.FSharp.Core.unit"|]
+            "Method", [|"type OverrideTests.B<'YY> original generics: <'Y> with member Method : () -> Microsoft.FSharp.Core.unit"|]
+            "OverrideTests-I`1-Method", [|"type OverrideTests.I<'XX> original generics: <'X> with member Method : () -> Microsoft.FSharp.Core.unit"|]
+            "NotOverride", [||]
+            "add_Event", [|"type OverrideTests.B<'YY> original generics: <'Y> with member add_Event : Microsoft.FSharp.Control.Handler<Microsoft.FSharp.Core.unit> -> Microsoft.FSharp.Core.unit"|]
+            "get_Event", [|"type OverrideTests.B<'YY> with member get_Event : () -> Microsoft.FSharp.Core.unit"|]
+            "get_Property", [|"type OverrideTests.B<'YY> original generics: <'Y> with member get_Property : () -> Microsoft.FSharp.Core.int"|]
+            "OverrideTests-I`1-get_Property", [|"type OverrideTests.I<'XX> original generics: <'X> with member get_Property : () -> Microsoft.FSharp.Core.int"|]
+            "remove_Event", [|"type OverrideTests.B<'YY> original generics: <'Y> with member remove_Event : Microsoft.FSharp.Control.Handler<Microsoft.FSharp.Core.unit> -> Microsoft.FSharp.Core.unit"|]
+            "get_Property", [|"type OverrideTests.B<'YY> original generics: <'Y> with member get_Property : () -> Microsoft.FSharp.Core.int"|]
+            "get_Event", [|"type OverrideTests.B<'YY> with member get_Event : () -> Microsoft.FSharp.Core.unit"|]
+        |]

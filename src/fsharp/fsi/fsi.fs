@@ -2371,7 +2371,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 
     let tcImports =  
       try 
-          TcImports.BuildNonFrameworkTcImports(None, tcConfigP,tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences)
+          TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences)
       with e -> 
           stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
 

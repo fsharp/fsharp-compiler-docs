@@ -217,7 +217,6 @@ type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
 
 
 #endif
-
 //---------------------------------------------------------------------
 // Read file from memory blocks 
 //---------------------------------------------------------------------

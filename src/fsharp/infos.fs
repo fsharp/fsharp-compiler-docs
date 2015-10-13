@@ -378,7 +378,7 @@ type ValRef with
     member vref.ImplementedSlotSignatures =
         match vref.MemberInfo with
         | None -> []
-        | Some membInfo -> membInfo.Value.ImplementedSlotSigs
+        | Some membInfo -> membInfo.ImplementedSlotSigs
 
 //-------------------------------------------------------------------------
 // Helper methods associated with using TAST metadata (F# members, values etc.) 

@@ -1,3 +1,8 @@
+#### 1.4.0.7 - 
+* fix 410 - Symbols for C# fields (and especially enum fields)
+* Expose implemented abstract slots
+* Integrate with visualfsharp master
+
 #### 1.4.0.6 - 
 * fix 423 - Symbols for non-standard C# events
 * fix 235 - XmlDocSigs for references assemblies

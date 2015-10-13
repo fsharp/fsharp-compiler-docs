@@ -1127,6 +1127,9 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
             let nm = (match v with VRefNonLocal n -> n.ItemKey.PartialKey.LogicalName | _ -> "<local>")
             invalidOp (sprintf "The value or member '%s' does not exist or is in an unresolved assembly." nm)
 
+    let mkMethSym minfo = FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+    let mkEventSym einfo = FSharpMemberOrFunctionOrValue(cenv, E einfo, Item.Event einfo)
+
     new (cenv, vref) = FSharpMemberFunctionOrValue(cenv, V vref, Item.Value vref)
     new (cenv, minfo) =  FSharpMemberFunctionOrValue(cenv, M minfo, Item.MethodGroup(minfo.LogicalName, [minfo]))
 
@@ -1209,25 +1212,19 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
     member __.GetterMethod =
         checkIsResolved()
         match d with 
-        | P m -> 
-            let minfo = m.GetterMethod
-            FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | P m -> mkMethSym m.GetterMethod
         | E _ | M _ | V _ -> invalidOp "the value or member doesn't have an associated getter method" 
 
     member __.EventAddMethod =
         checkIsResolved()
         match d with 
-        | E e -> 
-            let minfo = e.GetAddMethod()
-            FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | E e -> mkMethSym (e.GetAddMethod())
         | P _ | M _  | V _ -> invalidOp "the value or member doesn't have an associated add method" 
 
     member __.EventRemoveMethod =
         checkIsResolved()
         match d with 
-        | E e -> 
-            let minfo = e.GetRemoveMethod()
-            FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
+        | E e -> mkMethSym (e.GetRemoveMethod())
         | P _ | M _  | V _ -> invalidOp "the value or member doesn't have an associated remove method" 
 
     member __.EventDelegateType =
@@ -1256,12 +1253,8 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
     member __.SetterMethod =
         checkIsResolved()
         match d with 
-        | P m -> 
-            let minfo = m.SetterMethod
-            FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName,[minfo]))
-        | E _
-        | M _
-        | V _ -> invalidOp "the value or member doesn't have an associated setter method" 
+        | P m -> mkMethSym m.SetterMethod
+        | E _ | M _ | V _ -> invalidOp "the value or member doesn't have an associated setter method" 
 
     member __.EnclosingEntity = 
         checkIsResolved()
@@ -1327,6 +1320,20 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         match d with 
         | E _ -> true
         | _ -> false
+
+    member x.EventForFSharpProperty = 
+        match d with 
+        | P p when p.IsFSharpEventProperty && p.PropertyName.StartsWith "get_" ->
+            let nm = p.PropertyName.[4..]
+            let minfos1 = GetImmediateIntrinsicMethInfosOfType (Some("add_"+nm),AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 p.EnclosingType 
+            let minfos2 = GetImmediateIntrinsicMethInfosOfType (Some("remove_"+nm),AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 p.EnclosingType
+            match  minfos1,minfos2 with 
+            | [addMeth],[removeMeth] -> 
+                match addMeth.ArbitraryValRef, removeMeth.ArbitraryValRef with 
+                | Some addVal, Some removeVal -> Some (mkEventSym (FSEvent(cenv.g, p, addVal, removeVal)))
+                | _ -> None
+            | _ -> None
+        | _ -> None
 
     member __.IsEventAddMethod = 
         if isUnresolved() then false else 

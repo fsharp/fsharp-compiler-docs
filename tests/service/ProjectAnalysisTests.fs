@@ -80,6 +80,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsPropertyGetterMethod then yield "getter"
             if v.IsPropertySetterMethod then yield "setter"
             if v.IsEvent then yield "event"
+            if v.EventForFSharpProperty.IsSome then yield "clievent"
             if v.IsEventAddMethod then yield "add"
             if v.IsEventRemoveMethod then yield "remove"
             if v.IsTypeFunction then yield "typefun"

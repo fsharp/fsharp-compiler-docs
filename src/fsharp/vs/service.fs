@@ -2473,7 +2473,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
                     // including by SetAlternate.
                     let builderB, errorsB, decrementB = CreateOneIncrementalBuilder options
                     incrementalBuildersCache.Set(options, (builderB, errorsB, decrementB))
-        //bc.StartBackgroundCompile(options)
+        bc.StartBackgroundCompile(options)
 
     member bc.NotifyProjectCleaned(options : FSharpProjectOptions) =
         match incrementalBuildersCache.TryGetAny options with
@@ -3050,8 +3050,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         match checkAnswer with 
         | None
         | Some FSharpCheckFileAnswer.Aborted -> 
-            //backgroundCompiler.StartBackgroundCompile(options) 
-            ()
+            backgroundCompiler.StartBackgroundCompile(options)  
         | Some (FSharpCheckFileAnswer.Succeeded typedResults) -> 
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
             parseAndCheckFileInProjectCachePossiblyStale.Set((filename,options),(parseResults,typedResults,fileVersion))            

@@ -2519,6 +2519,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
             frameworkTcImportsCache.Downsize()
             scriptClosureCache.Resize(keepStrongly=1, keepMax=1))
          
+    member __.FrameworkImportsCache = frameworkTcImportsCache
 
 #if SILVERLIGHT
 #else
@@ -3183,6 +3184,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     member ic.MaxMemory with get() = maxMB and set v = maxMB <- v
 
     static member Instance = globalInstance
+    member internal __.FrameworkImportsCache = backgroundCompiler.FrameworkImportsCache
 
 type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, tcImports, tcState, loadClosure) =
     let keepAssemblyContents = false

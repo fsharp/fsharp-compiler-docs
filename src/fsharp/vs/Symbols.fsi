@@ -810,6 +810,7 @@ and [<Class>] FSharpParameter =
     /// Indicate this is an optional argument
     member IsOptionalArg: bool
 
+
 /// A subtype of FSharpSymbol that represents a single case within an active pattern
 and [<Class>] FSharpActivePatternCase =
     inherit FSharpSymbol
@@ -891,6 +892,30 @@ and [<Class>] FSharpType =
     /// Get the base type, if any, taking into account the instantiation of this type
     /// if it is an instantiation of a generic type.
     member BaseType : FSharpType option
+
+    /// Adjust the type by removing any occurrences of type inference variables, replacing them
+    /// systematically with lower-case type inference variables such as <c>'a</c>.
+    static member Prettify : typ:FSharpType -> FSharpType
+
+    /// Adjust a group of types by removing any occurrences of type inference variables, replacing them
+    /// systematically with lower-case type inference variables such as <c>'a</c>.
+    static member Prettify : types: IList<FSharpType> -> IList<FSharpType>
+
+    /// Adjust the type in a single parameter by removing any occurrences of type inference variables, replacing them
+    /// systematically with lower-case type inference variables such as <c>'a</c>.
+    static member Prettify : parameter: FSharpParameter -> FSharpParameter 
+
+    /// Adjust the types in a group of parameters by removing any occurrences of type inference variables, replacing them
+    /// systematically with lower-case type inference variables such as <c>'a</c>.
+    static member Prettify : parameters: IList<FSharpParameter> -> IList<FSharpParameter>
+
+    /// Adjust the types in a group of curried parameters by removing any occurrences of type inference variables, replacing them
+    /// systematically with lower-case type inference variables such as <c>'a</c>.
+    static member Prettify : parameters: IList<IList<FSharpParameter>> -> IList<IList<FSharpParameter>>
+
+    /// Adjust the types in a group of curried parameters and return type by removing any occurrences of type inference variables, replacing them
+    /// systematically with lower-case type inference variables such as <c>'a</c>.
+    static member Prettify : parameters: IList<IList<FSharpParameter>> * returnParameter: FSharpParameter -> IList<IList<FSharpParameter>>
 
     [<System.Obsolete("Renamed to HasTypeDefinition")>]
     member IsNamedType : bool

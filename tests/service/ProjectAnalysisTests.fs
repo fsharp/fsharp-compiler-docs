@@ -202,7 +202,7 @@ let ``Test project1 whole project errors`` () =
     wholeProjectResults.Errors.[0].EndColumn |> shouldEqual 44
 
 [<Test>]
-let ``Test project1 should have protected FullName and TryFullName return same results`` () =
+let ``Test project39 should have protected FullName and TryFullName return same results`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let rec getFullNameComparisons (entity: FSharpEntity) = 
         seq { if not entity.IsProvided && entity.Accessibility.IsPublic then
@@ -4690,3 +4690,83 @@ let ``Test project38 abstract slot information`` () =
             "get_Property", ["type OverrideTests.B<'YY> original generics: <'Y> with member get_Property : () -> Microsoft.FSharp.Core.int"]
             "get_Event", ["type OverrideTests.B<'YY> with member get_Event : () -> Microsoft.FSharp.Core.unit"]
         |]
+
+
+module Project39 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+
+let functionWithIncompleteSignature x = System.ThisDoesntExist.SomeMethod(x)
+let curriedFunctionWithIncompleteSignature (x1:'a) x2 (x3:'a,x4) = 
+    (x2 = x4) |> ignore
+    System.ThisDoesntExist.SomeMethod(x1,x2,x3,x4)
+
+type C() = 
+    member x.MemberWithIncompleteSignature x = System.ThisDoesntExist.SomeMethod(x)
+    member x.CurriedMemberWithIncompleteSignature (x1:'a) x2 (x3:'a,x4) = 
+        (x2 = x4) |> ignore
+        System.ThisDoesntExist.SomeMethod(x1,x2,x3,x4)
+
+let uses () = 
+   functionWithIncompleteSignature (failwith "something")
+   curriedFunctionWithIncompleteSignature (failwith "x1") (failwith "x2") (failwith "x3", failwith "x4")
+   C().MemberWithIncompleteSignature (failwith "something")
+   C().CurriedMemberWithIncompleteSignature (failwith "x1") (failwith "x2") (failwith "x3", failwith "x4")
+    """
+    File.WriteAllText(fileName1, fileSource1)
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+[<Test>]
+let ``Test project39 all symbols`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project39.options) |> Async.RunSynchronously
+    let allSymbolUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+    let typeTextOfAllSymbolUses = 
+        [ for s in allSymbolUses do
+            match s.Symbol with 
+            | :? FSharpMemberOrFunctionOrValue as mem -> 
+              if s.Symbol.DisplayName.Contains "Incomplete" then
+                yield s.Symbol.DisplayName, tups s.RangeAlternate, 
+                      ("full", mem.FullType |> FSharpType.Prettify |> fun p -> p.Format(s.DisplayContext)),
+                      ("params", mem.CurriedParameterGroups |> FSharpType.Prettify |> Seq.toList |> List.map (Seq.toList >> List.map (fun p -> p.Type.Format(s.DisplayContext)))),
+                      ("return", mem.ReturnParameter |> FSharpType.Prettify |> fun p -> p.Type.Format(s.DisplayContext)) 
+            | _ -> () ]
+    typeTextOfAllSymbolUses |> shouldEqual
+              [("functionWithIncompleteSignature", ((4, 4), (4, 35)),
+                ("full", "('a -> 'b)"), ("params", [["'a"]]), ("return", "'b"));
+               ("curriedFunctionWithIncompleteSignature", ((5, 4), (5, 42)),
+                ("full", "('a -> 'a0 -> 'a * 'a0 -> 'b) when 'a0 : equality"),
+                ("params",
+                 [["'a"]; ["'a0 when 'a0 : equality"]; ["'a"; "'a0 when 'a0 : equality"]]),
+                ("return", "'b"));
+               ("MemberWithIncompleteSignature", ((10, 13), (10, 42)),
+                ("full", "(C -> 'c -> 'd)"), ("params", [["'c"]]), ("return", "'d"));
+               ("CurriedMemberWithIncompleteSignature", ((11, 13), (11, 49)),
+                ("full", "(C -> 'a -> 'a0 -> 'a * 'a0 -> 'b) when 'a0 : equality"),
+                ("params",
+                 [["'a"]; ["'a0 when 'a0 : equality"]; ["'a"; "'a0 when 'a0 : equality"]]),
+                ("return", "'b"));
+               ("functionWithIncompleteSignature", ((16, 3), (16, 34)),
+                ("full", "('a -> 'b)"), ("params", [["'a"]]), ("return", "'b"));
+               ("curriedFunctionWithIncompleteSignature", ((17, 3), (17, 41)),
+                ("full", "('a -> 'a0 -> 'a * 'a0 -> 'b) when 'a0 : equality"),
+                ("params",
+                 [["'a"]; ["'a0 when 'a0 : equality"]; ["'a"; "'a0 when 'a0 : equality"]]),
+                ("return", "'b"));
+               ("MemberWithIncompleteSignature", ((18, 3), (18, 36)),
+                ("full", "('c -> 'd)"), ("params", [["'c"]]), ("return", "'d"));
+               ("CurriedMemberWithIncompleteSignature", ((19, 3), (19, 43)),
+                ("full", "('a -> 'a0 -> 'a * 'a0 -> 'b) when 'a0 : equality"),
+                ("params",
+                 [["'a"]; ["'a0 when 'a0 : equality"]; ["'a"; "'a0 when 'a0 : equality"]]),
+                ("return", "'b"))]
+

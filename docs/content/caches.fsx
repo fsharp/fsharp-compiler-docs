@@ -6,7 +6,7 @@ Compiler Services: Notes on the FSharpChecker caches
 
 This is a design note on the FSharpChecker component and its caches.  See also the notes on the [FSharpChecker operations queue](queue.html)
 
-FSharpChecker maintains a set of caches. These are
+Each FSharpChecker object maintains a set of caches.  These are
 
 * ``scriptClosureCache`` - an MRU cache of default size ``projectCacheSize`` that caches the 
   computation of GetProjectOptionsFromScript. This computation can be lengthy as it can involve processing the transative closure
@@ -55,6 +55,25 @@ The sizes of some of these caches can be adjusted by giving parameters to FSharp
 the cache sizes above indicate the "strong" size of the cache, where memory is held regardless of the memory 
 pressure on the system. Some of the caches can also hold "weak" references which can be collected at will by the GC.
 
+> Note: Because of these caches, uou should generally use one global, shared FSharpChecker for everything in an IDE application.
+
+
+Low-Memory Condition
+-------
+
+Version 1.4.0.8 added a "maximum memory" limit specified by the `MaxMemory` property on FSharpChecker (in MB). If an FCS project operation
+is performed (see `CheckMaxMemoryReached` in `service.fs`) and `System.GC.GetTotalMemory(false)` reports a figure greater than this, then
+the strong sizes of all FCS caches are reduced to either 0 or 1.  This happens for the remainder of the lifetime of the FSharpChecker object. 
+In practice this will still make tools like the Visual Studio F# Power Tools usable, but some operations like renaming across multiple 
+projects may take substantially longer.
+
+For a 32-bit process the default threshold is 1.7GB of allocated managed memory in a process, see `maxMBDefault` in `service.fs`. For a 64-bit process 
+it is twice this.
+
+Reducing the FCS strong cache sizes does not guarantee there will be enough memory to continue operations - even holding one project 
+strongly may exceed a process memory budget. It just means FCS may hold less memory strongly.
+
+If you do not want the maximum memory limit to apply then set MaxMemory to System.Int32.MaxValue.
 
 Summary
 -------

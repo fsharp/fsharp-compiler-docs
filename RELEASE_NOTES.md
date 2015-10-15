@@ -1,3 +1,8 @@
+#### 1.4.0.8 - 
+* FSharpType.Format now prettifies type variables.  If necessary, FSharpType.Prettify can also be called
+* Add maximum-memory trigger to downsize FCS caches. Defaults to 1.7GB of allocaed memory in the system 
+  process for a 32-bit process, and 2x this for a 64-bit process
+
 #### 1.4.0.7 - 
 * fix 427 - Make event information available for properties which represent first-class uses of F#-declared events
 * fix 410 - Symbols for C# fields (and especially enum fields)

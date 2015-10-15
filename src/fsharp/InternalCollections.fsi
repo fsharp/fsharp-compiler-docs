@@ -27,6 +27,8 @@ namespace Internal.Utilities.Collections
     member Remove : key:'TKey -> unit
     /// Remove all elements.
     member Clear : unit -> unit
+    /// Resize
+    member Resize : keepStrongly: int * ?keepMax : int -> unit
     
   /// Simple priority caching for a small number of key\value associations.
   /// This cache may age-out results that have been Set by the caller.
@@ -50,6 +52,8 @@ namespace Internal.Utilities.Collections
     member Remove : key:'TKey -> unit
     /// Set the given key. 
     member Set : key:'TKey * value:'TValue -> unit
+    /// Resize
+    member Resize : keepStrongly: int * ?keepMax : int -> unit
 
   [<Sealed>]
   type internal List = 

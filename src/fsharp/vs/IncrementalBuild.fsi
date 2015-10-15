@@ -49,8 +49,11 @@ type internal ErrorScope =
 module internal IncrementalFSharpBuild =
 
   /// Lookup the global static cache for building the FrameworkTcImports
-  val GetFrameworkTcImports : TcConfig -> TcGlobals * TcImports * AssemblyResolution list * UnresolvedAssemblyReference list
-  val ClearFrameworkTcImportsCache: unit -> unit
+  type FrameworkImportsCache = 
+      new : size: int -> FrameworkImportsCache
+      member Get : TcConfig -> TcGlobals * TcImports * AssemblyResolution list * UnresolvedAssemblyReference list
+      member Clear: unit -> unit
+      member Downsize: unit -> unit
   
   type PartialCheckResults = 
       { TcState : TcState 
@@ -149,7 +152,7 @@ module internal IncrementalFSharpBuild =
       /// This may be a marginally long-running operation (parses are relatively quick, only one file needs to be parsed)
       member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * FSharpErrorSeverity) list
 
-      static member TryCreateBackgroundBuilderForProjectOptions : scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool * keepAssemblyContents: bool * keepAllBackgroundResolutions: bool -> IncrementalBuilder option * FSharpErrorInfo list 
+      static member TryCreateBackgroundBuilderForProjectOptions : FrameworkImportsCache * scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool * keepAssemblyContents: bool * keepAllBackgroundResolutions: bool -> IncrementalBuilder option * FSharpErrorInfo list 
 
 [<Obsolete("This type has been renamed to FSharpErrorInfo")>]
 /// Renamed to FSharpErrorInfo

@@ -22,7 +22,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
 let numProjectsForStressTest = 100
-let checker = FSharpChecker.Create(numProjectsForStressTest + 10)
+let checker = FSharpChecker.Create(projectCacheSize=numProjectsForStressTest + 10)
 
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)
@@ -712,6 +712,24 @@ let ``Test active patterns' XmlDocSig declared in referenced projects`` () =
     divisibleByGroup.OverallType.Format(divisibleBySymbolUse.Value.DisplayContext) |> shouldEqual "int -> int -> unit option"
     let divisibleByEntity = divisibleByGroup.EnclosingEntity.Value
     divisibleByEntity.ToString() |> shouldEqual "Project3A"
+
+//------------------------------------------------------------------------------------
+
+
+
+[<Test>]
+let ``Test max memory gets triggered`` () =
+    let checker = FSharpChecker.Create()
+    let reached = ref false 
+    checker.MaxMemoryReached.Add (fun () -> reached := true)
+    let wholeProjectResults = checker.ParseAndCheckProject(MultiProject3.options) |> Async.RunSynchronously
+    reached.Value |> shouldEqual false
+    checker.MaxMemory <- 0
+    let wholeProjectResults2 = checker.ParseAndCheckProject(MultiProject3.options) |> Async.RunSynchronously
+    reached.Value |> shouldEqual true
+    let wholeProjectResults3 = checker.ParseAndCheckProject(MultiProject3.options) |> Async.RunSynchronously
+    reached.Value |> shouldEqual true
+
 
 //------------------------------------------------------------------------------------
 

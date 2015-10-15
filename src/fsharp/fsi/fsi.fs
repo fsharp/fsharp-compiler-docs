@@ -2362,10 +2362,14 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 
     let fsiConsoleInput = FsiConsoleInput(fsi, fsiOptions, inReader, outWriter)
 
+    /// The single, global interactive checker that can be safely used in conjunction with other operations
+    /// on the FsiEvaluationSession.  
+    let checker = FSharpChecker.Create()
+
     let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = 
         try 
             let tcConfig = tcConfigP.Get()
-            IncrementalFSharpBuild.GetFrameworkTcImports tcConfig
+            checker.FrameworkImportsCache.Get tcConfig
         with e -> 
             stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
 
@@ -2409,9 +2413,6 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 
     let fsiInteractionProcessor = FsiInteractionProcessor(fsi, tcConfigB, errorLogger, fsiOptions, fsiDynamicCompiler, fsiConsolePrompt, fsiConsoleOutput, fsiInterruptController, fsiStdinLexerProvider, lexResourceManager, initialInteractiveState) 
 
-    /// The single, global interactive checker that can be safely used in conjunction with other operations
-    /// on the FsiEvaluationSession.  
-    let checker = InteractiveChecker.Create()
 
     interface IDisposable with 
         member x.Dispose() = 

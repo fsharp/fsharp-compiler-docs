@@ -61,6 +61,8 @@ module EnvMisc =
     let incrementalTypeCheckCacheSize = GetEnvInteger "mFSharp_IncrementalTypeCheckCacheSize" 5
 
     let projectCacheSizeDefault   = GetEnvInteger "mFSharp_ProjectCacheSizeDefault" 3
+    let frameworkTcImportsCacheStrongSize = GetEnvInteger "mFSharp_frameworkTcImportsCacheStrongSizeDefault" 8
+    let maxMBDefault = GetEnvInteger "mFSharp_maxMB" (if sizeof<int> = 4 then 1700 else 3400)
 
 //----------------------------------------------------------------------------
 // Methods
@@ -2184,6 +2186,8 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
             areSame=FSharpProjectOptions.AreSameForChecking, 
             areSameForSubsumption=FSharpProjectOptions.AreSubsumable)
 
+    let frameworkTcImportsCache = IncrementalFSharpBuild.FrameworkImportsCache(frameworkTcImportsCacheStrongSize)
+
     /// CreateOneIncrementalBuilder (for background type checking). Note that fsc.fs also
     /// creates an incremental builder used by the command line compiler.
     let CreateOneIncrementalBuilder (options:FSharpProjectOptions) = 
@@ -2200,7 +2204,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 
         let builderOpt, errorsAndWarnings = 
             IncrementalFSharpBuild.IncrementalBuilder.TryCreateBackgroundBuilderForProjectOptions
-                  (scriptClosureCache.TryGet options, Array.toList options.ProjectFileNames, 
+                  (frameworkTcImportsCache, scriptClosureCache.TryGet options, Array.toList options.ProjectFileNames, 
                    Array.toList options.OtherOptions, projectReferences, options.ProjectDirectory, 
                    options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment, keepAssemblyContents, keepAllBackgroundResolutions)
 
@@ -2468,7 +2472,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
                     // including by SetAlternate.
                     let builderB, errorsB, decrementB = CreateOneIncrementalBuilder options
                     incrementalBuildersCache.Set(options, (builderB, errorsB, decrementB))
-        bc.StartBackgroundCompile(options)
+        //bc.StartBackgroundCompile(options)
 
     member bc.NotifyProjectCleaned(options : FSharpProjectOptions) =
         match incrementalBuildersCache.TryGetAny options with
@@ -2481,9 +2485,6 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 #else
             ()
 #endif
-
-    member bc.InvalidateAll() =
-        reactor.EnqueueOp (fun () -> incrementalBuildersCache.Clear())
 
     member bc.StartBackgroundCompile(options) =
         reactor.StartBackgroundOp(fun () -> 
@@ -2506,6 +2507,19 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 
     member bc.CurrentQueueLength = reactor.CurrentQueueLength
 
+    member bc.ClearCaches() =
+        reactor.EnqueueOp (fun () -> 
+            incrementalBuildersCache.Clear()
+            frameworkTcImportsCache.Clear()
+            scriptClosureCache.Clear())
+
+    member bc.DownsizeCaches() =
+        reactor.EnqueueAndAwaitOpAsync (fun () -> 
+            incrementalBuildersCache.Resize(keepStrongly=1, keepMax=1)
+            frameworkTcImportsCache.Downsize()
+            scriptClosureCache.Resize(keepStrongly=1, keepMax=1))
+         
+    member __.FrameworkImportsCache = frameworkTcImportsCache
 
 #if SILVERLIGHT
 #else
@@ -2937,6 +2951,11 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
              areSame=AreSameForChecking3,
              areSameForSubsumption=AreSubsumable3)
 
+    let mutable maxMemoryReached = false
+    let mutable maxMB = maxMBDefault
+    let maxMemEvent = new Event<unit>()
+
+
     static member Create() = 
         new FSharpChecker(projectCacheSizeDefault,false,true)
 
@@ -2959,6 +2978,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
 
     member ic.ParseFileInProject(filename, source, options) =
         async { 
+            ic.CheckMaxMemoryReached()
             match parseFileInProjectCache.TryGet (filename, source, options) with 
             | Some res -> return res
             | None -> 
@@ -2983,23 +3003,38 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.
     member ic.InvalidateAll() =
-        backgroundCompiler.InvalidateAll()
+        ic.ClearCaches()
             
+    member ic.ClearCaches() =
+        parseAndCheckFileInProjectCachePossiblyStale.Clear()
+        parseAndCheckFileInProjectCache.Clear()
+        braceMatchCache.Clear()
+        parseFileInProjectCache.Clear()
+        backgroundCompiler.ClearCaches()
+
+    member ic.CheckMaxMemoryReached() =
+      if not maxMemoryReached && System.GC.GetTotalMemory(false) > int64 maxMB * 1024L * 1024L then 
+        // If the maxMB limit is reached, drastic action is taken
+        //   - reduce strong cache sizes to a minimum
+        backgroundCompiler.WaitForBackgroundCompile() // flush AsyncOp
+        maxMemoryReached <- true
+        parseAndCheckFileInProjectCachePossiblyStale.Resize(keepStrongly=1)
+        parseAndCheckFileInProjectCache.Resize(keepStrongly=1)
+        braceMatchCache.Resize(keepStrongly=1)
+        parseFileInProjectCache.Resize(keepStrongly=1)
+        backgroundCompiler.DownsizeCaches() |> Async.RunSynchronously
+        maxMemEvent.Trigger( () )
+
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.
     //
     // This is for unit testing only
     member ic.ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients() =
-        ic.InvalidateAll()
-        parseAndCheckFileInProjectCachePossiblyStale.Clear()
-        parseAndCheckFileInProjectCache.Clear()
-        braceMatchCache.Clear()
-        parseFileInProjectCache.Clear()
-        IncrementalFSharpBuild.ClearFrameworkTcImportsCache()
-        for i in 0 .. 2 do 
-            System.GC.Collect()
-            System.GC.WaitForPendingFinalizers() 
-            backgroundCompiler.WaitForBackgroundCompile() // flush AsyncOp
+        backgroundCompiler.WaitForBackgroundCompile() // flush AsyncOp
+        ic.ClearCaches()
+        System.GC.Collect()
+        System.GC.WaitForPendingFinalizers() 
+        backgroundCompiler.WaitForBackgroundCompile() // flush AsyncOp
             
     /// This function is called when the configuration is known to have changed for reasons not encoded in the ProjectOptions.
     /// For example, dependent references may have been deleted or created.
@@ -3014,7 +3049,8 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         match checkAnswer with 
         | None
         | Some FSharpCheckFileAnswer.Aborted -> 
-            backgroundCompiler.StartBackgroundCompile(options) 
+            //backgroundCompiler.StartBackgroundCompile(options) 
+            ()
         | Some (FSharpCheckFileAnswer.Succeeded typedResults) -> 
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
             parseAndCheckFileInProjectCachePossiblyStale.Set((filename,options),(parseResults,typedResults,fileVersion))            
@@ -3035,6 +3071,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     member ic.CheckFileInProject(parseResults:FSharpParseFileResults, filename:string, fileVersion:int, source:string, options:FSharpProjectOptions, ?isResultObsolete, ?textSnapshotInfo:obj) =        
         let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
         async {
+            ic.CheckMaxMemoryReached()
             let! checkAnswer = backgroundCompiler.CheckFileInProject(parseResults,filename,source,options,isResultObsolete,textSnapshotInfo)
             ic.RecordTypeCheckFileInProjectResults(filename,options,parseResults,fileVersion,Some checkAnswer,source)
             return checkAnswer 
@@ -3046,6 +3083,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         let cachedResults = parseAndCheckFileInProjectCache.TryGet((filename,source,options)) 
         let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
         async {
+            ic.CheckMaxMemoryReached()
             let! parseResults, checkAnswer, usedCachedResults = backgroundCompiler.ParseAndCheckFileInProject(filename,source,options,isResultObsolete,textSnapshotInfo,cachedResults)
             if not usedCachedResults then 
                 ic.RecordTypeCheckFileInProjectResults(filename,options,parseResults,fileVersion,Some checkAnswer,source)
@@ -3053,6 +3091,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         }
             
     member ic.ParseAndCheckProject(options) =
+        ic.CheckMaxMemoryReached()
         backgroundCompiler.ParseAndCheckProject(options)
 
     /// For a given script file, get the ProjectOptions implied by the #load closure
@@ -3141,7 +3180,11 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
 
     member ic.FileTypeCheckStateIsDirty  = backgroundCompiler.BeforeBackgroundFileCheck
 
+    member ic.MaxMemoryReached = maxMemEvent.Publish
+    member ic.MaxMemory with get() = maxMB and set v = maxMB <- v
+
     static member Instance = globalInstance
+    member internal __.FrameworkImportsCache = backgroundCompiler.FrameworkImportsCache
 
 type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, tcImports, tcState, loadClosure) =
     let keepAssemblyContents = false

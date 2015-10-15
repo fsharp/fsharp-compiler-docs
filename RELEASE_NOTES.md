@@ -1,3 +1,7 @@
+#### 1.4.0.9 - 
+* FSharpType.Format fix
+* Disable maximum-memory trigger by default until use case ironed out
+
 #### 1.4.0.8 - 
 * FSharpType.Format now prettifies type variables.  If necessary, FSharpType.Prettify can also be called
 * Add maximum-memory trigger to downsize FCS caches. Defaults to 1.7GB of allocaed memory in the system 

@@ -1061,14 +1061,16 @@ module private PrintTypes =
         nameL ^^ wordL ":" ^^ tauL
 
 
-    let layoutPrettyTypeWithPrec prec denv typ = 
+
+    let layoutPrettyType denv typ = 
         let _,typ,cxs = PrettyTypes.PrettifyTypes1 denv.g typ
         let env = SimplifyTypes.CollectInfo true [typ] cxs
         let cxsL = layoutConstraintsWithInfo denv env env.postfixConstraints
-        layoutTypeWithInfoAndPrec denv env prec typ  --- cxsL
+        layoutTypeWithInfoAndPrec denv env 2 typ  --- cxsL
 
-    let layoutPrettyType denv typ = layoutPrettyTypeWithPrec 2 denv typ
-    let layoutPrettyTypeHighPrec denv typ = layoutPrettyTypeWithPrec 5 denv typ
+    let layoutPrettyTypeNoCx denv typ = 
+        let _,typ,_cxs = PrettyTypes.PrettifyTypes1 denv.g typ
+        layoutTypeWithInfoAndPrec denv SimplifyTypes.typeSimplificationInfo0 5 typ  
 
 /// Printing TAST objects
 module private PrintTastMemberOrVals = 
@@ -1881,7 +1883,7 @@ let isGeneratedExceptionField pos f     = TastDefinitionPrinting.isGeneratedExce
 let stringOfTyparConstraint denv tpc  = stringOfTyparConstraints denv [tpc]
 let stringOfTy              denv x    = x |> PrintTypes.layoutType denv |> showL
 let prettyStringOfTy        denv x    = x |> PrintTypes.layoutPrettyType denv |> showL
-let prettyStringOfTyHighPrec denv x    = x |> PrintTypes.layoutPrettyTypeHighPrec denv |> showL
+let prettyStringOfTyNoCx    denv x    = x |> PrintTypes.layoutPrettyTypeNoCx denv |> showL
 let stringOfRecdField       denv x    = x |> TastDefinitionPrinting.layoutRecdField false denv |> showL
 let stringOfUnionCase       denv x    = x |> TastDefinitionPrinting.layoutUnionCase denv (wordL "|")  |> showL
 let stringOfExnDef          denv x    = x |> TastDefinitionPrinting.layoutExnDefn denv |> showL

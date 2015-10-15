@@ -62,7 +62,8 @@ module EnvMisc =
 
     let projectCacheSizeDefault   = GetEnvInteger "mFSharp_ProjectCacheSizeDefault" 3
     let frameworkTcImportsCacheStrongSize = GetEnvInteger "mFSharp_frameworkTcImportsCacheStrongSizeDefault" 8
-    let maxMBDefault = GetEnvInteger "mFSharp_maxMB" (if sizeof<int> = 4 then 1700 else 3400)
+    let maxMBDefault =  GetEnvInteger "mFSharp_maxMB" 1000000 // a million MB = 1TB = disabled
+    //let maxMBDefault = GetEnvInteger "mFSharp_maxMB" (if sizeof<int> = 4 then 1700 else 3400)
 
 //----------------------------------------------------------------------------
 // Methods
@@ -2472,7 +2473,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
                     // including by SetAlternate.
                     let builderB, errorsB, decrementB = CreateOneIncrementalBuilder options
                     incrementalBuildersCache.Set(options, (builderB, errorsB, decrementB))
-        //bc.StartBackgroundCompile(options)
+        bc.StartBackgroundCompile(options)
 
     member bc.NotifyProjectCleaned(options : FSharpProjectOptions) =
         match incrementalBuildersCache.TryGetAny options with
@@ -3049,8 +3050,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         match checkAnswer with 
         | None
         | Some FSharpCheckFileAnswer.Aborted -> 
-            //backgroundCompiler.StartBackgroundCompile(options) 
-            ()
+            backgroundCompiler.StartBackgroundCompile(options)  
         | Some (FSharpCheckFileAnswer.Succeeded typedResults) -> 
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
             parseAndCheckFileInProjectCachePossiblyStale.Set((filename,options),(parseResults,typedResults,fileVersion))            

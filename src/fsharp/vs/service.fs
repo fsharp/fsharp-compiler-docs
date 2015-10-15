@@ -62,7 +62,7 @@ module EnvMisc =
 
     let projectCacheSizeDefault   = GetEnvInteger "mFSharp_ProjectCacheSizeDefault" 3
     let frameworkTcImportsCacheStrongSize = GetEnvInteger "mFSharp_frameworkTcImportsCacheStrongSizeDefault" 8
-    let maxMBDefault = 1000000 // a million MB = 1TB = disabled
+    let maxMBDefault =  GetEnvInteger "mFSharp_maxMB" 1000000 // a million MB = 1TB = disabled
     //let maxMBDefault = GetEnvInteger "mFSharp_maxMB" (if sizeof<int> = 4 then 1700 else 3400)
 
 //----------------------------------------------------------------------------

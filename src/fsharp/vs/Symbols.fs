@@ -1848,11 +1848,11 @@ and FSharpType(cenv, typ:TType) =
 
     member x.Format(denv: FSharpDisplayContext) = 
        protect <| fun () -> 
-        NicePrint.prettyStringOfTy (denv.Contents cenv.g) typ 
+        NicePrint.prettyStringOfTyHighPrec (denv.Contents cenv.g) typ 
 
     override x.ToString() = 
        protect <| fun () -> 
-        "type " + NicePrint.prettyStringOfTy (DisplayEnv.Empty(cenv.g)) typ 
+        "type " + NicePrint.prettyStringOfTyHighPrec (DisplayEnv.Empty(cenv.g)) typ 
 
     static member Prettify(typ: FSharpType) = 
         let t = PrettyTypes.PrettifyTypes1 typ.cenv.g typ.V  |> p23

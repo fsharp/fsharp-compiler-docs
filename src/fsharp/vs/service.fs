@@ -62,7 +62,7 @@ module EnvMisc =
 
     let projectCacheSizeDefault   = GetEnvInteger "mFSharp_ProjectCacheSizeDefault" 3
     let frameworkTcImportsCacheStrongSize = GetEnvInteger "mFSharp_frameworkTcImportsCacheStrongSizeDefault" 8
-    let maxMBDefault = GetEnvInteger "mFSharp_maxMB" 2000
+    let maxMBDefault = GetEnvInteger "mFSharp_maxMB" 1700
 
 //----------------------------------------------------------------------------
 // Methods
@@ -2514,7 +2514,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
             scriptClosureCache.Clear())
 
     member bc.DownsizeCaches() =
-        reactor.EnqueueOp (fun () -> 
+        reactor.EnqueueAndAwaitOpAsync (fun () -> 
             incrementalBuildersCache.Resize(keepStrongly=1, keepMax=1)
             frameworkTcImportsCache.Downsize()
             scriptClosureCache.Resize(keepStrongly=1, keepMax=1))
@@ -2950,7 +2950,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
              areSame=AreSameForChecking3,
              areSameForSubsumption=AreSubsumable3)
 
-    let mutable downsizedCaches = false
+    let mutable maxMemoryReached = false
     let mutable maxMB = maxMBDefault
     let maxMemEvent = new Event<unit>()
 
@@ -2977,7 +2977,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
 
     member ic.ParseFileInProject(filename, source, options) =
         async { 
-            ic.CheckDownsizeCaches()
+            ic.CheckMaxMemoryReached()
             match parseFileInProjectCache.TryGet (filename, source, options) with 
             | Some res -> return res
             | None -> 
@@ -3011,16 +3011,17 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         parseFileInProjectCache.Clear()
         backgroundCompiler.ClearCaches()
 
-    member ic.CheckDownsizeCaches() =
-      if not downsizedCaches && System.GC.GetTotalMemory(false) > int64 maxMB * 1024L * 1024L then 
+    member ic.CheckMaxMemoryReached() =
+      if not maxMemoryReached && System.GC.GetTotalMemory(false) > int64 maxMB * 1024L * 1024L then 
         // If the maxMB limit is reached, drastic action is taken
         //   - reduce strong cache sizes to a minimum
-        downsizedCaches <- true
+        backgroundCompiler.WaitForBackgroundCompile() // flush AsyncOp
+        maxMemoryReached <- true
         parseAndCheckFileInProjectCachePossiblyStale.Resize(keepStrongly=1)
         parseAndCheckFileInProjectCache.Resize(keepStrongly=1)
         braceMatchCache.Resize(keepStrongly=1)
         parseFileInProjectCache.Resize(keepStrongly=1)
-        backgroundCompiler.DownsizeCaches()
+        backgroundCompiler.DownsizeCaches() |> Async.RunSynchronously
         maxMemEvent.Trigger( () )
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
@@ -3028,6 +3029,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     //
     // This is for unit testing only
     member ic.ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients() =
+        backgroundCompiler.WaitForBackgroundCompile() // flush AsyncOp
         ic.ClearCaches()
         System.GC.Collect()
         System.GC.WaitForPendingFinalizers() 
@@ -3068,7 +3070,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     member ic.CheckFileInProject(parseResults:FSharpParseFileResults, filename:string, fileVersion:int, source:string, options:FSharpProjectOptions, ?isResultObsolete, ?textSnapshotInfo:obj) =        
         let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
         async {
-            ic.CheckDownsizeCaches()
+            ic.CheckMaxMemoryReached()
             let! checkAnswer = backgroundCompiler.CheckFileInProject(parseResults,filename,source,options,isResultObsolete,textSnapshotInfo)
             ic.RecordTypeCheckFileInProjectResults(filename,options,parseResults,fileVersion,Some checkAnswer,source)
             return checkAnswer 
@@ -3080,7 +3082,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         let cachedResults = parseAndCheckFileInProjectCache.TryGet((filename,source,options)) 
         let (IsResultObsolete(isResultObsolete)) = defaultArg isResultObsolete (IsResultObsolete(fun _ -> false))
         async {
-            ic.CheckDownsizeCaches()
+            ic.CheckMaxMemoryReached()
             let! parseResults, checkAnswer, usedCachedResults = backgroundCompiler.ParseAndCheckFileInProject(filename,source,options,isResultObsolete,textSnapshotInfo,cachedResults)
             if not usedCachedResults then 
                 ic.RecordTypeCheckFileInProjectResults(filename,options,parseResults,fileVersion,Some checkAnswer,source)
@@ -3088,7 +3090,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         }
             
     member ic.ParseAndCheckProject(options) =
-        ic.CheckDownsizeCaches()
+        ic.CheckMaxMemoryReached()
         backgroundCompiler.ParseAndCheckProject(options)
 
     /// For a given script file, get the ProjectOptions implied by the #load closure

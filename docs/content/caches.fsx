@@ -67,8 +67,7 @@ the strong sizes of all FCS caches are reduced to either 0 or 1.  This happens f
 In practice this will still make tools like the Visual Studio F# Power Tools usable, but some operations like renaming across multiple 
 projects may take substantially longer.
 
-For a 32-bit process the default threshold is 1.7GB of allocated managed memory in a process, see `maxMBDefault` in `service.fs`. For a 64-bit process 
-it is twice this.
+By default the maximum memory trigger is disabled, see `maxMBDefault` in `service.fs`. 
 
 Reducing the FCS strong cache sizes does not guarantee there will be enough memory to continue operations - even holding one project 
 strongly may exceed a process memory budget. It just means FCS may hold less memory strongly.

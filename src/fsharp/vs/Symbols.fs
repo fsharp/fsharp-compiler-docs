@@ -1896,7 +1896,7 @@ and FSharpType(cenv, typ:TType) =
     static member Prettify(parameters: IList<IList<FSharpParameter>>, returnParameter: FSharpParameter) = 
         let xs = parameters |> List.ofSeq |> List.map List.ofSeq
         let cenv = returnParameter.cenv
-        let prettyTyps, prettyRetTy = xs |> List.mapSquared (fun p -> p.V) |> (fun tys -> PrettyTypes.PrettifyTypesNN1 cenv.g (tys,returnParameter.Type) )|> p23
+        let prettyTyps, prettyRetTy = xs |> List.mapSquared (fun p -> p.V) |> (fun tys -> PrettyTypes.PrettifyTypesNN1 cenv.g (tys,returnParameter.V) )|> p23
         let ps = (xs, prettyTyps) ||> List.map2 (List.map2 (fun p pty -> p.AdjustType(pty))) |> List.map makeReadOnlyCollection |> makeReadOnlyCollection
         ps, returnParameter.AdjustType(prettyRetTy)
 
@@ -1986,7 +1986,7 @@ and FSharpParameter(cenv, typ:TType, topArgInfo:ArgReprInfo, mOpt, isParamArrayA
     member __.Name = match idOpt with None -> None | Some v -> Some v.idText
     member __.cenv : cenv = cenv
     member __.AdjustType(t) = FSharpParameter(cenv, t, topArgInfo, mOpt, isParamArrayArg, isOutArg, isOptionalArg)
-    member __.Type = FSharpType(cenv,  typ)
+    member __.Type : FSharpType = FSharpType(cenv,  typ)
     member __.V = typ
     member __.DeclarationLocation = match idOpt with None -> m | Some v -> v.idRange
     member __.Attributes = 

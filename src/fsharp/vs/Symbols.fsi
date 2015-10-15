@@ -915,7 +915,7 @@ and [<Class>] FSharpType =
 
     /// Adjust the types in a group of curried parameters and return type by removing any occurrences of type inference variables, replacing them
     /// systematically with lower-case type inference variables such as <c>'a</c>.
-    static member Prettify : parameters: IList<IList<FSharpParameter>> * returnParameter: FSharpParameter -> IList<IList<FSharpParameter>>
+    static member Prettify : parameters: IList<IList<FSharpParameter>> * returnParameter: FSharpParameter -> IList<IList<FSharpParameter>> * FSharpParameter
 
     [<System.Obsolete("Renamed to HasTypeDefinition")>]
     member IsNamedType : bool

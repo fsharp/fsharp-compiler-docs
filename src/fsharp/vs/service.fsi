@@ -630,9 +630,11 @@ type FSharpChecker =
     member StartBackgroundCompile: options: FSharpProjectOptions -> unit
 
     /// Stop the background compile.
+    [<Obsolete("Explicitly stopping background compilation is not recommended and the functionality to allow this may be rearchitected in future release.  If you use this functionality please add an issue on http://github.com/fsharp/FSharp.Compiler.Service describing how you use it and ignore this warning.")>]
     member StopBackgroundCompile : unit -> unit
 
     /// Block until the background compile finishes.
+    [<Obsolete("Explicitly waiting for background compilation is not recommended and the functionality to allow this may be rearchitected in future release.  If you use this functionality please add an issue on http://github.com/fsharp/FSharp.Compiler.Service describing how you use it and ignore this warning.")>]
     member WaitForBackgroundCompile : unit -> unit
     
     /// Report a statistic for testability
@@ -667,6 +669,12 @@ type FSharpChecker =
     ///
     /// The event will be raised on a background thread.
     member FileChecked : IEvent<string>
+    
+    /// Raised after the maxMB memory threshold limit is reached
+    member MaxMemoryReached : IEvent<unit>
+
+    /// A maximum number of megabytes of allocated memory. If the figure reported by <c>System.GC.GetTotalMemory(false)</c> goes over this limit, the FSharpChecker object will attempt to free memory and reduce cache sizes to a minimum.</param>
+    member MaxMemory : int with get, set
     
     [<Obsolete("Renamed to BeforeBackgroundFileCheck")>]
     member FileTypeCheckStateIsDirty : IEvent<string>

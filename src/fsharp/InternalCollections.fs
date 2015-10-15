@@ -20,6 +20,7 @@ type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:i
     /// The choice of order is somewhat arbitrary. If the other way then adding
     /// items would be O(1) and removing O(N).
     let mutable refs:('TKey*ValueStrength<'TValue>) list = [] 
+    let mutable keepStrongly = keepStrongly
 
     // Only set a strong discard function if keepMax is explicitly set to keepStrongly, i.e. there are no weak entries in this lookup.
     do assert (onStrongDiscard.IsNone || Some keepStrongly = keepMax)
@@ -30,7 +31,7 @@ type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:i
     // references. Some operations are O(N) and we don't want to let things get out of
     // hand.
     let keepMax = defaultArg keepMax 75 
-    let keepMax = max keepStrongly keepMax 
+    let mutable keepMax = max keepStrongly keepMax 
     
     /// Look up a the given key, return None if not found.
     let TryPeekKeyValueImpl(data,key) = 
@@ -140,6 +141,14 @@ type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:i
        let discards = FilterAndHold()
        AssignWithStrength([], discards)
 
+    member al.Resize(newKeepStrongly, ?newKeepMax) =
+       let newKeepMax = defaultArg newKeepMax 75 
+       keepStrongly <- newKeepStrongly
+       keepMax <- max newKeepStrongly newKeepMax
+       do assert (onStrongDiscard.IsNone || keepStrongly = keepMax)
+       let keep = FilterAndHold()
+       AssignWithStrength(keep, [])
+
         
 
 type internal MruCache<'TKey,'TValue when 'TValue : not struct>(keepStrongly, areSame, ?isStillValid : 'TKey*'TValue->bool, ?areSameForSubsumption, ?onStrongDiscard, ?keepMax) =
@@ -177,6 +186,9 @@ type internal MruCache<'TKey,'TValue when 'TValue : not struct>(keepStrongly, ar
        
     member bc.Clear() =
         cache.Clear()
+        
+    member bc.Resize(newKeepStrongly, ?newKeepMax) =
+        cache.Resize(newKeepStrongly, ?newKeepMax=newKeepMax)
         
 /// List helpers
 [<Sealed>]

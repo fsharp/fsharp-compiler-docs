@@ -22,7 +22,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
 let numProjectsForStressTest = 100
-let checker = FSharpChecker.Create(numProjectsForStressTest + 10)
+let checker = FSharpChecker.Create(projectCacheSize=numProjectsForStressTest + 10)
 
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)

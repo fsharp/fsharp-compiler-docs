@@ -1087,10 +1087,14 @@ module internal IncrementalFSharpBuild =
       
     /// Global service state
     type FrameworkImportsCacheKey = (*resolvedpath*)string list * string * (*ClrRoot*)string list* (*fsharpBinaries*)string
-    let private frameworkTcImportsCache = AgedLookup<FrameworkImportsCacheKey,(TcGlobals * TcImports)>(8, areSame=(fun (x,y) -> x = y)) 
-    let ClearFrameworkTcImportsCache() = frameworkTcImportsCache.Clear()
-    /// This function strips the "System" assemblies from the tcConfig and returns a age-cached TcImports for them.
-    let GetFrameworkTcImports(tcConfig:TcConfig) =
+
+    type FrameworkImportsCache(keepStrongly) = 
+      let frameworkTcImportsCache = AgedLookup<FrameworkImportsCacheKey,(TcGlobals * TcImports)>(keepStrongly, areSame=(fun (x,y) -> x = y)) 
+      member __.Downsize() = frameworkTcImportsCache.Resize(keepStrongly=0)
+      member __.Clear() = frameworkTcImportsCache.Clear()
+
+      /// This function strips the "System" assemblies from the tcConfig and returns a age-cached TcImports for them.
+      member __.Get(tcConfig:TcConfig) =
         // Split into installed and not installed.
         let frameworkDLLs,nonFrameworkResolutions,unresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
         let frameworkDLLsKey = 
@@ -1188,7 +1192,7 @@ module internal IncrementalFSharpBuild =
         TimeStamp = timestamp }
 
 
-    type IncrementalBuilder(tcConfig : TcConfig, projectDirectory, outfile, assemblyName, niceNameGen : Ast.NiceNameGenerator, lexResourceManager,
+    type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig : TcConfig, projectDirectory, outfile, assemblyName, niceNameGen : Ast.NiceNameGenerator, lexResourceManager,
                             sourceFiles, projectReferences: IProjectReference list, ensureReactive, 
                             keepAssemblyContents, keepAllBackgroundResolutions) =
 
@@ -1202,7 +1206,7 @@ module internal IncrementalFSharpBuild =
         // Resolve assemblies and create the framework TcImports. This is done when constructing the
         // builder itself, rather than as an incremental task. This caches a level of "system" references. No type providers are 
         // included in these references. 
-        let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = GetFrameworkTcImports tcConfig
+        let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = frameworkTcImportsCache.Get tcConfig
         
         // Check for the existence of loaded sources and prepend them to the sources list if present.
         let sourceFiles = tcConfig.GetAvailableLoadedSources() @ (sourceFiles |>List.map(fun s -> rangeStartup,s))
@@ -1723,7 +1727,7 @@ module internal IncrementalFSharpBuild =
 
         /// CreateIncrementalBuilder (for background type checking). Note that fsc.fs also
         /// creates an incremental builder used by the command line compiler.
-        static member TryCreateBackgroundBuilderForProjectOptions (scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectReferences, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment, keepAssemblyContents, keepAllBackgroundResolutions) =
+        static member TryCreateBackgroundBuilderForProjectOptions (frameworkTcImportsCache, scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectReferences, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment, keepAssemblyContents, keepAllBackgroundResolutions) =
     
           // Trap and report warnings and errors from creation.
           use errorScope = new ErrorScope()
@@ -1800,7 +1804,8 @@ module internal IncrementalFSharpBuild =
                 let outfile, _, assemblyName = tcConfigB.DecideNames sourceFilesNew
         
                 let builder = 
-                    new IncrementalBuilder(tcConfig, projectDirectory, outfile, assemblyName, niceNameGen,
+                    new IncrementalBuilder(frameworkTcImportsCache,
+                                           tcConfig, projectDirectory, outfile, assemblyName, niceNameGen,
                                            resourceManager, sourceFilesNew, projectReferences, ensureReactive=true, 
                                            keepAssemblyContents=keepAssemblyContents, 
                                            keepAllBackgroundResolutions=keepAllBackgroundResolutions)

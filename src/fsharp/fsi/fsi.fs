@@ -2362,10 +2362,11 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 
     let fsiConsoleInput = FsiConsoleInput(fsi, fsiOptions, inReader, outWriter)
 
+    let frameworkImportsCache = IncrementalFSharpBuild.FrameworkImportsCache(1)
     let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = 
         try 
             let tcConfig = tcConfigP.Get()
-            IncrementalFSharpBuild.GetFrameworkTcImports tcConfig
+            frameworkImportsCache.Get tcConfig
         with e -> 
             stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
 

@@ -4742,30 +4742,30 @@ let ``Test project39 all symbols`` () =
             | _ -> () ]
     typeTextOfAllSymbolUses |> shouldEqual
               [("functionWithIncompleteSignature", ((4, 4), (4, 35)),
-                ("full", "('a -> 'b)"), ("params", [["'a"]]), ("return", "'b"));
+                ("full", "'a -> 'b"), ("params", [["'a"]]), ("return", "'b"));
                ("curriedFunctionWithIncompleteSignature", ((5, 4), (5, 42)),
-                ("full", "('a -> 'a0 -> 'a * 'a0 -> 'b) when 'a0 : equality"),
+                ("full", "'a -> 'a0 -> 'a * 'a0 -> 'b when 'a0 : equality"),
                 ("params",
                  [["'a"]; ["'a0 when 'a0 : equality"]; ["'a"; "'a0 when 'a0 : equality"]]),
                 ("return", "'b"));
                ("MemberWithIncompleteSignature", ((10, 13), (10, 42)),
-                ("full", "(C -> 'c -> 'd)"), ("params", [["'c"]]), ("return", "'d"));
+                ("full", "C -> 'c -> 'd"), ("params", [["'c"]]), ("return", "'d"));
                ("CurriedMemberWithIncompleteSignature", ((11, 13), (11, 49)),
-                ("full", "(C -> 'a -> 'a0 -> 'a * 'a0 -> 'b) when 'a0 : equality"),
+                ("full", "C -> 'a -> 'a0 -> 'a * 'a0 -> 'b when 'a0 : equality"),
                 ("params",
                  [["'a"]; ["'a0 when 'a0 : equality"]; ["'a"; "'a0 when 'a0 : equality"]]),
                 ("return", "'b"));
                ("functionWithIncompleteSignature", ((16, 3), (16, 34)),
-                ("full", "('a -> 'b)"), ("params", [["'a"]]), ("return", "'b"));
+                ("full", "'a -> 'b"), ("params", [["'a"]]), ("return", "'b"));
                ("curriedFunctionWithIncompleteSignature", ((17, 3), (17, 41)),
-                ("full", "('a -> 'a0 -> 'a * 'a0 -> 'b) when 'a0 : equality"),
+                ("full", "'a -> 'a0 -> 'a * 'a0 -> 'b when 'a0 : equality"),
                 ("params",
                  [["'a"]; ["'a0 when 'a0 : equality"]; ["'a"; "'a0 when 'a0 : equality"]]),
                 ("return", "'b"));
                ("MemberWithIncompleteSignature", ((18, 3), (18, 36)),
-                ("full", "('c -> 'd)"), ("params", [["'c"]]), ("return", "'d"));
+                ("full", "'c -> 'd"), ("params", [["'c"]]), ("return", "'d"));
                ("CurriedMemberWithIncompleteSignature", ((19, 3), (19, 43)),
-                ("full", "('a -> 'a0 -> 'a * 'a0 -> 'b) when 'a0 : equality"),
+                ("full", "'a -> 'a0 -> 'a * 'a0 -> 'b when 'a0 : equality"),
                 ("params",
                  [["'a"]; ["'a0 when 'a0 : equality"]; ["'a"; "'a0 when 'a0 : equality"]]),
                 ("return", "'b"))]

@@ -1,4 +1,4 @@
-#### 1.4.1.1 - 
+#### 1.4.2.0 - 
 * Fix bug in double lookup of cache, see https://github.com/fsharp/FSharp.Compiler.Service/pull/447
 
 #### 1.4.1 - 

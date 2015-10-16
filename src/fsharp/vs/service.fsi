@@ -687,7 +687,7 @@ type FSharpChecker =
     member ImplicitlyStartBackgroundWork: bool with get, set
     
     /// Get or set the pause time in milliseconds before background work is started.
-    member PauseBeforeBackgroundWork: bool with get, set
+    member PauseBeforeBackgroundWork: int with get, set
     
     [<Obsolete("Renamed to BeforeBackgroundFileCheck")>]
     member FileTypeCheckStateIsDirty : IEvent<string>

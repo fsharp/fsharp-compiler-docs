@@ -3190,7 +3190,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     member ic.ProjectChecked = backgroundCompiler.ProjectChecked
 
     static member GlobalForegroundParseCountStatistic = BackgroundCompiler.GlobalForegroundParseCountStatistic
-    static member GlobalForegroundTypeCheckCountStatistic = BackgroundCompiler.GlobalForegroundParseCountStatistic
+    static member GlobalForegroundTypeCheckCountStatistic = BackgroundCompiler.GlobalForegroundTypeCheckCountStatistic
           
     // Obsolete
     member ic.MatchBraces(filename, source, options) =

@@ -2,13 +2,14 @@
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 open System
+open System.Diagnostics
 open Microsoft.FSharp.Control
 open Microsoft.FSharp.Compiler.Lib
 
 // For internal use only 
 type internal IReactorOperations = 
-    abstract EnqueueAndAwaitOpAsync : (unit -> 'T) -> Async<'T>
-    abstract EnqueueOp: (unit -> unit) -> unit
+    abstract EnqueueAndAwaitOpAsync : string * (unit -> 'T) -> Async<'T>
+    abstract EnqueueOp: string * (unit -> unit) -> unit
 
 module internal Reactor =
 
@@ -23,7 +24,7 @@ module internal Reactor =
         /// Do a bit of work on the given build.
         | Step                                                        
         /// Do some work not synchronized in the mailbox.
-        | Op of (unit -> unit) 
+        | Op of string * (unit -> unit) 
         /// Stop building after finishing the current unit of work.
         | StopBackgroundOp of AsyncReplyChannel<ResultOrException<unit>>              
         /// Finish building.
@@ -160,16 +161,38 @@ module internal Reactor =
                                              
             // Async workflow which receives messages and dispatches to worker functions.
             let rec loop (state: ReactorState) = 
-                async { let! msg = inbox.Receive()
+                async { Debug.WriteLine("Reactor: receiving..., remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
+                        let! msg = inbox.Receive()
                         System.Threading.Thread.CurrentThread.CurrentUICulture <- culture
 
                         let newState = 
                             match msg with
-                            | StartBackgroundOp build -> HandleStartBackgroundOp inbox build state 
-                            | Step -> HandleStep inbox state
-                            | Op op -> HandleOp op state
-                            | StopBackgroundOp channel -> HandleStopBackgroundOp channel state
-                            | FinishBackgroundOp channel -> HandleFinishBackgroundO inbox channel state
+                            | StartBackgroundOp build -> 
+                                Debug.WriteLine("Reactor: --> start background, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
+                                HandleStartBackgroundOp inbox build state 
+                            | Step -> 
+                                Debug.WriteLine("Reactor: --> background step, remaining {0}, mem {1}, gc2 {2}}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
+                                let time = System.DateTime.Now
+                                let res = HandleStep inbox state
+                                let span = System.DateTime.Now - time
+                                //if span.TotalMilliseconds > 100.0 then 
+                                Debug.WriteLine("Reactor: <-- background step, remaining {0}, took {1}ms", inbox.CurrentQueueLength, span.TotalMilliseconds)
+                                res
+                            | Op (desc, op) -> 
+                                Debug.WriteLine("Reactor: --> {0}, remaining {1}, mem {2}, gc2 {3}", desc, inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
+                                let time = System.DateTime.Now
+                                let res = HandleOp op state
+                                let span = System.DateTime.Now - time
+                                //if span.TotalMilliseconds > 100.0 then 
+                                Debug.WriteLine("Reactor: <-- {0}, remaining {1}, took {2}ms", desc, inbox.CurrentQueueLength, span.TotalMilliseconds)
+                                res
+
+                            | StopBackgroundOp channel -> 
+                                Debug.WriteLine("Reactor: --> stop background, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
+                                HandleStopBackgroundOp channel state
+                            | FinishBackgroundOp channel -> 
+                                Debug.WriteLine("Reactor: --> finish background, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
+                                HandleFinishBackgroundO inbox channel state
 
                         return! loop newState
                       }
@@ -177,29 +200,34 @@ module internal Reactor =
             
 
         // [Foreground Mailbox Accessors] -----------------------------------------------------------                
-        member r.StartBackgroundOp(build) = builder.Post(StartBackgroundOp build)
+        member r.StartBackgroundOp(build) = 
+            Debug.WriteLine("Reactor: enqueue start background, length {0}", builder.CurrentQueueLength)
+            builder.Post(StartBackgroundOp build)
 
         member r.StopBackgroundOp() = 
+            Debug.WriteLine("Reactor: enqueue stop background, length {0}", builder.CurrentQueueLength)
             match builder.PostAndReply(fun replyChannel->StopBackgroundOp(replyChannel)) with
             | Result result->result
             | Exception excn->
                 raise excn
 
-        member r.EnqueueOp(op) =
-            builder.Post(Op(op)) 
+        member r.EnqueueOp(desc, op) =
+            Debug.WriteLine("Reactor: enqueue {0}, length {1}", desc, builder.CurrentQueueLength)
+            builder.Post(Op(desc, op)) 
 
         member r.CurrentQueueLength =
             builder.CurrentQueueLength
 
         // This is for testing only
         member r.WaitForBackgroundOpCompletion() =
+            Debug.WriteLine("Reactor: enqueue wait for background, length {0}", builder.CurrentQueueLength)
             match builder.PostAndReply(fun replyChannel->FinishBackgroundOp(replyChannel)) with
             | Result result->result
             | Exception excn->raise excn
 
-        member r.EnqueueAndAwaitOpAsync f = 
+        member r.EnqueueAndAwaitOpAsync (desc, f) = 
             let resultCell = AsyncUtil.AsyncResultCell<_>()
-            r.EnqueueOp(
+            r.EnqueueOp(desc, 
                 fun () ->
                     let result =
                         try

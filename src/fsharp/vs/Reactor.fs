@@ -83,7 +83,7 @@ module internal Reactor =
                                 let span = System.DateTime.Now - time
                                 //if span.TotalMilliseconds > 100.0 then 
                                 Debug.WriteLine("Reactor: <-- background step, remaining {0}, took {1}ms", inbox.CurrentQueueLength, span.TotalMilliseconds)
-                                return! loop ((if res then None else Some bgOp), onComplete)
+                                return! loop ((if res then Some bgOp else None), onComplete)
                             | None, None -> failwith "unreachable, should have used inbox.Receive"
                       }
             async { 

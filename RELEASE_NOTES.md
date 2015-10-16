@@ -1,3 +1,6 @@
+#### 1.4.1.1 - 
+* Fix bug in double lookup of cache, see https://github.com/fsharp/FSharp.Compiler.Service/pull/447
+
 #### 1.4.1 - 
 * Add pause before backgrounnd work starts. The FCS request queue must be empty for 1 second before work will start
 * Write trace information about the reactor queue to the event log

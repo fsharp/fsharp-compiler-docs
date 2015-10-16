@@ -167,6 +167,7 @@ module internal Reactor =
                         System.Threading.Thread.CurrentThread.CurrentUICulture <- culture
 
                         let newState = 
+                         try
                             match msg with
                             | StartBackgroundOp build -> 
                                 Debug.WriteLine("Reactor: --> start background, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
@@ -194,6 +195,9 @@ module internal Reactor =
                             | FinishBackgroundOp channel -> 
                                 Debug.WriteLine("Reactor: --> finish background, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
                                 HandleFinishBackgroundO inbox channel state
+                          with e -> 
+                             Debug.Assert(false,"unexpected failure in reactor loop")
+                             state
 
                         return! loop newState
                       }
@@ -235,14 +239,14 @@ module internal Reactor =
                 let! ct = Async.CancellationToken
                 let resultCell = AsyncUtil.AsyncResultCell<_>()
                 r.EnqueueOpPrim(desc, ct,
-                    (fun () ->
+                    op=(fun () ->
                         let result =
                             try
                                 f ct |> AsyncUtil.AsyncOk
                             with
                             |   e -> e |> AsyncUtil.AsyncException
                         resultCell.RegisterResult(result)),
-                     (fun () -> resultCell.RegisterResult (AsyncUtil.AsyncCanceled(OperationCanceledException())) )
+                     ccont=(fun () -> resultCell.RegisterResult (AsyncUtil.AsyncCanceled(OperationCanceledException())) )
 
                 )
                 return! resultCell.AsyncResult 

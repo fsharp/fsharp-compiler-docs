@@ -173,7 +173,7 @@ module internal Reactor =
                                 Debug.WriteLine("Reactor: --> start background, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
                                 HandleStartBackgroundOp inbox build state 
                             | Step -> 
-                                Debug.WriteLine("Reactor: --> background step, remaining {0}, mem {1}, gc2 {2}}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
+                                Debug.WriteLine("Reactor: --> background step, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
                                 let time = System.DateTime.Now
                                 let res = HandleStep inbox state
                                 let span = System.DateTime.Now - time

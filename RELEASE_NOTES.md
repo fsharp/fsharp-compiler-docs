@@ -1,3 +1,9 @@
+#### 1.4.1 - 
+* Add pause before backgrounnd work starts. The FCS request queue must be empty for 1 second before work will start
+* Write trace information about the reactor queue to the event log
+* Rewrite reactor to consistently prioritize queued work
+* Implement cancellation for queued work if it is cancelled prior to being executed
+
 #### 1.4.0.9 - 
 * FSharpType.Format fix
 * Disable maximum-memory trigger by default until use case ironed out

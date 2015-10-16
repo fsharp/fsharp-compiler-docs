@@ -262,9 +262,6 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.ParseAndCheckScript (filename, source, ?otherFlags) = 
           async { 
             let! options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
-            checker.StartBackgroundCompile options
-            // wait for the antecedent to appear
-            checker.WaitForBackgroundCompile()
             // do an typecheck
             let textSnapshotInfo = "" // TODO
             let! parseResults, checkResults = checker.ParseAndCheckFileInProject(filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo) 

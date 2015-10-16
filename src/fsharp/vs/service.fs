@@ -2363,7 +2363,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
         match cachedResults with 
         | Some (parseResults, _checkResults,_) ->  async.Return parseResults
         | _ -> 
-        reactor.EnqueueAndAwaitOpAsync("ParseFileInProject", fun _ct -> 
+        reactor.EnqueueAndAwaitOpAsync("ParseFileInProject " + filename, fun _ct -> 
         
             // Try the caches again - it may have been filled by the time this operation runs
             match locked (fun () -> parseFileInProjectCache.TryGet (filename, source, options)) with 
@@ -2389,7 +2389,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 
     /// Fetch the parse information from the background compiler (which checks w.r.t. the FileSystem API)
     member bc.GetBackgroundParseResultsForFileInProject(filename, options) =
-        reactor.EnqueueAndAwaitOpAsync("GetBackgroundParseResultsForFileInProject", fun _ct -> 
+        reactor.EnqueueAndAwaitOpAsync("GetBackgroundParseResultsForFileInProject " + filename, fun _ct -> 
             let builderOpt, creationErrors, _ = getOrCreateBuilder options
             match builderOpt with
             | None -> FSharpParseFileResults(List.toArray creationErrors, None, true, [])
@@ -2402,7 +2402,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
         )
 
     member bc.MatchBraces(filename:string, source, options)=
-        reactor.EnqueueAndAwaitOpAsync("MatchBraces", fun _ct -> 
+        reactor.EnqueueAndAwaitOpAsync("MatchBraces " + filename, fun _ct -> 
             let builderOpt,_,_ = getOrCreateBuilder options
             match builderOpt with
             | None -> [| |]
@@ -2415,7 +2415,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 
     /// Type-check the result obtained by parsing, but only if the antecedent type checking context is available. 
     member bc.CheckFileInProjectIfReady(parseResults:FSharpParseFileResults,filename,fileVersion,source,options,isResultObsolete,textSnapshotInfo:obj option) =
-        reactor.EnqueueAndAwaitOpAsync("CheckFileInProjectIfReady", fun _ct -> 
+        reactor.EnqueueAndAwaitOpAsync("CheckFileInProjectIfReady " + filename, fun _ct -> 
           let checkAnswer = 
             match incrementalBuildersCache.TryGetAny options with
             | Some(Some builder, creationErrors, _) ->
@@ -2447,7 +2447,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 
     /// Type-check the result obtained by parsing. Force the evaluation of the antecedent type checking context if needed.
     member bc.CheckFileInProject(parseResults:FSharpParseFileResults,filename,fileVersion,source,options,isResultObsolete,textSnapshotInfo) =
-        reactor.EnqueueAndAwaitOpAsync("CheckFileInProject", fun _ct -> 
+        reactor.EnqueueAndAwaitOpAsync("CheckFileInProject " + filename, fun _ct -> 
             let builderOpt,creationErrors,_ = getOrCreateBuilder options
             match builderOpt with
             | None -> FSharpCheckFileAnswer.Succeeded (MakeCheckFileResultsEmpty(creationErrors))
@@ -2471,7 +2471,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 
     /// Parses the source file and returns untyped AST
     member bc.ParseAndCheckFileInProject(filename:string, fileVersion, source, options:FSharpProjectOptions,isResultObsolete,textSnapshotInfo) =
-        reactor.EnqueueAndAwaitOpAsync("ParseAndCheckFileInProject", fun _ct -> 
+        reactor.EnqueueAndAwaitOpAsync("ParseAndCheckFileInProject " + filename, fun _ct -> 
             let builderOpt,creationErrors,_ = getOrCreateBuilder options // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
             match builderOpt with
             | None -> 
@@ -2502,7 +2502,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 
     /// Fetch the check information from the background compiler (which checks w.r.t. the FileSystem API)
     member bc.GetBackgroundCheckResultsForFileInProject(filename,options) =
-        reactor.EnqueueAndAwaitOpAsync("GetBackgroundCheckResultsForFileInProject", fun _ct -> 
+        reactor.EnqueueAndAwaitOpAsync("GetBackgroundCheckResultsForFileInProject " + filename, fun _ct -> 
             let (builderOpt, creationErrors, _) = getOrCreateBuilder options 
             match builderOpt with
             | None -> 
@@ -2556,10 +2556,10 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 
     /// Parse and typecheck the whole project.
     member bc.ParseAndCheckProject(options) =
-        reactor.EnqueueAndAwaitOpAsync("ParseAndCheckProject", fun _ct -> bc.ParseAndCheckProjectImpl(options))
+        reactor.EnqueueAndAwaitOpAsync("ParseAndCheckProject " + options.ProjectFileName, fun _ct -> bc.ParseAndCheckProjectImpl(options))
 
     member bc.GetProjectOptionsFromScript(filename, source, ?loadedTimeStamp, ?otherFlags, ?useFsiAuxLib) = 
-        reactor.EnqueueAndAwaitOpAsync ("GetProjectOptionsFromScript", fun _ct -> 
+        reactor.EnqueueAndAwaitOpAsync ("GetProjectOptionsFromScript " + filename, fun _ct -> 
             // Do we add a reference to FSharp.Compiler.Interactive.Settings by default?
             let useFsiAuxLib = defaultArg useFsiAuxLib true
             // Do we use a "FSharp.Core, 4.3.0.0" reference by default?
@@ -2615,17 +2615,20 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 #endif
 
     member bc.StartBackgroundCompile(options) =
-        reactor.StartBackgroundOp(fun () -> 
+        reactor.SetBackgroundOp(Some(fun () -> 
             let builderOpt,_,_ = getOrCreateBuilder options
             match builderOpt with 
             | None -> false
-            | Some builder -> builder.Step())
+            | Some builder -> builder.Step()))
 
     member bc.StopBackgroundCompile() =
-        reactor.StopBackgroundOp() 
+        reactor.SetBackgroundOp(None)
 
     member bc.WaitForBackgroundCompile() =
         reactor.WaitForBackgroundOpCompletion() 
+
+    member bc.CompleteAllQueuedOps() =
+        reactor.CompleteAllQueuedOps() 
 
     member bc.ReactorOps  = reactorOps
     member bc.BeforeBackgroundFileCheck = beforeFileChecked.Publish
@@ -3084,7 +3087,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
       if not maxMemoryReached && System.GC.GetTotalMemory(false) > int64 maxMB * 1024L * 1024L then 
         // If the maxMB limit is reached, drastic action is taken
         //   - reduce strong cache sizes to a minimum
-        backgroundCompiler.WaitForBackgroundCompile() // flush AsyncOp
+        backgroundCompiler.CompleteAllQueuedOps()
         maxMemoryReached <- true
         braceMatchCache.Resize(keepStrongly=1)
         backgroundCompiler.DownsizeCaches() |> Async.RunSynchronously
@@ -3095,11 +3098,11 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     //
     // This is for unit testing only
     member ic.ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients() =
-        backgroundCompiler.WaitForBackgroundCompile() // flush AsyncOp
+        backgroundCompiler.CompleteAllQueuedOps() // flush AsyncOp
         ic.ClearCaches()
         System.GC.Collect()
         System.GC.WaitForPendingFinalizers() 
-        backgroundCompiler.WaitForBackgroundCompile() // flush AsyncOp
+        backgroundCompiler.CompleteAllQueuedOps() // flush AsyncOp
             
     /// This function is called when the configuration is known to have changed for reasons not encoded in the ProjectOptions.
     /// For example, dependent references may have been deleted or created.

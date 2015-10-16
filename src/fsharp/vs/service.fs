@@ -2354,7 +2354,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
     /// Parses the source file and returns untyped AST
     member bc.ParseFileInProject(filename:string, source,options:FSharpProjectOptions) =
         match locked (fun () -> parseFileInProjectCache.TryGet (filename, source, options)) with 
-        | Some res -> async.Return res
+        | Some parseResults -> async.Return parseResults
         | None -> 
         // Try this cache too (which might contain different entries)
         let cachedResults = locked (fun () -> parseAndCheckFileInProjectCache.TryGet((filename,source,options)))
@@ -2365,7 +2365,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
         
             // Try the caches again - it may have been filled by the time this operation runs
             match locked (fun () -> parseFileInProjectCache.TryGet (filename, source, options)) with 
-            | Some res -> res
+            | Some parseResults -> parseResults
             | None -> 
             let cachedResults = locked (fun () -> parseAndCheckFileInProjectCache.TryGet((filename,source,options)))
             match cachedResults with 

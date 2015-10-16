@@ -9,20 +9,18 @@ This is a design note on the FSharpChecker component and its operations queue.  
 FSharpChecker maintains an operations queue. Items from the FSharpChecker operations queue are processed 
 sequentially and in order. 
 
-In addition to operations in the queue, there is also a low-priority, interleaved background operation
-to bring the checking of the checking of "the current background project" up-to-date.  When the queue is empty
-this operation is run in small incremental fragments of work. This work id cooperatively time-sliced to be approximately <50ms, 
-(see `maxTimeShareMilliseconds` in IncrementalBuild.fs). 
+The thread processing these requests can also run a low-priority, interleaved background operation when the
+queue is empty.  This can be used to implicitly bring the background check of a project "up-to-date".  
+When the operations queue is empty this background work is run in small incremental fragments. 
+This work is cooperatively time-sliced to be approximately <50ms, (see `maxTimeShareMilliseconds` in 
+IncrementalBuild.fs). The project to be checked in the background is set implicitly 
+by calls to ``CheckFileInProject`` and ``ParseAndCheckFileInProject``.
+To disable implicit background checking completely, set ``checker.ImplicitlyStartBackgroundWork`` to false.
 
-The For a working definition of "current background project" 
-you currently  have to see the calls to  `StartBackgroundCompile` 
-in [service.fs](https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs),
-where an API call which in turn calls StartBackgroundCompile indicates that the current background project has been specified.
-
-Many calls to the FSharpChecker API enqueue an operation in the FSharpChecker compiler queue. These correspond to the 
+Most calls to the FSharpChecker API enqueue an operation in the FSharpChecker compiler queue. These correspond to the 
 calls to EnqueueAndAwaitOpAsync in [service.fs](https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs).
 
-* For example, calling `ParseAndCheckProject` enqueues a `ParseAndCheckProjectImpl` operation. The length of the 
+* For example, calling `ParseAndCheckProject` enqueues a `ParseAndCheckProjectImpl` operation. The time taken for the 
   operation will depend on how much work is required to bring the project analysis up-to-date.
 
 * Likewise, calling any of `GetUsesOfSymbol`, `GetAllUsesOfAllSymbols`, `ParseFileInProject`, 
@@ -32,30 +30,25 @@ calls to EnqueueAndAwaitOpAsync in [service.fs](https://github.com/fsharp/FSharp
   vary - many will be very fast - but they won't be processed until other operations already in the queue are complete.
 
 Some operations do not enqueue anything on the FSharpChecker operations queue - notably any accesses to the Symbol APIs.
-These are multi-threaded access to the TAST data produced by other FSharpChecker operations.
+These use cross-threaded access to the TAST data produced by other FSharpChecker operations.
 
-In advanced interactive scenarios you may need to consider contributing design changes and extensions to how the FSharpChecker queue works, 
-in order to better serve your needs. Some tools throw a lot of interactive work at the FSharpChecker operations queue. 
-If you are writing such a component, we encourage you to get more involved in making carefully considered 
-changes, cleanup and documentation to how the queue works, to ensure it is suitable for your needs. 
+Some tools throw a lot of interactive work at the FSharpChecker operations queue. 
+If you are writing such a component, consider running your project against a debug build
+of FSharp.Compiler.Service.dll to see the Debug.WriteLine messages indicating the length of the
+operations queuea and the time to process requests.
 
-For example, from the FCS point of view, it is plausible to consider changing of extending how the 
-FSharpChecker operations queue works - the design of the queue and its processing is not sacred. 
-In theory you could submit extensions and documentation that allow prioritization of operations, or interleaving of 
-operations, or cancellation of operations, or more explicitness about the "current background project", and so on. 
+For those writing interactive editors which use FCS, you 
+should be cautious about operations that request a check of  the entire project.
+For example, be careful about requesting the check of an entire project
+on operations like "Highlight Symbol" or "Find Unused Declarations" 
+(which run automatically when the user opens a file or moves the cursor).
+as opposed to operations like "Find All References" (which a user explicitly triggers). 
+Project checking can cause long and contention on the FSharpChecker operations queue. 
 
-Finally, for those writing interactive editors which use FCS, in the current state of affairs you 
-should be cautious about having any auto-operation  (e.g. operations like "Find Unused Declarations" 
-which run automatically and are unassociated with a user action, but not operations like "Find All References" 
-which a user explicitly triggers) request a check of  the entire project. That will cause very long operations 
-and contention on the FSharpChecker operations queue. Any such very-long-running request should normally be associated 
-with a user action, and preferably it should be cancellable. 
-
-Alternatively, it is reasonable to trigger these 
-kinds of auto-operations when the ProjectChecked event is triggered on FSharpChecker. This event indicates the 
-completion of interleaved checking of the "current background project" (specified above). Again, if 
-the spec of "current background project" is not suitable or sufficiently controlled for your needs, please 
-help to document it and adjust it.
+Requests to FCS can be cancelled by cancelling the async operation. (Some requests also 
+include additional callbacks which can be used to indicate a cancellation condition).  
+This cancellation will be effective if the cancellation is performed before the operation 
+is executed in the operations queue.
 
 Summary
 -------

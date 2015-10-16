@@ -39,6 +39,7 @@
     <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
     <DefineConstants>$(DefineConstants);EXTENSIONTYPING</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <TargetFrameworkProfile />

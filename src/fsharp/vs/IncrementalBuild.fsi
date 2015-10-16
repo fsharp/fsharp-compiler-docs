@@ -107,7 +107,7 @@ module internal IncrementalFSharpBuild =
       /// Whether there are any 'live' type providers that may need a refresh when a project is Cleaned
       member ThereAreLiveTypeProviders : bool
 #endif
-      /// Perform one step in the F# build (type-checking only, the type check is not finalized)
+      /// Perform one step in the F# build. Return true if the background work is finished.
       member Step : unit -> bool
 
       /// Get the preceding typecheck state of a slot, without checking if it is up-to-date w.r.t.

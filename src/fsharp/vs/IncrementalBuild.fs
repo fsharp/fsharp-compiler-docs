@@ -1080,7 +1080,7 @@ module internal IncrementalFSharpBuild =
 #if SILVERLIGHT
         50L
 #else
-        match System.Environment.GetEnvironmentVariable("mFSharp_MaxTimeShare") with 
+        match System.Environment.GetEnvironmentVariable("FCS_MaxTimeShare") with 
         | null | "" -> 50L
         | s -> int64 s
 #endif
@@ -1500,7 +1500,7 @@ module internal IncrementalFSharpBuild =
                         let exportRemapping = MakeExportRemapping generatedCcu generatedCcu.Contents
                       
                         let sigData = 
-                            let _sigDataAttributes,sigDataResources = Driver.EncodeInterfaceData(tcConfig,tcGlobals,exportRemapping,generatedCcu,outfile)
+                            let _sigDataAttributes,sigDataResources = Driver.EncodeInterfaceData(tcConfig,tcGlobals,exportRemapping,generatedCcu,outfile,true)
                             [ for r in sigDataResources  do
                                 let ccuName = GetSignatureDataResourceName r
                                 let bytes = 

@@ -40,11 +40,11 @@ module EnvMisc2 =
 #else
     let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
 #endif
-    let maxMembers   = GetEnvInteger "mFSharp_MaxMembersInQuickInfo" 10
+    let maxMembers   = GetEnvInteger "FCS_MaxMembersInQuickInfo" 10
 
     /// dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
     /// This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
-    let dataTipSpinWaitTime = GetEnvInteger "mFSharp_ToolTipSpinWaitTime" 300
+    let dataTipSpinWaitTime = GetEnvInteger "FCS_ToolTipSpinWaitTime" 300
 
 //----------------------------------------------------------------------------
 // Display characteristics of typechecking items
@@ -1281,7 +1281,7 @@ type FSharpDeclarationListItem(name, glyph:int, info) =
             match info with
             | Choice1Of2 (items, infoReader, m, denv, reactor:IReactorOperations, checkAlive) -> 
                     // reactor causes the lambda to execute on the background compiler thread, through the Reactor
-                    reactor.EnqueueAndAwaitOpAsync (fun () -> 
+                    reactor.EnqueueAndAwaitOpAsync ("DescriptionTextAsync", fun _ct -> 
                           // This is where we do some work which may touch TAST data structures owned by the IncrementalBuilder - infoReader, item etc. 
                           // It is written to be robust to a disposal of an IncrementalBuilder, in which case it will just return the empty string. 
                           // It is best to think of this as a "weak reference" to the IncrementalBuilder, i.e. this code is written to be robust to its

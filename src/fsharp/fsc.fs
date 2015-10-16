@@ -615,7 +615,7 @@ type ILResource with
         | ILResourceLocation.Local b -> b()
         | _-> error(InternalError("Bytes",rangeStartup))
 
-let EncodeInterfaceData(tcConfig:TcConfig,tcGlobals,exportRemapping,generatedCcu,outfile) = 
+let EncodeInterfaceData(tcConfig:TcConfig,tcGlobals,exportRemapping,generatedCcu,outfile,isIncrementalBuild) = 
       if GenerateInterfaceData(tcConfig) then 
         if verbose then dprintfn "Generating interface data attribute...";
         let resource = WriteSignatureData (tcConfig,tcGlobals,exportRemapping,generatedCcu,outfile)
@@ -623,7 +623,7 @@ let EncodeInterfaceData(tcConfig:TcConfig,tcGlobals,exportRemapping,generatedCcu
         // REVIEW: need a better test for this
         let outFileNoExtension = Filename.chopExtension outfile
         let isCompilerServiceDll = outFileNoExtension.Contains("FSharp.LanguageService.Compiler")
-        if tcConfig.useOptimizationDataFile || tcGlobals.compilingFslib || isCompilerServiceDll then 
+        if (tcConfig.useOptimizationDataFile || tcGlobals.compilingFslib || isCompilerServiceDll) && not isIncrementalBuild then 
             let sigDataFileName = (Filename.chopExtension outfile)+".sigdata"
             File.WriteAllBytes(sigDataFileName,resource.Bytes);
         let sigAttr = mkSignatureDataVersionAttr tcGlobals (IL.parseILVersion Internal.Utilities.FSharpEnvironment.FSharpBinaryMetadataFormatRevision) 
@@ -1917,7 +1917,7 @@ let main2(Args(tcConfig, tcImports, frameworkTcImports: TcImports, tcGlobals, er
     
     let sigDataAttributes,sigDataResources = 
       try
-        EncodeInterfaceData(tcConfig, tcGlobals, exportRemapping, generatedCcu, outfile)
+        EncodeInterfaceData(tcConfig, tcGlobals, exportRemapping, generatedCcu, outfile, false)
       with e -> 
         errorRecoveryNoRange e
         SqmLoggerWithConfig tcConfig errorLogger.ErrorNumbers errorLogger.WarningNumbers

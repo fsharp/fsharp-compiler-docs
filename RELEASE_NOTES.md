@@ -3,6 +3,7 @@
 * Write trace information about the reactor queue to the event log
 * Rewrite reactor to consistently prioritize queued work
 * Implement cancellation for queued work if it is cancelled prior to being executed
+* Adjust caching to check cache correctly if there is a gap before the request is executed
 
 #### 1.4.0.9 - 
 * FSharpType.Format fix

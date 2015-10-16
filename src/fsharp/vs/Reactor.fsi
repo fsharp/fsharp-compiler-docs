@@ -2,11 +2,13 @@
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
+open System.Threading
+
 // For internal use only 
 type internal IReactorOperations = 
 
     /// Put the operation in thq queue, and return an async handle to its result. 
-    abstract EnqueueAndAwaitOpAsync : description: string * action: (unit -> 'T) -> Async<'T>
+    abstract EnqueueAndAwaitOpAsync : description: string * action: (CancellationToken -> 'T) -> Async<'T>
 
     /// Enqueue an operation and return immediately. 
     abstract EnqueueOp: description: string * action: (unit -> unit) -> unit
@@ -32,7 +34,7 @@ module internal Reactor =
         /// Block until the current implicit background build is complete.
         member WaitForBackgroundOpCompletion : unit -> unit
 
-        /// Enqueue an operation and return immediately. 
+        /// Enqueue an uncancellable operation and return immediately. 
         member EnqueueOp : description: string * op:(unit -> unit) -> unit
 
         /// For debug purposes
@@ -43,7 +45,7 @@ module internal Reactor =
     // operation which can be halted part way through.
 
         /// Put the operation in thq queue, and return an async handle to its result. 
-        member EnqueueAndAwaitOpAsync : description: string * (unit -> 'T) -> Async<'T>
+        member EnqueueAndAwaitOpAsync : description: string * (CancellationToken -> 'T) -> Async<'T>
 
     /// Get the reactor for FSharp.Compiler.dll
     val Reactor : unit -> Reactor

@@ -3,12 +3,13 @@
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 open System
 open System.Diagnostics
+open System.Threading
 open Microsoft.FSharp.Control
 open Microsoft.FSharp.Compiler.Lib
 
 // For internal use only 
 type internal IReactorOperations = 
-    abstract EnqueueAndAwaitOpAsync : string * (unit -> 'T) -> Async<'T>
+    abstract EnqueueAndAwaitOpAsync : string * (CancellationToken -> 'T) -> Async<'T>
     abstract EnqueueOp: string * (unit -> unit) -> unit
 
 module internal Reactor =
@@ -24,7 +25,7 @@ module internal Reactor =
         /// Do a bit of work on the given build.
         | Step                                                        
         /// Do some work not synchronized in the mailbox.
-        | Op of string * (unit -> unit) 
+        | Op of string * CancellationToken * (unit -> unit) * (unit -> unit)
         /// Stop building after finishing the current unit of work.
         | StopBackgroundOp of AsyncReplyChannel<ResultOrException<unit>>              
         /// Finish building.
@@ -178,7 +179,8 @@ module internal Reactor =
                                 //if span.TotalMilliseconds > 100.0 then 
                                 Debug.WriteLine("Reactor: <-- background step, remaining {0}, took {1}ms", inbox.CurrentQueueLength, span.TotalMilliseconds)
                                 res
-                            | Op (desc, op) -> 
+                            | Op (desc, ct, op, ccont) -> 
+                                if ct.IsCancellationRequested then ccont(); state else
                                 Debug.WriteLine("Reactor: --> {0}, remaining {1}, mem {2}, gc2 {3}", desc, inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
                                 let time = System.DateTime.Now
                                 let res = HandleOp op state
@@ -186,7 +188,6 @@ module internal Reactor =
                                 //if span.TotalMilliseconds > 100.0 then 
                                 Debug.WriteLine("Reactor: <-- {0}, remaining {1}, took {2}ms", desc, inbox.CurrentQueueLength, span.TotalMilliseconds)
                                 res
-
                             | StopBackgroundOp channel -> 
                                 Debug.WriteLine("Reactor: --> stop background, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
                                 HandleStopBackgroundOp channel state
@@ -213,7 +214,11 @@ module internal Reactor =
 
         member r.EnqueueOp(desc, op) =
             Debug.WriteLine("Reactor: enqueue {0}, length {1}", desc, builder.CurrentQueueLength)
-            builder.Post(Op(desc, op)) 
+            builder.Post(Op(desc, CancellationToken.None, op, (fun () -> ()))) 
+
+        member r.EnqueueOpPrim(desc, ct, op, ccont) =
+            Debug.WriteLine("Reactor: enqueue {0}, length {1}", desc, builder.CurrentQueueLength)
+            builder.Post(Op(desc, ct, op, ccont)) 
 
         member r.CurrentQueueLength =
             builder.CurrentQueueLength
@@ -226,17 +231,22 @@ module internal Reactor =
             | Exception excn->raise excn
 
         member r.EnqueueAndAwaitOpAsync (desc, f) = 
-            let resultCell = AsyncUtil.AsyncResultCell<_>()
-            r.EnqueueOp(desc, 
-                fun () ->
-                    let result =
-                        try
-                            f () |> AsyncUtil.AsyncOk
-                        with
-                        |   e -> e |> AsyncUtil.AsyncException
-                    resultCell.RegisterResult(result)
-            )
-            resultCell.AsyncResult
+            async { 
+                let! ct = Async.CancellationToken
+                let resultCell = AsyncUtil.AsyncResultCell<_>()
+                r.EnqueueOpPrim(desc, ct,
+                    (fun () ->
+                        let result =
+                            try
+                                f ct |> AsyncUtil.AsyncOk
+                            with
+                            |   e -> e |> AsyncUtil.AsyncException
+                        resultCell.RegisterResult(result)),
+                     (fun () -> resultCell.RegisterResult (AsyncUtil.AsyncCanceled(OperationCanceledException())) )
+
+                )
+                return! resultCell.AsyncResult 
+            }
 
     let theReactor = Reactor()
     let Reactor() = theReactor

@@ -49,21 +49,17 @@ open ItemDescriptionsImpl
 
 [<AutoOpen>]
 module EnvMisc =
-#if SILVERLIGHT
-    let GetEnvInteger e dflt = dflt
-#else
     let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
-#endif
-    let getToolTipTextSize = GetEnvInteger "mFSharp_RecentForegroundTypeCheckCacheSize" 5
-    let maxTypeCheckErrorsOutOfProjectContext = GetEnvInteger "mFSharp_MaxErrorsOutOfProjectContext" 3
-    let braceMatchCacheSize = GetEnvInteger "mFSharp_BraceMatchCacheSize" 5
-    let parseFileInProjectCacheSize = GetEnvInteger "mFSharp_ParseFileInProjectCacheSize" 2
-    let incrementalTypeCheckCacheSize = GetEnvInteger "mFSharp_IncrementalTypeCheckCacheSize" 5
+    let getToolTipTextSize = GetEnvInteger "FCS_RecentForegroundTypeCheckCacheSize" 5
+    let maxTypeCheckErrorsOutOfProjectContext = GetEnvInteger "FCS_MaxErrorsOutOfProjectContext" 3
+    let braceMatchCacheSize = GetEnvInteger "FCS_BraceMatchCacheSize" 5
+    let parseFileInProjectCacheSize = GetEnvInteger "FCS_ParseFileInProjectCacheSize" 2
+    let incrementalTypeCheckCacheSize = GetEnvInteger "FCS_IncrementalTypeCheckCacheSize" 5
 
-    let projectCacheSizeDefault   = GetEnvInteger "mFSharp_ProjectCacheSizeDefault" 3
-    let frameworkTcImportsCacheStrongSize = GetEnvInteger "mFSharp_frameworkTcImportsCacheStrongSizeDefault" 8
-    let maxMBDefault =  GetEnvInteger "mFSharp_maxMB" 1000000 // a million MB = 1TB = disabled
-    //let maxMBDefault = GetEnvInteger "mFSharp_maxMB" (if sizeof<int> = 4 then 1700 else 3400)
+    let projectCacheSizeDefault   = GetEnvInteger "FCS_ProjectCacheSizeDefault" 3
+    let frameworkTcImportsCacheStrongSize = GetEnvInteger "FCS_frameworkTcImportsCacheStrongSizeDefault" 8
+    let maxMBDefault =  GetEnvInteger "FCS_MaxMB" 1000000 // a million MB = 1TB = disabled
+    //let maxMBDefault = GetEnvInteger "FCS_maxMB" (if sizeof<int> = 4 then 1700 else 3400)
 
 //----------------------------------------------------------------------------
 // Methods
@@ -2663,6 +2659,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
          
     member __.FrameworkImportsCache = frameworkTcImportsCache
     member __.ImplicitlyStartBackgroundWork with get() = implicitlyStartBackgroundWork and set v = implicitlyStartBackgroundWork <- v
+    member __.PauseBeforeBackgroundWork with get() = Reactor.Reactor().PauseBeforeBackgroundWork and set v = Reactor.Reactor().PauseBeforeBackgroundWork <- v
     static member GlobalForegroundParseCountStatistic = foregroundParseCount
     static member GlobalForegroundTypeCheckCountStatistic = foregroundTypeCheckCount
 

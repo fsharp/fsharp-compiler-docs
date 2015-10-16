@@ -11,11 +11,12 @@ sequentially and in order.
 
 The thread processing these requests can also run a low-priority, interleaved background operation when the
 queue is empty.  This can be used to implicitly bring the background check of a project "up-to-date".  
-When the operations queue is empty this background work is run in small incremental fragments. 
-This work is cooperatively time-sliced to be approximately <50ms, (see `maxTimeShareMilliseconds` in 
+When the operations queue has been empty for 1 second , 
+this background work is run in small incremental fragments. This work is cooperatively time-sliced to be approximately <50ms, (see `maxTimeShareMilliseconds` in 
 IncrementalBuild.fs). The project to be checked in the background is set implicitly 
 by calls to ``CheckFileInProject`` and ``ParseAndCheckFileInProject``.
 To disable implicit background checking completely, set ``checker.ImplicitlyStartBackgroundWork`` to false.
+To change the time before background work starts, set ``checker.PauseBeforeBackgroundWork`` to the required number of milliseconds.
 
 Most calls to the FSharpChecker API enqueue an operation in the FSharpChecker compiler queue. These correspond to the 
 calls to EnqueueAndAwaitOpAsync in [service.fs](https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs).

@@ -43,6 +43,8 @@ module internal Reactor =
         /// Put the operation in the queue, and return an async handle to its result. 
         member EnqueueAndAwaitOpAsync : description: string * (CancellationToken -> 'T) -> Async<'T>
 
+        member PauseBeforeBackgroundWork : int with get, set
+
     /// Get the reactor for FSharp.Compiler.dll
     val Reactor : unit -> Reactor
   

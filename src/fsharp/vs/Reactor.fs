@@ -30,6 +30,10 @@ module internal Reactor =
      /// There is one global Reactor for the entire language service, no matter how many projects or files
      /// are open. 
      type Reactor() = 
+        static let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
+        static let pauseBeforeBackgroundWorkDefault = GetEnvInteger "FCS_PauseBeforeBackgroundWorkMilliseconds" 1000
+        let mutable pauseBeforeBackgroundWork = pauseBeforeBackgroundWorkDefault
+
         // We need to store the culture for the VS thread that is executing now,
         // so that when the reactor picks up a thread from the threadpool we can set the culture
         let culture = new CultureInfo(Thread.CurrentThread.CurrentUICulture.LCID)
@@ -38,22 +42,27 @@ module internal Reactor =
         let builder = 
           MailboxProcessor<_>.Start <| fun inbox ->        
                                              
-
             // Async workflow which receives messages and dispatches to worker functions.
-            let rec loop (bgOpOpt, onComplete) = 
+            let rec loop (bgOpOpt, onComplete, bg) = 
                 async { Debug.WriteLine("Reactor: receiving..., remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
                         
                         // Messages always have priority over the background op.
                         let! msg = 
                             async { match bgOpOpt, onComplete with 
-                                    | None, None -> let! msg = inbox.Receive() in return Some msg 
-                                    | _ -> return! inbox.TryReceive(0) }
+                                    | None, None -> 
+                                       let! msg = inbox.Receive() 
+                                       return Some msg 
+                                    | _, Some _ -> 
+                                       return! inbox.TryReceive(0) 
+                                    | Some _, _ -> 
+                                       let timeout = (if bg then 0 else pauseBeforeBackgroundWork)
+                                       return! inbox.TryReceive(timeout) }
                         Thread.CurrentThread.CurrentUICulture <- culture
 
                         match msg with
                         | Some (SetBackgroundOp bgOpOpt) -> 
                             Debug.WriteLine("Reactor: --> set background op, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
-                            return! loop (bgOpOpt, onComplete)
+                            return! loop (bgOpOpt, onComplete, false)
                         | Some (Op (desc, ct, op, ccont)) -> 
                             if ct.IsCancellationRequested then ccont() else
                             Debug.WriteLine("Reactor: --> {0}, remaining {1}, mem {2}, gc2 {3}", desc, inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
@@ -62,17 +71,17 @@ module internal Reactor =
                             let span = System.DateTime.Now - time
                             //if span.TotalMilliseconds > 100.0 then 
                             Debug.WriteLine("Reactor: <-- {0}, remaining {1}, took {2}ms", desc, inbox.CurrentQueueLength, span.TotalMilliseconds)
-                            return! loop (bgOpOpt, onComplete)
+                            return! loop (bgOpOpt, onComplete, false)
                         | Some (WaitForBackgroundOpCompletion channel) -> 
                             Debug.WriteLine("Reactor: --> wait for background (debug only), remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
                             match bgOpOpt with 
                             | None -> ()
                             | Some bgOp -> while bgOp() do ()
                             channel.Reply(())
-                            return! loop (None, onComplete)
+                            return! loop (None, onComplete, false)
                         | Some (CompleteAllQueuedOps channel) -> 
                             Debug.WriteLine("Reactor: --> stop background work and complete all queued ops, remaining {0}, mem {1}, gc2 {2}", inbox.CurrentQueueLength, GC.GetTotalMemory(false)/1000000L, GC.CollectionCount(2))
-                            return! loop (None, Some channel)
+                            return! loop (None, Some channel, false)
                         | None -> 
                             match bgOpOpt, onComplete with 
                             | _, Some onComplete -> onComplete.Reply()
@@ -83,13 +92,13 @@ module internal Reactor =
                                 let span = System.DateTime.Now - time
                                 //if span.TotalMilliseconds > 100.0 then 
                                 Debug.WriteLine("Reactor: <-- background step, remaining {0}, took {1}ms", inbox.CurrentQueueLength, span.TotalMilliseconds)
-                                return! loop ((if res then Some bgOp else None), onComplete)
+                                return! loop ((if res then Some bgOp else None), onComplete, true)
                             | None, None -> failwith "unreachable, should have used inbox.Receive"
                       }
             async { 
                 while true do 
                     try 
-                        do! loop (None, None)
+                        do! loop (None, None, false)
                     with e -> 
                         Debug.Assert(false,String.Format("unexpected failure in reactor loop {0}, restarting", e))
             }
@@ -138,6 +147,7 @@ module internal Reactor =
                 )
                 return! resultCell.AsyncResult 
             }
+        member __.PauseBeforeBackgroundWork with get() = pauseBeforeBackgroundWork and set v = pauseBeforeBackgroundWork <- v
 
     let theReactor = Reactor()
     let Reactor() = theReactor

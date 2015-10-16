@@ -63,9 +63,9 @@ type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:i
         
     let TryGetKeyValueImpl(data,key) = 
         match TryPeekKeyValueImpl(data,key) with 
-        | Some(_, value) as result ->
-            // If the result existed, move it to the top of the list.
-            result,Promote (data,key,value)
+        | Some(key', value) as result ->
+            // If the result existed, move it to the end of the list (more likely to keep it)
+            result,Promote (data,key',value)
         | None -> None,data          
        
     /// Remove weak entries from the list that have been collected

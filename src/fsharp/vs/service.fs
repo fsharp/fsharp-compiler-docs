@@ -2204,6 +2204,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
     let fileChecked = Event<string>()
     let projectChecked = Event<string>()
 
+    let mutable implicitlyStartBackgroundWork = true
     let reactorOps = 
         { new IReactorOperations with 
                 member __.EnqueueAndAwaitOpAsync (desc, op) = reactor.EnqueueAndAwaitOpAsync (desc, op)
@@ -2344,14 +2345,15 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
     member bc.RecordTypeCheckFileInProjectResults(filename,options,parseResults,fileVersion,checkAnswer,source) =        
         match checkAnswer with 
         | None
-        | Some FSharpCheckFileAnswer.Aborted -> 
-            bc.StartBackgroundCompile(options)   // This is a _very_ awkward place to put this logic.  
+        | Some FSharpCheckFileAnswer.Aborted -> ()
         | Some (FSharpCheckFileAnswer.Succeeded typedResults) -> 
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
             locked (fun () -> 
                 parseAndCheckFileInProjectCachePossiblyStale.Set((filename,options),(parseResults,typedResults,fileVersion))            
                 parseAndCheckFileInProjectCache.Set((filename,source,options),(parseResults,typedResults,fileVersion))
                 parseFileInProjectCache.Set((filename,source,options),parseResults))
+        if implicitlyStartBackgroundWork then 
+            bc.CheckProjectInBackground(options)   
 
     /// Parses the source file and returns untyped AST
     member bc.ParseFileInProject(filename:string, source,options:FSharpProjectOptions) =
@@ -2599,8 +2601,9 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
                     // We do not need to decrement here - the onDiscard function is called each time an entry is pushed out of the build cache,
                     // including by SetAlternate.
                     let builderB, errorsB, decrementB = CreateOneIncrementalBuilder options
-                    incrementalBuildersCache.Set(options, (builderB, errorsB, decrementB)))
-        bc.StartBackgroundCompile(options)
+                    incrementalBuildersCache.Set(options, (builderB, errorsB, decrementB))
+            if implicitlyStartBackgroundWork then 
+               bc.CheckProjectInBackground(options))
 
     member bc.NotifyProjectCleaned(options : FSharpProjectOptions) =
         match incrementalBuildersCache.TryGetAny options with
@@ -2614,7 +2617,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
             ()
 #endif
 
-    member bc.StartBackgroundCompile(options) =
+    member bc.CheckProjectInBackground(options) =
         reactor.SetBackgroundOp(Some(fun () -> 
             let builderOpt,_,_ = getOrCreateBuilder options
             match builderOpt with 
@@ -2659,6 +2662,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
             scriptClosureCache.Resize(keepStrongly=1, keepMax=1))
          
     member __.FrameworkImportsCache = frameworkTcImportsCache
+    member __.ImplicitlyStartBackgroundWork with get() = implicitlyStartBackgroundWork and set v = implicitlyStartBackgroundWork <- v
     static member GlobalForegroundParseCountStatistic = foregroundParseCount
     static member GlobalForegroundTypeCheckCountStatistic = foregroundTypeCheckCount
 
@@ -3172,7 +3176,10 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
 #endif
 
     /// Begin background parsing the given project.
-    member ic.StartBackgroundCompile(options) = backgroundCompiler.StartBackgroundCompile(options) 
+    member ic.StartBackgroundCompile(options) = backgroundCompiler.CheckProjectInBackground(options) 
+
+    /// Begin background parsing the given project.
+    member ic.CheckProjectInBackground(options) = backgroundCompiler.CheckProjectInBackground(options) 
 
     /// Stop the background compile.
     member ic.StopBackgroundCompile() = backgroundCompiler.StopBackgroundCompile()
@@ -3191,6 +3198,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     member ic.FileParsed  = backgroundCompiler.FileParsed
     member ic.FileChecked  = backgroundCompiler.FileChecked
     member ic.ProjectChecked = backgroundCompiler.ProjectChecked
+    member ic.ImplicitlyStartBackgroundWork with get() = backgroundCompiler.ImplicitlyStartBackgroundWork and set v = backgroundCompiler.ImplicitlyStartBackgroundWork <- v
 
     static member GlobalForegroundParseCountStatistic = BackgroundCompiler.GlobalForegroundParseCountStatistic
     static member GlobalForegroundTypeCheckCountStatistic = BackgroundCompiler.GlobalForegroundTypeCheckCountStatistic

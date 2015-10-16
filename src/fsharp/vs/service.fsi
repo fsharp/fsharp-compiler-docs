@@ -676,6 +676,11 @@ type FSharpChecker =
     /// A maximum number of megabytes of allocated memory. If the figure reported by <c>System.GC.GetTotalMemory(false)</c> goes over this limit, the FSharpChecker object will attempt to free memory and reduce cache sizes to a minimum.</param>
     member MaxMemory : int with get, set
     
+    /// If true, then calls to CheckFileInProject implicitly start a background check of that project, replacing
+    /// any other background checks in progress. This is useful in IDE applications with spare CPU cycles as 
+    /// it prepares the project analysis results for use.  The default is 'true'.
+    member ImplicitlyStartBackgroundWork: bool with get, set
+    
     [<Obsolete("Renamed to BeforeBackgroundFileCheck")>]
     member FileTypeCheckStateIsDirty : IEvent<string>
 

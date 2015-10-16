@@ -31,7 +31,7 @@ module internal Reactor =
      /// are open. 
      type Reactor() = 
         static let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
-        static let pauseBeforeBackgroundWorkDefault = GetEnvInteger "FCS_PauseBeforeBackgroundWorkMilliseconds" 1000
+        static let pauseBeforeBackgroundWorkDefault = GetEnvInteger "FCS_PauseBeforeBackgroundWorkMilliseconds" 2000
         let mutable pauseBeforeBackgroundWork = pauseBeforeBackgroundWorkDefault
 
         // We need to store the culture for the VS thread that is executing now,

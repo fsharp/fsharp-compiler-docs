@@ -626,8 +626,11 @@ type FSharpChecker =
     /// For example, dependent references may have been deleted or created.
     member InvalidateConfiguration: options: FSharpProjectOptions -> unit    
 
-    /// Begin background parsing the given project.
+    [<Obsolete("This method has been renamed to CheckProjectInBackground")>]
     member StartBackgroundCompile: options: FSharpProjectOptions -> unit
+
+    /// Set the project to be checked in the background.  Overrides any previous call to <c>CheckProjectInBackground</c>
+    member CheckProjectInBackground: options: FSharpProjectOptions -> unit
 
     /// Stop the background compile.
     [<Obsolete("Explicitly stopping background compilation is not recommended and the functionality to allow this may be rearchitected in future release.  If you use this functionality please add an issue on http://github.com/fsharp/FSharp.Compiler.Service describing how you use it and ignore this warning.")>]
@@ -676,10 +679,15 @@ type FSharpChecker =
     /// A maximum number of megabytes of allocated memory. If the figure reported by <c>System.GC.GetTotalMemory(false)</c> goes over this limit, the FSharpChecker object will attempt to free memory and reduce cache sizes to a minimum.</param>
     member MaxMemory : int with get, set
     
-    /// If true, then calls to CheckFileInProject implicitly start a background check of that project, replacing
+    /// Get or set a flag which controls if background work is started implicitly. 
+    ///
+    /// If true, calls to CheckFileInProject implicitly start a background check of that project, replacing
     /// any other background checks in progress. This is useful in IDE applications with spare CPU cycles as 
     /// it prepares the project analysis results for use.  The default is 'true'.
     member ImplicitlyStartBackgroundWork: bool with get, set
+    
+    /// Get or set the pause time in milliseconds before background work is started.
+    member PauseBeforeBackgroundWork: bool with get, set
     
     [<Obsolete("Renamed to BeforeBackgroundFileCheck")>]
     member FileTypeCheckStateIsDirty : IEvent<string>

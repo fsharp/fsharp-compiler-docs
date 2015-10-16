@@ -2659,7 +2659,6 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
          
     member __.FrameworkImportsCache = frameworkTcImportsCache
     member __.ImplicitlyStartBackgroundWork with get() = implicitlyStartBackgroundWork and set v = implicitlyStartBackgroundWork <- v
-    member __.PauseBeforeBackgroundWork with get() = Reactor.Reactor().PauseBeforeBackgroundWork and set v = Reactor.Reactor().PauseBeforeBackgroundWork <- v
     static member GlobalForegroundParseCountStatistic = foregroundParseCount
     static member GlobalForegroundTypeCheckCountStatistic = foregroundTypeCheckCount
 
@@ -3196,6 +3195,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     member ic.FileChecked  = backgroundCompiler.FileChecked
     member ic.ProjectChecked = backgroundCompiler.ProjectChecked
     member ic.ImplicitlyStartBackgroundWork with get() = backgroundCompiler.ImplicitlyStartBackgroundWork and set v = backgroundCompiler.ImplicitlyStartBackgroundWork <- v
+    member ic.PauseBeforeBackgroundWork with get() = Reactor.Reactor().PauseBeforeBackgroundWork and set v = Reactor.Reactor().PauseBeforeBackgroundWork <- v
 
     static member GlobalForegroundParseCountStatistic = BackgroundCompiler.GlobalForegroundParseCountStatistic
     static member GlobalForegroundTypeCheckCountStatistic = BackgroundCompiler.GlobalForegroundTypeCheckCountStatistic

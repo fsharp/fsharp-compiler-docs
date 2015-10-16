@@ -11,7 +11,7 @@ sequentially and in order.
 
 The thread processing these requests can also run a low-priority, interleaved background operation when the
 queue is empty.  This can be used to implicitly bring the background check of a project "up-to-date".  
-When the operations queue has been empty for 1 second , 
+When the operations queue has been empty for 2 seconds,
 this background work is run in small incremental fragments. This work is cooperatively time-sliced to be approximately <50ms, (see `maxTimeShareMilliseconds` in 
 IncrementalBuild.fs). The project to be checked in the background is set implicitly 
 by calls to ``CheckFileInProject`` and ``ParseAndCheckFileInProject``.

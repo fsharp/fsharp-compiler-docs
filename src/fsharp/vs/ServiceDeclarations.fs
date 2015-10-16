@@ -7,39 +7,29 @@
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
-open Internal.Utilities
 open System
 open System.IO
 open System.Text
 open System.Collections.Generic
- 
 open Microsoft.FSharp.Core.Printf
+open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library  
-open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
 open Microsoft.FSharp.Compiler.PrettyNaming
-
 open Microsoft.FSharp.Compiler.TcGlobals 
-open Microsoft.FSharp.Compiler.Parser
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.CompileOps
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Tastops
 open Microsoft.FSharp.Compiler.Lib
 open Microsoft.FSharp.Compiler.Layout
 open Microsoft.FSharp.Compiler.Infos
 open Microsoft.FSharp.Compiler.NameResolution
-open ItemDescriptionIcons 
+open Microsoft.FSharp.Compiler.SourceCodeServices.ItemDescriptionIcons 
 
 module EnvMisc2 =
-#if SILVERLIGHT
-    let GetEnvInteger e dflt = dflt
-#else
-    let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
-#endif
     let maxMembers   = GetEnvInteger "FCS_MaxMembersInQuickInfo" 10
 
     /// dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
@@ -55,8 +45,6 @@ type IPartialEqualityComparer<'T> =
     inherit IEqualityComparer<'T>
     /// Can the specified object be tested for equality?
     abstract InEqualityRelation : 'T -> bool
-
-type iDeclarationSet = int
 
 /// Describe a comment as either a block of text or a file+signature reference into an intellidoc file.
 [<RequireQualifiedAccess>]
@@ -101,37 +89,6 @@ module internal ItemDescriptionsImpl =
         | Some _ -> 
             bprintf os "\n\n%s: %s" (FSComp.SR.typeInfoFullName()) (fnF r)
           
-    // Format the supertypes and other useful information about a type to a buffer
-    let OutputUsefulTypeInfo _isDecl (_infoReader:InfoReader) _m _denv _os _ty = ()
-#if DISABLED
-        if false then 
-          ErrorScope.ProtectAndDiscard m (fun () -> 
-            let g = infoReader.g
-            let amap = infoReader.amap
-            let supertypes = 
-                let supertypes = AllSuperTypesOfType g amap m AllowMultiIntfInstantiations.Yes ty
-                let supertypes = supertypes |> List.filter (AccessibilityLogic.IsTypeAccessible g AccessibleFromSomewhere) 
-                let supertypes = supertypes |> List.filter (typeEquiv g g.obj_ty >> not) 
-                let selfs,supertypes = supertypes |> List.partition (typeEquiv g ty) 
-                let supertypesC,supertypesI = supertypes |> List.partition (isInterfaceTy g)
-                let supertypes = selfs @ supertypesC @ supertypesI
-                supertypes
-            let supertypeLs,_ = NicePrint.layoutPrettifiedTypes denv supertypes 
-            // Suppress printing supertypes for enums, delegates, exceptions and attributes
-            if supertypes.Length > 1 // more then self
-                && not (isEnumTy g ty) 
-                && not (isUnionTy g ty) 
-                && not (isRecdTy g ty) 
-                && not (isDelegateTy g ty) 
-                && not (ExistsHeadTypeInEntireHierarchy g amap m ty g.exn_tcr) 
-                && not (ExistsHeadTypeInEntireHierarchy g amap m ty g.tcref_System_Attribute) then 
-                bprintf os "\n\n";
-                List.zip supertypes supertypeLs |> List.iter (fun (superty,supertyL) -> 
-                    if typeEquiv g superty ty then bprintf os "  %s: %a\n" (FSComp.SR.typeInfoType()) bufferL supertyL
-                    elif isClassTy g superty || isInterfaceTy g ty then bprintf os "  %s: %a\n" (FSComp.SR.typeInfoInherits()) bufferL supertyL
-                    else bprintf os "  %s: %a\n" (FSComp.SR.typeInfoImplements()) bufferL supertyL))
-#endif
-           
     let rangeOfValRef preferFlag (vref:ValRef) =
         match preferFlag with 
         | None -> vref.Range 
@@ -676,12 +633,7 @@ module internal ItemDescriptionsImpl =
             let text = 
                 bufs (fun os -> 
                     NicePrint.outputQualifiedValOrMember denv os vref.Deref 
-                    OutputFullName isDecl pubpath_of_vref fullDisplayTextOfValRef os vref;
-
-                    // adjust the type in case this is the 'this' pointer stored in a reference cell
-                    let ty = StripSelfRefCell(g, vref.BaseOrThisInfo, vref.Type) 
-
-                    OutputUsefulTypeInfo isDecl infoReader m denv os ty)
+                    OutputFullName isDecl pubpath_of_vref fullDisplayTextOfValRef os vref)
 
             let xml = GetXmlComment (if (valRefInThisAssembly g.compilingFslib vref) then vref.XmlDoc else XmlDoc [||]) infoReader m d 
             FSharpToolTipElement.Single(text, xml)
@@ -783,14 +735,10 @@ module internal ItemDescriptionsImpl =
             let text = 
                 bufs (fun os -> 
                     // REVIEW: use _cxs here
-                    bprintf os "%s "
-                      (FSComp.SR.typeInfoEvent()) 
+                    bprintf os "%s " (FSComp.SR.typeInfoEvent()) 
                     NicePrint.outputTyconRef denv os (tcrefOfAppTy g einfo.EnclosingType) 
-                    bprintf os ".%s: "
-                      einfo.EventName
+                    bprintf os ".%s: " einfo.EventName
                     NicePrint.outputTy denv os rty)
-            // Hosted comments are simulated by hanging them off of the property with
-            // a TypeProviderXmlDocAttribute           
 
             let xml = GetXmlComment (if einfo.HasDirectXmlComment  then einfo.XmlDoc else XmlDoc [||]) infoReader m d 
 
@@ -815,12 +763,6 @@ module internal ItemDescriptionsImpl =
 
         // Custom operations in queries
         | Item.CustomOperation (customOpName,usageText,Some minfo) -> 
-
-            // Some fragments if we want the return type and/or parameter names
-            //let rty = minfo.GetFSharpReturnTy(amap, m, minfo.FormalMethodInst)
-            //let _, tys, _= PrettyTypes.PrettifyTypesN g ([ for (_,argTy) in argNamesAndTys -> argTy] @ [rty])
-            //let argTys, rty = List.frontAndBack tys
-            //let paramDatas = (argNames,argTys) ||> List.map2 (fun argName argTy -> ParamData(false,false,OptionalArgInfo.NotOptional,argName |> Option.map (fun i -> i.idText),argTy)) 
 
             // Build 'custom operation: where (bool)
             //        
@@ -878,14 +820,12 @@ module internal ItemDescriptionsImpl =
            FSharpToolTipElement.Single(text, xml)
 
         // Types.
-        | Item.Types(_,((TType_app(tcref,_) as typ):: _)) -> 
+        | Item.Types(_,((TType_app(tcref,_)):: _)) -> 
             let text = 
                 bufs (fun os -> 
-                    //let width = 100
                     let denv = { denv with shortTypeNames = true  }
-                    NicePrint.outputTycon denv infoReader AccessibleFromSomewhere m (* width *) os tcref.Deref;
-                    OutputFullName isDecl pubpath_of_tcref fullDisplayTextOfTyconRef os tcref;
-                    OutputUsefulTypeInfo isDecl infoReader m denv os typ)
+                    NicePrint.outputTycon denv infoReader AccessibleFromSomewhere m (* width *) os tcref.Deref
+                    OutputFullName isDecl pubpath_of_tcref fullDisplayTextOfTyconRef os tcref)
   
             let xml = GetXmlComment (if (tyconRefUsesLocalXmlDoc g.compilingFslib tcref) then tcref.XmlDoc else XmlDoc [||]) infoReader m d 
             FSharpToolTipElement.Single(text, xml)
@@ -1263,10 +1203,6 @@ module internal ItemDescriptionsImpl =
 
 
 open ItemDescriptionsImpl
-
-//----------------------------------------------------------------------------
-// Declarations
-//----------------------------------------------------------------------------
 
           
 /// An intellisense declaration

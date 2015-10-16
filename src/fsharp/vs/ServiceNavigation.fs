@@ -8,14 +8,11 @@
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
 open Microsoft.FSharp.Compiler 
-open Internal.Utilities.Debug
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
+open Microsoft.FSharp.Compiler.SourceCodeServices.ItemDescriptionIcons 
 
-//----------------------------------------------------------------------------
-// Navigation items. 
-//--------------------------------------------------------------------------
-
+/// Represents the differnt kinds of items that can appear in the navigation bar
 type FSharpNavigationDeclarationItemKind =
     | NamespaceDecl
     | ModuleFileDecl
@@ -29,9 +26,8 @@ type FSharpNavigationDeclarationItemKind =
 
 /// Represents an item to be displayed in the navigation bar
 [<Sealed>]
-type FSharpNavigationDeclarationItem(uniqueName : string, name : string, kind : FSharpNavigationDeclarationItemKind, glyph : int, range : range, bodyRange : range, singleTopLevel:bool) = 
+type FSharpNavigationDeclarationItem(uniqueName: string, name: string, kind: FSharpNavigationDeclarationItemKind, glyph: int, range: range, bodyRange: range, singleTopLevel:bool) = 
     
-    //let range_of_m (m:range) = ((m.StartColumn, m.StartLine), (m.EndColumn, m.EndLine))
     member x.bodyRange = bodyRange
     
     member x.UniqueName = uniqueName
@@ -41,17 +37,17 @@ type FSharpNavigationDeclarationItem(uniqueName : string, name : string, kind : 
     member x.Range = range
     member x.BodyRange = bodyRange 
     member x.IsSingleTopLevel = singleTopLevel
-    member x.WithUniqueName(uniqueName : string) =
+    member x.WithUniqueName(uniqueName: string) =
       FSharpNavigationDeclarationItem(uniqueName, name, kind, glyph, range, bodyRange, singleTopLevel)
-    static member Create(name : string, kind, glyph : int, range : range, bodyRange : range, singleTopLevel:bool) = 
+    static member Create(name: string, kind, glyph: int, range: range, bodyRange: range, singleTopLevel:bool) = 
       FSharpNavigationDeclarationItem("", name, kind, glyph, range, bodyRange, singleTopLevel)
 
 /// Represents top-level declarations (that should be in the type drop-down)
 /// with nested declarations (that can be shown in the member drop-down)
 [<NoEquality; NoComparison>]
 type FSharpNavigationTopLevelDeclaration = 
-    { Declaration : FSharpNavigationDeclarationItem
-      Nested : FSharpNavigationDeclarationItem[] }
+    { Declaration: FSharpNavigationDeclarationItem
+      Nested: FSharpNavigationDeclarationItem[] }
       
 /// Represents result of 'GetNavigationItems' operation - this contains
 /// all the members and currently selected indices. First level correspond to
@@ -60,29 +56,27 @@ type FSharpNavigationTopLevelDeclaration =
 type FSharpNavigationItems(declarations:FSharpNavigationTopLevelDeclaration[]) =
     member x.Declarations = declarations
 
-open ItemDescriptionIcons 
-
 module NavigationImpl =
 
-    let union_ranges_checked r1 r2 = if r1 = range.Zero then r2 elif r2 = range.Zero then r1 else unionRanges r1 r2
+    let unionRangesChecked r1 r2 = if r1 = range.Zero then r2 elif r2 = range.Zero then r1 else unionRanges r1 r2
     
-    let range_of_decls' f decls = 
+    let rangeOfDecls2 f decls = 
       match (decls |> List.map (f >> (fun (d:FSharpNavigationDeclarationItem) -> d.bodyRange))) with 
-      | hd::tl -> tl |> List.fold (union_ranges_checked) hd
+      | hd::tl -> tl |> List.fold (unionRangesChecked) hd
       | [] -> range.Zero
     
-    let range_of_decls = range_of_decls' fst
+    let rangeOfDecls = rangeOfDecls2 fst
 
     let moduleRange (idm:range) others = 
-      union_ranges_checked idm.EndRange (range_of_decls' (fun (a, _, _) -> a) others)
+      unionRangesChecked idm.EndRange (rangeOfDecls2 (fun (a, _, _) -> a) others)
     
-    let fldspec_range fldspec =
+    let fldspecRange fldspec =
       match fldspec with
-      | UnionCaseFields(flds) -> flds |> List.fold (fun st (Field(_, _, _, _, _, _, _, m)) -> union_ranges_checked m st) range.Zero
+      | UnionCaseFields(flds) -> flds |> List.fold (fun st (Field(_, _, _, _, _, _, _, m)) -> unionRangesChecked m st) range.Zero
       | UnionCaseFullType(ty, _) -> ty.Range
       
     let bodyRange mb decls =
-      union_ranges_checked (range_of_decls decls) mb
+      unionRangesChecked (rangeOfDecls decls) mb
           
     /// Get information for implementation file        
     let getNavigationFromImplFile (modules:SynModuleOrNamespace list) =
@@ -149,14 +143,14 @@ module NavigationImpl =
                 // F# class declaration
                 let members = processMembers membDefns |> snd
                 let nested = members@topMembers
-                ([ createDeclLid(baseName, lid, TypeDecl, iIconGroupClass, m, bodyRange mb nested, nested) ] : ((FSharpNavigationDeclarationItem * int * _) list))
+                ([ createDeclLid(baseName, lid, TypeDecl, iIconGroupClass, m, bodyRange mb nested, nested) ]: ((FSharpNavigationDeclarationItem * int * _) list))
             | SynTypeDefnRepr.Simple(simple, _) ->
                 // F# type declaration
                 match simple with
                 | SynTypeDefnSimpleRepr.Union(_, cases, mb) ->
                     let cases = 
                         [ for (UnionCase(_, id, fldspec, _, _, _)) in cases -> 
-                            createMember(id, OtherDecl, iIconGroupValueType, unionRanges (fldspec_range fldspec) id.idRange) ]
+                            createMember(id, OtherDecl, iIconGroupValueType, unionRanges (fldspecRange fldspec) id.idRange) ]
                     let nested = cases@topMembers              
                     [ createDeclLid(baseName, lid, TypeDecl, iIconGroupUnion, m, bodyRange mb nested, nested) ]
                 | SynTypeDefnSimpleRepr.Enum(cases, mb) -> 
@@ -181,7 +175,7 @@ module NavigationImpl =
                 | _ -> [] 
                   
         // Returns class-members for the right dropdown                  
-        and processMembers members : (range * list<FSharpNavigationDeclarationItem * int>) = 
+        and processMembers members: (range * list<FSharpNavigationDeclarationItem * int>) = 
             let members = members |> List.map (fun memb ->
                (memb.Range,
                 match memb with
@@ -197,7 +191,7 @@ module NavigationImpl =
                 | SynMemberDefn.Interface(_, Some(membs), _) ->
                     processMembers membs |> snd
                 | _ -> []  )) 
-            ((members |> Seq.map fst |> Seq.fold union_ranges_checked range.Zero),
+            ((members |> Seq.map fst |> Seq.fold unionRangesChecked range.Zero),
              (members |> List.map snd |> List.concat))
 
         // Process declarations in a module that belong to the right drop-down (let bindings)
@@ -218,14 +212,14 @@ module NavigationImpl =
                 
                 // Get nested modules and types (for the left dropdown)
                 let other = processFSharpNavigationTopLevelDeclarations(newBaseName, decls)
-                createDeclLid(baseName, lid, ModuleDecl, iIconGroupModule, m, union_ranges_checked (range_of_decls nested) (moduleRange (rangeOfLid lid) other), nested)::other
+                createDeclLid(baseName, lid, ModuleDecl, iIconGroupModule, m, unionRangesChecked (rangeOfDecls nested) (moduleRange (rangeOfLid lid) other), nested)::other
                   
             | SynModuleDecl.Types(tydefs, _) -> tydefs |> List.collect (processTycon baseName)                                    
                             
             | SynModuleDecl.Exception(ExceptionDefn(ExceptionDefnRepr(_, (UnionCase(_, id, fldspec, _, _, _)), _, _, _, _), membDefns, _), m) ->
                 // Exception declaration
                 let nested = processMembers membDefns |> snd
-                [ createDecl(baseName, id, ExnDecl, iIconGroupException, m, fldspec_range fldspec, nested) ] 
+                [ createDecl(baseName, id, ExnDecl, iIconGroupException, m, fldspecRange fldspec, nested) ] 
             | _ -> [] )            
                   
         // Collect all the items  
@@ -244,7 +238,7 @@ module NavigationImpl =
                     FSharpNavigationDeclarationItem.Create
                         (textOfLid id, (if isModule then ModuleFileDecl else NamespaceDecl),
                             iIconGroupModule * 6, m, 
-                            union_ranges_checked (range_of_decls nested) (moduleRange (rangeOfLid id) other), 
+                            unionRangesChecked (rangeOfDecls nested) (moduleRange (rangeOfLid id) other), 
                             singleTopLevel), (addItemName(textOfLid id)), nested
                 decl::other )
                   

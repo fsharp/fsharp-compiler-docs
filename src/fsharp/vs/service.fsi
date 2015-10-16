@@ -714,7 +714,7 @@ type FSharpChecker =
     
     // One shared global singleton for use by multiple add-ins
     static member Instance : FSharpChecker
-    member internal FrameworkImportsCache : IncrementalFSharpBuild.FrameworkImportsCache
+    member internal FrameworkImportsCache : FrameworkImportsCache
 
 
 // An object to typecheck source in a given typechecking environment.

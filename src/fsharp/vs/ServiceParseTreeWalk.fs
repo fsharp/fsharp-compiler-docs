@@ -7,13 +7,10 @@
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
-open Internal.Utilities
-open System
-open System.Collections.Generic
- 
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
+ 
 
 /// A range of utility functions to assist with traversing an AST
 module (*internal*) AstTraversal =

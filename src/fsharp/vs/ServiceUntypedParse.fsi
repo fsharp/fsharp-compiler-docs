@@ -7,23 +7,30 @@
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
+open System.Collections.Generic
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.ErrorLogger
-open System.Collections.Generic
 
 [<Sealed>]
 /// Represents the results of parsing an F# file
 type FSharpParseFileResults = 
+
+    /// The syntax tree resulting from the parse
     member ParseTree : Ast.ParsedInput option
+
     /// Notable parse info for ParameterInfo at a given location
     member FindNoteworthyParamInfoLocations : pos:pos -> FSharpNoteworthyParamInfoLocations option
+
     /// Name of the file for which this information were created
     member FileName                       : string
+
     /// Get declared items and the selected item at the specified location
     member GetNavigationItems             : unit -> FSharpNavigationItems
+
     /// Return the inner-most range associated with a possible breakpoint location
     member ValidateBreakpointLocation : pos:pos -> range option
+
     /// When these files change then the build is invalid
     member DependencyFiles : string list
 
@@ -37,8 +44,10 @@ type FSharpParseFileResults =
 
 /// Information about F# source file names
 module internal SourceFile =
+
    /// Whether or not this file is compilable
    val IsCompilable : string -> bool
+
    /// Whether or not this file should be a single-file project
    val MustBeSingleFileProject : string -> bool
 

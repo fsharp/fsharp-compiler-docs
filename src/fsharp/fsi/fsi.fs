@@ -8,7 +8,6 @@ module Microsoft.FSharp.Compiler.Interactive.Shell
 [<assembly: System.CLSCompliant(true)>]  
 do()
 
-open Internal.Utilities
 
 module Tc = Microsoft.FSharp.Compiler.TypeChecker
 
@@ -17,15 +16,12 @@ open System.Collections.Generic
 open System.Diagnostics
 open System.Globalization
 open System.Runtime.InteropServices
-open System.Runtime.CompilerServices
 open System.IO
 open System.Text
 open System.Threading
 open System.Reflection
-
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.AbstractIL
-open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.AbstractIL.Extensions.ILX
@@ -42,16 +38,13 @@ open Microsoft.FSharp.Compiler.TypeChecker
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Infos
 open Microsoft.FSharp.Compiler.Tastops
-open Microsoft.FSharp.Compiler.Optimizer
 open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.CompileOps
 open Microsoft.FSharp.Compiler.Lexhelp
 open Microsoft.FSharp.Compiler.Layout
 open Microsoft.FSharp.Compiler.NameResolution
-open Microsoft.FSharp.Compiler.PostTypeCheckSemanticChecks
 open Microsoft.FSharp.Compiler.SourceCodeServices
-
-open Internal.Utilities.Collections
+open Internal.Utilities
 open Internal.Utilities.StructuredFormat
 
 //----------------------------------------------------------------------------
@@ -91,7 +84,6 @@ module internal Utilities =
 
     let ignoreAllErrors f = try f() with _ -> ()
 
-let referencedAssemblies = Dictionary<string, DateTime>()
 
 //----------------------------------------------------------------------------
 // Timing support
@@ -1678,6 +1670,8 @@ type internal FsiInteractionProcessor
                              fsiStdinLexerProvider : FsiStdinLexerProvider,
                              lexResourceManager : LexResourceManager,
                              initialInteractiveState) = 
+
+    let referencedAssemblies = Dictionary<string, DateTime>()
 
     let mutable currState = initialInteractiveState
     let event = Event<unit>()

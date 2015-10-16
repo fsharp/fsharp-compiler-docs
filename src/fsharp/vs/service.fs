@@ -5,12 +5,12 @@
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
-open Internal.Utilities
 open System
 open System.IO
 open System.Text
 open System.Threading
 open System.Collections.Generic
+open System.Security.Permissions
 
 open Microsoft.Build.Framework
 open Microsoft.Build.Utilities
@@ -23,9 +23,6 @@ open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.MSBuildResolver
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
 open Microsoft.FSharp.Compiler.PrettyNaming
-open Internal.Utilities.Collections
-open Internal.Utilities.Debug
-open System.Security.Permissions
 
 open Microsoft.FSharp.Compiler.TcGlobals 
 open Microsoft.FSharp.Compiler.Parser
@@ -43,13 +40,14 @@ open Microsoft.FSharp.Compiler.Layout
 open Microsoft.FSharp.Compiler.TypeChecker
 open Microsoft.FSharp.Compiler.Infos
 open Microsoft.FSharp.Compiler.NameResolution
+open Internal.Utilities.Collections
+open Internal.Utilities.Debug
+open Internal.Utilities
 open Internal.Utilities.StructuredFormat
-open ItemDescriptionIcons 
-open ItemDescriptionsImpl 
+open Microsoft.FSharp.Compiler.SourceCodeServices.ItemDescriptionsImpl 
 
 [<AutoOpen>]
 module EnvMisc =
-    let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
     let getToolTipTextSize = GetEnvInteger "FCS_RecentForegroundTypeCheckCacheSize" 5
     let maxTypeCheckErrorsOutOfProjectContext = GetEnvInteger "FCS_MaxErrorsOutOfProjectContext" 3
     let braceMatchCacheSize = GetEnvInteger "FCS_BraceMatchCacheSize" 5
@@ -1943,7 +1941,7 @@ type FSharpCheckProjectResults(keepAssemblyContents, errors: FSharpErrorInfo[], 
 //
 // There is an important property of all the objects returned by the methods of this type: they do not require 
 // the corresponding background builder to be alive. That is, they are simply plain-old-data through pre-formatting of all result text.
-type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo option, builderX: IncrementalFSharpBuild.IncrementalBuilder option, reactorOpsX:IReactorOperations) =
+type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo option, builderX: IncrementalBuilder option, reactorOpsX:IReactorOperations) =
 
     // This may be None initially, or may be set to None when the object is disposed or finalized
     let mutable details = match scopeOptX with None -> None | Some scopeX -> Some (scopeX, builderX, reactorOpsX)
@@ -2194,7 +2192,7 @@ module Helpers =
 // There is only one instance of this type, held in FSharpChecker
 type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions) as self =
     // STATIC ROOT: LanguageServiceState.FSharpChecker.backgroundCompiler.reactor: The one and only Reactor
-    let reactor = Reactor.Reactor()
+    let reactor = Reactor.Singleton
     let beforeFileChecked = Event<string>()
     let fileParsed = Event<string>()
     let fileChecked = Event<string>()
@@ -2213,7 +2211,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
             areSame=FSharpProjectOptions.AreSameForChecking, 
             areSameForSubsumption=FSharpProjectOptions.AreSubsumable)
 
-    let frameworkTcImportsCache = IncrementalFSharpBuild.FrameworkImportsCache(frameworkTcImportsCacheStrongSize)
+    let frameworkTcImportsCache = FrameworkImportsCache(frameworkTcImportsCacheStrongSize)
 
     /// CreateOneIncrementalBuilder (for background type checking). Note that fsc.fs also
     /// creates an incremental builder used by the command line compiler.
@@ -2230,7 +2228,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
                         member x.FileName = nm } ]
 
         let builderOpt, errorsAndWarnings = 
-            IncrementalFSharpBuild.IncrementalBuilder.TryCreateBackgroundBuilderForProjectOptions
+            IncrementalBuilder.TryCreateBackgroundBuilderForProjectOptions
                   (frameworkTcImportsCache, scriptClosureCache.TryGet options, Array.toList options.ProjectFileNames, 
                    Array.toList options.OtherOptions, projectReferences, options.ProjectDirectory, 
                    options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment, keepAssemblyContents, keepAllBackgroundResolutions)
@@ -3195,7 +3193,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     member ic.FileChecked  = backgroundCompiler.FileChecked
     member ic.ProjectChecked = backgroundCompiler.ProjectChecked
     member ic.ImplicitlyStartBackgroundWork with get() = backgroundCompiler.ImplicitlyStartBackgroundWork and set v = backgroundCompiler.ImplicitlyStartBackgroundWork <- v
-    member ic.PauseBeforeBackgroundWork with get() = Reactor.Reactor().PauseBeforeBackgroundWork and set v = Reactor.Reactor().PauseBeforeBackgroundWork <- v
+    member ic.PauseBeforeBackgroundWork with get() = Reactor.Singleton.PauseBeforeBackgroundWork and set v = Reactor.Singleton.PauseBeforeBackgroundWork <- v
 
     static member GlobalForegroundParseCountStatistic = BackgroundCompiler.GlobalForegroundParseCountStatistic
     static member GlobalForegroundTypeCheckCountStatistic = BackgroundCompiler.GlobalForegroundTypeCheckCountStatistic

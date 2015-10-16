@@ -20,9 +20,7 @@ type (*internal*) FSharpNoteworthyParamInfoLocations =
     member IsThereACloseParen : bool   // false if either this is a call without parens "f x" or the parser recovered as in "f(x,y"
     member NamedParamNames : string[]  // null, or a name if an actual named parameter; f(0,a=4,?b=None) would be [|null;"a";"b"|]
 
-// implementation details used by other code in the compiler    
-module internal NoteworthyParamInfoLocationsImpl =
-    val internal FindNoteworthyParamInfoLocations : pos * Ast.ParsedInput -> FSharpNoteworthyParamInfoLocations option
+    static member Find : pos * Ast.ParsedInput -> FSharpNoteworthyParamInfoLocations option
 
 [<System.Obsolete("This type has been renamed to FSharpNoteworthyParamInfoLocations")>]
 /// Renamed to FSharpNoteworthyParamInfoLocations

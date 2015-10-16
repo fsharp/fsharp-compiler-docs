@@ -1,28 +1,32 @@
 // Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 namespace Microsoft.FSharp.Compiler
-#nowarn "57"
-open Internal.Utilities.Debug
+
+
 open System
 open System.IO
-open System.Reflection             
-open System.Diagnostics
 open System.Collections.Generic
-open System
-
 open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.CompileOps
 open Microsoft.FSharp.Compiler.NameResolution
-open Microsoft.FSharp.Compiler.CompileOptions
 open Microsoft.FSharp.Compiler.Tastops
-open Microsoft.FSharp.Compiler.TcGlobals
-open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Lib
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.IL
+open Microsoft.FSharp.Compiler.AbstractIL.Internal
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
+open Microsoft.FSharp.Compiler.CompileOps
+open Microsoft.FSharp.Compiler.CompileOptions
+open Microsoft.FSharp.Compiler.Ast
+open Microsoft.FSharp.Compiler.ErrorLogger
+open Microsoft.FSharp.Compiler.TcGlobals
+open Microsoft.FSharp.Compiler.TypeChecker
+open Microsoft.FSharp.Compiler.Tast 
+open Microsoft.FSharp.Compiler.Range
+open Internal.Utilities
+open Internal.Utilities.Collections
 
+
+[<AutoOpen>]
 module internal IncrementalBuild =
 
     /// A particular node in the Expr language. Use an int for keys instead of the entire Expr to avoid extra hashing.
@@ -126,15 +130,15 @@ module internal IncrementalBuild =
         Id(!nextid)                    
         
     type INode = 
-        abstract Name : string
+        abstract Name: string
 
     type IScalar = 
         inherit INode
-        abstract Expr : ScalarBuildRule
+        abstract Expr: ScalarBuildRule
 
     type IVector =
         inherit INode
-        abstract Expr : VectorBuildRule
+        abstract Expr: VectorBuildRule
             
     type Scalar<'T> =  interface inherit IScalar  end
 
@@ -146,38 +150,41 @@ module internal IncrementalBuild =
         | NamedVectorOutput of IVector
         | NamedScalarOutput of IScalar
 
-    type BuildRules = { RuleList : (string * BuildRuleExpr) list }
+    type BuildRules = { RuleList: (string * BuildRuleExpr) list }
 
     /// Visit each task and call op with the given accumulator.
     let FoldOverBuildRules(rules:BuildRules, op, acc)=
-        let rec VisitVector (ve:VectorBuildRule) acc = 
+        let rec visitVector (ve:VectorBuildRule) acc = 
             match ve with
             | VectorInput _ ->op (VectorBuildRule ve) acc
-            | VectorScanLeft(_,_,a,i,_) ->op (VectorBuildRule ve) (VisitVector i (VisitScalar a acc))
+            | VectorScanLeft(_,_,a,i,_) ->op (VectorBuildRule ve) (visitVector i (visitScalar a acc))
             | VectorMap(_,_,i,_)
-            | VectorStamp(_,_,i,_) ->op (VectorBuildRule ve) (VisitVector i acc)
-            | VectorMultiplex(_,_,i,_) ->op (VectorBuildRule ve) (VisitScalar i acc)
-        and VisitScalar (se:ScalarBuildRule) acc = 
+            | VectorStamp(_,_,i,_) ->op (VectorBuildRule ve) (visitVector i acc)
+            | VectorMultiplex(_,_,i,_) ->op (VectorBuildRule ve) (visitScalar i acc)
+
+        and visitScalar (se:ScalarBuildRule) acc = 
             match se with
             | ScalarInput _ ->op (ScalarBuildRule se) acc
-            | ScalarDemultiplex(_,_,i,_) ->op (ScalarBuildRule se) (VisitVector i acc)
-            | ScalarMap(_,_,i,_) ->op (ScalarBuildRule se) (VisitScalar i acc)
-        let rec VisitRule (expr:BuildRuleExpr) acc =  
+            | ScalarDemultiplex(_,_,i,_) ->op (ScalarBuildRule se) (visitVector i acc)
+            | ScalarMap(_,_,i,_) ->op (ScalarBuildRule se) (visitScalar i acc)
+
+        let rec visitRule (expr:BuildRuleExpr) acc =  
             match expr with
-            | ScalarBuildRule se ->VisitScalar se acc
-            | VectorBuildRule ve ->VisitVector ve acc
-        List.foldBack VisitRule (rules.RuleList |> List.map snd) acc            
+            | ScalarBuildRule se ->visitScalar se acc
+            | VectorBuildRule ve ->visitVector ve acc
+
+        List.foldBack visitRule (rules.RuleList |> List.map snd) acc            
     
     /// Convert from interfaces into discriminated union.
-    let ToBuild (names:NamedOutput list) : BuildRules = 
+    let ToBuild (names:NamedOutput list): BuildRules = 
 
         // Create the rules.
-        let CreateRules() = 
+        let createRules() = 
            { RuleList = names |> List.map(function NamedVectorOutput(v) -> v.Name,VectorBuildRule(v.Expr)
                                                  | NamedScalarOutput(s) -> s.Name,ScalarBuildRule(s.Expr)) }
         
         // Ensure that all names are unique.
-        let EnsureUniqueNames (expr:BuildRuleExpr) (acc:Map<string,Id>) = 
+        let ensureUniqueNames (expr:BuildRuleExpr) (acc:Map<string,Id>) = 
             let AddUniqueIdToNameMapping(id,name)=
                 match acc.TryFind name with
                  | Some(priorId) -> 
@@ -189,12 +196,12 @@ module internal IncrementalBuild =
             AddUniqueIdToNameMapping(id,name)
         
         // Validate the rule tree
-        let ValidateRules (rules:BuildRules) =
-            FoldOverBuildRules(rules,EnsureUniqueNames,Map.empty) |> ignore
+        let validateRules (rules:BuildRules) =
+            FoldOverBuildRules(rules,ensureUniqueNames,Map.empty) |> ignore
         
         // Convert and validate
-        let rules = CreateRules()
-        ValidateRules rules
+        let rules = createRules()
+        validateRules rules
         rules
 
     /// These describe the input conditions for a result. If conditions change then the result is invalid.
@@ -205,6 +212,7 @@ module internal IncrementalBuild =
         | BoundInputVector // An external input into the build
         | IndexedValueElement of DateTime
         | UnevaluatedInput
+
         /// Return true if the result is fully evaluated
         member is.IsEvaluated = 
             match is with
@@ -218,10 +226,13 @@ module internal IncrementalBuild =
         | NotAvailable
         | InProgress of (unit -> Eventually<obj>) * DateTime 
         | Available of obj * DateTime * InputSignature
+
         /// Get the available result. Throw an exception if not available.
         member x.GetAvailable() = match x with Available(o,_,_) ->o  | _->failwith "No available result"
+
         /// Get the time stamp if available. Otherwise MaxValue.        
         member x.Timestamp = match x with Available(_,ts,_) ->ts | InProgress(_,ts) -> ts | _-> DateTime.MaxValue
+
         /// Get the time stamp if available. Otheriwse MaxValue.        
         member x.InputSignature = match x with Available(_,_,signature) ->signature | _-> UnevaluatedInput
         
@@ -244,24 +255,24 @@ module internal IncrementalBuild =
             if size<>newsize then 
                 ResultVector(newsize, zeroElementTimestamp, map |> Map.filter(fun s _ -> s < newsize))
             else rv
+
         member rv.Set(slot,value) = 
-            #if DEBUG
+#if DEBUG
             if slot<0 then failwith "ResultVector slot less than zero"
             if slot>=size then failwith "ResultVector slot too big"
-            #endif
+#endif
             ResultVector(size, zeroElementTimestamp, Map.add slot value map)
+
         member rv.MaxTimestamp() =
-            let Maximize (lasttimestamp:DateTime) (_,result:Result) = 
-                let thistimestamp = result.Timestamp
-                let m = max lasttimestamp thistimestamp
-                m
-            List.fold Maximize zeroElementTimestamp (asList.Force())
+            let maximize (lasttimestamp:DateTime) (_,result:Result) =  max lasttimestamp result.Timestamp
+            List.fold maximize zeroElementTimestamp (asList.Force())
+
         member rv.Signature() =
             let l = asList.Force()
             let l = l |> List.map (fun (_,result) -> result.InputSignature)
             SingleMappedVectorInput (l|>List.toArray)
                                   
-        member rv.FoldLeft f s : 'a = List.fold f s (asList.Force())
+        member rv.FoldLeft f s: 'a = List.fold f s (asList.Force())
                 
     /// A result of performing build actions
     [<NoEquality; NoComparison>]
@@ -269,10 +280,6 @@ module internal IncrementalBuild =
         | ScalarResult of Result
         | VectorResult of ResultVector
                             
-    /// Action timing
-    module Time =     
-        let Action _taskname _slot func = func()            
-        
     /// Result of a particular action over the bound build tree
     [<NoEquality; NoComparison>]
     type ActionResult = 
@@ -292,9 +299,9 @@ module internal IncrementalBuild =
         /// Execute one action and return a corresponding result.
         member action.Execute() = 
             match action with
-            | IndexedAction(id,taskname,slot,slotcount,timestamp,func) -> IndexedResult(id,slot,slotcount,Time.Action taskname slot func,timestamp)
-            | ScalarAction(id,taskname,timestamp,inputsig,func) -> ScalarValuedResult(id,Time.Action taskname (-1) func,timestamp,inputsig)
-            | VectorAction(id,taskname,timestamp,inputsig,func) -> VectorValuedResult(id,Time.Action taskname (-1) func,timestamp,inputsig)
+            | IndexedAction(id,_taskname,slot,slotcount,timestamp,func) -> IndexedResult(id,slot,slotcount,func(),timestamp)
+            | ScalarAction(id,_taskname,timestamp,inputsig,func) -> ScalarValuedResult(id,func(),timestamp,inputsig)
+            | VectorAction(id,_taskname,timestamp,inputsig,func) -> VectorValuedResult(id,func(),timestamp,inputsig)
             | ResizeResultAction(id,slotcount) -> ResizeResult(id,slotcount)
      
     /// A set of build rules and the corresponding, possibly partial, results from building.
@@ -307,7 +314,7 @@ module internal IncrementalBuild =
     let rec GetVectorWidthByExpr(bt:PartialBuild,ve:VectorBuildRule) = 
         let id = ve.Id
         let KnownValue() = 
-            match bt.Results.TryFind(id) with 
+            match bt.Results.TryFind id with 
             | Some(resultSet) ->
                 match resultSet with
                 | VectorResult rv ->Some(rv.Size)
@@ -328,34 +335,37 @@ module internal IncrementalBuild =
         bt.Rules.RuleList |> List.filter(fun(name,_) ->name=seek) |> List.map(fun(_,root) ->root) |> List.head
     
     /// Get an expression matching the given name.
-    let GetExprByName(bt:PartialBuild, node:INode) : BuildRuleExpr = 
-        let MatchName (expr:BuildRuleExpr) (acc:BuildRuleExpr option) : BuildRuleExpr option =
+    let GetExprByName(bt:PartialBuild, node:INode): BuildRuleExpr = 
+        let matchName (expr:BuildRuleExpr) (acc:BuildRuleExpr option): BuildRuleExpr option =
             if expr.Name = node.Name then Some(expr) else acc
-        let matchOption = FoldOverBuildRules(bt.Rules,MatchName,None)
+        let matchOption = FoldOverBuildRules(bt.Rules,matchName,None)
         Option.get matchOption
 
     // Given an Id, find the corresponding expression.
-    let GetExprById(bt:PartialBuild, seek:Id) : BuildRuleExpr= 
-        let rec VectorExprOfId ve =
+    let GetExprById(bt:PartialBuild, seek:Id): BuildRuleExpr= 
+        let rec vectorExprOfId ve =
             match ve with
             | VectorInput(id,_) ->if seek=id then Some(VectorBuildRule ve) else None
             | VectorScanLeft(id,_,a,i,_) ->
                 if seek=id then Some(VectorBuildRule ve) else
-                    let result = ScalarExprOfId(a) 
-                    match result with Some _ -> result | None->VectorExprOfId i
-            | VectorMap(id,_,i,_) ->if seek=id then Some(VectorBuildRule ve) else VectorExprOfId i
-            | VectorStamp(id,_,i,_) ->if seek=id then Some(VectorBuildRule ve) else VectorExprOfId i
-            | VectorMultiplex(id,_,i,_) ->if seek=id then Some(VectorBuildRule ve) else ScalarExprOfId i
-        and ScalarExprOfId se =
+                    let result = scalarExprOfId(a) 
+                    match result with Some _ -> result | None->vectorExprOfId i
+            | VectorMap(id,_,i,_) ->if seek=id then Some(VectorBuildRule ve) else vectorExprOfId i
+            | VectorStamp(id,_,i,_) ->if seek=id then Some(VectorBuildRule ve) else vectorExprOfId i
+            | VectorMultiplex(id,_,i,_) ->if seek=id then Some(VectorBuildRule ve) else scalarExprOfId i
+
+        and scalarExprOfId se =
             match se with
             | ScalarInput(id,_) ->if seek=id then Some(ScalarBuildRule se) else None
-            | ScalarDemultiplex(id,_,i,_) ->if seek=id then Some(ScalarBuildRule se) else VectorExprOfId i
-            | ScalarMap(id,_,i,_) ->if seek=id then Some(ScalarBuildRule se) else ScalarExprOfId i
-        let ExprOfId(expr:BuildRuleExpr) = 
+            | ScalarDemultiplex(id,_,i,_) ->if seek=id then Some(ScalarBuildRule se) else vectorExprOfId i
+            | ScalarMap(id,_,i,_) ->if seek=id then Some(ScalarBuildRule se) else scalarExprOfId i
+
+        let exprOfId(expr:BuildRuleExpr) = 
             match expr with
-            | ScalarBuildRule se ->ScalarExprOfId se
-            | VectorBuildRule ve ->VectorExprOfId ve
-        let exprs = bt.Rules.RuleList |> List.map(fun(_,root) ->ExprOfId(root)) |> List.filter Option.isSome
+            | ScalarBuildRule se ->scalarExprOfId se
+            | VectorBuildRule ve ->vectorExprOfId ve
+
+        let exprs = bt.Rules.RuleList |> List.map(fun(_,root) ->exprOfId(root)) |> List.filter Option.isSome
         match exprs with
         | Some(expr)::_ -> expr
         | _ -> failwith (sprintf "GetExprById did not find an expression for Id")
@@ -401,7 +411,7 @@ module internal IncrementalBuild =
 
     /// Get the maximum build stamp for an output.
     let MaxTimestamp(bt:PartialBuild,id) = 
-        match bt.Results.TryFind(id) with
+        match bt.Results.TryFind id with
         | Some(resultset) -> 
             match resultset with 
             | ScalarResult(rs) -> rs.Timestamp
@@ -409,7 +419,7 @@ module internal IncrementalBuild =
         | None -> DateTime.MaxValue
         
     let Signature(bt:PartialBuild,id) =
-        match bt.Results.TryFind(id) with
+        match bt.Results.TryFind id with
         | Some(resultset) -> 
             match resultset with 
             | ScalarResult(rs) -> rs.InputSignature
@@ -422,7 +432,7 @@ module internal IncrementalBuild =
             let Extract acc (_, result) = (extractor result)::acc
             List.rev (rv.FoldLeft Extract [])
         let GetVectorResultById id = 
-            match bt.Results.TryFind(id) with
+            match bt.Results.TryFind id with
             | Some(found) ->
                 match found with
                 | VectorResult rv ->GetAvailable rv
@@ -441,14 +451,14 @@ module internal IncrementalBuild =
     /// Bind a set of build rules to a set of input values.
     let ToBound(buildRules:BuildRules, vectorinputs, scalarinputs) = 
         let now = DateTime.Now
-        let rec ApplyScalarExpr(se,results) =
+        let rec applyScalarExpr(se,results) =
             match se with
             | ScalarInput(id,n) -> 
                 let matches = scalarinputs 
                                 |> List.filter (fun (inputname,_) ->inputname=n) 
                                 |> List.map (fun (_,inputvalue:obj) -> ScalarResult(Available(inputvalue,now,BoundInputScalar)))
                 List.foldBack (Map.add id) matches results
-            | ScalarMap(_,_,se,_) ->ApplyScalarExpr(se,results)
+            | ScalarMap(_,_,se,_) ->applyScalarExpr(se,results)
             | ScalarDemultiplex(_,_,ve,_) ->ApplyVectorExpr(ve,results)
         and ApplyVectorExpr(ve,results) =
             match ve with
@@ -459,17 +469,18 @@ module internal IncrementalBuild =
                                                         let results = inputvalues|>List.mapi(fun i value->i,Available(value,now,BoundInputVector))
                                                         VectorResult(ResultVector(size,DateTime.MinValue,results|>Map.ofList)))
                 List.foldBack (Map.add id) matches results
-            | VectorScanLeft(_,_,a,i,_) ->ApplyVectorExpr(i,ApplyScalarExpr(a,results))
+            | VectorScanLeft(_,_,a,i,_) ->ApplyVectorExpr(i,applyScalarExpr(a,results))
             | VectorMap(_,_,i,_)
             | VectorStamp(_,_,i,_) ->ApplyVectorExpr(i,results)
-            | VectorMultiplex(_,_,i,_) ->ApplyScalarExpr(i,results)
-        let ApplyExpr expr results =
+            | VectorMultiplex(_,_,i,_) ->applyScalarExpr(i,results)
+
+        let applyExpr expr results =
             match expr with
-            | ScalarBuildRule se ->ApplyScalarExpr(se,results)
+            | ScalarBuildRule se ->applyScalarExpr(se,results)
             | VectorBuildRule ve ->ApplyVectorExpr(ve,results)
                                                                              
         // Place vector inputs into results map.
-        let results = List.foldBack ApplyExpr (buildRules.RuleList |> List.map snd) Map.empty
+        let results = List.foldBack applyExpr (buildRules.RuleList |> List.map snd) Map.empty
         PartialBuild(buildRules,results)
         
     type Target = Target of string * int option
@@ -478,8 +489,8 @@ module internal IncrementalBuild =
     /// vector output). Call actionFunc with the given accumulator.
     let ForeachAction (Target(output, optSlot)) bt (actionFunc:Action->'acc->'acc) (acc:'acc) =
         let seen = Dictionary<Id,bool>()
-        let Seen(id) = 
-            if seen.ContainsKey(id) then true
+        let isSeen id = 
+            if seen.ContainsKey id then true
             else 
                 seen.[id] <- true
                 false
@@ -492,11 +503,11 @@ module internal IncrementalBuild =
             else false
             
         /// Make sure the result vector saved matches the size of expr
-        let ResizeVectorExpr(ve:VectorBuildRule,acc)  = 
+        let resizeVectorExpr(ve:VectorBuildRule,acc)  = 
             let id = ve.Id
             match GetVectorWidthByExpr(bt,ve) with
             | Some(expectedWidth) ->
-                match bt.Results.TryFind(id) with
+                match bt.Results.TryFind id with
                 | Some(found) ->
                     match found with
                     | VectorResult rv ->
@@ -507,11 +518,11 @@ module internal IncrementalBuild =
                 | None -> acc        
             | None -> acc           
         
-        let rec VisitVector optSlot (ve: VectorBuildRule) acc =
+        let rec visitVector optSlot (ve: VectorBuildRule) acc =
         
-            if Seen(ve.Id) then acc
+            if isSeen ve.Id then acc
             else
-                let acc = ResizeVectorExpr(ve,acc)        
+                let acc = resizeVectorExpr(ve,acc)        
                 match ve with
                 | VectorInput _ ->acc
                 | VectorScanLeft(id,taskname,accumulatorExpr,inputExpr,func) ->
@@ -548,7 +559,7 @@ module internal IncrementalBuild =
                         | None -> acc
                     
                     // Check each slot for an action that may be performed.
-                    VisitVector None inputExpr (VisitScalar accumulatorExpr acc)
+                    visitVector None inputExpr (visitScalar accumulatorExpr acc)
 
                 | VectorMap(id, taskname, inputExpr, func) ->
                     let acc =
@@ -577,7 +588,7 @@ module internal IncrementalBuild =
                                     MapResults acc slot
                         | None -> acc
 
-                    VisitVector optSlot inputExpr acc
+                    visitVector optSlot inputExpr acc
 
                 | VectorStamp(id, taskname, inputExpr, func) -> 
                
@@ -593,7 +604,7 @@ module internal IncrementalBuild =
                                     actionFunc (VectorAction(id,taskname,inputtimestamp,EmptyTimeStampedInput inputtimestamp,fun _ ->[||])) acc
                                 else acc
                             else                 
-                                let CheckStamp acc slot = 
+                                let checkStamp acc slot = 
                                     let inputresult = GetVectorExprResult(bt,inputExpr,slot)
                                     match inputresult with
                                     | Available(ires,_,_) ->
@@ -605,11 +616,11 @@ module internal IncrementalBuild =
                                     | _ -> acc
                                 match optSlot with 
                                 | None ->
-                                    [0..cardinality-1] |> List.fold CheckStamp acc
+                                    [0..cardinality-1] |> List.fold checkStamp acc
                                 | Some slot -> 
-                                    CheckStamp acc slot
+                                    checkStamp acc slot
                         | None -> acc
-                    VisitVector optSlot inputExpr acc
+                    visitVector optSlot inputExpr acc
 
                 | VectorMultiplex(id, taskname, inputExpr, func) -> 
                     let acc = 
@@ -621,10 +632,10 @@ module internal IncrementalBuild =
                                actionFunc (VectorAction(id,taskname,inputtimestamp,inputsig,MultiplexOp)) acc
                            else acc
                          | _->acc
-                    VisitScalar inputExpr acc
+                    visitScalar inputExpr acc
 
-        and VisitScalar (se:ScalarBuildRule) acc =
-            if Seen(se.Id) then acc
+        and visitScalar (se:ScalarBuildRule) acc =
+            if isSeen se.Id then acc
             else
                 match se with
                 | ScalarInput _ ->acc
@@ -642,7 +653,7 @@ module internal IncrementalBuild =
                             else acc
                         | None -> acc
 
-                    VisitVector None inputExpr acc
+                    visitVector None inputExpr acc
 
                 | ScalarMap(id,taskname,inputExpr,func) ->
                     let acc = 
@@ -655,13 +666,13 @@ module internal IncrementalBuild =
                            else acc
                         | _->acc
                     
-                    VisitScalar inputExpr acc
+                    visitScalar inputExpr acc
                          
                     
         let expr = bt.Rules.RuleList |> List.find (fun (s,_) -> s = output) |> snd
         match expr with
-        | ScalarBuildRule se -> VisitScalar se acc
-        | VectorBuildRule ve -> VisitVector optSlot ve acc                    
+        | ScalarBuildRule se -> visitScalar se acc
+        | VectorBuildRule ve -> visitVector optSlot ve acc                    
     
     /// Compute the max timestamp on all available inputs
     let ComputeMaxTimeStamp (Target(output, optSlot)) bt acc =
@@ -706,7 +717,7 @@ module internal IncrementalBuild =
     let ApplyResult(actionResult:ActionResult,bt:PartialBuild) = 
         match actionResult with 
         | ResizeResult(id,slotcount) ->
-            match bt.Results.TryFind(id) with
+            match bt.Results.TryFind id with
             | Some(resultSet) ->
                 match resultSet with 
                 | VectorResult rv -> 
@@ -727,7 +738,7 @@ module internal IncrementalBuild =
                 
         | IndexedResult(id,index,slotcount,value,timestamp) ->
             let width = GetVectorWidthById bt id
-            let priorResults = bt.Results.TryFind(id) 
+            let priorResults = bt.Results.TryFind id 
             let prior =
                 match priorResults with
                 | Some(prior) ->prior
@@ -751,15 +762,15 @@ module internal IncrementalBuild =
     /// Evaluate the result of a single output
     let EvalLeafsFirst target bt =
 
-        let rec Eval(bt,gen) =
+        let rec eval(bt,gen) =
             #if DEBUG
             // This can happen, for example, if there is a task whose timestamp never stops increasing.
             // Possibly could detect this case directly.
             if gen>5000 then failwith "Infinite loop in incremental builder?"
             #endif
             let newBt = ForeachAction target bt ExecuteApply bt
-            if newBt=bt then bt else Eval(newBt,gen+1)
-        Eval(bt,0)
+            if newBt=bt then bt else eval(newBt,gen+1)
+        eval(bt,0)
         
     let Step target (bt:PartialBuild) = 
         
@@ -784,12 +795,12 @@ module internal IncrementalBuild =
         ComputeMaxTimeStamp target bt DateTime.MinValue 
 
 
-  /// Get a scalar vector. Result must be available
-    let GetScalarResult<'T>(node:Scalar<'T>,bt) : ('T*DateTime) option = 
+    /// Get a scalar vector. Result must be available
+    let GetScalarResult<'T>(node:Scalar<'T>,bt): ('T*DateTime) option = 
         match GetTopLevelExprByName(bt,node.Name) with 
         | ScalarBuildRule se ->
             let id = se.Id
-            match bt.Results.TryFind(id) with
+            match bt.Results.TryFind id with
             | Some(result) ->
                 match result with 
                 | ScalarResult(sr) ->
@@ -800,14 +811,14 @@ module internal IncrementalBuild =
             | None->None
         | VectorBuildRule _ -> failwith "Expected scalar."
     
-  /// Get a result vector. All results must be available or thrown an exception.
-    let GetVectorResult<'T>(node:Vector<'T>,bt) : 'T[] = 
+    /// Get a result vector. All results must be available or thrown an exception.
+    let GetVectorResult<'T>(node:Vector<'T>,bt): 'T[] = 
         match GetTopLevelExprByName(bt,node.Name) with 
         | ScalarBuildRule _ -> failwith "Expected vector."
         | VectorBuildRule ve -> AvailableAllResultsOfExpr bt ve |> List.map(unbox) |> Array.ofList
         
-  /// Get an element of vector result or None if there were no results.
-    let GetVectorResultBySlot<'T>(node:Vector<'T>,slot,bt) : ('T*DateTime) option = 
+    /// Get an element of vector result or None if there were no results.
+    let GetVectorResultBySlot<'T>(node:Vector<'T>,slot,bt): ('T*DateTime) option = 
         match GetTopLevelExprByName(bt,node.Name) with 
         | ScalarBuildRule _ -> failwith "Expected vector expression"
         | VectorBuildRule ve ->
@@ -816,10 +827,10 @@ module internal IncrementalBuild =
             | None->None
 
     /// Given an input value, find the corresponding slot.        
-    let TryGetSlotByInput<'T>(node:Vector<'T>,input:'T,build:PartialBuild,equals:'T->'T->bool) : int option = 
+    let TryGetSlotByInput<'T>(node:Vector<'T>,input:'T,build:PartialBuild,equals:'T->'T->bool): int option = 
         let expr = GetExprByName(build,node)
         let id = expr.Id
-        match build.Results.TryFind(id) with 
+        match build.Results.TryFind id with 
         | None -> None
         | Some resultSet ->
         match resultSet with 
@@ -856,29 +867,10 @@ module internal IncrementalBuild =
                override __.Name = name
                override pe.Expr = expr }
     
-#if UNUSED
-    module Scalar =
-    
-        let Map (taskname:string) (task:'I->'O) (input:Scalar<'I>) : Scalar<'O> =
-            let input = input.Expr
-            let expr = ScalarMap(NextId(),taskname,input,unbox >> task >> box)
-            { new Scalar<'O>
-              interface IScalar with
-                   override __.Name = taskname
-                   override pe.Expr = expr}
-                   
-        let Multiplex (taskname:string) (task:'I -> 'O array) (input:Scalar<'I>) : Vector<'O> =      
-            let input = input.Expr
-            let expr = VectorMultiplex(NextId(),taskname,input,unbox >> task >> Array.map box) 
-            { new Vector<'O>
-              interface IVector with
-                   override __.Name = taskname
-                   override pe.Expr = expr}    
-#endif
             
     module Vector =
         /// Maps one vector to another using the given function.    
-        let Map (taskname:string) (task:'I ->'O) (input:Vector<'I>) : Vector<'O> = 
+        let Map (taskname:string) (task:'I ->'O) (input:Vector<'I>): Vector<'O> = 
             let input = input.Expr
             let expr = VectorMap(NextId(),taskname,input,unbox >> task >> box) 
             { new Vector<'O>
@@ -889,7 +881,7 @@ module internal IncrementalBuild =
         
         /// Apply a function to each element of the vector, threading an accumulator argument
         /// through the computation. Returns intermediate results in a vector.
-        let ScanLeft (taskname:string) (task:'A -> 'I -> Eventually<'A>) (acc:Scalar<'A>) (input:Vector<'I>) : Vector<'A> =
+        let ScanLeft (taskname:string) (task:'A -> 'I -> Eventually<'A>) (acc:Scalar<'A>) (input:Vector<'I>): Vector<'A> =
             let BoxingScanLeft a i = Eventually.box(task (unbox a) (unbox i))
             let acc = acc.Expr
             let input = input.Expr
@@ -900,7 +892,7 @@ module internal IncrementalBuild =
                    override pe.Expr = expr }    
             
         /// Apply a function to a vector to get a scalar value.
-        let Demultiplex (taskname:string) (task:'I[] -> 'O) (input:Vector<'I>) : Scalar<'O> =
+        let Demultiplex (taskname:string) (task:'I[] -> 'O) (input:Vector<'I>): Scalar<'O> =
             let BoxingDemultiplex i =
                 box(task (Array.map unbox i) )
             let input = input.Expr
@@ -912,7 +904,7 @@ module internal IncrementalBuild =
             
         /// Creates a new vector with the same items but with 
         /// timestamp specified by the passed-in function.  
-        let Stamp (taskname:string) (task:'I -> DateTime) (input:Vector<'I>) : Vector<'I> =
+        let Stamp (taskname:string) (task:'I -> DateTime) (input:Vector<'I>): Vector<'I> =
             let BoxingTouch i =
                 task(unbox i)
             let input = input.Expr
@@ -922,7 +914,7 @@ module internal IncrementalBuild =
                    override __.Name = taskname
                    override pe.Expr = expr }    
 
-        let AsScalar (taskname:string) (input:Vector<'I>) : Scalar<'I array> = 
+        let AsScalar (taskname:string) (input:Vector<'I>): Scalar<'I array> = 
             Demultiplex taskname (fun v->v) input
                   
     let VectorInput(node:Vector<'T>, values: 'T list) = (node.Name, values.Length, List.map box values)
@@ -1015,7 +1007,7 @@ type ErrorScope()  =
 
     static member MostRecentError = mostRecentError
     
-    static member Protect<'a> (m:range) (f:unit->'a) (err:string->'a) : 'a = 
+    static member Protect<'a> (m:range) (f:unit->'a) (err:string->'a): 'a = 
         use errorScope = new ErrorScope()
         let res = 
             try 
@@ -1034,67 +1026,37 @@ type ErrorScope()  =
     static member ProtectAndDiscard m f = 
         ErrorScope.Protect m f (fun _ -> ())
       
-// ------------------------------------------------------------------------------------------
-// The incremental build definition for parsing and typechecking F#
-// ------------------------------------------------------------------------------------------
-module internal IncrementalFSharpBuild =
 
-    open Internal.Utilities
-    open Internal.Utilities.Collections
+module Tc = Microsoft.FSharp.Compiler.TypeChecker
 
-    open IncrementalBuild
-    open Microsoft.FSharp.Compiler.CompileOps
-    open Microsoft.FSharp.Compiler.CompileOptions
-    open Microsoft.FSharp.Compiler.Ast
-    open Microsoft.FSharp.Compiler.ErrorLogger
-    open Microsoft.FSharp.Compiler.TcGlobals
-    open Microsoft.FSharp.Compiler.TypeChecker
-    open Microsoft.FSharp.Compiler.Tast 
-    open Microsoft.FSharp.Compiler.Range
-    open Microsoft.FSharp.Compiler
-    open Microsoft.FSharp.Compiler.AbstractIL.Internal
+open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
+open Internal.Utilities.Debug
 
-    module Tc = Microsoft.FSharp.Compiler.TypeChecker
+/// Accumulated results of type checking.
+[<NoEquality; NoComparison>]
+type TypeCheckAccumulator =
+    { tcState: TcState
+      tcImports:TcImports
+      tcGlobals:TcGlobals
+      tcConfig:TcConfig
+      tcEnvAtEndOfFile: TcEnv
+      tcResolutions: TcResolutions list
+      tcSymbolUses: TcSymbolUses list
+      topAttribs:TopAttribs option
+      typedImplFiles:TypedImplFile list
+      tcErrors:(PhasedError * FSharpErrorSeverity) list } // errors=true, warnings=false
 
-    open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
-    open Internal.Utilities.Debug
-
-    /// Accumulated results of type checking.
-    [<NoEquality; NoComparison>]
-    type TypeCheckAccumulator =
-        { tcState: TcState
-          tcImports:TcImports
-          tcGlobals:TcGlobals
-          tcConfig:TcConfig
-          tcEnvAtEndOfFile: TcEnv
-          tcResolutions: TcResolutions list
-          tcSymbolUses: TcSymbolUses list
-          topAttribs:TopAttribs option
-          typedImplFiles:TypedImplFile list
-          tcErrors:(PhasedError * FSharpErrorSeverity) list } // errors=true, warnings=false
-
-    /// Maximum time share for a piece of background work before it should (cooperatively) yield
-    /// to enable other requests to be serviced. Yielding means returning a continuation function
-    /// (via an Eventually<_> value of case NotYetDone) that can be called as the next piece of work. 
-    let maxTimeShareMilliseconds = 
-#if SILVERLIGHT
-        50L
-#else
-        match System.Environment.GetEnvironmentVariable("FCS_MaxTimeShare") with 
-        | null | "" -> 50L
-        | s -> int64 s
-#endif
       
-    /// Global service state
-    type FrameworkImportsCacheKey = (*resolvedpath*)string list * string * (*ClrRoot*)string list* (*fsharpBinaries*)string
+/// Global service state
+type FrameworkImportsCacheKey = (*resolvedpath*)string list * string * (*ClrRoot*)string list* (*fsharpBinaries*)string
 
-    type FrameworkImportsCache(keepStrongly) = 
-      let frameworkTcImportsCache = AgedLookup<FrameworkImportsCacheKey,(TcGlobals * TcImports)>(keepStrongly, areSame=(fun (x,y) -> x = y)) 
-      member __.Downsize() = frameworkTcImportsCache.Resize(keepStrongly=0)
-      member __.Clear() = frameworkTcImportsCache.Clear()
+type FrameworkImportsCache(keepStrongly) = 
+    let frameworkTcImportsCache = AgedLookup<FrameworkImportsCacheKey,(TcGlobals * TcImports)>(keepStrongly, areSame=(fun (x,y) -> x = y)) 
+    member __.Downsize() = frameworkTcImportsCache.Resize(keepStrongly=0)
+    member __.Clear() = frameworkTcImportsCache.Clear()
 
-      /// This function strips the "System" assemblies from the tcConfig and returns a age-cached TcImports for them.
-      member __.Get(tcConfig:TcConfig) =
+    /// This function strips the "System" assemblies from the tcConfig and returns a age-cached TcImports for them.
+    member __.Get(tcConfig:TcConfig) =
         // Split into installed and not installed.
         let frameworkDLLs,nonFrameworkResolutions,unresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
         let frameworkDLLsKey = 
@@ -1108,9 +1070,9 @@ module internal IncrementalFSharpBuild =
             // the import of a set of framework DLLs into F# CCUs. That is, the F# CCUs that result from a set of DLLs (including
             // FSharp.Core.dll and mscorlib.dll) must be logically invariant of all the other compiler configuration parameters.
             let key = (frameworkDLLsKey,
-                       tcConfig.primaryAssembly.Name, 
-                       tcConfig.ClrRoot,
-                       tcConfig.fsharpBinariesDir)
+                        tcConfig.primaryAssembly.Name, 
+                        tcConfig.ClrRoot,
+                        tcConfig.fsharpBinariesDir)
             match frameworkTcImportsCache.TryGet key with 
             | Some res -> res
             | None -> 
@@ -1121,700 +1083,708 @@ module internal IncrementalFSharpBuild =
         tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolved
 
 
-    /// An error logger that capture errors, filtering them according to warning levels etc.
-    type CompilationErrorLogger (debugName:string, tcConfig:TcConfig) = 
-        inherit ErrorLogger("CompilationErrorLogger("+debugName+")")
+/// An error logger that capture errors, filtering them according to warning levels etc.
+type CompilationErrorLogger (debugName:string, tcConfig:TcConfig) = 
+    inherit ErrorLogger("CompilationErrorLogger("+debugName+")")
             
-        let warningsSeenInScope = new ResizeArray<_>()
-        let errorsSeenInScope = new ResizeArray<_>()
+    let warningsSeenInScope = new ResizeArray<_>()
+    let errorsSeenInScope = new ResizeArray<_>()
             
-        let warningOrError warn exn = 
-            let warn = warn && not (ReportWarningAsError (tcConfig.globalWarnLevel, tcConfig.specificWarnOff, tcConfig.specificWarnOn, tcConfig.specificWarnAsError, tcConfig.specificWarnAsWarn, tcConfig.globalWarnAsError) exn)                
-            if not warn then
-                errorsSeenInScope.Add(exn)
-            else if ReportWarning (tcConfig.globalWarnLevel, tcConfig.specificWarnOff, tcConfig.specificWarnOn) exn then 
-                warningsSeenInScope.Add(exn)
+    let warningOrError warn exn = 
+        let warn = warn && not (ReportWarningAsError (tcConfig.globalWarnLevel, tcConfig.specificWarnOff, tcConfig.specificWarnOn, tcConfig.specificWarnAsError, tcConfig.specificWarnAsWarn, tcConfig.globalWarnAsError) exn)                
+        if not warn then
+            errorsSeenInScope.Add(exn)
+        else if ReportWarning (tcConfig.globalWarnLevel, tcConfig.specificWarnOff, tcConfig.specificWarnOn) exn then 
+            warningsSeenInScope.Add(exn)
 
-        override x.WarnSinkImpl(exn) = warningOrError true exn
-        override x.ErrorSinkImpl(exn) = warningOrError false exn
-        override x.ErrorCount = errorsSeenInScope.Count
+    override x.WarnSinkImpl(exn) = warningOrError true exn
+    override x.ErrorSinkImpl(exn) = warningOrError false exn
+    override x.ErrorCount = errorsSeenInScope.Count
 
-        member x.GetErrors() = 
-            [ for e in errorsSeenInScope -> e,FSharpErrorSeverity.Error 
-              for e in warningsSeenInScope -> e,FSharpErrorSeverity.Warning ]
+    member x.GetErrors() = 
+        [ for e in errorsSeenInScope -> e,FSharpErrorSeverity.Error 
+          for e in warningsSeenInScope -> e,FSharpErrorSeverity.Warning ]
 
 
-    /// This represents the global state established as each task function runs as part of the build
-    ///
-    /// Use to reset error and warning handlers            
-    type CompilationGlobalsScope(errorLogger:ErrorLogger,phase,projectDirectory) = 
-        do ignore projectDirectory
-        let unwindEL = PushErrorLoggerPhaseUntilUnwind(fun _ -> errorLogger)
-        let unwindBP = PushThreadBuildPhaseUntilUnwind (phase)
-        // Return the disposable object that cleans up
-        interface IDisposable with
-            member d.Dispose() =
-                unwindBP.Dispose()         
-                unwindEL.Dispose()
+/// This represents the global state established as each task function runs as part of the build
+///
+/// Use to reset error and warning handlers            
+type CompilationGlobalsScope(errorLogger:ErrorLogger,phase,projectDirectory) = 
+    do ignore projectDirectory
+    let unwindEL = PushErrorLoggerPhaseUntilUnwind(fun _ -> errorLogger)
+    let unwindBP = PushThreadBuildPhaseUntilUnwind (phase)
+    // Return the disposable object that cleans up
+    interface IDisposable with
+        member d.Dispose() =
+            unwindBP.Dispose()         
+            unwindEL.Dispose()
                             
         
 
-    //------------------------------------------------------------------------------------
-    // Rules for reactive building.
+//------------------------------------------------------------------------------------
+// Rules for reactive building.
+//
+// This phrases the compile as a series of vector functions and vector manipulations.
+// Rules written in this language are then transformed into a plan to execute the 
+// various steps of the process.
+//-----------------------------------------------------------------------------------
+
+type PartialCheckResults = 
+    { TcState: TcState 
+      TcImports: TcImports 
+      TcGlobals: TcGlobals 
+      TcConfig: TcConfig 
+      TcEnvAtEnd: TcEnv 
+      Errors: (PhasedError * FSharpErrorSeverity) list 
+      TcResolutions: TcResolutions list 
+      TcSymbolUses: TcSymbolUses list 
+      TopAttribs: TopAttribs option
+      TimeStamp: System.DateTime }
+
+    static member Create (tcAcc: TypeCheckAccumulator, timestamp) = 
+        { TcState = tcAcc.tcState
+          TcImports = tcAcc.tcImports
+          TcGlobals = tcAcc.tcGlobals
+          TcConfig = tcAcc.tcConfig
+          TcEnvAtEnd = tcAcc.tcEnvAtEndOfFile
+          Errors = tcAcc.tcErrors
+          TcResolutions = tcAcc.tcResolutions
+          TcSymbolUses = tcAcc.tcSymbolUses
+          TopAttribs = tcAcc.topAttribs
+          TimeStamp = timestamp }
+
+
+type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig: TcConfig, projectDirectory, outfile, assemblyName, niceNameGen: Ast.NiceNameGenerator, lexResourceManager,
+                        sourceFiles, projectReferences: IProjectReference list, ensureReactive, 
+                        keepAssemblyContents, keepAllBackgroundResolutions) =
+
+    /// Maximum time share for a piece of background work before it should (cooperatively) yield
+    /// to enable other requests to be serviced. Yielding means returning a continuation function
+    /// (via an Eventually<_> value of case NotYetDone) that can be called as the next piece of work. 
+    let maxTimeShareMilliseconds = 
+        match System.Environment.GetEnvironmentVariable("FCS_MaxTimeShare") with 
+        | null | "" -> 50L
+        | s -> int64 s
+
+    let tcConfigP = TcConfigProvider.Constant(tcConfig)
+    let importsInvalidated = new Event<string>()
+    let fileParsed = new Event<_>()
+    let beforeTypeCheckFile = new Event<_>()
+    let fileChecked = new Event<_>()
+    let projectChecked = new Event<_>()
+
+    // Resolve assemblies and create the framework TcImports. This is done when constructing the
+    // builder itself, rather than as an incremental task. This caches a level of "system" references. No type providers are 
+    // included in these references. 
+    let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = frameworkTcImportsCache.Get tcConfig
+        
+    // Check for the existence of loaded sources and prepend them to the sources list if present.
+    let sourceFiles = tcConfig.GetAvailableLoadedSources() @ (sourceFiles |>List.map(fun s -> rangeStartup,s))
+
+    // Mark up the source files with an indicator flag indicating if they are the last source file in the project
+    let sourceFiles = 
+        let flags = tcConfig.ComputeCanContainEntryPoint(sourceFiles |> List.map snd)
+        (sourceFiles,flags) ||> List.map2 (fun (m,nm) flag -> (m,nm,flag))
+
+    // Get the names and time stamps of all the non-framework referenced assemblies, which will act 
+    // as inputs to one of the nodes in the build. 
     //
-    // This phrases the compile as a series of vector functions and vector manipulations.
-    // Rules written in this language are then transformed into a plan to execute the 
-    // various steps of the process.
-    //-----------------------------------------------------------------------------------
+    // This operation is done when constructing the builder itself, rather than as an incremental task. 
+    let nonFrameworkAssemblyInputs = 
+        // Note we are not calling errorLogger.GetErrors() anywhere for this task. 
+        // REVIEW: Consider if this is ok. I believe so, because this is a background build and we aren'T currently reporting errors from the background build. 
+        let errorLogger = CompilationErrorLogger("nonFrameworkAssemblyInputs", tcConfig)
+        // Return the disposable object that cleans up
+        use _holder = new CompilationGlobalsScope(errorLogger,BuildPhase.Parameter, projectDirectory) 
 
-    type PartialCheckResults = 
-      { TcState : TcState 
-        TcImports: TcImports 
-        TcGlobals: TcGlobals 
-        TcConfig: TcConfig 
-        TcEnvAtEnd : TcEnv 
-        Errors : (PhasedError * FSharpErrorSeverity) list 
-        TcResolutions: TcResolutions list 
-        TcSymbolUses: TcSymbolUses list 
-        TopAttribs: TopAttribs option
-        TimeStamp: System.DateTime }
-
-    let GetPartialCheckResults (tcAcc: TypeCheckAccumulator, timestamp) = 
-      { TcState = tcAcc.tcState
-        TcImports = tcAcc.tcImports
-        TcGlobals = tcAcc.tcGlobals
-        TcConfig = tcAcc.tcConfig
-        TcEnvAtEnd = tcAcc.tcEnvAtEndOfFile
-        Errors = tcAcc.tcErrors
-        TcResolutions = tcAcc.tcResolutions
-        TcSymbolUses = tcAcc.tcSymbolUses
-        TopAttribs = tcAcc.topAttribs
-        TimeStamp = timestamp }
-
-
-    type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig : TcConfig, projectDirectory, outfile, assemblyName, niceNameGen : Ast.NiceNameGenerator, lexResourceManager,
-                            sourceFiles, projectReferences: IProjectReference list, ensureReactive, 
-                            keepAssemblyContents, keepAllBackgroundResolutions) =
-
-        let tcConfigP = TcConfigProvider.Constant(tcConfig)
-        let importsInvalidated = new Event<string>()
-        let fileParsed = new Event<_>()
-        let beforeTypeCheckFile = new Event<_>()
-        let fileChecked = new Event<_>()
-        let projectChecked = new Event<_>()
-
-        // Resolve assemblies and create the framework TcImports. This is done when constructing the
-        // builder itself, rather than as an incremental task. This caches a level of "system" references. No type providers are 
-        // included in these references. 
-        let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = frameworkTcImportsCache.Get tcConfig
-        
-        // Check for the existence of loaded sources and prepend them to the sources list if present.
-        let sourceFiles = tcConfig.GetAvailableLoadedSources() @ (sourceFiles |>List.map(fun s -> rangeStartup,s))
-
-        // Mark up the source files with an indicator flag indicating if they are the last source file in the project
-        let sourceFiles = 
-            let flags = tcConfig.ComputeCanContainEntryPoint(sourceFiles |> List.map snd)
-            (sourceFiles,flags) ||> List.map2 (fun (m,nm) flag -> (m,nm,flag))
-
-        // Get the names and time stamps of all the non-framework referenced assemblies, which will act 
-        // as inputs to one of the nodes in the build. 
-        //
-        // This operation is done when constructing the builder itself, rather than as an incremental task. 
-        let nonFrameworkAssemblyInputs = 
-            // Note we are not calling errorLogger.GetErrors() anywhere for this task. 
-            // REVIEW: Consider if this is ok. I believe so, because this is a background build and we aren'T currently reporting errors from the background build. 
-            let errorLogger = CompilationErrorLogger("nonFrameworkAssemblyInputs", tcConfig)
-            // Return the disposable object that cleans up
-            use _holder = new CompilationGlobalsScope(errorLogger,BuildPhase.Parameter, projectDirectory) 
-
-            [ for r in nonFrameworkResolutions do
-                let originalTimeStamp = 
-                    try 
-                        if FileSystem.SafeExists(r.resolvedPath) then
-                            let result = FileSystem.GetLastWriteTimeShim(r.resolvedPath)
-                            result
-                        else
-                            DateTime.Now                               
-                    with e -> 
-                        // Note we are not calling errorLogger.GetErrors() anywhere for this task. This warning will not be reported...
-                        // REVIEW: Consider if this is ok. I believe so, because this is a background build and we aren't currently reporting errors from the background build. 
-                        errorLogger.Warning(e)
+        [ for r in nonFrameworkResolutions do
+            let originalTimeStamp = 
+                try 
+                    if FileSystem.SafeExists(r.resolvedPath) then
+                        let result = FileSystem.GetLastWriteTimeShim(r.resolvedPath)
+                        result
+                    else
                         DateTime.Now                               
-                yield (Choice1Of2 r.resolvedPath,originalTimeStamp)  
-              for pr in projectReferences  do
-                yield Choice2Of2 pr, defaultArg (pr.GetLogicalTimeStamp()) DateTime.Now]
+                with e -> 
+                    // Note we are not calling errorLogger.GetErrors() anywhere for this task. This warning will not be reported...
+                    // REVIEW: Consider if this is ok. I believe so, because this is a background build and we aren't currently reporting errors from the background build. 
+                    errorLogger.Warning(e)
+                    DateTime.Now                               
+            yield (Choice1Of2 r.resolvedPath,originalTimeStamp)  
+            for pr in projectReferences  do
+            yield Choice2Of2 pr, defaultArg (pr.GetLogicalTimeStamp()) DateTime.Now]
             
-        // The IncrementalBuilder needs to hold up to one item that needs to be disposed, which is the tcImports for the incremental
-        // build. 
-        let mutable cleanupItem = None : TcImports option
-        let disposeCleanupItem() =
-             match cleanupItem with 
-             | None -> ()
-             | Some item -> 
-                 cleanupItem <- None
-                 dispose item 
+    // The IncrementalBuilder needs to hold up to one item that needs to be disposed, which is the tcImports for the incremental
+    // build. 
+    let mutable cleanupItem = None: TcImports option
+    let disposeCleanupItem() =
+            match cleanupItem with 
+            | None -> ()
+            | Some item -> 
+                cleanupItem <- None
+                dispose item 
 
-        let setCleanupItem x = 
-             assert cleanupItem.IsNone
-             cleanupItem <- Some x
+    let setCleanupItem x = 
+            assert cleanupItem.IsNone
+            cleanupItem <- Some x
 
-        let mutable disposed = false
-        let assertNotDisposed() =
-            if disposed then  
-                System.Diagnostics.Debug.Assert(false, "IncrementalBuild object has already been disposed!")
-        let mutable referenceCount = 0
+    let mutable disposed = false
+    let assertNotDisposed() =
+        if disposed then  
+            System.Diagnostics.Debug.Assert(false, "IncrementalBuild object has already been disposed!")
+    let mutable referenceCount = 0
 
-        ///----------------------------------------------------
-        /// START OF BUILD TASK FUNCTIONS 
+    ///----------------------------------------------------
+    /// START OF BUILD TASK FUNCTIONS 
                 
-        /// This is a build task function that gets placed into the build rules as the computation for a VectorStamp
-        ///
-        /// Get the timestamp of the given file name.
-        let StampFileNameTask (_m:range, filename:string, _isLastCompiland:bool) =
-            assertNotDisposed()
-            FileSystem.GetLastWriteTimeShim(filename)
+    /// This is a build task function that gets placed into the build rules as the computation for a VectorStamp
+    ///
+    /// Get the timestamp of the given file name.
+    let StampFileNameTask (_m:range, filename:string, _isLastCompiland:bool) =
+        assertNotDisposed()
+        FileSystem.GetLastWriteTimeShim(filename)
                             
-        /// This is a build task function that gets placed into the build rules as the computation for a VectorMap
-        ///
-        /// Parse the given files and return the given inputs. This function is expected to be
-        /// able to be called with a subset of sourceFiles and return the corresponding subset of
-        /// parsed inputs. 
-        let ParseTask (sourceRange:range,filename:string,isLastCompiland) =
-            assertNotDisposed()
-            let errorLogger = CompilationErrorLogger("ParseTask", tcConfig)
-            // Return the disposable object that cleans up
-            use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parse, projectDirectory)
+    /// This is a build task function that gets placed into the build rules as the computation for a VectorMap
+    ///
+    /// Parse the given files and return the given inputs. This function is expected to be
+    /// able to be called with a subset of sourceFiles and return the corresponding subset of
+    /// parsed inputs. 
+    let ParseTask (sourceRange:range,filename:string,isLastCompiland) =
+        assertNotDisposed()
+        let errorLogger = CompilationErrorLogger("ParseTask", tcConfig)
+        // Return the disposable object that cleans up
+        use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parse, projectDirectory)
 
-            try  
-                let result = ParseOneInputFile(tcConfig,lexResourceManager, [], filename ,isLastCompiland,errorLogger,(*retryLocked*)true)
-                fileParsed.Trigger filename
-                result,sourceRange,filename,errorLogger.GetErrors ()
-            with exn -> 
-                System.Diagnostics.Debug.Assert(false, sprintf "unexpected failure in IncrementalFSharpBuild.Parse\nerror = %s" (exn.ToString()))
-                failwith "last chance failure"  
+        try  
+            let result = ParseOneInputFile(tcConfig,lexResourceManager, [], filename ,isLastCompiland,errorLogger,(*retryLocked*)true)
+            fileParsed.Trigger filename
+            result,sourceRange,filename,errorLogger.GetErrors ()
+        with exn -> 
+            System.Diagnostics.Debug.Assert(false, sprintf "unexpected failure in IncrementalFSharpBuild.Parse\nerror = %s" (exn.ToString()))
+            failwith "last chance failure"  
                 
         
-        /// This is a build task function that gets placed into the build rules as the computation for a Vector.Stamp
-        ///
-        /// Timestamps of referenced assemblies are taken from the file's timestamp.
-        let TimestampReferencedAssemblyTask (ref, originalTimeStamp) =
-            assertNotDisposed()
-            // Note: we are not calling errorLogger.GetErrors() anywhere. Not a problem because timestamping can't really fail
-            let errorLogger = CompilationErrorLogger("TimestampReferencedAssemblyTask", tcConfig)
-            // Return the disposable object that cleans up
-            use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parameter, projectDirectory) // Parameter because -r reference
+    /// This is a build task function that gets placed into the build rules as the computation for a Vector.Stamp
+    ///
+    /// Timestamps of referenced assemblies are taken from the file's timestamp.
+    let TimestampReferencedAssemblyTask (ref, originalTimeStamp) =
+        assertNotDisposed()
+        // Note: we are not calling errorLogger.GetErrors() anywhere. Not a problem because timestamping can't really fail
+        let errorLogger = CompilationErrorLogger("TimestampReferencedAssemblyTask", tcConfig)
+        // Return the disposable object that cleans up
+        use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parameter, projectDirectory) // Parameter because -r reference
 
-            let timestamp = 
-                try
-                    match ref with 
-                    | Choice1Of2 (filename) -> 
-                        if FileSystem.SafeExists(filename) then
-                            FileSystem.GetLastWriteTimeShim(filename)
-                        else
-                            originalTimeStamp
-                    | Choice2Of2 (pr:IProjectReference) ->
-                        defaultArg (pr.GetLogicalTimeStamp()) originalTimeStamp
-                with exn -> 
-                    // Note we are not calling errorLogger.GetErrors() anywhere for this task. This warning will not be reported...
-                    errorLogger.Warning exn
-                    originalTimeStamp                      
-            timestamp
+        let timestamp = 
+            try
+                match ref with 
+                | Choice1Of2 (filename) -> 
+                    if FileSystem.SafeExists(filename) then
+                        FileSystem.GetLastWriteTimeShim(filename)
+                    else
+                        originalTimeStamp
+                | Choice2Of2 (pr:IProjectReference) ->
+                    defaultArg (pr.GetLogicalTimeStamp()) originalTimeStamp
+            with exn -> 
+                // Note we are not calling errorLogger.GetErrors() anywhere for this task. This warning will not be reported...
+                errorLogger.Warning exn
+                originalTimeStamp                      
+        timestamp
                 
          
-        /// This is a build task function that gets placed into the build rules as the computation for a Vector.Demultiplex
-        ///
-        // Link all the assemblies together and produce the input typecheck accumulator               
-        let CombineImportedAssembliesTask _ : TypeCheckAccumulator =
-            assertNotDisposed()
-            let errorLogger = CompilationErrorLogger("CombineImportedAssembliesTask", tcConfig)
-            // Return the disposable object that cleans up
-            use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parameter, projectDirectory)
+    /// This is a build task function that gets placed into the build rules as the computation for a Vector.Demultiplex
+    ///
+    // Link all the assemblies together and produce the input typecheck accumulator               
+    let CombineImportedAssembliesTask _: TypeCheckAccumulator =
+        assertNotDisposed()
+        let errorLogger = CompilationErrorLogger("CombineImportedAssembliesTask", tcConfig)
+        // Return the disposable object that cleans up
+        use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parameter, projectDirectory)
 
-            let tcImports = 
-                try
-                    // We dispose any previous tcImports, for the case where a dependency changed which caused this part
-                    // of the partial build to be re-evaluated.
-                    disposeCleanupItem()
+        let tcImports = 
+            try
+                // We dispose any previous tcImports, for the case where a dependency changed which caused this part
+                // of the partial build to be re-evaluated.
+                disposeCleanupItem()
 
-                    let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences)  
+                let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences)  
 #if EXTENSIONTYPING
-                    for ccu in tcImports.GetCcusExcludingBase() do
-                        // When a CCU reports an invalidation, merge them together and just report a 
-                        // general "imports invalidated". This triggers a rebuild.
-                        ccu.Deref.InvalidateEvent.Add(fun msg -> importsInvalidated.Trigger msg)
+                for ccu in tcImports.GetCcusExcludingBase() do
+                    // When a CCU reports an invalidation, merge them together and just report a 
+                    // general "imports invalidated". This triggers a rebuild.
+                    ccu.Deref.InvalidateEvent.Add(fun msg -> importsInvalidated.Trigger msg)
 #endif
                     
                     
-                    // The tcImports must be cleaned up if this builder ever gets disposed. We also dispose any previous
-                    // tcImports should we be re-creating an entry because a dependency changed which caused this part
-                    // of the partial build to be re-evaluated.
-                    setCleanupItem tcImports
+                // The tcImports must be cleaned up if this builder ever gets disposed. We also dispose any previous
+                // tcImports should we be re-creating an entry because a dependency changed which caused this part
+                // of the partial build to be re-evaluated.
+                setCleanupItem tcImports
 
-                    tcImports
-                with e -> 
-                    System.Diagnostics.Debug.Assert(false, sprintf "Could not BuildAllReferencedDllTcImports %A" e)
-                    errorLogger.Warning(e)
-                    frameworkTcImports           
+                tcImports
+            with e -> 
+                System.Diagnostics.Debug.Assert(false, sprintf "Could not BuildAllReferencedDllTcImports %A" e)
+                errorLogger.Warning(e)
+                frameworkTcImports           
 
-            let tcEnv0 = GetInitialTcEnv (Some assemblyName, rangeStartup, tcConfig, tcImports, tcGlobals)
-            let tcState0 = GetInitialTcState (rangeStartup, assemblyName, tcConfig, tcGlobals, tcImports, niceNameGen, tcEnv0)
-            let tcAcc = 
-                { tcGlobals=tcGlobals
-                  tcImports=tcImports
-                  tcState=tcState0
-                  tcConfig=tcConfig
-                  tcEnvAtEndOfFile=tcEnv0
-                  tcResolutions=[]
-                  tcSymbolUses=[]
-                  topAttribs=None
-                  typedImplFiles=[]
-                  tcErrors=errorLogger.GetErrors() }   
-            tcAcc
+        let tcEnv0 = GetInitialTcEnv (Some assemblyName, rangeStartup, tcConfig, tcImports, tcGlobals)
+        let tcState0 = GetInitialTcState (rangeStartup, assemblyName, tcConfig, tcGlobals, tcImports, niceNameGen, tcEnv0)
+        let tcAcc = 
+            { tcGlobals=tcGlobals
+              tcImports=tcImports
+              tcState=tcState0
+              tcConfig=tcConfig
+              tcEnvAtEndOfFile=tcEnv0
+              tcResolutions=[]
+              tcSymbolUses=[]
+              topAttribs=None
+              typedImplFiles=[]
+              tcErrors=errorLogger.GetErrors() }   
+        tcAcc
                 
-        /// This is a build task function that gets placed into the build rules as the computation for a Vector.ScanLeft
-        ///
-        /// Type check all files.     
-        let TypeCheckTask (tcAcc:TypeCheckAccumulator) input : Eventually<TypeCheckAccumulator> =    
-            assertNotDisposed()
-            match input with 
-            | Some input, _sourceRange, filename, parseErrors->
-                let capturingErrorLogger = CompilationErrorLogger("TypeCheckTask", tcConfig)
-                let errorLogger = GetErrorLoggerFilteringByScopedPragmas(false,GetScopedPragmasForInput(input),capturingErrorLogger)
-                let fullComputation = 
-                    eventually {
-                        beforeTypeCheckFile.Trigger filename
+    /// This is a build task function that gets placed into the build rules as the computation for a Vector.ScanLeft
+    ///
+    /// Type check all files.     
+    let TypeCheckTask (tcAcc:TypeCheckAccumulator) input: Eventually<TypeCheckAccumulator> =    
+        assertNotDisposed()
+        match input with 
+        | Some input, _sourceRange, filename, parseErrors->
+            let capturingErrorLogger = CompilationErrorLogger("TypeCheckTask", tcConfig)
+            let errorLogger = GetErrorLoggerFilteringByScopedPragmas(false,GetScopedPragmasForInput(input),capturingErrorLogger)
+            let fullComputation = 
+                eventually {
+                    beforeTypeCheckFile.Trigger filename
 
-                        ApplyMetaCommandsFromInputToTcConfig tcConfig (input, Path.GetDirectoryName filename) |> ignore
-                        let sink = TcResultsSinkImpl(tcAcc.tcGlobals)
-                        let hadParseErrors = not (List.isEmpty parseErrors)
+                    ApplyMetaCommandsFromInputToTcConfig tcConfig (input, Path.GetDirectoryName filename) |> ignore
+                    let sink = TcResultsSinkImpl(tcAcc.tcGlobals)
+                    let hadParseErrors = not (List.isEmpty parseErrors)
 
-                        let! (tcEnvAtEndOfFile,topAttribs,typedImplFiles),tcState = 
-                            TypeCheckOneInputEventually ((fun () -> hadParseErrors || errorLogger.ErrorCount > 0),
-                                                         tcConfig,tcAcc.tcImports,
-                                                         tcAcc.tcGlobals,
-                                                         None,
-                                                         TcResultsSink.WithSink sink,
-                                                         tcAcc.tcState,input)
+                    let! (tcEnvAtEndOfFile,topAttribs,typedImplFiles),tcState = 
+                        TypeCheckOneInputEventually ((fun () -> hadParseErrors || errorLogger.ErrorCount > 0),
+                                                        tcConfig,tcAcc.tcImports,
+                                                        tcAcc.tcGlobals,
+                                                        None,
+                                                        TcResultsSink.WithSink sink,
+                                                        tcAcc.tcState,input)
                         
-                        /// Only keep the typed interface files when doing a "full" build for fsc.exe, otherwise just throw them away
-                        let typedImplFiles = if keepAssemblyContents then typedImplFiles else []
-                        let tcResolutions = if keepAllBackgroundResolutions then sink.GetResolutions() else TcResolutions.Empty
-                        let tcSymbolUses = sink.GetSymbolUses()  
-                        fileChecked.Trigger filename
-                        return {tcAcc with tcState=tcState 
-                                           tcEnvAtEndOfFile=tcEnvAtEndOfFile
-                                           topAttribs=Some topAttribs
-                                           typedImplFiles=typedImplFiles
-                                           tcResolutions=tcAcc.tcResolutions @ [tcResolutions]
-                                           tcSymbolUses=tcAcc.tcSymbolUses @ [tcSymbolUses]
-                                           tcErrors = tcAcc.tcErrors @ parseErrors @ capturingErrorLogger.GetErrors() } 
-                    }
+                    /// Only keep the typed interface files when doing a "full" build for fsc.exe, otherwise just throw them away
+                    let typedImplFiles = if keepAssemblyContents then typedImplFiles else []
+                    let tcResolutions = if keepAllBackgroundResolutions then sink.GetResolutions() else TcResolutions.Empty
+                    let tcSymbolUses = sink.GetSymbolUses()  
+                    fileChecked.Trigger filename
+                    return {tcAcc with tcState=tcState 
+                                       tcEnvAtEndOfFile=tcEnvAtEndOfFile
+                                       topAttribs=Some topAttribs
+                                       typedImplFiles=typedImplFiles
+                                       tcResolutions=tcAcc.tcResolutions @ [tcResolutions]
+                                       tcSymbolUses=tcAcc.tcSymbolUses @ [tcSymbolUses]
+                                       tcErrors = tcAcc.tcErrors @ parseErrors @ capturingErrorLogger.GetErrors() } 
+                }
                     
-                // Run part of the Eventually<_> computation until a timeout is reached. If not complete, 
-                // return a new Eventually<_> computation which recursively runs more of the computation.
-                //   - When the whole thing is finished commit the error results sent through the errorLogger.
-                //   - Each time we do real work we reinstall the CompilationGlobalsScope
-                if ensureReactive then 
-                    let timeSlicedComputation = 
-                        fullComputation |> 
-                           Eventually.repeatedlyProgressUntilDoneOrTimeShareOver 
-                              maxTimeShareMilliseconds
-                              (fun f -> 
-                                  // Reinstall the compilation globals each time we start or restart
-                                  use unwind = new CompilationGlobalsScope (errorLogger, BuildPhase.TypeCheck, projectDirectory) 
-                                  f())
+            // Run part of the Eventually<_> computation until a timeout is reached. If not complete, 
+            // return a new Eventually<_> computation which recursively runs more of the computation.
+            //   - When the whole thing is finished commit the error results sent through the errorLogger.
+            //   - Each time we do real work we reinstall the CompilationGlobalsScope
+            if ensureReactive then 
+                let timeSlicedComputation = 
+                    fullComputation |> 
+                        Eventually.repeatedlyProgressUntilDoneOrTimeShareOver 
+                            maxTimeShareMilliseconds
+                            (fun f -> 
+                                // Reinstall the compilation globals each time we start or restart
+                                use unwind = new CompilationGlobalsScope (errorLogger, BuildPhase.TypeCheck, projectDirectory) 
+                                f())
                                
-                    timeSlicedComputation
-                else 
-                    use unwind = new CompilationGlobalsScope (errorLogger, BuildPhase.TypeCheck, projectDirectory) 
-                    fullComputation |> Eventually.force |> Eventually.Done 
-            | _ -> 
-                Eventually.Done tcAcc
+                timeSlicedComputation
+            else 
+                use unwind = new CompilationGlobalsScope (errorLogger, BuildPhase.TypeCheck, projectDirectory) 
+                fullComputation |> Eventually.force |> Eventually.Done 
+        | _ -> 
+            Eventually.Done tcAcc
                 
-        /// This is a build task function that gets placed into the build rules as the computation for a Vector.Demultiplex
-        ///
-        /// Finish up the typechecking to produce outputs for the rest of the compilation process
-        let FinalizeTypeCheckTask (tcStates:TypeCheckAccumulator[]) = 
-          assertNotDisposed()
-          let errorLogger = CompilationErrorLogger("CombineImportedAssembliesTask", tcConfig)
-          use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.TypeCheck, projectDirectory)
+    /// This is a build task function that gets placed into the build rules as the computation for a Vector.Demultiplex
+    ///
+    /// Finish up the typechecking to produce outputs for the rest of the compilation process
+    let FinalizeTypeCheckTask (tcStates:TypeCheckAccumulator[]) = 
+        assertNotDisposed()
+        let errorLogger = CompilationErrorLogger("CombineImportedAssembliesTask", tcConfig)
+        use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.TypeCheck, projectDirectory)
 
-          // Get the state at the end of the type-checking of the last file
-          let finalAcc = tcStates.[tcStates.Length-1]
+        // Get the state at the end of the type-checking of the last file
+        let finalAcc = tcStates.[tcStates.Length-1]
 
-          // Finish the checking
-          let (_tcEnvAtEndOfLastFile,topAttrs,mimpls),tcState = 
-              let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnvAtEndOfFile, defaultArg acc.topAttribs EmptyTopAttrs, acc.typedImplFiles)
-              TypeCheckMultipleInputsFinish (results,finalAcc.tcState)
+        // Finish the checking
+        let (_tcEnvAtEndOfLastFile,topAttrs,mimpls),tcState = 
+            let results = tcStates |> List.ofArray |> List.map (fun acc-> acc.tcEnvAtEndOfFile, defaultArg acc.topAttribs EmptyTopAttrs, acc.typedImplFiles)
+            TypeCheckMultipleInputsFinish (results,finalAcc.tcState)
 
   
-          let ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt = 
+        let ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt = 
+          try
+            // TypeCheckClosedInputSetFinish fills in tcState.Ccu but in incrfemental scenarios we don't want this,
+            // so we make this temporary here
+            let oldContents = tcState.Ccu.Deref.Contents
             try
-              // TypeCheckClosedInputSetFinish fills in tcState.Ccu but in incrfemental scenarios we don't want this,
-              // so we make this temporary here
-              let oldContents = tcState.Ccu.Deref.Contents
-              try
-                let tcState,tcAssemblyExpr = TypeCheckClosedInputSetFinish (mimpls,tcState)
+            let tcState,tcAssemblyExpr = TypeCheckClosedInputSetFinish (mimpls,tcState)
 
-                /// Try to find an attribute that takes a string argument
-                let TryFindStringAttribute tcGlobals attribSpec attribs =
-                    match TryFindFSharpAttribute tcGlobals attribSpec attribs with
-                    | Some (Attrib(_,_,[ AttribStringArg(s) ],_,_,_,_))  -> Some s
-                    | _ -> None
+            /// Try to find an attribute that takes a string argument
+            let TryFindStringAttribute tcGlobals attribSpec attribs =
+                match TryFindFSharpAttribute tcGlobals attribSpec attribs with
+                | Some (Attrib(_,_,[ AttribStringArg(s) ],_,_,_,_))  -> Some s
+                | _ -> None
 
-                // Compute the identity of the generated assembly based on attributes, options etc.
-                // Some of this is duplicated from fsc.fs
-                let ilAssemRef = 
-                    let publicKey = 
-                        try 
-                            let signingInfo = Driver.ValidateKeySigningAttributes (tcConfig, tcGlobals, topAttrs)
-                            match Driver.GetSigner signingInfo with 
-                            | None -> None
-                            | Some s -> Some (PublicKey.KeyAsToken(s.PublicKey))
-                        with e -> 
-                           errorRecoveryNoRange e
-                           None
-                    let locale = TryFindStringAttribute tcGlobals (mkMscorlibAttrib tcGlobals "System.Reflection.AssemblyCultureAttribute") topAttrs.assemblyAttrs
-                    let assemVerFromAttrib = 
-                        TryFindStringAttribute tcGlobals (mkMscorlibAttrib tcGlobals "System.Reflection.AssemblyVersionAttribute") topAttrs.assemblyAttrs 
-                        |> Option.bind  (fun v -> try Some (parseILVersion v) with _ -> None)
-                    let ver = 
-                        match assemVerFromAttrib with 
-                        | None -> tcConfig.version.GetVersionInfo(tcConfig.implicitIncludeDir)
-                        | Some v -> v
-                    ILAssemblyRef.Create(assemblyName, None, publicKey, false, Some ver, locale)
-                
-                // Here we construct the build data (IRawFSharpAssemblyData) representing the assembly when used 
-                // as a cross-assembly reference.  Note the assembly has not been generated on disk, so this is
-                // a virtualized view of the assembly contents as computed by background checking.
-                let tcAssemblyDataOpt = 
-                  try
-                      // Assemblies containing type provider components can not successfully be used via cross-assembly references.
-                      // We return 'None' for the assembly portion of the cross-assembly reference 
-                      let hasTypeProviderAssemblyAttrib = 
-                          topAttrs.assemblyAttrs |> List.exists (fun (Attrib(tcref,_,_,_,_,_,_)) -> tcref.CompiledRepresentationForNamedType.BasicQualifiedName = typeof<Microsoft.FSharp.Core.CompilerServices.TypeProviderAssemblyAttribute>.FullName)
-                      if hasTypeProviderAssemblyAttrib then
-                        None
-                      else
-                        let generatedCcu = tcState.Ccu
-                        let exportRemapping = MakeExportRemapping generatedCcu generatedCcu.Contents
-                      
-                        let sigData = 
-                            let _sigDataAttributes,sigDataResources = Driver.EncodeInterfaceData(tcConfig,tcGlobals,exportRemapping,generatedCcu,outfile,true)
-                            [ for r in sigDataResources  do
-                                let ccuName = GetSignatureDataResourceName r
-                                let bytes = 
-                                    match r.Location with 
-                                    | ILResourceLocation.Local b -> b()
-                                    | _-> assert false; failwith "unreachable"
-                                yield (ccuName, bytes) ]
-
-                        let autoOpenAttrs = topAttrs.assemblyAttrs |> List.choose (List.singleton >> TryFindStringAttribute tcGlobals tcGlobals.attrib_AutoOpenAttribute)
-                        let ivtAttrs = topAttrs.assemblyAttrs |> List.choose (List.singleton >> TryFindStringAttribute tcGlobals tcGlobals.attrib_InternalsVisibleToAttribute)
-                        let tcAssemblyData = 
-                            { new IRawFSharpAssemblyData with 
-                                 member __.GetAutoOpenAttributes(_ilg) = autoOpenAttrs
-                                 member __.GetInternalsVisibleToAttributes(_ilg) =  ivtAttrs
-                                 member __.TryGetRawILModule() = None
-                                 member __.GetRawFSharpSignatureData(m,ilShortAssemName,filename) = sigData
-                                 member __.GetRawFSharpOptimizationData(m,ilShortAssemName,filename) = [ ]
-                                 member __.GetRawTypeForwarders() = mkILExportedTypes []  // TODO: cross-project references with type forwarders
-                                 member __.ShortAssemblyName = assemblyName
-                                 member __.ILScopeRef = IL.ILScopeRef.Assembly ilAssemRef
-                                 member __.ILAssemblyRefs = [] // These are not significant for service scenarios
-                                 member __.HasAnyFSharpSignatureDataAttribute(ilg) =  true
-                                 member __.HasMatchingFSharpSignatureDataAttribute(ilg) = true
-                                }
-                        Some tcAssemblyData
+            // Compute the identity of the generated assembly based on attributes, options etc.
+            // Some of this is duplicated from fsc.fs
+            let ilAssemRef = 
+                let publicKey = 
+                    try 
+                        let signingInfo = Driver.ValidateKeySigningAttributes (tcConfig, tcGlobals, topAttrs)
+                        match Driver.GetSigner signingInfo with 
+                        | None -> None
+                        | Some s -> Some (PublicKey.KeyAsToken(s.PublicKey))
                     with e -> 
                         errorRecoveryNoRange e
                         None
-                ilAssemRef, tcAssemblyDataOpt, Some tcAssemblyExpr
-              finally 
-                  tcState.Ccu.Deref.Contents <- oldContents
-            with e -> 
-                errorRecoveryNoRange e
-                mkSimpleAssRef assemblyName, None, None
+                let locale = TryFindStringAttribute tcGlobals (mkMscorlibAttrib tcGlobals "System.Reflection.AssemblyCultureAttribute") topAttrs.assemblyAttrs
+                let assemVerFromAttrib = 
+                    TryFindStringAttribute tcGlobals (mkMscorlibAttrib tcGlobals "System.Reflection.AssemblyVersionAttribute") topAttrs.assemblyAttrs 
+                    |> Option.bind  (fun v -> try Some (parseILVersion v) with _ -> None)
+                let ver = 
+                    match assemVerFromAttrib with 
+                    | None -> tcConfig.version.GetVersionInfo(tcConfig.implicitIncludeDir)
+                    | Some v -> v
+                ILAssemblyRef.Create(assemblyName, None, publicKey, false, Some ver, locale)
+                
+            // Here we construct the build data (IRawFSharpAssemblyData) representing the assembly when used 
+            // as a cross-assembly reference.  Note the assembly has not been generated on disk, so this is
+            // a virtualized view of the assembly contents as computed by background checking.
+            let tcAssemblyDataOpt = 
+                try
+                  // Assemblies containing type provider components can not successfully be used via cross-assembly references.
+                  // We return 'None' for the assembly portion of the cross-assembly reference 
+                  let hasTypeProviderAssemblyAttrib = 
+                      topAttrs.assemblyAttrs |> List.exists (fun (Attrib(tcref,_,_,_,_,_,_)) -> tcref.CompiledRepresentationForNamedType.BasicQualifiedName = typeof<Microsoft.FSharp.Core.CompilerServices.TypeProviderAssemblyAttribute>.FullName)
+                  if hasTypeProviderAssemblyAttrib then
+                    None
+                  else
+                    let generatedCcu = tcState.Ccu
+                    let exportRemapping = MakeExportRemapping generatedCcu generatedCcu.Contents
+                      
+                    let sigData = 
+                        let _sigDataAttributes,sigDataResources = Driver.EncodeInterfaceData(tcConfig,tcGlobals,exportRemapping,generatedCcu,outfile,true)
+                        [ for r in sigDataResources  do
+                            let ccuName = GetSignatureDataResourceName r
+                            let bytes = 
+                                match r.Location with 
+                                | ILResourceLocation.Local b -> b()
+                                | _-> assert false; failwith "unreachable"
+                            yield (ccuName, bytes) ]
 
-          let finalAccWithErrors = 
+                    let autoOpenAttrs = topAttrs.assemblyAttrs |> List.choose (List.singleton >> TryFindStringAttribute tcGlobals tcGlobals.attrib_AutoOpenAttribute)
+                    let ivtAttrs = topAttrs.assemblyAttrs |> List.choose (List.singleton >> TryFindStringAttribute tcGlobals tcGlobals.attrib_InternalsVisibleToAttribute)
+                    let tcAssemblyData = 
+                        { new IRawFSharpAssemblyData with 
+                                member __.GetAutoOpenAttributes(_ilg) = autoOpenAttrs
+                                member __.GetInternalsVisibleToAttributes(_ilg) =  ivtAttrs
+                                member __.TryGetRawILModule() = None
+                                member __.GetRawFSharpSignatureData(m,ilShortAssemName,filename) = sigData
+                                member __.GetRawFSharpOptimizationData(m,ilShortAssemName,filename) = [ ]
+                                member __.GetRawTypeForwarders() = mkILExportedTypes []  // TODO: cross-project references with type forwarders
+                                member __.ShortAssemblyName = assemblyName
+                                member __.ILScopeRef = IL.ILScopeRef.Assembly ilAssemRef
+                                member __.ILAssemblyRefs = [] // These are not significant for service scenarios
+                                member __.HasAnyFSharpSignatureDataAttribute(ilg) =  true
+                                member __.HasMatchingFSharpSignatureDataAttribute(ilg) = true
+                            }
+                    Some tcAssemblyData
+                with e -> 
+                    errorRecoveryNoRange e
+                    None
+            ilAssemRef, tcAssemblyDataOpt, Some tcAssemblyExpr
+            finally 
+                tcState.Ccu.Deref.Contents <- oldContents
+          with e -> 
+            errorRecoveryNoRange e
+            mkSimpleAssRef assemblyName, None, None
+
+        let finalAccWithErrors = 
             { finalAcc with 
                 tcErrors = finalAcc.tcErrors @ errorLogger.GetErrors() 
                 topAttribs = Some topAttrs
             }
-          ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt, finalAccWithErrors
+        ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt, finalAccWithErrors
 
-        // END OF BUILD TASK FUNCTIONS
-        // ---------------------------------------------------------------------------------------------            
+    // END OF BUILD TASK FUNCTIONS
+    // ---------------------------------------------------------------------------------------------            
 
-        // ---------------------------------------------------------------------------------------------            
-        // START OF BUILD DESCRIPTION
+    // ---------------------------------------------------------------------------------------------            
+    // START OF BUILD DESCRIPTION
 
-        // Inputs
-        let fileNamesNode               = InputVector<range*string*bool> "FileNames"
-        let referencedAssembliesNode    = InputVector<Choice<string,IProjectReference>*DateTime> "ReferencedAssemblies"
+    // Inputs
+    let fileNamesNode               = InputVector<range*string*bool> "FileNames"
+    let referencedAssembliesNode    = InputVector<Choice<string,IProjectReference>*DateTime> "ReferencedAssemblies"
         
-        // Build
-        let stampedFileNamesNode        = Vector.Stamp "SourceFileTimeStamps" StampFileNameTask fileNamesNode
-        let parseTreesNode              = Vector.Map "ParseTrees" ParseTask stampedFileNamesNode
-        let stampedReferencedAssembliesNode = Vector.Stamp "TimestampReferencedAssembly" TimestampReferencedAssemblyTask referencedAssembliesNode
-        let initialTcAccNode            = Vector.Demultiplex "CombineImportedAssemblies" CombineImportedAssembliesTask stampedReferencedAssembliesNode
-        let tcStatesNode                = Vector.ScanLeft "TypeCheckingStates" TypeCheckTask initialTcAccNode parseTreesNode
-        let finalizedTypeCheckNode      = Vector.Demultiplex "FinalizeTypeCheck" FinalizeTypeCheckTask tcStatesNode
+    // Build
+    let stampedFileNamesNode        = Vector.Stamp "SourceFileTimeStamps" StampFileNameTask fileNamesNode
+    let parseTreesNode              = Vector.Map "ParseTrees" ParseTask stampedFileNamesNode
+    let stampedReferencedAssembliesNode = Vector.Stamp "TimestampReferencedAssembly" TimestampReferencedAssemblyTask referencedAssembliesNode
+    let initialTcAccNode            = Vector.Demultiplex "CombineImportedAssemblies" CombineImportedAssembliesTask stampedReferencedAssembliesNode
+    let tcStatesNode                = Vector.ScanLeft "TypeCheckingStates" TypeCheckTask initialTcAccNode parseTreesNode
+    let finalizedTypeCheckNode      = Vector.Demultiplex "FinalizeTypeCheck" FinalizeTypeCheckTask tcStatesNode
 
-        // Outputs
-        let buildDescription            = new BuildDescriptionScope ()
+    // Outputs
+    let buildDescription            = new BuildDescriptionScope ()
 
-        do buildDescription.DeclareVectorOutput parseTreesNode
-        do buildDescription.DeclareVectorOutput tcStatesNode
-        do buildDescription.DeclareScalarOutput initialTcAccNode
-        do buildDescription.DeclareScalarOutput finalizedTypeCheckNode
+    do buildDescription.DeclareVectorOutput parseTreesNode
+    do buildDescription.DeclareVectorOutput tcStatesNode
+    do buildDescription.DeclareScalarOutput initialTcAccNode
+    do buildDescription.DeclareScalarOutput finalizedTypeCheckNode
 
-        // END OF BUILD DESCRIPTION
-        // ---------------------------------------------------------------------------------------------            
+    // END OF BUILD DESCRIPTION
+    // ---------------------------------------------------------------------------------------------            
 
 
-        let fileDependencies = 
-            [ for (UnresolvedAssemblyReference(referenceText, _))  in unresolvedReferences do
-                // Exclude things that are definitely not a file name
-                if not(FileSystem.IsInvalidPathShim(referenceText)) then 
-                    let file = if FileSystem.IsPathRootedShim(referenceText) then referenceText else Path.Combine(projectDirectory,referenceText) 
-                    yield file 
+    let fileDependencies = 
+        [ for (UnresolvedAssemblyReference(referenceText, _))  in unresolvedReferences do
+            // Exclude things that are definitely not a file name
+            if not(FileSystem.IsInvalidPathShim(referenceText)) then 
+                let file = if FileSystem.IsPathRootedShim(referenceText) then referenceText else Path.Combine(projectDirectory,referenceText) 
+                yield file 
 
-              for r in nonFrameworkResolutions do 
-                  yield  r.resolvedPath 
+            for r in nonFrameworkResolutions do 
+                yield  r.resolvedPath 
 
-              for (_,f,_) in sourceFiles do
-                  yield f ]
+            for (_,f,_) in sourceFiles do
+                yield f ]
 
-        let buildInputs = [VectorInput (fileNamesNode, sourceFiles)
-                           VectorInput (referencedAssembliesNode, nonFrameworkAssemblyInputs) ]
+    let buildInputs = [ VectorInput (fileNamesNode, sourceFiles)
+                        VectorInput (referencedAssembliesNode, nonFrameworkAssemblyInputs) ]
 
-        // This is the initial representation of progress through the build, i.e. we have made no progress.
-        let mutable partialBuild = buildDescription.GetInitialPartialBuild (buildInputs, [])
+    // This is the initial representation of progress through the build, i.e. we have made no progress.
+    let mutable partialBuild = buildDescription.GetInitialPartialBuild (buildInputs, [])
 
-        let EvalAndKeepOutput (output:INode) optSlot = 
-            let newPartialBuild = IncrementalBuild.Eval (Target(output.Name, optSlot)) partialBuild
-            partialBuild <- newPartialBuild
-            newPartialBuild
+    let EvalAndKeepOutput (output:INode) optSlot = 
+        let newPartialBuild = IncrementalBuild.Eval (Target(output.Name, optSlot)) partialBuild
+        partialBuild <- newPartialBuild
+        newPartialBuild
 
-        let MaxTimeStampInDependencies (output:INode) optSlot = 
-            IncrementalBuild.MaxTimeStampInDependencies (Target(output.Name, optSlot)) partialBuild 
+    let MaxTimeStampInDependencies (output:INode) optSlot = 
+        IncrementalBuild.MaxTimeStampInDependencies (Target(output.Name, optSlot)) partialBuild 
 
-        member this.IncrementUsageCount() = 
-            assertNotDisposed() 
-            referenceCount  <- referenceCount  + 1
-            { new System.IDisposable with member x.Dispose() = this.DecrementUsageCount() }
+    member this.IncrementUsageCount() = 
+        assertNotDisposed() 
+        referenceCount  <- referenceCount  + 1
+        { new System.IDisposable with member x.Dispose() = this.DecrementUsageCount() }
 
-        member this.DecrementUsageCount() = 
-            assertNotDisposed()
-            referenceCount  <- referenceCount  - 1
-            if referenceCount = 0 then 
-                 disposed <- true
-                 disposeCleanupItem()
+    member this.DecrementUsageCount() = 
+        assertNotDisposed()
+        referenceCount  <- referenceCount  - 1
+        if referenceCount = 0 then 
+                disposed <- true
+                disposeCleanupItem()
 
-        member __.IsAlive = referenceCount > 0
+    member __.IsAlive = referenceCount > 0
 
-        member __.TcConfig = tcConfig
-        member __.FileParsed = fileParsed.Publish
-        member __.BeforeTypeCheckFile = beforeTypeCheckFile.Publish
-        member __.FileChecked = fileChecked.Publish
-        member __.ProjectChecked = projectChecked.Publish
-        member __.ImportedCcusInvalidated = importsInvalidated.Publish
-        member __.Dependencies = fileDependencies 
+    member __.TcConfig = tcConfig
+    member __.FileParsed = fileParsed.Publish
+    member __.BeforeTypeCheckFile = beforeTypeCheckFile.Publish
+    member __.FileChecked = fileChecked.Publish
+    member __.ProjectChecked = projectChecked.Publish
+    member __.ImportedCcusInvalidated = importsInvalidated.Publish
+    member __.Dependencies = fileDependencies 
 #if EXTENSIONTYPING
-        member __.ThereAreLiveTypeProviders = 
-            let liveTPs =
-                match cleanupItem with 
-                | None -> []
-                | Some tcImports -> [for ia in tcImports.GetImportedAssemblies() do yield! ia.TypeProviders]
-            match liveTPs with
-            | [] -> false
-            | _ -> true                
+    member __.ThereAreLiveTypeProviders = 
+        let liveTPs =
+            match cleanupItem with 
+            | None -> []
+            | Some tcImports -> [for ia in tcImports.GetImportedAssemblies() do yield! ia.TypeProviders]
+        match liveTPs with
+        | [] -> false
+        | _ -> true                
 #endif
 
-        member __.Step () =  
-            match IncrementalBuild.Step (Target(tcStatesNode.Name, None)) partialBuild with 
-            | None -> 
-                projectChecked.Trigger()
-                false
-            | Some newPartialBuild -> 
-                partialBuild <- newPartialBuild
-                true
+    member __.Step () =  
+        match IncrementalBuild.Step (Target(tcStatesNode.Name, None)) partialBuild with 
+        | None -> 
+            projectChecked.Trigger()
+            false
+        | Some newPartialBuild -> 
+            partialBuild <- newPartialBuild
+            true
     
-        member ib.GetCheckResultsBeforeFileInProjectIfReady filename : PartialCheckResults option  = 
-            let slotOfFile = ib.GetSlotOfFileName filename
-            let result = 
-                match slotOfFile with
-                | (*first file*) 0 -> GetScalarResult(initialTcAccNode,partialBuild)
-                | _ -> GetVectorResultBySlot(tcStatesNode,slotOfFile-1,partialBuild)  
-        
-            match result with
-            | Some(tcAcc,timestamp) -> Some(GetPartialCheckResults (tcAcc,timestamp))
-            | _->None
-        
-    
-        member ib.AreCheckResultsBeforeFileInProjectReady filename = 
-            let slotOfFile = ib.GetSlotOfFileName filename
+    member ib.GetCheckResultsBeforeFileInProjectIfReady filename: PartialCheckResults option  = 
+        let slotOfFile = ib.GetSlotOfFileName filename
+        let result = 
             match slotOfFile with
-            | (*first file*) 0 -> IncrementalBuild.IsReady (Target(initialTcAccNode.Name, None)) partialBuild 
-            | _ -> IncrementalBuild.IsReady (Target(tcStatesNode.Name, Some (slotOfFile-1))) partialBuild  
+            | (*first file*) 0 -> GetScalarResult(initialTcAccNode,partialBuild)
+            | _ -> GetVectorResultBySlot(tcStatesNode,slotOfFile-1,partialBuild)  
         
-        // TODO: This evaluates the whole type checking for the whole project,when only the
-        // results for one file are requested.
-        member ib.GetCheckResultsBeforeFileInProject filename = 
-            let slotOfFile = ib.GetSlotOfFileName filename
-            ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile
-
-        member ib.GetCheckResultsAfterFileInProject filename = 
-            let slotOfFile = ib.GetSlotOfFileName filename + 1
-            ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile
-
-        member ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile = 
-            let result = 
-                match slotOfFile with
-                | (*first file*) 0 -> 
-                    let build = EvalAndKeepOutput initialTcAccNode None
-                    GetScalarResult(initialTcAccNode,build)
-                | _ -> 
-                    let build = EvalAndKeepOutput tcStatesNode (Some (slotOfFile-1))
-                    GetVectorResultBySlot(tcStatesNode,slotOfFile-1,build)  
+        match result with
+        | Some(tcAcc,timestamp) -> Some(PartialCheckResults.Create (tcAcc,timestamp))
+        | _->None
         
-            match result with
-            | Some(tcAcc,timestamp) -> GetPartialCheckResults (tcAcc,timestamp)
-            | None -> failwith "Build was not evaluated, expected the results to be ready after 'Eval'."
-
-        member b.GetCheckResultsAfterLastFileInProject () = 
-            b.GetTypeCheckResultsBeforeSlotInProject(b.GetSlotsCount()) 
-
-        member __.GetCheckResultsAndImplementationsForProject() = 
-            let build = EvalAndKeepOutput finalizedTypeCheckNode None
-            match GetScalarResult(finalizedTypeCheckNode,build) with
-            | Some((ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt, tcAcc), timestamp) -> 
-                GetPartialCheckResults (tcAcc,timestamp), ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt
-            | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
-        
-        member __.GetLogicalTimeStampForProject() = 
-            MaxTimeStampInDependencies finalizedTypeCheckNode None 
-        
-        member __.GetSlotOfFileName(filename:string) =
-            // Get the slot of the given file and force it to build.
-            let CompareFileNames (_,f1,_) (_,f2,_) = 
-                let result = 
-                       System.String.Compare(f1,f2,StringComparison.CurrentCultureIgnoreCase)=0
-                    || System.String.Compare(FileSystem.GetFullPathShim(f1),FileSystem.GetFullPathShim(f2),StringComparison.CurrentCultureIgnoreCase)=0
-                result
-            match TryGetSlotByInput(fileNamesNode,(rangeStartup,filename,false),partialBuild,CompareFileNames) with
-            | Some slot -> slot
-            | None -> failwith (sprintf "The file '%s' was not part of the project. Did you call InvalidateConfiguration when the list of files in the project changed?" filename)
-        
-        member __.GetSlotsCount () =
-            let expr = GetExprByName(partialBuild,fileNamesNode)
-            match partialBuild.Results.TryFind(expr.Id) with
-            | Some(VectorResult vr) -> vr.Size
-            | _ -> failwith "Failed to find sizes"
-      
-        member ib.GetParseResultsForFile filename =
-            let slotOfFile = ib.GetSlotOfFileName filename
-            match GetVectorResultBySlot(parseTreesNode,slotOfFile,partialBuild) with
-            | Some (results, _) -> results
-            | None -> 
-                let build = EvalAndKeepOutput parseTreesNode (Some slotOfFile)
-                match GetVectorResultBySlot(parseTreesNode,slotOfFile,build) with
-                | Some (results, _) -> results
-                | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
-
-        member __.ProjectFileNames  = sourceFiles  |> List.map (fun (_,f,_) -> f)
-
-        /// CreateIncrementalBuilder (for background type checking). Note that fsc.fs also
-        /// creates an incremental builder used by the command line compiler.
-        static member TryCreateBackgroundBuilderForProjectOptions (frameworkTcImportsCache, scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectReferences, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment, keepAssemblyContents, keepAllBackgroundResolutions) =
     
-          // Trap and report warnings and errors from creation.
-          use errorScope = new ErrorScope()
-          let builderOpt = 
-             try
+    member ib.AreCheckResultsBeforeFileInProjectReady filename = 
+        let slotOfFile = ib.GetSlotOfFileName filename
+        match slotOfFile with
+        | (*first file*) 0 -> IncrementalBuild.IsReady (Target(initialTcAccNode.Name, None)) partialBuild 
+        | _ -> IncrementalBuild.IsReady (Target(tcStatesNode.Name, Some (slotOfFile-1))) partialBuild  
+        
+    // TODO: This evaluates the whole type checking for the whole project,when only the
+    // results for one file are requested.
+    member ib.GetCheckResultsBeforeFileInProject filename = 
+        let slotOfFile = ib.GetSlotOfFileName filename
+        ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile
 
-                // Create the builder.         
-                // Share intern'd strings across all lexing/parsing
-                let resourceManager = new Lexhelp.LexResourceManager() 
+    member ib.GetCheckResultsAfterFileInProject filename = 
+        let slotOfFile = ib.GetSlotOfFileName filename + 1
+        ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile
 
-                /// Create a type-check configuration
-                let tcConfigB, sourceFilesNew = 
-                    let defaultFSharpBinariesDir = Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
+    member ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile = 
+        let result = 
+            match slotOfFile with
+            | (*first file*) 0 -> 
+                let build = EvalAndKeepOutput initialTcAccNode None
+                GetScalarResult(initialTcAccNode,build)
+            | _ -> 
+                let build = EvalAndKeepOutput tcStatesNode (Some (slotOfFile-1))
+                GetVectorResultBySlot(tcStatesNode,slotOfFile-1,build)  
+        
+        match result with
+        | Some(tcAcc,timestamp) -> PartialCheckResults.Create (tcAcc,timestamp)
+        | None -> failwith "Build was not evaluated, expected the results to be ready after 'Eval'."
+
+    member b.GetCheckResultsAfterLastFileInProject () = 
+        b.GetTypeCheckResultsBeforeSlotInProject(b.GetSlotsCount()) 
+
+    member __.GetCheckResultsAndImplementationsForProject() = 
+        let build = EvalAndKeepOutput finalizedTypeCheckNode None
+        match GetScalarResult(finalizedTypeCheckNode,build) with
+        | Some((ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt, tcAcc), timestamp) -> 
+            PartialCheckResults.Create (tcAcc,timestamp), ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt
+        | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
+        
+    member __.GetLogicalTimeStampForProject() = 
+        MaxTimeStampInDependencies finalizedTypeCheckNode None 
+        
+    member __.GetSlotOfFileName(filename:string) =
+        // Get the slot of the given file and force it to build.
+        let CompareFileNames (_,f1,_) (_,f2,_) = 
+            let result = 
+                   System.String.Compare(f1,f2,StringComparison.CurrentCultureIgnoreCase)=0
+                || System.String.Compare(FileSystem.GetFullPathShim(f1),FileSystem.GetFullPathShim(f2),StringComparison.CurrentCultureIgnoreCase)=0
+            result
+        match TryGetSlotByInput(fileNamesNode,(rangeStartup,filename,false),partialBuild,CompareFileNames) with
+        | Some slot -> slot
+        | None -> failwith (sprintf "The file '%s' was not part of the project. Did you call InvalidateConfiguration when the list of files in the project changed?" filename)
+        
+    member __.GetSlotsCount () =
+        let expr = GetExprByName(partialBuild,fileNamesNode)
+        match partialBuild.Results.TryFind(expr.Id) with
+        | Some(VectorResult vr) -> vr.Size
+        | _ -> failwith "Failed to find sizes"
+      
+    member ib.GetParseResultsForFile filename =
+        let slotOfFile = ib.GetSlotOfFileName filename
+        match GetVectorResultBySlot(parseTreesNode,slotOfFile,partialBuild) with
+        | Some (results, _) -> results
+        | None -> 
+            let build = EvalAndKeepOutput parseTreesNode (Some slotOfFile)
+            match GetVectorResultBySlot(parseTreesNode,slotOfFile,build) with
+            | Some (results, _) -> results
+            | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
+
+    member __.ProjectFileNames  = sourceFiles  |> List.map (fun (_,f,_) -> f)
+
+    /// CreateIncrementalBuilder (for background type checking). Note that fsc.fs also
+    /// creates an incremental builder used by the command line compiler.
+    static member TryCreateBackgroundBuilderForProjectOptions (frameworkTcImportsCache, scriptClosureOptions:LoadClosure option, sourceFiles:string list, commandLineArgs:string list, projectReferences, projectDirectory, useScriptResolutionRules, isIncompleteTypeCheckEnvironment, keepAssemblyContents, keepAllBackgroundResolutions) =
+    
+        // Trap and report warnings and errors from creation.
+        use errorScope = new ErrorScope()
+        let builderOpt = 
+            try
+
+            // Create the builder.         
+            // Share intern'd strings across all lexing/parsing
+            let resourceManager = new Lexhelp.LexResourceManager() 
+
+            /// Create a type-check configuration
+            let tcConfigB, sourceFilesNew = 
+                let defaultFSharpBinariesDir = Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
                     
-                    // see also fsc.fs:runFromCommandLineToImportingAssemblies(), as there are many similarities to where the PS creates a tcConfigB
-                    let tcConfigB = 
-                        TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, implicitIncludeDir=projectDirectory, 
-                                                  optimizeForMemory=true, isInteractive=false, isInvalidationSupported=true) 
-                    // The following uses more memory but means we don'T take read-exclusions on the DLLs we reference 
-                    // Could detect well-known assemblies--ie System.dll--and open them with read-locks 
-                    tcConfigB.openBinariesInMemory <- true
-                    tcConfigB.resolutionEnvironment 
-                        <- if useScriptResolutionRules 
-                            then MSBuildResolver.DesigntimeLike  
-                            else MSBuildResolver.CompileTimeLike
+                // see also fsc.fs:runFromCommandLineToImportingAssemblies(), as there are many similarities to where the PS creates a tcConfigB
+                let tcConfigB = 
+                    TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, implicitIncludeDir=projectDirectory, 
+                                                optimizeForMemory=true, isInteractive=false, isInvalidationSupported=true) 
+                // The following uses more memory but means we don'T take read-exclusions on the DLLs we reference 
+                // Could detect well-known assemblies--ie System.dll--and open them with read-locks 
+                tcConfigB.openBinariesInMemory <- true
+                tcConfigB.resolutionEnvironment 
+                    <- if useScriptResolutionRules 
+                        then MSBuildResolver.DesigntimeLike  
+                        else MSBuildResolver.CompileTimeLike
                 
-                    tcConfigB.conditionalCompilationDefines <- 
-                        let define = if useScriptResolutionRules then "INTERACTIVE" else "COMPILED"
-                        define::tcConfigB.conditionalCompilationDefines
+                tcConfigB.conditionalCompilationDefines <- 
+                    let define = if useScriptResolutionRules then "INTERACTIVE" else "COMPILED"
+                    define::tcConfigB.conditionalCompilationDefines
 
-                    tcConfigB.projectReferences <- projectReferences
+                tcConfigB.projectReferences <- projectReferences
 
-                    // Apply command-line arguments and collect more source files if they are in the arguments
-                    let sourceFilesNew = 
-                        try
-                            let sourceFilesAcc = ResizeArray(sourceFiles)
-                            let collect name = if not (Filename.isDll name) then sourceFilesAcc.Add name
-                            ParseCompilerOptions (collect, GetCoreServiceCompilerOptions tcConfigB, commandLineArgs)
-                            sourceFilesAcc |> ResizeArray.toList
-                        with e ->
-                            errorRecovery e range0
-                            sourceFiles
+                // Apply command-line arguments and collect more source files if they are in the arguments
+                let sourceFilesNew = 
+                    try
+                        let sourceFilesAcc = ResizeArray(sourceFiles)
+                        let collect name = if not (Filename.isDll name) then sourceFilesAcc.Add name
+                        ParseCompilerOptions (collect, GetCoreServiceCompilerOptions tcConfigB, commandLineArgs)
+                        sourceFilesAcc |> ResizeArray.toList
+                    with e ->
+                        errorRecovery e range0
+                        sourceFiles
 
-                    // Never open PDB files for the language service, even if --standalone is specified
-                    tcConfigB.openDebugInformationForLaterStaticLinking <- false
+                // Never open PDB files for the language service, even if --standalone is specified
+                tcConfigB.openDebugInformationForLaterStaticLinking <- false
         
-                    tcConfigB, sourceFilesNew
+                tcConfigB, sourceFilesNew
 
-                match scriptClosureOptions with
-                | Some closure -> 
-                    let dllReferences = 
-                        [for reference in tcConfigB.referencedDLLs do
-                            // If there's (one or more) resolutions of closure references then yield them all
-                            match closure.References  |> List.tryFind (fun (resolved,_)->resolved=reference.Text) with
-                            | Some(resolved,closureReferences) -> 
-                                for closureReference in closureReferences do
-                                    yield AssemblyReference(closureReference.originalReference.Range, resolved, None)
-                            | None -> yield reference]
-                    tcConfigB.referencedDLLs<-[]
-                    // Add one by one to remove duplicates
-                    for dllReference in dllReferences do
-                        tcConfigB.AddReferencedAssemblyByPath(dllReference.Range,dllReference.Text)
-                    tcConfigB.knownUnresolvedReferences<-closure.UnresolvedReferences
-                | None -> ()
+            match scriptClosureOptions with
+            | Some closure -> 
+                let dllReferences = 
+                    [for reference in tcConfigB.referencedDLLs do
+                        // If there's (one or more) resolutions of closure references then yield them all
+                        match closure.References  |> List.tryFind (fun (resolved,_)->resolved=reference.Text) with
+                        | Some(resolved,closureReferences) -> 
+                            for closureReference in closureReferences do
+                                yield AssemblyReference(closureReference.originalReference.Range, resolved, None)
+                        | None -> yield reference]
+                tcConfigB.referencedDLLs<-[]
+                // Add one by one to remove duplicates
+                for dllReference in dllReferences do
+                    tcConfigB.AddReferencedAssemblyByPath(dllReference.Range,dllReference.Text)
+                tcConfigB.knownUnresolvedReferences<-closure.UnresolvedReferences
+            | None -> ()
 
-                // Make sure System.Numerics is referenced for out-of-project .fs files
-                if isIncompleteTypeCheckEnvironment then 
-                    tcConfigB.addVersionSpecificFrameworkReferences <- true 
+            // Make sure System.Numerics is referenced for out-of-project .fs files
+            if isIncompleteTypeCheckEnvironment then 
+                tcConfigB.addVersionSpecificFrameworkReferences <- true 
 
-                let tcConfig = TcConfig.Create(tcConfigB,validate=true)
+            let tcConfig = TcConfig.Create(tcConfigB,validate=true)
 
-                let niceNameGen = NiceNameGenerator()
+            let niceNameGen = NiceNameGenerator()
         
-                let outfile, _, assemblyName = tcConfigB.DecideNames sourceFilesNew
+            let outfile, _, assemblyName = tcConfigB.DecideNames sourceFilesNew
         
-                let builder = 
-                    new IncrementalBuilder(frameworkTcImportsCache,
-                                           tcConfig, projectDirectory, outfile, assemblyName, niceNameGen,
-                                           resourceManager, sourceFilesNew, projectReferences, ensureReactive=true, 
-                                           keepAssemblyContents=keepAssemblyContents, 
-                                           keepAllBackgroundResolutions=keepAllBackgroundResolutions)
-                Some builder
-             with e -> 
-               errorRecoveryNoRange e
-               None
+            let builder = 
+                new IncrementalBuilder(frameworkTcImportsCache,
+                                        tcConfig, projectDirectory, outfile, assemblyName, niceNameGen,
+                                        resourceManager, sourceFilesNew, projectReferences, ensureReactive=true, 
+                                        keepAssemblyContents=keepAssemblyContents, 
+                                        keepAllBackgroundResolutions=keepAllBackgroundResolutions)
+            Some builder
+            with e -> 
+            errorRecoveryNoRange e
+            None
 
-          builderOpt, errorScope.ErrorsAndWarnings
+        builderOpt, errorScope.ErrorsAndWarnings
 
 [<Obsolete("This type has been renamed to FSharpErrorInfo")>]
 type ErrorInfo = FSharpErrorInfo

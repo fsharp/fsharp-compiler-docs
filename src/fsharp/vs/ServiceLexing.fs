@@ -9,17 +9,16 @@ namespace Microsoft.FSharp.Compiler.SourceCodeServices
 open System
 open System.IO
 open System.Collections.Generic
- 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal  
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
-open Internal.Utilities.Debug
 open Microsoft.FSharp.Compiler.Parser
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Lexhelp
 open Microsoft.FSharp.Compiler.Lib
+open Internal.Utilities.Debug
 
 type Position = int * int
 type Range = Position * Position

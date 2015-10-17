@@ -207,7 +207,7 @@ let ``Project file parsing -- project references``() =
   let options = checker.GetProjectOptionsFromProjectFile(f2)
 
   options.ReferencedProjects |> should haveLength 1
-  fst options.ReferencedProjects.[0] |> should endWith "Test1.fsproj"
+  fst options.ReferencedProjects.[0] |> should endWith "Test1.dll"
   snd options.ReferencedProjects.[0] |> should equal (checker.GetProjectOptionsFromProjectFile(f1))
 
 [<Test>]
@@ -217,7 +217,7 @@ let ``Project file parsing -- multi language project``() =
   let options = checker.GetProjectOptionsFromProjectFile(f)
 
   options.ReferencedProjects |> should haveLength 1
-  options.ReferencedProjects.[0] |> fst |> should endWith "ConsoleApplication2.fsproj"
+  options.ReferencedProjects.[0] |> fst |> should endWith "ConsoleApplication2.exe"
 
   checkOption options.OtherOptions "ConsoleApplication2.exe"
   checkOption options.OtherOptions "ConsoleApplication3.exe"

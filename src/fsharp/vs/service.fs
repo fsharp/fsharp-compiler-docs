@@ -2762,6 +2762,9 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
                 yield i.FinalItemSpec
               for i in project.GetEvaluatedItemsByName("ChildProjectReferences") do
                 yield i.FinalItemSpec ]
+            // Duplicate slashes sometimes appear in the output here, which prevents
+            // them from matching keys used in FSharpProjectOptions.ReferencedProjects
+            |> List.map (fun (s: string) -> s.Replace("//","/"))
 
         outFileOpt, directory, getItems, references, projectReferences, getProp project, project.FullFileName
 
@@ -3155,19 +3158,19 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
 #if SILVERLIGHT
 #else
 #if FX_ATLEAST_45
-    member ic.GetProjectOptionsFromProjectFile(projectFileName, ?properties : (string * string) list, ?loadedTimeStamp) = 
-        let parsedProject = FSharpProjectFileInfo(projectFileName, ?properties=properties)
-        let args = parsedProject.Options |> Array.ofList
+    member ic.GetProjectOptionsFromProjectFile(projectFileName, ?properties : (string * string) list, ?loadedTimeStamp) =
+        let rec getOptions file : Option<string> * FSharpProjectOptions =
+            let parsedProject = FSharpProjectFileInfo.Parse(file, ?properties=properties)
+            let projectOptions = ic.GetProjectOptionsFromCommandLineArgs(file, Array.ofList parsedProject.Options, ?loadedTimeStamp=loadedTimeStamp)
+            let referencedProjectOptions =
+                [| for file in parsedProject.ProjectReferences do
+                       if Path.GetExtension(file) = ".fsproj" then
+                           match getOptions file with
+                           | Some outFile, opts -> yield outFile, opts
+                           | None, _ -> () |]
+            parsedProject.OutputFile, { projectOptions with ReferencedProjects = referencedProjectOptions }
 
-        let projectOptions = ic.GetProjectOptionsFromCommandLineArgs(projectFileName, args, ?loadedTimeStamp=loadedTimeStamp)
-        let referencedProjectOptions =
-          [| for file in parsedProject.ProjectReferences do
-                 if Path.GetExtension(file) = ".fsproj" then
-                     yield file, ic.GetProjectOptionsFromProjectFile(file, ?properties=properties, ?loadedTimeStamp=loadedTimeStamp) |]
-
-        { projectOptions
-          with ReferencedProjects = referencedProjectOptions }
-
+        snd (getOptions projectFileName)
 #endif
 #endif
 

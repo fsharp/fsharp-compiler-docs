@@ -1,3 +1,6 @@
+#### 1.4.2.1 - 
+* #450 - Correct generation of ReferencedProjects 
+
 #### 1.4.2.0 - 
 * Fix bug in double lookup of cache, see https://github.com/fsharp/FSharp.Compiler.Service/pull/447
 

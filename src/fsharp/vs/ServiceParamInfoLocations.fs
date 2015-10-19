@@ -1,10 +1,5 @@
 // Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-//----------------------------------------------------------------------------
-// Open up the compiler as an incremental service for parsing,
-// type checking and intellisense-like environment-reporting.
-//--------------------------------------------------------------------------
-
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
 open Internal.Utilities.Debug
@@ -12,8 +7,13 @@ open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
 
 [<Sealed>]
-type FSharpNoteworthyParamInfoLocations(longId : string list, longIdStartLocation : int*int, longIdEndLocation : int*int, openParenLocation : int*int, 
-                                           tupleEndLocations : (int*int)[], isThereACloseParen : bool, namedParamNames : string[]) =
+type FSharpNoteworthyParamInfoLocations(longId : string list, 
+                                        longIdStartLocation : int*int, 
+                                        longIdEndLocation : int*int, openParenLocation : int*int, 
+                                        tupleEndLocations : (int*int)[], 
+                                        isThereACloseParen : bool, 
+                                        namedParamNames : string[]) =
+
     let namedParamNames =
         if (tupleEndLocations.Length = namedParamNames.Length) then
             namedParamNames
@@ -32,6 +32,7 @@ type FSharpNoteworthyParamInfoLocations(longId : string list, longIdStartLocatio
     member this.IsThereACloseParen = isThereACloseParen
     member this.NamedParamNames = namedParamNames
 
+[<AutoOpen>]
 module internal NoteworthyParamInfoLocationsImpl =
 
     let isStaticArg a =
@@ -274,9 +275,10 @@ module internal NoteworthyParamInfoLocationsImpl =
                 else None
         })
 
-    let FindNoteworthyParamInfoLocations(pos,parseTree) =
+type FSharpNoteworthyParamInfoLocations with 
+    static member Find(pos,parseTree) =
         match traverseInput(pos,parseTree) with
-        | Some(nwpl) as r-> 
+        | Some nwpl as r -> 
 #if DEBUG
             let ranges = nwpl.LongIdStartLocation :: nwpl.LongIdEndLocation :: nwpl.OpenParenLocation :: (nwpl.TupleEndLocations |> Array.toList)
             let sorted = ranges |> Seq.sort |> Seq.toList

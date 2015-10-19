@@ -1,14 +1,19 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
-
 //----------------------------------------------------------------------------
-// API to the compiler as an incremental service for lexing.
+// Copyright (c) 2002-2012 Microsoft Corporation. 
+//
+// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// By using this source code in any fashion, you are agreeing to be bound 
+// by the terms of the Apache License, Version 2.0.
+//
+// You must not remove this notice, or any other, from this software.
 //----------------------------------------------------------------------------
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
+open System.Collections.Generic
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.Range
-open System.Collections.Generic
 
 /// Represents encoded information for the end-of-line continutation of lexing
 type FSharpTokenizerLexState = int64
@@ -190,7 +195,7 @@ type FSharpTokenInfo =
 /// A new lexState is also returned.  An IDE-plugin should in general cache the lexState 
 /// values for each line of the edited code.
 [<Sealed>] 
-type (*internal*) FSharpLineTokenizer =
+type FSharpLineTokenizer =
     /// Scan one token from the line
     member ScanToken : lexState:FSharpTokenizerLexState -> FSharpTokenInfo option * FSharpTokenizerLexState
     static member ColorStateOfLexState : FSharpTokenizerLexState -> FSharpTokenizerColorState
@@ -199,7 +204,7 @@ type (*internal*) FSharpLineTokenizer =
 
 /// Tokenizer for a source file. Holds some expensive-to-compute resources at the scope of the file.
 [<Sealed>]
-type (*internal*) FSharpSourceTokenizer =
+type FSharpSourceTokenizer =
     new : conditionalDefines:string list * fileName:string -> FSharpSourceTokenizer
     member CreateLineTokenizer : lineText:string -> FSharpLineTokenizer
     member CreateBufferTokenizer : bufferFiller:(char[] * int * int -> int) -> FSharpLineTokenizer

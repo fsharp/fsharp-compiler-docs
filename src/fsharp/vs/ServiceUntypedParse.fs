@@ -13,12 +13,13 @@ open System.Collections.Generic
  
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library  
 open Microsoft.FSharp.Compiler 
-open Internal.Utilities.Debug
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.CompileOps
 open Microsoft.FSharp.Compiler.Lib
+
+open Internal.Utilities.Debug
 
 /// Methods for dealing with F# sources files.
 module internal SourceFile =
@@ -75,7 +76,7 @@ type CompletionContext =
     | ParameterList of pos * HashSet<string>
 
 //----------------------------------------------------------------------------
-// Untyped scope
+// FSharpParseFileResults
 //----------------------------------------------------------------------------
 
 [<Sealed>]
@@ -89,12 +90,7 @@ type FSharpParseFileResults(errors : FSharpErrorInfo[], input : Ast.ParsedInput 
 
     member scope.FindNoteworthyParamInfoLocations(pos) = 
         match input with
-        | Some(input) -> 
-            // Why don't we traverse the AST under a syncop?  We don't need to, because the AST is an _immutable_ DU of DUs of ints and strings and whatnot.  And a SyncOp really does slow it down in practice.
-            //let result = ref None
-            //syncop (fun () -> result := Some(AstHelpers.FindNoteworthyParamInfoLocations(line,col,input)))
-            //Option.get !result
-            NoteworthyParamInfoLocationsImpl.FindNoteworthyParamInfoLocations(pos,input)
+        | Some(input) -> NoteworthyParamInfoLocations.Find(pos,input)
         | _ -> None
     
     /// Get declared items and the selected item at the specified location
@@ -376,7 +372,7 @@ type FSharpParseFileResults(errors : FSharpErrorInfo[], input : Ast.ParsedInput 
         // This does not need to be run on the background thread
         scope.ValidateBreakpointLocationImpl(pos)
 
-module (*internal*) UntypedParseImpl =
+module UntypedParseImpl =
     
     let emptyStringSet = HashSet<string>()
 

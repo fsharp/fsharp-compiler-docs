@@ -1,20 +1,10 @@
-﻿//----------------------------------------------------------------------------
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corpration, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
 open System.IO
 open System.Collections.Generic
 open System.Reflection
-open Internal.Utilities
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.AbstractIL.IL
@@ -29,6 +19,7 @@ open Microsoft.FSharp.Compiler.Lib
 open Microsoft.FSharp.Compiler.Tastops
 open Microsoft.FSharp.Compiler.TastPickle
 open Microsoft.FSharp.Compiler.PrettyNaming
+open Internal.Utilities
 
 [<AutoOpen>]
 module Impl = 
@@ -39,6 +30,7 @@ module Impl =
 
     let makeReadOnlyCollection (arr : seq<'T>) = 
         System.Collections.ObjectModel.ReadOnlyCollection<_>(Seq.toArray arr) :> IList<_>
+
     let makeXmlDoc (XmlDoc x) = makeReadOnlyCollection (x)
     
     let rescopeEntity optViewedCcu (entity : Entity) = 

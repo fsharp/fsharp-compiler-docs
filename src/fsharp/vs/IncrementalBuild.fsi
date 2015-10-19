@@ -45,30 +45,29 @@ type internal ErrorScope =
     static member ProtectWithDefault<'a> : range -> (unit -> 'a) -> 'a -> 'a
     static member ProtectAndDiscard : range -> (unit -> unit) -> unit
 
-/// Incremental builder for F# parsing and type checking.  
-module internal IncrementalFSharpBuild =
-
-  /// Lookup the global static cache for building the FrameworkTcImports
-  type FrameworkImportsCache = 
-      new : size: int -> FrameworkImportsCache
-      member Get : TcConfig -> TcGlobals * TcImports * AssemblyResolution list * UnresolvedAssemblyReference list
-      member Clear: unit -> unit
-      member Downsize: unit -> unit
+/// Lookup the global static cache for building the FrameworkTcImports
+type internal FrameworkImportsCache = 
+    new : size: int -> FrameworkImportsCache
+    member Get : TcConfig -> TcGlobals * TcImports * AssemblyResolution list * UnresolvedAssemblyReference list
+    member Clear: unit -> unit
+    member Downsize: unit -> unit
   
-  type PartialCheckResults = 
-      { TcState : TcState 
-        TcImports: TcImports 
-        TcGlobals: TcGlobals 
-        TcConfig: TcConfig 
-        TcEnvAtEnd : TypeChecker.TcEnv 
-        Errors : (PhasedError * FSharpErrorSeverity) list 
-        TcResolutions: TcResolutions list 
-        TcSymbolUses: TcSymbolUses list 
-        TopAttribs: TypeChecker.TopAttribs option
-        TimeStamp: DateTime }
+/// Represents the state in the incremental graph assocaited with checking a file
+type internal PartialCheckResults = 
+    { TcState : TcState 
+      TcImports: TcImports 
+      TcGlobals: TcGlobals 
+      TcConfig: TcConfig 
+      TcEnvAtEnd : TypeChecker.TcEnv 
+      Errors : (PhasedError * FSharpErrorSeverity) list 
+      TcResolutions: TcResolutions list 
+      TcSymbolUses: TcSymbolUses list 
+      TopAttribs: TypeChecker.TopAttribs option
+      TimeStamp: DateTime }
 
-  [<Class>]
-  type IncrementalBuilder = 
+/// Manages an incremental build graph for the build of an F# project
+[<Class>]
+type internal IncrementalBuilder = 
 
       /// Increment the usage count on the IncrementalBuilder by 1. Ths initial usage count is 0. The returns an IDisposable which will 
       /// decrement the usage count on the entire build by 1 and dispose if it is no longer used by anyone.

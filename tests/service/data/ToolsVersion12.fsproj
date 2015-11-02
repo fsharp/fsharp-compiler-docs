@@ -41,13 +41,6 @@
   <ItemGroup>
     <Compile Include="main.fs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Test\test.fsproj">
-      <Name>Interfaces</Name>
-      <Project>{00000000-0000-0000-0000-000000000001}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>

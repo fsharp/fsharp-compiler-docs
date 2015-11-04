@@ -3971,10 +3971,7 @@ let ClosePdbReader pdb =
 #endif
 
 let OpenILModuleReader infile opts = 
-
-#if FX_NO_NATIVE_MEMORY_MAPPED_FILES
-#else
-   try 
+    if not IL.runningOnMono then
         let mmap = MemoryMappedFile.Create infile
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader infile mmap opts
         { modul = modul; 
@@ -3982,8 +3979,7 @@ let OpenILModuleReader infile opts =
           dispose = (fun () -> 
             mmap.Close();
             ClosePdbReader pdb) }
-    with _ ->
-#endif
+    else
         let mc = ByteFile.OpenIn infile
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader infile mc opts
         { modul = modul; 

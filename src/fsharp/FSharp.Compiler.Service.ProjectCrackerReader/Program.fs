@@ -36,7 +36,7 @@ let main argv =
     p.StartInfo.UseShellExecute <- false
     p.StartInfo.RedirectStandardOutput <- true
     ignore <| p.Start()
-    p.WaitForExit()
+    
     let fmt = new BinaryFormatter()
     //use fs = new FileStream("DataFile.dat", FileMode.Create)
     //fmt.Serialize(fs, po)
@@ -44,6 +44,7 @@ let main argv =
 
     //use fsin = new FileStream("DataFile.dat", FileMode.Open)
     let opts = fmt.Deserialize(p.StandardOutput.BaseStream)// :?> ProjectOptions
+    p.WaitForExit()
     //fsin.Close()
     printfn "%A" opts
     0 // return an integer exit code

@@ -13,10 +13,16 @@ open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics
+open System
 open System.Collections.Generic
 open System.Collections
  
 let logging = false 
+
+let runningOnWindows =
+    match System.Environment.OSVersion.Platform with
+    | PlatformID.Win32NT | PlatformID.Win32S | PlatformID.Win32Windows | PlatformID.WinCE -> true
+    | _  -> false
 
 // Officially supported way to detect if we are running on Mono.
 // See http://www.mono-project.com/FAQ:_Technical

@@ -32,7 +32,7 @@ let x (argv: string[]) =
 let main argv =
     let p = new System.Diagnostics.Process()
     p.StartInfo.FileName <- Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs().[0]), "FSharp.Compiler.Service.ProjectCracker.exe")
-    p.StartInfo.Arguments <- argv.[0] // TODO: Also pass properties
+    p.StartInfo.Arguments <- argv.[0] + " true" // TODO: Also pass properties
     p.StartInfo.UseShellExecute <- false
     p.StartInfo.RedirectStandardOutput <- true
     ignore <| p.Start()

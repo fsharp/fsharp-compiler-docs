@@ -582,7 +582,8 @@ type FSharpChecker =
     /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
     /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
-    member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
+    /// <param name="enableLogging">Enable detailed log output from the MSBuild project analysis.</param>
+    member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime * ?enableLogging: bool -> FSharpProjectOptions * Option<string>
 #endif
 #endif
 

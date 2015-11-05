@@ -9,6 +9,7 @@ open System
 open System.IO
 open System.Text
 open System.Threading
+open System.Runtime
 open System.Collections.Generic
 open System.Security.Permissions
 
@@ -3156,19 +3157,41 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
 #if SILVERLIGHT
 #else
 #if FX_ATLEAST_45
-    member ic.GetProjectOptionsFromProjectFile(projectFileName, ?properties : (string * string) list, ?loadedTimeStamp) =
-        let rec getOptions file : Option<string> * FSharpProjectOptions =
-            let parsedProject = FSharpProjectFileInfo.Parse(file, ?properties=properties)
-            let projectOptions = ic.GetProjectOptionsFromCommandLineArgs(file, Array.ofList parsedProject.Options, ?loadedTimeStamp=loadedTimeStamp)
-            let referencedProjectOptions =
-                [| for file in parsedProject.ProjectReferences do
-                       if Path.GetExtension(file) = ".fsproj" then
-                           match getOptions file with
-                           | Some outFile, opts -> yield outFile, opts
-                           | None, _ -> () |]
-            parsedProject.OutputFile, { projectOptions with ReferencedProjects = referencedProjectOptions }
+    member ic.GetProjectOptionsFromProjectFile(projectFileName : string, ?properties : (string * string) list, ?loadedTimeStamp, ?enableLogging) = 
+        let loadedTimeStamp = defaultArg loadedTimeStamp DateTime.MaxValue // Not 'now', we don't want to force reloading
+        let properties = defaultArg properties []
+        let enableLogging = defaultArg enableLogging false
 
-        snd (getOptions projectFileName)
+        let rec convert (opts: FSharp.Compiler.Service.ProjectCracker.ProjectOptions) : FSharpProjectOptions =
+            let referencedProjects = Array.map (fun (a, b) -> a, convert b) opts.ReferencedProjectOptions
+            { ProjectFileName = opts.ProjectFile
+              ProjectFileNames = [| |]
+              OtherOptions = opts.Options
+              ReferencedProjects = referencedProjects
+              IsIncompleteTypeCheckEnvironment = false
+              UseScriptResolutionRules = false
+              LoadTime = loadedTimeStamp
+              UnresolvedReferences = None }
+
+        let arguments = new StringBuilder()
+        arguments.Append(projectFileName) |> ignore
+        arguments.Append(' ').Append(enableLogging.ToString()) |> ignore
+        for k, v in properties do
+            arguments.Append(' ').Append(k).Append(' ').Append(v) |> ignore
+
+        let p = new System.Diagnostics.Process()
+        p.StartInfo.FileName <- Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs().[0]),
+                                             "FSharp.Compiler.Service.ProjectCracker.exe")
+        p.StartInfo.Arguments <- arguments.ToString()
+        p.StartInfo.UseShellExecute <- false
+        p.StartInfo.RedirectStandardOutput <- true
+        ignore <| p.Start()
+    
+        let fmt = new Serialization.Formatters.Binary.BinaryFormatter()
+        let opts = fmt.Deserialize(p.StandardOutput.BaseStream) :?> FSharp.Compiler.Service.ProjectCracker.ProjectOptions
+        p.WaitForExit()
+        
+        convert opts, if enableLogging then Some opts.LogOutput else None
 #endif
 #endif
 

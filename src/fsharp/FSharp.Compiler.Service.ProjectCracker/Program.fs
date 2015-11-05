@@ -11,8 +11,10 @@ open System.Runtime.Serialization.Formatters.Binary
 
 type ProjectOptions =
   {
+    ProjectFile: string
     Options: string[]
     ReferencedProjectOptions: (string * ProjectOptions)[]
+    LogOutput: string
   }
 
 module Program =
@@ -363,16 +365,21 @@ module Program =
       static member Parse(fsprojFileName:string, ?properties, ?enableLogging) = new FSharpProjectFileInfo(fsprojFileName, ?properties=properties, ?enableLogging=enableLogging)
 
 
-  let getOptions file properties =
-    let rec getOptions file : Option<string> * ProjectOptions  =
-      let parsedProject = FSharpProjectFileInfo.Parse(file, ?properties=properties)
+  let getOptions file enableLogging properties =
+    let rec getOptions file : Option<string> * ProjectOptions =
+      let parsedProject = FSharpProjectFileInfo.Parse(file, properties=properties, enableLogging=enableLogging)
       let referencedProjectOptions =
         [| for file in parsedProject.ProjectReferences do
              if Path.GetExtension(file) = ".fsproj" then
                 match getOptions file with
                 | Some outFile, opts -> yield outFile, opts
                 | None, _ -> () |]
-      parsedProject.OutputFile, { Options = Array.ofList parsedProject.Options; ReferencedProjectOptions = referencedProjectOptions }
+
+      let options = { ProjectFile = file
+                      Options = Array.ofList parsedProject.Options
+                      ReferencedProjectOptions = referencedProjectOptions
+                      LogOutput = parsedProject.LogOutput }
+      parsedProject.OutputFile, options
 
     snd (getOptions file)
 
@@ -387,12 +394,25 @@ module Program =
         null)
     AppDomain.CurrentDomain.add_AssemblyResolve(onResolveEvent)
 
+  let rec pairs l =
+    match l with
+    | [] | [_] -> []
+    | x::y::rest -> (x,y) :: pairs rest
+
   [<EntryPoint>]
   let main argv =
       addMSBuildv14BackupResolution ()
-      let opts = getOptions argv.[0] None//(Some ["VisualStudioVersion", "12.0"])
-      //printfn "%A" opts
       let fmt = new BinaryFormatter()
       use out = new StreamWriter(System.Console.OpenStandardOutput())
-      fmt.Serialize(out.BaseStream, opts)
-      0
+      if argv.Length >= 2 then
+        let projectFile = argv.[0]
+        let enableLogging = match Boolean.TryParse(argv.[1]) with
+                            | true, _ -> true
+                            | _ -> false
+        let props = pairs (List.ofArray argv.[2..])
+        let opts = getOptions argv.[0] enableLogging props
+        fmt.Serialize(out.BaseStream, opts)
+        0
+      else
+        fmt.Serialize(out.BaseStream, { ProjectFile = ""; Options = [||]; ReferencedProjectOptions = [||]; LogOutput = "At least two arguments required." })
+        1

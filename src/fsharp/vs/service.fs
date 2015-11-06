@@ -3191,7 +3191,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         let opts = fmt.Deserialize(p.StandardOutput.BaseStream) :?> FSharp.Compiler.Service.ProjectCracker.ProjectOptions
         p.WaitForExit()
         
-        convert opts, if enableLogging then Some opts.LogOutput else None
+        convert opts, opts.LogOutput
 
     member ic.GetProjectOptionsFromProjectFile(projectFileName : string, ?properties : (string * string) list, ?loadedTimeStamp) =
         fst (ic.GetProjectOptionsFromProjectFileLogged(projectFileName, ?properties=properties, ?loadedTimeStamp=loadedTimeStamp))

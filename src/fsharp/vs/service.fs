@@ -3157,7 +3157,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
 #if SILVERLIGHT
 #else
 #if FX_ATLEAST_45
-    member ic.GetProjectOptionsFromProjectFile(projectFileName : string, ?properties : (string * string) list, ?loadedTimeStamp, ?enableLogging) = 
+    member ic.GetProjectOptionsFromProjectFileLogged(projectFileName : string, ?properties : (string * string) list, ?loadedTimeStamp, ?enableLogging) =
         let loadedTimeStamp = defaultArg loadedTimeStamp DateTime.MaxValue // Not 'now', we don't want to force reloading
         let properties = defaultArg properties []
         let enableLogging = defaultArg enableLogging false
@@ -3180,7 +3180,7 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
             arguments.Append(' ').Append(k).Append(' ').Append(v) |> ignore
 
         let p = new System.Diagnostics.Process()
-        p.StartInfo.FileName <- Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs().[0]),
+        p.StartInfo.FileName <- Path.Combine(Path.GetDirectoryName(Reflection.Assembly.GetExecutingAssembly().Location),
                                              "FSharp.Compiler.Service.ProjectCracker.exe")
         p.StartInfo.Arguments <- arguments.ToString()
         p.StartInfo.UseShellExecute <- false
@@ -3192,6 +3192,9 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         p.WaitForExit()
         
         convert opts, if enableLogging then Some opts.LogOutput else None
+
+    member ic.GetProjectOptionsFromProjectFile(projectFileName : string, ?properties : (string * string) list, ?loadedTimeStamp) =
+        fst (ic.GetProjectOptionsFromProjectFileLogged(projectFileName, ?properties=properties, ?loadedTimeStamp=loadedTimeStamp))
 #endif
 #endif
 

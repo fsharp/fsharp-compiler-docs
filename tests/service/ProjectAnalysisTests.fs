@@ -3625,6 +3625,7 @@ let _ = XmlProvider<"<root><value>1</value><value>3</value></root>">.GetSample()
 [<Test>]
 let ``Test Project25 whole project errors`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project25.options) |> Async.RunSynchronously
+    printfn "%A" wholeProjectResults.Errors
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]

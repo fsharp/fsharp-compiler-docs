@@ -401,18 +401,29 @@ module Program =
 
   [<EntryPoint>]
   let main argv =
-      addMSBuildv14BackupResolution ()
-      let fmt = new BinaryFormatter()
-      use out = new StreamWriter(System.Console.OpenStandardOutput())
-      if argv.Length >= 2 then
-        let projectFile = argv.[0]
-        let enableLogging = match Boolean.TryParse(argv.[1]) with
-                            | true, _ -> true
-                            | _ -> false
-        let props = pairs (List.ofArray argv.[2..])
-        let opts = getOptions argv.[0] enableLogging props
-        fmt.Serialize(out.BaseStream, opts)
-        0
+      let binary = Array.exists (fun (s: string) -> s = "--binary") argv
+      let argv = Array.filter (fun (s: string) -> s <> "--binary") argv
+
+      let ret, opts =
+          try
+              addMSBuildv14BackupResolution ()
+              if argv.Length >= 2 then
+                let projectFile = argv.[0]
+                let enableLogging = match Boolean.TryParse(argv.[1]) with
+                                    | true, true -> true
+                                    | _ -> false
+                let props = pairs (List.ofArray argv.[2..])
+                let opts = getOptions argv.[0] enableLogging props
+                0, opts
+              else
+                1, { ProjectFile = ""; Options = [||]; ReferencedProjectOptions = [||]; LogOutput = "At least two arguments required." }
+          with e ->
+                2, { ProjectFile = ""; Options = [||]; ReferencedProjectOptions = [||]; LogOutput = e.ToString() }
+
+      if binary then
+          let fmt = new BinaryFormatter()
+          use out = new StreamWriter(System.Console.OpenStandardOutput())
+          fmt.Serialize(out.BaseStream, opts)
       else
-        fmt.Serialize(out.BaseStream, { ProjectFile = ""; Options = [||]; ReferencedProjectOptions = [||]; LogOutput = "At least two arguments required." })
-        1
+          printfn "%A" opts
+      ret

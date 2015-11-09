@@ -3174,7 +3174,8 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
               UnresolvedReferences = None }
 
         let arguments = new StringBuilder()
-        arguments.Append(projectFileName) |> ignore
+        arguments.Append("--binary") |> ignore
+        arguments.Append(' ').Append(projectFileName) |> ignore
         arguments.Append(' ').Append(enableLogging.ToString()) |> ignore
         for k, v in properties do
             arguments.Append(' ').Append(k).Append(' ').Append(v) |> ignore

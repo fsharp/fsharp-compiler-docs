@@ -20,13 +20,6 @@ open SourceLink
 
 let project = "FSharp.Compiler.Service"
 let authors = ["Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek"]
-let summary = "F# compiler services for creating IDE tools, language extensions and for F# embedding"
-let description = """
-  The F# compiler services package contains a custom build of the F# compiler that
-  exposes additional functionality for implementing F# language bindings, additional
-  tools based on the compiler or refactoring tools. The package also includes F# 
-  interactive service that can be used for embedding F# scripting into your applications."""
-let tags = "F# fsharp interactive compiler editor"
 
 let gitOwner = "fsharp"
 let gitHome = "https://github.com/" + gitOwner
@@ -142,19 +135,17 @@ Target "RunTests" (fun _ ->
 // Build a NuGet package
 
 Target "NuGet" (fun _ ->
-    NuGet (fun p -> 
+    Paket.Pack (fun p -> 
         { p with 
-            Authors = authors
-            Project = project
-            Summary = summary
-            Description = description
-            Version = buildVersion
-            ReleaseNotes = release.Notes |> toLines
-            Tags = tags
-            OutputPath = buildDir
-            AccessKey = getBuildParamOrDefault "nugetkey" ""
-            Publish = hasBuildParam "nugetkey" })
-        ("nuget/" + project + ".nuspec")
+            Version = release.NugetVersion
+            ReleaseNotes = toLines release.Notes })
+)
+
+
+Target "PublishNuGet" (fun _ ->
+    Paket.Push (fun p -> 
+        { p with 
+            WorkingDir = buildDir }) 
 )
 
 // --------------------------------------------------------------------------------------
@@ -241,6 +232,7 @@ Target "All" DoNothing
   ==> "GenerateDocsJa"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
+  ==> "PublishNuGet"
   ==> "Release"
 
 RunTargetOrDefault "All"

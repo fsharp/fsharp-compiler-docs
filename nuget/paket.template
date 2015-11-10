@@ -8,7 +8,7 @@ description
 authors
     Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek
 summary
-    F# compiler services for creating IDE tools, language extensions and for F# embedding
+    F# compiler services for creating IDE tools, language extensions and for F# embedding.
 licenseurl https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE
 projecturl https://github.com/fsharp/FSharp.Compiler.Service
 iconurl https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png
@@ -17,7 +17,9 @@ tags
 files
     ../bin/v4.0/FSharp.Compiler.Service.dll ==> lib/net40
     ../bin/v4.0/FSharp.Compiler.Service.XML ==> lib/net40
-    ../bin/v4.0/FSharp.Compiler.Service.pdb ==> lib/net40
+    ../bin/v4.0/FSharp.Compiler.Service.?db ==> lib/net40
+    ../bin/v4.0/FSharp.Compiler.Service.dll.?db ==> lib/net40
     ../bin/v4.5/FSharp.Compiler.Service.dll ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.XML ==> lib/net45
-    ../bin/v4.5/FSharp.Compiler.Service.pdb ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.?db ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.dll.?db ==> lib/net45

@@ -32,6 +32,10 @@ let checkOptionNotPresent (opts:string[]) s =
     (if opts |> Array.exists (fun o -> o.EndsWith(s)) then found else notFound)
        |> shouldEqual notFound
 
+let getReferencedFilenames = Array.choose (fun (o:string) -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
+let getOutputFile = Array.pick (fun (o:string) -> if o.StartsWith("--out:") then o.[6..] |> Some else None)
+let getCompiledFilenames = Array.choose (fun (o:string) -> if o.EndsWith(".fs") then o |> (Path.GetFileName >> Some) else None)
+
 [<Test>]
 let ``Project file parsing example 1 Default Configuration`` () = 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
@@ -102,103 +106,108 @@ let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted
 
 [<Test>]
 let ``Project file parsing -- compile files 1``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
+  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
 
-  p.CompileFiles
-  |> List.map Path.GetFileName
+  p.OtherOptions
+  |> getCompiledFilenames
   |> set
   |> should equal (set [ "Test1File1.fs"; "Test1File2.fs" ])
 
 [<Test>]
 let ``Project file parsing -- compile files 2``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
+  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
 
-  p.CompileFiles
-  |> List.map Path.GetFileName
+  p.OtherOptions
+  |> getCompiledFilenames
   |> set
   |> should equal (set [ "Test2File1.fs"; "Test2File2.fs" ])
 
 [<Test>]
 let ``Project file parsing -- bad project file``() =
-  (fun () -> FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Malformed.fsproj") |> ignore)
-  |> should throw typeof<Microsoft.Build.Exceptions.InvalidProjectFileException>
+  let log = snd (checker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/Malformed.fsproj", enableLogging=true))
+  log |> should contain "Microsoft.Build.Exceptions.InvalidProjectFileException"
+  log |> should contain "Text node cannot appear in this state"
 
 [<Test>]
 let ``Project file parsing -- non-existent project file``() =
-  (fun () -> FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/DoesNotExist.fsproj") |> ignore)
-  |> should throw typeof<System.IO.FileNotFoundException>
+  let log = snd (checker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/DoesNotExist.fsproj", enableLogging=true))
+  log |> should contain "System.IO.FileNotFoundException"
+  log |> should contain "not found"
 
 [<Test>]
 let ``Project file parsing -- output file``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
+  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
 
   let expectedOutputPath =
     normalizePath (__SOURCE_DIRECTORY__ + "/data/Test1/bin/Debug/Test1.dll")
 
-  p.OutputFile
-  |> should equal (Some expectedOutputPath)
+  p.OtherOptions
+  |> getOutputFile
+  |> should equal expectedOutputPath
 
 [<Test>]
 let ``Project file parsing -- references``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
+  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
 
-  checkOption (Array.ofList p.References) "FSharp.Core.dll"
-  checkOption (Array.ofList p.References) "mscorlib.dll"
-  checkOption (Array.ofList p.References) "System.Core.dll"
-  checkOption (Array.ofList p.References) "System.dll"
-  p.References |> should haveLength 4
-  p.ProjectReferences |> should be Empty
+  let references = getReferencedFilenames p.OtherOptions
+  checkOption references "FSharp.Core.dll"
+  checkOption references "mscorlib.dll"
+  checkOption references "System.Core.dll"
+  checkOption references "System.dll"
+  references |> should haveLength 4
+  p.ReferencedProjects |> should be Empty
 
 [<Test>]
 let ``Project file parsing -- 2nd level references``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
+  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
 
-  checkOption (Array.ofList p.References) "FSharp.Core.dll"
-  checkOption (Array.ofList p.References) "mscorlib.dll"
-  checkOption (Array.ofList p.References) "System.Core.dll"
-  checkOption (Array.ofList p.References) "System.dll"
-  checkOption (Array.ofList p.References) "Test1.dll"
-  p.References |> should haveLength 5
-  p.ProjectReferences |> should haveLength 1
-  p.ProjectReferences |> should contain (normalizePath (__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj"))
+  let references = getReferencedFilenames p.OtherOptions
+  checkOption references "FSharp.Core.dll"
+  checkOption references "mscorlib.dll"
+  checkOption references "System.Core.dll"
+  checkOption references "System.dll"
+  checkOption references "Test1.dll"
+  references |> should haveLength 5
+  p.ReferencedProjects |> should haveLength 1
+  (snd p.ReferencedProjects.[0]).ProjectFileName |> should contain (normalizePath (__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj"))
 
 [<Test>]
 let ``Project file parsing -- reference project output file``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/DifferingOutputDir/Dir2/Test2.fsproj")
+  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/DifferingOutputDir/Dir2/Test2.fsproj")
 
   let expectedOutputPath =
     normalizePath (__SOURCE_DIRECTORY__ + "/data/DifferingOutputDir/Dir2/OutputDir2/Test2.exe")
 
-  p.OutputFile
-  |> should equal (Some expectedOutputPath)
+  p.OtherOptions
+  |> getOutputFile
+  |> should equal expectedOutputPath
 
-  p.References
-  |> List.map (fun (s: string) -> s.Replace("//", "/"))
+  p.OtherOptions
+  |> Array.choose (fun (o:string) -> if o.StartsWith("-r:") then o.[3..] |> Some else None)
   |> should contain (normalizePath (__SOURCE_DIRECTORY__ + @"/data/DifferingOutputDir/Dir1/OutputDir1/Test1.dll"))
 
 
 [<Test>]
 let ``Project file parsing -- Tools Version 12``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
+  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
 
-  checkOption (Array.ofList p.References) "System.Core.dll"
+  checkOption (getReferencedFilenames p.OtherOptions) "System.Core.dll"
 
 [<Test>]
 let ``Project file parsing -- Logging``() =
-  let p = FSharpProjectFileInfo.Parse(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj", enableLogging=true)
+  let p, log = checker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj", enableLogging=true)
 
   if runningOnMono then
-    Assert.That(p.LogOutput, Is.StringContaining("Reference System.Core resolved"))
-    Assert.That(p.LogOutput, Is.StringContaining("Using task ResolveAssemblyReference from Microsoft.Build.Tasks.ResolveAssemblyReference"))
+    Assert.That(log, Is.StringContaining("Reference System.Core resolved"))
+    Assert.That(log, Is.StringContaining("Using task ResolveAssemblyReference from Microsoft.Build.Tasks.ResolveAssemblyReference"))
   else
-    Assert.That(p.LogOutput, Is.StringContaining("""Using "ResolveAssemblyReference" task from assembly "Microsoft.Build.Tasks.v12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"."""))
+    Assert.That(log, Is.StringContaining("""Using "ResolveAssemblyReference" task from assembly "Microsoft.Build.Tasks.v12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"."""))
 
 [<Test>]
 let ``Project file parsing -- Full path``() =
   let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
-  let p = FSharpProjectFileInfo.Parse(f)
-
-  p.FullPath |> should equal f
+  let p = checker.GetProjectOptionsFromProjectFile(f)
+  p.ProjectFileName |> should equal f
 
 [<Test>]
 let ``Project file parsing -- project references``() =
@@ -230,7 +239,7 @@ let ``Project file parsing -- PCL profile7 project``() =
     let options = checker.GetProjectOptionsFromProjectFile(f)
     let references =
       options.OtherOptions
-      |> Array.choose (fun o -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
+      |> getReferencedFilenames
       |> Set.ofArray
     references
     |> shouldEqual
@@ -278,7 +287,7 @@ let ``Project file parsing -- PCL profile78 project``() =
     let options = checker.GetProjectOptionsFromProjectFile(f)
     let references =
       options.OtherOptions
-      |> Array.choose (fun o -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
+      |> getReferencedFilenames
       |> Set.ofArray
     references
     |> shouldEqual
@@ -317,7 +326,7 @@ let ``Project file parsing -- PCL profile259 project``() =
     let options = checker.GetProjectOptionsFromProjectFile(f)
     let references =
       options.OtherOptions
-      |> Array.choose (fun o -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
+      |> getReferencedFilenames
       |> Set.ofArray
     references
     |> shouldEqual
@@ -351,11 +360,8 @@ let ``Project file parsing -- Exe with a PCL reference``() =
 
     let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/sqlite-net-spike/sqlite-net-spike.fsproj")
 
-    let p = FSharpProjectFileInfo.Parse(f)
-    let references =
-      p.References
-      |> List.map (fun o -> o |> Path.GetFileName)
-      |> Set.ofList
+    let p = checker.GetProjectOptionsFromProjectFile(f)
+    let references = getReferencedFilenames p.OtherOptions |> set
     references |> should contain "FSharp.Core.dll"
     references |> should contain "SQLite.Net.Platform.Generic.dll"
     references |> should contain "SQLite.Net.Platform.Win32.dll"

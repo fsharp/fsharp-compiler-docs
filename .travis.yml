@@ -5,4 +5,4 @@ sudo: false
 install:
 
 script: 
-  - ./build.sh
+  - ./build.sh NuGet

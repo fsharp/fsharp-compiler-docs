@@ -15,9 +15,9 @@ iconurl https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.p
 tags
     F#, fsharp, interactive, compiler, editor
 files
-	../bin/v4.0/FSharp.Compiler.Service.dll ==> lib/net40
-    ../bin/v4.0/FSharp.Compiler.Service.xml ==> lib/net40
+    ../bin/v4.0/FSharp.Compiler.Service.dll ==> lib/net40
+    ../bin/v4.0/FSharp.Compiler.Service.XML ==> lib/net40
     ../bin/v4.0/FSharp.Compiler.Service.pdb ==> lib/net40
     ../bin/v4.5/FSharp.Compiler.Service.dll ==> lib/net45
-    ../bin/v4.5/FSharp.Compiler.Service.xml ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.XML ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.pdb ==> lib/net45

@@ -139,13 +139,14 @@ Target "NuGet" (fun _ ->
         { p with 
             TemplateFile = "nuget/paket.template"
             Version = release.NugetVersion
+            OutputPath = buildDir
             ReleaseNotes = toLines release.Notes })
 )
 
 
 Target "PublishNuGet" (fun _ ->
     Paket.Push (fun p -> 
-        { p with 
+        { p with
             WorkingDir = buildDir }) 
 )
 

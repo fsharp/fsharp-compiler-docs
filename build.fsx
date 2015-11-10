@@ -137,6 +137,7 @@ Target "RunTests" (fun _ ->
 Target "NuGet" (fun _ ->
     Paket.Pack (fun p -> 
         { p with 
+            TemplateFile = "nuget/paket.template"
             Version = release.NugetVersion
             ReleaseNotes = toLines release.Notes })
 )

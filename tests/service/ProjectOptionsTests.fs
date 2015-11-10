@@ -126,13 +126,11 @@ let ``Project file parsing -- compile files 2``() =
 let ``Project file parsing -- bad project file``() =
   let log = snd (checker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/Malformed.fsproj", enableLogging=true))
   log |> should contain "Microsoft.Build.Exceptions.InvalidProjectFileException"
-  log |> should contain "Text node cannot appear in this state"
 
 [<Test>]
 let ``Project file parsing -- non-existent project file``() =
   let log = snd (checker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/DoesNotExist.fsproj", enableLogging=true))
   log |> should contain "System.IO.FileNotFoundException"
-  log |> should contain "not found"
 
 [<Test>]
 let ``Project file parsing -- output file``() =

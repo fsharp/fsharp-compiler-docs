@@ -384,7 +384,7 @@ module Program =
     snd (getOptions file)
 
   let addMSBuildv14BackupResolution () =
-    let onResolveEvent = new ResolveEventHandler( fun sender evArgs ->
+    let onResolveEvent = new ResolveEventHandler(fun sender evArgs ->
       let requestedAssembly = AssemblyName(evArgs.Name)
       if requestedAssembly.Name.StartsWith("Microsoft.Build") &&
           not (requestedAssembly.Name.EndsWith(".resources")) then
@@ -393,6 +393,21 @@ module Program =
       else
         null)
     AppDomain.CurrentDomain.add_AssemblyResolve(onResolveEvent)
+
+  let redirectAssembly shortName (targetVersion : Version) publicKeyToken =
+      let rec onResolveEvent = new ResolveEventHandler( fun sender evArgs ->
+          let requestedAssembly =
+              AssemblyName(evArgs.Name)
+          if requestedAssembly.Name <> shortName
+          then
+              Unchecked.defaultof<Assembly>
+          else
+              requestedAssembly.Version <- targetVersion
+              requestedAssembly.SetPublicKeyToken (AssemblyName(sprintf "x, PublicKeyToken=%s" publicKeyToken).GetPublicKeyToken())
+              requestedAssembly.CultureInfo <- System.Globalization.CultureInfo.InvariantCulture
+              AppDomain.CurrentDomain.remove_AssemblyResolve(onResolveEvent)
+              Assembly.Load (requestedAssembly))
+      AppDomain.CurrentDomain.add_AssemblyResolve(onResolveEvent)
 
   let rec pairs l =
     match l with
@@ -407,6 +422,8 @@ module Program =
       let ret, opts =
           try
               addMSBuildv14BackupResolution ()
+              redirectAssembly "FSharp.Core" (Version("4.3.1.0")) "b03f5f7f11d50a3a"
+              redirectAssembly "FSharp.Core" (Version("4.4.0.0")) "b03f5f7f11d50a3a"
               if argv.Length >= 2 then
                 let projectFile = argv.[0]
                 let enableLogging = match Boolean.TryParse(argv.[1]) with

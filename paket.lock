@@ -14,7 +14,6 @@ NUGET
     Microsoft.Net.Http (2.2.29)
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
-    NuGet.CommandLine (2.8.6)
     NUnit (2.6.3)
     NUnit.Runners (2.6.3)
     Octokit (0.14.0) - framework: wpv8.0

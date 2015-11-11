@@ -13,6 +13,8 @@
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <Name>FSharp.Compiler.Service.ProjectCracker</Name>
+    <OtherFlags>$(OtherFlags) --staticlink:FSharp.Core</OtherFlags>
+    <NoWarn>$(NoWarn);40</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

@@ -422,8 +422,8 @@ module Program =
       let ret, opts =
           try
               addMSBuildv14BackupResolution ()
-              redirectAssembly "FSharp.Core" (Version("4.3.1.0")) "b03f5f7f11d50a3a"
-              redirectAssembly "FSharp.Core" (Version("4.4.0.0")) "b03f5f7f11d50a3a"
+              //redirectAssembly "FSharp.Core" (Version("4.3.1.0")) "b03f5f7f11d50a3a"
+              //redirectAssembly "FSharp.Core" (Version("4.4.0.0")) "b03f5f7f11d50a3a"
               if argv.Length >= 2 then
                 let projectFile = argv.[0]
                 let enableLogging = match Boolean.TryParse(argv.[1]) with

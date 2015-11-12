@@ -312,6 +312,7 @@ and [<Class>] FSharpAbstractParameter =
 
 /// Represents the signature of an abstract slot of a class or interface 
 and [<Class>] FSharpAbstractSignature =
+    internal new : Impl.cenv * SlotSig -> FSharpAbstractSignature
 
     /// Get the arguments of the abstract slot
     member AbstractArguments : IList<IList<FSharpAbstractParameter>>

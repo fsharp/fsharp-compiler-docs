@@ -56,6 +56,8 @@ and [<Sealed>]  FSharpExpr =
 
 /// Represents a checked method in an object expression, as seen by the F# language.  
 and [<Sealed>]  FSharpObjectExprOverride = 
+    /// The signature of the implemented abstract slot
+    member Signature : FSharpAbstractSignature
     /// The generic parameters of the method
     member GenericParameters : FSharpGenericParameter list
     /// The parameters of the method

@@ -5,20 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>b1bdd96d-47e1-4e65-8107-fbae23a06db4</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>FSharp.Compiler.Service.ProjectCracker</RootNamespace>
-    <AssemblyName>FSharp.Compiler.Service.ProjectCracker</AssemblyName>
-    <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.5</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <Name>FSharp.Compiler.Service.ProjectCracker</Name>
-    <OtherFlags>$(OtherFlags) --staticlink:FSharp.Core</OtherFlags>
-    <NoWarn>$(NoWarn);40</NoWarn>
+    <ProjectGuid>893c3cd9-5af8-4027-a667-21e62fc2c703</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FSharp.Compiler.Service.ProjectCrackerReader</RootNamespace>
+    <AssemblyName>FSharp.Compiler.Service.ProjectCrackerReader</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>FSharp.Compiler.Service.ProjectCracker</Name>
+    <Name>FSharp.Compiler.Service.ProjectCrackerReader</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\FSharp.Compiler.Service.ProjectCracker.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.Compiler.Service.ProjectCrackerReader.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -40,32 +34,10 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\FSharp.Compiler.Service.ProjectCracker.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.Compiler.Service.ProjectCrackerReader.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Build.Framework" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
-    <Reference Include="Microsoft.Build.Engine" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
-    <Reference Include="Microsoft.Build" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
-    <Reference Include="Microsoft.Build.Framework, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'">
-      <SpecificVersion>True</SpecificVersion>
-    </Reference>
-    <Reference Include="Microsoft.Build.Engine, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'">
-      <SpecificVersion>True</SpecificVersion>
-    </Reference>
-    <Reference Include="Microsoft.Build, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'">
-      <SpecificVersion>True</SpecificVersion>
-    </Reference>
-    <Reference Include="Microsoft.Build.Utilities.v12.0" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" />
-    <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Build" />
-    <Reference Include="Microsoft.Build.Engine" />
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -73,16 +45,17 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ProjectCrackerOptions.fs" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.fs" />
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FSharp.Compiler.Service.ProjectCracker\FSharp.Compiler.Service.ProjectCracker.fsproj">
+      <Name>FSharp.Compiler.Service.ProjectCracker</Name>
+      <Project>{b1bdd96d-47e1-4e65-8107-fbae23a06db4}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

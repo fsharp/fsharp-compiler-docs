@@ -7,7 +7,6 @@ open System.IO
 open System
 open System.Reflection
 open System.Runtime.Serialization.Formatters.Binary
-open System.Runtime.Serialization.Json
 
 module Program =
   let runningOnMono = 
@@ -356,7 +355,6 @@ module Program =
       member x.LogOutput = logOutput
       static member Parse(fsprojFileName:string, ?properties, ?enableLogging) = new FSharpProjectFileInfo(fsprojFileName, ?properties=properties, ?enableLogging=enableLogging)
 
-
   let getOptions file enableLogging properties =
     let rec getOptions file : Option<string> * ProjectOptions =
       let parsedProject = FSharpProjectFileInfo.Parse(file, properties=properties, enableLogging=enableLogging)
@@ -371,6 +369,7 @@ module Program =
                       Options = Array.ofList parsedProject.Options
                       ReferencedProjectOptions = referencedProjectOptions
                       LogOutput = parsedProject.LogOutput }
+
       parsedProject.OutputFile, options
 
     snd (getOptions file)
@@ -409,6 +408,7 @@ module Program =
           with e ->
                 2, { ProjectFile = ""; Options = [||]; ReferencedProjectOptions = [||]; LogOutput = e.ToString() }
 
-      let ser = new DataContractJsonSerializer(typeof<ProjectOptions>)
-      ser.WriteObject(Console.OpenStandardOutput(), opts)
+      let fmt = new BinaryFormatter()
+      use out = new StreamWriter(System.Console.OpenStandardOutput())
+      fmt.Serialize(out.BaseStream, opts)
       ret

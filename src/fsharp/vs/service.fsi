@@ -542,17 +542,7 @@ type FSharpChecker =
     /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
     /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
-    /// <param name="enableLogging">Enable detailed log output from the MSBuild project analysis.</param>
-    member GetProjectOptionsFromProjectFileLogged : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime * ?enableLogging: bool -> FSharpProjectOptions * string
-
-    /// <summary>
-    /// <para>Get the project options implied by a standard F# project file in the xbuild/msbuild format.</para>
-    /// </summary>
-    ///
-    /// <param name="projectFileName">Used to differentiate between projects and for the base directory of the project.</param>
-    /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
-    /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
-    /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
+    [<Obsolete("This functionality has been moved to the new NuGet package 'FSharp.Compiler.Service.ProjectCracker'", true)>]
     member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
 #endif
 #endif

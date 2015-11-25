@@ -146,7 +146,7 @@ Target "NuGet" (fun _ ->
             TemplateFile = "nuget/projectcracker.template"
             Version = release.NugetVersion
             OutputPath = buildDir
-            ReleaseNotes = toLines release.Notes }
+            ReleaseNotes = toLines release.Notes })
 )
 
 

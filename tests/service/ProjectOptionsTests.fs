@@ -14,6 +14,7 @@ open System.IO
 open NUnit.Framework
 open FsUnit
 open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Service
 
 open FSharp.Compiler.Service.Tests.Common
 
@@ -39,7 +40,7 @@ let getCompiledFilenames = Array.choose (fun (o:string) -> if o.EndsWith(".fs") 
 [<Test>]
 let ``Project file parsing example 1 Default Configuration`` () = 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile)
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile)
 
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
     checkOption options.OtherOptions "FileSystemTests.fs"
@@ -53,7 +54,7 @@ let ``Project file parsing example 1 Default Configuration`` () =
 let ``Project file parsing example 1 Release Configuration`` () = 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     // Check with Configuration = Release
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
 
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
     checkOption options.OtherOptions "FileSystemTests.fs"
@@ -66,7 +67,7 @@ let ``Project file parsing example 1 Default configuration relative path`` () =
     let projectFile = "FSharp.Compiler.Service.Tests.fsproj"
     Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile)
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile)
 
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
     checkOption options.OtherOptions "FileSystemTests.fs"
@@ -79,7 +80,7 @@ let ``Project file parsing example 1 Default configuration relative path`` () =
 [<Test>]
 let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() = 
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [])
 
     checkOption options.OtherOptions "--targetprofile:netcore"
     checkOption options.OtherOptions "--tailcalls-"
@@ -93,7 +94,7 @@ let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() =
 [<Test>]
 let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78``() = 
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [])
 
     checkOption options.OtherOptions "--targetprofile:netcore"
     checkOption options.OtherOptions "--tailcalls-"
@@ -106,7 +107,7 @@ let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted
 
 [<Test>]
 let ``Project file parsing -- compile files 1``() =
-  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
+  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
 
   p.OtherOptions
   |> getCompiledFilenames
@@ -115,7 +116,7 @@ let ``Project file parsing -- compile files 1``() =
 
 [<Test>]
 let ``Project file parsing -- compile files 2``() =
-  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
+  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
 
   p.OtherOptions
   |> getCompiledFilenames
@@ -124,17 +125,17 @@ let ``Project file parsing -- compile files 2``() =
 
 [<Test>]
 let ``Project file parsing -- bad project file``() =
-  let log = snd (checker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/Malformed.fsproj", enableLogging=true))
+  let log = snd (ProjectCracker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/Malformed.fsproj", enableLogging=true))
   log |> should contain "Microsoft.Build.Exceptions.InvalidProjectFileException"
 
 [<Test>]
 let ``Project file parsing -- non-existent project file``() =
-  let log = snd (checker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/DoesNotExist.fsproj", enableLogging=true))
+  let log = snd (ProjectCracker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/DoesNotExist.fsproj", enableLogging=true))
   log |> should contain "System.IO.FileNotFoundException"
 
 [<Test>]
 let ``Project file parsing -- output file``() =
-  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
+  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
 
   let expectedOutputPath =
     normalizePath (__SOURCE_DIRECTORY__ + "/data/Test1/bin/Debug/Test1.dll")
@@ -145,7 +146,7 @@ let ``Project file parsing -- output file``() =
 
 [<Test>]
 let ``Project file parsing -- references``() =
-  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
+  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
 
   let references = getReferencedFilenames p.OtherOptions
   checkOption references "FSharp.Core.dll"
@@ -157,7 +158,7 @@ let ``Project file parsing -- references``() =
 
 [<Test>]
 let ``Project file parsing -- 2nd level references``() =
-  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
+  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
 
   let references = getReferencedFilenames p.OtherOptions
   checkOption references "FSharp.Core.dll"
@@ -171,7 +172,7 @@ let ``Project file parsing -- 2nd level references``() =
 
 [<Test>]
 let ``Project file parsing -- reference project output file``() =
-  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/DifferingOutputDir/Dir2/Test2.fsproj")
+  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/DifferingOutputDir/Dir2/Test2.fsproj")
 
   let expectedOutputPath =
     normalizePath (__SOURCE_DIRECTORY__ + "/data/DifferingOutputDir/Dir2/OutputDir2/Test2.exe")
@@ -187,13 +188,13 @@ let ``Project file parsing -- reference project output file``() =
 
 [<Test>]
 let ``Project file parsing -- Tools Version 12``() =
-  let p = checker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
+  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
 
   checkOption (getReferencedFilenames p.OtherOptions) "System.Core.dll"
 
 [<Test>]
 let ``Project file parsing -- Logging``() =
-  let p, log = checker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj", enableLogging=true)
+  let p, log = ProjectCracker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj", enableLogging=true)
 
   if runningOnMono then
     Assert.That(log, Is.StringContaining("Reference System.Core resolved"))
@@ -204,24 +205,24 @@ let ``Project file parsing -- Logging``() =
 [<Test>]
 let ``Project file parsing -- Full path``() =
   let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
-  let p = checker.GetProjectOptionsFromProjectFile(f)
+  let p = ProjectCracker.GetProjectOptionsFromProjectFile(f)
   p.ProjectFileName |> should equal f
 
 [<Test>]
 let ``Project file parsing -- project references``() =
   let f1 = normalizePath (__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
   let f2 = normalizePath (__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
-  let options = checker.GetProjectOptionsFromProjectFile(f2)
+  let options = ProjectCracker.GetProjectOptionsFromProjectFile(f2)
 
   options.ReferencedProjects |> should haveLength 1
   fst options.ReferencedProjects.[0] |> should endWith "Test1.dll"
-  snd options.ReferencedProjects.[0] |> should equal (checker.GetProjectOptionsFromProjectFile(f1))
+  snd options.ReferencedProjects.[0] |> should equal (ProjectCracker.GetProjectOptionsFromProjectFile(f1))
 
 [<Test>]
 let ``Project file parsing -- multi language project``() =
   let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/MultiLanguageProject/ConsoleApplication1.fsproj")
 
-  let options = checker.GetProjectOptionsFromProjectFile(f)
+  let options = ProjectCracker.GetProjectOptionsFromProjectFile(f)
 
   options.ReferencedProjects |> should haveLength 1
   options.ReferencedProjects.[0] |> fst |> should endWith "ConsoleApplication2.exe"
@@ -234,7 +235,7 @@ let ``Project file parsing -- PCL profile7 project``() =
 
     let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj")
 
-    let options = checker.GetProjectOptionsFromProjectFile(f)
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(f)
     let references =
       options.OtherOptions
       |> getReferencedFilenames
@@ -282,7 +283,7 @@ let ``Project file parsing -- PCL profile78 project``() =
 
     let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj")
 
-    let options = checker.GetProjectOptionsFromProjectFile(f)
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(f)
     let references =
       options.OtherOptions
       |> getReferencedFilenames
@@ -321,7 +322,7 @@ let ``Project file parsing -- PCL profile259 project``() =
 
     let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile259/Sample_VS2013_FSharp_Portable_Library_net451.fsproj")
 
-    let options = checker.GetProjectOptionsFromProjectFile(f)
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(f)
     let references =
       options.OtherOptions
       |> getReferencedFilenames
@@ -358,7 +359,7 @@ let ``Project file parsing -- Exe with a PCL reference``() =
 
     let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/sqlite-net-spike/sqlite-net-spike.fsproj")
 
-    let p = checker.GetProjectOptionsFromProjectFile(f)
+    let p = ProjectCracker.GetProjectOptionsFromProjectFile(f)
     let references = getReferencedFilenames p.OtherOptions |> set
     references |> should contain "FSharp.Core.dll"
     references |> should contain "SQLite.Net.Platform.Generic.dll"

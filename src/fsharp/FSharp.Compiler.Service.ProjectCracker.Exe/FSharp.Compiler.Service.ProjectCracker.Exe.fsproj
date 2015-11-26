@@ -7,12 +7,12 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>b1bdd96d-47e1-4e65-8107-fbae23a06db4</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>FSharp.Compiler.Service.ProjectCracker</RootNamespace>
-    <AssemblyName>FSharp.Compiler.Service.ProjectCracker</AssemblyName>
+    <RootNamespace>FSharp.Compiler.Service.ProjectCracker.Exe</RootNamespace>
+    <AssemblyName>FSharp.Compiler.Service.ProjectCracker.Exe</AssemblyName>
     <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <Name>FSharp.Compiler.Service.ProjectCracker</Name>
+    <Name>FSharp.Compiler.Service.ProjectCracker.Exe</Name>
     <OtherFlags>$(OtherFlags) --staticlink:FSharp.Core</OtherFlags>
     <NoWarn>$(NoWarn);40</NoWarn>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -29,7 +29,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\FSharp.Compiler.Service.ProjectCracker.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.Compiler.Service.ProjectCracker.Exe.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -40,7 +40,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\FSharp.Compiler.Service.ProjectCracker.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.Compiler.Service.ProjectCracker.Exe.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>

@@ -564,9 +564,6 @@
     <Compile Include="..\vs\ServiceUntypedParse.fs">
       <Link>Service/ServiceUntypedParse.fs</Link>
     </Compile>
-    <Compile Include="..\FSharp.Compiler.Service.ProjectCracker\ProjectCrackerOptions.fs">
-      <Link>Service/ProjectCrackerOptions.fs</Link>
-    </Compile>
     <Compile Include="..\vs\service.fsi">
       <Link>Service/service.fsi</Link>
     </Compile>

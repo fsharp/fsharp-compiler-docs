@@ -15,9 +15,7 @@
     <Name>FSharp.Compiler.Service.ProjectCracker.Exe</Name>
     <OtherFlags>$(OtherFlags) --staticlink:FSharp.Core</OtherFlags>
     <NoWarn>$(NoWarn);40</NoWarn>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <Name>FSharp.Compiler.Service.ProjectCracker.Exe</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

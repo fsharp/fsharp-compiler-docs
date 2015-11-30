@@ -108,7 +108,8 @@ type E =
     | ILAsm of string * FSharpType list * FSharpExpr list
 
 /// Used to represent the information at an object expression member 
-and [<Sealed>]  FSharpObjectExprOverride(gps: FSharpGenericParameter list, args:FSharpMemberFunctionOrValue list list, body: FSharpExpr) = 
+and [<Sealed>]  FSharpObjectExprOverride(sgn: FSharpAbstractSignature, gps: FSharpGenericParameter list, args:FSharpMemberFunctionOrValue list list, body: FSharpExpr) = 
+    member __.Signature = sgn
     member __.GenericParameters = gps
     member __.CurriedParameterGroups = args
     member __.Body = body
@@ -444,13 +445,14 @@ module FSharpExprConvert =
         | Expr.Obj (_lambdaId,typ,_basev,basecall,overrides, iimpls,_m)      -> 
             let basecallR = ConvExpr cenv env basecall
             let ConvertMethods methods = 
-                [ for (TObjExprMethod(_slotsig,_,tps,tmvs,body,_)) in methods -> 
+                [ for (TObjExprMethod(slotsig,_,tps,tmvs,body,_)) in methods -> 
                     let vslR = List.map (List.map (ConvVal cenv)) tmvs 
+                    let sgn = FSharpAbstractSignature(cenv, slotsig)
                     let tpsR = [ for tp in tps -> FSharpGenericParameter(cenv,tp) ]
                     let env = ExprTranslationEnv.Empty.BindTypars (Seq.zip tps tpsR |> Seq.toList)
                     let env = env.BindCurriedVals tmvs
                     let bodyR = ConvExpr cenv env body
-                    FSharpObjectExprOverride(tpsR, vslR, bodyR) ]
+                    FSharpObjectExprOverride(sgn, tpsR, vslR, bodyR) ]
             let overridesR = ConvertMethods overrides 
             let iimplsR = List.map (fun (ty,impls) -> ConvType cenv ty, ConvertMethods impls) iimpls
 

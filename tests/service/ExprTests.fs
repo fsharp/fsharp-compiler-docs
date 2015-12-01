@@ -678,7 +678,7 @@ let ``Test expressions of declarations stress big expressions`` () =
 [<Test>]
 let ``Check use of type provider that provides calls to F# code`` () = 
     let res =
-        checker.GetProjectOptionsFromProjectFile (Path.Combine(__SOURCE_DIRECTORY__, @"TestProject\TestProject.fsproj"))
+        checker.GetProjectOptionsFromProjectFile (Path.Combine(Path.Combine(__SOURCE_DIRECTORY__, "TestProject"),"TestProject.fsproj"))
         |> checker.ParseAndCheckProject 
         |> Async.RunSynchronously
 

@@ -2708,13 +2708,7 @@ type FSharpProjectFileInfo (fsprojFileName:string, ?properties, ?enableLogging) 
     // Use the old API on Mono, with ToolsVersion = 12.0
     let CrackProjectUsingOldBuildAPI(fsprojFile:string) = 
         let engine = new Microsoft.Build.BuildEngine.Engine()
-#if FX_ATLEAST_45
-        try
-           engine.DefaultToolsVersion <- "12.0"
-        with | _ -> engine.DefaultToolsVersion <- "4.0"
-#else
         engine.DefaultToolsVersion <- "4.0"
-#endif
 
         Option.iter (fun l -> engine.RegisterLogger(l)) logOpt
 

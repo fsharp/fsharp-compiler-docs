@@ -4260,7 +4260,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
 
         if tcImports.IsAlreadyRegistered ilShortAssemName then 
             let dllinfo = tcImports.FindDllInfo(m,ilShortAssemName)
-            let phase2() = [tcImports.FindCcuInfo(m,ilShortAssemName,lookupOnly=false)]
+            let phase2() = [tcImports.FindCcuInfo(m,ilShortAssemName,lookupOnly=true)]
             dllinfo,phase2
         else 
             let dllinfo = {RawMetadata=assemblyData 

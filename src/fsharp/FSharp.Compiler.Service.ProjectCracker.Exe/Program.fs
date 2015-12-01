@@ -57,10 +57,6 @@ module Program =
       // Use the old API on Mono, with ToolsVersion = 12.0
       let CrackProjectUsingOldBuildAPI(fsprojFile:string) = 
           let engine = new Microsoft.Build.BuildEngine.Engine()
-          try
-             engine.DefaultToolsVersion <- "12.0"
-          with | _ -> engine.DefaultToolsVersion <- "4.0"
-
           Option.iter (fun l -> engine.RegisterLogger(l)) logOpt
 
           let bpg = Microsoft.Build.BuildEngine.BuildPropertyGroup()
@@ -365,8 +361,28 @@ module Program =
                 | Some outFile, opts -> yield outFile, opts
                 | None, _ -> () |]
 
+      // Workaround for Mono 4.2, which doesn't populate the subproject
+      // details anymore outside of a solution context. See https://github.com/mono/mono/commit/76c6a08e730393927b6851709cdae1d397cbcc3a#diff-59afd196a55d61d5d1eaaef7bd49d1e5
+      // and some explanation from the author at https://github.com/fsharp/FSharp.Compiler.Service/pull/455#issuecomment-154103963
+      //
+      // In particular we want the output path, which we can get from
+      // fully parsing that project itself. We also have to specially parse
+      // C# referenced projects, as we don't look at them otherwise.
+      let referencedProjectOutputs =
+          if runningOnMono then
+              [| yield! Array.map (fun (s,_) -> "-r:" + s) referencedProjectOptions
+                 for file in parsedProject.ProjectReferences do
+                     if Path.GetExtension(file) = ".csproj" then
+                         let parsedProject = FSharpProjectFileInfo.Parse(file, properties=properties, enableLogging=false)
+                         match parsedProject.OutputFile with
+                         | None -> ()
+                         | Some f -> yield "-r:" + f |]
+          else
+              [||]
+
       let options = { ProjectFile = file
-                      Options = Array.ofList parsedProject.Options
+                      Options = Array.append (Array.ofList (parsedProject.Options))
+                                             referencedProjectOutputs
                       ReferencedProjectOptions = referencedProjectOptions
                       LogOutput = parsedProject.LogOutput }
 

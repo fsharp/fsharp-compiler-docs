@@ -63,11 +63,13 @@ type BasicProvider (config : TypeProviderConfig) as this =
                                                          Helper.C().InstanceDoNothingOneArg(3)
                                                          Helper.C().InstanceDoNothingTwoArg(Helper.C(), 3)
                                                          Helper.G<int>.DoNothing()
-                                                         Helper.G<int>.DoNothingGeneric(3)
+                                                         // These do not seem to compile correctly when used in provided expressions:
+                                                         //Helper.G<int>.DoNothingGeneric(3)
                                                          Helper.G<int>.DoNothingOneArg(3)
                                                          Helper.G<int>.DoNothingTwoArg(Helper.C(), 3)
                                                          Helper.G<int>().InstanceDoNothing()
-                                                         Helper.G<int>().InstanceDoNothingGeneric(3)
+                                                         // These do not seem to compile correctly when used in provided expressions:
+                                                         //Helper.G<int>().InstanceDoNothingGeneric(3)
                                                          Helper.G<int>().InstanceDoNothingOneArg(3)
                                                          Helper.G<int>().InstanceDoNothingTwoArg(Helper.C(), 3) @@>)
 

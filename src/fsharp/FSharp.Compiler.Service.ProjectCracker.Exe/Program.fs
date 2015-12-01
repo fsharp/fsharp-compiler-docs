@@ -380,7 +380,8 @@ module Program =
           if runningOnMono then
               [| yield! Array.map (fun (s,_) -> "-r:" + s) referencedProjectOptions
                  for file in parsedProject.ProjectReferences do
-                     if Path.GetExtension(file) = ".csproj" then
+                     let ext = Path.GetExtension(file)
+                     if ext = ".csproj" || ext = ".vbproj" then
                          let parsedProject = FSharpProjectFileInfo.Parse(file, properties=properties, enableLogging=false)
                          match parsedProject.OutputFile with
                          | None -> ()

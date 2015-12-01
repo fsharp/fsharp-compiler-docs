@@ -51,28 +51,80 @@ type BasicProvider (config : TypeProviderConfig) as this =
         myType.AddMember(innerState)
 
         let someMethod = ProvidedMethod("DoNothing", [], typeof<unit>,
-                            InvokeCode = fun args -> <@@ Helper.doNothing();
-                                                         Helper.doNothingOneArg(3)
-                                                         Helper.doNothingGeneric(3)
-                                                         Helper.C.DoNothing()
-                                                         Helper.C.DoNothingGeneric(3)
-                                                         Helper.C.DoNothingOneArg(3)
-                                                         Helper.C.DoNothingTwoArg(Helper.C(), 3)
-                                                         Helper.C().InstanceDoNothing()
-                                                         Helper.C().InstanceDoNothingGeneric(3)
-                                                         Helper.C().InstanceDoNothingOneArg(3)
-                                                         Helper.C().InstanceDoNothingTwoArg(Helper.C(), 3)
-                                                         Helper.G<int>.DoNothing()
-                                                         // These do not seem to compile correctly when used in provided expressions:
-                                                         //Helper.G<int>.DoNothingGeneric(3)
-                                                         Helper.G<int>.DoNothingOneArg(3)
-                                                         Helper.G<int>.DoNothingTwoArg(Helper.C(), 3)
-                                                         Helper.G<int>().InstanceDoNothing()
-                                                         // These do not seem to compile correctly when used in provided expressions:
-                                                         //Helper.G<int>().InstanceDoNothingGeneric(3)
-                                                         Helper.G<int>().InstanceDoNothingOneArg(3)
-                                                         Helper.G<int>().InstanceDoNothingTwoArg(Helper.C(), 3) @@>)
+                            InvokeCode = fun args -> <@@ Helper.doNothing() @@>)
+        myType.AddMember(someMethod)
 
+        let someMethod = ProvidedMethod("DoNothingOneArg", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.doNothingOneArg(3) @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("DoNothingGeneric", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.doNothingGeneric(3) @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassDoNothing", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.C.DoNothing() @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassDoNothingGeneric", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.C.DoNothingGeneric(3) @@>)
+
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassDoNothingOneArg", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.C.DoNothingOneArg(3) @@>)
+
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassDoNothingTwoArg", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.C.DoNothingTwoArg(Helper.C(), 3) @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassInstanceDoNothing", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.C().InstanceDoNothing() @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassInstanceDoNothingGeneric", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.C().InstanceDoNothingGeneric(3) @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassInstanceDoNothingOneArg", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.C().InstanceDoNothingOneArg(3) @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassInstanceDoNothingTwoArg", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.C().InstanceDoNothingTwoArg(Helper.C(), 3) @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("GenericClassDoNothing", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.G<int>.DoNothing() @@>)
+        myType.AddMember(someMethod)
+
+        // These do not seem to compile correctly when used in provided expressions:
+        //Helper.G<int>.DoNothingGeneric(3)
+
+        // These do not seem to compile correctly when used in provided expressions:
+        //Helper.G<int>().InstanceDoNothingGeneric(3)
+                                                         
+        let someMethod = ProvidedMethod("GenericClassDoNothingOneArg", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.G<int>.DoNothingOneArg(3) @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("GenericClassDoNothingTwoArg", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.G<int>.DoNothingTwoArg(Helper.C(), 3) @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("GenericClassInstanceDoNothing", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.G<int>().InstanceDoNothing() @@>)
+        myType.AddMember(someMethod)
+
+
+        let someMethod = ProvidedMethod("GenericClassInstanceDoNothingOneArg", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.G<int>().InstanceDoNothingOneArg(3) @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("GenericClassInstanceDoNothingTwoArg", [], typeof<unit>,
+                            InvokeCode = fun args -> <@@ Helper.G<int>().InstanceDoNothingTwoArg(Helper.C(), 3) @@>)
         myType.AddMember(someMethod)
 
         [myType]

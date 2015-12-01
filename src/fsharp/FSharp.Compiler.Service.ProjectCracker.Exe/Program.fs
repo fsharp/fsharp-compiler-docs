@@ -408,6 +408,9 @@ module Program =
 
   [<EntryPoint>]
   let main argv =
+      let text = Array.exists (fun (s: string) -> s = "--text") argv
+      let argv = Array.filter (fun (s: string) -> s <> "--text") argv
+
       let ret, opts =
           try
               addMSBuildv14BackupResolution ()
@@ -424,7 +427,10 @@ module Program =
           with e ->
                 2, { ProjectFile = ""; Options = [||]; ReferencedProjectOptions = [||]; LogOutput = e.ToString() }
 
-      let fmt = new BinaryFormatter()
-      use out = new StreamWriter(System.Console.OpenStandardOutput())
-      fmt.Serialize(out.BaseStream, opts)
+      if text then
+          printfn "%A" opts
+      else
+          let fmt = new BinaryFormatter()
+          use out = new StreamWriter(System.Console.OpenStandardOutput())
+          fmt.Serialize(out.BaseStream, opts)
       ret

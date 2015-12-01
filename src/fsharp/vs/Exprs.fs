@@ -17,7 +17,79 @@ open Internal.Utilities
 
 
 [<AutoOpen>]
+module ExprUtilsImpl = 
+
+    // ILCall nodes arise from calls to .NET methods, and provided calls to 
+    // F# methods.  This method attempts to take the information in a ILMethodRef
+    // and bind it to a symbol.  This is not fool proof when the ILCall refers to
+    // an F# method, but is a good approximation.
+    let bindILMethodRefToSymbol (cenv:Impl.cenv) m (ilMethRef: ILMethodRef) = 
+        let tcref = Import.ImportILTypeRef cenv.amap m ilMethRef.EnclosingTypeRef
+        let enclosingType = generalizedTyconRef tcref
+        // First try to resolve it to IL metadata
+        let try1 = 
+            if tcref.IsILTycon then 
+                try 
+                   let mdef = resolveILMethodRefWithRescope (rescopeILType (p13 tcref.ILTyconInfo)) tcref.ILTyconRawMetadata ilMethRef 
+                   let minfo = MethInfo.CreateILMeth(cenv.amap, m, enclosingType, mdef)                     
+                   Some (FSharpMemberOrFunctionOrValue(cenv, minfo))
+                with _ -> None
+            else None
+
+        // Otherwise try to bind it to an F# symbol
+        match try1 with 
+        | Some res -> res
+        | None -> 
+          try
+            // Try to bind the call to an F# method call
+            let memberParentName = if tcref.IsModuleOrNamespace then None else Some tcref.LogicalName
+            // TODO: this logical name is not correct in the presence of CompiledName
+            let logicalName = ilMethRef.Name 
+            let isMember = memberParentName.IsSome
+            if isMember then 
+                let isCtor = (ilMethRef.Name = ".ctor")
+                let isStatic = isCtor || ilMethRef.CallingConv.IsStatic
+                let scoref = ilMethRef.EnclosingTypeRef.Scope
+                let typars1 = tcref.Typars(m)
+                let typars2 = [ 1 .. ilMethRef.GenericArity ] |> List.map (fun _ -> NewRigidTypar "T" m)
+                let tinst1 = typars1 |> generalizeTypars
+                let tinst2 = typars2 |> generalizeTypars
+                // TODO: this will not work for curried methods in F# classes.
+                // This is difficult to solve as the information in the ILMethodRef
+                // is not sufficient to resolve to a symbol unambiguously in these cases.
+                let argtys = [ ilMethRef.ArgTypes |> List.map (ImportTypeFromMetadata cenv.amap m scoref tinst1 tinst2) ]
+                let rty = 
+                    match ImportReturnTypeFromMetaData cenv.amap m ilMethRef.ReturnType scoref tinst1 tinst2 with 
+                    | None -> if isCtor then  enclosingType else cenv.g.unit_ty
+                    | Some ty -> ty
+
+                let linkageType = 
+                    let ty = mkIteratedFunTy (List.map (mkTupledTy cenv.g) argtys) rty
+                    let ty = if isStatic then ty else mkFunTy enclosingType ty 
+                    tryMkForallTy (typars1 @ typars2) ty
+
+                let argCount = List.sum (List.map List.length argtys)  + (if isStatic then 0 else 1)
+                let key = ValLinkageFullKey({ MemberParentMangledName=memberParentName; MemberIsOverride=false; LogicalName=logicalName; TotalArgCount= argCount },Some linkageType)
+
+                let enclosingNonLocalRef = mkNonLocalEntityRef tcref.nlr.Ccu tcref.PublicPath.Value.EnclosingPath
+                let vref = mkNonLocalValRef enclosingNonLocalRef key
+                vref.Deref |> ignore // check we can dereference the value
+                let minfo = MethInfo.FSMeth(cenv.g, enclosingType, vref, None)
+                FSharpMemberOrFunctionOrValue(cenv, minfo)
+            else 
+                let key = ValLinkageFullKey({ MemberParentMangledName=memberParentName; MemberIsOverride=false; LogicalName=logicalName; TotalArgCount= 0 },None)
+                let vref = mkNonLocalValRef tcref.nlr key
+                vref.Deref |> ignore // check we can dereference the value
+                FSharpMemberOrFunctionOrValue(cenv, vref)
+
+          with _ -> 
+            failwith (sprintf "A call to '%s' could not be resolved" (ilMethRef.ToString()))
+
+
+
+[<AutoOpen>]
 module ExprTranslationImpl = 
+
     type ExprTranslationEnv = 
         { //Map from Val to binding index
           vs: ValMap<unit>; 
@@ -612,12 +684,7 @@ module FSharpExprConvert =
                 | _ -> failwith "unexpected for-loop form"
 
             | TOp.ILCall(_,_,_,isNewObj,_valUseFlags,_isProp,_,ilMethRef,enclTypeArgs,methTypeArgs,_tys),[],callArgs -> 
-                let tcref = Import.ImportILTypeRef cenv.amap m ilMethRef.EnclosingTypeRef
-                let mdef = 
-                    try resolveILMethodRefWithRescope (rescopeILType (p13 tcref.ILTyconInfo)) tcref.ILTyconRawMetadata ilMethRef
-                    with _ -> failwith (sprintf "A call to '%s' could not be resolved" (ilMethRef.ToString()))
-                let minfo = MethInfo.CreateILMeth(cenv.amap, m, generalizedTyconRef tcref, mdef) 
-                let v = FSharpMemberFunctionOrValue(cenv, minfo)
+                let v = bindILMethodRefToSymbol cenv m ilMethRef
                 ConvObjectModelCallLinear cenv env (isNewObj, v, enclTypeArgs, methTypeArgs, callArgs) (fun e -> e)
 
             | TOp.TryFinally _,[_resty],[Expr.Lambda(_,_,_,[_],e1,_,_); Expr.Lambda(_,_,_,[_],e2,_,_)] -> 

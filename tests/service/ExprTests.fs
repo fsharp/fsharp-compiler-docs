@@ -673,6 +673,28 @@ let ``Test expressions of declarations stress big expressions`` () =
     printDeclarations None (List.ofSeq file1.Declarations) |> Seq.toList |> ignore
 
 
+
+[<Test>]
+let ``Check use of type provider that provides calls to F# code`` () = 
+    let res =
+        checker.GetProjectOptionsFromProjectFile (Path.Combine(__SOURCE_DIRECTORY__, @"TestProject\TestProject.fsproj"))
+        |> checker.ParseAndCheckProject 
+        |> Async.RunSynchronously
+
+    res.Errors.Length |> shouldEqual 0
+                                                                                       
+    let results = 
+        [ for f in res.AssemblyContents.ImplementationFiles do
+               for d in f.Declarations do 
+                    for line in d |> printDeclaration None do 
+                        yield line ]    
+    results |> shouldEqual
+                  ["type TestProject"; "type AssemblyInfo"; "type TestProject"; "type T";
+                   "type Class1";
+                   "member .ctor(unitVar0) = (Object..ctor (); ()) @ (5,5--5,11)";
+                   """member get_X(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothing () @ (6,20--6,35)""" ]
+
+
 #if SELF_HOST_STRESS
 
 [<Test>]

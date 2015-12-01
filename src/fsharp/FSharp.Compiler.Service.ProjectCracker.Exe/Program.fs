@@ -8,6 +8,14 @@ open System
 open System.Reflection
 open System.Runtime.Serialization.Formatters.Binary
 
+type ProjectOptions =
+  {
+    ProjectFile: string
+    Options: string[]
+    ReferencedProjectOptions: (string * ProjectOptions)[]
+    LogOutput: string
+  }
+
 module Program =
   let runningOnMono = 
       try match System.Type.GetType("Mono.Runtime") with null -> false | _ -> true

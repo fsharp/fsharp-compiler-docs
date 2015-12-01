@@ -45,7 +45,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.fs" />
+    <Compile Include="ProjectCracker.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Compiler.Service.ProjectCracker.Exe\FSharp.Compiler.Service.ProjectCracker.Exe.fsproj">

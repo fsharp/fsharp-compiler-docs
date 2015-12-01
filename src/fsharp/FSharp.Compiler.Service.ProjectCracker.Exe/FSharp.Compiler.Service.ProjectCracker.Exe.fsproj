@@ -56,7 +56,6 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="ProjectCrackerOptions.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>

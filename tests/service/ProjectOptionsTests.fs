@@ -125,13 +125,15 @@ let ``Project file parsing -- compile files 2``() =
 
 [<Test>]
 let ``Project file parsing -- bad project file``() =
-  let log = snd (ProjectCracker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/Malformed.fsproj", enableLogging=true))
-  log |> should contain "Microsoft.Build.Exceptions.InvalidProjectFileException"
+  let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/Malformed.fsproj")
+  let log = snd (ProjectCracker.GetProjectOptionsFromProjectFileLogged(f, enableLogging=true))
+  log.[f] |> should contain "Microsoft.Build.Exceptions.InvalidProjectFileException"
 
 [<Test>]
 let ``Project file parsing -- non-existent project file``() =
-  let log = snd (ProjectCracker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/DoesNotExist.fsproj", enableLogging=true))
-  log |> should contain "System.IO.FileNotFoundException"
+  let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/DoesNotExist.fsproj")
+  let log = snd (ProjectCracker.GetProjectOptionsFromProjectFileLogged(f, enableLogging=true))
+  log.[f] |> should contain "System.IO.FileNotFoundException"
 
 [<Test>]
 let ``Project file parsing -- output file``() =
@@ -194,7 +196,9 @@ let ``Project file parsing -- Tools Version 12``() =
 
 [<Test>]
 let ``Project file parsing -- Logging``() =
-  let p, log = ProjectCracker.GetProjectOptionsFromProjectFileLogged(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj", enableLogging=true)
+  let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
+  let p, logMap = ProjectCracker.GetProjectOptionsFromProjectFileLogged(f, enableLogging=true)
+  let log = logMap.[f]
 
   if runningOnMono then
     Assert.That(log, Is.StringContaining("Reference System.Core resolved"))

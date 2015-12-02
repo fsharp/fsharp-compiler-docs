@@ -1527,7 +1527,8 @@ module internal Parser =
             for e in relatedErrors do 
                 yield! oneError true e ]
 
-    let CreateErrorInfos (tcConfig:TcConfig, allErrors, mainInputFileName, fileInfo, errors) = 
+    let CreateErrorInfos (tcConfig:TcConfig, allErrors, mainInputFileName, errors) = 
+        let fileInfo = (Int32.MaxValue, Int32.MaxValue)
         [| for (exn,warn) in errors do 
               yield! ReportError (tcConfig, allErrors, mainInputFileName, fileInfo, (exn, warn)) |]
                             
@@ -2392,8 +2393,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
             | Some builder -> 
             let inputOpt,_,_,parseErrors = builder.GetParseResultsForFile filename            
             let dependencyFiles = builder.Dependencies 
-            let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, parseErrors) |]
+            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, parseErrors) |]
             FSharpParseFileResults(errors = errors, input = inputOpt, parseHadErrors = false, dependencyFiles = dependencyFiles)
         )
 
@@ -2508,9 +2508,8 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
             | Some builder -> 
                 let (inputOpt, _, _, untypedErrors) = builder.GetParseResultsForFile filename  
                 let tcProj = builder.GetCheckResultsAfterFileInProject filename 
-                let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-                let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, untypedErrors) |]
-                let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, fileInfo, tcProj.Errors) |]
+                let untypedErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, untypedErrors) |]
+                let tcErrors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (builder.TcConfig, false, filename, tcProj.Errors) |]
                 let parseResults = FSharpParseFileResults(errors = untypedErrors, input = inputOpt, parseHadErrors = false, dependencyFiles = builder.Dependencies)
                 let loadClosure = scriptClosureCache.TryGet options 
                 let scope = 
@@ -2539,8 +2538,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
             FSharpCheckProjectResults (keepAssemblyContents, Array.ofList creationErrors, None, reactorOps)
         | Some builder -> 
             let (tcProj, ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt)  = builder.GetCheckResultsAndImplementationsForProject()
-            let fileInfo = (Int32.MaxValue, Int32.MaxValue)
-            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcProj.TcConfig, true, Microsoft.FSharp.Compiler.TcGlobals.DummyFileNameForRangesWithoutASpecificLocation, fileInfo, tcProj.Errors) |]
+            let errors = [| yield! creationErrors; yield! Parser.CreateErrorInfos (tcProj.TcConfig, true, Microsoft.FSharp.Compiler.TcGlobals.DummyFileNameForRangesWithoutASpecificLocation, tcProj.Errors) |]
             FSharpCheckProjectResults (keepAssemblyContents, errors, Some(tcProj.TcGlobals, tcProj.TcImports, tcProj.TcState.Ccu, tcProj.TcState.PartialAssemblySignature, tcProj.TcSymbolUses, tcProj.TopAttribs, tcAssemblyDataOpt, ilAssemRef, tcProj.TcEnvAtEnd.AccessRights, tcAssemblyExprOpt), reactorOps)
 
     /// Get the timestamp that would be on the output if fully built immediately
@@ -3237,6 +3235,9 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
 
 type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, tcImports, tcState, loadClosure) =
     let keepAssemblyContents = false
+
+    static member CreateErrorInfos (tcConfig, allErrors, mainInputFileName, errors) = 
+        Parser.CreateErrorInfos(tcConfig, allErrors, mainInputFileName, errors)
 
     member __.ParseAndCheckInteraction (source) =
 

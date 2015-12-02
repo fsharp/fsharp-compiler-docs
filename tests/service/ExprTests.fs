@@ -1,6 +1,7 @@
 ﻿
 #if INTERACTIVE
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
+#r "../../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
@@ -16,6 +17,7 @@ open System.IO
 open System.Collections.Generic
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Service
 open FSharp.Compiler.Service.Tests.Common
 
 // Create an interactive checker instance 
@@ -678,7 +680,7 @@ let ``Test expressions of declarations stress big expressions`` () =
 [<Test>]
 let ``Check use of type provider that provides calls to F# code`` () = 
     let res =
-        checker.GetProjectOptionsFromProjectFile (Path.Combine(Path.Combine(__SOURCE_DIRECTORY__, "TestProject"),"TestProject.fsproj"))
+        ProjectCracker.GetProjectOptionsFromProjectFile (Path.Combine(Path.Combine(__SOURCE_DIRECTORY__, "TestProject"),"TestProject.fsproj"))
         |> checker.ParseAndCheckProject 
         |> Async.RunSynchronously
 
@@ -716,7 +718,7 @@ let ``Check use of type provider that provides calls to F# code`` () =
 let ``Test Declarations selfhost`` () =
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     // Check with Configuration = Release
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
     let wholeProjectResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
     
     wholeProjectResults.Errors.Length |> shouldEqual 0 
@@ -735,7 +737,7 @@ let ``Test Declarations selfhost whole compiler`` () =
     let projectFile = __SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
 
     //let v = FSharpProjectFileInfo.Parse(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")],enableLogging=true)
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")])
 
     // For subsets of the compiler:
     //let options = { options with OtherOptions = options.OtherOptions.[0..51] }
@@ -773,7 +775,7 @@ let ``Test Declarations selfhost FSharp.Core`` () =
     Environment.CurrentDirectory <-  __SOURCE_DIRECTORY__ +  @"/../../../fsharp/src/fsharp/FSharp.Core"
     let projectFile = __SOURCE_DIRECTORY__ + @"/../../../fsharp/src/fsharp/FSharp.Core/FSharp.Core.fsproj"
 
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
 
     let wholeProjectResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
     

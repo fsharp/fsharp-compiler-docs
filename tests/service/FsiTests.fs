@@ -36,15 +36,41 @@ let evalExpression text =
     | Some value -> sprintf "%A" value.ReflectionValue
     | None -> sprintf "null or no result"
 
-/// Evaluate interaction & ignore the result
-let evalInteraction text = 
-  fsiSession.EvalInteraction(text)
+let formatErrors (errs: FSharpErrorInfo[]) = 
+   [ for err in errs do yield sprintf "%s %d,%d - %d,%d; %s" (match err.Severity with FSharpErrorSeverity.Error -> "error" | FSharpErrorSeverity.Warning -> "warning") err.StartLineAlternate err.StartColumn err.EndLineAlternate err.EndColumn err.Message ]
+
+let showErrorsAndResult (x, errs) = 
+   [ match x with 
+       | Choice1Of2 res -> yield sprintf "result %A" res
+       | Choice2Of2 (exn:exn) -> yield sprintf "exception %s" exn.Message
+     yield! formatErrors errs ]
+
+let showErrors (x, errs: FSharpErrorInfo[]) = 
+   [ match x with 
+       | Choice1Of2 () -> ()
+       | Choice2Of2 (exn:exn) -> yield sprintf "exception %s" exn.Message
+     yield! formatErrors errs ]
+
+/// Evaluate expression & return the result
+let evalExpressionNonThrowing text =
+   let res, errs = fsiSession.EvalExpressionNonThrowing(text)
+   [ match res with 
+       | Choice1Of2 valueOpt -> 
+            match valueOpt with 
+            | Some value -> yield sprintf "%A" value.ReflectionValue
+            | None -> yield sprintf "null or no result"
+       | Choice2Of2 (exn:exn) -> yield sprintf "exception %s" exn.Message
+     yield! formatErrors errs ]
 
 // For some reason NUnit doesn't like running these FsiEvaluationSession tests. We need to work out why.
 //#if INTERACTIVE
 [<Test>]
 let ``EvalExpression test 1``() = 
     evalExpression "42+1" |> shouldEqual "43"
+
+[<Test>]
+let ``EvalExpression test 1 nothrow``() = 
+    evalExpressionNonThrowing "42+1" |> shouldEqual ["43"]
 
 [<Test>]
 // 'fsi' can be evaluated because we passed it in explicitly up above
@@ -54,7 +80,14 @@ let ``EvalExpression fsi test``() =
 [<Test>]
 // 'fsi' can be evaluated because we passed it in explicitly up above
 let ``EvalExpression fsi test 2``() = 
-    evalInteraction "fsi.AddPrinter |> ignore" 
+    fsiSession.EvalInteraction "fsi.AddPrinter |> ignore" 
+
+[<Test>]
+// 'fsi' can be evaluated because we passed it in explicitly up above
+let ``EvalExpression fsi test 2 non throwing``() = 
+    fsiSession.EvalInteractionNonThrowing "fsi.AddPrinter |> ignore" 
+       |> showErrors
+       |> shouldEqual []
 
 
 [<Test>]
@@ -63,6 +96,15 @@ let ``EvalExpression typecheck failure``() =
          false
      with e -> true)
     |> shouldEqual true
+
+[<Test>]
+let ``EvalExpression typecheck failure nothrow``() = 
+    evalExpressionNonThrowing("42+1.0")
+    |> shouldEqual 
+          ["exception Operation could not be completed due to earlier error";
+           "error 1,3 - 1,6; The type 'float' does not match the type 'int'";
+           "error 1,2 - 1,3; The type 'float' does not match the type 'int'"]
+
 
 [<Test>]
 let ``EvalExpression function value 1``() = 
@@ -100,41 +142,74 @@ let ``EvalExpression parse failure``() =
     |> shouldEqual true
 
 [<Test>]
+let ``EvalExpression parse failure nothrow``() = 
+    evalExpressionNonThrowing """ let let let let x = 1 """  
+    |> shouldEqual 
+          ["exception Operation could not be completed due to earlier error";
+           "error 1,5 - 1,8; Unexpected keyword 'let' or 'use' in binding";
+           "error 1,1 - 1,4; Block following this 'let' is unfinished. Expect an expression."]
+
+[<Test>]
 let ``EvalInteraction typecheck failure``() = 
-    (try evalInteraction "let x = 42+1.0"  |> ignore
+    (try fsiSession.EvalInteraction "let x = 42+1.0"  |> ignore
          false
      with e -> true)
     |> shouldEqual true
+
+[<Test>]
+let ``EvalInteraction typecheck failure nothrow``() = 
+    fsiSession.EvalInteractionNonThrowing "let x = 42+1.0"  
+    |> showErrors
+    |> shouldEqual
+      ["exception Operation could not be completed due to earlier error";
+       "error 1,11 - 1,14; The type 'float' does not match the type 'int'";
+       "error 1,10 - 1,11; The type 'float' does not match the type 'int'"]
 
 [<Test>]
 let ``EvalInteraction runtime failure``() = 
-    (try evalInteraction """let x = (failwith "fail" : int) """  |> ignore
+    (try fsiSession.EvalInteraction """let x = (failwith "fail" : int) """  |> ignore
          false
      with e -> true)
     |> shouldEqual true
 
 [<Test>]
+let ``EvalInteraction runtime failure nothrow``() = 
+    fsiSession.EvalInteractionNonThrowing """let x = (failwith "fail" : int) """  
+    |> showErrors
+    |> shouldEqual ["exception fail"]
+
+[<Test>]
 let ``EvalInteraction parse failure``() = 
-    (try evalInteraction """ let let let let x =  """  |> ignore
+    (try fsiSession.EvalInteraction """ let let let let x =  """  |> ignore
          false
      with e -> true)
     |> shouldEqual false  // EvalInteraction doesn't fail for parse failures, it just reports errors.
+
+[<Test>]
+let ``EvalInteraction parse failure nothrow``() = 
+    fsiSession.EvalInteractionNonThrowing """ let let let let x =  """  
+    |> showErrors
+    |> shouldEqual 
+          ["exception Operation could not be completed due to earlier error";
+           "error 1,5 - 1,8; Unexpected keyword 'let' or 'use' in binding";
+           "warning 1,0 - 1,22; Possible incorrect indentation: this token is offside of context started at position (1:14). Try indenting this token further or using standard formatting conventions.";
+           "warning 1,22 - 1,22; Possible incorrect indentation: this token is offside of context started at position (1:14). Try indenting this token further or using standard formatting conventions."]
 
 [<Test>]
 let ``PartialAssemblySignatureUpdated test``() = 
     let count = ref 0 
     fsiSession.PartialAssemblySignatureUpdated.Add(fun x -> count := count.Value + 1)
     count.Value |> shouldEqual 0
-    evalInteraction """ let x = 1 """  
+    fsiSession.EvalInteraction """ let x = 1 """  
     count.Value |> shouldEqual 1
-    evalInteraction """ let x = 1 """  
+    fsiSession.EvalInteraction """ let x = 1 """  
     count.Value |> shouldEqual 2
 
 
 [<Test>]
 let ``ParseAndCheckInteraction test 1``() = 
-    evalInteraction """ let xxxxxx = 1 """  
-    evalInteraction """ type CCCC() = member x.MMMMM()  = 1 + 1 """  
+    fsiSession.EvalInteraction """ let xxxxxx = 1 """  
+    fsiSession.EvalInteraction """ type CCCC() = member x.MMMMM()  = 1 + 1 """  
     let untypedResults, typedResults, _ = fsiSession.ParseAndCheckInteraction("xxxxxx")
     untypedResults.FileName |> shouldEqual "stdin.fsx"
     untypedResults.Errors.Length |> shouldEqual 0
@@ -191,14 +266,25 @@ let ``EvalScript accepts paths verbatim``() =
     (try
         let scriptPath = @"C:\bad\path\no\donut.fsx"
         fsiSession.EvalScript scriptPath |> ignore
-        true
+        false
      with
         | e ->
-            // Microsoft.FSharp.Compiler.Build is internal, so we can't access the exception class here
-            String.Equals(e.InnerException.GetType().FullName,
-                          "Microsoft.FSharp.Compiler.CompileOps+FileNameNotResolved",
-                          StringComparison.InvariantCultureIgnoreCase))
+            true)
     |> shouldEqual true
+
+[<Test>]
+// Regression test for #184
+let ``EvalScript accepts paths verbatim nothrow``() =
+    // Path contains escape sequences (\b and \n)
+    // Let's ensure the exception thrown (if any) is FileNameNotResolved
+    let scriptPath = @"C:\bad\path\no\donut.fsx"
+    fsiSession.EvalScriptNonThrowing scriptPath 
+    |> showErrors 
+    |> List.map (fun s -> s.[0..20])  // avoid seeing the hardwired paths
+    |> Seq.toList
+    |> shouldEqual 
+          ["exception Operation c";
+           "error 1,0 - 1,33; Una"]
 
 
 [<Test>]
@@ -263,21 +349,28 @@ let ``interactive session events``() =
 
 let RunManually() = 
   ``EvalExpression test 1``() 
+  ``EvalExpression test 1 nothrow``() 
   ``EvalExpression fsi test``() 
   ``EvalExpression fsi test 2``() 
   ``EvalExpression typecheck failure``() 
+  ``EvalExpression typecheck failure nothrow``() 
   ``EvalExpression function value 1``() 
   ``EvalExpression function value 2``() 
   ``EvalExpression runtime failure``() 
   ``EvalExpression parse failure``() 
+  ``EvalExpression parse failure nothrow``() 
   ``EvalInteraction typecheck failure``() 
+  ``EvalInteraction typecheck failure nothrow``() 
   ``EvalInteraction runtime failure``() 
+  ``EvalInteraction runtime failure nothrow``() 
   ``EvalInteraction parse failure``() 
+  ``EvalInteraction parse failure nothrow``() 
   ``PartialAssemblySignatureUpdated test``() 
   ``ParseAndCheckInteraction test 1``() 
   ``Bad arguments to session creation 1``()
   ``Bad arguments to session creation 2``()
   ``EvalScript accepts paths verbatim``()
+  ``EvalScript accepts paths verbatim nothrow``()
   ``interactive session events``()
   ``Disposing interactive session (collectible)``() 
 

@@ -1,4 +1,4 @@
-﻿namespace FSharp.Compiler.Service.ProjectCracker.Exe
+﻿namespace Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCracker.Exe
 
 open Microsoft.Build.Framework
 open Microsoft.Build.Utilities

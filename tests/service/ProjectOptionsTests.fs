@@ -15,7 +15,6 @@ open System.IO
 open NUnit.Framework
 open FsUnit
 open Microsoft.FSharp.Compiler.SourceCodeServices
-open FSharp.Compiler.Service
 
 open FSharp.Compiler.Service.Tests.Common
 

@@ -128,18 +128,18 @@ module Program =
           engine.HostServices.RegisterHostObject(fsprojFullPath, "CoreCompile", "Fsc", host)
 
 
-          engine.SetGlobalProperty("BuildingInsideVisualStudio", "true") |> ignore
-          engine.SetGlobalProperty("VisualStudioVersion", "12.0") |> ignore
-          engine.SetGlobalProperty("ShouldUnsetParentConfigurationAndPlatform", "false") |> ignore
-          for (prop, value) in properties do
-                engine.SetGlobalProperty(prop, value) |> ignore
-
           let projectInstanceFromFullPath (fsprojFullPath: string) =
               use stream = new IO.StreamReader(fsprojFullPath)
               use xmlReader = System.Xml.XmlReader.Create(stream)
 
               let project = engine.LoadProject(xmlReader, FullPath=fsprojFullPath)
               
+              project.SetGlobalProperty("BuildingInsideVisualStudio", "true") |> ignore
+              project.SetGlobalProperty("VisualStudioVersion", "12.0") |> ignore
+              project.SetGlobalProperty("ShouldUnsetParentConfigurationAndPlatform", "false") |> ignore
+              for (prop, value) in properties do
+                    project.SetGlobalProperty(prop, value) |> ignore
+
               project.CreateProjectInstance()
 
           let project = projectInstanceFromFullPath fsprojFullPath

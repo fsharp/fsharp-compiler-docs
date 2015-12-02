@@ -687,7 +687,7 @@ let ``Check use of type provider that provides calls to F# code`` () =
         ["Configuration", "Release"]
 #endif
     let options =
-        ProjectCracker.GetProjectOptionsFromProjectFile (Path.Combine(Path.Combine(Path.Combine(__SOURCE_DIRECTORY__, "data"),"TestProject","TestProject.fsproj"), config)
+        ProjectCracker.GetProjectOptionsFromProjectFile (Path.Combine(Path.Combine(Path.Combine(__SOURCE_DIRECTORY__, "data"),"TestProject"),"TestProject.fsproj"), config)
 
     printfn "options = %A" options
 

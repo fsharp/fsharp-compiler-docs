@@ -1,5 +1,13 @@
 language: csharp
 
+os:
+  - linux
+  - osx
+
+mono:
+  - latest
+  - 4.0.5
+
 sudo: false
 
 install:

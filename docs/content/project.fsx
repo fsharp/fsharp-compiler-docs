@@ -23,6 +23,7 @@ of `InteractiveChecker`:
 *)
 // Reference F# compiler API
 #r "FSharp.Compiler.Service.dll"
+#r "FSharp.Compiler.Service.ProjectCracker.dll"
 
 open System
 open System.Collections.Generic
@@ -316,7 +317,7 @@ for any project that builds cleanly using the command line tools 'xbuild' or 'ms
 
 let projectFile  = __SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
 
-checker.GetProjectOptionsFromProjectFile(projectFile)
+ProjectCracker.GetProjectOptionsFromProjectFile(projectFile)
 
 
 (**
@@ -325,7 +326,7 @@ You can also request RELEASE mode and set other build configuration parameters:
 
 *)
 
-checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
+ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
 
 (**
 

@@ -13,7 +13,7 @@ type ProjectCracker =
     static member GetProjectOptionsFromProjectFileLogged(projectFileName : string, ?properties : (string * string) list, ?loadedTimeStamp, ?enableLogging) =
         let loadedTimeStamp = defaultArg loadedTimeStamp DateTime.MaxValue // Not 'now', we don't want to force reloading
         let properties = defaultArg properties []
-        let enableLogging = defaultArg enableLogging false
+        let enableLogging = defaultArg enableLogging true
         let logMap = ref Map.empty
 
         let rec convert (opts: FSharp.Compiler.Service.ProjectCracker.Exe.ProjectOptions) : FSharpProjectOptions =
@@ -50,4 +50,8 @@ type ProjectCracker =
         convert opts, !logMap
 
     static member GetProjectOptionsFromProjectFile(projectFileName : string, ?properties : (string * string) list, ?loadedTimeStamp) =
-        fst (ProjectCracker.GetProjectOptionsFromProjectFileLogged(projectFileName, ?properties=properties, ?loadedTimeStamp=loadedTimeStamp))
+        fst (ProjectCracker.GetProjectOptionsFromProjectFileLogged(
+                projectFileName,
+                ?properties=properties,
+                ?loadedTimeStamp=loadedTimeStamp,
+                enableLogging=false))

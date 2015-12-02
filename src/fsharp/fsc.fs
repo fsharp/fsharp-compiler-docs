@@ -2099,7 +2099,7 @@ type InProcCompiler() =
         let exitCode = ref 0
         let exiter = 
             { new Exiter with
-                 member this.Exit n = exitCode := n; raise (StopProcessing "") }
+                 member this.Exit n = exitCode := n; raise (StopProcessing None) }
         try 
             typecheckAndCompile(argv, false, true, exiter, loggerProvider, None, None)
         with 

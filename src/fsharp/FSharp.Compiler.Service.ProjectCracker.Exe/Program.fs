@@ -378,20 +378,23 @@ module Program =
       // C# referenced projects, as we don't look at them otherwise.
       let referencedProjectOutputs =
           if runningOnMono then
-              [| yield! Array.map (fun (s,_) -> "-r:" + s) referencedProjectOptions
-                 for file in parsedProject.ProjectReferences do
-                     let ext = Path.GetExtension(file)
-                     if ext = ".csproj" || ext = ".vbproj" then
-                         let parsedProject = FSharpProjectFileInfo.Parse(file, properties=properties, enableLogging=false)
-                         match parsedProject.OutputFile with
-                         | None -> ()
-                         | Some f -> yield "-r:" + f |]
+              [ yield! Array.map (fun (s,_) -> "-r:" + s) referencedProjectOptions
+                for file in parsedProject.ProjectReferences do
+                    let ext = Path.GetExtension(file)
+                    if ext = ".csproj" || ext = ".vbproj" then
+                        let parsedProject = FSharpProjectFileInfo.Parse(file, properties=properties, enableLogging=false)
+                        match parsedProject.OutputFile with
+                        | None -> ()
+                        | Some f -> yield "-r:" + f ]
           else
-              [||]
+              []
+
+          // On some versions of Mono the referenced projects are already
+          // correctly included, so we make sure not to introduce duplicates
+          |> List.filter (fun r -> not (Set.contains r (set parsedProject.Options)))
 
       let options = { ProjectFile = file
-                      Options = Array.append (Array.ofList (parsedProject.Options))
-                                             referencedProjectOutputs
+                      Options = Array.ofSeq (parsedProject.Options @ referencedProjectOutputs)
                       ReferencedProjectOptions = referencedProjectOptions
                       LogOutput = parsedProject.LogOutput }
 

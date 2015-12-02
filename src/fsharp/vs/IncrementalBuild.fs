@@ -1084,7 +1084,7 @@ type FrameworkImportsCache(keepStrongly) =
 
 
 /// An error logger that capture errors, filtering them according to warning levels etc.
-type CompilationErrorLogger (debugName:string, tcConfig:TcConfig) = 
+type internal CompilationErrorLogger (debugName:string, tcConfig:TcConfig) = 
     inherit ErrorLogger("CompilationErrorLogger("+debugName+")")
             
     let warningsSeenInScope = new ResizeArray<_>()
@@ -1192,7 +1192,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     // This operation is done when constructing the builder itself, rather than as an incremental task. 
     let nonFrameworkAssemblyInputs = 
         // Note we are not calling errorLogger.GetErrors() anywhere for this task. 
-        // REVIEW: Consider if this is ok. I believe so, because this is a background build and we aren'T currently reporting errors from the background build. 
+        // This is ok because not much can actually go wrong here.
         let errorLogger = CompilationErrorLogger("nonFrameworkAssemblyInputs", tcConfig)
         // Return the disposable object that cleans up
         use _holder = new CompilationGlobalsScope(errorLogger,BuildPhase.Parameter, projectDirectory) 
@@ -1207,12 +1207,11 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
                         DateTime.Now                               
                 with e -> 
                     // Note we are not calling errorLogger.GetErrors() anywhere for this task. This warning will not be reported...
-                    // REVIEW: Consider if this is ok. I believe so, because this is a background build and we aren't currently reporting errors from the background build. 
                     errorLogger.Warning(e)
                     DateTime.Now                               
             yield (Choice1Of2 r.resolvedPath,originalTimeStamp)  
             for pr in projectReferences  do
-            yield Choice2Of2 pr, defaultArg (pr.GetLogicalTimeStamp()) DateTime.Now]
+                yield Choice2Of2 pr, defaultArg (pr.GetLogicalTimeStamp()) DateTime.Now]
             
     // The IncrementalBuilder needs to hold up to one item that needs to be disposed, which is the tcImports for the incremental
     // build. 
@@ -1725,7 +1724,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
                         else MSBuildResolver.CompileTimeLike
                 
                 tcConfigB.conditionalCompilationDefines <- 
-                    let define = if useScriptResolutionRules then "INTERACTIVE" else "COMPILED"
+                    let define = if useScriptResolutionRules then "INTERACTIVE" else "MPILED"
                     define::tcConfigB.conditionalCompilationDefines
 
                 tcConfigB.projectReferences <- projectReferences

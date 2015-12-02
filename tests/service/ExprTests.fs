@@ -684,6 +684,9 @@ let ``Check use of type provider that provides calls to F# code`` () =
         |> checker.ParseAndCheckProject 
         |> Async.RunSynchronously
 
+    for r in res.Errors do 
+       printfn "%d, %d: %s" r.StartLineAlternate r.StartColumn r.Message
+
     res.Errors.Length |> shouldEqual 0
                                                                                        
     let results = 

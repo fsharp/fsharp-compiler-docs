@@ -280,9 +280,11 @@ let ``EvalScript accepts paths verbatim nothrow``() =
     let scriptPath = @"C:\bad\path\no\donut.fsx"
     fsiSession.EvalScriptNonThrowing scriptPath 
     |> showErrors 
+    |> List.map (fun s -> s.[0..20])  // avoid seeing the hardwired paths
+    |> Seq.toList
     |> shouldEqual 
-          ["exception Operation could not be completed due to earlier error";
-           "error 1,0 - 1,33; Unable to find the file 'C:\\bad\\path\\no\\donut.fsx' in any of\n C:\\Users\\dsyme\\AppData\\Local\\Temp"]
+          ["exception Operation c";
+           "error 1,0 - 1,33; Una"]
 
 
 [<Test>]

@@ -373,45 +373,6 @@ type FSharpCheckFileAnswer =
     | Aborted // because isResultObsolete caused an abandonment of the operation
     | Succeeded of FSharpCheckFileResults    
 
-#if SILVERLIGHT
-#else
-#if FX_ATLEAST_45
-[<Sealed; AutoSerializable(false)>]      
-/// Represents the information gathered by parsing and processing a .fsproj project file format.
-type FSharpProjectFileInfo =
-    /// Parse and process a .fsproj file 
-    static member Parse : fsprojFileName: string * ?properties: (string * string) list * ?enableLogging: bool -> FSharpProjectFileInfo
-    /// The command-line arguments for compiling this project
-    member Options : string list
-    /// The FrameworkVersion for the project
-    member FrameworkVersion : string option
-    /// The paths to the project files referenced by this project
-    member ProjectReferences : string list
-    /// The resolved references for the project
-    member References : string list
-    /// The list of files marked 'Compile' for the project
-    member CompileFiles : string list
-    /// The list of resource files for the project
-    member ResourceFiles : string list
-    /// The list of files marked 'Content' in the project
-    member ContentFiles : string list
-    /// The list of files marked 'None' in the project
-    member OtherFiles : string list
-    /// The name of the primary output file for the project
-    member OutputFile : string option
-    /// The directory in which the project file resides
-    member Directory : string
-    /// The name of the output assembly for the project
-    member AssemblyName : string option
-    /// The name of the output path for the project
-    member OutputPath : string option
-    /// The full path to the project file
-    member FullPath : string 
-    /// Logging output from the build if requested
-    member LogOutput : string
-#endif
-#endif
-
 [<Sealed; AutoSerializable(false)>]      
 /// Used to parse and check F# source code.
 type FSharpChecker =
@@ -573,7 +534,6 @@ type FSharpChecker =
 #if SILVERLIGHT
 #else
 #if FX_ATLEAST_45
-
     /// <summary>
     /// <para>Get the project options implied by a standard F# project file in the xbuild/msbuild format.</para>
     /// </summary>
@@ -582,6 +542,7 @@ type FSharpChecker =
     /// <param name="properties">The build properties such as Configuration=Debug etc.</param>
     /// <param name="loadedTimeStamp">Indicates when the project was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
+    [<Obsolete("This functionality has been moved to the new NuGet package 'FSharp.Compiler.Service.ProjectCracker'", true)>]
     member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
 #endif
 #endif

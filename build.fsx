@@ -141,6 +141,12 @@ Target "NuGet" (fun _ ->
             Version = release.NugetVersion
             OutputPath = buildDir
             ReleaseNotes = toLines release.Notes })
+    Paket.Pack (fun p -> 
+        { p with 
+            TemplateFile = "nuget/projectcracker.template"
+            Version = release.NugetVersion
+            OutputPath = buildDir
+            ReleaseNotes = toLines release.Notes })
 )
 
 

@@ -126,7 +126,7 @@ let ``Project file parsing -- compile files 2``() =
 [<Test>]
 let ``Project file parsing -- bad project file``() =
   let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/Malformed.fsproj")
-  let log = snd (ProjectCracker.GetProjectOptionsFromProjectFileLogged(f, enableLogging=true))
+  let log = snd (ProjectCracker.GetProjectOptionsFromProjectFileLogged(f))
   log.[f] |> should contain "Microsoft.Build.Exceptions.InvalidProjectFileException"
 
 [<Test>]

@@ -1,6 +1,7 @@
 ﻿
 #if INTERACTIVE
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
+#r "../../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
@@ -679,7 +680,7 @@ let ``Test expressions of declarations stress big expressions`` () =
 let ``Test Declarations selfhost`` () =
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     // Check with Configuration = Release
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
     let wholeProjectResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
     
     wholeProjectResults.Errors.Length |> shouldEqual 0 
@@ -736,7 +737,7 @@ let ``Test Declarations selfhost FSharp.Core`` () =
     Environment.CurrentDirectory <-  __SOURCE_DIRECTORY__ +  @"/../../../fsharp/src/fsharp/FSharp.Core"
     let projectFile = __SOURCE_DIRECTORY__ + @"/../../../fsharp/src/fsharp/FSharp.Core/FSharp.Core.fsproj"
 
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
 
     let wholeProjectResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
     

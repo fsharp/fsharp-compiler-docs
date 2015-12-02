@@ -14,7 +14,7 @@ type ProjectCracker =
         let enableLogging = defaultArg enableLogging true
         let logMap = ref Map.empty
 
-        let rec convert (opts: Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCracker.Exe.ProjectOptions) : FSharpProjectOptions =
+        let rec convert (opts: Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCracker.Tool.ProjectOptions) : FSharpProjectOptions =
             let referencedProjects = Array.map (fun (a, b) -> a, convert b) opts.ReferencedProjectOptions
             logMap := Map.add opts.ProjectFile opts.LogOutput !logMap
             { ProjectFileName = opts.ProjectFile
@@ -34,7 +34,7 @@ type ProjectCracker =
         let codebase = Path.GetDirectoryName(Uri(typeof<ProjectCracker>.Assembly.CodeBase).LocalPath)
         
         let p = new System.Diagnostics.Process()
-        p.StartInfo.FileName <- Path.Combine(codebase,"FSharp.Compiler.Service.ProjectCracker.Exe.exe")
+        p.StartInfo.FileName <- Path.Combine(codebase,"FSharp.Compiler.Service.ProjectCracker.Tool.exe")
         p.StartInfo.Arguments <- arguments.ToString()
         p.StartInfo.UseShellExecute <- false
         p.StartInfo.CreateNoWindow <- true
@@ -42,7 +42,7 @@ type ProjectCracker =
         ignore <| p.Start()
     
         let fmt = new Serialization.Formatters.Binary.BinaryFormatter()
-        let opts = fmt.Deserialize(p.StandardOutput.BaseStream) :?> Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCracker.Exe.ProjectOptions
+        let opts = fmt.Deserialize(p.StandardOutput.BaseStream) :?> Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCracker.Tool.ProjectOptions
         p.WaitForExit()
         
         convert opts, !logMap

@@ -1,6 +1,7 @@
 ﻿#if INTERACTIVE
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
 #r "../../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll"
+#r "../../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.Tool.exe"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
@@ -34,6 +35,7 @@ let checkOptionNotPresent (opts:string[]) s =
        |> shouldEqual notFound
 
 let getReferencedFilenames = Array.choose (fun (o:string) -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
+let getReferencedFilenamesAndContainingFolders = Array.choose (fun (o:string) -> if o.StartsWith("-r:") then o.[3..] |> (fun r -> ((r |> Path.GetFileName), (r |> Path.GetDirectoryName |> Path.GetFileName)) |> Some) else None)
 let getOutputFile = Array.pick (fun (o:string) -> if o.StartsWith("--out:") then o.[6..] |> Some else None)
 let getCompiledFilenames = Array.choose (fun (o:string) -> if o.EndsWith(".fs") then o |> (Path.GetFileName >> Some) else None)
 
@@ -377,5 +379,25 @@ let ``Project file parsing -- Exe with a PCL reference``() =
     references |> should contain "mscorlib.dll"
     references |> should contain "System.Reflection.dll"
     references |> should contain "System.Reflection.Emit.Lightweight.dll"
+
+
+[<Test>]
+let ``Project file parsing -- project reference in release mode``() =
+
+    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/TestProject/TestProject.fsproj")
+    let p = ProjectCracker.GetProjectOptionsFromProjectFile(f,[("Configuration","Release")])
+    let references = getReferencedFilenamesAndContainingFolders p.OtherOptions |> set
+    references |> should contain ("FSharp.Core.dll", "4.3.0.0")
+    references |> should contain ("TestTP.dll", "Release")
+
+[<Test>]
+let ``Project file parsing -- project reference in debug mode``() =
+
+    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/TestProject/TestProject.fsproj")
+    let p = ProjectCracker.GetProjectOptionsFromProjectFile(f,[("Configuration","Debug")])
+    let references = getReferencedFilenamesAndContainingFolders p.OtherOptions |> set
+    references |> should contain ("FSharp.Core.dll", "4.3.0.0")
+    references |> should contain ("TestTP.dll", "Debug")
+
 #endif
 

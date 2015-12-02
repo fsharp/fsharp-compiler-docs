@@ -31,6 +31,7 @@ First, we need to reference the libraries that contain F# interactive service:
 *)
 
 #r "FSharp.Compiler.Service.dll"
+open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.Interactive.Shell
 
 (**
@@ -172,8 +173,8 @@ You can also request declaration list information, tooltip text and symbol resol
 *)
 open Microsoft.FSharp.Compiler
 
-let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
-checkResults.GetToolTipTextAlternate(1, 2, "xxx + xx", ["xxx"], identToken) // a tooltip
+// get a tooltip
+checkResults.GetToolTipTextAlternate(1, 2, "xxx + xx", ["xxx"], FSharpTokenTag.IDENT) 
 
 checkResults.GetSymbolUseAtLocation(1, 2, "xxx + xx", ["xxx"]) // symbol xxx
   

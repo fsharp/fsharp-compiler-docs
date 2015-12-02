@@ -81,7 +81,7 @@ and other top-level statements.
 let evalInteraction text = 
   fsiSession.EvalInteraction(text)
 (**
-The two functions take string as an argument and evaluate (or execute) it as F# code. The code 
+The two functions each take a string as an argument and evaluate (or execute) it as F# code. The code 
 passed to them does not require `;;` at the end. Just enter the code that you want to execute:
 *)
 evalExpression "42+1"
@@ -96,6 +96,49 @@ let evalScript scriptPath =
 
 File.WriteAllText("sample.fsx", "let twenty = 10 + 10")
 evalScript "sample.fsx"
+
+(**
+Catching errors
+------------------
+
+``EvalExpression``, ``EvalInteraction`` and ``EvalScript`` are awkward if the
+code has type checking warnings or errors, or if evaluation fails with an exception.
+In these cases you can use ``EvalExpressionNonThrowing``, ``EvalInteractionNonThrowing``
+and ``EvalScriptNonThrowing``. These return a tuple of a result and an array of ``FSharpErrorInfo`` values.
+These represent the errors and warnings. The result part is a ``Choice<_,_>`` between an actual 
+result and an exception.
+
+The result part of ``EvalExpression`` and ``EvalExpressionNonThrowing`` is an optional ``FSharpValue``.
+If that value is not present then it just indicates that the expression didn't have a tangible
+result that could be represented as a .NET object.  This siutation shouldn't actually
+occur for any normal input expressions, and only for primitives used in libraries.
+*)
+
+File.WriteAllText("sample.fsx", "let twenty = 'a' + 10.0")
+let result, warnings = fsiSession.EvalScriptNonThrowing "sample.fsx"
+
+// show the result
+match result with 
+| Choice1Of2 () -> printfn "checked and executed ok"
+| Choice2Of2 exn -> printfn "execution exception: %s" exn.Message
+
+(**
+Gives:
+
+    execution exception: Operation could not be completed due to earlier error
+*)
+
+// show the errors and warnings
+for w in warnings do 
+   printfn "Warning %s at %d,%d" w.Message w.StartLineAlternate w.StartColumn 
+
+(**
+Gives:
+
+    Warning The type 'float' does not match the type 'char' at 1,19
+    Warning The type 'float' does not match the type 'char' at 1,17
+*)
+
 
 (**
 Type checking in the evaluation context

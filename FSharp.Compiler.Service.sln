@@ -61,8 +61,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Compiler.Service.Pro
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Compiler.Service.ProjectCracker", "src\fsharp\FSharp.Compiler.Service.ProjectCracker\FSharp.Compiler.Service.ProjectCracker.fsproj", "{893C3CD9-5AF8-4027-A667-21E62FC2C703}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestTP", "tests\service\data\TestTP\TestTP.fsproj", "{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -226,24 +224,6 @@ Global
 		{893C3CD9-5AF8-4027-A667-21E62FC2C703}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{893C3CD9-5AF8-4027-A667-21E62FC2C703}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{893C3CD9-5AF8-4027-A667-21E62FC2C703}.Release|x86.ActiveCfg = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Debug|x86.Build.0 = Debug|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Proto|Any CPU.ActiveCfg = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Proto|Any CPU.Build.0 = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Proto|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Proto|Mixed Platforms.Build.0 = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Proto|x86.ActiveCfg = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Proto|x86.Build.0 = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Release|x86.ActiveCfg = Release|Any CPU
-		{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

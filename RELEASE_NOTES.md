@@ -1,5 +1,5 @@
 #### 2.0.0.0-beta 
-* Feature #470, #478, #479 - Move ProjectCracker to separate nuget package and DLL, used ProjectCracker.Tool.exe to run 
+* Feature #470, #478, #479 - Move ProjectCracker to separate nuget package and DLL, used ProjectCrackerTool.exe to run 
 * Feature #463 - Expose slot signatures of members in object expressions
 * Feature #469, #475 - Add EvalExpressionNonThrowing, EvalInteractionNonThrowing, EvalScriptNonThrowing 
 * Fix #456 - FCS makes calls to kernel32.dll when running on OSX

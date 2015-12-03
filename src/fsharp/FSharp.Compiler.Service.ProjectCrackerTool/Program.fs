@@ -1,4 +1,4 @@
-﻿namespace Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCracker.Tool
+﻿namespace Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool
 
 open Microsoft.Build.Framework
 open Microsoft.Build.Utilities
@@ -7,14 +7,7 @@ open System.IO
 open System
 open System.Reflection
 open System.Runtime.Serialization.Formatters.Binary
-
-type ProjectOptions =
-  {
-    ProjectFile: string
-    Options: string[]
-    ReferencedProjectOptions: (string * ProjectOptions)[]
-    LogOutput: string
-  }
+open System.Runtime.Serialization.Json
 
 module Program =
   let runningOnMono = 
@@ -450,7 +443,6 @@ module Program =
       if text then
           printfn "%A" opts
       else
-          let fmt = new BinaryFormatter()
-          use out = new StreamWriter(System.Console.OpenStandardOutput())
-          fmt.Serialize(out.BaseStream, opts)
+          let ser = new DataContractJsonSerializer(typeof<ProjectOptions>)
+          ser.WriteObject(Console.OpenStandardOutput(), opts)
       ret

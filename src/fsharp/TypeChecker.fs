@@ -6307,8 +6307,9 @@ and TcConstStringExpr cenv overallTy env m tpenv s  =
       if (not (isObjTy cenv.g overallTy) && AddCxTypeMustSubsumeTypeUndoIfFailed env.DisplayEnv cenv.css m overallTy ty') then 
         // Parse the format string to work out the phantom types 
         let source = match cenv.tcSink.CurrentSink with None -> None | Some sink -> sink.CurrentSource
+        let normalizedString = (s.Replace("\r\n", "\n").Replace("\r", "\n"))
         
-        let (aty',ety'), specifierLocations = (try CheckFormatStrings.ParseFormatString m cenv.g source (s.Replace("\r\n", "\n").Replace("\r", "\n")) bty cty dty with Failure s -> error (Error(FSComp.SR.tcUnableToParseFormatString(s),m)))
+        let (aty',ety'), specifierLocations = (try CheckFormatStrings.ParseFormatString m cenv.g source normalizedString bty cty dty with Failure s -> error (Error(FSComp.SR.tcUnableToParseFormatString(s),m)))
 
         match cenv.tcSink.CurrentSink with 
         | None -> () 

@@ -112,21 +112,23 @@ module internal Params =
                 let isOptArg = optArgInfo.IsOptional
                 match nmOpt, isOptArg, tryDestOptionTy denv.g pty with 
                 // Layout an optional argument 
-                | Some(nm), true, ptyOpt -> 
+                | Some id, true, ptyOpt -> 
+                    let nm = id.idText
                     // detect parameter type, if ptyOpt is None - this is .NET style optional argument
                     let pty = defaultArg ptyOpt pty
-                    nm.idText, (sprintf "?%s:" nm.idText),  pty
+                    nm, (sprintf "?%s:" nm),  pty
                 // Layout an unnamed argument 
                 | None, _,_ -> 
                     "", "", pty
                 // Layout a named argument 
-                | Some nm,_,_ -> 
+                | Some id,_,_ -> 
+                    let nm = id.idText
                     let prefix = 
                         if isParamArrayArg then 
-                            sprintf "%s %s: " (NicePrint.PrintUtilities.layoutBuiltinAttribute denv denv.g.attrib_ParamArrayAttribute |> showL) nm.idText 
+                            sprintf "%s %s: " (NicePrint.PrintUtilities.layoutBuiltinAttribute denv denv.g.attrib_ParamArrayAttribute |> showL) nm 
                         else 
-                            sprintf "%s: " nm.idText
-                    nm.idText, prefix,pty)
+                            sprintf "%s: " nm
+                    nm, prefix,pty)
             |> List.unzip3 
         let paramTypeAndRetLs,_ = NicePrint.layoutPrettifiedTypes denv (paramTypes@[rty])
         let paramTypeLs,_ = List.frontAndBack  paramTypeAndRetLs

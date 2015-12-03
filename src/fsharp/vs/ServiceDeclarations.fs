@@ -660,8 +660,9 @@ module internal ItemDescriptionsImpl =
 
         // Active pattern tag inside the declaration (result)             
         | Item.ActivePatternResult(apinfo, ty, idx, _) ->
+            let items = apinfo.ActiveTags
             let text = bufs (fun os -> 
-                bprintf os "%s %s: " (FSComp.SR.typeInfoActivePatternResult()) (List.item idx apinfo.ActiveTags ) 
+                bprintf os "%s %s: " (FSComp.SR.typeInfoActivePatternResult()) (List.item idx items) 
                 NicePrint.outputTy denv os ty)
             let xml = GetXmlComment (XmlDoc [||]) infoReader m d
             FSharpToolTipElement.Single(text, xml)

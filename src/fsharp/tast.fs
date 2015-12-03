@@ -3632,7 +3632,7 @@ and Binding =
 and ActivePatternElemRef = 
     | APElemRef of ActivePatternInfo * ValRef * int 
 
-    member x.ActivePatternInfo = (let (APElemRef(total,_,_)) = x in total)
+    member x.ActivePatternInfo = (let (APElemRef(info,_,_)) = x in info)
     member x.ActivePatternVal = (let (APElemRef(_,vref,_)) = x in vref)
     member x.CaseIndex = (let (APElemRef(_,_,n)) = x in n)
 

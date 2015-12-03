@@ -248,7 +248,7 @@ let AdjustForScriptCompile(tcConfigB:TcConfigBuilder,commandLineSourceFiles,lexR
 
     List.rev !allSources
 
-let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder, argv) =
+let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder, setProcessThreadLocals, lcidFromCodePage, argv) =
     let inputFilesRef   = ref ([] : string list)
     let collect name = 
         let lower = String.lowercase name
@@ -262,6 +262,13 @@ let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder, argv) =
     // This is where flags are interpreted by the command line fsc.exe.
     ParseCompilerOptions (collect, GetCoreFscCompilerOptions tcConfigB, List.tail (PostProcessCompilerArgs abbrevArgs argv))
     let inputFiles = List.rev !inputFilesRef
+
+    // Check if we have a codepage from the console
+    match tcConfigB.lcid with
+    | Some _ -> ()
+    | None -> tcConfigB.lcid <- lcidFromCodePage
+
+    setProcessThreadLocals(tcConfigB)
 
     (* step - get dll references *)
     let dllFiles,sourceFiles = List.partition Filename.isDll inputFiles
@@ -313,16 +320,9 @@ let GetTcImportsFromCommandLine
         // The ParseCompilerOptions function calls imperative function to process "real" args
         // Rather than start processing, just collect names, then process them. 
         try 
-            let sourceFiles = ProcessCommandLineFlags (tcConfigB, argv)
+            let sourceFiles = ProcessCommandLineFlags (tcConfigB, setProcessThreadLocals, lcidFromCodePage, argv)
 
             let sourceFiles = AdjustForScriptCompile(tcConfigB,sourceFiles,lexResourceManager)                     
-
-            // Check if we have a codepage from the console
-            match tcConfigB.lcid with
-            | Some _ -> ()
-            | None -> tcConfigB.lcid <- lcidFromCodePage
-
-            setProcessThreadLocals(tcConfigB)
 
             sourceFiles
 
@@ -373,70 +373,94 @@ let GetTcImportsFromCommandLine
     if not tcConfigB.continueAfterParseFailure then 
         AbortOnError(errorLogger, tcConfig, exiter)
 
-    ReportTime tcConfig "Import mscorlib and FSharp.Core.dll"
-    let foundationalTcConfigP = TcConfigProvider.Constant(tcConfig)
-    let sysRes,otherRes,knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
-    let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (foundationalTcConfigP, sysRes, otherRes)
+    let tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig = 
+    
+        ReportTime tcConfig "Import mscorlib"
 
-    // register framework tcImports to be disposed in future
-    disposables.Register frameworkTcImports
+#if INCREMENTAL_BUILD_OPTION
+        if tcConfig.useIncrementalBuilder then 
+            ReportTime tcConfig "Incremental Parse and Typecheck"
+            let builder = 
+                new IncrementalFSharpBuild.IncrementalBuilder(tcConfig, directoryBuildingFrom, assemblyName, NiceNameGenerator(), lexResourceManager, sourceFiles,
+                                                                ensureReactive=false, 
+                                                                errorLogger=errorLogger,
+                                                                keepGeneratedTypedAssembly=true)
+            let tcState,topAttribs,typedAssembly,_tcEnv,tcImports,tcGlobals,tcConfig = builder.TypeCheck()
+            tcGlobals,tcImports,tcImports,tcState.Ccu,typedAssembly,topAttribs,tcConfig
+        else
+#else
+        begin
+#endif
+        ReportTime tcConfig "Import mscorlib and FSharp.Core.dll"
+        let foundationalTcConfigP = TcConfigProvider.Constant(tcConfig)
+        let sysRes,otherRes,knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
+        let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (foundationalTcConfigP, sysRes, otherRes)
 
-    // step - parse sourceFiles 
-    ReportTime tcConfig "Parse inputs"
-    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
-    let inputs =
-        try  
-            sourceFiles 
-            |> tcConfig.ComputeCanContainEntryPoint 
-            |> List.zip sourceFiles
-            // PERF: consider making this parallel, once uses of global state relevant to parsing are cleaned up 
-            |> List.choose (fun (filename:string,isLastCompiland:bool) -> 
-                let pathOfMetaCommandSource = Path.GetDirectoryName(filename)
-                match ParseOneInputFile(tcConfig,lexResourceManager,["COMPILED"],filename,isLastCompiland,errorLogger,(*retryLocked*)false) with
-                | Some(input)->Some(input,pathOfMetaCommandSource)
-                | None -> None
-                ) 
-        with e -> 
-            errorRecoveryNoRange e
-            SqmLoggerWithConfig tcConfig errorLogger.ErrorNumbers errorLogger.WarningNumbers
-            exiter.Exit 1
+        // register framework tcImports to be disposed in future
+        disposables.Register frameworkTcImports
 
-    if tcConfig.parseOnly then exiter.Exit 0 
-    if not tcConfig.continueAfterParseFailure then 
+        // step - parse sourceFiles 
+        ReportTime tcConfig "Parse inputs"
+        use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
+        let inputs =
+            try  
+                sourceFiles 
+                |> tcConfig.ComputeCanContainEntryPoint 
+                |> List.zip sourceFiles
+                // PERF: consider making this parallel, once uses of global state relevant to parsing are cleaned up 
+                |> List.choose (fun (filename:string,isLastCompiland:bool) -> 
+                    let pathOfMetaCommandSource = Path.GetDirectoryName(filename)
+                    match ParseOneInputFile(tcConfig,lexResourceManager,["COMPILED"],filename,isLastCompiland,errorLogger,(*retryLocked*)false) with
+                    | Some(input)->Some(input,pathOfMetaCommandSource)
+                    | None -> None
+                    ) 
+            with e -> 
+                errorRecoveryNoRange e
+                SqmLoggerWithConfig tcConfig errorLogger.ErrorNumbers errorLogger.WarningNumbers
+                exiter.Exit 1
+
+        if tcConfig.parseOnly then exiter.Exit 0 
+        if not tcConfig.continueAfterParseFailure then 
+            AbortOnError(errorLogger, tcConfig, exiter)
+
+        if tcConfig.printAst then                
+            inputs |> List.iter (fun (input,_filename) -> printf "AST:\n"; printfn "%+A" input; printf "\n") 
+
+        let tcConfig = (tcConfig,inputs) ||> List.fold ApplyMetaCommandsFromInputToTcConfig 
+        let tcConfigP = TcConfigProvider.Constant(tcConfig)
+
+        ReportTime tcConfig "Import non-system references"
+        let tcGlobals,tcImports =  
+            let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,otherRes,knownUnresolved)
+            tcGlobals,tcImports
+
+        // register tcImports to be disposed in future
+        disposables.Register tcImports
+
+        if not tcConfig.continueAfterParseFailure then 
+            AbortOnError(errorLogger, tcConfig, exiter)
+
+        if tcConfig.importAllReferencesOnly then exiter.Exit 0 
+
+        ReportTime tcConfig "Typecheck"
+        use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.TypeCheck)            
+        let tcEnv0 = GetInitialTcEnv (Some assemblyName, rangeStartup, tcConfig, tcImports, tcGlobals)
+
+        // typecheck 
+        let inputs = inputs |> List.map fst
+        let tcState,topAttrs,typedAssembly,_tcEnvAtEnd = 
+            TypeCheck(tcConfig,tcImports,tcGlobals,errorLogger,assemblyName,NiceNameGenerator(),tcEnv0,inputs,exiter)
+
+        let generatedCcu = tcState.Ccu
         AbortOnError(errorLogger, tcConfig, exiter)
+        ReportTime tcConfig "Typechecked"
 
-    if tcConfig.printAst then                
-        inputs |> List.iter (fun (input,_filename) -> printf "AST:\n"; printfn "%+A" input; printf "\n") 
-
-    let tcConfig = (tcConfig,inputs) ||> List.fold ApplyMetaCommandsFromInputToTcConfig 
-    let tcConfigP = TcConfigProvider.Constant(tcConfig)
-
-    ReportTime tcConfig "Import non-system references"
-    let tcGlobals,tcImports =  
-        let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,otherRes,knownUnresolved)
-        tcGlobals,tcImports
-
-    // register tcImports to be disposed in future
-    disposables.Register tcImports
-
-    if not tcConfig.continueAfterParseFailure then 
-        AbortOnError(errorLogger, tcConfig, exiter)
-
-    if tcConfig.importAllReferencesOnly then exiter.Exit 0 
-
-    ReportTime tcConfig "Typecheck"
-    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.TypeCheck)            
-    let tcEnv0 = GetInitialTcEnv (Some assemblyName, rangeStartup, tcConfig, tcImports, tcGlobals)
-
-    // typecheck 
-    let inputs = inputs |> List.map fst
-    let tcState,topAttrs,typedAssembly,_tcEnvAtEnd = 
-        TypeCheck(tcConfig,tcImports,tcGlobals,errorLogger,assemblyName,NiceNameGenerator(),tcEnv0,inputs,exiter)
-
-    let generatedCcu = tcState.Ccu
-    AbortOnError(errorLogger, tcConfig, exiter)
-    ReportTime tcConfig "Typechecked"
-
+        (tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig)
+                    
+#if INCREMENTAL_BUILD_OPTION
+#else
+    end
+#endif
     tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger
 
 #if NO_COMPILER_BACKEND

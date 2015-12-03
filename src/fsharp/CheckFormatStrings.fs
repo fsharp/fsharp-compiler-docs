@@ -8,6 +8,7 @@ open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
 open Microsoft.FSharp.Compiler.Ast
+open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Tastops
@@ -48,7 +49,7 @@ let newInfo ()=
     addZeros       = false
     precision      = false}
 
-let parseFormatStringInternal (m:Range.range) g (source: string option) fmt bty cty = 
+let parseFormatStringInternal (m:range) g (source: string option) fmt bty cty = 
     // Offset is used to adjust ranges depending on whether input string is regular, verbatim or triple-quote.
     // We construct a new 'fmt' string since the current 'fmt' string doesn't distinguish between "\n" and escaped "\\n".
     let (offset, fmt) = 
@@ -291,16 +292,15 @@ let parseFormatStringInternal (m:Range.range) g (source: string option) fmt bty 
     results, Seq.toList specifierLocations
 
 let ParseFormatString m g source fmt bty cty dty = 
-    let argtys,ranges = parseFormatStringInternal m g source fmt bty cty
+    let argtys, specifierLocations = parseFormatStringInternal m g source fmt bty cty
     let aty = List.foldBack (-->) argtys dty
     let ety = mkTupledTy g argtys
-    (aty, ety),ranges
+    (aty, ety), specifierLocations 
 
 let TryCountFormatStringArguments m g source fmt bty cty =
     try
-        parseFormatStringInternal m g source fmt bty cty
-        |> fst
-        |> List.length
-        |> Some
+        let argtys, _specifierLocations = parseFormatStringInternal m g source fmt bty cty
+        Some argtys.Length
     with _ ->
         None
+

@@ -382,21 +382,21 @@ let ``Project file parsing -- Exe with a PCL reference``() =
 
 
 [<Test>]
-let ``Project file parsing -- project reference in release mode``() =
+let ``Project file parsing -- project file contains project reference to out-of-solution project and is used in release mode``() =
 
     let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/TestProject/TestProject.fsproj")
     let p = ProjectCracker.GetProjectOptionsFromProjectFile(f,[("Configuration","Release")])
     let references = getReferencedFilenamesAndContainingFolders p.OtherOptions |> set
-    references |> should contain ("FSharp.Core.dll", "4.3.0.0")
+    // Check the reference is to a release DLL
     references |> should contain ("TestTP.dll", "Release")
 
 [<Test>]
-let ``Project file parsing -- project reference in debug mode``() =
+let ``Project file parsing -- project file contains project reference to out-of-solution project and is used in debug mode``() =
 
     let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/TestProject/TestProject.fsproj")
     let p = ProjectCracker.GetProjectOptionsFromProjectFile(f,[("Configuration","Debug")])
     let references = getReferencedFilenamesAndContainingFolders p.OtherOptions |> set
-    references |> should contain ("FSharp.Core.dll", "4.3.0.0")
+    // Check the reference is to a debug DLL
     references |> should contain ("TestTP.dll", "Debug")
 
 #endif

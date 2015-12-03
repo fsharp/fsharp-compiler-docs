@@ -2,6 +2,7 @@
 #if INTERACTIVE
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
 #r "../../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll"
+#r "../../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.Tool.exe"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
@@ -17,6 +18,7 @@ open System.IO
 open System.Collections.Generic
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Service
 open FSharp.Compiler.Service.Tests.Common
 
 // Create an interactive checker instance 
@@ -674,6 +676,57 @@ let ``Test expressions of declarations stress big expressions`` () =
     printDeclarations None (List.ofSeq file1.Declarations) |> Seq.toList |> ignore
 
 
+#if FX_ATLEAST_45
+
+[<Test>]
+let ``Check use of type provider that provides calls to F# code`` () = 
+    let config = 
+#if DEBUG
+        ["Configuration", "Debug"]
+#else
+        ["Configuration", "Release"]
+#endif
+    let options =
+        ProjectCracker.GetProjectOptionsFromProjectFile (Path.Combine(Path.Combine(Path.Combine(__SOURCE_DIRECTORY__, "data"),"TestProject"),"TestProject.fsproj"), config)
+
+    printfn "options = %A" options
+
+    let res =
+        options
+        |> checker.ParseAndCheckProject 
+        |> Async.RunSynchronously
+
+    for r in res.Errors do 
+       printfn "%d, %d: %s" r.StartLineAlternate r.StartColumn r.Message
+
+    res.Errors.Length |> shouldEqual 0
+                                                                                       
+    let results = 
+        [ for f in res.AssemblyContents.ImplementationFiles do
+               for d in f.Declarations do 
+                    for line in d |> printDeclaration None do 
+                        yield line ]    
+    results |> shouldEqual
+      ["type TestProject"; "type AssemblyInfo"; "type TestProject"; "type T";
+       """type Class1""";
+       """member .ctor(unitVar0) = (Object..ctor (); ()) @ (5,5--5,11)""";
+       """member get_X1(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothing () @ (6,21--6,36)""";
+       """member get_X2(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingGeneric<Microsoft.FSharp.Core.int> (3) @ (7,21--7,43)""";
+       """member get_X3(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingOneArg (3) @ (8,21--8,42)""";
+       """member get_X4(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothing () @ (9,21--9,41)""";
+       """member get_X5(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingGeneric<Microsoft.FSharp.Core.int> (3) @ (10,21--10,48)""";
+       """member get_X6(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingOneArg (3) @ (11,21--11,47)""";
+       """member get_X7(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingTwoArg (new C(),3) @ (12,21--12,47)""";
+       """member get_X8(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothing() @ (13,21--13,49)""";
+       """member get_X9(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothingGeneric<Microsoft.FSharp.Core.int>(3) @ (14,21--14,56)""";
+       """member get_X10(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothingOneArg(3) @ (15,22--15,56)""";
+       """member get_X11(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothingTwoArg(new C(),3) @ (16,22--16,56)""";
+       """member get_X12(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothing () @ (17,22--17,49)""";
+       """member get_X13(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothingOneArg (3) @ (18,22--18,55)""";
+       """member get_X14(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothingTwoArg (new C(),3) @ (19,22--19,55)"""]
+   
+#endif
+
 #if SELF_HOST_STRESS
 
 [<Test>]
@@ -699,7 +752,7 @@ let ``Test Declarations selfhost whole compiler`` () =
     let projectFile = __SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
 
     //let v = FSharpProjectFileInfo.Parse(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")],enableLogging=true)
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")])
 
     // For subsets of the compiler:
     //let options = { options with OtherOptions = options.OtherOptions.[0..51] }

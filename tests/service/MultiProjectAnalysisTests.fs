@@ -20,7 +20,6 @@ open System
 open System.Collections.Generic
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
-open FSharp.Compiler.Service
 
 let numProjectsForStressTest = 100
 let checker = FSharpChecker.Create(projectCacheSize=numProjectsForStressTest + 10)

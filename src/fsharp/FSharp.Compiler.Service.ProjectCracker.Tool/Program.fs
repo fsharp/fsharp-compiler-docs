@@ -1,4 +1,4 @@
-﻿namespace FSharp.Compiler.Service.ProjectCracker.Exe
+﻿namespace Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCracker.Tool
 
 open Microsoft.Build.Framework
 open Microsoft.Build.Utilities
@@ -37,7 +37,7 @@ module Program =
     member x.Log = sb.ToString()
 
   type internal HostCompile() =
-      member th.Compile(_, _, _) = 0
+      member th.Compile(_:obj, _:obj, _:obj) = 0
       interface ITaskHost
 
   //----------------------------------------------------------------------------
@@ -127,16 +127,18 @@ module Program =
           let host = new HostCompile()
           engine.HostServices.RegisterHostObject(fsprojFullPath, "CoreCompile", "Fsc", host)
 
+
           let projectInstanceFromFullPath (fsprojFullPath: string) =
               use stream = new IO.StreamReader(fsprojFullPath)
               use xmlReader = System.Xml.XmlReader.Create(stream)
 
               let project = engine.LoadProject(xmlReader, FullPath=fsprojFullPath)
-
+              
               project.SetGlobalProperty("BuildingInsideVisualStudio", "true") |> ignore
               project.SetGlobalProperty("VisualStudioVersion", "12.0") |> ignore
+              project.SetGlobalProperty("ShouldUnsetParentConfigurationAndPlatform", "false") |> ignore
               for (prop, value) in properties do
-                  project.SetProperty(prop, value) |> ignore
+                    project.SetGlobalProperty(prop, value) |> ignore
 
               project.CreateProjectInstance()
 

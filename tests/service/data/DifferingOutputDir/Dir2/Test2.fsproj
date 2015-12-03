@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\Debug\Test2.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Test2.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -33,7 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\Release\Test2.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Test2.xml</DocumentationFile>
     <DebugSymbols>False</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>

@@ -1,42 +1,41 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>b1bdd96d-47e1-4e65-8107-fbae23a06db4</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>FSharp.Compiler.Service.ProjectCracker.Exe</RootNamespace>
-    <AssemblyName>FSharp.Compiler.Service.ProjectCracker.Exe</AssemblyName>
-    <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.5</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <Name>FSharp.Compiler.Service.ProjectCracker.Exe</Name>
-    <OtherFlags>$(OtherFlags) --staticlink:FSharp.Core</OtherFlags>
-    <NoWarn>$(NoWarn);40</NoWarn>
+    <ProjectGuid>ff76bd3c-5e0a-4752-b6c3-044f6e15719b</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TestTP</RootNamespace>
+    <AssemblyName>TestTP</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>FSharp.Compiler.Service.ProjectCracker.Exe</Name>
-    <OutputPath>..\..\..\bin\$(TargetFrameworkVersion)</OutputPath>
-    <DocumentationFile>..\..\..\bin\$(TargetFrameworkVersion)\FSharp.Compiler.Service.ProjectCracker.Exe.XML</DocumentationFile>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
+    <Name>TestTP</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Debug\TestTP.xml</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Release\TestTP.xml</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -56,35 +55,18 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="Program.fs" />
-    <None Include="App.config" />
+    <Compile Include="ProvidedTypes.fsi" />
+    <Compile Include="ProvidedTypes.fs" />
+    <Compile Include="Library.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Build.Framework" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
-    <Reference Include="Microsoft.Build.Engine" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
-    <Reference Include="Microsoft.Build" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />
-    <Reference Include="Microsoft.Build.Framework, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'">
-      <SpecificVersion>True</SpecificVersion>
-    </Reference>
-    <Reference Include="Microsoft.Build.Engine, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'">
-      <SpecificVersion>True</SpecificVersion>
-    </Reference>
-    <Reference Include="Microsoft.Build, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'">
-      <SpecificVersion>True</SpecificVersion>
-    </Reference>
-    <Reference Include="Microsoft.Build.Utilities.v12.0" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" />
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="mscorlib" />
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

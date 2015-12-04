@@ -1,7 +1,7 @@
 type file
 id FSharp.Compiler.Service.ProjectCracker
 description
-    Adds cracking capabilities.
+    Adds F# project cracking capabilities.
 authors
     Microsoft Corporation, Robin Neatherway
 summary
@@ -13,6 +13,7 @@ tags
     F#, fsharp, msbuild, editor
 files
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.config ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.?db ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.?db ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll ==> lib/net45

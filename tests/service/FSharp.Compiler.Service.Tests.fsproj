@@ -86,11 +86,6 @@
     <Reference Include="Microsoft.Build, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\fsharp\FSharp.Compiler.Service.ProjectCracker.Tool\FSharp.Compiler.Service.ProjectCracker.Tool.fsproj">
-      <Name>FSharp.Compiler.Service.ProjectCracker.Tool</Name>
-      <Project>{b1bdd96d-47e1-4e65-8107-fbae23a06db4}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\fsharp\FSharp.Compiler.Service.ProjectCracker\FSharp.Compiler.Service.ProjectCracker.fsproj">
       <Name>FSharp.Compiler.Service.ProjectCracker</Name>
       <Project>{893c3cd9-5af8-4027-a667-21e62fc2c703}</Project>

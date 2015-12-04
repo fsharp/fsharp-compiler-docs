@@ -1,10 +1,11 @@
 ﻿namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
+open System.Runtime.Serialization.Json
+open System.Runtime
 open System.Diagnostics
 open System.Text
 open System.IO
 open System
-open System.Runtime
 
 type ProjectCracker =
 
@@ -14,7 +15,7 @@ type ProjectCracker =
         let enableLogging = defaultArg enableLogging true
         let logMap = ref Map.empty
 
-        let rec convert (opts: Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCracker.Tool.ProjectOptions) : FSharpProjectOptions =
+        let rec convert (opts: Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool.ProjectOptions) : FSharpProjectOptions =
             let referencedProjects = Array.map (fun (a, b) -> a, convert b) opts.ReferencedProjectOptions
             logMap := Map.add opts.ProjectFile opts.LogOutput !logMap
             { ProjectFileName = opts.ProjectFile
@@ -34,16 +35,15 @@ type ProjectCracker =
         let codebase = Path.GetDirectoryName(Uri(typeof<ProjectCracker>.Assembly.CodeBase).LocalPath)
         
         let p = new System.Diagnostics.Process()
-        p.StartInfo.FileName <- Path.Combine(codebase,"FSharp.Compiler.Service.ProjectCracker.Tool.exe")
+        p.StartInfo.FileName <- Path.Combine(codebase,"FSharp.Compiler.Service.ProjectCrackerTool.exe")
         p.StartInfo.Arguments <- arguments.ToString()
         p.StartInfo.UseShellExecute <- false
         p.StartInfo.CreateNoWindow <- true
         p.StartInfo.RedirectStandardOutput <- true
         ignore <| p.Start()
     
-        let fmt = new Serialization.Formatters.Binary.BinaryFormatter()
-        let opts = fmt.Deserialize(p.StandardOutput.BaseStream) :?> Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCracker.Tool.ProjectOptions
-        p.WaitForExit()
+        let ser = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof<Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool.ProjectOptions>)
+        let opts = ser.ReadObject(p.StandardOutput.BaseStream) :?> Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool.ProjectOptions
         
         convert opts, !logMap
 

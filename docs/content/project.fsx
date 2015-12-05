@@ -79,7 +79,8 @@ We use `GetProjectOptionsFromCommandLineArgs` to treat two files as a project:
 
 let projectOptions = 
     let sysLib nm = 
-        if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+        if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then
+            // file references only valid on Windows
             System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86) +
             @"\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\" + nm + ".dll"
         else
@@ -88,7 +89,8 @@ let projectOptions =
             sysDir ++ nm + ".dll" 
 
     let fsCore4300() = 
-        if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+        if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then
+            // file references only valid on Windows
             System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86) +
             @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"  
         else 
@@ -159,7 +161,7 @@ let rec allSymbolsInEntities (entities: IList<FSharpEntity>) =
 let allSymbols = allSymbolsInEntities wholeProjectResults.AssemblySignature.Entities
 (**
 After checking the whole project, you can access the background results for individual files
-in the project. This will be fast and will not invlove any additional checking.
+in the project. This will be fast and will not involve any additional checking.
 *)
 
 let backgroundParseResults1, backgroundTypedParse1 = 
@@ -307,8 +309,27 @@ correctly and then analyze each project in turn.
 Cracking a project file
 -----------------------------
 
-F# projects normally use the '.fsproj' project file format.  You can get options corresponding to a project file
-using GetProjectOptionsFromProjectFile.  In this example we get the project options for one of the 
+F# projects normally use the '.fsproj' project file format.
+A project cracking facility is provided as a separate NuGet package:
+FSharp.Compiler.Service.ProjectCracker. This NuGet package contains a
+library FSharp.Compiler.Service.ProjectCracker.dll, which should be
+referenced by your application directly, and an executable
+FSharp.Compiler.Service.ProjectCrackerTool.exe, which should be copied
+into the output folder of your application by the build process. This
+can be accomplished by adding lines to your `.fsproj` file similar to:
+
+    <Target Name="AfterBuild">
+        <Copy SourceFiles="..\packages\FSharp.Compiler.Service.ProjectCracker\lib\net45\FSharp.Compiler.Service.ProjectCrackerTool.exe" DestinationFolder="$(OutputPath)" />
+        <Copy SourceFiles="..\packages\FSharp.Compiler.Service.ProjectCracker\lib\net45\FSharp.Compiler.Service.ProjectCrackerTool.exe.config" DestinationFolder="$(OutputPath)" />
+    </Target>
+
+The reason for this split is so that the analysis of an F# project
+file is performed out of process, in order that the necessary assembly
+binding redirects can be applied without requiring the caller to
+arrange this. In this way MSBuild versions from 4 up to 14 can be
+accommodated transparently.
+
+In this example we get the project options for one of the
 project files in the F# Compiler Service project itself - you should also be able to use this technique
 for any project that builds cleanly using the command line tools 'xbuild' or 'msbuild'.
 

@@ -221,18 +221,18 @@ Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "All" DoNothing
 
-"Clean"
-  =?> ("BuildVersion", isAppVeyorBuild)
-  ==> "AssemblyInfo"
+//"Clean"
+//  =?> ("BuildVersion", isAppVeyorBuild)
+"AssemblyInfo"
   ==> "GenerateFSIStrings"
   ==> "Prepare"
   ==> "Build"
-  ==> "RunTests"
+//  ==> "RunTests"
   ==> "All"
 
 "All"
   ==> "PrepareRelease" 
-  ==> "SourceLink"
+//  ==> "SourceLink"
   ==> "NuGet"
   ==> "Release"
 

@@ -1211,7 +1211,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
                     errorLogger.Warning(e)
                     DateTime.Now                               
             yield (Choice1Of2 r.resolvedPath,originalTimeStamp)  
-            for pr in projectReferences  do
+          for pr in projectReferences  do
             yield Choice2Of2 pr, defaultArg (pr.GetLogicalTimeStamp()) DateTime.Now]
             
     // The IncrementalBuilder needs to hold up to one item that needs to be disposed, which is the tcImports for the incremental

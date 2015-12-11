@@ -1509,6 +1509,8 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     // Outputs
     let buildDescription            = new BuildDescriptionScope ()
 
+    do buildDescription.DeclareVectorOutput stampedFileNamesNode
+    do buildDescription.DeclareVectorOutput stampedReferencedAssembliesNode
     do buildDescription.DeclareVectorOutput parseTreesNode
     do buildDescription.DeclareVectorOutput tcStatesNode
     do buildDescription.DeclareScalarOutput initialTcAccNode

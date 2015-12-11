@@ -656,7 +656,7 @@ and FSharpField(cenv, d: FSharpFieldData)  =
         if isUnresolved() then false else 
         match d.TryRecdField with 
         | Choice1Of2 r -> r.IsMutable
-        | Choice2Of2 f -> not f.IsInitOnly
+        | Choice2Of2 f -> not f.IsInitOnly && f.LiteralValue.IsNone
 
     member __.IsLiteral = 
         if isUnresolved() then false else 

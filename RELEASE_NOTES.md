@@ -1,6 +1,7 @@
 #### 2.0.0.1-beta 
 * Fix 452 - FSharpField.IsMutable = true for BCL enum cases
-* Include fix from 1.4.2.2 for #488 - Performance problems with project references
+* Fix 452 - FSharpField.IsMutable = true for BCL enum cases
+* Fix 414 - Add IsInstanceMemberInCompiledCode
 
 #### 2.0.0.0-beta 
 * Feature #470, #478, #479 - Move ProjectCracker to separate nuget package and DLL, used ProjectCrackerTool.exe to run 

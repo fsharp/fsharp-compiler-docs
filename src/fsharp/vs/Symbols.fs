@@ -1404,6 +1404,15 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         | M m -> m.IsInstance
         | V v -> v.IsInstanceMember
 
+    member v.IsInstanceMemberInCompiledCode = 
+        if isUnresolved() then false else 
+        v.IsInstanceMember &&
+        match d with 
+        | E e -> match e.ArbitraryValRef with Some vref -> ValRefIsCompiledAsInstanceMember cenv.g vref | None -> true
+        | P p -> match p.ArbitraryValRef with Some vref -> ValRefIsCompiledAsInstanceMember cenv.g vref | None -> true
+        | M m -> match m.ArbitraryValRef with Some vref -> ValRefIsCompiledAsInstanceMember cenv.g vref | None -> true
+        | V vref -> ValRefIsCompiledAsInstanceMember cenv.g vref 
+
     member __.IsExtensionMember = 
         if isUnresolved() then false else 
         match d with 

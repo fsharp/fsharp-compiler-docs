@@ -731,6 +731,12 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// Indicates if this is an instance member, when seen from F#?
     member IsInstanceMember : bool 
     
+    /// Indicates if this is an instance member in compiled code. 
+    ///
+    /// Explanatory note: some members such as IsNone and IsSome on types with UseNullAsTrueValue appear 
+    /// as instance members in F# code but are compiled as static members.
+    member IsInstanceMemberInCompiledCode : bool 
+    
     /// Indicates if this is an implicit constructor?
     member IsImplicitConstructor : bool
     

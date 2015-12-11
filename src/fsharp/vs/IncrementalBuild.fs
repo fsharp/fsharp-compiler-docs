@@ -675,42 +675,20 @@ module internal IncrementalBuild =
         | VectorBuildRule ve -> visitVector optSlot ve acc                    
     
     /// Compute the max timestamp on all available inputs
-    let ComputeMaxTimeStamp (Target(output, optSlot)) bt acc =
-        let rec VisitVector optSlot (ve: VectorBuildRule) acc =
-            match ve with
-            | VectorInput _ ->acc
-            | VectorScanLeft(_id,_taskname,accumulatorExpr,inputExpr,_func) ->
-                // Check each slot for an action that may be performed.
-                VisitVector None inputExpr (VisitScalar accumulatorExpr acc)
-
-            | VectorMap(_id, _taskname, inputExpr, _func) ->
-                VisitVector optSlot inputExpr acc
-
-            | VectorStamp(_id, _taskname, inputExpr, func) -> 
-                let acc = 
-                    match GetVectorWidthByExpr(bt,ve) with
-                    | Some(cardinality) ->    
-                        let CheckStamp acc slot = 
-                            match GetVectorExprResult(bt,inputExpr,slot) with
-                            | Available(ires,_,_) -> max acc (func ires)
-                            | _ -> acc
-                        [0..cardinality-1] |> List.fold CheckStamp acc
-                    | None -> acc
-                VisitVector optSlot inputExpr acc
-
-            | VectorMultiplex(_id, _taskname, inputExpr, _func) -> 
-                VisitScalar inputExpr acc
-
-        and VisitScalar (se:ScalarBuildRule) acc =
-            match se with
-            | ScalarInput _ ->acc
-            | ScalarDemultiplex(_id,_taskname,inputExpr,_func) -> VisitVector None inputExpr acc
-            | ScalarMap(_id,_taskname,inputExpr,_func) -> VisitScalar inputExpr acc
-                         
+    let ComputeMaxTimeStamp output (bt: PartialBuild) acc =
         let expr = bt.Rules.RuleList |> List.find (fun (s,_) -> s = output) |> snd
-        match expr with
-        | ScalarBuildRule se -> VisitScalar se acc
-        | VectorBuildRule ve -> VisitVector optSlot ve acc
+        match expr with 
+        | VectorBuildRule  (VectorStamp(_id, _taskname, inputExpr, func) as ve) -> 
+                match GetVectorWidthByExpr(bt,ve) with
+                | Some(cardinality) ->    
+                    let CheckStamp acc slot = 
+                        match GetVectorExprResult(bt,inputExpr,slot) with
+                        | Available(ires,_,_) -> max acc (func ires)
+                        | _ -> acc
+                    [0..cardinality-1] |> List.fold CheckStamp acc
+                | None -> acc
+
+        | _ -> failwith "expected a VectorStamp"
     
 
     /// Given the result of a single action, apply that action to the Build
@@ -793,7 +771,6 @@ module internal IncrementalBuild =
     /// Check if an output is up-to-date and ready
     let MaxTimeStampInDependencies target bt = 
         ComputeMaxTimeStamp target bt DateTime.MinValue 
-
 
     /// Get a scalar vector. Result must be available
     let GetScalarResult<'T>(node:Scalar<'T>,bt): ('T*DateTime) option = 
@@ -905,10 +882,8 @@ module internal IncrementalBuild =
         /// Creates a new vector with the same items but with 
         /// timestamp specified by the passed-in function.  
         let Stamp (taskname:string) (task:'I -> DateTime) (input:Vector<'I>): Vector<'I> =
-            let BoxingTouch i =
-                task(unbox i)
             let input = input.Expr
-            let expr = VectorStamp(NextId(),taskname,input,BoxingTouch) 
+            let expr = VectorStamp(NextId(),taskname,input,unbox >> task) 
             { new Vector<'I>
               interface IVector with
                    override __.Name = taskname
@@ -1210,8 +1185,8 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
                     errorLogger.Warning(e)
                     DateTime.Now                               
             yield (Choice1Of2 r.resolvedPath,originalTimeStamp)  
-            for pr in projectReferences  do
-                yield Choice2Of2 pr, defaultArg (pr.GetLogicalTimeStamp()) DateTime.Now]
+          for pr in projectReferences  do
+            yield Choice2Of2 pr, defaultArg (pr.GetLogicalTimeStamp()) DateTime.Now]
             
     // The IncrementalBuilder needs to hold up to one item that needs to be disposed, which is the tcImports for the incremental
     // build. 
@@ -1533,6 +1508,8 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     // Outputs
     let buildDescription            = new BuildDescriptionScope ()
 
+    do buildDescription.DeclareVectorOutput stampedFileNamesNode
+    do buildDescription.DeclareVectorOutput stampedReferencedAssembliesNode
     do buildDescription.DeclareVectorOutput parseTreesNode
     do buildDescription.DeclareVectorOutput tcStatesNode
     do buildDescription.DeclareScalarOutput initialTcAccNode
@@ -1549,10 +1526,10 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
                 let file = if FileSystem.IsPathRootedShim(referenceText) then referenceText else Path.Combine(projectDirectory,referenceText) 
                 yield file 
 
-            for r in nonFrameworkResolutions do 
+          for r in nonFrameworkResolutions do 
                 yield  r.resolvedPath 
 
-            for (_,f,_) in sourceFiles do
+          for (_,f,_) in sourceFiles do
                 yield f ]
 
     let buildInputs = [ VectorInput (fileNamesNode, sourceFiles)
@@ -1566,8 +1543,8 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         partialBuild <- newPartialBuild
         newPartialBuild
 
-    let MaxTimeStampInDependencies (output:INode) optSlot = 
-        IncrementalBuild.MaxTimeStampInDependencies (Target(output.Name, optSlot)) partialBuild 
+    let MaxTimeStampInDependencies (output:INode) = 
+        IncrementalBuild.MaxTimeStampInDependencies output.Name partialBuild 
 
     member this.IncrementUsageCount() = 
         assertNotDisposed() 
@@ -1663,7 +1640,9 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
         
     member __.GetLogicalTimeStampForProject() = 
-        MaxTimeStampInDependencies finalizedTypeCheckNode None 
+        let t1 = MaxTimeStampInDependencies stampedFileNamesNode 
+        let t2 = MaxTimeStampInDependencies stampedReferencedAssembliesNode 
+        max t1 t2
         
     member __.GetSlotOfFileName(filename:string) =
         // Get the slot of the given file and force it to build.

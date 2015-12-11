@@ -59,8 +59,8 @@
             fold f z x
           </code>
           <div class="tip" id="642">
-            <strong>Signature:</strong> f:(&#39;?242714 -&gt; &#39;?242715 -&gt; &#39;?242714) -&gt; z:&#39;?242714 -&gt; x:&#39;?242715 option -&gt; &#39;?242714<br />
-                          <strong>Type parameters:</strong> '?242714, '?242715          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; &#39;a) -&gt; z:&#39;a -&gt; x:&#39;b option -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L166-166" class="github-link">
@@ -77,8 +77,8 @@
             foldMap f z l
           </code>
           <div class="tip" id="643">
-            <strong>Signature:</strong> f:(&#39;?242710 -&gt; &#39;?242711 -&gt; &#39;?242710 * &#39;?242712) -&gt; z:&#39;?242710 -&gt; l:&#39;?242711 option -&gt; &#39;?242710 * &#39;?242712 option<br />
-                          <strong>Type parameters:</strong> '?242710, '?242711, '?242712          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; &#39;a * &#39;c) -&gt; z:&#39;a -&gt; l:&#39;b option -&gt; &#39;a * &#39;c option<br />
+                          <strong>Type parameters:</strong> 'a, 'b, 'c          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L160-160" class="github-link">
@@ -95,8 +95,8 @@
             mapFold f s opt
           </code>
           <div class="tip" id="644">
-            <strong>Signature:</strong> f:(&#39;?242702 -&gt; &#39;?242703 -&gt; &#39;?242704 * &#39;?242702) -&gt; s:&#39;?242702 -&gt; opt:&#39;?242703 option -&gt; &#39;?242704 option * &#39;?242702<br />
-                          <strong>Type parameters:</strong> '?242702, '?242703, '?242704          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; &#39;c * &#39;a) -&gt; s:&#39;a -&gt; opt:&#39;b option -&gt; &#39;c option * &#39;a<br />
+                          <strong>Type parameters:</strong> 'a, 'b, 'c          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L144-144" class="github-link">
@@ -113,8 +113,8 @@
             orElse dflt opt
           </code>
           <div class="tip" id="645">
-            <strong>Signature:</strong> dflt:(unit -&gt; &#39;?242708 option) -&gt; opt:&#39;?242708 option -&gt; &#39;?242708 option<br />
-                          <strong>Type parameters:</strong> '?242708          </div>
+            <strong>Signature:</strong> dflt:(unit -&gt; &#39;a option) -&gt; opt:&#39;a option -&gt; &#39;a option<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L154-154" class="github-link">

@@ -287,8 +287,8 @@ on forcing back to at least one sensible user location</p>
             ( === ) x y
           </code>
           <div class="tip" id="490">
-            <strong>Signature:</strong> x:&#39;?242545 -&gt; y:&#39;?242545 -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?242545          </div>
+            <strong>Signature:</strong> x:&#39;a -&gt; y:&#39;a -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L26-26" class="github-link">
@@ -341,8 +341,8 @@ on forcing back to at least one sensible user location</p>
             foldOn p f z x
           </code>
           <div class="tip" id="493">
-            <strong>Signature:</strong> p:(&#39;?242547 -&gt; &#39;?242548) -&gt; f:(&#39;?242549 -&gt; &#39;?242548 -&gt; &#39;?242550) -&gt; z:&#39;?242549 -&gt; x:&#39;?242547 -&gt; &#39;?242550<br />
-                          <strong>Type parameters:</strong> '?242547, '?242548, '?242549, '?242550          </div>
+            <strong>Signature:</strong> p:(&#39;b -&gt; &#39;c) -&gt; f:(&#39;d -&gt; &#39;c -&gt; &#39;e) -&gt; z:&#39;d -&gt; x:&#39;b -&gt; &#39;e<br />
+                          <strong>Type parameters:</strong> 'b, 'c, 'd, 'e          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L32-32" class="github-link">
@@ -359,8 +359,8 @@ on forcing back to at least one sensible user location</p>
             getHole r
           </code>
           <div class="tip" id="494">
-            <strong>Signature:</strong> r:&#39;?242554 option ref -&gt; &#39;?242554<br />
-                          <strong>Type parameters:</strong> '?242554          </div>
+            <strong>Signature:</strong> r:&#39;a option ref -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L500-500" class="github-link">
@@ -380,8 +380,8 @@ on forcing back to at least one sensible user location</p>
             isNil x
           </code>
           <div class="tip" id="495">
-            <strong>Signature:</strong> x:&#39;?242535 list -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?242535          </div>
+            <strong>Signature:</strong> x:&#39;a list -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L21-21" class="github-link">
@@ -398,8 +398,8 @@ on forcing back to at least one sensible user location</p>
             isNone x
           </code>
           <div class="tip" id="496">
-            <strong>Signature:</strong> x:&#39;?242533 option -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?242533          </div>
+            <strong>Signature:</strong> x:&#39;a option -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L20-20" class="github-link">
@@ -452,8 +452,8 @@ on forcing back to at least one sensible user location</p>
             isSome x
           </code>
           <div class="tip" id="499">
-            <strong>Signature:</strong> x:&#39;?242531 option -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?242531          </div>
+            <strong>Signature:</strong> x:&#39;d option -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'd          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L19-19" class="github-link">
@@ -470,8 +470,8 @@ on forcing back to at least one sensible user location</p>
             nonNil x
           </code>
           <div class="tip" id="500">
-            <strong>Signature:</strong> x:&#39;?242537 list -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?242537          </div>
+            <strong>Signature:</strong> x:&#39;b list -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L22-22" class="github-link">
@@ -488,8 +488,8 @@ on forcing back to at least one sensible user location</p>
             nonNull msg x
           </code>
           <div class="tip" id="501">
-            <strong>Signature:</strong> msg:string -&gt; x:&#39;?242543 -&gt; &#39;?242543<br />
-                          <strong>Type parameters:</strong> '?242543          </div>
+            <strong>Signature:</strong> msg:string -&gt; x:&#39;a -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L25-25" class="github-link">
@@ -506,8 +506,8 @@ on forcing back to at least one sensible user location</p>
             notFound ()
           </code>
           <div class="tip" id="502">
-            <strong>Signature:</strong> unit -&gt; &#39;?242552<br />
-                          <strong>Type parameters:</strong> '?242552          </div>
+            <strong>Signature:</strong> unit -&gt; &#39;d<br />
+                          <strong>Type parameters:</strong> 'd          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L34-34" class="github-link">
@@ -524,8 +524,8 @@ on forcing back to at least one sensible user location</p>
             notlazy v
           </code>
           <div class="tip" id="503">
-            <strong>Signature:</strong> v:&#39;?242529 -&gt; Lazy&lt;&#39;?242529&gt;<br />
-                          <strong>Type parameters:</strong> '?242529          </div>
+            <strong>Signature:</strong> v:&#39;d -&gt; Lazy&lt;&#39;d&gt;<br />
+                          <strong>Type parameters:</strong> 'd          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L17-17" class="github-link">

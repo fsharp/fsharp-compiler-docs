@@ -241,8 +241,8 @@ when a lazy thunk is re-evaluated.</p>
             ( ++ ) res f
           </code>
           <div class="tip" id="106">
-            <strong>Signature:</strong> res:OperationResult&lt;&#39;?241196&gt; -&gt; f:(&#39;?241196 -&gt; OperationResult&lt;&#39;?241197&gt;) -&gt; OperationResult&lt;&#39;?241197&gt;<br />
-                          <strong>Type parameters:</strong> '?241196, '?241197          </div>
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;a&gt; -&gt; f:(&#39;a -&gt; OperationResult&lt;&#39;b&gt;) -&gt; OperationResult&lt;&#39;b&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L453-453" class="github-link">
@@ -280,8 +280,8 @@ when a lazy thunk is re-evaluated.</p>
             AtLeastOneD f l
           </code>
           <div class="tip" id="108">
-            <strong>Signature:</strong> f:(&#39;?241228 -&gt; OperationResult&lt;bool&gt;) -&gt; l:&#39;?241228 list -&gt; OperationResult&lt;bool&gt;<br />
-                          <strong>Type parameters:</strong> '?241228          </div>
+            <strong>Signature:</strong> f:(&#39;h -&gt; OperationResult&lt;bool&gt;) -&gt; l:&#39;h list -&gt; OperationResult&lt;bool&gt;<br />
+                          <strong>Type parameters:</strong> 'h          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L500-500" class="github-link">
@@ -316,8 +316,8 @@ when a lazy thunk is re-evaluated.</p>
             CheckNoErrorsAndGetWarnings res
           </code>
           <div class="tip" id="110">
-            <strong>Signature:</strong> res:OperationResult&lt;&#39;?241194&gt; -&gt; exn list option<br />
-                          <strong>Type parameters:</strong> '?241194          </div>
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;b&gt; -&gt; exn list option<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L450-450" class="github-link">
@@ -334,8 +334,8 @@ when a lazy thunk is re-evaluated.</p>
             CommitOperationResult res
           </code>
           <div class="tip" id="111">
-            <strong>Signature:</strong> res:OperationResult&lt;&#39;?241185&gt; -&gt; &#39;?241185<br />
-                          <strong>Type parameters:</strong> '?241185          </div>
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;a&gt; -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L439-439" class="github-link">
@@ -370,8 +370,8 @@ when a lazy thunk is re-evaluated.</p>
             conditionallySuppressErrorReporting (...)
           </code>
           <div class="tip" id="113">
-            <strong>Signature:</strong> cond:bool -&gt; f:(unit -&gt; &#39;?241181) -&gt; &#39;?241181<br />
-                          <strong>Type parameters:</strong> '?241181          </div>
+            <strong>Signature:</strong> cond:bool -&gt; f:(unit -&gt; &#39;s) -&gt; &#39;s<br />
+                          <strong>Type parameters:</strong> 's          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L420-420" class="github-link">
@@ -442,8 +442,8 @@ when a lazy thunk is re-evaluated.</p>
             error exn
           </code>
           <div class="tip" id="117">
-            <strong>Signature:</strong> exn:exn -&gt; &#39;?241162<br />
-                          <strong>Type parameters:</strong> '?241162          </div>
+            <strong>Signature:</strong> exn:exn -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L384-384" class="github-link">
@@ -460,8 +460,8 @@ when a lazy thunk is re-evaluated.</p>
             ErrorD err
           </code>
           <div class="tip" id="118">
-            <strong>Signature:</strong> err:exn -&gt; OperationResult&lt;&#39;?241188&gt;<br />
-                          <strong>Type parameters:</strong> '?241188          </div>
+            <strong>Signature:</strong> err:exn -&gt; OperationResult&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L446-446" class="github-link">
@@ -568,8 +568,8 @@ when a lazy thunk is re-evaluated.</p>
             Iterate2D f xs ys
           </code>
           <div class="tip" id="124">
-            <strong>Signature:</strong> f:(&#39;?241222 -&gt; &#39;?241223 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?241222 list -&gt; ys:&#39;?241223 list -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?241222, '?241223          </div>
+            <strong>Signature:</strong> f:(&#39;h -&gt; &#39;i -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;h list -&gt; ys:&#39;i list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> 'h, 'i          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L488-488" class="github-link">
@@ -589,8 +589,8 @@ when a lazy thunk is re-evaluated.</p>
             IterateD f xs
           </code>
           <div class="tip" id="125">
-            <strong>Signature:</strong> f:(&#39;?241199 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?241199 list -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?241199          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;a list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L465-465" class="github-link">
@@ -610,8 +610,8 @@ when a lazy thunk is re-evaluated.</p>
             IterateIdxD f xs
           </code>
           <div class="tip" id="126">
-            <strong>Signature:</strong> f:(int -&gt; &#39;?241220 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?241220 list -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?241220          </div>
+            <strong>Signature:</strong> f:(int -&gt; &#39;h -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;h list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> 'h          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L483-483" class="github-link">
@@ -744,8 +744,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             OptionD f xs
           </code>
           <div class="tip" id="133">
-            <strong>Signature:</strong> f:(&#39;?241218 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?241218 option -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?241218          </div>
+            <strong>Signature:</strong> f:(&#39;b -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;b option -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L480-480" class="github-link">
@@ -783,8 +783,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             protectAssemblyExploration dflt f
           </code>
           <div class="tip" id="135">
-            <strong>Signature:</strong> dflt:&#39;?241104 -&gt; f:(unit -&gt; &#39;?241104) -&gt; &#39;?241104<br />
-                          <strong>Type parameters:</strong> '?241104          </div>
+            <strong>Signature:</strong> dflt:&#39;a -&gt; f:(unit -&gt; &#39;a) -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L69-69" class="github-link">
@@ -801,8 +801,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             protectAssemblyExplorationF dflt f
           </code>
           <div class="tip" id="136">
-            <strong>Signature:</strong> dflt:(string * string -&gt; &#39;?241106) -&gt; f:(unit -&gt; &#39;?241106) -&gt; &#39;?241106<br />
-                          <strong>Type parameters:</strong> '?241106          </div>
+            <strong>Signature:</strong> dflt:(string * string -&gt; &#39;b) -&gt; f:(unit -&gt; &#39;b) -&gt; &#39;b<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L76-76" class="github-link">
@@ -819,8 +819,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             protectAssemblyExplorationNoReraise (...)
           </code>
           <div class="tip" id="137">
-            <strong>Signature:</strong> dflt1:&#39;?241108 -&gt; dflt2:&#39;?241108 -&gt; f:(unit -&gt; &#39;?241108) -&gt; &#39;?241108<br />
-                          <strong>Type parameters:</strong> '?241108          </div>
+            <strong>Signature:</strong> dflt1:&#39;a -&gt; dflt2:&#39;a -&gt; f:(unit -&gt; &#39;a) -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L83-83" class="github-link">
@@ -837,8 +837,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             PushErrorLoggerPhaseUntilUnwind (...)
           </code>
           <div class="tip" id="138">
-            <strong>Signature:</strong> errorLoggerTransformer:(ErrorLogger -&gt; &#39;?241155) -&gt; IDisposable<br />
-                          <strong>Type parameters:</strong> '?241155          </div>
+            <strong>Signature:</strong> errorLoggerTransformer:(ErrorLogger -&gt; &#39;a) -&gt; IDisposable<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L362-362" class="github-link">
@@ -969,8 +969,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             ReportWarnings warns
           </code>
           <div class="tip" id="145">
-            <strong>Signature:</strong> warns:&#39;?241183 list -&gt; unit<br />
-                          <strong>Type parameters:</strong> '?241183          </div>
+            <strong>Signature:</strong> warns:&#39;b list -&gt; unit<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L434-434" class="github-link">
@@ -987,8 +987,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             ResultD x
           </code>
           <div class="tip" id="146">
-            <strong>Signature:</strong> x:&#39;?241192 -&gt; OperationResult&lt;&#39;?241192&gt;<br />
-                          <strong>Type parameters:</strong> '?241192          </div>
+            <strong>Signature:</strong> x:&#39;h -&gt; OperationResult&lt;&#39;h&gt;<br />
+                          <strong>Type parameters:</strong> 'h          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L449-449" class="github-link">
@@ -1095,8 +1095,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             suppressErrorReporting f
           </code>
           <div class="tip" id="152">
-            <strong>Signature:</strong> f:(unit -&gt; &#39;?241179) -&gt; &#39;?241179<br />
-                          <strong>Type parameters:</strong> '?241179          </div>
+            <strong>Signature:</strong> f:(unit -&gt; &#39;s) -&gt; &#39;s<br />
+                          <strong>Type parameters:</strong> 's          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L407-407" class="github-link">
@@ -1131,8 +1131,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             TryD f g
           </code>
           <div class="tip" id="154">
-            <strong>Signature:</strong> f:(unit -&gt; OperationResult&lt;&#39;?241225&gt;) -&gt; g:(exn -&gt; OperationResult&lt;&#39;?241225&gt;) -&gt; OperationResult&lt;&#39;?241225&gt;<br />
-                          <strong>Type parameters:</strong> '?241225          </div>
+            <strong>Signature:</strong> f:(unit -&gt; OperationResult&lt;&#39;h&gt;) -&gt; g:(exn -&gt; OperationResult&lt;&#39;h&gt;) -&gt; OperationResult&lt;&#39;h&gt;<br />
+                          <strong>Type parameters:</strong> 'h          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L494-494" class="github-link">

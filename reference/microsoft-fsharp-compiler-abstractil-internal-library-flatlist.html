@@ -59,8 +59,8 @@
             choose f xs
           </code>
           <div class="tip" id="534">
-            <strong>Signature:</strong> f:(&#39;?242921 -&gt; &#39;?242922 option) -&gt; xs:&#39;?242921 list -&gt; &#39;?242922 list<br />
-                          <strong>Type parameters:</strong> '?242921, '?242922          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b option) -&gt; xs:&#39;a list -&gt; &#39;b list<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L580-580" class="github-link">
@@ -77,8 +77,8 @@
             foldMap f acc x
           </code>
           <div class="tip" id="535">
-            <strong>Signature:</strong> f:(&#39;?242932 -&gt; &#39;?242933 -&gt; &#39;?242932 * &#39;?242934) -&gt; acc:&#39;?242932 -&gt; x:FlatList&lt;&#39;?242933&gt; -&gt; &#39;?242932 * &#39;?242934 list<br />
-                          <strong>Type parameters:</strong> '?242932, '?242933, '?242934          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; &#39;a * &#39;c) -&gt; acc:&#39;a -&gt; x:FlatList&lt;&#39;b&gt; -&gt; &#39;a * &#39;c list<br />
+                          <strong>Type parameters:</strong> 'a, 'b, 'c          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L584-584" class="github-link">
@@ -95,8 +95,8 @@
             mapFold f acc x
           </code>
           <div class="tip" id="536">
-            <strong>Signature:</strong> f:(&#39;?242928 -&gt; &#39;?242929 -&gt; &#39;?242930 * &#39;?242928) -&gt; acc:&#39;?242928 -&gt; x:FlatList&lt;&#39;?242929&gt; -&gt; &#39;?242930 list * &#39;?242928<br />
-                          <strong>Type parameters:</strong> '?242928, '?242929, '?242930          </div>
+            <strong>Signature:</strong> f:(&#39;i -&gt; &#39;j -&gt; &#39;k * &#39;i) -&gt; acc:&#39;i -&gt; x:FlatList&lt;&#39;j&gt; -&gt; &#39;k list * &#39;i<br />
+                          <strong>Type parameters:</strong> 'i, 'j, 'k          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L583-583" class="github-link">
@@ -113,8 +113,8 @@
             mapq f x
           </code>
           <div class="tip" id="537">
-            <strong>Signature:</strong> f:(&#39;?242926 -&gt; &#39;?242926) -&gt; x:FlatList&lt;&#39;?242926&gt; -&gt; &#39;?242926 list<br />
-                          <strong>Type parameters:</strong> '?242926          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;a) -&gt; x:FlatList&lt;&#39;a&gt; -&gt; &#39;a list<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L582-582" class="github-link">
@@ -131,8 +131,8 @@
             order eltOrder
           </code>
           <div class="tip" id="538">
-            <strong>Signature:</strong> eltOrder:IComparer&lt;&#39;?242924&gt; -&gt; IComparer&lt;&#39;?242924 list&gt;<br />
-                          <strong>Type parameters:</strong> '?242924          </div>
+            <strong>Signature:</strong> eltOrder:IComparer&lt;&#39;a&gt; -&gt; IComparer&lt;&#39;a list&gt;<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L581-581" class="github-link">
@@ -149,8 +149,8 @@
             toArray xs
           </code>
           <div class="tip" id="539">
-            <strong>Signature:</strong> xs:&#39;?242919 list -&gt; &#39;?242919 []<br />
-                          <strong>Type parameters:</strong> '?242919          </div>
+            <strong>Signature:</strong> xs:&#39;a list -&gt; &#39;a []<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L579-579" class="github-link">

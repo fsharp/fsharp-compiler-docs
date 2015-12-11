@@ -59,8 +59,8 @@
             ( |?&gt; ) res f
           </code>
           <div class="tip" id="650">
-            <strong>Signature:</strong> res:ResultOrException&lt;&#39;?242911&gt; -&gt; f:(&#39;?242911 -&gt; &#39;?242912) -&gt; ResultOrException&lt;&#39;?242912&gt;<br />
-                          <strong>Type parameters:</strong> '?242911, '?242912          </div>
+            <strong>Signature:</strong> res:ResultOrException&lt;&#39;a&gt; -&gt; f:(&#39;a -&gt; &#39;b) -&gt; ResultOrException&lt;&#39;b&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L516-516" class="github-link">
@@ -77,8 +77,8 @@
             ForceRaise res
           </code>
           <div class="tip" id="651">
-            <strong>Signature:</strong> res:ResultOrException&lt;&#39;?242914&gt; -&gt; &#39;?242914<br />
-                          <strong>Type parameters:</strong> '?242914          </div>
+            <strong>Signature:</strong> res:ResultOrException&lt;&#39;a&gt; -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L521-521" class="github-link">
@@ -95,8 +95,8 @@
             otherwise f x
           </code>
           <div class="tip" id="652">
-            <strong>Signature:</strong> f:(unit -&gt; ResultOrException&lt;&#39;?242916&gt;) -&gt; x:ResultOrException&lt;&#39;?242916&gt; -&gt; ResultOrException&lt;&#39;?242916&gt;<br />
-                          <strong>Type parameters:</strong> '?242916          </div>
+            <strong>Signature:</strong> f:(unit -&gt; ResultOrException&lt;&#39;s&gt;) -&gt; x:ResultOrException&lt;&#39;s&gt; -&gt; ResultOrException&lt;&#39;s&gt;<br />
+                          <strong>Type parameters:</strong> 's          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L526-526" class="github-link">
@@ -113,8 +113,8 @@
             raze b
           </code>
           <div class="tip" id="653">
-            <strong>Signature:</strong> b:exn -&gt; ResultOrException&lt;&#39;?242909&gt;<br />
-                          <strong>Type parameters:</strong> '?242909          </div>
+            <strong>Signature:</strong> b:exn -&gt; ResultOrException&lt;&#39;b&gt;<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L513-513" class="github-link">
@@ -131,8 +131,8 @@
             success a
           </code>
           <div class="tip" id="654">
-            <strong>Signature:</strong> a:&#39;?242907 -&gt; ResultOrException&lt;&#39;?242907&gt;<br />
-                          <strong>Type parameters:</strong> '?242907          </div>
+            <strong>Signature:</strong> a:&#39;b -&gt; ResultOrException&lt;&#39;b&gt;<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L512-512" class="github-link">

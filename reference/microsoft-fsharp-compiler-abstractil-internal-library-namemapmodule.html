@@ -77,8 +77,8 @@
             empty 
           </code>
           <div class="tip" id="603">
-            <strong>Signature:</strong> Map&lt;&#39;?243010,&#39;?243011&gt;<br />
-                          <strong>Type parameters:</strong> '?243010, '?243011          </div>
+            <strong>Signature:</strong> Map&lt;&#39;b,&#39;c&gt;<br />
+                          <strong>Type parameters:</strong> 'b, 'c          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L852-852" class="github-link">
@@ -95,8 +95,8 @@
             exists f m
           </code>
           <div class="tip" id="604">
-            <strong>Signature:</strong> f:(&#39;?243022 -&gt; &#39;?243023 -&gt; bool) -&gt; m:Map&lt;&#39;?243022,&#39;?243023&gt; -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?243022, '?243023          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; bool) -&gt; m:Map&lt;&#39;a,&#39;b&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L856-856" class="github-link">
@@ -185,8 +185,8 @@
             foldBackRange f l acc
           </code>
           <div class="tip" id="609">
-            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?243057 -&gt; &#39;?243057) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; acc:&#39;?243057 -&gt; &#39;?243057<br />
-                          <strong>Type parameters:</strong> 'T, '?243057          </div>
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;a -&gt; &#39;a) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; acc:&#39;a -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'T, 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L883-883" class="github-link">
@@ -293,8 +293,8 @@
             layerAdditive addf m1 m2
           </code>
           <div class="tip" id="615">
-            <strong>Signature:</strong> addf:(&#39;?243036 list -&gt; &#39;?243037 -&gt; &#39;?243036 list) -&gt; m1:Map&lt;&#39;?243038,&#39;?243037&gt; -&gt; m2:Map&lt;&#39;?243038,&#39;?243036 list&gt; -&gt; Map&lt;&#39;?243038,&#39;?243036 list&gt;<br />
-                          <strong>Type parameters:</strong> '?243036, '?243037, '?243038          </div>
+            <strong>Signature:</strong> addf:(&#39;a list -&gt; &#39;b -&gt; &#39;a list) -&gt; m1:Map&lt;&#39;c,&#39;b&gt; -&gt; m2:Map&lt;&#39;c,&#39;a list&gt; -&gt; Map&lt;&#39;c,&#39;a list&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b, 'c          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L864-864" class="github-link">
@@ -314,8 +314,8 @@
             map f l
           </code>
           <div class="tip" id="616">
-            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?243065) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;?243065&gt;<br />
-                          <strong>Type parameters:</strong> 'T, '?243065          </div>
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;a) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'T, 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L889-889" class="github-link">
@@ -422,8 +422,8 @@
             ofKeyedList f l
           </code>
           <div class="tip" id="622">
-            <strong>Signature:</strong> f:(&#39;?243025 -&gt; &#39;?243026) -&gt; l:&#39;?243025 list -&gt; Map&lt;&#39;?243026,&#39;?243025&gt;<br />
-                          <strong>Type parameters:</strong> '?243025, '?243026          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b) -&gt; l:&#39;a list -&gt; Map&lt;&#39;b,&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L857-857" class="github-link">
@@ -476,8 +476,8 @@
             range m
           </code>
           <div class="tip" id="625">
-            <strong>Signature:</strong> m:Map&lt;&#39;?243013,&#39;?243014&gt; -&gt; &#39;?243014 list<br />
-                          <strong>Type parameters:</strong> '?243013, '?243014          </div>
+            <strong>Signature:</strong> m:Map&lt;&#39;a,&#39;b&gt; -&gt; &#39;b list<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L853-853" class="github-link">
@@ -494,8 +494,8 @@
             suball2 errf p m1 m2
           </code>
           <div class="tip" id="626">
-            <strong>Signature:</strong> errf:(&#39;?243048 -&gt; &#39;?243049 -&gt; bool) -&gt; p:(&#39;?243050 -&gt; &#39;?243049 -&gt; bool) -&gt; m1:Map&lt;&#39;?243048,&#39;?243050&gt; -&gt; m2:Map&lt;&#39;?243048,&#39;?243049&gt; -&gt; bool<br />
-                          <strong>Type parameters:</strong> '?243048, '?243049, '?243050          </div>
+            <strong>Signature:</strong> errf:(&#39;a -&gt; &#39;f -&gt; bool) -&gt; p:(&#39;g -&gt; &#39;f -&gt; bool) -&gt; m1:Map&lt;&#39;a,&#39;g&gt; -&gt; m2:Map&lt;&#39;a,&#39;f&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a, 'f, 'g          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L878-878" class="github-link">
@@ -587,8 +587,8 @@
             union unionf ms
           </code>
           <div class="tip" id="631">
-            <strong>Signature:</strong> unionf:(seq&lt;&#39;?243040&gt; -&gt; &#39;?243041) -&gt; ms:seq&lt;NameMap&lt;&#39;?243040&gt;&gt; -&gt; Map&lt;string,&#39;?243041&gt;<br />
-                          <strong>Type parameters:</strong> '?243040, '?243041          </div>
+            <strong>Signature:</strong> unionf:(seq&lt;&#39;a&gt; -&gt; &#39;b) -&gt; ms:seq&lt;NameMap&lt;&#39;a&gt;&gt; -&gt; Map&lt;string,&#39;b&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L868-868" class="github-link">

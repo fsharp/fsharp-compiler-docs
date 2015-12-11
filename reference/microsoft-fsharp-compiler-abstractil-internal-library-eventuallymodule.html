@@ -77,8 +77,8 @@
             box e
           </code>
           <div class="tip" id="525">
-            <strong>Signature:</strong> e:Eventually&lt;&#39;?242939&gt; -&gt; Eventually&lt;obj&gt;<br />
-                          <strong>Type parameters:</strong> '?242939          </div>
+            <strong>Signature:</strong> e:Eventually&lt;&#39;c&gt; -&gt; Eventually&lt;obj&gt;<br />
+                          <strong>Type parameters:</strong> 'c          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L615-615" class="github-link">
@@ -131,8 +131,8 @@
             fold f acc seq
           </code>
           <div class="tip" id="528">
-            <strong>Signature:</strong> f:(&#39;?242950 -&gt; &#39;?242951 -&gt; Eventually&lt;&#39;?242950&gt;) -&gt; acc:&#39;?242950 -&gt; seq:seq&lt;&#39;?242951&gt; -&gt; Eventually&lt;&#39;?242950&gt;<br />
-                          <strong>Type parameters:</strong> '?242950, '?242951          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; Eventually&lt;&#39;a&gt;) -&gt; acc:&#39;a -&gt; seq:seq&lt;&#39;b&gt; -&gt; Eventually&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L677-677" class="github-link">
@@ -149,8 +149,8 @@
             force e
           </code>
           <div class="tip" id="529">
-            <strong>Signature:</strong> e:Eventually&lt;&#39;?242943&gt; -&gt; &#39;?242943<br />
-                          <strong>Type parameters:</strong> '?242943          </div>
+            <strong>Signature:</strong> e:Eventually&lt;&#39;a&gt; -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L628-628" class="github-link">
@@ -167,8 +167,8 @@
             forceWhile check e
           </code>
           <div class="tip" id="530">
-            <strong>Signature:</strong> check:(unit -&gt; bool) -&gt; e:Eventually&lt;&#39;?242941&gt; -&gt; &#39;?242941 option<br />
-                          <strong>Type parameters:</strong> '?242941          </div>
+            <strong>Signature:</strong> check:(unit -&gt; bool) -&gt; e:Eventually&lt;&#39;a&gt; -&gt; &#39;a option<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L620-620" class="github-link">
@@ -185,8 +185,8 @@
             repeatedlyProgressUntilDoneOrTimeShareOver (...)
           </code>
           <div class="tip" id="531">
-            <strong>Signature:</strong> timeShareInMilliseconds:int64 -&gt; runner:((unit -&gt; Eventually&lt;&#39;?242945&gt;) -&gt; Eventually&lt;&#39;?242945&gt;) -&gt; e:Eventually&lt;&#39;?242945&gt; -&gt; Eventually&lt;&#39;?242945&gt;<br />
-                          <strong>Type parameters:</strong> '?242945          </div>
+            <strong>Signature:</strong> timeShareInMilliseconds:int64 -&gt; runner:((unit -&gt; Eventually&lt;&#39;b&gt;) -&gt; Eventually&lt;&#39;b&gt;) -&gt; e:Eventually&lt;&#39;b&gt; -&gt; Eventually&lt;&#39;b&gt;<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L653-653" class="github-link">

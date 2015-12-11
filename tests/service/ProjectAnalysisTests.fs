@@ -4336,6 +4336,9 @@ let ``Test project34 should report correct accessibility for System.Data.Listene
 
     listenerFuncEntity.Accessibility.IsPrivate |> shouldEqual true
 
+
+//------------------------------------------------------
+
 module Project35 = 
     open System.IO
 
@@ -4411,6 +4414,35 @@ let ``Test project35 CurriedParameterGroups should be available for nested funct
         retTyp.Type.TypeDefinition.DisplayName |> shouldEqual "float32"
 
     | _ -> failwith "Unexpected symbol type"
+
+//------------------------------------------------------
+
+module Project35b = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fsx")
+    let fileSource1 = """
+#r "System.dll"
+#r "notexist.dll"
+"""
+    File.WriteAllText(fileName1, fileSource1)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+    let fileNames = [fileName1]
+    let options =  checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously
+
+
+[<Test>]
+let ``Test project35b Dependency files`` () =
+    let parseFileResults = checker.ParseFileInProject(Project35b.fileName1, Project35b.fileSource1, Project35b.options) |> Async.RunSynchronously
+    for d in parseFileResults.DependencyFiles do 
+        printfn "dependency: %s" d
+//    parseFileResults.DependencyFiles.Length |> shouldEqual 3
+    parseFileResults.DependencyFiles |> List.exists (fun s -> s.Contains "notexist.dll") |> shouldEqual true
+    parseFileResults.DependencyFiles |> List.exists (fun s -> s.Contains Project35b.fileName1) |> shouldEqual true
+///    parseFileResults.DependencyFiles |> List.exists (fun s -> s.Contains "FSharp.Compiler.Interactive.Settings.dll") |> shouldEqual true
+
+//------------------------------------------------------
 
 module Project36 =
     open System.IO

@@ -88,6 +88,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsImplicitConstructor then yield "ctor"
             if v.IsMutable then yield "mutable" 
             if v.IsOverrideOrExplicitInterfaceImplementation then yield "overridemem"
+            if v.IsInstanceMember && not v.IsInstanceMemberInCompiledCode then yield "funky"
             if v.IsExplicitInterfaceImplementation then yield "intfmem"
 //            if v.IsConstructorThisValue then yield "ctorthis"
 //            if v.IsMemberThisValue then yield "this"
@@ -202,7 +203,7 @@ let ``Test project1 whole project errors`` () =
     wholeProjectResults.Errors.[0].EndColumn |> shouldEqual 44
 
 [<Test>]
-let ``Test project39 should have protected FullName and TryFullName return same results`` () =
+let ``Test Project1 should have protected FullName and TryFullName return same results`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let rec getFullNameComparisons (entity: FSharpEntity) = 
         seq { if not entity.IsProvided && entity.Accessibility.IsPublic then
@@ -2907,7 +2908,7 @@ let ``Test Project19 all symbols`` () =
             ("DayOfWeek", "DayOfWeek", "file1", ((10, 15), (10, 24)), [],
              ["enum"; "valuetype"]);
             ("System", "System", "file1", ((10, 8), (10, 14)), [], ["namespace"]);
-            ("field Monday", "Monday", "file1", ((10, 8), (10, 31)), [], ["field"; "mutable"; "static"; "1"]);
+            ("field Monday", "Monday", "file1", ((10, 8), (10, 31)), [], ["field"; "static"; "1"]);
             ("val s", "s", "file1", ((10, 4), (10, 5)), ["defn"], ["val"]);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], ["module"])|]
 
@@ -4630,6 +4631,9 @@ let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
     |> Seq.map (fun a -> a.AttributeType.CompiledName)
     |> Array.ofSeq |> shouldEqual [| "AttrTestAttribute"; "AttrTest2Attribute" |]
 
+//-----------------------------------------------------------
+
+
 module Project38 =
     open System.IO
 
@@ -4724,6 +4728,8 @@ let ``Test project38 abstract slot information`` () =
         |]
 
 
+//--------------------------------------------
+
 module Project39 = 
     open System.IO
 
@@ -4801,4 +4807,47 @@ let ``Test project39 all symbols`` () =
                 ("params",
                  [["'a"]; ["'a0"]; ["'a"; "'a0"]]),
                 ("return", "'b"))]
+
+
+//--------------------------------------------
+
+module Project40 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+
+let f (x: option<_>) = x.IsSome, x.IsNone
+
+(*
+[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]  
+type C = 
+    | A 
+    | B of string
+    member x.IsItAnA = match x with A -> true | B _ -> false
+    member x.IsItAnAMethod() = match x with A -> true | B _ -> false
+
+let g (x: C) = x.IsItAnA,x.IsItAnAMethod() 
+*)
+    """
+
+    File.WriteAllText(fileName1, fileSource1)
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+[<Test>]
+let ``Test Project40 all symbols`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project40.options) |> Async.RunSynchronously
+    let allSymbolUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+    let allSymbolUsesInfo =  [ for s in allSymbolUses -> s.Symbol.DisplayName, tups s.RangeAlternate, attribsOfSymbol s.Symbol ]
+    allSymbolUsesInfo |> shouldEqual
+              []
+
 

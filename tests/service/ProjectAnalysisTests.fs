@@ -88,7 +88,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsImplicitConstructor then yield "ctor"
             if v.IsMutable then yield "mutable" 
             if v.IsOverrideOrExplicitInterfaceImplementation then yield "overridemem"
-            if v.IsInstanceMember && not v.IsInstanceMemberInCompiledCode then yield "funky"
+            if v.IsInstanceMember && not v.IsInstanceMemberInCompiledCode && not v.IsExtensionMember then yield "funky"
             if v.IsExplicitInterfaceImplementation then yield "intfmem"
 //            if v.IsConstructorThisValue then yield "ctorthis"
 //            if v.IsMemberThisValue then yield "this"

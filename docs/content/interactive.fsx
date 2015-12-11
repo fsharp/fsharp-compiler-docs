@@ -72,6 +72,13 @@ let evalExpression text =
   match fsiSession.EvalExpression(text) with
   | Some value -> printfn "%A" value.ReflectionValue
   | None -> printfn "Got no result!"
+
+/// Evaluate expression & return the result, strongly typed
+let evalExpressionTyped<'T> (text) = 
+    match fsiSession.EvalExpression(text) with
+    | Some value -> value.ReflectionValue |> unbox<'T>
+    | None -> failwith "Got no result!"
+
 (**
 The `EvalInteraction` method has no result. It can be used to evaluate side-effectful operations
 such as printing, or other interactions that are not valid F# expressions, but can be entered in
@@ -87,6 +94,7 @@ passed to them does not require `;;` at the end. Just enter the code that you wa
 *)
 evalExpression "42+1"
 evalInteraction "printfn \"bye\""
+
 
 (**
 The `EvalScript` method allows to evaluate a complete .fsx script.
@@ -140,6 +148,28 @@ Gives:
     Warning The type 'float' does not match the type 'char' at 1,17
 *)
 
+
+
+(**
+Executing in parallel
+------------------
+
+To execute in parallel, submit async computations:
+*)
+
+open System.Threading.Tasks
+
+let sampleAsyncExpr = 
+    """
+async { do System.Threading.Thread.Sleep 5000
+        return 10 }
+  |> Async.StartAsTask"""
+
+let task1 = evalExpressionTyped<Task<int>>(sampleAsyncExpr)  
+let task2 = evalExpressionTyped<Task<int>>(sampleAsyncExpr)  
+
+task1.Result
+task2.Result
 
 (**
 Type checking in the evaluation context

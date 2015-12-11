@@ -6,6 +6,9 @@
 * Fix #473 - stack overflow in resolution logic
 * Fix #460 - Failure getting expression for a provided method call
 
+#### 1.4.2.2 - 
+* #488 - Performance problems with project references
+
 #### 1.4.2.1 - 
 * #450 - Correct generation of ReferencedProjects 
 

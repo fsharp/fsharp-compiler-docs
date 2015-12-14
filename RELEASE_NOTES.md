@@ -1,3 +1,6 @@
+#### 1.4.2.3 - 
+* Fix bug in loop optimization, apply https://github.com/Microsoft/visualfsharp/pull/756/ 
+
 #### 1.4.2.2 - 
 * #488 - Performance problems with project references
 

@@ -11,6 +11,9 @@
 * Fix #473 - stack overflow in resolution logic
 * Fix #460 - Failure getting expression for a provided method call
 
+#### 1.4.2.3 - 
+* Fix bug in loop optimization, apply https://github.com/Microsoft/visualfsharp/pull/756/ 
+
 #### 1.4.2.2 - 
 * #488 - Performance problems with project references
 

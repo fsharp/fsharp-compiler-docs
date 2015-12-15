@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Sample_VS2013_FSharp_Portable_Library_Legacy_net40.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Sample_VS2013_FSharp_Portable_Library_Legacy_net40.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Sample_VS2013_FSharp_Portable_Library_Legacy_net40.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Sample_VS2013_FSharp_Portable_Library_Legacy_net40.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">

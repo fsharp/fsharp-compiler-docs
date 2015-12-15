@@ -1,0 +1,22 @@
+type file
+id FSharp.Compiler.Service.ProjectCracker
+description
+    Adds F# project cracking capabilities.
+authors
+    Microsoft Corporation, Robin Neatherway
+summary
+    Cracking projects
+licenseurl https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE
+projecturl https://github.com/fsharp/FSharp.Compiler.Service
+iconurl https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png
+tags
+    F#, fsharp, msbuild, editor
+files
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.config ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.?db ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.?db ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.xml ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.?db ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll.?db ==> lib/net45

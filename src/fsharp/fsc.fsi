@@ -30,11 +30,11 @@ type ILResource with
     member internal Bytes : byte[]
 
 /// Proccess the given set of command line arguments
-val internal ProcessCommandLineFlags : TcConfigBuilder * argv:string[] -> string list
+val internal ProcessCommandLineFlags : TcConfigBuilder * setProcessThreadLocals:(TcConfigBuilder -> unit) * lcidFromCodePage : int option * argv:string[] -> string list
 
 //---------------------------------------------------------------------------
-// The entry point used by fsc.exe
-
+// The entry point used by fsc.exe and
+// the micro API into the compiler used by the visualfsharp test infrastructure
 val mainCompile : 
     argv: string[] * 
     bannerAlreadyPrinted: bool * 
@@ -59,9 +59,6 @@ val compileOfAst :
     tcImportsCapture : (TcImports -> unit) option *
     dynamicAssemblyCreator: (TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option
       -> unit
-
-//---------------------------------------------------------------------------
-// The micro API into the compiler used by the visualfsharp test infrastructure
 
 [<RequireQualifiedAccess>]
 type CompilationOutput = 

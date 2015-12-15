@@ -52,6 +52,16 @@ type internal FrameworkImportsCache =
     member Clear: unit -> unit
     member Downsize: unit -> unit
   
+/// An error logger that capture errors, filtering them according to warning levels etc.
+type internal CompilationErrorLogger = 
+    inherit ErrorLogger
+
+    /// Create the error logger
+    new : debugName:string * tcConfig:TcConfig ->  CompilationErrorLogger
+            
+    /// Get the captured errors
+    member GetErrors : unit -> (PhasedError * FSharpErrorSeverity) list
+
 /// Represents the state in the incremental graph assocaited with checking a file
 type internal PartialCheckResults = 
     { TcState : TcState 

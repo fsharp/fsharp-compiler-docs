@@ -13,6 +13,7 @@
 module Microsoft.FSharp.Compiler.Interactive.Shell
 
 open System.IO
+open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 [<Class>]
@@ -146,6 +147,15 @@ type FsiEvaluationSession =
     /// by input from 'stdin'.
     member EvalInteraction : code: string -> unit
 
+    /// Execute the code as if it had been entered as one or more interactions, with an
+    /// implicit termination at the end of the input. Stop on first error, discarding the rest
+    /// of the input. Errors and warnings are collected apart from any exception arising from execution
+    /// which is returned via a Choice. Execution is performed on the 'Run()' thread.
+    ///
+    /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+    /// by input from 'stdin'.
+    member EvalInteractionNonThrowing : code: string -> Choice<unit, exn> * FSharpErrorInfo[]
+
     /// Execute the given script. Stop on first error, discarding the rest
     /// of the script. Errors are sent to the output writer, a 'true' return value indicates there
     /// were no errors overall. Execution is performed on the 'Run()' thread.
@@ -154,15 +164,32 @@ type FsiEvaluationSession =
     /// by input from 'stdin'.
     member EvalScript : filePath: string -> unit
 
+    /// Execute the given script. Stop on first error, discarding the rest
+    /// of the script. Errors and warnings are collected apart from any exception arising from execution
+    /// which is returned via a Choice. Execution is performed on the 'Run()' thread.
+    ///
+    /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+    /// by input from 'stdin'.
+    member EvalScriptNonThrowing : filePath: string -> Choice<unit, exn> * FSharpErrorInfo[]
+
     /// Execute the code as if it had been entered as one or more interactions, with an
     /// implicit termination at the end of the input. Stop on first error, discarding the rest
-    /// of the input. Errors are sent to the output writer, a 'true' return value indicates there
-    /// were no errors overall. Parsing is performed on the current thread, and execution is performed 
+    /// of the input. Errors are sent to the output writer. Parsing is performed on the current thread, and execution is performed 
     /// sycnhronously on the 'main' thread.
     ///
     /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
     /// by input from 'stdin'.
     member EvalExpression : code: string -> FsiValue option
+
+    /// Execute the code as if it had been entered as one or more interactions, with an
+    /// implicit termination at the end of the input. Stop on first error, discarding the rest
+    /// of the input. Errors and warnings are collected apart from any exception arising from execution
+    /// which is returned via a Choice. Parsing is performed on the current thread, and execution is performed 
+    /// sycnhronously on the 'main' thread.
+    ///
+    /// Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+    /// by input from 'stdin'.
+    member EvalExpressionNonThrowing : code: string -> Choice<FsiValue option, exn> * FSharpErrorInfo[] 
 
     /// Raised when an interaction is successfully typechecked and executed, resulting in an update to the
     /// type checking state.  

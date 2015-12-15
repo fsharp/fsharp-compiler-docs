@@ -88,6 +88,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsImplicitConstructor then yield "ctor"
             if v.IsMutable then yield "mutable" 
             if v.IsOverrideOrExplicitInterfaceImplementation then yield "overridemem"
+            if v.IsInstanceMember && not v.IsInstanceMemberInCompiledCode && not v.IsExtensionMember then yield "funky"
             if v.IsExplicitInterfaceImplementation then yield "intfmem"
 //            if v.IsConstructorThisValue then yield "ctorthis"
 //            if v.IsMemberThisValue then yield "this"
@@ -202,7 +203,7 @@ let ``Test project1 whole project errors`` () =
     wholeProjectResults.Errors.[0].EndColumn |> shouldEqual 44
 
 [<Test>]
-let ``Test project39 should have protected FullName and TryFullName return same results`` () =
+let ``Test Project1 should have protected FullName and TryFullName return same results`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let rec getFullNameComparisons (entity: FSharpEntity) = 
         seq { if not entity.IsProvided && entity.Accessibility.IsPublic then
@@ -2907,7 +2908,7 @@ let ``Test Project19 all symbols`` () =
             ("DayOfWeek", "DayOfWeek", "file1", ((10, 15), (10, 24)), [],
              ["enum"; "valuetype"]);
             ("System", "System", "file1", ((10, 8), (10, 14)), [], ["namespace"]);
-            ("field Monday", "Monday", "file1", ((10, 8), (10, 31)), [], ["field"; "mutable"; "static"; "1"]);
+            ("field Monday", "Monday", "file1", ((10, 8), (10, 31)), [], ["field"; "static"; "1"]);
             ("val s", "s", "file1", ((10, 4), (10, 5)), ["defn"], ["val"]);
             ("Impl", "Impl", "file1", ((2, 7), (2, 11)), ["defn"], ["module"])|]
 
@@ -4630,6 +4631,9 @@ let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
     |> Seq.map (fun a -> a.AttributeType.CompiledName)
     |> Array.ofSeq |> shouldEqual [| "AttrTestAttribute"; "AttrTest2Attribute" |]
 
+//-----------------------------------------------------------
+
+
 module Project38 =
     open System.IO
 
@@ -4724,6 +4728,8 @@ let ``Test project38 abstract slot information`` () =
         |]
 
 
+//--------------------------------------------
+
 module Project39 = 
     open System.IO
 
@@ -4801,4 +4807,71 @@ let ``Test project39 all symbols`` () =
                 ("params",
                  [["'a"]; ["'a0"]; ["'a"; "'a0"]]),
                 ("return", "'b"))]
+
+
+//--------------------------------------------
+
+module Project40 = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+
+let f (x: option<_>) = x.IsSome, x.IsNone
+
+[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]  
+type C = 
+    | A 
+    | B of string
+    member x.IsItAnA = match x with A -> true | B _ -> false
+    member x.IsItAnAMethod() = match x with A -> true | B _ -> false
+
+let g (x: C) = x.IsItAnA,x.IsItAnAMethod() 
+    """
+
+    File.WriteAllText(fileName1, fileSource1)
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let cleanFileName a = if a = fileName1 then "file1" else "??"
+
+[<Test>]
+let ``Test Project40 all symbols`` () = 
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project40.options) |> Async.RunSynchronously
+    let allSymbolUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+    let allSymbolUsesInfo =  [ for s in allSymbolUses -> s.Symbol.DisplayName, tups s.RangeAlternate, attribsOfSymbol s.Symbol ]
+    allSymbolUsesInfo |> shouldEqual
+          [("option", ((4, 10), (4, 16)), ["abbrev"]); ("x", ((4, 7), (4, 8)), []);
+           ("x", ((4, 23), (4, 24)), []);
+           ("IsSome", ((4, 23), (4, 31)), ["member"; "prop"; "funky"]);
+           ("x", ((4, 33), (4, 34)), []);
+           ("IsNone", ((4, 33), (4, 41)), ["member"; "prop"; "funky"]);
+           ("f", ((4, 4), (4, 5)), ["val"]);
+           ("CompilationRepresentationAttribute", ((6, 2), (6, 27)), ["class"]);
+           ("CompilationRepresentationAttribute", ((6, 2), (6, 27)), ["class"]);
+           ("CompilationRepresentationAttribute", ((6, 2), (6, 27)), ["member"]);
+           ("CompilationRepresentationFlags", ((6, 28), (6, 58)),
+            ["enum"; "valuetype"]);
+           ("UseNullAsTrueValue", ((6, 28), (6, 77)), ["field"; "static"; "8"]);
+           ("string", ((9, 11), (9, 17)), ["abbrev"]);
+           ("string", ((9, 11), (9, 17)), ["abbrev"]); ("A", ((8, 6), (8, 7)), []);
+           ("B", ((9, 6), (9, 7)), []); ("C", ((7, 5), (7, 6)), ["union"]);
+           ("IsItAnA", ((10, 13), (10, 20)), ["member"; "getter"; "funky"]);
+           ("IsItAnAMethod", ((11, 13), (11, 26)), ["member"; "funky"]);
+           ("x", ((10, 11), (10, 12)), []); ("x", ((10, 29), (10, 30)), []);
+           ("A", ((10, 36), (10, 37)), []); ("B", ((10, 48), (10, 49)), []);
+           ("x", ((11, 11), (11, 12)), []); ("x", ((11, 37), (11, 38)), []);
+           ("A", ((11, 44), (11, 45)), []); ("B", ((11, 56), (11, 57)), []);
+           ("C", ((13, 10), (13, 11)), ["union"]); ("x", ((13, 7), (13, 8)), []);
+           ("x", ((13, 15), (13, 16)), []);
+           ("IsItAnA", ((13, 15), (13, 24)), ["member"; "prop"; "funky"]);
+           ("x", ((13, 25), (13, 26)), []);
+           ("IsItAnAMethod", ((13, 25), (13, 40)), ["member"; "funky"]);
+           ("g", ((13, 4), (13, 5)), ["val"]); ("M", ((2, 7), (2, 8)), ["module"])]
+
 

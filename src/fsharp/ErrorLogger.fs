@@ -38,7 +38,7 @@ let rec findOriginalException err =
 
 
 /// Thrown when we stop processing the F# Interactive entry or #load.
-exception StopProcessing of string
+exception StopProcessing of exn option
 
 
 (* common error kinds *)

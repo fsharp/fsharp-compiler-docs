@@ -738,7 +738,7 @@ let ``Test max memory gets triggered`` () =
 [<Test>]
 let ``Type provider project references should not throw exceptions`` () =
     let projectFile = __SOURCE_DIRECTORY__ + @"/data/TypeProviderConsole/TypeProviderConsole.fsproj"
-    let options = checker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
+    let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])
     //printfn "options: %A" options
     let fileName = __SOURCE_DIRECTORY__ + @"/data/TypeProviderConsole/Program.fs"    
     let fileSource = File.ReadAllText(fileName)

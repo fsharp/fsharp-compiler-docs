@@ -31,6 +31,7 @@ First, we need to reference the libraries that contain F# interactive service:
 *)
 
 #r "FSharp.Compiler.Service.dll"
+open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.Interactive.Shell
 
 (**
@@ -62,7 +63,7 @@ let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, outSt
 Evaluating and executing code
 -----------------------------
 
-The F# interactive service exposes two methods that can be used for interaction. The first
+The F# interactive service exposes several methods that can be used for evaluation. The first
 is `EvalExpression` which evaluates an expression and returns its result. The result contains
 the returned value (as `obj`) and the statically inferred type of the value:
 *)
@@ -71,31 +72,128 @@ let evalExpression text =
   match fsiSession.EvalExpression(text) with
   | Some value -> printfn "%A" value.ReflectionValue
   | None -> printfn "Got no result!"
+
 (**
-The `EvalInteraction` method has no result. It can be used to evaluate side-effectful operations
-such as printing, or other interactions that are not valid F# expressions, but can be entered in
+This takes a string as an argument and evaluates (i.e. executes) it as F# code. 
+*)
+evalExpression "42+1" // prints '43'
+
+(**
+This can be used in a strongly typed way as follows:
+*)
+
+/// Evaluate expression & return the result, strongly typed
+let evalExpressionTyped<'T> (text) = 
+    match fsiSession.EvalExpression(text) with
+    | Some value -> value.ReflectionValue |> unbox<'T>
+    | None -> failwith "Got no result!"
+
+evalExpressionTyped<int> "42+1"  // gives '43'
+
+
+(**
+The `EvalInteraction` method can be used to evaluate side-effectful operations
+such as printing, declarations, or other interactions that are not valid F# expressions, but can be entered in
 the F# Interactive console. Such commands include `#time "on"` (and other directives), `open System`
-and other top-level statements.
+all declarations and other top-level statements. The code 
+does not require `;;` at the end. Just enter the code that you want to execute:
 *)
-/// Evaluate interaction & ignore the result
-let evalInteraction text = 
-  fsiSession.EvalInteraction(text)
-(**
-The two functions take string as an argument and evaluate (or execute) it as F# code. The code 
-passed to them does not require `;;` at the end. Just enter the code that you want to execute:
-*)
-evalExpression "42+1"
-evalInteraction "printfn \"bye\""
+fsiSession.EvalInteraction "printfn \"bye\""
+
 
 (**
 The `EvalScript` method allows to evaluate a complete .fsx script.
 *)
-/// Evaluate script & ignore the result
-let evalScript scriptPath = 
-  fsiSession.EvalScript(scriptPath)
 
 File.WriteAllText("sample.fsx", "let twenty = 10 + 10")
-evalScript "sample.fsx"
+fsiSession.EvalScript "sample.fsx"
+
+(**
+Catching errors
+------------------
+
+``EvalExpression``, ``EvalInteraction`` and ``EvalScript`` are awkward if the
+code has type checking warnings or errors, or if evaluation fails with an exception.
+In these cases you can use ``EvalExpressionNonThrowing``, ``EvalInteractionNonThrowing``
+and ``EvalScriptNonThrowing``. These return a tuple of a result and an array of ``FSharpErrorInfo`` values.
+These represent the errors and warnings. The result part is a ``Choice<_,_>`` between an actual 
+result and an exception.
+
+The result part of ``EvalExpression`` and ``EvalExpressionNonThrowing`` is an optional ``FSharpValue``.
+If that value is not present then it just indicates that the expression didn't have a tangible
+result that could be represented as a .NET object.  This siutation shouldn't actually
+occur for any normal input expressions, and only for primitives used in libraries.
+*)
+
+File.WriteAllText("sample.fsx", "let twenty = 'a' + 10.0")
+let result, warnings = fsiSession.EvalScriptNonThrowing "sample.fsx"
+
+// show the result
+match result with 
+| Choice1Of2 () -> printfn "checked and executed ok"
+| Choice2Of2 exn -> printfn "execution exception: %s" exn.Message
+
+
+(**
+Gives:
+
+    execution exception: Operation could not be completed due to earlier error
+*)
+
+// show the errors and warnings
+for w in warnings do 
+   printfn "Warning %s at %d,%d" w.Message w.StartLineAlternate w.StartColumn 
+
+(**
+Gives:
+
+    Warning The type 'float' does not match the type 'char' at 1,19
+    Warning The type 'float' does not match the type 'char' at 1,17
+
+For expressions:
+*)
+
+
+let evalExpressionTyped2<'T> text =
+   let res, warnings = fsiSession.EvalExpressionNonThrowing(text)
+   for w in warnings do 
+       printfn "Warning %s at %d,%d" w.Message w.StartLineAlternate w.StartColumn 
+   match res with 
+   | Choice1Of2 (Some value) -> value.ReflectionValue |> unbox<'T>
+   | Choice1Of2 None -> failwith "null or no result"
+   | Choice2Of2 (exn:exn) -> failwith (sprintf "exception %s" exn.Message)
+
+evalExpressionTyped2<int> "42+1"  // gives '43'
+
+
+(**
+Executing in parallel
+------------------
+
+By default the code passed to ``EvalExpression`` is executed immediately. To execute in parallel, submit a computation that starts a task:
+*)
+
+open System.Threading.Tasks
+
+let sampleLongRunningExpr = 
+    """
+async { 
+    // The code of what you want to run
+    do System.Threading.Thread.Sleep 5000
+    return 10 
+}
+  |> Async.StartAsTask"""
+
+let task1 = evalExpressionTyped<Task<int>>(sampleLongRunningExpr)  
+let task2 = evalExpressionTyped<Task<int>>(sampleLongRunningExpr)  
+
+(**
+Both computations have now started.  You can now fetch the results:
+*)
+
+
+task1.Result // gives the result after completion (up to 5 seconds)
+task2.Result // gives the result after completion (up to 5 seconds)
 
 (**
 Type checking in the evaluation context
@@ -106,7 +204,7 @@ in the context of the F# Interactive scripting session. For example, you first
 evaluation a declaration:
 *)
 
-evalInteraction "let xxx = 1 + 1"
+fsiSession.EvalInteraction "let xxx = 1 + 1"
 
 (**
 
@@ -129,29 +227,11 @@ You can also request declaration list information, tooltip text and symbol resol
 *)
 open Microsoft.FSharp.Compiler
 
-let identToken = Parser.tagOfToken(Parser.token.IDENT("")) 
-checkResults.GetToolTipTextAlternate(1, 2, "xxx + xx", ["xxx"], identToken) // a tooltip
+// get a tooltip
+checkResults.GetToolTipTextAlternate(1, 2, "xxx + xx", ["xxx"], FSharpTokenTag.IDENT) 
 
 checkResults.GetSymbolUseAtLocation(1, 2, "xxx + xx", ["xxx"]) // symbol xxx
   
-(**
-Exception handling
-------------------
-
-If you want to handle compiler errors in a nicer way and report a useful error message, you might
-want to use something like this:
-*)
-
-try 
-  evalExpression "42 + 1.0"
-with e ->
-  match e.InnerException with
-  | null -> 
-      printfn "Error evaluating expression (%s)" e.Message
-  //| WrappedError(err, _) -> 
-  //    printfn "Error evaluating expression (Wrapped: %s)" err.Message
-  | _ -> 
-      printfn "Error evaluating expression (%s)" e.Message
 (**
 The 'fsi' object
 ------------------

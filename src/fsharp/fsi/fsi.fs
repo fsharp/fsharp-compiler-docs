@@ -2293,6 +2293,15 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     let defaultFSharpBinariesDir = System.AppDomain.CurrentDomain.BaseDirectory
     let currentDirectory = Directory.GetCurrentDirectory()
 #endif
+    // When used as part of FCS we cannot assume the current process is fsi.exe
+    // So we try to fallback to the default compiler dir.
+    let defaultFSharpBinariesDir = 
+        let containsRequiredFiles =
+            [ "FSharp.Core.dll"; "FSharp.Core.sigdata"; "FSharp.Core.optdata" ]
+            |> Seq.map (fun file -> Path.Combine(defaultFSharpBinariesDir, file))
+            |> Seq.forall Internal.Utilities.FSharpEnvironment.safeExists
+        if containsRequiredFiles then defaultFSharpBinariesDir 
+        else Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
 
     let tcConfigB = 
         TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, 

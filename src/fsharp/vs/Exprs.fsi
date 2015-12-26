@@ -21,6 +21,12 @@ type [<Class>] FSharpAssemblyContents =
 /// Represents the definitional contents of a single file or fragment in an assembly, as seen by the F# language
 and [<Class>] FSharpImplementationFileContents = 
 
+    /// The qualified name acts to fully-qualify module specifications and implementations
+    member QualifiedName: string
+
+    /// Get the system path of the implementation file
+    member FileName: string
+
     /// Get the declarations that make up this implementation file
     member Declarations : FSharpImplementationFileDeclaration list
 

@@ -48,6 +48,7 @@ type internal DummyForm() =
     /// error during finalization of the half-initialized object...
     override x.Finalize() = ()
     
+#if USE_WINFORMS_EVENT_LOOP
 /// This is the event loop implementation for winforms
 let WinFormsEventLoop(lcid : int option) = 
     let mainForm = new DummyForm() 
@@ -94,6 +95,7 @@ let WinFormsEventLoop(lcid : int option) =
 
          member x.ScheduleRestart()  =   restart := true; Application.Exit()  }
 
+#endif
 
 let StartServer (fsiSession : FsiEvaluationSession) (fsiServerName) = 
     let server =
@@ -176,8 +178,11 @@ let MainMain argv =
                    else
                        None
         
+#if USE_FSharp_Compiler_Interactive_Settings
         let fsiConfig0 = FsiEvaluationSession.GetDefaultConfiguration(fsi)
-        
+#else
+        let fsiConfig0 = FsiEvaluationSession.GetDefaultConfiguration()
+#endif        
         let rec fsiConfig = 
             { // Update the configuration to include 'StartServer' and 'OptionalConsoleReadLine'
               new FsiEvaluationSessionHostConfig () with 
@@ -220,12 +225,14 @@ let MainMain argv =
                 with _ -> 
                     ()
             
+#if USE_WINFORMS_EVENT_LOOP
             try fsi.EventLoop <-  WinFormsEventLoop(fsiSession.LCID)
             with e ->
                 printfn "Your system doesn't seem to support WinForms correctly. You will"
                 printfn "need to set fsi.EventLoop use GUI windows from F# Interactive."
                 printfn "You can set different event loops for MonoMac, Gtk#, WinForms and other"
                 printfn "UI toolkits. Drop the --gui argument if no event loop is required."
+#endif
                     
 
         console.SetCompletionFunction(fun (s1,s2) -> fsiSession.GetCompletions (match s1 with | Some s -> s + "." + s2 | None -> s2))

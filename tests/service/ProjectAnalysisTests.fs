@@ -196,6 +196,7 @@ let ``Test project1 whole project errors`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     wholeProjectResults .Errors.Length |> shouldEqual 2
     wholeProjectResults.Errors.[1].Message.Contains("Incomplete pattern matches on this expression") |> shouldEqual true // yes it does
+    wholeProjectResults.Errors.[1].ErrorNumber |> shouldEqual 25
 
     wholeProjectResults.Errors.[0].StartLineAlternate |> shouldEqual 10
     wholeProjectResults.Errors.[0].EndLineAlternate |> shouldEqual 10

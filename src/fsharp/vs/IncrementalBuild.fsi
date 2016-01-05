@@ -32,6 +32,7 @@ type (*internal*) FSharpErrorInfo =
     member Severity:FSharpErrorSeverity
     member Message:string
     member Subcategory:string
+    member ErrorNumber:int
     static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * lastPosInFile:(int*int) -> FSharpErrorInfo
     static member internal CreateFromException : PhasedError * bool * bool * range -> FSharpErrorInfo
 

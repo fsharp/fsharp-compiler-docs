@@ -1,5 +1,9 @@
+#### 2.0.0.2
+* Integrate visualfsharp/master and fsharp/master --> master
+* Expose QualifiedName and FileName of FSharpImplementationFileContents
+* Add FSharpErrorInfo.ErrorNumber
+
 #### 2.0.0.1-beta 
-* Fix 452 - FSharpField.IsMutable = true for BCL enum cases
 * Fix 452 - FSharpField.IsMutable = true for BCL enum cases
 * Fix 414 - Add IsInstanceMemberInCompiledCode
 

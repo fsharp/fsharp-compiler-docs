@@ -87,9 +87,8 @@ Target "GenerateFSIStrings" (fun _ ->
 Target "Build" (fun _ ->
     netFrameworks
     |> List.iter (fun framework -> 
-        let outputPath = buildDir </> framework
         !! (project + ".sln")
-        |> MSBuild outputPath "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
+        |> MSBuild "" "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
         |> Log (".NET " + framework + " Build-Output: "))
 )
 

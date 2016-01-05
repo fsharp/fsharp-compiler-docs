@@ -74,6 +74,7 @@
     <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
   </PropertyGroup>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+<!--
   <Target Name="BeforeBuild">
     <Copy SourceFiles="$(MSBuildExtensionsPath32)\..\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\$(TargetFSharpCoreVersion)\FSharp.Core.sigdata" DestinationFolder="$(OutputPath)" Condition="Exists('$(MSBuildExtensionsPath32)\..\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\$(TargetFSharpCoreVersion)\FSharp.Core.sigdata')" />
     <Copy SourceFiles="$(MSBuildExtensionsPath32)\..\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\$(TargetFSharpCoreVersion)\FSharp.Core.optdata" DestinationFolder="$(OutputPath)" Condition="Exists('$(MSBuildExtensionsPath32)\..\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\$(TargetFSharpCoreVersion)\FSharp.Core.optdata')" />
@@ -81,4 +82,5 @@
     <Copy SourceFiles="$(MSBuildExtensionsPath32)\..\lib\mono\4.5\FSharp.Core.sigdata" DestinationFolder="$(OutputPath)" Condition="Exists('$(MSBuildExtensionsPath32)\..\lib\mono\4.5\FSharp.Core.sigdata')" />
     <Copy SourceFiles="$(MSBuildExtensionsPath32)\..\lib\mono\4.5\FSharp.Core.optdata" DestinationFolder="$(OutputPath)" Condition="Exists('$(MSBuildExtensionsPath32)\..\lib\mono\4.5\FSharp.Core.optdata')"  />
   </Target>
+-->
 </Project>

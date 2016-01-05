@@ -225,9 +225,6 @@ type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
 type ByteFile(bytes:byte[]) = 
     inherit BinaryFile()
 
-    static member OpenIn f = ByteFile(FileSystem.ReadAllBytesShim f)
-    static member OpenBytes bytes = ByteFile(bytes)
-
     override mc.ReadByte addr = bytes.[addr]
     override mc.ReadBytes addr len = Array.sub bytes addr len
     override m.CountUtf8String addr = 
@@ -910,6 +907,8 @@ type ILModuleReader =
       dispose: unit -> unit }
     member x.ILModuleDef = x.modul
     member x.ILAssemblyRefs = x.ilAssemblyRefs.Force()
+    interface IDisposable with
+        member x.Dispose() = x.dispose()
     
  
 type MethodData = MethodData of ILType * ILCallingConv * string * ILTypes * ILType * ILTypes
@@ -3954,8 +3953,6 @@ let rec genOpenBinaryReader infile is opts =
 
     ilModule,ilAssemblyRefs,pdb
   
-let CloseILModuleReader x = x.dispose()
-
 let mkDefault ilg = 
     { optimizeForMemory=false; 
       pdbPath= None; 
@@ -3980,7 +3977,7 @@ let OpenILModuleReader infile opts =
             mmap.Close();
             ClosePdbReader pdb) }
     else
-        let mc = ByteFile.OpenIn infile
+        let mc = ByteFile(infile |> FileSystem.ReadAllBytesShim)
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader infile mc opts
         { modul = modul; 
           ilAssemblyRefs = ilAssemblyRefs;
@@ -4006,7 +4003,7 @@ let OpenILModuleReaderAfterReadingAllBytes infile opts =
     match cacheResult with 
     | Some(ilModuleReader) -> ilModuleReader
     | None -> 
-        let mc = ByteFile.OpenIn infile
+        let mc = ByteFile(infile |> FileSystem.ReadAllBytesShim)
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader infile mc opts
         let ilModuleReader = 
             { modul = modul; 
@@ -4018,7 +4015,7 @@ let OpenILModuleReaderAfterReadingAllBytes infile opts =
 
 let OpenILModuleReaderFromBytes fileNameForDebugOutput bytes opts = 
         assert opts.pdbPath.IsNone
-        let mc = ByteFile.OpenBytes bytes
+        let mc = ByteFile(bytes)
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader fileNameForDebugOutput mc opts
         let ilModuleReader = 
             { modul = modul; 

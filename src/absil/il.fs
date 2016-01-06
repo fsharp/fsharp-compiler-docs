@@ -914,9 +914,6 @@ type ILAttribElem =
 type ILAttributeNamedArg =  (string * ILType * bool * ILAttribElem)
 type ILAttribute = 
     { Method: ILMethodSpec;
-#if FX_REFLECTION_EMITS_CUSTOM_ATTRIBUTES_USING_BUILDER
-      Arguments: ILAttribElem list * ILAttributeNamedArg list
-#endif
       Data: byte[] }
 
 [<NoEquality; NoComparison>]
@@ -4416,9 +4413,6 @@ let mkILCustomAttribMethRef (ilg: ILGlobals) (mspec:ILMethodSpec, fixedArgs: lis
              yield! encodeCustomAttrNamedArg ilg namedArg |]
 
     { Method = mspec;
-#if FX_REFLECTION_EMITS_CUSTOM_ATTRIBUTES_USING_BUILDER
-      Arguments = fixedArgs, namedArgs
-#endif
       Data = args }
 
 let mkILCustomAttribute ilg (tref,argtys,argvs,propvs) = 

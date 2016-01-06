@@ -95,11 +95,7 @@ type XmlDoc =
                 if lineAT = "" then processLines rest
                 else if String.hasPrefix lineAT "<" then lines
                 else ["<summary>"] @     
-#if FX_NO_SECURITY_ELEMENT_ESCAPE
-                     lines @
-#else        
                      (lines |> List.map (fun line -> System.Security.SecurityElement.Escape(line))) @
-#endif
                      ["</summary>"]               
 
         let lines = processLines (Array.toList lines)

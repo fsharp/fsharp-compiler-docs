@@ -386,9 +386,6 @@ module internal ExtensionTyping =
         abstract GetXmlDocAttributes : provider:ITypeProvider -> string[]
         abstract GetHasTypeProviderEditorHideMethodsAttribute : provider:ITypeProvider -> bool
         abstract GetAttributeConstructorArgs: provider:ITypeProvider * attribName:string -> (obj option list * (string * obj option) list) option
-#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
-        abstract GetAttributes : provider:ITypeProvider -> CustomAttributeData list
-#endif
 
     and ProvidedCustomAttributeProvider =
         static member Create (attributes :(ITypeProvider -> System.Collections.Generic.IList<CustomAttributeData>)) : IProvidedCustomAttributeProvider = 
@@ -410,12 +407,6 @@ module internal ExtensionTyping =
                                 |> Seq.toList 
                                 |> List.map (fun arg -> arg.MemberInfo.Name, match arg.TypedValue with Arg null -> None | Arg obj -> Some obj | _ -> None)
                             ctorArgs, namedArgs)
-
-#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
-                  member __.GetAttributes (provider) = 
-                      attributes(provider) 
-                        |> Seq.toList
-#endif
 
                   member __.GetHasTypeProviderEditorHideMethodsAttribute provider = 
                       attributes(provider) 
@@ -488,11 +479,7 @@ module internal ExtensionTyping =
 
     and [<AllowNullLiteral; Sealed>] 
         ProvidedAssembly (x: System.Reflection.Assembly, _ctxt) = 
-#if FX_NO_ASSEMBLY_GET_NAME
-        member __.GetName() = System.Reflection.AssemblyName(x.FullName)
-#else
         member __.GetName() = x.GetName()
-#endif
         member __.FullName = x.FullName
         member __.GetManifestModuleContents(provider: ITypeProvider) = provider.GetGeneratedAssemblyContents(x)
         static member Create ctxt x = match x with null -> null | t -> ProvidedAssembly (t,ctxt)
@@ -528,7 +515,8 @@ module internal ExtensionTyping =
 
             let staticParams = 
                 match provider with 
-#if COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_4_0_0
+#if COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_3_0_0
+#else
                 | :? ITypeProvider2 as itp2 -> 
                     itp2.GetStaticParametersForMethod(x)  
 #endif
@@ -546,7 +534,8 @@ module internal ExtensionTyping =
 
             let mb = 
                 match provider with 
-#if COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_4_0_0
+#if COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_3_0_0
+#else
                 | :? ITypeProvider2 as itp2 -> 
                     itp2.ApplyStaticArgumentsForMethod(x, fullNameAfterArguments, staticArgs)  
 #endif

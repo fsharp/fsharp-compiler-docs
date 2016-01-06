@@ -443,7 +443,7 @@ type internal ErrorLoggerThatStopsOnFirstError(tcConfigB:TcConfigBuilder, fsiStd
         errors <- errors + 1
         if tcConfigB.abortOnError then exit 1 (* non-zero exit code *)
         // STOP ON FIRST ERROR (AVOIDS PARSER ERROR RECOVERY)
-        raise (StopProcessing None)
+        raise StopProcessing
     
     member x.ResetErrorCount() = (errors <- 0)
     
@@ -467,7 +467,7 @@ type ErrorLogger with
         if x.ErrorCount > 0 then 
             fprintf fsiConsoleOutput.Error "%s" (FSIstrings.SR.stoppedDueToError())
             fsiConsoleOutput.Error.Flush()
-            raise (StopProcessing None)
+            raise StopProcessing
 
 /// Get the directory name from a string, with some defaults if it doesn't have one
 let internal directoryName (s:string) = 
@@ -626,14 +626,11 @@ type internal FsiCommandLineOptions(fsi: FsiEvaluationSessionHostConfig, argv: s
             stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
         inputFilesAcc
 
-#if LIMITED_CONSOLE
-#else
     do 
         if tcConfigB.utf8output then
             let prev = Console.OutputEncoding
             Console.OutputEncoding <- System.Text.Encoding.UTF8
             System.AppDomain.CurrentDomain.ProcessExit.Add(fun _ -> Console.OutputEncoding <- prev)
-#endif
 
     do 
         let firstArg = 
@@ -707,9 +704,6 @@ let internal InstallErrorLoggingOnThisThread errorLogger =
 /// Set the input/output encoding. The use of a thread is due to a known bug on 
 /// on Vista where calls to Console.InputEncoding can block the process.
 let internal SetServerCodePages(fsiOptions: FsiCommandLineOptions) =     
-#if LIMITED_CONSOLE
-    ignore fsiOptions
-#else     
     match fsiOptions.FsiServerInputCodePage, fsiOptions.FsiServerOutputCodePage with 
     | None,None -> ()
     | inputCodePageOpt,outputCodePageOpt -> 
@@ -735,7 +729,6 @@ let internal SetServerCodePages(fsiOptions: FsiCommandLineOptions) =
 #if LOGGING_GUI
         if not !successful then 
             System.Windows.Forms.MessageBox.Show(FSIstrings.SR.fsiConsoleProblem()) |> ignore
-#endif
 #endif
 
 
@@ -989,7 +982,7 @@ type internal FsiDynamicCompiler
                     errorLogger.SetError()
                     errorLogger.AbortOnError(fsiConsoleOutput)
                 | _ -> 
-                    raise (StopProcessing (Some err))
+                    raise (StopProcessingExn (Some err))
 
             | None -> ())) ;
 
@@ -1954,7 +1947,7 @@ type internal FsiInteractionProcessor
         | FsiInteractionStepStatus.Completed res -> 
             setCurrState istate
             Choice1Of2 res
-        | FsiInteractionStepStatus.CompletedWithReportedError (StopProcessing userExnOpt) -> 
+        | FsiInteractionStepStatus.CompletedWithReportedError (StopProcessingExn userExnOpt) -> 
             Choice2Of2 userExnOpt
         | FsiInteractionStepStatus.CompletedWithReportedError _ -> 
             Choice2Of2 None
@@ -2258,15 +2251,12 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     do if not runningOnMono then Lib.UnmanagedProcessExecutionOptions.EnableHeapTerminationOnCorruption() (* SDL recommendation *)
     // See Bug 735819 
     let lcidFromCodePage = 
-#if LIMITED_CONSOLE
-#else
         if (Console.OutputEncoding.CodePage <> 65001) &&
            (Console.OutputEncoding.CodePage <> Thread.CurrentThread.CurrentUICulture.TextInfo.OEMCodePage) &&
            (Console.OutputEncoding.CodePage <> Thread.CurrentThread.CurrentUICulture.TextInfo.ANSICodePage) then
                 Thread.CurrentThread.CurrentUICulture <- new CultureInfo("en-US")
                 Some 1033
         else
-#endif        
             None
 
     let timeReporter = FsiTimeReporter(outWriter)
@@ -2477,7 +2467,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
                     errorLogger.SetError()
                     try 
                         errorLogger.AbortOnError(fsiConsoleOutput) 
-                    with StopProcessing _ -> 
+                    with StopProcessing -> 
                         // BUG 664864: Watson Clr20r3 across buckets with: Application FSIAnyCPU.exe from Dev11 RTM; Exception AE251Y0L0P2WC0QSWDZ0E2IDRYQTDSVB; FSIANYCPU.NI.EXE!Microsoft.FSharp.Compiler.Interactive.Shell+threadException
                         // reason: some window that use System.Windows.Forms.DataVisualization types (possible FSCharts) was created in FSI.
                         // at some moment one chart has raised InvalidArgumentException from OnPaint, this exception was intercepted by the code in higher layer and 

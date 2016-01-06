@@ -373,94 +373,70 @@ let GetTcImportsFromCommandLine
     if not tcConfigB.continueAfterParseFailure then 
         AbortOnError(errorLogger, tcConfig, exiter)
 
-    let tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig = 
-    
-        ReportTime tcConfig "Import mscorlib"
+    ReportTime tcConfig "Import mscorlib and FSharp.Core.dll"
+    let foundationalTcConfigP = TcConfigProvider.Constant(tcConfig)
+    let sysRes,otherRes,knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
+    let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (foundationalTcConfigP, sysRes, otherRes)
 
-#if INCREMENTAL_BUILD_OPTION
-        if tcConfig.useIncrementalBuilder then 
-            ReportTime tcConfig "Incremental Parse and Typecheck"
-            let builder = 
-                new IncrementalFSharpBuild.IncrementalBuilder(tcConfig, directoryBuildingFrom, assemblyName, NiceNameGenerator(), lexResourceManager, sourceFiles,
-                                                                ensureReactive=false, 
-                                                                errorLogger=errorLogger,
-                                                                keepGeneratedTypedAssembly=true)
-            let tcState,topAttribs,typedAssembly,_tcEnv,tcImports,tcGlobals,tcConfig = builder.TypeCheck()
-            tcGlobals,tcImports,tcImports,tcState.Ccu,typedAssembly,topAttribs,tcConfig
-        else
-#else
-        begin
-#endif
-        ReportTime tcConfig "Import mscorlib and FSharp.Core.dll"
-        let foundationalTcConfigP = TcConfigProvider.Constant(tcConfig)
-        let sysRes,otherRes,knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
-        let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (foundationalTcConfigP, sysRes, otherRes)
+    // register framework tcImports to be disposed in future
+    disposables.Register frameworkTcImports
 
-        // register framework tcImports to be disposed in future
-        disposables.Register frameworkTcImports
+    // step - parse sourceFiles 
+    ReportTime tcConfig "Parse inputs"
+    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
+    let inputs =
+        try  
+            sourceFiles 
+            |> tcConfig.ComputeCanContainEntryPoint 
+            |> List.zip sourceFiles
+            // PERF: consider making this parallel, once uses of global state relevant to parsing are cleaned up 
+            |> List.choose (fun (filename:string,isLastCompiland:bool) -> 
+                let pathOfMetaCommandSource = Path.GetDirectoryName(filename)
+                match ParseOneInputFile(tcConfig,lexResourceManager,["COMPILED"],filename,isLastCompiland,errorLogger,(*retryLocked*)false) with
+                | Some(input)->Some(input,pathOfMetaCommandSource)
+                | None -> None
+                ) 
+        with e -> 
+            errorRecoveryNoRange e
+            SqmLoggerWithConfig tcConfig errorLogger.ErrorNumbers errorLogger.WarningNumbers
+            exiter.Exit 1
 
-        // step - parse sourceFiles 
-        ReportTime tcConfig "Parse inputs"
-        use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
-        let inputs =
-            try  
-                sourceFiles 
-                |> tcConfig.ComputeCanContainEntryPoint 
-                |> List.zip sourceFiles
-                // PERF: consider making this parallel, once uses of global state relevant to parsing are cleaned up 
-                |> List.choose (fun (filename:string,isLastCompiland:bool) -> 
-                    let pathOfMetaCommandSource = Path.GetDirectoryName(filename)
-                    match ParseOneInputFile(tcConfig,lexResourceManager,["COMPILED"],filename,isLastCompiland,errorLogger,(*retryLocked*)false) with
-                    | Some(input)->Some(input,pathOfMetaCommandSource)
-                    | None -> None
-                    ) 
-            with e -> 
-                errorRecoveryNoRange e
-                SqmLoggerWithConfig tcConfig errorLogger.ErrorNumbers errorLogger.WarningNumbers
-                exiter.Exit 1
-
-        if tcConfig.parseOnly then exiter.Exit 0 
-        if not tcConfig.continueAfterParseFailure then 
-            AbortOnError(errorLogger, tcConfig, exiter)
-
-        if tcConfig.printAst then                
-            inputs |> List.iter (fun (input,_filename) -> printf "AST:\n"; printfn "%+A" input; printf "\n") 
-
-        let tcConfig = (tcConfig,inputs) ||> List.fold ApplyMetaCommandsFromInputToTcConfig 
-        let tcConfigP = TcConfigProvider.Constant(tcConfig)
-
-        ReportTime tcConfig "Import non-system references"
-        let tcGlobals,tcImports =  
-            let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,otherRes,knownUnresolved)
-            tcGlobals,tcImports
-
-        // register tcImports to be disposed in future
-        disposables.Register tcImports
-
-        if not tcConfig.continueAfterParseFailure then 
-            AbortOnError(errorLogger, tcConfig, exiter)
-
-        if tcConfig.importAllReferencesOnly then exiter.Exit 0 
-
-        ReportTime tcConfig "Typecheck"
-        use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.TypeCheck)            
-        let tcEnv0 = GetInitialTcEnv (Some assemblyName, rangeStartup, tcConfig, tcImports, tcGlobals)
-
-        // typecheck 
-        let inputs = inputs |> List.map fst
-        let tcState,topAttrs,typedAssembly,_tcEnvAtEnd = 
-            TypeCheck(tcConfig,tcImports,tcGlobals,errorLogger,assemblyName,NiceNameGenerator(),tcEnv0,inputs,exiter)
-
-        let generatedCcu = tcState.Ccu
+    if tcConfig.parseOnly then exiter.Exit 0 
+    if not tcConfig.continueAfterParseFailure then 
         AbortOnError(errorLogger, tcConfig, exiter)
-        ReportTime tcConfig "Typechecked"
 
-        (tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig)
-                    
-#if INCREMENTAL_BUILD_OPTION
-#else
-    end
-#endif
+    if tcConfig.printAst then                
+        inputs |> List.iter (fun (input,_filename) -> printf "AST:\n"; printfn "%+A" input; printf "\n") 
+
+    let tcConfig = (tcConfig,inputs) ||> List.fold ApplyMetaCommandsFromInputToTcConfig 
+    let tcConfigP = TcConfigProvider.Constant(tcConfig)
+
+    ReportTime tcConfig "Import non-system references"
+    let tcGlobals,tcImports =  
+        let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,otherRes,knownUnresolved)
+        tcGlobals,tcImports
+
+    // register tcImports to be disposed in future
+    disposables.Register tcImports
+
+    if not tcConfig.continueAfterParseFailure then 
+        AbortOnError(errorLogger, tcConfig, exiter)
+
+    if tcConfig.importAllReferencesOnly then exiter.Exit 0 
+
+    ReportTime tcConfig "Typecheck"
+    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.TypeCheck)            
+    let tcEnv0 = GetInitialTcEnv (Some assemblyName, rangeStartup, tcConfig, tcImports, tcGlobals)
+
+    // typecheck 
+    let inputs = inputs |> List.map fst
+    let tcState,topAttrs,typedAssembly,_tcEnvAtEnd = 
+        TypeCheck(tcConfig,tcImports,tcGlobals,errorLogger,assemblyName,NiceNameGenerator(),tcEnv0,inputs,exiter)
+
+    let generatedCcu = tcState.Ccu
+    AbortOnError(errorLogger, tcConfig, exiter)
+    ReportTime tcConfig "Typechecked"
+
     tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger
 
 #if NO_COMPILER_BACKEND
@@ -1051,10 +1027,36 @@ module MainModuleBuilder =
           mkILResources 
             [ for file in tcConfig.embedResources do
                  let name,bytes,pub = 
-                     let file,name,pub = TcConfigBuilder.SplitCommandLineResourceInfo file
-                     let file = tcConfig.ResolveSourceFile(rangeStartup,file,tcConfig.implicitIncludeDir)
-                     let bytes = FileSystem.ReadAllBytesShim file
-                     name,bytes,pub
+                     let lower = String.lowercase file
+                     if List.exists (Filename.checkSuffix lower) [".resx"]  then
+#if COMPILER_SERVICE
+                         failwith "resx arguments not supported in compiler service"
+#else
+                         let file = tcConfig.ResolveSourceFile(rangeStartup,file,tcConfig.implicitIncludeDir)
+                         let outfile = (file |> Filename.chopExtension) + ".resources"
+                         
+                         let readResX(f:string) = 
+                             use rsxr = new System.Resources.ResXResourceReader(f)
+                             rsxr 
+                             |> Seq.cast 
+                             |> Seq.toList
+                             |> List.map (fun (d:System.Collections.DictionaryEntry) -> (d.Key :?> string), d.Value)
+                         let writeResources((r:(string * obj) list),(f:string)) = 
+                             use writer = new System.Resources.ResourceWriter(f)
+                             r |> List.iter (fun (k,v) -> writer.AddResource(k,v))
+                         writeResources(readResX(file),outfile);
+                         let file,name,pub = TcConfigBuilder.SplitCommandLineResourceInfo outfile
+                         let file = tcConfig.ResolveSourceFile(rangeStartup,file,tcConfig.implicitIncludeDir)
+                         let bytes = FileSystem.ReadAllBytesShim file
+                         FileSystem.FileDelete outfile
+                         name,bytes,pub
+#endif
+                     else
+
+                         let file,name,pub = TcConfigBuilder.SplitCommandLineResourceInfo file
+                         let file = tcConfig.ResolveSourceFile(rangeStartup,file,tcConfig.implicitIncludeDir)
+                         let bytes = FileSystem.ReadAllBytesShim file
+                         name,bytes,pub
                  yield { Name=name; 
                          Location=ILResourceLocation.Local (fun () -> bytes); 
                          Access=pub; 
@@ -1175,9 +1177,6 @@ module MainModuleBuilder =
                System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory() + @"default.win32manifest"
         
         let nativeResources = 
-#if NO_NATIVE_RESOURCE_WRITER
-            []
-#else
             [ for av in assemblyVersionResources do
                   yield Lazy.CreateFromValue av
               if not(tcConfig.win32res = "") then
@@ -1185,7 +1184,6 @@ module MainModuleBuilder =
               if tcConfig.includewin32manifest && not(win32Manifest = "") && not(runningOnMono) then
                   yield  Lazy.CreateFromValue [|   yield! ResFileFormat.ResFileHeader() 
                                                    yield! (ManifestResourceFormat.VS_MANIFEST_RESOURCE((FileSystem.ReadAllBytesShim win32Manifest), tcConfig.target = Dll))|]]
-#endif
 
 
         // Add attributes, version number, resources etc. 
@@ -1773,9 +1771,6 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
 
     // See Bug 735819 
     let lcidFromCodePage = 
-#if LIMITED_CONSOLE
-        None
-#else
         if (Console.OutputEncoding.CodePage <> 65001) &&
            (Console.OutputEncoding.CodePage <> Thread.CurrentThread.CurrentUICulture.TextInfo.OEMCodePage) &&
            (Console.OutputEncoding.CodePage <> Thread.CurrentThread.CurrentUICulture.TextInfo.ANSICodePage) then
@@ -1783,7 +1778,6 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
                 Some(1033)
         else
             None
-#endif
 
     let tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger = 
         GetTcImportsFromCommandLine
@@ -1791,10 +1785,9 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
              lcidFromCodePage, 
              // setProcessThreadLocals
              (fun tcConfigB ->
-#if LIMITED_CONSOLE
-                    ()
-#else
+#if COMPILER_SERVICE
                     tcConfigB.openBinariesInMemory <- openBinariesInMemory
+#endif
                     match tcConfigB.lcid with
                     | Some(n) -> Thread.CurrentThread.CurrentUICulture <- new CultureInfo(n)
                     | None -> ()
@@ -1802,9 +1795,8 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
                     if tcConfigB.utf8output then 
                         let prev = Console.OutputEncoding
                         Console.OutputEncoding <- Encoding.UTF8
-                        System.AppDomain.CurrentDomain.ProcessExit.Add(fun _ -> Console.OutputEncoding <- prev)
-#endif
-                            ), (fun tcConfigB -> 
+                        System.AppDomain.CurrentDomain.ProcessExit.Add(fun _ -> Console.OutputEncoding <- prev)), 
+             (fun tcConfigB -> 
                     // display the banner text, if necessary
                     if not bannerAlreadyPrinted then 
                         DisplayBannerText tcConfigB), 
@@ -1813,9 +1805,9 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
              errorLoggerProvider,
              disposables)
 
-    tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger, exiter
+    tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger,exiter
 
-let main1(tcGlobals,tcImports : TcImports,frameworkTcImports,generatedCcu,typedAssembly,topAttrs,tcConfig : TcConfig, outfile,pdbfile,assemblyName,errorLogger, exiter : Exiter) =
+let main1(tcGlobals, tcImports: TcImports, frameworkTcImports, generatedCcu, typedAssembly, topAttrs, tcConfig: TcConfig, outfile, pdbfile, assemblyName, errorLogger, exiter: Exiter) =
 
     if tcConfig.typeCheckOnly then exiter.Exit 0
     
@@ -2059,7 +2051,7 @@ let main4 dynamicAssemblyCreator (Args(tcConfig, errorLogger:ErrorLogger, ilGlob
     use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Output)    
     let outfile = tcConfig.MakePathAbsolute outfile
 
-    let pdbfile = pdbfile |> Option.map ((expandFileNameIfNeeded tcConfig) >> FileSystem.GetFullPathShim)
+    let pdbfile = pdbfile |> Option.map (expandFileNameIfNeeded tcConfig >> FileSystem.GetFullPathShim)
     match dynamicAssemblyCreator with 
     | None -> FileWriter.EmitIL (tcConfig,ilGlobals,errorLogger,outfile,pdbfile,ilxMainModule,signingInfo,exiter)
     | Some da -> da (tcConfig,ilGlobals,errorLogger,outfile,pdbfile,ilxMainModule,signingInfo); 
@@ -2123,11 +2115,11 @@ type InProcCompiler() =
         let exitCode = ref 0
         let exiter = 
             { new Exiter with
-                 member this.Exit n = exitCode := n; raise (StopProcessing None) }
+                 member this.Exit n = exitCode := n; raise StopProcessing }
         try 
             typecheckAndCompile(argv, false, true, exiter, loggerProvider, None, None)
         with 
-            | StopProcessing _ -> ()
+            | StopProcessing -> ()
             | ReportedError _  | WrappedError(ReportedError _,_)  ->
                 exitCode := 1
                 ()

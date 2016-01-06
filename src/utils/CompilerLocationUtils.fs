@@ -13,16 +13,15 @@ open System.Runtime.InteropServices
 module internal FSharpEnvironment =
 
     /// The F# version reported in the banner
-#if NO_STRONG_NAMES
+#if COMPILER_SERVICE
     let DotNetBuildString = "(private)"
-#endif
-#if STRONG_NAME_AND_DELAY_SIGN_FSHARP_COMPILER_WITH_MSFT_KEY
-    let DotNetBuildString = "(Open Source Edition)"
-#endif
-#if STRONG_NAME_FSHARP_COMPILER_WITH_TEST_KEY
-    let DotNetBuildString = "(Open Source Edition)"
-#endif
+#else
+    /// The .NET runtime version that F# was built against (e.g. "v4.0.21104")
+    let DotNetRuntime = sprintf "v%s.%s.%s" Microsoft.BuildSettings.Version.Major Microsoft.BuildSettings.Version.Minor Microsoft.BuildSettings.Version.ProductBuild
 
+    /// The .NET build string that F# was built against (e.g. "4.0.21104.0")
+    let DotNetBuildString = Microsoft.BuildSettings.Version.OfFile
+#endif
 
     let FSharpCoreLibRunningVersion = 
         try match (typeof<Microsoft.FSharp.Collections.List<int>>).Assembly.GetName().Version.ToString() with
@@ -78,16 +77,12 @@ module internal FSharpEnvironment =
     let REG_SZ = 1u
 
     let GetDefaultRegistryStringValueViaDotNet(subKey: string)  =
-#if NO_WIN32_REGISTRY
-        None
-#else
         Option.ofString
             (try
                 downcast Microsoft.Win32.Registry.GetValue("HKEY_LOCAL_MACHINE\\"+subKey,null,null)
              with e->
                 System.Diagnostics.Debug.Assert(false, sprintf "Failed in GetDefaultRegistryStringValueViaDotNet: %s" (e.ToString()))
                 null)
-#endif
 
 // RegistryView.Registry API is not available before .NET 4.0
 #if FX_ATLEAST_40_COMPILER_LOCATION
@@ -146,7 +141,7 @@ module internal FSharpEnvironment =
                 null)
 
     let is32Bit = IntPtr.Size = 4
-
+    
     let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e-> false
 
     let tryRegKey(subKey:string) = 
@@ -189,9 +184,7 @@ module internal FSharpEnvironment =
             None
     
     let internal tryAppConfig (appConfigKey:string) = 
-#if NO_SYSTEM_CONFIG
-        None
-#else
+
         let locationFromAppConfig = ConfigurationSettings.AppSettings.[appConfigKey]
         System.Diagnostics.Debug.Print(sprintf "Considering appConfigKey %s which has value '%s'" appConfigKey locationFromAppConfig) 
 
@@ -202,7 +195,6 @@ module internal FSharpEnvironment =
             let locationFromAppConfig = locationFromAppConfig.Replace("{exepath}", exeAssemblyFolder)
             System.Diagnostics.Debug.Print(sprintf "Using path %s" locationFromAppConfig) 
             Some locationFromAppConfig
-#endif
 
     /// Try to find the F# compiler location by looking at the "fsharpi" script installed by F# packages
     let internal tryFsharpiScript(url:string) =
@@ -254,20 +246,20 @@ module internal FSharpEnvironment =
                 // Note: If the keys below change, be sure to update code in:
                 // Property pages (ApplicationPropPage.vb)
 
-                    let key20 = @"Software\Microsoft\.NETFramework\AssemblyFolders\Microsoft.FSharp-" + FSharpTeamVersionNumber 
-                    let key40a = @"Software\Microsoft\FSharp\4.0\Runtime\v4.0"
-                    let key40b = @"Software\Microsoft\FSharp\3.1\Runtime\v4.0"
-                    let key40c = @"Software\Microsoft\FSharp\2.0\Runtime\v4.0"
-                    let key1,key2,key3,key4 = key40a, key40b, key40c, key20
+                let key20 = @"Software\Microsoft\.NETFramework\AssemblyFolders\Microsoft.FSharp-" + FSharpTeamVersionNumber 
+                let key40a = @"Software\Microsoft\FSharp\4.0\Runtime\v4.0"
+                let key40b = @"Software\Microsoft\FSharp\3.1\Runtime\v4.0"
+                let key40c = @"Software\Microsoft\FSharp\2.0\Runtime\v4.0"
+                let key1,key2,key3,key4 = key40a, key40b, key40c, key20
                 
-                    let result = tryRegKey key1
+                let result = tryRegKey key1
+                match result with 
+                | Some _ ->  result 
+                | None -> 
+                    let result =  tryRegKey key2
                     match result with 
                     | Some _ ->  result 
-                    | None -> 
-                     let result =  tryRegKey key2
-                     match result with 
-                     | Some _ ->  result 
-                     | None ->
+                    | None ->
                       let result =  tryRegKey key3
                       match result with 
                       | Some _ ->  result 
@@ -325,12 +317,12 @@ module internal FSharpEnvironment =
 
     // Check if the framework version 4.5 or above is installed at the given key entry 
     let IsNetFx45OrAboveInstalledAt subkey =
-        try
-            useKey subkey (fun regkey ->
-                match regkey with
-                | null -> false
-                | _ -> regkey.GetValue("Release", 0) :?> int |> (fun s -> s >= 0x50000)) // 0x50000 implies 4.5.0
-        with _ -> false
+      try
+        useKey subkey (fun regkey ->
+            match regkey with
+            | null -> false
+            | _ -> regkey.GetValue("Release", 0) :?> int |> (fun s -> s >= 0x50000)) // 0x50000 implies 4.5.0
+      with _ -> false
 
     // Check if the framework version 4.5 or above is installed
     let IsNetFx45OrAboveInstalled =

@@ -603,7 +603,7 @@ and CheckExprInContext (cenv:cenv) (env:env) expr (context:ByrefCallContext) =
             | OptionalCoerce(Expr.Val(failwithfFunc, _, funcRange)) when valRefEq g failwithfFunc g.failwithf_vref  ->
                 match argsl with
                 | Expr.App (Expr.Val(newFormat, _, _), _, [_; typB; typC; _; _], [Expr.Const(Const.String formatString, formatRange, _)], _) :: xs when valRefEq g newFormat g.new_format_vref ->
-                    match CheckFormatStrings.TryCountFormatStringArguments formatRange g None formatString typB typC with
+                    match CheckFormatStrings.TryCountFormatStringArguments formatRange g formatString typB typC with
                     | Some n ->
                         let expected = n + 1
                         let actual = List.length xs + 1

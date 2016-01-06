@@ -1028,9 +1028,6 @@ type ILAttributeNamedArg = string * ILType * bool * ILAttribElem
 /// to ILAttribElem's as best as possible.  
 type ILAttribute =
     { Method: ILMethodSpec;  
-#if FX_REFLECTION_EMITS_CUSTOM_ATTRIBUTES_USING_BUILDER
-      Arguments: ILAttribElem list * ILAttributeNamedArg list
-#endif
       Data: byte[] }
 
 [<NoEquality; NoComparison; Sealed>]

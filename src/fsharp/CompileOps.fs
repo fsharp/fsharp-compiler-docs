@@ -1440,7 +1440,7 @@ let CollectErrorOrWarning (implicitIncludeDir,showFullPaths,flattenErrors,errorS
     | ReportedError _ -> 
         dprintf "Unexpected ReportedError"  (* this should actually never happen *)
         Seq.empty
-    | StopProcessing _ -> 
+    | StopProcessing -> 
         dprintf "Unexpected StopProcessing"  (* this should actually never happen *)
         Seq.empty
     | _ -> 
@@ -1597,7 +1597,7 @@ let DefaultBasicReferencesForOutOfProjectSources =
 
 #if CROSS_PLATFORM_COMPILER
       // Mono doesn't have System.Runtime available on all versions, or at least the
-      // reference is not foun by reference resolution. This is a temporary 
+      // reference is not found by reference resolution. This is a temporary 
       // but inadequate workaround for that issue.
 #else
       yield "System.Runtime"
@@ -2474,6 +2474,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
                     if v1 = 1us then 
                         warning(Error(FSComp.SR.buildRequiresCLI2(filename),rangeStartup))
                     let clrRoot = Some(Path.GetDirectoryName(FileSystem.GetFullPathShim(filename)))
+
                     clrRoot, (int v1, sprintf "v%d.%d" v1 v2), (v1=5us && v2=0us && v3=5us) // SL5 mscorlib is 5.0.5.0
                 | _ -> 
                     failwith (FSComp.SR.buildCouldNotReadVersionInfoFromMscorlib())
@@ -2674,11 +2675,6 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
         | Some x -> 
             [tcConfig.MakePathAbsolute x]
         | None -> 
-#if NO_MSBUILD_REFERENCE_RESOLUTION
-            []
-#else                    
-            // When running on Mono we lead everyone to believe we're doing .NET 4.0 compilation 
-            // by default. Why? See https://github.com/fsharp/fsharp/issues/99
             if runningOnMono then 
                 [System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()]
             else                                
@@ -2692,7 +2688,6 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
                         [frameworkRootVersion]
                 with e -> 
                     errorRecovery e range0; [] 
-#endif
 
     member tcConfig.ComputeLightSyntaxInitialStatus filename = 
         use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parameter)
@@ -2847,8 +2842,6 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
     // it must return warnings and errors as data
     //
     // NOTE!! if mode=ReportErrors then this method must not raise exceptions. It must just report the errors and recover
-#if NO_MSBUILD_REFERENCE_RESOLUTION
-#else    
     static member TryResolveLibsUsingMSBuildRules (tcConfig:TcConfig,originalReferences:AssemblyReference list, errorAndWarningRange:range, mode:ResolveAssemblyReferenceMode) : AssemblyResolution list * UnresolvedAssemblyReference list =
         use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parameter)
     
@@ -3000,7 +2993,6 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
             else 
                 resultingResolutions,unresolvedReferences |> List.map (fun (name, _, r) -> (name, r)) |> List.map UnresolvedAssemblyReference    
 
-#endif // NO_MSBUILD_REFERENCE_RESOLUTION
 
     member tcConfig.PrimaryAssemblyDllReference() = primaryAssemblyReference
     member tcConfig.GetPrimaryAssemblyCcuInitializer() = primaryAssemblyCcuInitializer
@@ -3280,8 +3272,6 @@ let ParseOneInputLexbuf (tcConfig:TcConfig,lexResourceManager,conditionalCompila
                 if verbose then dprintn ("Parsing... "+shortFilename);
                 let tokenizer = LexFilter.LexFilter(lightSyntaxStatus, tcConfig.compilingFslib, Lexer.token lexargs skip, lexbuf)
 
-#if LIMITED_CONNSOLE
-#else
                 if tcConfig.tokenizeOnly then 
                     while true do 
                         printf "tokenize - getting one token from %s\n" shortFilename;
@@ -3296,7 +3286,6 @@ let ParseOneInputLexbuf (tcConfig:TcConfig,lexResourceManager,conditionalCompila
                         | IDefns(l,m) -> dprintf "Parsed OK, got %d defs @ %a\n" l.Length outputRange m;
                         | IHash (_,m) -> dprintf "Parsed OK, got hash @ %a\n" outputRange m;
                     exit 0;
-#endif
 
                 let res = ParseInput(tokenizer.Lexer,errorLogger,lexbuf,None,filename,isLastCompiland)
 
@@ -4125,11 +4114,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
         let ilScopeRef = dllinfo.ILScopeRef 
         let ilShortAssemName = getNameOfScopeRef ilScopeRef 
         if verbose then dprintn ("Converting F# assembly to F# data structures "+(getNameOfScopeRef ilScopeRef))
-        //let attrs = GetCustomAttributesOfIlModule ilModule 
-        //assert (List.exists IsSignatureDataVersionAttr attrs);
         if verbose then dprintn ("Relinking interface info from F# assembly "+ilShortAssemName)
-        //if not(List.contains ilShortAssemName externalSigAndOptData) then 
-        //    assert (List.exists IsSignatureDataResource resources);
         let optDataReaders = ilModule.GetRawFSharpOptimizationData(m, ilShortAssemName, filename)
 
         let ccuRawDataAndInfos = 

@@ -28,9 +28,6 @@ let showEntryLookups = false
 //---------------------------------------------------------------------
 
 let reportTime =
-#if FX_NO_PROCESS_DIAGNOSTICS
-    (fun _ _ -> ())
-#else
     let tFirst = ref None     
     let tPrev = ref None     
     fun showTimes descr ->
@@ -40,7 +37,6 @@ let reportTime =
             let first = match !tFirst with None -> (tFirst := Some t; t) | Some t -> t
             dprintf "ilwrite: TIME %10.3f (total)   %10.3f (delta) - %s\n" (t - first) (t - prev) descr
             tPrev := Some t
-#endif
 
 //---------------------------------------------------------------------
 // Byte, byte array fragments and other concrete representations
@@ -225,8 +221,6 @@ type PdbData =
 // imperative calls to the Symbol Writer API.
 //---------------------------------------------------------------------
 
-#if NO_PDB_WRITER
-#else
 let WritePdbInfo fixupOverlappingSequencePoints showTimes f fpdb info = 
     (try FileSystem.FileDelete fpdb with _ -> ())
     let pdbw = ref Unchecked.defaultof<PdbWriter>
@@ -339,8 +333,6 @@ let WritePdbInfo fixupOverlappingSequencePoints showTimes f fpdb info =
     pdbClose !pdbw f fpdb;
     reportTime showTimes "PDB: Closed"
     res
-
-#endif
 
 //---------------------------------------------------------------------
 // Support functions for calling 'Mono.CompilerServices.SymbolWriter'
@@ -489,19 +481,6 @@ let DumpDebugInfo (outfile:string) (info:PdbData) =
 // Strong name signing
 //---------------------------------------------------------------------
 
-#if NO_STRONGNAME_SIGNER
-type ILStrongNameSigner =  
-    | NeverImplemented
-    static member OpenPublicKeyFile (_s:string) = NeverImplemented
-    static member OpenPublicKey (_pubkey:byte[]) = NeverImplemented
-    static member OpenKeyPairFile (_s:string) = NeverImplemented
-    static member OpenKeyContainer (_s:string) = NeverImplemented
-    member s.Close() = ()      
-    member s.IsFullySigned = true
-    member s.PublicKey =  [| |]
-    member s.SignatureSize = 0x80 
-    member s.SignFile _file = ()
-#else
 type ILStrongNameSigner =  
     | PublicKeySigner of Support.pubkey
     | KeyPair of Support.keyPair
@@ -543,8 +522,6 @@ type ILStrongNameSigner =
         | PublicKeySigner _ -> ()
         | KeyPair kp -> Support.signerSignFileWithKeyPair file kp
         | KeyContainer kn -> Support.signerSignFileWithKeyContainer file kn
-
-#endif
 
 //---------------------------------------------------------------------
 // TYPES FOR TABLES
@@ -4072,9 +4049,6 @@ let writeBinaryAndReportMappings (outfile, ilg, pdbfile: string option, signer: 
           let dataSectionAddr = next
           let dataSectionVirtToPhys v = v - dataSectionAddr + dataSectionPhysLoc
           
-#if NO_NATIVE_RESOURCES
-          let nativeResources = [| |]
-#else
           let resourceFormat = if modul.Is64Bit then Support.X64 else Support.X86
           
           let nativeResources = 
@@ -4089,7 +4063,6 @@ let writeBinaryAndReportMappings (outfile, ilg, pdbfile: string option, signer: 
                     try linkNativeResources unlinkedResources next resourceFormat (Path.GetDirectoryName(outfile))
                     with e -> failwith ("Linking a native resource failed: "+e.Message+"")
                   end
-#endif
                 
           let nativeResourcesSize = nativeResources.Length
 
@@ -4511,8 +4484,6 @@ let writeBinaryAndReportMappings (outfile, ilg, pdbfile: string option, signer: 
     if dumpDebugInfo then 
         DumpDebugInfo outfile pdbData
 
-#if NO_PDB_WRITER
-#else
     // Now we've done the bulk of the binary, do the PDB file and fixup the binary. 
     begin match pdbfile with
     | None -> ()
@@ -4559,7 +4530,6 @@ let writeBinaryAndReportMappings (outfile, ilg, pdbfile: string option, signer: 
             reraise()
             
     end
-#endif
     reportTime showTimes "Finalize PDB"
 
     /// Sign the binary.  No further changes to binary allowed past this point! 

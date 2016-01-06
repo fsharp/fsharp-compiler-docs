@@ -31,10 +31,6 @@ module internal MSBuildResolver =
         | RuntimeLike 
         | DesigntimeLike
     
-#if NO_MSBUILD_REFERENCE_RESOLUTION
-    let HighestInstalledNetFrameworkVersionMajorMinor() =
-        4,"v5.0"
-#else
 
     /// Information about a resolved file.
     type ResolvedFile = 
@@ -357,7 +353,8 @@ module internal MSBuildResolver =
 #else
         rar.TargetedRuntimeVersion <- targetedRuntimeVersionValue
         rar.CopyLocalDependenciesWhenParentReferenceInGac <- true
-#endif
+#endif        
+        
 #endif
 
         let succeeded = rar.Execute()
@@ -423,5 +420,3 @@ module internal MSBuildResolver =
             referenceCopyLocalPaths = set rootedResults.referenceCopyLocalPaths |> Set.union (set unrootedResults.referenceCopyLocalPaths) |> Set.toArray 
             suggestedBindingRedirects = set rootedResults.suggestedBindingRedirects |> Set.union (set unrootedResults.suggestedBindingRedirects) |> Set.toArray 
         }
-
-#endif

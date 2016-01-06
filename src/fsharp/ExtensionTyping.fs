@@ -405,7 +405,7 @@ module internal ExtensionTyping =
                             let namedArgs = 
                                 a.NamedArguments 
                                 |> Seq.toList 
-                                |> List.map (fun arg -> arg.MemberName, match arg.TypedValue with Arg null -> None | Arg obj -> Some obj | _ -> None)
+                                |> List.map (fun arg -> arg.MemberInfo.Name, match arg.TypedValue with Arg null -> None | Arg obj -> Some obj | _ -> None)
                             ctorArgs, namedArgs)
 
                   member __.GetHasTypeProviderEditorHideMethodsAttribute provider = 

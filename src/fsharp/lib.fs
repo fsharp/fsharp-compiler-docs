@@ -17,11 +17,7 @@ let progress = ref false
 let tracking = ref false // intended to be a general hook to control diagnostic output when tracking down bugs
 
 let condition _s = 
-#if FX_NO_GET_ENVIRONMENT_VARIABLE
-    false
-#else    
     try (System.Environment.GetEnvironmentVariable(_s) <> null) with _ -> false
-#endif    
 
 let GetEnvInteger e dflt = match System.Environment.GetEnvironmentVariable(e) with null -> dflt | t -> try int t with _ -> dflt
 

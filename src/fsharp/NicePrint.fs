@@ -1061,7 +1061,6 @@ module private PrintTypes =
         nameL ^^ wordL ":" ^^ tauL
 
 
-
     let layoutPrettyType denv typ = 
         let _,typ,cxs = PrettyTypes.PrettifyTypes1 denv.g typ
         let env = SimplifyTypes.CollectInfo true [typ] cxs

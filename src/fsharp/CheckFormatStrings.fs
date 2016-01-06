@@ -297,9 +297,9 @@ let ParseFormatString m g source fmt bty cty dty =
     let ety = mkTupledTy g argtys
     (aty, ety), specifierLocations 
 
-let TryCountFormatStringArguments m g source fmt bty cty =
+let TryCountFormatStringArguments m g fmt bty cty =
     try
-        let argtys, _specifierLocations = parseFormatStringInternal m g source fmt bty cty
+        let argtys, _specifierLocations = parseFormatStringInternal m g None fmt bty cty
         Some argtys.Length
     with _ ->
         None

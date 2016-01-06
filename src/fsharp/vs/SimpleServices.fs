@@ -136,7 +136,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         let tryCompile errorLogger f = 
             use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
             use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
-            let exiter = { new Exiter with member x.Exit n = raise (StopProcessing None) }
+            let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
             try 
                 f exiter
                 0

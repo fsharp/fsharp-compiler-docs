@@ -628,27 +628,6 @@ module Eventually =
     let force e = Option.get (forceWhile (fun () -> true) e)
         
     /// Keep running the computation bit by bit until a time limit is reached.
-#if FX_NO_SYSTEM_DIAGNOSTICS_STOPWATCH
-    // There is no Stopwatch on Silverlight, so use DateTime.Now. I'm not sure of the pros and cons of this.
-    // An alternative is just to always force the computation all the way to the end.
-    //let repeatedlyProgressUntilDoneOrTimeShareOver _timeShareInMilliseconds runner e = 
-    //    Done (runner (fun () -> force e))
-    let repeatedlyProgressUntilDoneOrTimeShareOver (timeShareInMilliseconds:int64) runner e = 
-        let rec runTimeShare e = 
-          runner (fun () -> 
-            let sw = System.DateTime.Now
-            let rec loop e = 
-                match e with 
-                | Done _ -> e
-                | NotYetDone (work) -> 
-                    let ts = System.DateTime.Now - sw 
-                    if ts.TotalMilliseconds > float timeShareInMilliseconds then 
-                        NotYetDone(fun () -> runTimeShare e) 
-                    else 
-                        loop(work())
-            loop e)
-        runTimeShare e
-#else    
     /// The runner gets called each time the computation is restarted
     let repeatedlyProgressUntilDoneOrTimeShareOver timeShareInMilliseconds runner e = 
         let sw = new System.Diagnostics.Stopwatch() 
@@ -667,7 +646,6 @@ module Eventually =
                         loop(work())
             loop(e))
         runTimeShare e
-#endif
 
     let rec bind k e = 
         match e with 
@@ -990,81 +968,6 @@ module Shim =
         abstract AssemblyLoadFrom: fileName:string -> System.Reflection.Assembly 
         abstract AssemblyLoad: assemblyName:System.Reflection.AssemblyName -> System.Reflection.Assembly 
 
-#if FX_FILE_SYSTEM_USES_ISOLATED_STORAGE
-    open System.IO.IsolatedStorage
-    open System.Windows
-    open System
-
-    type DefaultFileSystem() =
-        interface IFileSystem with
-            member this.ReadAllBytesShim (fileName:string) = 
-                use stream = this.FileStreamReadShim fileName
-                let len = stream.Length
-                let buf = Array.zeroCreate<byte> (int len)
-                stream.Read(buf, 0, (int len)) |> ignore                                            
-                buf
-
-
-            member this.AssemblyLoadFrom(fileName:string) = 
-                  let load() = 
-                      let assemblyPart = System.Windows.AssemblyPart()
-                      let assemblyStream = this.FileStreamReadShim(fileName)
-                      assemblyPart.Load(assemblyStream)
-                  if System.Windows.Deployment.Current.Dispatcher.CheckAccess() then 
-                      load() 
-                  else
-                      let resultTask = System.Threading.Tasks.TaskCompletionSource<System.Reflection.Assembly>()
-                      System.Windows.Deployment.Current.Dispatcher.BeginInvoke(Action(fun () -> resultTask.SetResult (load()))) |> ignore
-                      resultTask.Task.Result
-
-            member this.AssemblyLoad(assemblyName:System.Reflection.AssemblyName) = 
-                try 
-                   System.Reflection.Assembly.Load(assemblyName.FullName)
-                with e -> 
-                    this.AssemblyLoadFrom(assemblyName.Name + ".dll")
-
-            member __.FileStreamReadShim (fileName:string) = 
-                match Application.GetResourceStream(System.Uri(fileName,System.UriKind.Relative)) with 
-                | null -> IsolatedStorageFile.GetUserStoreForApplication().OpenFile(fileName, System.IO.FileMode.Open) :> System.IO.Stream 
-                | resStream -> resStream.Stream
-
-            member __.FileStreamCreateShim (fileName:string) = 
-                System.IO.IsolatedStorage.IsolatedStorageFile.GetUserStoreForApplication().CreateFile(fileName) :> Stream
-
-            member __.FileStreamWriteExistingShim (fileName:string) = 
-                let isf = System.IO.IsolatedStorage.IsolatedStorageFile.GetUserStoreForApplication()
-                new System.IO.IsolatedStorage.IsolatedStorageFileStream(fileName,FileMode.Open,FileAccess.Write,isf) :> Stream
-
-            member __.GetFullPathShim (fileName:string) = fileName
-            member __.IsPathRootedShim (pathName:string) = true
-
-            member __.IsInvalidPathShim(path:string) = 
-                let isInvalidPath(p:string) = 
-                    String.IsNullOrEmpty(p) || p.IndexOfAny(System.IO.Path.GetInvalidPathChars()) <> -1
-
-                let isInvalidDirectory(d:string) = 
-                    d=null || d.IndexOfAny(Path.GetInvalidPathChars()) <> -1
-
-                isInvalidPath (path) || 
-                let directory = Path.GetDirectoryName(path)
-                let filename = Path.GetFileName(path)
-                isInvalidDirectory(directory) || isInvalidPath(filename)
-
-            member __.GetTempPathShim() = "." 
-
-            member __.GetLastWriteTimeShim (fileName:string) = 
-                match Application.GetResourceStream(System.Uri(fileName,System.UriKind.Relative)) with 
-                | null -> IsolatedStorageFile.GetUserStoreForApplication().GetLastAccessTime(fileName).LocalDateTime
-                | _resStream -> System.DateTime.Today.Date
-            member __.SafeExists (fileName:string) = 
-                match Application.GetResourceStream(System.Uri(fileName,System.UriKind.Relative)) with 
-                | null -> IsolatedStorageFile.GetUserStoreForApplication().FileExists fileName
-                | resStream -> resStream.Stream <> null
-            member __.FileDelete (fileName:string) = 
-                match Application.GetResourceStream(System.Uri(fileName,System.UriKind.Relative)) with 
-                | null -> IsolatedStorageFile.GetUserStoreForApplication().DeleteFile fileName
-                | _resStream -> ()
-#else
 
     type DefaultFileSystem() =
         interface IFileSystem with
@@ -1104,14 +1007,9 @@ module Shim =
             member __.GetLastWriteTimeShim (fileName:string) = File.GetLastWriteTime fileName
             member __.SafeExists (fileName:string) = System.IO.File.Exists fileName 
             member __.FileDelete (fileName:string) = System.IO.File.Delete fileName
-#endif
 
     type System.Text.Encoding with 
         static member GetEncodingShim(n:int) = 
-#if FX_NO_GET_ENCODING_BY_INTEGER
-                System.Text.Encoding.GetEncoding(n.ToString())
-#else                
                 System.Text.Encoding.GetEncoding(n)
-#endif                
 
     let mutable FileSystem = DefaultFileSystem() :> IFileSystem 

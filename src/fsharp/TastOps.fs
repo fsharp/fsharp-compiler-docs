@@ -7766,8 +7766,8 @@ let (|CompiledForEachExpr|_|) g expr =
                       enumerableVar.IsCompilerGenerated &&
                       enumeratorVar.IsCompilerGenerated &&
                       (let fvs = (freeInExpr CollectLocals bodyExpr)
-                       not (Zset.contains enumerableVar fvs.FreeLocals) && 
-                       not (Zset.contains enumeratorVar fvs.FreeLocals)) ->
+                      not (Zset.contains enumerableVar fvs.FreeLocals) && 
+                      not (Zset.contains enumeratorVar fvs.FreeLocals)) ->
 
         // Extract useful ranges
         let m = enumerableExpr.Range
@@ -7787,6 +7787,7 @@ let (|CompiledInt32RangeForEachExpr|_|) g expr =
         Some (startExpr, step, finishExpr, elemVar, bodyExpr, ranges)
         | _ -> None
     | _ -> None
+
 
 type OptimizeForExpressionOptions = OptimizeIntRangesOnly | OptimizeAllForExpressions
 

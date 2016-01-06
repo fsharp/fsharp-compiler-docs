@@ -415,7 +415,7 @@ type TokenTup =
     val Token : token
     val LexbufState : LexbufState
     val LastTokenPos: PositionTuple
-    new (token,state,lastTokenPos) = { Token=token; LexbufState=state; LastTokenPos=lastTokenPos }
+    new (token,state,lastTokenPos) = { Token=token; LexbufState=state;LastTokenPos=lastTokenPos }
     
     /// Returns starting position of the token
     member x.StartPos = x.LexbufState.StartPos

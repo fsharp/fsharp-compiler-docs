@@ -145,9 +145,6 @@ module internal ExtensionTyping =
         abstract GetDefinitionLocationAttribute : provider:ITypeProvider -> (string * int * int) option 
         abstract GetXmlDocAttributes : provider:ITypeProvider -> string[]
         abstract GetAttributeConstructorArgs: provider:ITypeProvider * attribName:string -> (obj option list * (string * obj option) list) option
-#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
-        abstract GetAttributes: provider:ITypeProvider -> System.Reflection.CustomAttributeData list
-#endif
         
     and [<AllowNullLiteral; Sealed; Class>] 
         ProvidedAssembly = 

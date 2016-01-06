@@ -38,8 +38,9 @@ let rec findOriginalException err =
 
 
 /// Thrown when we stop processing the F# Interactive entry or #load.
-exception StopProcessing of exn option
-
+exception StopProcessingExn of exn option
+let (|StopProcessing|_|) exn = match exn with StopProcessingExn _ -> Some () | _ -> None
+let StopProcessing<'T> = StopProcessingExn None
 
 (* common error kinds *)
 exception NumberedError of (int * string) * range with   // int is e.g. 191 in FS0191
@@ -109,13 +110,10 @@ type Exiter =
 let QuitProcessExiter = 
     { new Exiter with 
         member x.Exit(n) =                    
-#if FX_NO_SYSTEM_ENVIRONMENT_EXIT
-#else                    
             try 
               System.Environment.Exit(n)
             with _ -> 
               ()            
-#endif              
             failwithf "%s" <| FSComp.SR.elSysEnvExitDidntExit() }
 
 /// Closed enumeration of build phases.
@@ -282,8 +280,6 @@ type internal CompileThreadStatic =
 module ErrorLoggerExtensions = 
     open System.Reflection
 
-#if NO_WATSON_DUMPS
-#else
     // Instruct the exception not to reset itself when thrown again.
     // Why don?t we just not catch these in the first place? Because we made the design choice to ask the user to send mail to fsbugs@microsoft.com. 
     // To achieve this, we need to catch the exception, report the email address and stack trace, and then reraise. 
@@ -310,11 +306,10 @@ module ErrorLoggerExtensions =
             PreserveStackTrace(exn)
             raise exn
         | _ -> ()
-#endif
 
     type ErrorLogger with  
-        member x.ErrorR  exn = match exn with StopProcessing _ | ReportedError _ -> raise exn | _ -> x.ErrorSink(PhasedError.Create(exn,CompileThreadStatic.BuildPhase))
-        member x.Warning exn = match exn with StopProcessing _ | ReportedError _ -> raise exn | _ -> x.WarnSink(PhasedError.Create(exn,CompileThreadStatic.BuildPhase))
+        member x.ErrorR  exn = match exn with StopProcessing | ReportedError _ -> raise exn | _ -> x.ErrorSink(PhasedError.Create(exn,CompileThreadStatic.BuildPhase))
+        member x.Warning exn = match exn with StopProcessing | ReportedError _ -> raise exn | _ -> x.WarnSink(PhasedError.Create(exn,CompileThreadStatic.BuildPhase))
         member x.Error   exn = x.ErrorR exn; raise (ReportedError (Some exn))
         member x.PhasedError   (ph:PhasedError) = 
             x.ErrorSink ph
@@ -326,14 +321,11 @@ module ErrorLoggerExtensions =
             (* Don't send ThreadAbortException down the error channel *)
             | :? System.Threading.ThreadAbortException | WrappedError((:? System.Threading.ThreadAbortException),_) ->  ()
             | ReportedError _  | WrappedError(ReportedError _,_)  -> ()
-            | StopProcessing _ | WrappedError(StopProcessing _,_) -> raise exn
+            | StopProcessing | WrappedError(StopProcessing,_) -> raise exn
             | _ ->
                 try  
                     x.ErrorR (AttachRange m exn) // may raise exceptions, e.g. an fsi error sink raises StopProcessing.
-#if NO_WATSON_DUMPS
-#else
                     ReraiseIfWatsonable(exn)
-#endif
                 with
                   | ReportedError _ | WrappedError(ReportedError _,_)  -> ()
         member x.StopProcessingRecovery (exn:exn) (m:range) =
@@ -342,11 +334,11 @@ module ErrorLoggerExtensions =
             // Additionally ignore/catch ReportedError.
             // Can throw other exceptions raised by the ErrorSink(exn) handler.         
             match exn with
-            | StopProcessing _ | WrappedError(StopProcessing _,_) -> () // suppress, so skip error recovery.
+            | StopProcessing | WrappedError(StopProcessing,_) -> () // suppress, so skip error recovery.
             | _ ->
                 try  x.ErrorRecovery exn m
                 with
-                  | StopProcessing _ | WrappedError(StopProcessing _,_) -> () // catch, e.g. raised by ErrorSink.
+                  | StopProcessing | WrappedError(StopProcessing,_) -> () // catch, e.g. raised by ErrorSink.
                   | ReportedError _ | WrappedError(ReportedError _,_)  -> () // catch, but not expected unless ErrorRecovery is changed.
         member x.ErrorRecoveryNoRange (exn:exn) =
             x.ErrorRecovery exn range0

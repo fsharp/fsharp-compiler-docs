@@ -2638,9 +2638,6 @@ let rec evalFSharpAttribArg g e =
 type AttribInfo = 
     | FSAttribInfo of TcGlobals * Attrib
     | ILAttribInfo of TcGlobals * Import.ImportMap * ILScopeRef * ILAttribute * range
-#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
-    | ProvAttribInfo of Import.ImportMap * Tainted<System.Reflection.CustomAttributeData> * range
-#endif
 
     member x.TyconRef = 
          match x with 
@@ -2648,12 +2645,6 @@ type AttribInfo =
          | ILAttribInfo (g, amap, scoref, a, m) -> 
              let ty = ImportType scoref amap m [] a.Method.EnclosingType
              tcrefOfAppTy g ty
-#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
-         | ProvAttribInfo(amap, cdata, m) -> 
-             let pty = cdata.PApply((fun a -> a.AttributeType),m) 
-             let ty = Import.ImportProvidedType amap m pty
-             tcrefOfAppTy g ty
-#endif
 
     member x.ConstructorArguments = 
          match x with 
@@ -2721,13 +2712,7 @@ module AttributeChecking =
 #if EXTENSIONTYPING
         // TODO: provided attributes
         | ProvidedMeth (_,_mi,_,_m) -> 
-#if EXPOSE_ATTRIBS_OF_PROVIDED_SYMBOLS
-              let provAttribs = mi.PApply((fun st -> (st :> IProvidedCustomAttributeProvider)),m)
-              let cas = provAttribs.PUntaint((fun a -> a.GetAttributes(provAttribs.TypeProvider.PUntaintNoFailure(id))),m) 
-              cas |> AttribInfosOfProvided g 
-#else
               []
-#endif
 
 #endif
 

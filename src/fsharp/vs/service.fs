@@ -92,7 +92,7 @@ module internal Params =
         let initial = ParamOfRecdField g denv f
         let description = if isGenerated i f then initial.Description else NicePrint.stringOfParamData denv (ParamData(false, false, NotOptional, Some f.rfield_id, ReflectedArgInfo.None, f.rfield_type)) 
         FSharpMethodGroupItemParameter(
-          name=initial.Name, 
+          name=initial.ParameterName, 
           canonicalTypeTextForSorting=initial.CanonicalTypeTextForSorting, 
           display=initial.Display,
           description=description)

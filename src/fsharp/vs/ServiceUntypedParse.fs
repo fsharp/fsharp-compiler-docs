@@ -90,7 +90,7 @@ type FSharpParseFileResults(errors : FSharpErrorInfo[], input : Ast.ParsedInput 
 
     member scope.FindNoteworthyParamInfoLocations(pos) = 
         match input with
-        | Some(input) -> NoteworthyParamInfoLocations.Find(pos,input)
+        | Some(input) -> FSharpNoteworthyParamInfoLocations.Find(pos,input)
         | _ -> None
     
     /// Get declared items and the selected item at the specified location

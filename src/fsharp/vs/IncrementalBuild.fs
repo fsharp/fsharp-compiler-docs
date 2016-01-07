@@ -1705,7 +1705,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
                         else MSBuildResolver.CompileTimeLike
                 
                 tcConfigB.conditionalCompilationDefines <- 
-                    let define = if useScriptResolutionRules then "INTERACTIVE" else "MPILED"
+                    let define = if useScriptResolutionRules then "INTERACTIVE" else "COMPILED"
                     define::tcConfigB.conditionalCompilationDefines
 
                 tcConfigB.projectReferences <- projectReferences

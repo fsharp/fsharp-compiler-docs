@@ -67,7 +67,7 @@ and [<Sealed>]  FSharpObjectExprOverride =
     /// The generic parameters of the method
     member GenericParameters : FSharpGenericParameter list
     /// The parameters of the method
-    member CurriedParameterGroups : FSharpMemberFunctionOrValue list list
+    member CurriedParameterGroups : FSharpMemberOrFunctionOrValue list list
     /// The expression that forms the body of the method
     member Body : FSharpExpr
 
@@ -101,10 +101,10 @@ module BasicPatterns =
 
     /// Matches expressions which are calls to members or module-defined functions. When calling curried functions and members the
     /// arguments are collapsed to a single collection of arguments, as done in the compiled version of these.
-    val (|Call|_|) : FSharpExpr -> (FSharpExpr option * FSharpMemberFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list) option 
+    val (|Call|_|) : FSharpExpr -> (FSharpExpr option * FSharpMemberOrFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list) option 
 
     /// Matches expressions which are calls to object constructors 
-    val (|NewObject|_|) : FSharpExpr -> (FSharpMemberFunctionOrValue * FSharpType list * FSharpExpr list) option 
+    val (|NewObject|_|) : FSharpExpr -> (FSharpMemberOrFunctionOrValue * FSharpType list * FSharpExpr list) option 
 
     /// Matches expressions which are uses of the 'this' value
     val (|ThisValue|_|) : FSharpExpr -> FSharpType  option

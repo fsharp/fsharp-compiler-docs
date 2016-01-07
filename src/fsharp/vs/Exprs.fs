@@ -134,11 +134,11 @@ module ExprTranslationImpl =
 /// The core tree of data produced by converting F# compiler TAST expressions into the form which we make available through the compiler API
 /// through active patterns.
 type E =
-    | Value  of FSharpMemberFunctionOrValue
+    | Value  of FSharpMemberOrFunctionOrValue
     | ThisValue  of FSharpType 
     | BaseValue  of FSharpType 
     | Application of FSharpExpr * FSharpType list * FSharpExpr list  
-    | Lambda of FSharpMemberFunctionOrValue * FSharpExpr  
+    | Lambda of FSharpMemberOrFunctionOrValue * FSharpExpr  
     | TypeLambda of FSharpGenericParameter list * FSharpExpr  
     | Quote  of FSharpExpr  
     | IfThenElse   of FSharpExpr * FSharpExpr * FSharpExpr  
@@ -146,8 +146,8 @@ type E =
     | DecisionTreeSuccess of int * FSharpExpr list
     | Call of FSharpExpr option * FSharpMemberOrFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list 
     | NewObject of FSharpMemberOrFunctionOrValue * FSharpType list * FSharpExpr list 
-    | LetRec of ( FSharpMemberFunctionOrValue * FSharpExpr) list * FSharpExpr  
-    | Let of (FSharpMemberFunctionOrValue * FSharpExpr) * FSharpExpr 
+    | LetRec of ( FSharpMemberOrFunctionOrValue * FSharpExpr) list * FSharpExpr  
+    | Let of (FSharpMemberOrFunctionOrValue * FSharpExpr) * FSharpExpr 
     | NewRecord of FSharpType * FSharpExpr list 
     | ObjectExpr of FSharpType * FSharpExpr * FSharpObjectExprOverride list * (FSharpType * FSharpObjectExprOverride list) list
     | FSharpFieldGet of  FSharpExpr option * FSharpType * FSharpField 
@@ -173,14 +173,14 @@ type E =
     | FastIntegerForLoop of FSharpExpr * FSharpExpr * FSharpExpr * bool
     | WhileLoop of FSharpExpr * FSharpExpr  
     | TryFinally of FSharpExpr * FSharpExpr  
-    | TryWith of FSharpExpr * FSharpMemberFunctionOrValue * FSharpExpr * FSharpMemberFunctionOrValue * FSharpExpr  
+    | TryWith of FSharpExpr * FSharpMemberOrFunctionOrValue * FSharpExpr * FSharpMemberOrFunctionOrValue * FSharpExpr  
     | NewDelegate of FSharpType * FSharpExpr  
     | ILFieldGet of FSharpExpr option * FSharpType * string 
     | ILFieldSet of FSharpExpr option * FSharpType * string  * FSharpExpr 
     | ILAsm of string * FSharpType list * FSharpExpr list
 
 /// Used to represent the information at an object expression member 
-and [<Sealed>]  FSharpObjectExprOverride(sgn: FSharpAbstractSignature, gps: FSharpGenericParameter list, args:FSharpMemberFunctionOrValue list list, body: FSharpExpr) = 
+and [<Sealed>]  FSharpObjectExprOverride(sgn: FSharpAbstractSignature, gps: FSharpGenericParameter list, args:FSharpMemberOrFunctionOrValue list list, body: FSharpExpr) = 
     member __.Signature = sgn
     member __.GenericParameters = gps
     member __.CurriedParameterGroups = args
@@ -435,7 +435,7 @@ module FSharpExprConvert =
                 let callArgs = (objArgs::untupledCurriedArgs) |> List.concat
                 let enclTyArgs, methTyArgs = List.splitAfter numEnclTypeArgs tyargs
                 // tailcall
-                ConvObjectModelCallLinear cenv env (isNewObj, FSharpMemberFunctionOrValue(cenv,vref), enclTyArgs, methTyArgs, callArgs) contf2
+                ConvObjectModelCallLinear cenv env (isNewObj, FSharpMemberOrFunctionOrValue(cenv,vref), enclTyArgs, methTyArgs, callArgs) contf2
             else
                 let v = FSharpMemberOrFunctionOrValue(cenv, vref)
                 // tailcall
@@ -752,7 +752,7 @@ module FSharpExprConvert =
             let envinner = env.BindVal v
             Some(vR,rhsR),envinner
 
-    and ConvObjectModelCallLinear cenv env (isNewObj, v:FSharpMemberFunctionOrValue, enclTyArgs, methTyArgs,callArgs) contf =
+    and ConvObjectModelCallLinear cenv env (isNewObj, v:FSharpMemberOrFunctionOrValue, enclTyArgs, methTyArgs,callArgs) contf =
         let enclTyArgsR = ConvTypes cenv enclTyArgs
         let methTyArgsR = ConvTypes cenv methTyArgs
         let obj, callArgs = 
@@ -802,11 +802,11 @@ module FSharpExprConvert =
         elif v.BaseOrThisInfo = BaseVal then 
             E.BaseValue(ConvType cenv v.Type) 
         else 
-            E.Value(FSharpMemberFunctionOrValue(cenv, vref)) 
+            E.Value(FSharpMemberOrFunctionOrValue(cenv, vref)) 
 
     and ConvVal cenv (v:Val) =  
         let vref = mkLocalValRef v 
-        FSharpMemberFunctionOrValue(cenv,  vref) 
+        FSharpMemberOrFunctionOrValue(cenv,  vref) 
 
     and ConvConst cenv env m c ty =
         match TryEliminateDesugaredConstants cenv.g m c with 

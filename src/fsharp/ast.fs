@@ -154,7 +154,7 @@ type LongIdentWithDots =
     /// if dotms.Length = lid.Length, then the parser must have reported an error, so the typechecker is allowed
     /// more freedom about typechecking these expressions.
     /// LongIdent can be empty list - it is used to denote that name of some AST element is absent (i.e. empty type name in inherit)
-    | LongIdentWithDots of LongIdent * range list
+    | LongIdentWithDots of id:LongIdent * dotms:range list
     with member this.Range =
             match this with
             | LongIdentWithDots([],_) -> failwith "rangeOfLidwd"
@@ -182,7 +182,7 @@ type TyparStaticReq =
 
 [<NoEquality; NoComparison>]
 type SynTypar = 
-    | Typar of Ident * TyparStaticReq * (* isCompGen: *) bool 
+    | Typar of id:Ident * staticReq:TyparStaticReq * isCompGen:bool 
     with member this.Range =
             match this with
             | Typar(id,_,_) ->
@@ -231,19 +231,19 @@ type
     /// UserNum(value, suffix)
     ///
     /// F# syntax: 1Q, 1Z, 1R, 1N, 1G
-    | UserNum of ( string * string)
+    | UserNum of  (string * string)
     /// F# syntax: verbatim or regular string, e.g. "abc"
-    | String of string * range 
+    | String of text:string * range:range 
     /// F# syntax: verbatim or regular byte string, e.g. "abc"B.
     ///
     /// Also used internally in the typechecker once an array of unit16 constants 
     /// is detected, to allow more efficient processing of large arrays of uint16 constants. 
-    | Bytes of byte[] * range 
+    | Bytes of bytes:byte[] * range:range 
     /// Used internally in the typechecker once an array of unit16 constants 
     /// is detected, to allow more efficient processing of large arrays of uint16 constants. 
     | UInt16s of uint16[] 
     /// Old comment: "we never iterate, so the const here is not another SynConst.Measure"
-    | Measure of SynConst * SynMeasure 
+    | Measure of constant:SynConst * SynMeasure 
     member c.Range dflt = 
         match c with 
         | SynConst.String (_,m0) | SynConst.Bytes (_,m0) -> m0 
@@ -254,14 +254,14 @@ and
     /// The unchecked abstract syntax tree of F# unit of measure annotations. 
     /// This should probably be merged with the representation of SynType.
     SynMeasure = 
-    | Named of LongIdent * range
-    | Product of SynMeasure * SynMeasure * range
-    | Seq of SynMeasure list * range
-    | Divide of SynMeasure * SynMeasure * range
-    | Power of SynMeasure * SynRationalConst * range
+    | Named of longId:LongIdent * range:range
+    | Product of SynMeasure * SynMeasure * range:range
+    | Seq of SynMeasure list * range:range
+    | Divide of SynMeasure * SynMeasure * range:range
+    | Power of SynMeasure * SynRationalConst * range:range
     | One 
     | Anon of range
-    | Var of SynTypar * range
+    | Var of SynTypar * range:range
 
 and
     [<NoEquality; NoComparison; RequireQualifiedAccess>]
@@ -371,7 +371,7 @@ type
     [<NoEquality; NoComparison>]
     /// Represents the explicit declaration of a type parameter
     SynTyparDecl = 
-    | TyparDecl of SynAttributes * SynTypar
+    | TyparDecl of attributes:SynAttributes * SynTypar
 
 
 and 
@@ -379,27 +379,27 @@ and
     /// The unchecked abstract syntax tree of F# type constraints
     SynTypeConstraint =
     /// F# syntax : is 'typar : struct
-    | WhereTyparIsValueType of SynTypar * range
+    | WhereTyparIsValueType of genericName:SynTypar * range:range
     /// F# syntax : is 'typar : not struct
-    | WhereTyparIsReferenceType of SynTypar * range
+    | WhereTyparIsReferenceType of genericName:SynTypar * range:range
     /// F# syntax is 'typar : unmanaged
-    | WhereTyparIsUnmanaged of SynTypar * range
+    | WhereTyparIsUnmanaged of genericName:SynTypar * range:range
     /// F# syntax is 'typar : null
-    | WhereTyparSupportsNull of SynTypar * range
+    | WhereTyparSupportsNull of genericName:SynTypar * range:range
     /// F# syntax is 'typar : comparison 
-    | WhereTyparIsComparable of SynTypar * range
+    | WhereTyparIsComparable of genericName:SynTypar * range:range
     /// F# syntax is 'typar : equality
-    | WhereTyparIsEquatable of SynTypar * range
+    | WhereTyparIsEquatable of genericName:SynTypar * range:range
     /// F# syntax is default ^T : type
-    | WhereTyparDefaultsToType of SynTypar * SynType * range
+    | WhereTyparDefaultsToType of genericName:SynTypar * typeSig:SynType * range:range
     /// F# syntax is 'typar :> type
-    | WhereTyparSubtypeOfType of SynTypar *  SynType * range
+    | WhereTyparSubtypeOfType of genericName:SynTypar *  typeSig:SynType * range:range
     /// F# syntax is ^T : (static member MemberName : ^T * int -> ^T) 
-    | WhereTyparSupportsMember of SynTypar list * SynMemberSig * range
+    | WhereTyparSupportsMember of genericNames:SynTypar list * memberSig:SynMemberSig * range:range
     /// F# syntax is 'typar : enum<'UnderlyingType>
-    | WhereTyparIsEnum of SynTypar * SynType list * range
+    | WhereTyparIsEnum of genericName:SynTypar * enumTypes:SynType list * range:range
     /// F# syntax is 'typar : delegate<'Args,unit>
-    | WhereTyparIsDelegate of SynTypar * SynType list * range
+    | WhereTyparIsDelegate of genericName:SynTypar * delegateTypes:SynType list * range:range
 
 and 
     [<NoEquality; NoComparison;RequireQualifiedAccess>]
@@ -412,47 +412,56 @@ and
     /// F# syntax : type<type, ..., type> or type type or (type,...,type) type
     ///   isPostfix: indicates a postfix type application e.g. "int list" or "(int,string) dict"
     ///   commasm: ranges for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
-    | App of SynType * range option * SynType list * range list * range option * bool * range
+    | App of typeName:SynType * leftAngleRange:range option * typeArgs:SynType list * commaRanges:range list * rightAngleRange:range option * isPostfix:bool * range:range
     /// LongIdentApp(typeName, longId, LESSm, tyArgs, commasm, GREATERm, wholem)
     ///
     /// F# syntax : type.A.B.C<type, ..., type>
     ///   commasm: ranges for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
-    | LongIdentApp of SynType * LongIdentWithDots * range option * SynType list * range list * range option * range
+    | LongIdentApp of typeName:SynType * dotId:LongIdentWithDots * leftAngleRange:range option * genericNames:SynType list * commaRanges:range list * rightAngleRange:range option * range:range
     /// F# syntax : type * ... * type
     // the bool is true if / rather than * follows the type
-    | Tuple of (bool*SynType) list * range    
+    | Tuple of (bool*SynType) list * range:range    
     /// F# syntax : type[]
-    | Array of  int * SynType * range
+    | Array of  int * elementType:SynType * range:range
     /// F# syntax : type -> type
-    | Fun of  SynType * SynType * range
+    | Fun of  argType:SynType * returnType:SynType * range:range
     /// F# syntax : 'Var
-    | Var of SynTypar * range
+    | Var of SynTypar * range:range
     /// F# syntax : _
     | Anon of range
     /// F# syntax : typ with constraints
-    | WithGlobalConstraints of SynType * SynTypeConstraint list * range
+    | WithGlobalConstraints of typeName:SynType * constraints:SynTypeConstraint list * range:range
     /// F# syntax : #type
-    | HashConstraint of SynType * range
+    | HashConstraint of typeName:SynType * range:range
     /// F# syntax : for units of measure e.g. m / s 
-    | MeasureDivide of SynType * SynType * range       
+    | MeasureDivide of typeName:SynType * SynType * range:range       
     /// F# syntax : for units of measure e.g. m^3, kg^1/2
-    | MeasurePower of SynType * SynRationalConst * range      
+    | MeasurePower of typeName:SynType * SynRationalConst * range:range      
     /// F# syntax : 1, "abc" etc, used in parameters to type providers
     /// For the dimensionless units i.e. 1 , and static parameters to provided types
-    | StaticConstant of SynConst * range          
+    | StaticConstant of constant:SynConst * range:range          
     /// F# syntax : const expr, used in static parameters to type providers
-    | StaticConstantExpr of SynExpr * range
+    | StaticConstantExpr of expr:SynExpr * range:range
     /// F# syntax : ident=1 etc., used in static parameters to type providers
-    | StaticConstantNamed of SynType * SynType * range
+    | StaticConstantNamed of SynType * SynType * range:range
     /// Get the syntactic range of source code covered by this construct.
     member x.Range = 
         match x with 
+        | SynType.App (range=r)
+        | SynType.LongIdentApp (range=r)
+        | SynType.Tuple (range=r)
+        | SynType.Array (range=r) 
+        | SynType.Fun (range=r)
+        | SynType.Var (range=r) 
+        | SynType.Anon r 
+        | SynType.WithGlobalConstraints (range=r)
+        | SynType.StaticConstant (range=r)
+        | SynType.StaticConstantExpr (range=r)
+        | SynType.StaticConstantNamed (range=r)
+        | SynType.HashConstraint (range=r)
+        | SynType.MeasureDivide (range=r)
+        | SynType.MeasurePower (range=r) -> r
         | SynType.LongIdent(lidwd) -> lidwd.Range
-        | SynType.App(_,_,_,_,_,_,m) | SynType.LongIdentApp(_,_,_,_,_,_,m) | SynType.Tuple(_,m) | SynType.Array(_,_,m) | SynType.Fun(_,_,m)
-        | SynType.Var(_,m) | SynType.Anon m | SynType.WithGlobalConstraints(_,_,m)
-        | SynType.StaticConstant(_,m) | SynType.StaticConstantExpr(_,m) | SynType.StaticConstantNamed(_,_,m)
-        | SynType.HashConstraint(_,m) | SynType.MeasureDivide(_,_,m) | SynType.MeasurePower(_,_,m) -> m
-
     
 and  
     [<NoEquality; NoComparison;RequireQualifiedAccess>]
@@ -464,77 +473,77 @@ and
     ///
     /// Parenthesized expressions. Kept in AST to distinguish A.M((x,y)) 
     /// from A.M(x,y), among other things.
-    | Paren of SynExpr * range * range option * range  
+    | Paren of expr:SynExpr * leftParenRange:range * rightParenRange:range option * range:range  
 
     /// F# syntax: <@ expr @>, <@@ expr @@>
     /// 
     /// Quote(operator,isRaw,quotedSynExpr,isFromQueryExpression,m)
-    | Quote of SynExpr * bool * SynExpr * bool * range 
+    | Quote of operator:SynExpr * isRaw:bool * quotedSynExpr:SynExpr * isFromQueryExpression:bool * range:range 
 
     /// F# syntax: 1, 1.3, () etc.
-    | Const of SynConst * range
+    | Const of constant:SynConst * range:range
 
     /// F# syntax: expr : type
-    | Typed of  SynExpr * SynType * range
+    | Typed of  expr:SynExpr * typeSig:SynType * range:range
 
     /// F# syntax: e1, ..., eN
-    | Tuple of  SynExpr list * range list * range  // "range list" is for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
+    | Tuple of  exprs:SynExpr list * commaRanges:range list * range:range  // "range list" is for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
 
     /// F# syntax: [ e1; ...; en ], [| e1; ...; en |]
-    | ArrayOrList of  bool * SynExpr list * range 
+    | ArrayOrList of  isList:bool * exprs:SynExpr list * range:range 
 
     /// F# syntax: { f1=e1; ...; fn=en }
     /// SynExpr.Record((baseType, baseCtorArgs, mBaseCtor, sepAfterBase, mInherits), (copyExpr, sepAfterCopyExpr), (recordFieldName, fieldValue, sepAfterField), mWholeExpr)
     /// inherit includes location of separator (for tooling) 
     /// copyOpt contains range of the following WITH part (for tooling)
     /// every field includes range of separator after the field (for tooling)
-    | Record of (SynType * SynExpr * range * BlockSeparator option * range) option * (SynExpr * BlockSeparator) option * (RecordFieldName * (SynExpr option) * BlockSeparator option) list * range
+    | Record of baseInfo:(SynType * SynExpr * range * BlockSeparator option * range) option * copyInfo:(SynExpr * BlockSeparator) option * recordFields:(RecordFieldName * (SynExpr option) * BlockSeparator option) list * range:range
 
     /// F# syntax: new C(...)
     /// The flag is true if known to be 'family' ('protected') scope 
-    | New of bool * SynType * SynExpr * range 
+    | New of isProtected:bool * typeName:SynType * expr:SynExpr * range:range 
 
     /// SynExpr.ObjExpr(objTy,argOpt,binds,extraImpls,mNewExpr,mWholeExpr)
     ///
     /// F# syntax: { new ... with ... }
-    | ObjExpr of SynType * (SynExpr * Ident option) option * SynBinding list * SynInterfaceImpl list * range * range
+    | ObjExpr of objType:SynType * argOpt:(SynExpr * Ident option) option * bindings:SynBinding list * extraImpls:SynInterfaceImpl list * newPos:range * range:range
 
     /// F# syntax: 'while ... do ...'
-    | While of SequencePointInfoForWhileLoop * SynExpr * SynExpr * range
+    | While of spWhile:SequencePointInfoForWhileLoop * whileBody:SynExpr * doBody:SynExpr * range:range
 
     /// F# syntax: 'for i = ... to ... do ...'
-    | For of SequencePointInfoForForLoop * Ident * SynExpr * bool * SynExpr * SynExpr * range
+    | For of spFor:SequencePointInfoForForLoop * id:Ident * idBody:SynExpr * bool * toBody:SynExpr * doBody:SynExpr * range:range
 
     /// SynExpr.ForEach (spBind, seqExprOnly, isFromSource, pat, enumExpr, bodyExpr, mWholeExpr).
     ///
     /// F# syntax: 'for ... in ... do ...'
-    | ForEach of SequencePointInfoForForLoop * SeqExprOnly * bool * SynPat * SynExpr * SynExpr * range
+    | ForEach of spFor:SequencePointInfoForForLoop * seqExprOnly:SeqExprOnly * isFromSource:bool * pattern:SynPat * enumExpr:SynExpr * bodyExpr:SynExpr * range:range
 
     /// F# syntax: [ expr ], [| expr |]
-    | ArrayOrListOfSeqExpr of bool * SynExpr * range
+    | ArrayOrListOfSeqExpr of isList:bool * elements:SynExpr * range:range
 
     /// CompExpr(isArrayOrList, isNotNakedRefCell, expr)
     ///
     /// F# syntax: { expr }
-    | CompExpr of bool * bool ref * SynExpr * range
+    | CompExpr of isArrayOrList:bool * isNotNakedRefCell:bool ref * expr:SynExpr * range:range
 
     /// First bool indicates if lambda originates from a method. Patterns here are always "simple" 
     /// Second bool indicates if this is a "later" part of an iterated sequence of lambdas
     ///
     /// F# syntax: fun pat -> expr
-    | Lambda of  bool * bool * SynSimplePats * SynExpr * range 
+    | Lambda of  fromMethod:bool * inLambdaSeq:bool * args:SynSimplePats * body:SynExpr * range:range 
 
     /// F# syntax: function pat1 -> expr | ... | patN -> exprN
-    | MatchLambda of bool * range * SynMatchClause list * SequencePointInfoForBinding * range
+    | MatchLambda of bool * range * clauses:SynMatchClause list * spBind:SequencePointInfoForBinding * range:range
 
     /// F# syntax: match expr with pat1 -> expr | ... | patN -> exprN
-    | Match of  SequencePointInfoForBinding * SynExpr * SynMatchClause list * bool * range (* bool indicates if this is an exception match in a computation expression which throws unmatched exceptions *)
+    | Match of  spBind:SequencePointInfoForBinding * matchExpr:SynExpr * clauses:SynMatchClause list * isCexprExceptionMatch:bool * range:range (* bool indicates if this is an exception match in a computation expression which throws unmatched exceptions *)
 
     /// F# syntax: do expr 
-    | Do of  SynExpr * range
+    | Do of  expr:SynExpr * range:range
 
     /// F# syntax: assert expr 
-    | Assert of SynExpr * range
+    | Assert of expr:SynExpr * range:range
 
     /// App(exprAtomicFlag, isInfix, funcExpr, argExpr, m)
     ///  - exprAtomicFlag: indicates if the application is syntactically atomic, e.g. f.[1] is atomic, but 'f x' is not
@@ -542,13 +551,13 @@ and
     ///      (or more generally, for higher operator fixities, if App(x,y) is such that y comes before x in the source code, then the node is marked isInfix=true)
     ///
     /// F# syntax: f x
-    | App of ExprAtomicFlag * bool * SynExpr * SynExpr * range
+    | App of exprAtomicFlag:ExprAtomicFlag * isInfix:bool * funcExpr:SynExpr * argExpr:SynExpr * range:range
 
     /// TypeApp(expr, mLessThan, types, mCommas, mGreaterThan, mTypeArgs, mWholeExpr) 
     ///     "mCommas" are the ranges for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
     ///
     /// F# syntax: expr<type1,...,typeN>
-    | TypeApp of SynExpr * range * SynType list * range list * range option * range * range
+    | TypeApp of expr:SynExpr * leftAngleRange:range * typeNames:SynType list * commaRanges:range list * rightAngleRange:range option * typeArgs:range * range:range
 
     /// LetOrUse(isRecursive, isUse, bindings, body, wholeRange)
     ///
@@ -556,28 +565,28 @@ and
     /// F# syntax: let f pat1 .. patN = expr in expr 
     /// F# syntax: let rec f pat1 .. patN = expr in expr 
     /// F# syntax: use pat = expr in expr 
-    | LetOrUse of bool * bool * SynBinding list * SynExpr * range
+    | LetOrUse of isRecursive:bool * isUse:bool * bindings:SynBinding list * exprBody:SynExpr * range:range
 
     /// F# syntax: try expr with pat -> expr
-    | TryWith of SynExpr * range * SynMatchClause list * range * range * SequencePointInfoForTry * SequencePointInfoForWith
+    | TryWith of tryExpr:SynExpr * range * SynMatchClause list * range * range:range * spTry:SequencePointInfoForTry * spWith:SequencePointInfoForWith
 
     /// F# syntax: try expr finally expr
-    | TryFinally of SynExpr * SynExpr * range * SequencePointInfoForTry * SequencePointInfoForFinally
+    | TryFinally of tryExpr:SynExpr * finallyExpr:SynExpr * range:range * spTry:SequencePointInfoForTry * spFinally:SequencePointInfoForFinally
 
     /// F# syntax: lazy expr
-    | Lazy of SynExpr * range
+    | Lazy of expr:SynExpr * range:range
 
     /// Seq(seqPoint, isTrueSeq, e1, e2, m)
     ///  isTrueSeq: false indicates "let v = a in b; v" 
     ///
     /// F# syntax: expr; expr
-    | Sequential of SequencePointInfoForSeq * bool * SynExpr * SynExpr * range 
+    | Sequential of spSeq:SequencePointInfoForSeq * isTrueSeq:bool * expr1:SynExpr * expr2:SynExpr * range:range 
 
     ///  IfThenElse(exprGuard,exprThen,optionalExprElse,spIfToThen,isFromErrorRecovery,mIfToThen,mIfToEndOfLastBranch)
     ///
     /// F# syntax: if expr then expr
     /// F# syntax: if expr then expr else expr
-    | IfThenElse of SynExpr * SynExpr * SynExpr option * SequencePointInfoForBinding * bool * range * range
+    | IfThenElse of exprGuard:SynExpr * exprThen:SynExpr * optionalExprElse:SynExpr option * spIfToThen:SequencePointInfoForBinding * isFromErrorRecovery:bool * ifToThen:range * range:range
 
     /// F# syntax: ident
     /// Optimized representation, = SynExpr.LongIdent(false,[id],id.idRange) 
@@ -587,60 +596,60 @@ and
     /// LongIdent(isOptional, longIdent, altNameRefCell, m)
     ///   isOptional: true if preceded by a '?' for an optional named parameter 
     ///   altNameRefCell: Normally 'None' except for some compiler-generated variables in desugaring pattern matching. See SynSimplePat.Id
-    | LongIdent of bool * LongIdentWithDots * SynSimplePatAlternativeIdInfo ref option * range  
+    | LongIdent of isOptional:bool * longIdent:LongIdentWithDots * altNameRefCell:SynSimplePatAlternativeIdInfo ref option * range:range  
 
     /// F# syntax: ident.ident...ident <- expr
-    | LongIdentSet of LongIdentWithDots * SynExpr * range
+    | LongIdentSet of dotId:LongIdentWithDots * expr:SynExpr * range:range
 
     /// DotGet(expr, rangeOfDot, lid, wholeRange)
     ///
     /// F# syntax: expr.ident.ident
-    | DotGet of SynExpr * range * LongIdentWithDots * range
+    | DotGet of expr:SynExpr * rangeOfDot:range * dotId:LongIdentWithDots * range:range
 
     /// F# syntax: expr.ident...ident <- expr
-    | DotSet of SynExpr * LongIdentWithDots * SynExpr * range
+    | DotSet of expr:SynExpr * dotId:LongIdentWithDots * exprValue:SynExpr * range:range
 
     /// F# syntax: expr.[expr,...,expr] 
-    | DotIndexedGet of SynExpr * SynIndexerArg list * range * range
+    | DotIndexedGet of expr:SynExpr * indexExprs:SynIndexerArg list * range * range:range
 
     /// DotIndexedSet (objectExpr, indexExprs, valueExpr, rangeOfLeftOfSet, rangeOfDot, rangeOfWholeExpr)
     ///
     /// F# syntax: expr.[expr,...,expr] <- expr
-    | DotIndexedSet of SynExpr * SynIndexerArg list * SynExpr * range * range * range
+    | DotIndexedSet of objectExpr:SynExpr * indexExprs:SynIndexerArg list * valueExpr:SynExpr * rangeOfLeftOfSet:range * rangeOfDot:range * range:range
 
     /// F# syntax: Type.Items(e1) <- e2 , rarely used named-property-setter notation, e.g. Foo.Bar.Chars(3) <- 'a'
-    | NamedIndexedPropertySet of LongIdentWithDots * SynExpr * SynExpr * range
+    | NamedIndexedPropertySet of LongIdentWithDots * SynExpr * SynExpr * range:range
 
     /// F# syntax: expr.Items(e1) <- e2 , rarely used named-property-setter notation, e.g. (stringExpr).Chars(3) <- 'a'
-    | DotNamedIndexedPropertySet of SynExpr * LongIdentWithDots * SynExpr * SynExpr * range
+    | DotNamedIndexedPropertySet of SynExpr * LongIdentWithDots * SynExpr * SynExpr * range:range
 
     /// F# syntax: expr :? type
-    | TypeTest of  SynExpr * SynType * range
+    | TypeTest of  expr:SynExpr * typeName:SynType * range:range
 
     /// F# syntax: expr :> type 
-    | Upcast of  SynExpr * SynType * range
+    | Upcast of  expr:SynExpr * typeSig:SynType * range:range
 
     /// F# syntax: expr :?> type 
-    | Downcast of  SynExpr * SynType * range
+    | Downcast of  expr:SynExpr * typeName:SynType * range:range
 
     /// F# syntax: upcast expr
-    | InferredUpcast of  SynExpr * range
+    | InferredUpcast of  expr:SynExpr * range:range
 
     /// F# syntax: downcast expr
-    | InferredDowncast of  SynExpr * range
+    | InferredDowncast of  expr:SynExpr * range:range
 
     /// F# syntax: null
     | Null of range
 
     /// F# syntax: &expr, &&expr
-    | AddressOf of  bool * SynExpr * range * range
+    | AddressOf of  bool * SynExpr * range * range:range
 
     /// F# syntax: ((typar1 or ... or typarN): (member-dig) expr)
-    | TraitCall of SynTypar list * SynMemberSig * SynExpr * range
+    | TraitCall of SynTypar list * SynMemberSig * SynExpr * range:range
 
     /// F# syntax: ... in ... 
     /// Computation expressions only, based on JOIN_IN token from lex filter
-    | JoinIn of SynExpr * range * SynExpr * range 
+    | JoinIn of SynExpr * inPos:range * SynExpr * range:range 
 
     /// F# syntax: <implicit>
     /// Computation expressions only, implied by final "do" or "do!"
@@ -649,160 +658,160 @@ and
     /// F# syntax: yield expr 
     /// F# syntax: return expr 
     /// Computation expressions only
-    | YieldOrReturn   of (bool * bool) * SynExpr * range
+    | YieldOrReturn   of (bool * bool) * expr:SynExpr * range:range
 
     /// F# syntax: yield! expr 
     /// F# syntax: return! expr 
     /// Computation expressions only
-    | YieldOrReturnFrom  of (bool * bool) * SynExpr * range
+    | YieldOrReturnFrom  of (bool * bool) * expr:SynExpr * range:range
 
     /// SynExpr.LetOrUseBang(spBind, isUse, isFromSource, pat, rhsExpr, bodyExpr, mWholeExpr).
     ///
     /// F# syntax: let! pat = expr in expr
     /// F# syntax: use! pat = expr in expr
     /// Computation expressions only
-    | LetOrUseBang    of SequencePointInfoForBinding * bool * bool * SynPat * SynExpr * SynExpr * range
+    | LetOrUseBang    of spBind:SequencePointInfoForBinding * isUse:bool * isFromSource:bool * pattern:SynPat * rhsExpr:SynExpr * bodyExpr:SynExpr * range:range
 
     /// F# syntax: do! expr 
     /// Computation expressions only
-    | DoBang      of SynExpr * range
+    | DoBang      of expr:SynExpr * range:range
 
     /// Only used in FSharp.Core
-    | LibraryOnlyILAssembly of ILInstr array *  SynType list * SynExpr list * SynType list * range (* Embedded IL assembly code *)
+    | LibraryOnlyILAssembly of ILInstr array *  SynType list * SynExpr list * SynType list * range:range (* Embedded IL assembly code *)
 
     /// Only used in FSharp.Core
-    | LibraryOnlyStaticOptimization of SynStaticOptimizationConstraint list * SynExpr * SynExpr * range
+    | LibraryOnlyStaticOptimization of SynStaticOptimizationConstraint list * SynExpr * SynExpr * range:range
 
     /// Only used in FSharp.Core
-    | LibraryOnlyUnionCaseFieldGet of SynExpr * LongIdent * int * range
+    | LibraryOnlyUnionCaseFieldGet of SynExpr * longId:LongIdent * int * range:range
 
     /// Only used in FSharp.Core
-    | LibraryOnlyUnionCaseFieldSet of SynExpr * LongIdent * int * SynExpr * range
+    | LibraryOnlyUnionCaseFieldSet of SynExpr * longId:LongIdent * int * SynExpr * range:range
   
     /// Inserted for error recovery
-    | ArbitraryAfterError  of (*debugStr:*) string * range  
+    | ArbitraryAfterError  of debugStr:string * range:range  
 
     /// Inserted for error recovery
-    | FromParseError  of SynExpr * range  
+    | FromParseError  of expr:SynExpr * range:range  
 
     /// Inserted for error recovery when there is "expr." and missing tokens or error recovery after the dot
-    | DiscardAfterMissingQualificationAfterDot  of SynExpr * range  
+    | DiscardAfterMissingQualificationAfterDot  of expr:SynExpr * range:range  
     /// Get the syntactic range of source code covered by this construct.
     member e.Range = 
         match e with 
-        | SynExpr.Paren(_,_,_,m) 
-        | SynExpr.Quote(_,_,_,_,m) 
-        | SynExpr.Const(_,m) 
-        | SynExpr.Typed (_,_,m)
-        | SynExpr.Tuple (_,_,m)
-        | SynExpr.ArrayOrList (_,_,m)
-        | SynExpr.Record (_,_,_,m)
-        | SynExpr.New (_,_,_,m)
-        | SynExpr.ObjExpr (_,_,_,_,_,m)
-        | SynExpr.While (_,_,_,m)
-        | SynExpr.For (_,_,_,_,_,_,m)
-        | SynExpr.ForEach (_,_,_,_,_,_,m)
-        | SynExpr.CompExpr (_,_,_,m)
-        | SynExpr.ArrayOrListOfSeqExpr (_,_,m)
-        | SynExpr.Lambda (_,_,_,_,m)
-        | SynExpr.Match (_,_,_,_,m)
-        | SynExpr.MatchLambda (_,_,_,_,m)
-        | SynExpr.Do (_,m)
-        | SynExpr.Assert (_,m)
-        | SynExpr.App (_,_,_,_,m)
-        | SynExpr.TypeApp (_,_,_,_,_,_,m)
-        | SynExpr.LetOrUse (_,_,_,_,m)
-        | SynExpr.TryWith (_,_,_,_,m,_,_)
-        | SynExpr.TryFinally (_,_,m,_,_)
-        | SynExpr.Sequential (_,_,_,_,m)
-        | SynExpr.ArbitraryAfterError(_,m)
-        | SynExpr.FromParseError (_,m) 
-        | SynExpr.DiscardAfterMissingQualificationAfterDot (_,m) 
-        | SynExpr.IfThenElse (_,_,_,_,_,_,m)
-        | SynExpr.LongIdent (_,_,_,m)
-        | SynExpr.LongIdentSet (_,_,m)
-        | SynExpr.NamedIndexedPropertySet (_,_,_,m)
-        | SynExpr.DotIndexedGet (_,_,_,m)
-        | SynExpr.DotIndexedSet (_,_,_,_,_,m)
-        | SynExpr.DotGet (_,_,_,m)
-        | SynExpr.DotSet (_,_,_,m)
-        | SynExpr.DotNamedIndexedPropertySet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldGet (_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldSet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyILAssembly (_,_,_,_,m)
-        | SynExpr.LibraryOnlyStaticOptimization (_,_,_,m)
-        | SynExpr.TypeTest (_,_,m)
-        | SynExpr.Upcast (_,_,m)
-        | SynExpr.AddressOf (_,_,_,m)
-        | SynExpr.Downcast (_,_,m)
-        | SynExpr.JoinIn (_,_,_,m)
-        | SynExpr.InferredUpcast (_,m)
-        | SynExpr.InferredDowncast (_,m)
-        | SynExpr.Null m
-        | SynExpr.Lazy (_, m)
-        | SynExpr.TraitCall(_,_,_,m)
-        | SynExpr.ImplicitZero (m)
-        | SynExpr.YieldOrReturn (_,_,m)
-        | SynExpr.YieldOrReturnFrom (_,_,m)
-        | SynExpr.LetOrUseBang  (_,_,_,_,_,_,m)
-        | SynExpr.DoBang  (_,m) -> m
+        | SynExpr.Paren (range=r)
+        | SynExpr.Quote (range=r)
+        | SynExpr.Const (range=r)
+        | SynExpr.Typed (range=r)
+        | SynExpr.Tuple (range=r)
+        | SynExpr.ArrayOrList (range=r)
+        | SynExpr.Record (range=r)
+        | SynExpr.New (range=r)
+        | SynExpr.ObjExpr (range=r)
+        | SynExpr.While (range=r)
+        | SynExpr.For (range=r)
+        | SynExpr.ForEach (range=r)
+        | SynExpr.CompExpr (range=r)
+        | SynExpr.ArrayOrListOfSeqExpr (range=r)
+        | SynExpr.Lambda (range=r)
+        | SynExpr.Match (range=r)
+        | SynExpr.MatchLambda (range=r)
+        | SynExpr.Do (range=r)
+        | SynExpr.Assert (range=r)
+        | SynExpr.App (range=r)
+        | SynExpr.TypeApp (range=r)
+        | SynExpr.LetOrUse (range=r)
+        | SynExpr.TryWith (range=r)
+        | SynExpr.TryFinally (range=r)
+        | SynExpr.Sequential (range=r)
+        | SynExpr.ArbitraryAfterError (range=r)
+        | SynExpr.FromParseError (range=r)
+        | SynExpr.DiscardAfterMissingQualificationAfterDot (range=r)
+        | SynExpr.IfThenElse (range=r)
+        | SynExpr.LongIdent (range=r)
+        | SynExpr.LongIdentSet (range=r)
+        | SynExpr.NamedIndexedPropertySet (range=r)
+        | SynExpr.DotIndexedGet (range=r)
+        | SynExpr.DotIndexedSet (range=r)
+        | SynExpr.DotGet (range=r)
+        | SynExpr.DotSet (range=r)
+        | SynExpr.DotNamedIndexedPropertySet (range=r)
+        | SynExpr.LibraryOnlyUnionCaseFieldGet (range=r)
+        | SynExpr.LibraryOnlyUnionCaseFieldSet (range=r)
+        | SynExpr.LibraryOnlyILAssembly (range=r)
+        | SynExpr.LibraryOnlyStaticOptimization (range=r)
+        | SynExpr.TypeTest (range=r)
+        | SynExpr.Upcast (range=r)
+        | SynExpr.AddressOf (range=r)
+        | SynExpr.Downcast (range=r)
+        | SynExpr.JoinIn (range=r)
+        | SynExpr.InferredUpcast (range=r)
+        | SynExpr.InferredDowncast (range=r)
+        | SynExpr.Null r
+        | SynExpr.Lazy (range=r)
+        | SynExpr.TraitCall (range=r)
+        | SynExpr.ImplicitZero r
+        | SynExpr.YieldOrReturn (range=r)
+        | SynExpr.YieldOrReturnFrom (range=r)
+        | SynExpr.LetOrUseBang  (range=r)
+        | SynExpr.DoBang  (range=r) -> r
         | SynExpr.Ident id -> id.idRange
     /// range ignoring any (parse error) extra trailing dots
     member e.RangeSansAnyExtraDot = 
         match e with 
-        | SynExpr.Paren(_,_,_,m) 
-        | SynExpr.Quote(_,_,_,_,m) 
-        | SynExpr.Const(_,m) 
-        | SynExpr.Typed (_,_,m)
-        | SynExpr.Tuple (_,_,m)
-        | SynExpr.ArrayOrList (_,_,m)
-        | SynExpr.Record (_,_,_,m)
-        | SynExpr.New (_,_,_,m)
-        | SynExpr.ObjExpr (_,_,_,_,_,m)
-        | SynExpr.While (_,_,_,m)
-        | SynExpr.For (_,_,_,_,_,_,m)
-        | SynExpr.ForEach (_,_,_,_,_,_,m)
-        | SynExpr.CompExpr (_,_,_,m)
-        | SynExpr.ArrayOrListOfSeqExpr (_,_,m)
-        | SynExpr.Lambda (_,_,_,_,m)
-        | SynExpr.Match (_,_,_,_,m)
-        | SynExpr.MatchLambda (_,_,_,_,m)
-        | SynExpr.Do (_,m)
-        | SynExpr.Assert (_,m)
-        | SynExpr.App (_,_,_,_,m)
-        | SynExpr.TypeApp (_,_,_,_,_,_,m)
-        | SynExpr.LetOrUse (_,_,_,_,m)
-        | SynExpr.TryWith (_,_,_,_,m,_,_)
-        | SynExpr.TryFinally (_,_,m,_,_)
-        | SynExpr.Sequential (_,_,_,_,m)
-        | SynExpr.ArbitraryAfterError(_,m)
-        | SynExpr.FromParseError (_,m) 
-        | SynExpr.IfThenElse (_,_,_,_,_,_,m)
-        | SynExpr.LongIdentSet (_,_,m)
-        | SynExpr.NamedIndexedPropertySet (_,_,_,m)
-        | SynExpr.DotIndexedGet (_,_,_,m)
-        | SynExpr.DotIndexedSet (_,_,_,_,_,m)
-        | SynExpr.DotSet (_,_,_,m)
-        | SynExpr.DotNamedIndexedPropertySet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldGet (_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldSet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyILAssembly (_,_,_,_,m)
-        | SynExpr.LibraryOnlyStaticOptimization (_,_,_,m)
-        | SynExpr.TypeTest (_,_,m)
-        | SynExpr.Upcast (_,_,m)
-        | SynExpr.AddressOf (_,_,_,m)
-        | SynExpr.Downcast (_,_,m)
-        | SynExpr.JoinIn (_,_,_,m)
-        | SynExpr.InferredUpcast (_,m)
-        | SynExpr.InferredDowncast (_,m)
-        | SynExpr.Null m
-        | SynExpr.Lazy (_, m)
-        | SynExpr.TraitCall(_,_,_,m)
-        | SynExpr.ImplicitZero (m)
-        | SynExpr.YieldOrReturn (_,_,m)
-        | SynExpr.YieldOrReturnFrom (_,_,m)
-        | SynExpr.LetOrUseBang  (_,_,_,_,_,_,m)
-        | SynExpr.DoBang  (_,m) -> m
+        | SynExpr.Paren (range=r)
+        | SynExpr.Quote (range=r)
+        | SynExpr.Const (range=r)
+        | SynExpr.Typed (range=r)
+        | SynExpr.Tuple (range=r)
+        | SynExpr.ArrayOrList (range=r)
+        | SynExpr.Record (range=r)
+        | SynExpr.New (range=r)
+        | SynExpr.ObjExpr (range=r)
+        | SynExpr.While (range=r)
+        | SynExpr.For (range=r)
+        | SynExpr.ForEach (range=r)
+        | SynExpr.CompExpr (range=r)
+        | SynExpr.ArrayOrListOfSeqExpr (range=r)
+        | SynExpr.Lambda (range=r)
+        | SynExpr.Match (range=r)
+        | SynExpr.MatchLambda (range=r)
+        | SynExpr.Do (range=r)
+        | SynExpr.Assert (range=r)
+        | SynExpr.App (range=r)
+        | SynExpr.TypeApp (range=r)
+        | SynExpr.LetOrUse (range=r)
+        | SynExpr.TryWith (range=r)
+        | SynExpr.TryFinally (range=r)
+        | SynExpr.Sequential (range=r)
+        | SynExpr.ArbitraryAfterError (range=r)
+        | SynExpr.FromParseError (range=r) 
+        | SynExpr.IfThenElse (range=r)
+        | SynExpr.LongIdentSet (range=r)
+        | SynExpr.NamedIndexedPropertySet (range=r)
+        | SynExpr.DotIndexedGet (range=r)
+        | SynExpr.DotIndexedSet (range=r)
+        | SynExpr.DotSet (range=r)
+        | SynExpr.DotNamedIndexedPropertySet (range=r)
+        | SynExpr.LibraryOnlyUnionCaseFieldGet (range=r)
+        | SynExpr.LibraryOnlyUnionCaseFieldSet (range=r)
+        | SynExpr.LibraryOnlyILAssembly (range=r)
+        | SynExpr.LibraryOnlyStaticOptimization (range=r)
+        | SynExpr.TypeTest (range=r)
+        | SynExpr.Upcast (range=r)
+        | SynExpr.AddressOf (range=r)
+        | SynExpr.Downcast (range=r)
+        | SynExpr.JoinIn (range=r)
+        | SynExpr.InferredUpcast (range=r)
+        | SynExpr.InferredDowncast (range=r)
+        | SynExpr.Null r
+        | SynExpr.Lazy (range=r)
+        | SynExpr.TraitCall (range=r)
+        | SynExpr.ImplicitZero r
+        | SynExpr.YieldOrReturn (range=r)
+        | SynExpr.YieldOrReturnFrom (range=r)
+        | SynExpr.LetOrUseBang (range=r)
+        | SynExpr.DoBang  (range=r) -> r
         | SynExpr.DotGet (expr,_,lidwd,m) -> if lidwd.ThereIsAnExtraDotAtTheEnd then unionRanges expr.Range lidwd.RangeSansAnyExtraDot else m
         | SynExpr.LongIdent (_,lidwd,_,_) -> lidwd.RangeSansAnyExtraDot 
         | SynExpr.DiscardAfterMissingQualificationAfterDot (expr,_) -> expr.Range
@@ -811,67 +820,67 @@ and
     member e.RangeOfFirstPortion = 
         match e with 
         // haven't bothered making these cases better than just .Range
-        | SynExpr.Quote(_,_,_,_,m)
-        | SynExpr.Const(_,m) 
-        | SynExpr.Typed (_,_,m)
-        | SynExpr.Tuple (_,_,m)
-        | SynExpr.ArrayOrList (_,_,m)
-        | SynExpr.Record (_,_,_,m)
-        | SynExpr.New (_,_,_,m)
-        | SynExpr.ObjExpr (_,_,_,_,_,m)
-        | SynExpr.While (_,_,_,m)
-        | SynExpr.For (_,_,_,_,_,_,m)
-        | SynExpr.CompExpr (_,_,_,m)
-        | SynExpr.ArrayOrListOfSeqExpr (_,_,m)
-        | SynExpr.Lambda (_,_,_,_,m)
-        | SynExpr.Match (_,_,_,_,m)
-        | SynExpr.MatchLambda (_,_,_,_,m)
-        | SynExpr.Do (_,m)
-        | SynExpr.Assert (_,m)
-        | SynExpr.TypeApp (_,_,_,_,_,_,m)
-        | SynExpr.LetOrUse (_,_,_,_,m)
-        | SynExpr.TryWith (_,_,_,_,m,_,_)
-        | SynExpr.TryFinally (_,_,m,_,_)
-        | SynExpr.ArbitraryAfterError(_,m)
-        | SynExpr.FromParseError (_,m) 
-        | SynExpr.DiscardAfterMissingQualificationAfterDot (_,m) 
-        | SynExpr.IfThenElse (_,_,_,_,_,_,m)
-        | SynExpr.LongIdent (_,_,_,m)
-        | SynExpr.LongIdentSet (_,_,m)
-        | SynExpr.NamedIndexedPropertySet (_,_,_,m)
-        | SynExpr.DotIndexedGet (_,_,_,m)
-        | SynExpr.DotIndexedSet (_,_,_,_,_,m)
-        | SynExpr.DotGet (_,_,_,m)
-        | SynExpr.DotSet (_,_,_,m)
-        | SynExpr.DotNamedIndexedPropertySet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldGet (_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldSet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyILAssembly (_,_,_,_,m)
-        | SynExpr.LibraryOnlyStaticOptimization (_,_,_,m)
-        | SynExpr.TypeTest (_,_,m)
-        | SynExpr.Upcast (_,_,m)
-        | SynExpr.AddressOf (_,_,_,m)
-        | SynExpr.Downcast (_,_,m)
-        | SynExpr.JoinIn (_,_,_,m)
-        | SynExpr.InferredUpcast (_,m)
-        | SynExpr.InferredDowncast (_,m)
-        | SynExpr.Null m
-        | SynExpr.Lazy (_, m)
-        | SynExpr.TraitCall(_,_,_,m)
-        | SynExpr.ImplicitZero (m)
-        | SynExpr.YieldOrReturn (_,_,m)
-        | SynExpr.YieldOrReturnFrom (_,_,m)
-        | SynExpr.LetOrUseBang  (_,_,_,_,_,_,m)
-        | SynExpr.DoBang  (_,m) -> m
+        | SynExpr.Quote (range=r)
+        | SynExpr.Const (range=r)
+        | SynExpr.Typed (range=r)
+        | SynExpr.Tuple (range=r)
+        | SynExpr.ArrayOrList (range=r)
+        | SynExpr.Record (range=r)
+        | SynExpr.New (range=r)
+        | SynExpr.ObjExpr (range=r)
+        | SynExpr.While (range=r)
+        | SynExpr.For (range=r)
+        | SynExpr.CompExpr (range=r)
+        | SynExpr.ArrayOrListOfSeqExpr (range=r)
+        | SynExpr.Lambda (range=r)
+        | SynExpr.Match (range=r)
+        | SynExpr.MatchLambda (range=r)
+        | SynExpr.Do (range=r)
+        | SynExpr.Assert (range=r)
+        | SynExpr.TypeApp (range=r)
+        | SynExpr.LetOrUse (range=r)
+        | SynExpr.TryWith (range=r)
+        | SynExpr.TryFinally (range=r)
+        | SynExpr.ArbitraryAfterError (range=r)
+        | SynExpr.FromParseError (range=r) 
+        | SynExpr.DiscardAfterMissingQualificationAfterDot (range=r) 
+        | SynExpr.IfThenElse (range=r)
+        | SynExpr.LongIdent (range=r)
+        | SynExpr.LongIdentSet (range=r)
+        | SynExpr.NamedIndexedPropertySet (range=r)
+        | SynExpr.DotIndexedGet (range=r)
+        | SynExpr.DotIndexedSet (range=r)
+        | SynExpr.DotGet (range=r)
+        | SynExpr.DotSet (range=r)
+        | SynExpr.DotNamedIndexedPropertySet (range=r)
+        | SynExpr.LibraryOnlyUnionCaseFieldGet (range=r)
+        | SynExpr.LibraryOnlyUnionCaseFieldSet (range=r)
+        | SynExpr.LibraryOnlyILAssembly (range=r)
+        | SynExpr.LibraryOnlyStaticOptimization (range=r)
+        | SynExpr.TypeTest (range=r)
+        | SynExpr.Upcast (range=r)
+        | SynExpr.AddressOf (range=r)
+        | SynExpr.Downcast (range=r)
+        | SynExpr.JoinIn (range=r)
+        | SynExpr.InferredUpcast (range=r)
+        | SynExpr.InferredDowncast (range=r)
+        | SynExpr.Null r
+        | SynExpr.Lazy (range=r)
+        | SynExpr.TraitCall (range=r)
+        | SynExpr.ImplicitZero r
+        | SynExpr.YieldOrReturn (range=r)
+        | SynExpr.YieldOrReturnFrom (range=r)
+        | SynExpr.LetOrUseBang  (range=r)
+        | SynExpr.DoBang  (_,r) -> r
         // these are better than just .Range, and also commonly applicable inside queries
         | SynExpr.Paren(_,m,_,_) -> m
         | SynExpr.Sequential (_,_,e1,_,_)
         | SynExpr.App (_,_,e1,_,_) ->
             e1.RangeOfFirstPortion 
-        | SynExpr.ForEach (_,_,_,pat,_,_,m) ->
-            let start = m.Start 
+        | SynExpr.ForEach (_,_,_,pat,_,_,r) ->
+            let start = r.Start 
             let e = (pat.Range : range).Start 
-            mkRange m.FileName start e
+            mkRange r.FileName start e
         | SynExpr.Ident id -> id.idRange
 
 
@@ -899,10 +908,10 @@ and
     ///   isCompilerGenerated : true if a compiler generated name 
     ///   isThisVar: true if 'this' variable in member  
     ///   isOptArg: true if a '?' is in front of the name
-    | Id of  Ident * SynSimplePatAlternativeIdInfo ref option * bool * bool *  bool * range
+    | Id of  ident:Ident * altNameRefCell:SynSimplePatAlternativeIdInfo ref option * isCompilerGenerated:bool * isThisVar:bool *  isOptArg:bool * range:range
 
-    | Typed of  SynSimplePat * SynType * range
-    | Attrib of  SynSimplePat * SynAttributes * range
+    | Typed of  SynSimplePat * typeName:SynType * range:range
+    | Attrib of  SynSimplePat * attributes:SynAttributes * range:range
 
 
 and SynSimplePatAlternativeIdInfo = 
@@ -914,8 +923,8 @@ and SynSimplePatAlternativeIdInfo =
 and 
     [<NoEquality; NoComparison>]
     SynStaticOptimizationConstraint =
-    | WhenTyparTyconEqualsTycon of SynTypar *  SynType * range
-    | WhenTyparIsStruct of SynTypar * range
+    | WhenTyparTyconEqualsTycon of SynTypar *  SynType * range:range
+    | WhenTyparIsStruct of SynTypar * range:range
 
 and  
     [<NoEquality; NoComparison;RequireQualifiedAccess>]
@@ -924,61 +933,74 @@ and
     /// from the construct, e.g. after changing a "function pat1 -> rule1 | ..." to a 
     /// "fun v -> match v with ..."
     SynSimplePats =
-    | SimplePats of SynSimplePat list * range
-    | Typed of  SynSimplePats * SynType * range
+    | SimplePats of SynSimplePat list * range:range
+    | Typed of  SynSimplePats * SynType * range:range
 
 and SynConstructorArgs =
     | Pats of SynPat list
-    | NamePatPairs of (Ident * SynPat) list * range
+    | NamePatPairs of (Ident * SynPat) list * range:range
 and  
     [<NoEquality; NoComparison;RequireQualifiedAccess>]
     SynPat =
-    | Const of SynConst * range
+    | Const of constant:SynConst * range:range
     | Wild of range
-    | Named of  SynPat * Ident *  bool (* true if 'this' variable *)  * SynAccess option * range
-    | Typed of  SynPat * SynType * range
-    | Attrib of  SynPat * SynAttributes * range
-    | Or of  SynPat * SynPat * range
-    | Ands of  SynPat list * range
-    | LongIdent of LongIdentWithDots * (* holds additional ident for tooling *) Ident option * SynValTyparDecls option (* usually None: temporary used to parse "f<'a> x = x"*) * SynConstructorArgs  * SynAccess option * range
-    | Tuple of  SynPat list * range
-    | Paren of  SynPat * range
-    | ArrayOrList of  bool * SynPat list * range
-    | Record of ((LongIdent * Ident) * SynPat) list * range
+    | Named of  SynPat * id:Ident *  isThisVar:bool (* true if 'this' variable *)  * accessiblity:SynAccess option * range:range
+    | Typed of  SynPat * typeName:SynType * range:range
+    | Attrib of  SynPat * attributes:SynAttributes * range:range
+    | Or of  SynPat * SynPat * range:range
+    | Ands of  SynPat list * range:range
+    | LongIdent of dotId:LongIdentWithDots * (* holds additional ident for tooling *) Ident option * SynValTyparDecls option (* usually None: temporary used to parse "f<'a> x = x"*) * SynConstructorArgs  * SynAccess option * range:range
+    | Tuple of  SynPat list * range:range
+    | Paren of  SynPat * range:range
+    | ArrayOrList of  bool * SynPat list * range:range
+    | Record of fields:((LongIdent * Ident) * SynPat) list * range:range
     /// 'null'
     | Null of range
     /// '?id' -- for optional argument names
-    | OptionalVal of Ident * range
+    | OptionalVal of Ident * range:range
     /// ':? type '
-    | IsInst of SynType * range
+    | IsInst of typeName:SynType * range:range
     /// &lt;@ expr @&gt;, used for active pattern arguments
-    | QuoteExpr of SynExpr * range
-
+    | QuoteExpr of expr:SynExpr * range:range
     /// Deprecated character ranges
-    | DeprecatedCharRange of char * char * range
+    | DeprecatedCharRange of char * char * range:range
     /// Used internally in the type checker
-    | InstanceMember of  Ident * Ident * (* holds additional ident for tooling *) Ident option * SynAccess option * range (* adhoc overloaded method/property *)
+    | InstanceMember of  Ident * Ident * (* holds additional ident for tooling *) Ident option * accesiblity:SynAccess option * range:range (* adhoc overloaded method/property *)
 
     /// A pattern arising from a parse error
-    | FromParseError of SynPat * range
+    | FromParseError of SynPat * range:range
 
     member p.Range = 
       match p with 
-      | SynPat.Const(_,m) | SynPat.Wild m | SynPat.Named (_,_,_,_,m) | SynPat.Or (_,_,m) | SynPat.Ands (_,m) 
-      | SynPat.LongIdent (_,_,_,_,_,m) | SynPat.ArrayOrList(_,_,m) | SynPat.Tuple (_,m) |SynPat.Typed(_,_,m) |SynPat.Attrib(_,_,m) 
-      | SynPat.Record (_,m) | SynPat.DeprecatedCharRange (_,_,m) | SynPat.Null m | SynPat.IsInst (_,m) | SynPat.QuoteExpr (_,m)
-      | SynPat.InstanceMember(_,_,_,_,m) | SynPat.OptionalVal(_,m) | SynPat.Paren(_,m) 
-      | SynPat.FromParseError (_,m) -> m 
+      | SynPat.Const (range=r) 
+      | SynPat.Wild r
+      | SynPat.Named (range=r)
+      | SynPat.Or (range=r)
+      | SynPat.Ands (range=r)
+      | SynPat.LongIdent (range=r)
+      | SynPat.ArrayOrList (range=r) 
+      | SynPat.Tuple (range=r)
+      | SynPat.Typed (range=r)
+      | SynPat.Attrib (range=r)
+      | SynPat.Record (range=r)
+      | SynPat.DeprecatedCharRange (range=r)
+      | SynPat.Null r 
+      | SynPat.IsInst (range=r)
+      | SynPat.QuoteExpr (range=r)
+      | SynPat.InstanceMember (range=r)
+      | SynPat.OptionalVal (range=r)
+      | SynPat.Paren (range=r)
+      | SynPat.FromParseError (range=r) -> r
 
 and  
     [<NoEquality; NoComparison>]
     SynInterfaceImpl = 
-    | InterfaceImpl of SynType * SynBinding list * range
+    | InterfaceImpl of SynType * bindings:SynBinding list * range:range
 
 and  
     [<NoEquality; NoComparison>]
     SynMatchClause = 
-    | Clause of SynPat * SynExpr option *  SynExpr * range * SequencePointInfoForTarget
+    | Clause of SynPat * SynExpr option *  SynExpr * range:range * spTarget:SequencePointInfoForTarget
     member this.RangeOfGuardAndRhs =
         match this with
         | Clause(_,eo,e,_,_) ->
@@ -1014,19 +1036,19 @@ and
     [<NoEquality; NoComparison>]
     SynBinding = 
     | Binding of 
-        SynAccess option *
-        SynBindingKind *  
-        bool (* mustinline: *) *  
-        bool (* mutable: *) *  
-        SynAttributes * 
-        PreXmlDoc *
+        access:SynAccess option *
+        bindingKind:SynBindingKind *  
+        mustInline:bool  *  
+        isMutable:bool  *  
+        attributes:SynAttributes * 
+        xmlDoc:PreXmlDoc *
         SynValData * 
-        SynPat * 
+        headPat:SynPat * 
         SynBindingReturnInfo option * 
-        SynExpr  *
-        range *
-        SequencePointInfoForBinding
-    // no member just named "Range", as that would be confusing: 
+        expr:SynExpr  *
+        lhsRange:range *
+        spBind:SequencePointInfoForBinding
+    // no member just named 'Range', as that would be confusing: 
     //  - for everything else, the 'range' member that appears last/second-to-last is the 'full range' of the whole tree construct
     //  - but for Binding, the 'range' is only the range of the left-hand-side, the right-hand-side range is in the SynExpr
     //  - so we use explicit names to avoid confusion
@@ -1037,7 +1059,7 @@ and
 and 
     [<NoEquality; NoComparison>]
     SynBindingReturnInfo = 
-    | SynBindingReturnInfo of SynType * range * SynAttributes
+    | SynBindingReturnInfo of typeName:SynType * range:range * attributes:SynAttributes
 
 
 and 
@@ -1066,11 +1088,11 @@ and
     /// The untyped, unchecked syntax tree for a member signature, used in signature files, abstract member declarations
     /// and member constraints.
     SynMemberSig = 
-    | Member of SynValSig  * MemberFlags * range 
-    | Interface of SynType  * range
-    | Inherit of SynType * range
-    | ValField of SynField  * range
-    | NestedType  of SynTypeDefnSig * range
+    | Member of SynValSig  * memberFlags:MemberFlags * range:range 
+    | Interface of typeName:SynType  * range:range
+    | Inherit of typeName:SynType * range:range
+    | ValField of field:SynField  * range:range
+    | NestedType  of typeDefnSig:SynTypeDefnSig * range:range
 
 and SynMemberSigs = SynMemberSig list
 
@@ -1096,31 +1118,31 @@ and
     /// or implementation. 
     SynTypeDefnSimpleRepr =
     /// A union type definition, type X = A | B
-    | Union      of SynAccess option * SynUnionCases * range
+    | Union      of accessiblity:SynAccess option * cases:SynUnionCases * range:range
     /// An enum type definition, type X = A = 1 | B = 2
-    | Enum       of SynEnumCases * range
+    | Enum       of cases:SynEnumCases * range:range
     /// A record type definition, type X = { A : int; B : int }
-    | Record     of SynAccess option * SynFields * range
+    | Record     of accessiblity:SynAccess option * fields:SynFields * range:range
     /// An object oriented type definition. This is not a parse-tree form, but represents the core
-    /// type representation which the type checker splits out from the "ObjectModel" cases of type definitions.
-    | General    of SynTypeDefnKind * (SynType * range * Ident option) list * (SynValSig * MemberFlags) list * SynField list  * bool * bool * SynSimplePat list option * range 
+    /// type representation which the type checker splits out from the 'ObjectModel' cases of type definitions.
+    | General    of SynTypeDefnKind * (SynType * range * Ident option) list * (SynValSig * MemberFlags) list * SynField list  * bool * bool * SynSimplePat list option * range:range 
     /// A type defined by using an IL assembly representation. Only used in FSharp.Core.
     /// 
-    /// F# syntax: "type X = (# "..."#)
-    | LibraryOnlyILAssembly of ILType * range
-    /// A type abbreviation, "type X = A.B.C"
-    | TypeAbbrev of ParserDetail * SynType * range
-    /// An abstract definition , "type X"
+    /// F# syntax: type X = (# '...' #)
+    | LibraryOnlyILAssembly of ILType * range:range
+    /// A type abbreviation, 'type X = A.B.C'
+    | TypeAbbrev of ParserDetail * SynType * range:range
+    /// An abstract definition , 'type X'
     | None       of range
     member this.Range =
         match this with
-        | Union(_,_,m) 
-        | Enum(_,m)
-        | Record(_,_,m)
-        | General(_,_,_,_,_,_,_,m) 
-        | LibraryOnlyILAssembly(_,m)
-        | TypeAbbrev(_,_,m)
-        | None(m) -> m
+        | Union (range=r)
+        | Enum (range=r)
+        | Record (range=r)
+        | General (range=r)
+        | LibraryOnlyILAssembly (range=r)
+        | TypeAbbrev (range=r)
+        | None r -> r
 
 and SynEnumCases = SynEnumCase list
 
@@ -1128,10 +1150,10 @@ and
     [<NoEquality; NoComparison>]
     SynEnumCase =
     /// The untyped, unchecked syntax tree for one case in an enum definition.
-    | EnumCase of SynAttributes * Ident * SynConst * PreXmlDoc * range
+    | EnumCase of attributes:SynAttributes * id:Ident * SynConst * xmlDoc:PreXmlDoc * range:range
     member this.Range =
         match this with
-        | EnumCase(_,_,_,_,m) -> m
+        | EnumCase (range=r) -> r
 
 and SynUnionCases = SynUnionCase list
 
@@ -1139,10 +1161,10 @@ and
     [<NoEquality; NoComparison>]
     SynUnionCase = 
     /// The untyped, unchecked syntax tree for one case in a union definition.
-    | UnionCase of SynAttributes * Ident * SynUnionCaseType * PreXmlDoc * SynAccess option * range
+    | UnionCase of attributes:SynAttributes * id:Ident * caseType:SynUnionCaseType * xmlDoc:PreXmlDoc * accessibility:SynAccess option * range:range
     member this.Range =
         match this with
-        | UnionCase(_,_,_,_,_,m) -> m
+        | UnionCase (range=r) -> r
 
 and 
     [<NoEquality; NoComparison>]
@@ -1150,7 +1172,7 @@ and
     /// in either a signature or implementation.
     SynUnionCaseType = 
     /// Normal style declaration 
-    | UnionCaseFields of SynField list      
+    | UnionCaseFields of cases:SynField list      
     /// Full type spec given by 'UnionCase : ty1 * tyN -> rty'. Only used in FSharp.Core, otherwise a warning.
     | UnionCaseFullType of (SynType * SynValInfo) 
 
@@ -1161,20 +1183,19 @@ and
     /// "simple" types and "object oriented" types is not particularly useful.
     SynTypeDefnSigRepr =
     /// Indicates the right right-hand-side is a class, struct, interface or other object-model type
-    | ObjectModel of SynTypeDefnKind * SynMemberSigs * range
+    | ObjectModel of SynTypeDefnKind * memberSigs:SynMemberSigs * range:range
     /// Indicates the right right-hand-side is a record, union or other simple type. 
-    | Simple of SynTypeDefnSimpleRepr * range 
+    | Simple of SynTypeDefnSimpleRepr * range:range 
     member this.Range =
         match this with
-        | ObjectModel(_,_,m) -> m
-        | Simple(_,m) -> m
+        | ObjectModel (range=r) | Simple (range=r) -> r
 
 and 
     [<NoEquality; NoComparison>]
     /// The untyped, unchecked syntax tree for a type definition in a signature
     SynTypeDefnSig =
     /// The information for a type definition in a signature
-    | TypeDefnSig of SynComponentInfo * SynTypeDefnSigRepr * SynMemberSigs * range
+    | TypeDefnSig of SynComponentInfo * SynTypeDefnSigRepr * memberSigs:SynMemberSigs * range:range
 
 and SynFields = SynField list
 
@@ -1182,7 +1203,7 @@ and
     [<NoEquality; NoComparison>]
     /// The untyped, unchecked syntax tree for a field declaration in a record or class
     SynField = 
-    | Field of SynAttributes * (* static: *) bool * Ident option * SynType * bool * PreXmlDoc * SynAccess option * range
+    | Field of attributes:SynAttributes * isStatic:bool * id:Ident option * typeName:SynType * bool * xmlDoc:PreXmlDoc * accessiblity:SynAccess option * range:range
 
 
 and 
@@ -1194,29 +1215,29 @@ and
     /// for a type definition or module. For modules, entries such as the type parameters are
     /// always empty.
     SynComponentInfo = 
-    | ComponentInfo of SynAttributes * SynTyparDecl list * SynTypeConstraint list * LongIdent * PreXmlDoc * (* preferPostfix: *) bool * SynAccess option * range
+    | ComponentInfo of attributes:SynAttributes * typeParams:SynTyparDecl list * constraints:SynTypeConstraint list * LongIdent * xmlDoc:PreXmlDoc * preferPostfix:bool * accessiblity:SynAccess option * range:range
     member this.Range =
         match this with
-        | ComponentInfo(_,_,_,_,_,_,_,m) -> m
+        | ComponentInfo (range=r) -> r
 
 and 
     [<NoEquality; NoComparison>]
     SynValSig = 
     | ValSpfn of 
-        SynAttributes * 
-        Ident * 
-        SynValTyparDecls * 
-        SynType * 
-        SynValInfo * 
+        attributes:SynAttributes * 
+        id:Ident * 
+        typeParams:SynValTyparDecls * 
+        typeName:SynType * 
+        valInfo:SynValInfo * 
         bool * 
-        bool *  (* mutable? *) 
-        PreXmlDoc * 
-        SynAccess option *
-        SynExpr option *
-        range 
+        isMutable:bool *  (* mutable? *) 
+        xmlDoc:PreXmlDoc * 
+        accessiblity:SynAccess option *
+        expr:SynExpr option *
+        range:range 
 
-    member x.RangeOfId  = let (ValSpfn(_,id,_,_,_,_,_,_,_,_,_)) = x in id.idRange
-    member x.SynInfo = let (ValSpfn(_,_,_,_,v,_,_,_,_,_,_)) = x in v
+    member x.RangeOfId  = let (ValSpfn(id=id)) = x in id.idRange
+    member x.SynInfo = let (ValSpfn(valInfo=v)) = x in v
     member x.SynType = let (ValSpfn(_,_,_,ty,_,_,_,_,_,_,_)) = x in ty
 
 /// The argument names and other metadata for a member or function
@@ -1231,31 +1252,31 @@ and
 and 
     [<NoEquality; NoComparison>]
     SynArgInfo = 
-    | SynArgInfo of SynAttributes * (*optional:*) bool *  Ident option
+    | SynArgInfo of attributes:SynAttributes * optional:bool *  id:Ident option
 
 /// The names and other metadata for the type parameters for a member or function
 and 
     [<NoEquality; NoComparison>]
     SynValTyparDecls = 
-    | SynValTyparDecls of SynTyparDecl list * bool * SynTypeConstraint list
+    | SynValTyparDecls of SynTyparDecl list * bool * constraints:SynTypeConstraint list
 
 /// 'exception E = ... '
 and [<NoEquality; NoComparison>]
     SynExceptionRepr = 
-    | ExceptionDefnRepr of SynAttributes * SynUnionCase * LongIdent option * PreXmlDoc * SynAccess option * range
-    member this.Range = match this with ExceptionDefnRepr(_,_,_,_,_,m) -> m
+    | ExceptionDefnRepr of SynAttributes * case:SynUnionCase * longId:LongIdent option * xmlDoc:PreXmlDoc * accesibility:SynAccess option * range:range
+    member this.Range = match this with ExceptionDefnRepr (range=r) -> r
 
 /// 'exception E = ... with ...'
 and 
     [<NoEquality; NoComparison>]
     SynExceptionDefn = 
-    | ExceptionDefn of SynExceptionRepr * SynMemberDefns * range
+    | ExceptionDefn of exnRepr:SynExceptionRepr * members:SynMemberDefns * range:range
 
 and 
     [<NoEquality; NoComparison>]
     SynTypeDefnRepr =
-    | ObjectModel  of SynTypeDefnKind * SynMemberDefns * range
-    | Simple of SynTypeDefnSimpleRepr * range
+    | ObjectModel  of SynTypeDefnKind * members:SynMemberDefns * range:range
+    | Simple of SynTypeDefnSimpleRepr * range:range
     member this.Range =
         match this with
         | ObjectModel(_,_,m) -> m
@@ -1264,7 +1285,7 @@ and
 and 
     [<NoEquality; NoComparison>]
     SynTypeDefn =
-    | TypeDefn of SynComponentInfo * SynTypeDefnRepr * SynMemberDefns * range
+    | TypeDefn of SynComponentInfo * SynTypeDefnRepr * members:SynMemberDefns * range:range
     member this.Range =
         match this with
         | TypeDefn(_,_,_,m) -> m
@@ -1272,97 +1293,97 @@ and
 and 
     [<NoEquality; NoComparison; RequireQualifiedAccess>]
     SynMemberDefn = 
-    | Open of LongIdent * range
-    | Member of SynBinding * range                          
+    | Open of longId:LongIdent * range:range
+    | Member of memberDefn:SynBinding * range:range                          
     /// implicit ctor args as a defn line, 'as' specification 
-    | ImplicitCtor of SynAccess option * SynAttributes * SynSimplePat list * Ident option * range    
+    | ImplicitCtor of accessiblity:SynAccess option * attributes:SynAttributes * ctorArgs:SynSimplePat list * selfIdentifier:Ident option * range:range    
     /// inherit <typ>(args...) as base 
-    | ImplicitInherit of SynType * SynExpr * Ident option * range   
+    | ImplicitInherit of inheritType:SynType * inheritArgs:SynExpr * inheritAlias:Ident option * range:range   
     /// LetBindings(bindingList, isStatic, isRecursive, wholeRange)
     ///
     /// localDefns 
-    | LetBindings of SynBinding list * bool * bool * range                    
-    | AbstractSlot of SynValSig * MemberFlags * range 
-    | Interface of SynType * SynMemberDefns option  * range
-    | Inherit of SynType  * Ident option * range
-    | ValField of SynField  * range
+    | LetBindings of bindings:SynBinding list * isStatic:bool * isRecursive:bool * range:range                    
+    | AbstractSlot of valSig:SynValSig * memberFlags:MemberFlags * range:range 
+    | Interface of typeName:SynType * interfaceMembers:SynMemberDefns option  * range:range
+    | Inherit of typeName:SynType  * id:Ident option * range:range
+    | ValField of field:SynField  * range:range
     /// A feature that is not implemented
-    | NestedType of SynTypeDefn * SynAccess option * range
+    | NestedType of typeDefn:SynTypeDefn * accessiblity:SynAccess option * range:range
     /// SynMemberDefn.AutoProperty (attribs,isStatic,id,tyOpt,propKind,memberFlags,xmlDoc,access,synExpr,mGetSet,mWholeAutoProp).
     /// 
     /// F# syntax: 'member val X = expr'
-    | AutoProperty of SynAttributes * bool * Ident * SynType option * MemberKind * (MemberKind -> MemberFlags) * PreXmlDoc * SynAccess option * SynExpr * range option * range
+    | AutoProperty of attributes:SynAttributes * isStatic:bool * id:Ident * tyOpt:SynType option * propKind:MemberKind * memberFlags:(MemberKind -> MemberFlags) * xmlDoc:PreXmlDoc * accessibility:SynAccess option * expr:SynExpr * getSetPos:range option * range:range
     member d.Range = 
         match d with 
-        | SynMemberDefn.Member(_, m)
-        | SynMemberDefn.Interface(_, _, m)
-        | SynMemberDefn.Open(_, m)
-        | SynMemberDefn.LetBindings(_,_,_,m) 
-        | SynMemberDefn.ImplicitCtor(_,_,_,_,m)
-        | SynMemberDefn.ImplicitInherit(_,_,_,m) 
-        | SynMemberDefn.AbstractSlot(_,_,m)
-        | SynMemberDefn.Inherit(_,_,m)
-        | SynMemberDefn.ValField(_,m)
-        | SynMemberDefn.AutoProperty(_,_,_,_,_,_,_,_,_,_,m)
-        | SynMemberDefn.NestedType(_,_,m) -> m
+        | SynMemberDefn.Member (range=r)
+        | SynMemberDefn.Interface (range=r)
+        | SynMemberDefn.Open (range=r)
+        | SynMemberDefn.LetBindings (range=r)
+        | SynMemberDefn.ImplicitCtor (range=r)
+        | SynMemberDefn.ImplicitInherit (range=r)
+        | SynMemberDefn.AbstractSlot (range=r)
+        | SynMemberDefn.Inherit (range=r)
+        | SynMemberDefn.ValField (range=r)
+        | SynMemberDefn.AutoProperty (range=r)
+        | SynMemberDefn.NestedType (range=r) -> r
       
 and SynMemberDefns = SynMemberDefn list
 
 and 
     [<NoEquality; NoComparison;RequireQualifiedAccess>]
     SynModuleDecl =
-    | ModuleAbbrev of Ident * LongIdent * range
-    | NestedModule of SynComponentInfo * SynModuleDecls * bool * range
-    | Let of bool * SynBinding list * range
-    | DoExpr of SequencePointInfoForBinding * SynExpr * range 
-    | Types of SynTypeDefn list * range
-    | Exception of SynExceptionDefn * range
-    | Open of LongIdentWithDots * range
-    | Attributes of SynAttributes * range
-    | HashDirective of ParsedHashDirective * range
+    | ModuleAbbrev of id:Ident * longId:LongIdent * range:range
+    | NestedModule of SynComponentInfo * moduleDecls:SynModuleDecls * bool * range:range
+    | Let of bool * bindings:SynBinding list * range:range
+    | DoExpr of spBind:SequencePointInfoForBinding * SynExpr * range:range 
+    | Types of typeDefns:SynTypeDefn list * range:range
+    | Exception of exnDefn:SynExceptionDefn * range:range
+    | Open of dotId:LongIdentWithDots * range:range
+    | Attributes of attributes:SynAttributes * range:range
+    | HashDirective of hashDirectives:ParsedHashDirective * range:range
     | NamespaceFragment of SynModuleOrNamespace 
     member d.Range = 
         match d with 
-        | SynModuleDecl.ModuleAbbrev(_,_,m) 
-        | SynModuleDecl.NestedModule(_,_,_,m)
-        | SynModuleDecl.Let(_,_,m) 
-        | SynModuleDecl.DoExpr(_,_,m) 
-        | SynModuleDecl.Types(_,m)
-        | SynModuleDecl.Exception(_,m)
-        | SynModuleDecl.Open (_,m)
-        | SynModuleDecl.HashDirective (_,m)
-        | SynModuleDecl.NamespaceFragment(SynModuleOrNamespace(_,_,_,_,_,_,m)) 
-        | SynModuleDecl.Attributes(_,m) -> m
+        | SynModuleDecl.ModuleAbbrev (range=r)
+        | SynModuleDecl.NestedModule (range=r)
+        | SynModuleDecl.Let (range=r)
+        | SynModuleDecl.DoExpr (range=r)
+        | SynModuleDecl.Types (range=r)
+        | SynModuleDecl.Exception (range=r)
+        | SynModuleDecl.Open (range=r)
+        | SynModuleDecl.HashDirective (range=r)
+        | SynModuleDecl.NamespaceFragment (SynModuleOrNamespace (range=r)) 
+        | SynModuleDecl.Attributes (range=r) -> r
 
 and SynModuleDecls = SynModuleDecl list
 
 and 
     [<NoEquality; NoComparison>]
     SynExceptionSig = 
-    | ExceptionSig of SynExceptionRepr * SynMemberSigs * range
+    | ExceptionSig of exnRepr:SynExceptionRepr * memberSigs:SynMemberSigs * range:range
 
 and
     [<NoEquality; NoComparison; RequireQualifiedAccess>]
     SynModuleSigDecl =
-    | ModuleAbbrev      of Ident * LongIdent * range
-    | NestedModule      of SynComponentInfo * SynModuleSigDecls * range
-    | Val               of SynValSig * range
-    | Types             of SynTypeDefnSig list * range
-    | Exception         of SynExceptionSig * range
-    | Open              of LongIdent * range
-    | HashDirective     of ParsedHashDirective * range
+    | ModuleAbbrev      of id:Ident * longId:LongIdent * range:range
+    | NestedModule      of SynComponentInfo * moduleSigDecls:SynModuleSigDecls * range:range
+    | Val               of valSig:SynValSig * range:range
+    | Types             of typeDefSigs:SynTypeDefnSig list * range:range
+    | Exception         of exnSig:SynExceptionSig * range:range
+    | Open              of longId:LongIdent * range:range
+    | HashDirective     of hashDirective:ParsedHashDirective * range:range
     | NamespaceFragment of SynModuleOrNamespaceSig 
 
     member d.Range = 
         match d with 
-        | SynModuleSigDecl.ModuleAbbrev (_,_,m)
-        | SynModuleSigDecl.NestedModule   (_,_,m)
-        | SynModuleSigDecl.Val      (_,m)
-        | SynModuleSigDecl.Types    (_,m)
-        | SynModuleSigDecl.Exception      (_,m)
-        | SynModuleSigDecl.Open     (_,m)
-        | SynModuleSigDecl.NamespaceFragment (SynModuleOrNamespaceSig(_,_,_,_,_,_,m)) 
-        | SynModuleSigDecl.HashDirective     (_,m) -> m
+        | SynModuleSigDecl.ModuleAbbrev (range=r)
+        | SynModuleSigDecl.NestedModule (range=r)
+        | SynModuleSigDecl.Val (range=r)
+        | SynModuleSigDecl.Types (range=r)
+        | SynModuleSigDecl.Exception (range=r)
+        | SynModuleSigDecl.Open (range=r)
+        | SynModuleSigDecl.NamespaceFragment (SynModuleOrNamespaceSig (range=r)) 
+        | SynModuleSigDecl.HashDirective (range=r) -> r
 
 and SynModuleSigDecls = SynModuleSigDecl list
 
@@ -1370,44 +1391,44 @@ and SynModuleSigDecls = SynModuleSigDecl list
 and 
     [<NoEquality; NoComparison>]
     SynModuleOrNamespace = 
-    | SynModuleOrNamespace of LongIdent * (*isModule:*) bool * SynModuleDecls * PreXmlDoc * SynAttributes * SynAccess option * range 
+    | SynModuleOrNamespace of id:LongIdent * isModule:bool * decls:SynModuleDecls * xmlDoc:PreXmlDoc * attributes:SynAttributes * access:SynAccess option * range:range 
     member this.Range =
         match this with
-        | SynModuleOrNamespace(_,_,_,_,_,_,m) -> m
+        | SynModuleOrNamespace (range=r) -> r
 
 and 
     [<NoEquality; NoComparison>]
     SynModuleOrNamespaceSig = 
-    | SynModuleOrNamespaceSig of LongIdent * (*isModule:*) bool * SynModuleSigDecls * PreXmlDoc * SynAttributes * SynAccess option * range 
+    | SynModuleOrNamespaceSig of id:LongIdent * isModule:bool * SynModuleSigDecls * xmlDoc:PreXmlDoc * attributes:SynAttributes * SynAccess option * range:range 
 
 and [<NoEquality; NoComparison>]
     ParsedHashDirective = 
-    | ParsedHashDirective of string * string list * range
+    | ParsedHashDirective of string * string list * range:range
 
 [<NoEquality; NoComparison; RequireQualifiedAccess>]
 type ParsedImplFileFragment = 
-    | AnonModule of SynModuleDecls * range
+    | AnonModule of moduleDecls:SynModuleDecls * range:range
     | NamedModule of SynModuleOrNamespace
-    | NamespaceFragment of LongIdent * bool * SynModuleDecls * PreXmlDoc * SynAttributes * range
+    | NamespaceFragment of longId:LongIdent * bool * moduleDecls:SynModuleDecls * xmlDoc:PreXmlDoc * attributes:SynAttributes * range:range
 
 [<NoEquality; NoComparison; RequireQualifiedAccess>]
 type ParsedSigFileFragment = 
-    | AnonModule of SynModuleSigDecls * range
+    | AnonModule of moduleSigDecl:SynModuleSigDecls * range:range
     | NamedModule of SynModuleOrNamespaceSig
-    | NamespaceFragment of LongIdent * bool * SynModuleSigDecls * PreXmlDoc * SynAttributes * range
+    | NamespaceFragment of longId:LongIdent * bool * moduleSigDecls:SynModuleSigDecls * xmlDoc:PreXmlDoc * attributes:SynAttributes * range:range
 
 [<NoEquality; NoComparison>]
 type ParsedFsiInteraction =
-    | IDefns of SynModuleDecl list * range
-    | IHash  of ParsedHashDirective * range
+    | IDefns of SynModuleDecl list * range:range
+    | IHash  of ParsedHashDirective * range:range
 
 [<NoEquality; NoComparison>]
 type ParsedImplFile = 
-    | ParsedImplFile of ParsedHashDirective list * ParsedImplFileFragment list
+    | ParsedImplFile of hashDirectives:ParsedHashDirective list * ParsedImplFileFragment list
 
 [<NoEquality; NoComparison>]
 type ParsedSigFile = 
-    | ParsedSigFile of ParsedHashDirective list * ParsedSigFileFragment list
+    | ParsedSigFile of hashDirectives:ParsedHashDirective list * ParsedSigFileFragment list
 
 //----------------------------------------------------------------------
 // AST and parsing utilities.
@@ -1443,17 +1464,17 @@ type ScopedPragma =
 [<NoEquality; NoComparison>]
 type QualifiedNameOfFile = 
     | QualifiedNameOfFile of Ident 
-    member x.Text = (let (QualifiedNameOfFile(t)) = x in t.idText)
-    member x.Id = (let (QualifiedNameOfFile(t)) = x in t)
-    member x.Range = (let (QualifiedNameOfFile(t)) = x in t.idRange)
+    member x.Text = (let (QualifiedNameOfFile t) = x in t.idText)
+    member x.Id = (let (QualifiedNameOfFile t) = x in t)
+    member x.Range = (let (QualifiedNameOfFile t) = x in t.idRange)
 
 [<NoEquality; NoComparison>]
 type ParsedImplFileInput = 
-    | ParsedImplFileInput of string * (*isScript: *) bool * QualifiedNameOfFile * ScopedPragma list * ParsedHashDirective list * SynModuleOrNamespace list * bool
+    | ParsedImplFileInput of filename:string * isScript:bool * QualifiedNameOfFile * ScopedPragma list * ParsedHashDirective list * SynModuleOrNamespace list * bool
 
 [<NoEquality; NoComparison>]
 type ParsedSigFileInput = 
-    | ParsedSigFileInput of string * QualifiedNameOfFile * ScopedPragma list * ParsedHashDirective list * SynModuleOrNamespaceSig list
+    | ParsedSigFileInput of filename:string * QualifiedNameOfFile * ScopedPragma list * ParsedHashDirective list * SynModuleOrNamespaceSig list
 
 [<NoEquality; NoComparison; RequireQualifiedAccess>]
 type ParsedInput = 
@@ -1462,8 +1483,8 @@ type ParsedInput =
 
     member inp.Range = 
         match inp with
-        | ParsedInput.ImplFile (ParsedImplFileInput(_,_,_,_,_,(SynModuleOrNamespace(_,_,_,_,_,_,m) :: _),_))
-        | ParsedInput.SigFile (ParsedSigFileInput(_,_,_,_,(SynModuleOrNamespaceSig(_,_,_,_,_,_,m) :: _))) -> m
+        | ParsedInput.ImplFile (ParsedImplFileInput(_,_,_,_,_,(SynModuleOrNamespace(range=r) :: _),_))
+        | ParsedInput.SigFile (ParsedSigFileInput(_,_,_,_,(SynModuleOrNamespaceSig(range=r) :: _))) -> r
         | ParsedInput.ImplFile (ParsedImplFileInput(filename,_,_,_,_,[],_))
         | ParsedInput.SigFile (ParsedSigFileInput(filename,_,_,_,[])) ->
 #if DEBUG      

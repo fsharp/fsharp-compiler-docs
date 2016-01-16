@@ -9,7 +9,7 @@ open System.Reflection
 open System.Runtime.Serialization.Formatters.Binary
 open System.Runtime.Serialization.Json
 
-module Program =
+module internal Program =
   let runningOnMono = 
       try match System.Type.GetType("Mono.Runtime") with null -> false | _ -> true
       with e -> false

@@ -351,20 +351,11 @@ ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", 
 
 (**
 
-Another utility is provided to obtain a detailed view of the resolved and processed project file. The returned object can be used to access the fully resolved references, source files that will be included during compilation, and other options.
-
-*)
-
-FSharpProjectFileInfo.Parse(projectFile, [("Configuration", "Release")])
-
-(**
-
 For debugging purposes it is also possible to obtain a detailed log from the assembly resolution process.
 
 *)
 
-let p = FSharpProjectFileInfo.Parse(projectFile, enableLogging=true)
-Console.WriteLine(p.LogOutput)
+let options, logs = ProjectCracker.GetProjectOptionsFromProjectFileLogged(projectFile, [("Configuration", "Release")])
 
 (**
 Summary

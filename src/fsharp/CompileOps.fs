@@ -3744,7 +3744,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
                   FileName=fileName;
                   ProviderGeneratedAssembly=Some theActualAssembly
                   IsProviderGenerated=true;
-                  ProviderGeneratedStaticLinkMap= if g.isInteractive then None else Some (ProvidedAssemblyStaticLinkingMap.CreateNew())
+                  ProviderGeneratedStaticLinkMap= (*if g.isInteractive then None else*) Some (ProvidedAssemblyStaticLinkingMap.CreateNew())
                   ILScopeRef = ilScopeRef;
                   ILAssemblyRefs = ilAssemblyRefs }
             tcImports.RegisterDll(dllinfo);

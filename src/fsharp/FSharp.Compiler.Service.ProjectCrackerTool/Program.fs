@@ -55,7 +55,6 @@ module internal Program =
           else
               None
 
-      // Use the old API on Mono, with ToolsVersion = 12.0
       let CrackProjectUsingOldBuildAPI(fsprojFile:string) = 
           let engine = new Microsoft.Build.BuildEngine.Engine()
           Option.iter (fun l -> engine.RegisterLogger(l)) logOpt
@@ -108,6 +107,22 @@ module internal Program =
 
           outFileOpt, directory, getItems, references, projectReferences, getProp project, project.FullFileName
 
+      let vs =
+          let programFiles =
+              let getEnv v =
+                  let result = System.Environment.GetEnvironmentVariable(v)
+                  match result with
+                  | null -> None
+                  | _ -> Some result
+
+              match List.tryPick getEnv [ "ProgramFiles(x86)";  "ProgramFiles" ] with
+              | Some r -> r
+              | None -> "C:\\Program Files (x86)"
+
+          let vsVersions = ["14.0"; "12.0"]
+          let msbuildBin v = IO.Path.Combine(programFiles, "MSBuild", v, "Bin", "MSBuild.exe")
+          List.tryFind (fun v -> IO.File.Exists(msbuildBin v)) vsVersions
+
       let CrackProjectUsingNewBuildAPI(fsprojFile) =
           let fsprojFullPath = try Path.GetFullPath(fsprojFile) with _ -> fsprojFile
           let fsprojAbsDirectory = Path.GetDirectoryName fsprojFullPath
@@ -128,7 +143,10 @@ module internal Program =
               let project = engine.LoadProject(xmlReader, FullPath=fsprojFullPath)
               
               project.SetGlobalProperty("BuildingInsideVisualStudio", "true") |> ignore
-              project.SetGlobalProperty("VisualStudioVersion", "12.0") |> ignore
+              if not (List.exists (fun (p,_) -> p = "VisualStudioVersion") properties) then
+                  match vs with
+                  | Some version -> project.SetGlobalProperty("VisualStudioVersion", version) |> ignore
+                  | None -> ()
               project.SetGlobalProperty("ShouldUnsetParentConfigurationAndPlatform", "false") |> ignore
               for (prop, value) in properties do
                     project.SetGlobalProperty(prop, value) |> ignore

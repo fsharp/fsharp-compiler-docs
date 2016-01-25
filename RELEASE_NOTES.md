@@ -1,3 +1,8 @@
+#### 2.0.0.3
+* #508 - Integrate visualfsharp/master removal of Silverlight #if
+* #513 - Make CrackerTool `internal` to prevent accidental usage
+* #515 - Add simple Visual Studio version detection for project cracker
+
 #### 2.0.0.2
 * Integrate visualfsharp/master and fsharp/master --> master
 * Expose QualifiedName and FileName of FSharpImplementationFileContents

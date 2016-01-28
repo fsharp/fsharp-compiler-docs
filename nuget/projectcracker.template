@@ -13,10 +13,10 @@ tags
     F#, fsharp, msbuild, editor
 files
     ../src/fsharp/FSharp.Compiler.Service.ProjectCrackerTool/FSharp.Compiler.Service.ProjectCrackerTool.targets ==> build/net45
-    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe ==> content/net45
-    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.config ==> content/net45
-    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.?db ==> content/net45
-    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.?db ==> content/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe ==> utilities/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.config ==> utilities/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.?db ==> utilities/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.?db ==> utilities/net45
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.xml ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.?db ==> lib/net45

@@ -124,7 +124,7 @@ fsiSession.EvalScript "sample.fsx"
 --------
 
 コードに型チェックの警告やエラーがあった場合、または評価して例外で失敗した場合、
-`EvalExpression` 、 `EvalInteraction` そして `EvalScript` はあまりうまく処理されません。
+`EvalExpression` 、 `EvalInteraction` そして `EvalScript` ではあまりうまく処理されません。
 これらのケースでは、 `EvalExpressionNonThrowing` 、 `EvalInteractionNonThrowing`
 そして `EvalScriptNonThrowing` を使うことが出来ます。
 これらは結果と `FSharpErrorInfo` 値の配列の組を返します。

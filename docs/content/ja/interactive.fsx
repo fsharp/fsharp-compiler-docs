@@ -113,7 +113,7 @@ fsiSession.EvalInteraction "printfn \"bye\""
 
 
 (**
-`EvalScript` メソッドを使用すると、完全な .fsx スクリプトを評価することが出来ます。
+`EvalScript` メソッドを使用すると、完全な .fsx スクリプトを評価することができます。
 *)
 
 File.WriteAllText("sample.fsx", "let twenty = 10 + 10")
@@ -124,7 +124,7 @@ fsiSession.EvalScript "sample.fsx"
 --------
 
 コードに型チェックの警告やエラーがあった場合、または評価して例外で失敗した場合、
-`EvalExpression` 、 `EvalInteraction` そして `EvalScript` は不器用です。
+`EvalExpression` 、 `EvalInteraction` そして `EvalScript` はあまりうまく処理されません。
 これらのケースでは、 `EvalExpressionNonThrowing` 、 `EvalInteractionNonThrowing`
 そして `EvalScriptNonThrowing` を使うことが出来ます。
 これらは結果と `FSharpErrorInfo` 値の配列の組を返します。
@@ -268,9 +268,8 @@ let fsiConfig2 = FsiEvaluationSession.GetDefaultConfiguration(fsi)
 FsiEvaluationSessionを使用してコードを評価すると、
 .NET の動的アセンブリを生成し、他のリソースを使用します。
 `collectible=true` を渡すことで、生成されたコードを収集可能に出来ます。
-しかしながら、例えば `EvalExpression` から返される `FsiValue` オブジェクトがあって、
-`FsiEvaluationSession` を破棄してしまったに違いないような、
-型を含む未解放のオブジェクト参照がない場合に限ってコードは収集可能です。
+しかしながら、例えば `EvalExpression` から返される `FsiValue` のような型を必要とする未解放のオブジェクト参照が無く、
+かつ `FsiEvaluationSession` を破棄したに違いない場合に限ってコードが収集されます。
 [収集可能なアセンブリに対する制限](https://msdn.microsoft.com/ja-jp/library/dd554932%28v=vs.110%29.aspx#Anchor_1)
 も参照してください。
 

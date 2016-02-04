@@ -398,5 +398,14 @@ let ``Project file parsing -- project file contains project reference to out-of-
     // Check the reference is to a debug DLL
     references |> should contain ("TestTP.dll", "Debug")
 
+[<Test>]
+let ``Project file parsing -- space in file name``() =
+  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Space in name.fsproj")
+
+  p.OtherOptions
+  |> getCompiledFilenames
+  |> set
+  |> should equal (set [ "Test2File1.fs"; "Test2File2.fs" ])
+
 #endif
 

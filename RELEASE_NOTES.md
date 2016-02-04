@@ -1,3 +1,7 @@
+#### 2.0.0.4
+* #519 - Change nuget layout for ProjectCracker package
+* #523 - Project cracking: spaces in file paths
+
 #### 2.0.0.3
 * #508 - Integrate visualfsharp/master removal of Silverlight #if
 * #513 - Make CrackerTool `internal` to prevent accidental usage

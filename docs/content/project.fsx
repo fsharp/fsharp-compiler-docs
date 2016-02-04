@@ -315,13 +315,11 @@ FSharp.Compiler.Service.ProjectCracker. This NuGet package contains a
 library FSharp.Compiler.Service.ProjectCracker.dll, which should be
 referenced by your application directly, and an executable
 FSharp.Compiler.Service.ProjectCrackerTool.exe, which should be copied
-into the output folder of your application by the build process. This
-can be accomplished by adding lines to your `.fsproj` file similar to:
-
-    <Target Name="AfterBuild">
-        <Copy SourceFiles="..\packages\FSharp.Compiler.Service.ProjectCracker\lib\net45\FSharp.Compiler.Service.ProjectCrackerTool.exe" DestinationFolder="$(OutputPath)" />
-        <Copy SourceFiles="..\packages\FSharp.Compiler.Service.ProjectCracker\lib\net45\FSharp.Compiler.Service.ProjectCrackerTool.exe.config" DestinationFolder="$(OutputPath)" />
-    </Target>
+into the output folder of your application by the build process. If
+you install using Paket or NuGet, then this will be configured for you
+automatically. If not, you should reference the provided `.targets`
+file manually in your application. This can be found in the NuGet
+package at `build/net45/FSharp.Compiler.Service.ProjectCrackerTool.targets`.
 
 The reason for this split is so that the analysis of an F# project
 file is performed out of process, in order that the necessary assembly

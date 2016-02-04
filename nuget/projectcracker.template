@@ -12,10 +12,11 @@ iconurl https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.p
 tags
     F#, fsharp, msbuild, editor
 files
-    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe ==> lib/net45
-    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.config ==> lib/net45
-    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.?db ==> lib/net45
-    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.?db ==> lib/net45
+    ../src/fsharp/FSharp.Compiler.Service.ProjectCrackerTool/FSharp.Compiler.Service.ProjectCrackerTool.targets ==> build/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe ==> utilities/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.config ==> utilities/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.?db ==> utilities/net45
+    ../bin/v4.5/FSharp.Compiler.Service.ProjectCrackerTool.exe.?db ==> utilities/net45
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.xml ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.?db ==> lib/net45

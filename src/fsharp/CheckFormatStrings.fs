@@ -193,27 +193,30 @@ let parseFormatStringInternal (m:range) g (source: string option) fmt bty cty =
                   checkNoZeroFlag c 
                   checkNoNumericPrefix c
 
-              let collectSpecifierLocation relLine relCol = 
+              let collectSpecifierLocation relLine relCol numStdArgs = 
+                  let numArgsForSpecifier =
+                    numStdArgs + (if widthArg then 1 else 0) + (if precisionArg then 1 else 0)
                   match relLine with
                   | 0 ->
                       specifierLocations.Add(
-                        Range.mkFileIndexRange m.FileIndex 
+                        (Range.mkFileIndexRange m.FileIndex 
                                 (Range.mkPos m.StartLine (startCol + offset)) 
-                                (Range.mkPos m.StartLine (relCol + offset)))
+                                (Range.mkPos m.StartLine (relCol + offset))), numArgsForSpecifier)
                   | _ ->
                       specifierLocations.Add(
-                        Range.mkFileIndexRange m.FileIndex 
+                        (Range.mkFileIndexRange m.FileIndex 
                                 (Range.mkPos (m.StartLine + relLine) startCol) 
-                                (Range.mkPos (m.StartLine + relLine) relCol))
+                                (Range.mkPos (m.StartLine + relLine) relCol)), numArgsForSpecifier)
 
               let ch = fmt.[i]
               match ch with
-              | '%' -> 
+              | '%' ->
+                  collectSpecifierLocation relLine relCol 0
                   parseLoop acc (i+1, relLine, relCol+1) 
 
               | ('d' | 'i' | 'o' | 'u' | 'x' | 'X') ->
                   if info.precision then failwithf "%s" <| FSComp.SR.forFormatDoesntSupportPrecision(ch.ToString())
-                  collectSpecifierLocation relLine relCol
+                  collectSpecifierLocation relLine relCol 1
                   parseLoop ((posi, mkFlexibleIntFormatTypar g m) :: acc) (i+1, relLine, relCol+1)
 
               | ('l' | 'L') ->
@@ -228,7 +231,7 @@ let parseFormatStringInternal (m:range) g (source: string option) fmt bty cty =
                   failwithf "%s" <| FSComp.SR.forLIsUnnecessary()
                   match fmt.[i] with
                   | ('d' | 'i' | 'o' | 'u' | 'x' | 'X') -> 
-                      collectSpecifierLocation relLine relCol
+                      collectSpecifierLocation relLine relCol 1
                       parseLoop ((posi, mkFlexibleIntFormatTypar g m) :: acc)  (i+1, relLine, relCol+1)
                   | _ -> failwithf "%s" <| FSComp.SR.forBadFormatSpecifier()
 
@@ -236,38 +239,38 @@ let parseFormatStringInternal (m:range) g (source: string option) fmt bty cty =
                   failwithf "%s" <| FSComp.SR.forHIsUnnecessary()
 
               | 'M' -> 
-                  collectSpecifierLocation relLine relCol
+                  collectSpecifierLocation relLine relCol 1
                   parseLoop ((posi, g.decimal_ty) :: acc) (i+1, relLine, relCol+1)
 
               | ('f' | 'F' | 'e' | 'E' | 'g' | 'G') ->
-                  collectSpecifierLocation relLine relCol
+                  collectSpecifierLocation relLine relCol 1
                   parseLoop ((posi, mkFlexibleFloatFormatTypar g m) :: acc) (i+1, relLine, relCol+1)
 
               | 'b' ->
                   checkOtherFlags ch
-                  collectSpecifierLocation relLine relCol
+                  collectSpecifierLocation relLine relCol 1
                   parseLoop ((posi, g.bool_ty)  :: acc) (i+1, relLine, relCol+1)
 
               | 'c' ->
                   checkOtherFlags ch
-                  collectSpecifierLocation relLine relCol
+                  collectSpecifierLocation relLine relCol 1
                   parseLoop ((posi, g.char_ty)  :: acc) (i+1, relLine, relCol+1)
 
               | 's' ->
                   checkOtherFlags ch
-                  collectSpecifierLocation relLine relCol
+                  collectSpecifierLocation relLine relCol 1
                   parseLoop ((posi, g.string_ty)  :: acc) (i+1, relLine, relCol+1)
 
               | 'O' ->
                   checkOtherFlags ch
-                  collectSpecifierLocation relLine relCol
+                  collectSpecifierLocation relLine relCol 1
                   parseLoop ((posi, NewInferenceType ()) :: acc) (i+1, relLine, relCol+1)
 
               | 'A' ->
                   match info.numPrefixIfPos with
                   | None     // %A has BindingFlags=Public, %+A has BindingFlags=Public | NonPublic
                   | Some '+' -> 
-                      collectSpecifierLocation relLine relCol
+                      collectSpecifierLocation relLine relCol 1
                       parseLoop ((posi, NewInferenceType ()) :: acc)  (i+1, relLine, relCol+1)
                   | Some _   -> failwithf "%s" <| FSComp.SR.forDoesNotSupportPrefixFlag(ch.ToString(), (Option.get info.numPrefixIfPos).ToString())
 
@@ -275,12 +278,12 @@ let parseFormatStringInternal (m:range) g (source: string option) fmt bty cty =
                   checkOtherFlags ch
                   let xty = NewInferenceType () 
                   let fty = bty --> (xty --> cty)
-                  collectSpecifierLocation relLine relCol
+                  collectSpecifierLocation relLine relCol 1
                   parseLoop ((Option.map ((+)1) posi, xty) ::  (posi, fty) :: acc) (i+1, relLine, relCol+1)
 
               | 't' ->
                   checkOtherFlags ch
-                  collectSpecifierLocation relLine relCol
+                  collectSpecifierLocation relLine relCol 1
                   parseLoop ((posi, bty --> cty) :: acc)  (i+1, relLine, relCol+1)
 
               | c -> failwithf "%s" <| FSComp.SR.forBadFormatSpecifierGeneral(String.make 1 c) 

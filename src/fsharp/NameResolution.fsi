@@ -233,7 +233,7 @@ type internal TcSymbolUses =
 
     member GetAllUsesOfSymbols : unit -> (Item * ItemOccurence * DisplayEnv * range)[]
 
-    member GetFormatSpecifierLocations : unit -> range[]
+    member GetFormatSpecifierLocationsAndArity : unit -> (range * int)[]
 
 
 /// An abstract type for reporting the results of name resolution and type checking
@@ -241,7 +241,7 @@ type ITypecheckResultsSink =
     abstract NotifyEnvWithScope   : range * NameResolutionEnv * AccessorDomain -> unit
     abstract NotifyExprHasType    : pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
     abstract NotifyNameResolution : pos * Item * Item * ItemOccurence * DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
-    abstract NotifyFormatSpecifierLocation : range -> unit
+    abstract NotifyFormatSpecifierLocation : range * int -> unit
     abstract CurrentSource : string option
 
 type internal TcResultsSinkImpl =

@@ -1105,7 +1105,7 @@ type ITypecheckResultsSink =
     abstract NotifyEnvWithScope : range * NameResolutionEnv * AccessorDomain -> unit
     abstract NotifyExprHasType : pos * TType * Tastops.DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
     abstract NotifyNameResolution : pos * Item * Item * ItemOccurence * Tastops.DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
-    abstract NotifyFormatSpecifierLocation : range -> unit
+    abstract NotifyFormatSpecifierLocation : range * int -> unit
     abstract CurrentSource : string option
 
 let (|ValRefOfProp|_|) (pi : PropInfo) = pi.ArbitraryValRef
@@ -1301,7 +1301,7 @@ type TcResolutions
 
 
 /// Represents container for all name resolutions that were met so far when typechecking some particular file
-type TcSymbolUses(g, capturedNameResolutions : ResizeArray<CapturedNameResolution>, formatSpecifierLocations: range[]) = 
+type TcSymbolUses(g, capturedNameResolutions : ResizeArray<CapturedNameResolution>, formatSpecifierLocations: (range * int)[]) = 
 
     member this.GetUsesOfSymbol(item) = 
         [| for cnr in capturedNameResolutions do
@@ -1312,7 +1312,7 @@ type TcSymbolUses(g, capturedNameResolutions : ResizeArray<CapturedNameResolutio
         [| for cnr in capturedNameResolutions do
               yield (cnr.Item, cnr.ItemOccurence, cnr.DisplayEnv, cnr.Range) |]
 
-    member this.GetFormatSpecifierLocations() =  formatSpecifierLocations
+    member this.GetFormatSpecifierLocationsAndArity() =  formatSpecifierLocations
 
 
 /// An accumulator for the results being emitted into the tcSink.
@@ -1367,8 +1367,8 @@ type TcResultsSinkImpl(g, ?source: string) =
                     capturedNameResolutions.Add(CapturedNameResolution(endPos,item,occurenceType,denv,nenv,ad,m)) 
                     capturedMethodGroupResolutions.Add(CapturedNameResolution(endPos,itemMethodGroup,occurenceType,denv,nenv,ad,m)) 
 
-        member sink.NotifyFormatSpecifierLocation(m) = 
-            capturedFormatSpecifierLocations.Add(m)
+        member sink.NotifyFormatSpecifierLocation(m, numArgs) = 
+            capturedFormatSpecifierLocations.Add((m, numArgs))
 
         member sink.CurrentSource = source
 

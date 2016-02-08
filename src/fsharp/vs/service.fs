@@ -1472,11 +1472,11 @@ type TypeCheckInfo
         [ for x in tcImports.GetImportedAssemblies() do 
                 yield FSharpAssembly(g, tcImports, x.FSharpViewOfMetadata) ]
 
-    // Not, this does not have to be a SyncOp, it can be called from any thread
-    member scope.GetFormatSpecifierLocations() = 
-         sSymbolUses.GetFormatSpecifierLocations() 
+    // Note, this does not have to be a SyncOp, it can be called from any thread
+    member scope.GetFormatSpecifierLocationsAndArity() = 
+         sSymbolUses.GetFormatSpecifierLocationsAndArity()
 
-    // Not, this does not have to be a SyncOp, it can be called from any thread
+    // Note, this does not have to be a SyncOp, it can be called from any thread
     member scope.GetExtraColorizations() = 
          [| for cnr in sResolutions.CapturedNameResolutions do  
                match cnr with 
@@ -2053,13 +2053,15 @@ type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo 
             scope.GetSymbolUseAtLocation (line, lineStr, colAtEndOfNames, names)
             |> Option.map (fun (sym,_,_) -> sym))
 
-
     member info.GetFormatSpecifierLocations() = 
+        info.GetFormatSpecifierLocationsAndArity() |> Array.map fst
+
+    member info.GetFormatSpecifierLocationsAndArity() = 
         threadSafeOp 
            (fun () -> [| |]) 
            (fun (scope, _builder, _reactor) -> 
-            // This operation is not asynchronous - GetFormatSpecifierLocations can be run on the calling thread
-            scope.GetFormatSpecifierLocations())
+            // This operation is not asynchronous - GetFormatSpecifierLocationsAndArity can be run on the calling thread
+            scope.GetFormatSpecifierLocationsAndArity())
 
     member info.GetExtraColorizationsAlternate() = 
         threadSafeOp 

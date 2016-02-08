@@ -385,30 +385,58 @@ let _ = List.map (sprintf @"%A
 let _ = (10, 12) ||> sprintf "%A
                               %O"
 let _ = sprintf "\n%-8.1e+567" 1.0
-let _ = sprintf @"%O\n%-5s" "1" "2" """
+let _ = sprintf @"%O\n%-5s" "1" "2" 
+let _ = sprintf "%%"
+let _ = sprintf " %*%" 2
+let _ = sprintf "  %.*%" 2
+let _ = sprintf "   %*.1%" 2
+let _ = sprintf "    %*s" 10 "hello"
+let _ = sprintf "     %*.*%" 2 3
+let _ = sprintf "      %*.*f" 2 3 4.5
+let _ = sprintf "       %.*f" 3 4.5
+let _ = sprintf "        %*.1f" 3 4.5
+let _ = sprintf "         %6.*f" 3 4.5
+let _ = sprintf "          %6.*%" 3
+let _ =  printf "           %a" (fun _ _ -> ()) 2
+let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2
+"""
 
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocations() 
-    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
-    |> shouldEqual [|(2, 45, 2, 46); 
-                     (3, 23, 3, 24); 
-                     (4, 38, 4, 39); 
-                     (5, 29, 5, 30); 
-                     (6, 17, 6, 19);
-                     (7, 17, 7, 21); 
-                     (8, 17, 8, 22);
-                     (9, 18, 9, 21); 
-                     (10, 18, 10, 20);
-                     (12, 12, 12, 14); 
-                     (15, 12, 15, 14);
-                     (16, 28, 16, 29); 
-                     (18, 30, 18, 31);
-                     (19, 30, 19, 31);
-                     (20, 19, 20, 24); 
-                     (21, 18, 21, 19); (21, 22, 21, 25)|]
+    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
+    |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
+    |> shouldEqual [|(2, 45, 2, 46, 1); 
+                     (3, 23, 3, 24, 1); 
+                     (4, 38, 4, 39, 1); 
+                     (5, 29, 5, 30, 1); 
+                     (6, 17, 6, 19, 2);
+                     (7, 17, 7, 21, 1); 
+                     (8, 17, 8, 22, 1);
+                     (9, 18, 9, 21, 1); 
+                     (10, 18, 10, 20, 1);
+                     (12, 12, 12, 14, 1); 
+                     (15, 12, 15, 14, 1);
+                     (16, 28, 16, 29, 1); 
+                     (18, 30, 18, 31, 1);
+                     (19, 30, 19, 31, 1);
+                     (20, 19, 20, 24, 1); 
+                     (21, 18, 21, 19, 1);
+                     (21, 22, 21, 25, 1);
+                     (22, 17, 22, 18, 0);
+                     (23, 18, 23, 20, 1);
+                     (24, 19, 24, 22, 1);
+                     (25, 20, 25, 24, 1);
+                     (26, 21, 26, 23, 2);
+                     (27, 22, 27, 26, 2);
+                     (28, 23, 28, 27, 3);
+                     (29, 24, 29, 27, 2);
+                     (30, 25, 30, 29, 2);
+                     (31, 26, 31, 30, 2);
+                     (32, 27, 32, 31, 1);
+                     (33, 28, 33, 29, 2);
+                     (34, 29, 34, 31, 3)|]
 
 [<Test>]
 let ``Printf specifiers for triple-quote strings`` () = 
@@ -426,12 +454,13 @@ let _ = List.iter(printfn \"\"\"%-A
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocations() 
-    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
-    |> shouldEqual [|(2, 19, 2, 21);
-                     (4, 12, 4, 14);
-                     (6, 29, 6, 31);
-                     (7, 29, 7, 30); (7, 33, 7, 34)|]
+    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
+    |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
+    |> shouldEqual [|(2, 19, 2, 21, 1);
+                     (4, 12, 4, 14, 1);
+                     (6, 29, 6, 31, 1);
+                     (7, 29, 7, 30, 1);
+                     (7, 33, 7, 34, 1)|]
  
 [<Test>]
 let ``Printf specifiers for user-defined functions`` () = 
@@ -446,25 +475,27 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocations() 
-    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
-    |> shouldEqual [|(3, 24, 3, 25); 
-                     (3, 29, 3, 30);
-                     (4, 58, 4, 59); (4, 75, 4, 76); (4, 82, 4, 83); (4, 108, 4, 109)|]
+    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
+    |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
+    |> shouldEqual [|(3, 24, 3, 25, 1); 
+                     (3, 29, 3, 30, 1);
+                     (4, 58, 4, 59, 1);
+                     (4, 75, 4, 76, 1);
+                     (4, 82, 4, 83, 1);
+                     (4, 108, 4, 109, 1)|]
 
 [<Test>]
 let ``should not report format specifiers for illformed format strings`` () = 
     let input = 
       """
 let _ = sprintf "%.7f %7.1A %7.f %--8.1f"
-let _ = sprintf "%%A"
 let _ = sprintf "ABCDE"
 """
 
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
-    typeCheckResults.GetFormatSpecifierLocations() 
-    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
+    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
+    |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [||]
 
 [<Test>]

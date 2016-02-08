@@ -260,7 +260,11 @@ type FSharpCheckFileResults =
     member GetExtraColorizationsAlternate : unit -> (range * FSharpTokenColorKind)[]
 
     /// <summary>Get the locations of format specifiers</summary>
+    [<System.Obsolete("This member has been replaced by GetFormatSpecifierLocationsAndArity, which returns both range and arity of specifiers")>]
     member GetFormatSpecifierLocations : unit -> range[]
+
+    /// <summary>Get the locations of and number of arguments associated with format specifiers</summary>
+    member GetFormatSpecifierLocationsAndArity : unit -> (range*int)[]
 
     /// Get all textual usages of all symbols throughout the file
     member GetAllUsesOfAllSymbolsInFile : unit -> Async<FSharpSymbolUse[]>

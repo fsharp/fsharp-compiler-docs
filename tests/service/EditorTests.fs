@@ -403,7 +403,7 @@ let _ = sprintf "          %6.*%" 3
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocations() 
+    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [|(2, 45, 2, 46, 1); 
                      (3, 23, 3, 24, 1); 
@@ -450,7 +450,7 @@ let _ = List.iter(printfn \"\"\"%-A
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocations() 
+    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [|(2, 19, 2, 21, 1);
                      (4, 12, 4, 14, 1);
@@ -471,7 +471,7 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocations() 
+    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [|(3, 24, 3, 25, 1); 
                      (3, 29, 3, 30, 1);
@@ -490,7 +490,7 @@ let _ = sprintf "ABCDE"
 
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
-    typeCheckResults.GetFormatSpecifierLocations() 
+    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [||]
 

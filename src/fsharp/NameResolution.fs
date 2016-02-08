@@ -1312,7 +1312,7 @@ type TcSymbolUses(g, capturedNameResolutions : ResizeArray<CapturedNameResolutio
         [| for cnr in capturedNameResolutions do
               yield (cnr.Item, cnr.ItemOccurence, cnr.DisplayEnv, cnr.Range) |]
 
-    member this.GetFormatSpecifierLocations() =  formatSpecifierLocations
+    member this.GetFormatSpecifierLocationsAndArity() =  formatSpecifierLocations
 
 
 /// An accumulator for the results being emitted into the tcSink.

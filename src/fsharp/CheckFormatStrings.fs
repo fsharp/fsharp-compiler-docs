@@ -278,7 +278,7 @@ let parseFormatStringInternal (m:range) g (source: string option) fmt bty cty =
                   checkOtherFlags ch
                   let xty = NewInferenceType () 
                   let fty = bty --> (xty --> cty)
-                  collectSpecifierLocation relLine relCol 1
+                  collectSpecifierLocation relLine relCol 2
                   parseLoop ((Option.map ((+)1) posi, xty) ::  (posi, fty) :: acc) (i+1, relLine, relCol+1)
 
               | 't' ->

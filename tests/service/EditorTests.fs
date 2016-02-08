@@ -397,6 +397,8 @@ let _ = sprintf "       %.*f" 3 4.5
 let _ = sprintf "        %*.1f" 3 4.5
 let _ = sprintf "         %6.*f" 3 4.5
 let _ = sprintf "          %6.*%" 3
+let _ = sprintf "           %a" (fun _ _ -> ()) 2
+let _ = sprintf "            %*a" 3 (fun _ _ -> ()) 2
 """
 
     let file = "/home/user/Test.fsx"
@@ -432,7 +434,9 @@ let _ = sprintf "          %6.*%" 3
                      (29, 24, 29, 27, 2);
                      (30, 25, 30, 29, 2);
                      (31, 26, 31, 30, 2);
-                     (32, 27, 32, 31, 1)|]
+                     (32, 27, 32, 31, 1);
+                     (33, 28, 33, 39, 2)
+                     (34, 29, 34, 31, 3)|]
 
 [<Test>]
 let ``Printf specifiers for triple-quote strings`` () = 

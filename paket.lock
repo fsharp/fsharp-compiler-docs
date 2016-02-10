@@ -18,7 +18,7 @@ NUGET
     NUnit.Runners (2.6.3)
     Octokit (0.14.0) - framework: wpv8.0
       Microsoft.Net.Http
-    SourceLink.Fake (1.0.0)
+    SourceLink.Fake (1.1.0)
     sqlite-net-wp8 (3.8.5) - framework: wpv8.0
     SQLite.Net-PCL (3.0.5)
       sqlite-net-wp8 (>= 3.8.5) - framework: wpv8.0

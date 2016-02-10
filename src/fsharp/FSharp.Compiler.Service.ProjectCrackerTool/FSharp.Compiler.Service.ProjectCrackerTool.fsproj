@@ -59,7 +59,7 @@
     <Compile Include="ProjectCrackerOptions.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
-    <None Include="FSharp.Compiler.Service.ProjectCrackerTool.targets" />
+    <None Include="FSharp.Compiler.Service.ProjectCracker.targets" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Build.Framework" Condition=" '$(TargetFrameworkVersion)' == 'v4.0'" />

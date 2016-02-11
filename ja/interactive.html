@@ -541,7 +541,7 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <div class="tip" id="fs70">member FsiEvaluationSession.ParseAndCheckInteraction : code:string -&gt; FSharpParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults</div>
 <div class="tip" id="fs71">property FSharpCheckFileResults.Errors: Compiler.FSharpErrorInfo []</div>
 <div class="tip" id="fs72">property Array.Length: int</div>
-<div class="tip" id="fs73">member FSharpCheckFileResults.GetToolTipTextAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -&gt; Async&lt;ToolTipText&gt;</div>
+<div class="tip" id="fs73">member FSharpCheckFileResults.GetToolTipTextAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -&gt; Async&lt;FSharpToolTipText&gt;</div>
 <div class="tip" id="fs74">module FSharpTokenTag<br /><br />from Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs75">val IDENT : int<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpTokenTag.IDENT</div>
 <div class="tip" id="fs76">member FSharpCheckFileResults.GetSymbolUseAtLocation : line:int * colAtEndOfNames:int * lineText:string * names:string list -&gt; Async&lt;FSharpSymbolUse option&gt;</div>

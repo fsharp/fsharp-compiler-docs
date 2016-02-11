@@ -406,8 +406,8 @@ F#コンパイラは型チェックを(自動的に)バックグラウンドで�
 <div class="tip" id="fs28">val res : FSharpCheckFileAnswer</div>
 <div class="tip" id="fs29">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
 <div class="tip" id="fs30">val identToken : int<br /><br />Full name: Editor.identToken</div>
-<div class="tip" id="fs31">val tip : Async&lt;ToolTipText&gt;<br /><br />Full name: Editor.tip</div>
-<div class="tip" id="fs32">member FSharpCheckFileResults.GetToolTipTextAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -&gt; Async&lt;ToolTipText&gt;</div>
+<div class="tip" id="fs31">val tip : Async&lt;FSharpToolTipText&gt;<br /><br />Full name: Editor.tip</div>
+<div class="tip" id="fs32">member FSharpCheckFileResults.GetToolTipTextAlternate : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -&gt; Async&lt;FSharpToolTipText&gt;</div>
 <div class="tip" id="fs33">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
 <div class="tip" id="fs34">val decls : FSharpDeclarationListInfo<br /><br />Full name: Editor.decls</div>
 <div class="tip" id="fs35">member FSharpCheckFileResults.GetDeclarationListInfo : ParsedFileResultsOpt:FSharpParseFileResults option * line:int * colAtEndOfPartialName:int * lineText:string * qualifyingNames:string list * partialName:string * ?hasTextChangedSinceLastTypecheck:(obj * Range.range -&gt; bool) -&gt; Async&lt;FSharpDeclarationListInfo&gt;</div>

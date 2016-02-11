@@ -587,9 +587,9 @@ tutorial.</p>
 <div class="tip" id="fs65">val typeArgs : FSharpType list</div>
 <div class="tip" id="fs66">val argExprs : FSharpExpr list</div>
 <div class="tip" id="fs67">val visitExprs : f:(FSharpExpr -&gt; unit) -&gt; exprs:FSharpExpr list -&gt; unit<br /><br />Full name: Typedtree.visitExprs</div>
-<div class="tip" id="fs68">active recognizer Call: FSharpExpr -&gt; (FSharpExpr option * FSharpMemberFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |Call|_| )</div>
+<div class="tip" id="fs68">active recognizer Call: FSharpExpr -&gt; (FSharpExpr option * FSharpMemberOrFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |Call|_| )</div>
 <div class="tip" id="fs69">val objExprOpt : FSharpExpr option</div>
-<div class="tip" id="fs70">val memberOrFunc : FSharpMemberFunctionOrValue</div>
+<div class="tip" id="fs70">val memberOrFunc : FSharpMemberOrFunctionOrValue</div>
 <div class="tip" id="fs71">val typeArgs1 : FSharpType list</div>
 <div class="tip" id="fs72">val typeArgs2 : FSharpType list</div>
 <div class="tip" id="fs73">val visitObjArg : f:(FSharpExpr -&gt; unit) -&gt; objOpt:FSharpExpr option -&gt; unit<br /><br />Full name: Typedtree.visitObjArg</div>
@@ -628,8 +628,8 @@ tutorial.</p>
 <div class="tip" id="fs106">active recognizer NewDelegate: FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |NewDelegate|_| )</div>
 <div class="tip" id="fs107">val delegateType : FSharpType</div>
 <div class="tip" id="fs108">val delegateBodyExpr : FSharpExpr</div>
-<div class="tip" id="fs109">active recognizer NewObject: FSharpExpr -&gt; (FSharpMemberFunctionOrValue * FSharpType list * FSharpExpr list) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |NewObject|_| )</div>
-<div class="tip" id="fs110">val objType : FSharpMemberFunctionOrValue</div>
+<div class="tip" id="fs109">active recognizer NewObject: FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpType list * FSharpExpr list) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |NewObject|_| )</div>
+<div class="tip" id="fs110">val objType : FSharpMemberOrFunctionOrValue</div>
 <div class="tip" id="fs111">active recognizer NewRecord: FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |NewRecord|_| )</div>
 <div class="tip" id="fs112">val recordType : FSharpType</div>
 <div class="tip" id="fs113">active recognizer NewTuple: FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |NewTuple|_| )</div>

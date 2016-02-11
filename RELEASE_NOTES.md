@@ -1,3 +1,6 @@
+#### 2.0.0.5
+* #527 - Provide API that includes printf specifier arities along with ranges
+
 #### 2.0.0.4
 * #519 - Change nuget layout for ProjectCracker package
 * #523 - Project cracking: spaces in file paths

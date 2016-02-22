@@ -1,3 +1,6 @@
+#### 2.0.0.6
+* #530 - Adjust ProjectCracker NuGet for VS/NuGet
+
 #### 2.0.0.5
 * #527 - Provide API that includes printf specifier arities along with ranges
 

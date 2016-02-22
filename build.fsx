@@ -233,13 +233,13 @@ Target "All" DoNothing
   ==> "PrepareRelease" 
   ==> "SourceLink"
   ==> "NuGet"
- // ==> "Release"
+  ==> "Release"
 
 "CleanDocs"
   ==> "GenerateDocsJa"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
   ==> "PublishNuGet"
- // ==> "Release"
+  ==> "Release"
 
 RunTargetOrDefault "All"

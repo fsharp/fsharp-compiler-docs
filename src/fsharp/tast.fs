@@ -3197,7 +3197,7 @@ and UnionCaseRef =
 
     member x.DefinitionRange = x.UnionCase.DefinitionRange
 
-    member x.SigRange = x.UnionCase.DefinitionRange
+    member x.SigRange = x.UnionCase.SigRange
 
     member x.Index = 
         try 
@@ -3227,7 +3227,7 @@ and RecdFieldRef =
 
     member x.DefinitionRange = x.RecdField.DefinitionRange
 
-    member x.SigRange = x.RecdField.DefinitionRange
+    member x.SigRange = x.RecdField.SigRange
 
     member x.Index =
         let (RFRef(tcref,id)) = x

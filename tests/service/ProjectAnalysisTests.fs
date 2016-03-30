@@ -4691,7 +4691,9 @@ type A<'XX, 'YY>() =
 [<Test>]
 let ``Test project38 abstract slot information`` () =
     let printAbstractSignature (s: FSharpAbstractSignature) =
-        let printType (t: FSharpType) = (string t).[5 ..]       
+        let printType (t: FSharpType) = 
+            hash t  |> ignore // smoke test to check hash code doesn't loop
+            (string t).[5 ..]       
         let args = 
             (s.AbstractArguments |> Seq.concat |> Seq.map (fun a -> 
                 (match a.Name with Some n -> n + ":" | _ -> "") + printType a.Type) |> String.concat " * ")

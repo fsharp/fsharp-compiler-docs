@@ -2689,6 +2689,67 @@ let ``Test Project16 sig symbols are equal to impl symbols`` () =
     testFind ("implementation", symbolsImpl) ("implementation", symbolsImpl)  // of course this should pass...
     testFind ("signature", symbolsSig) ("signature", symbolsSig)  // of course this should pass...
 
+[<Test>]
+let ``Test Project16 sym locations`` () =
+
+    let wholeProjectResults = checker.ParseAndCheckProject(Project16.options) |> Async.RunSynchronously
+
+    let fmtLoc (mOpt: Range.range option) = 
+        match mOpt with 
+        | None -> None
+        | Some m -> 
+            let file = Project16.cleanFileName m.FileName
+            if file = "??" then None
+            else Some (file, (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn ))
+
+    let allUsesOfAllSymbols = 
+        wholeProjectResults.GetAllUsesOfAllSymbols()
+        |> Async.RunSynchronously
+        |> Array.choose (fun su -> 
+             match fmtLoc su.Symbol.SignatureLocation, fmtLoc su.Symbol.DeclarationLocation, fmtLoc su.Symbol.ImplementationLocation with 
+             | Some a, Some b, Some c -> Some (su.Symbol.ToString(), a, b, c)
+             | _ -> None)
+
+    allUsesOfAllSymbols |> shouldEqual
+          [|("field Field1", ("sig1", (16, 10), (16, 16)),("sig1", (16, 10), (16, 16)), ("file1", (13, 10), (13, 16)));
+            ("field Field2", ("sig1", (16, 24), (16, 30)),("sig1", (16, 24), (16, 30)), ("file1", (13, 24), (13, 30)));
+            ("Case1", ("sig1", (17, 8), (17, 13)), ("sig1", (17, 8), (17, 13)),("file1", (14, 8), (14, 13)));
+            ("Case2", ("sig1", (17, 16), (17, 21)), ("sig1", (17, 16), (17, 21)),("file1", (14, 16), (14, 21)));
+            ("C", ("sig1", (4, 5), (4, 6)), ("sig1", (4, 5), (4, 6)),("file1", (4, 5), (4, 6)));
+            ("C", ("sig1", (4, 5), (4, 6)), ("sig1", (4, 5), (4, 6)),("file1", (4, 5), (4, 6)));
+            ("member .ctor", ("sig1", (5, 4), (5, 7)), ("sig1", (5, 4), (5, 7)),("file1", (4, 5), (4, 6)));
+            ("member get_PC", ("sig1", (6, 11), (6, 13)), ("sig1", (6, 11), (6, 13)),("file1", (5, 13), (5, 15)));
+            ("D", ("sig1", (8, 14), (8, 15)), ("sig1", (8, 14), (8, 15)),("file1", (7, 4), (7, 5)));
+            ("D", ("sig1", (8, 14), (8, 15)), ("sig1", (8, 14), (8, 15)),("file1", (7, 4), (7, 5)));
+            ("member .ctor", ("sig1", (9, 4), (9, 7)), ("sig1", (9, 4), (9, 7)),("file1", (7, 4), (7, 5)));
+            ("member get_PD", ("sig1", (10, 11), (10, 13)),("sig1", (10, 11), (10, 13)), ("file1", (8, 13), (8, 15)));
+            ("E", ("sig1", (12, 14), (12, 15)), ("sig1", (12, 14), (12, 15)),("file1", (10, 4), (10, 5)));
+            ("E", ("sig1", (12, 14), (12, 15)), ("sig1", (12, 14), (12, 15)),("file1", (10, 4), (10, 5)));
+            ("member .ctor", ("sig1", (13, 4), (13, 7)), ("sig1", (13, 4), (13, 7)),("file1", (10, 4), (10, 5)));
+            ("member get_PE", ("sig1", (14, 11), (14, 13)),("sig1", (14, 11), (14, 13)), ("file1", (11, 13), (11, 15)));
+            ("F", ("sig1", (16, 4), (16, 5)), ("sig1", (16, 4), (16, 5)),("file1", (13, 4), (13, 5)));
+            ("G", ("sig1", (17, 4), (17, 5)), ("sig1", (17, 4), (17, 5)),("file1", (14, 4), (14, 5)));
+            ("Impl", ("sig1", (2, 7), (2, 11)), ("sig1", (2, 7), (2, 11)),("file1", (2, 7), (2, 11)));
+            ("field Field1", ("sig1", (16, 10), (16, 16)),("file1", (13, 10), (13, 16)), ("file1", (13, 10), (13, 16)));
+            ("field Field2", ("sig1", (16, 24), (16, 30)),("file1", (13, 24), (13, 30)), ("file1", (13, 24), (13, 30)));
+            ("Case1", ("sig1", (17, 8), (17, 13)), ("file1", (14, 8), (14, 13)),("file1", (14, 8), (14, 13)));
+            ("Case2", ("sig1", (17, 16), (17, 21)), ("file1", (14, 16), (14, 21)),("file1", (14, 16), (14, 21)));
+            ("C", ("sig1", (4, 5), (4, 6)), ("file1", (4, 5), (4, 6)),("file1", (4, 5), (4, 6)));
+            ("D", ("sig1", (8, 14), (8, 15)), ("file1", (7, 4), (7, 5)),("file1", (7, 4), (7, 5)));
+            ("E", ("sig1", (12, 14), (12, 15)), ("file1", (10, 4), (10, 5)),("file1", (10, 4), (10, 5)));
+            ("F", ("sig1", (16, 4), (16, 5)), ("file1", (13, 4), (13, 5)),("file1", (13, 4), (13, 5)));
+            ("G", ("sig1", (17, 4), (17, 5)), ("file1", (14, 4), (14, 5)),("file1", (14, 4), (14, 5)));
+            ("member .ctor", ("sig1", (5, 4), (5, 7)), ("file1", (4, 5), (4, 6)),("file1", (4, 5), (4, 6)));
+            ("member get_PC", ("sig1", (6, 11), (6, 13)), ("file1", (5, 13), (5, 15)),("file1", (5, 13), (5, 15)));
+            ("member .ctor", ("sig1", (9, 4), (9, 7)), ("file1", (7, 4), (7, 5)),("file1", (7, 4), (7, 5)));
+            ("member get_PD", ("sig1", (10, 11), (10, 13)),("file1", (8, 13), (8, 15)), ("file1", (8, 13), (8, 15)));
+            ("member .ctor", ("sig1", (13, 4), (13, 7)), ("file1", (10, 4), (10, 5)),("file1", (10, 4), (10, 5)));
+            ("member get_PE", ("sig1", (14, 11), (14, 13)),("file1", (11, 13), (11, 15)), ("file1", (11, 13), (11, 15)));
+            ("val x", ("file1", (5, 11), (5, 12)), ("file1", (5, 11), (5, 12)),("file1", (5, 11), (5, 12)));
+            ("val x", ("file1", (8, 11), (8, 12)), ("file1", (8, 11), (8, 12)),("file1", (8, 11), (8, 12)));
+            ("val x", ("file1", (11, 11), (11, 12)), ("file1", (11, 11), (11, 12)),("file1", (11, 11), (11, 12)));
+            ("Impl", ("sig1", (2, 7), (2, 11)), ("file1", (2, 7), (2, 11)),("file1", (2, 7), (2, 11)))|]
+
 
 
 //-----------------------------------------------------------------------------------------
@@ -4691,7 +4752,9 @@ type A<'XX, 'YY>() =
 [<Test>]
 let ``Test project38 abstract slot information`` () =
     let printAbstractSignature (s: FSharpAbstractSignature) =
-        let printType (t: FSharpType) = (string t).[5 ..]       
+        let printType (t: FSharpType) = 
+            hash t  |> ignore // smoke test to check hash code doesn't loop
+            (string t).[5 ..]       
         let args = 
             (s.AbstractArguments |> Seq.concat |> Seq.map (fun a -> 
                 (match a.Name with Some n -> n + ":" | _ -> "") + printType a.Type) |> String.concat " * ")

@@ -1839,13 +1839,27 @@ and FSharpType(cenv, typ:TType) =
     member private typ.AdjustType(t) = 
         FSharpType(typ.cenv, t)
 
+    // Note: This equivalence relation is modulo type abbreviations
     override x.Equals(other : obj) =
         box x === other ||
         match other with
         |   :? FSharpType as t -> typeEquiv cenv.g typ t.V
         |   _ -> false
 
-    override x.GetHashCode() = hash x
+    // Note: This equivalence relation is modulo type abbreviations. The hash is less than perfect.
+    override x.GetHashCode() = 
+        let rec hashType typ = 
+            let typ = stripTyEqnsWrtErasure EraseNone cenv.g typ
+            match typ with
+            | TType_forall _ ->  10000
+            | TType_var tp  -> 10100 + int32 tp.Stamp
+            | TType_app (tc1,b1)  -> 10200 + int32 tc1.Stamp + List.sumBy hashType b1
+            | TType_ucase _   -> 10300  // shouldn't occur in symbols
+            | TType_tuple l1 -> 10400 + List.sumBy hashType l1
+            | TType_fun (dty,rty) -> 10500 + hashType dty + hashType rty
+            | TType_measure _ -> 10600 
+        hashType typ
+
 
     member x.Format(denv: FSharpDisplayContext) = 
        protect <| fun () -> 

@@ -352,6 +352,37 @@ let testFunctionThatUsesPatternMatchingOnOptions2(x) =
 
 let testFunctionThatUsesConditionalOnOptions2(x: int option) = 
     if x.IsSome then 1 else 2
+
+let f x y = x+y
+let g = f 1
+let h = (g 2) + 3
+
+type TestFuncProp() =
+    member this.Id = fun x -> x
+
+let wrong = TestFuncProp().Id 0 = 0
+
+let start name =
+    name, "1"
+
+let last (name, values) =
+    printf "Last: Name='%s', Values='%s'" name values
+
+let test7() =
+    start "Test" |> last
+
+let rec badLoop : (int -> int) =
+    () // so that it is a function value
+    fun x -> badLoop (x + 1)   
+
+module LetLambda =
+    let f =
+        () // so that it is a function value
+        fun a b -> a + b
+
+let letLambdaRes = [ 1, 2 ] |> List.map (fun (a, b) -> LetLambda.f a b) 
+
+
     """
     File.WriteAllText(fileName1, fileSource1)
 
@@ -376,9 +407,10 @@ let bool2 = false
 let ``Test Declarations project1`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     
-    wholeProjectResults.Errors.Length |> shouldEqual 2 // recursive value warning
+    wholeProjectResults.Errors.Length |> shouldEqual 3 // recursive value warning
     wholeProjectResults.Errors.[0].Severity |> shouldEqual FSharpErrorSeverity.Warning
     wholeProjectResults.Errors.[1].Severity |> shouldEqual FSharpErrorSeverity.Warning
+    wholeProjectResults.Errors.[2].Severity |> shouldEqual FSharpErrorSeverity.Warning
 
     wholeProjectResults.AssemblyContents.ImplementationFiles.Length |> shouldEqual 2
     let file1 = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
@@ -454,7 +486,21 @@ let ``Test Declarations project1`` () =
                "let testFunctionThatUsesPatternMatchingOnLists(x) = match (if x.Isop_ColonColon then (if x.Tail.Isop_ColonColon then (if x.Tail.Tail.Isop_Nil then $2 else $3) else $1) else $0) targets ... @ (188,10--188,11)";
                "let testFunctionThatUsesPatternMatchingOnOptions(x) = match (if x.IsSome then $1 else $0) targets ... @ (195,10--195,11)";
                "let testFunctionThatUsesPatternMatchingOnOptions2(x) = match (if x.IsSome then $1 else $0) targets ... @ (200,10--200,11)";
-               "let testFunctionThatUsesConditionalOnOptions2(x) = (if x.get_IsSome() () then 1 else 2) @ (205,4--205,29)"]
+               "let testFunctionThatUsesConditionalOnOptions2(x) = (if x.get_IsSome() () then 1 else 2) @ (205,4--205,29)"
+               "let f(x) (y) = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (x,y) @ (207,12--207,15)";
+               "let g = let x: Microsoft.FSharp.Core.int = 1 in fun y -> M.f (x,y) @ (208,8--208,11)";
+               "let h = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (M.g () 2,3) @ (209,8--209,17)";
+               "type TestFuncProp";
+               "member .ctor(unitVar0) = (Object..ctor (); ()) @ (211,5--211,17)";
+               "member get_Id(this) (unitVar1) = fun x -> x @ (212,21--212,31)";
+               "let wrong = Operators.op_Equality<Microsoft.FSharp.Core.int> (new TestFuncProp(()).get_Id(()) 0,0) @ (214,12--214,35)";
+               "let start(name) = (name,"1") @ (217,4--217,13)";
+               "let last(name,values) = let clo1: Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.unit = ExtraTopLevelOperators.PrintFormat<Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.unit> (new PrintfFormat`5("Last: Name='%s', Values='%s'") :> Microsoft.FSharp.Core.Printf.TextWriterFormat<(Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.unit)>) in fun arg10 -> let clo2: Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.unit = clo1 arg10 in fun arg20 -> clo2 arg20 name values @ (220,4--220,53)";
+               "let test7(unitVar0) = Operators.op_PipeRight<Microsoft.FSharp.Core.string * Microsoft.FSharp.Core.string,Microsoft.FSharp.Core.unit> (M.start<Microsoft.FSharp.Core.string> ("Test"),last) @ (223,4--223,24)";
+               "let badLoop = badLoop@225.Force<Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.int>(()) @ (225,8--225,15)";
+               "type LetLambda";
+               "let f = ((); fun a -> fun b -> Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (a,b)) @ (231,8--232,24)";
+               "let letLambdaRes = Operators.op_PipeRight<(Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int) Microsoft.FSharp.Collections.list,Microsoft.FSharp.Core.int Microsoft.FSharp.Collections.list> (Cons((1,2),Empty()),let mapping: Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.int = fun tupledArg -> let a: Microsoft.FSharp.Core.int = tupledArg.Item0 in let b: Microsoft.FSharp.Core.int = tupledArg.Item1 in (LetLambda.f () a) b in fun list -> ListModule.Map<Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (mapping,list)) @ (234,19--234,71)"]
     ()
 
 //---------------------------------------------------------------------------------------------------------

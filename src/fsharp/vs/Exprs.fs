@@ -429,7 +429,7 @@ module FSharpExprConvert =
             let contf2 = 
                 match laterArgs with 
                 | [] -> contf 
-                | _ -> (fun subCallR -> (subCallR, laterArgs) ||> List.fold (fun fR arg -> E.Application (Mk2 cenv arg fR,[],[ConvExpr cenv env arg])))
+                | _ -> (fun subCallR -> (subCallR, laterArgs) ||> List.fold (fun fR arg -> E.Application (Mk2 cenv arg fR,[],[ConvExpr cenv env arg])) |> contf)
                     
             if isMember then 
                 let callArgs = (objArgs::untupledCurriedArgs) |> List.concat

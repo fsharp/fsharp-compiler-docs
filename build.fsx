@@ -184,7 +184,7 @@ Target "ReleaseDocs" (fun _ ->
 #load "paket-files/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
 
-Target "Release" (fun _ ->
+Target "GitHubRelease" (fun _ ->
     let user =
         match getBuildParam "github-user" with
         | s when not (String.IsNullOrWhiteSpace s) -> s
@@ -219,6 +219,7 @@ Target "Release" (fun _ ->
 Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "All" DoNothing
+Target "Release" DoNothing
 
 "Clean"
   =?> ("BuildVersion", isAppVeyorBuild)
@@ -233,13 +234,14 @@ Target "All" DoNothing
   ==> "PrepareRelease" 
   ==> "SourceLink"
   ==> "NuGet"
+  ==> "GitHubRelease"
+  ==> "PublishNuGet"
   ==> "Release"
 
 "CleanDocs"
   ==> "GenerateDocsJa"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
-  ==> "PublishNuGet"
   ==> "Release"
 
 RunTargetOrDefault "All"

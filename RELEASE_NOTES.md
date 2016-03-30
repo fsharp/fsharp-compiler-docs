@@ -1,3 +1,10 @@
+#### 2.0.0.7
+* #544 - Losing operator call when one of operands is application of a partially applied function
+* #534 - Function valued property erasing calls
+* #495 - Detupling missing when calling a module function value
+* #543 - Tuple not being destructured in AST
+* #541 - Results of multiple calls to active pattern are always bound to variable with same name
+
 #### 2.0.0.6
 * #530 - Adjust ProjectCracker NuGet for VS/NuGet
 

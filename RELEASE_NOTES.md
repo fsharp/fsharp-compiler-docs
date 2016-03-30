@@ -4,6 +4,7 @@
 * #495 - Detupling missing when calling a module function value
 * #543 - Tuple not being destructured in AST
 * #541 - Results of multiple calls to active pattern are always bound to variable with same name
+* #539 - BasicPatterns.NewDelegate shows same value for different arguments
 
 #### 2.0.0.6
 * #530 - Adjust ProjectCracker NuGet for VS/NuGet

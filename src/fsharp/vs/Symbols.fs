@@ -168,7 +168,7 @@ type FSharpSymbol(cenv:cenv, item: (unit -> Item), access: (FSharpSymbol -> CcuT
     member x.FullName = ItemDescriptionsImpl.FullNameOfItem cenv.g x.Item 
 
     member x.DeclarationLocation = ItemDescriptionsImpl.rangeOfItem cenv.g None x.Item
-
+    
     member x.ImplementationLocation = ItemDescriptionsImpl.rangeOfItem cenv.g (Some(false)) x.Item
 
     member x.SignatureLocation = ItemDescriptionsImpl.rangeOfItem cenv.g (Some(true)) x.Item

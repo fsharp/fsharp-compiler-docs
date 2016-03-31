@@ -1750,10 +1750,10 @@ type IRawFSharpAssemblyData =
     abstract HasMatchingFSharpSignatureDataAttribute : ILGlobals -> bool
 
 type TimeStampCache() = 
-    let now = DateTime.Now
+    let cacheCreation = DateTime.Now
     let files = Dictionary<string,DateTime>()
     let projects = Dictionary<IProjectReference,DateTime>(HashIdentity.Reference)
-    member x.Now = now
+    member x.CacheCreation = cacheCreation
     member x.Files = files
     member x.Projects = projects
 

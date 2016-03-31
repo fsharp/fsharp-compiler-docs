@@ -73,6 +73,7 @@ type internal PartialCheckResults =
       Errors : (PhasedError * FSharpErrorSeverity) list 
       TcResolutions: TcResolutions list 
       TcSymbolUses: TcSymbolUses list 
+      TcDependencyFiles: string list
       TopAttribs: TypeChecker.TopAttribs option
       TimeStamp: DateTime }
 
@@ -112,7 +113,7 @@ type internal IncrementalBuilder =
       member ImportedCcusInvalidated : IEvent<string>
 
       /// The list of files the build depends on
-      member Dependencies : string list
+      member AllDependenciesDeprecated : string list
 #if EXTENSIONTYPING
       /// Whether there are any 'live' type providers that may need a refresh when a project is Cleaned
       member ThereAreLiveTypeProviders : bool

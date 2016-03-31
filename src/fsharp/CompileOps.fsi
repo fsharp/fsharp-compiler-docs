@@ -169,7 +169,7 @@ type IRawFSharpAssemblyData =
 
 type TimeStampCache = 
     new : unit -> TimeStampCache
-    member Now: DateTime
+    member CacheCreation: DateTime
     member Files: Dictionary<string,DateTime> 
     member Projects:Dictionary<IProjectReference,DateTime>
 

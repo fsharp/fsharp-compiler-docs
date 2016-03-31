@@ -1021,6 +1021,7 @@ type TypeCheckAccumulator =
       tcSymbolUses: TcSymbolUses list
       topAttribs:TopAttribs option
       typedImplFiles:TypedImplFile list
+      tcDependencyFiles: string list
       tcErrors:(PhasedError * FSharpErrorSeverity) list } // errors=true, warnings=false
 
       
@@ -1115,6 +1116,7 @@ type PartialCheckResults =
       Errors: (PhasedError * FSharpErrorSeverity) list 
       TcResolutions: TcResolutions list 
       TcSymbolUses: TcSymbolUses list 
+      TcDependencyFiles: string list 
       TopAttribs: TopAttribs option
       TimeStamp: System.DateTime }
 
@@ -1127,6 +1129,7 @@ type PartialCheckResults =
           Errors = tcAcc.tcErrors
           TcResolutions = tcAcc.tcResolutions
           TcSymbolUses = tcAcc.tcSymbolUses
+          TcDependencyFiles = tcAcc.tcDependencyFiles
           TopAttribs = tcAcc.topAttribs
           TimeStamp = timestamp }
 
@@ -1163,6 +1166,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         let flags = tcConfig.ComputeCanContainEntryPoint(sourceFiles |> List.map snd)
         (sourceFiles,flags) ||> List.map2 (fun (m,nm) flag -> (m,nm,flag))
 
+    let defaultTimeStamp = DateTime.Now
     let getFileTimeStamp (cache: TimeStampCache) fileName = 
         let ok, v = cache.Files.TryGetValue(fileName)
         if ok then v else 
@@ -1170,14 +1174,14 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
             if FileSystem.SafeExists(fileName) then
                 FileSystem.GetLastWriteTimeShim(fileName)
             else
-                cache.Now                  
+                defaultTimeStamp            
         cache.Files.[fileName] <- v
         v
 
     let getProjectReferenceTimeStamp (cache: TimeStampCache) (pr: IProjectReference) = 
         let ok, v = cache.Projects.TryGetValue(pr)
         if ok then v else 
-        let v = defaultArg (pr.GetLogicalTimeStamp cache) cache.Now
+        let v = defaultArg (pr.GetLogicalTimeStamp cache) defaultTimeStamp
         cache.Projects.[pr] <- v
         v
 
@@ -1200,6 +1204,23 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
           for pr in projectReferences  do
             yield Choice2Of2 pr, (fun cache -> getProjectReferenceTimeStamp cache pr) ]
             
+
+
+    let basicDependencies = 
+        [ for (UnresolvedAssemblyReference(referenceText, _))  in unresolvedReferences do
+            // Exclude things that are definitely not a file name
+            if not(FileSystem.IsInvalidPathShim(referenceText)) then 
+                let file = if FileSystem.IsPathRootedShim(referenceText) then referenceText else Path.Combine(projectDirectory,referenceText) 
+                yield file 
+
+          for r in nonFrameworkResolutions do 
+                yield  r.resolvedPath  ]
+
+    let allDependencies =
+        [ yield! basicDependencies
+          for (_,f,_) in sourceFiles do
+                yield f ]
+
     // The IncrementalBuilder needs to hold up to one item that needs to be disposed, which is the tcImports for the incremental
     // build. 
     let mutable cleanupItem = None: TcImports option
@@ -1303,6 +1324,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
               tcSymbolUses=[]
               topAttribs=None
               typedImplFiles=[]
+              tcDependencyFiles=basicDependencies
               tcErrors=errorLogger.GetErrors() }   
         tcAcc
                 
@@ -1342,7 +1364,8 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
                                        typedImplFiles=typedImplFiles
                                        tcResolutions=tcAcc.tcResolutions @ [tcResolutions]
                                        tcSymbolUses=tcAcc.tcSymbolUses @ [tcSymbolUses]
-                                       tcErrors = tcAcc.tcErrors @ parseErrors @ capturingErrorLogger.GetErrors() } 
+                                       tcErrors = tcAcc.tcErrors @ parseErrors @ capturingErrorLogger.GetErrors() 
+                                       tcDependencyFiles = filename :: tcAcc.tcDependencyFiles } 
                 }
                     
             // Run part of the Eventually<_> computation until a timeout is reached. If not complete, 
@@ -1509,20 +1532,6 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     // END OF BUILD DESCRIPTION
     // ---------------------------------------------------------------------------------------------            
 
-
-    let fileDependencies = 
-        [ for (UnresolvedAssemblyReference(referenceText, _))  in unresolvedReferences do
-            // Exclude things that are definitely not a file name
-            if not(FileSystem.IsInvalidPathShim(referenceText)) then 
-                let file = if FileSystem.IsPathRootedShim(referenceText) then referenceText else Path.Combine(projectDirectory,referenceText) 
-                yield file 
-
-          for r in nonFrameworkResolutions do 
-                yield  r.resolvedPath 
-
-          for (_,f,_) in sourceFiles do
-                yield f ]
-
     let sourceFileInputs = 
         [ for (a,sourceFile,c) in sourceFiles do
             yield a, sourceFile, c, (fun cache -> getFileTimeStamp cache sourceFile) ]
@@ -1562,7 +1571,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     member __.FileChecked = fileChecked.Publish
     member __.ProjectChecked = projectChecked.Publish
     member __.ImportedCcusInvalidated = importsInvalidated.Publish
-    member __.Dependencies = fileDependencies 
+    member __.AllDependenciesDeprecated = allDependencies 
 
 #if EXTENSIONTYPING
     member __.ThereAreLiveTypeProviders = 

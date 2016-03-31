@@ -118,7 +118,7 @@ type internal IncrementalBuilder =
       member ThereAreLiveTypeProviders : bool
 #endif
       /// Perform one step in the F# build. Return true if the background work is finished.
-      member Step : unit -> bool
+      member Step : TimeStampCache -> bool
 
       /// Get the preceding typecheck state of a slot, without checking if it is up-to-date w.r.t.
       /// the timestamps on files and referenced DLLs prior to this one. Return None if the result is not available.
@@ -155,7 +155,7 @@ type internal IncrementalBuilder =
       member GetCheckResultsAndImplementationsForProject : unit -> PartialCheckResults * IL.ILAssemblyRef * IRawFSharpAssemblyData option * Tast.TypedAssembly option
 
       /// Get the logical time stamp that is associated with the output of the project if it were gully built immediately
-      member GetLogicalTimeStampForProject: unit -> DateTime
+      member GetLogicalTimeStampForProject: cache: TimeStampCache -> DateTime
 
       /// Await the untyped parse results for a particular slot in the vector of parse results.
       ///

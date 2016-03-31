@@ -31,7 +31,7 @@ type FSharpParseFileResults =
     /// Return the inner-most range associated with a possible breakpoint location
     member ValidateBreakpointLocation : pos:pos -> range option
 
-    /// When these files change then the build is invalid
+    [<System.Obsolete("This property is now on FSharpCheckFileResults and FSharpCheckProjectResults. It indicates the set of file dependencies for checking a file or project.")>]
     member DependencyFiles : string list
 
     /// Get the errors and warnings for the parse

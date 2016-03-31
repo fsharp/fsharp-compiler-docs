@@ -84,7 +84,7 @@ module internal IncrementalBuild =
         /// VectorStamp (uniqueRuleId, outputName, inputs, stampFunction)
         ///
         /// A build rule representing pairing the inputs with a timestamp specified by the given function.  
-        | VectorStamp of Id * string * VectorBuildRule * (obj->DateTime)
+        | VectorStamp of Id * string * VectorBuildRule * (TimeStampCache -> obj -> DateTime)
 
         /// VectorMultiplex (uniqueRuleId, outputName, input, taskFunction)
         ///
@@ -449,7 +449,7 @@ module internal IncrementalBuild =
         AllResultsOfExpr (function Available(o,_,_) -> o | _ -> failwith msg) bt expr
         
     /// Bind a set of build rules to a set of input values.
-    let ToBound(buildRules:BuildRules, vectorinputs, scalarinputs) = 
+    let ToBound (buildRules:BuildRules, vectorinputs, scalarinputs) = 
         let now = DateTime.Now
         let rec applyScalarExpr(se,results) =
             match se with
@@ -487,7 +487,7 @@ module internal IncrementalBuild =
 
     /// Visit each executable action necessary to evaluate the given output (with an optional slot in a
     /// vector output). Call actionFunc with the given accumulator.
-    let ForeachAction (Target(output, optSlot)) bt (actionFunc:Action->'acc->'acc) (acc:'acc) =
+    let ForeachAction cache (Target(output, optSlot)) bt (actionFunc:Action->'acc->'acc) (acc:'acc) =
         let seen = Dictionary<Id,bool>()
         let isSeen id = 
             if seen.ContainsKey id then true
@@ -609,7 +609,7 @@ module internal IncrementalBuild =
                                     match inputresult with
                                     | Available(ires,_,_) ->
                                         let oldtimestamp = GetVectorExprResult(bt,ve,slot).Timestamp
-                                        let newtimestamp = func ires
+                                        let newtimestamp = func cache ires
                                         if newtimestamp <> oldtimestamp then 
                                             actionFunc (IndexedAction(id,taskname,slot,cardinality,newtimestamp, fun _ -> Eventually.Done ires)) acc
                                         else acc
@@ -675,7 +675,7 @@ module internal IncrementalBuild =
         | VectorBuildRule ve -> visitVector optSlot ve acc                    
     
     /// Compute the max timestamp on all available inputs
-    let ComputeMaxTimeStamp output (bt: PartialBuild) acc =
+    let ComputeMaxTimeStamp cache output (bt: PartialBuild) acc =
         let expr = bt.Rules.RuleList |> List.find (fun (s,_) -> s = output) |> snd
         match expr with 
         | VectorBuildRule  (VectorStamp(_id, _taskname, inputExpr, func) as ve) -> 
@@ -683,7 +683,7 @@ module internal IncrementalBuild =
                 | Some(cardinality) ->    
                     let CheckStamp acc slot = 
                         match GetVectorExprResult(bt,inputExpr,slot) with
-                        | Available(ires,_,_) -> max acc (func ires)
+                        | Available(ires,_,_) -> max acc (func cache ires)
                         | _ -> acc
                     [0..cardinality-1] |> List.fold CheckStamp acc
                 | None -> acc
@@ -738,7 +738,7 @@ module internal IncrementalBuild =
         ApplyResult(actionResult,bt)
 
     /// Evaluate the result of a single output
-    let EvalLeafsFirst target bt =
+    let EvalLeafsFirst cache target bt =
 
         let rec eval(bt,gen) =
             #if DEBUG
@@ -746,15 +746,15 @@ module internal IncrementalBuild =
             // Possibly could detect this case directly.
             if gen>5000 then failwith "Infinite loop in incremental builder?"
             #endif
-            let newBt = ForeachAction target bt ExecuteApply bt
+            let newBt = ForeachAction cache target bt ExecuteApply bt
             if newBt=bt then bt else eval(newBt,gen+1)
         eval(bt,0)
         
-    let Step target (bt:PartialBuild) = 
+    let Step cache target (bt:PartialBuild) = 
         
         // Hey look, we're building up the whole list, executing one thing and then throwing
         // the list away. What about saving the list inside the Build instance?
-        let worklist = ForeachAction target bt (fun a l -> a :: l) []
+        let worklist = ForeachAction cache target bt (fun a l -> a :: l) []
             
         match worklist with 
         | action::_ -> Some(ExecuteApply action bt)
@@ -764,13 +764,13 @@ module internal IncrementalBuild =
     let Eval target bt = EvalLeafsFirst target bt
 
     /// Check if an output is up-to-date and ready
-    let IsReady target bt = 
-        let worklist = ForeachAction target bt (fun a l -> a :: l) []
+    let IsReady cache target bt = 
+        let worklist = ForeachAction cache target bt (fun a l -> a :: l) []
         worklist.IsEmpty
 
     /// Check if an output is up-to-date and ready
-    let MaxTimeStampInDependencies target bt = 
-        ComputeMaxTimeStamp target bt DateTime.MinValue 
+    let MaxTimeStampInDependencies cache target bt = 
+        ComputeMaxTimeStamp cache target bt DateTime.MinValue 
 
     /// Get a scalar vector. Result must be available
     let GetScalarResult<'T>(node:Scalar<'T>,bt): ('T*DateTime) option = 
@@ -804,7 +804,7 @@ module internal IncrementalBuild =
             | None->None
 
     /// Given an input value, find the corresponding slot.        
-    let TryGetSlotByInput<'T>(node:Vector<'T>,input:'T,build:PartialBuild,equals:'T->'T->bool): int option = 
+    let TryGetSlotByInput<'T>(node:Vector<'T>,build:PartialBuild,found:'T->bool): int option = 
         let expr = GetExprByName(build,node)
         let id = expr.Id
         match build.Results.TryFind id with 
@@ -816,7 +816,7 @@ module internal IncrementalBuild =
                 match result with
                 | Available(o,_,_) ->
                     let o = o :?> 'T
-                    if equals o input then Some slot else acc
+                    if found o then Some slot else acc
                 | _ -> acc
             let slotOption = rv.FoldLeft MatchNames None
             slotOption 
@@ -881,9 +881,9 @@ module internal IncrementalBuild =
             
         /// Creates a new vector with the same items but with 
         /// timestamp specified by the passed-in function.  
-        let Stamp (taskname:string) (task:'I -> DateTime) (input:Vector<'I>): Vector<'I> =
+        let Stamp (taskname:string) (task:TimeStampCache -> 'I -> DateTime) (input:Vector<'I>): Vector<'I> =
             let input = input.Expr
-            let expr = VectorStamp(NextId(),taskname,input,unbox >> task) 
+            let expr = VectorStamp(NextId(),taskname,input,(fun cache x -> task cache (unbox x))) 
             { new Vector<'I>
               interface IVector with
                    override __.Name = taskname
@@ -1163,6 +1163,25 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         let flags = tcConfig.ComputeCanContainEntryPoint(sourceFiles |> List.map snd)
         (sourceFiles,flags) ||> List.map2 (fun (m,nm) flag -> (m,nm,flag))
 
+    let getFileTimeStamp (cache: TimeStampCache) fileName = 
+        let ok, v = cache.Files.TryGetValue(fileName)
+        if ok then v else 
+        let v = 
+            if FileSystem.SafeExists(fileName) then
+                FileSystem.GetLastWriteTimeShim(fileName)
+            else
+                cache.Now                  
+        cache.Files.[fileName] <- v
+        v
+
+    let getProjectReferenceTimeStamp (cache: TimeStampCache) (pr: IProjectReference) = 
+        let ok, v = cache.Projects.TryGetValue(pr)
+        if ok then v else 
+        let v = defaultArg (pr.GetLogicalTimeStamp cache) cache.Now
+        cache.Projects.[pr] <- v
+        v
+
+
     // Get the names and time stamps of all the non-framework referenced assemblies, which will act 
     // as inputs to one of the nodes in the build. 
     //
@@ -1175,20 +1194,11 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         use _holder = new CompilationGlobalsScope(errorLogger,BuildPhase.Parameter, projectDirectory) 
 
         [ for r in nonFrameworkResolutions do
-            let originalTimeStamp = 
-                try 
-                    if FileSystem.SafeExists(r.resolvedPath) then
-                        let result = FileSystem.GetLastWriteTimeShim(r.resolvedPath)
-                        result
-                    else
-                        DateTime.Now                               
-                with e -> 
-                    // Note we are not calling errorLogger.GetErrors() anywhere for this task. This warning will not be reported...
-                    errorLogger.Warning(e)
-                    DateTime.Now                               
-            yield (Choice1Of2 r.resolvedPath,originalTimeStamp)  
+            let fileName = r.resolvedPath
+            yield (Choice1Of2 fileName, (fun cache -> getFileTimeStamp cache fileName))  
+
           for pr in projectReferences  do
-            yield Choice2Of2 pr, defaultArg (pr.GetLogicalTimeStamp()) DateTime.Now]
+            yield Choice2Of2 pr, (fun cache -> getProjectReferenceTimeStamp cache pr) ]
             
     // The IncrementalBuilder needs to hold up to one item that needs to be disposed, which is the tcImports for the incremental
     // build. 
@@ -1216,16 +1226,15 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     /// This is a build task function that gets placed into the build rules as the computation for a VectorStamp
     ///
     /// Get the timestamp of the given file name.
-    let StampFileNameTask (_m:range, filename:string, _isLastCompiland:bool) =
-        assertNotDisposed()
-        FileSystem.GetLastWriteTimeShim(filename)
+    let StampFileNameTask cache (_m:range, _filename:string, _isLastCompiland:bool, timeStamper: (TimeStampCache -> DateTime)) =
+        timeStamper cache 
                             
     /// This is a build task function that gets placed into the build rules as the computation for a VectorMap
     ///
     /// Parse the given files and return the given inputs. This function is expected to be
     /// able to be called with a subset of sourceFiles and return the corresponding subset of
     /// parsed inputs. 
-    let ParseTask (sourceRange:range,filename:string,isLastCompiland) =
+    let ParseTask (sourceRange:range,filename:string,isLastCompiland,_timeStamper) =
         assertNotDisposed()
         let errorLogger = CompilationErrorLogger("ParseTask", tcConfig)
         // Return the disposable object that cleans up
@@ -1243,28 +1252,8 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     /// This is a build task function that gets placed into the build rules as the computation for a Vector.Stamp
     ///
     /// Timestamps of referenced assemblies are taken from the file's timestamp.
-    let TimestampReferencedAssemblyTask (ref, originalTimeStamp) =
-        assertNotDisposed()
-        // Note: we are not calling errorLogger.GetErrors() anywhere. Not a problem because timestamping can't really fail
-        let errorLogger = CompilationErrorLogger("TimestampReferencedAssemblyTask", tcConfig)
-        // Return the disposable object that cleans up
-        use _holder = new CompilationGlobalsScope(errorLogger, BuildPhase.Parameter, projectDirectory) // Parameter because -r reference
-
-        let timestamp = 
-            try
-                match ref with 
-                | Choice1Of2 (filename) -> 
-                    if FileSystem.SafeExists(filename) then
-                        FileSystem.GetLastWriteTimeShim(filename)
-                    else
-                        originalTimeStamp
-                | Choice2Of2 (pr:IProjectReference) ->
-                    defaultArg (pr.GetLogicalTimeStamp()) originalTimeStamp
-            with exn -> 
-                // Note we are not calling errorLogger.GetErrors() anywhere for this task. This warning will not be reported...
-                errorLogger.Warning exn
-                originalTimeStamp                      
-        timestamp
+    let StampReferencedAssemblyTask cache (_ref, timeStamper: TimeStampCache -> DateTime) =
+        timeStamper cache 
                 
          
     /// This is a build task function that gets placed into the build rules as the computation for a Vector.Demultiplex
@@ -1496,13 +1485,13 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     // START OF BUILD DESCRIPTION
 
     // Inputs
-    let fileNamesNode               = InputVector<range*string*bool> "FileNames"
-    let referencedAssembliesNode    = InputVector<Choice<string,IProjectReference>*DateTime> "ReferencedAssemblies"
+    let fileNamesNode               = InputVector<range*string*bool*(TimeStampCache->DateTime)> "FileNames"
+    let referencedAssembliesNode    = InputVector<Choice<string,IProjectReference>*(TimeStampCache->DateTime)> "ReferencedAssemblies"
         
     // Build
-    let stampedFileNamesNode        = Vector.Stamp "SourceFileTimeStamps" StampFileNameTask fileNamesNode
+    let stampedFileNamesNode        = Vector.Stamp "StampFileName" StampFileNameTask fileNamesNode
     let parseTreesNode              = Vector.Map "ParseTrees" ParseTask stampedFileNamesNode
-    let stampedReferencedAssembliesNode = Vector.Stamp "TimestampReferencedAssembly" TimestampReferencedAssemblyTask referencedAssembliesNode
+    let stampedReferencedAssembliesNode = Vector.Stamp "StampReferencedAssembly" StampReferencedAssemblyTask referencedAssembliesNode
     let initialTcAccNode            = Vector.Demultiplex "CombineImportedAssemblies" CombineImportedAssembliesTask stampedReferencedAssembliesNode
     let tcStatesNode                = Vector.ScanLeft "TypeCheckingStates" TypeCheckTask initialTcAccNode parseTreesNode
     let finalizedTypeCheckNode      = Vector.Demultiplex "FinalizeTypeCheck" FinalizeTypeCheckTask tcStatesNode
@@ -1534,19 +1523,24 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
           for (_,f,_) in sourceFiles do
                 yield f ]
 
-    let buildInputs = [ VectorInput (fileNamesNode, sourceFiles)
+    let sourceFileInputs = 
+        [ for (a,sourceFile,c) in sourceFiles do
+            yield a, sourceFile, c, (fun cache -> getFileTimeStamp cache sourceFile) ]
+
+
+    let buildInputs = [ VectorInput (fileNamesNode, sourceFileInputs)
                         VectorInput (referencedAssembliesNode, nonFrameworkAssemblyInputs) ]
 
     // This is the initial representation of progress through the build, i.e. we have made no progress.
     let mutable partialBuild = buildDescription.GetInitialPartialBuild (buildInputs, [])
 
-    let EvalAndKeepOutput (output:INode) optSlot = 
-        let newPartialBuild = IncrementalBuild.Eval (Target(output.Name, optSlot)) partialBuild
+    let EvalAndKeepOutput cache (output:INode) optSlot = 
+        let newPartialBuild = IncrementalBuild.Eval cache (Target(output.Name, optSlot)) partialBuild
         partialBuild <- newPartialBuild
         newPartialBuild
 
-    let MaxTimeStampInDependencies (output:INode) = 
-        IncrementalBuild.MaxTimeStampInDependencies output.Name partialBuild 
+    let MaxTimeStampInDependencies cache (output:INode) = 
+        IncrementalBuild.MaxTimeStampInDependencies cache output.Name partialBuild 
 
     member this.IncrementUsageCount() = 
         assertNotDisposed() 
@@ -1569,6 +1563,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     member __.ProjectChecked = projectChecked.Publish
     member __.ImportedCcusInvalidated = importsInvalidated.Publish
     member __.Dependencies = fileDependencies 
+
 #if EXTENSIONTYPING
     member __.ThereAreLiveTypeProviders = 
         let liveTPs =
@@ -1580,8 +1575,8 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         | _ -> true                
 #endif
 
-    member __.Step () =  
-        match IncrementalBuild.Step (Target(tcStatesNode.Name, None)) partialBuild with 
+    member __.Step (cache) =  
+        match IncrementalBuild.Step cache (Target(tcStatesNode.Name, None)) partialBuild with 
         | None -> 
             projectChecked.Trigger()
             false
@@ -1603,10 +1598,13 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
     
     member ib.AreCheckResultsBeforeFileInProjectReady filename = 
         let slotOfFile = ib.GetSlotOfFileName filename
-        match slotOfFile with
-        | (*first file*) 0 -> IncrementalBuild.IsReady (Target(initialTcAccNode.Name, None)) partialBuild 
-        | _ -> IncrementalBuild.IsReady (Target(tcStatesNode.Name, Some (slotOfFile-1))) partialBuild  
-        
+        let target = 
+            match slotOfFile with
+            | (*first file*) 0 -> Target(initialTcAccNode.Name, None)
+            | _ -> Target(tcStatesNode.Name, Some (slotOfFile-1))
+        let cache = TimeStampCache()
+        IncrementalBuild.IsReady cache target partialBuild 
+
     // TODO: This evaluates the whole type checking for the whole project,when only the
     // results for one file are requested.
     member ib.GetCheckResultsBeforeFileInProject filename = 
@@ -1618,13 +1616,14 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile
 
     member ib.GetTypeCheckResultsBeforeSlotInProject slotOfFile = 
+        let cache = TimeStampCache()
         let result = 
             match slotOfFile with
             | (*first file*) 0 -> 
-                let build = EvalAndKeepOutput initialTcAccNode None
+                let build = EvalAndKeepOutput cache initialTcAccNode None
                 GetScalarResult(initialTcAccNode,build)
             | _ -> 
-                let build = EvalAndKeepOutput tcStatesNode (Some (slotOfFile-1))
+                let build = EvalAndKeepOutput cache tcStatesNode (Some (slotOfFile-1))
                 GetVectorResultBySlot(tcStatesNode,slotOfFile-1,build)  
         
         match result with
@@ -1635,25 +1634,26 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         b.GetTypeCheckResultsBeforeSlotInProject(b.GetSlotsCount()) 
 
     member __.GetCheckResultsAndImplementationsForProject() = 
-        let build = EvalAndKeepOutput finalizedTypeCheckNode None
+        let cache = TimeStampCache()
+        let build = EvalAndKeepOutput cache finalizedTypeCheckNode None
         match GetScalarResult(finalizedTypeCheckNode,build) with
         | Some((ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt, tcAcc), timestamp) -> 
             PartialCheckResults.Create (tcAcc,timestamp), ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt
         | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
         
-    member __.GetLogicalTimeStampForProject() = 
-        let t1 = MaxTimeStampInDependencies stampedFileNamesNode 
-        let t2 = MaxTimeStampInDependencies stampedReferencedAssembliesNode 
+    member __.GetLogicalTimeStampForProject(cache) = 
+        let t1 = MaxTimeStampInDependencies cache stampedFileNamesNode 
+        let t2 = MaxTimeStampInDependencies cache stampedReferencedAssembliesNode 
         max t1 t2
         
     member __.GetSlotOfFileName(filename:string) =
         // Get the slot of the given file and force it to build.
-        let CompareFileNames (_,f1,_) (_,f2,_) = 
+        let CompareFileNames (_,f2,_,_) = 
             let result = 
-                   System.String.Compare(f1,f2,StringComparison.CurrentCultureIgnoreCase)=0
-                || System.String.Compare(FileSystem.GetFullPathShim(f1),FileSystem.GetFullPathShim(f2),StringComparison.CurrentCultureIgnoreCase)=0
+                   String.Compare(filename,f2,StringComparison.CurrentCultureIgnoreCase)=0
+                || String.Compare(FileSystem.GetFullPathShim(filename),FileSystem.GetFullPathShim(f2),StringComparison.CurrentCultureIgnoreCase)=0
             result
-        match TryGetSlotByInput(fileNamesNode,(rangeStartup,filename,false),partialBuild,CompareFileNames) with
+        match TryGetSlotByInput(fileNamesNode,partialBuild,CompareFileNames) with
         | Some slot -> slot
         | None -> failwith (sprintf "The file '%s' was not part of the project. Did you call InvalidateConfiguration when the list of files in the project changed?" filename)
         
@@ -1664,11 +1664,12 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         | _ -> failwith "Failed to find sizes"
       
     member ib.GetParseResultsForFile filename =
+        let cache = TimeStampCache()
         let slotOfFile = ib.GetSlotOfFileName filename
         match GetVectorResultBySlot(parseTreesNode,slotOfFile,partialBuild) with
         | Some (results, _) -> results
         | None -> 
-            let build = EvalAndKeepOutput parseTreesNode (Some slotOfFile)
+            let build = EvalAndKeepOutput cache parseTreesNode (Some slotOfFile)
             match GetVectorResultBySlot(parseTreesNode,slotOfFile,build) with
             | Some (results, _) -> results
             | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."

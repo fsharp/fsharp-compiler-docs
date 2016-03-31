@@ -100,6 +100,7 @@ type FSharpProjectContext =
     /// Get the accessibility rights for this project context w.r.t. InternalsVisibleTo attributes granting access to other assemblies
     member AccessibilityRights : FSharpAccessibilityRights
 
+
 /// Represents the use of an F# symbol from F# source code
 [<Sealed>]
 type FSharpSymbolUse = 
@@ -156,6 +157,11 @@ type FSharpCheckFileResults =
     /// Indicates whether type checking successfully occured with some results returned. If false, indicates that 
     /// an unrecoverable error in earlier checking/parsing/resolution steps.
     member HasFullTypeCheckInfo: bool
+
+    /// Indicates the set of files which must be watched to accurately track changes that affect these results,
+    /// Clients interested in reacting to updates to these files should watch these files and take actions as described
+    /// in the documentation for compiler service.
+    member DependencyFiles : string list
 
     /// <summary>Get the items for a declaration list</summary>
     ///
@@ -272,7 +278,6 @@ type FSharpCheckFileResults =
     /// Get the textual usages that resolved to the given symbol throughout the file
     member GetUsesOfSymbolInFile : symbol:FSharpSymbol -> Async<FSharpSymbolUse[]>
 
-
     [<System.Obsolete("Please change to use GetSymbolUseAtLocation(...).Symbol")>]
     member GetSymbolAtLocationAlternate  : line:int * colAtEndOfNames:int * lineText:string * names:string list -> Async<FSharpSymbol option>
 
@@ -332,6 +337,10 @@ type FSharpCheckProjectResults =
     /// Indicates if critical errors existed in the project options
     member HasCriticalErrors : bool 
 
+    /// Indicates the set of files which must be watched to accurately track changes that affect these results,
+    /// Clients interested in reacting to updates to these files should watch these files and take actions as described
+    /// in the documentation for compiler service.
+    member DependencyFiles : string list
 
 /// <summary>Unused in this API</summary>
 type UnresolvedReferencesSet 

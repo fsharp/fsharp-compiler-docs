@@ -1,3 +1,6 @@
+#### 2.0.0.8
+* #544 - BackgroundCompiler takes a very long time on a big solution with a very connected project dependency graph
+
 #### 2.0.0.7
 * #544 - Losing operator call when one of operands is application of a partially applied function
 * #534 - Function valued property erasing calls

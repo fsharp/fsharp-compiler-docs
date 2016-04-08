@@ -912,8 +912,9 @@ type internal FsiDynamicCompiler
         let optimizedImpls, _optData, optEnv = ApplyAllOptimizations (tcConfig, tcGlobals, (LightweightTcValForUsingInBuildMethodCall tcGlobals), outfile, importMap, isIncrementalFragment, optEnv, tcState.Ccu, declaredImpls)
         errorLogger.AbortOnError(fsiConsoleOutput);
             
-        let fragName = textOfLid prefixPath 
-        let codegenResults = GenerateIlxCode (IlReflectBackend, isInteractiveItExpr, runningOnMono, tcConfig, topCustomAttrs, optimizedImpls, fragName, true, ilxGenerator)
+        let fragName = textOfLid prefixPath
+        let providedTypes, _staticLinker = Driver.StaticLinker.StaticLink(tcConfig, tcImports, ilGlobals)
+        let codegenResults = GenerateIlxCode (IlReflectBackend, isInteractiveItExpr, runningOnMono, tcConfig, topCustomAttrs, optimizedImpls, fragName, true, ilxGenerator, providedTypes)
         errorLogger.AbortOnError(fsiConsoleOutput);
 
         // Each input is like a small separately compiled extension to a single source file. 

@@ -6,6 +6,7 @@ os:
 
 mono:
   - latest
+  - 4.2.2
   - 4.0.5
 
 sudo: false
@@ -14,3 +15,4 @@ install:
 
 script: 
   - ./build.sh NuGet
+

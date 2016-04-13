@@ -113,7 +113,7 @@ let ensureDefaultFSharpCoreAvailable tmpDir  =
     // 
     // So just copy the FSharp.Core 4.3.0.0 to the tmp directory. Only need to do this on Windows.
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-        File.Copy(fsCore4300(), Path.Combine(tmpDir, Path.GetFileName(fsCore4300())), overwrite = true)
+        File.Copy(fsCoreDefaultReference(), Path.Combine(tmpDir, Path.GetFileName(fsCoreDefaultReference())), overwrite = true)
 
 let compile isDll debugMode (assemblyName : string) (code : string) (dependencies : string list) =
     let tmp = Path.Combine(Path.GetTempPath(),"test"+string(hash (isDll,debugMode,assemblyName,code,dependencies)))

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 module (*internal*) Microsoft.FSharp.Compiler.ErrorLogger
 
@@ -389,7 +389,7 @@ let report f =
 
 let deprecatedWithError s m = errorR(Deprecated(s,m))
 
-// Note: global state, but only for compiling FSHarp.Core.dll
+// Note: global state, but only for compiling FSharp.Core.dll
 let mutable reportLibraryOnlyFeatures = true
 let libraryOnlyError m = if reportLibraryOnlyFeatures then errorR(LibraryUseOnly(m))
 let libraryOnlyWarning m = if reportLibraryOnlyFeatures then warning(LibraryUseOnly(m))

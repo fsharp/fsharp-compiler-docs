@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 module internal Microsoft.FSharp.Compiler.NameResolution
 
@@ -188,6 +188,7 @@ type internal ItemOccurence =
     | UseInAttribute 
     | Pattern 
     | Implemented 
+    | RelatedText
   
 /// Check for equality, up to signature matching
 val ItemsAreEffectivelyEqual : TcGlobals -> Item -> Item -> bool
@@ -196,15 +197,23 @@ val ItemsAreEffectivelyEqual : TcGlobals -> Item -> Item -> bool
 type internal CapturedNameResolution = 
     /// line and column
     member Pos : pos
+
     /// Named item
     member Item : Item
+
+    /// Information about the occurence of the symbol
     member ItemOccurence : ItemOccurence
+
     /// Information about printing. For example, should redundant keywords be hidden?
     member DisplayEnv : DisplayEnv
+
     /// Naming environment--for example, currently open namespaces.
     member NameResolutionEnv : NameResolutionEnv
+
+    /// The access rights of code at the location
     member AccessorDomain : AccessorDomain
-    /// The starting and ending position      
+
+    /// The starting and ending position
     member Range : range
 
 [<Class>]
@@ -221,32 +230,51 @@ type internal TcResolutions =
     /// Exact name resolutions
     member CapturedNameResolutions : ResizeArray<CapturedNameResolution>
 
+    /// Represents all the resolutions of names to groups of methods.
     member CapturedMethodGroupResolutions : ResizeArray<CapturedNameResolution>
 
+    /// Represents the empty set of resolutions 
     static member Empty : TcResolutions
 
 
 [<Class>]
+/// Represents container for all name resolutions that were met so far when typechecking some particular file
 type internal TcSymbolUses = 
 
+    /// Get all the uses of a particular item within the file
     member GetUsesOfSymbol : Item -> (ItemOccurence * DisplayEnv * range)[]
 
+    /// Get all the uses of all items within the file
     member GetAllUsesOfSymbols : unit -> (Item * ItemOccurence * DisplayEnv * range)[]
 
+    /// Get the locations of all the printf format specifiers in the file
     member GetFormatSpecifierLocationsAndArity : unit -> (range * int)[]
 
 
 /// An abstract type for reporting the results of name resolution and type checking
 type ITypecheckResultsSink =
+
+    /// Record that an environment is active over the given scope range
     abstract NotifyEnvWithScope   : range * NameResolutionEnv * AccessorDomain -> unit
+
+    /// Record that an expression has a specific type at the given range.
     abstract NotifyExprHasType    : pos * TType * DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
+
+    /// Record that a name resolution occurred at a specific location in the source
     abstract NotifyNameResolution : pos * Item * Item * ItemOccurence * DisplayEnv * NameResolutionEnv * AccessorDomain * range -> unit
     abstract NotifyFormatSpecifierLocation : range * int -> unit
     abstract CurrentSource : string option
 
+/// An implementation of ITypecheckResultsSink to collect information during type checking
 type internal TcResultsSinkImpl =
+
+    /// Create a TcResultsSinkImpl
     new : tcGlobals : TcGlobals * ?source:string -> TcResultsSinkImpl
+
+    /// Get all the resolutions reported to the sink
     member GetResolutions : unit -> TcResolutions
+
+    /// Get all the uses of all symbols remorted to the sink
     member GetSymbolUses : unit -> TcSymbolUses
     interface ITypecheckResultsSink
 

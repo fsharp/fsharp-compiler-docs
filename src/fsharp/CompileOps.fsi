@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 /// Coordinating compiler operations - configuration, loading initial context, reporting errors etc.
 module internal Microsoft.FSharp.Compiler.CompileOps
@@ -153,7 +153,7 @@ type IRawFSharpAssemblyData =
     ///  The raw IL module definition in the assembly, if any. This is not present for cross-project references
     /// in the language service
     abstract TryGetRawILModule : unit -> ILModuleDef option
-    abstract HasAnyFSharpSignatureDataAttribute : ILGlobals -> bool
+    abstract HasAnyFSharpSignatureDataAttribute : bool
     abstract HasMatchingFSharpSignatureDataAttribute : ILGlobals -> bool
     ///  The raw F# signature data in the assembly, if any
     abstract GetRawFSharpSignatureData : range * ilShortAssemName: string * fileName: string -> (string * byte[]) list
@@ -165,7 +165,6 @@ type IRawFSharpAssemblyData =
     abstract ILScopeRef : ILScopeRef
     abstract ILAssemblyRefs : ILAssemblyRef list
     abstract ShortAssemblyName : string
-
 
 type TimeStampCache = 
     new : unit -> TimeStampCache
@@ -360,6 +359,7 @@ type TcConfigBuilder =
       sqmSessionStartedTime : int64
       mutable emitDebugInfoInQuotations : bool
       mutable exename : string option 
+      mutable copyFSharpCore : bool
       mutable shadowCopyReferences : bool }
 
 
@@ -517,6 +517,7 @@ type TcConfig =
     member sqmSessionGuid : System.Guid option
     member sqmNumOfSourceFiles : int
     member sqmSessionStartedTime : int64
+    member copyFSharpCore : bool
     member shadowCopyReferences : bool
  
     static member Create : TcConfigBuilder * validate: bool -> TcConfig

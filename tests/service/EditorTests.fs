@@ -5,7 +5,7 @@
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
-module FSharp.Compiler.Service.Tests.Editor
+module Tests.Service.Editor
 #endif
 
 open NUnit.Framework

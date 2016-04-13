@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 /// The typechecker.  Left-to-right constrained type checking 
 /// with generalization at appropriate points.
@@ -4724,7 +4724,7 @@ and TcPatBindingName cenv env id ty isMemberThis vis1 topValData (inlineFlag,dec
                 value
             | None -> error(Error(FSComp.SR.tcNameNotBoundInPattern(id.idText),id.idRange))
 
-        // isLeftMost indcates we are processing the left-most path through a disjunctive or- attern.
+        // isLeftMost indcates we are processing the left-most path through a disjunctive or pattern.
         // For those binding locations, CallNameResolutionSink is called in MakeAndPublishValue, like all other bindings
         // For non-left-most paths, we register the name resolutions here
         if not isLeftMost && not vspec.IsCompilerGenerated && not (String.hasPrefix vspec.LogicalName "_") then 
@@ -4825,6 +4825,14 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
             match args with
             | SynConstructorArgs.Pats [] -> warnOnUpper
             | _ -> AllIdsOK
+
+        let checkNoArgsForLiteral() = 
+            let nargs =
+                match args with
+                | SynConstructorArgs.Pats args -> args.Length
+                | SynConstructorArgs.NamePatPairs (pairs, _) -> pairs.Length
+            if nargs <> 0 then error(Error(FSComp.SR.tcLiteralDoesNotTakeArguments(),m)) 
+
         begin match ResolvePatternLongIdent cenv.tcSink cenv.nameResolver warnOnUpperForId false m ad env.eNameResEnv TypeNameResolutionInfo.Default longId with
         | Item.NewDef id -> 
             match args with 
@@ -4972,6 +4980,7 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
             match finfo.LiteralValue with 
             | None -> error (Error(FSComp.SR.tcFieldNotLiteralCannotBeUsedInPattern(), m))
             | Some lit -> 
+                checkNoArgsForLiteral()
                 UnifyTypes cenv env m ty (finfo.FieldType(cenv.amap,m))
                 let c' = TcFieldInit m lit
                 (fun _ -> TPat_const (c',m)),(tpenv,names,takenNames)             
@@ -4984,6 +4993,7 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
             match rfinfo.LiteralValue with 
             | None -> error (Error(FSComp.SR.tcFieldNotLiteralCannotBeUsedInPattern(), m))
             | Some lit -> 
+                checkNoArgsForLiteral()
                 UnifyTypes cenv env m ty rfinfo.FieldType
                 let item = Item.RecdField(rfinfo)
                 CallNameResolutionSink cenv.tcSink (m,env.NameEnv,item,item,ItemOccurence.Pattern,env.DisplayEnv,env.AccessRights)
@@ -4996,6 +5006,7 @@ and TcPat warnOnUpper cenv env topValInfo vFlags (tpenv,names,takenNames) ty pat
                 let (_, _, vexpty, _, _) = TcVal true cenv env tpenv vref None m
                 CheckValAccessible m env.eAccessRights vref
                 CheckFSharpAttributes cenv.g vref.Attribs m |> CommitOperationResult
+                checkNoArgsForLiteral()
                 UnifyTypes cenv env m ty vexpty
                 (fun _ -> TPat_const (lit,m)),(tpenv,names,takenNames)             
 
@@ -7551,12 +7562,17 @@ and TcComputationExpression cenv env overallTy mWhole interpExpr builderTy tpenv
         | None -> 
             // This only occurs in final position in a sequence
             match comp with 
-            // "do! expr;" in final position is treated as { let! () = expr in return () }
+            // "do! expr;" in final position is treated as { let! () = expr in return () } when Return is provided or as { let! () = expr in zero } otherwise
             | SynExpr.DoBang(rhsExpr,m) -> 
                 let mUnit = rhsExpr.Range
                 let rhsExpr = mkSourceExpr rhsExpr
                 if isQuery then error(Error(FSComp.SR.tcBindMayNotBeUsedInQueries(),m))
-                trans true q varSpace (SynExpr.LetOrUseBang(NoSequencePointAtDoBinding, false, false, SynPat.Const(SynConst.Unit, mUnit), rhsExpr, SynExpr.YieldOrReturn((false,true), SynExpr.Const(SynConst.Unit,m), m),m)) translatedCtxt
+                let bodyExpr =
+                    if isNil (TryFindIntrinsicOrExtensionMethInfo cenv env m ad "Return" builderTy) then
+                        SynExpr.ImplicitZero m
+                    else
+                        SynExpr.YieldOrReturn((false,true), SynExpr.Const(SynConst.Unit, m), m)
+                trans true q varSpace (SynExpr.LetOrUseBang(NoSequencePointAtDoBinding, false, false, SynPat.Const(SynConst.Unit, mUnit), rhsExpr, bodyExpr, m)) translatedCtxt
             // "expr;" in final position is treated as { expr; zero }
             // Suppress the sequence point on the "zero"
             | _ -> 
@@ -9112,11 +9128,13 @@ and TcMethodApplication
         // Handle CallerSide optional arguments. 
         //
         // CallerSide optional arguments are largely for COM interop, e.g. to PIA assemblies for Word etc.
-        // As a result we follow the VB spec here. To quote from an email exchange between the C# and VB teams.
+        // As a result we follow the VB and C# behavior here.
         //
-        //   "1.        If the parameter is statically typed as System.Object and does not have a value, then there are two cases:
-        //       a.     The parameter may have the IDispatchConstantAttribute or IUnknownConstantAttribute attribute. If this is the case, the VB compiler then create an instance of the System.Runtime.InteropServices.DispatchWrapper /System.Runtime.InteropServices.UnknownWrapper type at the call site to wrap the value Nothing/null.
-        //       b.     If the parameter does not have those two attributes, we will emit Missing.Value.
+        //   "1.        If the parameter is statically typed as System.Object and does not have a value, then there are four cases:
+        //       a.     The parameter is marked with MarshalAs(IUnknown), MarshalAs(Interface), or MarshalAs(IDispatch). In this case we pass null.
+        //       b.     Else if the parameter is marked with IUnknownConstantAttribute. In this case we pass new System.Runtime.InteropServices.UnknownWrapper(null)
+        //       c.     Else if the parameter is marked with IDispatchConstantAttribute. In this case we pass new System.Runtime.InteropServices.DispatchWrapper(null)
+        //       d.     Else, we will pass Missing.Value.
         //    2.        Otherwise, if there is a value attribute, then emit the default value.
         //    3.        Otherwise, we emit default(T).
         //    4.        Finally, we apply conversions from the value to the parameter type. This is where the nullable conversions take place for VB.
@@ -9158,7 +9176,7 @@ and TcMethodApplication
                               | Some assemblyRef ->
                                   let tref = mkILNonGenericBoxedTy(mkILTyRef(assemblyRef, "System.Runtime.InteropServices.DispatchWrapper"))
                                   let mref = mkILCtorMethSpecForTy(tref,[cenv.g.ilg.typ_Object]).MethodRef
-                                  let expr = Expr.Op(TOp.ILCall(false,false,false,false,CtorValUsedAsSuperInit,false,false,mref,[],[],[cenv.g.obj_ty]),[],[mkDefault(mMethExpr,currCalledArgTy)],mMethExpr)
+                                  let expr = Expr.Op(TOp.ILCall(false,false,false,true,NormalValUse,false,false,mref,[],[],[cenv.g.obj_ty]),[],[mkDefault(mMethExpr,currCalledArgTy)],mMethExpr)
                                   emptyPreBinder,expr
                           | WrapperForIUnknown ->
                               match cenv.g.ilg.traits.SystemRuntimeInteropServicesScopeRef.Value with
@@ -9166,7 +9184,7 @@ and TcMethodApplication
                               | Some assemblyRef ->
                                   let tref = mkILNonGenericBoxedTy(mkILTyRef(assemblyRef, "System.Runtime.InteropServices.UnknownWrapper"))
                                   let mref = mkILCtorMethSpecForTy(tref,[cenv.g.ilg.typ_Object]).MethodRef
-                                  let expr = Expr.Op(TOp.ILCall(false,false,false,false,CtorValUsedAsSuperInit,false,false,mref,[],[],[cenv.g.obj_ty]),[],[mkDefault(mMethExpr,currCalledArgTy)],mMethExpr)
+                                  let expr = Expr.Op(TOp.ILCall(false,false,false,true,NormalValUse,false,false,mref,[],[],[cenv.g.obj_ty]),[],[mkDefault(mMethExpr,currCalledArgTy)],mMethExpr)
                                   emptyPreBinder,expr
                           | PassByRef (ty, dfltVal2) ->
                               let v,_ = mkCompGenLocal mMethExpr "defaultByrefArg" ty
@@ -10038,6 +10056,8 @@ and TcLetBindings cenv env containerInfo declKind tpenv (binds,bindsm,scopem) =
 and CheckMemberFlags _g optIntfSlotTy newslotsOK overridesOK memberFlags m = 
     if newslotsOK = NoNewSlots && memberFlags.IsDispatchSlot then 
       errorR(Error(FSComp.SR.tcAbstractMembersIllegalInAugmentation(),m))
+    if overridesOK = ErrorOnOverrides && memberFlags.MemberKind = MemberKind.Constructor then 
+      errorR(Error(FSComp.SR.tcConstructorsIllegalInAugmentation(),m))
     if overridesOK = WarnOnOverrides && memberFlags.IsOverrideOrExplicitImpl && isNone optIntfSlotTy then 
       warning(OverrideInIntrinsicAugmentation(m))
     if overridesOK = ErrorOnOverrides && memberFlags.IsOverrideOrExplicitImpl then 
@@ -10295,11 +10315,11 @@ and AnalyzeRecursiveStaticMemberOrValDecl (cenv, envinner: TcEnv, tpenv, declKin
             let isExtrinsic = (declKind = ExtrinsicExtensionBinding)
             MakeMemberDataAndMangledNameForMemberVal(cenv.g,tcref,isExtrinsic,bindingAttribs,[],memberFlags,valSynInfo,id,false)
 
-        envinner,tpenv,id,Some(memberInfo),vis,vis2,safeThisValOpt,enclosingDeclaredTypars,baseValOpt,flex,bindingRhs,declaredTypars
+        envinner,tpenv,id,None,Some(memberInfo),vis,vis2,safeThisValOpt,enclosingDeclaredTypars,baseValOpt,flex,bindingRhs,declaredTypars
         
     // non-member bindings. How easy. 
     | _ -> 
-        envinner,tpenv,id,None,vis,vis2,None,[],None,flex,bindingRhs,declaredTypars
+        envinner,tpenv,id,None,None,vis,vis2,None,[],None,flex,bindingRhs,declaredTypars
     
 
 and AnalyzeRecursiveInstanceMemberDecl (cenv,envinner: TcEnv, tpenv, declKind, synTyparDecls, valSynInfo, flex:ExplicitTyparInfo, newslotsOK, overridesOK, vis1, thisId, memberId:Ident, toolId:Ident option, bindingAttribs, vis2, tcrefContainerInfo, memberFlagsOpt, ty, bindingRhs, mBinding) =
@@ -10359,9 +10379,9 @@ and AnalyzeRecursiveInstanceMemberDecl (cenv,envinner: TcEnv, tpenv, declKind, s
          //
          // See https://github.com/fsharp/FSharp.Compiler.Service/issues/79.
          //let memberId = match toolId with Some tid -> ident(memberId.idText, tid.idRange) | None -> memberId
-         ignore toolId
+         //ignore toolId
 
-         envinner, tpenv, memberId, Some memberInfo, vis, vis2, None, enclosingDeclaredTypars, baseValOpt, flex, bindingRhs, declaredTypars
+         envinner, tpenv, memberId, toolId, Some memberInfo, vis, vis2, None, enclosingDeclaredTypars, baseValOpt, flex, bindingRhs, declaredTypars
      | _ -> 
          error(Error(FSComp.SR.tcRecursiveBindingsWithMembersMustBeDirectAugmentation(),mBinding)) 
 
@@ -10428,7 +10448,7 @@ and AnalyzeAndMakeRecursiveValue overridesOK isGeneratedEventVal cenv (env:TcEnv
     let envinner = AddDeclaredTypars CheckForDuplicateTypars declaredTypars env
     
     // OK, analyze the declaration and return lots of information about it
-    let envinner,tpenv,bindingId,memberInfoOpt,vis,vis2,safeThisValOpt,enclosingDeclaredTypars,baseValOpt,flex,bindingRhs,declaredTypars = 
+    let envinner,tpenv,bindingId,toolIdOpt,memberInfoOpt,vis,vis2,safeThisValOpt,enclosingDeclaredTypars,baseValOpt,flex,bindingRhs,declaredTypars = 
 
         AnalyzeRecursiveDecl (cenv, envinner, tpenv, declKind, synTyparDecls, declaredTypars, thisIdOpt, valSynInfo, flex,
                               newslotsOK, overridesOK, vis1, declPattern, bindingAttribs, tcrefContainerInfo,
@@ -10465,6 +10485,14 @@ and AnalyzeAndMakeRecursiveValue overridesOK isGeneratedEventVal cenv (env:TcEnv
     
     // Create the value 
     let vspec = MakeAndPublishVal cenv envinner (altActualParent,false,declKind,ValInRecScope(isComplete),prelimValScheme,bindingAttribs,bindingXmlDoc,konst,isGeneratedEventVal)
+
+    // Suppress hover tip for "get" and "set" at property definitions, where toolId <> bindingId
+    match toolIdOpt with 
+    | Some tid when not tid.idRange.IsSynthetic && tid.idRange <> bindingId.idRange  -> 
+        let item = Item.Value (mkLocalValRef vspec)
+        CallNameResolutionSink cenv.tcSink (tid.idRange,env.NameEnv,item,item,ItemOccurence.RelatedText,env.DisplayEnv,env.eAccessRights)
+    | _ -> ()
+
     
     let mangledId = ident(vspec.LogicalName,vspec.Range)
     // Reconstitute the binding with the unique name

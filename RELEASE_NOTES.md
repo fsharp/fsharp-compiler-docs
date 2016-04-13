@@ -1,3 +1,6 @@
+#### 4.0.0
+* Integrate Microsoft\visualfsharp and fsharp\fsharp to master
+
 #### 3.0.0.0
 * #538 - BackgroundCompiler takes a very long time on a big solution with a very connected project dependency graph
 * #544 - Losing operator call when one of operands is application of a partially applied function

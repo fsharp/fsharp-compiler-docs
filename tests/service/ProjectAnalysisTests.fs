@@ -4,7 +4,7 @@
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
-module FSharp.Compiler.Service.Tests.ProjectAnalysisTests
+module Tests.Service.ProjectAnalysisTests
 #endif
 
 let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e ->  false
@@ -19,81 +19,6 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open FSharp.Compiler.Service.Tests.Common
-
-// Create an interactive checker instance 
-let checker = FSharpChecker.Create()
-
-/// Extract range info 
-let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)
-
-/// Extract range info  and convert to zero-based line  - please don't use this one any more
-let tupsZ (m:Range.range) = (m.StartLine-1, m.StartColumn), (m.EndLine-1, m.EndColumn)
-
-let attribsOfSymbolUse (s:FSharpSymbolUse) = 
-    [ if s.IsFromDefinition then yield "defn" 
-      if s.IsFromType then yield "type"
-      if s.IsFromAttribute then yield "attribute"
-      if s.IsFromDispatchSlotImplementation then yield "override"
-      if s.IsFromPattern then yield "pattern" 
-      if s.IsFromComputationExpression then yield "compexpr" ] 
-
-let attribsOfSymbol (s:FSharpSymbol) = 
-    [ match s with 
-        | :? FSharpField as v -> 
-            yield "field"
-            if v.IsCompilerGenerated then yield "compgen"
-            if v.IsDefaultValue then yield "default"
-            if v.IsMutable then yield "mutable"
-            if v.IsVolatile then yield "volatile"
-            if v.IsStatic then yield "static"
-            if v.IsLiteral then yield sprintf "%A" v.LiteralValue.Value
-
-
-        | :? FSharpEntity as v -> 
-            v.TryFullName |> ignore // check there is no failure here
-            if v.IsNamespace then yield "namespace"
-            if v.IsFSharpModule then yield "module"
-            if v.IsByRef then yield "byref"
-            if v.IsClass then yield "class"
-            if v.IsDelegate then yield "delegate"
-            if v.IsEnum then yield "enum"
-            if v.IsFSharpAbbreviation then yield "abbrev"
-            if v.IsFSharpExceptionDeclaration then yield "exn"
-            if v.IsFSharpRecord then yield "record"
-            if v.IsFSharpUnion then yield "union"
-            if v.IsInterface then yield "interface"
-            if v.IsMeasure then yield "measure"
-            if v.IsProvided then yield "provided"
-            if v.IsStaticInstantiation then yield "staticinst"
-            if v.IsProvidedAndErased then yield "erased"
-            if v.IsProvidedAndGenerated then yield "generated"
-            if v.IsUnresolved then yield "unresolved"
-            if v.IsValueType then yield "valuetype"
-
-        | :? FSharpMemberOrFunctionOrValue as v -> 
-            if v.IsActivePattern then yield "apat"
-            if v.IsDispatchSlot then yield "slot"
-            if v.IsModuleValueOrMember && not v.IsMember then yield "val"
-            if v.IsMember then yield "member"
-            if v.IsProperty then yield "prop"
-            if v.IsExtensionMember then yield "extmem"
-            if v.IsPropertyGetterMethod then yield "getter"
-            if v.IsPropertySetterMethod then yield "setter"
-            if v.IsEvent then yield "event"
-            if v.EventForFSharpProperty.IsSome then yield "clievent"
-            if v.IsEventAddMethod then yield "add"
-            if v.IsEventRemoveMethod then yield "remove"
-            if v.IsTypeFunction then yield "typefun"
-            if v.IsCompilerGenerated then yield "compgen"
-            if v.IsImplicitConstructor then yield "ctor"
-            if v.IsMutable then yield "mutable" 
-            if v.IsOverrideOrExplicitInterfaceImplementation then yield "overridemem"
-            if v.IsInstanceMember && not v.IsInstanceMemberInCompiledCode && not v.IsExtensionMember then yield "funky"
-            if v.IsExplicitInterfaceImplementation then yield "intfmem"
-//            if v.IsConstructorThisValue then yield "ctorthis"
-//            if v.IsMemberThisValue then yield "this"
-//            if v.LiteralValue.IsSome then yield "literal"
-        | _ -> () ]
 
 module Project1 = 
     open System.IO
@@ -164,30 +89,6 @@ let mmmm2 : M.CAbbrev = new M.CAbbrev() // note, these don't count as uses of C
     let args = mkProjectCommandLineArgs (dllName, fileNames)
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let cleanFileName a = if a = fileName1 then "file1" else if a = fileName2 then "file2" else "??"
-
-let rec allSymbolsInEntities compGen (entities: IList<FSharpEntity>) = 
-    [ for e in entities do 
-          yield (e :> FSharpSymbol) 
-          for gp in e.GenericParameters do 
-            if compGen || not gp.IsCompilerGenerated then 
-             yield (gp :> FSharpSymbol)
-          for x in e.MembersFunctionsAndValues do
-             if compGen || not x.IsCompilerGenerated then 
-               yield (x :> FSharpSymbol)
-             for gp in x.GenericParameters do 
-              if compGen || not gp.IsCompilerGenerated then 
-               yield (gp :> FSharpSymbol)
-          for x in e.UnionCases do
-             yield (x :> FSharpSymbol)
-             for f in x.UnionCaseFields do
-                 if compGen || not f.IsCompilerGenerated then 
-                     yield (f :> FSharpSymbol)
-          for x in e.FSharpFields do
-             if compGen || not x.IsCompilerGenerated then 
-                 yield (x :> FSharpSymbol)
-          yield! allSymbolsInEntities compGen e.NestedEntities ]
-
-
 
 [<Test>]
 let ``Test project1 whole project errors`` () = 
@@ -3655,7 +3556,8 @@ let ``Test symbol uses of properties with both getters and setters`` () =
 
     usesOfGetSampleSymbol |> shouldEqual [|("file1", ((9, 13), (9, 20))); ("file1", ((36, 9), (36, 37)))|]
 
-
+#if NO_CHECK_USE_OF_FSHARP_DATA_DLL
+#endif
 // Misc - type provider symbols
 module Project25 = 
     open System.IO
@@ -3784,6 +3686,7 @@ let ``Test symbol uses of fully-qualified records`` () =
         |> Array.map (fun s -> (Project25.cleanFileName s.FileName, tups s.RangeAlternate))
 
     usesOfGetSampleSymbol |> shouldEqual [|("file1", ((7, 5), (7, 11))); ("file1", ((8, 10), (8, 16)))|]
+
 
 module Project26 = 
     open System.IO
@@ -4370,6 +4273,7 @@ module Dummy
 [<Test>]
 let ``Test Project34 whole project errors`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project34.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do printfn "Error: %s" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
@@ -4536,7 +4440,6 @@ let ``Test project35b Dependency files for check of project`` () =
     checkResults.DependencyFiles |> List.exists (fun s -> s.Contains "notexist.dll") |> shouldEqual true
     checkResults.DependencyFiles |> List.exists (fun s -> s.Contains Project35b.fileName1) |> shouldEqual true
 
-
 //------------------------------------------------------
 
 module Project36 =
@@ -4594,6 +4497,17 @@ let ``Test project36 FSharpMemberOrFunctionOrValue.IsBaseValue`` () =
 
 [<Test>]
 let ``Test project36 FSharpMemberOrFunctionOrValue.IsConstructorThisValue & IsMemberThisValue`` () =
+    let wholeProjectResults = Project36.keepAssemblyContentsChecker.ParseAndCheckProject(Project36.options) |> Async.RunSynchronously
+    let declarations =
+        let checkedFile = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
+        match checkedFile.Declarations.[0] with
+        | FSharpImplementationFileDeclaration.Entity (_, subDecls) -> subDecls
+        | _ -> failwith "unexpected declaration"
+    let getExpr exprIndex =
+        match declarations.[exprIndex] with
+        | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(_,_,e) -> e
+        | FSharpImplementationFileDeclaration.InitAction e -> e
+        | _ -> failwith "unexpected declaration"
     // Instead of checking the symbol uses directly, walk the typed tree to check
     // the correct values are also visible from there. Also note you cannot use
     // BasicPatterns.ThisValue in these cases, this is only used when the symbol
@@ -4618,7 +4532,8 @@ let ``Test project36 FSharpMemberOrFunctionOrValue.IsConstructorThisValue & IsMe
 
 [<Test>]
 let ``Test project36 FSharpMemberOrFunctionOrValue.LiteralValue`` () =
-    let project36Module = Project36.wholeProjectResults.AssemblySignature.Entities.[0]
+    let wholeProjectResults = Project36.keepAssemblyContentsChecker.ParseAndCheckProject(Project36.options) |> Async.RunSynchronously
+    let project36Module = wholeProjectResults.AssemblySignature.Entities.[0]
     let lit = project36Module.MembersFunctionsAndValues.[0]
     shouldEqual true (lit.LiteralValue.Value |> unbox |> (=) 1.)
 
@@ -4679,13 +4594,13 @@ do ()
     let fileNames = [fileName1; fileName2]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
-    let wholeProjectResults =
-        checker.ParseAndCheckProject(options)
-        |> Async.RunSynchronously
 
 [<Test>]
 let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
-    let allSymbolsUses = Project37.wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+    let wholeProjectResults =
+        checker.ParseAndCheckProject(Project37.options)
+        |> Async.RunSynchronously
+    let allSymbolsUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
     for su in allSymbolsUses do
         match su.Symbol with
         | :? FSharpMemberOrFunctionOrValue as funcSymbol ->
@@ -4721,7 +4636,7 @@ let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
                 a |> shouldEqual [| 0; 1; 2 |] 
             | _ -> ()
         | _ -> ()
-    Project37.wholeProjectResults.AssemblySignature.Attributes
+    wholeProjectResults.AssemblySignature.Attributes
     |> Seq.map (fun a -> a.AttributeType.CompiledName)
     |> Array.ofSeq |> shouldEqual [| "AttrTestAttribute"; "AttrTest2Attribute" |]
 
@@ -4775,12 +4690,12 @@ type A<'XX, 'YY>() =
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
-    let wholeProjectResults =
-        checker.ParseAndCheckProject(options)
-        |> Async.RunSynchronously
 
 [<Test>]
 let ``Test project38 abstract slot information`` () =
+    let wholeProjectResults =
+        checker.ParseAndCheckProject(Project38.options)
+        |> Async.RunSynchronously
     let printAbstractSignature (s: FSharpAbstractSignature) =
         let printType (t: FSharpType) = 
             hash t  |> ignore // smoke test to check hash code doesn't loop
@@ -4800,7 +4715,7 @@ let ``Test project38 abstract slot information`` () =
         "type " + printType s.DeclaringType + tgen + " with member " + s.Name + mgen + " : " + args + " -> " +
         printType s.AbstractReturnType
     
-    let a2ent = Project38.wholeProjectResults.AssemblySignature.Entities |> Seq.find (fun e -> e.FullName = "OverrideTests.A`2")
+    let a2ent = wholeProjectResults.AssemblySignature.Entities |> Seq.find (fun e -> e.FullName = "OverrideTests.A`2")
     a2ent.MembersFunctionsAndValues |> Seq.map (fun m ->
         m.CompiledName, (m.ImplementedAbstractSignatures |> Seq.map printAbstractSignature |> List.ofSeq) 
     )
@@ -4970,4 +4885,60 @@ let ``Test Project40 all symbols`` () =
            ("IsItAnAMethod", ((13, 25), (13, 40)), ["member"; "funky"]);
            ("g", ((13, 4), (13, 5)), ["val"]); ("M", ((2, 7), (2, 8)), ["module"])]
 
+
+module ProjectBig = 
+    open System.IO
+
+    let fileNamesI = [ for i in 1 .. 10 -> (i, Path.ChangeExtension(Path.GetTempFileName(), ".fs")) ]
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSources = [ for (i,f) in fileNamesI -> (f, "module M" + string i) ]
+    for (f,text) in fileSources do File.WriteAllText(f, text)
+    let fileSources2 = [ for (i,f) in fileSources -> f ]
+
+    let fileNames = [ for (_,f) in fileNamesI -> f ]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test request for parse and check doesn't check whole project`` () = 
+
+    let backgroundParseCount = ref 0 
+    let backgroundCheckCount = ref 0 
+    checker.FileChecked.Add (fun x -> incr backgroundCheckCount)
+    checker.FileParsed.Add (fun x -> incr backgroundParseCount)
+
+    checker.ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients()
+    let pB, tB = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    let parseResults1 = checker.ParseFileInProject(ProjectBig.fileNames.[5], ProjectBig.fileSources2.[5], ProjectBig.options)  |> Async.RunSynchronously
+    let pC, tC = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    (pC - pB) |> shouldEqual 1
+    (tC - tB) |> shouldEqual 0
+    backgroundParseCount.Value |> shouldEqual 0
+    backgroundCheckCount.Value |> shouldEqual 0
+    let checkResults1 = checker.CheckFileInProject(parseResults1, ProjectBig.fileNames.[5], 0, ProjectBig.fileSources2.[5], ProjectBig.options)  |> Async.RunSynchronously
+    let pD, tD = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    backgroundParseCount.Value |> shouldEqual 10 // This could be reduced to 5 - the whole project gets parsed 
+    backgroundCheckCount.Value |> shouldEqual 5
+    (pD - pC) |> shouldEqual 0
+    (tD - tC) |> shouldEqual 1
+
+    let checkResults2 = checker.CheckFileInProject(parseResults1, ProjectBig.fileNames.[7], 0, ProjectBig.fileSources2.[7], ProjectBig.options)  |> Async.RunSynchronously
+    let pE, tE = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    (pE - pD) |> shouldEqual 0
+    (tE - tD) |> shouldEqual 1
+    backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
+    backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
+
+    // A subsequent ParseAndCheck of identical source code doesn't do any more anything
+    let checkResults2 = checker.ParseAndCheckFileInProject(ProjectBig.fileNames.[7], 0, ProjectBig.fileSources2.[7], ProjectBig.options)  |> Async.RunSynchronously
+    let pF, tF = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    (pF - pE) |> shouldEqual 0  // note, no new parse of the file
+    (tF - tE) |> shouldEqual 0  // note, no new typecheck of the file
+    backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
+    backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
+
+    ()
 

@@ -5,7 +5,7 @@
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
-module FSharp.Compiler.Service.Tests.MultiProjectAnalysisTests
+module Tests.Service.MultiProjectAnalysisTests
 #endif
 
 open Microsoft.FSharp.Compiler
@@ -180,11 +180,12 @@ let ``Test multi project 1 all symbols`` () =
 //------------------------------------------------------------------------------------
 
 
-
 // A project referencing many sub-projects
-module ManyProjectsStressTest = 
+module internal ManyProjectsStressTest = 
     open System.IO
 
+    let numProjectsForStressTest = 100
+  
     type Project = { ModuleName: string; FileName: string; Options: FSharpProjectOptions; DllName: string } 
     let projects = 
         [ for i in 1 .. numProjectsForStressTest do 
@@ -242,17 +243,24 @@ let p = ("""
         |> function Some x -> x | None -> if a = jointProject.FileName then "fileN" else "??"
 
 
+    let makeCheckerForStressTest ensureBigEnough = 
+        let size = (if ensureBigEnough then numProjectsForStressTest + 10 else numProjectsForStressTest / 2 )
+        FSharpChecker.Create(projectCacheSize=size)
 
 [<Test>]
 let ``Test ManyProjectsStressTest whole project errors`` () = 
 
+    let checker = ManyProjectsStressTest.makeCheckerForStressTest true
+    let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
     let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
 
     wholeProjectResults .Errors.Length |> shouldEqual 0
-    wholeProjectResults.ProjectContext.GetReferencedAssemblies().Length |> shouldEqual (numProjectsForStressTest + 4)
+    wholeProjectResults.ProjectContext.GetReferencedAssemblies().Length |> shouldEqual (ManyProjectsStressTest.numProjectsForStressTest + 4)
 
 [<Test>]
 let ``Test ManyProjectsStressTest basic`` () = 
+
+    let checker = ManyProjectsStressTest.makeCheckerForStressTest true
 
     let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
 
@@ -260,6 +268,24 @@ let ``Test ManyProjectsStressTest basic`` () =
 
     [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] |> shouldEqual []
 
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] 
+        |> shouldEqual ["p"]
+
+[<Test>]
+let ``Test ManyProjectsStressTest cache too small`` () = 
+
+    let checker = ManyProjectsStressTest.makeCheckerForStressTest false
+
+    // Because the cache is too small, we need explicit calls to KeepAlive to avoid disposal of project information
+    let disposals = 
+        [ for p in ManyProjectsStressTest.jointProject :: ManyProjectsStressTest.projects do
+             yield checker.KeepProjectAlive p.Options |> Async.RunSynchronously ]
+
+    let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] |> shouldEqual ["JointProject"]
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] |> shouldEqual []
 
     [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] 
         |> shouldEqual ["p"]
@@ -267,7 +293,8 @@ let ``Test ManyProjectsStressTest basic`` () =
 [<Test>]
 let ``Test ManyProjectsStressTest all symbols`` () = 
 
-  for i in 1 .. 30 do 
+  let checker = ManyProjectsStressTest.makeCheckerForStressTest true
+  for i in 1 .. 10 do 
     printfn "stress test iteration %d (first may be slow, rest fast)" i
     let projectsResults = [ for p in ManyProjectsStressTest.projects -> p, checker.ParseAndCheckProject(p.Options) |> Async.RunSynchronously ]
     let jointProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
@@ -350,8 +377,8 @@ let z = Project1.x
 let ``Test multi project symbols should pick up changes in dependent projects`` () = 
 
     //  register to count the file checks
-    let count = ResizeArray<_>()
-    checker.FileChecked.Add (fun nm -> count.Add nm)
+    let count = ref 0
+    checker.FileChecked.Add (fun _ -> incr count)
 
     //---------------- Write the first version of the file in project 1 and check the project --------------------
 
@@ -359,13 +386,13 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
     let wholeProjectResults1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
 
-    count.Count |> shouldEqual 1
+    count.Value |> shouldEqual 1
 
     let backgroundParseResults1, backgroundTypedParse1 = 
         checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, proj1options) 
         |> Async.RunSynchronously    
 
-    count.Count |> shouldEqual 1
+    count.Value |> shouldEqual 1
 
     //---------------- Get a symbol from project 1 and look up its uses in both projects --------------------
 
@@ -379,11 +406,11 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
     let wholeProjectResults2 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
-    count.Count |> shouldEqual 2
+    count.Value |> shouldEqual 2
     
     let _ = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
-    count.Count |> shouldEqual 2 // cached
+    count.Value |> shouldEqual 2 // cached
 
     let usesOfXSymbolInProject1 = 
         wholeProjectResults1.GetUsesOfSymbol(xSymbol) 
@@ -419,7 +446,7 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
     printfn "New write time: '%A', ticks = %d"  wt2 wt2.Ticks
 
     let wholeProjectResults1AfterChange1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
-    count.Count |> shouldEqual 3
+    count.Value |> shouldEqual 3
 
     let backgroundParseResults1AfterChange1, backgroundTypedParse1AfterChange1 = 
         checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, proj1options) 
@@ -434,7 +461,7 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
     let wholeProjectResults2AfterChange1 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
-    count.Count |> shouldEqual 4
+    count.Value |> shouldEqual 4
 
     let usesOfXSymbolInProject1AfterChange1 = 
         wholeProjectResults1AfterChange1.GetUsesOfSymbol(xSymbolAfterChange1) 
@@ -468,17 +495,17 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
     printfn "Old write time: '%A', ticks = %d"  wt1b wt1b.Ticks
     printfn "New write time: '%A', ticks = %d"  wt2b wt2b.Ticks
 
-    count.Count |> shouldEqual 4
+    count.Value |> shouldEqual 4
 
     let wholeProjectResults2AfterChange2 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
     System.Threading.Thread.Sleep(1000)
-    count.Count |> shouldEqual 6 // note, causes two files to be type checked, one from each project
+    count.Value |> shouldEqual 6 // note, causes two files to be type checked, one from each project
 
 
     let wholeProjectResults1AfterChange2 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
 
-    count.Count |> shouldEqual 6 // the project is already checked
+    count.Value |> shouldEqual 6 // the project is already checked
 
     let backgroundParseResults1AfterChange2, backgroundTypedParse1AfterChange2 = 
         checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, proj1options) 

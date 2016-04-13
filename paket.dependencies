@@ -9,5 +9,7 @@ nuget SQLite.Net.Platform.Generic 2.4.1
 nuget FAKE
 nuget FSharp.Formatting
 nuget SourceLink.Fake
+nuget fssrgen
+nuget FSharp.SRGen.Build.Tasks
 
 github fsharp/FAKE modules/Octokit/Octokit.fsx

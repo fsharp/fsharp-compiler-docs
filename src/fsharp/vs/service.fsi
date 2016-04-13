@@ -521,6 +521,13 @@ type FSharpChecker =
     member ParseAndCheckProject : options: FSharpProjectOptions -> Async<FSharpCheckProjectResults>
 
     /// <summary>
+    /// <para>Create resources for the project and keep the project alive until the returned object is disposed.</para>
+    /// </summary>
+    ///
+    /// <param name="options">The options for the project or script.</param>
+    member KeepProjectAlive : options: FSharpProjectOptions -> Async<IDisposable>
+
+    /// <summary>
     /// <para>For a given script file, get the FSharpProjectOptions implied by the #load closure.</para>
     /// <para>All files are read from the FileSystem API, except the file being checked.</para>
     /// </summary>

@@ -1,20 +1,11 @@
 ﻿
 #if INTERACTIVE
-<<<<<<< HEAD
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
-module FSharp.Compiler.Service.Tests.Editor
-=======
-#r "../../Debug/net40/bin/FSharp.LanguageService.Compiler.dll"
-#r "../../Debug/net40/bin/nunit.framework.dll"
-#load "FsUnit.fs"
-#load "Common.fs"
-#else
 module Tests.Service.Editor
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 #endif
 
 open NUnit.Framework
@@ -23,10 +14,7 @@ open System
 open System.IO
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
-<<<<<<< HEAD
 open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
-=======
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 open FSharp.Compiler.Service.Tests.Common
 
 
@@ -61,10 +49,7 @@ let ``Intro test`` () =
 
     // Get tool tip at the specified location
     let tip = typeCheckResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken) |> Async.RunSynchronously
-<<<<<<< HEAD
     (sprintf "%A" tip).Replace("\n","") |> shouldEqual """FSharpToolTipText [Single ("val foo : unit -> unitFull name: Test.foo",None)]"""
-=======
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     // Get declarations (autocomplete) for a location
     let decls =  typeCheckResults.GetDeclarationListInfo(Some untyped, 7, 23, inputLines.[6], [], "msg", fun _ -> false)|> Async.RunSynchronously
     [ for item in decls.Items -> item.Name ] |> shouldEqual
@@ -400,7 +385,6 @@ let _ = List.map (sprintf @"%A
 let _ = (10, 12) ||> sprintf "%A
                               %O"
 let _ = sprintf "\n%-8.1e+567" 1.0
-<<<<<<< HEAD
 let _ = sprintf @"%O\n%-5s" "1" "2" 
 let _ = sprintf "%%"
 let _ = sprintf " %*%" 2
@@ -416,15 +400,11 @@ let _ = sprintf "          %6.*%" 3
 let _ =  printf "           %a" (fun _ _ -> ()) 2
 let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2
 """
-=======
-let _ = sprintf @"%O\n%-5s" "1" "2" """
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-<<<<<<< HEAD
     typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [|(2, 45, 2, 46, 1); 
@@ -457,26 +437,6 @@ let _ = sprintf @"%O\n%-5s" "1" "2" """
                      (32, 27, 32, 31, 1);
                      (33, 28, 33, 29, 2);
                      (34, 29, 34, 31, 3)|]
-=======
-    typeCheckResults.GetFormatSpecifierLocations() 
-    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
-    |> shouldEqual [|(2, 45, 2, 46); 
-                     (3, 23, 3, 24); 
-                     (4, 38, 4, 39); 
-                     (5, 29, 5, 30); 
-                     (6, 17, 6, 19);
-                     (7, 17, 7, 21); 
-                     (8, 17, 8, 22);
-                     (9, 18, 9, 21); 
-                     (10, 18, 10, 20);
-                     (12, 12, 12, 14); 
-                     (15, 12, 15, 14);
-                     (16, 28, 16, 29); 
-                     (18, 30, 18, 31);
-                     (19, 30, 19, 31);
-                     (20, 19, 20, 24); 
-                     (21, 18, 21, 19); (21, 22, 21, 25)|]
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Printf specifiers for triple-quote strings`` () = 
@@ -494,7 +454,6 @@ let _ = List.iter(printfn \"\"\"%-A
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-<<<<<<< HEAD
     typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [|(2, 19, 2, 21, 1);
@@ -502,14 +461,6 @@ let _ = List.iter(printfn \"\"\"%-A
                      (6, 29, 6, 31, 1);
                      (7, 29, 7, 30, 1);
                      (7, 33, 7, 34, 1)|]
-=======
-    typeCheckResults.GetFormatSpecifierLocations() 
-    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
-    |> shouldEqual [|(2, 19, 2, 21);
-                     (4, 12, 4, 14);
-                     (6, 29, 6, 31);
-                     (7, 29, 7, 30); (7, 33, 7, 34)|]
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
  
 [<Test>]
 let ``Printf specifiers for user-defined functions`` () = 
@@ -524,7 +475,6 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-<<<<<<< HEAD
     typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [|(3, 24, 3, 25, 1); 
@@ -533,35 +483,20 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
                      (4, 75, 4, 76, 1);
                      (4, 82, 4, 83, 1);
                      (4, 108, 4, 109, 1)|]
-=======
-    typeCheckResults.GetFormatSpecifierLocations() 
-    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
-    |> shouldEqual [|(3, 24, 3, 25); 
-                     (3, 29, 3, 30);
-                     (4, 58, 4, 59); (4, 75, 4, 76); (4, 82, 4, 83); (4, 108, 4, 109)|]
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``should not report format specifiers for illformed format strings`` () = 
     let input = 
       """
 let _ = sprintf "%.7f %7.1A %7.f %--8.1f"
-<<<<<<< HEAD
-=======
 let _ = sprintf "%%A"
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 let _ = sprintf "ABCDE"
 """
 
     let file = "/home/user/Test.fsx"
     let untyped, typeCheckResults = parseAndTypeCheckFileInProject(file, input) 
-<<<<<<< HEAD
     typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-=======
-    typeCheckResults.GetFormatSpecifierLocations() 
-    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     |> shouldEqual [||]
 
 [<Test>]

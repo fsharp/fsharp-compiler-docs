@@ -1,19 +1,10 @@
 ﻿#if INTERACTIVE
-<<<<<<< HEAD
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
-module FileSystemTests
-=======
-#r "../../Debug/net40/bin/FSharp.LanguageService.Compiler.dll"
-#r "../../Debug/net40/bin/nunit.framework.dll"
-#load "FsUnit.fs"
-#load "Common.fs"
-#else
 module Tests.Service.FileSystemTests
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 #endif
 
 
@@ -24,10 +15,7 @@ open System.IO
 open System.Collections.Generic
 open System.Text
 open Microsoft.FSharp.Compiler
-<<<<<<< HEAD
 open Microsoft.FSharp.Compiler.Interactive.Shell
-=======
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open FSharp.Compiler.Service.Tests.Common
@@ -35,13 +23,8 @@ open FSharp.Compiler.Service.Tests.Common
 let fileName1 = @"c:\mycode\test1.fs" // note, the path doesn' exist
 let fileName2 = @"c:\mycode\test2.fs" // note, the path doesn' exist
 
-<<<<<<< HEAD
 type MyFileSystem(defaultFileSystem:IFileSystem) = 
-=======
-type internal MyFileSystem(defaultFileSystem:IFileSystem) = 
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     let file1 = """
-module File1
 
 let A = 1"""
     let file2 = """

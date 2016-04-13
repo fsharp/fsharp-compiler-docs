@@ -1,18 +1,9 @@
-<<<<<<< HEAD
-﻿module FSharp.Compiler.Service.Tests.Common
-
-open System.IO
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.SourceCodeServices
-open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
-=======
-﻿module internal FSharp.Compiler.Service.Tests.Common
+module FSharp.Compiler.Service.Tests.Common
 
 open System.IO
 open System.Collections.Generic
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 // Create one global interactive checker instance 
 let checker = FSharpChecker.Create()
@@ -47,30 +38,17 @@ let getBackgroundCheckResultsForScriptText (input) =
 
 let sysLib nm = 
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-<<<<<<< HEAD
-        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\" + nm + ".dll"
-=======
-        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\" + nm + ".dll"
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
+        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\" + nm + ".dll"
     else
         let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
         let (++) a b = System.IO.Path.Combine(a,b)
         sysDir ++ nm + ".dll" 
 
-<<<<<<< HEAD
-let fsCore4300() = 
+let fsCoreDefaultReference() = 
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"  
+        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0\FSharp.Core.dll"  
     else 
         sysLib "FSharp.Core"
-=======
-let fsCoreDefaultReference() = 
-    UnitTests.TestLib.Utils.Helpers.PathRelativeToTestAssembly "FSharp.Core.dll"
-    // if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-    //    @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"  
-    //else 
-    //    sysLib "FSharp.Core"
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 let mkProjectCommandLineArgs (dllName, fileNames) = 
@@ -91,12 +69,6 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
             [ yield sysLib "mscorlib"
               yield sysLib "System"
               yield sysLib "System.Core"
-<<<<<<< HEAD
-              yield fsCore4300() ]
-        for r in references do
-                yield "-r:" + r |]
-
-=======
               yield fsCoreDefaultReference() ]
         for r in references do
                 yield "-r:" + r |]
@@ -196,4 +168,3 @@ let rec allSymbolsInEntities compGen (entities: IList<FSharpEntity>) =
           yield! allSymbolsInEntities compGen e.NestedEntities ]
 
 
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823

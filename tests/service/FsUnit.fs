@@ -38,11 +38,7 @@ let Empty = new EmptyConstraint()
 
 let EmptyString = new EmptyStringConstraint()
 
-<<<<<<< HEAD
 let NullOrEmptyString = new NullOrEmptyStringConstraint()
-=======
-//let NullOrEmptyString = new NullOrEmptyStringConstraint()
->>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 let True = new TrueConstraint()
 

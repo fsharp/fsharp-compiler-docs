@@ -489,7 +489,6 @@ let ``should not report format specifiers for illformed format strings`` () =
     let input = 
       """
 let _ = sprintf "%.7f %7.1A %7.f %--8.1f"
-let _ = sprintf "%%A"
 let _ = sprintf "ABCDE"
 """
 

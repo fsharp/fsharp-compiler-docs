@@ -25,6 +25,7 @@ let fileName2 = @"c:\mycode\test2.fs" // note, the path doesn' exist
 
 type MyFileSystem(defaultFileSystem:IFileSystem) = 
     let file1 = """
+module File1
 
 let A = 1"""
     let file2 = """

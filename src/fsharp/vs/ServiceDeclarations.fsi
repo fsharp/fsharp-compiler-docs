@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 //----------------------------------------------------------------------------
 // API to the compiler as an incremental service for parsing,
@@ -35,6 +35,8 @@ type FSharpToolTipElement =
     | None
     /// A single type, method, etc with comment.
     | Single of (* text *) string * FSharpXmlDoc
+    /// A single parameter, with the parameter name.
+    | SingleParameter of (* text *) string * FSharpXmlDoc * string
     /// For example, a method overload group.
     | Group of ((* text *) string * FSharpXmlDoc) list
     /// An error occurred formatting this element
@@ -156,7 +158,6 @@ module Obsoletes =
     | ToolTipElement of  string * FSharpXmlDoc 
     | ToolTipElementGroup of (string * FSharpXmlDoc) list 
     | ToolTipElementCompositionError of string  
-
 
     [<System.Obsolete("The single case of this union type has been renamed to 'FSharpToolTipText'",true)>]
     type Dummy3 = 

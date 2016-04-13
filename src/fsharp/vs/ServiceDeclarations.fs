@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 //----------------------------------------------------------------------------
 // Open up the compiler as an incremental service for parsing,
@@ -59,8 +59,8 @@ type FSharpToolTipElement =
     | None
     /// A single type, method, etc with comment.
     | Single of (* text *) string * FSharpXmlDoc
-    // /// A parameter of a method.
-    // | ToolTipElementParameter of string * XmlComment * string
+    /// A single parameter, with the parameter name.
+    | SingleParameter of (* text *) string * FSharpXmlDoc * string
     /// For example, a method overload group.
     | Group of ((* text *) string * FSharpXmlDoc) list
     /// An error occurred formatting this element
@@ -415,6 +415,8 @@ module internal ItemDescriptionsImpl =
         | FSharpXmlDoc.None -> GetXmlDocHelpSigOfItemForLookup infoReader m d
         | _ -> xml
 
+    let mutable ToolTipFault  = None
+    
     /// Output a method info
     let FormatOverloadsToList (infoReader:InfoReader) m denv d minfos : FSharpToolTipElement = 
         let formatOne minfo = 
@@ -875,8 +877,7 @@ module internal ItemDescriptionsImpl =
                                if (tyconRefUsesLocalXmlDoc g.compilingFslib ucinfo.TyconRef) then ucinfo.UnionCase.XmlDoc else XmlDoc [||]
                          | _ -> XmlDoc [||]
             let xml = GetXmlComment xmldoc infoReader m d
-            FSharpToolTipElement.Single(text, xml)
-            // ToolTipElementParameter(text, xml, id.idText)
+            FSharpToolTipElement.SingleParameter(text, xml, id.idText)
             
         | Item.SetterArg (_, item) -> 
             FormatItemDescriptionToToolTipElement isDecl infoReader m denv item
@@ -1239,14 +1240,6 @@ type FSharpDeclarationListItem(name, glyph:int, info) =
                     descriptionTextHolder<-Some text 
                 // The dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
                 // This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
-#if FX_NO_TASK
-                if task = null then
-                    Async.Start (async { do work() })
-                    task <- obj()
-                let mutable wait = 0
-                while (wait < EnvMisc2.dataTipSpinWaitTime) && descriptionTextHolder.IsNone do 
-                    System.Threading.Thread.Sleep 10
-#else
                 if task = null then
                     // kick off the actual (non-cooperative) work
                     task <- System.Threading.Tasks.Task.Factory.StartNew(fun() -> work())
@@ -1254,7 +1247,6 @@ type FSharpDeclarationListItem(name, glyph:int, info) =
                 // The dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
                 // This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
                 task.Wait EnvMisc2.dataTipSpinWaitTime  |> ignore
-#endif
                 match descriptionTextHolder with 
                 | Some text -> text
                 | None -> FSharpToolTipText [ FSharpToolTipElement.Single(FSComp.SR.loadingDescription(), FSharpXmlDoc.None) ]

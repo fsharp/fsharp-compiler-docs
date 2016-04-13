@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 //----------------------------------------------------------------------------
 // SourceCodeServices API to the compiler as an incremental service for parsing,
@@ -438,7 +438,7 @@ type FSharpChecker =
     ///
     /// <param name="parsed">The results of ParseFileInProject for this file.</param>
     /// <param name="filename">The name of the file in the project whose source is being checked.</param>
-    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
+    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentCheckResultsForFile when looking up the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script.</param>
     /// <param name="isResultObsolete">
@@ -468,7 +468,7 @@ type FSharpChecker =
     ///
     /// <param name="parsed">The results of ParseFileInProject for this file.</param>
     /// <param name="filename">The name of the file in the project whose source is being checked.</param>
-    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
+    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentCheckResultsForFile when looking up the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script.</param>
     /// <param name="isResultObsolete">
@@ -497,7 +497,7 @@ type FSharpChecker =
     /// </summary>
     ///
     /// <param name="filename">The name of the file in the project whose source is being checked.</param>
-    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentTypeCheckResultsForFile when looking up the file.</param>
+    /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentCheckResultsForFile when looking up the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script.</param>
     /// <param name="isResultObsolete">
@@ -590,6 +590,9 @@ type FSharpChecker =
     /// <param name="filename">The filename for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
     /// <param name="source">Optionally, specify source that must match the previous parse precisely.</param>
+    member TryGetRecentCheckResultsForFile : filename: string * options:FSharpProjectOptions * ?source: string -> (FSharpParseFileResults * FSharpCheckFileResults * (*version*)int) option
+
+    [<Obsolete("Renamed to TryGetRecentCheckResultsForFile")>]
     member TryGetRecentTypeCheckResultsForFile : filename: string * options:FSharpProjectOptions * ?source: string -> (FSharpParseFileResults * FSharpCheckFileResults * (*version*)int) option
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.

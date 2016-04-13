@@ -1,5 +1,6 @@
 ﻿
 #if INTERACTIVE
+<<<<<<< HEAD
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
@@ -11,10 +12,21 @@ module FSharp.Compiler.Service.Tests.MultiProjectAnalysisTests
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
+=======
+#r "../../Debug/net40/bin/FSharp.LanguageService.Compiler.dll"
+#r "../../Debug/net40/bin/nunit.framework.dll"
+#load "FsUnit.fs"
+#load "Common.fs"
+#else
+module Tests.Service.MultiProjectAnalysisTests
+#endif
+
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 open NUnit.Framework
 open FsUnit
 open System
 open System.IO
+<<<<<<< HEAD
 
 open System
 open System.Collections.Generic
@@ -27,6 +39,13 @@ let checker = FSharpChecker.Create(projectCacheSize=numProjectsForStressTest + 1
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)
 
+=======
+open System.Collections.Generic
+open Microsoft.FSharp.Compiler
+open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Service.Tests.Common
+
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 module Project1A = 
     open System.IO
@@ -52,7 +71,11 @@ let x2 = C.M(arg1 = 3, arg2 = 4, ?arg3 = Some 5)
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 
@@ -81,7 +104,11 @@ let x =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 // A project referencing two sub-projects
@@ -106,7 +133,11 @@ let p = (Project1A.x1, Project1B.b)
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options = 
+=======
+    let internal options = 
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
         let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
         { options with 
             OtherOptions = Array.append options.OtherOptions [| ("-r:" + Project1A.dllName); ("-r:" + Project1B.dllName) |]
@@ -180,11 +211,20 @@ let ``Test multi project 1 all symbols`` () =
 //------------------------------------------------------------------------------------
 
 
+<<<<<<< HEAD
 
 // A project referencing many sub-projects
 module ManyProjectsStressTest = 
     open System.IO
 
+=======
+// A project referencing many sub-projects
+module internal ManyProjectsStressTest = 
+    open System.IO
+
+    let numProjectsForStressTest = 100
+  
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     type Project = { ModuleName: string; FileName: string; Options: FSharpProjectOptions; DllName: string } 
     let projects = 
         [ for i in 1 .. numProjectsForStressTest do 
@@ -242,32 +282,82 @@ let p = ("""
         |> function Some x -> x | None -> if a = jointProject.FileName then "fileN" else "??"
 
 
+<<<<<<< HEAD
+=======
+    let makeCheckerForStressTest ensureBigEnough = 
+        let size = (if ensureBigEnough then numProjectsForStressTest + 10 else numProjectsForStressTest / 2 )
+        FSharpChecker.Create(projectCacheSize=size)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test ManyProjectsStressTest whole project errors`` () = 
 
+<<<<<<< HEAD
     let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
 
     wholeProjectResults .Errors.Length |> shouldEqual 0
     wholeProjectResults.ProjectContext.GetReferencedAssemblies().Length |> shouldEqual (numProjectsForStressTest + 4)
+=======
+    let checker = ManyProjectsStressTest.makeCheckerForStressTest true
+    let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
+
+    wholeProjectResults .Errors.Length |> shouldEqual 0
+    wholeProjectResults.ProjectContext.GetReferencedAssemblies().Length |> shouldEqual (ManyProjectsStressTest.numProjectsForStressTest + 4)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test ManyProjectsStressTest basic`` () = 
 
+<<<<<<< HEAD
+=======
+    let checker = ManyProjectsStressTest.makeCheckerForStressTest true
+
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
 
     [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] |> shouldEqual ["JointProject"]
 
     [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] |> shouldEqual []
 
-
+<<<<<<< HEAD
+=======
     [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] 
         |> shouldEqual ["p"]
 
 [<Test>]
+let ``Test ManyProjectsStressTest cache too small`` () = 
+
+    let checker = ManyProjectsStressTest.makeCheckerForStressTest false
+
+    // Because the cache is too small, we need explicit calls to KeepAlive to avoid disposal of project information
+    let disposals = 
+        [ for p in ManyProjectsStressTest.jointProject :: ManyProjectsStressTest.projects do
+             yield checker.KeepProjectAlive p.Options |> Async.RunSynchronously ]
+
+    let wholeProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities -> x.DisplayName ] |> shouldEqual ["JointProject"]
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].NestedEntities -> x.DisplayName ] |> shouldEqual []
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
+
+    [ for x in wholeProjectResults.AssemblySignature.Entities.[0].MembersFunctionsAndValues -> x.DisplayName ] 
+        |> shouldEqual ["p"]
+
+<<<<<<< HEAD
+[<Test>]
 let ``Test ManyProjectsStressTest all symbols`` () = 
 
   for i in 1 .. 30 do 
+=======
+    for d in disposals do d.Dispose()
+
+[<Test>]
+let ``Test ManyProjectsStressTest all symbols`` () = 
+
+  let checker = ManyProjectsStressTest.makeCheckerForStressTest true
+  for i in 1 .. 10 do 
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     printfn "stress test iteration %d (first may be slow, rest fast)" i
     let projectsResults = [ for p in ManyProjectsStressTest.projects -> p, checker.ParseAndCheckProject(p.Options) |> Async.RunSynchronously ]
     let jointProjectResults = checker.ParseAndCheckProject(ManyProjectsStressTest.jointProject.Options) |> Async.RunSynchronously
@@ -295,7 +385,11 @@ let ``Test ManyProjectsStressTest all symbols`` () =
 
 //-----------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 module MultiProjectDirty1 = 
+=======
+module internal MultiProjectDirty1 = 
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     open System.IO
 
     let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
@@ -317,7 +411,11 @@ let x = "F#"
         let args = mkProjectCommandLineArgs (dllName, fileNames)
         checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
+<<<<<<< HEAD
 module MultiProjectDirty2 = 
+=======
+module internal MultiProjectDirty2 = 
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     open System.IO
 
 
@@ -350,8 +448,13 @@ let z = Project1.x
 let ``Test multi project symbols should pick up changes in dependent projects`` () = 
 
     //  register to count the file checks
+<<<<<<< HEAD
     let count = ResizeArray<_>()
     checker.FileChecked.Add (fun nm -> count.Add nm)
+=======
+    let count = ref 0
+    checker.FileChecked.Add (fun _ -> incr count)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
     //---------------- Write the first version of the file in project 1 and check the project --------------------
 
@@ -359,13 +462,21 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
     let wholeProjectResults1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
 
+<<<<<<< HEAD
     count.Count |> shouldEqual 1
+=======
+    count.Value |> shouldEqual 1
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
     let backgroundParseResults1, backgroundTypedParse1 = 
         checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, proj1options) 
         |> Async.RunSynchronously    
 
+<<<<<<< HEAD
     count.Count |> shouldEqual 1
+=======
+    count.Value |> shouldEqual 1
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
     //---------------- Get a symbol from project 1 and look up its uses in both projects --------------------
 
@@ -379,11 +490,19 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
     let wholeProjectResults2 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
+<<<<<<< HEAD
     count.Count |> shouldEqual 2
     
     let _ = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
     count.Count |> shouldEqual 2 // cached
+=======
+    count.Value |> shouldEqual 2
+    
+    let _ = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
+
+    count.Value |> shouldEqual 2 // cached
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
     let usesOfXSymbolInProject1 = 
         wholeProjectResults1.GetUsesOfSymbol(xSymbol) 
@@ -419,7 +538,11 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
     printfn "New write time: '%A', ticks = %d"  wt2 wt2.Ticks
 
     let wholeProjectResults1AfterChange1 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
+<<<<<<< HEAD
     count.Count |> shouldEqual 3
+=======
+    count.Value |> shouldEqual 3
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
     let backgroundParseResults1AfterChange1, backgroundTypedParse1AfterChange1 = 
         checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, proj1options) 
@@ -434,7 +557,11 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
 
     let wholeProjectResults2AfterChange1 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
+<<<<<<< HEAD
     count.Count |> shouldEqual 4
+=======
+    count.Value |> shouldEqual 4
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
     let usesOfXSymbolInProject1AfterChange1 = 
         wholeProjectResults1AfterChange1.GetUsesOfSymbol(xSymbolAfterChange1) 
@@ -468,17 +595,29 @@ let ``Test multi project symbols should pick up changes in dependent projects`` 
     printfn "Old write time: '%A', ticks = %d"  wt1b wt1b.Ticks
     printfn "New write time: '%A', ticks = %d"  wt2b wt2b.Ticks
 
+<<<<<<< HEAD
     count.Count |> shouldEqual 4
+=======
+    count.Value |> shouldEqual 4
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
     let wholeProjectResults2AfterChange2 = checker.ParseAndCheckProject(proj2options) |> Async.RunSynchronously
 
     System.Threading.Thread.Sleep(1000)
+<<<<<<< HEAD
     count.Count |> shouldEqual 6 // note, causes two files to be type checked, one from each project
+=======
+    count.Value |> shouldEqual 6 // note, causes two files to be type checked, one from each project
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
     let wholeProjectResults1AfterChange2 = checker.ParseAndCheckProject(proj1options) |> Async.RunSynchronously
 
+<<<<<<< HEAD
     count.Count |> shouldEqual 6 // the project is already checked
+=======
+    count.Value |> shouldEqual 6 // the project is already checked
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
     let backgroundParseResults1AfterChange2, backgroundTypedParse1AfterChange2 = 
         checker.GetBackgroundCheckResultsForFileInProject(MultiProjectDirty1.fileName1, proj1options) 
@@ -539,7 +678,11 @@ type C() =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 //Project2A.fileSource1
 // A project referencing Project2A
@@ -559,7 +702,11 @@ let v = Project2A.C().InternalMember // access an internal symbol
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options = 
+=======
+    let internal options = 
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
         let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
         { options with 
             OtherOptions = Array.append options.OtherOptions [| ("-r:" + Project2A.dllName);  |]
@@ -584,7 +731,11 @@ let v = Project2A.C().InternalMember // access an internal symbol
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options = 
+=======
+    let internal options = 
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
         let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
         { options with 
             OtherOptions = Array.append options.OtherOptions [| ("-r:" + Project2A.dllName);  |]
@@ -650,7 +801,11 @@ let (|DivisibleBy|_|) by n =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 // A project referencing a sub-project
@@ -676,7 +831,11 @@ let fizzBuzz = function
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options = 
+=======
+    let internal options = 
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
         let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
         { options with 
             OtherOptions = Array.append options.OtherOptions [| ("-r:" + Project3A.dllName) |]
@@ -713,6 +872,7 @@ let ``Test active patterns' XmlDocSig declared in referenced projects`` () =
     let divisibleByEntity = divisibleByGroup.EnclosingEntity.Value
     divisibleByEntity.ToString() |> shouldEqual "Project3A"
 
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------
 
 
@@ -749,3 +909,5 @@ let ``Type provider project references should not throw exceptions`` () =
 #endif
 
 //------------------------------------------------------------------------------------
+=======
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823

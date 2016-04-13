@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 namespace Internal.Utilities.Collections
   
@@ -8,6 +8,7 @@ namespace Internal.Utilities.Collections
   type internal AgedLookup<'TKey,'TValue when 'TValue : not struct> = 
     new : keepStrongly:int
             * areSame:('TKey * 'TKey -> bool) 
+            * ?requiredToKeep:('TValue -> bool)
             * ?onStrongDiscard : ('TValue -> unit) // this may only be set if keepTotal=keepStrongly, i.e. not weak entries
             * ?keepMax: int
             -> AgedLookup<'TKey,'TValue>
@@ -39,6 +40,7 @@ namespace Internal.Utilities.Collections
             * areSame:('TKey * 'TKey -> bool) 
             * ?isStillValid:('TKey * 'TValue -> bool)
             * ?areSameForSubsumption:('TKey * 'TKey -> bool) 
+            * ?requiredToKeep:('TValue -> bool)
             * ?onDiscard:('TValue -> unit)
             * ?keepMax:int
             -> MruCache<'TKey,'TValue>

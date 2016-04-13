@@ -31,8 +31,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             | FSharpToolTipElement.None -> ()
             | FSharpToolTipElement.Single(it, comment) ->
                 sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
-            //| ToolTipElementParameter(it, comment, _) ->
-            //    sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
+            | FSharpToolTipElement.SingleParameter(it, comment, _) ->
+                sb.AppendLine(it) |> buildFormatComment xmlCommentRetriever comment
             | FSharpToolTipElement.Group(items) ->
                 let items, msg =
                   if items.Length > 10 then

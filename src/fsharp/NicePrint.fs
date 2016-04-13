@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 //--------------------------------------------------------------------------
 // Print Signatures/Types, for signatures, intellisense, quick info, FSI responses
@@ -437,7 +437,7 @@ module private PrintIL =
 
             let memberBlockLs (fieldDefs:ILFieldDefs, methodDefs:ILMethodDefs, propertyDefs:ILPropertyDefs, eventDefs:ILEventDefs) =
                 let ctors  =
-                    methodDefs.AsList 
+                    methodDefs.AsList
                     |> List.filter isPublicILCtor 
                     |> List.sortBy (fun md -> md.Parameters.Length)
                     |> shrinkOverloads (layoutILMethodDef denv ilTyparSubst typeDef.Name) (fun _ xL -> xL) 
@@ -492,7 +492,7 @@ module private PrintIL =
             let body = applyMaxMembers denv.maxMembers body
   
             let types  = 
-                typeDef.NestedTypes.AsList 
+                typeDef.NestedTypes.AsList
                 |> List.filter isPublicILTypeDef
                 |> List.sortBy(fun t -> adjustILName t.Name)   
                 |> List.map (layoutILNestedClassDef denv)

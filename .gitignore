@@ -31,6 +31,7 @@ Release
 vsdebug
 vsrelease
 Proto
+sign_temp
 .libs
 Makefile
 configure
@@ -98,6 +99,8 @@ src/fsharp/FSharp.LanguageService.Compiler/ilpars.*
 src/fsharp/FSharp.LanguageService.Compiler/lex.*
 src/fsharp/FSharp.LanguageService.Compiler/pars.*
 vsintegration/src/unittests/Unittests.fsi
+tests/*FSharp_Failures.env
+tests/*FSharp_Failures.lst
 tests/fsharpqa/Source/CodeGen/EmittedIL/StaticInit/StaticInit_Module01.dll
 tests/fsharpqa/Source/CodeGen/EmittedIL/StaticInit/StaticInit_Module01.pdb
 tests/XFSharpQA_Failures.log.*
@@ -108,9 +111,10 @@ tests/fsharpqa/Source/CodeGen/EmittedIL/ComputationExpressions/ComputationExprLi
 packages
 FSharp.Compiler.Tools.Nuget/*.nupkg
 FSharp.Core.Nuget/*.nupkg
+tests/fsharpqa/Source/*FSharpQA_Failures.env
+tests/fsharpqa/Source/*FSharpQA_Failures.lst
 *.csproj.user
 *.sln.DotSettings.user
-
 *.ide
 *.log
 *.jrs
@@ -128,3 +132,5 @@ src/fsharp/FSharp.Compiler.Service/pplex.fs
 src/fsharp/FSharp.Compiler.Service/pppars.fs
 src/fsharp/FSharp.Compiler.Service/pppars.fsi
 .fake
+*.cto
+tests/**/FSharp.Core.dll

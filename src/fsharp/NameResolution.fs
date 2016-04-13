@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 //-------------------------------------------------------------------------
 // Name environment and name resolution 
@@ -1099,6 +1099,8 @@ type ItemOccurence =
     | Pattern 
     /// Abstract slot gets implemented
     | Implemented
+    /// Result gets suppressed over this text range
+    | RelatedText
   
 /// An abstract type for reporting the results of name resolution and type checking.
 type ITypecheckResultsSink =

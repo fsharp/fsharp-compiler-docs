@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 namespace Internal.Utilities.Collections
 open System
@@ -15,7 +15,7 @@ type internal ValueStrength<'T when 'T : not struct> =
    | Weak of WeakReference<'T>
 #endif
 
-type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:int, areSame, ?onStrongDiscard : ('TValue -> unit), ?keepMax: int) =
+type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:int, areSame, ?requiredToKeep, ?onStrongDiscard, ?keepMax: int) =
     /// The list of items stored. Youngest is at the end of the list.
     /// The choice of order is somewhat arbitrary. If the other way then adding
     /// items would be O(1) and removing O(N).
@@ -32,6 +32,7 @@ type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:i
     // hand.
     let keepMax = defaultArg keepMax 75 
     let mutable keepMax = max keepStrongly keepMax 
+    let requiredToKeep = defaultArg requiredToKeep (fun _ -> false) 
     
     /// Look up a the given key, return None if not found.
     let TryPeekKeyValueImpl(data,key) = 
@@ -90,12 +91,12 @@ type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:i
         let weakThreshhold = max 0 (actualLength - keepStrongly) // Weaken everything less than this threshold
         
         let newdata = newdata|> List.mapi( fun n kv -> n,kv ) // Place the index.
-        let newdata,discard2 = newdata |> List.partition (fun (n:int,_) -> n >= tossThreshold)
+        let newdata,discard2 = newdata |> List.partition (fun (n:int,v) -> n >= tossThreshold || requiredToKeep (snd v))
         let newdata = 
             newdata 
             |> List.map( fun (n:int,(k,v)) -> 
                 let handle = 
-                    if n<weakThreshhold then 
+                    if n<weakThreshhold && not (requiredToKeep v) then 
                         assert onStrongDiscard.IsNone; // it disappeared, we can't dispose 
 #if FX_NO_GENERIC_WEAKREFERENCE
                         Weak(WeakReference(v)) 
@@ -105,7 +106,7 @@ type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:i
                     else 
                         Strong(v)
                 k,handle )
-        refs<- newdata
+        refs <- newdata
         discard1 |> List.iter (snd >> strongDiscard)
         discard2 |> List.iter (snd >> snd >> strongDiscard)
         
@@ -151,7 +152,7 @@ type internal AgedLookup<'TKey,'TValue when 'TValue : not struct>(keepStrongly:i
 
         
 
-type internal MruCache<'TKey,'TValue when 'TValue : not struct>(keepStrongly, areSame, ?isStillValid : 'TKey*'TValue->bool, ?areSameForSubsumption, ?onStrongDiscard, ?keepMax) =
+type internal MruCache<'TKey,'TValue when 'TValue : not struct>(keepStrongly, areSame, ?isStillValid : 'TKey*'TValue->bool, ?areSameForSubsumption, ?requiredToKeep, ?onStrongDiscard, ?keepMax) =
         
     /// Default behavior of areSameForSubsumption function is areSame
     let areSameForSubsumption = defaultArg areSameForSubsumption areSame
@@ -159,7 +160,7 @@ type internal MruCache<'TKey,'TValue when 'TValue : not struct>(keepStrongly, ar
     /// The list of items in the cache. Youngest is at the end of the list.
     /// The choice of order is somewhat arbitrary. If the other way then adding
     /// items would be O(1) and removing O(N).
-    let cache = AgedLookup<'TKey,'TValue>(keepStrongly=keepStrongly,areSame=areSameForSubsumption,?onStrongDiscard=onStrongDiscard,?keepMax=keepMax)
+    let cache = AgedLookup<'TKey,'TValue>(keepStrongly=keepStrongly,areSame=areSameForSubsumption,?onStrongDiscard=onStrongDiscard,?keepMax=keepMax,?requiredToKeep=requiredToKeep)
         
     /// Whether or not this result value is still valid.
     let isStillValid = defaultArg isStillValid (fun _ -> true)

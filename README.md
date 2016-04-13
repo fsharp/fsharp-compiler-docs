@@ -22,7 +22,6 @@ Head (branch ``master``), Mono 3.x, OSX + unit tests (Travis) [![Build Status](h
 Head (branch ``master``), Windows Server 2012 R2 + unit tests (AppVeyor)  [![Build status](https://ci.appveyor.com/api/projects/status/3yllu2qh19brk61d)](https://ci.appveyor.com/project/fsgit/fsharp-compiler-service)
 
 NuGet Feed  [![NuGet Badge](https://buildstats.info/nuget/FSharp.Compiler.Service)](https://www.nuget.org/packages/FSharp.Compiler.Service)
-------------
 
 Stable builds are available in the NuGet Gallery:
 [https://www.nuget.org/packages/FSharp.Compiler.Service](https://www.nuget.org/packages/FSharp.Compiler.Service)

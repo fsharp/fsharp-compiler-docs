@@ -1,10 +1,19 @@
 ﻿#if INTERACTIVE
+<<<<<<< HEAD
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
 module FSharp.Compiler.Service.Tests.ProjectAnalysisTests
+=======
+#r "../../Debug/net40/bin/FSharp.LanguageService.Compiler.dll"
+#r "../../Debug/net40/bin/nunit.framework.dll"
+#load "FsUnit.fs"
+#load "Common.fs"
+#else
+module Tests.Service.ProjectAnalysisTests
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 #endif
 
 let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e ->  false
@@ -20,6 +29,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open FSharp.Compiler.Service.Tests.Common
 
+<<<<<<< HEAD
 // Create an interactive checker instance 
 let checker = FSharpChecker.Create()
 
@@ -96,6 +106,9 @@ let attribsOfSymbol (s:FSharpSymbol) =
         | _ -> () ]
 
 module Project1 = 
+=======
+module internal Project1 = 
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     open System.IO
 
     let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
@@ -162,6 +175,7 @@ let mmmm2 : M.CAbbrev = new M.CAbbrev() // note, these don't count as uses of C
 
     let fileNames = [fileName1; fileName2]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let cleanFileName a = if a = fileName1 then "file1" else if a = fileName2 then "file2" else "??"
 
@@ -188,6 +202,11 @@ let rec allSymbolsInEntities compGen (entities: IList<FSharpEntity>) =
           yield! allSymbolsInEntities compGen e.NestedEntities ]
 
 
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let cleanFileName a = if a = fileName1 then "file1" else if a = fileName2 then "file2" else "??"
+
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test project1 whole project errors`` () = 
@@ -746,7 +765,11 @@ let _ = GenericFunction(3, 4)
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 
@@ -998,7 +1021,11 @@ let getM (foo: IFoo) = foo.InterfaceMethod("d")
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 
@@ -1365,7 +1392,11 @@ let inline twice(x : ^U, y : ^U) = x + y
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 
@@ -1540,7 +1571,11 @@ let parseNumeric str =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -1741,7 +1776,11 @@ let f () =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -1796,7 +1835,11 @@ let x2 = C.M(arg1 = 3, arg2 = 4, ?arg3 = Some 5)
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -1856,7 +1899,11 @@ let x =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -1935,7 +1982,11 @@ let inline check< ^T when ^T : (static member IsInfinity : ^T -> bool)> (num: ^T
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2013,7 +2064,11 @@ C.M("http://goo", query = 1)
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2092,7 +2147,11 @@ let fff (x:System.Collections.Generic.Dictionary<int,int>.Enumerator) = ()
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2165,7 +2224,11 @@ let x2 = query { for i in 0 .. 100 do
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2231,7 +2294,11 @@ let x3 = new System.DateTime()
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2382,7 +2449,11 @@ let x2  = S(3)
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2449,7 +2520,11 @@ let f x =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2533,7 +2608,11 @@ and G = Case1 | Case2 of int
 
     let fileNames = [sigFileName1; fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2689,6 +2768,7 @@ let ``Test Project16 sig symbols are equal to impl symbols`` () =
     testFind ("implementation", symbolsImpl) ("implementation", symbolsImpl)  // of course this should pass...
     testFind ("signature", symbolsSig) ("signature", symbolsSig)  // of course this should pass...
 
+<<<<<<< HEAD
 [<Test>]
 let ``Test Project16 sym locations`` () =
 
@@ -2750,6 +2830,8 @@ let ``Test Project16 sym locations`` () =
             ("val x", ("file1", (11, 11), (11, 12)), ("file1", (11, 11), (11, 12)),("file1", (11, 11), (11, 12)));
             ("Impl", ("sig1", (2, 7), (2, 11)), ("file1", (2, 7), (2, 11)),("file1", (2, 7), (2, 11)))|]
 
+=======
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 //-----------------------------------------------------------------------------------------
@@ -2778,7 +2860,11 @@ let f3 (x: System.Exception) = x.HelpLink <- "" // check use of .NET setter prop
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2870,7 +2956,11 @@ let _ = list<_>.Empty
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2925,7 +3015,11 @@ let s = System.DayOfWeek.Monday
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -2998,7 +3092,11 @@ type A<'T>() =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -3058,7 +3156,11 @@ let _ = { new IMyInterface<int> with
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -3129,7 +3231,11 @@ let f3 (x: System.Collections.ObjectModel.ObservableCollection<'T>) = () // grab
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 
@@ -3259,7 +3365,11 @@ module Setter =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test Project23 whole project errors`` () = 
@@ -3427,7 +3537,11 @@ TypeWithProperties.StaticAutoPropGetSet  <- 3
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames) 
+<<<<<<< HEAD
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test Project24 whole project errors`` () = 
@@ -3655,7 +3769,11 @@ let ``Test symbol uses of properties with both getters and setters`` () =
 
     usesOfGetSampleSymbol |> shouldEqual [|("file1", ((9, 13), (9, 20))); ("file1", ((36, 9), (36, 37)))|]
 
+<<<<<<< HEAD
 
+=======
+#if CHECK_USE_OF_FSHARP_DATA_DLL
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 // Misc - type provider symbols
 module Project25 = 
     open System.IO
@@ -3683,7 +3801,11 @@ let _ = XmlProvider<"<root><value>1</value><value>3</value></root>">.GetSample()
         [| yield! mkProjectCommandLineArgs (dllName, fileNames) 
            yield "-r:" + Path.Combine(__SOURCE_DIRECTORY__, "FSharp.Data.dll")
            yield @"-r:" + sysLib "System.Xml.Linq" |]
+<<<<<<< HEAD
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test Project25 whole project errors`` () = 
@@ -3784,6 +3906,10 @@ let ``Test symbol uses of fully-qualified records`` () =
         |> Array.map (fun s -> (Project25.cleanFileName s.FileName, tups s.RangeAlternate))
 
     usesOfGetSampleSymbol |> shouldEqual [|("file1", ((7, 5), (7, 11))); ("file1", ((8, 10), (8, 16)))|]
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 module Project26 = 
     open System.IO
@@ -3808,7 +3934,11 @@ type Class() =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -3893,7 +4023,11 @@ type CFooImpl() =
     
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test project27 whole project errors`` () = 
@@ -3959,7 +4093,11 @@ type Use() =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test project28 all symbols in signature`` () = 
@@ -4032,7 +4170,11 @@ let f (x: INotifyPropertyChanged) = failwith ""
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -4090,7 +4232,11 @@ type T() =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 let ``Test project30 whole project errors`` () = 
 
@@ -4150,7 +4296,11 @@ let g = Console.ReadKey()
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
 
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 let ``Test project31 whole project errors`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
@@ -4253,7 +4403,11 @@ val func : int -> int
 
     let fileNames = [sigFileName1; fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -4320,7 +4474,11 @@ type System.Int32 with
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test Project33 whole project errors`` () = 
@@ -4361,15 +4519,30 @@ module Dummy
     let args = 
         [|
             yield! mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
             // We use .NET-buit version of System.Data.dll since the tests depend on implementation details
             // i.e. the private type System.Data.Listeners may not be available on Mono.
             yield @"-r:" + Path.Combine(__SOURCE_DIRECTORY__, "System.Data.dll")
         |]
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+            if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+                yield @"-r:" + sysLib "System.Data"
+            else 
+            // We use .NET-buit version of System.Data.dll since the tests depend on implementation details
+            // i.e. the private type System.Data.Listeners may not be available on Mono.
+                yield @"-r:" + Path.Combine(__SOURCE_DIRECTORY__, "System.Data.dll")
+        |]
+    let internal options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 [<Test>]
 let ``Test Project34 whole project errors`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project34.options) |> Async.RunSynchronously
+<<<<<<< HEAD
+=======
+    for e in wholeProjectResults.Errors do printfn "Error: %s" e.Message
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
@@ -4423,7 +4596,11 @@ type Test =
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 
 [<Test>]
@@ -4494,6 +4671,7 @@ module Project35b =
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
     let fileNames = [fileName1]
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously
 
 
@@ -4536,6 +4714,20 @@ let ``Test project35b Dependency files for check of project`` () =
     checkResults.DependencyFiles |> List.exists (fun s -> s.Contains "notexist.dll") |> shouldEqual true
     checkResults.DependencyFiles |> List.exists (fun s -> s.Contains Project35b.fileName1) |> shouldEqual true
 
+=======
+    let internal options =  checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously
+
+
+[<Test>]
+let ``Test project35b Dependency files`` () =
+    let parseFileResults = checker.ParseFileInProject(Project35b.fileName1, Project35b.fileSource1, Project35b.options) |> Async.RunSynchronously
+    for d in parseFileResults.DependencyFiles do 
+        printfn "dependency: %s" d
+//    parseFileResults.DependencyFiles.Length |> shouldEqual 3
+    parseFileResults.DependencyFiles |> List.exists (fun s -> s.Contains "notexist.dll") |> shouldEqual true
+    parseFileResults.DependencyFiles |> List.exists (fun s -> s.Contains Project35b.fileName1) |> shouldEqual true
+///    parseFileResults.DependencyFiles |> List.exists (fun s -> s.Contains "FSharp.Compiler.Interactive.Settings.dll") |> shouldEqual true
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
 
 //------------------------------------------------------
 
@@ -4566,6 +4758,7 @@ let callToOverload = B(5).Overload(4)
 
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let keepAssemblyContentsChecker = FSharpChecker.Create(keepAssemblyContents=true)
     let options =  keepAssemblyContentsChecker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let wholeProjectResults =
@@ -4585,6 +4778,15 @@ let callToOverload = B(5).Overload(4)
 [<Test>]
 let ``Test project36 FSharpMemberOrFunctionOrValue.IsBaseValue`` () =
     Project36.wholeProjectResults.GetAllUsesOfAllSymbols()
+=======
+    let internal keepAssemblyContentsChecker = FSharpChecker.Create(keepAssemblyContents=true)
+    let internal options =  keepAssemblyContentsChecker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test project36 FSharpMemberOrFunctionOrValue.IsBaseValue`` () =
+    let wholeProjectResults = Project36.keepAssemblyContentsChecker.ParseAndCheckProject(Project36.options) |> Async.RunSynchronously
+    wholeProjectResults.GetAllUsesOfAllSymbols()
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     |> Async.RunSynchronously
     |> Array.pick (fun (su:FSharpSymbolUse) ->
         if su.Symbol.DisplayName = "base"
@@ -4592,8 +4794,25 @@ let ``Test project36 FSharpMemberOrFunctionOrValue.IsBaseValue`` () =
         else None)
     |> fun baseSymbol -> shouldEqual true baseSymbol.IsBaseValue
 
+<<<<<<< HEAD
 [<Test>]
 let ``Test project36 FSharpMemberOrFunctionOrValue.IsConstructorThisValue & IsMemberThisValue`` () =
+=======
+#if FSHARP_SERVICE_GIVES_ASSEMBLY_CONTENTS
+[<Test>]
+let ``Test project36 FSharpMemberOrFunctionOrValue.IsConstructorThisValue & IsMemberThisValue`` () =
+    let wholeProjectResults = Project36.keepAssemblyContentsChecker.ParseAndCheckProject(Project36.options) |> Async.RunSynchronously
+    let declarations =
+        let checkedFile = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
+        match checkedFile.Declarations.[0] with
+        | FSharpImplementationFileDeclaration.Entity (_, subDecls) -> subDecls
+        | _ -> failwith "unexpected declaration"
+    let getExpr exprIndex =
+        match declarations.[exprIndex] with
+        | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(_,_,e) -> e
+        | FSharpImplementationFileDeclaration.InitAction e -> e
+        | _ -> failwith "unexpected declaration"
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     // Instead of checking the symbol uses directly, walk the typed tree to check
     // the correct values are also visible from there. Also note you cannot use
     // BasicPatterns.ThisValue in these cases, this is only used when the symbol
@@ -4615,10 +4834,19 @@ let ``Test project36 FSharpMemberOrFunctionOrValue.IsConstructorThisValue & IsMe
         not s.IsMemberThisValue && not s.IsConstructorThisValue
     | _ -> failwith "unexpected expression"
     |> shouldEqual true
+<<<<<<< HEAD
 
 [<Test>]
 let ``Test project36 FSharpMemberOrFunctionOrValue.LiteralValue`` () =
     let project36Module = Project36.wholeProjectResults.AssemblySignature.Entities.[0]
+=======
+#endif
+
+[<Test>]
+let ``Test project36 FSharpMemberOrFunctionOrValue.LiteralValue`` () =
+    let wholeProjectResults = Project36.keepAssemblyContentsChecker.ParseAndCheckProject(Project36.options) |> Async.RunSynchronously
+    let project36Module = wholeProjectResults.AssemblySignature.Entities.[0]
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     let lit = project36Module.MembersFunctionsAndValues.[0]
     shouldEqual true (lit.LiteralValue.Value |> unbox |> (=) 1.)
 
@@ -4678,6 +4906,7 @@ do ()
     File.WriteAllText(fileName2, fileSource2)
     let fileNames = [fileName1; fileName2]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let wholeProjectResults =
         checker.ParseAndCheckProject(options)
@@ -4686,6 +4915,14 @@ do ()
 [<Test>]
 let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
     let allSymbolsUses = Project37.wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project37.options) |> Async.RunSynchronously
+    let allSymbolsUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     for su in allSymbolsUses do
         match su.Symbol with
         | :? FSharpMemberOrFunctionOrValue as funcSymbol ->
@@ -4721,7 +4958,11 @@ let ``Test project37 typeof and arrays in attribute constructor arguments`` () =
                 a |> shouldEqual [| 0; 1; 2 |] 
             | _ -> ()
         | _ -> ()
+<<<<<<< HEAD
     Project37.wholeProjectResults.AssemblySignature.Attributes
+=======
+    wholeProjectResults.AssemblySignature.Attributes
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     |> Seq.map (fun a -> a.AttributeType.CompiledName)
     |> Array.ofSeq |> shouldEqual [| "AttrTestAttribute"; "AttrTest2Attribute" |]
 
@@ -4774,6 +5015,7 @@ type A<'XX, 'YY>() =
     File.WriteAllText(fileName1, fileSource1)
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let wholeProjectResults =
         checker.ParseAndCheckProject(options)
@@ -4785,6 +5027,15 @@ let ``Test project38 abstract slot information`` () =
         let printType (t: FSharpType) = 
             hash t  |> ignore // smoke test to check hash code doesn't loop
             (string t).[5 ..]       
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test project38 abstract slot information`` () =
+    let wholeProjectResults = checker.ParseAndCheckProject(Project38.options) |> Async.RunSynchronously
+    let printAbstractSignature (s: FSharpAbstractSignature) =
+        let printType (t: FSharpType) = (string t).[5 ..]       
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
         let args = 
             (s.AbstractArguments |> Seq.concat |> Seq.map (fun a -> 
                 (match a.Name with Some n -> n + ":" | _ -> "") + printType a.Type) |> String.concat " * ")
@@ -4800,7 +5051,11 @@ let ``Test project38 abstract slot information`` () =
         "type " + printType s.DeclaringType + tgen + " with member " + s.Name + mgen + " : " + args + " -> " +
         printType s.AbstractReturnType
     
+<<<<<<< HEAD
     let a2ent = Project38.wholeProjectResults.AssemblySignature.Entities |> Seq.find (fun e -> e.FullName = "OverrideTests.A`2")
+=======
+    let a2ent = wholeProjectResults.AssemblySignature.Entities |> Seq.find (fun e -> e.FullName = "OverrideTests.A`2")
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     a2ent.MembersFunctionsAndValues |> Seq.map (fun m ->
         m.CompiledName, (m.ImplementedAbstractSignatures |> Seq.map printAbstractSignature |> List.ofSeq) 
     )
@@ -4856,7 +5111,11 @@ let uses () =
     File.WriteAllText(fileName1, fileSource1)
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
 [<Test>]
@@ -4932,7 +5191,11 @@ let g (x: C) = x.IsItAnA,x.IsItAnAMethod()
     File.WriteAllText(fileName1, fileSource1)
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
+<<<<<<< HEAD
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+=======
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
 [<Test>]
@@ -4971,3 +5234,62 @@ let ``Test Project40 all symbols`` () =
            ("g", ((13, 4), (13, 5)), ["val"]); ("M", ((2, 7), (2, 8)), ["module"])]
 
 
+<<<<<<< HEAD
+=======
+module ProjectBig = 
+    open System.IO
+
+    let fileNamesI = [ for i in 1 .. 10 -> (i, Path.ChangeExtension(Path.GetTempFileName(), ".fs")) ]
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSources = [ for (i,f) in fileNamesI -> (f, "module M" + string i) ]
+    for (f,text) in fileSources do File.WriteAllText(f, text)
+    let fileSources2 = [ for (i,f) in fileSources -> f ]
+
+    let fileNames = [ for (_,f) in fileNamesI -> f ]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+
+[<Test>]
+let ``Test request for parse and check doesn't check whole project`` () = 
+
+    let backgroundParseCount = ref 0 
+    let backgroundCheckCount = ref 0 
+    checker.FileChecked.Add (fun x -> incr backgroundCheckCount)
+    checker.FileParsed.Add (fun x -> incr backgroundParseCount)
+
+    checker.ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients()
+    let pB, tB = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    let parseResults1 = checker.ParseFileInProject(ProjectBig.fileNames.[5], ProjectBig.fileSources2.[5], ProjectBig.options)  |> Async.RunSynchronously
+    let pC, tC = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    (pC - pB) |> shouldEqual 1
+    (tC - tB) |> shouldEqual 0
+    backgroundParseCount.Value |> shouldEqual 0
+    backgroundCheckCount.Value |> shouldEqual 0
+    let checkResults1 = checker.CheckFileInProject(parseResults1, ProjectBig.fileNames.[5], 0, ProjectBig.fileSources2.[5], ProjectBig.options)  |> Async.RunSynchronously
+    let pD, tD = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    backgroundParseCount.Value |> shouldEqual 10 // This could be reduced to 5 - the whole project gets parsed 
+    backgroundCheckCount.Value |> shouldEqual 5
+    (pD - pC) |> shouldEqual 0
+    (tD - tC) |> shouldEqual 1
+
+    let checkResults2 = checker.CheckFileInProject(parseResults1, ProjectBig.fileNames.[7], 0, ProjectBig.fileSources2.[7], ProjectBig.options)  |> Async.RunSynchronously
+    let pE, tE = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    (pE - pD) |> shouldEqual 0
+    (tE - tD) |> shouldEqual 1
+    backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
+    backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
+
+    // A subsequent ParseAndCheck of identical source code doesn't do any more anything
+    let checkResults2 = checker.ParseAndCheckFileInProject(ProjectBig.fileNames.[7], 0, ProjectBig.fileSources2.[7], ProjectBig.options)  |> Async.RunSynchronously
+    let pF, tF = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
+    (pF - pE) |> shouldEqual 0  // note, no new parse of the file
+    (tF - tE) |> shouldEqual 0  // note, no new typecheck of the file
+    backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
+    backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
+
+    ()
+
+>>>>>>> 7b91c1855dc74d34e847e55b79e12ea605b3d823

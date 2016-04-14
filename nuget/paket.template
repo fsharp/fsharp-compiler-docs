@@ -19,7 +19,9 @@ files
     ../bin/v4.0/FSharp.Compiler.Service.xml ==> lib/net40
     ../bin/v4.0/FSharp.Compiler.Service.?db ==> lib/net40
     ../bin/v4.0/FSharp.Compiler.Service.dll.?db ==> lib/net40
+    ../bin/v4.0/FSharp.Compiler.Interactive.Settings.dll ==> lib/net40
     ../bin/v4.5/FSharp.Compiler.Service.dll ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.xml ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.?db ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.dll.?db ==> lib/net45
+    ../bin/v4.5/FSharp.Compiler.Interactive.Settings.dll ==> lib/net45

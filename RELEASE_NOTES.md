@@ -1,3 +1,7 @@
+#### 4.0.1
+* Integrate Microsoft\visualfsharp and fsharp\fsharp to master (including portable PDB)
+* Remove .NET Framework 4.0 support (now needs .NET Framework 4.5)
+
 #### 4.0.0
 * Integrate Microsoft\visualfsharp and fsharp\fsharp to master
 

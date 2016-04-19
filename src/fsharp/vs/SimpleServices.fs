@@ -210,13 +210,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             // Set the output streams, if requested
             match execute with
             | Some (writer,error) -> 
-#if SILVERLIGHT
-                Microsoft.FSharp.Core.Printf.setWriter writer
-                Microsoft.FSharp.Core.Printf.setError error
-#else
                 System.Console.SetOut writer
                 System.Console.SetError error
-#endif
             | None -> ()
 
 

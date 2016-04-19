@@ -303,6 +303,7 @@ type TcConfigBuilder =
       mutable signer : string option
       mutable container : string option
       mutable delaysign : bool
+      mutable publicsign : bool
       mutable version : VersionFlag 
       mutable metadataVersion : string option
       mutable standalone : bool
@@ -311,7 +312,7 @@ type TcConfigBuilder =
       mutable onlyEssentialOptimizationData : bool
       mutable useOptimizationDataFile : bool
       mutable useSignatureDataFile : bool
-      mutable jitTracking : bool
+      mutable portablePDB : bool
       mutable ignoreSymbolStoreSequencePoints : bool
       mutable internConstantStrings : bool
       mutable extraOptimizationIterations : int
@@ -338,7 +339,11 @@ type TcConfigBuilder =
       mutable optsOn        : bool 
       mutable optSettings   : Optimizer.OptimizationSettings 
       mutable emitTailcalls : bool
+#if PREFERRED_UI_LANG
+      mutable preferredUiLang: string option
+#else
       mutable lcid         : int option
+#endif
       mutable productNameForBannerText : string
       mutable showBanner  : bool
       mutable showTimes : bool
@@ -360,8 +365,10 @@ type TcConfigBuilder =
       mutable emitDebugInfoInQuotations : bool
       mutable exename : string option 
       mutable copyFSharpCore : bool
-      mutable shadowCopyReferences : bool }
-
+#if SHADOW_COPY_REFERENCES
+      mutable shadowCopyReferences : bool
+#endif
+    }
 
     static member CreateNew : 
         defaultFSharpBinariesDir: string * 
@@ -448,6 +455,7 @@ type TcConfig =
     member signer : string option
     member container : string option
     member delaysign : bool
+    member publicsign : bool
     member version : VersionFlag 
     member metadataVersion : string option
     member standalone : bool
@@ -456,7 +464,7 @@ type TcConfig =
     member onlyEssentialOptimizationData : bool
     member useOptimizationDataFile : bool
     member useSignatureDataFile : bool
-    member jitTracking : bool
+    member portablePDB : bool
     member ignoreSymbolStoreSequencePoints : bool
     member internConstantStrings : bool
     member extraOptimizationIterations : int
@@ -482,7 +490,11 @@ type TcConfig =
     member doFinalSimplify : bool
     member optSettings   : Optimizer.OptimizationSettings 
     member emitTailcalls : bool
-    member lcid          : int option
+#if PREFERRED_UI_LANG
+    member preferredUiLang: string option
+#else
+    member lcid         : int option
+#endif
     member optsOn        : bool 
     member productNameForBannerText : string
     member showBanner  : bool
@@ -518,8 +530,9 @@ type TcConfig =
     member sqmNumOfSourceFiles : int
     member sqmSessionStartedTime : int64
     member copyFSharpCore : bool
+#if SHADOW_COPY_REFERENCES
     member shadowCopyReferences : bool
- 
+#endif
     static member Create : TcConfigBuilder * validate: bool -> TcConfig
 
 /// Represents a computation to return a TcConfig. Normally this is just a constant immutable TcConfig,
@@ -643,7 +656,7 @@ val WriteOptimizationData :  TcGlobals * string * CcuThunk * Optimizer.LazyModul
 
 /// Process #r in F# Interactive.
 /// Adds the reference to the tcImports and add the ccu to the type checking environment.
-val RequireDLL : TcImports -> TcEnv -> range -> string -> TcEnv * (ImportedBinary list * ImportedAssembly list)
+val RequireDLL : TcImports * TcEnv * thisAssemblyName: string * referenceRange: range * file: string -> TcEnv * (ImportedBinary list * ImportedAssembly list)
 
 /// Processing # commands
 val ProcessMetaCommandsFromInput : 
@@ -684,7 +697,7 @@ val ParseOneInputFile : TcConfig * Lexhelp.LexResourceManager * string list * st
 
 /// Get the initial type checking environment including the loading of mscorlib/System.Core, FSharp.Core
 /// applying the InternalsVisibleTo in referenced assemblies and opening 'Checked' if requested.
-val GetInitialTcEnv : string option * range * TcConfig * TcImports * TcGlobals -> TcEnv
+val GetInitialTcEnv : assemblyName: string * range * TcConfig * TcImports * TcGlobals -> TcEnv
                 
 [<Sealed>]
 /// Represents the incremental type checking state for a set of inputs

@@ -10,7 +10,9 @@
     <NoWarn>$(NoWarn);62;44</NoWarn>
     <AssemblyName>FscExe</AssemblyName>
     <Name>FscExe</Name>
-    <DefineConstants>EXTENSIONTYPING;COMPILER;$(DefineConstants)</DefineConstants>
+    <DefineConstants>EXTENSIONTYPING;$(DefineConstants)</DefineConstants>
+    <DefineConstants>COMPILER;$(DefineConstants)</DefineConstants>
+    <DefineConstants>FX_RESIDENT_COMPILER;$(DefineConstants)</DefineConstants>
     <AllowCrossTargeting>true</AllowCrossTargeting>
     <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
@@ -23,7 +25,7 @@
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;$(DefineConstants)</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Debug\FsiExe.xml</DocumentationFile>
@@ -36,7 +38,7 @@
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\FsiExe.xml</DocumentationFile>

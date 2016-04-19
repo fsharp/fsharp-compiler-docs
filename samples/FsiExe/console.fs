@@ -119,7 +119,6 @@ module internal Utils =
             | None          -> failwith "Internal Error: cannot bind to method"
             | Some methInfo -> methInfo        
 
-
 [<Sealed>]
 type internal Cursor =
     static member ResetTo(top,left) = 
@@ -141,7 +140,7 @@ type internal Anchor =
         let left = inset + (( (p.left - inset) + index) % (Console.BufferWidth - inset))
         let top = p.top + ( (p.left - inset) + index) / (Console.BufferWidth - inset)
         Cursor.ResetTo(top,left)
-    
+
 type internal ReadLineConsole() =
     let history = new History()
     let mutable complete : (string option * string -> seq<string>) = fun (_s1,_s2) -> Seq.empty
@@ -278,7 +277,7 @@ type internal ReadLineConsole() =
             (!anchor).PlaceAt(x.Inset,position);
 
         render();
-        
+
         let insertChar(c:char) =
             if (!current = input.Length)  then 
                 current := !current + 1;
@@ -457,4 +456,3 @@ type internal ReadLineConsole() =
            changed := true;
            read() 
         read()
-    

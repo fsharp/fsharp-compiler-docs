@@ -49,8 +49,11 @@ type FSharpMethodGroupItem =
     /// The parameters of the method in the overload set
     member Parameters: FSharpMethodGroupItemParameter[]
 
-    /// Indicates that this not really a method, but actually a static arguments list, like TP<42,"foo">
-    member IsStaticArguments: bool
+    /// Does the method support an arguments list?  This is always true except for static type instantiations like TP<42,"foo">.
+    member HasParameters: bool
+
+    /// Does the type name or method support a static arguments list, like TP<42,"foo"> or conn.CreateCommand<42, "foo">(arg1, arg2)?
+    member StaticParameters: FSharpMethodGroupItemParameter[]
 
     [<Obsolete("This member has been renamed to 'TypeText'")>]
     member Type: string
@@ -551,8 +554,6 @@ type FSharpChecker =
     /// so that references are re-resolved.</param>
     member GetProjectOptionsFromCommandLineArgs : projectFileName: string * argv: string[] * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
            
-#if SILVERLIGHT
-#else
 #if FX_ATLEAST_45
     /// <summary>
     /// <para>Get the project options implied by a standard F# project file in the xbuild/msbuild format.</para>
@@ -564,7 +565,6 @@ type FSharpChecker =
     /// so that an 'unload' and 'reload' action will cause the project to be considered as a new project.</param>
     [<Obsolete("This functionality has been moved to the new NuGet package 'FSharp.Compiler.Service.ProjectCracker'", true)>]
     member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
-#endif
 #endif
 
     [<Obsolete("This member has been renamed to 'GetProjectOptionsFromScript'")>]

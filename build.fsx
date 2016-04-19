@@ -27,7 +27,7 @@ let gitHome = "https://github.com/" + gitOwner
 let gitName = "FSharp.Compiler.Service"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.githubusercontent.com/fsharp"
 
-let netFrameworks = ["v4.0"; "v4.5"]
+let netFrameworks = [(* "v4.0"; *) "v4.5"]
 
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script 

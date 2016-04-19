@@ -17,7 +17,10 @@ open System.Collections.Generic
 open Internal.Utilities
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal 
+#if FX_NO_PDB_READER
+#else
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Support 
+#endif
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.BinaryConstants 
 open Microsoft.FSharp.Compiler.AbstractIL.IL  
@@ -206,7 +209,11 @@ type MemoryMappedFile(hMap: MemoryMapping.HANDLE, start:nativeint) =
 
     override m.ReadUTF8String i = 
         let n = m.CountUtf8String i
+#if FX_RESHAPED_REFLECTION
+        System.Text.Encoding.UTF8.GetString(NativePtr.ofNativeInt (m.Addr i), n)
+#else
         new System.String(NativePtr.ofNativeInt (m.Addr i), 0, n, System.Text.Encoding.UTF8)
+#endif
 
 
 //---------------------------------------------------------------------
@@ -240,14 +247,14 @@ type ByteFile(bytes:byte[]) =
         let b0 = is.ReadByte addr
         let b1 = is.ReadByte (addr+1)
         uint16 b0 ||| (uint16 b1 <<< 8) 
-
+    
 let seekReadByte (is:BinaryFile) addr = is.ReadByte addr
 let seekReadBytes (is:BinaryFile) addr len = is.ReadBytes addr len
 let seekReadInt32 (is:BinaryFile) addr = is.ReadInt32 addr
 let seekReadUInt16 (is:BinaryFile) addr = is.ReadUInt16 addr
-
+    
 let seekReadByteAsInt32 is addr = int32 (seekReadByte is addr)
-
+  
 let seekReadInt64 is addr = 
     let b0 = seekReadByte is addr
     let b1 = seekReadByte is (addr+1)
@@ -261,7 +268,7 @@ let seekReadInt64 is addr =
     (int64 b4 <<< 32) ||| (int64 b5 <<< 40) ||| (int64 b6 <<< 48) ||| (int64 b7 <<< 56)
 
 let seekReadUInt16AsInt32 is addr = int32 (seekReadUInt16 is addr)
-
+    
 let seekReadCompressedUInt32 is addr = 
     let b0 = seekReadByte is addr
     if b0 <= 0x7Fuy then int b0, addr+1
@@ -298,13 +305,13 @@ let seekReadUserString is addr =
     let len, addr = seekReadCompressedUInt32 is addr
     let bytes = seekReadBytes is addr (len - 1)
     System.Text.Encoding.Unicode.GetString(bytes, 0, bytes.Length)
-    
+
 let seekReadGuid is addr =  seekReadBytes is addr 0x10
 
 let seekReadUncodedToken is addr  = 
     i32ToUncodedToken (seekReadInt32 is addr)
 
-    
+       
 //---------------------------------------------------------------------
 // Primitives to help read signatures.  These do not use the file cursor
 //---------------------------------------------------------------------
@@ -911,7 +918,11 @@ type ILReaderContext =
   { ilg: ILGlobals;
     dataEndPoints: Lazy<int32 list>;
     sorted: int64;
+#if FX_NO_PDB_READER
+    pdb: obj option;
+#else
     pdb: (PdbReader * (string -> ILSourceDocument)) option;
+#endif
     entryPointToken: TableName * int;
     getNumRows: TableName -> int; 
     textSegmentPhysicalLoc : int32; 
@@ -1011,7 +1022,7 @@ type ILReaderContext =
     seekReadMethodDefAsMethodData : int -> MethodData;
     seekReadGenericParams : GenericParamsIdx -> ILGenericParameterDef list;
     seekReadFieldDefAsFieldSpec : int -> ILFieldSpec; }
-
+   
 let count c = 
 #if DEBUG
     incr c
@@ -1449,6 +1460,9 @@ let readBlobHeapAsDouble ctxt vidx = fst (sigptrGetDouble (readBlobHeap ctxt vid
 //        (e) the start of the native resources attached to the binary if any
 // ----------------------------------------------------------------------*)
 
+#if FX_NO_LINKEDRESOURCES
+let readNativeResources _ctxt = []
+#else
 let readNativeResources ctxt = 
     let nativeResources = 
         if ctxt.nativeResourcesSize = 0x0 || ctxt.nativeResourcesAddr = 0x0 then 
@@ -1457,6 +1471,7 @@ let readNativeResources ctxt =
             [ (lazy (let linkedResource = seekReadBytes ctxt.is (ctxt.anyV2P (ctxt.infile + ": native resources",ctxt.nativeResourcesAddr)) ctxt.nativeResourcesSize
                      unlinkResource ctxt.nativeResourcesAddr linkedResource)) ]
     nativeResources
+#endif
    
 let dataEndPoints ctxtH = 
     lazy
@@ -1527,7 +1542,7 @@ let rec seekReadModule ctxt (subsys,subsysversion,useHighEntropyVA, ilOnly,only3
     let ilModuleName = readStringHeap ctxt nameIdx
     let nativeResources = readNativeResources ctxt
 
-    { Manifest =      
+    { Manifest =
          if ctxt.getNumRows (TableNames.Assembly) > 0 then Some (seekReadAssemblyManifest ctxt 1) 
          else None;
       CustomAttrs = seekReadCustomAttrs ctxt (TaggedIndex(hca_Module,idx));
@@ -2866,7 +2881,11 @@ and seekReadTopCode ctxt numtypars (sz:int) start seqpoints =
    let instrs = ibuf.ToArray()
    instrs,rawToLabel, lab2pc, raw2nextLab
 
+#if FX_NO_PDB_READER
+and seekReadMethodRVA ctxt (_idx,nm,_internalcall,noinline,numtypars) rva = 
+#else
 and seekReadMethodRVA ctxt (idx,nm,_internalcall,noinline,numtypars) rva = 
+#endif
   mkMethBodyLazyAux 
    (lazy
      begin 
@@ -2876,6 +2895,9 @@ and seekReadMethodRVA ctxt (idx,nm,_internalcall,noinline,numtypars) rva =
        //    -- an overall range for the method 
        //    -- the sequence points for the method 
        let localPdbInfos, methRangePdbInfo, seqpoints = 
+#if FX_NO_PDB_READER
+           [], None, []
+#else
            match ctxt.pdb with 
            | None -> 
                [], None, []
@@ -2932,6 +2954,7 @@ and seekReadMethodRVA ctxt (idx,nm,_internalcall,noinline,numtypars) rva =
                with e -> 
                    // "* Warning: PDB info for method "+nm+" could not be read and will be ignored: "+e.Message
                    [],None,[]
+#endif
        
        let baseRVA = ctxt.anyV2P("method rva",rva)
        // ": reading body of method "+nm+" at rva "+string rva+", phys "+string baseRVA
@@ -3230,6 +3253,8 @@ and seekReadTopExportedTypes ctxt () =
            done;
            List.rev !res)
 
+#if FX_NO_PDB_READER
+#else         
 let getPdbReader opts infile =  
     match opts.pdbPath with 
     | None -> None
@@ -3250,6 +3275,7 @@ let getPdbReader opts infile =
               let docfun url = if tab.ContainsKey url then tab.[url] else failwith ("Document with URL "+url+" not found in list of documents in the PDB file")
               Some (pdbr, docfun)
           with e -> dprintn ("* Warning: PDB file could not be read and will be ignored: "+e.Message); None         
+#endif
       
 //-----------------------------------------------------------------------
 // Crack the binary headers, build a reader context and return the lazy
@@ -3800,7 +3826,17 @@ let rec genOpenBinaryReader infile is opts =
    //-----------------------------------------------------------------------
    // Set up the PDB reader so we can read debug info for methods.
    // ----------------------------------------------------------------------
-    let pdb = if runningOnMono then None else getPdbReader opts infile
+#if FX_NO_PDB_READER
+    let pdb = None
+#else
+    let pdb = 
+#if ENABLE_MONO_SUPPORT
+        if runningOnMono then 
+            None 
+        else 
+#endif
+            getPdbReader opts infile
+#endif
 
     let rowAddr (tab:TableName) idx = tablePhysLocations.[tab.Index] + (idx - 1) * tableRowSizes.[tab.Index]
 
@@ -3923,10 +3959,11 @@ let mkDefault ilg =
       pdbPath= None; 
       ilGlobals = ilg } 
 
-#if NO_PDB_READER
-let ClosePdbReader _x =  ()
-#else
 let ClosePdbReader pdb =  
+#if FX_NO_PDB_READER
+    ignore pdb
+    ()
+#else
     match pdb with 
     | Some (pdbr,_) -> pdbReadClose pdbr
     | None -> ()

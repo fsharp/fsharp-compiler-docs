@@ -1,31 +1,151 @@
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
-    FAKE (4.1.0)
-    FSharp.Compiler.Service (1.4.0.1)
-    FSharp.Formatting (2.10.0)
-      FSharp.Compiler.Service (>= 0.0.87)
-      FSharpVSPowerTools.Core (1.8.0)
-    FSharpVSPowerTools.Core (1.8.0)
-      FSharp.Compiler.Service (>= 0.0.87)
-    Microsoft.Bcl (1.1.10)
+    FAKE (4.25.4)
+    FSharp.Compiler.Service (2.0.0.6)
+    FSharp.Core (4.0.0.1) - framework: >= net46
+    FSharp.Formatting (2.14.2)
+      FSharp.Compiler.Service (2.0.0.6)
+      FSharpVSPowerTools.Core (>= 2.3 < 2.4)
+    FSharp.SRGen.Build.Tasks (3.0)
+      FSharp.Core (>= 4.0.0.1) - framework: >= net46
+    FSharpVSPowerTools.Core (2.3)
+      FSharp.Compiler.Service (>= 2.0.0.3)
+    FsSrGen (3.0)
+      FSharp.Core (>= 4.0.0.1) - framework: >= net46
+    Microsoft.Bcl (1.1.10) - framework: net10, net11, net20, net30, net35, net40, net40-full
       Microsoft.Bcl.Build (>= 1.0.14)
-    Microsoft.Bcl.Build (1.0.21)
-    Microsoft.Net.Http (2.2.29)
+    Microsoft.Bcl.Build (1.0.21) - import_targets: false, framework: net10, net11, net20, net30, net35, net40, net40-full
+    Microsoft.DiaSymReader (1.0.7)
+    Microsoft.DiaSymReader.PortablePdb (1.0.0-rc-60301)
+      Microsoft.DiaSymReader (>= 1.0.7)
+      System.Collections.Immutable (>= 1.1.37)
+      System.Reflection.Metadata (>= 1.2.0-rc2-23826)
+    Microsoft.Net.Http (2.2.29) - framework: net10, net11, net20, net30, net35, net40, net40-full
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
     NUnit (2.6.3)
     NUnit.Runners (2.6.3)
-    Octokit (0.14.0) - framework: wpv8.0
-      Microsoft.Net.Http
-    SourceLink.Fake (1.1.0)
-    sqlite-net-wp8 (3.8.5) - framework: wpv8.0
-    SQLite.Net-PCL (3.0.5)
-      sqlite-net-wp8 (>= 3.8.5) - framework: wpv8.0
+    Octokit (0.19)
+      Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
+    SourceLink.Fake (1.1)
     SQLite.Net.Platform.Generic (2.4.1)
       SQLite.Net-PCL
+    SQLite.Net-PCL (3.0.5)
+      sqlite-net-wp8 (>= 3.8.5) - framework: wpv8.0
+    sqlite-net-wp8 (3.8.5) - framework: wpv8.0
+  remote: https://www.myget.org/F/dotnet-core
+  specs:
+    System.Collections (4.0.10) - framework: dnxcore50
+      System.Diagnostics.Debug (>= 4.0) - framework: dnxcore50
+      System.Resources.ResourceManager (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+      System.Runtime.Extensions (>= 4.0) - framework: dnxcore50
+      System.Threading (>= 4.0) - framework: dnxcore50
+    System.Collections.Immutable (1.2.0-rc3-23805)
+      System.Collections (>= 4.0) - framework: dnxcore50
+      System.Diagnostics.Debug (>= 4.0) - framework: dnxcore50
+      System.Globalization (>= 4.0) - framework: dnxcore50
+      System.Linq (>= 4.0) - framework: dnxcore50
+      System.Resources.ResourceManager (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Runtime.Extensions (>= 4.0) - framework: dnxcore50
+      System.Threading (>= 4.0) - framework: dnxcore50
+    System.Diagnostics.Contracts (4.0.0) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+    System.Diagnostics.Debug (4.0.10) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+    System.Globalization (4.0.10) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+    System.IO (4.0.10) - framework: dnxcore50
+      System.Globalization (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+      System.Text.Encoding (>= 4.0) - framework: dnxcore50
+      System.Text.Encoding (>= 4.0.10) - framework: dnxcore50
+      System.Text.Encoding.Extensions (>= 4.0) - framework: dnxcore50
+      System.Threading (>= 4.0) - framework: dnxcore50
+      System.Threading.Tasks (>= 4.0) - framework: dnxcore50
+    System.Linq (4.0.0) - framework: dnxcore50
+      System.Collections (>= 4.0.10) - framework: dnxcore50
+      System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
+      System.Resources.ResourceManager (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+      System.Runtime.Extensions (>= 4.0.10) - framework: dnxcore50
+    System.Private.Uri (4.0.0) - framework: dnxcore50
+    System.Reflection (4.0.10) - framework: dnxcore50
+      System.IO (>= 4.0) - framework: dnxcore50
+      System.Reflection.Primitives (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+    System.Reflection.Extensions (4.0.0) - framework: dnxcore50
+      System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
+      System.Reflection (>= 4.0) - framework: dnxcore50
+      System.Reflection (>= 4.0.10) - framework: dnxcore50
+      System.Reflection.Primitives (>= 4.0) - framework: dnxcore50
+      System.Reflection.TypeExtensions (>= 4.0) - framework: dnxcore50
+      System.Resources.ResourceManager (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+      System.Runtime.Extensions (>= 4.0.10) - framework: dnxcore50
+    System.Reflection.Metadata (1.3.0-beta-23816)
+      System.Collections (>= 4.0) - framework: dnxcore50
+      System.Collections.Immutable (>= 1.1.37) - framework: >= net45, dnxcore50, monoandroid, monotouch, portable-profile7, xamarinios, xamarinmac, winv4.5, wpav8.1
+      System.Diagnostics.Debug (>= 4.0) - framework: dnxcore50
+      System.IO (>= 4.0) - framework: dnxcore50
+      System.Linq (>= 4.0) - framework: dnxcore50
+      System.Reflection (>= 4.0) - framework: dnxcore50
+      System.Reflection.Extensions (>= 4.0) - framework: dnxcore50
+      System.Reflection.Primitives (>= 4.0) - framework: dnxcore50
+      System.Resources.ResourceManager (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Runtime.Extensions (>= 4.0) - framework: dnxcore50
+      System.Runtime.InteropServices (>= 4.0) - framework: dnxcore50
+      System.Text.Encoding (>= 4.0) - framework: dnxcore50
+      System.Text.Encoding.Extensions (>= 4.0) - framework: dnxcore50
+      System.Threading (>= 4.0) - framework: dnxcore50
+    System.Reflection.Primitives (4.0.0) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Threading (>= 4.0) - framework: dnxcore50
+    System.Reflection.TypeExtensions (4.0.0) - framework: dnxcore50
+      System.Diagnostics.Contracts (>= 4.0) - framework: dnxcore50
+      System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
+      System.Linq (>= 4.0) - framework: dnxcore50
+      System.Reflection (>= 4.0) - framework: dnxcore50
+      System.Reflection (>= 4.0.10) - framework: dnxcore50
+      System.Reflection.Primitives (>= 4.0) - framework: dnxcore50
+      System.Resources.ResourceManager (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+      System.Runtime.Extensions (>= 4.0.10) - framework: dnxcore50
+    System.Resources.ResourceManager (4.0.0) - framework: dnxcore50
+      System.Globalization (>= 4.0) - framework: dnxcore50
+      System.Reflection (>= 4.0) - framework: dnxcore50
+      System.Reflection (>= 4.0.10) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+    System.Runtime (4.0.20) - framework: dnxcore50
+      System.Private.Uri (>= 4.0) - framework: dnxcore50
+    System.Runtime.Extensions (4.0.10) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+    System.Runtime.Handles (4.0.0) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+    System.Runtime.InteropServices (4.0.20) - framework: dnxcore50
+      System.Reflection (>= 4.0) - framework: dnxcore50
+      System.Reflection.Primitives (>= 4.0) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Runtime.Handles (>= 4.0) - framework: dnxcore50
+    System.Text.Encoding (4.0.10) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+    System.Text.Encoding.Extensions (4.0.10) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Text.Encoding (>= 4.0.10) - framework: dnxcore50
+    System.Threading (4.0.10) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
+      System.Threading.Tasks (>= 4.0) - framework: dnxcore50
+    System.Threading.Tasks (4.0.10) - framework: dnxcore50
+      System.Runtime (>= 4.0) - framework: dnxcore50
 GITHUB
   remote: fsharp/FAKE
   specs:
-    modules/Octokit/Octokit.fsx (16296d960f02a6192baa9e3f9facb32aca7184bb)
+    modules/Octokit/Octokit.fsx (3bf706bd6058733a1a034755741076b3953aaf09)
       Octokit

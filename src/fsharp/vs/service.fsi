@@ -49,8 +49,11 @@ type FSharpMethodGroupItem =
     /// The parameters of the method in the overload set
     member Parameters: FSharpMethodGroupItemParameter[]
 
-    /// Indicates that this not really a method, but actually a static arguments list, like TP<42,"foo">
-    member IsStaticArguments: bool
+    /// Does the method support an arguments list?  This is always true except for static type instantiations like TP<42,"foo">.
+    member HasParameters: bool
+
+    /// Does the type name or method support a static arguments list, like TP<42,"foo"> or conn.CreateCommand<42, "foo">(arg1, arg2)?
+    member StaticParameters: FSharpMethodGroupItemParameter[]
 
     [<Obsolete("This member has been renamed to 'TypeText'")>]
     member Type: string

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -54,7 +54,78 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhone' And $(TargetFrameworkVersion) == 'v8.0'">
+      <PropertyGroup>
+        <__paket__sqlite-net-wp8_props>windowsphone8\sqlite-net-wp8</__paket__sqlite-net-wp8_props>
+        <__paket__sqlite-net-wp8_targets>windowsphone8\sqlite-net-wp8</__paket__sqlite-net-wp8_targets>
+      </PropertyGroup>
+    </When>
+  </Choose>
+  <Import Project="..\..\..\..\packages\sqlite-net-wp8\build\$(__paket__sqlite-net-wp8_props).props" Condition="Exists('..\..\..\..\packages\sqlite-net-wp8\build\$(__paket__sqlite-net-wp8_props).props')" Label="Paket" />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETCore'">
+      <ItemGroup>
+        <Reference Include="SQLite.Net.Platform.WinRT">
+          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\Windows8\SQLite.Net.Platform.WinRT.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
+      <ItemGroup>
+        <Reference Include="SQLite.Net.Platform.XamarinAndroid">
+          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\MonoAndroid\SQLite.Net.Platform.XamarinAndroid.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoTouch'">
+      <ItemGroup>
+        <Reference Include="SQLite.Net.Platform.XamarinIOS">
+          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\monotouch\SQLite.Net.Platform.XamarinIOS.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')">
+      <ItemGroup>
+        <Reference Include="SQLite.Net.Platform.WindowsPhone8">
+          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\windowsphone8\ARM\SQLite.Net.Platform.WindowsPhone8.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="SQLite.Net.Platform.WindowsPhone8">
+          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\windowsphone8\x86\SQLite.Net.Platform.WindowsPhone8.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Xamarin.iOS'">
+      <ItemGroup>
+        <Reference Include="SQLite.Net.Platform.XamarinIOS.Unified">
+          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\Xamarin.iOS10\SQLite.Net.Platform.XamarinIOS.Unified.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhoneApp') Or ($(TargetFrameworkProfile) == 'Profile32')">
+      <ItemGroup>
+        <Reference Include="SQLite.Net.Platform.WinRT">
+          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\portable-win81+wpa81\SQLite.Net.Platform.WinRT.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Import Project="..\..\..\..\packages\sqlite-net-wp8\build\$(__paket__sqlite-net-wp8_targets).targets" Condition="Exists('..\..\..\..\packages\sqlite-net-wp8\build\$(__paket__sqlite-net-wp8_targets).targets')" Label="Paket" />
 </Project>

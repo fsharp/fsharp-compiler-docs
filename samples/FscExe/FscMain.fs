@@ -14,6 +14,11 @@ open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.Range
 
+#if FX_RESHAPED_REFLECTION
+open Microsoft.FSharp.Core.ReflectionAdapters
+#endif
+
+#if FX_RESIDENT_COMPILER
 type TypeInThisAssembly() = member x.Dummy = 1
 
 let progress = ref false
@@ -52,9 +57,21 @@ module FSharpResidentCompiler =
         static let userName = Environment.GetEnvironmentVariable (if onWindows then "USERNAME" else "USER") 
         // Use different base channel names on mono and CLR as a CLR remoting process can't talk
         // to a mono server
-        static let baseChannelName = if runningOnMono then "FSCChannelMono" else "FSCChannel"
+        static let baseChannelName = 
+#if ENABLE_MONO_SUPPORT
+            if runningOnMono then 
+                "FSCChannelMono" 
+            else 
+#endif
+                "FSCChannel"
         static let channelName = baseChannelName + "_" +  domainName + "_" + userName
-        static let serverName = if runningOnMono then "FSCServerMono" else "FSCSever"
+        static let serverName = 
+#if ENABLE_MONO_SUPPORT
+            if runningOnMono then 
+                "FSCServerMono" 
+            else
+#endif
+                "FSCSever"
         static let mutable serverExists = true
         
         let outputCollector = new OutputCollector()
@@ -79,7 +96,7 @@ module FSharpResidentCompiler =
                               // Exit the server if there are no outstanding requests and the 
                               // current memory usage after collection is over 200MB
                               if inbox.CurrentQueueLength = 0 && GC.GetTotalMemory(true) > 200L * 1024L * 1024L then 
-                                  Environment.Exit 0
+                                  exit 0
                        })
 
         member x.Run() = 
@@ -118,9 +135,10 @@ module FSharpResidentCompiler =
 
             // On Unix, the file permissions of the implicit socket need to be set correctly to make this
             // private to the user.
+#if ENABLE_MONO_SUPPORT
             if runningOnMono then 
               try 
-                  let monoPosix = System.Reflection.Assembly.Load("Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756")
+                  let monoPosix = System.Reflection.Assembly.Load(new System.Reflection.AssemblyName("Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756"))
                   let monoUnixFileInfo = monoPosix.GetType("Mono.Unix.UnixFileSystemInfo") 
                   let socketName = Path.Combine(FileSystem.GetTempPathShim(), channelName)
                   let fileEntry = monoUnixFileInfo.InvokeMember("GetFileSystemEntry", (BindingFlags.InvokeMethod ||| BindingFlags.Static ||| BindingFlags.Public), null, null, [| box socketName |],System.Globalization.CultureInfo.InvariantCulture)
@@ -138,6 +156,7 @@ module FSharpResidentCompiler =
 #endif
                   ()
                   // Fail silently
+#endif
             server.Run()
             
         static member private ConnectToServer() =
@@ -162,6 +181,7 @@ module FSharpResidentCompiler =
                 with _ ->
                     if !progress then printfn "client: error while creating client, starting client instead"
                     let procInfo = 
+#if ENABLE_MONO_SUPPORT
                         if runningOnMono then
                             let shellName, useShellExecute = 
                                 match System.Environment.GetEnvironmentVariable("FSC_MONO") with 
@@ -178,11 +198,11 @@ module FSharpResidentCompiler =
                                              CreateNoWindow = true,
                                              UseShellExecute = useShellExecute)
                          else
+#endif
                             ProcessStartInfo(FileName=fscServerExe,
                                              Arguments = "/server",
                                              CreateNoWindow = true,
                                              UseShellExecute = false)
-
                     let cmdProcess = new Process(StartInfo=procInfo)
 
                     //let exitE = cmdProcess.Exited |> Observable.map (fun x -> x)
@@ -244,6 +264,7 @@ module FSharpResidentCompiler =
                    None
             | None -> 
                 None
+#endif
 
 module Driver = 
     let main argv = 
@@ -282,20 +303,25 @@ module Driver =
             for error in errors do eprintfn "%s" (error.ToString())
             exitCode
 
-
-
-
+#if FX_NO_DEFAULT_DEPENDENCY_TYPE
+#else
 [<Dependency("FSharp.Compiler",LoadHint.Always)>] 
+#endif
 do ()
 
 [<EntryPoint>]
 let main(argv) =
     System.Runtime.GCSettings.LatencyMode <- System.Runtime.GCLatencyMode.Batch
-    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parameter)    
+    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind BuildPhase.Parameter
+
+//#if NO_HEAPTERMINATION
+//#else
+//    if not runningOnMono then Lib.UnmanagedProcessExecutionOptions.EnableHeapTerminationOnCorruption() (* SDL recommendation *)
+//    Lib.UnmanagedProcessExecutionOptions.EnableHeapTerminationOnCorruption() (* SDL recommendation *)
+//#endif
 
     try 
         Driver.main(Array.append [| "fsc.exe" |] argv); 
     with e -> 
         errorRecovery e Microsoft.FSharp.Compiler.Range.range0; 
         1
-

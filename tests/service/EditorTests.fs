@@ -571,6 +571,7 @@ let _ = arr.[..number2]
 //-------------------------------------------------------------------------------
 
 
+#if TEST_TP_PROJECTS
 module TPProject = 
     open System.IO
 
@@ -744,6 +745,8 @@ let ``Test TPProject param info`` () =
          (13,[(["RegexTypedStatic.IsMatch,pattern1=\"ABC\"(input: string) : bool"], true,["input"], ["pattern1"])]);
          (14,[(["RegexTypedStatic.IsMatch,pattern1=\"ABC\"(input: string) : bool"], true,["input"], ["pattern1"])]);
          (15, [(["RegexTypedStatic.IsMatch() : int"], true, [], ["pattern1"])])]
+
+#endif // TEST_TP_PROJECTS
 
 #if EXE
 

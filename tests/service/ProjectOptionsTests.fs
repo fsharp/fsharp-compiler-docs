@@ -156,6 +156,7 @@ let ``Project file parsing -- references``() =
   checkOption references "mscorlib.dll"
   checkOption references "System.Core.dll"
   checkOption references "System.dll"
+  printfn "Project file parsing -- references: references = %A" references
   references |> should haveLength 4
   p.ReferencedProjects |> should be Empty
 
@@ -169,6 +170,7 @@ let ``Project file parsing -- 2nd level references``() =
   checkOption references "System.Core.dll"
   checkOption references "System.dll"
   checkOption references "Test1.dll"
+  printfn "Project file parsing -- references: references = %A" references
   references |> should haveLength 5
   p.ReferencedProjects |> should haveLength 1
   (snd p.ReferencedProjects.[0]).ProjectFileName |> should contain (normalizePath (__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj"))

@@ -116,17 +116,12 @@ let StartServer (fsiSession : FsiEvaluationSession) (fsiServerName) =
 // GUI runCodeOnMainThread
 //----------------------------------------------------------------------------
 
-#if SILVERLIGHT
-#else            
-     
 let internal TrySetUnhandledExceptionMode() =  
     let i = ref 0 // stop inlining 
     try 
       Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException) 
     with _ -> 
       decr i;()
-
-#endif // SILVERLIGHT
 
 // Mark the main thread as STAThread since it is a GUI thread
 [<EntryPoint>]

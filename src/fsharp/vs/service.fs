@@ -2789,12 +2789,9 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
           LoadTime = loadedTimeStamp
           UnresolvedReferences = None }
 
-#if SILVERLIGHT
-#else
 #if FX_ATLEAST_45
     member ic.GetProjectOptionsFromProjectFile(_ : string, ?_a : (string * string) list, ?_b : System.DateTime) : FSharpProjectOptions =
         failwithf "This method has been removed."
-#endif
 #endif
 
     /// Begin background parsing the given project.
@@ -2936,11 +2933,7 @@ module DebuggerEnvironment =
     /// Return the language ID, which is the expression evaluator id that the
     /// debugger will use.
     let GetLanguageID() =
-#if SILVERLIGHT
-        System.Guid(0xAB4F38C9, 0xB6E6s, 0x43bas, 0xBEuy, 0x3Buy, 0x58uy, 0x08uy, 0x0Buy, 0x2Cuy, 0xCCuy, 0xE3uy)
-#else
         System.Guid(0xAB4F38C9u, 0xB6E6us, 0x43baus, 0xBEuy, 0x3Buy, 0x58uy, 0x08uy, 0x0Buy, 0x2Cuy, 0xCCuy, 0xE3uy)
-#endif
         
 module PrettyNaming =
     let IsIdentifierPartCharacter     x = Microsoft.FSharp.Compiler.PrettyNaming.IsIdentifierPartCharacter x

@@ -2329,13 +2329,8 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     // tcConfig - build the initial config
     //----------------------------------------------------------------------------
 
-#if SILVERLIGHT
-    let defaultFSharpBinariesDir = "."
-    let currentDirectory = "."
-#else    
     let defaultFSharpBinariesDir = System.AppDomain.CurrentDomain.BaseDirectory
     let currentDirectory = Directory.GetCurrentDirectory()
-#endif
     // When used as part of FCS we cannot assume the current process is fsi.exe
     // So we try to fallback to the default compiler dir.
     let defaultFSharpBinariesDir = 
@@ -2805,11 +2800,7 @@ module Settings =
         let mutable evLoop = (new SimpleEventLoop() :> IEventLoop)
         let mutable showIDictionary = true
         let mutable showDeclarationValues = true
-#if SILVERLIGHT
-        let mutable args : string[] = [| |]
-#else
         let mutable args = Environment.GetCommandLineArgs()
-#endif
         let mutable fpfmt = "g10"
         let mutable fp = (CultureInfo.InvariantCulture :> System.IFormatProvider)
         let mutable printWidth = 78

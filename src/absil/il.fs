@@ -13,17 +13,11 @@ open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics
-open System
 open System.Collections
 open System.Collections.Generic
 open System.Collections.Concurrent
  
 let logging = false 
-
-let runningOnWindows =
-    match System.Environment.OSVersion.Platform with
-    | PlatformID.Win32NT | PlatformID.Win32S | PlatformID.Win32Windows | PlatformID.WinCE -> true
-    | _  -> false
 
 let runningOnMono = 
 #if ENABLE_MONO_SUPPORT

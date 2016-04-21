@@ -93,7 +93,6 @@ module internal Utilities =
 
     let ignoreAllErrors f = try f() with _ -> ()
 
-let referencedAssemblies = Dictionary<string, DateTime>()
 
 //----------------------------------------------------------------------------
 // Timing support
@@ -755,8 +754,6 @@ let internal SetServerCodePages(fsiOptions: FsiCommandLineOptions) =
 #endif
 #endif
 
-
-
 //----------------------------------------------------------------------------
 // Prompt printing
 //----------------------------------------------------------------------------
@@ -937,11 +934,7 @@ type internal FsiDynamicCompiler
         errorLogger.AbortOnError(fsiConsoleOutput);
             
         let fragName = textOfLid prefixPath 
-#if ENABLE_MONO_SUPPORT
         let codegenResults = GenerateIlxCode (IlReflectBackend, isInteractiveItExpr, runningOnMono, tcConfig, topCustomAttrs, optimizedImpls, fragName, true, ilxGenerator)
-#else
-        let codegenResults = GenerateIlxCode (IlReflectBackend, isInteractiveItExpr, false, tcConfig, topCustomAttrs, optimizedImpls, fragName, true, ilxGenerator)
-#endif
         errorLogger.AbortOnError(fsiConsoleOutput);
 
         // Each input is like a small separately compiled extension to a single source file. 
@@ -1726,6 +1719,10 @@ type internal FsiInteractionProcessor
                              lexResourceManager : LexResourceManager,
                              initialInteractiveState) = 
 
+#if SHADOW_COPY_REFERENCES
+    let referencedAssemblies = Dictionary<string, DateTime>()
+#endif
+
     let mutable currState = initialInteractiveState
     let event = Event<unit>()
     let setCurrState s = currState <- s; event.Trigger()
@@ -2365,6 +2362,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
          System.AppContext.BaseDirectory
 #else
         System.AppDomain.CurrentDomain.BaseDirectory
+#endif
         
     // When used as part of FCS we cannot assume the current process is fsi.exe
     // So we try to fallback to the default compiler dir.
@@ -2375,7 +2373,6 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
             |> Seq.forall Internal.Utilities.FSharpEnvironment.safeExists
         if containsRequiredFiles then defaultFSharpBinariesDir 
         else Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
-#endif
 
     let tcConfigB = 
         TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, 
@@ -2395,9 +2392,11 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     do SetDebugSwitch    tcConfigB (Some "pdbonly") OptionSwitch.On
     do SetTailcallSwitch tcConfigB OptionSwitch.On    
 
+#if FX_ATLEAST_40
     // set platform depending on whether the current process is a 64-bit process.
     // BUG 429882 : FsiAnyCPU.exe issues warnings (x64 v MSIL) when referencing 64-bit assemblies
     do tcConfigB.platform <- if IntPtr.Size = 8 then Some AMD64 else Some X86
+#endif
 
     let fsiStdinSyphon = new FsiStdinSyphon(errorWriter)
     let fsiConsoleOutput = FsiConsoleOutput(tcConfigB, outWriter, errorWriter)
@@ -2671,10 +2670,9 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     member x.Run() = 
         progress := condition "FSHARP_INTERACTIVE_PROGRESS"
     
-#if ENABLE_MONO_SUPPORT
         if not runningOnMono && fsiOptions.IsInteractiveServer then 
             SpawnInteractiveServer (fsi, fsiOptions, fsiConsoleOutput)
-#endif
+
         use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Interactive)
 
         if fsiOptions.Interact then 

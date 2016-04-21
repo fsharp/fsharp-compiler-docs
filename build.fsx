@@ -248,19 +248,13 @@ Target "DotnetCliParse" (fun _ ->
 
 Target "DotnetCliBuild" (fun _ ->
     let netcoreFW = "netstandard1.5"
-    let options = sprintf "--verbose build --framework %s --configuration Release" netcoreFW
+    let options1 = sprintf " --framework %s --configuration Release" netcoreFW
+    let options2 = " --configuration Release"
     let outPath = @"src/fsharp/FSharp.Compiler.Service.netcore/"
     Shell.Exec("dotnet", "restore", outPath) |> ignore //assertExitCodeZero
-    Shell.Exec("dotnet", options, outPath) |> assertExitCodeZero
+    Shell.Exec("dotnet", "build" + options1, outPath) |> assertExitCodeZero
+    Shell.Exec("dotnet", "pack" + options2, outPath) |> assertExitCodeZero
 )
-
-//TODO: proper nuget package
-// Target "AddNetcoreToNupkg" (fun _ ->
-//     let nupkg = sprintf "../../temp/FSharp.Compiler.Service.%s.nupkg" (release.AssemblyVersion)
-//     Shell.Exec("dotnet", "--verbose pack --configuration Release", "src/fsharp/FSharp.Compiler.Service") |> assertExitCodeZero
-//     let netcoreNupkg = sprintf "bin/Release/FSharp.Compiler.Service.%s.nupkg" (release.AssemblyVersion)
-//     Shell.Exec("dotnet", sprintf """mergenupkg --source "%s" --other "%s" --framework "%s" """ nupkg netcoreNupkg netcoreFW, "src/fsharp/FSharp.Compiler.Service/") |> assertExitCodeZero
-// )
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override

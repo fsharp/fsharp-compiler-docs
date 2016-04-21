@@ -2276,9 +2276,7 @@ type ILPropertyRef =
      member Name: string
      interface System.IComparable
 
-#if ENABLE_MONO_SUPPORT
 val runningOnMono: bool
-#endif
 
 type ILReferences = 
     { AssemblyReferences: ILAssemblyRef list; 

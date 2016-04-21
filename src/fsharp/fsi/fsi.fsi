@@ -72,7 +72,7 @@ type public FsiEvaluationSessionHostConfig =
 
 
     ///<summary>
-    /// <para>Indicate a special console "readline" reader for the evaluation session, if any.</para><para>�</para>
+    /// <para>Indicate a special console "readline" reader for the evaluation session, if any.</para><para> </para>
     ///
     /// <para>A "console" gets used if --readline is specified (the default on Windows + .NET); and --fsi-server is  not
     /// given (always combine with --readline-), and OptionalConsoleReadLine is given.
@@ -81,11 +81,11 @@ type public FsiEvaluationSessionHostConfig =
     /// In this case, a prompt is printed early, a background thread is created and 
     /// the OptionalConsoleReadLine is used to read the first line.
     /// If a console is not used, then inReader.Peek() is called early instead.
-    /// </para><para>�</para>
+    /// </para><para> </para>
     ///
     /// <para>Further lines are read using OptionalConsoleReadLine().
     /// If not provided, lines are read using inReader.ReadLine().</para>
-    /// <para>�</para>
+    /// <para> </para>
     ///</summary>
 
     abstract OptionalConsoleReadLine : (unit -> string) option 

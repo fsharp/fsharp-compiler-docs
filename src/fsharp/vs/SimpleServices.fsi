@@ -104,14 +104,19 @@ type SimpleSourceCodeServices =
     [<System.Obsolete("This method has been deprecated. Use the SourceCodeServices API directly. see http://fsharp.github.io/FSharp.Compiler.Service/project.html")>] 
     member ParseAndCheckProject: projectFileName:string * argv:string [] -> Async<FSharpCheckProjectResults>
 
-    /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
+    /// Compile using the given flags.  Source files names are resolved via the FileSystem API. 
+    /// The output file must be given by a -o flag. 
+    /// The first argument is ignored and can just be "fsc.exe".
     member Compile: argv:string [] -> FSharpErrorInfo [] * int
     
     /// TypeCheck and compile provided AST
     member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -> FSharpErrorInfo [] * int
 
-    /// Compiles to a dynamic assembly usinng the given flags.  Any source files names 
-    /// are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not
+    /// Compiles to a dynamic assembly usinng the given flags.  
+    ///
+    /// The first argument is ignored and can just be "fsc.exe".
+    ///
+    /// Any source files names are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not
     /// be written - instead a dynamic assembly will be created and loaded.
     ///
     /// If the 'execute' parameter is given the entry points for the code are executed and 

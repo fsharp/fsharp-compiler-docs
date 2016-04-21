@@ -309,7 +309,7 @@ type internal FsiValuePrinter(fsi: FsiEvaluationSessionHostConfig, ilGlobals, ge
               | PrintExpr -> 
                   anyToLayoutCall.AnyToLayout(opts, x)
         with 
-#if !FX_REDUCED_EXCEPTIONS        
+#if !FX_REDUCED_EXCEPTIONS
         | :? ThreadAbortException -> Layout.wordL ""
 #endif
         | e ->

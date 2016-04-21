@@ -216,13 +216,12 @@ Target "GitHubRelease" (fun _ ->
 // --------------------------------------------------------------------------------------
 // .NET CLI and .NET Core
 
-let isDotnetCLIInstalled = Shell.Exec("dotnet", "--version") = 0
+let isDotnetCLIInstalled = Shell.Exec("dotnet", "--info") = 0
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 
-Target "DotnetCliParse" (fun _ ->
+Target "DotnetCliBuild" (fun _ ->
     let fsLex  = @"lib/bootstrap/4.0/fslex.exe"
     let fsYacc = @"lib/bootstrap/4.0/fsyacc.exe"
-    let fsSrGen = @"tools/dotnet-fssrgen/"
     let outPath = @"src/fsharp/FSharp.Compiler.Service.netcore/"
     let lexArgs = @" --lexlib Internal.Utilities.Text.Lexing"
     let yaccArgs = @" --internal --parslib Internal.Utilities.Text.Parsing"
@@ -232,28 +231,22 @@ Target "DotnetCliParse" (fun _ ->
     let open1 = @" --open Microsoft.FSharp.Compiler.AbstractIL"
     let open2 = @" --open Microsoft.FSharp.Compiler"
     let open3 = @" --open Microsoft.FSharp.Compiler"
-    let run1 = @"run ../../src/fsharp/FSComp.txt ../../" + outPath + "FSComp.fs ../../" + outPath + "FSComp.resx"
-    let run2 = @"run ../../src/fsharp/fsi/FSIstrings.txt ../../" + outPath + "FSIstrings.fs ../../" + outPath + "FSIstrings.resx"
+    let gen1 = @"../FSComp.txt ./FSComp.fs ./FSComp.resx"
+    let gen2 = @"../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx"
+    let options = " --info --configuration Release"
     
-    Shell.Exec("dotnet", "restore", fsSrGen) |> ignore //assertExitCodeZero
-    Shell.Exec("dotnet", run1, fsSrGen) |> assertExitCodeZero
-    Shell.Exec("dotnet", run2, fsSrGen) |> assertExitCodeZero
+    Shell.Exec("dotnet", "restore", outPath) |> ignore //assertExitCodeZero
+
+    Shell.Exec("dotnet fssrgen", gen1, outPath) |> assertExitCodeZero
+    Shell.Exec("dotnet fssrgen", gen2, outPath) |> assertExitCodeZero
     Shell.Exec(fsLex, @"../lex.fsl --unicode" + lexArgs + " -o lex.fs", outPath) |> assertExitCodeZero
     Shell.Exec(fsLex, @"../pplex.fsl --unicode" + lexArgs + " -o pplex.fs", outPath) |> assertExitCodeZero
     Shell.Exec(fsLex, @"../../absil/illex.fsl --unicode" + lexArgs + " -o illex.fs", outPath) |> assertExitCodeZero
     Shell.Exec(fsYacc, @"../../absil/ilpars.fsy" + lexArgs + yaccArgs + module1 + open1 + " -o ilpars.fs", outPath) |> assertExitCodeZero
     Shell.Exec(fsYacc, @"../pars.fsy" + lexArgs + yaccArgs + module2 + open2 + " -o pars.fs", outPath) |> assertExitCodeZero
     Shell.Exec(fsYacc, @"../pppars.fsy" + lexArgs + yaccArgs + module3 + open3 + " -o pppars.fs", outPath) |> assertExitCodeZero
-)
 
-Target "DotnetCliBuild" (fun _ ->
-    let netcoreFW = "netstandard1.5"
-    let options1 = sprintf " --framework %s --configuration Release" netcoreFW
-    let options2 = " --configuration Release"
-    let outPath = @"src/fsharp/FSharp.Compiler.Service.netcore/"
-    Shell.Exec("dotnet", "restore", outPath) |> ignore //assertExitCodeZero
-    Shell.Exec("dotnet", "build" + options1, outPath) |> assertExitCodeZero
-    Shell.Exec("dotnet", "pack" + options2, outPath) |> assertExitCodeZero
+    Shell.Exec("dotnet", "pack" + options, outPath) |> assertExitCodeZero
 )
 
 // --------------------------------------------------------------------------------------
@@ -269,7 +262,6 @@ Target "Release" DoNothing
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
   ==> "Prepare"
-  =?> ("DotnetCliParse", isDotnetCLIInstalled)      
   =?> ("DotnetCliBuild", isDotnetCLIInstalled)      
   ==> "Build"
   ==> "RunTests"

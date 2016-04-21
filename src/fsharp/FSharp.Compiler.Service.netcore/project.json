@@ -264,20 +264,10 @@
   ],
   "dependencies": {
     "Microsoft.FSharp.Core.netcore": "1.0.0-*",
-    "Microsoft.NETCore.App": {
-      "type": "platform",
-      "version": "1.0.0-rc2-3002426"
-    }
+    "NETStandard.Library": "1.5.0-rc2-23925"
   },
   "tools": {
-    "dotnet-fssrgen": {
-      "version": "2.0.1",
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win81",
-        "netstandard1.3"
-      ]
-    },
+    "dotnet-fssrgen": "3.0.1",
     "dotnet-compile-fsc": {
       "version": "1.0.0-*",
       "imports": [

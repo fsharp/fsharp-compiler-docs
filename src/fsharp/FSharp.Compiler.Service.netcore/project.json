@@ -94,13 +94,13 @@
     ]
   },
   "namedResource": {
-    "FSComp": "output/FSComp.resx",
+    "FSComp": "FSComp.resx",
     "FSStrings": "../FSStrings.resx"
   },
   "compileFiles": [
     "../../assemblyinfo/assemblyinfo.FSharp.Compiler.Service.dll.fs",
-    "output/FSComp.fs",
-    "output/FSIstrings.fs",
+    "FSComp.fs",
+    "FSIstrings.fs",
     "../../utils/reshapedreflection.fs",
     "../../utils/reshapedmsbuild.fs",
     "../../utils/sformat.fsi",

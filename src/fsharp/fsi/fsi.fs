@@ -2724,7 +2724,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) = 
     
         let rec tryFindMember (name : string) (memberType : MemberTypes) (declaringType : Type) =
-            match declaringType.GetMember(name) with //, memberType, BindingFlags.Instance ||| BindingFlags.Public ||| BindingFlags.NonPublic) with
+            match declaringType.GetMember(name) with
             | [||] -> declaringType.GetInterfaces() |> Array.tryPick (tryFindMember name memberType)
             | [|m|] -> Some m
             | _ -> raise <| new AmbiguousMatchException(sprintf "Ambiguous match for member '%s'" name)

@@ -260,7 +260,7 @@ Target "Release" DoNothing
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
   ==> "Prepare"
-  =?> ("DotnetCliBuild", isDotnetCliInstalled)      
+  =?> ("DotnetCliBuild", not isAppVeyorBuild && isDotnetCliInstalled)
   ==> "Build"
   ==> "RunTests"
   ==> "All"

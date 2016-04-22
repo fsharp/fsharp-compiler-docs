@@ -9,13 +9,12 @@ open Microsoft.FSharp.Control
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Lib
 
-#if COMPILER_SERVICE_CORECLR
-    //TODO: Trace not enabled in System.Diagnostics, so just a stub for now
-    type internal Trace() =
-        static member TraceInformation(format: string, [<ParamArray>] args: obj []) =
-            let s = String.Format(format, args)    
-            Debug.WriteLine(s)
-#endif
+// TODO: not sure why Trace is not defined in System.Diagnostics, why do we have to redefine it here
+type internal Trace() =
+    [<Conditional("TRACE")>]
+    static member TraceInformation(format: string, [<ParamArray>] args: obj []) =
+        let s = String.Format(format, args)
+        ignore s
 
 /// Represents the capability to schedule work in the compiler service operations queue for the compilation thread
 type internal IReactorOperations = 

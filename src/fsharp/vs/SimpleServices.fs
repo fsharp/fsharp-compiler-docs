@@ -5,6 +5,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     open System
     open System.IO
     open System.Text
+    open System.Reflection.Emit
     open Microsoft.FSharp.Compiler.Range
     open Microsoft.FSharp.Compiler.SourceCodeServices
     open Microsoft.FSharp.Compiler.Driver
@@ -167,13 +168,18 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
             errors.ToArray(), result
 
-#if !FX_NO_APP_DOMAINS
-        let dynamicAssemblyCreator (debugInfo:bool,tcImportsRef: TcImports option ref, execute: _ option, assemblyBuilderRef: _ option ref) (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) =
+        let dynamicAssemblyCreator (debugInfo: bool, tcImportsRef: TcImports option ref, execute: _ option, assemblyBuilderRef: _ option ref) (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) =
 
             // Create an assembly builder
-            let assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile),System.Reflection.Emit.AssemblyBuilderAccess.Run)
-            let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule", debugInfo)     
-
+            let assemblyName = System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile)
+            let flags = System.Reflection.Emit.AssemblyBuilderAccess.Run
+#if FX_NO_APP_DOMAINS
+            let assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, flags)
+            let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule")
+#else
+            let assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, flags)
+            let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule", debugInfo)
+#endif            
             // Omit resources in dynamic assemblies, because the module builder is constructed without a filename the module 
             // is tagged as transient and as such DefineManifestResource will throw an invalid operation if resources are present.
             // 
@@ -206,7 +212,6 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
             // Save the result
             assemblyBuilderRef := Some assemblyBuilder
- #endif
             
         let setOutputStreams execute = 
             // Set the output streams, if requested
@@ -288,12 +293,9 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
 
             // Function to generate and store the results of compilation 
-#if FX_NO_APP_DOMAINS
-            let dynamicAssemblyCreator = None
-#else
             let debugInfo =  otherFlags |> Array.exists (fun arg -> arg = "-g" || arg = "--debug:+" || arg = "/debug:+")
             let dynamicAssemblyCreator = Some (dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
-#endif
+
             // Perform the compilation, given the above capturing function.
             let errorsAndWarnings, result = compileFromArgs (otherFlags, tcImportsCapture, dynamicAssemblyCreator)
 
@@ -321,12 +323,8 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let outFile = Path.Combine(location, assemblyName + ".dll")
 
             // Function to generate and store the results of compilation 
-#if FX_NO_APP_DOMAINS
-            ignore debugInfo
-            let dynamicAssemblyCreator = None
-#else
             let dynamicAssemblyCreator = Some (dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
-#endif
+
             // Perform the compilation, given the above capturing function.
             let errorsAndWarnings, result = 
                 compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)

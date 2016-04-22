@@ -7,7 +7,6 @@
       "COMPILED_AS_LANGUAGE_SERVICE_DLL",
       "COMPILER",
       "COMPILER_SERVICE",
-      "COMPILER_SERVICE_CORECLR",
       "COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_4_0_0",
       "EXTENSIBLE_DUMPER",
       "EXTENSIONTYPING",
@@ -48,7 +47,6 @@
       "FX_RESHAPED_REFEMIT",
       "FX_RESHAPED_REFLECTION",
       "FX_RESHAPED_REFLECTION_CORECLR",
-      "I_DONT_KNOW_HOW_TO_DO_THIS_YET",
       "INCLUDE_METADATA_READER",
       "INCLUDE_METADATA_WRITER",
       "NO_DEBUG_LOG",
@@ -58,18 +56,15 @@
       "NO_LOGGING_GUI",
       "NO_SERVERCODEPAGES",
       "NO_WIN_REGISTRY",
-      "OPEN_BUILD",
       "PREFERRED_UI_LANG",
       "PUT_TYPE_PROVIDERS_IN_FSCORE",
       "QUERIES_IN_FSLIB",
       "RESHAPED_MSBUILD",
       "SIGNED",
-      "SILVERLIGHT_COMPILER_FSHARP_CORE",
       "STRONG_NAME_AND_DELAY_SIGN_FSHARP_COMPILER_WITH_MSFT_KEY",
       "TODO_REWORK_ASSEMBLY_LOAD",
       "TODO_REWORK_SERVER",
       "TRACE",
-      "VS_VERSION_DEV14"
     ],
     "nowarn": [
       "44",
@@ -266,19 +261,12 @@
     "Microsoft.FSharp.Core.netcore": "1.0.0-*",
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002426"
+      "version": "1.0.0-rc2-3002468"
     }
   },
   "tools": {
     "dotnet-fssrgen": "3.0.1",
-    "dotnet-compile-fsc": {
-      "version": "1.0.0-*",
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win81",
-        "netstandard1.5"
-      ]
-    }
+    "dotnet-compile-fsc": "1.0.0-*"
   },
   "frameworks": {
     "netstandard1.5": {

@@ -216,7 +216,8 @@ Target "GitHubRelease" (fun _ ->
 // --------------------------------------------------------------------------------------
 // .NET CLI and .NET Core
 
-let isDotnetCliInstalled = Shell.Exec("dotnet", "--info") = 0
+// TODO: rework next line when workaround is available 
+let isDotnetCliInstalled = buildServer = BuildServer.LocalBuild && Shell.Exec("dotnet", "--info") = 0
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 
 Target "DotnetCliBuild" (fun _ ->
@@ -260,7 +261,7 @@ Target "Release" DoNothing
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
   ==> "Prepare"
-  //=?> ("DotnetCliBuild", isDotnetCliInstalled)
+  =?> ("DotnetCliBuild", isDotnetCliInstalled)
   ==> "Build"
   ==> "RunTests"
   ==> "All"

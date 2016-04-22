@@ -80,7 +80,7 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.Build, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" />
+    <Reference Include="Microsoft.Build" Condition=" '$(TargetFrameworkVersion)' == 'v4.5'" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\fsharp\FSharp.Compiler.Service.ProjectCracker\FSharp.Compiler.Service.ProjectCracker.fsproj">

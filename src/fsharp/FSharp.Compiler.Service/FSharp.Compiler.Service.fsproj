@@ -62,15 +62,19 @@
     <EnsureThereAreNoUnusedFsSrGenResources>false</EnsureThereAreNoUnusedFsSrGenResources>
   </PropertyGroup>
   <!-- MonoDevelop likes these here to recognise the configurations -->
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DefineConstants>DEBUG; $(DefineConstants)</DefineConstants>
     <Optimize>false</Optimize>
     <OtherFlags>$(OtherFlags) --no-jit-optimize --jit-tracking</OtherFlags>
     <DocumentationFile>..\..\..\bin\$(TargetFrameworkVersion)\FSharp.Compiler.Service.xml</DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <DocumentationFile>..\..\..\bin\$(TargetFrameworkVersion)\FSharp.Compiler.Service.xml</DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.dll.fs">
@@ -110,6 +114,12 @@
       <OtherFlags>--internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
       <Link>pars.fsy</Link>
     </FsYacc>
+    <Compile Include="..\..\utils\reshapedreflection.fs">
+      <Link>Reshaped/reshapedreflection.fs</Link>
+    </Compile>
+    <Compile Include="..\..\utils\reshapedmsbuild.fs">
+      <Link>Reshaped/reshapedmsbuild.fs</Link>
+    </Compile>
     <Compile Include="..\..\utils\sformat.fsi">
       <Link>ErrorText/sformat.fsi</Link>
     </Compile>
@@ -155,13 +165,19 @@
     <Compile Include="..\FlatList.fs">
       <Link>Utilities/FlatList.fs</Link>
     </Compile>
+    <Compile Include="..\QueueList.fs">
+      <Link>Utilities/QueueList.fs</Link>
+    </Compile>
+    <Compile Include="..\..\absil\ildiag.fsi">
+      <Link>Utilities/ildiag.fsi</Link>
+    </Compile>
+    <Compile Include="..\..\absil\ildiag.fs">
+      <Link>Utilities/ildiag.fs</Link>
+    </Compile>
     <Compile Include="..\..\absil\illib.fs">
       <Link>Utilities/illib.fs</Link>
     </Compile>
-	<Compile Include="..\..\utils\reshapedreflection.fs">
-	  <Link>Utilities/reshapedreflection.fs</Link>
-	</Compile>
-	<Compile Include="..\..\utils\filename.fsi">
+    <Compile Include="..\..\utils\filename.fsi">
       <Link>Utilities/filename.fsi</Link>
     </Compile>
     <Compile Include="..\..\utils\filename.fs">
@@ -185,11 +201,8 @@
     <Compile Include="..\..\absil\bytes.fs">
       <Link>Utilities/bytes.fs</Link>
     </Compile>
-    <Compile Include="..\..\absil\ildiag.fsi">
-      <Link>Utilities/ildiag.fsi</Link>
-    </Compile>
-    <Compile Include="..\..\absil\ildiag.fs">
-      <Link>Utilities/ildiag.fs</Link>
+    <Compile Include="..\lib.fs">
+      <Link>Utilities/lib.fs</Link>
     </Compile>
     <Compile Include="..\InternalCollections.fsi">
       <Link>Utilities/InternalCollections.fsi</Link>
@@ -197,23 +210,17 @@
     <Compile Include="..\InternalCollections.fs">
       <Link>Utilities/InternalCollections.fs</Link>
     </Compile>
-    <Compile Include="..\QueueList.fs">
-      <Link>Utilities/QueueList.fs</Link>
+    <Compile Include="..\rational.fsi">
+      <Link>Utilities/rational.fsi</Link>
     </Compile>
-    <Compile Include="..\lib.fs">
-      <Link>Utilities/lib.fs</Link>
+    <Compile Include="..\rational.fs">
+      <Link>Utilities/rational.fs</Link>
     </Compile>
     <Compile Include="..\TraceCall.fsi">
       <Link>Utilities/TraceCall.fsi</Link>
     </Compile>
     <Compile Include="..\TraceCall.fs">
       <Link>Utilities/TraceCall.fs</Link>
-    </Compile>
-    <Compile Include="..\rational.fsi">
-      <Link>ErrorLogging\rational.fsi</Link>
-    </Compile>
-    <Compile Include="..\rational.fs">
-      <Link>ErrorLogging\rational.fs</Link>
     </Compile>
     <Compile Include="..\range.fsi">
       <Link>ErrorLogging/range.fsi</Link>
@@ -223,6 +230,9 @@
     </Compile>
     <Compile Include="..\ErrorLogger.fs">
       <Link>ErrorLogging/ErrorLogger.fs</Link>
+    </Compile>
+    <Compile Include="..\ReferenceResolution.fsi">
+      <Link>ReferenceResolution/ReferenceResolution.fsi</Link>
     </Compile>
     <Compile Include="..\ReferenceResolution.fs">
       <Link>ReferenceResolution/ReferenceResolution.fs</Link>

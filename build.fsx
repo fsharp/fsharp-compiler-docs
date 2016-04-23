@@ -214,6 +214,41 @@ Target "GitHubRelease" (fun _ ->
 )
 
 // --------------------------------------------------------------------------------------
+// .NET CLI and .NET Core
+
+// TODO: rework next line when workaround is available 
+let isDotnetCliInstalled = buildServer = BuildServer.LocalBuild && Shell.Exec("dotnet", "--info") = 0
+let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
+
+Target "DotnetCliBuild" (fun _ ->
+    let fsLex  = @"lib/bootstrap/4.0/fslex.exe"
+    let fsYacc = @"lib/bootstrap/4.0/fsyacc.exe"
+    let outPath = @"src/fsharp/FSharp.Compiler.Service.netcore/"
+    let lexArgs = @" --lexlib Internal.Utilities.Text.Lexing"
+    let yaccArgs = @" --internal --parslib Internal.Utilities.Text.Parsing"
+    let module1 = @" --module Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser"
+    let module2 = @" --module Microsoft.FSharp.Compiler.Parser"
+    let module3 = @" --module Microsoft.FSharp.Compiler.PPParser"
+    let open1 = @" --open Microsoft.FSharp.Compiler.AbstractIL"
+    let open2 = @" --open Microsoft.FSharp.Compiler"
+    let open3 = @" --open Microsoft.FSharp.Compiler"
+    let options = " --configuration Release"
+    
+    Shell.Exec("dotnet", "restore", outPath) |> ignore //assertExitCodeZero
+
+    Shell.Exec("dotnet", "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx", outPath) |> assertExitCodeZero
+    Shell.Exec("dotnet", "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx", outPath) |> assertExitCodeZero
+    Shell.Exec(fsLex, @"../lex.fsl --unicode" + lexArgs + " -o lex.fs", outPath) |> assertExitCodeZero
+    Shell.Exec(fsLex, @"../pplex.fsl --unicode" + lexArgs + " -o pplex.fs", outPath) |> assertExitCodeZero
+    Shell.Exec(fsLex, @"../../absil/illex.fsl --unicode" + lexArgs + " -o illex.fs", outPath) |> assertExitCodeZero
+    Shell.Exec(fsYacc, @"../../absil/ilpars.fsy" + lexArgs + yaccArgs + module1 + open1 + " -o ilpars.fs", outPath) |> assertExitCodeZero
+    Shell.Exec(fsYacc, @"../pars.fsy" + lexArgs + yaccArgs + module2 + open2 + " -o pars.fs", outPath) |> assertExitCodeZero
+    Shell.Exec(fsYacc, @"../pppars.fsy" + lexArgs + yaccArgs + module3 + open3 + " -o pppars.fs", outPath) |> assertExitCodeZero
+
+    Shell.Exec("dotnet", "--verbose pack" + options, outPath) |> assertExitCodeZero
+)
+
+// --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
 Target "Prepare" DoNothing
@@ -226,6 +261,7 @@ Target "Release" DoNothing
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
   ==> "Prepare"
+  =?> ("DotnetCliBuild", isDotnetCliInstalled)
   ==> "Build"
   ==> "RunTests"
   ==> "All"

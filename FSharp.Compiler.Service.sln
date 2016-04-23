@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{B6B68AE6-E7A4-4D43-9B34-FFA74BFE192B}"
 	ProjectSection(SolutionItems) = preProject
@@ -76,21 +76,24 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|x86.ActiveCfg = Debug|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|x86.Build.0 = Debug|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|Any CPU.ActiveCfg = Release|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|Mixed Platforms.ActiveCfg = Release|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|Mixed Platforms.Build.0 = Release|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|x86.ActiveCfg = Release|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|x86.Build.0 = Release|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|Any CPU.ActiveCfg = Release|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|Mixed Platforms.Build.0 = Release|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|x86.ActiveCfg = Release|x86
-		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|x86.Build.0 = Release|x86
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Debug|x86.Build.0 = Debug|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|Any CPU.ActiveCfg = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|Any CPU.Build.0 = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|Mixed Platforms.Build.0 = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|x86.ActiveCfg = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Proto|x86.Build.0 = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|x86.ActiveCfg = Release|Any CPU
+		{2E4D67B4-522D-4CF7-97E4-BA940F0B18F3}.Release|x86.Build.0 = Release|Any CPU
 		{A40507D6-FA48-43D3-B18A-AE3DAACE4020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A40507D6-FA48-43D3-B18A-AE3DAACE4020}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A40507D6-FA48-43D3-B18A-AE3DAACE4020}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

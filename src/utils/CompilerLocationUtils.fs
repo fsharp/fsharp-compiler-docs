@@ -256,6 +256,7 @@ module internal FSharpEnvironment =
     //     - default F# binaries directory in (project system) Project.fs
 #if NO_WIN_REGISTRY
     let BinFolderOfDefaultFSharpCompiler(probePoint:string option) = 
+        ignore probePoint
 #if FX_NO_APP_DOMAINS
         Some System.AppContext.BaseDirectory
 #else

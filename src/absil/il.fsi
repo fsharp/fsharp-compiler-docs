@@ -2276,7 +2276,6 @@ type ILPropertyRef =
      member Name: string
      interface System.IComparable
 
-val runningOnWindows: bool
 val runningOnMono: bool
 
 type ILReferences = 

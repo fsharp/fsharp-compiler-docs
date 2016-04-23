@@ -1716,7 +1716,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
         match GetScalarResult(finalizedTypeCheckNode,build) with
         | Some((ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt, tcAcc), timestamp) -> 
             PartialCheckResults.Create (tcAcc,timestamp), ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt
-        | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
+        | None -> failwith "Build was not evaluated, expected the results to be ready after 'Eval'."
         
     member __.GetLogicalTimeStampForProject(cache) = 
         let t1 = MaxTimeStampInDependencies cache stampedFileNamesNode 
@@ -1749,7 +1749,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
             let build = IncrementalBuild.Eval cache (Target(parseTreesNode, Some slotOfFile)) partialBuild
             match GetVectorResultBySlot(parseTreesNode,slotOfFile,build) with
             | Some (results, _) -> results
-            | None -> failwith "Build was not evaluated, expcted the results to be ready after 'Eval'."
+            | None -> failwith "Build was not evaluated, expected the results to be ready after 'Eval'."
 
     member __.ProjectFileNames  = sourceFiles  |> List.map (fun (_,f,_) -> f)
 

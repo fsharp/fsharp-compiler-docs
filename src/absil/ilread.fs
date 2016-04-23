@@ -3970,7 +3970,8 @@ let ClosePdbReader pdb =
 #endif
 
 let OpenILModuleReader infile opts = 
-    if IL.runningOnWindows then
+
+    if not runningOnMono then
         let mmap = MemoryMappedFile.Create infile
         let modul,ilAssemblyRefs,pdb = genOpenBinaryReader infile mmap opts
         { modul = modul; 

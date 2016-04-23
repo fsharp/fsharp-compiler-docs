@@ -217,7 +217,7 @@ Target "GitHubRelease" (fun _ ->
 // .NET CLI and .NET Core
 
 // TODO: rework next line when workaround is available 
-let isDotnetCliInstalled = buildServer = BuildServer.LocalBuild && Shell.Exec("dotnet", "--info") = 0
+let isDotnetCliInstalled = (try buildServer = BuildServer.LocalBuild && Shell.Exec("dotnet", "--info") = 0 with _ -> false)
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 
 Target "DotnetCliBuild" (fun _ ->

@@ -93,6 +93,8 @@ module internal Utilities =
 
     let ignoreAllErrors f = try f() with _ -> ()
 
+// restore type alias
+type BindingFlags = System.Reflection.BindingFlags
 
 //----------------------------------------------------------------------------
 // Timing support
@@ -2504,7 +2506,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     let commitResult res = 
         match res with 
         | Choice1Of2 r -> r
-        | Choice2Of2 None -> failwith "Operation failed. The error text has been print the error stream. To return the corresponding FSharpErrorInfo use the EvalInteractionNonThrowing, EvalScriptNonThrowing or EvalExpressionNonThrowing"
+        | Choice2Of2 None -> failwith "Operation failed. The error text has been printed in the error stream. To return the corresponding FSharpErrorInfo use the EvalInteractionNonThrowing, EvalScriptNonThrowing or EvalExpressionNonThrowing"
         | Choice2Of2 (Some userExn) -> raise userExn
 
     let commitResultNonThrowing tcConfig scriptFile (errorLogger: CompilationErrorLogger) res = 
@@ -2720,11 +2722,21 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     static member Create(fsiConfig, argv, inReader, outWriter, errorWriter, ?collectible) = 
         new FsiEvaluationSession(fsiConfig, argv, inReader, outWriter, errorWriter, defaultArg collectible false)
 
-    static member GetDefaultConfiguration(fsiObj:obj) =  FsiEvaluationSession.GetDefaultConfiguration(fsiObj, true)
-    static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) = 
+    static member GetDefaultConfiguration(fsiObj:obj) = FsiEvaluationSession.GetDefaultConfiguration(fsiObj, true)
     
-        let rec tryFindMember (name : string) (memberType : MemberTypes) (declaringType : Type) =
-            match declaringType.GetMember(name) with
+    static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) =
+    
+        let getMember (name: string) (memberType: MemberTypes) (attr: BindingFlags) (declaringType: Type) =
+            let memberType =
+                if memberType &&& MemberTypes.NestedType = MemberTypes.NestedType then
+                    memberType ||| MemberTypes.TypeInfo
+                else
+                    memberType
+            declaringType.GetMembers(attr) |> Array.filter(fun m -> 0 <> (int(m.MemberType &&& memberType)) && m.Name = name)
+
+        let rec tryFindMember (name: string) (memberType: MemberTypes) (declaringType: Type) =
+            let bindingFlags = BindingFlags.Instance ||| BindingFlags.Public ||| BindingFlags.NonPublic
+            match declaringType |> getMember name memberType bindingFlags with
             | [||] -> declaringType.GetInterfaces() |> Array.tryPick (tryFindMember name memberType)
             | [|m|] -> Some m
             | _ -> raise <| new AmbiguousMatchException(sprintf "Ambiguous match for member '%s'" name)

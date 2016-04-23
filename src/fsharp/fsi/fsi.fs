@@ -93,8 +93,10 @@ module internal Utilities =
 
     let ignoreAllErrors f = try f() with _ -> ()
 
+#if FX_RESHAPED_REFLECTION
 // restore type alias
 type BindingFlags = System.Reflection.BindingFlags
+#endif
 
 //----------------------------------------------------------------------------
 // Timing support
@@ -2726,6 +2728,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     
     static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) =
     
+        // TODO: this dotnet/core polyfill can be removed when it surfaces in Type
         let getMember (name: string) (memberType: MemberTypes) (attr: BindingFlags) (declaringType: Type) =
             let memberType =
                 if memberType &&& MemberTypes.NestedType = MemberTypes.NestedType then

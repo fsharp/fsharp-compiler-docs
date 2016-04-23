@@ -216,14 +216,12 @@ Target "GitHubRelease" (fun _ ->
 // --------------------------------------------------------------------------------------
 // .NET CLI and .NET Core
 
-// TODO: rework next line when workaround is available 
-let isDotnetCliInstalled = (try buildServer = BuildServer.LocalBuild && Shell.Exec("dotnet", "--info") = 0 with _ -> false)
+let isDotnetCliInstalled = (try Shell.Exec("dotnet", "--info") = 0 with _ -> false)
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 
 Target "DotnetCliBuild" (fun _ ->
     let fsLex  = @"lib/bootstrap/4.0/fslex.exe"
     let fsYacc = @"lib/bootstrap/4.0/fsyacc.exe"
-    let outPath = @"src/fsharp/FSharp.Compiler.Service.netcore/"
     let lexArgs = @" --lexlib Internal.Utilities.Text.Lexing"
     let yaccArgs = @" --internal --parslib Internal.Utilities.Text.Parsing"
     let module1 = @" --module Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser"
@@ -234,6 +232,7 @@ Target "DotnetCliBuild" (fun _ ->
     let open3 = @" --open Microsoft.FSharp.Compiler"
     let options = " --configuration Release"
     
+    let outPath = @"src/fsharp/FSharp.Compiler.Service.netcore/"
     Shell.Exec("dotnet", "restore", outPath) |> ignore //assertExitCodeZero
 
     Shell.Exec("dotnet", "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx", outPath) |> assertExitCodeZero

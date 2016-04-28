@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-*",
-  "compilerName": "fsc",
-  "compilationOptions": {
+  "buildOptions": {
+    "compilerName": "fsc",
     "define": [
       "BUILDING_WITH_LKG",
       "COMPILED_AS_LANGUAGE_SERVICE_DLL",

@@ -1543,7 +1543,6 @@ let OutputErrorOrWarningContext prefix fileLineFn os err =
 
 let GetFSharpCoreLibraryName () = "FSharp.Core"
 
-type internal TypeInThisAssembly = class end
 let GetFSharpCoreReferenceUsedByCompiler(useMonoResolution) = 
   // On Mono, there is no good reference resolution
   if useMonoResolution then 
@@ -1555,10 +1554,10 @@ let GetFSharpCoreReferenceUsedByCompiler(useMonoResolution) =
     // So use the fsharp.core.dll from alongside the fsc compiler.
     // This can also be used for the out of gac work on DEV15
     let fscCoreLocation = 
-        let fscLocation = typeof<TypeInThisAssembly>.Assembly.Location
+        let fscLocation = typeof<Microsoft.FSharp.Core.MeasureAttribute>.Assembly.Location
         Path.Combine(Path.GetDirectoryName(fscLocation), fsCoreName + ".dll")
     if File.Exists(fscCoreLocation) then fsCoreName + ".dll"
-    else failwithf "Internal error: Could not find %s" fsCoreName
+    else failwithf "Internal error: Could not find %s" fscCoreLocation
 #else
     // check if FSharp.Core can be found from the hosting environment
     let foundReference =

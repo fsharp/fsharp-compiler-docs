@@ -5,6 +5,10 @@ open System.Collections.Generic
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
+#if FX_RESHAPED_REFLECTION
+open ReflectionAdapters
+#endif
+
 // Create one global interactive checker instance 
 let checker = FSharpChecker.Create()
 
@@ -37,10 +41,16 @@ let getBackgroundCheckResultsForScriptText (input) =
 
 
 let sysLib nm = 
+#if !FX_ATLEAST_PORTABLE
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
         @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\" + nm + ".dll"
     else
+#endif
+#if FX_NO_RUNTIMEENVIRONMENT
+        let sysDir = System.AppContext.BaseDirectory
+#else
         let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+#endif
         let (++) a b = System.IO.Path.Combine(a,b)
         sysDir ++ nm + ".dll" 
 
@@ -51,9 +61,11 @@ module Helpers =
     let PathRelativeToTestAssembly p = Path.Combine(Path.GetDirectoryName(Uri(typeof<DummyType>.Assembly.CodeBase).LocalPath), p)
 
 let fsCoreDefaultReference() = 
+#if !FX_ATLEAST_PORTABLE
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
         @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0\FSharp.Core.dll"  
     else 
+#endif
         sysLib "FSharp.Core"
 
 

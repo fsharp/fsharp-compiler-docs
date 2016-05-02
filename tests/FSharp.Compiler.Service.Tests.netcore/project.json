@@ -4,9 +4,12 @@
     "compilerName": "fsc",
     "emitEntryPoint": true,
     "define": [
+      "DOTNETCORE",
+      "FX_ATLEAST_45",
       "FX_ATLEAST_PORTABLE",
       "FX_NO_RUNTIMEENVIRONMENT",
       "FX_RESHAPED_REFLECTION",
+      "TODO_REWORK_ASSEMBLY_LOAD",
       "TRACE",
     ],
     "nowarn": [
@@ -27,27 +30,27 @@
     "../service/FsUnit.fs",
     "../service/Common.fs",
     "../service/EditorTests.fs",
+    "../service/TokenizerTests.fs",
 
     "Program.fs",
   ],
-  "compileFiles_not_used": [
+  "compileFiles_not_included_yet": [
     "../service/FsiTests.fs",
     "../service/FscTests.fs",
-    "../service/TokenizerTests.fs",
     "../service/ProjectAnalysisTests.fs",
     "../service/ProjectOptionsTests.fs",
-    "../service/MultiProjectAnalysisTests.fs",
     "../service/PerfTests.fs",
     "../service/InteractiveCheckerTests.fs",
-    "../service/ExprTests.fs",
         
+    "../service/ExprTests.fs",
     "../service/FileSystemTests.fs",
     "../service/CSharpProjectAnalysis.fs",
+    "../service/MultiProjectAnalysisTests.fs",
   ],  
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-*"
+      "version": "1.0.0-rc2-3002543"
     },
     "Microsoft.FSharp.Core.netcore": "1.0.0-*",
     "FSharp.Compiler.Service.netcore": "1.0.0-*",

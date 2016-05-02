@@ -13,8 +13,52 @@ open ReflectionAdapters
 let checker = FSharpChecker.Create()
 
 let parseAndCheckScript (file, input) = 
-    let checkOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
-    let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, checkOptions) |> Async.RunSynchronously
+
+#if TODO_REWORK_ASSEMBLY_LOAD
+    let projectOptions =
+    
+        let references = [
+            typeof<System.Object>.Assembly.Location; // mscorlib
+            typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
+            typeof<Microsoft.FSharp.Core.MeasureAttribute>.Assembly.Location; // FSharp.Core
+            ]
+            
+        //printfn "references = %A" references
+
+        let allFlags = [|
+            yield "--noframework"; 
+            yield "--warn:3";
+            //yield "--simpleresolution";  
+            //yield "--debug:full"; 
+            //yield "--define:DEBUG"; 
+            //yield "--optimize-"; 
+            //yield "--doc:test.xml"; 
+            //yield "--fullpaths"; 
+            //yield "--flaterrors"; 
+            //yield "--target:library"; 
+            //yield "--targetprofile:netcore"; 
+            for r in references do
+                yield "-r:" + r
+            |]
+                     
+        { ProjectFileName = file + ".fsproj"
+          ProjectFileNames = [| file |]
+          OtherOptions = allFlags 
+          ReferencedProjects = [| |];
+          IsIncompleteTypeCheckEnvironment = false
+          UseScriptResolutionRules = true 
+          LoadTime = System.DateTime.MaxValue // Not 'now', we don't want to force reloading
+          UnresolvedReferences = None }
+#else    
+    let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
+#endif
+
+    let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, projectOptions) |> Async.RunSynchronously
+    
+    // if parseResult.Errors.Length > 0 then
+    //     printfn "---> Parse Input = %A" input
+    //     printfn "---> Parse Error = %A" parseResult.Errors
+
     match typedRes with
     | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
     | res -> failwithf "Parsing did not finish... (%A)" res

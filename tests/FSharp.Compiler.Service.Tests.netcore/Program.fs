@@ -8,7 +8,7 @@ type private TypeInThisAssembly = class end
 
 [<EntryPoint>]
 let main argv = 
-    printfn "Testing...Testing...1...2...3..."
+    printfn "Dotnet Core NUnit Tests..."
     let writer = new ExtendedTextWrapper(Console.Out)
     let runner = new AutoRun(typeof<TypeInThisAssembly>.GetTypeInfo().Assembly)
     runner.Execute(argv, writer, Console.In)

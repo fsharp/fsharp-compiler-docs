@@ -59,7 +59,6 @@
       "PREFERRED_UI_LANG",
       "PUT_TYPE_PROVIDERS_IN_FSCORE",
       "QUERIES_IN_FSLIB",
-      "RESHAPED_MSBUILD",
       "SIGNED",
       "STRONG_NAME_AND_DELAY_SIGN_FSHARP_COMPILER_WITH_MSFT_KEY",
       "TODO_REWORK_ASSEMBLY_LOAD",
@@ -97,7 +96,6 @@
     "FSComp.fs",
     "FSIstrings.fs",
     "../../utils/reshapedreflection.fs",
-    "../../utils/reshapedmsbuild.fs",
     "../../utils/sformat.fsi",
     "../../utils/sformat.fs",
     "../sr.fsi",
@@ -258,11 +256,14 @@
     "../fsi/fsi.fs"
   ],
   "dependencies": {
-    "Microsoft.FSharp.Core.netcore": "1.0.0-*",
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002471"
-    }
+      "version": "1.0.0-rc2-3002543"
+    },
+    "Microsoft.Build.Framework": "0.1.0-*",
+    "Microsoft.Build.Tasks.Core": "0.1.0-*",
+    "Microsoft.Build.Utilities.Core": "0.1.0-*",
+    "Microsoft.FSharp.Core.netcore": "1.0.0-*",
   },
   "tools": {
     "dotnet-fssrgen": "3.0.1",

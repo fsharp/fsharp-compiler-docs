@@ -2118,7 +2118,12 @@ type TcConfigBuilder =
         System.Diagnostics.Debug.Assert(FileSystem.IsPathRootedShim(implicitIncludeDir), sprintf "implicitIncludeDir should be absolute: '%s'" implicitIncludeDir)
         if (String.IsNullOrEmpty(defaultFSharpBinariesDir)) then 
             failwith "Expected a valid defaultFSharpBinariesDir"
-        { primaryAssembly = PrimaryAssembly.Mscorlib; // defaut value, can be overridden using the command line switch
+        {
+#if TODO_REWORK_ASSEMBLY_LOAD
+          primaryAssembly = PrimaryAssembly.DotNetCore; // defaut value, can be overridden using the command line switch
+#else
+          primaryAssembly = PrimaryAssembly.Mscorlib; // defaut value, can be overridden using the command line switch
+#endif          
           light = None;
           noFeedback=false;
           stackReserveSize=None;
@@ -4843,6 +4848,7 @@ module private ScriptPreprocessClosure =
 #else
             | CodeContext.Compilation | CodeContext.Evaluation -> MSBuildResolver.CompileTimeLike
 #endif
+        tcConfigB.useMonoResolution <- useMonoResolution
         tcConfigB.framework <- false 
         // Indicates that there are some references not in BasicReferencesForScriptLoadClosure which should
         // be added conditionally once the relevant version of mscorlib.dll has been detected.

@@ -31,18 +31,18 @@
     "../service/Common.fs",
     "../service/EditorTests.fs",
     "../service/TokenizerTests.fs",
-
+    "../service/ProjectAnalysisTests.fs",
+    "../service/InteractiveCheckerTests.fs",        
+    
     "Program.fs",
   ],
   "compileFiles_not_included_yet": [
     "../service/FsiTests.fs",
     "../service/FscTests.fs",
-    "../service/ProjectAnalysisTests.fs",
     "../service/ProjectOptionsTests.fs",
     "../service/PerfTests.fs",
-    "../service/InteractiveCheckerTests.fs",
-        
     "../service/ExprTests.fs",
+
     "../service/FileSystemTests.fs",
     "../service/CSharpProjectAnalysis.fs",
     "../service/MultiProjectAnalysisTests.fs",

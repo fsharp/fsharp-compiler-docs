@@ -9,46 +9,46 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open ReflectionAdapters
 #endif
 
+let mkProjectCommandLineArgs (dllName, fileNames) = 
+    [|  yield "--simpleresolution" 
+        yield "--noframework" 
+        yield "--debug:full" 
+        yield "--define:DEBUG" 
+        yield "--optimize-" 
+        yield "--out:" + dllName
+        yield "--doc:test.xml" 
+        yield "--warn:3" 
+        yield "--fullpaths" 
+        yield "--flaterrors" 
+        yield "--target:library" 
+        for x in fileNames do 
+            yield x
+        let references =
+#if TODO_REWORK_ASSEMBLY_LOAD
+            [ yield typeof<System.Object>.Assembly.Location; // mscorlib
+              yield typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
+              yield typeof<Microsoft.FSharp.Core.MeasureAttribute>.Assembly.Location; // FSharp.Core
+            ]
+#else        
+            [ yield sysLib "mscorlib"
+              yield sysLib "System"
+              yield sysLib "System.Core"
+              yield fsCoreDefaultReference() ]
+#endif              
+        for r in references do
+            yield "-r:" + r
+     |]
+
 // Create one global interactive checker instance 
 let checker = FSharpChecker.Create()
 
 let parseAndCheckScript (file, input) = 
 
 #if TODO_REWORK_ASSEMBLY_LOAD
-    let projectOptions =
-    
-        let references = [
-            typeof<System.Object>.Assembly.Location; // mscorlib
-            typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
-            typeof<Microsoft.FSharp.Core.MeasureAttribute>.Assembly.Location; // FSharp.Core
-            ]
-            
-        //printfn "references = %A" references
-
-        let allFlags = [|
-            yield "--noframework"; 
-            yield "--warn:3";
-            //yield "--simpleresolution";  
-            //yield "--debug:full"; 
-            //yield "--define:DEBUG"; 
-            //yield "--optimize-"; 
-            //yield "--doc:test.xml"; 
-            //yield "--fullpaths"; 
-            //yield "--flaterrors"; 
-            //yield "--target:library"; 
-            //yield "--targetprofile:netcore"; 
-            for r in references do
-                yield "-r:" + r
-            |]
-                     
-        { ProjectFileName = file + ".fsproj"
-          ProjectFileNames = [| file |]
-          OtherOptions = allFlags 
-          ReferencedProjects = [| |];
-          IsIncompleteTypeCheckEnvironment = false
-          UseScriptResolutionRules = true 
-          LoadTime = System.DateTime.MaxValue // Not 'now', we don't want to force reloading
-          UnresolvedReferences = None }
+    let dllName = Path.ChangeExtension(file, ".dll")
+    let projName = Path.ChangeExtension(file, ".fsproj")    
+    let args = mkProjectCommandLineArgs (dllName, [file])
+    let projectOptions =  checker.GetProjectOptionsFromCommandLineArgs (projName, args)
 #else    
     let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
 #endif
@@ -111,29 +111,6 @@ let fsCoreDefaultReference() =
     else 
 #endif
         sysLib "FSharp.Core"
-
-
-let mkProjectCommandLineArgs (dllName, fileNames) = 
-    [|  yield "--simpleresolution" 
-        yield "--noframework" 
-        yield "--debug:full" 
-        yield "--define:DEBUG" 
-        yield "--optimize-" 
-        yield "--out:" + dllName
-        yield "--doc:test.xml" 
-        yield "--warn:3" 
-        yield "--fullpaths" 
-        yield "--flaterrors" 
-        yield "--target:library" 
-        for x in fileNames do 
-            yield x
-        let references = 
-            [ yield sysLib "mscorlib"
-              yield sysLib "System"
-              yield sysLib "System.Core"
-              yield fsCoreDefaultReference() ]
-        for r in references do
-                yield "-r:" + r |]
 
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)

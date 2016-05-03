@@ -258,7 +258,7 @@
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002543"
+      "version": "1.0.0-rc2-*"
     },
     "Microsoft.Build.Framework": "0.1.0-*",
     "Microsoft.Build.Tasks.Core": "0.1.0-*",

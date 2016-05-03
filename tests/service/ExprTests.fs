@@ -741,6 +741,8 @@ let ``Test expressions of declarations stress big expressions`` () =
     printDeclarations None (List.ofSeq file1.Declarations) |> Seq.toList |> ignore
 
 
+#if SELF_HOST_STRESS
+
 #if FX_ATLEAST_45
 
 [<Test>]
@@ -791,8 +793,6 @@ let ``Check use of type provider that provides calls to F# code`` () =
        """member get_X14(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothingTwoArg (new C(),3) @ (19,22--19,55)"""]
    
 #endif
-
-#if SELF_HOST_STRESS
 
 [<Test>]
 let ``Test Declarations selfhost`` () =

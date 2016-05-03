@@ -30,6 +30,7 @@
     "../service/FsUnit.fs",
     "../service/Common.fs",
     "../service/EditorTests.fs",
+    "../service/ExprTests.fs",
     "../service/TokenizerTests.fs",
     "../service/ProjectAnalysisTests.fs",
     "../service/InteractiveCheckerTests.fs",        
@@ -41,7 +42,6 @@
     "../service/FscTests.fs",
     "../service/ProjectOptionsTests.fs",
     "../service/PerfTests.fs",
-    "../service/ExprTests.fs",
 
     "../service/FileSystemTests.fs",
     "../service/CSharpProjectAnalysis.fs",
@@ -50,7 +50,7 @@
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002543"
+      "version": "1.0.0-rc2-*"
     },
     "Microsoft.FSharp.Core.netcore": "1.0.0-*",
     "FSharp.Compiler.Service.netcore": "1.0.0-*",

@@ -252,6 +252,7 @@ Target "DotnetCliTests" (fun _ ->
     Shell.Exec("dotnet", "restore", workDir) |> ignore //assertExitCodeZero
     Shell.Exec("dotnet", "run", workDir) |> assertExitCodeZero
 )
+
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
@@ -259,13 +260,17 @@ Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "All" DoNothing
 Target "Release" DoNothing
+Target "AllDotnetCli" DoNothing
+
+"AllDotnetCli"
+  =?> ("DotnetCliBuild", isDotnetCliInstalled)
+  =?> ("DotnetCliTests", isDotnetCliInstalled)
 
 "Clean"
   =?> ("BuildVersion", isAppVeyorBuild)
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
   ==> "Prepare"
-  =?> ("DotnetCliBuild", isDotnetCliInstalled)
   ==> "Build"
   ==> "RunTests"
   ==> "All"

@@ -48,21 +48,27 @@
     "../service/MultiProjectAnalysisTests.fs",
   ],  
   "dependencies": {
+    "Microsoft.FSharp.Core.netcore": "1.0.0-*",
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-*"
+      "version": "1.0.0-rc2-3002673"
     },
-    "Microsoft.FSharp.Core.netcore": "1.0.0-*",
     "FSharp.Compiler.Service.netcore": "1.0.0-*",
     "NUnitLite": "3.2.1",
   },
   "tools": {
-    "dotnet-compile-fsc": "1.0.0-*"
+    "dotnet-compile-fsc": {
+      "version": "1.0.0-rc2-*",
+      "imports": [
+        "dnxcore50",
+        "portable-net45+win81",
+        "netstandard1.3"
+      ]
+    }
   },
   "frameworks": {
     "netstandard1.5": {
       "imports": [
-        "portable-net45+win8",
         "dnxcore50"
       ]
     }

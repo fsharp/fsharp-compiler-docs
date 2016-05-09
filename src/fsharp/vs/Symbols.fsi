@@ -167,7 +167,7 @@ and [<Class>] FSharpEntity =
     /// Indicates if the entity is an array type
     member IsArrayType : bool
 
-    /// Gets the rank of an array type
+    /// Get the rank of an array type
     member ArrayRank : int
 
     /// Indicates if the entity is a 'fake' symbol related to a static instantiation of a type provider

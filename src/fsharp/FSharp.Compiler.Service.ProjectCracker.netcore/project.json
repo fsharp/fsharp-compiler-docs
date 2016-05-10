@@ -5,35 +5,13 @@
     "emitEntryPoint": true,
     "compile": {
       "includeFiles": [
-        "ReshapedReflection.fs",
-        "../service/FsUnit.fs",
-        "../service/Common.fs",
-        "../service/EditorTests.fs",
-        "../service/ExprTests.fs",
-        "../service/TokenizerTests.fs",
-
+        "ProjectCrackerOptions.fs",        
+        "ProjectCrackerTool.fs",        
+        "ProjectCracker.fs",
         "Program.fs",
-      ],
-      "excludeFiles": [
-        "../service/ProjectAnalysisTests.fs",
-        "../service/InteractiveCheckerTests.fs",
-        "../service/FscTests.fs",
-        "../service/ProjectOptionsTests.fs",
-        "../service/PerfTests.fs",
-        "../service/FileSystemTests.fs",
-        
-        "../service/FsiTests.fs",
-        "../service/MultiProjectAnalysisTests.fs",
-        "../service/CSharpProjectAnalysis.fs",
       ],
     },
     "define": [
-      "DOTNETCORE",
-      "FX_ATLEAST_45",
-      "FX_ATLEAST_PORTABLE",
-      "FX_NO_RUNTIMEENVIRONMENT",
-      "FX_RESHAPED_REFLECTION",
-      "TODO_REWORK_ASSEMBLY_LOAD",
       "TRACE",
     ],
     "nowarn": [
@@ -53,10 +31,13 @@
       "type": "platform",
       "version": "1.0.0-rc2-3002700"
     },
+    "Microsoft.Build": "0.1.0-*",
+    "Microsoft.Build.Framework": "0.1.0-*",
+    "Microsoft.Build.Tasks.Core": "0.1.0-*",
+    "Microsoft.Build.Utilities.Core": "0.1.0-*",
+    "System.Runtime.Serialization.Json": "4.0.2-rc2-*",
     "Microsoft.FSharp.Core.netcore": "1.0.0-*",
     "FSharp.Compiler.Service.netcore": "1.0.0-*",
-    "FSharp.Compiler.Service.ProjectCracker.netcore": "1.0.0-*",
-    "NUnitLite": "3.2.1",
   },
   "tools": {
     "dotnet-compile-fsc": {

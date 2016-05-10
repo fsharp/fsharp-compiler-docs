@@ -27,7 +27,11 @@ let errStream = new CompilerOutputStream()
 let argv = [| "C:\\fsi.exe" |]
 let allArgs = Array.append argv [|"--noninteractive"|]
 
+#if DOTNETCORE
+let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
+#else
 let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(fsi)
+#endif
 let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, new StreamWriter(outStream), new StreamWriter(errStream))  
 
 /// Evaluate expression & return the result

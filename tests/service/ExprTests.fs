@@ -813,7 +813,7 @@ let ``Test Declarations selfhost`` () =
 [<Test>]
 let ``Test Declarations selfhost whole compiler`` () =
     
-    Environment.CurrentDirectory <-  __SOURCE_DIRECTORY__ +  @"/../../src/fsharp/FSharp.Compiler.Service"
+    Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__ +  @"/../../src/fsharp/FSharp.Compiler.Service")
     let projectFile = __SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
 
     //let v = FSharpProjectFileInfo.Parse(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")],enableLogging=true)
@@ -852,7 +852,7 @@ let ``Test Declarations selfhost whole compiler`` () =
 [<Test>]
 let ``Test Declarations selfhost FSharp.Core`` () =
     
-    Environment.CurrentDirectory <-  __SOURCE_DIRECTORY__ +  @"/../../../fsharp/src/fsharp/FSharp.Core"
+    Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__ +  @"/../../../fsharp/src/fsharp/FSharp.Core")
     let projectFile = __SOURCE_DIRECTORY__ + @"/../../../fsharp/src/fsharp/FSharp.Core/FSharp.Core.fsproj"
 
     let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])

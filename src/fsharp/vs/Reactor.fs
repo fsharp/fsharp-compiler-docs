@@ -9,13 +9,6 @@ open Microsoft.FSharp.Control
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Lib
 
-// TODO: not sure why Trace is not defined in System.Diagnostics, why do we have to redefine it here
-type internal Trace() =
-    [<Conditional("TRACE")>]
-    static member TraceInformation(format: string, [<ParamArray>] args: obj []) =
-        let s = String.Format(format, args)
-        ignore s
-
 /// Represents the capability to schedule work in the compiler service operations queue for the compilation thread
 type internal IReactorOperations = 
     abstract EnqueueAndAwaitOpAsync : string * (CancellationToken -> 'T) -> Async<'T>

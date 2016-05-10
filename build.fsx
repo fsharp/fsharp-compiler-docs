@@ -230,10 +230,10 @@ Target "DotnetCliBuild" (fun _ ->
     let open1 = @" --open Microsoft.FSharp.Compiler.AbstractIL"
     let open2 = @" --open Microsoft.FSharp.Compiler"
     let open3 = @" --open Microsoft.FSharp.Compiler"
-    let options = " --configuration Release"
-    
+
+    // FSharp.Compiler.Service    
     let workDir = @"src/fsharp/FSharp.Compiler.Service.netcore/"
-    Shell.Exec("dotnet", "restore", workDir) |> ignore //assertExitCodeZero
+    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
 
     Shell.Exec("dotnet", "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx", workDir) |> assertExitCodeZero
     Shell.Exec("dotnet", "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx", workDir) |> assertExitCodeZero
@@ -244,12 +244,17 @@ Target "DotnetCliBuild" (fun _ ->
     Shell.Exec(fsYacc, @"../pars.fsy" + lexArgs + yaccArgs + module2 + open2 + " -o pars.fs", workDir) |> assertExitCodeZero
     Shell.Exec(fsYacc, @"../pppars.fsy" + lexArgs + yaccArgs + module3 + open3 + " -o pppars.fs", workDir) |> assertExitCodeZero
 
-    Shell.Exec("dotnet", "--verbose pack" + options, workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "pack -c Release", workDir) |> assertExitCodeZero
+    
+    // FSharp.Compiler.Service.ProjectCracker
+    let workDir = @"src/fsharp/FSharp.Compiler.Service.ProjectCracker.netcore/"
+    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "pack -c Release", workDir) |> assertExitCodeZero
 )
 
 Target "DotnetCliTests" (fun _ ->
     let workDir = @"tests/FSharp.Compiler.Service.Tests.netcore/"
-    Shell.Exec("dotnet", "restore", workDir) |> ignore //assertExitCodeZero
+    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
     Shell.Exec("dotnet", "run", workDir) |> assertExitCodeZero
 )
 

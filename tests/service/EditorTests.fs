@@ -54,7 +54,7 @@ let stringMethods =
 let input = 
   """
   open System
-
+  
   let foo() = 
     let msg = String.Concat("Hello"," ","world")
     if true then 
@@ -370,11 +370,11 @@ type Test() =
 [<Test>]
 let ``Printf specifiers for regular and verbatim strings`` () = 
     let input = 
-      """
+      """let os = System.Text.StringBuilder()
 let _ = Microsoft.FSharp.Core.Printf.printf "%A" 0
 let _ = Printf.printf "%A" 0
 let _ = Printf.kprintf (fun _ -> ()) "%A" 1
-let _ = Printf.bprintf null "%A" 1
+let _ = Printf.bprintf os "%A" 1
 let _ = sprintf "%*d" 1
 let _ = sprintf "%7.1f" 1.0
 let _ = sprintf "%-8.1e+567" 1.0
@@ -403,7 +403,7 @@ let _ = sprintf "        %*.1f" 3 4.5
 let _ = sprintf "         %6.*f" 3 4.5
 let _ = sprintf "          %6.*%" 3
 let _ =  printf "           %a" (fun _ _ -> ()) 2
-let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2
+let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2  //TODO: this fails in coreclr
 """
 
     let file = "/home/user/Test.fsx"
@@ -415,7 +415,7 @@ let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2
     |> shouldEqual [|(2, 45, 2, 46, 1); 
                      (3, 23, 3, 24, 1); 
                      (4, 38, 4, 39, 1); 
-                     (5, 29, 5, 30, 1); 
+                     (5, 27, 5, 28, 1); 
                      (6, 17, 6, 19, 2);
                      (7, 17, 7, 21, 1); 
                      (8, 17, 8, 22, 1);

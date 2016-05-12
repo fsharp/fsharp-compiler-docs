@@ -1961,7 +1961,10 @@ let main1OfAst (openBinariesInMemory, assemblyName, target, outfile, pdbFile, dl
     tcConfigB.framework <- not noframework 
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
     SetOptimizeSwitch tcConfigB OptionSwitch.On
-    SetDebugSwitch    tcConfigB None OptionSwitch.Off
+    SetDebugSwitch    tcConfigB None (
+        match pdbFile with
+        | Some _ -> OptionSwitch.On
+        | None -> OptionSwitch.Off)
     SetTailcallSwitch tcConfigB OptionSwitch.On
     tcConfigB.target <- target
     tcConfigB.sqmNumOfSourceFiles <- 1

@@ -2,7 +2,7 @@ init:
   - git config --global core.autocrlf input
 
 environment:
-  CLI_VERSION: 1.0.0-rc2-002678
+  CLI_VERSION: 1.0.0-rc2-002702
   #CLI_VERSION: Latest
   matrix:
     - BUILD_TARGET: DotnetCliTests

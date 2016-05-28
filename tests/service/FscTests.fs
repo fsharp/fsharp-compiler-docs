@@ -178,19 +178,6 @@ let compileAndVerify isDll debugMode assemblyName code dependencies =
     verifier.Verify outFile
     outFile
 
-let parseSourceCode (name : string, code : string) =
-    let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))
-    try Directory.CreateDirectory(location) |> ignore with _ -> ()
-
-    let projPath = Path.Combine(location, name + ".fsproj")
-    let filePath = Path.Combine(location, name + ".fs")
-    let dllPath = Path.Combine(location, name + ".dll")
-    let args = Common.mkProjectCommandLineArgs(dllPath, [filePath])
-    let options = checker.GetProjectOptionsFromCommandLineArgs(projPath, args)
-    let parseResults = checker.ParseFileInProject(filePath, code, options) |> Async.RunSynchronously
-    parseResults.ParseTree |> Option.toList
-
-
 let compileAndVerifyAst (name : string, ast : Ast.ParsedInput list, references : string list) =
     let outDir = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, references)))
     try Directory.CreateDirectory(outDir) |> ignore with _ -> ()
@@ -270,7 +257,7 @@ module Foo
 
     printfn "done!" // make the code have some initialization effect
 """
-    let ast = parseSourceCode("foo", code)
+    let ast = parseSourceCode("foo", code) |> Option.toList
     compileAndVerifyAst("foo", ast, [])
 
 [<Test>]
@@ -293,7 +280,7 @@ module Bar
     printfn "done!" // make the code have some initialization effect
 """
     let serviceAssembly = typeof<FSharpChecker>.Assembly.Location
-    let ast = parseSourceCode("bar", code)
+    let ast = parseSourceCode("bar", code) |> Option.toList
     compileAndVerifyAst("bar", ast, [serviceAssembly])
 
 

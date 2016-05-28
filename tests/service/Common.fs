@@ -79,6 +79,11 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
 #if TODO_REWORK_ASSEMBLY_LOAD
             [ yield typeof<System.Object>.Assembly.Location; // mscorlib
               yield typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
+              yield typeof<System.IO.BufferedStream>.Assembly.Location; // System.IO
+              yield typeof<System.Linq.Enumerable>.Assembly.Location; // System.Linq
+              yield typeof<System.Net.WebRequest>.Assembly.Location; // System.Net.Requests
+              yield typeof<System.Numerics.BigInteger>.Assembly.Location; // System.Runtime.Numerics
+              yield typeof<System.Threading.Tasks.TaskExtensions>.Assembly.Location; // System.Threading.Tasks
               yield typeof<Microsoft.FSharp.Core.MeasureAttribute>.Assembly.Location; // FSharp.Core
             ]
 #else        
@@ -91,13 +96,25 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
             yield "-r:" + r
      |]
 
+let parseSourceCode (name: string, code: string) =
+    let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))
+    try Directory.CreateDirectory(location) |> ignore with _ -> ()
+
+    let projPath = Path.Combine(location, name + ".fsproj")
+    let filePath = Path.Combine(location, name + ".fs")
+    let dllPath = Path.Combine(location, name + ".dll")
+    let args = mkProjectCommandLineArgs(dllPath, [filePath])
+    let options = checker.GetProjectOptionsFromCommandLineArgs(projPath, args)
+    let parseResults = checker.ParseFileInProject(filePath, code, options) |> Async.RunSynchronously
+    parseResults.ParseTree
+
 let parseAndCheckScript (file, input) = 
 
 #if TODO_REWORK_ASSEMBLY_LOAD
     let dllName = Path.ChangeExtension(file, ".dll")
     let projName = Path.ChangeExtension(file, ".fsproj")    
     let args = mkProjectCommandLineArgs (dllName, [file])
-    let projectOptions =  checker.GetProjectOptionsFromCommandLineArgs (projName, args)
+    let projectOptions = checker.GetProjectOptionsFromCommandLineArgs (projName, args)
 #else    
     let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
 #endif

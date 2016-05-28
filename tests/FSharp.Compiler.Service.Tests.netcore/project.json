@@ -1,8 +1,9 @@
 {
   "version": "1.0.0-*",
   "buildOptions": {
-    "compilerName": "fsc",
+    "debugType": "portable",
     "emitEntryPoint": true,
+    "compilerName": "fsc",
     "compile": {
       "includeFiles": [
         "ReshapedReflection.fs",
@@ -11,17 +12,15 @@
         "../service/EditorTests.fs",
         "../service/ExprTests.fs",
         "../service/TokenizerTests.fs",
-
+        "../service/PerfTests.fs",
+        "../service/InteractiveCheckerTests.fs",
         "Program.fs",
       ],
       "excludeFiles": [
         "../service/ProjectAnalysisTests.fs",
-        "../service/InteractiveCheckerTests.fs",
         "../service/FscTests.fs",
         "../service/ProjectOptionsTests.fs",
-        "../service/PerfTests.fs",
-        "../service/FileSystemTests.fs",
-        
+        "../service/FileSystemTests.fs",        
         "../service/FsiTests.fs",
         "../service/MultiProjectAnalysisTests.fs",
         "../service/CSharpProjectAnalysis.fs",
@@ -43,7 +42,6 @@
     "delaySign": true,
     "warningsAsErrors": true,
     "additionalArguments": [
-      "--warn:3",
       "--fullpaths",
       "--flaterrors",
     ],
@@ -51,16 +49,16 @@
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002700"
+      "version": "1.0.0-rc2-3002702"
     },
     "Microsoft.FSharp.Core.netcore": "1.0.0-*",
+    "NUnitLite": "3.2.1",
     "FSharp.Compiler.Service.netcore": "1.0.0-*",
     "FSharp.Compiler.Service.ProjectCracker.netcore": "1.0.0-*",
-    "NUnitLite": "3.2.1",
   },
   "tools": {
     "dotnet-compile-fsc": {
-      "version": "1.0.0-rc2-002678",
+      "version": "1.0.0-rc2-*",
       "imports": [
         "dnxcore50",
         "portable-net45+win81",
@@ -71,7 +69,7 @@
   "frameworks": {
     "netstandard1.5": {
       "imports": [
-        "portable-net45+win81",
+        "portable-net45+win8",
         "dnxcore50"
       ]
     }

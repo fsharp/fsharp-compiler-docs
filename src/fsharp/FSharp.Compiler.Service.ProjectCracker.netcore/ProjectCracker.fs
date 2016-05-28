@@ -37,6 +37,7 @@ type ProjectCracker =
         |]
         
         let ret, opts = ProjectCrackerTool.crackOpen arguments
+        ignore ret
         convert opts, !logMap
 
     static member GetProjectOptionsFromProjectFile(projectFileName : string, ?properties : (string * string) list, ?loadedTimeStamp) =

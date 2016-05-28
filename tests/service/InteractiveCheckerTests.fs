@@ -13,6 +13,7 @@ open FsUnit
 open System
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Service.Tests.Common
 
 let longIdentToString (longIdent: Ast.LongIdent) =
     String.Join(".", longIdent |> List.map (fun ident -> ident.ToString()))
@@ -53,15 +54,8 @@ let identsAndRanges (input: Ast.ParsedInput) =
     | Ast.ParsedInput.SigFile _ -> []
 
 let parseAndExtractRanges code =
-    let file = "/home/user/Test.fsx"
-    let checker = FSharpChecker.Create()
-    let result =
-        async {
-            let! projectOptions = checker.GetProjectOptionsFromScript(file, code)
-            let! input = checker.ParseFileInProject(file, code, projectOptions)
-            return input.ParseTree
-        }
-        |> Async.RunSynchronously
+    let file = "Test"
+    let result = parseSourceCode (file, code)
     match result with
     | Some tree -> tree |> identsAndRanges
     | None -> failwith "fail to parse..."

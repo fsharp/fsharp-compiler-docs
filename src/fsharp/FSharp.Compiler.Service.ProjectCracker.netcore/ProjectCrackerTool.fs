@@ -40,7 +40,7 @@ module internal ProjectCrackerTool =
           if Path.IsPathRooted v then v
           else Path.Combine(dir, v)
 
-      let mkAbsoluteOpt dir v =  Option.map (mkAbsolute dir) v
+      //let mkAbsoluteOpt dir v =  Option.map (mkAbsolute dir) v
 
       let logOpt =
           if enableLogging then

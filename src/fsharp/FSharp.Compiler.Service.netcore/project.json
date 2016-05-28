@@ -1,6 +1,7 @@
 {
   "version": "1.0.0-*",
   "buildOptions": {
+    "debugType": "portable",
     "compilerName": "fsc",
     "compile": {
       "includeFiles": [
@@ -248,33 +249,30 @@
       "9"
     ],
     "xmlDoc": true,
-    "keyFile": "../msft.pubkey",
     "delaySign": true,
     "warningsAsErrors": true,
     "additionalArguments": [
-      "--warn:3",
       "--fullpaths",
       "--flaterrors",
-      "--times",
-      "--warnon:1182"
-    ],
+      "--warnon:1182",
+    ]
   },
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002700"
+      "version": "1.0.0-rc2-3002702"
     },
-    "Microsoft.Build": "0.1.0-*",
-    "Microsoft.Build.Framework": "0.1.0-*",
-    "Microsoft.Build.Tasks.Core": "0.1.0-*",
-    "Microsoft.Build.Utilities.Core": "0.1.0-*",
+    "Microsoft.Build": "0.1.0-preview-00022",
+    "Microsoft.Build.Framework": "0.1.0-preview-00022",
+    "Microsoft.Build.Tasks.Core": "0.1.0-preview-00022",
+    "Microsoft.Build.Utilities.Core": "0.1.0-preview-00022",
     "System.Diagnostics.TraceSource": "4.0.0-rc2-*",
     "Microsoft.FSharp.Core.netcore": "1.0.0-*",
   },
   "tools": {
     "dotnet-fssrgen": "3.0.1",
     "dotnet-compile-fsc": {
-      "version": "1.0.0-rc2-002678",
+      "version": "1.0.0-rc2-*",
       "imports": [
         "dnxcore50",
         "portable-net45+win81",
@@ -285,7 +283,7 @@
   "frameworks": {
     "netstandard1.5": {
       "imports": [
-        "portable-net45+win81",
+        "portable-net45+win8",
         "dnxcore50"
       ]
     }

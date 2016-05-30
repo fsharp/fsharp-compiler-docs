@@ -244,12 +244,12 @@ Target "DotnetCliBuild" (fun _ ->
     Shell.Exec(fsYacc, @"../pars.fsy" + lexArgs + yaccArgs + module2 + open2 + " -o pars.fs", workDir) |> assertExitCodeZero
     Shell.Exec(fsYacc, @"../pppars.fsy" + lexArgs + yaccArgs + module3 + open3 + " -o pppars.fs", workDir) |> assertExitCodeZero
 
-    Shell.Exec("dotnet", "pack -c Release", workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
     
     // FSharp.Compiler.Service.ProjectCracker
     let workDir = @"src/fsharp/FSharp.Compiler.Service.ProjectCracker.netcore/"
     Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "pack -c Release", workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
 )
 
 Target "DotnetCliTests" (fun _ ->

@@ -14,10 +14,10 @@
         "../service/TokenizerTests.fs",
         "../service/PerfTests.fs",
         "../service/InteractiveCheckerTests.fs",
+        "../service/ProjectAnalysisTests.fs",
         "Program.fs",
       ],
       "excludeFiles": [
-        "../service/ProjectAnalysisTests.fs",
         "../service/FscTests.fs",
         "../service/ProjectOptionsTests.fs",
         "../service/FileSystemTests.fs",        

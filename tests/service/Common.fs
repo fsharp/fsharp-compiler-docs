@@ -78,9 +78,12 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
         let references =
 #if TODO_REWORK_ASSEMBLY_LOAD
             [ yield typeof<System.Object>.Assembly.Location; // mscorlib
+              yield typeof<System.Console>.Assembly.Location; // System.Console
               yield typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
+              yield typeof<System.ComponentModel.PropertyChangedEventArgs>.Assembly.Location; // System.ObjectModel             
               yield typeof<System.IO.BufferedStream>.Assembly.Location; // System.IO
               yield typeof<System.Linq.Enumerable>.Assembly.Location; // System.Linq
+              yield typeof<System.Xml.Linq.XDocument>.Assembly.Location; // System.Xml.Linq
               yield typeof<System.Net.WebRequest>.Assembly.Location; // System.Net.Requests
               yield typeof<System.Numerics.BigInteger>.Assembly.Location; // System.Runtime.Numerics
               yield typeof<System.Threading.Tasks.TaskExtensions>.Assembly.Location; // System.Threading.Tasks
@@ -112,7 +115,7 @@ let parseAndCheckScript (file, input) =
 
 #if TODO_REWORK_ASSEMBLY_LOAD
     let dllName = Path.ChangeExtension(file, ".dll")
-    let projName = Path.ChangeExtension(file, ".fsproj")    
+    let projName = Path.ChangeExtension(file, ".fsproj")
     let args = mkProjectCommandLineArgs (dllName, [file])
     let projectOptions = checker.GetProjectOptionsFromCommandLineArgs (projName, args)
 #else    

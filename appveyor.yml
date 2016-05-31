@@ -1,8 +1,21 @@
-os: Windows Server 2012 R2
+os: Visual Studio 2015
+
 init:
   - git config --global core.autocrlf input
+
+environment:
+  matrix:
+    - BUILD_TARGET: DotnetCliTests
+    - BUILD_TARGET: NuGet
+
+matrix:
+  allow_failures:
+    - BUILD_TARGET: DotnetCliTests
+
 build_script:
-  - cmd: build.cmd NuGet
+  - ps: dotnet --info
+  - cmd: build.cmd %BUILD_TARGET%
+
 test: off
 version: '{build}'
 artifacts:

@@ -66,7 +66,7 @@ let ``Project file parsing example 1 Release Configuration`` () =
 [<Test>]
 let ``Project file parsing example 1 Default configuration relative path`` () = 
     let projectFile = "FSharp.Compiler.Service.Tests.fsproj"
-    Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
+    Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__)
 
     let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile)
 

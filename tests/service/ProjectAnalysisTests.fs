@@ -2185,7 +2185,9 @@ let ``Test Project13 all symbols`` () =
           ["type System.IComparable"; 
            "type System.IFormattable";
            "type System.IConvertible";
+#if !DOTNETCORE
            "type System.Runtime.Serialization.ISerializable";
+#endif
            "type System.IComparable<System.DateTime>";
            "type System.IEquatable<System.DateTime>"])
 
@@ -3587,14 +3589,22 @@ let _ = XmlProvider<"<root><value>1</value><value>3</value></root>">.GetSample()
            yield @"-r:" + sysLib "System.Xml.Linq" |]
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
+#if DOTNETCORE
+[<Test; Ignore "Disabled until FSharp.Data.dll is build for dotnet core.">]
+#else
 [<Test>]
+#endif
 let ``Test Project25 whole project errors`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project25.options) |> Async.RunSynchronously
     for e in wholeProjectResults.Errors do 
         printfn "Project25 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
+#if DOTNETCORE
+[<Test; Ignore "Disabled until FSharp.Data.dll is build for dotnet core.">]
+#else
 [<Test>]
+#endif
 let ``Test symbol uses of type-provided members`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project25.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
@@ -3647,7 +3657,11 @@ let ``Test symbol uses of type-provided members`` () =
 
     usesOfGetSampleSymbol |> shouldEqual [|("file1", ((5, 8), (5, 25))); ("file1", ((10, 8), (10, 78)))|]
 
+#if DOTNETCORE
+[<Test; Ignore "Disabled until FSharp.Data.dll is build for dotnet core.">]
+#else
 [<Test>]
+#endif
 let ``Test symbol uses of type-provided types`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project25.options) |> Async.RunSynchronously
     let backgroundParseResults1, backgroundTypedParse1 = 
@@ -4074,9 +4088,14 @@ let ``Test project31 C# type attributes`` () =
              yield output.Replace("\r\n", "\n").Replace("\n", "") ]
         |> set
         |> shouldEqual
-             (set ["(DebuggerTypeProxyAttribute, [], [])";
-                   """(DebuggerDisplayAttribute, [(type Microsoft.FSharp.Core.string, "Count = {Count}")], [])""";
-                   """(DefaultMemberAttribute, [(type Microsoft.FSharp.Core.string, "Item")], [])"""])
+             (set [
+                  "(DebuggerTypeProxyAttribute, [], [])";
+                  """(DebuggerDisplayAttribute, [(type Microsoft.FSharp.Core.string, "Count = {Count}")], [])""";
+                  """(DefaultMemberAttribute, [(type Microsoft.FSharp.Core.string, "Item")], [])""";
+#if DOTNETCORE
+                  "(__DynamicallyInvokableAttribute, [], [])";
+#endif
+                  ])
 
 [<Test>]
 let ``Test project31 C# method attributes`` () =
@@ -4096,8 +4115,11 @@ let ``Test project31 C# method attributes`` () =
         objMethodsAttributes 
         |> set
         |> shouldEqual 
-              (set ["(SecuritySafeCriticalAttribute, [], [])";
-                    "(CLSCompliantAttribute, [(type Microsoft.FSharp.Core.bool, false)], [])"])
+              (set [
+#if !DOTNETCORE
+                   "(SecuritySafeCriticalAttribute, [], [])";
+#endif
+                   "(CLSCompliantAttribute, [(type Microsoft.FSharp.Core.bool, false)], [])"])
 
 [<Test>]
 let ``Test project31 Format C# type attributes`` () =
@@ -4112,7 +4134,11 @@ let ``Test project31 Format C# type attributes`` () =
         |> shouldEqual
              (set ["[<DebuggerTypeProxyAttribute (typeof<Mscorlib_CollectionDebugView<>>)>]";
                    """[<DebuggerDisplayAttribute ("Count = {Count}")>]""";
-                   """[<Reflection.DefaultMemberAttribute ("Item")>]"""])
+                   """[<Reflection.DefaultMemberAttribute ("Item")>]""";
+#if DOTNETCORE
+                  "[<__DynamicallyInvokableAttribute ()>]";
+#endif
+                   ])
 
 [<Test>]
 let ``Test project31 Format C# method attributes`` () =
@@ -4130,7 +4156,10 @@ let ``Test project31 Format C# method attributes`` () =
         |> set
         |> shouldEqual 
               (set ["[<CLSCompliantAttribute (false)>]";
-                    "[<Security.SecuritySafeCriticalAttribute ()>]"])
+#if !DOTNETCORE
+                    "[<Security.SecuritySafeCriticalAttribute ()>]";
+#endif
+                    ])
 
 module Project32 = 
     open System.IO
@@ -4398,8 +4427,15 @@ module Project35b =
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
     let fileNames = [fileName1]
-    let options =  checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously
-
+#if TODO_REWORK_ASSEMBLY_LOAD
+    let projPath = Path.ChangeExtension(fileName1, ".fsproj")
+    let dllPath = Path.ChangeExtension(fileName1, ".dll")
+    let args = mkProjectCommandLineArgs(dllPath, fileNames)
+    let args2 = Array.append args [| "-r:notexist.dll" |]
+    let options = checker.GetProjectOptionsFromCommandLineArgs (projPath, args2)
+#else    
+    let options = checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously
+#endif
 
 [<Test>]
 let ``Test project35b Dependency files for ParseFileInProject`` () =

@@ -5,15 +5,12 @@ open System.Collections.Generic
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
+#if FX_RESHAPED_REFLECTION
+open ReflectionAdapters
+#endif
+
 // Create one global interactive checker instance 
 let checker = FSharpChecker.Create()
-
-let parseAndCheckScript (file, input) = 
-    let checkOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
-    let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, checkOptions) |> Async.RunSynchronously
-    match typedRes with
-    | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
-    | res -> failwithf "Parsing did not finish... (%A)" res
 
 type TempFile(ext, contents) = 
     let tmpFile =  Path.ChangeExtension(System.IO.Path.GetTempFileName() , ext)
@@ -37,10 +34,16 @@ let getBackgroundCheckResultsForScriptText (input) =
 
 
 let sysLib nm = 
+#if !FX_ATLEAST_PORTABLE
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
         @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\" + nm + ".dll"
     else
+#endif
+#if FX_NO_RUNTIMEENVIRONMENT
+        let sysDir = System.AppContext.BaseDirectory
+#else
         let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+#endif
         let (++) a b = System.IO.Path.Combine(a,b)
         sysDir ++ nm + ".dll" 
 
@@ -51,11 +54,12 @@ module Helpers =
     let PathRelativeToTestAssembly p = Path.Combine(Path.GetDirectoryName(Uri(typeof<DummyType>.Assembly.CodeBase).LocalPath), p)
 
 let fsCoreDefaultReference() = 
+#if !FX_ATLEAST_PORTABLE
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
         @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0\FSharp.Core.dll"  
     else 
+#endif
         sysLib "FSharp.Core"
-
 
 let mkProjectCommandLineArgs (dllName, fileNames) = 
     [|  yield "--simpleresolution" 
@@ -71,13 +75,62 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
         yield "--target:library" 
         for x in fileNames do 
             yield x
-        let references = 
+        let references =
+#if TODO_REWORK_ASSEMBLY_LOAD
+            [ yield typeof<System.Object>.Assembly.Location; // mscorlib
+              yield typeof<System.Console>.Assembly.Location; // System.Console
+              yield typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
+              yield typeof<System.ComponentModel.PropertyChangedEventArgs>.Assembly.Location; // System.ObjectModel             
+              yield typeof<System.IO.BufferedStream>.Assembly.Location; // System.IO
+              yield typeof<System.Linq.Enumerable>.Assembly.Location; // System.Linq
+              yield typeof<System.Xml.Linq.XDocument>.Assembly.Location; // System.Xml.Linq
+              yield typeof<System.Net.WebRequest>.Assembly.Location; // System.Net.Requests
+              yield typeof<System.Numerics.BigInteger>.Assembly.Location; // System.Runtime.Numerics
+              yield typeof<System.Threading.Tasks.TaskExtensions>.Assembly.Location; // System.Threading.Tasks
+              yield typeof<Microsoft.FSharp.Core.MeasureAttribute>.Assembly.Location; // FSharp.Core
+            ]
+#else        
             [ yield sysLib "mscorlib"
               yield sysLib "System"
               yield sysLib "System.Core"
               yield fsCoreDefaultReference() ]
+#endif              
         for r in references do
-                yield "-r:" + r |]
+            yield "-r:" + r
+     |]
+
+let parseSourceCode (name: string, code: string) =
+    let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))
+    try Directory.CreateDirectory(location) |> ignore with _ -> ()
+
+    let projPath = Path.Combine(location, name + ".fsproj")
+    let filePath = Path.Combine(location, name + ".fs")
+    let dllPath = Path.Combine(location, name + ".dll")
+    let args = mkProjectCommandLineArgs(dllPath, [filePath])
+    let options = checker.GetProjectOptionsFromCommandLineArgs(projPath, args)
+    let parseResults = checker.ParseFileInProject(filePath, code, options) |> Async.RunSynchronously
+    parseResults.ParseTree
+
+let parseAndCheckScript (file, input) = 
+
+#if TODO_REWORK_ASSEMBLY_LOAD
+    let dllName = Path.ChangeExtension(file, ".dll")
+    let projName = Path.ChangeExtension(file, ".fsproj")
+    let args = mkProjectCommandLineArgs (dllName, [file])
+    let projectOptions = checker.GetProjectOptionsFromCommandLineArgs (projName, args)
+#else    
+    let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
+#endif
+
+    let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, projectOptions) |> Async.RunSynchronously
+    
+    // if parseResult.Errors.Length > 0 then
+    //     printfn "---> Parse Input = %A" input
+    //     printfn "---> Parse Error = %A" parseResult.Errors
+
+    match typedRes with
+    | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
+    | res -> failwithf "Parsing did not finish... (%A)" res
 
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)

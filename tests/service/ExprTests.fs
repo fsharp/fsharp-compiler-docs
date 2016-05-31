@@ -106,7 +106,7 @@ module Utils =
                if not v.IsCompilerGenerated && 
                   not (match excludes with None -> false | Some t -> t.Contains v.CompiledName) then
                 let text = 
-                    printfn "%s" v.CompiledName
+                    //printfn "%s" v.CompiledName
                  //try
                     if v.IsMember then 
                         sprintf "member %s%s = %s @ %s" v.CompiledName (printCurriedParams vs)  (printExpr 0 e) (e.Range.ToShortString())
@@ -174,7 +174,7 @@ let genericFuncEx1 (x:'T) =  x
 let (topPair1a, topPair1b) = (1,2)
 let tyfuncEx1<'T> = typeof<'T>
 let testILCall1 = new obj()
-let testILCall2 = System.Console.WriteLine(176)
+let testILCall2 = System.Console.WriteLine("176")
 
 // Test recursive values in a module
 let rec recValNeverUsedAtRuntime = recFuncIgnoresFirstArg (fun _ -> recValNeverUsedAtRuntime) 1
@@ -246,7 +246,7 @@ type ClassWithEventsAndProperties() =
 let c = ClassWithEventsAndProperties()
 let v = c.InstanceProperty
 
-System.Console.WriteLine(777) // do a top-levl action
+System.Console.WriteLine("777") // do a top-levl action
 
 let functionWithSubmsumption(x:obj)  =  x :?> string
 let functionWithCoercion(x:string)  =  (x :> obj) :?> string |> functionWithSubmsumption |> functionWithSubmsumption
@@ -313,7 +313,7 @@ let testFunctionThatUsesTryFinally() =
    try 
      testFunctionThatUsesWhileLoop()
    finally
-     System.Console.WriteLine(8888)
+     System.Console.WriteLine("8888")
 
 type System.Console with
     static member WriteTwoLines() = System.Console.WriteLine(); System.Console.WriteLine()
@@ -421,7 +421,7 @@ let bool2 = false
 [<Test>]
 let ``Test Declarations project1`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
-    
+
     wholeProjectResults.Errors.Length |> shouldEqual 3 // recursive value warning
     wholeProjectResults.Errors.[0].Severity |> shouldEqual FSharpErrorSeverity.Warning
     wholeProjectResults.Errors.[1].Severity |> shouldEqual FSharpErrorSeverity.Warning
@@ -447,7 +447,7 @@ let ``Test Declarations project1`` () =
            "let topPair1a = M.patternInput@25 ().Item0 @ (25,4--25,26)";
            "let tyfuncEx1 = Operators.TypeOf<'T> () @ (26,20--26,26)";
            "let testILCall1 = new Object() @ (27,18--27,27)";
-           "let testILCall2 = Console.WriteLine (176) @ (28,18--28,47)";
+           "let testILCall2 = Console.WriteLine (\"176\") @ (28,18--28,49)";
            "let recFuncIgnoresFirstArg(g) (v) = v @ (32,33--32,34)";
            "let recValNeverUsedAtRuntime = recValNeverUsedAtRuntime@31.Force<Microsoft.FSharp.Core.int>(()) @ (31,8--31,32)";
            "let testFun4(unitVar0) = let rec ... in recValNeverUsedAtRuntime @ (36,4--39,28)";
@@ -476,7 +476,7 @@ let ``Test Declarations project1`` () =
            "member get_StaticEvent(x) (unitVar1) = sev.get_Publish(()) @ (95,27--95,38)";
            "let c = new ClassWithEventsAndProperties(()) @ (97,8--97,38)";
            "let v = M.c ().get_InstanceProperty(()) @ (98,8--98,26)";
-           "do Console.WriteLine (777)";
+           "do Console.WriteLine (\"777\")";
            "let functionWithSubmsumption(x) = IntrinsicFunctions.UnboxGeneric<Microsoft.FSharp.Core.string> (x) @ (102,40--102,52)";
            "let functionWithCoercion(x) = Operators.op_PipeRight<Microsoft.FSharp.Core.string,Microsoft.FSharp.Core.string> (Operators.op_PipeRight<Microsoft.FSharp.Core.string,Microsoft.FSharp.Core.string> (IntrinsicFunctions.UnboxGeneric<Microsoft.FSharp.Core.string> (x :> Microsoft.FSharp.Core.obj),fun x -> M.functionWithSubmsumption (x :> Microsoft.FSharp.Core.obj)),fun x -> M.functionWithSubmsumption (x :> Microsoft.FSharp.Core.obj)) @ (103,39--103,116)";
            "type MultiArgMethods";
@@ -492,7 +492,7 @@ let ``Test Declarations project1`` () =
            "let testFunctionThatUsesStructs2(unitVar0) = let dt1: System.DateTime = DateTime.get_Now () in let mutable dt2: System.DateTime = DateTime.get_Now () in let dt3: System.TimeSpan = Operators.op_Subtraction<System.DateTime,System.DateTime,System.TimeSpan> (dt1,dt2) in let dt4: System.DateTime = dt1.AddDays(3) in let dt5: Microsoft.FSharp.Core.int = dt1.get_Millisecond() in let dt6: Microsoft.FSharp.Core.byref<System.DateTime> = &dt2 in let dt7: System.TimeSpan = Operators.op_Subtraction<System.DateTime,System.DateTime,System.TimeSpan> (dt6,dt4) in dt7 @ (142,7--142,10)";
            "let testFunctionThatUsesWhileLoop(unitVar0) = let mutable x: Microsoft.FSharp.Core.int = 1 in (while Operators.op_LessThan<Microsoft.FSharp.Core.int> (x,100) do x <- Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (x,1) done; x) @ (152,15--152,16)";
            "let testFunctionThatUsesTryWith(unitVar0) = try M.testFunctionThatUsesWhileLoop (()) with matchValue -> match (if matchValue :? System.ArgumentException then $0 else $1) targets ... @ (158,3--160,60)";
-           "let testFunctionThatUsesTryFinally(unitVar0) = try M.testFunctionThatUsesWhileLoop (()) finally Console.WriteLine (8888) @ (164,3--167,35)";
+           "let testFunctionThatUsesTryFinally(unitVar0) = try M.testFunctionThatUsesWhileLoop (()) finally Console.WriteLine (\"8888\") @ (164,3--167,37)";
            "member Console.WriteTwoLines.Static(unitVar0) = (Console.WriteLine (); Console.WriteLine ()) @ (170,36--170,90)";
            "member DateTime.get_TwoMinute(x) (unitVar1) = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (x.get_Minute(),x.get_Minute()) @ (173,25--173,44)";
            "let testFunctionThatUsesExtensionMembers(unitVar0) = (M.Console.WriteTwoLines.Static (()); let v: Microsoft.FSharp.Core.int = DateTime.get_Now ().DateTime.get_TwoMinute(()) in M.Console.WriteTwoLines.Static (())) @ (176,3--178,33)";
@@ -741,6 +741,8 @@ let ``Test expressions of declarations stress big expressions`` () =
     printDeclarations None (List.ofSeq file1.Declarations) |> Seq.toList |> ignore
 
 
+#if SELF_HOST_STRESS
+
 #if FX_ATLEAST_45
 
 [<Test>]
@@ -792,8 +794,6 @@ let ``Check use of type provider that provides calls to F# code`` () =
    
 #endif
 
-#if SELF_HOST_STRESS
-
 [<Test>]
 let ``Test Declarations selfhost`` () =
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
@@ -813,7 +813,7 @@ let ``Test Declarations selfhost`` () =
 [<Test>]
 let ``Test Declarations selfhost whole compiler`` () =
     
-    Environment.CurrentDirectory <-  __SOURCE_DIRECTORY__ +  @"/../../src/fsharp/FSharp.Compiler.Service"
+    Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__ +  @"/../../src/fsharp/FSharp.Compiler.Service")
     let projectFile = __SOURCE_DIRECTORY__ + @"/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
 
     //let v = FSharpProjectFileInfo.Parse(projectFile, [("Configuration", "Debug"); ("NoFsSrGenTask", "true")],enableLogging=true)
@@ -852,7 +852,7 @@ let ``Test Declarations selfhost whole compiler`` () =
 [<Test>]
 let ``Test Declarations selfhost FSharp.Core`` () =
     
-    Environment.CurrentDirectory <-  __SOURCE_DIRECTORY__ +  @"/../../../fsharp/src/fsharp/FSharp.Core"
+    Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__ +  @"/../../../fsharp/src/fsharp/FSharp.Core")
     let projectFile = __SOURCE_DIRECTORY__ + @"/../../../fsharp/src/fsharp/FSharp.Core/FSharp.Core.fsproj"
 
     let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Debug")])

@@ -72,6 +72,8 @@ let UseMyFileSystem() =
     Shim.FileSystem <- myFileSystem
     { new IDisposable with member x.Dispose() = Shim.FileSystem <- myFileSystem }
 
+#if !FX_ATLEAST_PORTABLE
+
 [<Test>]
 let ``FileSystem compilation test``() = 
   if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
@@ -110,3 +112,5 @@ let ``FileSystem compilation test``() =
     results.AssemblySignature.Entities.Count |> shouldEqual 2
     results.AssemblySignature.Entities.[0].MembersFunctionsAndValues.Count |> shouldEqual 1
     results.AssemblySignature.Entities.[0].MembersFunctionsAndValues.[0].DisplayName |> shouldEqual "B"
+
+#endif

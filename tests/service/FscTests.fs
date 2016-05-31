@@ -21,6 +21,10 @@ open FSharp.Compiler.Service.Tests.Common
 
 open NUnit.Framework
 
+#if FX_RESHAPED_REFLECTION
+open ReflectionAdapters
+#endif
+
 exception 
    VerificationException of (*assembly:*)string * (*errorCode:*)int * (*output:*)string
    with override e.Message = sprintf "Verification of '%s' failed with code %d, message <<<%s>>>" e.Data0 e.Data1 e.Data2
@@ -38,6 +42,9 @@ type PEVerifier () =
     static let runsOnMono = try System.Type.GetType("Mono.Runtime") <> null with _ -> false
 
     let verifierInfo =
+#if FX_ATLEAST_PORTABLE
+        None
+#else           
         if runsOnMono then
             Some ("pedump", "--verify all")
         else
@@ -67,12 +74,13 @@ type PEVerifier () =
                 match tryFindFile "peverify.exe" sdkDir with
                 | None -> None
                 | Some pe -> Some (pe, "/UNIQUE /IL /NOLOGO")
+#endif
 
     static let execute (fileName : string, arguments : string) =
         printfn "executing '%s' with arguments %s" fileName arguments
         let psi = new ProcessStartInfo(fileName, arguments)
         psi.UseShellExecute <- false
-        psi.ErrorDialog <- false
+        //psi.ErrorDialog <- false
         psi.CreateNoWindow <- true
         psi.RedirectStandardOutput <- true
         psi.RedirectStandardError <- true
@@ -108,12 +116,16 @@ let compiler = new SimpleSourceCodeServices()
 /// Ensures the default FSharp.Core referenced by the F# compiler service (if none is 
 /// provided explicitly) is available in the output directory.
 let ensureDefaultFSharpCoreAvailable tmpDir  =
+#if FX_ATLEAST_PORTABLE
+    ignore tmpDir
+#else
     // FSharp.Compiler.Service references FSharp.Core 4.3.0.0 by default.  That's wrong? But the output won't verify
     // or run on a system without FSharp.Core 4.3.0.0 in the GAC or in the same directory, or with a binding redirect in place.
     // 
     // So just copy the FSharp.Core 4.3.0.0 to the tmp directory. Only need to do this on Windows.
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
         File.Copy(fsCoreDefaultReference(), Path.Combine(tmpDir, Path.GetFileName(fsCoreDefaultReference())), overwrite = true)
+#endif
 
 let compile isDll debugMode (assemblyName : string) (code : string) (dependencies : string list) =
     let tmp = Path.Combine(Path.GetTempPath(),"test"+string(hash (isDll,debugMode,assemblyName,code,dependencies)))
@@ -165,19 +177,6 @@ let compileAndVerify isDll debugMode assemblyName code dependencies =
     let outFile = compile isDll debugMode assemblyName code dependencies 
     verifier.Verify outFile
     outFile
-
-let parseSourceCode (name : string, code : string) =
-    let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))
-    try Directory.CreateDirectory(location) |> ignore with _ -> ()
-
-    let projPath = Path.Combine(location, name + ".fsproj")
-    let filePath = Path.Combine(location, name + ".fs")
-    let dllPath = Path.Combine(location, name + ".dll")
-    let args = Common.mkProjectCommandLineArgs(dllPath, [filePath])
-    let options = checker.GetProjectOptionsFromCommandLineArgs(projPath, args)
-    let parseResults = checker.ParseFileInProject(filePath, code, options) |> Async.RunSynchronously
-    parseResults.ParseTree |> Option.toList
-
 
 let compileAndVerifyAst (name : string, ast : Ast.ParsedInput list, references : string list) =
     let outDir = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, references)))
@@ -258,7 +257,7 @@ module Foo
 
     printfn "done!" // make the code have some initialization effect
 """
-    let ast = parseSourceCode("foo", code)
+    let ast = parseSourceCode("foo", code) |> Option.toList
     compileAndVerifyAst("foo", ast, [])
 
 [<Test>]
@@ -281,7 +280,7 @@ module Bar
     printfn "done!" // make the code have some initialization effect
 """
     let serviceAssembly = typeof<FSharpChecker>.Assembly.Location
-    let ast = parseSourceCode("bar", code)
+    let ast = parseSourceCode("bar", code) |> Option.toList
     compileAndVerifyAst("bar", ast, [serviceAssembly])
 
 

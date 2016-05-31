@@ -407,7 +407,7 @@ let _ = sprintf "        %*.1f" 3 4.5
 let _ = sprintf "         %6.*f" 3 4.5
 let _ = sprintf "          %6.*%" 3
 let _ =  printf "           %a" (fun _ _ -> ()) 2
-let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2  //TODO: this fails in coreclr
+let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2
 """
 
     let file = "/home/user/Test.fsx"

@@ -29,7 +29,7 @@ type ProjectCracker =
             }
 
         let arguments = [|
-            yield @"""" + projectFileName + @""""
+            yield projectFileName
             yield enableLogging.ToString()
             for k, v in properties do
                 yield k

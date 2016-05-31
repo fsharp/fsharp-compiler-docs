@@ -4431,7 +4431,7 @@ module Project35b =
     let projPath = Path.ChangeExtension(fileName1, ".fsproj")
     let dllPath = Path.ChangeExtension(fileName1, ".dll")
     let args = mkProjectCommandLineArgs(dllPath, fileNames)
-    let args2 = Array.append args [| "-r: notexist.dll" |]
+    let args2 = Array.append args [| "-r:notexist.dll" |]
     let options = checker.GetProjectOptionsFromCommandLineArgs (projPath, args2)
 #else    
     let options = checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously

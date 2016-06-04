@@ -9,6 +9,14 @@ open Microsoft.Build.Utilities
 
 module internal ProjectCrackerTool =
 
+  let runningOnMono =
+#if DOTNETCORE
+    false
+#else
+    try match System.Type.GetType("Mono.Runtime") with null -> false | _ -> true
+    with e -> false
+#endif
+
   type internal BasicStringLogger() =
     inherit Logger()
 
@@ -47,14 +55,6 @@ module internal ProjectCrackerTool =
               Some log
           else
               None
-
-      let runningOnMono = 
-#if DOTNETCORE
-	      false
-#else
-          try match System.Type.GetType("Mono.Runtime") with null -> false | _ -> true
-          with e -> false
-#endif
 
 #if !DOTNETCORE
       let mkAbsoluteOpt dir v =  Option.map (mkAbsolute dir) v
@@ -193,12 +193,15 @@ module internal ProjectCrackerTool =
 
       let outFileOpt, directory, getItems, references, projectReferences, getProp, fsprojFullPath =
         try
+#if DOTNETCORE
+          CrackProjectUsingNewBuildAPI(fsprojFileName)
+        with
+#else
           if runningOnMono then
               CrackProjectUsingOldBuildAPI(fsprojFileName)
           else
               CrackProjectUsingNewBuildAPI(fsprojFileName)
         with
-#if !DOTNETCORE
           | :? Microsoft.Build.BuildEngine.InvalidProjectFileException as e ->
                raise (Microsoft.Build.Exceptions.InvalidProjectFileException(
                            e.ProjectFile,

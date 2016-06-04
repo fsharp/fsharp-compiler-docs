@@ -9,6 +9,14 @@ open Microsoft.Build.Utilities
 
 module internal ProjectCrackerTool =
 
+  let runningOnMono =
+#if DOTNETCORE
+    false
+#else
+    try match System.Type.GetType("Mono.Runtime") with null -> false | _ -> true
+    with e -> false
+#endif
+
   type internal BasicStringLogger() =
     inherit Logger()
 
@@ -40,8 +48,6 @@ module internal ProjectCrackerTool =
           if Path.IsPathRooted v then v
           else Path.Combine(dir, v)
 
-      //let mkAbsoluteOpt dir v =  Option.map (mkAbsolute dir) v
-
       let logOpt =
           if enableLogging then
               let log = new BasicStringLogger()
@@ -49,6 +55,62 @@ module internal ProjectCrackerTool =
               Some log
           else
               None
+
+#if !DOTNETCORE
+      let mkAbsoluteOpt dir v =  Option.map (mkAbsolute dir) v
+
+      let CrackProjectUsingOldBuildAPI(fsprojFile:string) = 
+          let engine = new Microsoft.Build.BuildEngine.Engine()
+          Option.iter (fun l -> engine.RegisterLogger(l)) logOpt
+
+          let bpg = Microsoft.Build.BuildEngine.BuildPropertyGroup()
+
+          bpg.SetProperty("BuildingInsideVisualStudio", "true")
+          for (prop, value) in properties do
+              bpg.SetProperty(prop, value)
+
+          engine.GlobalProperties <- bpg
+
+          let projectFromFile (fsprojFile:string) =
+              // We seem to need to pass 12.0/4.0 in here for some unknown reason
+              let project = new Microsoft.Build.BuildEngine.Project(engine, engine.DefaultToolsVersion)
+              do project.Load(fsprojFile)
+              project
+
+          let project = projectFromFile fsprojFile
+          project.Build([| "ResolveReferences" |])  |> ignore
+          let directory = Path.GetDirectoryName project.FullFileName
+
+          let getProp (p: Microsoft.Build.BuildEngine.Project) s = 
+              let v = p.GetEvaluatedProperty s
+              if String.IsNullOrWhiteSpace v then None
+              else Some v
+
+          let outFileOpt =
+              match mkAbsoluteOpt directory (getProp project "OutDir") with
+              | None -> None
+              | Some d -> mkAbsoluteOpt d (getProp project "TargetFileName")
+
+          let getItems s = 
+              let fs  = project.GetEvaluatedItemsByName(s)
+              [ for f in fs -> mkAbsolute directory f.FinalItemSpec ]
+
+          let projectReferences =
+              [  for i in project.GetEvaluatedItemsByName("ProjectReference") do
+                     yield mkAbsolute directory i.FinalItemSpec
+              ]
+
+          let references = 
+              [ for i in project.GetEvaluatedItemsByName("ReferencePath") do
+                  yield i.FinalItemSpec
+                for i in project.GetEvaluatedItemsByName("ChildProjectReferences") do
+                  yield i.FinalItemSpec ]
+              // Duplicate slashes sometimes appear in the output here, which prevents
+              // them from matching keys used in FSharpProjectOptions.ReferencedProjects
+              |> List.map (fun (s: string) -> s.Replace("//","/"))
+
+          outFileOpt, directory, getItems, references, projectReferences, getProp project, project.FullFileName
+#endif
 
       let vs =
           let programFiles =
@@ -81,7 +143,7 @@ module internal ProjectCrackerTool =
 
 
           let projectInstanceFromFullPath (fsprojFullPath: string) =
-              use file = new FileStream(fsprojFullPath,FileMode.Open,FileAccess.Read,FileShare.ReadWrite)
+              use file = new FileStream(fsprojFullPath, FileMode.Open, FileAccess.Read, FileShare.Read)
               use stream = new StreamReader(file)
               use xmlReader = System.Xml.XmlReader.Create(stream)
 
@@ -131,8 +193,27 @@ module internal ProjectCrackerTool =
 
       let outFileOpt, directory, getItems, references, projectReferences, getProp, fsprojFullPath =
         try
+#if DOTNETCORE
           CrackProjectUsingNewBuildAPI(fsprojFileName)
         with
+#else
+          if runningOnMono then
+              CrackProjectUsingOldBuildAPI(fsprojFileName)
+          else
+              CrackProjectUsingNewBuildAPI(fsprojFileName)
+        with
+          | :? Microsoft.Build.BuildEngine.InvalidProjectFileException as e ->
+               raise (Microsoft.Build.Exceptions.InvalidProjectFileException(
+                           e.ProjectFile,
+                           e.LineNumber,
+                           e.ColumnNumber,
+                           e.EndLineNumber,
+                           e.EndColumnNumber,
+                           e.Message,
+                           e.ErrorSubcategory,
+                           e.ErrorCode,
+                           e.HelpKeyword))
+#endif
           | :? ArgumentException as e -> raise (IO.FileNotFoundException(e.Message))
 
       let logOutput = match logOpt with None -> "" | Some l -> l.Log
@@ -312,8 +393,32 @@ module internal ProjectCrackerTool =
                 | Some outFile, opts -> yield outFile, opts
                 | None, _ -> () |]
 
+      // Workaround for Mono 4.2, which doesn't populate the subproject
+      // details anymore outside of a solution context. See https://github.com/mono/mono/commit/76c6a08e730393927b6851709cdae1d397cbcc3a#diff-59afd196a55d61d5d1eaaef7bd49d1e5
+      // and some explanation from the author at https://github.com/fsharp/FSharp.Compiler.Service/pull/455#issuecomment-154103963
+      //
+      // In particular we want the output path, which we can get from
+      // fully parsing that project itself. We also have to specially parse
+      // C# referenced projects, as we don't look at them otherwise.
+      let referencedProjectOutputs =
+          if runningOnMono then
+              [ yield! Array.map (fun (s,_) -> "-r:" + s) referencedProjectOptions
+                for file in parsedProject.ProjectReferences do
+                    let ext = Path.GetExtension(file)
+                    if ext = ".csproj" || ext = ".vbproj" then
+                        let parsedProject = FSharpProjectFileInfo.Parse(file, properties=properties, enableLogging=false)
+                        match parsedProject.OutputFile with
+                        | None -> ()
+                        | Some f -> yield "-r:" + f ]
+          else
+              []
+
+          // On some versions of Mono the referenced projects are already
+          // correctly included, so we make sure not to introduce duplicates
+          |> List.filter (fun r -> not (Set.contains r (set parsedProject.Options)))
+
       let options = { ProjectFile = file
-                      Options = Array.ofSeq (parsedProject.Options)
+                      Options = Array.ofSeq (parsedProject.Options @ referencedProjectOutputs)
                       ReferencedProjectOptions = referencedProjectOptions
                       LogOutput = parsedProject.LogOutput }
 
@@ -321,16 +426,18 @@ module internal ProjectCrackerTool =
 
     snd (getOptions file)
 
-//   let addMSBuildv14BackupResolution () =
-//     let onResolveEvent = new ResolveEventHandler(fun sender evArgs ->
-//       let requestedAssembly = AssemblyName(evArgs.Name)
-//       if requestedAssembly.Name.StartsWith("Microsoft.Build") &&
-//           not (requestedAssembly.Name.EndsWith(".resources")) then
-//         requestedAssembly.Version <- Version("14.0.0.0")
-//         Assembly.Load (requestedAssembly)
-//       else
-//         null)
-//     AppDomain.CurrentDomain.add_AssemblyResolve(onResolveEvent)
+#if !DOTNETCORE
+  let addMSBuildv14BackupResolution () =
+    let onResolveEvent = new ResolveEventHandler(fun sender evArgs ->
+      let requestedAssembly = AssemblyName(evArgs.Name)
+      if requestedAssembly.Name.StartsWith("Microsoft.Build") &&
+          not (requestedAssembly.Name.EndsWith(".resources")) then
+        requestedAssembly.Version <- Version("14.0.0.0")
+        Assembly.Load (requestedAssembly)
+      else
+        null)
+    AppDomain.CurrentDomain.add_AssemblyResolve(onResolveEvent)
+#endif
 
   let rec pairs l =
     match l with
@@ -338,24 +445,25 @@ module internal ProjectCrackerTool =
     | x::y::rest -> (x,y) :: pairs rest
 
   let crackOpen (argv: string[])=
-    if argv.Length >= 2 then
-        let projectFile = argv.[0]
-        let enableLogging = match Boolean.TryParse(argv.[1]) with
-                            | true, true -> true
-                            | _ -> false
-        try
-            //addMSBuildv14BackupResolution ()
-            let props = pairs (List.ofArray argv.[2..])
-            let opts = getOptions argv.[0] enableLogging props
-            0, opts
-        with e ->
-            2, { ProjectFile = projectFile;
-                Options = [||];
-                ReferencedProjectOptions = [||];
-                LogOutput = e.ToString() }
-    else
-        1, { ProjectFile = "";
-            Options = [||];
-            ReferencedProjectOptions = [||];
-            LogOutput = "At least two arguments required." }
-
+      if argv.Length >= 2 then
+          let projectFile = argv.[0]
+          let enableLogging = match Boolean.TryParse(argv.[1]) with
+                              | true, true -> true
+                              | _ -> false
+          try
+#if !DOTNETCORE
+              addMSBuildv14BackupResolution ()
+#endif
+              let props = pairs (List.ofArray argv.[2..])
+              let opts = getOptions argv.[0] enableLogging props
+              0, opts
+          with e ->
+              2, { ProjectFile = projectFile;
+                   Options = [||];
+                   ReferencedProjectOptions = [||];
+                   LogOutput = e.ToString() }
+      else
+          1, { ProjectFile = "";
+               Options = [||];
+               ReferencedProjectOptions = [||];
+               LogOutput = "At least two arguments required." }

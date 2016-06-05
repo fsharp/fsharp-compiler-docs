@@ -13,10 +13,7 @@
     "iconUrl": "https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png",
     "summary": "Cracking projects",
     "tags": [
-      "F#",
-      "fsharp",
-      "msbuild",
-      "editor",
+      "F# fsharp msbuild editor"
     ],
     "releaseNotes": "",
   },

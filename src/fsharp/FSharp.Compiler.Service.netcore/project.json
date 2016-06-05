@@ -15,11 +15,7 @@
     "iconUrl": "https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png",
     "summary": "F# compiler services for creating IDE tools, language extensions and for F# embedding.",
     "tags": [
-      "F#",
-      "fsharp",
-      "interactive",
-      "compiler",
-      "editor",
+      "F# fsharp interactive compiler editor"
     ],
     "releaseNotes": "",
   },

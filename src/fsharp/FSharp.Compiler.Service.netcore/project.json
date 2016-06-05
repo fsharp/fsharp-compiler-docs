@@ -1,5 +1,28 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-alpha-00001",
+  "title": "FSharp.Compiler.Service",
+  "authors": [
+    "Microsoft Corporation",
+    "Dave Thomas",
+    "Anh-Dung Phan",
+    "Tomas Petricek",
+  ],
+  "copyright": "",
+  "description": "The F# compiler services package contains a custom build of the F# compiler that exposes additional functionality for implementing F# language bindings, additional tools based on the compiler or refactoring tools. The package also includes F# interactive service that can be used for embedding F# scripting into your applications.",
+  "packOptions": {
+    "projectUrl": "https://github.com/fsharp/FSharp.Compiler.Service",
+    "licenseUrl": "https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE",
+    "iconUrl": "https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png",
+    "summary": "F# compiler services for creating IDE tools, language extensions and for F# embedding.",
+    "tags": [
+      "F#",
+      "fsharp",
+      "interactive",
+      "compiler",
+      "editor",
+    ],
+    "releaseNotes": "",
+  },
   "buildOptions": {
     "debugType": "portable",
     "compilerName": "fsc",
@@ -248,7 +271,8 @@
       "61",
       "75",
       "62",
-      "9"
+      "9",
+      "2003",
     ],
     "xmlDoc": true,
     "delaySign": true,
@@ -265,7 +289,7 @@
       "version": "1.0.0-rc2-3002702"
     },
     "System.Diagnostics.TraceSource": "4.0.0-rc2-*",
-    "Microsoft.FSharp.Core.netcore": "1.0.0-*",
+    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
   },
   "tools": {
     "dotnet-fssrgen": "3.0.1",
@@ -281,7 +305,7 @@
   "frameworks": {
     "netstandard1.5": {
       "imports": [
-        "portable-net45+win8",
+        "portable-net45+win81",
         "dnxcore50"
       ]
     }

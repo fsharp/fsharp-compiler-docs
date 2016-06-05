@@ -51,10 +51,10 @@
       "type": "platform",
       "version": "1.0.0-rc2-3002702"
     },
-    "Microsoft.FSharp.Core.netcore": "1.0.0-*",
     "NUnitLite": "3.2.1",
-    "FSharp.Compiler.Service.netcore": "1.0.0-*",
-    "FSharp.Compiler.Service.ProjectCracker.netcore": "1.0.0-*",
+    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+    "FSharp.Compiler.Service.netcore": "1.0.0-alpha-*",
+    "FSharp.Compiler.Service.ProjectCracker.netcore": "1.0.0-alpha-*",
   },
   "tools": {
     "dotnet-compile-fsc": {
@@ -69,7 +69,7 @@
   "frameworks": {
     "netstandard1.5": {
       "imports": [
-        "portable-net45+win8",
+        "portable-net45+win81",
         "dnxcore50"
       ]
     }

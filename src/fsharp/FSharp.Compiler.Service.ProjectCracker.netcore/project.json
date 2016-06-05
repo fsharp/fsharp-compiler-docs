@@ -1,13 +1,30 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-alpha-00001",
+  "title": "FSharp.Compiler.Service.ProjectCracker",
+  "authors": [
+    "Microsoft Corporation",
+    "Robin Neatherway",
+  ],
+  "copyright": "",
+  "description": "Adds F# project cracking capabilities.",
+  "packOptions": {
+    "projectUrl": "https://github.com/fsharp/FSharp.Compiler.Service",
+    "licenseUrl": "https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE",
+    "iconUrl": "https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png",
+    "summary": "Cracking projects",
+    "tags": [
+      "F# fsharp msbuild editor"
+    ],
+    "releaseNotes": "",
+  },
   "buildOptions": {
-    "debugType": "portable", 
+    "debugType": "portable",
     "emitEntryPoint": true,
     "compilerName": "fsc",
     "compile": {
       "includeFiles": [
-        "../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerOptions.fs",        
-        "../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerTool.fs",        
+        "../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerOptions.fs",
+        "../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerTool.fs",
         "ProjectCracker.fs",
         "Program.fs",
       ],
@@ -18,6 +35,7 @@
     ],
     "nowarn": [
       "44",
+      "2003",
     ],
     "xmlDoc": true,
     "delaySign": true,
@@ -38,8 +56,8 @@
     "Microsoft.Build.Tasks.Core": "0.1.0-preview-*",
     "Microsoft.Build.Utilities.Core": "0.1.0-preview-*",
     "System.Runtime.Serialization.Json": "4.0.2-rc2-*",
-    "Microsoft.FSharp.Core.netcore": "1.0.0-*",
-    "FSharp.Compiler.Service.netcore": "1.0.0-*",
+    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+    "FSharp.Compiler.Service.netcore": "1.0.0-alpha-*",
   },
   "tools": {
     "dotnet-compile-fsc": {
@@ -54,7 +72,7 @@
   "frameworks": {
     "netstandard1.5": {
       "imports": [
-        "portable-net45+win8",
+        "portable-net45+win81",
         "dnxcore50"
       ]
     }

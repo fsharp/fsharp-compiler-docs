@@ -297,6 +297,10 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
         isResolved() &&
         isArrayTyconRef cenv.g entity
 
+    member __.ArrayRank  = 
+        checkIsResolved()
+        rankOfArrayTyconRef cenv.g entity
+
     member __.IsProvided  = 
         isResolved() &&
         entity.IsProvided

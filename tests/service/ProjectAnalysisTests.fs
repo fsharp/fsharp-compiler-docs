@@ -3026,6 +3026,8 @@ type AnotherMutableList() =
 let f1 (x: System.Collections.Generic.IList<'T>) = () // grab the IList symbol and look into it
 let f2 (x: AnotherMutableList) = () // grab the AnotherMutableList symbol and look into it
 let f3 (x: System.Collections.ObjectModel.ObservableCollection<'T>) = () // grab the ObservableCollection symbol and look into it
+let f4 (x: int[]) = () // test a one-dimensional array
+let f5 (x: int[,,]) = () // test a multi-dimensional array
     """
     File.WriteAllText(fileName1, fileSource1)
     let cleanFileName a = if a = fileName1 then "file1" else "??"
@@ -3048,21 +3050,33 @@ let ``Test Project22 IList contents`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project22.options) |> Async.RunSynchronously
 
-    let ilistTypeUse = 
+    let allUsesOfAllSymbols = 
         wholeProjectResults.GetAllUsesOfAllSymbols()
         |> Async.RunSynchronously
+
+    let ilistTypeUse = 
+        allUsesOfAllSymbols
         |> Array.find (fun su -> su.Symbol.DisplayName = "IList")
 
     let ocTypeUse = 
-        wholeProjectResults.GetAllUsesOfAllSymbols()
-        |> Async.RunSynchronously
+        allUsesOfAllSymbols
         |> Array.find (fun su -> su.Symbol.DisplayName = "ObservableCollection")
 
     let alistTypeUse = 
-        wholeProjectResults.GetAllUsesOfAllSymbols()
-        |> Async.RunSynchronously
+        allUsesOfAllSymbols
         |> Array.find (fun su -> su.Symbol.DisplayName = "AnotherMutableList")
 
+    let allTypes =
+        allUsesOfAllSymbols
+        |> Array.choose (fun su -> match su.Symbol with :? FSharpMemberOrFunctionOrValue as s -> Some s.FullType | _ -> None )
+
+    let arrayTypes =
+        allTypes
+        |> Array.choose (fun t -> 
+            if t.HasTypeDefinition then
+               let td = t.TypeDefinition
+               if td.IsArrayType then Some (td.DisplayName, td.ArrayRank) else None
+            else None )
 
     let ilistTypeDefn = ilistTypeUse.Symbol :?> FSharpEntity
     let ocTypeDefn = ocTypeUse.Symbol :?> FSharpEntity
@@ -3110,6 +3124,8 @@ let ``Test Project22 IList contents`` () =
        |> shouldEqual
               (set [("IList", ["interface"]); ("ICollection", ["interface"]);
                     ("IEnumerable", ["interface"]); ("IEnumerable", ["interface"])])
+
+    arrayTypes |> shouldEqual [|("[]", 1); ("[,,]", 3)|]
 
 [<Test>]
 let ``Test Project22 IList properties`` () =

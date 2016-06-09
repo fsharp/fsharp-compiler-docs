@@ -4096,8 +4096,9 @@ let ``Test project31 C# type attributes`` () =
     
         let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "List")
         let objEntity = objSymbol.Symbol :?> FSharpEntity
-   
-        [ for attrib in objEntity.Attributes do 
+        let attributes = objEntity.Attributes |> Seq.filter (fun attrib -> attrib.AttributeType.DisplayName <> "__DynamicallyInvokableAttribute")
+
+        [ for attrib in attributes do 
              let args = try Seq.toList attrib.ConstructorArguments with _ -> []
              let namedArgs = try Seq.toList attrib.NamedArguments with _ -> []
              let output = sprintf "%A" (attrib.AttributeType, args, namedArgs)
@@ -4108,9 +4109,6 @@ let ``Test project31 C# type attributes`` () =
                   "(DebuggerTypeProxyAttribute, [], [])";
                   """(DebuggerDisplayAttribute, [(type Microsoft.FSharp.Core.string, "Count = {Count}")], [])""";
                   """(DefaultMemberAttribute, [(type Microsoft.FSharp.Core.string, "Item")], [])""";
-#if DOTNETCORE
-                  "(__DynamicallyInvokableAttribute, [], [])";
-#endif
                   ])
 
 [<Test>]
@@ -4144,16 +4142,14 @@ let ``Test project31 Format C# type attributes`` () =
     
         let objSymbol = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously |> Array.find (fun su -> su.Symbol.DisplayName = "List")
         let objEntity = objSymbol.Symbol :?> FSharpEntity
-   
-        [ for attrib in objEntity.Attributes -> attrib.Format(objSymbol.DisplayContext) ]
+        let attributes = objEntity.Attributes |> Seq.filter (fun attrib -> attrib.AttributeType.DisplayName <> "__DynamicallyInvokableAttribute")
+
+        [ for attrib in attributes -> attrib.Format(objSymbol.DisplayContext) ]
         |> set
         |> shouldEqual
              (set ["[<DebuggerTypeProxyAttribute (typeof<Mscorlib_CollectionDebugView<>>)>]";
                    """[<DebuggerDisplayAttribute ("Count = {Count}")>]""";
                    """[<Reflection.DefaultMemberAttribute ("Item")>]""";
-#if DOTNETCORE
-                  "[<__DynamicallyInvokableAttribute ()>]";
-#endif
                    ])
 
 [<Test>]

@@ -231,8 +231,11 @@ Target "DotnetCliCodeGen" (fun _ ->
     let open2 = @" --open Microsoft.FSharp.Compiler"
     let open3 = @" --open Microsoft.FSharp.Compiler"
 
+    // restore tools
     let workDir = @"src/fsharp/FSharp.Compiler.Service.netcore/"
+    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
 
+    // run tools
     Shell.Exec("dotnet", "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx", workDir) |> assertExitCodeZero
     Shell.Exec("dotnet", "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx", workDir) |> assertExitCodeZero
     Shell.Exec(fsLex, @"../lex.fsl --unicode" + lexArgs + " -o lex.fs", workDir) |> assertExitCodeZero

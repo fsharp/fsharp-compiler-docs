@@ -219,7 +219,7 @@ Target "GitHubRelease" (fun _ ->
 let isDotnetCliInstalled = (try Shell.Exec("dotnet", "--info") = 0 with _ -> false)
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 
-Target "DotnetCliBuild" (fun _ ->
+Target "DotnetCliCodeGen" (fun _ ->
     let fsLex  = @"lib/bootstrap/4.0/fslex.exe"
     let fsYacc = @"lib/bootstrap/4.0/fsyacc.exe"
     let lexArgs = @" --lexlib Internal.Utilities.Text.Lexing"
@@ -231,9 +231,7 @@ Target "DotnetCliBuild" (fun _ ->
     let open2 = @" --open Microsoft.FSharp.Compiler"
     let open3 = @" --open Microsoft.FSharp.Compiler"
 
-    // FSharp.Compiler.Service    
     let workDir = @"src/fsharp/FSharp.Compiler.Service.netcore/"
-    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
 
     Shell.Exec("dotnet", "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx", workDir) |> assertExitCodeZero
     Shell.Exec("dotnet", "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx", workDir) |> assertExitCodeZero
@@ -243,10 +241,13 @@ Target "DotnetCliBuild" (fun _ ->
     Shell.Exec(fsYacc, @"../../absil/ilpars.fsy" + lexArgs + yaccArgs + module1 + open1 + " -o ilpars.fs", workDir) |> assertExitCodeZero
     Shell.Exec(fsYacc, @"../pars.fsy" + lexArgs + yaccArgs + module2 + open2 + " -o pars.fs", workDir) |> assertExitCodeZero
     Shell.Exec(fsYacc, @"../pppars.fsy" + lexArgs + yaccArgs + module3 + open3 + " -o pppars.fs", workDir) |> assertExitCodeZero
+)
 
+Target "DotnetCliBuild" (fun _ ->
+    let workDir = @"src/fsharp/FSharp.Compiler.Service.netcore/"
+    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
     Shell.Exec("dotnet", "pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
     
-    // FSharp.Compiler.Service.ProjectCracker
     let workDir = @"src/fsharp/FSharp.Compiler.Service.ProjectCracker.netcore/"
     Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
     Shell.Exec("dotnet", "pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
@@ -255,7 +256,7 @@ Target "DotnetCliBuild" (fun _ ->
 Target "DotnetCliTests" (fun _ ->
     let workDir = @"tests/FSharp.Compiler.Service.Tests.netcore/"
     Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "run", workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "run -c Release", workDir) |> assertExitCodeZero
 )
 
 // --------------------------------------------------------------------------------------
@@ -265,9 +266,10 @@ Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "All" DoNothing
 Target "Release" DoNothing
-Target "AllDotnetCli" DoNothing
+Target "DotnetCli" DoNothing
 
-"AllDotnetCli"
+"DotnetCli"
+  =?> ("DotnetCliCodeGen", isDotnetCliInstalled)
   =?> ("DotnetCliBuild", isDotnetCliInstalled)
   =?> ("DotnetCliTests", isDotnetCliInstalled)
 

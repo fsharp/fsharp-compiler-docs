@@ -1585,6 +1585,25 @@ let GetFsiLibraryName () = "FSharp.Compiler.Interactive.Settings"
 //    (b) included in environment for files 'orphaned' from a project context
 //            -- for orphaned files (files in VS without a project context)
 //            -- for files given on a command line without --noframework set
+#if TODO_REWORK_ASSEMBLY_LOAD
+
+// .NET Core references
+let DefaultBasicReferencesForOutOfProjectSources = 
+    [   yield typeof<System.Object>.Assembly.Location; // mscorlib
+        yield typeof<System.Console>.Assembly.Location; // System.Console
+        yield typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
+        yield typeof<System.ComponentModel.PropertyChangedEventArgs>.Assembly.Location; // System.ObjectModel             
+        yield typeof<System.IO.BufferedStream>.Assembly.Location; // System.IO
+        yield typeof<System.Linq.Enumerable>.Assembly.Location; // System.Linq
+        yield typeof<System.Xml.Linq.XDocument>.Assembly.Location; // System.Xml.Linq
+        yield typeof<System.Net.WebRequest>.Assembly.Location; // System.Net.Requests
+        yield typeof<System.Numerics.BigInteger>.Assembly.Location; // System.Runtime.Numerics
+        yield typeof<System.Threading.Tasks.TaskExtensions>.Assembly.Location; // System.Threading.Tasks
+        yield typeof<Microsoft.FSharp.Core.MeasureAttribute>.Assembly.Location; // FSharp.Core
+    ]
+let DefaultBasicReferencesForOutOfProjectSources40 = []
+
+#else    
 let DefaultBasicReferencesForOutOfProjectSources = 
     [ yield "System"
       yield "System.Xml" 
@@ -1618,6 +1637,8 @@ let DefaultBasicReferencesForOutOfProjectSources =
 // Extra implicit references for .NET 4.0
 let DefaultBasicReferencesForOutOfProjectSources40 = 
     [ "System.Numerics" ]
+    
+#endif
 
 // A set of assemblies to always consider to be system assemblies
 let SystemAssemblies primaryAssemblyName = 

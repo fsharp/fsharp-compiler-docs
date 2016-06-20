@@ -4849,6 +4849,7 @@ module private ScriptPreprocessClosure =
             | CodeContext.Compilation | CodeContext.Evaluation -> MSBuildResolver.CompileTimeLike
 #endif
         tcConfigB.framework <- false 
+        tcConfigB.useMonoResolution <- useMonoResolution
         // Indicates that there are some references not in BasicReferencesForScriptLoadClosure which should
         // be added conditionally once the relevant version of mscorlib.dll has been detected.
         tcConfigB.addVersionSpecificFrameworkReferences <- true 

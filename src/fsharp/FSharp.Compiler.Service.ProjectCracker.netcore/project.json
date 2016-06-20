@@ -51,17 +51,17 @@
       "type": "platform",
       "version": "1.0.0-rc2-3002702"
     },
-    "Microsoft.Build": "0.1.0-preview-*",
-    "Microsoft.Build.Framework": "0.1.0-preview-*",
-    "Microsoft.Build.Tasks.Core": "0.1.0-preview-*",
-    "Microsoft.Build.Utilities.Core": "0.1.0-preview-*",
+    "Microsoft.Build": "0.1.0-preview-00022",
+    "Microsoft.Build.Framework": "0.1.0-preview-00022",
+    "Microsoft.Build.Tasks.Core": "0.1.0-preview-00022",
+    "Microsoft.Build.Utilities.Core": "0.1.0-preview-00022",
     "System.Runtime.Serialization.Json": "4.0.2-rc2-*",
     "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
     "FSharp.Compiler.Service.netcore": "1.0.0-alpha-*",
   },
   "tools": {
     "dotnet-compile-fsc": {
-      "version": "1.0.0-rc2-*",
+      "version": "1.0.0-preview1-*",
       "imports": [
         "dnxcore50",
         "portable-net45+win81",

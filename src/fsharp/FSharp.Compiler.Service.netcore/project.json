@@ -192,7 +192,8 @@
     "embed": {
       "mappings": {
         "FSComp": "FSComp.resx",
-        "FSStrings": "../FSStrings.resx"
+        "FSStrings": "../FSStrings.resx",
+        "FSIstrings": "FSIstrings.resx"
       }
     },
     "define": [

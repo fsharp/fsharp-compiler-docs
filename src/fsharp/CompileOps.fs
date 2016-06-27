@@ -5005,8 +5005,7 @@ module private ScriptPreprocessClosure =
                                     [ClosedSourceFile(filename,m,None,[],[],[])] // Don't traverse into .fs leafs.
                         
                         let loadedSources = (!tcConfig).GetAvailableLoadedSources() |> List.rev |> List.map AddFileIfNotSeen |> List.concat
-                        (loadedSources |> List.map FindClosure |> List.concat)
-                            @  [ClosedSourceFile(filename,m,Some(input),!errors,!warnings,!noWarns)]
+                        ClosedSourceFile(filename,m,Some(input),!errors,!warnings,!noWarns) :: loadedSources |> List.map FindClosure |> List.concat // Final closure is in reverse order. Keep the closed source at the top.
                     | None -> [ClosedSourceFile(filename,m,None,!errors,!warnings,[])]
 
         closureDirectives |> List.map FindClosure |> List.concat, !tcConfig
@@ -5068,7 +5067,7 @@ module private ScriptPreprocessClosure =
         let rootWarnings = rootWarnings |> List.filter isRootRange
         
         let result : LoadClosure = 
-            { SourceFiles = List.groupByFirst !sourceFiles |> List.rev
+            { SourceFiles = List.groupByFirst !sourceFiles
               References = List.groupByFirst references
               UnresolvedReferences = unresolvedReferences
               Inputs = !sourceInputs

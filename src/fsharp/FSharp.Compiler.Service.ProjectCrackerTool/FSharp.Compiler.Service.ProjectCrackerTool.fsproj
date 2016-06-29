@@ -10,7 +10,7 @@
     <RootNamespace>FSharp.Compiler.Service.ProjectCrackerTool</RootNamespace>
     <AssemblyName>FSharp.Compiler.Service.ProjectCrackerTool</AssemblyName>
     <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.5</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
+    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <Name>FSharp.Compiler.Service.ProjectCrackerTool</Name>
     <OtherFlags>$(OtherFlags) --staticlink:FSharp.Core</OtherFlags>

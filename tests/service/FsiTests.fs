@@ -151,7 +151,7 @@ let ``EvalExpression parse failure nothrow``() =
     |> shouldEqual 
           ["exception Operation could not be completed due to earlier error";
            "error 1,5 - 1,8; Unexpected keyword 'let' or 'use' in binding";
-           "error 1,1 - 1,4; Block following this 'let' is unfinished. Expect an expression."]
+           "error 1,1 - 1,4; The block following this 'let' is unfinished. Every code block is an expression and must have a result. 'let' cannot be the final code element in a block. Consider giving this block an explicit result."]
 
 [<Test>]
 let ``EvalInteraction typecheck failure``() = 

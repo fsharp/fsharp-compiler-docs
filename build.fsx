@@ -80,7 +80,7 @@ Target "GenerateFSIStrings" (fun _ ->
       let dir = __SOURCE_DIRECTORY__ </> "src/fsharp/fsi"
       p.Arguments <- "FSIstrings.txt FSIstrings.fs FSIstrings.resx"
       p.WorkingDirectory <- dir
-      p.FileName <- !! "lib/bootstrap/4.0/fssrgen.exe" |> Seq.head ) TimeSpan.MaxValue
+      p.FileName <- !! "packages/FsSrGen/lib/net46/fssrgen.exe" |> Seq.head ) TimeSpan.MaxValue
     |> ignore
 )
 

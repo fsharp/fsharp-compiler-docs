@@ -29,7 +29,7 @@ open Microsoft.FSharp.Compiler.Ast
 /// does not explicitly define it..
 let rec visitModulesAndNamespaces modulesOrNss =
   for moduleOrNs in modulesOrNss do
-    let (SynModuleOrNamespace(lid, isModule, decls, xmlDoc, attribs, synAccess, m)) = moduleOrNs
+    let (SynModuleOrNamespace(lid, isRec, isModule, decls, xmlDoc, attribs, synAccess, m)) = moduleOrNs
     printfn "Namespace or module: %A" lid
     visitDeclarations decls
 

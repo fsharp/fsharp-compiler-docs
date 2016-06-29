@@ -1180,6 +1180,7 @@ let rec emitInstr cenv (modB : ModuleBuilder) emEnv (ilG:ILGenerator) instr =
     | I_rethrow                    -> ilG.EmitAndLog(OpCodes.Rethrow)
     | I_break                      -> ilG.EmitAndLog(OpCodes.Break)
 #if FX_RESHAPED_REFEMIT
+    | I_seqpoint _                 -> ()
 #else
     | I_seqpoint src               -> 
         if cenv.generatePdb && not (src.Document.File.EndsWith("stdin",StringComparison.Ordinal)) then

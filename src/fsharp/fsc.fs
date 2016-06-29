@@ -13,16 +13,18 @@
 module internal Microsoft.FSharp.Compiler.Driver 
 
 open System
+open System.Collections.Generic
 open System.Diagnostics
 open System.Globalization
 open System.IO
-open System.Threading
 open System.Reflection
-open System.Collections.Generic
 open System.Runtime.CompilerServices
 open System.Text
+open System.Threading
+
 open Internal.Utilities
 open Internal.Utilities.Collections
+
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
@@ -35,22 +37,23 @@ open Microsoft.FSharp.Compiler.AbstractIL.IL
 #else
 open Microsoft.FSharp.Compiler.IlxGen
 #endif
+
+open Microsoft.FSharp.Compiler.AccessibilityLogic
+open Microsoft.FSharp.Compiler.AttributeChecking
 open Microsoft.FSharp.Compiler.Ast
+open Microsoft.FSharp.Compiler.CompileOps
+open Microsoft.FSharp.Compiler.CompileOptions
 open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.TypeChecker
 open Microsoft.FSharp.Compiler.Infos
-open Microsoft.FSharp.Compiler.Infos.AccessibilityLogic
-open Microsoft.FSharp.Compiler.Infos.AttributeChecking
+open Microsoft.FSharp.Compiler.Lib
+open Microsoft.FSharp.Compiler.DiagnosticMessage
+open Microsoft.FSharp.Compiler.Optimizer
+open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.InfoReader
+open Microsoft.FSharp.Compiler.TypeChecker
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Tastops
-open Microsoft.FSharp.Compiler.Optimizer
 open Microsoft.FSharp.Compiler.TcGlobals
-open Microsoft.FSharp.Compiler.CompileOps
-open Microsoft.FSharp.Compiler.Lib
-open Microsoft.FSharp.Compiler.CompileOptions
-open Microsoft.FSharp.Compiler.DiagnosticMessage
-open Microsoft.FSharp.Core
 
 #if EXTENSIONTYPING
 open Microsoft.FSharp.Compiler.ExtensionTyping
@@ -225,7 +228,7 @@ let AdjustForScriptCompile(tcConfigB:TcConfigBuilder,commandLineSourceFiles,lexR
     let tcConfig = TcConfig.Create(tcConfigB,validate=false) 
     
     let AddIfNotPresent(filename:string) =
-        if not(!allSources |> List.mem filename) then
+        if not(!allSources |> List.contains filename) then
             allSources := filename::!allSources
     
     let AppendClosureInformation(filename) =
@@ -399,14 +402,14 @@ let GetTcImportsFromCommandLine
     ReportTime tcConfig "Parse inputs"
     use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
     let inputs =
-        try  
-            sourceFiles 
-            |> tcConfig.ComputeCanContainEntryPoint 
+        try
+            let isLastCompiland, isExe = sourceFiles |> tcConfig.ComputeCanContainEntryPoint 
+            isLastCompiland 
             |> List.zip sourceFiles
             // PERF: consider making this parallel, once uses of global state relevant to parsing are cleaned up 
-            |> List.choose (fun (filename:string,isLastCompiland:bool) -> 
+            |> List.choose (fun (filename:string, isLastCompiland) -> 
                 let pathOfMetaCommandSource = Path.GetDirectoryName(filename)
-                match ParseOneInputFile(tcConfig,lexResourceManager,["COMPILED"],filename,isLastCompiland,errorLogger,(*retryLocked*)false) with
+                match ParseOneInputFile(tcConfig,lexResourceManager,["COMPILED"],filename,(isLastCompiland, isExe),errorLogger,(*retryLocked*)false) with
                 | Some(input)->Some(input,pathOfMetaCommandSource)
                 | None -> None
                 ) 
@@ -1572,7 +1575,7 @@ module StaticLinker =
               ReportTime tcConfig "Static link";
 
 #if EXTENSIONTYPING
-              Morphs.enablemorphCustomAttributeData()
+              Morphs.enableMorphCustomAttributeData()
               let providerGeneratedILModules =  FindProviderGeneratedILModules (tcImports, providerGeneratedAssemblies) 
 
               // Transform the ILTypeRefs references in the IL of all provider-generated assemblies so that the references
@@ -1694,7 +1697,7 @@ module StaticLinker =
 
                   providerGeneratedILModules, ilxMainModule
              
-              Morphs.disablemorphCustomAttributeData()
+              Morphs.disableMorphCustomAttributeData()
 #else
               let providerGeneratedILModules = []
 #endif
@@ -2117,20 +2120,7 @@ let main2b (tcImportsCapture,dynamicAssemblyCreator) (Args(tcConfig:TcConfig, tc
     
     Args (tcConfig,errorLogger,staticLinker,ilGlobals,outfile,pdbfile,ilxMainModule,signingInfo,exiter)
 
-let main2c(Args(tcConfig, errorLogger, staticLinker, ilGlobals, outfile, pdbfile, ilxMainModule, signingInfo, exiter: Exiter)) = 
-      
-    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.IlGen)
-    
-    ReportTime tcConfig "ILX -> IL (Unions)"; 
-    let ilxMainModule = EraseUnions.ConvModule ilGlobals ilxMainModule
-    ReportTime tcConfig "ILX -> IL (Funcs)"; 
-    let ilxMainModule = EraseClosures.ConvModule ilGlobals ilxMainModule 
-
-    AbortOnError(errorLogger,tcConfig,exiter)
-    Args(tcConfig,errorLogger,staticLinker,ilGlobals,ilxMainModule,outfile,pdbfile,signingInfo,exiter)
-  
-
-let main3(Args(tcConfig, errorLogger: ErrorLogger, staticLinker, ilGlobals, ilxMainModule, outfile, pdbfile, signingInfo, exiter:Exiter)) = 
+let main3(Args(tcConfig, errorLogger: ErrorLogger, staticLinker, ilGlobals, outfile, pdbfile, ilxMainModule, signingInfo, exiter:Exiter)) = 
         
     let ilxMainModule =  
         try  staticLinker ilxMainModule
@@ -2171,7 +2161,6 @@ let typecheckAndCompile(argv,bannerAlreadyPrinted,openBinariesInMemory,exiter:Ex
     |> main1
     |> main2
     |> main2b (tcImportsCapture,dynamicAssemblyCreator)
-    |> main2c
     |> main3 
     |> main4 dynamicAssemblyCreator
 
@@ -2180,7 +2169,6 @@ let compileOfAst (openBinariesInMemory, assemblyName, target, outFile, pdbFile, 
     main1OfAst (openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs)
     |> main2
     |> main2b (tcImportsCapture, dynamicAssemblyCreator)
-    |> main2c
     |> main3
     |> main4 dynamicAssemblyCreator
 

@@ -57,7 +57,7 @@ module ExprUtilsImpl =
                 // TODO: this will not work for curried methods in F# classes.
                 // This is difficult to solve as the information in the ILMethodRef
                 // is not sufficient to resolve to a symbol unambiguously in these cases.
-                let argtys = [ ilMethRef.ArgTypes |> List.map (ImportTypeFromMetadata cenv.amap m scoref tinst1 tinst2) ]
+                let argtys = [ ilMethRef.ArgTypes |> List.map (ImportILTypeFromMetadata cenv.amap m scoref tinst1 tinst2) ]
                 let rty = 
                     match ImportReturnTypeFromMetaData cenv.amap m ilMethRef.ReturnType scoref tinst1 tinst2 with 
                     | None -> if isCtor then  enclosingType else cenv.g.unit_ty
@@ -935,15 +935,17 @@ and FSharpImplementationFileContents(cenv, mimpl) =
 
     and getDecls mdef = 
         match mdef with 
-        | TMDefRec(tycons,binds,mbinds,_m) -> 
+        | TMDefRec(isRec,tycons,mbinds,_m) -> 
             [ for tycon in tycons do 
                   let entity = FSharpEntity(cenv, mkLocalEntityRef tycon)
                   yield FSharpImplementationFileDeclaration.Entity(entity, []) 
-              for bind in binds do 
-                  yield getBind bind
-              for (ModuleOrNamespaceBinding(mspec, def)) in mbinds do 
-                  let entity = FSharpEntity(cenv, mkLocalEntityRef mspec)
-                  yield FSharpImplementationFileDeclaration.Entity (entity, getDecls def) ]
+              for mbind in mbinds do 
+                  match mbind with 
+                  | ModuleOrNamespaceBinding.Module(mspec, def) -> 
+                      let entity = FSharpEntity(cenv, mkLocalEntityRef mspec)
+                      yield FSharpImplementationFileDeclaration.Entity (entity, getDecls def) 
+                  | ModuleOrNamespaceBinding.Binding(bind) -> 
+                      yield getBind bind ]
         | TMAbstract(mexpr) -> getDecls2 mexpr
         | TMDefLet(bind,_m)  ->
             [ yield getBind bind  ]

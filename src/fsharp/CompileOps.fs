@@ -7,26 +7,29 @@ open System
 open System.Text
 open System.IO
 open System.Collections.Generic
+open System.Runtime.CompilerServices
+
 open Internal.Utilities
 open Internal.Utilities.Text
-open Microsoft.FSharp.Compiler 
+open Internal.Utilities.Collections
+open Internal.Utilities.Filename
+
 open Microsoft.FSharp.Compiler.AbstractIL 
 open Microsoft.FSharp.Compiler.AbstractIL.IL 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
 open Microsoft.FSharp.Compiler.AbstractIL.Extensions.ILX
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
+
+open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.TastPickle
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.TypeChecker
 open Microsoft.FSharp.Compiler.SR
 open Microsoft.FSharp.Compiler.DiagnosticMessage
-
-module Tc = Microsoft.FSharp.Compiler.TypeChecker
-
-open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Ast
+open Microsoft.FSharp.Compiler.AttributeChecking
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Tast
 open Microsoft.FSharp.Compiler.Tastops
@@ -38,17 +41,17 @@ open Microsoft.FSharp.Compiler.Infos
 open Microsoft.FSharp.Compiler.ConstraintSolver
 open Microsoft.FSharp.Compiler.MSBuildResolver
 open Microsoft.FSharp.Compiler.TypeRelations
+open Microsoft.FSharp.Compiler.SignatureConformance
+open Microsoft.FSharp.Compiler.MethodOverrides
 open Microsoft.FSharp.Compiler.NameResolution
 open Microsoft.FSharp.Compiler.PrettyNaming
-open Internal.Utilities.Collections
-open Internal.Utilities.Filename
 open Microsoft.FSharp.Compiler.Import
+
 
 #if EXTENSIONTYPING
 open Microsoft.FSharp.Compiler.ExtensionTyping
 open Microsoft.FSharp.Core.CompilerServices
 #endif
-open System.Runtime.CompilerServices
 
 #if FX_RESHAPED_REFLECTION
 open Microsoft.FSharp.Core.ReflectionAdapters
@@ -113,9 +116,9 @@ let GetRangeOfError(err:PhasedError) =
 #endif
       | ReservedKeyword(_,m)
       | IndentationProblem(_,m)
-      | ErrorFromAddingTypeEquation(_,_,_,_,_,m) 
+      | ErrorFromAddingTypeEquation(_,_,_,_,_,_,m) 
       | ErrorFromApplyingDefault(_,_,_,_,_,m) 
-      | ErrorsFromAddingSubsumptionConstraint(_,_,_,_,_,m) 
+      | ErrorsFromAddingSubsumptionConstraint(_,_,_,_,_,_,m)
       | FunctionExpected(_,_,m)
       | BakedInMemberConstraintName(_,m)
       | StandardOperatorRedefinitionWarning(_,m)
@@ -197,9 +200,9 @@ let GetRangeOfError(err:PhasedError) =
       | NonVirtualAugmentationOnNullValuedType(m)
       | NonRigidTypar(_,_,_,_,_,m)
       | ConstraintSolverTupleDiffLengths(_,_,_,m,_) 
-      | ConstraintSolverInfiniteTypes(_,_,_,m,_) 
+      | ConstraintSolverInfiniteTypes(_,_,_,_,m,_) 
       | ConstraintSolverMissingConstraint(_,_,_,m,_) 
-      | ConstraintSolverTypesNotInEqualityRelation(_,_,_,m,_) 
+      | ConstraintSolverTypesNotInEqualityRelation(_,_,_,m,_)
       | ConstraintSolverError(_,m,_) 
       | ConstraintSolverTypesNotInSubsumptionRelation(_,_,_,m,_) 
       | ConstraintSolverRelatedInformation(_,m,_) 
@@ -366,6 +369,7 @@ let GetErrorNumber(err:PhasedError) =
 #if EXTENSIONTYPING
       | :? TypeProviderError as e -> e.Number
 #endif
+      | ErrorsFromAddingSubsumptionConstraint (_,_,_,_,_,ContextInfo.DowncastUsedInsteadOfUpcast _,_) -> fst (FSComp.SR.considerUpcast("",""))
       | _ -> 193
    GetFromException err.Exception
    
@@ -388,7 +392,7 @@ let GetWarningLevel err =
 
 let warningOn err level specificWarnOn = 
     let n = GetErrorNumber err
-    List.mem n specificWarnOn ||
+    List.contains n specificWarnOn ||
     // Some specific warnings are never on by default, i.e. unused variable warnings
     match n with 
     | 1182 -> false // chkUnusedValue - off by default
@@ -404,15 +408,15 @@ let SplitRelatedErrors(err:PhasedError) =
       | ConstraintSolverRelatedInformation(fopt,m2,e) -> 
           let e,related = SplitRelatedException e
           ConstraintSolverRelatedInformation(fopt,m2,e.Exception)|>ToPhased, related
-      | ErrorFromAddingTypeEquation(g,denv,t1,t2,e,m) ->
+      | ErrorFromAddingTypeEquation(g,denv,t1,t2,e,specializedMessageF,m) ->
           let e,related = SplitRelatedException e
-          ErrorFromAddingTypeEquation(g,denv,t1,t2,e.Exception,m)|>ToPhased, related
+          ErrorFromAddingTypeEquation(g,denv,t1,t2,e.Exception,specializedMessageF,m)|>ToPhased, related
       | ErrorFromApplyingDefault(g,denv,tp,defaultType,e,m) ->  
           let e,related = SplitRelatedException e
           ErrorFromApplyingDefault(g,denv,tp,defaultType,e.Exception,m)|>ToPhased, related
-      | ErrorsFromAddingSubsumptionConstraint(g,denv,t1,t2,e,m) ->  
+      | ErrorsFromAddingSubsumptionConstraint(g,denv,t1,t2,e,contextInfo,m) ->  
           let e,related = SplitRelatedException e
-          ErrorsFromAddingSubsumptionConstraint(g,denv,t1,t2,e.Exception,m)|>ToPhased, related
+          ErrorsFromAddingSubsumptionConstraint(g,denv,t1,t2,e.Exception,contextInfo,m)|>ToPhased, related
       | ErrorFromAddingConstraint(x,e,m) ->  
           let e,related = SplitRelatedException e
           ErrorFromAddingConstraint(x,e.Exception,m)|>ToPhased, related
@@ -527,7 +531,7 @@ let UseOfAddressOfOperatorE() = DeclareResourceString("UseOfAddressOfOperator","
 let DefensiveCopyWarningE() = DeclareResourceString("DefensiveCopyWarning","%s")
 let DeprecatedThreadStaticBindingWarningE() = DeclareResourceString("DeprecatedThreadStaticBindingWarning","")
 let FunctionValueUnexpectedE() = DeclareResourceString("FunctionValueUnexpected","%s")
-let UnitTypeExpected1E() = DeclareResourceString("UnitTypeExpected1","%s")
+let UnitTypeExpected1E() = DeclareResourceString("UnitTypeExpected1","")
 let UnitTypeExpected2E() = DeclareResourceString("UnitTypeExpected2","%s")
 let RecursiveUseCheckedAtRuntimeE() = DeclareResourceString("RecursiveUseCheckedAtRuntime","")
 let LetRecUnsound1E() = DeclareResourceString("LetRecUnsound1","%s")
@@ -551,7 +555,7 @@ let MatchIncomplete2E() = DeclareResourceString("MatchIncomplete2","%s")
 let MatchIncomplete3E() = DeclareResourceString("MatchIncomplete3","%s")
 let MatchIncomplete4E() = DeclareResourceString("MatchIncomplete4","")
 let RuleNeverMatchedE() = DeclareResourceString("RuleNeverMatched","")
-let ValNotMutableE() = DeclareResourceString("ValNotMutable","")
+let ValNotMutableE() = DeclareResourceString("ValNotMutable","%s")
 let ValNotLocalE() = DeclareResourceString("ValNotLocal","")
 let Obsolete1E() = DeclareResourceString("Obsolete1","")
 let Obsolete2E() = DeclareResourceString("Obsolete2","%s")
@@ -598,10 +602,18 @@ let OutputPhasedErrorR (os:System.Text.StringBuilder) (err:PhasedError) =
           os.Append(ConstraintSolverTupleDiffLengthsE().Format tl1.Length tl2.Length) |> ignore
           (if m.StartLine <> m2.StartLine then 
              os.Append(SeeAlsoE().Format (stringOfRange m)) |> ignore)
-      | ConstraintSolverInfiniteTypes(denv,t1,t2,m,m2) ->
-          // REVIEW: consider if we need to show _cxs (the type parameter constrants)
+      | ConstraintSolverInfiniteTypes(contextInfo,denv,t1,t2,m,m2) ->
+          // REVIEW: consider if we need to show _cxs (the type parameter constraints)
           let t1, t2, _cxs = NicePrint.minimalStringsOfTwoTypes denv t1 t2
           os.Append(ConstraintSolverInfiniteTypesE().Format t1 t2)  |> ignore
+
+          match contextInfo with
+          | ContextInfo.ReturnInComputationExpression ->
+            os.Append(" " + FSComp.SR.returnUsedInsteadOfReturnBang()) |> ignore
+          | ContextInfo.YieldInComputationExpression ->
+            os.Append(" " + FSComp.SR.yieldUsedInsteadOfYieldBang()) |> ignore
+          | _ -> ()
+
           (if m.StartLine <> m2.StartLine then 
              os.Append(SeeAlsoE().Format (stringOfRange m)) |> ignore )
       | ConstraintSolverMissingConstraint(denv,tpr,tpc,m,m2) -> 
@@ -609,9 +621,9 @@ let OutputPhasedErrorR (os:System.Text.StringBuilder) (err:PhasedError) =
           (if m.StartLine <> m2.StartLine then 
              os.Append(SeeAlsoE().Format (stringOfRange m)) |> ignore )
       | ConstraintSolverTypesNotInEqualityRelation(denv,(TType_measure _ as t1),(TType_measure _ as t2),m,m2) -> 
-          // REVIEW: consider if we need to show _cxs (the type parameter constrants)
+          // REVIEW: consider if we need to show _cxs (the type parameter constraints)
           let t1, t2, _cxs = NicePrint.minimalStringsOfTwoTypes denv t1 t2
-          os.Append(ConstraintSolverTypesNotInEqualityRelation1E().Format t1 t2)  |> ignore
+          os.Append(ConstraintSolverTypesNotInEqualityRelation1E().Format t1 t2 )  |> ignore
           (if m.StartLine <> m2.StartLine then 
              os.Append(SeeAlsoE().Format (stringOfRange m))  |> ignore)
       | ConstraintSolverTypesNotInEqualityRelation(denv,t1,t2,m,m2) -> 
@@ -621,7 +633,7 @@ let OutputPhasedErrorR (os:System.Text.StringBuilder) (err:PhasedError) =
           (if m.StartLine <> m2.StartLine then 
              os.Append(SeeAlsoE().Format (stringOfRange m)) |> ignore)
       | ConstraintSolverTypesNotInSubsumptionRelation(denv,t1,t2,m,m2) -> 
-          // REVIEW: consider if we need to show _cxs (the type parameter constrants)
+          // REVIEW: consider if we need to show _cxs (the type parameter constraints)
           let t1, t2, cxs= NicePrint.minimalStringsOfTwoTypes denv t1 t2
           os.Append(ConstraintSolverTypesNotInSubsumptionRelationE().Format t2 t1 cxs) |> ignore
           (if m.StartLine <> m2.StartLine then 
@@ -635,14 +647,23 @@ let OutputPhasedErrorR (os:System.Text.StringBuilder) (err:PhasedError) =
           | ConstraintSolverError _ -> OutputExceptionR os e
           | _ -> ()
           fopt |> Option.iter (Printf.bprintf os " %s")
-      | ErrorFromAddingTypeEquation(g,denv,t1,t2,ConstraintSolverTypesNotInEqualityRelation(_, t1', t2',_ ,_ ),_) 
+      | ErrorFromAddingTypeEquation(g,denv,t1,t2,ConstraintSolverTypesNotInEqualityRelation(_, t1', t2',_ ,_ ),contextInfo,_) 
          when typeEquiv g t1 t1'
-         &&   typeEquiv g t2 t2' ->  
+         &&   typeEquiv g t2 t2' ->
           let t1,t2,tpcs = NicePrint.minimalStringsOfTwoTypes denv t1 t2
-          os.Append(ErrorFromAddingTypeEquation1E().Format t2 t1 tpcs) |> ignore
-      | ErrorFromAddingTypeEquation(_,_,_,_,((ConstraintSolverTypesNotInSubsumptionRelation _ | ConstraintSolverError _) as e),_)  ->  
+          match contextInfo with
+          | ContextInfo.OmittedElseBranch -> os.Append(FSComp.SR.missingElseBranch(t2)) |> ignore
+          | ContextInfo.ElseBranch -> os.Append(FSComp.SR.elseBranchHasWrongType(t1,t2)) |> ignore
+          | ContextInfo.TupleInRecordFields ->
+                os.Append(ErrorFromAddingTypeEquation1E().Format t2 t1 tpcs) |> ignore
+                os.Append(System.Environment.NewLine + FSComp.SR.commaInsteadOfSemicolonInRecord()) |> ignore
+          | _ when t2 = "bool" && t1.EndsWith " ref" ->
+                os.Append(ErrorFromAddingTypeEquation1E().Format t2 t1 tpcs) |> ignore
+                os.Append(System.Environment.NewLine + FSComp.SR.derefInsteadOfNot()) |> ignore
+          | _ -> os.Append(ErrorFromAddingTypeEquation1E().Format t2 t1 tpcs) |> ignore
+      | ErrorFromAddingTypeEquation(_,_,_,_,((ConstraintSolverTypesNotInSubsumptionRelation _ | ConstraintSolverError _) as e), _, _)  ->  
           OutputExceptionR os e
-      | ErrorFromAddingTypeEquation(g,denv,t1,t2,e,_) ->
+      | ErrorFromAddingTypeEquation(g,denv,t1,t2,e,_,_) ->
           if not (typeEquiv g t1 t2) then (
               let t1,t2,tpcs = NicePrint.minimalStringsOfTwoTypes denv t1 t2
               if t1<>t2 + tpcs then os.Append(ErrorFromAddingTypeEquation2E().Format t1 t2 tpcs) |> ignore
@@ -653,13 +674,23 @@ let OutputPhasedErrorR (os:System.Text.StringBuilder) (err:PhasedError) =
           os.Append(ErrorFromApplyingDefault1E().Format defaultType) |> ignore
           OutputExceptionR os e
           os.Append(ErrorFromApplyingDefault2E().Format) |> ignore
-      | ErrorsFromAddingSubsumptionConstraint(g,denv,t1,t2,e,_) ->  
-          if not (typeEquiv g t1 t2) then (
-              let t1,t2,tpcs = NicePrint.minimalStringsOfTwoTypes denv t1 t2
-              if t1 <> (t2 + tpcs) then 
-                  os.Append(ErrorsFromAddingSubsumptionConstraintE().Format t2 t1 tpcs) |> ignore
-          )
-          OutputExceptionR os e
+      | ErrorsFromAddingSubsumptionConstraint(g,denv,t1,t2,e,contextInfo,_) ->
+          match contextInfo with
+          | ContextInfo.DowncastUsedInsteadOfUpcast isOperator -> 
+              let t1,t2,_ = NicePrint.minimalStringsOfTwoTypes denv t1 t2
+              if isOperator then
+                  os.Append(FSComp.SR.considerUpcastOperator(t1,t2) |> snd) |> ignore
+              else
+                  os.Append(FSComp.SR.considerUpcast(t1,t2) |> snd) |> ignore
+          | _ ->
+              if not (typeEquiv g t1 t2) then
+                  let t1,t2,tpcs = NicePrint.minimalStringsOfTwoTypes denv t1 t2
+                  if t1 <> (t2 + tpcs) then 
+                      os.Append(ErrorsFromAddingSubsumptionConstraintE().Format t2 t1 tpcs) |> ignore
+                  else
+                      OutputExceptionR os e
+              else
+                  OutputExceptionR os e
       | UpperCaseIdentifierInPattern(_) -> 
           os.Append(UpperCaseIdentifierInPatternE().Format) |> ignore
       | NotUpperCaseConstructor(_) -> 
@@ -722,8 +753,12 @@ let OutputPhasedErrorR (os:System.Text.StringBuilder) (err:PhasedError) =
               os.Append(Duplicate1E().Format (DecompileOpName s)) |> ignore
           else 
               os.Append(Duplicate2E().Format k (DecompileOpName s)) |> ignore
-      | UndefinedName(_,k,id,_) -> 
+      | UndefinedName(_,k,id,predictions) ->
           os.Append(k (DecompileOpName id.idText)) |> ignore
+          if Set.isEmpty predictions |> not then
+              let filtered = ErrorResolutionHints.FilterPredictions id.idText predictions
+              os.Append(ErrorResolutionHints.FormatPredictions filtered) |> ignore
+          
       | InternalUndefinedItemRef(f,smr,ccuName,s) ->  
           let _, errs = f(smr, ccuName, s)  
           os.Append(errs) |> ignore  
@@ -1150,7 +1185,7 @@ let OutputPhasedErrorR (os:System.Text.StringBuilder) (err:PhasedError) =
           if perhapsProp then 
             os.Append(UnitTypeExpected2E().Format (NicePrint.stringOfTy denv ty)) |> ignore
           else
-            os.Append(UnitTypeExpected1E().Format (NicePrint.stringOfTy denv ty)) |> ignore
+            os.Append(UnitTypeExpected1E().Format) |> ignore
       | RecursiveUseCheckedAtRuntime  _ -> 
           os.Append(RecursiveUseCheckedAtRuntimeE().Format) |> ignore
       | LetRecUnsound (_,[v],_) ->  
@@ -1209,7 +1244,7 @@ let OutputPhasedErrorR (os:System.Text.StringBuilder) (err:PhasedError) =
           if isComp then 
               os.Append(MatchIncomplete4E().Format) |> ignore
       | PatternMatchCompilation.RuleNeverMatched _ -> os.Append(RuleNeverMatchedE().Format) |> ignore
-      | ValNotMutable _ -> os.Append(ValNotMutableE().Format) |> ignore
+      | ValNotMutable(_,valRef,_) -> os.Append(ValNotMutableE().Format(valRef.DisplayName)) |> ignore
       | ValNotLocal _ -> os.Append(ValNotLocalE().Format) |> ignore
       | ObsoleteError (s, _) 
       | ObsoleteWarning (s, _) -> 
@@ -2358,7 +2393,7 @@ type TcConfigBuilder =
                 if not exists then warning(Error(FSComp.SR.buildSearchDirectoryNotFound(absolutePath),m));         
                 exists
             | None -> false
-        if ok && not (List.mem absolutePath tcConfigB.includes) then 
+        if ok && not (List.contains absolutePath tcConfigB.includes) then 
            tcConfigB.includes <- tcConfigB.includes ++ absolutePath
            
     member tcConfigB.AddLoadedSource(m,path,pathLoadedFrom) =
@@ -2371,7 +2406,7 @@ type TcConfigBuilder =
                 | None ->
                     // File doesn't exist in the paths. Assume it will be in the load-ed from directory.
                     ComputeMakePathAbsolute pathLoadedFrom path
-            if not (List.mem path (List.map snd tcConfigB.loadedSources)) then 
+            if not (List.contains path (List.map snd tcConfigB.loadedSources)) then 
                 tcConfigB.loadedSources <- tcConfigB.loadedSources ++ (m,path)
                 
 
@@ -2772,7 +2807,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
 
     member tcConfig.ComputeCanContainEntryPoint(sourceFiles:string list) = 
         let n = sourceFiles.Length in 
-        sourceFiles |> List.mapi (fun i _ -> (i = n-1) && tcConfig.target.IsExe)
+        (sourceFiles |> List.mapi (fun i _ -> (i = n-1)),  tcConfig.target.IsExe)
             
     // This call can fail if no CLR is found (this is the path to mscorlib)
     member tcConfig.ClrRoot = 
@@ -2820,8 +2855,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
         |> List.map resolveLoadedSource 
         |> List.filter Option.isSome 
         |> List.map Option.get                
-        |> Seq.distinct
-        |> Seq.toList        
+        |> List.distinct     
 
     /// A closed set of assemblies where, for any subset S:
     ///    -  the TcImports object built for S (and thus the F# Compiler CCUs for the assemblies in S) 
@@ -3106,13 +3140,13 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
 
 let ReportWarning (globalWarnLevel : int, specificWarnOff : int list, specificWarnOn : int list) err = 
     let n = GetErrorNumber err
-    warningOn err globalWarnLevel specificWarnOn && not (List.mem n specificWarnOff)
+    warningOn err globalWarnLevel specificWarnOn && not (List.contains n specificWarnOff)
 
 let ReportWarningAsError (globalWarnLevel : int, specificWarnOff : int list, specificWarnOn : int list, specificWarnAsError : int list, specificWarnAsWarn : int list, globalWarnAsError : bool) err =
     warningOn err globalWarnLevel specificWarnOn &&
-    not (List.mem (GetErrorNumber err) specificWarnAsWarn) &&
-    ((globalWarnAsError && not (List.mem (GetErrorNumber err) specificWarnOff)) ||
-     List.mem (GetErrorNumber err) specificWarnAsError)
+    not (List.contains (GetErrorNumber err) specificWarnAsWarn) &&
+    ((globalWarnAsError && not (List.contains (GetErrorNumber err) specificWarnOff)) ||
+     List.contains (GetErrorNumber err) specificWarnAsError)
 
 //----------------------------------------------------------------------------
 // Scoped #nowarn pragmas
@@ -3207,17 +3241,17 @@ let ComputeQualifiedNameOfFileFromUniquePath (m, p: string list) = QualifiedName
 
 let QualFileNameOfSpecs filename specs = 
     match specs with 
-    | [SynModuleOrNamespaceSig(modname,true,_,_,_,_,m)] -> QualFileNameOfModuleName m filename modname
+    | [SynModuleOrNamespaceSig(modname,_,true,_,_,_,_,m)] -> QualFileNameOfModuleName m filename modname
     | _ -> QualFileNameOfFilename (rangeN filename 1) filename
 
 let QualFileNameOfImpls filename specs = 
     match specs with 
-    | [SynModuleOrNamespace(modname,true,_,_,_,_,m)] -> QualFileNameOfModuleName m filename modname
+    | [SynModuleOrNamespace(modname,_,true,_,_,_,_,m)] -> QualFileNameOfModuleName m filename modname
     | _ -> QualFileNameOfFilename (rangeN filename 1) filename
 
 let PrepandPathToQualFileName x (QualifiedNameOfFile(q)) = ComputeQualifiedNameOfFileFromUniquePath (q.idRange,pathOfLid x@[q.idText])
-let PrepandPathToImpl x (SynModuleOrNamespace(p,c,d,e,f,g,h)) = SynModuleOrNamespace(x@p,c,d,e,f,g,h)
-let PrepandPathToSpec x (SynModuleOrNamespaceSig(p,c,d,e,f,g,h)) = SynModuleOrNamespaceSig(x@p,c,d,e,f,g,h)
+let PrepandPathToImpl x (SynModuleOrNamespace(p,b,c,d,e,f,g,h)) = SynModuleOrNamespace(x@p,b,c,d,e,f,g,h)
+let PrepandPathToSpec x (SynModuleOrNamespaceSig(p,b,c,d,e,f,g,h)) = SynModuleOrNamespaceSig(x@p,b,c,d,e,f,g,h)
 
 let PrependPathToInput x inp = 
     match inp with 
@@ -3241,54 +3275,64 @@ let ComputeAnonModuleName check defaultNamespace filename (m: range) =
 
 let PostParseModuleImpl (_i,defaultNamespace,isLastCompiland,filename,impl) = 
     match impl with 
-    | ParsedImplFileFragment.NamedModule(SynModuleOrNamespace(lid,isModule,decls,xmlDoc,attribs,access,m)) -> 
+    | ParsedImplFileFragment.NamedModule(SynModuleOrNamespace(lid,isRec,isModule,decls,xmlDoc,attribs,access,m)) -> 
         let lid = 
             match lid with 
             | [id] when isModule && id.idText = MangledGlobalName -> error(Error(FSComp.SR.buildInvalidModuleOrNamespaceName(),id.idRange))
             | id :: rest when id.idText = MangledGlobalName -> rest
             | _ -> lid
-        SynModuleOrNamespace(lid,isModule,decls,xmlDoc,attribs,access,m)
+        SynModuleOrNamespace(lid,isRec,isModule,decls,xmlDoc,attribs,access,m)
 
     | ParsedImplFileFragment.AnonModule (defs,m)-> 
-        if not isLastCompiland && not (doNotRequireNamespaceOrModuleSuffixes |> List.exists (Filename.checkSuffix (String.lowercase filename))) then 
-            errorR(Error(FSComp.SR.buildMultiFileRequiresNamespaceOrModule(),trimRangeToLine m))
-        let modname = ComputeAnonModuleName (nonNil defs) defaultNamespace filename (trimRangeToLine m)
-        SynModuleOrNamespace(modname,true,defs,PreXmlDoc.Empty,[],None,m)
+        let isLast, isExe = isLastCompiland 
+        let lower = String.lowercase filename
+        if not (isLast && isExe) && not (doNotRequireNamespaceOrModuleSuffixes |> List.exists (Filename.checkSuffix lower)) then
+            match defs with
+            | SynModuleDecl.NestedModule(_) :: _ -> errorR(Error(FSComp.SR.noEqualSignAfterModule(),trimRangeToLine m))
+            | _ -> errorR(Error(FSComp.SR.buildMultiFileRequiresNamespaceOrModule(),trimRangeToLine m))
 
-    | ParsedImplFileFragment.NamespaceFragment (lid,b,c,d,e,m)-> 
+        let modname = ComputeAnonModuleName (nonNil defs) defaultNamespace filename (trimRangeToLine m)
+        SynModuleOrNamespace(modname,false,true,defs,PreXmlDoc.Empty,[],None,m)
+
+    | ParsedImplFileFragment.NamespaceFragment (lid,a,b,c,d,e,m)-> 
         let lid = 
             match lid with 
             | id :: rest when id.idText = MangledGlobalName -> rest
             | _ -> lid
-        SynModuleOrNamespace(lid,b,c,d,e,None,m)
+        SynModuleOrNamespace(lid,a,b,c,d,e,None,m)
 
 let PostParseModuleSpec (_i,defaultNamespace,isLastCompiland,filename,intf) = 
     match intf with 
-    | ParsedSigFileFragment.NamedModule(SynModuleOrNamespaceSig(lid,isModule,decls,xmlDoc,attribs,access,m)) -> 
+    | ParsedSigFileFragment.NamedModule(SynModuleOrNamespaceSig(lid,isRec,isModule,decls,xmlDoc,attribs,access,m)) -> 
         let lid = 
             match lid with 
             | [id] when isModule && id.idText = MangledGlobalName -> error(Error(FSComp.SR.buildInvalidModuleOrNamespaceName(),id.idRange))
             | id :: rest when id.idText = MangledGlobalName -> rest
             | _ -> lid
-        SynModuleOrNamespaceSig(lid,isModule,decls,xmlDoc,attribs,access,m)
+        SynModuleOrNamespaceSig(lid,isRec,isModule,decls,xmlDoc,attribs,access,m)
 
     | ParsedSigFileFragment.AnonModule (defs,m) -> 
-        if not isLastCompiland && not (doNotRequireNamespaceOrModuleSuffixes |> List.exists (Filename.checkSuffix (String.lowercase filename))) then 
-            errorR(Error(FSComp.SR.buildMultiFileRequiresNamespaceOrModule(),m))
-        let modname = ComputeAnonModuleName (nonNil defs) defaultNamespace filename (trimRangeToLine m)
-        SynModuleOrNamespaceSig(modname,true,defs,PreXmlDoc.Empty,[],None,m)
+        let isLast, isExe = isLastCompiland
+        let lower = String.lowercase filename
+        if not (isLast && isExe) && not (doNotRequireNamespaceOrModuleSuffixes |> List.exists (Filename.checkSuffix lower)) then 
+            match defs with
+            | SynModuleSigDecl.NestedModule(_) :: _ -> errorR(Error(FSComp.SR.noEqualSignAfterModule(),m))
+            | _ -> errorR(Error(FSComp.SR.buildMultiFileRequiresNamespaceOrModule(),m))
 
-    | ParsedSigFileFragment.NamespaceFragment (lid,b,c,d,e,m)-> 
+        let modname = ComputeAnonModuleName (nonNil defs) defaultNamespace filename (trimRangeToLine m)
+        SynModuleOrNamespaceSig(modname,false,true,defs,PreXmlDoc.Empty,[],None,m)
+
+    | ParsedSigFileFragment.NamespaceFragment (lid,a,b,c,d,e,m)-> 
         let lid = 
             match lid with 
             | id :: rest when id.idText = MangledGlobalName -> rest
             | _ -> lid
-        SynModuleOrNamespaceSig(lid,b,c,d,e,None,m)
+        SynModuleOrNamespaceSig(lid,a,b,c,d,e,None,m)
 
 
 
 let PostParseModuleImpls (defaultNamespace,filename,isLastCompiland,ParsedImplFile(hashDirectives,impls)) = 
-    match impls |> List.rev |> List.tryPick (function ParsedImplFileFragment.NamedModule(SynModuleOrNamespace(lid,_,_,_,_,_,_)) -> Some(lid) | _ -> None) with
+    match impls |> List.rev |> List.tryPick (function ParsedImplFileFragment.NamedModule(SynModuleOrNamespace(lid,_,_,_,_,_,_,_)) -> Some(lid) | _ -> None) with
     | Some lid when impls.Length > 1 -> 
         errorR(Error(FSComp.SR.buildMultipleToplevelModules(),rangeOfLid lid))
     | _ -> 
@@ -3298,7 +3342,7 @@ let PostParseModuleImpls (defaultNamespace,filename,isLastCompiland,ParsedImplFi
     let isScript = IsScript filename
 
     let scopedPragmas = 
-        [ for (SynModuleOrNamespace(_,_,decls,_,_,_,_)) in impls do 
+        [ for (SynModuleOrNamespace(_,_,_,decls,_,_,_,_)) in impls do 
             for d in decls do
                 match d with 
                 | SynModuleDecl.HashDirective (hd,_) -> yield! GetScopedPragmasForHashDirective hd
@@ -3308,7 +3352,7 @@ let PostParseModuleImpls (defaultNamespace,filename,isLastCompiland,ParsedImplFi
     ParsedInput.ImplFile(ParsedImplFileInput(filename,isScript,qualName,scopedPragmas,hashDirectives,impls,isLastCompiland))
   
 let PostParseModuleSpecs (defaultNamespace,filename,isLastCompiland,ParsedSigFile(hashDirectives,specs)) = 
-    match specs |> List.rev |> List.tryPick (function ParsedSigFileFragment.NamedModule(SynModuleOrNamespaceSig(lid,_,_,_,_,_,_)) -> Some(lid) | _ -> None) with
+    match specs |> List.rev |> List.tryPick (function ParsedSigFileFragment.NamedModule(SynModuleOrNamespaceSig(lid,_,_,_,_,_,_,_)) -> Some(lid) | _ -> None) with
     | Some  lid when specs.Length > 1 -> 
         errorR(Error(FSComp.SR.buildMultipleToplevelModules(),rangeOfLid lid))
     | _ -> 
@@ -3317,7 +3361,7 @@ let PostParseModuleSpecs (defaultNamespace,filename,isLastCompiland,ParsedSigFil
     let specs = specs |> List.mapi (fun i x -> PostParseModuleSpec(i,defaultNamespace,isLastCompiland,filename,x)) 
     let qualName = QualFileNameOfSpecs filename specs
     let scopedPragmas = 
-        [ for (SynModuleOrNamespaceSig(_,_,decls,_,_,_,_)) in specs do 
+        [ for (SynModuleOrNamespaceSig(_,_,_,decls,_,_,_,_)) in specs do 
             for d in decls do
                 match d with 
                 | SynModuleSigDecl.HashDirective(hd,_) -> yield! GetScopedPragmasForHashDirective hd
@@ -3396,12 +3440,12 @@ let ParseOneInputLexbuf (tcConfig:TcConfig,lexResourceManager,conditionalCompila
 
                 if tcConfig.reportNumDecls then 
                     let rec flattenSpecs specs = 
-                          specs |> List.collect (function (SynModuleSigDecl.NestedModule (_,subDecls,_)) -> flattenSpecs subDecls | spec -> [spec])
+                          specs |> List.collect (function (SynModuleSigDecl.NestedModule (_,_,subDecls,_)) -> flattenSpecs subDecls | spec -> [spec])
                     let rec flattenDefns specs = 
-                          specs |> List.collect (function (SynModuleDecl.NestedModule (_,subDecls,_,_)) -> flattenDefns subDecls | defn -> [defn])
+                          specs |> List.collect (function (SynModuleDecl.NestedModule (_,_,subDecls,_,_)) -> flattenDefns subDecls | defn -> [defn])
 
-                    let flattenModSpec (SynModuleOrNamespaceSig(_,_,decls,_,_,_,_)) = flattenSpecs decls
-                    let flattenModImpl (SynModuleOrNamespace(_,_,decls,_,_,_,_)) = flattenDefns decls
+                    let flattenModSpec (SynModuleOrNamespaceSig(_,_,_,decls,_,_,_,_)) = flattenSpecs decls
+                    let flattenModImpl (SynModuleOrNamespace(_,_,_,decls,_,_,_,_)) = flattenDefns decls
                     match res with 
                     | ParsedInput.SigFile(ParsedSigFileInput(_,_,_,_,specs)) -> 
                         dprintf "parsing yielded %d specs" (List.collect flattenModSpec specs).Length
@@ -4644,7 +4688,7 @@ let RequireDLL (tcImports:TcImports, tcEnv, thisAssemblyName, m, file) =
 
     let g = tcImports.GetTcGlobals()
     let amap = tcImports.GetImportMap()
-    let tcEnv = (tcEnv, asms) ||> List.fold (fun tcEnv asm -> Tc.AddCcuToTcEnv(g,amap,m,tcEnv,thisAssemblyName,asm.FSharpViewOfMetadata,asm.AssemblyAutoOpenAttributes,asm.AssemblyInternalsVisibleToAttributes)) 
+    let tcEnv = (tcEnv, asms) ||> List.fold (fun tcEnv asm -> AddCcuToTcEnv(g,amap,m,tcEnv,thisAssemblyName,asm.FSharpViewOfMetadata,asm.AssemblyAutoOpenAttributes,asm.AssemblyInternalsVisibleToAttributes)) 
     tcEnv,(dllinfos,asms)
 
        
@@ -4724,30 +4768,30 @@ let ProcessMetaCommandsFromInput
         decls |> List.iter (fun d -> 
             match d with 
             | SynModuleSigDecl.HashDirective (_,m) -> warning(Error(FSComp.SR.buildDirectivesInModulesAreIgnored(),m)) 
-            | SynModuleSigDecl.NestedModule (_,subDecls,_) -> WarnOnIgnoredSpecDecls subDecls
+            | SynModuleSigDecl.NestedModule (_,_,subDecls,_) -> WarnOnIgnoredSpecDecls subDecls
             | _ -> ())
 
     let rec WarnOnIgnoredImplDecls decls = 
         decls |> List.iter (fun d -> 
             match d with 
             | SynModuleDecl.HashDirective (_,m) -> warning(Error(FSComp.SR.buildDirectivesInModulesAreIgnored(),m)) 
-            | SynModuleDecl.NestedModule (_,subDecls,_,_) -> WarnOnIgnoredImplDecls subDecls
+            | SynModuleDecl.NestedModule (_,_,subDecls,_,_) -> WarnOnIgnoredImplDecls subDecls
             | _ -> ())
 
-    let ProcessMetaCommandsFromModuleSpec state (SynModuleOrNamespaceSig(_,_,decls,_,_,_,_)) =
+    let ProcessMetaCommandsFromModuleSpec state (SynModuleOrNamespaceSig(_,_,_,decls,_,_,_,_)) =
         List.fold (fun s d -> 
             match d with 
             | SynModuleSigDecl.HashDirective (h,_) -> ProcessMetaCommand s h
-            | SynModuleSigDecl.NestedModule (_,subDecls,_) -> WarnOnIgnoredSpecDecls subDecls; s
+            | SynModuleSigDecl.NestedModule (_,_,subDecls,_) -> WarnOnIgnoredSpecDecls subDecls; s
             | _ -> s)
          state
          decls 
 
-    let ProcessMetaCommandsFromModuleImpl state (SynModuleOrNamespace(_,_,decls,_,_,_,_)) =
+    let ProcessMetaCommandsFromModuleImpl state (SynModuleOrNamespace(_,_,_,decls,_,_,_,_)) =
         List.fold (fun s d -> 
             match d with 
             | SynModuleDecl.HashDirective (h,_) -> ProcessMetaCommand s h
-            | SynModuleDecl.NestedModule (_,subDecls,_,_) -> WarnOnIgnoredImplDecls subDecls; s
+            | SynModuleDecl.NestedModule (_,_,subDecls,_,_) -> WarnOnIgnoredImplDecls subDecls; s
             | _ -> s)
          state
          decls
@@ -4846,7 +4890,7 @@ module private ScriptPreprocessClosure =
             | CodeContext.Editing -> "EDITING" :: (if IsScript filename then ["INTERACTIVE"] else ["COMPILED"])
         let lexbuf = UnicodeLexing.StringAsLexbuf source 
         
-        let isLastCompiland = IsScript filename // The root compiland is last in the list of compilands.
+        let isLastCompiland = (IsScript filename), tcConfig.target.IsExe        // The root compiland is last in the list of compilands.
         ParseOneInputLexbuf (tcConfig,lexResourceManager,defines,lexbuf,filename,isLastCompiland,errorLogger) 
           
     /// Create a TcConfig for load closure starting from a single .fsx file
@@ -4953,13 +4997,13 @@ module private ScriptPreprocessClosure =
         closureDirectives |> List.map FindClosure |> List.concat, !tcConfig
         
     /// Reduce the full directive closure into LoadClosure
-    let GetLoadClosure(rootFilename,closureDirectives,tcConfig,codeContext) = 
+    let GetLoadClosure(rootFilename,closureDirectives,(tcConfig:TcConfig),codeContext) = 
     
         // Mark the last file as isLastCompiland. closureDirectives is currently reversed.
         let closureDirectives =
             match closureDirectives with
             | ClosedSourceFile(filename,m,Some(ParsedInput.ImplFile(ParsedImplFileInput(name,isScript,qualNameOfFile,scopedPragmas,hashDirectives,implFileFlags,_))),errs,warns,nowarns)::rest -> 
-                ClosedSourceFile(filename,m,Some(ParsedInput.ImplFile(ParsedImplFileInput(name,isScript,qualNameOfFile,scopedPragmas,hashDirectives,implFileFlags,true))),errs,warns,nowarns)::rest
+                ClosedSourceFile(filename,m,Some(ParsedInput.ImplFile(ParsedImplFileInput(name,isScript,qualNameOfFile,scopedPragmas,hashDirectives,implFileFlags,(true, tcConfig.target.IsExe)))),errs,warns,nowarns)::rest
             | x -> x
 
         // Get all source files.
@@ -5073,11 +5117,11 @@ let GetInitialTcEnv (thisAssemblyName:string, initm:range, tcConfig:TcConfig, tc
 
     let amap = tcImports.GetImportMap()
 
-    let tcEnv = Tc.CreateInitialTcEnv(tcGlobals, amap, initm, thisAssemblyName, ccus)
+    let tcEnv = CreateInitialTcEnv(tcGlobals, amap, initm, thisAssemblyName, ccus)
 
     let tcEnv = 
         if tcConfig.checkOverflow then
-            Tc.TcOpenDecl TcResultsSink.NoSink tcGlobals amap initm initm tcEnv (pathToSynLid initm (splitNamespace FSharpLib.CoreOperatorsCheckedName))
+            TcOpenDecl TcResultsSink.NoSink tcGlobals amap initm initm tcEnv (pathToSynLid initm (splitNamespace FSharpLib.CoreOperatorsCheckedName))
         else
             tcEnv
     tcEnv
@@ -5205,7 +5249,7 @@ let TypeCheckOneInputEventually
 
                 // Typecheck the signature file 
                 let! (tcEnvAtEnd,tcEnv,smodulTypeRoot) = 
-                    Tc.TypeCheckOneSigFile (tcGlobals,tcState.tcsNiceNameGen,amap,tcState.tcsCcu,checkForErrors,tcConfig.conditionalCompilationDefines,tcSink) tcState.tcsTcSigEnv file
+                    TypeCheckOneSigFile (tcGlobals,tcState.tcsNiceNameGen,amap,tcState.tcsCcu,checkForErrors,tcConfig.conditionalCompilationDefines,tcSink) tcState.tcsTcSigEnv file
 
                 let rootSigs = Zmap.add qualNameOfFile  smodulTypeRoot rootSigs
 
@@ -5235,7 +5279,7 @@ let TypeCheckOneInputEventually
 
                 // Typecheck the implementation file 
                 let! topAttrs,implFile,tcEnvAtEnd = 
-                    Tc.TypeCheckOneImplFile  (tcGlobals,tcState.tcsNiceNameGen,amap,tcState.tcsCcu,checkForErrors,tcConfig.conditionalCompilationDefines,tcSink) tcImplEnv rootSigOpt file
+                    TypeCheckOneImplFile  (tcGlobals,tcState.tcsNiceNameGen,amap,tcState.tcsCcu,checkForErrors,tcConfig.conditionalCompilationDefines,tcSink) tcImplEnv rootSigOpt file
 
                 let hadSig = isSome rootSigOpt
                 let implFileSigType = SigTypeOfImplFile implFile
@@ -5247,12 +5291,12 @@ let TypeCheckOneInputEventually
                 let m = qualNameOfFile.Range
 
                 // Add the implementation as to the implementation env
-                let tcImplEnv = Tc.AddLocalRootModuleOrNamespace TcResultsSink.NoSink tcGlobals amap m tcImplEnv implFileSigType
+                let tcImplEnv = AddLocalRootModuleOrNamespace TcResultsSink.NoSink tcGlobals amap m tcImplEnv implFileSigType
 
                 // Add the implementation as to the signature env (unless it had an explicit signature)
                 let tcSigEnv = 
                     if hadSig then tcState.tcsTcSigEnv 
-                    else Tc.AddLocalRootModuleOrNamespace TcResultsSink.NoSink tcGlobals amap m tcState.tcsTcSigEnv implFileSigType
+                    else AddLocalRootModuleOrNamespace TcResultsSink.NoSink tcGlobals amap m tcState.tcsTcSigEnv implFileSigType
                 
                 // Open the prefixPath for fsi.exe (tcImplEnv)
                 let tcImplEnv = 

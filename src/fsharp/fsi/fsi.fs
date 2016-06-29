@@ -22,28 +22,32 @@ open System.Threading
 open System.Reflection
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.AbstractIL
+open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics
 open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler.AbstractIL.Internal
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.AbstractIL.Extensions.ILX
 open Microsoft.FSharp.Compiler.AbstractIL.ILRuntimeWriter 
 open Microsoft.FSharp.Compiler.Lib
-open Microsoft.FSharp.Compiler.CompileOptions
-open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics
-open Microsoft.FSharp.Compiler.AbstractIL.IL
-open Microsoft.FSharp.Compiler.IlxGen
-open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.AccessibilityLogic
 open Microsoft.FSharp.Compiler.Ast
-open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.TypeChecker
-open Microsoft.FSharp.Compiler.Tast
-open Microsoft.FSharp.Compiler.Infos
-open Microsoft.FSharp.Compiler.Tastops
-open Microsoft.FSharp.Compiler.TcGlobals
+open Microsoft.FSharp.Compiler.CompileOptions
 open Microsoft.FSharp.Compiler.CompileOps
+open Microsoft.FSharp.Compiler.ErrorLogger
+open Microsoft.FSharp.Compiler.Infos
+open Microsoft.FSharp.Compiler.InfoReader
+open Microsoft.FSharp.Compiler.NameResolution
+open Microsoft.FSharp.Compiler.IlxGen
 open Microsoft.FSharp.Compiler.Lexhelp
 open Microsoft.FSharp.Compiler.Layout
-open Microsoft.FSharp.Compiler.NameResolution
+open Microsoft.FSharp.Compiler.Lib
+open Microsoft.FSharp.Compiler.Optimizer
+open Microsoft.FSharp.Compiler.PostTypeCheckSemanticChecks
+open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.TypeChecker
+open Microsoft.FSharp.Compiler.Tast
+open Microsoft.FSharp.Compiler.Tastops
+open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open Internal.Utilities
@@ -869,7 +873,7 @@ let internal WithImplicitHome (tcConfigB, dir) f =
 type internal FsiDynamicCompiler
                        (fsi: FsiEvaluationSessionHostConfig,
                         timeReporter : FsiTimeReporter, 
-                        tcConfigB, 
+                        tcConfigB: TcConfigBuilder, 
                         tcLockObject : obj, 
                         outWriter: TextWriter,
                         tcImports: TcImports, 
@@ -900,7 +904,7 @@ type internal FsiDynamicCompiler
     let infoReader = InfoReader(tcGlobals,tcImports.GetImportMap())    
 
     /// Add attributes 
-    let CreateModuleFragment (tcConfigB, assemblyName, codegenResults) =
+    let CreateModuleFragment (tcConfigB: TcConfigBuilder, assemblyName, codegenResults) =
         if !progress then fprintfn fsiConsoleOutput.Out "Creating main module...";
         let mainModule = mkILSimpleModule assemblyName (GetGeneratedILModuleName tcConfigB.target assemblyName) (tcConfigB.target = Dll) tcConfigB.subsystemVersion tcConfigB.useHighEntropyVA (mkILTypeDefs codegenResults.ilTypeDefs) None None 0x0 (mkILExportedTypes []) ""
         { mainModule 
@@ -955,13 +959,6 @@ type internal FsiDynamicCompiler
 
         errorLogger.AbortOnError(fsiConsoleOutput);
             
-        ReportTime tcConfig "ILX -> IL (Unions)"; 
-        let ilxMainModule = EraseUnions.ConvModule ilGlobals ilxMainModule
-        ReportTime tcConfig "ILX -> IL (Funcs)"; 
-        let ilxMainModule = EraseClosures.ConvModule ilGlobals ilxMainModule 
-
-        errorLogger.AbortOnError(fsiConsoleOutput);   
-              
         ReportTime tcConfig "Assembly refs Normalised"; 
         let mainmod3 = Morphs.morphILScopeRefsInILModuleMemoized ilGlobals (NormalizeAssemblyRefs tcImports) ilxMainModule
         errorLogger.AbortOnError(fsiConsoleOutput);
@@ -1071,8 +1068,8 @@ type internal FsiDynamicCompiler
         let i = nextFragmentId()
         let prefix = mkFragmentPath i
         let prefixPath = pathOfLid prefix
-        let impl = SynModuleOrNamespace(prefix,(* isModule: *) true,defs,PreXmlDoc.Empty,[],None,rangeStdin)
-        let input = ParsedInput.ImplFile(ParsedImplFileInput(filename,true, ComputeQualifiedNameOfFileFromUniquePath (rangeStdin,prefixPath),[],[],[impl],true (* isLastCompiland *) ))
+        let impl = SynModuleOrNamespace(prefix,(*isRec*)false, (* isModule: *) true,defs,PreXmlDoc.Empty,[],None,rangeStdin)
+        let input = ParsedInput.ImplFile(ParsedImplFileInput(filename,true, ComputeQualifiedNameOfFileFromUniquePath (rangeStdin,prefixPath),[],[],[impl],(true (* isLastCompiland *), false (* isExe *)) ))
         let istate,tcEnvAtEndOfLastInput,declaredImpls = ProcessInputs (errorLogger, istate, [input], showTypes, true, isInteractiveItExpr, prefix)
         let tcState = istate.tcState 
         let newState = { istate with tcState = tcState.NextStateAfterIncrementalFragment(tcEnvAtEndOfLastInput) }
@@ -1223,6 +1220,8 @@ type internal FsiDynamicCompiler
               else fsiConsoleOutput.uprintnf " %s %s" (FSIstrings.SR.fsiLoadingFilesPrefixText()) sourceFile)
           fsiConsoleOutput.uprintfn "]"
 
+          closure.NoWarns |> Seq.map (fun (n,ms) -> ms |> Seq.map (fun m -> m,n)) |> Seq.concat |> Seq.iter tcConfigB.TurnWarningOff
+
           // Play errors and warnings from closures of the surface (root) script files.
           closure.RootErrors |> List.iter errorSink
           closure.RootWarnings |> List.iter warnSink
@@ -1233,7 +1232,7 @@ type internal FsiDynamicCompiler
               |> List.map (fun (filename, input)-> 
                     let parsedInput = 
                         match input with 
-                        | None -> ParseOneInputFile(tcConfig,lexResourceManager,["INTERACTIVE"],filename,true,errorLogger,(*retryLocked*)false)
+                        | None -> ParseOneInputFile(tcConfig,lexResourceManager,["INTERACTIVE"],filename,(true,false),errorLogger,(*retryLocked*)false)
                         | _-> input
                     filename, parsedInput)
               |> List.unzip
@@ -2248,7 +2247,7 @@ type internal FsiInteractionProcessor
 
         let tcState = istate.tcState
         let amap = istate.tcImports.GetImportMap()
-        let infoReader = new Infos.InfoReader(istate.tcGlobals,amap)
+        let infoReader = new InfoReader(istate.tcGlobals,amap)
         let ncenv = new NameResolver(istate.tcGlobals,amap,infoReader,FakeInstantiationGenerator)
         let ad = tcState.TcEnvFromImpls.AccessRights
         let nenv = tcState.TcEnvFromImpls.NameEnv

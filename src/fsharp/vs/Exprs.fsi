@@ -204,6 +204,5 @@ module BasicPatterns =
     val (|ObjectExpr|_|) : FSharpExpr -> (FSharpType * FSharpExpr * FSharpObjectExprOverride list * (FSharpType * FSharpObjectExprOverride list) list) option
 
     /// Matches expressions for an unresolved call to a trait 
-    val (|TraitCall|_|) : FSharpExpr -> (FSharpType list * string * FSharpType list * FSharpType list * FSharpExpr list) option 
-
+    val (|TraitCall|_|) : FSharpExpr -> (FSharpType list * string * Ast.MemberFlags * FSharpType list * FSharpType list * FSharpExpr list) option 
 

@@ -56,7 +56,7 @@
     "Microsoft.Build.Tasks.Core": "0.1.0-preview-*",
     "Microsoft.Build.Utilities.Core": "0.1.0-preview-*",
     "System.Runtime.Serialization.Json": "4.0.2-rc2-*",
-    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-160509",
     "FSharp.Compiler.Service.netcore": "1.0.0-alpha-*",
   },
   "tools": {

@@ -15,7 +15,7 @@ open System.Collections.Generic
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.Range
 
-/// Represents encoded information for the end-of-line continutation of lexing
+/// Represents encoded information for the end-of-line continuation of lexing
 type FSharpTokenizerLexState = int64
 
 /// Represents stable information for the state of the laxing engine at the end of a line

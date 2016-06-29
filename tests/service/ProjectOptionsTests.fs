@@ -418,6 +418,17 @@ let ``Project file parsing -- report files``() =
    for f in Directory.EnumerateFiles(@"C:\Program Files (x86)\Microsoft SDKs\F#\4.0\","*",SearchOption.AllDirectories) do 
      printfn "File: %s" f
 
+[<Test>]
+let ``Test ProjectFileNames order for GetProjectOptionsFromScript`` () = // See #594
+    let scriptPath = __SOURCE_DIRECTORY__ + @"/data/ScriptProject/Main.fsx"
+    let scriptSource = File.ReadAllText scriptPath
+    let projOpts =
+        checker.GetProjectOptionsFromScript(scriptPath, scriptSource)
+        |> Async.RunSynchronously
+    projOpts.ProjectFileNames
+    |> Array.map Path.GetFileNameWithoutExtension
+    |> (=) [|"BaseLib"; "Lib1"; "Lib2"; "Main"|]
+    |> shouldEqual true
 
 #endif
 

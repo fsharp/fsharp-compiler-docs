@@ -157,7 +157,7 @@ type E =
     | UnionCaseSet of FSharpExpr * FSharpType * FSharpUnionCase * FSharpField  * FSharpExpr
     | UnionCaseTag of FSharpExpr * FSharpType 
     | UnionCaseTest of FSharpExpr  * FSharpType * FSharpUnionCase 
-    | TraitCall of FSharpType list * string * FSharpType list * FSharpType list * FSharpExpr list
+    | TraitCall of FSharpType list * string * Ast.MemberFlags * FSharpType list * FSharpType list * FSharpExpr list
     | NewTuple of FSharpType * FSharpExpr list  
     | TupleGet of FSharpType * int * FSharpExpr 
     | Coerce of FSharpType * FSharpExpr  
@@ -244,7 +244,7 @@ and [<Sealed>] FSharpExpr (cenv, f: (unit -> FSharpExpr) option, e: E, m:range, 
               for (_targetVars, targetExpr) in targetCases do yield targetExpr ]
         | E.DecisionTreeSuccess (_targetNumber, targetArgs) -> targetArgs
         | E.UnionCaseSet (obj, _unionType, _unionCase, _unionField, valueExpr) -> [ yield obj; yield valueExpr ]
-        | E.TraitCall (_sourceTypes, _traitName, _paramTypes, _retTypes, args) -> args
+        | E.TraitCall (_sourceTypes, _traitName, _memberFlags, _paramTypes, _retTypes, args) -> args
         | E.Unused -> [] // unexpected
 
 
@@ -706,12 +706,12 @@ module FSharpExprConvert =
                 let typR = ConvType cenv (mkAppTy tycr tyargs)
                 E.UnionCaseTag(ConvExpr cenv env arg1, typR) 
 
-            | TOp.TraitCall (TTrait(tys,nm,_memFlags,argtys,_rty,_colution)),_,_                    -> 
+            | TOp.TraitCall (TTrait(tys,nm,memFlags,argtys,_rty,_colution)),_,_                    -> 
                 let tysR = ConvTypes cenv tys
                 let tyargsR = ConvTypes cenv tyargs
                 let argtysR = ConvTypes cenv argtys
                 let argsR = ConvExprs cenv env args
-                E.TraitCall(tysR, nm, argtysR, tyargsR, argsR) 
+                E.TraitCall(tysR, nm, memFlags, argtysR, tyargsR, argsR) 
 
             | TOp.RefAddrGet,[ty],[e]  -> 
                 let replExpr = mkRecdFieldGetAddrViaExprAddr(e, mkRefCellContentsRef cenv.g, [ty],m)
@@ -1003,7 +1003,9 @@ module BasicPatterns =
     let (|DecisionTree|_|) (e:FSharpExpr) = match e.E with E.DecisionTree (a,b) -> Some (a,b) | _ -> None
     let (|DecisionTreeSuccess|_|) (e:FSharpExpr) = match e.E with E.DecisionTreeSuccess (a,b) -> Some (a,b) | _ -> None
     let (|UnionCaseSet|_|) (e:FSharpExpr) = match e.E with E.UnionCaseSet (a,b,c,d,e) -> Some (a,b,c,d,e) | _ -> None
-    let (|TraitCall|_|) (e:FSharpExpr) = match e.E with E.TraitCall (a,b,c,d,e) -> Some (a,b,c,d,e) | _ -> None
+    let (|TraitCall|_|) (e:FSharpExpr) = match e.E with E.TraitCall (a,b,_,c,d,e) -> Some (a,b,c,d,e) | _ -> None
 
-
+module DerivedPatterns =
+    let (|TraitCallExtended|_|) (e:FSharpExpr) = match e.E with E.TraitCall (a,b,c,d,e,f) -> Some (a,b,c,d,e,f) | _ -> None
+    
 

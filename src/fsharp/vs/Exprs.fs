@@ -1003,9 +1003,5 @@ module BasicPatterns =
     let (|DecisionTree|_|) (e:FSharpExpr) = match e.E with E.DecisionTree (a,b) -> Some (a,b) | _ -> None
     let (|DecisionTreeSuccess|_|) (e:FSharpExpr) = match e.E with E.DecisionTreeSuccess (a,b) -> Some (a,b) | _ -> None
     let (|UnionCaseSet|_|) (e:FSharpExpr) = match e.E with E.UnionCaseSet (a,b,c,d,e) -> Some (a,b,c,d,e) | _ -> None
-    let (|TraitCall|_|) (e:FSharpExpr) = match e.E with E.TraitCall (a,b,_,c,d,e) -> Some (a,b,c,d,e) | _ -> None
-
-module DerivedPatterns =
-    let (|TraitCallExtended|_|) (e:FSharpExpr) = match e.E with E.TraitCall (a,b,c,d,e,f) -> Some (a,b,c,d,e,f) | _ -> None
-    
+    let (|TraitCall|_|) (e:FSharpExpr) = match e.E with E.TraitCall (a,b,c,d,e,f) -> Some (a,b,c,d,e,f) | _ -> None
 

@@ -67,7 +67,7 @@ module Utils =
         | BasicPatterns.UnionCaseTest(obj,ty,f1) -> printExpr 10 obj + ".Is" + f1.Name
         | BasicPatterns.UnionCaseTag(obj,ty) -> printExpr 10 obj + ".Tag" 
         | BasicPatterns.ObjectExpr(ty,basecall,overrides,iimpls) -> "{ " + printExpr 10 basecall + " with " + printOverrides overrides + " " + printIimpls iimpls + " }"
-        | BasicPatterns.TraitCall(tys,nm,argtys,tinst,args) -> "trait call " + nm + printTupledArgs args
+        | BasicPatterns.TraitCall(tys,nm,_,argtys,tinst,args) -> "trait call " + nm + printTupledArgs args
         | BasicPatterns.Const(obj,ty) -> 
             match obj with 
             | :? string  as s -> "\"" + s + "\""

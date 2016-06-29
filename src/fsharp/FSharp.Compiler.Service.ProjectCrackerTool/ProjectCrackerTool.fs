@@ -147,16 +147,14 @@ module internal ProjectCrackerTool =
               use stream = new StreamReader(file)
               use xmlReader = System.Xml.XmlReader.Create(stream)
 
-              let project = engine.LoadProject(xmlReader, FullPath=fsprojFullPath)
-              
-              project.SetGlobalProperty("BuildingInsideVisualStudio", "true") |> ignore
-              if not (List.exists (fun (p,_) -> p = "VisualStudioVersion") properties) then
-                  match vs with
-                  | Some version -> project.SetGlobalProperty("VisualStudioVersion", version) |> ignore
-                  | None -> ()
-              project.SetGlobalProperty("ShouldUnsetParentConfigurationAndPlatform", "false") |> ignore
-              for (prop, value) in properties do
-                    project.SetGlobalProperty(prop, value) |> ignore
+              let props = System.Collections.Generic.Dictionary()
+              for (k,v) in properties do 
+                 props.Add (k, v)
+              if not (props.ContainsKey "VisualStudioVersion") then do
+                   vs |> Option.iter (fun v -> props.Add ("VisualStudioVersion", v))
+              props.Add ("BuildingInsideVisualStudio", "true")
+              props.Add ("ShouldUnsetParentConfigurationAndPlatform", "false")
+              let project = engine.LoadProject(xmlReader, props, engine.DefaultToolsVersion, FullPath=fsprojFullPath)
 
               project.CreateProjectInstance()
 

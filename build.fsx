@@ -248,18 +248,18 @@ Target "DotnetCliCodeGen" (fun _ ->
 
 Target "DotnetCliBuild" (fun _ ->
     let workDir = @"src/fsharp/FSharp.Compiler.Service.netcore/"
-    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "restore -v Information", workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "-v pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
     
     let workDir = @"src/fsharp/FSharp.Compiler.Service.ProjectCracker.netcore/"
-    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "restore -v Information", workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "-v pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
 )
 
 Target "DotnetCliTests" (fun _ ->
     let workDir = @"tests/FSharp.Compiler.Service.Tests.netcore/"
-    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "run -c Release", workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "restore -v Information", workDir) |> assertExitCodeZero
+    Shell.Exec("dotnet", "-v run -c Release", workDir) |> assertExitCodeZero
 )
 
 // --------------------------------------------------------------------------------------

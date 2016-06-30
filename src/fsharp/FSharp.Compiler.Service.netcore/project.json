@@ -291,7 +291,7 @@
     "System.Diagnostics.Process": "4.1.0-rc2-24027"
   },
   "tools": {
-    "dotnet-fssrgen": "3.0.1",
+    "dotnet-fssrgen": "3.1.*",
     "dotnet-compile-fsc": {
       "version": "1.0.0-preview1-*",
       "imports": [

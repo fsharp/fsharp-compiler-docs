@@ -51,7 +51,7 @@
       "type": "platform",
       "version": "1.0.0"
     },
-    "NUnitLite": "3.2.1",
+    "NUnitLite": "3.4.0",
     "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
     "FSharp.Compiler.Service.netcore": "1.0.0-alpha-*",
     "FSharp.Compiler.Service.ProjectCracker.netcore": "1.0.0-alpha-*"

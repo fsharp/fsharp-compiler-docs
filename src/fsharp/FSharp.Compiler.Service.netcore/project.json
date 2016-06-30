@@ -5,7 +5,7 @@
     "Microsoft Corporation",
     "Dave Thomas",
     "Anh-Dung Phan",
-    "Tomas Petricek",
+    "Tomas Petricek"
   ],
   "copyright": "",
   "description": "The F# compiler services package contains a custom build of the F# compiler that exposes additional functionality for implementing F# language bindings, additional tools based on the compiler or refactoring tools. The package also includes F# interactive service that can be used for embedding F# scripting into your applications.",
@@ -17,7 +17,7 @@
     "tags": [
       "F# fsharp interactive compiler editor"
     ],
-    "releaseNotes": "",
+    "releaseNotes": ""
   },
   "buildOptions": {
     "debugType": "portable",
@@ -258,7 +258,7 @@
       "STRONG_NAME_AND_DELAY_SIGN_FSHARP_COMPILER_WITH_MSFT_KEY",
       "TODO_REWORK_ASSEMBLY_LOAD",
       "TODO_REWORK_SERVER",
-      "TRACE",
+      "TRACE"
     ],
     "nowarn": [
       "44",
@@ -269,7 +269,7 @@
       "75",
       "62",
       "9",
-      "2003",
+      "2003"
     ],
     "xmlDoc": true,
     "delaySign": true,
@@ -277,32 +277,28 @@
     "additionalArguments": [
       "--fullpaths",
       "--flaterrors",
-      "--warnon:1182",
+      "--warnon:1182"
     ]
   },
   "dependencies": {
-    "NETStandard.Library": "1.5.0-rc2-24027",
-    "System.Diagnostics.TraceSource": "4.0.0-rc2-*",
-    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-160509",
-    "System.Collections.Immutable": "1.2.0-rc2-24027",
-    "System.Security.Cryptography.Algorithms": "4.1.0-rc2-24027",
-    "System.Security.Cryptography.Primitives": "4.0.0-rc2-24027",
-    "System.Reflection.Metadata": "1.3.0-rc2-24027",
-    "System.Diagnostics.Process": "4.1.0-rc2-24027"
+    "NETStandard.Library": "1.6.0",
+    "System.Diagnostics.TraceSource": "4.0.0",
+    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+    "System.Collections.Immutable": "1.2.0",
+    "System.Security.Cryptography.Algorithms": "4.2.0",
+    "System.Security.Cryptography.Primitives": "4.0.0",
+    "System.Reflection.Metadata": "1.4.1-beta-24227-04",
+    "System.Diagnostics.Process": "4.1.0"
   },
   "tools": {
-    "dotnet-fssrgen": "3.1.*",
+    "dotnet-fssrgen": "3.2.*",
     "dotnet-compile-fsc": {
-      "version": "1.0.0-preview1-*",
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win81",
-        "netstandard1.3"
-      ]
+      "version": "1.0.0-preview2-*",
+      "imports": "dnxcore50"
     }
   },
   "frameworks": {
-    "netstandard1.5": {
+    "netstandard1.6": {
       "imports": [
         "portable-net45+win81",
         "dnxcore50"

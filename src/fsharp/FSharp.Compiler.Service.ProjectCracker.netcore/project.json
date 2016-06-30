@@ -49,7 +49,7 @@
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002702"
+      "version": "1.0.0"
     },
     "Microsoft.Build": "0.1.0-preview-*",
     "Microsoft.Build.Framework": "0.1.0-preview-*",
@@ -61,20 +61,13 @@
   },
   "tools": {
     "dotnet-compile-fsc": {
-      "version": "1.0.0-preview1-*",
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win81",
-        "netstandard1.3"
-      ]
+      "version": "1.0.0-preview2-*",
+      "imports": "dnxcore50"
     }
   },
   "frameworks": {
-    "netstandard1.5": {
-      "imports": [
-        "portable-net45+win81",
-        "dnxcore50"
-      ]
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
     }
   }
 }

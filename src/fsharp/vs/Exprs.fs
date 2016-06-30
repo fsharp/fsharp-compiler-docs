@@ -935,7 +935,7 @@ and FSharpImplementationFileContents(cenv, mimpl) =
 
     and getDecls mdef = 
         match mdef with 
-        | TMDefRec(isRec,tycons,mbinds,_m) -> 
+        | TMDefRec(_isRec,tycons,mbinds,_m) ->
             [ for tycon in tycons do 
                   let entity = FSharpEntity(cenv, mkLocalEntityRef tycon)
                   yield FSharpImplementationFileDeclaration.Entity(entity, []) 

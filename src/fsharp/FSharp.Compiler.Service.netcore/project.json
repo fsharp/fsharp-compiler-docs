@@ -311,7 +311,13 @@
       "imports": [
         "portable-net45+win81",
         "dnxcore50"
-      ]
+      ],
+      "buildOptions": {
+        "define": [
+          "NETSTANDARD1_5",
+          "DNXCORE50"
+        ]
+      }
     }
   }
 }

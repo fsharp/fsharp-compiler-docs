@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-alpha-00002",
+  "version": "1.0.0-alpha-00003",
   "title": "FSharp.Compiler.Service.ProjectCracker",
   "authors": [
     "Microsoft Corporation",
@@ -19,14 +19,13 @@
   },
   "buildOptions": {
     "debugType": "portable",
-    "emitEntryPoint": true,
+    "emitEntryPoint": false,
     "compilerName": "fsc",
     "compile": {
       "includeFiles": [
         "../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerOptions.fs",
         "../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerTool.fs",
-        "ProjectCracker.fs",
-        "Program.fs"
+        "ProjectCracker.fs"
       ]
     },
     "define": [
@@ -47,10 +46,6 @@
     ]
   },
   "dependencies": {
-    "Microsoft.NETCore.App": {
-      "type": "platform",
-      "version": "1.0.0"
-    },
     "Microsoft.Build": "0.1.0-preview-00028-*",
     "Microsoft.Build.Framework": "0.1.0-preview-00028-*",
     "Microsoft.Build.Tasks.Core": "0.1.0-preview-00028-*",
@@ -66,8 +61,8 @@
     }
   },
   "frameworks": {
-    "netcoreapp1.0": {
-      "imports": "dnxcore50"
+    "netstandard1.6": {
+      "NETStandard.Library": "1.6.0"
     }
   }
 }

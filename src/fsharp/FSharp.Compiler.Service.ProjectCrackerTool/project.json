@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable",
+    "emitEntryPoint": true,
+    "compilerName": "fsc",
+    "compile": {
+      "includeFiles": [
+        "ProjectCrackerOptions.fs",
+        "ProjectCrackerTool.fs",
+        "Program.fs"
+      ]
+    },
+    "define": [
+      "DOTNETCORE",
+      "TRACE"
+    ]
+  },
+  "dependencies": {
+    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+    "Microsoft.Build": "0.1.0-preview-00028-*",
+    "Microsoft.Build.Framework": "0.1.0-preview-00028-*",
+    "Microsoft.Build.Tasks.Core": "0.1.0-preview-00028-*",
+    "Microsoft.Build.Utilities.Core": "0.1.0-preview-00028-*",
+    "System.Runtime.Serialization.Json": "4.0.2"
+  },
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
+        }
+      },
+      "imports": "dnxcore50"
+    }
+  },
+  "tools": {
+    "dotnet-compile-fsc": {
+      "version": "1.0.0-preview2-*",
+      "imports": "dnxcore50"
+    }
+  }
+}

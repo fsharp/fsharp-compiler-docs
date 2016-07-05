@@ -258,12 +258,17 @@ Target "DotnetCliBuild" (fun _ ->
     let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service/" exe
 
     run "dotnet" "restore -v Information"
-    run "dotnet" "-v pack -c Release -o ../../../%s" buildDir
+    run "dotnet" "-v pack -c Release"
     
     let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service.ProjectCracker/" exe
         
     run "dotnet" "restore -v Information"
-    run "dotnet" "-v pack -c Release -o ../../../%s" buildDir
+    run "dotnet" "-v pack -c Release"
+    
+    let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service.ProjectCrackerTool/" exe
+        
+    run "dotnet" "restore -v Information"
+    run "dotnet" "-v pack -c Release"
 )
 
 Target "DotnetCliTests" (fun _ ->

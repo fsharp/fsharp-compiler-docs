@@ -49,12 +49,12 @@
     <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\..\</SolutionDir>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
-    <FsLexYaccPath>..\..\..\lib\bootstrap\4.0</FsLexYaccPath>
-    <FsSrGenToolPath>..\..\..\packages\FsSrGen\lib\net46</FsSrGenToolPath>
+    <FsLexYaccPath>$(SolutionDir)lib\bootstrap\4.0</FsLexYaccPath>
+    <FsSrGenToolPath>$(SolutionDir)packages\FsSrGen\lib\net46</FsSrGenToolPath>
     <FsLexToolPath>$(FsLexYaccPath)</FsLexToolPath>
     <FsYaccToolPath>$(FsLexYaccPath)</FsYaccToolPath>
     <FsLexToolExe>fslex.exe</FsLexToolExe>
@@ -661,7 +661,7 @@
   <Target Name="AfterBuild" Condition="Exists('..\..\..\.paket\paket.exe')">
     <CopyRuntimeDependencies OutputPath="$(OutDir)" TargetFramework="$(TargetFrameworkIdentifier) - $(TargetFrameworkVersion)" ProjectsWithRuntimeLibs="System.Threading" />
   </Target>
-  <Import Project="$(SolutionDir)\packages\FSharp.SRGen.Build.Tasks.$(FsSrGenBuildTasksVersion)\content\FSharp.SRGen.targets" />
+  <Import Project="$(SolutionDir)\packages\FSharp.SRGen.Build.Tasks\content\FSharp.SRGen.targets" />
   <Import Project="$(FsLexYaccPath)\FsLexYacc.targets" />
   <Import Project="$(SolutionDir)\.paket\paket.targets" />
   <Choose>

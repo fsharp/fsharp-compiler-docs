@@ -38,7 +38,7 @@ type ProjectCracker =
                 yield v
         |]
         
-        let ret, opts = ProjectCrackerTool.crackOpen arguments
+        let ret, opts = Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool.ProjectCrackerTool.crackOpen arguments
         ignore ret
 #else
         let arguments = new StringBuilder()

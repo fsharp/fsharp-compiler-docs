@@ -223,48 +223,54 @@ Target "GitHubRelease" (fun _ ->
 
 let isDotnetCliInstalled = (try Shell.Exec("dotnet", "--info") = 0 with _ -> false)
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
+let runCmdIn workDir exe = Printf.ksprintf (fun args -> Shell.Exec(exe, args, workDir) |> assertExitCodeZero)
 
 Target "DotnetCliCodeGen" (fun _ ->
-    let fsLex  = @"lib/bootstrap/4.0/fslex.exe"
-    let fsYacc = @"lib/bootstrap/4.0/fsyacc.exe"
-    let lexArgs = @" --lexlib Internal.Utilities.Text.Lexing"
-    let yaccArgs = @" --internal --parslib Internal.Utilities.Text.Parsing"
-    let module1 = @" --module Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser"
-    let module2 = @" --module Microsoft.FSharp.Compiler.Parser"
-    let module3 = @" --module Microsoft.FSharp.Compiler.PPParser"
-    let open1 = @" --open Microsoft.FSharp.Compiler.AbstractIL"
-    let open2 = @" --open Microsoft.FSharp.Compiler"
-    let open3 = @" --open Microsoft.FSharp.Compiler"
+    let lexArgs = "--lexlib Internal.Utilities.Text.Lexing"
+    let yaccArgs = "--internal --parslib Internal.Utilities.Text.Parsing"
+    let module1 = "--module Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser"
+    let module2 = "--module Microsoft.FSharp.Compiler.Parser"
+    let module3 = "--module Microsoft.FSharp.Compiler.PPParser"
+    let open1 = "--open Microsoft.FSharp.Compiler.AbstractIL"
+    let open2 = "--open Microsoft.FSharp.Compiler"
+    let open3 = "--open Microsoft.FSharp.Compiler"
 
     // restore tools
-    let workDir = @"src/fsharp/FSharp.Compiler.Service.netcore/"
-    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
+    let run exe = runCmdIn "src/fsharp/FSharp.Compiler.Service.netcore/" exe
+
+    run "dotnet" "restore -v Minimal"
 
     // run tools
-    Shell.Exec("dotnet", "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx", workDir) |> assertExitCodeZero
-    Shell.Exec(fsLex, @"../lex.fsl --unicode" + lexArgs + " -o lex.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsLex, @"../pplex.fsl --unicode" + lexArgs + " -o pplex.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsLex, @"../../absil/illex.fsl --unicode" + lexArgs + " -o illex.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsYacc, @"../../absil/ilpars.fsy" + lexArgs + yaccArgs + module1 + open1 + " -o ilpars.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsYacc, @"../pars.fsy" + lexArgs + yaccArgs + module2 + open2 + " -o pars.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsYacc, @"../pppars.fsy" + lexArgs + yaccArgs + module3 + open3 + " -o pppars.fs", workDir) |> assertExitCodeZero
+    let fsLex fslFilePath outFilePath = run "lib/bootstrap/4.0/fslex.exe" @"%s --unicode %s -o %s" fslFilePath lexArgs outFilePath
+    let fsYacc = run "lib/bootstrap/4.0/fsyacc.exe"
+
+    run "dotnet" "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx"
+    run "dotnet" "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx"
+    fsLex "../lex.fsl" "lex.fs"
+    fsLex "../pplex.fsl" "pplex.fs"
+    fsLex "../../absil/illex.fsl" "illex.fs"
+    fsYacc "../../absil/ilpars.fsy %s %s %s %s -o ilpars.fs" lexArgs yaccArgs module1 open1
+    fsYacc "../pars.fsy %s %s %s %s -o pars.fs" lexArgs yaccArgs module2 open2
+    fsYacc "../pppars.fsy %s %s %s %s -o pppars.fs" lexArgs yaccArgs module3 open3
 )
 
 Target "DotnetCliBuild" (fun _ ->
-    let workDir = @"src/fsharp/FSharp.Compiler.Service.netcore/"
-    Shell.Exec("dotnet", "restore -v Information", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "-v pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
+    let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service/" exe
+
+    run "dotnet" "restore -v Information"
+    run "dotnet" "-v pack -c Release -o ../../../%s" buildDir
     
-    let workDir = @"src/fsharp/FSharp.Compiler.Service.ProjectCracker.netcore/"
-    Shell.Exec("dotnet", "restore -v Information", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "-v pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
+    let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service.ProjectCracker/" exe
+        
+    run "dotnet" "restore -v Information"
+    run "dotnet" "-v pack -c Release -o ../../../%s" buildDir
 )
 
 Target "DotnetCliTests" (fun _ ->
-    let workDir = @"tests/FSharp.Compiler.Service.Tests.netcore/"
-    Shell.Exec("dotnet", "restore -v Information", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "-v run -c Release", workDir) |> assertExitCodeZero
+    let run exe = runCmdIn @"tests/FSharp.Compiler.Service.Tests.netcore/" exe
+
+    run "dotnet" "restore -v Information"
+    run "dotnet" "-v run -c Release"
 )
 
 // --------------------------------------------------------------------------------------

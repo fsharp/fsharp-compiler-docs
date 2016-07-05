@@ -236,7 +236,7 @@ Target "DotnetCliCodeGen" (fun _ ->
     let open3 = "--open Microsoft.FSharp.Compiler"
 
     // restore tools
-    let run exe = runCmdIn "src/fsharp/FSharp.Compiler.Service.netcore/" exe
+    let run exe = runCmdIn "src/fsharp/FSharp.Compiler.Service/" exe
 
     run "dotnet" "restore -v Minimal"
 

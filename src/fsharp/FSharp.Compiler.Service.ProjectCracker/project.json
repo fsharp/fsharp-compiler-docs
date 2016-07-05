@@ -1,22 +1,5 @@
 {
   "version": "1.0.0-alpha-00003",
-  "title": "FSharp.Compiler.Service.ProjectCracker",
-  "authors": [
-    "Microsoft Corporation",
-    "Robin Neatherway"
-  ],
-  "copyright": "",
-  "description": "Adds F# project cracking capabilities.",
-  "packOptions": {
-    "projectUrl": "https://github.com/fsharp/FSharp.Compiler.Service",
-    "licenseUrl": "https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE",
-    "iconUrl": "https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png",
-    "summary": "Cracking projects",
-    "tags": [
-      "F# fsharp msbuild editor"
-    ],
-    "releaseNotes": ""
-  },
   "buildOptions": {
     "debugType": "portable",
     "emitEntryPoint": false,
@@ -54,7 +37,7 @@
     "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
     "FSharp.Compiler.Service": {
       "version": "1.0.0-alpha-*",
-      "target": "package"
+      "target": "project"
     }
   },
   "tools": {

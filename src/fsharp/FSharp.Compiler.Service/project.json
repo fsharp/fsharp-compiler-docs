@@ -1,24 +1,5 @@
 {
   "version": "1.0.0-alpha-00003",
-  "title": "FSharp.Compiler.Service",
-  "authors": [
-    "Microsoft Corporation",
-    "Dave Thomas",
-    "Anh-Dung Phan",
-    "Tomas Petricek"
-  ],
-  "copyright": "",
-  "description": "The F# compiler services package contains a custom build of the F# compiler that exposes additional functionality for implementing F# language bindings, additional tools based on the compiler or refactoring tools. The package also includes F# interactive service that can be used for embedding F# scripting into your applications.",
-  "packOptions": {
-    "projectUrl": "https://github.com/fsharp/FSharp.Compiler.Service",
-    "licenseUrl": "https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE",
-    "iconUrl": "https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png",
-    "summary": "F# compiler services for creating IDE tools, language extensions and for F# embedding.",
-    "tags": [
-      "F# fsharp interactive compiler editor"
-    ],
-    "releaseNotes": ""
-  },
   "buildOptions": {
     "debugType": "portable",
     "compilerName": "fsc",

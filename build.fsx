@@ -267,9 +267,10 @@ Target "DotnetCliBuild" (fun _ ->
 )
 
 Target "DotnetCliTests" (fun _ ->
-    let run exe = runCmdIn @"tests/FSharp.Compiler.Service.Tests.netcore/" exe
+    //restore from root dir, where is global.json, so fcs and projectcracker can be resolved as projects ref of test proj
+    runCmdIn "." "dotnet" "restore -v Information"
 
-    run "dotnet" "restore -v Information"
+    let run exe = runCmdIn @"tests/FSharp.Compiler.Service.Tests.netcore/" exe
     run "dotnet" "-v run -c Release"
 )
 

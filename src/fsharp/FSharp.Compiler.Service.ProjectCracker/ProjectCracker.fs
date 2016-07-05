@@ -1,8 +1,10 @@
 ﻿namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
+#if !NETSTANDARD1_6
 open System.Runtime.Serialization.Json
 open System.Runtime
 open System.Diagnostics
+#endif
 open System.Text
 open System.IO
 open System
@@ -27,6 +29,18 @@ type ProjectCracker =
               LoadTime = loadedTimeStamp
               UnresolvedReferences = None }
 
+#if NETSTANDARD1_6
+        let arguments = [|
+            yield projectFileName
+            yield enableLogging.ToString()
+            for k, v in properties do
+                yield k
+                yield v
+        |]
+        
+        let ret, opts = ProjectCrackerTool.crackOpen arguments
+        ignore ret
+#else
         let arguments = new StringBuilder()
         arguments.Append('"').Append(projectFileName).Append('"') |> ignore
         arguments.Append(' ').Append(enableLogging.ToString()) |> ignore
@@ -44,6 +58,7 @@ type ProjectCracker =
     
         let ser = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof<Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool.ProjectOptions>)
         let opts = ser.ReadObject(p.StandardOutput.BaseStream) :?> Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool.ProjectOptions
+#endif
         
         convert opts, !logMap
 

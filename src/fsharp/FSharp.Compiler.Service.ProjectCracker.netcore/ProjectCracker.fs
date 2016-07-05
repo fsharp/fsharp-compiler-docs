@@ -1,10 +1,8 @@
 ﻿namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
-open System
-open System.IO
 open System.Text
-open Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool
-
+open System.IO
+open System
 
 type ProjectCracker =
 
@@ -14,19 +12,17 @@ type ProjectCracker =
         let enableLogging = defaultArg enableLogging true
         let logMap = ref Map.empty
 
-        let rec convert (opts: ProjectOptions) : FSharpProjectOptions =
+        let rec convert (opts: Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool.ProjectOptions) : FSharpProjectOptions =
             let referencedProjects = Array.map (fun (a, b) -> a, convert b) opts.ReferencedProjectOptions
             logMap := Map.add opts.ProjectFile opts.LogOutput !logMap
-            {
-                ProjectFileName = opts.ProjectFile
-                ProjectFileNames = [| |]
-                OtherOptions = opts.Options
-                ReferencedProjects = referencedProjects
-                IsIncompleteTypeCheckEnvironment = false
-                UseScriptResolutionRules = false
-                LoadTime = loadedTimeStamp
-                UnresolvedReferences = None
-            }
+            { ProjectFileName = opts.ProjectFile
+              ProjectFileNames = [| |]
+              OtherOptions = opts.Options
+              ReferencedProjects = referencedProjects
+              IsIncompleteTypeCheckEnvironment = false
+              UseScriptResolutionRules = false
+              LoadTime = loadedTimeStamp
+              UnresolvedReferences = None }
 
         let arguments = [|
             yield projectFileName

@@ -409,6 +409,13 @@ let ``Project file parsing -- space in file name``() =
   |> set
   |> should equal (set [ "Test2File1.fs"; "Test2File2.fs" ])
 
+[<Test>]
+let ``Project file parsing -- report files``() =
+  if not runningOnMono then
+   for f in Directory.EnumerateFiles(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\","*",SearchOption.AllDirectories) do 
+     printfn "File: %s" f
+
 #endif
+
 
 

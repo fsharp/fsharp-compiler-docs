@@ -432,7 +432,10 @@ module internal ProjectCrackerTool =
       let requestedAssembly = AssemblyName(evArgs.Name)
       if requestedAssembly.Name.StartsWith("Microsoft.Build") &&
           not (requestedAssembly.Name.EndsWith(".resources")) then
-        requestedAssembly.Version <- Version("14.0.0.0")
+        // If the version of MSBuild that we're using wasn't present on the machine, then 
+        // just revert back to 12.0.0.0 since that's normally installed as part of the .NET 
+        // Framework.
+        requestedAssembly.Version <- Version("12.0.0.0")
         Assembly.Load (requestedAssembly)
       else
         null)

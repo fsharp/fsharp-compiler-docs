@@ -53,10 +53,10 @@
     },
     "NUnitLite": "3.4.0",
     "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
-    "FSharp.Compiler.Service.netcore": {
+    "FSharp.Compiler.Service": {
        "target": "project"
     },
-    "FSharp.Compiler.Service.ProjectCracker.netcore": {
+    "FSharp.Compiler.Service.ProjectCracker": {
        "target": "project"
     }
   },

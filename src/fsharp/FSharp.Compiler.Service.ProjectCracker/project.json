@@ -52,7 +52,10 @@
     "Microsoft.Build.Utilities.Core": "0.1.0-preview-00028-*",
     "System.Runtime.Serialization.Json": "4.0.2",
     "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
-    "FSharp.Compiler.Service.netcore": "1.0.0-alpha-*"
+    "FSharp.Compiler.Service": {
+      "version": "1.0.0-alpha-*",
+      "target": "package"
+    }
   },
   "tools": {
     "dotnet-compile-fsc": {

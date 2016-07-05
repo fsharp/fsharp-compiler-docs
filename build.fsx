@@ -225,7 +225,7 @@ let isDotnetCliInstalled = (try Shell.Exec("dotnet", "--info") = 0 with _ -> fal
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 let runCmdIn workDir exe = Printf.ksprintf (fun args -> Shell.Exec(exe, args, workDir) |> assertExitCodeZero)
 
-Target "DotnetCliCodeGen" (fun _ ->
+Target "DotnetCoreCodeGen" (fun _ ->
     let lexArgs = "--lexlib Internal.Utilities.Text.Lexing"
     let yaccArgs = "--internal --parslib Internal.Utilities.Text.Parsing"
     let module1 = "--module Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser"
@@ -235,12 +235,11 @@ Target "DotnetCliCodeGen" (fun _ ->
     let open2 = "--open Microsoft.FSharp.Compiler"
     let open3 = "--open Microsoft.FSharp.Compiler"
 
-    // restore tools
-    let run exe = runCmdIn "src/fsharp/FSharp.Compiler.Service/" exe
-
-    run "dotnet" "restore -v Minimal"
+    // dotnet restore
+    runCmdIn "." "dotnet" "restore -v Information"
 
     // run tools
+    let run exe = runCmdIn "src/fsharp/FSharp.Compiler.Service/" exe
     let fsLex fslFilePath outFilePath = run "lib/bootstrap/4.0/fslex.exe" @"%s --unicode %s -o %s" fslFilePath lexArgs outFilePath
     let fsYacc = run "lib/bootstrap/4.0/fsyacc.exe"
 
@@ -254,29 +253,35 @@ Target "DotnetCliCodeGen" (fun _ ->
     fsYacc "../pppars.fsy %s %s %s %s -o pppars.fs" lexArgs yaccArgs module3 open3
 )
 
-Target "DotnetCliBuild" (fun _ ->
+Target "DotnetCoreBuild" (fun _ ->
     let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service/" exe
-
-    run "dotnet" "restore -v Information"
     run "dotnet" "-v pack -c Release"
     
     let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service.ProjectCracker/" exe
-        
-    run "dotnet" "restore -v Information"
     run "dotnet" "-v pack -c Release"
     
     let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service.ProjectCrackerTool/" exe
-        
-    run "dotnet" "restore -v Information"
     run "dotnet" "-v pack -c Release"
 )
 
-Target "DotnetCliTests" (fun _ ->
-    //restore from root dir, where is global.json, so fcs and projectcracker can be resolved as projects ref of test proj
-    runCmdIn "." "dotnet" "restore -v Information"
-
-    let run exe = runCmdIn @"tests/FSharp.Compiler.Service.Tests.netcore/" exe
+Target "DotnetCoreTests" (fun _ ->
+    let run exe = runCmdIn @"tests/FSharp.Compiler.Service.Tests/" exe
     run "dotnet" "-v run -c Release"
+)
+
+//use dotnet-mergenupkg to merge the .netcore nuget package into the default one
+let mergePackage packageName netcoreTFM =
+    let nupkg = sprintf "%s/%s.%s.nupkg" buildDir packageName (release.AssemblyVersion)
+    let netcoreNupkg = sprintf "src/fsharp/%s/bin/Release/%s/%s.%s.nupkg" packageName netcoreTFM packageName (release.AssemblyVersion)
+
+    //dotnet-mergenupkg is in the FSharp.Compiler.Service project.json
+    let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service/" exe
+    run "dotnet" """mergenupkg --source "%s" --other "%s" --framework %s """ (System.IO.Path.GetFullPath nupkg) (System.IO.Path.GetFullPath netcoreNupkg) netcoreTFM
+
+Target "AddDotnetCoreToNupkg" (fun _ ->
+    mergePackage "FSharp.Compiler.Service" "netstandard1.6"
+    mergePackage "FSharp.Compiler.Service.ProjectCracker" "netstandard1.6"
+    mergePackage "FSharp.Compiler.Service.ProjectCrackerTool" "netcoreapp1.0"
 )
 
 // --------------------------------------------------------------------------------------
@@ -286,12 +291,6 @@ Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "All" DoNothing
 Target "Release" DoNothing
-Target "DotnetCli" DoNothing
-
-"DotnetCli"
-  =?> ("DotnetCliCodeGen", isDotnetCliInstalled)
-  =?> ("DotnetCliBuild", isDotnetCliInstalled)
-  =?> ("DotnetCliTests", isDotnetCliInstalled)
 
 "Clean"
   =?> ("BuildVersion", isAppVeyorBuild)
@@ -299,13 +298,17 @@ Target "DotnetCli" DoNothing
   ==> "GenerateFSIStrings"
   ==> "Prepare"
   ==> "Build"
+  =?> ("DotnetCoreCodeGen", isDotnetCliInstalled)
+  =?> ("DotnetCoreBuild", isDotnetCliInstalled)
   ==> "RunTests"
+  =?> ("DotnetCoreTests", isDotnetCliInstalled)
   ==> "All"
 
 "All"
   ==> "PrepareRelease" 
   ==> "SourceLink"
   ==> "NuGet"
+  =?> ("AddDotnetCoreToNupkg", isDotnetCliInstalled)
   ==> "GitHubRelease"
   ==> "PublishNuGet"
   ==> "Release"

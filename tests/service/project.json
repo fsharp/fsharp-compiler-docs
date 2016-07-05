@@ -17,6 +17,7 @@
         "ProjectAnalysisTests.fs",
         "Program.fs"
       ],
+      "exclude": "data/**",
       "excludeFiles": [
         "FscTests.fs",
         "ProjectOptionsTests.fs",

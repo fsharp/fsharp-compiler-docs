@@ -7,23 +7,23 @@
     "compile": {
       "includeFiles": [
         "ReshapedReflection.fs",
-        "../service/FsUnit.fs",
-        "../service/Common.fs",
-        "../service/EditorTests.fs",
-        "../service/ExprTests.fs",
-        "../service/TokenizerTests.fs",
-        "../service/PerfTests.fs",
-        "../service/InteractiveCheckerTests.fs",
-        "../service/ProjectAnalysisTests.fs",
+        "FsUnit.fs",
+        "Common.fs",
+        "EditorTests.fs",
+        "ExprTests.fs",
+        "TokenizerTests.fs",
+        "PerfTests.fs",
+        "InteractiveCheckerTests.fs",
+        "ProjectAnalysisTests.fs",
         "Program.fs"
       ],
       "excludeFiles": [
-        "../service/FscTests.fs",
-        "../service/ProjectOptionsTests.fs",
-        "../service/FileSystemTests.fs",        
-        "../service/FsiTests.fs",
-        "../service/MultiProjectAnalysisTests.fs",
-        "../service/CSharpProjectAnalysis.fs"
+        "FscTests.fs",
+        "ProjectOptionsTests.fs",
+        "FileSystemTests.fs",        
+        "FsiTests.fs",
+        "MultiProjectAnalysisTests.fs",
+        "CSharpProjectAnalysis.fs"
       ]
     },
     "define": [
@@ -53,8 +53,12 @@
     },
     "NUnitLite": "3.4.0",
     "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
-    "FSharp.Compiler.Service.netcore": "1.0.0-alpha-*",
-    "FSharp.Compiler.Service.ProjectCracker.netcore": "1.0.0-alpha-*"
+    "FSharp.Compiler.Service.netcore": {
+       "target": "project"
+    },
+    "FSharp.Compiler.Service.ProjectCracker.netcore": {
+       "target": "project"
+    }
   },
   "tools": {
     "dotnet-compile-fsc": {

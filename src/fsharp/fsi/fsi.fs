@@ -2382,6 +2382,10 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
                                   true, // long running: optimizeForMemory 
                                   currentDirectory,isInteractive=true, 
                                   isInvalidationSupported=false)
+#if NETSTANDARD1_6
+    do tcConfigB.useMonoResolution <- true
+    do tcConfigB.primaryAssembly <- PrimaryAssembly.DotNetCore
+#endif
     let tcConfigP = TcConfigProvider.BasedOnMutableBuilder(tcConfigB)
 #if FX_MSBUILDRESOLVER_RUNTIMELIKE
     do tcConfigB.resolutionEnvironment <- MSBuildResolver.RuntimeLike // See Bug 3608

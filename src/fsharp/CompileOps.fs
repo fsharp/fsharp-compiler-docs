@@ -3502,7 +3502,7 @@ type TcAssemblyResolutions(results : AssemblyResolution list, unresolved : Unres
         
     static member Resolve (tcConfig:TcConfig,assemblyList:AssemblyReference list, knownUnresolved:UnresolvedAssemblyReference list) : TcAssemblyResolutions =
         let resolved,unresolved = 
-            if tcConfig.useSimpeResolution then 
+            if tcConfig.useSimpleResolution then 
                 let resolutions = 
                     assemblyList 
                     |> List.map (fun assemblyReference -> 
@@ -4924,7 +4924,7 @@ module private ScriptPreprocessClosure =
             | CodeContext.Compilation | CodeContext.Evaluation -> MSBuildResolver.CompileTimeLike
 #endif
         tcConfigB.framework <- false 
-        tcConfigB.useMonoResolution <- useMonoResolution
+        tcConfigB.useSimpleResolution <- useSimpleResolution
         // Indicates that there are some references not in BasicReferencesForScriptLoadClosure which should
         // be added conditionally once the relevant version of mscorlib.dll has been detected.
         tcConfigB.addVersionSpecificFrameworkReferences <- true 

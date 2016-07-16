@@ -1026,7 +1026,7 @@ and SynAttributes = SynAttribute list
 and  
     [<NoEquality; NoComparison; RequireQualifiedAccess>]
     SynAttribute = 
-    { TypeName: LongIdentWithDots;
+    { TypeName: LongIdentWithDots
       ArgExpr: SynExpr 
       /// Target specifier, e.g. "assembly","module",etc.
       Target: Ident option 
@@ -1072,10 +1072,10 @@ and
 and 
     [<NoComparison>]
     MemberFlags =
-    { IsInstance: bool;
-      IsDispatchSlot: bool;
-      IsOverrideOrExplicitImpl: bool;
-      IsFinal: bool;
+    { IsInstance: bool
+      IsDispatchSlot: bool
+      IsOverrideOrExplicitImpl: bool
+      IsFinal: bool
       MemberKind: MemberKind }
 
 /// Note the member kind is actually computed partially by a syntax tree transformation in tc.fs

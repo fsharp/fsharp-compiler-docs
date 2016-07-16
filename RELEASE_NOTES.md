@@ -1,3 +1,6 @@
+#### 5.0.1
+* [Fixed dependencies in nuget package](https://github.com/fsharp/FSharp.Compiler.Service/pull/608)
+
 #### 5.0.0
 * Fixed empty symbol declared pdb #564 from kekyo/fix-empty-pdb
 * .NET Core ProjectCracker - updated version and dependencies

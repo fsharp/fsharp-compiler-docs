@@ -82,6 +82,11 @@ Target "GenerateFSIStrings" (fun _ ->
       p.WorkingDirectory <- dir
       p.FileName <- !! "packages/FsSrGen/lib/net46/fssrgen.exe" |> Seq.head ) TimeSpan.MaxValue
     |> ignore
+//    execProcess (fun p -> 
+ //     p.Arguments <- "u+x packages/FsSrGen/lib/net46/fssrgen.exe"
+ //     p.WorkingDirectory <- __SOURCE_DIRECTORY__ 
+ //     p.FileName <- "chmod") TimeSpan.MaxValue
+ //   |> ignore
 )
 
 Target "Build" (fun _ ->

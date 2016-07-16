@@ -1,3 +1,6 @@
+#### 5.0.2
+  * Integrate Microsoft\visualfsharp to 688c26bdbbfc766326fc45e4d918f87fcba1e7ba. F# 4.1 work
+
 #### 5.0.1
 * [Fixed dependencies in nuget package](https://github.com/fsharp/FSharp.Compiler.Service/pull/608)
 

@@ -188,7 +188,6 @@ module internal MSBuildResolver =
 #else
 
     let GetPathToDotNetFrameworkReferenceAssembliesFor40Plus(version) = 
-#if FX_ATLEAST_45
         // starting with .Net 4.0, the runtime dirs (WindowsFramework) are never used by MSBuild RAR
         let v =
             match version with
@@ -202,24 +201,13 @@ module internal MSBuildResolver =
             | null -> []
             | x -> [x]
         | None -> []        
-#else
-        // FX_ATLEAST_45 is not defined for step when we build compiler with proto compiler.
-        ignore version
-        []
-#endif
 #endif
 
-#if CROSS_PLATFORM_COMPILER
-    let HighestInstalledNetFrameworkVersionMajorMinor() =
-       // Mono doesn't have GetPathToDotNetFramework
-        4, Net40
-#else
     /// Use MSBuild to determine the version of the highest installed framework.
     let HighestInstalledNetFrameworkVersionMajorMinor() =
         if box (ToolLocationHelper.GetPathToDotNetFramework(TargetDotNetFrameworkVersion.Version451)) <> null then 4, Net451
         elif box (ToolLocationHelper.GetPathToDotNetFramework(TargetDotNetFrameworkVersion.Version45)) <> null then 4, Net45
-        else 4, Net40 // version is 4.0 assumed since this code is running.
-#endif
+        else 4, Net45 // version is 4.5 assumed since this code is running.
 
     /// Derive the target framework directories.        
     let DeriveTargetFrameworkDirectories (targetFrameworkVersion:string, logMessage) =

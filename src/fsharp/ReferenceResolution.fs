@@ -139,12 +139,6 @@ module internal MSBuildResolver =
     /// The list of supported .NET Framework version numbers, using the monikers of the Reference Assemblies folder.
     let SupportedNetFrameworkVersions = set [ Net20; Net30; Net35; Net40; Net45; Net451; (*SL only*) "v5.0" ]
     
-#if __IGNORE_CROSS_PLATFORM_COMPILER
-    // Mono doesn't have GetPathToDotNetFramework. In this case we simply don't search this extra directory.
-    // When the x-plat compiler is run on Mono this is ok since implementation assembly folder is the same as the target framework folder.
-    // When the x-plat compiler is run on Windows/.NET this will curently cause slightly divergent behaviour.
-    let GetPathToDotNetFrameworkImlpementationAssemblies _v = []
-#else
     /// Get the path to the .NET Framework implementation assemblies by using ToolLocationHelper.GetPathToDotNetFramework.
     /// This is only used to specify the "last resort" path for assembly resolution.
     let GetPathToDotNetFrameworkImlpementationAssemblies(v) =
@@ -164,22 +158,7 @@ module internal MSBuildResolver =
             | null -> []
             | x -> [x]
         | _ -> []
-#endif        
 
-
-#if __IGNORE_CROSS_PLATFORM_COMPILER
-    // ToolLocationHelper.GetPathToDotNetFrameworkReferenceAssemblies is not available on Mono.
-    // We currently use the old values that the F# 2.0 compiler assumed. 
-    // When the x-plat compiler is run on Mono this is ok since the asemblies are all in the framework folder
-    // When the x-plat compiler is run on Windows/.NET this will curently cause slightly divergent behaviour this directory 
-    // may not be the same as the Microsoft compiler in all cases.
-    let GetPathToDotNetFrameworkReferenceAssembliesFor40Plus(version) = 
-        match version with 
-        | Net40 -> ReplaceVariablesForLegacyFxOnWindows([@"{ReferenceAssemblies}\v4.0"])  
-        | Net45 -> ReplaceVariablesForLegacyFxOnWindows([@"{ReferenceAssemblies}\v4.5"])         
-        | Net451 -> ReplaceVariablesForLegacyFxOnWindows([@"{ReferenceAssemblies}\v4.5.1"])         
-        | _ -> []
-#else
 
     let GetPathToDotNetFrameworkReferenceAssembliesFor40Plus(version) = 
         // starting with .Net 4.0, the runtime dirs (WindowsFramework) are never used by MSBuild RAR
@@ -195,7 +174,6 @@ module internal MSBuildResolver =
             | null -> []
             | x -> [x]
         | None -> []        
-#endif
 
     /// Use MSBuild to determine the version of the highest installed framework.
     let HighestInstalledNetFrameworkVersionMajorMinor() =

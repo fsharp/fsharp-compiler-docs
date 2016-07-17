@@ -161,19 +161,9 @@ module internal MSBuildResolver =
 
 
     let GetPathToDotNetFrameworkReferenceAssembliesFor40Plus(version) = 
-        // starting with .Net 4.0, the runtime dirs (WindowsFramework) are never used by MSBuild RAR
-        let v =
-            match version with
-            | Net40 -> Some TargetDotNetFrameworkVersion.Version40
-            | Net45 -> Some TargetDotNetFrameworkVersion.Version45
-            | Net451 -> Some TargetDotNetFrameworkVersion.Version451
-            | _ -> assert false; None // unknown version - some parts in the code are not synced
-        match v with
-        | Some v -> 
-            match ToolLocationHelper.GetPathToDotNetFrameworkReferenceAssemblies v with
-            | null -> []
-            | x -> [x]
-        | None -> []        
+        match Microsoft.Build.Utilities.ToolLocationHelper.GetPathToStandardLibraries(".NETFramework",version,"") with
+        | null | "" -> []
+        | x -> [x]
 
     /// Use MSBuild to determine the version of the highest installed framework.
     let HighestInstalledNetFrameworkVersionMajorMinor() =

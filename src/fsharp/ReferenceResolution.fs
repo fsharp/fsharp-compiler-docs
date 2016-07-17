@@ -139,7 +139,7 @@ module internal MSBuildResolver =
     /// The list of supported .NET Framework version numbers, using the monikers of the Reference Assemblies folder.
     let SupportedNetFrameworkVersions = set [ Net20; Net30; Net35; Net40; Net45; Net451; (*SL only*) "v5.0" ]
     
-#if CROSS_PLATFORM_COMPILER
+#if __IGNORE_CROSS_PLATFORM_COMPILER
     // Mono doesn't have GetPathToDotNetFramework. In this case we simply don't search this extra directory.
     // When the x-plat compiler is run on Mono this is ok since implementation assembly folder is the same as the target framework folder.
     // When the x-plat compiler is run on Windows/.NET this will curently cause slightly divergent behaviour.
@@ -148,7 +148,6 @@ module internal MSBuildResolver =
     /// Get the path to the .NET Framework implementation assemblies by using ToolLocationHelper.GetPathToDotNetFramework.
     /// This is only used to specify the "last resort" path for assembly resolution.
     let GetPathToDotNetFrameworkImlpementationAssemblies(v) =
-#if FX_ATLEAST_45
         let v =
             match v with
             | Net11 ->  Some TargetDotNetFrameworkVersion.Version11
@@ -165,15 +164,10 @@ module internal MSBuildResolver =
             | null -> []
             | x -> [x]
         | _ -> []
-#else
-        // FX_ATLEAST_45 is not defined for step when we build compiler with proto compiler.
-        ignore v
-        []
-#endif        
 #endif        
 
 
-#if CROSS_PLATFORM_COMPILER
+#if __IGNORE_CROSS_PLATFORM_COMPILER
     // ToolLocationHelper.GetPathToDotNetFrameworkReferenceAssemblies is not available on Mono.
     // We currently use the old values that the F# 2.0 compiler assumed. 
     // When the x-plat compiler is run on Mono this is ok since the asemblies are all in the framework folder
@@ -183,7 +177,7 @@ module internal MSBuildResolver =
         match version with 
         | Net40 -> ReplaceVariablesForLegacyFxOnWindows([@"{ReferenceAssemblies}\v4.0"])  
         | Net45 -> ReplaceVariablesForLegacyFxOnWindows([@"{ReferenceAssemblies}\v4.5"])         
-        | Net451 -> ReplaceVariablesForLegacyFxOnWindows([@"{ReferenceAssemblies}\v4.5"])         
+        | Net451 -> ReplaceVariablesForLegacyFxOnWindows([@"{ReferenceAssemblies}\v4.5.1"])         
         | _ -> []
 #else
 

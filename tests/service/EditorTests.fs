@@ -69,6 +69,7 @@ let ``Intro test`` () =
     let file = "/home/user/Test.fsx"
     let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
     let identToken = FSharpTokenTag.IDENT
+//    let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
 
     // We only expect one reported error. However,
     // on Unix, using filenames like /home/user/Test.fsx gives a second copy of all parse errors due to the

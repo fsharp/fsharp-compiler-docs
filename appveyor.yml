@@ -8,6 +8,10 @@ environment:
     - BUILD_TARGET: DotnetCliTests
     - BUILD_TARGET: NuGet
 
+matrix:
+  allow_failures:
+    - BUILD_TARGET: DotnetCliTests
+    
 build_script:
   - ps: dotnet --info
   - cmd: build.cmd %BUILD_TARGET%

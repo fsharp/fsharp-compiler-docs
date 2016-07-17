@@ -15,7 +15,12 @@ install:
 script: 
   - ./build.sh NuGet
 
+# See bug "https://bugzilla.xamarin.com/show_bug.cgi?id=41914"
+# peverify failing on Mono latest with "condition `res != EINVAL' not met", on OSX
+
 matrix:
   allow_failures:
     - os: osx
       mono: latest
+
+

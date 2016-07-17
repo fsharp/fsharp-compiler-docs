@@ -21,6 +21,7 @@ module internal FSharpEnvironment =
     /// The .NET build string that F# was built against (e.g. "4.0.21104.0")
     let DotNetBuildString = Microsoft.BuildSettings.Version.OfFile
 #endif
+    let FSharpBannerVersion = "4.1"
 
     let versionOf<'t> =
 #if FX_RESHAPED_REFLECTION

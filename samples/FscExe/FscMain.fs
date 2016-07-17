@@ -87,12 +87,8 @@ module FSharpResidentCompiler =
                               for error in errors do eprintfn "%s" (error.ToString())
                               if !progress then printfn "server: finished compilation request, argv = %A" argv
                               let output = outputCollector.GetTextAndClear()
-                              if !progress then printfn "ouput: %A" output
-                              if !progress then printfn "sending reply..." 
                               reply.Reply(output, exitCode)
-                              if !progress then printfn "collecting..." 
                               GC.Collect(3)
-                              if !progress then printfn "considering exit..." 
                               // Exit the server if there are no outstanding requests and the 
                               // current memory usage after collection is over 200MB
                               if inbox.CurrentQueueLength = 0 && GC.GetTotalMemory(true) > 200L * 1024L * 1024L then 

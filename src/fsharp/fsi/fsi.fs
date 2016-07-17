@@ -2390,6 +2390,11 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 #endif
     do tcConfigB.useFsiAuxLib <- fsi.UseFsiAuxLib
 
+#if TODO_REWORK_ASSEMBLY_LOAD
+    do tcConfigB.useSimpleResolution<-true
+#else
+#endif
+
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
     do SetOptimizeSwitch tcConfigB OptionSwitch.On
     do SetDebugSwitch    tcConfigB (Some "pdbonly") OptionSwitch.On
@@ -2409,7 +2414,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     do InstallErrorLoggingOnThisThread errorLogger // FSI error logging on main thread.
 
     let updateBannerText() =
-      tcConfigB.productNameForBannerText <- FSIstrings.SR.fsiProductName(FSharpEnvironment.DotNetBuildString)
+      tcConfigB.productNameForBannerText <- FSIstrings.SR.fsiProductName(FSharpEnvironment.FSharpBannerVersion)
   
     do updateBannerText() // setting the correct banner so that 'fsi -?' display the right thing
 

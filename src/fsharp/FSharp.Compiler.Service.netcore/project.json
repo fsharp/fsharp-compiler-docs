@@ -62,8 +62,6 @@
         "../InternalCollections.fs",
         "../rational.fsi",
         "../rational.fs",
-        "../TraceCall.fsi",
-        "../TraceCall.fs",
         "../range.fsi",
         "../range.fs",
         "../ErrorLogger.fs",

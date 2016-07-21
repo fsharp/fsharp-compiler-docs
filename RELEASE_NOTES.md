@@ -1,3 +1,6 @@
+#### 6.0.1
+  * [Fix ProjectFileNames order when getting project options from script](https://github.com/fsharp/FSharp.Compiler.Service/pull/594)
+
 #### 6.0.0
   * Switch to new major version on assumption integrated F# compiler changes induce API change
 

@@ -1787,7 +1787,7 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
 
                 tcConfigB.projectReferences <- projectReferences
 #if TODO_REWORK_ASSEMBLY_LOAD
-                tcConfigB.useMonoResolution <- true // turn off msbuild resolution
+                tcConfigB.useSimpleResolution <- true // turn off msbuild resolution
 #endif
                 // Apply command-line arguments and collect more source files if they are in the arguments
                 let sourceFilesNew = 

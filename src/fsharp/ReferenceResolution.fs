@@ -160,10 +160,16 @@ module internal MSBuildResolver =
         | _ -> []
 
 
-    let GetPathToDotNetFrameworkReferenceAssemblies(version) = 
+    let GetPathToDotNetFrameworkReferenceAssemblies(version) =
+#if NETSTANDARD1_6
+        // I have no idea why the code below doesn't compile, but I don't care since I don't want to use msbuild anyway
+        ignore version
+        [] : string list
+#else
         match Microsoft.Build.Utilities.ToolLocationHelper.GetPathToStandardLibraries(".NETFramework",version,"") with
         | null | "" -> []
         | x -> [x]
+#endif
 
     /// Use MSBuild to determine the version of the highest installed framework.
     let HighestInstalledNetFrameworkVersionMajorMinor() =

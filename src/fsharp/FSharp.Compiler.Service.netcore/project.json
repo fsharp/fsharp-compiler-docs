@@ -62,8 +62,6 @@
         "../InternalCollections.fs",
         "../rational.fsi",
         "../rational.fs",
-        "../TraceCall.fsi",
-        "../TraceCall.fs",
         "../range.fsi",
         "../range.fs",
         "../ErrorLogger.fs",
@@ -291,8 +289,8 @@
   },
   "dependencies": {
     "NETStandard.Library": "1.6.0",
+    "FSharp.Core": "4.0.1.7-alpha",
     "System.Diagnostics.TraceSource": "4.0.0",
-    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
     "System.Collections.Immutable": "1.2.0",
     "System.Security.Cryptography.Algorithms": "4.2.0",
     "System.Security.Cryptography.Primitives": "4.0.0",
@@ -311,7 +309,13 @@
       "imports": [
         "portable-net45+win81",
         "dnxcore50"
-      ]
+      ],
+      "buildOptions": {
+        "define": [
+          "NETSTANDARD1_5",
+          "DNXCORE50"
+        ]
+      }
     }
   }
 }

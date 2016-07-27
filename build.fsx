@@ -262,7 +262,10 @@ Target "Build.NetCore" (fun _ ->
 )
 
 Target "RunTests.NetCore" (fun _ ->
-    runCmdIn "tests/service/" "dotnet" "test --result:TestResults.NetCore.xml;format=nunit3"
+    try
+        runCmdIn "tests/service/" "dotnet" "test -c Release --result:TestResults.NetCore.xml;format=nunit3"
+    with _ ->
+        printfn ".NET core tests failed"
 )
 
 //use dotnet-mergenupkg to merge the .netcore nuget package into the default one

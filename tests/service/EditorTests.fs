@@ -37,7 +37,7 @@ open FSharp.Compiler.Service.Tests.Common
 let stringMethods = 
 #if DOTNETCORE
     ["Chars"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
-    "GetHashCode"; "GetType"; "GetTypeCode"; "IndexOf";
+    "GetHashCode"; "GetType"; "IndexOf";
     "IndexOfAny"; "Insert"; "LastIndexOf"; "LastIndexOfAny";
     "Length"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
     "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";

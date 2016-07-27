@@ -3141,11 +3141,7 @@ let ``Test Project22 IList properties`` () =
 
     attribsOfSymbol ilistTypeDefn |> shouldEqual ["interface"]
 
-#if DOTNETCORE
-    ilistTypeDefn.Assembly.SimpleName |> shouldEqual "System.Runtime"
-#else
-    ilistTypeDefn.Assembly.SimpleName |> shouldEqual "mscorlib"
-#endif
+    ilistTypeDefn.Assembly.SimpleName |> shouldEqual coreLibAssemblyName
 
 //-----------------------------------------------------------------------------------------
 // Misc - properties

@@ -234,7 +234,7 @@ let ``Symbols many tests`` () =
 
     let typeCheckContext = typeCheckResults2.ProjectContext
     
-    typeCheckContext.GetReferencedAssemblies() |> List.exists (fun s -> s.FileName.Value.Contains("mscorlib")) |> shouldEqual true
+    typeCheckContext.GetReferencedAssemblies() |> List.exists (fun s -> s.FileName.Value.Contains(coreLibAssemblyName)) |> shouldEqual true
     
 
 let input3 = 

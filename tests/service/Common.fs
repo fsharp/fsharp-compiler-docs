@@ -237,4 +237,10 @@ let rec allSymbolsInEntities compGen (entities: IList<FSharpEntity>) =
           yield! allSymbolsInEntities compGen e.NestedEntities ]
 
 
+let coreLibAssemblyName =
+#if DOTNETCORE
+    "System.Runtime"
+#else
+    "mscorlib"
+#endif
 

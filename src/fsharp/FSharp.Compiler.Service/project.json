@@ -6,6 +6,7 @@
     "compile": {
       "includeFiles": [
         "../../assemblyinfo/assemblyinfo.FSharp.Compiler.Service.dll.fs",
+        "../../assemblyinfo/assemblyinfo.shared.fs",
         "FSComp.fs",
         "FSIstrings.fs",
         "../../utils/reshapedreflection.fs",
@@ -21,8 +22,8 @@
         "../../utils/ResizeArray.fsi",
         "../../utils/ResizeArray.fs",
         "../../utils/HashMultiMap.fsi",
-        "../../utils/EditDistance.fs",
         "../../utils/HashMultiMap.fs",
+        "../../utils/EditDistance.fs",
         "../../utils/TaggedCollections.fsi",
         "../../utils/TaggedCollections.fs",
         "../FlatList.fs",
@@ -39,6 +40,7 @@
         "../../absil/bytes.fsi",
         "../../absil/bytes.fs",
         "../lib.fs",
+        "../ErrorResolutionHints.fs",
         "../InternalCollections.fsi",
         "../InternalCollections.fs",
         "../rational.fsi",
@@ -48,7 +50,6 @@
         "../range.fsi",
         "../range.fs",
         "../ErrorLogger.fs",
-        "../ErrorResolutionHints.fs",
         "../ReferenceResolution.fsi",
         "../ReferenceResolution.fs",
         "../../absil/il.fsi",

@@ -5,12 +5,12 @@ init:
 
 environment:
   matrix:
-    - BUILD_TARGET: DotnetCliTests
     - BUILD_TARGET: NuGet
+    - BUILD_TARGET: Nuget.AddNetCore
 
 matrix:
   allow_failures:
-    - BUILD_TARGET: DotnetCliTests
+    - BUILD_TARGET: Nuget.AddNetCore
     
 build_script:
   - ps: dotnet --info

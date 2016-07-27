@@ -268,19 +268,18 @@ Target "RunTests.NetCore" (fun _ ->
         printfn ".NET core tests failed"
 )
 
+
 //use dotnet-mergenupkg to merge the .netcore nuget package into the default one
-let mergePackage packageName netcoreTFM =
-    let nupkg = sprintf "%s/%s.%s.nupkg" buildDir packageName (release.AssemblyVersion)
-    let netcoreNupkg = sprintf "src/fsharp/%s/bin/Release/%s/%s.%s.nupkg" packageName netcoreTFM packageName (release.AssemblyVersion)
-
-    //dotnet-mergenupkg is in the FSharp.Compiler.Service project.json
-    let runInDir exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service/" exe
-    runInDir "dotnet" """mergenupkg --source "%s" --other "%s" --framework %s """ (System.IO.Path.GetFullPath nupkg) (System.IO.Path.GetFullPath netcoreNupkg) netcoreTFM
-
 Target "Nuget.AddNetCore" (fun _ ->
-    mergePackage "FSharp.Compiler.Service" "netstandard1.6"
-    mergePackage "FSharp.Compiler.Service.ProjectCracker" "netstandard1.6"
-    mergePackage "FSharp.Compiler.Service.ProjectCrackerTool" "netcoreapp1.0"
+    do
+        let nupkg = sprintf "../../../%s/FSharp.Compiler.Service.%s.nupkg" buildDir (release.AssemblyVersion)
+        let netcoreNupkg = sprintf "bin/Release/FSharp.Compiler.Service.%s.nupkg" (release.AssemblyVersion)
+        runCmdIn "src/fsharp/FSharp.Compiler.Service" "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
+    
+    do
+        let nupkg = sprintf "../../../%s/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" buildDir (release.AssemblyVersion)
+        let netcoreNupkg = sprintf "bin/Release/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" (release.AssemblyVersion)
+        runCmdIn "src/fsharp/FSharp.Compiler.Service.ProjectCracker" "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
 )
 
 // --------------------------------------------------------------------------------------

@@ -1,75 +1,77 @@
 {
-  "version": "1.0.0-*",
-  "buildOptions": {
-    "debugType": "portable",
-    "emitEntryPoint": true,
-    "compilerName": "fsc",
-    "compile": {
-      "includeFiles": [
-        "ReshapedReflection.fs",
-        "FsUnit.fs",
-        "Common.fs",
-        "EditorTests.fs",
-        "ExprTests.fs",
-        "TokenizerTests.fs",
-        "PerfTests.fs",
-        "InteractiveCheckerTests.fs",
-        "ProjectAnalysisTests.fs",
-        "Program.fs"
+    "version": "1.0.0-*",
+    "buildOptions": {
+      "debugType": "portable",
+      "compilerName": "fsc",
+      "compile": {
+        "includeFiles": [
+            "ReshapedReflection.fs",
+            "FsUnit.fs",
+            "Common.fs",
+            "EditorTests.fs",
+            "ExprTests.fs",
+            "TokenizerTests.fs",
+            "PerfTests.fs",
+            "InteractiveCheckerTests.fs",
+            "ProjectAnalysisTests.fs"
+        ],
+        "exclude": "data/**",
+        "excludeFiles": [
+            "FscTests.fs",
+            "ProjectOptionsTests.fs",
+            "FileSystemTests.fs",        
+            "FsiTests.fs",
+            "MultiProjectAnalysisTests.fs",
+            "CSharpProjectAnalysis.fs"
+        ]
+      },
+      "define": [
+        "DOTNETCORE",
+        "FX_ATLEAST_45",
+        "FX_ATLEAST_PORTABLE",
+        "FX_NO_RUNTIMEENVIRONMENT",
+        "FX_RESHAPED_REFLECTION",
+        "TODO_REWORK_ASSEMBLY_LOAD",
+        "TRACE"
       ],
-      "exclude": "data/**",
-      "excludeFiles": [
-        "FscTests.fs",
-        "ProjectOptionsTests.fs",
-        "FileSystemTests.fs",        
-        "FsiTests.fs",
-        "MultiProjectAnalysisTests.fs",
-        "CSharpProjectAnalysis.fs"
+      "nowarn": [
+        "44"
+      ],
+      "xmlDoc": true,
+      "delaySign": true,
+      "warningsAsErrors": true,
+      "additionalArguments": [
+        "--fullpaths",
+        "--flaterrors"
       ]
     },
-    "define": [
-      "DOTNETCORE",
-      "FX_ATLEAST_45",
-      "FX_ATLEAST_PORTABLE",
-      "FX_NO_RUNTIMEENVIRONMENT",
-      "FX_RESHAPED_REFLECTION",
-      "TODO_REWORK_ASSEMBLY_LOAD",
-      "TRACE"
-    ],
-    "nowarn": [
-      "44"
-    ],
-    "xmlDoc": true,
-    "delaySign": true,
-    "warningsAsErrors": true,
-    "additionalArguments": [
-      "--fullpaths",
-      "--flaterrors"
-    ]
-  },
-  "dependencies": {
-    "Microsoft.NETCore.App": {
-      "type": "platform",
-      "version": "1.0.0"
+
+    "dependencies": {
+        "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+        "NUnit": "3.4.1",
+        "dotnet-test-nunit": "3.4.0-beta-1",
+        "FSharp.Compiler.Service": { "target": "project" }
     },
-    "NUnitLite": "3.4.0",
-    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
-    "FSharp.Compiler.Service": {
-       "target": "project"
+
+    "testRunner": "nunit",
+
+    "frameworks": {
+        "netcoreapp1.0": {
+            "imports": "portable-net45+win8",
+            "dependencies": {
+                "Microsoft.NETCore.App": {
+                    "version": "1.0.0-*",
+                    "type": "platform"
+                }
+            }
+        }
     },
-    "FSharp.Compiler.Service.ProjectCracker": {
-       "target": "project"
+
+    "tools": {
+        "dotnet-compile-fsc": {
+            "version": "1.0.0-preview2-*",
+            "imports": "dnxcore50"
+        }
     }
-  },
-  "tools": {
-    "dotnet-compile-fsc": {
-      "version": "1.0.0-preview2-*",
-      "imports": "dnxcore50"
-    }
-  },
-  "frameworks": {
-    "netcoreapp1.0": {
-      "imports": "dnxcore50"
-    }
-  }
+
 }

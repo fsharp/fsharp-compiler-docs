@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-alpha-00003",
+  "version": "5.0.0",
   "buildOptions": {
     "debugType": "portable",
     "emitEntryPoint": false,

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-alpha-00003",
+  "version": "5.0.0",
   "buildOptions": {
     "debugType": "portable",
     "compilerName": "fsc",
@@ -282,6 +282,7 @@
   },
   "tools": {
     "dotnet-fssrgen": "3.2.*",
+    "dotnet-mergenupkg": { "version": "1.0.*" },
     "dotnet-compile-fsc": {
       "version": "1.0.0-preview2-*",
       "imports": "dnxcore50"

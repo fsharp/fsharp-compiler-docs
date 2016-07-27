@@ -219,11 +219,12 @@ Target "GitHubRelease" (fun _ ->
 )
 
 // --------------------------------------------------------------------------------------
-// .NET CLI and .NET Core
+// .NET Core and .NET Core SDK
 
-let isDotnetCliInstalled = (try Shell.Exec("dotnet", "--info") = 0 with _ -> false)
+let isDotnetSDKInstalled = (try Shell.Exec("dotnet", "--info") = 0 with _ -> false)
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 let runCmdIn workDir exe = Printf.ksprintf (fun args -> Shell.Exec(exe, args, workDir) |> assertExitCodeZero)
+let run exe = runCmdIn "." exe
 
 Target "DotnetCoreCodeGen" (fun _ ->
     let lexArgs = "--lexlib Internal.Utilities.Text.Lexing"
@@ -236,15 +237,15 @@ Target "DotnetCoreCodeGen" (fun _ ->
     let open3 = "--open Microsoft.FSharp.Compiler"
 
     // dotnet restore
-    runCmdIn "." "dotnet" "restore -v Information"
+    run "dotnet" "restore -v Information"
 
     // run tools
-    let run exe = runCmdIn "src/fsharp/FSharp.Compiler.Service/" exe
-    let fsLex fslFilePath outFilePath = run "lib/bootstrap/4.0/fslex.exe" @"%s --unicode %s -o %s" fslFilePath lexArgs outFilePath
-    let fsYacc = run "lib/bootstrap/4.0/fsyacc.exe"
+    let runInDir exe = runCmdIn "src/fsharp/FSharp.Compiler.Service/" exe
+    let fsLex fslFilePath outFilePath = runInDir "lib/bootstrap/4.0/fslex.exe" @"%s --unicode %s -o %s" fslFilePath lexArgs outFilePath
+    let fsYacc = runInDir "lib/bootstrap/4.0/fsyacc.exe"
 
-    run "dotnet" "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx"
-    run "dotnet" "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx"
+    runInDir "dotnet" "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx"
+    runInDir "dotnet" "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx"
     fsLex "../lex.fsl" "lex.fs"
     fsLex "../pplex.fsl" "pplex.fs"
     fsLex "../../absil/illex.fsl" "illex.fs"
@@ -253,20 +254,15 @@ Target "DotnetCoreCodeGen" (fun _ ->
     fsYacc "../pppars.fsy %s %s %s %s -o pppars.fs" lexArgs yaccArgs module3 open3
 )
 
-Target "DotnetCoreBuild" (fun _ ->
-    let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service/" exe
-    run "dotnet" "-v pack -c Release"
-    
-    let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service.ProjectCracker/" exe
-    run "dotnet" "-v pack -c Release"
-    
-    let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service.ProjectCrackerTool/" exe
-    run "dotnet" "-v pack -c Release"
+Target "Build.NetCore" (fun _ ->
+    [ "src/fsharp/FSharp.Compiler.Service/";
+      "src/fsharp/FSharp.Compiler.Service.ProjectCracker/";
+      "src/fsharp/FSharp.Compiler.Service.ProjectCrackerTool/" ]
+    |> List.iter (run "dotnet" "-v pack %s -c Release")
 )
 
-Target "DotnetCoreTests" (fun _ ->
-    let run exe = runCmdIn @"tests/FSharp.Compiler.Service.Tests/" exe
-    run "dotnet" "-v run -c Release"
+Target "RunTests.NetCore" (fun _ ->
+    runCmdIn "tests/service/" "dotnet" "test --result:TestResults.NetCore.xml;format=nunit3"
 )
 
 //use dotnet-mergenupkg to merge the .netcore nuget package into the default one
@@ -275,10 +271,10 @@ let mergePackage packageName netcoreTFM =
     let netcoreNupkg = sprintf "src/fsharp/%s/bin/Release/%s/%s.%s.nupkg" packageName netcoreTFM packageName (release.AssemblyVersion)
 
     //dotnet-mergenupkg is in the FSharp.Compiler.Service project.json
-    let run exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service/" exe
-    run "dotnet" """mergenupkg --source "%s" --other "%s" --framework %s """ (System.IO.Path.GetFullPath nupkg) (System.IO.Path.GetFullPath netcoreNupkg) netcoreTFM
+    let runInDir exe = runCmdIn @"src/fsharp/FSharp.Compiler.Service/" exe
+    runInDir "dotnet" """mergenupkg --source "%s" --other "%s" --framework %s """ (System.IO.Path.GetFullPath nupkg) (System.IO.Path.GetFullPath netcoreNupkg) netcoreTFM
 
-Target "AddDotnetCoreToNupkg" (fun _ ->
+Target "Nuget.AddNetCore" (fun _ ->
     mergePackage "FSharp.Compiler.Service" "netstandard1.6"
     mergePackage "FSharp.Compiler.Service.ProjectCracker" "netstandard1.6"
     mergePackage "FSharp.Compiler.Service.ProjectCrackerTool" "netcoreapp1.0"
@@ -298,17 +294,17 @@ Target "Release" DoNothing
   ==> "GenerateFSIStrings"
   ==> "Prepare"
   ==> "Build"
-  =?> ("DotnetCoreCodeGen", isDotnetCliInstalled)
-  =?> ("DotnetCoreBuild", isDotnetCliInstalled)
+  =?> ("DotnetCoreCodeGen", isDotnetSDKInstalled)
+  =?> ("Build.NetCore", isDotnetSDKInstalled)
   ==> "RunTests"
-  =?> ("DotnetCoreTests", isDotnetCliInstalled)
+  =?> ("RunTests.NetCore", isDotnetSDKInstalled)
   ==> "All"
 
 "All"
   ==> "PrepareRelease" 
   ==> "SourceLink"
   ==> "NuGet"
-  =?> ("AddDotnetCoreToNupkg", isDotnetCliInstalled)
+  =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
   ==> "GitHubRelease"
   ==> "PublishNuGet"
   ==> "Release"

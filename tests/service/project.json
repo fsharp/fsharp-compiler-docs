@@ -67,6 +67,13 @@
         }
     },
 
+    "scripts": {
+        "precompile": [
+            "dotnet restore \"%project:Directory%/../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/project.json\"",
+            "dotnet build \"%project:Directory%/../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/project.json\""
+        ]
+    },
+
     "tools": {
         "dotnet-compile-fsc": {
             "version": "1.0.0-preview2-*",

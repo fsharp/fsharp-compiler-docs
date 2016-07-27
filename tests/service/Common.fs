@@ -66,6 +66,9 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
         yield "--noframework" 
         yield "--debug:full" 
         yield "--define:DEBUG" 
+#if NETCOREAPP1_0
+        yield "--targetprofile:netcore" 
+#endif
         yield "--optimize-" 
         yield "--out:" + dllName
         yield "--doc:test.xml" 
@@ -77,6 +80,12 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
             yield x
         let references =
 #if TODO_REWORK_ASSEMBLY_LOAD
+#if NETCOREAPP1_0
+            Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/obj/Debug/netstandard1.6/dotnet-compile-fsc.rsp")
+            |> File.ReadAllLines
+            |> Array.filter (fun s -> s.StartsWith("-r:"))
+            |> Array.map (fun s -> s.Replace("-r:",""))
+#else
             [ yield typeof<System.Object>.Assembly.Location; // mscorlib
               yield typeof<System.Console>.Assembly.Location; // System.Console
               yield typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
@@ -89,6 +98,7 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
               yield typeof<System.Threading.Tasks.TaskExtensions>.Assembly.Location; // System.Threading.Tasks
               yield typeof<Microsoft.FSharp.Core.MeasureAttribute>.Assembly.Location; // FSharp.Core
             ]
+#endif
 #else        
             [ yield sysLib "mscorlib"
               yield sysLib "System"

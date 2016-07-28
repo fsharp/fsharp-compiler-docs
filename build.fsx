@@ -286,6 +286,7 @@ Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "All" DoNothing
 Target "Release" DoNothing
+Target "CreatePackage" DoNothing
 
 "Clean"
   =?> ("BuildVersion", isAppVeyorBuild)
@@ -304,6 +305,7 @@ Target "Release" DoNothing
   ==> "SourceLink"
   ==> "NuGet"
   =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
+  ==> "CreatePackage"
   ==> "GitHubRelease"
   ==> "PublishNuGet"
   ==> "Release"

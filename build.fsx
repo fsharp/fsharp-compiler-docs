@@ -262,10 +262,7 @@ Target "Build.NetCore" (fun _ ->
 )
 
 Target "RunTests.NetCore" (fun _ ->
-    try
-        runCmdIn "tests/service/" "dotnet" "test -c Release --result:TestResults.NetCore.xml;format=nunit3"
-    with _ ->
-        printfn ".NET core tests failed"
+    runCmdIn "tests/service/" "dotnet" "test -c Release --result:TestResults.NetCore.xml;format=nunit3"
 )
 
 

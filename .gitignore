@@ -192,18 +192,9 @@ src/fsharp/FSharp.Compiler.Service/pppars.fsi
 *.vstman
 project.lock.json
 
-src/fsharp/FSharp.Compiler.Service.netcore/FSComp.fs
-src/fsharp/FSharp.Compiler.Service.netcore/FSComp.resx
-src/fsharp/FSharp.Compiler.Service.netcore/FSIstrings.fs
-src/fsharp/FSharp.Compiler.Service.netcore/FSIstrings.resx
-src/fsharp/FSharp.Compiler.Service.netcore/illex.fs
-src/fsharp/FSharp.Compiler.Service.netcore/ilpars.fs
-src/fsharp/FSharp.Compiler.Service.netcore/ilpars.fsi
-src/fsharp/FSharp.Compiler.Service.netcore/lex.fs
-src/fsharp/FSharp.Compiler.Service.netcore/pars.fs
-src/fsharp/FSharp.Compiler.Service.netcore/pars.fsi
-src/fsharp/FSharp.Compiler.Service.netcore/pplex.fs
-src/fsharp/FSharp.Compiler.Service.netcore/pppars.fs
-src/fsharp/FSharp.Compiler.Service.netcore/pppars.fsi
+src/fsharp/FSharp.Compiler.Service/FSComp.fs
+src/fsharp/FSharp.Compiler.Service/FSComp.resx
+src/fsharp/FSharp.Compiler.Service/FSIstrings.fs
+src/fsharp/FSharp.Compiler.Service/FSIstrings.resx
 Tools/
 Backup/

@@ -1,30 +1,12 @@
 {
-  "version": "1.0.0-alpha-00002",
-  "title": "FSharp.Compiler.Service",
-  "authors": [
-    "Microsoft Corporation",
-    "Dave Thomas",
-    "Anh-Dung Phan",
-    "Tomas Petricek"
-  ],
-  "copyright": "",
-  "description": "The F# compiler services package contains a custom build of the F# compiler that exposes additional functionality for implementing F# language bindings, additional tools based on the compiler or refactoring tools. The package also includes F# interactive service that can be used for embedding F# scripting into your applications.",
-  "packOptions": {
-    "projectUrl": "https://github.com/fsharp/FSharp.Compiler.Service",
-    "licenseUrl": "https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE",
-    "iconUrl": "https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png",
-    "summary": "F# compiler services for creating IDE tools, language extensions and for F# embedding.",
-    "tags": [
-      "F# fsharp interactive compiler editor"
-    ],
-    "releaseNotes": ""
-  },
+  "version": "6.0.1",
   "buildOptions": {
     "debugType": "portable",
     "compilerName": "fsc",
     "compile": {
       "includeFiles": [
         "../../assemblyinfo/assemblyinfo.FSharp.Compiler.Service.dll.fs",
+        "../../assemblyinfo/assemblyinfo.shared.fs",
         "FSComp.fs",
         "FSIstrings.fs",
         "../../utils/reshapedreflection.fs",
@@ -40,8 +22,8 @@
         "../../utils/ResizeArray.fsi",
         "../../utils/ResizeArray.fs",
         "../../utils/HashMultiMap.fsi",
-        "../../utils/EditDistance.fs",
         "../../utils/HashMultiMap.fs",
+        "../../utils/EditDistance.fs",
         "../../utils/TaggedCollections.fsi",
         "../../utils/TaggedCollections.fs",
         "../FlatList.fs",
@@ -58,16 +40,14 @@
         "../../absil/bytes.fsi",
         "../../absil/bytes.fs",
         "../lib.fs",
+        "../ErrorResolutionHints.fs",
         "../InternalCollections.fsi",
         "../InternalCollections.fs",
         "../rational.fsi",
         "../rational.fs",
-        "../TraceCall.fsi",
-        "../TraceCall.fs",
         "../range.fsi",
         "../range.fs",
         "../ErrorLogger.fs",
-        "../ErrorResolutionHints.fs",
         "../ReferenceResolution.fsi",
         "../ReferenceResolution.fs",
         "../../absil/il.fsi",
@@ -301,6 +281,7 @@
   },
   "tools": {
     "dotnet-fssrgen": "3.2.*",
+    "dotnet-mergenupkg": { "version": "1.0.*" },
     "dotnet-compile-fsc": {
       "version": "1.0.0-preview2-*",
       "imports": "dnxcore50"

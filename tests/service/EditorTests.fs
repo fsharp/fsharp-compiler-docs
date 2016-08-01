@@ -37,7 +37,7 @@ open FSharp.Compiler.Service.Tests.Common
 let stringMethods = 
 #if DOTNETCORE
     ["Chars"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
-    "GetHashCode"; "GetType"; "GetTypeCode"; "IndexOf";
+    "GetHashCode"; "GetType"; "IndexOf";
     "IndexOfAny"; "Insert"; "LastIndexOf"; "LastIndexOfAny";
     "Length"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
     "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
@@ -234,7 +234,7 @@ let ``Symbols many tests`` () =
 
     let typeCheckContext = typeCheckResults2.ProjectContext
     
-    typeCheckContext.GetReferencedAssemblies() |> List.exists (fun s -> s.FileName.Value.Contains("mscorlib")) |> shouldEqual true
+    typeCheckContext.GetReferencedAssemblies() |> List.exists (fun s -> s.FileName.Value.Contains(coreLibAssemblyName)) |> shouldEqual true
     
 
 let input3 = 

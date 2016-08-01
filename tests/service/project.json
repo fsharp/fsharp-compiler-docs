@@ -1,0 +1,84 @@
+{
+    "version": "1.0.0-*",
+    "buildOptions": {
+      "debugType": "portable",
+      "compilerName": "fsc",
+      "compile": {
+        "includeFiles": [
+            "ReshapedReflection.fs",
+            "FsUnit.fs",
+            "Common.fs",
+            "EditorTests.fs",
+            "ExprTests.fs",
+            "TokenizerTests.fs",
+            "PerfTests.fs",
+            "InteractiveCheckerTests.fs",
+            "ProjectAnalysisTests.fs"
+        ],
+        "exclude": "data/**",
+        "excludeFiles": [
+            "FscTests.fs",
+            "ProjectOptionsTests.fs",
+            "FileSystemTests.fs",        
+            "FsiTests.fs",
+            "MultiProjectAnalysisTests.fs",
+            "CSharpProjectAnalysis.fs"
+        ]
+      },
+      "define": [
+        "DOTNETCORE",
+        "FX_ATLEAST_45",
+        "FX_ATLEAST_PORTABLE",
+        "FX_NO_RUNTIMEENVIRONMENT",
+        "FX_RESHAPED_REFLECTION",
+        "TODO_REWORK_ASSEMBLY_LOAD",
+        "TRACE"
+      ],
+      "nowarn": [
+        "44"
+      ],
+      "xmlDoc": true,
+      "delaySign": true,
+      "warningsAsErrors": true,
+      "additionalArguments": [
+        "--fullpaths",
+        "--flaterrors"
+      ]
+    },
+
+    "dependencies": {
+        "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+        "NUnit": "3.4.1",
+        "dotnet-test-nunit": "3.4.0-beta-1",
+        "FSharp.Compiler.Service": { "target": "project" }
+    },
+
+    "testRunner": "nunit",
+
+    "frameworks": {
+        "netcoreapp1.0": {
+            "imports": "portable-net45+win8",
+            "dependencies": {
+                "Microsoft.NETCore.App": {
+                    "version": "1.0.0-*",
+                    "type": "platform"
+                }
+            }
+        }
+    },
+
+    "scripts": {
+        "precompile": [
+            "dotnet restore \"%project:Directory%/../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/project.json\"",
+            "dotnet build \"%project:Directory%/../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/project.json\""
+        ]
+    },
+
+    "tools": {
+        "dotnet-compile-fsc": {
+            "version": "1.0.0-preview2-*",
+            "imports": "dnxcore50"
+        }
+    }
+
+}

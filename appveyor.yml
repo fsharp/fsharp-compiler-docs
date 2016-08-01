@@ -5,12 +5,7 @@ init:
 
 environment:
   matrix:
-    - BUILD_TARGET: DotnetCliTests
-    - BUILD_TARGET: NuGet
-
-matrix:
-  allow_failures:
-    - BUILD_TARGET: DotnetCliTests
+    - BUILD_TARGET: CreatePackage
     
 build_script:
   - ps: dotnet --info

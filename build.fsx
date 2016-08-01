@@ -219,52 +219,64 @@ Target "GitHubRelease" (fun _ ->
 )
 
 // --------------------------------------------------------------------------------------
-// .NET CLI and .NET Core
+// .NET Core and .NET Core SDK
 
-let isDotnetCliInstalled = (try Shell.Exec("dotnet", "--info") = 0 with _ -> false)
+let isDotnetSDKInstalled = (try Shell.Exec("dotnet", "--info") = 0 with _ -> false)
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
+let runCmdIn workDir exe = Printf.ksprintf (fun args -> Shell.Exec(exe, args, workDir) |> assertExitCodeZero)
+let run exe = runCmdIn "." exe
 
-Target "DotnetCliCodeGen" (fun _ ->
-    let fsLex  = @"lib/bootstrap/4.0/fslex.exe"
-    let fsYacc = @"lib/bootstrap/4.0/fsyacc.exe"
-    let lexArgs = @" --lexlib Internal.Utilities.Text.Lexing"
-    let yaccArgs = @" --internal --parslib Internal.Utilities.Text.Parsing"
-    let module1 = @" --module Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser"
-    let module2 = @" --module Microsoft.FSharp.Compiler.Parser"
-    let module3 = @" --module Microsoft.FSharp.Compiler.PPParser"
-    let open1 = @" --open Microsoft.FSharp.Compiler.AbstractIL"
-    let open2 = @" --open Microsoft.FSharp.Compiler"
-    let open3 = @" --open Microsoft.FSharp.Compiler"
+Target "DotnetCoreCodeGen" (fun _ ->
+    let lexArgs = "--lexlib Internal.Utilities.Text.Lexing"
+    let yaccArgs = "--internal --parslib Internal.Utilities.Text.Parsing"
+    let module1 = "--module Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser"
+    let module2 = "--module Microsoft.FSharp.Compiler.Parser"
+    let module3 = "--module Microsoft.FSharp.Compiler.PPParser"
+    let open1 = "--open Microsoft.FSharp.Compiler.AbstractIL"
+    let open2 = "--open Microsoft.FSharp.Compiler"
+    let open3 = "--open Microsoft.FSharp.Compiler"
 
-    // restore tools
-    let workDir = @"src/fsharp/FSharp.Compiler.Service.netcore/"
-    Shell.Exec("dotnet", "restore -v Minimal", workDir) |> assertExitCodeZero
+    // dotnet restore
+    run "dotnet" "restore -v Information"
 
     // run tools
-    Shell.Exec("dotnet", "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx", workDir) |> assertExitCodeZero
-    Shell.Exec(fsLex, @"../lex.fsl --unicode" + lexArgs + " -o lex.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsLex, @"../pplex.fsl --unicode" + lexArgs + " -o pplex.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsLex, @"../../absil/illex.fsl --unicode" + lexArgs + " -o illex.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsYacc, @"../../absil/ilpars.fsy" + lexArgs + yaccArgs + module1 + open1 + " -o ilpars.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsYacc, @"../pars.fsy" + lexArgs + yaccArgs + module2 + open2 + " -o pars.fs", workDir) |> assertExitCodeZero
-    Shell.Exec(fsYacc, @"../pppars.fsy" + lexArgs + yaccArgs + module3 + open3 + " -o pppars.fs", workDir) |> assertExitCodeZero
+    let runInDir exe = runCmdIn "src/fsharp/FSharp.Compiler.Service/" exe
+    let fsLex fslFilePath outFilePath = runInDir "lib/bootstrap/4.0/fslex.exe" @"%s --unicode %s -o %s" fslFilePath lexArgs outFilePath
+    let fsYacc = runInDir "lib/bootstrap/4.0/fsyacc.exe"
+
+    runInDir "dotnet" "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx"
+    runInDir "dotnet" "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx"
+    fsLex "../lex.fsl" "lex.fs"
+    fsLex "../pplex.fsl" "pplex.fs"
+    fsLex "../../absil/illex.fsl" "illex.fs"
+    fsYacc "../../absil/ilpars.fsy %s %s %s %s -o ilpars.fs" lexArgs yaccArgs module1 open1
+    fsYacc "../pars.fsy %s %s %s %s -o pars.fs" lexArgs yaccArgs module2 open2
+    fsYacc "../pppars.fsy %s %s %s %s -o pppars.fs" lexArgs yaccArgs module3 open3
 )
 
-Target "DotnetCliBuild" (fun _ ->
-    let workDir = @"src/fsharp/FSharp.Compiler.Service.netcore/"
-    Shell.Exec("dotnet", "restore -v Information", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "-v pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
+Target "Build.NetCore" (fun _ ->
+    [ "src/fsharp/FSharp.Compiler.Service/";
+      "src/fsharp/FSharp.Compiler.Service.ProjectCracker/";
+      "src/fsharp/FSharp.Compiler.Service.ProjectCrackerTool/" ]
+    |> List.iter (run "dotnet" "-v pack %s -c Release")
+)
+
+Target "RunTests.NetCore" (fun _ ->
+    runCmdIn "tests/service/" "dotnet" "test -c Release --result:TestResults.NetCore.xml;format=nunit3"
+)
+
+
+//use dotnet-mergenupkg to merge the .netcore nuget package into the default one
+Target "Nuget.AddNetCore" (fun _ ->
+    do
+        let nupkg = sprintf "../../../%s/FSharp.Compiler.Service.%s.nupkg" buildDir (release.AssemblyVersion)
+        let netcoreNupkg = sprintf "bin/Release/FSharp.Compiler.Service.%s.nupkg" (release.AssemblyVersion)
+        runCmdIn "src/fsharp/FSharp.Compiler.Service" "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
     
-    let workDir = @"src/fsharp/FSharp.Compiler.Service.ProjectCracker.netcore/"
-    Shell.Exec("dotnet", "restore -v Information", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "-v pack -c Release -o ../../../" + buildDir, workDir) |> assertExitCodeZero
-)
-
-Target "DotnetCliTests" (fun _ ->
-    let workDir = @"tests/FSharp.Compiler.Service.Tests.netcore/"
-    Shell.Exec("dotnet", "restore -v Information", workDir) |> assertExitCodeZero
-    Shell.Exec("dotnet", "-v run -c Release", workDir) |> assertExitCodeZero
+    do
+        let nupkg = sprintf "../../../%s/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" buildDir (release.AssemblyVersion)
+        let netcoreNupkg = sprintf "bin/Release/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" (release.AssemblyVersion)
+        runCmdIn "src/fsharp/FSharp.Compiler.Service.ProjectCracker" "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
 )
 
 // --------------------------------------------------------------------------------------
@@ -274,12 +286,7 @@ Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "All" DoNothing
 Target "Release" DoNothing
-Target "DotnetCli" DoNothing
-
-"DotnetCli"
-  =?> ("DotnetCliCodeGen", isDotnetCliInstalled)
-  =?> ("DotnetCliBuild", isDotnetCliInstalled)
-  =?> ("DotnetCliTests", isDotnetCliInstalled)
+Target "CreatePackage" DoNothing
 
 "Clean"
   =?> ("BuildVersion", isAppVeyorBuild)
@@ -287,13 +294,18 @@ Target "DotnetCli" DoNothing
   ==> "GenerateFSIStrings"
   ==> "Prepare"
   ==> "Build"
+  =?> ("DotnetCoreCodeGen", isDotnetSDKInstalled)
+  =?> ("Build.NetCore", isDotnetSDKInstalled)
   ==> "RunTests"
+  =?> ("RunTests.NetCore", isDotnetSDKInstalled)
   ==> "All"
 
 "All"
   ==> "PrepareRelease" 
   ==> "SourceLink"
   ==> "NuGet"
+  =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
+  ==> "CreatePackage"
   ==> "GitHubRelease"
   ==> "PublishNuGet"
   ==> "Release"

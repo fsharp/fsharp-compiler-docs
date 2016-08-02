@@ -718,6 +718,10 @@ module FSharpExprConvert =
                 with _ ->
                     failwithf "Failed to resolve type '%s'" (nlr.EnclosingEntity.CompiledName)
             let ccu = nlr.EnclosingEntity.nlr.Ccu
+            let possible = e.ModuleOrNamespaceType.TryLinkVal(ccu, nlr.ItemKey)
+            match possible with 
+            | Some _ -> makeFSCall isMember vr
+            | None ->
             let vName = nlr.ItemKey.PartialKey.LogicalName // this is actually compiled name
             let findByName =
                 e.MembersOfFSharpTyconSorted |> List.filter (fun v -> v.CompiledName = vName)

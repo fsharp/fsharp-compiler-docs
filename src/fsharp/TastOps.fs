@@ -621,16 +621,18 @@ let reduceTyconRefMeasureableOrProvided (g:TcGlobals) (tcref:TyconRef) tyargs =
 let rec stripTyEqnsA g canShortcut ty = 
     let ty = stripTyparEqnsAux canShortcut ty 
     match ty with 
-    | TType_app (tcref,tinst) -> 
+    | TType_app (tcref,args) -> 
         let tycon = tcref.Deref
+        let strippedArgs = args |> List.map (stripTyEqnsA g canShortcut)
         match tycon.TypeAbbrev with 
         | Some abbrevTy -> 
-            stripTyEqnsA g canShortcut (applyTyconAbbrev abbrevTy tycon tinst)
+            stripTyEqnsA g canShortcut (applyTyconAbbrev abbrevTy tycon strippedArgs)
         | None -> 
-            if tycon.IsMeasureableReprTycon && List.forall (isDimensionless g) tinst then
-                stripTyEqnsA g canShortcut (reduceTyconMeasureableOrProvided g tycon tinst)
-            else 
+            if tycon.IsMeasureableReprTycon && List.forall (isDimensionless g) args then
+                stripTyEqnsA g canShortcut (reduceTyconMeasureableOrProvided g tycon strippedArgs)
+            elif List.isEmpty args || List.forall2 (===) args strippedArgs then 
                 ty
+            else instType (mkTyconInst tycon strippedArgs) ty 
     | ty -> ty
 
 let stripTyEqns g ty = stripTyEqnsA g false ty
@@ -644,14 +646,20 @@ let rec stripTyEqnsAndErase eraseFuncAndTuple g ty =
     match ty with
     | TType_app (tcref,args) -> 
         let tycon = tcref.Deref
-        if tycon.IsErased  then
-            stripTyEqnsAndErase eraseFuncAndTuple g (reduceTyconMeasureableOrProvided g tycon args)
-        elif tyconRefEq g tcref g.nativeptr_tcr && eraseFuncAndTuple then 
-            stripTyEqnsAndErase eraseFuncAndTuple g g.nativeint_ty
-        else
-            ty
-    | TType_fun(a,b) when eraseFuncAndTuple -> TType_app(g.fastFunc_tcr,[ a; b]) 
-    | TType_tuple(l) when eraseFuncAndTuple -> mkCompiledTupleTy g l
+        let strippedArgs = args |> List.map (stripTyEqnsAndErase eraseFuncAndTuple g)
+        match tycon.TypeAbbrev with 
+        | Some abbrevTy -> 
+            stripTyEqnsAndErase eraseFuncAndTuple g (applyTyconAbbrev abbrevTy tycon strippedArgs)
+        | None -> 
+            if tycon.IsErased  then
+                stripTyEqnsAndErase eraseFuncAndTuple g (reduceTyconMeasureableOrProvided g tycon strippedArgs)
+            elif tyconRefEq g tcref g.nativeptr_tcr && eraseFuncAndTuple then 
+                stripTyEqnsAndErase eraseFuncAndTuple g g.nativeint_ty
+            elif List.isEmpty args || List.forall2 (===) args strippedArgs then
+                ty 
+            else instType (mkTyconInst tycon strippedArgs) ty 
+    | TType_fun(a,b) when eraseFuncAndTuple -> TType_app(g.fastFunc_tcr,[ a; b]) |> stripTyEqnsAndErase eraseFuncAndTuple g
+    | TType_tuple(l) when eraseFuncAndTuple -> mkCompiledTupleTy g l |> stripTyEqnsAndErase eraseFuncAndTuple g
     | ty -> ty
 
 let stripTyEqnsAndMeasureEqns g ty =
@@ -825,7 +833,8 @@ and typarConstraintsAEquivAux erasureFlag g aenv tpc1 tpc2 =
 
 and typarConstraintSetsAEquivAux erasureFlag g aenv (tp1:Typar) (tp2:Typar) = 
     tp1.StaticReq = tp2.StaticReq &&
-    ListSet.equals (typarConstraintsAEquivAux erasureFlag g aenv) tp1.Constraints tp2.Constraints
+    (tp1.Rigidity = TyparRigidity.Unresolved || tp2.Rigidity = TyparRigidity.Unresolved ||
+        ListSet.equals (typarConstraintsAEquivAux erasureFlag g aenv) tp1.Constraints tp2.Constraints)
 
 and typarsAEquivAux erasureFlag g (aenv: TypeEquivEnv) tps1 tps2 = 
     List.length tps1 = List.length tps2 &&
@@ -841,7 +850,11 @@ and typeAEquivAux erasureFlag g aenv ty1 ty2 =
     let ty2 = stripTyEqnsWrtErasure erasureFlag g ty2
     match ty1, ty2 with
     | TType_forall(tps1,rty1), TType_forall(tps2,rty2) -> 
-        typarsAEquivAux erasureFlag g aenv tps1 tps2 && typeAEquivAux erasureFlag g (aenv.BindEquivTypars tps1 tps2) rty1 rty2
+        let sameConstraints = typarsAEquivAux erasureFlag g aenv tps1 tps2 
+        if sameConstraints then
+            typeAEquivAux erasureFlag g (aenv.BindEquivTypars tps1 tps2) rty1 rty2
+        else
+            false
     | TType_var tp1, TType_var tp2 when typarEq tp1 tp2 -> 
         true
     | TType_var tp1, _ when aenv.EquivTypars.ContainsKey tp1 -> 

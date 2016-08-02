@@ -274,6 +274,8 @@ type TyparRigidity =
     /// Indicates the type parameter derives from an '_' anonymous type
     /// For units-of-measure, we give a warning if this gets solved to '1'
     | Anon
+    /// Indicates a type parameter coming from an IL method reference
+    | Unresolved
     member x.ErrorIfUnified = match x with TyparRigidity.Rigid -> true | _ -> false
     member x.WarnIfUnified = match x with TyparRigidity.WillBeRigid | TyparRigidity.WarnIfNotRigid -> true | _ -> false
     member x.WarnIfMissingConstraint = match x with TyparRigidity.WillBeRigid -> true | _ -> false
@@ -294,7 +296,8 @@ type TyparFlags(flags:int32) =
                      | TyparRigidity.WillBeRigid    -> 0b000000100000
                      | TyparRigidity.WarnIfNotRigid -> 0b000001000000
                      | TyparRigidity.Flexible       -> 0b000001100000
-                     | TyparRigidity.Anon           -> 0b000010000000) |||
+                     | TyparRigidity.Anon           -> 0b000010000000
+                     | TyparRigidity.Unresolved     -> 0b000010100000) |||
                    (match kind with
                      | TyparKind.Type            -> 0b000000000000
                      | TyparKind.Measure         -> 0b000100000000) |||
@@ -326,6 +329,7 @@ type TyparFlags(flags:int32) =
                                             | 0b000001000000 -> TyparRigidity.WarnIfNotRigid
                                             | 0b000001100000 -> TyparRigidity.Flexible
                                             | 0b000010000000 -> TyparRigidity.Anon
+                                            | 0b000010100000 -> TyparRigidity.Unresolved
                                             | _          -> failwith "unreachable"
 
     /// Indicates whether a type variable can be instantiated by types or units-of-measure.
@@ -774,7 +778,7 @@ type Entity =
 
     /// Get the Abstract IL scope, nesting and metadata for this 
     /// type definition, assuming it is backed by Abstract IL metadata.
-    member x.ILTyconInfo = match x.TypeReprInfo with | TILObjectRepr (a,b,c) -> (a,b,c) |  _ -> assert false; failwith "not a .NET type definition"
+    member x.ILTyconInfo = match x.TypeReprInfo with | TILObjectRepr (a,b,c) -> (a,b,c) |  i -> failwithf "not a .NET type definition: %+A" i
 
     /// Get the Abstract IL metadata for this type definition, assuming it is backed by Abstract IL metadata.
     member x.ILTyconRawMetadata = let _,_,td = x.ILTyconInfo in td
@@ -4550,6 +4554,8 @@ let NewTypar (kind,rigid,Typar(id,staticReq,isCompGen),isFromError,dynamicReq,at
         typar_xmldoc = XmlDoc.Empty } 
 
 let NewRigidTypar nm m = NewTypar (TyparKind.Type,TyparRigidity.Rigid,Typar(mkSynId m nm,NoStaticReq,true),false,TyparDynamicReq.Yes,[],false,false)
+
+let NewUnresolvedTypar nm m = NewTypar (TyparKind.Type,TyparRigidity.Unresolved,Typar(mkSynId m nm,NoStaticReq,true),false,TyparDynamicReq.Yes,[],false,false)
 
 let NewUnionCase id nm tys rty attribs docOption access : UnionCase = 
     { Id=id

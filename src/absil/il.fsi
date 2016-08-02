@@ -1973,6 +1973,9 @@ val rescopeILMethodRef: ILScopeRef -> ILMethodRef -> ILMethodRef
 /// the new scope. 
 val rescopeILFieldRef: ILScopeRef -> ILFieldRef -> ILFieldRef
 
+/// Unscoping. Clears every scope information, use for looking up IL method references only.
+val unscopeILType: ILType -> ILType
+
 
 //-----------------------------------------------------------------------
 // The ILCode Builder utility.

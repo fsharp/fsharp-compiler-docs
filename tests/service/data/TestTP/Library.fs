@@ -225,6 +225,10 @@ type BasicProvider (config : TypeProviderConfig) as this =
                             InvokeCode = fun args -> <@@ let r : Helper.R = { A = 1; B = 0 } in r.B <- 1; r.A @@>)
         myType.AddMember(someMethod)
 
+        let someMethod = ProvidedMethod("TupleConstructionAndGet", [], typeof<int>,
+                            InvokeCode = fun args -> <@@ let t = (1, 2, 3) in (let (_, i, _) = t in i) @@>)
+        myType.AddMember(someMethod)
+
         let someMethod = ProvidedMethod("CSharpMethod", [], typeof<unit>,
                             InvokeCode = fun args -> <@@ CSharpClass(0).Method("x") @@>)
         myType.AddMember(someMethod)

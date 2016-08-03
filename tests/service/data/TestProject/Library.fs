@@ -39,3 +39,4 @@ type Class1() =
     member this.X36 = T().CSharpExplicitImplementationMethod()
     member this.X37 = T().InterfaceDoNothing()
     member this.X38 = T().OverrideDoNothing()
+    member this.X39 = T().TupleConstructionAndGet()

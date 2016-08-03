@@ -687,6 +687,7 @@ module FSharpExprConvert =
         let isProp = isPropGet || isPropSet
         
         let tcref, subClass = 
+            // this does not matter currently, type checking fails to resolve it when a TP references a union case subclass
             try
                 // if the type is an union case class, lookup will fail 
                 Import.ImportILTypeRef cenv.amap m ilMethRef.EnclosingTypeRef, None
@@ -712,33 +713,36 @@ module FSharpExprConvert =
         // takes a possibly fake ValRef and tries to resolve it to an F# expression
         let makeFSExpr isMember (vr: ValRef) =
             let nlr = vr.nlr 
-            let e = 
+            let enclosingEntity = 
                 try
                     nlr.EnclosingEntity.Deref 
                 with _ ->
                     failwithf "Failed to resolve type '%s'" (nlr.EnclosingEntity.CompiledName)
             let ccu = nlr.EnclosingEntity.nlr.Ccu
-            let possible = e.ModuleOrNamespaceType.TryLinkVal(ccu, nlr.ItemKey)
-            match possible with 
-            | Some _ -> makeFSCall isMember vr
-            | None ->
             let vName = nlr.ItemKey.PartialKey.LogicalName // this is actually compiled name
             let findByName =
-                e.MembersOfFSharpTyconSorted |> List.filter (fun v -> v.CompiledName = vName)
+                enclosingEntity.MembersOfFSharpTyconSorted |> List.filter (fun v -> v.CompiledName = vName)
             match findByName with
             | [v] -> 
                 makeFSCall isMember v
             | [] ->
                 let typR = ConvType cenv (mkAppTy tcref enclTypeArgs)
-                if e.IsModuleOrNamespace then
-                    let findModuleMemberByName = e.ModuleOrNamespaceType.AllValsAndMembers |> Seq.tryFind (fun v -> v.CompiledName = vName)
+                if enclosingEntity.IsModuleOrNamespace then
+                    let findModuleMemberByName = 
+                        enclosingEntity.ModuleOrNamespaceType.AllValsAndMembers 
+                        |> Seq.filter (fun v -> 
+                            v.CompiledName = vName &&
+                                match v.ActualParent with
+                                | Parent p -> p.PublicPath = enclosingEntity.PublicPath
+                                | _ -> false 
+                        ) |> List.ofSeq
                     match findModuleMemberByName with
-                    | Some v ->
-                        let vr = VRefNonLocalPreResolved v nlr
+                    | [v] ->
+                        let vr = VRefLocal v
                         makeFSCall isMember vr
                     | _ ->
-                        failwithf "Module member not found: %s" vName
-                elif e.IsRecordTycon then
+                        failwith "Failed to resolve overload"
+                elif enclosingEntity.IsRecordTycon then
                     if isProp then
                         let name = PrettyNaming.ChopPropertyName vName                                    
                         let projR = ConvRecdFieldRef cenv (RFRef(tcref, name))
@@ -753,7 +757,7 @@ module FSharpExprConvert =
                         E.NewRecord(typR, argsR)
                     else
                         failwith "Failed to recognize record type member"
-                elif e.IsUnionTycon then
+                elif enclosingEntity.IsUnionTycon then
                     if vName = "GetTag" then
                         let objR = ConvExpr cenv env callArgs.Head
                         E.UnionCaseTag(objR, typR) 
@@ -778,8 +782,8 @@ module FSharpExprConvert =
                         | _ ->
                             failwith "Failed to recognize union type member"
                 else
-                    let names = e.MembersOfFSharpTyconSorted |> List.map (fun v -> v.CompiledName) |> String.concat ", "
-                    failwithf "Member '%s' not found in type %s, found: %s" vName e.DisplayName names
+                    let names = enclosingEntity.MembersOfFSharpTyconSorted |> List.map (fun v -> v.CompiledName) |> String.concat ", "
+                    failwithf "Member '%s' not found in type %s, found: %s" vName enclosingEntity.DisplayName names
             | _ -> // member is overloaded
                 match nlr.ItemKey.TypeForLinkage with
                 | None -> failwith "Type of signature could not be resolved"
@@ -826,7 +830,7 @@ module FSharpExprConvert =
                 let isStatic = isCtor || ilMethRef.CallingConv.IsStatic
                 let scoref = ilMethRef.EnclosingTypeRef.Scope
                 let typars1 = tcref.Typars(m)
-                let typars2 = [ 1 .. ilMethRef.GenericArity ] |> List.map (fun _ -> NewUnresolvedTypar "T" m)
+                let typars2 = [ 1 .. ilMethRef.GenericArity ] |> List.map (fun _ -> NewRigidTypar "T" m)
                 let tinst1 = typars1 |> generalizeTypars
                 let tinst2 = typars2 |> generalizeTypars
                 // TODO: this will not work for curried methods in F# classes.
@@ -846,18 +850,11 @@ module FSharpExprConvert =
                 let argCount = List.sum (List.map List.length argtys)  + (if isStatic then 0 else 1)
                 let key = ValLinkageFullKey({ MemberParentMangledName=memberParentName; MemberIsOverride=false; LogicalName=logicalName; TotalArgCount= argCount },Some linkageType)
 
-                let enclosingNonLocalRef = mkNonLocalEntityRef tcref.nlr.Ccu tcref.PublicPath.Value.EnclosingPath
-                
-                try
-                    let vref = mkNonLocalValRef enclosingNonLocalRef key
-                    makeFSExpr isMember vref 
-                with _ ->
-                    // union compiler generated members can be found up in parent module/namespace
-                    // also class members with a CompiledName
-                    let (PubPath p) = tcref.PublicPath.Value
-                    let enclosingNonLocalRef = mkNonLocalEntityRef tcref.nlr.Ccu p
-                    let vref = mkNonLocalValRef enclosingNonLocalRef key
-                    makeFSExpr isMember vref 
+                let (PubPath p) = tcref.PublicPath.Value
+                let enclosingNonLocalRef = mkNonLocalEntityRef tcref.nlr.Ccu p
+                let vref = mkNonLocalValRef enclosingNonLocalRef key
+                makeFSExpr isMember vref 
+
             else 
                 let key = ValLinkageFullKey({ MemberParentMangledName=memberParentName; MemberIsOverride=false; LogicalName=logicalName; TotalArgCount= 0 },None)
                 let vref = mkNonLocalValRef tcref.nlr key

@@ -290,6 +290,7 @@ Target "All" DoNothing
 Target "All.NetCore" DoNothing
 
 "Clean"
+  ==> "AssemblyInfo"
   ==> "CodeGen.NetCore"
   ==> "Build.NetCore"
   ==> "RunTests.NetCore"

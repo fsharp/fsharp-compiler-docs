@@ -851,6 +851,8 @@ let ``Test expressions of declarations stress big expressions`` () =
     // This should not stack overflow
     printDeclarations None (List.ofSeq file1.Declarations) |> Seq.toList |> ignore
 
+#if FX_ATLEAST_45
+
 [<Test>]
 let ``Check use of type provider that provides calls to F# code`` () = 
     let config = 
@@ -1038,12 +1040,10 @@ let ``Check use of type provider that provides calls to F# code`` () =
        "i: Microsoft.FSharp.Core.int"
       ]
 
+#endif
 
 #if SELF_HOST_STRESS
-
-#if FX_ATLEAST_45
    
-#endif
 
 [<Test>]
 let ``Test Declarations selfhost`` () =

@@ -851,7 +851,7 @@ let ``Test expressions of declarations stress big expressions`` () =
     // This should not stack overflow
     printDeclarations None (List.ofSeq file1.Declarations) |> Seq.toList |> ignore
 
-#if FX_ATLEAST_45
+#if FX_ATLEAST_45 && !DOTNETCORE
 
 [<Test>]
 let ``Check use of type provider that provides calls to F# code`` () = 

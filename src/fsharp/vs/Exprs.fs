@@ -778,7 +778,7 @@ module FSharpExprConvert =
                     else
                         failwith "Failed to recognize record type member"
                 elif enclosingEntity.IsUnionTycon then
-                    if vName = "GetTag" then
+                    if vName = "GetTag" || vName = "get_Tag" then
                         let objR = ConvExpr cenv env callArgs.Head
                         E.UnionCaseTag(objR, typR) 
                     elif vName.StartsWith("New") then

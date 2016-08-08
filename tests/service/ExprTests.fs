@@ -877,6 +877,8 @@ let ``Check use of type provider that provides calls to F# code`` () =
                     for line in d |> printDeclaration None do 
                         yield line ]    
     
+    results |> List.iter (printfn "%s")
+
     results |> shouldEqual
       ["type TestProject"; "type AssemblyInfo"; "type TestProject"; "type T";
        """type Class1""";
@@ -896,6 +898,7 @@ let ``Check use of type provider that provides calls to F# code`` () =
        """member get_X13(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothingOneArg (3) @ (18,22--18,55)"""
        """member get_X14(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothingTwoArg (new C(),3) @ (19,22--19,55)"""
        """member get_X15(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let matchValue: Microsoft.FSharp.Core.Option<Microsoft.FSharp.Core.int> = FSharpOption`1<Microsoft.FSharp.Core.int>.Some (1) in (if Operators.op_Equality<Microsoft.FSharp.Core.int> (matchValue.Tag,1) then let x: Microsoft.FSharp.Core.int = matchValue.get_Value() in x else 0) @ (20,22--20,54)"""
+       """member get_X16(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let matchValue: Microsoft.FSharp.Core.Choice<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.obj> = Choice1Of2(1) in (if Operators.op_Equality<Microsoft.FSharp.Core.int> (matchValue.Tag,0) then 1 else 0) @ (21,22--21,54)"""
        """member get_X17(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let r: TestTP.Helper.R = {A = 1; B = 0} in (r.B <- 1; r.A) @ (22,22--22,60)"""
        """member get_X18(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingTwoArg (3,4) @ (23,22--23,43)"""
        """member get_X19(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingTwoArgCurried (3,4) @ (24,22--24,50)"""
@@ -925,6 +928,8 @@ let ``Check use of type provider that provides calls to F# code`` () =
 
     let members = 
         [ for f in res.AssemblyContents.ImplementationFiles do yield! printMembersOfDeclatations f.Declarations ]
+
+    members |> List.iter (printfn "%s")
 
     members |> shouldEqual 
       [
@@ -972,6 +977,9 @@ let ``Check use of type provider that provides calls to F# code`` () =
        "matchValue: Microsoft.FSharp.Core.Option<Microsoft.FSharp.Core.int>"
        "get_Value: Microsoft.FSharp.Core.unit -> 'T"
        "x: Microsoft.FSharp.Core.int"
+       "get_X16: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "op_Equality<'T when 'T : equality>: 'T -> 'T -> Microsoft.FSharp.Core.bool"
+       "matchValue: Microsoft.FSharp.Core.Choice<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.obj>"
        "get_X17: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
        "r: TestTP.Helper.R"
        "r: TestTP.Helper.R"

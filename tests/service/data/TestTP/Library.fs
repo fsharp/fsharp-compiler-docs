@@ -225,7 +225,9 @@ type BasicProvider (config : TypeProviderConfig) as this =
         myType.AddMember(someMethod)
 
         let someMethod = ProvidedMethod("ChoiceConstructionAndMatch", [], typeof<int>,
-                            InvokeCode = fun args -> <@@ match Choice1Of2 1 with Choice2Of2 _ -> 0 | Choice1Of2 x -> x @@>)
+                            InvokeCode = fun args -> <@@ match Choice1Of2 1 with Choice2Of2 _ -> 0 | Choice1Of2 _ -> 1 @@>)
+            // TODO: fix type checker to recognize union generated subclasses coming from TPs
+//                            InvokeCode = fun args -> <@@ match Choice1Of2 1 with Choice2Of2 _ -> 0 | Choice1Of2 x -> x @@>)
         myType.AddMember(someMethod)
 
         let someMethod = ProvidedMethod("RecordConstructionAndFieldGetSet", [], typeof<int>,

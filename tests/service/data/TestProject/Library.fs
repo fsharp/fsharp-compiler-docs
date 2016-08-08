@@ -40,3 +40,7 @@ type Class1() =
     member this.X37 = T().InterfaceDoNothing()
     member this.X38 = T().OverrideDoNothing()
     member this.X39 = T().TupleConstructionAndGet()
+    member this.X40 = T().ModuleValue()
+    member this.X41 = T().ClassProperty()
+    member this.X42 = T().ClassAutoProperty()
+    member this.X43 = T().ClassStaticAutoProperty()

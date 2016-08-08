@@ -14,6 +14,8 @@ module Helper =
     let doNothingGeneric(x:'T) = ()
     let doNothingGenericWithConstraint(x: 'T when 'T: equality) = ()
     let doNothingGenericWithTypeConstraint(x: 'T when 'T :> _ seq) = ()
+
+    let mutable moduleValue = 0
     
     type I =
         abstract DoNothing: unit -> unit
@@ -24,6 +26,7 @@ module Helper =
 
     type C() = 
         inherit B()
+        let mutable p = 0
         static member DoNothing() = ()
         static member DoNothingOneArg(x:int) = ()
         static member DoNothingOneArg(x:string) = ()
@@ -41,6 +44,10 @@ module Helper =
         [<CompiledName "DoNothingReallyInst">]
         member __.InstanceDoNothingWithCompiledName() = ()
         override __.VirtualDoNothing() = ()
+
+        member __.Property with get() = p and set v = p <- v
+        member val AutoProperty = 0 with get, set
+        static member val StaticAutoProperty = 0 with get, set
 
         interface I with 
             member this.DoNothing() = ()
@@ -255,6 +262,22 @@ type BasicProvider (config : TypeProviderConfig) as this =
 
         let someMethod = ProvidedMethod("CSharpExplicitImplementationMethod", [], typeof<unit>,
                             InvokeCode = fun args -> <@@ (CSharpClass(0) :> ICSharpExplicitInterface).ExplicitMethod("x") @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ModuleValue", [], typeof<int>,
+                            InvokeCode = fun args -> <@@ Helper.moduleValue <- 1; Helper.moduleValue @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassProperty", [], typeof<int>,
+                            InvokeCode = fun args -> <@@ let x = Helper.C() in x.Property <- 1; x.Property @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassAutoProperty", [], typeof<int>,
+                            InvokeCode = fun args -> <@@ let x = Helper.C() in x.AutoProperty <- 1; x.AutoProperty @@>)
+        myType.AddMember(someMethod)
+
+        let someMethod = ProvidedMethod("ClassStaticAutoProperty", [], typeof<int>,
+                            InvokeCode = fun args -> <@@ Helper.C.StaticAutoProperty <- 1; Helper.C.StaticAutoProperty @@>)
         myType.AddMember(someMethod)
 
         [myType]  

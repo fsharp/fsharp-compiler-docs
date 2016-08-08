@@ -917,6 +917,10 @@ let ``Check use of type provider that provides calls to F# code`` () =
        """member get_X37(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in (new C() :> TestTP.Helper.I).DoNothing() @ (40,22--40,46)"""
        """member get_X38(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().VirtualDoNothing() @ (41,22--41,45)"""
        """member get_X39(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let t: Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int = (1,2,3) in let i: Microsoft.FSharp.Core.int = t.Item1 in i @ (42,22--42,51)"""
+       """member get_X40(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in (moduleValue <- 1; moduleValue) @ (43,22--43,39)"""
+       """member get_X41(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let x: TestTP.Helper.C = new C() in (x.set_Property(1); x.get_Property()) @ (44,22--44,41)"""
+       """member get_X42(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let x: TestTP.Helper.C = new C() in (x.set_AutoProperty(1); x.get_AutoProperty()) @ (45,22--45,45)"""
+       """member get_X43(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in (C.set_StaticAutoProperty (1); C.get_StaticAutoProperty ()) @ (46,22--46,51)"""
       ]
 
     let members = 
@@ -1038,6 +1042,24 @@ let ``Check use of type provider that provides calls to F# code`` () =
        "get_X39: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
        "t: Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int"
        "i: Microsoft.FSharp.Core.int"
+       "get_X40: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "moduleValue: Microsoft.FSharp.Core.int"
+       "moduleValue: Microsoft.FSharp.Core.int"
+       "get_X41: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "x: TestTP.Helper.C"
+       "set_Property: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "x: TestTP.Helper.C"
+       "get_Property: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "get_X42: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "x: TestTP.Helper.C"
+       "set_AutoProperty: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "x: TestTP.Helper.C"
+       "get_AutoProperty: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "get_X43: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "set_StaticAutoProperty: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "get_StaticAutoProperty: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
       ]
 
 #endif

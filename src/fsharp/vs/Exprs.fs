@@ -740,8 +740,28 @@ module FSharpExprConvert =
                     | [v] ->
                         let vr = VRefLocal v
                         makeFSCall isMember vr
+                    | [] ->
+                        let isPropGet = vName.StartsWith("get_", System.StringComparison.Ordinal)
+                        let isPropSet = vName.StartsWith("set_", System.StringComparison.Ordinal)
+                        if isPropGet || isPropSet then
+                            let name = PrettyNaming.ChopPropertyName vName          
+                            let findByName =
+                                enclosingEntity.ModuleOrNamespaceType.AllValsAndMembers 
+                                |> Seq.filter (fun v -> v.CompiledName = name)
+                                |> List.ofSeq
+                            match findByName with
+                            | [ v ] ->
+                                let m = FSharpMemberOrFunctionOrValue(cenv, VRefLocal v)
+                                if isPropGet then
+                                    E.Value m
+                                else     
+                                    let valR = ConvExpr cenv env callArgs.Head
+                                    E.ValueSet (m, valR)
+                            | _ -> failwith "Failed to resolve module value unambigously"
+                        else
+                            failwith "Failed to resolve module member" 
                     | _ ->
-                        failwith "Failed to resolve overload"
+                        failwith "Failed to resolve overloaded module member"
                 elif enclosingEntity.IsRecordTycon then
                     if isProp then
                         let name = PrettyNaming.ChopPropertyName vName                                    

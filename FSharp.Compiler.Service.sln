@@ -4,10 +4,11 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{B6B68AE6-E7A4-4D43-9B34-FFA74BFE192B}"
 	ProjectSection(SolutionItems) = preProject
+		build.cmd = build.cmd
 		build.fsx = build.fsx
+		build.sh = build.sh
 		nuget\FSharp.Compiler.Service.nuspec = nuget\FSharp.Compiler.Service.nuspec
 		paket.dependencies = paket.dependencies
-		nuget\paket.template = nuget\paket.template
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
@@ -64,6 +65,21 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Compiler.Service.ProjectCracker", "src\fsharp\FSharp.Compiler.Service.ProjectCracker\FSharp.Compiler.Service.ProjectCracker.fsproj", "{893C3CD9-5AF8-4027-A667-21E62FC2C703}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestTP", "tests\service\data\TestTP\TestTP.fsproj", "{FF76BD3C-5E0A-4752-B6C3-044F6E15719B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{098D1C35-D0FB-4720-83DD-8002293EA237}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.travis.yml = .travis.yml
+		appveyor.yml = appveyor.yml
+		NuGet.Config = NuGet.Config
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "package", "package", "{9020E136-794A-473F-9B1B-9623C97B7161}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\FSharp.Compiler.Service.template = nuget\FSharp.Compiler.Service.template
+		nuget\projectcracker.template = nuget\projectcracker.template
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -141,7 +141,7 @@ Target "RunTests" (fun _ ->
 Target "NuGet" (fun _ ->
     Paket.Pack (fun p -> 
         { p with 
-            TemplateFile = "nuget/paket.template"
+            TemplateFile = "nuget/FSharp.Compiler.Service.template"
             Version = release.NugetVersion
             OutputPath = buildDir
             ReleaseNotes = toLines release.Notes })
@@ -214,7 +214,8 @@ Target "GitHubRelease" (fun _ ->
     // release on github
     createClient user pw
     |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes 
-    |> releaseDraft
+    |> uploadFile (buildDir</>("FSharp.Compiler.Service." + release.NugetVersion + ".nupkg"))
+    |> releaseDraft    
     |> Async.RunSynchronously
 )
 

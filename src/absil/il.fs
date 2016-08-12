@@ -4254,6 +4254,58 @@ let compareILVersions (a1,a2,a3,a4) ((b1,b2,b3,b4) : ILVersionInfo) =
     if c <> 0 then c else
     0
 
+let qunscope_scoref scoref_old = 
+    match scoref_old with 
+    | ILScopeRef.Local -> None
+    | _ -> Some ILScopeRef.Local
+
+let qunscope_tref (x:ILTypeRef) = 
+    match qunscope_scoref x.Scope with 
+    | None -> None
+    | Some s -> Some (ILTypeRef.Create(s,x.Enclosing,x.Name))
+
+let unscopeILScopeRef y = match qunscope_scoref y with Some x -> x | None -> y
+let unscopeILTypeRef y = match qunscope_tref y with Some x -> x | None -> y
+
+let rec unscopeILTypeSpecQuick (tspec:ILTypeSpec) = 
+    let tref = tspec.TypeRef
+    let tinst = tspec.GenericArgs
+    let qtref = qunscope_tref tref
+    if ILList.isEmpty tinst && isNone qtref then 
+        None (* avoid reallocation in the common case *)
+    else
+        match qtref with 
+        | None ->  Some (ILTypeSpec.Create (tref, unscopeILTypes tinst))
+        | Some tref ->  Some (ILTypeSpec.Create (tref, unscopeILTypes tinst))
+
+and unscopeILTypeSpec x y = 
+    match rescopeILTypeSpecQuick x y with 
+    | Some x -> x 
+    | None -> y
+
+and unscopeILType typ = 
+    match typ with 
+    | ILType.Ptr t -> ILType.Ptr (unscopeILType t)
+    | ILType.FunctionPointer t -> ILType.FunctionPointer (unscopeILCallSig t)
+    | ILType.Byref t -> ILType.Byref (unscopeILType t)
+    | ILType.Boxed cr -> 
+        match unscopeILTypeSpecQuick cr with 
+        | Some res -> mkILBoxedType res
+        | None -> typ  // avoid reallocation in the common case 
+    | ILType.Array (s,ty) -> ILType.Array (s,unscopeILType ty)
+    | ILType.Value cr -> 
+        match unscopeILTypeSpecQuick cr with 
+        | Some res -> ILType.Value res
+        | None -> typ  // avoid reallocation in the common case 
+    | ILType.Modified(b,tref,ty) -> ILType.Modified(b,unscopeILTypeRef tref, unscopeILType ty)
+    | x -> x
+
+and unscopeILTypes i = 
+    if ILList.isEmpty i then i
+    else ILList.map unscopeILType i
+
+and unscopeILCallSig csig = 
+    mkILCallSigRaw (csig.CallingConv,unscopeILTypes csig.ArgTypes,unscopeILType csig.ReturnType)
 
 let resolveILMethodRefWithRescope r td (mref:ILMethodRef) = 
     let args = mref.ArgTypes
@@ -4261,13 +4313,15 @@ let resolveILMethodRefWithRescope r td (mref:ILMethodRef) =
     let nm = mref.Name
     let possibles = td.Methods.FindByNameAndArity (nm,nargs)
     if isNil possibles then failwith ("no method named "+nm+" found in type "+td.Name);
+    let argTypes = mref.ArgTypes |> List.map r
+    let retType : ILType = r mref.ReturnType
     match 
       possibles |> List.filter (fun md -> 
           mref.CallingConv = md.CallingConv &&
           // REVIEW: this uses equality on ILType.  For CMOD_OPTIONAL this is not going to be correct
-          (md.Parameters,mref.ArgTypes) ||>  ILList.lengthsEqAndForall2 (fun p1 p2 -> r p1.Type = p2) &&
+          (md.Parameters,argTypes) ||>  ILList.lengthsEqAndForall2 (fun p1 p2 -> r p1.Type = p2) &&
           // REVIEW: this uses equality on ILType.  For CMOD_OPTIONAL this is not going to be correct 
-          r md.Return.Type = mref.ReturnType)  with 
+          r md.Return.Type = retType)  with 
     | [] -> failwith ("no method named "+nm+" with appropriate argument types found in type "+td.Name)
     | [mdef] ->  mdef
     | _ -> failwith ("multiple methods named "+nm+" appear with identical argument types in type "+td.Name)

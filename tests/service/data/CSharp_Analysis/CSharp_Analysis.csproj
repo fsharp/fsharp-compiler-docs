@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CSharp_Analysis</RootNamespace>
     <AssemblyName>CSharp_Analysis</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\..\</SolutionDir>
     <OutputPath>..\..\..\..\bin\$(TargetFrameworkVersion)\</OutputPath>
     <FileAlignment>512</FileAlignment>

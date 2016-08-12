@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -51,13 +52,37 @@ namespace FSharp.Compiler.Service.Tests
             throw new NotImplementedException();
         }
 
+        public int Method2(string optParameter = "empty")
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Method3(params string[] variadicParameter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GenericMethod<T>(T input)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GenericMethod2<T>(T input) where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GenericMethod3<T>(T input) where T : IComparable<T>
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Property
         {
             get { throw new NotImplementedException(); }
         }
 
         public event EventHandler Event;
-
 
         public int InterfaceMethod(string parameter)
         {

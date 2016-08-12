@@ -1,0 +1,291 @@
+diff --git a/paket.lock b/paket.lock
+index fe46f2c..603392c 100644
+--- a/paket.lock
++++ b/paket.lock
+@@ -1,31 +1,31 @@
+ NUGET
+   remote: https://www.nuget.org/api/v2
+   specs:
+-    FAKE (4.1.0)
+-    FSharp.Compiler.Service (1.4.0.1)
+-    FSharp.Formatting (2.10.0)
+-      FSharp.Compiler.Service (>= 0.0.87)
+-      FSharpVSPowerTools.Core (1.8.0)
+-    FSharpVSPowerTools.Core (1.8.0)
+-      FSharp.Compiler.Service (>= 0.0.87)
+-    Microsoft.Bcl (1.1.10)
++    FAKE (4.29.2)
++    FSharp.Compiler.Service (2.0.0.6)
++    FSharp.Formatting (2.14.4)
++      FSharp.Compiler.Service (2.0.0.6)
++      FSharpVSPowerTools.Core (>= 2.3 < 2.4)
++    FSharpVSPowerTools.Core (2.3)
++      FSharp.Compiler.Service (>= 2.0.0.3)
++    Microsoft.Bcl (1.1.10) - framework: net10, net11, net20, net30, net35, net40, net40-full
+       Microsoft.Bcl.Build (>= 1.0.14)
+-    Microsoft.Bcl.Build (1.0.21)
+-    Microsoft.Net.Http (2.2.29)
++    Microsoft.Bcl.Build (1.0.21) - import_targets: false, framework: net10, net11, net20, net30, net35, net40, net40-full
++    Microsoft.Net.Http (2.2.29) - framework: net10, net11, net20, net30, net35, net40, net40-full
+       Microsoft.Bcl (>= 1.1.10)
+       Microsoft.Bcl.Build (>= 1.0.14)
+     NUnit (2.6.3)
+     NUnit.Runners (2.6.3)
+-    Octokit (0.14.0) - framework: wpv8.0
+-      Microsoft.Net.Http
+-    SourceLink.Fake (1.1.0)
+-    sqlite-net-wp8 (3.8.5) - framework: wpv8.0
+-    SQLite.Net-PCL (3.0.5)
+-      sqlite-net-wp8 (>= 3.8.5) - framework: wpv8.0
++    Octokit (0.20)
++      Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
++    SourceLink.Fake (1.1)
+     SQLite.Net.Platform.Generic (2.4.1)
+       SQLite.Net-PCL
++    SQLite.Net-PCL (3.0.5)
++      sqlite-net-wp8 (>= 3.8.5) - framework: wpv8.0
++    sqlite-net-wp8 (3.8.5) - framework: wpv8.0
+ GITHUB
+   remote: fsharp/FAKE
+   specs:
+-    modules/Octokit/Octokit.fsx (16296d960f02a6192baa9e3f9facb32aca7184bb)
+-      Octokit
+\ No newline at end of file
++    modules/Octokit/Octokit.fsx (c56456abac6b744c3bb95b217687db19fd19b367)
++      Octokit (>= 0.20)
+\ No newline at end of file
+diff --git a/tests/service/data/DifferingOutputDir/Dir2/Test2.fsproj b/tests/service/data/DifferingOutputDir/Dir2/Test2.fsproj
+index ccc20f3..8498a2f 100644
+--- a/tests/service/data/DifferingOutputDir/Dir2/Test2.fsproj
++++ b/tests/service/data/DifferingOutputDir/Dir2/Test2.fsproj
+@@ -1,4 +1,4 @@
+-<?xml version="1.0" encoding="utf-8"?>
++﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <PropertyGroup>
+     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+@@ -74,4 +74,11 @@
+ 	<Target Name="AfterBuild">
+ 	</Target>
+ 	-->
+-</Project>
++  <ItemGroup>
++    <Reference Include="nunit.framework">
++      <HintPath>..\..\..\..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
++      <Private>True</Private>
++      <Paket>True</Paket>
++    </Reference>
++  </ItemGroup>
++</Project>
+\ No newline at end of file
+diff --git a/tests/service/data/Space in name.fsproj b/tests/service/data/Space in name.fsproj
+index 9228301..513af7b 100644
+--- a/tests/service/data/Space in name.fsproj	
++++ b/tests/service/data/Space in name.fsproj	
+@@ -74,4 +74,11 @@
+ 	<Target Name="AfterBuild">
+ 	</Target>
+ 	-->
++  <ItemGroup>
++    <Reference Include="nunit.framework">
++      <HintPath>..\..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
++      <Private>True</Private>
++      <Paket>True</Paket>
++    </Reference>
++  </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/tests/service/data/Test1.fsproj b/tests/service/data/Test1.fsproj
+index 352940e..a74341c 100644
+--- a/tests/service/data/Test1.fsproj
++++ b/tests/service/data/Test1.fsproj
+@@ -1,4 +1,4 @@
+-<?xml version="1.0" encoding="utf-8"?>
++﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <PropertyGroup>
+     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+@@ -68,4 +68,11 @@
+ 	<Target Name="AfterBuild">
+ 	</Target>
+ 	-->
+-</Project>
++  <ItemGroup>
++    <Reference Include="nunit.framework">
++      <HintPath>..\..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
++      <Private>True</Private>
++      <Paket>True</Paket>
++    </Reference>
++  </ItemGroup>
++</Project>
+\ No newline at end of file
+diff --git a/tests/service/data/TestTP/TestTP.fsproj b/tests/service/data/TestTP/TestTP.fsproj
+index 1f2b216..ee521fc 100644
+--- a/tests/service/data/TestTP/TestTP.fsproj
++++ b/tests/service/data/TestTP/TestTP.fsproj
+@@ -75,4 +75,11 @@
+   <Target Name="AfterBuild">
+   </Target>
+   -->
++  <ItemGroup>
++    <Reference Include="nunit.framework">
++      <HintPath>..\..\..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
++      <Private>True</Private>
++      <Paket>True</Paket>
++    </Reference>
++  </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/tests/service/data/ToolsVersion12.fsproj b/tests/service/data/ToolsVersion12.fsproj
+index 16ffbbe..824f361 100644
+--- a/tests/service/data/ToolsVersion12.fsproj
++++ b/tests/service/data/ToolsVersion12.fsproj
+@@ -1,4 +1,4 @@
+-<?xml version="1.0" encoding="utf-8"?>
++﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+   <PropertyGroup>
+@@ -64,4 +64,11 @@
+   <Target Name="AfterBuild">
+   </Target>
+   -->
+-</Project>
++  <ItemGroup>
++    <Reference Include="nunit.framework">
++      <HintPath>..\..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
++      <Private>True</Private>
++      <Paket>True</Paket>
++    </Reference>
++  </ItemGroup>
++</Project>
+\ No newline at end of file
+diff --git a/tests/service/data/TypeProviderConsole/TypeProviderConsole.fsproj b/tests/service/data/TypeProviderConsole/TypeProviderConsole.fsproj
+index 0aafd35..42e3c87 100644
+--- a/tests/service/data/TypeProviderConsole/TypeProviderConsole.fsproj
++++ b/tests/service/data/TypeProviderConsole/TypeProviderConsole.fsproj
+@@ -79,4 +79,11 @@
+   <Target Name="AfterBuild">
+   </Target>
+   -->
++  <ItemGroup>
++    <Reference Include="nunit.framework">
++      <HintPath>..\..\..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
++      <Private>True</Private>
++      <Paket>True</Paket>
++    </Reference>
++  </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/tests/service/data/TypeProviderLibrary/TypeProviderLibrary.fsproj b/tests/service/data/TypeProviderLibrary/TypeProviderLibrary.fsproj
+index 72e19eb..c43667c 100644
+--- a/tests/service/data/TypeProviderLibrary/TypeProviderLibrary.fsproj
++++ b/tests/service/data/TypeProviderLibrary/TypeProviderLibrary.fsproj
+@@ -68,4 +68,11 @@
+   <Target Name="AfterBuild">
+   </Target>
+   -->
++  <ItemGroup>
++    <Reference Include="nunit.framework">
++      <HintPath>..\..\..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
++      <Private>True</Private>
++      <Paket>True</Paket>
++    </Reference>
++  </ItemGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/tests/service/data/sqlite-net-spike/sqlite-net-spike.fsproj b/tests/service/data/sqlite-net-spike/sqlite-net-spike.fsproj
+index e549b51..489b989 100644
+--- a/tests/service/data/sqlite-net-spike/sqlite-net-spike.fsproj
++++ b/tests/service/data/sqlite-net-spike/sqlite-net-spike.fsproj
+@@ -1,4 +1,4 @@
+-<?xml version="1.0" encoding="utf-8"?>
++﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <PropertyGroup>
+     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+@@ -34,6 +34,15 @@
+     <DefineConstants>
+     </DefineConstants>
+   </PropertyGroup>
++  <Choose>
++    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhone' And $(TargetFrameworkVersion) == 'v8.0'">
++      <PropertyGroup>
++        <__paket__sqlite-net-wp8_props>windowsphone8\sqlite-net-wp8</__paket__sqlite-net-wp8_props>
++        <__paket__sqlite-net-wp8_targets>windowsphone8\sqlite-net-wp8</__paket__sqlite-net-wp8_targets>
++      </PropertyGroup>
++    </When>
++  </Choose>
++  <Import Project="..\..\..\..\packages\sqlite-net-wp8\build\$(__paket__sqlite-net-wp8_props).props" Condition="Exists('..\..\..\..\packages\sqlite-net-wp8\build\$(__paket__sqlite-net-wp8_props).props')" Label="Paket" />
+   <ItemGroup>
+     <Reference Include="mscorlib" />
+     <Reference Include="FSharp.Core" />
+@@ -57,4 +66,66 @@
+   <ItemGroup>
+     <None Include="packages.config" />
+   </ItemGroup>
+-</Project>
++  <Choose>
++    <When Condition="$(TargetFrameworkIdentifier) == '.NETCore'">
++      <ItemGroup>
++        <Reference Include="SQLite.Net.Platform.WinRT">
++          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\Windows8\SQLite.Net.Platform.WinRT.dll</HintPath>
++          <Private>True</Private>
++          <Paket>True</Paket>
++        </Reference>
++      </ItemGroup>
++    </When>
++    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
++      <ItemGroup>
++        <Reference Include="SQLite.Net.Platform.XamarinAndroid">
++          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\MonoAndroid\SQLite.Net.Platform.XamarinAndroid.dll</HintPath>
++          <Private>True</Private>
++          <Paket>True</Paket>
++        </Reference>
++      </ItemGroup>
++    </When>
++    <When Condition="$(TargetFrameworkIdentifier) == 'MonoTouch'">
++      <ItemGroup>
++        <Reference Include="SQLite.Net.Platform.XamarinIOS">
++          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\monotouch\SQLite.Net.Platform.XamarinIOS.dll</HintPath>
++          <Private>True</Private>
++          <Paket>True</Paket>
++        </Reference>
++      </ItemGroup>
++    </When>
++    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhone' And ($(TargetFrameworkVersion) == 'v8.0' Or $(TargetFrameworkVersion) == 'v8.1')">
++      <ItemGroup>
++        <Reference Include="SQLite.Net.Platform.WindowsPhone8">
++          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\windowsphone8\ARM\SQLite.Net.Platform.WindowsPhone8.dll</HintPath>
++          <Private>True</Private>
++          <Paket>True</Paket>
++        </Reference>
++        <Reference Include="SQLite.Net.Platform.WindowsPhone8">
++          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\windowsphone8\x86\SQLite.Net.Platform.WindowsPhone8.dll</HintPath>
++          <Private>True</Private>
++          <Paket>True</Paket>
++        </Reference>
++      </ItemGroup>
++    </When>
++    <When Condition="$(TargetFrameworkIdentifier) == 'Xamarin.iOS'">
++      <ItemGroup>
++        <Reference Include="SQLite.Net.Platform.XamarinIOS.Unified">
++          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\Xamarin.iOS10\SQLite.Net.Platform.XamarinIOS.Unified.dll</HintPath>
++          <Private>True</Private>
++          <Paket>True</Paket>
++        </Reference>
++      </ItemGroup>
++    </When>
++    <When Condition="($(TargetFrameworkIdentifier) == 'WindowsPhoneApp') Or ($(TargetFrameworkProfile) == 'Profile32')">
++      <ItemGroup>
++        <Reference Include="SQLite.Net.Platform.WinRT">
++          <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\portable-win81+wpa81\SQLite.Net.Platform.WinRT.dll</HintPath>
++          <Private>True</Private>
++          <Paket>True</Paket>
++        </Reference>
++      </ItemGroup>
++    </When>
++  </Choose>
++  <Import Project="..\..\..\..\packages\sqlite-net-wp8\build\$(__paket__sqlite-net-wp8_targets).targets" Condition="Exists('..\..\..\..\packages\sqlite-net-wp8\build\$(__paket__sqlite-net-wp8_targets).targets')" Label="Paket" />
++</Project>
+\ No newline at end of file

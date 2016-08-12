@@ -1,3 +1,6 @@
+#### 6.0.2
+  * [Fix #568: recognize provided expressions](https://github.com/fsharp/FSharp.Compiler.Service/pull/568)
+
 #### 6.0.1
   * [Fix ProjectFileNames order when getting project options from script](https://github.com/fsharp/FSharp.Compiler.Service/pull/594)
 

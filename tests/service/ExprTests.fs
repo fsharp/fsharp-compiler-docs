@@ -44,10 +44,12 @@ module Utils =
         | BasicPatterns.Lambda(v,e1) -> "fun " + v.CompiledName + " -> " + printExpr 0 e1
         | BasicPatterns.Let((v,e1),b) -> "let " + (if v.IsMutable then "mutable " else "") + v.CompiledName + ": " + printTy v.FullType + " = " + printExpr 0 e1 + " in " + printExpr 0 b
         | BasicPatterns.LetRec(vse,b) -> "let rec ... in " + printExpr 0 b
-        | BasicPatterns.NewArray(ty,es) -> "[| ... |]" 
+        | BasicPatterns.NewArray(ty,es) -> "[|" + (es |> Seq.map (printExpr 0) |> String.concat "; ") +  "|]" 
         | BasicPatterns.NewDelegate(ty,es) -> "new-delegate" 
         | BasicPatterns.NewObject(v,tys,args) -> "new " + v.EnclosingEntity.CompiledName + printTupledArgs args 
-        | BasicPatterns.NewRecord(v,args) -> "{ ... }" 
+        | BasicPatterns.NewRecord(v,args) -> 
+            let fields = v.TypeDefinition.FSharpFields
+            "{" + ((fields, args) ||> Seq.map2 (fun f a -> f.Name + " = " + printExpr 0 a) |> String.concat "; ") + "}" 
         | BasicPatterns.NewTuple(v,args) -> printTupledArgs args 
         | BasicPatterns.NewUnionCase(ty,uc,args) -> uc.CompiledName + printTupledArgs args 
         | BasicPatterns.Quote(e1) -> "quote" + printTupledArgs [e1]
@@ -107,14 +109,14 @@ module Utils =
                   not (match excludes with None -> false | Some t -> t.Contains v.CompiledName) then
                 let text = 
                     //printfn "%s" v.CompiledName
-                 //try
+//                 try
                     if v.IsMember then 
                         sprintf "member %s%s = %s @ %s" v.CompiledName (printCurriedParams vs)  (printExpr 0 e) (e.Range.ToShortString())
                     else 
                         sprintf "let %s%s = %s @ %s" v.CompiledName (printCurriedParams vs) (printExpr 0 e) (e.Range.ToShortString())
-                 //with e -> 
-                 //    printfn "FAILURE STACK: %A" e
-                 //    sprintf "!!!!!!!!!! FAILED on %s @ %s, message: %s" v.CompiledName (v.DeclarationLocation.ToString()) e.Message
+//                 with e -> 
+//                     printfn "FAILURE STACK: %A" e
+//                     sprintf "!!!!!!!!!! FAILED on %s @ %s, message: %s" v.CompiledName (v.DeclarationLocation.ToString()) e.Message
                 yield text
             | FSharpImplementationFileDeclaration.InitAction(e) ->
                 yield sprintf "do %s" (printExpr 0 e) }
@@ -135,6 +137,116 @@ module Utils =
     and exprsOfDecls ds = 
         seq { for d in ds do 
                 yield! exprsOfDecl d }
+
+    let printGenericConstraint name (p: FSharpGenericParameterConstraint) =
+        if p.IsCoercesToConstraint then
+            Some <| name + " :> " + printTy p.CoercesToTarget 
+        elif p.IsComparisonConstraint then 
+            Some <| name + " : comparison"
+        elif p.IsEqualityConstraint then
+            Some <| name + " : equality"
+        elif p.IsReferenceTypeConstraint then
+            Some <| name + " : class"
+        elif p.IsNonNullableValueTypeConstraint then
+            Some <| name + " : struct"
+        elif p.IsEnumConstraint then
+            Some <| name + " : enum"
+        elif p.IsSupportsNullConstraint then
+            Some <| name + " : null"
+        else None
+
+    let printGenericParameter (p: FSharpGenericParameter) =
+        let name = 
+            if p.Name.StartsWith "?" then "_"
+            elif p.IsSolveAtCompileTime then "^" + p.Name 
+            else "'" + p.Name
+        let constraints =
+            p.Constraints |> Seq.choose (printGenericConstraint name) |> List.ofSeq
+        name, constraints
+    
+    let printMemberSignature (v: FSharpMemberOrFunctionOrValue) =
+        let genParams =
+            let ps = v.GenericParameters |> Seq.map printGenericParameter |> List.ofSeq
+            if List.isEmpty ps then "" else
+                let constraints = ps |> List.collect snd
+                "<" + (ps |> Seq.map fst |> String.concat ", ") + 
+                    (if List.isEmpty constraints then "" else " when " + String.concat " and " constraints) + ">"
+
+        v.CompiledName + genParams + ": " + printTy v.FullType
+
+    let rec collectMembers (e:FSharpExpr) = 
+        match e with 
+        | BasicPatterns.AddressOf(e) -> collectMembers e
+        | BasicPatterns.AddressSet(e1,e2) -> Seq.append (collectMembers e1) (collectMembers e2)
+        | BasicPatterns.Application(f,_,args) -> Seq.append (collectMembers f) (Seq.collect collectMembers args)
+        | BasicPatterns.BaseValue(_) -> Seq.empty
+        | BasicPatterns.Call(Some obj,v,_,_,argsL) -> Seq.concat [ collectMembers obj; Seq.singleton v; Seq.collect collectMembers argsL ]
+        | BasicPatterns.Call(None,v,_,_,argsL) -> Seq.concat [ Seq.singleton v; Seq.collect collectMembers argsL ]
+        | BasicPatterns.Coerce(_,e) -> collectMembers e
+        | BasicPatterns.DefaultValue(_) -> Seq.empty
+        | BasicPatterns.FastIntegerForLoop (fromArg, toArg, body, _) -> Seq.collect collectMembers [ fromArg; toArg; body ]
+        | BasicPatterns.ILAsm(_,_,args) -> Seq.collect collectMembers args 
+        | BasicPatterns.ILFieldGet (Some e,_,_) -> collectMembers e
+        | BasicPatterns.ILFieldGet _ -> Seq.empty
+        | BasicPatterns.ILFieldSet (Some e,_,_,v) -> Seq.append (collectMembers e) (collectMembers v)
+        | BasicPatterns.ILFieldSet _ -> Seq.empty
+        | BasicPatterns.IfThenElse (a,b,c) -> Seq.collect collectMembers [ a; b; c ]
+        | BasicPatterns.Lambda(v,e1) -> collectMembers e1
+        | BasicPatterns.Let((v,e1),b) -> Seq.append (collectMembers e1) (collectMembers b)
+        | BasicPatterns.LetRec(vse,b) -> Seq.append (vse |> Seq.collect (snd >> collectMembers)) (collectMembers b)
+        | BasicPatterns.NewArray(_,es) -> Seq.collect collectMembers es
+        | BasicPatterns.NewDelegate(ty,es) -> collectMembers es
+        | BasicPatterns.NewObject(v,tys,args) -> Seq.append (Seq.singleton v) (Seq.collect collectMembers args)
+        | BasicPatterns.NewRecord(v,args) -> Seq.collect collectMembers args
+        | BasicPatterns.NewTuple(v,args) -> Seq.collect collectMembers args
+        | BasicPatterns.NewUnionCase(ty,uc,args) -> Seq.collect collectMembers args
+        | BasicPatterns.Quote(e1) -> collectMembers e1
+        | BasicPatterns.FSharpFieldGet(Some obj, _,_) -> collectMembers obj
+        | BasicPatterns.FSharpFieldGet _ -> Seq.empty
+        | BasicPatterns.FSharpFieldSet(Some obj,_,_,arg) -> Seq.append (collectMembers obj) (collectMembers arg)
+        | BasicPatterns.FSharpFieldSet(None,_,_,arg) -> collectMembers arg
+        | BasicPatterns.Sequential(e1,e2) -> Seq.append (collectMembers e1) (collectMembers e2)
+        | BasicPatterns.ThisValue _ -> Seq.empty
+        | BasicPatterns.TryFinally(e1,e2) -> Seq.append (collectMembers e1) (collectMembers e2)
+        | BasicPatterns.TryWith(e1,_,f,_,eC) -> Seq.collect collectMembers [ e1; f; eC ]
+        | BasicPatterns.TupleGet(ty,n,e1) -> collectMembers e1
+        | BasicPatterns.DecisionTree(dtree,targets) -> Seq.append (collectMembers dtree) (targets |> Seq.collect (snd >> collectMembers))
+        | BasicPatterns.DecisionTreeSuccess (tg,es) -> Seq.collect collectMembers es
+        | BasicPatterns.TypeLambda(gp1,e1) -> collectMembers e1
+        | BasicPatterns.TypeTest(ty,e1) -> collectMembers e1
+        | BasicPatterns.UnionCaseSet(obj,ty,uc,f1,e1) -> Seq.append (collectMembers obj) (collectMembers e1)
+        | BasicPatterns.UnionCaseGet(obj,ty,uc,f1) -> collectMembers obj
+        | BasicPatterns.UnionCaseTest(obj,ty,f1) -> collectMembers obj
+        | BasicPatterns.UnionCaseTag(obj,ty) -> collectMembers obj
+        | BasicPatterns.ObjectExpr(ty,basecall,overrides,iimpls) -> 
+            seq {
+                yield! collectMembers basecall
+                for o in overrides do
+                    yield! collectMembers o.Body
+                for _, i in iimpls do
+                    for o in i do
+                        yield! collectMembers o.Body
+            }
+        | BasicPatterns.TraitCall(tys,nm,_,argtys,tinst,args) -> Seq.collect collectMembers args
+        | BasicPatterns.Const(obj,ty) -> Seq.empty
+        | BasicPatterns.Value(v) -> Seq.singleton v
+        | BasicPatterns.ValueSet(v,e1) -> Seq.append (Seq.singleton v) (collectMembers e1)
+        | BasicPatterns.WhileLoop(e1,e2) -> Seq.append (collectMembers e1) (collectMembers e2) 
+        | _ -> failwith (sprintf "unrecognized %+A" e)
+
+    let rec printMembersOfDeclatations ds = 
+        seq { 
+            for d in ds do 
+            match d with 
+            | FSharpImplementationFileDeclaration.Entity(_,ds) ->
+                yield! printMembersOfDeclatations ds
+            | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(v,vs,e) ->
+                yield printMemberSignature v
+                yield! collectMembers e |> Seq.map printMemberSignature
+            | FSharpImplementationFileDeclaration.InitAction(e) ->
+                yield! collectMembers e |> Seq.map printMemberSignature
+        }
+
 
 //---------------------------------------------------------------------------------------------------------
 // This project is a smoke test for a whole range of standard and obscure expressions
@@ -452,7 +564,7 @@ let ``Test Declarations project1`` () =
            "let recFuncIgnoresFirstArg(g) (v) = v @ (32,33--32,34)";
            "let testFun4(unitVar0) = let rec ... in recValNeverUsedAtRuntime @ (36,4--39,28)";
            "type ClassWithImplicitConstructor";
-           "member .ctor(compiledAsArg) = (Object..ctor (); (this.compiledAsArg <- compiledAsArg; (this.compiledAsField <- 1; let compiledAsLocal: Microsoft.FSharp.Core.int = 1 in let compiledAsLocal2: Microsoft.FSharp.Core.int = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (compiledAsLocal,compiledAsLocal) in ()))) @ (41,5--41,33)";
+           "member .ctor(compiledAsArg) = (new Object(); (this.compiledAsArg <- compiledAsArg; (this.compiledAsField <- 1; let compiledAsLocal: Microsoft.FSharp.Core.int = 1 in let compiledAsLocal2: Microsoft.FSharp.Core.int = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (compiledAsLocal,compiledAsLocal) in ()))) @ (41,5--41,33)";
            "member .cctor(unitVar) = (compiledAsStaticField <- 1; let compiledAsStaticLocal: Microsoft.FSharp.Core.int = 1 in let compiledAsStaticLocal2: Microsoft.FSharp.Core.int = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (compiledAsStaticLocal,compiledAsStaticLocal) in ()) @ (49,11--49,40)";
            "member M1(__) (unitVar1) = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (__.compiledAsField,let x: Microsoft.FSharp.Core.int = __.compiledAsField in __.compiledAsGenericInstanceMethod<Microsoft.FSharp.Core.int>(x)),__.compiledAsArg) @ (55,21--55,102)";
            "member M2(__) (unitVar1) = __.compiledAsInstanceMethod(()) @ (56,21--56,47)";
@@ -460,7 +572,7 @@ let ``Test Declarations project1`` () =
            "member SM2(unitVar0) = ClassWithImplicitConstructor.compiledAsStaticMethod (()) @ (58,26--58,50)";
            "member ToString(__) (unitVar1) = Operators.op_Addition<Microsoft.FSharp.Core.string,Microsoft.FSharp.Core.string,Microsoft.FSharp.Core.string> (base.ToString(),Operators.ToString<Microsoft.FSharp.Core.int> (999)) @ (59,29--59,57)";
            "member TestCallinToString(this) (unitVar1) = this.ToString() @ (60,39--60,54)";
-           "type Error"; "let err = { ... } @ (64,10--64,20)";
+           "type Error"; "let err = {Data0 = 3; Data1 = 4} @ (64,10--64,20)";
            "let matchOnException(err) = match (if err :? M.Error then $0 else $1) targets ... @ (66,33--66,36)";
            "let upwardForLoop(unitVar0) = let mutable a: Microsoft.FSharp.Core.int = 1 in (for-loop; a) @ (69,16--69,17)";
            "let upwardForLoop2(unitVar0) = let mutable a: Microsoft.FSharp.Core.int = 1 in (for-loop; a) @ (74,16--74,17)";
@@ -468,7 +580,7 @@ let ``Test Declarations project1`` () =
            "let quotationTest1(unitVar0) = quote(Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (1,1)) @ (83,24--83,35)";
            "let quotationTest2(v) = quote(Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (ExtraTopLevelOperators.SpliceExpression<Microsoft.FSharp.Core.int> (v),1)) @ (84,24--84,36)";
            "type RecdType"; "type UnionType"; "type ClassWithEventsAndProperties";
-           "member .ctor(unitVar0) = (Object..ctor (); (this.ev <- new FSharpEvent`1(()); ())) @ (89,5--89,33)";
+           "member .ctor(unitVar0) = (new Object(); (this.ev <- new FSharpEvent`1(()); ())) @ (89,5--89,33)";
            "member .cctor(unitVar) = (sev <- new FSharpEvent`1(()); ()) @ (91,11--91,35)";
            "member get_InstanceProperty(x) (unitVar1) = (x.ev.Trigger(1); 1) @ (92,32--92,48)";
            "member get_StaticProperty(unitVar0) = (sev.Trigger(1); 1) @ (93,35--93,52)";
@@ -480,14 +592,14 @@ let ``Test Declarations project1`` () =
            "let functionWithSubmsumption(x) = IntrinsicFunctions.UnboxGeneric<Microsoft.FSharp.Core.string> (x) @ (102,40--102,52)";
            "let functionWithCoercion(x) = Operators.op_PipeRight<Microsoft.FSharp.Core.string,Microsoft.FSharp.Core.string> (Operators.op_PipeRight<Microsoft.FSharp.Core.string,Microsoft.FSharp.Core.string> (IntrinsicFunctions.UnboxGeneric<Microsoft.FSharp.Core.string> (x :> Microsoft.FSharp.Core.obj),fun x -> M.functionWithSubmsumption (x :> Microsoft.FSharp.Core.obj)),fun x -> M.functionWithSubmsumption (x :> Microsoft.FSharp.Core.obj)) @ (103,39--103,116)";
            "type MultiArgMethods";
-           "member .ctor(c,d) = (Object..ctor (); ()) @ (105,5--105,20)";
+           "member .ctor(c,d) = (new Object(); ()) @ (105,5--105,20)";
            "member Method(x) (a,b) = 1 @ (106,37--106,38)";
            "member CurriedMethod(x) (a1,b1) (a2,b2) = 1 @ (107,63--107,64)";
            "let testFunctionThatCallsMultiArgMethods(unitVar0) = let m: M.MultiArgMethods = new MultiArgMethods(3,4) in Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (m.Method(7,8),fun tupledArg -> let arg00: Microsoft.FSharp.Core.int = tupledArg.Item0 in let arg01: Microsoft.FSharp.Core.int = tupledArg.Item1 in fun tupledArg -> let arg10: Microsoft.FSharp.Core.int = tupledArg.Item0 in let arg11: Microsoft.FSharp.Core.int = tupledArg.Item1 in m.CurriedMethod(arg00,arg01,arg10,arg11) (9,10) (11,12)) @ (110,8--110,9)";
-           "let functionThatUsesObjectExpression(unitVar0) = { Object..ctor () with member x.ToString(unitVar1) = Operators.ToString<Microsoft.FSharp.Core.int> (888)  } @ (114,3--114,55)";
-           "let functionThatUsesObjectExpressionWithInterfaceImpl(unitVar0) = { Object..ctor () with member x.ToString(unitVar1) = Operators.ToString<Microsoft.FSharp.Core.int> (888) interface System.IComparable with member x.CompareTo(y) = 0 } :> System.IComparable @ (117,3--120,38)";
+           "let functionThatUsesObjectExpression(unitVar0) = { new Object() with member x.ToString(unitVar1) = Operators.ToString<Microsoft.FSharp.Core.int> (888)  } @ (114,3--114,55)";
+           "let functionThatUsesObjectExpressionWithInterfaceImpl(unitVar0) = { new Object() with member x.ToString(unitVar1) = Operators.ToString<Microsoft.FSharp.Core.int> (888) interface System.IComparable with member x.CompareTo(y) = 0 } :> System.IComparable @ (117,3--120,38)";
            "let testFunctionThatUsesUnitsOfMeasure(x) (y) = Operators.op_Addition<Microsoft.FSharp.Core.float<'u>,Microsoft.FSharp.Core.float<'u>,Microsoft.FSharp.Core.float<'u>> (x,y) @ (122,70--122,75)";
-           "let testFunctionThatUsesAddressesAndByrefs(x) = let mutable w: Microsoft.FSharp.Core.int = 4 in let y1: Microsoft.FSharp.Core.byref<Microsoft.FSharp.Core.int> = x in let y2: Microsoft.FSharp.Core.byref<Microsoft.FSharp.Core.int> = &w in let arr: Microsoft.FSharp.Core.int Microsoft.FSharp.Core.[] = [| ... |] in let r: Microsoft.FSharp.Core.int Microsoft.FSharp.Core.ref = Operators.Ref<Microsoft.FSharp.Core.int> (3) in let y3: Microsoft.FSharp.Core.byref<Microsoft.FSharp.Core.int> = [I_ldelema (NormalAddress,false,ILArrayShape [(Some 0, null)],TypeVar 0us)](arr,0) in let y4: Microsoft.FSharp.Core.byref<Microsoft.FSharp.Core.int> = &r.contents in let z: Microsoft.FSharp.Core.int = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (x,y1),y2),y3) in (w <- 3; (x <- 4; (y2 <- 4; (y3 <- 5; Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (z,x),y1),y2),y3),y4),IntrinsicFunctions.GetArray<Microsoft.FSharp.Core.int> (arr,0)),r.contents))))) @ (125,16--125,17)";
+           "let testFunctionThatUsesAddressesAndByrefs(x) = let mutable w: Microsoft.FSharp.Core.int = 4 in let y1: Microsoft.FSharp.Core.byref<Microsoft.FSharp.Core.int> = x in let y2: Microsoft.FSharp.Core.byref<Microsoft.FSharp.Core.int> = &w in let arr: Microsoft.FSharp.Core.int Microsoft.FSharp.Core.[] = [|3; 4|] in let r: Microsoft.FSharp.Core.int Microsoft.FSharp.Core.ref = Operators.Ref<Microsoft.FSharp.Core.int> (3) in let y3: Microsoft.FSharp.Core.byref<Microsoft.FSharp.Core.int> = [I_ldelema (NormalAddress,false,ILArrayShape [(Some 0, null)],TypeVar 0us)](arr,0) in let y4: Microsoft.FSharp.Core.byref<Microsoft.FSharp.Core.int> = &r.contents in let z: Microsoft.FSharp.Core.int = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (x,y1),y2),y3) in (w <- 3; (x <- 4; (y2 <- 4; (y3 <- 5; Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (z,x),y1),y2),y3),y4),IntrinsicFunctions.GetArray<Microsoft.FSharp.Core.int> (arr,0)),r.contents))))) @ (125,16--125,17)";
            "let testFunctionThatUsesStructs1(dt) = dt.AddDays(3) @ (139,57--139,72)";
            "let testFunctionThatUsesStructs2(unitVar0) = let dt1: System.DateTime = DateTime.get_Now () in let mutable dt2: System.DateTime = DateTime.get_Now () in let dt3: System.TimeSpan = Operators.op_Subtraction<System.DateTime,System.DateTime,System.TimeSpan> (dt1,dt2) in let dt4: System.DateTime = dt1.AddDays(3) in let dt5: Microsoft.FSharp.Core.int = dt1.get_Millisecond() in let dt6: Microsoft.FSharp.Core.byref<System.DateTime> = &dt2 in let dt7: System.TimeSpan = Operators.op_Subtraction<System.DateTime,System.DateTime,System.TimeSpan> (dt6,dt4) in dt7 @ (142,7--142,10)";
            "let testFunctionThatUsesWhileLoop(unitVar0) = let mutable x: Microsoft.FSharp.Core.int = 1 in (while Operators.op_LessThan<Microsoft.FSharp.Core.int> (x,100) do x <- Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (x,1) done; x) @ (152,15--152,16)";
@@ -506,7 +618,7 @@ let ``Test Declarations project1`` () =
            "let g = let x: Microsoft.FSharp.Core.int = 1 in fun y -> M.f (x,y) @ (208,8--208,11)";
            "let h = Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (M.g () 2,3) @ (209,8--209,17)";
            "type TestFuncProp";
-           "member .ctor(unitVar0) = (Object..ctor (); ()) @ (211,5--211,17)";
+           "member .ctor(unitVar0) = (new Object(); ()) @ (211,5--211,17)";
            "member get_Id(this) (unitVar1) = fun x -> x @ (212,21--212,31)";
            "let wrong = Operators.op_Equality<Microsoft.FSharp.Core.int> (new TestFuncProp(()).get_Id(()) 0,0) @ (214,12--214,35)";
            "let start(name) = (name,name) @ (217,4--217,14)";
@@ -727,7 +839,6 @@ let BigSequenceExpression(outFileOpt,docFileOpt,baseAddressOpt) =
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
 
-
 [<Test>]
 let ``Test expressions of declarations stress big expressions`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(ProjectStressBigExpressions.options) |> Async.RunSynchronously
@@ -740,10 +851,7 @@ let ``Test expressions of declarations stress big expressions`` () =
     // This should not stack overflow
     printDeclarations None (List.ofSeq file1.Declarations) |> Seq.toList |> ignore
 
-
-#if SELF_HOST_STRESS
-
-#if FX_ATLEAST_45
+#if FX_ATLEAST_45 && !DOTNETCORE
 
 [<Test>]
 let ``Check use of type provider that provides calls to F# code`` () = 
@@ -756,15 +864,10 @@ let ``Check use of type provider that provides calls to F# code`` () =
     let options =
         ProjectCracker.GetProjectOptionsFromProjectFile (Path.Combine(Path.Combine(Path.Combine(__SOURCE_DIRECTORY__, "data"),"TestProject"),"TestProject.fsproj"), config)
 
-    printfn "options = %A" options
-
     let res =
         options
         |> checker.ParseAndCheckProject 
         |> Async.RunSynchronously
-
-    for r in res.Errors do 
-       printfn "%d, %d: %s" r.StartLineAlternate r.StartColumn r.Message
 
     res.Errors.Length |> shouldEqual 0
                                                                                        
@@ -773,26 +876,204 @@ let ``Check use of type provider that provides calls to F# code`` () =
                for d in f.Declarations do 
                     for line in d |> printDeclaration None do 
                         yield line ]    
+    
+    results |> List.iter (printfn "%s")
+
     results |> shouldEqual
       ["type TestProject"; "type AssemblyInfo"; "type TestProject"; "type T";
        """type Class1""";
-       """member .ctor(unitVar0) = (Object..ctor (); ()) @ (5,5--5,11)""";
-       """member get_X1(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothing () @ (6,21--6,36)""";
-       """member get_X2(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingGeneric<Microsoft.FSharp.Core.int> (3) @ (7,21--7,43)""";
-       """member get_X3(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingOneArg (3) @ (8,21--8,42)""";
-       """member get_X4(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothing () @ (9,21--9,41)""";
-       """member get_X5(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingGeneric<Microsoft.FSharp.Core.int> (3) @ (10,21--10,48)""";
-       """member get_X6(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingOneArg (3) @ (11,21--11,47)""";
-       """member get_X7(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingTwoArg (new C(),3) @ (12,21--12,47)""";
-       """member get_X8(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothing() @ (13,21--13,49)""";
-       """member get_X9(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothingGeneric<Microsoft.FSharp.Core.int>(3) @ (14,21--14,56)""";
-       """member get_X10(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothingOneArg(3) @ (15,22--15,56)""";
-       """member get_X11(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothingTwoArg(new C(),3) @ (16,22--16,56)""";
-       """member get_X12(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothing () @ (17,22--17,49)""";
-       """member get_X13(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothingOneArg (3) @ (18,22--18,55)""";
-       """member get_X14(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothingTwoArg (new C(),3) @ (19,22--19,55)"""]
-   
+       """member .ctor(unitVar0) = (new Object(); ()) @ (5,5--5,11)""";
+       """member get_X1(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothing () @ (6,21--6,36)"""
+       """member get_X2(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingGeneric<Microsoft.FSharp.Core.int> (3) @ (7,21--7,43)"""
+       """member get_X3(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingOneArg (3) @ (8,21--8,42)"""
+       """member get_X4(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothing () @ (9,21--9,41)"""
+       """member get_X5(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingGeneric<Microsoft.FSharp.Core.int> (3) @ (10,21--10,48)"""
+       """member get_X6(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingOneArg (3) @ (11,21--11,47)"""
+       """member get_X7(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingTwoArg (new C(),3) @ (12,21--12,47)"""
+       """member get_X8(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothing() @ (13,21--13,49)"""
+       """member get_X9(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothingGeneric<Microsoft.FSharp.Core.int>(3) @ (14,21--14,56)"""
+       """member get_X10(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothingOneArg(3) @ (15,22--15,56)"""
+       """member get_X11(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().InstanceDoNothingTwoArg(new C(),3) @ (16,22--16,56)"""
+       """member get_X12(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothing () @ (17,22--17,49)"""
+       """member get_X13(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothingOneArg (3) @ (18,22--18,55)"""
+       """member get_X14(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in G`1<Microsoft.FSharp.Core.int>.DoNothingTwoArg (new C(),3) @ (19,22--19,55)"""
+       """member get_X15(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let matchValue: Microsoft.FSharp.Core.Option<Microsoft.FSharp.Core.int> = FSharpOption`1<Microsoft.FSharp.Core.int>.Some (1) in (if Operators.op_Equality<Microsoft.FSharp.Core.int> (matchValue.Tag,1) then let x: Microsoft.FSharp.Core.int = matchValue.get_Value() in x else 0) @ (20,22--20,54)"""
+       """member get_X16(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let matchValue: Microsoft.FSharp.Core.Choice<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.obj> = Choice1Of2(1) in (if Operators.op_Equality<Microsoft.FSharp.Core.int> (matchValue.Tag,0) then 1 else 0) @ (21,22--21,54)"""
+       """member get_X17(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let r: TestTP.Helper.R = {A = 1; B = 0} in (r.B <- 1; r.A) @ (22,22--22,60)"""
+       """member get_X18(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingTwoArg (3,4) @ (23,22--23,43)"""
+       """member get_X19(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingTwoArgCurried (3,4) @ (24,22--24,50)"""
+       """member get_X21(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in (fun arg00 -> fun arg10 -> C.DoNothingTwoArgCurried (arg00,arg10)<TestTP.Helper.C> new C())<Microsoft.FSharp.Core.int> 3 @ (25,22--25,55)"""
+       """member get_X23(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in (let objectArg: TestTP.Helper.C = new C() in fun arg00 -> fun arg10 -> objectArg.InstanceDoNothingTwoArgCurried(arg00,arg10)<TestTP.Helper.C> new C())<Microsoft.FSharp.Core.int> 3 @ (26,22--26,63)"""
+       """member get_X24(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingGenericWithConstraint<Microsoft.FSharp.Core.int> (3) @ (27,22--27,58)"""
+       """member get_X25(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingGenericWithTypeConstraint<Microsoft.FSharp.Collections.List<Microsoft.FSharp.Core.int>,Microsoft.FSharp.Core.int> (FSharpList`1<Microsoft.FSharp.Core.int>.Cons (3,FSharpList`1<Microsoft.FSharp.Core.int>.get_Empty ())) @ (28,22--28,62)"""
+       """member get_X26(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.doNothingGenericWithTypeConstraint<Microsoft.FSharp.Collections.List<Microsoft.FSharp.Core.int>,Microsoft.FSharp.Core.int> (FSharpList`1<Microsoft.FSharp.Core.int>.Cons (3,FSharpList`1<Microsoft.FSharp.Core.int>.get_Empty ())) @ (29,22--29,62)"""
+       """member get_X27(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Helper.DoNothingReally () @ (30,22--30,53)"""
+       """member get_X28(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new CSharpClass(0).Method("x") :> Microsoft.FSharp.Core.Unit @ (31,22--31,40)"""
+       """member get_X29(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in Operators.op_Addition<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.int> (new CSharpClass(0).Method2("x"),new CSharpClass(0).Method2("empty")) :> Microsoft.FSharp.Core.Unit @ (32,22--32,53)"""
+       """member get_X30(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new CSharpClass(0).Method3([|"x"; "y"|]) :> Microsoft.FSharp.Core.Unit @ (33,22--33,50)"""
+       """member get_X31(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new CSharpClass(0).GenericMethod<Microsoft.FSharp.Core.int>(2) @ (34,22--34,47)"""
+       """member get_X32(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new CSharpClass(0).GenericMethod2<Microsoft.FSharp.Core.obj>(new Object()) @ (35,22--35,61)"""
+       """member get_X33(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new CSharpClass(0).GenericMethod3<Microsoft.FSharp.Core.int>(3) @ (36,22--36,65)"""
+       """member get_X34(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in C.DoNothingReally () @ (37,22--37,58)"""
+       """member get_X35(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().DoNothingReallyInst() @ (38,22--38,66)"""
+       """member get_X36(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in (new CSharpClass(0) :> FSharp.Compiler.Service.Tests.ICSharpExplicitInterface).ExplicitMethod("x") :> Microsoft.FSharp.Core.Unit @ (39,22--39,62)"""
+       """member get_X37(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in (new C() :> TestTP.Helper.I).DoNothing() @ (40,22--40,46)"""
+       """member get_X38(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in new C().VirtualDoNothing() @ (41,22--41,45)"""
+       """member get_X39(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let t: Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int = (1,2,3) in let i: Microsoft.FSharp.Core.int = t.Item1 in i @ (42,22--42,51)"""
+       """member get_X40(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in (moduleValue <- 1; moduleValue) @ (43,22--43,39)"""
+       """member get_X41(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let x: TestTP.Helper.C = new C() in (x.set_Property(1); x.get_Property()) @ (44,22--44,41)"""
+       """member get_X42(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in let x: TestTP.Helper.C = new C() in (x.set_AutoProperty(1); x.get_AutoProperty()) @ (45,22--45,45)"""
+       """member get_X43(this) (unitVar1) = let this: Microsoft.FSharp.Core.obj = ("My internal state" :> Microsoft.FSharp.Core.obj) :> ErasedWithConstructor.Provided.MyType in (C.set_StaticAutoProperty (1); C.get_StaticAutoProperty ()) @ (46,22--46,51)"""
+      ]
+
+    let members = 
+        [ for f in res.AssemblyContents.ImplementationFiles do yield! printMembersOfDeclatations f.Declarations ]
+
+    members |> List.iter (printfn "%s")
+
+    members |> shouldEqual 
+      [
+       ".ctor: Microsoft.FSharp.Core.unit -> TestProject.Class1"
+       ".ctor: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X1: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "doNothing: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X2: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "doNothingGeneric<'T>: 'T -> Microsoft.FSharp.Core.unit"
+       "get_X3: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "doNothingOneArg: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "get_X4: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothing: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X5: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothingGeneric<'T>: 'T -> Microsoft.FSharp.Core.unit"
+       "get_X6: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothingOneArg: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "get_X7: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothingTwoArg: TestTP.Helper.C * Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "get_X8: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "InstanceDoNothing: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X9: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "InstanceDoNothingGeneric<'T>: 'T -> Microsoft.FSharp.Core.unit"
+       "get_X10: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "InstanceDoNothingOneArg: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "get_X11: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "InstanceDoNothingTwoArg: TestTP.Helper.C * Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "get_X12: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothing: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X13: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothingOneArg: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "get_X14: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothingTwoArg: TestTP.Helper.C * Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "get_X15: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "Some: 'T -> 'T Microsoft.FSharp.Core.option"
+       "op_Equality<'T when 'T : equality>: 'T -> 'T -> Microsoft.FSharp.Core.bool"
+       "matchValue: Microsoft.FSharp.Core.Option<Microsoft.FSharp.Core.int>"
+       "matchValue: Microsoft.FSharp.Core.Option<Microsoft.FSharp.Core.int>"
+       "get_Value: Microsoft.FSharp.Core.unit -> 'T"
+       "x: Microsoft.FSharp.Core.int"
+       "get_X16: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "op_Equality<'T when 'T : equality>: 'T -> 'T -> Microsoft.FSharp.Core.bool"
+       "matchValue: Microsoft.FSharp.Core.Choice<Microsoft.FSharp.Core.int,Microsoft.FSharp.Core.obj>"
+       "get_X17: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "r: TestTP.Helper.R"
+       "r: TestTP.Helper.R"
+       "get_X18: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "doNothingTwoArg: Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "get_X19: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "doNothingTwoArgCurried: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "get_X21: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothingTwoArgCurried: TestTP.Helper.C -> Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "arg00: TestTP.Helper.C"
+       "arg10: Microsoft.FSharp.Core.int"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "get_X23: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "objectArg: TestTP.Helper.C"
+       "InstanceDoNothingTwoArgCurried: TestTP.Helper.C -> Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "arg00: TestTP.Helper.C"
+       "arg10: Microsoft.FSharp.Core.int"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "get_X24: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "doNothingGenericWithConstraint<'T when 'T : equality>: 'T -> Microsoft.FSharp.Core.unit"
+       "get_X25: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "doNothingGenericWithTypeConstraint<'T, _ when 'T :> Microsoft.FSharp.Collections.seq<'a>>: 'T -> Microsoft.FSharp.Core.unit"
+       "Cons: 'T * 'T Microsoft.FSharp.Collections.list -> 'T Microsoft.FSharp.Collections.list"
+       "get_Empty: Microsoft.FSharp.Core.unit -> 'T Microsoft.FSharp.Collections.list"
+       "get_X26: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "doNothingGenericWithTypeConstraint<'T, _ when 'T :> Microsoft.FSharp.Collections.seq<'a>>: 'T -> Microsoft.FSharp.Core.unit"
+       "Cons: 'T * 'T Microsoft.FSharp.Collections.list -> 'T Microsoft.FSharp.Collections.list"
+       "get_Empty: Microsoft.FSharp.Core.unit -> 'T Microsoft.FSharp.Collections.list"
+       "get_X27: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothingReally: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X28: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "Method: Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.int"
+       "get_X29: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "op_Addition<^T1, ^T2, ^T3>:  ^T1 ->  ^T2 ->  ^T3"
+       ".ctor: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "Method2: Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.int"
+       ".ctor: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "Method2: Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.int"
+       "get_X30: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "Method3: Microsoft.FSharp.Core.string Microsoft.FSharp.Core.[] -> Microsoft.FSharp.Core.int"
+       "get_X31: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "GenericMethod<'T>: 'T -> Microsoft.FSharp.Core.unit"
+       "get_X32: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "GenericMethod2<'T when 'T : class>: 'T -> Microsoft.FSharp.Core.unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X33: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "GenericMethod3<'T when 'T :> System.IComparable<'T>>: 'T -> Microsoft.FSharp.Core.unit"
+       "get_X34: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       "DoNothingReally: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X35: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "DoNothingReallyInst: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X36: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "ExplicitMethod: Microsoft.FSharp.Core.string -> Microsoft.FSharp.Core.int"
+       "get_X37: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "DoNothing: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X38: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.Unit"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "VirtualDoNothing: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.unit"
+       "get_X39: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "t: Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int * Microsoft.FSharp.Core.int"
+       "i: Microsoft.FSharp.Core.int"
+       "get_X40: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "moduleValue: Microsoft.FSharp.Core.int"
+       "moduleValue: Microsoft.FSharp.Core.int"
+       "get_X41: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "x: TestTP.Helper.C"
+       "set_Property: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "x: TestTP.Helper.C"
+       "get_Property: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "get_X42: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       ".ctor: Microsoft.FSharp.Core.unit -> TestTP.Helper.C"
+       "x: TestTP.Helper.C"
+       "set_AutoProperty: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "x: TestTP.Helper.C"
+       "get_AutoProperty: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "get_X43: TestProject.Class1 -> Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+       "set_StaticAutoProperty: Microsoft.FSharp.Core.int -> Microsoft.FSharp.Core.unit"
+       "get_StaticAutoProperty: Microsoft.FSharp.Core.unit -> Microsoft.FSharp.Core.int"
+      ]
+
 #endif
+
+#if SELF_HOST_STRESS
+   
 
 [<Test>]
 let ``Test Declarations selfhost`` () =

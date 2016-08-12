@@ -386,20 +386,20 @@ let ``Project file parsing -- Exe with a PCL reference``() =
 [<Test>]
 let ``Project file parsing -- project file contains project reference to out-of-solution project and is used in release mode``() =
 
-    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/TestProject/TestProject.fsproj")
+    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
     let p = ProjectCracker.GetProjectOptionsFromProjectFile(f,[("Configuration","Release")])
     let references = getReferencedFilenamesAndContainingFolders p.OtherOptions |> set
     // Check the reference is to a release DLL
-    references |> should contain ("TestTP.dll", "Release")
+    references |> should contain ("Test1.dll", "Release")
 
 [<Test>]
 let ``Project file parsing -- project file contains project reference to out-of-solution project and is used in debug mode``() =
 
-    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/TestProject/TestProject.fsproj")
+    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
     let p = ProjectCracker.GetProjectOptionsFromProjectFile(f,[("Configuration","Debug")])
     let references = getReferencedFilenamesAndContainingFolders p.OtherOptions |> set
     // Check the reference is to a debug DLL
-    references |> should contain ("TestTP.dll", "Debug")
+    references |> should contain ("Test1.dll", "Debug")
 
 [<Test>]
 let ``Project file parsing -- space in file name``() =

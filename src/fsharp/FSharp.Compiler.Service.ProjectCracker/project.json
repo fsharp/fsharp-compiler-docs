@@ -1,5 +1,5 @@
 {
-  "version": "6.0.1",
+  "version": "6.0.2",
   "buildOptions": {
     "debugType": "portable",
     "emitEntryPoint": false,
@@ -36,7 +36,7 @@
     "Microsoft.Build.Utilities.Core": "0.1.0-preview-00029-160805",
     "System.Runtime.Serialization.Json": "4.0.2",
     "FSharp.Compiler.Service": {
-      "version": "6.0.1",
+      "version": "6.0.2",
       "target": "project"
     }
   },

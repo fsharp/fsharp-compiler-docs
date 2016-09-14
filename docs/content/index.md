@@ -72,6 +72,7 @@ Some of the projects using the F# Compiler Services are:
  * [**FSharpLint**](http://fsprojects.github.io/FSharpLint/) - Lint tool for F#
  * [**FsReveal**](http://fsprojects.github.io/FsReveal//) - FsReveal parses markdown and F# script file and generate reveal.js slides
  * [**Elucidate**](https://github.com/rookboom/Elucidate) - Visual Studio extension for rich inlined comments using MarkDown
+ * [**Fable**](https://fable-compiler.github.io/) - F# to JavaScript Compiler
  * [**FSharp.Formatting**](http://tpetricek.github.io/FSharp.Formatting/) - F# tools for generating documentation (Markdown processor and F# code formatter)
  * [**FAKE**](http://fsharp.github.io/FAKE/) - "FAKE - F# Make" is a cross platform build automation system
  * [**FsLab Journal**](https://visualstudiogallery.msdn.microsoft.com/45373b36-2a4c-4b6a-b427-93c7a8effddb) - Template that makes it easy to do interactive data analysis using F# Interactive and produce nice HTML reports of your work

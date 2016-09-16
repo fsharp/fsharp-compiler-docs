@@ -1640,28 +1640,38 @@ let DefaultBasicReferencesForOutOfProjectSources40 = []
 
 #else    
 let DefaultBasicReferencesForOutOfProjectSources = 
-    [ yield "System"
+    [ // These are .NET-Framework -style references
+#if !TODO_REWORK_ASSEMBLY_LOAD
+      yield "System"
       yield "System.Xml" 
       yield "System.Runtime.Remoting"
       yield "System.Runtime.Serialization.Formatters.Soap"
       yield "System.Data"
       yield "System.Drawing"
-      
-      // Don't reference System.Core for .NET 2.0 compilations.
-      //
-      // We only use a default reference to System.Core if one exists which we can load it into the compiler process.
-      // Note: this is not a partiuclarly good technique as it relying on the environment the compiler is executing in
-      // to determine the default references. However, System.Core will only fail to load on machines with only .NET 2.0,
-      // in which case the compiler will also be running as a .NET 2.0 process.
-      //
-      // NOTE: it seems this can now be removed now that .NET 4.x is minimally assumed when using this toolchain
-      if (try System.Reflection.Assembly.Load(new System.Reflection.AssemblyName("System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")) |> ignore; true with _ -> false) then 
-          yield "System.Core" 
+      yield "System.Core" 
+#endif
 
-      yield "System.Runtime"
+      // These are the Portable-profile and .NET Standard 1.6 dependencies of FSharp.Core.dll.  These are needed
+      // when an F# sript references an F# profile 7, 78, 259 or .NET Standard 1.6 component which in turn refers 
+      // to FSharp.Core for profile 7, 78, 259 or .NET Standard.
+      yield "System.Runtime" // lots of types
+      yield "System.Linq" // System.Linq.Expressions.Expression<T> 
+      yield "System.Reflection" // System.Reflection.ParameterInfo
+      yield "System.Linq.Expressions" // System.Linq.IQueryable<T>
+      yield "System.Threading.Tasks" // valuetype [System.Threading.Tasks]System.Threading.CancellationToken
+      yield "System.IO"  //  System.IO.TextWriter
+      //yield "System.Console"  //  System.Console.Out etc.
+      yield "System.Net.Requests"  //  System.Net.WebResponse etc.
+      yield "System.Collections" // System.Collections.Generic.List<T>
+      yield "System.Runtime.Numerics" // BigInteger
+      yield "System.Threading"  // OperationCanceledException
+
+#if !TODO_REWORK_ASSEMBLY_LOAD
       yield "System.Web"
       yield "System.Web.Services"
-      yield "System.Windows.Forms" ]
+      yield "System.Windows.Forms"
+#endif
+     ]
 
 // Extra implicit references for .NET 4.0
 let DefaultBasicReferencesForOutOfProjectSources40 = 
@@ -2218,11 +2228,7 @@ type TcConfigBuilder =
           resolutionAssemblyFoldersConditions = ""              
           platform = None
           prefer32Bit = false
-#if ENABLE_MONO_SUPPORT
           useSimpleResolution = runningOnMono
-#else
-          useSimpleResolution = false
-#endif
           target = ConsoleExe
           debuginfo = false
           testFlagEmitFeeFeeAs100001 = false
@@ -3655,8 +3661,8 @@ type RawFSharpAssemblyDataBackedByFileOnDisk (ilModule: ILModuleDef, ilAssemblyR
          member __.GetRawFSharpSignatureData(m,ilShortAssemName,filename) = 
             let resources = ilModule.Resources.AsList
             let sigDataReaders = 
-                [ for iresource in resources  do
-                    if IsSignatureDataResource  iresource then 
+                [ for iresource in resources do
+                    if IsSignatureDataResource iresource then 
                         let ccuName = GetSignatureDataResourceName iresource 
                         let byteReader = iresource.GetByteReader(m)
                         yield (ccuName, byteReader()) ]
@@ -3665,9 +3671,9 @@ type RawFSharpAssemblyDataBackedByFileOnDisk (ilModule: ILModuleDef, ilAssemblyR
                 if List.contains ilShortAssemName externalSigAndOptData then 
                     let sigFileName = Path.ChangeExtension(filename, "sigdata")
                     if not sigDataReaders.IsEmpty then 
-                        error(Error(FSComp.SR.buildDidNotExpectSigdataResource(),m))
-                    if not (FileSystem.SafeExists sigFileName)  then 
-                        error(Error(FSComp.SR.buildExpectedSigdataFile(), m))
+                        error(Error(FSComp.SR.buildDidNotExpectSigdataResource(FileSystem.GetFullPathShim filename),m))
+                    if not (FileSystem.SafeExists sigFileName) then 
+                        error(Error(FSComp.SR.buildExpectedSigdataFile (FileSystem.GetFullPathShim sigFileName), m))
                     [ (ilShortAssemName, FileSystem.ReadAllBytesShim sigFileName)]
                 else
                     sigDataReaders
@@ -3682,9 +3688,9 @@ type RawFSharpAssemblyDataBackedByFileOnDisk (ilModule: ILModuleDef, ilAssemblyR
                 if List.contains ilShortAssemName externalSigAndOptData then 
                     let optDataFile = Path.ChangeExtension(filename, "optdata")
                     if not optDataReaders.IsEmpty then 
-                        error(Error(FSComp.SR.buildDidNotExpectOptDataResource(),m))
+                        error(Error(FSComp.SR.buildDidNotExpectOptDataResource(FileSystem.GetFullPathShim filename),m))
                     if not (FileSystem.SafeExists optDataFile)  then 
-                        error(Error(FSComp.SR.buildExpectedFileAlongSideFSharpCore(optDataFile),m))
+                        error(Error(FSComp.SR.buildExpectedFileAlongSideFSharpCore(optDataFile,FileSystem.GetFullPathShim optDataFile),m))
                     [ (ilShortAssemName, (fun () -> FileSystem.ReadAllBytesShim optDataFile))]
                 else
                     optDataReaders
@@ -5133,12 +5139,11 @@ let GetInitialTcEnv (thisAssemblyName:string, initm:range, tcConfig:TcConfig, tc
 
     let tcEnv = CreateInitialTcEnv(tcGlobals, amap, initm, thisAssemblyName, ccus)
 
-    let tcEnv = 
-        if tcConfig.checkOverflow then
-            TcOpenDecl TcResultsSink.NoSink tcGlobals amap initm initm tcEnv (pathToSynLid initm (splitNamespace FSharpLib.CoreOperatorsCheckedName))
-        else
-            tcEnv
-    tcEnv
+    if tcConfig.checkOverflow then
+        try TcOpenDecl TcResultsSink.NoSink tcGlobals amap initm initm tcEnv (pathToSynLid initm (splitNamespace FSharpLib.CoreOperatorsCheckedName))
+        with e -> errorRecovery e initm; tcEnv
+    else
+        tcEnv
 
 //----------------------------------------------------------------------------
 // Fault injection
@@ -5375,7 +5380,7 @@ let TypeCheckSingleInputAndFinishEventually(checkForErrors, tcConfig: TcConfig, 
         return TypeCheckMultipleInputsFinish([results],tcState)
     }
 
-let TypeCheckClosedInputSetFinish (mimpls, tcState) =
+let TypeCheckClosedInputSetFinish (declaredImpls: TypedImplFile list, tcState) =
     // Publish the latest contents to the CCU 
     tcState.tcsCcu.Deref.Contents <- tcState.tcsCcuType
 
@@ -5385,12 +5390,11 @@ let TypeCheckClosedInputSetFinish (mimpls, tcState) =
       if not (Zset.contains qualNameOfFile rootImpls) then 
         errorR(Error(FSComp.SR.buildSignatureWithoutImplementation(qualNameOfFile.Text), qualNameOfFile.Range)))
 
-    let tassembly = TAssembly(mimpls)
-    tcState, tassembly    
+    tcState, declaredImpls
     
 let TypeCheckClosedInputSet (checkForErrors, tcConfig, tcImports, tcGlobals, prefixPathOpt, tcState, inputs) =
     // tcEnvAtEndOfLastFile is the environment required by fsi.exe when incrementally adding definitions 
     let (tcEnvAtEndOfLastFile, topAttrs, mimpls),tcState = TypeCheckMultipleInputs (checkForErrors, tcConfig, tcImports, tcGlobals, prefixPathOpt, tcState, inputs)
-    let tcState,tassembly = TypeCheckClosedInputSetFinish (mimpls, tcState)
-    tcState, topAttrs, tassembly, tcEnvAtEndOfLastFile
+    let tcState, declaredImpls = TypeCheckClosedInputSetFinish (mimpls, tcState)
+    tcState, topAttrs, declaredImpls, tcEnvAtEndOfLastFile
 

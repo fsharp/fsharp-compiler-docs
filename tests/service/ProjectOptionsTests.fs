@@ -19,6 +19,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
 #if FX_ATLEAST_45
+#if !NO_PROJECTCRACKER
 
 let normalizePath s = (new Uri(s)).LocalPath
 
@@ -417,6 +418,8 @@ let ``Project file parsing -- report files``() =
      printfn "File: %s" f
    for f in Directory.EnumerateFiles(@"C:\Program Files (x86)\Microsoft SDKs\F#\4.0\","*",SearchOption.AllDirectories) do 
      printfn "File: %s" f
+
+#endif
 
 [<Test>]
 let ``Test ProjectFileNames order for GetProjectOptionsFromScript`` () = // See #594

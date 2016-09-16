@@ -1074,8 +1074,7 @@ type internal FsiDynamicCompiler
 
         // Find all new declarations the EvaluationListener
         begin
-            let (TAssembly(mimpls)) = declaredImpls
-            let contents = FSharpAssemblyContents(tcGlobals, tcState.Ccu, tcImports, mimpls)
+            let contents = FSharpAssemblyContents(tcGlobals, tcState.Ccu, tcImports, declaredImpls)
             let contentFile = contents.ImplementationFiles.[0]
             // Skip the "FSI_NNNN"
             match contentFile.Declarations with 

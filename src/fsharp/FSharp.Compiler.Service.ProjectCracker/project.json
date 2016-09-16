@@ -1,5 +1,5 @@
 {
-  "version": "6.0.2",
+  "version": "7.0.0",
   "buildOptions": {
     "debugType": "portable",
     "emitEntryPoint": false,
@@ -30,13 +30,13 @@
   },
   "dependencies": {
     "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
-    "Microsoft.Build": "0.1.0-preview-00029-160805",
-    "Microsoft.Build.Framework": "0.1.0-preview-00029-160805",
-    "Microsoft.Build.Tasks.Core": "0.1.0-preview-00029-160805",
-    "Microsoft.Build.Utilities.Core": "0.1.0-preview-00029-160805",
+    "Microsoft.Build": "14.3.0",
+    "Microsoft.Build.Framework": "14.3.0",
+    "Microsoft.Build.Tasks.Core": "14.3.0",
+    "Microsoft.Build.Utilities.Core": "14.3.0",
     "System.Runtime.Serialization.Json": "4.0.2",
     "FSharp.Compiler.Service": {
-      "version": "6.0.2",
+      "version": "7.0.0",
       "target": "project"
     }
   },

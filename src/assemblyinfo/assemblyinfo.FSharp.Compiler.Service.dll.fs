@@ -8,6 +8,7 @@ open System.Runtime.InteropServices
 [<assembly:AssemblyTitle("FSharp.Compiler.Service.dll")>]
 [<assembly:AssemblyCopyright("\169 Microsoft Corporation and other contributors.  Apache 2.0 License.")>]
 [<assembly:AssemblyProduct("F# Compiler Service (open source edition)")>]
+[<assembly:AssemblyKeyFileAttribute("../test.snk")>]
 
 [<assembly:System.Runtime.CompilerServices.InternalsVisibleTo("FSharp.Compiler.Service.Tests")>]
 [<assembly:ComVisible(false)>]

@@ -9,6 +9,7 @@ open System
 open System.IO
 open System.Text
 open System.Threading
+open System.Reflection.Emit
 open System.Runtime
 open System.Collections.Generic
 

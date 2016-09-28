@@ -810,7 +810,7 @@ type internal FsiConsoleInput(fsi: FsiEvaluationSessionHostConfig, fsiOptions: F
           (new Thread(fun () -> 
               match consoleOpt with 
               | Some console when fsiOptions.EnableConsoleKeyProcessing && not fsiOptions.IsInteractiveServer ->
-                  if isNil fsiOptions.SourceFiles then 
+                  if List.isEmpty fsiOptions.SourceFiles then 
                       if !progress then fprintfn outWriter "first-line-reader-thread reading first line...";
                       firstLine <- Some(console()); 
                       if !progress then fprintfn outWriter "first-line-reader-thread got first line = %A..." firstLine;
@@ -1234,8 +1234,13 @@ type internal FsiDynamicCompiler
                     filename, parsedInput)
               |> List.unzip
           
+<<<<<<< HEAD
           errorLogger.AbortOnError(fsiConsoleOutput);
           if inputs |> List.exists isNone then failwith "parse error";
+=======
+          errorLogger.AbortOnError();
+          if inputs |> List.exists Option.isNone then failwith "parse error"
+>>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
           let inputs = List.map Option.get inputs 
           let istate = List.fold2 fsiDynamicCompiler.ProcessMetaCommandsFromInputAsInteractiveCommands istate sourceFiles inputs
           fsiDynamicCompiler.EvalParsedSourceFiles (errorLogger, istate, inputs)
@@ -2111,7 +2116,7 @@ type internal FsiInteractionProcessor
 
         setCurrState (consume currState fsiOptions.SourceFiles)
 
-        if nonNil fsiOptions.SourceFiles then 
+        if not (List.isEmpty fsiOptions.SourceFiles) then 
             fsiConsolePrompt.PrintAhead(); // Seems required. I expected this could be deleted. Why not?
 
     /// Send a dummy interaction through F# Interactive, to ensure all the most common code generation paths are 
@@ -2449,7 +2454,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     do fsiConsoleOutput.uprintfn ""
 
     // When no source files to load, print ahead prompt here 
-    do if isNil  fsiOptions.SourceFiles then 
+    do if List.isEmpty fsiOptions.SourceFiles then 
         fsiConsolePrompt.PrintAhead()       
 
 

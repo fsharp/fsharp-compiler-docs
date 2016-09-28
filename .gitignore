@@ -198,3 +198,7 @@ src/fsharp/FSharp.Compiler.Service/FSIstrings.fs
 src/fsharp/FSharp.Compiler.Service/FSIstrings.resx
 Tools/
 Backup/
+tests/fsharp/core/array/dont.run.peverify
+tests/fsharp/core/innerpoly/dont.run.peverify
+tests/fsharp/typecheck/sigs/neg94-pre.dll
+times

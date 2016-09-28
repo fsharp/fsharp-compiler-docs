@@ -2687,11 +2687,7 @@ type TcConfig private (data : TcConfigBuilder,validate:bool) =
                 checkFSharpBinaryCompatWithMscorlib filename ilReader.ILAssemblyRefs ilReader.ILModuleDef.ManifestOfAssembly.Version rangeStartup;
                 let fslibRoot = Path.GetDirectoryName(FileSystem.GetFullPathShim(filename))
                 fslibRoot (* , sprintf "v%d.%d" v1 v2 *)
-<<<<<<< HEAD
-            with e ->
-=======
             with e -> 
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
                 error(Error(FSComp.SR.buildErrorOpeningBinaryFile(filename, e.Message), rangeStartup))
         | _ ->
             data.defaultFSharpBinariesDir

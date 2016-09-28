@@ -4317,26 +4317,16 @@ let resolveILMethodRefWithRescope r td (mref:ILMethodRef) =
     let nargs = args.Length
     let nm = mref.Name
     let possibles = td.Methods.FindByNameAndArity (nm,nargs)
-<<<<<<< HEAD
-    if isNil possibles then failwith ("no method named "+nm+" found in type "+td.Name);
+    if List.isEmpty possibles then failwith ("no method named "+nm+" found in type "+td.Name);
     let argTypes = mref.ArgTypes |> List.map r
     let retType : ILType = r mref.ReturnType
-=======
-    if List.isEmpty possibles then failwith ("no method named " + nm + " found in type " + td.Name)
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
     match 
       possibles |> List.filter (fun md -> 
           mref.CallingConv = md.CallingConv &&
           // REVIEW: this uses equality on ILType.  For CMOD_OPTIONAL this is not going to be correct
-<<<<<<< HEAD
           (md.Parameters,argTypes) ||>  ILList.lengthsEqAndForall2 (fun p1 p2 -> r p1.Type = p2) &&
           // REVIEW: this uses equality on ILType.  For CMOD_OPTIONAL this is not going to be correct 
           r md.Return.Type = retType)  with 
-=======
-          (md.Parameters,mref.ArgTypes) ||> ILList.lengthsEqAndForall2 (fun p1 p2 -> r p1.Type = p2) &&
-          // REVIEW: this uses equality on ILType.  For CMOD_OPTIONAL this is not going to be correct 
-          r md.Return.Type = mref.ReturnType) with 
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
     | [] -> failwith ("no method named "+nm+" with appropriate argument types found in type "+td.Name)
     | [mdef] ->  mdef
     | _ -> failwith ("multiple methods named "+nm+" appear with identical argument types in type "+td.Name)

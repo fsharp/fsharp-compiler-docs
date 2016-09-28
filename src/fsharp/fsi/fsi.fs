@@ -1234,13 +1234,8 @@ type internal FsiDynamicCompiler
                     filename, parsedInput)
               |> List.unzip
           
-<<<<<<< HEAD
           errorLogger.AbortOnError(fsiConsoleOutput);
-          if inputs |> List.exists isNone then failwith "parse error";
-=======
-          errorLogger.AbortOnError();
           if inputs |> List.exists Option.isNone then failwith "parse error"
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
           let inputs = List.map Option.get inputs 
           let istate = List.fold2 fsiDynamicCompiler.ProcessMetaCommandsFromInputAsInteractiveCommands istate sourceFiles inputs
           fsiDynamicCompiler.EvalParsedSourceFiles (errorLogger, istate, inputs)

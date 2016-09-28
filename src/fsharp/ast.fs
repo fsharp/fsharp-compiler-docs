@@ -416,23 +416,16 @@ and
     ///
     /// F# syntax : type.A.B.C<type, ..., type>
     ///   commasm: ranges for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
-<<<<<<< HEAD
     | LongIdentApp of typeName:SynType * dotId:LongIdentWithDots * leftAngleRange:range option * genericNames:SynType list * commaRanges:range list * rightAngleRange:range option * range:range
-    /// F# syntax : type * ... * type
-    // the bool is true if / rather than * follows the type
-    | Tuple of (bool*SynType) list * range:range    
-=======
-    | LongIdentApp of SynType * LongIdentWithDots * range option * SynType list * range list * range option * range
 
     /// F# syntax : type * ... * type
     // the bool is true if / rather than * follows the type
-    | Tuple of (bool*SynType) list * range    
+    | Tuple of (bool*SynType) list * range:range    
 
     /// F# syntax : struct (type * ... * type)
     // the bool is true if / rather than * follows the type
     | StructTuple of (bool*SynType) list * range    
 
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
     /// F# syntax : type[]
     | Array of  int * elementType:SynType * range:range
     /// F# syntax : type -> type
@@ -462,6 +455,7 @@ and
         | SynType.App (range=m)
         | SynType.LongIdentApp (range=m)
         | SynType.Tuple (range=m)
+        | SynType.StructTuple (range=m)
         | SynType.Array (range=m) 
         | SynType.Fun (range=m)
         | SynType.Var (range=m) 
@@ -474,14 +468,6 @@ and
         | SynType.MeasureDivide (range=m)
         | SynType.MeasurePower (range=m) -> m
         | SynType.LongIdent(lidwd) -> lidwd.Range
-<<<<<<< HEAD
-=======
-        | SynType.App(_,_,_,_,_,_,m) | SynType.LongIdentApp(_,_,_,_,_,_,m) | SynType.Tuple(_,m) | SynType.StructTuple(_,m) | SynType.Array(_,_,m) | SynType.Fun(_,_,m)
-        | SynType.Var(_,m) | SynType.Anon m | SynType.WithGlobalConstraints(_,_,m)
-        | SynType.StaticConstant(_,m) | SynType.StaticConstantExpr(_,m) | SynType.StaticConstantNamed(_,_,m)
-        | SynType.HashConstraint(_,m) | SynType.MeasureDivide(_,_,m) | SynType.MeasurePower(_,_,m) -> m
-
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
     
 and  
     [<NoEquality; NoComparison;RequireQualifiedAccess>]
@@ -789,12 +775,12 @@ and
     /// range ignoring any (parse error) extra trailing dots
     member e.RangeSansAnyExtraDot = 
         match e with 
-<<<<<<< HEAD
         | SynExpr.Paren (range=m)
         | SynExpr.Quote (range=m)
         | SynExpr.Const (range=m)
         | SynExpr.Typed (range=m)
         | SynExpr.Tuple (range=m)
+        | SynExpr.StructTuple (range=m)
         | SynExpr.ArrayOrList (range=m)
         | SynExpr.Record (range=m)
         | SynExpr.New (range=m)
@@ -843,62 +829,6 @@ and
         | SynExpr.YieldOrReturnFrom (range=m)
         | SynExpr.LetOrUseBang (range=m)
         | SynExpr.DoBang  (range=m) -> m
-=======
-        | SynExpr.Paren(_,_,_,m) 
-        | SynExpr.Quote(_,_,_,_,m) 
-        | SynExpr.Const(_,m) 
-        | SynExpr.Typed (_,_,m)
-        | SynExpr.Tuple (_,_,m)
-        | SynExpr.StructTuple (_,_,m)
-        | SynExpr.ArrayOrList (_,_,m)
-        | SynExpr.Record (_,_,_,m)
-        | SynExpr.New (_,_,_,m)
-        | SynExpr.ObjExpr (_,_,_,_,_,m)
-        | SynExpr.While (_,_,_,m)
-        | SynExpr.For (_,_,_,_,_,_,m)
-        | SynExpr.ForEach (_,_,_,_,_,_,m)
-        | SynExpr.CompExpr (_,_,_,m)
-        | SynExpr.ArrayOrListOfSeqExpr (_,_,m)
-        | SynExpr.Lambda (_,_,_,_,m)
-        | SynExpr.Match (_,_,_,_,m)
-        | SynExpr.MatchLambda (_,_,_,_,m)
-        | SynExpr.Do (_,m)
-        | SynExpr.Assert (_,m)
-        | SynExpr.App (_,_,_,_,m)
-        | SynExpr.TypeApp (_,_,_,_,_,_,m)
-        | SynExpr.LetOrUse (_,_,_,_,m)
-        | SynExpr.TryWith (_,_,_,_,m,_,_)
-        | SynExpr.TryFinally (_,_,m,_,_)
-        | SynExpr.Sequential (_,_,_,_,m)
-        | SynExpr.ArbitraryAfterError(_,m)
-        | SynExpr.FromParseError (_,m) 
-        | SynExpr.IfThenElse (_,_,_,_,_,_,m)
-        | SynExpr.LongIdentSet (_,_,m)
-        | SynExpr.NamedIndexedPropertySet (_,_,_,m)
-        | SynExpr.DotIndexedGet (_,_,_,m)
-        | SynExpr.DotIndexedSet (_,_,_,_,_,m)
-        | SynExpr.DotSet (_,_,_,m)
-        | SynExpr.DotNamedIndexedPropertySet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldGet (_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldSet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyILAssembly (_,_,_,_,m)
-        | SynExpr.LibraryOnlyStaticOptimization (_,_,_,m)
-        | SynExpr.TypeTest (_,_,m)
-        | SynExpr.Upcast (_,_,m)
-        | SynExpr.AddressOf (_,_,_,m)
-        | SynExpr.Downcast (_,_,m)
-        | SynExpr.JoinIn (_,_,_,m)
-        | SynExpr.InferredUpcast (_,m)
-        | SynExpr.InferredDowncast (_,m)
-        | SynExpr.Null m
-        | SynExpr.Lazy (_, m)
-        | SynExpr.TraitCall(_,_,_,m)
-        | SynExpr.ImplicitZero (m)
-        | SynExpr.YieldOrReturn (_,_,m)
-        | SynExpr.YieldOrReturnFrom (_,_,m)
-        | SynExpr.LetOrUseBang  (_,_,_,_,_,_,m)
-        | SynExpr.DoBang  (_,m) -> m
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
         | SynExpr.DotGet (expr,_,lidwd,m) -> if lidwd.ThereIsAnExtraDotAtTheEnd then unionRanges expr.Range lidwd.RangeSansAnyExtraDot else m
         | SynExpr.LongIdent (_,lidwd,_,_) -> lidwd.RangeSansAnyExtraDot 
         | SynExpr.DiscardAfterMissingQualificationAfterDot (expr,_) -> expr.Range
@@ -908,11 +838,11 @@ and
     member e.RangeOfFirstPortion = 
         match e with 
         // haven't bothered making these cases better than just .Range
-<<<<<<< HEAD
         | SynExpr.Quote (range=m)
         | SynExpr.Const (range=m)
         | SynExpr.Typed (range=m)
         | SynExpr.Tuple (range=m)
+        | SynExpr.StructTuple (range=m)
         | SynExpr.ArrayOrList (range=m)
         | SynExpr.Record (range=m)
         | SynExpr.New (range=m)
@@ -961,61 +891,6 @@ and
         | SynExpr.YieldOrReturnFrom (range=m)
         | SynExpr.LetOrUseBang  (range=m)
         | SynExpr.DoBang  (_,m) -> m 
-=======
-        | SynExpr.Quote(_,_,_,_,m)
-        | SynExpr.Const(_,m) 
-        | SynExpr.Typed (_,_,m)
-        | SynExpr.Tuple (_,_,m)
-        | SynExpr.StructTuple (_,_,m)
-        | SynExpr.ArrayOrList (_,_,m)
-        | SynExpr.Record (_,_,_,m)
-        | SynExpr.New (_,_,_,m)
-        | SynExpr.ObjExpr (_,_,_,_,_,m)
-        | SynExpr.While (_,_,_,m)
-        | SynExpr.For (_,_,_,_,_,_,m)
-        | SynExpr.CompExpr (_,_,_,m)
-        | SynExpr.ArrayOrListOfSeqExpr (_,_,m)
-        | SynExpr.Lambda (_,_,_,_,m)
-        | SynExpr.Match (_,_,_,_,m)
-        | SynExpr.MatchLambda (_,_,_,_,m)
-        | SynExpr.Do (_,m)
-        | SynExpr.Assert (_,m)
-        | SynExpr.TypeApp (_,_,_,_,_,_,m)
-        | SynExpr.LetOrUse (_,_,_,_,m)
-        | SynExpr.TryWith (_,_,_,_,m,_,_)
-        | SynExpr.TryFinally (_,_,m,_,_)
-        | SynExpr.ArbitraryAfterError(_,m)
-        | SynExpr.FromParseError (_,m) 
-        | SynExpr.DiscardAfterMissingQualificationAfterDot (_,m) 
-        | SynExpr.IfThenElse (_,_,_,_,_,_,m)
-        | SynExpr.LongIdent (_,_,_,m)
-        | SynExpr.LongIdentSet (_,_,m)
-        | SynExpr.NamedIndexedPropertySet (_,_,_,m)
-        | SynExpr.DotIndexedGet (_,_,_,m)
-        | SynExpr.DotIndexedSet (_,_,_,_,_,m)
-        | SynExpr.DotGet (_,_,_,m)
-        | SynExpr.DotSet (_,_,_,m)
-        | SynExpr.DotNamedIndexedPropertySet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldGet (_,_,_,m)
-        | SynExpr.LibraryOnlyUnionCaseFieldSet (_,_,_,_,m)
-        | SynExpr.LibraryOnlyILAssembly (_,_,_,_,m)
-        | SynExpr.LibraryOnlyStaticOptimization (_,_,_,m)
-        | SynExpr.TypeTest (_,_,m)
-        | SynExpr.Upcast (_,_,m)
-        | SynExpr.AddressOf (_,_,_,m)
-        | SynExpr.Downcast (_,_,m)
-        | SynExpr.JoinIn (_,_,_,m)
-        | SynExpr.InferredUpcast (_,m)
-        | SynExpr.InferredDowncast (_,m)
-        | SynExpr.Null m
-        | SynExpr.Lazy (_, m)
-        | SynExpr.TraitCall(_,_,_,m)
-        | SynExpr.ImplicitZero (m)
-        | SynExpr.YieldOrReturn (_,_,m)
-        | SynExpr.YieldOrReturnFrom (_,_,m)
-        | SynExpr.LetOrUseBang  (_,_,_,_,_,_,m)
-        | SynExpr.DoBang  (_,m) -> m
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
         // these are better than just .Range, and also commonly applicable inside queries
         | SynExpr.Paren(_,m,_,_) -> m
         | SynExpr.Sequential (_,_,e1,_,_)
@@ -1087,7 +962,6 @@ and SynConstructorArgs =
 and  
     [<NoEquality; NoComparison;RequireQualifiedAccess>]
     SynPat =
-<<<<<<< HEAD
     | Const of constant:SynConst * range:range
     | Wild of range:range
     | Named of  SynPat * id:Ident *  isThisVar:bool (* true if 'this' variable *)  * accessiblity:SynAccess option * range:range
@@ -1097,24 +971,10 @@ and
     | Ands of  SynPat list * range:range
     | LongIdent of dotId:LongIdentWithDots * (* holds additional ident for tooling *) Ident option * SynValTyparDecls option (* usually None: temporary used to parse "f<'a> x = x"*) * SynConstructorArgs  * SynAccess option * range:range
     | Tuple of  SynPat list * range:range
+    | StructTuple of  SynPat list * range:range
     | Paren of  SynPat * range:range
     | ArrayOrList of  bool * SynPat list * range:range
     | Record of fields:((LongIdent * Ident) * SynPat) list * range:range
-=======
-    | Const of SynConst * range
-    | Wild of range
-    | Named of  SynPat * Ident *  bool (* true if 'this' variable *)  * SynAccess option * range
-    | Typed of  SynPat * SynType * range
-    | Attrib of  SynPat * SynAttributes * range
-    | Or of  SynPat * SynPat * range
-    | Ands of  SynPat list * range
-    | LongIdent of LongIdentWithDots * (* holds additional ident for tooling *) Ident option * SynValTyparDecls option (* usually None: temporary used to parse "f<'a> x = x"*) * SynConstructorArgs  * SynAccess option * range
-    | Tuple of  SynPat list * range
-    | StructTuple of  SynPat list * range
-    | Paren of  SynPat * range
-    | ArrayOrList of  bool * SynPat list * range
-    | Record of ((LongIdent * Ident) * SynPat) list * range
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
     /// 'null'
     | Null of range:range
     /// '?id' -- for optional argument names
@@ -1133,7 +993,6 @@ and
 
     member p.Range = 
       match p with 
-<<<<<<< HEAD
       | SynPat.Const (range=m) 
       | SynPat.Wild (range=m)
       | SynPat.Named (range=m)
@@ -1142,6 +1001,7 @@ and
       | SynPat.LongIdent (range=m)
       | SynPat.ArrayOrList (range=m) 
       | SynPat.Tuple (range=m)
+      | SynPat.StructTuple (range=m)
       | SynPat.Typed (range=m)
       | SynPat.Attrib (range=m)
       | SynPat.Record (range=m)
@@ -1153,13 +1013,6 @@ and
       | SynPat.OptionalVal (range=m)
       | SynPat.Paren (range=m)
       | SynPat.FromParseError (range=m) -> m
-=======
-      | SynPat.Const(_,m) | SynPat.Wild m | SynPat.Named (_,_,_,_,m) | SynPat.Or (_,_,m) | SynPat.Ands (_,m) 
-      | SynPat.LongIdent (_,_,_,_,_,m) | SynPat.ArrayOrList(_,_,m) | SynPat.Tuple (_,m) | SynPat.StructTuple (_,m) |SynPat.Typed(_,_,m) |SynPat.Attrib(_,_,m) 
-      | SynPat.Record (_,m) | SynPat.DeprecatedCharRange (_,_,m) | SynPat.Null m | SynPat.IsInst (_,m) | SynPat.QuoteExpr (_,m)
-      | SynPat.InstanceMember(_,_,_,_,m) | SynPat.OptionalVal(_,m) | SynPat.Paren(_,m) 
-      | SynPat.FromParseError (_,m) -> m 
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
 
 and  
     [<NoEquality; NoComparison>]

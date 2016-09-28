@@ -270,14 +270,10 @@ type internal CompileThreadStatic =
 
     static member BuildPhaseUnchecked with get() = CompileThreadStatic.buildPhase (* This can be a null value *)
     static member BuildPhase
-<<<<<<< HEAD
-        with get() = if box CompileThreadStatic.buildPhase <> null then CompileThreadStatic.buildPhase else ((* assert false; *) BuildPhase.DefaultPhase)
-=======
         with get() = 
             match box CompileThreadStatic.buildPhase with
-            | null -> assert false; BuildPhase.DefaultPhase
+            | null -> (* assert false; *) BuildPhase.DefaultPhase
             | _ -> CompileThreadStatic.buildPhase
->>>>>>> a2f37b64ac6a466525c3da0e7a5e85be7da8f378
         and set v = CompileThreadStatic.buildPhase <- v
             
     static member ErrorLogger

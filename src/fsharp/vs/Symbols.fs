@@ -1869,7 +1869,7 @@ and FSharpType(cenv, typ:TType) =
             | TType_var tp  -> 10100 + int32 tp.Stamp
             | TType_app (tc1,b1)  -> 10200 + int32 tc1.Stamp + List.sumBy hashType b1
             | TType_ucase _   -> 10300  // shouldn't occur in symbols
-            | TType_tuple l1 -> 10400 + List.sumBy hashType l1
+            | TType_tuple (_,l1) -> 10400 + List.sumBy hashType l1
             | TType_fun (dty,rty) -> 10500 + hashType dty + hashType rty
             | TType_measure _ -> 10600 
         hashType typ

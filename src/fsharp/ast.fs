@@ -424,7 +424,7 @@ and
 
     /// F# syntax : struct (type * ... * type)
     // the bool is true if / rather than * follows the type
-    | StructTuple of (bool*SynType) list * range    
+    | StructTuple of (bool*SynType) list * range:range    
 
     /// F# syntax : type[]
     | Array of  int * elementType:SynType * range:range
@@ -496,7 +496,7 @@ and
     | Tuple of  exprs:SynExpr list * commaRanges:range list * range:range  // "range list" is for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
 
     /// F# syntax: struct (e1, ..., eN)
-    | StructTuple of  SynExpr list * range list * range  // "range list" is for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
+    | StructTuple of  SynExpr list * range list * range:range  // "range list" is for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
 
     /// F# syntax: [ e1; ...; en ], [| e1; ...; en |]
     | ArrayOrList of  isList:bool * exprs:SynExpr list * range:range 

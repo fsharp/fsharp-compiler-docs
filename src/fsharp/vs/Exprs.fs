@@ -18,6 +18,8 @@ open Internal.Utilities
 [<AutoOpen>]
 module ExprTranslationImpl = 
 
+    let nonNil x = not (List.isEmpty x)
+
     type ExprTranslationEnv = 
         { //Map from Val to binding index
           vs: ValMap<unit>; 
@@ -329,7 +331,7 @@ module FSharpExprConvert =
         // Check to see if there aren't enough arguments or if there is a tuple-arity mismatch
         // If so, adjust and try again
         if curriedArgs.Length < curriedArgInfos.Length ||
-            ((List.take curriedArgInfos.Length curriedArgs,curriedArgInfos) ||> List.exists2 (fun arg argInfo -> (argInfo.Length > (tryDestTuple arg).Length))) then
+            ((List.take curriedArgInfos.Length curriedArgs,curriedArgInfos) ||> List.exists2 (fun arg argInfo -> (argInfo.Length > (tryDestRefTupleExpr arg).Length))) then
 
             // Too few arguments or incorrect tupling? Convert to a lambda and beta-reduce the 
             // partially applied arguments to 'let' bindings 
@@ -352,7 +354,7 @@ module FSharpExprConvert =
                     let numUntupledArgs = curriedArgInfo.Length 
                     (if numUntupledArgs = 0 then [] 
                         elif numUntupledArgs = 1 then [arg] 
-                        else tryDestTuple arg))
+                        else tryDestRefTupleExpr arg))
 
             let contf2 = 
                 match laterArgs with 
@@ -417,7 +419,7 @@ module FSharpExprConvert =
             E.LetRec(FlatList.toList bindsR,bodyR) 
   
         | Expr.Lambda(_,_,_,vs,b,_,_) -> 
-            let v,b = MultiLambdaToTupledLambda vs b 
+            let v,b = MultiLambdaToTupledLambda cenv.g vs b 
             let vR = ConvVal cenv v 
             let bR  = ConvExpr cenv (env.BindVal v) b 
             E.Lambda(vR, bR) 
@@ -466,8 +468,8 @@ module FSharpExprConvert =
                 let argsR = ConvExprs cenv env args
                 E.NewUnionCase(typR, mkR, argsR) 
 
-            | TOp.Tuple,tyargs,_ -> 
-                let tyR = ConvType cenv (mkTupledTy cenv.g tyargs)
+            | TOp.Tuple tupInfo,tyargs,_ -> 
+                let tyR = ConvType cenv (mkAnyTupledTy cenv.g tupInfo tyargs)
                 let argsR = ConvExprs cenv env args
                 E.NewTuple(tyR, argsR) 
 
@@ -502,8 +504,8 @@ module FSharpExprConvert =
                 let typR = ConvType cenv (mkAppTy rfref.TyconRef tyargs)
                 E.FSharpFieldGet(Some objR, typR, projR) 
 
-            | TOp.TupleFieldGet(n),tyargs,[e] -> 
-                let tyR = ConvType cenv (mkTupledTy cenv.g tyargs)
+            | TOp.TupleFieldGet(tupInfo,n),tyargs,[e] -> 
+                let tyR = ConvType cenv (mkAnyTupledTy cenv.g tupInfo tyargs)
                 E.TupleGet(tyR, n, ConvExpr cenv env e) 
 
             | TOp.ILAsm([ I_ldfld(_,_,fspec) ],_), enclTypeArgs, [obj] -> 
@@ -679,7 +681,7 @@ module FSharpExprConvert =
             let envinner = env.BindVal v
             Some(vR,rhsR),envinner
 
-    and ConvILCall cenv env (isNewObj, valUseFlags, ilMethRef, enclTypeArgs, methTypeArgs, callArgs, m) =
+    and ConvILCall (cenv:Impl.cenv) env (isNewObj, valUseFlags, ilMethRef, enclTypeArgs, methTypeArgs, callArgs, m) =
         let isNewObj = (isNewObj || (match valUseFlags with CtorValUsedAsSuperInit | CtorValUsedAsSelfInit -> true | _ -> false))
         let methName = ilMethRef.Name
         let isPropGet = methName.StartsWith("get_",System.StringComparison.Ordinal)
@@ -863,7 +865,7 @@ module FSharpExprConvert =
                     | Some ty -> ty
 
                 let linkageType = 
-                    let ty = mkIteratedFunTy (List.map (mkTupledTy cenv.g) argtys) rty
+                    let ty = mkIteratedFunTy (List.map (mkRefTupledTy cenv.g) argtys) rty
                     let ty = if isStatic then ty else mkFunTy enclosingType ty 
                     tryMkForallTy (typars1 @ typars2) ty
 

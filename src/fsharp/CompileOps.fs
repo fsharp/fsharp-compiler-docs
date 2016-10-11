@@ -4074,7 +4074,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
         | None -> 
             match importsBase with 
             | Some b -> b.GetTcGlobals() 
-            | None -> failwith (sprintf "unreachable: GetGlobals - are the references to mscorlib.dll and FSharp.Core.dll valid? STACK: \n%s" ((System.Diagnostics.StackTrace()).ToString()))
+            | None -> failwith "unreachable: GetGlobals - are the references to mscorlib.dll and FSharp.Core.dll valid?"
 
     member private tcImports.SetILGlobals ilg =
         CheckDisposed()

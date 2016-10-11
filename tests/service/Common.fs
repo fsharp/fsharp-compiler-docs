@@ -67,9 +67,9 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
         yield "--noframework" 
         yield "--debug:full" 
         yield "--define:DEBUG" 
-//#if NETCOREAPP1_0
+#if NETCOREAPP1_0
         yield "--targetprofile:netcore" 
-//#endif
+#endif
         yield "--optimize-" 
         yield "--out:" + dllName
         yield "--doc:test.xml" 
@@ -103,9 +103,9 @@ let mkProjectCommandLineArgsForScript (dllName, fileNames) =
         yield "--noframework" 
         yield "--debug:full" 
         yield "--define:DEBUG" 
-//#if NETCOREAPP1_0
+#if NETCOREAPP1_0
         yield "--targetprofile:netcore" 
-//#endif
+#endif
         yield "--optimize-" 
         yield "--out:" + dllName
         yield "--doc:test.xml" 
@@ -115,15 +115,12 @@ let mkProjectCommandLineArgsForScript (dllName, fileNames) =
         yield "--target:library" 
         for x in fileNames do 
             yield x
-        let implDir = Path.GetDirectoryName(typeof<System.Object>.Assembly.Location)
+    //    let implDir = Path.GetDirectoryName(typeof<System.Object>.Assembly.Location)
         let references =
-            [ yield Path.Combine(implDir,"mscorlib.dll"); 
-              yield Path.Combine(implDir,"System.Private.CoreLib.dll"); 
-              yield! Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/obj/Debug/netstandard1.6/dotnet-compile-fsc.rsp")
-                        |> File.ReadAllLines
-                        |> Array.filter (fun s -> s.StartsWith("-r:"))
-                        |> Array.map (fun s -> s.Replace("-r:",""))
-                        |> Array.map (fun s -> Path.Combine(implDir,s)) ]
+            Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/obj/Debug/netstandard1.6/dotnet-compile-fsc.rsp")
+            |> File.ReadAllLines
+            |> Array.filter (fun s -> s.StartsWith("-r:"))
+            |> Array.map (fun s -> s.Replace("-r:",""))
         for r in references do
             yield "-r:" + r
      |]

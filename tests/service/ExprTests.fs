@@ -534,6 +534,9 @@ let bool2 = false
 let ``Test Declarations project1`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
 
+    for e in wholeProjectResults.Errors do 
+        printfn "Project1 error: <<<%s>>>" e.Message
+
     wholeProjectResults.Errors.Length |> shouldEqual 3 // recursive value warning
     wholeProjectResults.Errors.[0].Severity |> shouldEqual FSharpErrorSeverity.Warning
     wholeProjectResults.Errors.[1].Severity |> shouldEqual FSharpErrorSeverity.Warning

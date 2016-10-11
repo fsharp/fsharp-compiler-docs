@@ -3962,16 +3962,20 @@ let OpenILModuleReader infile opts =
 
 // ++GLOBAL MUTABLE STATE
 let ilModuleReaderCache = 
-    new Internal.Utilities.Collections.AgedLookup<(string * System.DateTime),ILModuleReader>(0, areSame=(fun (x,y) -> x = y))
+    new Internal.Utilities.Collections.AgedLookup<(string * System.DateTime * string * bool),ILModuleReader>(0, areSame=(fun (x,y) -> x = y))
 
 
 let OpenILModuleReaderAfterReadingAllBytes infile opts = 
     // Pseudo-normalize the paths.
     let key,succeeded = 
-        try (FileSystem.GetFullPathShim(infile), FileSystem.GetLastWriteTimeShim(infile)), true
+        try 
+           (FileSystem.GetFullPathShim(infile), 
+            FileSystem.GetLastWriteTimeShim(infile), 
+            opts.ilGlobals.primaryAssemblyName,
+            opts.ilGlobals.noDebugData), true
         with e -> 
             System.Diagnostics.Debug.Assert(false, "Failed to compute key in OpenILModuleReaderAfterReadingAllBytes cache. Falling back to uncached.") 
-            ("",System.DateTime.Now), false
+            ("",System.DateTime.Now,"",false), false
     let cacheResult = 
         if not succeeded then None // Fall back to uncached.
         else if opts.pdbPath.IsSome then None // can't used a cached entry when reading PDBs, since it makes the returned object IDisposable

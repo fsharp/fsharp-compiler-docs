@@ -1642,7 +1642,7 @@ let GetFsiLibraryName () = "FSharp.Compiler.Interactive.Settings"
 
 // .NET Core references
 let DefaultBasicReferencesForOutOfProjectSources = 
-    [   yield typeof<System.Object>.Assembly.Location; // mscorlib
+    [   yield Path.Combine(Path.GetDirectoryName(typeof<System.Object>.Assembly.Location),"mscorlib.dll"); // mscorlib
         yield typeof<System.Console>.Assembly.Location; // System.Console
         yield typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
         yield typeof<System.ComponentModel.PropertyChangedEventArgs>.Assembly.Location; // System.ObjectModel             
@@ -1754,7 +1754,14 @@ let SystemAssemblies primaryAssemblyName =
 // REVIEW: it isn't clear if there is any negative effect
 // of leaving an assembly off this list.
 let BasicReferencesForScriptLoadClosure(useSimpleResolution, useFsiAuxLib) = 
-    ["mscorlib"; GetFSharpCoreReferenceUsedByCompiler(useSimpleResolution) ] @ // Need to resolve these explicitly so they will be found in the reference assemblies directory which is where the .xml files are.
+    [
+#if TODO_REWORK_ASSEMBLY_LOAD
+      Path.Combine(Path.GetDirectoryName(typeof<System.Object>.Assembly.Location),"mscorlib.dll"); // mscorlib
+#else
+      "mscorlib"
+#endif
+      GetFSharpCoreReferenceUsedByCompiler(useSimpleResolution) 
+    ] @ // Need to resolve these explicitly so they will be found in the reference assemblies directory which is where the .xml files are.
     DefaultBasicReferencesForOutOfProjectSources @ 
     [ if useFsiAuxLib then yield GetFsiLibraryName () ]
 

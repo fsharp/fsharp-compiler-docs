@@ -372,11 +372,7 @@ type Test() =
     //decls |> List.map (fun d -> d.Head.Symbol.DisplayName) |> printfn "---> decls = %A"
     decls |> Seq.exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
 
-#if DOTNETCORE
-[<Test; Ignore("Currently failing on .NET Core - apparently there are 2 StringBuilder types in the implementation assemblies referenced by mkProjectCommandLineArgsForScript, one found directly and one found via  FSharp.Core")>]
-#else
 [<Test>]
-#endif
 let ``Printf specifiers for regular and verbatim strings`` () = 
     let input = 
       """let os = System.Text.StringBuilder()

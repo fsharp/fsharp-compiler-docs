@@ -6,12 +6,10 @@ and F# interactive as services.
 
 ## Components
 
-There is one component, `FSharp.Compiler.Service.dll`. The first one contains minor modifications in visibility 
-to allow refactoring editing and other tools to have access to the full F# AST and parser.
+There is one main component, `FSharp.Compiler.Service.dll`. 
 The main aim is to have a stable and documented fork of the main compiler that allows various 
 tools to share this common code.  
-
-The second component allows embedding F# Interactive as a service and contains a number of
+This component allows embedding F# Interactive as a service and contains a number of
 modifications to the source code of `fsi.exe` that adds `EvalExpression` and `EvalInteraction` functions.
 
 This repo should be _identical_ to 'fsharp' except:
@@ -48,14 +46,4 @@ Now follow build everything by running `build.cmd` (Windows) or `build.sh` (Linu
 The output will be located in the `bin` directory. If you also wish to build the documentation
 and NuGet package, run `build Release` (this also attempts to publish the documentation to
 GitHub, which only works if you have access to the GitHub repository).
-
-## Clients
-
-Some of the known tools that use this component are:
-
- * [Fantomas](https://github.com/dungpa/fantomas) - F# code formatting tool
- * [Fsharp-Refactor](https://github.com/Lewix/fsharp-refactor) - Refactoring for F#
- * [FSharpbinding](https://github.com/fsharp/fsharpbinding) - Xamarin studio bindings
- * [F# Snippets web site](http://fssnip.net/) - smart F# pastebin
- * [F# ACE Code Editor](https://github.com/BayardRock/FSharpWebIntellisense/) - F# editing on the web
 

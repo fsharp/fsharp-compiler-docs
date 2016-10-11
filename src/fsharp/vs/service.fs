@@ -9,6 +9,7 @@ open System
 open System.IO
 open System.Text
 open System.Threading
+open System.Reflection.Emit
 open System.Runtime
 open System.Collections.Generic
 
@@ -23,6 +24,7 @@ open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.AccessibilityLogic
 open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.CompileOps
+open Microsoft.FSharp.Compiler.Driver
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Lib
 open Microsoft.FSharp.Compiler.MSBuildResolver
@@ -2123,6 +2125,115 @@ module Helpers =
     let AreSubsumable3((fileName1:string,_,o1:FSharpProjectOptions),(fileName2:string,_,o2:FSharpProjectOptions)) =
         (fileName1 = fileName2)
         && FSharpProjectOptions.AreSubsumable(o1,o2)
+
+module CompileHelpers =
+    let mkCompilationErorHandlers() = 
+        let errors = ResizeArray<_>()
+
+        let errorSink warn exn = 
+            let mainError,relatedErrors = SplitRelatedErrors exn 
+            let oneError trim e = errors.Add(ErrorInfo.CreateFromException (e, warn, trim, Range.range0))
+            oneError false mainError
+            List.iter (oneError true) relatedErrors
+
+        let errorLogger = 
+            { new ErrorLogger("CompileAPI") with 
+                member x.WarnSinkImpl(exn) = errorSink true exn
+                member x.ErrorSinkImpl(exn) = errorSink false exn
+                member x.ErrorCount = errors |> Seq.filter (fun e -> e.Severity = FSharpErrorSeverity.Error) |> Seq.length }
+
+        let loggerProvider = 
+            { new ErrorLoggerProvider() with 
+                member x.CreateErrorLoggerThatQuitsAfterMaxErrors(_tcConfigBuilder, _exiter) = errorLogger    }
+        errors, errorLogger, loggerProvider
+
+    let tryCompile errorLogger f = 
+        use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
+        use unwindEL_2 = PushErrorLoggerPhaseUntilUnwind (fun _ -> errorLogger)
+        let exiter = { new Exiter with member x.Exit n = raise StopProcessing }
+        try 
+            f exiter
+            0
+        with e -> 
+            stopProcessingRecovery e Range.range0
+            1
+
+    /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
+    let compileFromArgs (argv: string[], tcImportsCapture, dynamicAssemblyCreator)  = 
+    
+        let errors, errorLogger, loggerProvider = mkCompilationErorHandlers()
+        let result = 
+            tryCompile errorLogger (fun exiter -> 
+                mainCompile (argv, (*bannerAlreadyPrinted*)true, (*openBinariesInMemory*)true, exiter, loggerProvider, tcImportsCapture, dynamicAssemblyCreator) )
+    
+        errors.ToArray(), result
+
+    let compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, pdbFile, executable, tcImportsCapture, dynamicAssemblyCreator) =
+
+        let errors, errorLogger, loggerProvider = mkCompilationErorHandlers()
+    
+        let executable = defaultArg executable true
+        let target = if executable then CompilerTarget.ConsoleExe else CompilerTarget.Dll
+    
+        let result = 
+            tryCompile errorLogger (fun exiter -> 
+                compileOfAst ((*openBinariesInMemory=*)true, assemblyName, target, outFile, pdbFile, dependencies, noframework, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator))
+
+        errors.ToArray(), result
+
+    let dynamicAssemblyCreator (debugInfo: bool, tcImportsRef: TcImports option ref, execute: _ option, assemblyBuilderRef: _ option ref) (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) =
+
+        // Create an assembly builder
+        let assemblyName = System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile)
+        let flags = System.Reflection.Emit.AssemblyBuilderAccess.Run
+#if FX_NO_APP_DOMAINS
+        let assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, flags)
+        let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule")
+#else
+        let assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, flags)
+        let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule", debugInfo)
+#endif            
+        // Omit resources in dynamic assemblies, because the module builder is constructed without a filename the module 
+        // is tagged as transient and as such DefineManifestResource will throw an invalid operation if resources are present.
+        // 
+        // Also, the dynamic assembly creator can't currently handle types called "<Module>" from statically linked assemblies.
+        let ilxMainModule = 
+            { ilxMainModule with 
+                TypeDefs = ilxMainModule.TypeDefs.AsList |> List.filter (fun td -> not (isTypeNameForGlobalFunctions td.Name)) |> mkILTypeDefs
+                Resources=mkILResources [] }
+
+        // The function used to resolve typees while emitting the code
+        let assemblyResolver s = 
+            match tcImportsRef.Value.Value.TryFindExistingFullyQualifiedPathFromAssemblyRef s with 
+            | Some res -> Some (Choice1Of2 res)
+            | None -> None
+
+        // Emit the code
+        let _emEnv,execs = ILRuntimeWriter.emitModuleFragment(ilGlobals, ILRuntimeWriter.emEnv0, assemblyBuilder, moduleBuilder, ilxMainModule, debugInfo, assemblyResolver)
+
+        // Execute the top-level initialization, if requested
+        if execute.IsSome then 
+            for exec in execs do 
+                match exec() with 
+                | None -> ()
+                | Some exn -> raise exn
+
+        // Register the reflected definitions for the dynamically generated assembly
+        for resource in ilxMainModule.Resources.AsList do 
+            if IsReflectedDefinitionsResource resource then 
+                Quotations.Expr.RegisterReflectedDefinitions(assemblyBuilder, moduleBuilder.Name, resource.Bytes)
+
+        // Save the result
+        assemblyBuilderRef := Some assemblyBuilder
+        
+    let setOutputStreams execute = 
+        // Set the output streams, if requested
+        match execute with
+        | Some (writer,error) -> 
+            System.Console.SetOut writer
+            System.Console.SetError error
+        | None -> ()
+
         
 // There is only one instance of this type, held in FSharpChecker
 type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions) as self =
@@ -2696,6 +2807,66 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         backgroundCompiler.TryGetRecentCheckResultsForFile(filename,options,source)
 
     member ic.TryGetRecentTypeCheckResultsForFile(filename, options, ?source) = ic.TryGetRecentCheckResultsForFile(filename,options,?source=source)
+
+    member ic.Compile(argv: string[]) =
+        CompileHelpers.compileFromArgs (argv, None, None)
+
+    member ic.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool, ?noframework:bool) =
+            let noframework = defaultArg noframework false
+            CompileHelpers.compileFromAsts (ast, assemblyName, outFile, dependencies, noframework, pdbFile, executable, None, None)
+
+    member ic.CompileToDynamicAssembly (otherFlags: string[], execute: (TextWriter * TextWriter) option)  = 
+        CompileHelpers.setOutputStreams execute
+        
+        // References used to capture the results of compilation
+        let tcImportsRef = ref (None: TcImports option)
+        let assemblyBuilderRef = ref None
+        let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
+
+        // Function to generate and store the results of compilation 
+        let debugInfo =  otherFlags |> Array.exists (fun arg -> arg = "-g" || arg = "--debug:+" || arg = "/debug:+")
+        let dynamicAssemblyCreator = Some (CompileHelpers.dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
+
+        // Perform the compilation, given the above capturing function.
+        let errorsAndWarnings, result = CompileHelpers.compileFromArgs (otherFlags, tcImportsCapture, dynamicAssemblyCreator)
+
+        // Retrieve and return the results
+        let assemblyOpt = 
+            match assemblyBuilderRef.Value with 
+            | None -> None
+            | Some a ->  Some (a :> System.Reflection.Assembly)
+
+        errorsAndWarnings, result, assemblyOpt
+
+    member ic.CompileToDynamicAssembly (asts:ParsedInput list, assemblyName:string, dependencies:string list, execute: (TextWriter * TextWriter) option, ?debug:bool, ?noframework:bool) =
+        CompileHelpers.setOutputStreams execute
+
+        // References used to capture the results of compilation
+        let tcImportsRef = ref (None: TcImports option)
+        let assemblyBuilderRef = ref None
+        let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
+
+        let debugInfo = defaultArg debug false
+        let noframework = defaultArg noframework false
+        let location = Path.Combine(Path.GetTempPath(),"test"+string(hash assemblyName))
+        try Directory.CreateDirectory(location) |> ignore with _ -> ()
+
+        let outFile = Path.Combine(location, assemblyName + ".dll")
+
+        // Function to generate and store the results of compilation 
+        let dynamicAssemblyCreator = Some (CompileHelpers.dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
+
+        // Perform the compilation, given the above capturing function.
+        let errorsAndWarnings, result = 
+            CompileHelpers.compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
+
+        // Retrieve and return the results
+        let assemblyOpt = 
+            match assemblyBuilderRef.Value with 
+            | None -> None
+            | Some a ->  Some (a :> System.Reflection.Assembly)
+
+        errorsAndWarnings, result, assemblyOpt
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.

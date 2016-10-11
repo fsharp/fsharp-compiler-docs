@@ -7,9 +7,13 @@
 
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 open System
+open System.IO
 open System.Collections.Generic
 
 open Microsoft.FSharp.Compiler 
+open Microsoft.FSharp.Compiler.Ast
+open Microsoft.FSharp.Compiler.Driver
+open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.NameResolution
@@ -383,6 +387,15 @@ type FSharpProjectOptions =
 type IsResultObsolete = 
     | IsResultObsolete of (unit->bool)
 
+module internal CompileHelpers =
+    val mkCompilationErorHandlers : unit -> List<FSharpErrorInfo> * ErrorLogger * ErrorLoggerProvider
+    val tryCompile : errorLogger:ErrorLogger -> f:(Exiter -> unit) -> int
+    val compileFromArgs : argv:string [] * tcImportsCapture:(TcImports -> unit) option * dynamicAssemblyCreator:(TcConfig * AbstractIL.IL.ILGlobals * ErrorLogger * string * string option * AbstractIL.IL.ILModuleDef * SigningInfo -> unit) option -> FSharpErrorInfo [] * int
+    val compileFromAsts : asts:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * noframework:bool * pdbFile:string option * executable:bool option * tcImportsCapture:(TcImports -> unit) option * dynamicAssemblyCreator:(TcConfig * AbstractIL.IL.ILGlobals * ErrorLogger * string * string option * AbstractIL.IL.ILModuleDef * SigningInfo -> unit) option -> FSharpErrorInfo [] * int
+    val dynamicAssemblyCreator<'a,'b,'c,'d,'e> : debugInfo:bool * tcImportsRef:TcImports option ref * execute:'a option * assemblyBuilderRef:Reflection.Emit.AssemblyBuilder option ref -> _tcConfig:'b * ilGlobals:AbstractIL.IL.ILGlobals * _errorLogger:'c * outfile:string * _pdbfile:'d * ilxMainModule:AbstractIL.IL.ILModuleDef * _signingInfo:'e -> unit
+    val setOutputStreams : execute:(#TextWriter * #TextWriter) option -> unit
+
+
 /// The result of calling TypeCheckResult including the possibility of abort and background compiler not caught up.
 [<RequireQualifiedAccess>]
 type FSharpCheckFileAnswer =
@@ -588,6 +601,29 @@ type FSharpChecker =
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
     member GetBackgroundCheckResultsForFileInProject : filename : string * options : FSharpProjectOptions -> Async<FSharpParseFileResults * FSharpCheckFileResults>
 
+    /// Compile using the given flags.  Source files names are resolved via the FileSystem API. 
+    /// The output file must be given by a -o flag. 
+    /// The first argument is ignored and can just be "fsc.exe".
+    member Compile: argv:string [] -> FSharpErrorInfo [] * int
+    
+    /// TypeCheck and compile provided AST
+    member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -> FSharpErrorInfo [] * int
+
+    /// Compiles to a dynamic assembly usinng the given flags.  
+    ///
+    /// The first argument is ignored and can just be "fsc.exe".
+    ///
+    /// Any source files names are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not
+    /// be written - instead a dynamic assembly will be created and loaded.
+    ///
+    /// If the 'execute' parameter is given the entry points for the code are executed and 
+    /// the given TextWriters are used for the stdout and stderr streams respectively. In this 
+    /// case, a global setting is modified during the execution.
+    member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option -> FSharpErrorInfo [] * int * System.Reflection.Assembly option
+
+    /// TypeCheck and compile provided AST
+    member CompileToDynamicAssembly: ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -> FSharpErrorInfo [] * int * System.Reflection.Assembly option
+       
     /// <summary>
     /// Try to get type check results for a file. This looks up the results of recent type checks of the
     /// same file, regardless of contents. The version tag specified in the original check of the file is returned.

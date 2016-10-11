@@ -222,7 +222,18 @@ Target "GitHubRelease" (fun _ ->
 // --------------------------------------------------------------------------------------
 // .NET Core and .NET Core SDK
 
-let isDotnetSDKInstalled = (try Shell.Exec("dotnet", "--info") = 0 with _ -> false)
+let isDotnetSDKInstalled =
+    match Fake.EnvironmentHelper.environVarOrNone "FCS_DNC" with
+    | Some flag -> 
+        match bool.TryParse flag with
+        | true, result -> result
+        | _ -> false
+    | None -> 
+        try 
+            Shell.Exec("dotnet", "--info") = 0 
+        with 
+        _ -> false
+
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 let runCmdIn workDir exe = Printf.ksprintf (fun args -> Shell.Exec(exe, args, workDir) |> assertExitCodeZero)
 let run exe = runCmdIn "." exe

@@ -322,7 +322,11 @@ Target "All.NetFx" DoNothing
   =?> ("All.NetCore", isDotnetSDKInstalled)
   ==> "All"
 
-"NuGet.NetFx"
+"All.NetCore"
+  ==> "Nuget.AddNetCore"
+
+"All.NetFx"
+  ==> "NuGet.NetFx"
   =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
   ==> "NuGet"
 

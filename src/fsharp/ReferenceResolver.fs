@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 #if INTERACTIVE
-#load "../utils/ResizeArray.fs"
-#load "../absil/illib.fs"
+#load "../utils/ResizeArray.fs" "../absil/illib.fs"
 #else
 module Microsoft.FSharp.Compiler.ReferenceResolver 
 #endif
@@ -118,7 +117,7 @@ let ScriptingNaiveResolver =
                 if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then 
                     yield! registrySearchPaths() ]
 
-            [|  for (baggage,r) in references do
+            [| for (baggage,r) in references do
                 let mutable found = false
                 let success path = 
                     if not found then 
@@ -165,10 +164,11 @@ let resolve s =
 
 resolve ["System"; "mscorlib"; "mscorlib.dll"; "FSharp.Core"; "FSharp.Core.dll"; "Microsoft.SqlServer.Dmf.dll"; "Microsoft.SqlServer.Dmf"  ]
 
+resolve [ "FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" ]
 #endif
 
 let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) = 
-    let msbuildEnabled = msbuildEnabled && false
+    //let msbuildEnabled = msbuildEnabled && false
     let tryMSBuild v = 
       if msbuildEnabled then 
         // Detect if MSBuild v12 is on the machine, if so use the resolver from there

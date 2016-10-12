@@ -1448,6 +1448,8 @@ let parseNumeric str =
 let ``Test project5 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project5.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project5 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -1649,6 +1651,8 @@ let f () =
 let ``Test project6 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project6.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project6 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -1704,6 +1708,8 @@ let x2 = C.M(arg1 = 3, arg2 = 4, ?arg3 = Some 5)
 let ``Test project7 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project7.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project7 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -1764,6 +1770,8 @@ let x =
 let ``Test project8 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project8.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project8 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -1843,6 +1851,8 @@ let inline check< ^T when ^T : (static member IsInfinity : ^T -> bool)> (num: ^T
 let ``Test project9 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project9.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project9 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -1921,6 +1931,8 @@ C.M("http://goo", query = 1)
 let ``Test Project10 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project10.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project10 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2000,6 +2012,8 @@ let fff (x:System.Collections.Generic.Dictionary<int,int>.Enumerator) = ()
 let ``Test Project11 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project11.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project11 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2073,6 +2087,8 @@ let x2 = query { for i in 0 .. 100 do
 let ``Test Project12 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project12.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project12 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2139,6 +2155,8 @@ let x3 = new System.DateTime()
 let ``Test Project13 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project13.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project13 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2292,6 +2310,8 @@ let x2  = S(3)
 let ``Test Project14 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project14.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project14 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2359,6 +2379,8 @@ let f x =
 let ``Test Project15 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project15.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project15 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2443,6 +2465,8 @@ and G = Case1 | Case2 of int
 let ``Test Project16 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project16.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project16 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2688,6 +2712,8 @@ let f3 (x: System.Exception) = x.HelpLink <- "" // check use of .NET setter prop
 let ``Test Project17 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project17.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project17 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2780,6 +2806,8 @@ let _ = list<_>.Empty
 let ``Test Project18 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project18.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project18 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2835,6 +2863,8 @@ let s = System.DayOfWeek.Monday
 let ``Test Project19 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project19.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project19 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2908,6 +2938,8 @@ type A<'T>() =
 let ``Test Project20 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project20.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project20 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -2968,6 +3000,8 @@ let _ = { new IMyInterface<int> with
 let ``Test Project21 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project21.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project21 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 2
 
 
@@ -3042,6 +3076,8 @@ let f5 (x: int[,,]) = () // test a multi-dimensional array
 let ``Test Project22 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project22.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project22 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -3141,7 +3177,9 @@ let ``Test Project22 IList properties`` () =
 
     attribsOfSymbol ilistTypeDefn |> shouldEqual ["interface"]
 
+#if !TODO_REWORK_ASSEMBLY_LOAD
     ilistTypeDefn.Assembly.SimpleName |> shouldEqual coreLibAssemblyName
+#endif
 
 //-----------------------------------------------------------------------------------------
 // Misc - properties
@@ -3184,6 +3222,8 @@ module Setter =
 let ``Test Project23 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project23.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project23 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
@@ -3351,6 +3391,8 @@ TypeWithProperties.StaticAutoPropGetSet  <- 3
 [<Test>]
 let ``Test Project24 whole project errors`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project24.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project24 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
@@ -3748,6 +3790,8 @@ type Class() =
 let ``Test Project26 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project26.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project26 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 
@@ -3972,12 +4016,11 @@ let f (x: INotifyPropertyChanged) = failwith ""
 let ``Test project29 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project29.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project29 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
-#if DOTNETCORE
-[<Ignore("Fails on .NET Core")>]
-#endif
 let ``Test project29 event symbols`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project29.options) |> Async.RunSynchronously
@@ -4031,6 +4074,8 @@ type T() =
 let ``Test project30 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project30.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project30 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
@@ -4090,11 +4135,13 @@ let g = Console.ReadKey()
 
 let ``Test project31 whole project errors`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project31.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project31 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
 #if DOTNETCORE
-[<Ignore("Fails on .NET Core")>]
+[<Ignore("Fails on .NET Core - DebuggerTypeProxyAttribute and DebuggerDisplayAttribute note being emitted?")>]
 #endif
 let ``Test project31 C# type attributes`` () =
     if not runningOnMono then 
@@ -4143,7 +4190,7 @@ let ``Test project31 C# method attributes`` () =
 
 [<Test>]
 #if DOTNETCORE
-[<Ignore("Fails on .NET Core")>]
+[<Ignore("Fails on .NET Core - DebuggerTypeProxyAttribute and DebuggerDisplayAttribute note being emitted?")>]
 #endif
 let ``Test project31 Format C# type attributes`` () =
     if not runningOnMono then 
@@ -4213,6 +4260,8 @@ val func : int -> int
 let ``Test Project32 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project32.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project32 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
@@ -4279,6 +4328,8 @@ type System.Int32 with
 let ``Test Project33 whole project errors`` () = 
 
     let wholeProjectResults = checker.ParseAndCheckProject(Project33.options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project33 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]
@@ -4323,7 +4374,8 @@ module Dummy
 [<Test>]
 let ``Test Project34 whole project errors`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project34.options) |> Async.RunSynchronously
-    for e in wholeProjectResults.Errors do printfn "Error: %s" e.Message
+    for e in wholeProjectResults.Errors do 
+        printfn "Project34 error: <<<%s>>>" e.Message
     wholeProjectResults.Errors.Length |> shouldEqual 0
 
 [<Test>]

@@ -62,6 +62,7 @@ let fsCoreDefaultReference() =
         sysLib "FSharp.Core"
 
 let mkProjectCommandLineArgs (dllName, fileNames) = 
+  let args = 
     [|  yield "--simpleresolution" 
         yield "--noframework" 
         yield "--debug:full" 
@@ -79,26 +80,11 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
         for x in fileNames do 
             yield x
         let references =
-#if TODO_REWORK_ASSEMBLY_LOAD
-#if NETCOREAPP1_0
+#if DOTNETCORE
             Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/obj/Debug/netstandard1.6/dotnet-compile-fsc.rsp")
-            |> File.ReadAllLines
-            |> Array.filter (fun s -> s.StartsWith("-r:"))
-            |> Array.map (fun s -> s.Replace("-r:",""))
-#else
-            [ yield typeof<System.Object>.Assembly.Location; // mscorlib
-              yield typeof<System.Console>.Assembly.Location; // System.Console
-              yield typeof<System.ComponentModel.DefaultValueAttribute>.Assembly.Location; // System.Runtime
-              yield typeof<System.ComponentModel.PropertyChangedEventArgs>.Assembly.Location; // System.ObjectModel             
-              yield typeof<System.IO.BufferedStream>.Assembly.Location; // System.IO
-              yield typeof<System.Linq.Enumerable>.Assembly.Location; // System.Linq
-              yield typeof<System.Xml.Linq.XDocument>.Assembly.Location; // System.Xml.Linq
-              yield typeof<System.Net.WebRequest>.Assembly.Location; // System.Net.Requests
-              yield typeof<System.Numerics.BigInteger>.Assembly.Location; // System.Runtime.Numerics
-              yield typeof<System.Threading.Tasks.TaskExtensions>.Assembly.Location; // System.Threading.Tasks
-              yield typeof<Microsoft.FSharp.Core.MeasureAttribute>.Assembly.Location; // FSharp.Core
-            ]
-#endif
+                |> File.ReadAllLines
+                |> Array.filter (fun s -> s.StartsWith("-r:"))
+                |> Array.map (fun s -> s.Replace("-r:","")) 
 #else        
             [ yield sysLib "mscorlib"
               yield sysLib "System"
@@ -108,6 +94,37 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
         for r in references do
             yield "-r:" + r
      |]
+  printfn "dllName = %A, args = %A" dllName args
+  args
+
+#if DOTNETCORE
+let mkProjectCommandLineArgsForScript (dllName, fileNames) = 
+    [|  yield "--simpleresolution" 
+        yield "--noframework" 
+        yield "--debug:full" 
+        yield "--define:DEBUG" 
+#if NETCOREAPP1_0
+        yield "--targetprofile:netcore" 
+#endif
+        yield "--optimize-" 
+        yield "--out:" + dllName
+        yield "--doc:test.xml" 
+        yield "--warn:3" 
+        yield "--fullpaths" 
+        yield "--flaterrors" 
+        yield "--target:library" 
+        for x in fileNames do 
+            yield x
+    //    let implDir = Path.GetDirectoryName(typeof<System.Object>.Assembly.Location)
+        let references =
+            Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/obj/Debug/netstandard1.6/dotnet-compile-fsc.rsp")
+            |> File.ReadAllLines
+            |> Array.filter (fun s -> s.StartsWith("-r:"))
+            |> Array.map (fun s -> s.Replace("-r:",""))
+        for r in references do
+            yield "-r:" + r
+     |]
+#endif
 
 let parseSourceCode (name: string, code: string) =
     let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))
@@ -123,11 +140,13 @@ let parseSourceCode (name: string, code: string) =
 
 let parseAndCheckScript (file, input) = 
 
-#if TODO_REWORK_ASSEMBLY_LOAD
+#if DOTNETCORE
     let dllName = Path.ChangeExtension(file, ".dll")
     let projName = Path.ChangeExtension(file, ".fsproj")
-    let args = mkProjectCommandLineArgs (dllName, [file])
+    let args = mkProjectCommandLineArgsForScript (dllName, [file])
+    printfn "file = %A, args = %A" file args
     let projectOptions = checker.GetProjectOptionsFromCommandLineArgs (projName, args)
+
 #else    
     let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
 #endif

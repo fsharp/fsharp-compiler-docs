@@ -417,9 +417,15 @@ and
     /// F# syntax : type.A.B.C<type, ..., type>
     ///   commasm: ranges for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
     | LongIdentApp of typeName:SynType * dotId:LongIdentWithDots * leftAngleRange:range option * genericNames:SynType list * commaRanges:range list * rightAngleRange:range option * range:range
+
     /// F# syntax : type * ... * type
     // the bool is true if / rather than * follows the type
     | Tuple of (bool*SynType) list * range:range    
+
+    /// F# syntax : struct (type * ... * type)
+    // the bool is true if / rather than * follows the type
+    | StructTuple of (bool*SynType) list * range:range    
+
     /// F# syntax : type[]
     | Array of  int * elementType:SynType * range:range
     /// F# syntax : type -> type
@@ -449,6 +455,7 @@ and
         | SynType.App (range=m)
         | SynType.LongIdentApp (range=m)
         | SynType.Tuple (range=m)
+        | SynType.StructTuple (range=m)
         | SynType.Array (range=m) 
         | SynType.Fun (range=m)
         | SynType.Var (range=m) 
@@ -487,6 +494,9 @@ and
 
     /// F# syntax: e1, ..., eN
     | Tuple of  exprs:SynExpr list * commaRanges:range list * range:range  // "range list" is for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
+
+    /// F# syntax: struct (e1, ..., eN)
+    | StructTuple of  SynExpr list * range list * range:range  // "range list" is for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them
 
     /// F# syntax: [ e1; ...; en ], [| e1; ...; en |]
     | ArrayOrList of  isList:bool * exprs:SynExpr list * range:range 
@@ -707,6 +717,7 @@ and
         | SynExpr.Const(_,m) 
         | SynExpr.Typed (_,_,m)
         | SynExpr.Tuple (_,_,m)
+        | SynExpr.StructTuple (_,_,m)
         | SynExpr.ArrayOrList (_,_,m)
         | SynExpr.Record (_,_,_,m)
         | SynExpr.New (_,_,_,m)
@@ -769,6 +780,7 @@ and
         | SynExpr.Const (range=m)
         | SynExpr.Typed (range=m)
         | SynExpr.Tuple (range=m)
+        | SynExpr.StructTuple (range=m)
         | SynExpr.ArrayOrList (range=m)
         | SynExpr.Record (range=m)
         | SynExpr.New (range=m)
@@ -830,6 +842,7 @@ and
         | SynExpr.Const (range=m)
         | SynExpr.Typed (range=m)
         | SynExpr.Tuple (range=m)
+        | SynExpr.StructTuple (range=m)
         | SynExpr.ArrayOrList (range=m)
         | SynExpr.Record (range=m)
         | SynExpr.New (range=m)
@@ -958,6 +971,7 @@ and
     | Ands of  SynPat list * range:range
     | LongIdent of dotId:LongIdentWithDots * (* holds additional ident for tooling *) Ident option * SynValTyparDecls option (* usually None: temporary used to parse "f<'a> x = x"*) * SynConstructorArgs  * SynAccess option * range:range
     | Tuple of  SynPat list * range:range
+    | StructTuple of  SynPat list * range:range
     | Paren of  SynPat * range:range
     | ArrayOrList of  bool * SynPat list * range:range
     | Record of fields:((LongIdent * Ident) * SynPat) list * range:range
@@ -987,6 +1001,7 @@ and
       | SynPat.LongIdent (range=m)
       | SynPat.ArrayOrList (range=m) 
       | SynPat.Tuple (range=m)
+      | SynPat.StructTuple (range=m)
       | SynPat.Typed (range=m)
       | SynPat.Attrib (range=m)
       | SynPat.Record (range=m)
@@ -1697,7 +1712,7 @@ let PushPatternToExpr synArgNameGenerator isMember pat (rhs: SynExpr) =
 
 let private isSimplePattern pat =
     let _nowpats,laterf = SimplePatsOfPat (SynArgNameGenerator()) pat
-    isNone laterf
+    Option.isNone laterf
   
 /// "fun (UnionCase x) (UnionCase y) -> body" 
 ///       ==> 
@@ -1901,7 +1916,7 @@ module SynInfo =
     let selfMetadata = unnamedTopArg
 
     /// Determine if a syntactic information represents a member without arguments (which is implicitly a property getter)
-    let HasNoArgs (SynValInfo(args,_)) = isNil args
+    let HasNoArgs (SynValInfo(args,_)) = List.isEmpty args
 
     /// Check if one particular argument is an optional argument. Used when adjusting the
     /// types of optional arguments for function and member signatures.
@@ -2289,7 +2304,8 @@ let rec synExprContainsError inpExpr =
               walkExpr e1 || walkExpr e2
 
           | SynExpr.ArrayOrList (_,es,_)
-          | SynExpr.Tuple (es,_,_) -> 
+          | SynExpr.Tuple (es,_,_) 
+          | SynExpr.StructTuple (es,_,_) -> 
               walkExprs es
 
           | SynExpr.Record (_,_,fs,_) ->

@@ -38,8 +38,6 @@ let runningOnMono =
 
 let _ = if logging then dprintn "* warning: Il.logging is on"
 
-let isNil x = match x with [] -> true | _ -> false
-let nonNil x = match x with [] -> false | _ -> true
 let int_order = LanguagePrimitives.FastGenericComparer<int>
 
 let notlazy v = Lazy.CreateFromValue v
@@ -86,11 +84,7 @@ let memoizeNamespaceRightTable = new ConcurrentDictionary<string,string option *
 
 
 let splitNamespace nm =
-    let mutable res = Unchecked.defaultof<_>
-    let ok = memoizeNamespaceTable.TryGetValue(nm,&res)
-    if ok then res else
-    let x = splitNamespaceAux nm
-    (memoizeNamespaceTable.[nm] <- x; x)
+    memoizeNamespaceTable.GetOrAdd(nm, splitNamespaceAux)
 
 let splitNamespaceMemoized nm = splitNamespace nm
 
@@ -99,12 +93,9 @@ let memoizeNamespaceArrayTable =
     Concurrent.ConcurrentDictionary<string,string[]>()
 
 let splitNamespaceToArray nm =
-    let mutable res = Unchecked.defaultof<_>
-    let ok = memoizeNamespaceArrayTable.TryGetValue(nm,&res)
-    if ok then res else
-    let x = Array.ofList (splitNamespace nm)
-    (memoizeNamespaceArrayTable.[nm] <- x; x)
-
+    memoizeNamespaceArrayTable.GetOrAdd(nm, fun nm -> 
+        let x = Array.ofList (splitNamespace nm)
+        x)
 
 let splitILTypeName (nm:string) = 
     match nm.LastIndexOf '.' with
@@ -157,11 +148,7 @@ let splitTypeNameRightAux nm =
     else None, nm
 
 let splitTypeNameRight nm =
-    let mutable res = Unchecked.defaultof<_>
-    let ok = memoizeNamespaceRightTable.TryGetValue(nm,&res)
-    if ok then res else
-    let x = splitTypeNameRightAux nm
-    (memoizeNamespaceRightTable.[nm] <- x; x)
+    memoizeNamespaceRightTable.GetOrAdd(nm, splitTypeNameRightAux)
 
 // -------------------------------------------------------------------- 
 // Ordered lists with a lookup table
@@ -1987,7 +1974,7 @@ let mkILFieldRef(tref,nm,ty) = { EnclosingTypeRef=tref; Name=nm; Type=ty}
 let mkILFieldSpec (tref,ty) = { FieldRef= tref; EnclosingType=ty }
 
 let mkILFieldSpecInTy (typ:ILType,nm,fty) = 
-  mkILFieldSpec (mkILFieldRef (typ.TypeRef,nm,fty), typ)
+    mkILFieldSpec (mkILFieldRef (typ.TypeRef,nm,fty), typ)
     
 let emptyILCustomAttrs = ILAttributes (fun () -> [| |])
 
@@ -2650,7 +2637,7 @@ let rec rescopeILTypeSpecQuick scoref (tspec:ILTypeSpec) =
     let tref = tspec.TypeRef
     let tinst = tspec.GenericArgs
     let qtref = qrescope_tref scoref tref
-    if ILList.isEmpty tinst && isNone qtref then 
+    if ILList.isEmpty tinst && Option.isNone qtref then 
         None (* avoid reallocation in the common case *)
     else
         match qtref with 
@@ -3692,12 +3679,13 @@ type ILGlobals with
         mkILCustomAttribute this (mkSystemDiagnosticsDebuggableTypeRef this, [this.typ_Bool; this.typ_Bool], [ILAttribElem.Bool false; ILAttribElem.Bool jitOptimizerDisabled], [])
 
 
-    member this.mkDebuggableAttributeV2(ignoreSymbolStoreSequencePoints, jitOptimizerDisabled, enableEnC) =
+    member this.mkDebuggableAttributeV2(jitTracking, ignoreSymbolStoreSequencePoints, jitOptimizerDisabled, enableEnC) =
         let tref = mkSystemDiagnosticsDebuggableTypeRef this
         mkILCustomAttribute this 
           (tref,[mkILNonGenericValueTy (tref_DebuggableAttribute_DebuggingModes this)],
            (* See System.Diagnostics.DebuggableAttribute.DebuggingModes *)
-           [ILAttribElem.Int32( (if jitOptimizerDisabled then 256 else 0) |||  
+           [ILAttribElem.Int32( (if jitTracking then 1 else 0) |||
+                                (if jitOptimizerDisabled then 256 else 0) |||  
                                 (if ignoreSymbolStoreSequencePoints then 2 else 0) |||
                                 (if enableEnC then 4 else 0))],[])
 
@@ -4288,7 +4276,7 @@ let rec unscopeILTypeSpecQuick (tspec:ILTypeSpec) =
     let tref = tspec.TypeRef
     let tinst = tspec.GenericArgs
     let qtref = qunscope_tref tref
-    if ILList.isEmpty tinst && isNone qtref then 
+    if ILList.isEmpty tinst && Option.isNone qtref then 
         None (* avoid reallocation in the common case *)
     else
         match qtref with 
@@ -4329,7 +4317,7 @@ let resolveILMethodRefWithRescope r td (mref:ILMethodRef) =
     let nargs = args.Length
     let nm = mref.Name
     let possibles = td.Methods.FindByNameAndArity (nm,nargs)
-    if isNil possibles then failwith ("no method named "+nm+" found in type "+td.Name);
+    if List.isEmpty possibles then failwith ("no method named "+nm+" found in type "+td.Name);
     let argTypes = mref.ArgTypes |> List.map r
     let retType : ILType = r mref.ReturnType
     match 

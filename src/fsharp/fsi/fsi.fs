@@ -378,7 +378,7 @@ type internal FsiValuePrinter(fsi: FsiEvaluationSessionHostConfig, ilGlobals, ge
                     let lay = valuePrinter.PrintValue (FsiValuePrinterMode.PrintExpr, opts, obj, objTy)
                     if isEmptyL lay then None else Some lay // suppress empty layout 
         let denv = { denv with suppressMutableKeyword = true } // suppress 'mutable' in 'val mutable it = ...'
-        let fullL = if isNone rhsL || isEmptyL rhsL.Value then
+        let fullL = if Option.isNone rhsL || isEmptyL rhsL.Value then
                       NicePrint.layoutValOrMember denv vref (* the rhs was suppressed by the printer, so no value to print *)
                     else
                       (NicePrint.layoutValOrMember denv vref ++ wordL "=") --- rhsL.Value
@@ -810,7 +810,7 @@ type internal FsiConsoleInput(fsi: FsiEvaluationSessionHostConfig, fsiOptions: F
           (new Thread(fun () -> 
               match consoleOpt with 
               | Some console when fsiOptions.EnableConsoleKeyProcessing && not fsiOptions.IsInteractiveServer ->
-                  if isNil fsiOptions.SourceFiles then 
+                  if List.isEmpty fsiOptions.SourceFiles then 
                       if !progress then fprintfn outWriter "first-line-reader-thread reading first line...";
                       firstLine <- Some(console()); 
                       if !progress then fprintfn outWriter "first-line-reader-thread got first line = %A..." firstLine;
@@ -1235,7 +1235,7 @@ type internal FsiDynamicCompiler
               |> List.unzip
           
           errorLogger.AbortOnError(fsiConsoleOutput);
-          if inputs |> List.exists isNone then failwith "parse error";
+          if inputs |> List.exists Option.isNone then failwith "parse error"
           let inputs = List.map Option.get inputs 
           let istate = List.fold2 fsiDynamicCompiler.ProcessMetaCommandsFromInputAsInteractiveCommands istate sourceFiles inputs
           fsiDynamicCompiler.EvalParsedSourceFiles (errorLogger, istate, inputs)
@@ -2111,7 +2111,7 @@ type internal FsiInteractionProcessor
 
         setCurrState (consume currState fsiOptions.SourceFiles)
 
-        if nonNil fsiOptions.SourceFiles then 
+        if not (List.isEmpty fsiOptions.SourceFiles) then 
             fsiConsolePrompt.PrintAhead(); // Seems required. I expected this could be deleted. Why not?
 
     /// Send a dummy interaction through F# Interactive, to ensure all the most common code generation paths are 
@@ -2449,7 +2449,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     do fsiConsoleOutput.uprintfn ""
 
     // When no source files to load, print ahead prompt here 
-    do if isNil  fsiOptions.SourceFiles then 
+    do if List.isEmpty fsiOptions.SourceFiles then 
         fsiConsolePrompt.PrintAhead()       
 
 

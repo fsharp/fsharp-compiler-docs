@@ -24,6 +24,7 @@ open System.Threading
 
 open Internal.Utilities
 open Internal.Utilities.Collections
+open Internal.Utilities.Filename
 
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.AbstractIL 
@@ -198,7 +199,7 @@ type DisposablesTracker() =
 /// Type checking a set of inputs
 let TypeCheck (tcConfig, tcImports, tcGlobals, errorLogger:ErrorLogger, assemblyName, niceNameGen, tcEnv0, inputs, exiter: Exiter) =
     try 
-        if isNil inputs then error(Error(FSComp.SR.fscNoImplementationFiles(),Range.rangeStartup))
+        if List.isEmpty inputs then error(Error(FSComp.SR.fscNoImplementationFiles(),Range.rangeStartup))
         let ccuName = assemblyName
         let tcInitialState = GetInitialTcState (rangeStartup,ccuName,tcConfig,tcGlobals,tcImports,niceNameGen,tcEnv0)
         TypeCheckClosedInputSet ((fun () -> errorLogger.ErrorCount > 0),tcConfig,tcImports,tcGlobals,None,tcInitialState,inputs)
@@ -282,14 +283,13 @@ let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder,setProcessThreadLocals,a
     setProcessThreadLocals(tcConfigB)
 
     (* step - get dll references *)
-    let dllFiles,sourceFiles = List.partition Filename.isDll inputFiles
+    let dllFiles,sourceFiles = inputFiles |> List.map(fun p -> trimQuotes p) |> List.partition Filename.isDll
     match dllFiles with
     | [] -> ()
     | h::_ -> errorR (Error(FSComp.SR.fscReferenceOnCommandLine(h),rangeStartup))
 
     dllFiles |> List.iter (fun f->tcConfigB.AddReferencedAssemblyByPath(rangeStartup,f))
     sourceFiles
-          
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This code has logic for a prefix of the compile that is also used by the project system to do the front-end
@@ -1056,7 +1056,7 @@ module MainModuleBuilder =
                    yield! iattrs
                    yield! codegenResults.ilAssemAttrs
                    if Option.isSome pdbfile then 
-                       yield (tcGlobals.ilg.mkDebuggableAttributeV2 (tcConfig.ignoreSymbolStoreSequencePoints, disableJitOptimizations, false (* enableEnC *) )) 
+                       yield (tcGlobals.ilg.mkDebuggableAttributeV2 (tcConfig.jitTracking, tcConfig.ignoreSymbolStoreSequencePoints, disableJitOptimizations, false (* enableEnC *) )) 
                    yield! reflectedDefinitionAttrs ]
 
         // Make the manifest of the assembly
@@ -1070,6 +1070,7 @@ module MainModuleBuilder =
              Some { man with Version= Some ver
                              CustomAttrs = manifestAttrs
                              DisableJitOptimizations=disableJitOptimizations
+                             JitTracking= tcConfig.jitTracking
                              SecurityDecls=secDecls } 
 
         let resources = 
@@ -1265,7 +1266,7 @@ module StaticLinker =
     let debugStaticLinking = condition "FSHARP_DEBUG_STATIC_LINKING"
 
     let StaticLinkILModules (tcConfig, ilGlobals, ilxMainModule, dependentILModules: (CcuThunk option * ILModuleDef) list) = 
-        if isNil dependentILModules then 
+        if List.isEmpty dependentILModules then 
             ilxMainModule,(fun x -> x) 
         else
 
@@ -1446,7 +1447,7 @@ module StaticLinker =
 
             begin 
                 let remaining = ref (computeILRefs ilxMainModule).AssemblyReferences
-                while nonNil !remaining do
+                while not (List.isEmpty !remaining) do
                     let ilAssemRef = List.head !remaining
                     remaining := List.tail !remaining
                     if assumedIndependentSet.Contains ilAssemRef.Name || (ilAssemRef.PublicKey = Some ecmaPublicKey) then 
@@ -1508,7 +1509,7 @@ module StaticLinker =
                 ]
                               
             let remaining = ref roots
-            [ while nonNil !remaining do
+            [ while not (List.isEmpty !remaining) do
                 let n = List.head !remaining
                 remaining := List.tail !remaining
                 if not n.visited then 
@@ -1619,7 +1620,7 @@ module StaticLinker =
                   // Build the ILTypeDefs for generated types, starting with the roots 
                   let generatedILTypeDefs = 
                       let rec buildRelocatedGeneratedType (ProviderGeneratedType(ilOrigTyRef, ilTgtTyRef, ch)) = 
-                          let isNested = ilTgtTyRef.Enclosing |> nonNil
+                          let isNested = not (List.isEmpty ilTgtTyRef.Enclosing)
                           if allTypeDefsInProviderGeneratedAssemblies.ContainsKey ilOrigTyRef then 
                               let ilOrigTypeDef = allTypeDefsInProviderGeneratedAssemblies.[ilOrigTyRef]
                               if debugStaticLinking then printfn "Relocating %s to %s " ilOrigTyRef.QualifiedName ilTgtTyRef.QualifiedName
@@ -1719,7 +1720,7 @@ type SigningInfo = SigningInfo of (* delaysign:*) bool * (* publicsign:*) bool *
 let GetSigner signingInfo = 
         let (SigningInfo(delaysign,publicsign,signer,container)) = signingInfo
         // REVIEW: favor the container over the key file - C# appears to do this
-        if isSome container then
+        if Option.isSome container then
           Some(ILBinaryWriter.ILStrongNameSigner.OpenKeyContainer container.Value)
         else
             match signer with 
@@ -1746,6 +1747,7 @@ module FileWriter =
                     emitTailcalls = tcConfig.emitTailcalls
                     showTimes = tcConfig.showTimes
                     portablePDB = tcConfig.portablePDB
+                    embeddedPDB = tcConfig.embeddedPDB
                     signer = GetSigner signingInfo
                     fixupOverlappingSequencePoints = false
                     dumpDebugInfo = tcConfig.dumpDebugInfo },
@@ -1821,23 +1823,25 @@ let copyFSharpCore(outFile: string, referencedDlls: AssemblyReference list) =
     let outDir = Path.GetDirectoryName(outFile)
     let fsharpCoreAssemblyName = GetFSharpCoreLibraryName() + ".dll"
     let fsharpCoreDestinationPath = Path.Combine(outDir, fsharpCoreAssemblyName)
+    let copyFileIfDifferent src dest =
+        if not (File.Exists(dest)) || (File.GetCreationTimeUtc(src) <> File.GetCreationTimeUtc(dest)) then
+            File.Copy(src, dest, true)
 
-    if not (File.Exists(fsharpCoreDestinationPath)) then
-        match referencedDlls |> Seq.tryFind (fun dll -> String.Equals(Path.GetFileName(dll.Text), fsharpCoreAssemblyName, StringComparison.CurrentCultureIgnoreCase)) with
-        | Some referencedFsharpCoreDll -> File.Copy(referencedFsharpCoreDll.Text, fsharpCoreDestinationPath)
-        | None ->
-            let executionLocation =
+    match referencedDlls |> Seq.tryFind (fun dll -> String.Equals(Path.GetFileName(dll.Text), fsharpCoreAssemblyName, StringComparison.CurrentCultureIgnoreCase)) with
+    | Some referencedFsharpCoreDll -> copyFileIfDifferent referencedFsharpCoreDll.Text fsharpCoreDestinationPath
+    | None ->
+        let executionLocation =
 #if FX_RESHAPED_REFLECTION
-                TypeInThisAssembly(null).GetType().GetTypeInfo().Assembly.Location
+            TypeInThisAssembly(null).GetType().GetTypeInfo().Assembly.Location
 #else
-                Assembly.GetExecutingAssembly().Location
+            Assembly.GetExecutingAssembly().Location
 #endif
-            let compilerLocation = Path.GetDirectoryName(executionLocation)
-            let compilerFsharpCoreDllPath = Path.Combine(compilerLocation, fsharpCoreAssemblyName)
-            if File.Exists(compilerFsharpCoreDllPath) then
-                File.Copy(compilerFsharpCoreDllPath, fsharpCoreDestinationPath)
-            else
-                errorR(Error(FSComp.SR.fsharpCoreNotFoundToBeCopied(), rangeCmdArgs))
+        let compilerLocation = Path.GetDirectoryName(executionLocation)
+        let compilerFsharpCoreDllPath = Path.Combine(compilerLocation, fsharpCoreAssemblyName)
+        if File.Exists(compilerFsharpCoreDllPath) then
+            copyFileIfDifferent compilerFsharpCoreDllPath fsharpCoreDestinationPath
+        else
+            errorR(Error(FSComp.SR.fsharpCoreNotFoundToBeCopied(), rangeCmdArgs))
 
 //----------------------------------------------------------------------------
 // main - split up to make sure that we can GC the
@@ -2134,7 +2138,8 @@ let main4 dynamicAssemblyCreator (Args(tcConfig, errorLogger:ErrorLogger, ilGlob
 
     AbortOnError(errorLogger, tcConfig, exiter)
 
-    if tcConfig.copyFSharpCore then
+    // Don't copy referenced fharp.core.dll if we are building fsharp.core.dll
+    if tcConfig.copyFSharpCore && not tcConfig.compilingFslib then
         copyFSharpCore(outfile, tcConfig.referencedDLLs)
 
     SqmLoggerWithConfig tcConfig errorLogger.ErrorNumbers errorLogger.WarningNumbers

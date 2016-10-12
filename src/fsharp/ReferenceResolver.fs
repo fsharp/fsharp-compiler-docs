@@ -57,11 +57,51 @@ module internal ReferenceResolver =
            logerror:(string->string->unit)
              -> ResolvedFile[]
 
+    open System
+    open System.IO
+    let ScriptingNaiveResolver =
+       { new Resolver with 
+           member __.HighestInstalledNetFrameworkVersion() = "v4.5"
+           member __.DotNetFrameworkReferenceAssembliesRootDirectory = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+           member __.Resolve(resolutionEnvironment, references, targetFrameworkVersion, targetFrameworkDirectories, targetProcessorArchitecture,                
+                             outputDirectory, fsharpCoreDir, explicitIncludeDirs, implicitIncludeDir, logMessage, logWarning, logError) =
+
+                let searchPaths = 
+                    [ yield! targetFrameworkDirectories 
+                      if not (String.IsNullOrEmpty(rawFileName)) then 
+                          let rawDir = Path.GetDirectoryName(rawFileName)
+                          if not (String.IsNullOrEmpty(Path.GetDirectoryName(rawFileName))) then 
+                              yield rawDir
+                      yield! explicitIncludeDirs 
+                      yield fsharpCoreDir
+                      yield implicitIncludeDir
+                      for reg  in 
+                                "Software\Microsoft\.NetFramework", "AssemblyFoldersEx" , ""              
+[sprintf "{Registry:%s,%s,%s%s}" frameworkRegistryBase targetFrameworkVersion assemblyFoldersSuffix assemblyFoldersConditions] @ // Like {Registry:Software\Microsoft\.NETFramework,v2.0,AssemblyFoldersEx}
+                    ["{AssemblyFolders}"] @
+                    ["{GAC}"] @
+                    // use path to implementation assemblies as the last resort
+                    GetPathToDotNetFrameworkImlpementationAssemblies targetFrameworkVersion
+                for dir in  
+                    (// These are search paths for compile-like resolution. GAC searching is not present.
+                ["{TargetFrameworkDirectory}"] @
+                rawFileNamePath @        // Quick-resolve straight to filename first
+                explicitIncludeDirs @    // From -I, #I
+                [fsharpCoreDir] @    // Location of explicit reference to FSharp.Core, otherwise location of fsc.exe
+                [implicitIncludeDir] @   // Usually the project directory
+                [sprintf "{Registry:%s,%s,%s%s}" frameworkRegistryBase targetFrameworkVersion assemblyFoldersSuffix assemblyFoldersConditions] @ // Like {Registry:Software\Microsoft\.NETFramework,v2.0,AssemblyFoldersEx}
+                ["{AssemblyFolders}"] @
+                [outputDirectory] @
+                ["{GAC}"] @
+                // use path to implementation assemblies as the last resort
+                GetPathToDotNetFrameworkImlpementationAssemblies targetFrameworkVersion
+
+
     let GetDefaultResolver() = 
         let msbuild12 = 
             let ass = System.Reflection.Assembly.Load("FSharp.Compiler.Service.MSBuild.v12") |> Option.ofObj
             let ty = ass |> Option.bind (fun ass -> ass.GetType("Microsoft.FSharp.Compiler.MSBuildReferenceResolver") |> Option.ofObj)
-            let obj = ty |> Option.bind (fun ty -> ty.InvokeMember("Resolver",System.Reflection.BindingFlags.Static ||| System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.InvokeMethod ||| System.Reflection.BindingFlags.NonPublic, null, null, null) |> Option.ofObj)
+            let obj = ty |> Option.bind (fun ty -> ty.InvokeMember("get_Resolver",System.Reflection.BindingFlags.Static ||| System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.InvokeMethod ||| System.Reflection.BindingFlags.NonPublic, null, null, [| |]) |> Option.ofObj)
             let resolver = obj |> Option.bind (fun obj -> match obj with :? Resolver as r -> Some r | _ -> None)
             resolver
         match msbuild12 with 

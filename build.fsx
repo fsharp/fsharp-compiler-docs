@@ -282,12 +282,12 @@ Target "RunTests.NetCore" (fun _ ->
 Target "Nuget.AddNetCore" (fun _ ->
     do
         let nupkg = sprintf "../../../%s/FSharp.Compiler.Service.%s.nupkg" buildDir (release.AssemblyVersion)
-        let netcoreNupkg = sprintf "bin/Release/FSharp.Compiler.Service.%s.nupkg" (release.AssemblyVersion)
+        let netcoreNupkg = sprintf "bin/FSharp.Compiler.Service.%s.nupkg" (release.AssemblyVersion)
         runCmdIn "src/fsharp/FSharp.Compiler.Service" "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
     
     do
         let nupkg = sprintf "../../../%s/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" buildDir (release.AssemblyVersion)
-        let netcoreNupkg = sprintf "bin/Release/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" (release.AssemblyVersion)
+        let netcoreNupkg = sprintf "bin/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" (release.AssemblyVersion)
         runCmdIn "src/fsharp/FSharp.Compiler.Service.ProjectCracker" "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
 )
 

@@ -10,6 +10,7 @@ open System
 open System.IO
 open System.Collections.Generic
 
+open Microsoft.FSharp.Compiler.AbstractIL.IL
 open Microsoft.FSharp.Compiler 
 open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.Driver
@@ -390,9 +391,9 @@ type IsResultObsolete =
 module internal CompileHelpers =
     val mkCompilationErorHandlers : unit -> List<FSharpErrorInfo> * ErrorLogger * ErrorLoggerProvider
     val tryCompile : errorLogger:ErrorLogger -> f:(Exiter -> unit) -> int
-    val compileFromArgs : argv:string [] * tcImportsCapture:(TcImports -> unit) option * dynamicAssemblyCreator:(TcConfig * AbstractIL.IL.ILGlobals * ErrorLogger * string * string option * AbstractIL.IL.ILModuleDef * SigningInfo -> unit) option -> FSharpErrorInfo [] * int
-    val compileFromAsts : asts:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * noframework:bool * pdbFile:string option * executable:bool option * tcImportsCapture:(TcImports -> unit) option * dynamicAssemblyCreator:(TcConfig * AbstractIL.IL.ILGlobals * ErrorLogger * string * string option * AbstractIL.IL.ILModuleDef * SigningInfo -> unit) option -> FSharpErrorInfo [] * int
-    val dynamicAssemblyCreator<'a,'b,'c,'d,'e> : debugInfo:bool * tcImportsRef:TcImports option ref * execute:'a option * assemblyBuilderRef:Reflection.Emit.AssemblyBuilder option ref -> _tcConfig:'b * ilGlobals:AbstractIL.IL.ILGlobals * _errorLogger:'c * outfile:string * _pdbfile:'d * ilxMainModule:AbstractIL.IL.ILModuleDef * _signingInfo:'e -> unit
+    val compileFromArgs : argv:string [] * referenceResolver: ReferenceResolver.Resolver * tcImportsCapture:(TcImports -> unit) option * dynamicAssemblyCreator:(ILGlobals * string * ILModuleDef -> unit) option -> FSharpErrorInfo [] * int
+    val compileFromAsts : referenceResolver: ReferenceResolver.Resolver * asts:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * noframework:bool * pdbFile:string option * executable:bool option * tcImportsCapture:(TcImports -> unit) option * dynamicAssemblyCreator:(ILGlobals * string * ILModuleDef -> unit) option -> FSharpErrorInfo [] * int
+    val createDynamicAssembly : debugInfo:bool * tcImportsRef:TcImports option ref * execute:bool * assemblyBuilderRef:Reflection.Emit.AssemblyBuilder option ref -> ilGlobals:ILGlobals * outfile:string * ilxMainModule:ILModuleDef -> unit
     val setOutputStreams : execute:(#TextWriter * #TextWriter) option -> unit
 
 
@@ -413,9 +414,6 @@ type FSharpChecker =
     /// <param name="keepAssemblyContents">Keep the checked contents of projects.</param>
     /// <param name="keepAllBackgroundResolutions">If false, do not keep full intermediate checking results from background checking suitable for returning from GetBackgroundCheckResultsForFileInProject. This reduces memory usage.</param>
     static member Create : ?projectCacheSize: int * ?keepAssemblyContents: bool * ?keepAllBackgroundResolutions: bool -> FSharpChecker
-
-    /// Create an instance of an FSharpChecker.
-    static member Create : unit -> FSharpChecker
 
     /// <summary>
     ///   Parse a source code file, returning information about brace matching in the file.

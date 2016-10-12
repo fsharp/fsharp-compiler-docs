@@ -27,7 +27,7 @@ open Microsoft.FSharp.Compiler.CompileOps
 open Microsoft.FSharp.Compiler.Driver
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Lib
-open Microsoft.FSharp.Compiler.MSBuildResolver
+open Microsoft.FSharp.Compiler.ReferenceResolver
 open Microsoft.FSharp.Compiler.PrettyNaming
 open Microsoft.FSharp.Compiler.Parser
 open Microsoft.FSharp.Compiler.Range
@@ -1181,9 +1181,6 @@ type TypeCheckInfo
     /// Get the "reference resolution" tooltip for at a location
     member scope.GetReferenceResolutionToolTipText(line,col) = 
         let pos = mkPos line col
-        let lineIfExists(append) =
-            if not(String.IsNullOrEmpty(append)) then append.Trim([|' '|])+"\n"
-            else ""     
         let isPosMatch(pos, ar:AssemblyReference) : bool = 
             let isRangeMatch = (Range.rangeContainsPos ar.Range pos) 
             let isNotSpecialRange = (ar.Range <> rangeStartup) && (ar.Range <> range0) && (ar.Range <> rangeCmdArgs)
@@ -1203,38 +1200,7 @@ type TypeCheckInfo
             match matches with 
             | resolved::_ // Take the first seen
             | [resolved] -> 
-                let originalReferenceName = resolved.originalReference.Text
-                let resolvedPath = // Don't show the resolved path if it is identical to what was referenced.
-                    if originalReferenceName = resolved.resolvedPath then String.Empty
-                    else resolved.resolvedPath
-                let tip =                 
-                    match resolved.resolvedFrom with 
-                    | AssemblyFolders ->
-                        lineIfExists(resolvedPath)
-                        + lineIfExists(resolved.fusionName)
-                        + (FSComp.SR.assemblyResolutionFoundByAssemblyFoldersKey())
-                    | AssemblyFoldersEx -> 
-                        lineIfExists(resolvedPath)
-                        + lineIfExists(resolved.fusionName)
-                        + (FSComp.SR.assemblyResolutionFoundByAssemblyFoldersExKey())
-                    | TargetFrameworkDirectory -> 
-                        lineIfExists(resolvedPath)
-                        + lineIfExists(resolved.fusionName)
-                        + (FSComp.SR.assemblyResolutionNetFramework())
-                    | Unknown ->
-                        // Unknown when resolved by plain directory search without help from MSBuild resolver.
-                        lineIfExists(resolvedPath)
-                        + lineIfExists(resolved.fusionName)
-                    | RawFileName -> 
-                        lineIfExists(resolved.fusionName)
-                    | GlobalAssemblyCache -> 
-                        lineIfExists(resolved.fusionName)
-                        + (FSComp.SR.assemblyResolutionGAC())+ "\n"
-                        + lineIfExists(resolved.redist)
-                    | Path _ ->
-                        lineIfExists(resolvedPath)
-                        + lineIfExists(resolved.fusionName)  
-                                                  
+                let tip = resolved.prepareToolTip ()
                 FSharpToolTipText [FSharpToolTipElement.Single(tip.TrimEnd([|'\n'|]) ,FSharpXmlDoc.None)]
 
             | [] -> FSharpToolTipText []
@@ -1411,12 +1377,10 @@ type TypeCheckInfo
                // custom builders, custom operations get colored as keywords
                | CNR(_, (Item.CustomBuilder _ | Item.CustomOperation _), ItemOccurence.Use, _, _, _, m) -> 
                    yield (m, FSharpTokenColorKind.Keyword) 
-#if COLORIZE_TYPES
                // types get colored as types when they occur in syntactic types or custom attributes
                // typevariables get colored as types when they occur in syntactic types custom builders, custom operations get colored as keywords
                | CNR(_, (Item.TypeVar  _ | Item.Types _ | Item.UnqualifiedType _) , (ItemOccurence.UseInType | ItemOccurence.UseInAttribute), _, _, _, m) -> 
                    yield (m, FSharpTokenColorKind.TypeName) 
-#endif
                | _ -> () 
            |]
     member x.ScopeResolutions = sResolutions
@@ -2159,16 +2123,16 @@ module CompileHelpers =
             1
 
     /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
-    let compileFromArgs (argv: string[], tcImportsCapture, dynamicAssemblyCreator)  = 
+    let compileFromArgs (argv: string[], referenceResolver, tcImportsCapture, dynamicAssemblyCreator)  = 
     
         let errors, errorLogger, loggerProvider = mkCompilationErorHandlers()
         let result = 
             tryCompile errorLogger (fun exiter -> 
-                mainCompile (argv, (*bannerAlreadyPrinted*)true, (*openBinariesInMemory*)true, exiter, loggerProvider, tcImportsCapture, dynamicAssemblyCreator) )
+                mainCompile (argv, referenceResolver, (*bannerAlreadyPrinted*)true, (*openBinariesInMemory*)true, exiter, loggerProvider, tcImportsCapture, dynamicAssemblyCreator) )
     
         errors.ToArray(), result
 
-    let compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, pdbFile, executable, tcImportsCapture, dynamicAssemblyCreator) =
+    let compileFromAsts (referenceResolver, asts, assemblyName, outFile, dependencies, noframework, pdbFile, executable, tcImportsCapture, dynamicAssemblyCreator) =
 
         let errors, errorLogger, loggerProvider = mkCompilationErorHandlers()
     
@@ -2177,11 +2141,11 @@ module CompileHelpers =
     
         let result = 
             tryCompile errorLogger (fun exiter -> 
-                compileOfAst ((*openBinariesInMemory=*)true, assemblyName, target, outFile, pdbFile, dependencies, noframework, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator))
+                compileOfAst (referenceResolver, (*openBinariesInMemory=*)true, assemblyName, target, outFile, pdbFile, dependencies, noframework, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator))
 
         errors.ToArray(), result
 
-    let dynamicAssemblyCreator (debugInfo: bool, tcImportsRef: TcImports option ref, execute: _ option, assemblyBuilderRef: _ option ref) (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) =
+    let createDynamicAssembly (debugInfo: bool, tcImportsRef: TcImports option ref, execute: bool, assemblyBuilderRef: _ option ref) (ilGlobals,outfile,ilxMainModule) =
 
         // Create an assembly builder
         let assemblyName = System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile)
@@ -2212,7 +2176,7 @@ module CompileHelpers =
         let _emEnv,execs = ILRuntimeWriter.emitModuleFragment(ilGlobals, ILRuntimeWriter.emEnv0, assemblyBuilder, moduleBuilder, ilxMainModule, debugInfo, assemblyResolver)
 
         // Execute the top-level initialization, if requested
-        if execute.IsSome then 
+        if execute then 
             for exec in execs do 
                 match exec() with 
                 | None -> ()
@@ -2236,7 +2200,7 @@ module CompileHelpers =
 
         
 // There is only one instance of this type, held in FSharpChecker
-type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions) as self =
+type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions) as self =
     // STATIC ROOT: FSharpLanguageServiceTestable.FSharpChecker.backgroundCompiler.reactor: The one and only Reactor
     let reactor = Reactor.Singleton
     let beforeFileChecked = Event<string>()
@@ -2277,7 +2241,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 
         let builderOpt, errorsAndWarnings = 
             IncrementalBuilder.TryCreateBackgroundBuilderForProjectOptions
-                  (frameworkTcImportsCache, scriptClosureCache.TryGet options, Array.toList options.ProjectFileNames, 
+                  (referenceResolver, frameworkTcImportsCache, scriptClosureCache.TryGet options, Array.toList options.ProjectFileNames, 
                    Array.toList options.OtherOptions, projectReferences, options.ProjectDirectory, 
                    options.UseScriptResolutionRules, options.IsIncompleteTypeCheckEnvironment, keepAssemblyContents, keepAllBackgroundResolutions)
 
@@ -2647,7 +2611,7 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
                 let collect _name = ()
                 let fsiCompilerOptions = CompileOptions.GetCoreFsiCompilerOptions tcConfigB 
                 CompileOptions.ParseCompilerOptions (collect, fsiCompilerOptions, Array.toList otherFlags)
-            let fas = LoadClosure.ComputeClosureOfSourceText(filename, source, CodeContext.Editing, useSimpleResolution, useFsiAuxLib, new Lexhelp.LexResourceManager(), applyCompilerOptions)
+            let fas = LoadClosure.ComputeClosureOfSourceText(referenceResolver,filename, source, CodeContext.Editing, useSimpleResolution, useFsiAuxLib, new Lexhelp.LexResourceManager(), applyCompilerOptions)
             let otherFlags = 
                 [| yield "--noframework"; yield "--warn:3"; 
                    yield! otherFlags 
@@ -2750,9 +2714,9 @@ type BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroun
 [<Sealed>]
 [<AutoSerializable(false)>]
 // There is typically only one instance of this type in a Visual Studio process.
-type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions) =
+type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions) =
 
-    let backgroundCompiler = BackgroundCompiler(projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions)
+    let backgroundCompiler = BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions)
 
     static let globalInstance = FSharpChecker.Create()
         
@@ -2771,16 +2735,13 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     let mutable maxMB = maxMBDefault
     let maxMemEvent = new Event<unit>()
 
-
-    static member Create() = 
-        new FSharpChecker(projectCacheSizeDefault,false,true)
-
     /// Instantiate an interactive checker.    
     static member Create(?projectCacheSize, ?keepAssemblyContents, ?keepAllBackgroundResolutions) = 
+        let referenceResolver = MSBuildReferenceResolver.Resolver 
         let keepAssemblyContents = defaultArg keepAssemblyContents false
         let keepAllBackgroundResolutions = defaultArg keepAllBackgroundResolutions true
         let projectCacheSizeReal = defaultArg projectCacheSize projectCacheSizeDefault
-        new FSharpChecker(projectCacheSizeReal,keepAssemblyContents, keepAllBackgroundResolutions)
+        new FSharpChecker(referenceResolver, projectCacheSizeReal,keepAssemblyContents, keepAllBackgroundResolutions)
 
     member ic.MatchBracesAlternate(filename, source, options) =
         async { 
@@ -2809,11 +2770,11 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
     member ic.TryGetRecentTypeCheckResultsForFile(filename, options, ?source) = ic.TryGetRecentCheckResultsForFile(filename,options,?source=source)
 
     member ic.Compile(argv: string[]) =
-        CompileHelpers.compileFromArgs (argv, None, None)
+        CompileHelpers.compileFromArgs (argv, referenceResolver, None, None)
 
     member ic.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool, ?noframework:bool) =
             let noframework = defaultArg noframework false
-            CompileHelpers.compileFromAsts (ast, assemblyName, outFile, dependencies, noframework, pdbFile, executable, None, None)
+            CompileHelpers.compileFromAsts (referenceResolver, ast, assemblyName, outFile, dependencies, noframework, pdbFile, executable, None, None)
 
     member ic.CompileToDynamicAssembly (otherFlags: string[], execute: (TextWriter * TextWriter) option)  = 
         CompileHelpers.setOutputStreams execute
@@ -2825,10 +2786,10 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
 
         // Function to generate and store the results of compilation 
         let debugInfo =  otherFlags |> Array.exists (fun arg -> arg = "-g" || arg = "--debug:+" || arg = "/debug:+")
-        let dynamicAssemblyCreator = Some (CompileHelpers.dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
+        let dynamicAssemblyCreator = Some (CompileHelpers.createDynamicAssembly (debugInfo, tcImportsRef, execute.IsSome, assemblyBuilderRef))
 
         // Perform the compilation, given the above capturing function.
-        let errorsAndWarnings, result = CompileHelpers.compileFromArgs (otherFlags, tcImportsCapture, dynamicAssemblyCreator)
+        let errorsAndWarnings, result = CompileHelpers.compileFromArgs (otherFlags, referenceResolver, tcImportsCapture, dynamicAssemblyCreator)
 
         // Retrieve and return the results
         let assemblyOpt = 
@@ -2854,11 +2815,11 @@ type FSharpChecker(projectCacheSize, keepAssemblyContents, keepAllBackgroundReso
         let outFile = Path.Combine(location, assemblyName + ".dll")
 
         // Function to generate and store the results of compilation 
-        let dynamicAssemblyCreator = Some (CompileHelpers.dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
+        let dynamicAssemblyCreator = Some (CompileHelpers.createDynamicAssembly (debugInfo, tcImportsRef, execute.IsSome, assemblyBuilderRef))
 
         // Perform the compilation, given the above capturing function.
         let errorsAndWarnings, result = 
-            CompileHelpers.compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
+            CompileHelpers.compileFromAsts (referenceResolver, asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
 
         // Retrieve and return the results
         let assemblyOpt = 

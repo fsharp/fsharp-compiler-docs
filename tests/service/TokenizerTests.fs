@@ -18,7 +18,7 @@ open System
 open System.IO
 
 
-let sourceTok = FSharpSourceTokenizer([], "C:\\test.fsx")
+let sourceTok = FSharpSourceTokenizer([], Some "C:\\test.fsx")
 
 let tokenizeLines (lines:string[]) =
   [ let state = ref 0L

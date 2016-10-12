@@ -118,9 +118,6 @@
     <Compile Include="..\..\utils\reshapedreflection.fs">
       <Link>Reshaped/reshapedreflection.fs</Link>
     </Compile>
-    <Compile Include="..\..\utils\reshapedmsbuild.fs">
-      <Link>Reshaped/reshapedmsbuild.fs</Link>
-    </Compile>
     <Compile Include="..\..\utils\sformat.fsi">
       <Link>ErrorText/sformat.fsi</Link>
     </Compile>
@@ -165,9 +162,6 @@
     </Compile>
     <Compile Include="..\..\utils\TaggedCollections.fs">
       <Link>Utilities/TaggedCollections.fs</Link>
-    </Compile>
-    <Compile Include="..\FlatList.fs">
-      <Link>Utilities/FlatList.fs</Link>
     </Compile>
     <Compile Include="..\QueueList.fs">
       <Link>Utilities/QueueList.fs</Link>
@@ -232,11 +226,8 @@
     <Compile Include="..\ErrorLogger.fs">
       <Link>ErrorLogging/ErrorLogger.fs</Link>
     </Compile>
-    <Compile Include="..\ReferenceResolution.fsi">
-      <Link>ReferenceResolution/ReferenceResolution.fsi</Link>
-    </Compile>
-    <Compile Include="..\ReferenceResolution.fs">
-      <Link>ReferenceResolution/ReferenceResolution.fs</Link>
+    <Compile Include="..\ReferenceResolver.fs">
+      <Link>ReferenceResolution/ReferenceResolver.fs</Link>
     </Compile>
     <FsLex Include="..\..\absil\illex.fsl">
       <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
@@ -609,6 +600,12 @@
     </Compile>
     <Compile Include="..\vs\ServiceUntypedParse.fs">
       <Link>Service/ServiceUntypedParse.fs</Link>
+    </Compile>
+    <Compile Include="..\..\utils\reshapedmsbuild.fs">
+      <Link>Service/reshapedmsbuild.fs</Link>
+    </Compile>
+    <Compile Include="..\MSBuildReferenceResolver.fs">
+      <Link>Service/MSBuildReferenceResolver.fs</Link>
     </Compile>
     <Compile Include="..\vs\service.fsi">
       <Link>Service/service.fsi</Link>

@@ -36,7 +36,8 @@ let getBackgroundCheckResultsForScriptText (input) =
 let sysLib nm = 
 #if !FX_ATLEAST_PORTABLE
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\" + nm + ".dll"
+        let programFilesx86Folder = System.Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
+        programFilesx86Folder + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\" + nm + ".dll"
     else
 #endif
 #if FX_NO_RUNTIMEENVIRONMENT
@@ -55,9 +56,10 @@ module Helpers =
 
 let fsCoreDefaultReference() = 
 #if !FX_ATLEAST_PORTABLE
-    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-        @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0\FSharp.Core.dll"  
-    else 
+     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+        let programFilesx86Folder = System.Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
+        programFilesx86Folder + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0\FSharp.Core.dll"  
+     else 
 #endif
         sysLib "FSharp.Core"
 

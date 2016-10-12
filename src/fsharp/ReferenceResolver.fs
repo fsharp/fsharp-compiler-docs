@@ -56,3 +56,14 @@ module internal ReferenceResolver =
            logwarning:(string->string->unit) *
            logerror:(string->string->unit)
              -> ResolvedFile[]
+
+    let GetDefaultResolver() = 
+        let msbuild12 = 
+            let ass = System.Reflection.Assembly.Load("FSharp.Compiler.Service.MSBuild.v12") |> Option.ofObj
+            let ty = ass |> Option.bind (fun ass -> ass.GetType("Microsoft.FSharp.Compiler.MSBuildReferenceResolver") |> Option.ofObj)
+            let obj = ty |> Option.bind (fun ty -> ty.InvokeMember("Resolver",System.Reflection.BindingFlags.Static ||| System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.InvokeMethod ||| System.Reflection.BindingFlags.NonPublic, null, null, null) |> Option.ofObj)
+            let resolver = obj |> Option.bind (fun obj -> match obj with :? Resolver as r -> Some r | _ -> None)
+            resolver
+        match msbuild12 with 
+        | None -> failwith "couldn't find FSharp.Compiler.Service.MSBuild.v12 resolver"
+        | Some r -> r

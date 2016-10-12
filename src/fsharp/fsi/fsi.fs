@@ -2374,7 +2374,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
         if containsRequiredFiles then defaultFSharpBinariesDir 
         else Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
 
-    let referenceResolver = MSBuildReferenceResolver.Resolver 
+    let referenceResolver = ReferenceResolver.GetDefaultResolver()
     let tcConfigB = 
         TcConfigBuilder.CreateNew(referenceResolver,
                                   defaultFSharpBinariesDir, 

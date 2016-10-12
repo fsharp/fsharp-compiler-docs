@@ -2737,7 +2737,7 @@ type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, ke
 
     /// Instantiate an interactive checker.    
     static member Create(?projectCacheSize, ?keepAssemblyContents, ?keepAllBackgroundResolutions) = 
-        let referenceResolver = MSBuildReferenceResolver.Resolver 
+        let referenceResolver = ReferenceResolver.GetDefaultResolver()
         let keepAssemblyContents = defaultArg keepAssemblyContents false
         let keepAllBackgroundResolutions = defaultArg keepAllBackgroundResolutions true
         let projectCacheSizeReal = defaultArg projectCacheSize projectCacheSizeDefault

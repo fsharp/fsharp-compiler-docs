@@ -113,7 +113,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         let checker = InteractiveChecker.Create()
         let fileversion = 0
         let loadTime = DateTime.Now
-        let referenceResolver = MSBuildReferenceResolver.Resolver 
+        let referenceResolver = ReferenceResolver.GetDefaultResolver()
 
         /// Tokenize a single line, returning token information and a tokenization state represented by an integer
         member x.TokenizeLine (line: string, state: int64) : FSharpTokenInfo[] * int64 = 

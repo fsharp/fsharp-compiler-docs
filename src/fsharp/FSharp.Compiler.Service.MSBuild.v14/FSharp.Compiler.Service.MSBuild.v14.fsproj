@@ -14,9 +14,9 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <AssemblyName>FSharp.Compiler.Service.MSBuild.v12</AssemblyName>
+    <AssemblyName>FSharp.Compiler.Service.MSBuild.v14</AssemblyName>
     <NoWarn>$(NoWarn);44;62;9</NoWarn>
-    <ProjectGuid>{8157b50e-397d-4232-a4e0-1977afc7076d}</ProjectGuid>
+    <ProjectGuid>{43393416-da88-4286-8d5a-3d2bb3686bba}</ProjectGuid>
     <AllowCrossTargeting>true</AllowCrossTargeting>
     <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.5</TargetFrameworkVersion>
     <BaseAddress>0x06800000</BaseAddress>
@@ -49,8 +49,8 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.MSBuild.v12.dll.fs">
-      <Link>AssemblyInfo/assemblyinfo.FSharp.Compiler.Service.MSBuild.v12.dll.fs</Link>
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.MSBuild.v14.dll.fs">
+      <Link>AssemblyInfo/assemblyinfo.FSharp.Compiler.Service.MSBuild.v14.dll.fs</Link>
     </Compile>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs" Condition="Exists('..\..\assemblyinfo\assemblyinfo.shared.fs')">
       <Link>AssemblyInfo/assemblyinfo.shared.fs</Link>
@@ -66,13 +66,13 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.Build.Framework, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <Reference Include="Microsoft.Build.Framework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Build.Engine, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <Reference Include="Microsoft.Build.Engine, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Build, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <Reference Include="Microsoft.Build, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Build.Utilities.v12.0">

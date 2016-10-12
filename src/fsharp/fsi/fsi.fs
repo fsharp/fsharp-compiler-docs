@@ -2317,7 +2317,7 @@ let internal DriveFsiEventLoop (fsi: FsiEvaluationSessionHostConfig, fsiConsoleO
 
 /// The primary type, representing a full F# Interactive session, reading from the given
 /// text input, writing to the given text output and error writers.
-type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], inReader:TextReader, outWriter:TextWriter, errorWriter: TextWriter, fsiCollectible: bool) = 
+type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], inReader:TextReader, outWriter:TextWriter, errorWriter: TextWriter, fsiCollectible: bool, msbuildEnabled: bool, msbuildVersion: string option) = 
 #if DYNAMIC_CODE_REWRITES_CONSOLE_WRITE
     do
         Microsoft.FSharp.Core.Printf.setWriter outWriter
@@ -2374,7 +2374,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
         if containsRequiredFiles then defaultFSharpBinariesDir 
         else Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
 
-    let referenceResolver = ReferenceResolver.GetDefaultResolver()
+    let referenceResolver = ReferenceResolver.GetDefaultResolver(msbuildEnabled, msbuildVersion)
     let tcConfigB = 
         TcConfigBuilder.CreateNew(referenceResolver,
                                   defaultFSharpBinariesDir, 
@@ -2721,12 +2721,9 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
         GC.KeepAlive fsiInterruptController.EventHandlers
 
 
-    new (fsiConfig, argv, inReader, outWriter, errorWriter) = 
-        new FsiEvaluationSession (fsiConfig, argv, inReader, outWriter, errorWriter, fsiCollectible=false)
-
-    static member Create(fsiConfig, argv, inReader, outWriter, errorWriter, ?collectible) = 
-        new FsiEvaluationSession(fsiConfig, argv, inReader, outWriter, errorWriter, defaultArg collectible false)
-
+    static member Create(fsiConfig, argv, inReader, outWriter, errorWriter, ?collectible, ?msbuildEnabled, ?msbuildVersion) = 
+        new FsiEvaluationSession(fsiConfig, argv, inReader, outWriter, errorWriter, defaultArg collectible false, defaultArg msbuildEnabled true, msbuildVersion)
+    
     static member GetDefaultConfiguration(fsiObj:obj) = FsiEvaluationSession.GetDefaultConfiguration(fsiObj, true)
     
     static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) =

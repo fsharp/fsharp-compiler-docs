@@ -110,13 +110,10 @@ type public FsiEvaluationSessionHostConfig =
 
 
 /// Represents an F# Interactive evaluation session.
+[<Class>]
 type FsiEvaluationSession = 
 
     interface System.IDisposable
-
-    /// Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers.
-    [<System.Obsolete("Please use FsiEvaluationSession.Create instead of this object constructor")>]
-    new : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter -> FsiEvaluationSession
 
     /// Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers.
     /// 
@@ -127,7 +124,7 @@ type FsiEvaluationSession =
     /// <param name="inReader">Read input from the given reader</param>
     /// <param name="outWriter">Write output to the given writer</param>
     /// <param name="collectible">Optionally make the dynamic assmbly for the session collectible</param>
-    static member Create : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter * ?collectible: bool -> FsiEvaluationSession
+    static member Create : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter * ?collectible: bool * ?msbuildEnabled: bool * ?msbuildVersion: string -> FsiEvaluationSession
 
     /// A host calls this to request an interrupt on the evaluation thread.
     member Interrupt : unit -> unit
@@ -254,6 +251,7 @@ type FsiEvaluationSession =
     /// Get a configuration that uses a private inbuilt implementation of the 'fsi' object and does not
     /// implicitly reference FSharp.Compiler.Interactive.Settings.dll. 
     static member GetDefaultConfiguration: unit -> FsiEvaluationSessionHostConfig
+
 
 
 /// A default implementation of the 'fsi' object, used by GetDefaultConfiguration()

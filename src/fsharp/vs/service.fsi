@@ -413,7 +413,7 @@ type FSharpChecker =
     /// <param name="projectCacheSize">The optional size of the project checking cache.</param>
     /// <param name="keepAssemblyContents">Keep the checked contents of projects.</param>
     /// <param name="keepAllBackgroundResolutions">If false, do not keep full intermediate checking results from background checking suitable for returning from GetBackgroundCheckResultsForFileInProject. This reduces memory usage.</param>
-    static member Create : ?projectCacheSize: int * ?keepAssemblyContents: bool * ?keepAllBackgroundResolutions: bool -> FSharpChecker
+    static member Create : ?projectCacheSize: int * ?keepAssemblyContents: bool * ?keepAllBackgroundResolutions: bool * ?msbuildEnabled: bool * ?msbuildVersion: string -> FSharpChecker
 
     /// <summary>
     ///   Parse a source code file, returning information about brace matching in the file.
@@ -733,6 +733,8 @@ type FSharpChecker =
     // One shared global singleton for use by multiple add-ins
     static member Instance : FSharpChecker
     member internal FrameworkImportsCache : FrameworkImportsCache
+    member internal ReferenceResolver : ReferenceResolver.Resolver
+
 
 
 // An object to typecheck source in a given typechecking environment.

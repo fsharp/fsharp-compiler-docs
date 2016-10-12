@@ -41,6 +41,7 @@ val internal ProcessCommandLineFlags : TcConfigBuilder * setProcessThreadLocals:
 // the micro API into the compiler used by the visualfsharp test infrastructure
 val mainCompile : 
     argv: string[] * 
+    referenceResolver: ReferenceResolver.Resolver * 
     bannerAlreadyPrinted: bool * 
     openBinariesInMemory: bool * 
     exiter: Exiter * 
@@ -50,6 +51,7 @@ val mainCompile :
       -> unit
 
 val compileOfAst : 
+    referenceResolver: ReferenceResolver.Resolver * 
     openBinariesInMemory: bool * 
     assemblyName:string * 
     target:CompilerTarget * 
@@ -64,13 +66,16 @@ val compileOfAst :
     dynamicAssemblyCreator: (TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option
       -> unit
 
+//---------------------------------------------------------------------------
+// The micro API into the compiler used by the visualfsharp test infrastructure
+
 [<RequireQualifiedAccess>]
 type CompilationOutput = 
     { Errors : ErrorOrWarning[]
       Warnings : ErrorOrWarning[] }
 
 type InProcCompiler = 
-    new : unit -> InProcCompiler
+    new : ReferenceResolver.Resolver -> InProcCompiler
     member Compile : args : string[] -> bool * CompilationOutput
 
 

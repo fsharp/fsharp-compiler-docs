@@ -166,9 +166,6 @@
     <Compile Include="..\..\utils\TaggedCollections.fs">
       <Link>Utilities/TaggedCollections.fs</Link>
     </Compile>
-    <Compile Include="..\FlatList.fs">
-      <Link>Utilities/FlatList.fs</Link>
-    </Compile>
     <Compile Include="..\QueueList.fs">
       <Link>Utilities/QueueList.fs</Link>
     </Compile>
@@ -609,6 +606,9 @@
     </Compile>
     <Compile Include="..\vs\ServiceUntypedParse.fs">
       <Link>Service/ServiceUntypedParse.fs</Link>
+    </Compile>
+    <Compile Include="..\MSBuildReferenceResolver.fs">
+      <Link>MSBuildReferenceResolver.fs</Link>
     </Compile>
     <Compile Include="..\vs\service.fsi">
       <Link>Service/service.fsi</Link>

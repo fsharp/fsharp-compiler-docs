@@ -2374,16 +2374,18 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
         if containsRequiredFiles then defaultFSharpBinariesDir 
         else Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
 
+    let referenceResolver = MSBuildReferenceResolver.Resolver 
     let tcConfigB = 
-        TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, 
+        TcConfigBuilder.CreateNew(referenceResolver,
+                                  defaultFSharpBinariesDir, 
                                   true, // long running: optimizeForMemory 
                                   currentDirectory,isInteractive=true, 
                                   isInvalidationSupported=false)
     let tcConfigP = TcConfigProvider.BasedOnMutableBuilder(tcConfigB)
 #if FX_MSBUILDRESOLVER_RUNTIMELIKE
-    do tcConfigB.resolutionEnvironment <- MSBuildResolver.RuntimeLike // See Bug 3608
+    do tcConfigB.resolutionEnvironment <- ReferenceResolver.RuntimeLike // See Bug 3608
 #else
-    do tcConfigB.resolutionEnvironment <- MSBuildResolver.DesigntimeLike
+    do tcConfigB.resolutionEnvironment <- ReferenceResolver.DesignTimeLike
 #endif
     do tcConfigB.useFsiAuxLib <- fsi.UseFsiAuxLib
 

@@ -302,6 +302,7 @@ let ProcessCommandLineFlags (tcConfigB: TcConfigBuilder,setProcessThreadLocals,a
 // A great deal of the logic of this function is repeated in fsi.fs, so maybe should refactor fsi.fs to call into this as well.
 let GetTcImportsFromCommandLine
         (argv : string[], 
+         referenceResolver,
          defaultFSharpBinariesDir : string, 
          directoryBuildingFrom : string, 
 #if FX_LCIDFROMCODEPAGE
@@ -314,7 +315,7 @@ let GetTcImportsFromCommandLine
          errorLoggerProvider : ErrorLoggerProvider,
          disposables : DisposablesTracker) =
 
-    let tcConfigB = TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, optimizeForMemory, directoryBuildingFrom, isInteractive=false, isInvalidationSupported=false)
+    let tcConfigB = TcConfigBuilder.CreateNew(referenceResolver, defaultFSharpBinariesDir, optimizeForMemory, directoryBuildingFrom, isInteractive=false, isInvalidationSupported=false)
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
     SetOptimizeSwitch tcConfigB OptionSwitch.On
     SetDebugSwitch    tcConfigB None OptionSwitch.Off
@@ -1055,7 +1056,7 @@ module MainModuleBuilder =
                                   [tcGlobals.ilg.typ_Int32],[ILAttribElem.Int32( 8)], []) 
                    yield! iattrs
                    yield! codegenResults.ilAssemAttrs
-                   if Option.isSome pdbfile then 
+                   if Option.isSome pdbfile then
                        yield (tcGlobals.ilg.mkDebuggableAttributeV2 (tcConfig.jitTracking, tcConfig.ignoreSymbolStoreSequencePoints, disableJitOptimizations, false (* enableEnC *) )) 
                    yield! reflectedDefinitionAttrs ]
 
@@ -1071,6 +1072,7 @@ module MainModuleBuilder =
                              CustomAttrs = manifestAttrs
                              DisableJitOptimizations=disableJitOptimizations
                              JitTracking= tcConfig.jitTracking
+                             IgnoreSymbolStoreSequencePoints = tcConfig.ignoreSymbolStoreSequencePoints
                              SecurityDecls=secDecls } 
 
         let resources = 
@@ -1852,7 +1854,7 @@ let copyFSharpCore(outFile: string, referencedDlls: AssemblyReference list) =
 [<NoEquality; NoComparison>]
 type Args<'T> = Args  of 'T
 
-let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, errorLoggerProvider : ErrorLoggerProvider, disposables : DisposablesTracker) = 
+let main0(argv,referenceResolver,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, errorLoggerProvider : ErrorLoggerProvider, disposables : DisposablesTracker) = 
 
 #if FX_LCIDFROMCODEPAGE
     // See Bug 735819 
@@ -1868,7 +1870,7 @@ let main0(argv,bannerAlreadyPrinted,openBinariesInMemory:bool,exiter:Exiter, err
 
     let tcGlobals,tcImports,frameworkTcImports,generatedCcu,typedImplFiles,topAttrs,tcConfig,outfile,pdbfile,assemblyName,errorLogger = 
         GetTcImportsFromCommandLine(
-            argv,defaultFSharpBinariesDir,Directory.GetCurrentDirectory(),
+            argv,referenceResolver,defaultFSharpBinariesDir,Directory.GetCurrentDirectory(),
 #if FX_LCIDFROMCODEPAGE
              lcidFromCodePage, 
 #endif
@@ -2139,7 +2141,7 @@ let main4 dynamicAssemblyCreator (Args(tcConfig, errorLogger:ErrorLogger, ilGlob
     AbortOnError(errorLogger, tcConfig, exiter)
 
     // Don't copy referenced fharp.core.dll if we are building fsharp.core.dll
-    if tcConfig.copyFSharpCore && not tcConfig.compilingFslib then
+    if tcConfig.copyFSharpCore && not tcConfig.compilingFslib && not tcConfig.standalone then
         copyFSharpCore(outfile, tcConfig.referencedDLLs)
 
     SqmLoggerWithConfig tcConfig errorLogger.ErrorNumbers errorLogger.WarningNumbers
@@ -2147,11 +2149,11 @@ let main4 dynamicAssemblyCreator (Args(tcConfig, errorLogger:ErrorLogger, ilGlob
     ReportTime tcConfig "Exiting"
 
 
-let typecheckAndCompile(argv,bannerAlreadyPrinted,openBinariesInMemory,exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) =
+let typecheckAndCompile(argv,referenceResolver,bannerAlreadyPrinted,openBinariesInMemory,exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) =
     // Don's note: "GC of intermediate data is really, really important here"
     use disposables = new DisposablesTracker()
     use e = new SaveAndRestoreConsoleEncoding()
-    main0(argv,bannerAlreadyPrinted,openBinariesInMemory,exiter, errorLoggerProvider, disposables)
+    main0(argv,referenceResolver,bannerAlreadyPrinted,openBinariesInMemory,exiter, errorLoggerProvider, disposables)
     |> main1
     |> main2
     |> main2b (tcImportsCapture,dynamicAssemblyCreator)
@@ -2166,16 +2168,16 @@ let compileOfAst (openBinariesInMemory, assemblyName, target, outFile, pdbFile, 
     |> main3
     |> main4 dynamicAssemblyCreator
 
-let mainCompile (argv, bannerAlreadyPrinted, openBinariesInMemory, exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) = 
+let mainCompile (argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) = 
     //System.Runtime.GCSettings.LatencyMode <- System.Runtime.GCLatencyMode.Batch
-    typecheckAndCompile(argv, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator)
+    typecheckAndCompile(argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator)
 
 [<RequireQualifiedAccess>]
 type CompilationOutput = 
     { Errors : ErrorOrWarning[]
       Warnings : ErrorOrWarning[]  }
 
-type InProcCompiler() = 
+type InProcCompiler(referenceResolver) = 
     member this.Compile(argv) = 
 
         let errors = ResizeArray()
@@ -2197,7 +2199,7 @@ type InProcCompiler() =
             { new Exiter with
                  member this.Exit n = exitCode := n; raise StopProcessing }
         try 
-            typecheckAndCompile(argv, false, true, exiter, loggerProvider, None, None)
+            typecheckAndCompile(argv, referenceResolver, false, true, exiter, loggerProvider, None, None)
         with 
             | StopProcessing -> ()
             | ReportedError _  | WrappedError(ReportedError _,_)  ->

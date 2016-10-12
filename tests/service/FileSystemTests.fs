@@ -78,6 +78,7 @@ let UseMyFileSystem() =
 let ``FileSystem compilation test``() = 
   if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
     use myFileSystem =  UseMyFileSystem()
+    let programFilesx86Folder = System.Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
 
     let projectOptions = 
         let allFlags = 

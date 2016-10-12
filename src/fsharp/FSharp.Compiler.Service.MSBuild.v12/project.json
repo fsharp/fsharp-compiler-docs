@@ -1,0 +1,56 @@
+{
+  "version": "8.0.0",
+  "buildOptions": {
+    "debugType": "portable",
+    "compilerName": "fsc",
+    "compile": {
+      "includeFiles": [
+        "../../assemblyinfo/assemblyinfo.FSharp.Compiler.Service.dll.MSBuild.v12.fs",
+        "../../assemblyinfo/assemblyinfo.shared.fs",
+        "../../utils/reshapedmsbuild.fs",
+        "../MSBuildReferenceResolver.fs"
+      ]
+    },
+    "define": [
+      "FX_ATLEAST_35",
+      "FX_ATLEAST_40",
+      "FX_ATLEAST_45",
+      "FX_ATLEAST_LINQ",
+      "FX_ATLEAST_PORTABLE",
+      "TODO_REWORK_ASSEMBLY_LOAD"
+    ],
+    "xmlDoc": true,
+    "delaySign": true,
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "System.Diagnostics.TraceSource": "4.0.0",
+    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+    "System.Collections.Immutable": "1.2.0",
+    "System.Security.Cryptography.Algorithms": "4.2.0",
+    "System.Security.Cryptography.Primitives": "4.0.0",
+    "System.Reflection.Metadata": "1.4.1-beta-24227-04",
+    "System.Diagnostics.Process": "4.1.0",
+    "FSharp.Compiler.Service": {
+      "version": "8.0.0",
+      "target": "project"
+    }
+  },
+  "tools": {
+    "dotnet-fssrgen": "3.2.*",
+    "dotnet-mergenupkg": { "version": "1.0.*" },
+    "dotnet-compile-fsc": {
+      "version": "1.0.0-preview2-*",
+      "imports": "dnxcore50"
+    }
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": [
+        "portable-net45+win81",
+        "dnxcore50"
+      ]
+    }
+  }
+}

@@ -81,7 +81,7 @@ type SimpleCheckFileResults =
 type SimpleSourceCodeServices = 
 
     /// Create a singleton global isntance for checking and compiling F# scripts
-    new: unit -> SimpleSourceCodeServices
+    new: ?msbuildEnabled: bool * ?msbuildVersion : string-> SimpleSourceCodeServices
 
     /// Tokenize a single line, returning token information and a tokenization state represented by an integer
     member TokenizeLine: line:string * state:int64 -> FSharpTokenInfo [] * int64

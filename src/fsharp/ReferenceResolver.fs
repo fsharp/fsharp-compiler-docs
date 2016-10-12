@@ -65,7 +65,7 @@ type Resolver =
         logerror:(string->string->unit)
             -> ResolvedFile[]
 
-let ScriptingNaiveResolver =
+let SimplisticResolver =
     { new Resolver with 
         member __.HighestInstalledNetFrameworkVersion() = "v4.5"
         member __.DotNetFrameworkReferenceAssembliesRootDirectory = 
@@ -146,8 +146,8 @@ let ScriptingNaiveResolver =
                         | Some ass -> yield! success ass.Location |] }
 
 #if INTERACTIVE
-ScriptingNaiveResolver.DotNetFrameworkReferenceAssembliesRootDirectory
-ScriptingNaiveResolver.HighestInstalledNetFrameworkVersion()
+SimplisticResolver.DotNetFrameworkReferenceAssembliesRootDirectory
+SimplisticResolver.HighestInstalledNetFrameworkVersion()
 
 let fscoreDir = 
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
@@ -160,7 +160,7 @@ let fscoreDir =
         System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
 
 let resolve s = 
-    ScriptingNaiveResolver.Resolve(ResolutionEnvironment.CompileTimeLike,[| for a in s -> ("", a) |],"v4.5.1", [ScriptingNaiveResolver.DotNetFrameworkReferenceAssembliesRootDirectory + @"\v4.5.1" ],"", "", fscoreDir,[],__SOURCE_DIRECTORY__,ignore, (fun _ _ -> ()), (fun _ _-> ()))
+    SimplisticResolver.Resolve(ResolutionEnvironment.CompileTimeLike,[| for a in s -> ("", a) |],"v4.5.1", [SimplisticResolver.DotNetFrameworkReferenceAssembliesRootDirectory + @"\v4.5.1" ],"", "", fscoreDir,[],__SOURCE_DIRECTORY__,ignore, (fun _ _ -> ()), (fun _ _-> ()))
 
 resolve ["System"; "mscorlib"; "mscorlib.dll"; "FSharp.Core"; "FSharp.Core.dll"; "Microsoft.SqlServer.Dmf.dll"; "Microsoft.SqlServer.Dmf"  ]
 
@@ -191,4 +191,4 @@ let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) =
     match tryMSBuild "12" with 
     | Some r -> r
     | None -> 
-    ScriptingNaiveResolver 
+    SimplisticResolver 

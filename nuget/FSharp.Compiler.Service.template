@@ -18,7 +18,6 @@ files
     ../bin/v4.5/FSharp.Compiler.Service.dll ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.xml ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.?db ==> lib/net45
-    ../bin/v4.5/FSharp.Compiler.Service.dll.?db ==> lib/net45
 dependencies
 	System.Collections.Immutable >= LOCKEDVERSION
 	System.Reflection.Metadata >= LOCKEDVERSION

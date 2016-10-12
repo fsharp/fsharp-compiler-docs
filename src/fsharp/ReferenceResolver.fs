@@ -194,7 +194,7 @@ resolve [ "FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7
 #endif
 
 let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) = 
-    let msbuildEnabled = msbuildEnabled && false
+    //let msbuildEnabled = msbuildEnabled && false
     let tryMSBuild v = 
       if msbuildEnabled then 
         // Detect if MSBuild v12 is on the machine, if so use the resolver from there

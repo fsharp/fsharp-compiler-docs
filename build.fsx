@@ -89,7 +89,7 @@ Target "GenerateFSIStrings" (fun _ ->
  //   |> ignore
 )
 
-Target "Build" (fun _ ->
+Target "Build.NetFx" (fun _ ->
     netFrameworks
     |> List.iter (fun framework -> 
         !! (project + ".sln")
@@ -124,7 +124,7 @@ Target "SourceLink" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
-Target "RunTests" (fun _ ->
+Target "RunTests.NetFx" (fun _ ->
     !! (if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll" 
         else "./bin/**/FSharp.Compiler.Service.Tests.dll")
     |> NUnit (fun p ->
@@ -138,7 +138,7 @@ Target "RunTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
-Target "NuGet" (fun _ ->
+Target "NuGet.NetFx" (fun _ ->
     Paket.Pack (fun p -> 
         { p with 
             TemplateFile = "nuget/FSharp.Compiler.Service.template"
@@ -294,15 +294,17 @@ Target "Nuget.AddNetCore" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
-Target "Prepare" DoNothing
-Target "PrepareRelease" DoNothing
 Target "Release" DoNothing
 Target "CreatePackage" DoNothing
+Target "NuGet" DoNothing
 Target "All" DoNothing
 Target "All.NetCore" DoNothing
+Target "All.NetFx" DoNothing
 
 "Clean"
+  =?> ("BuildVersion", isAppVeyorBuild)
   ==> "AssemblyInfo"
+  ==> "GenerateFSIStrings"
   ==> "CodeGen.NetCore"
   ==> "Build.NetCore"
   ==> "RunTests.NetCore"
@@ -312,17 +314,21 @@ Target "All.NetCore" DoNothing
   =?> ("BuildVersion", isAppVeyorBuild)
   ==> "AssemblyInfo"
   ==> "GenerateFSIStrings"
-  ==> "Prepare"
-  ==> "Build"
-  ==> "RunTests"
+  ==> "Build.NetFx"
+  ==> "RunTests.NetFx"
+  ==> "All.NetFx"
+
+"All.NetFx"
   =?> ("All.NetCore", isDotnetSDKInstalled)
   ==> "All"
 
+"NuGet.NetFx"
+  =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
+  ==> "NuGet"
+
 "All"
-  ==> "PrepareRelease" 
   ==> "SourceLink"
   ==> "NuGet"
-  =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
   ==> "CreatePackage"
   ==> "GitHubRelease"
   ==> "PublishNuGet"

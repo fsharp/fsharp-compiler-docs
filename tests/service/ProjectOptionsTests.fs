@@ -415,9 +415,23 @@ let ``Project file parsing -- space in file name``() =
 let ``Project file parsing -- report files``() =
   let programFilesx86Folder = System.Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
   if not runningOnMono then
-   for f in Directory.EnumerateFiles(programFilesx86Folder + @"\Reference Assemblies\Microsoft\FSharp\","*",SearchOption.AllDirectories) do 
+
+   let dirRefs = programFilesx86Folder + @"\Reference Assemblies\Microsoft\FSharp\"
+   printfn "Enumerating %s" dirRefs
+   if Directory.Exists(dirRefs) then 
+    for f in Directory.EnumerateFiles(dirRefs,"*",SearchOption.AllDirectories) do 
      printfn "File: %s" f
-   for f in Directory.EnumerateFiles(programFilesx86Folder + @"\Microsoft SDKs\F#\4.1\","*",SearchOption.AllDirectories) do 
+
+   let dir40 = programFilesx86Folder + @"\Microsoft SDKs\F#\4.0\"
+   printfn "Enumerating %s" dir40
+   if Directory.Exists(dir40) then 
+    for f in Directory.EnumerateFiles(dir40,"*",SearchOption.AllDirectories) do 
+     printfn "File: %s" f
+
+   let dir41 = programFilesx86Folder + @"\Microsoft SDKs\F#\4.1\"
+   printfn "Enumerating %s" dir41
+   if Directory.Exists(dir41) then 
+    for f in Directory.EnumerateFiles(dir41,"*",SearchOption.AllDirectories) do 
      printfn "File: %s" f
 
 #endif

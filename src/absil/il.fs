@@ -739,7 +739,7 @@ type ILFieldSpec =
 // Debug info.                                                     
 // -------------------------------------------------------------------- 
 
-type Guid =  byte[]
+type ILGuid =  byte[]
 
 type ILPlatform = 
     | X86
@@ -747,9 +747,9 @@ type ILPlatform =
     | IA64
 
 type ILSourceDocument = 
-    { sourceLanguage: Guid option; 
-      sourceVendor: Guid option;
-      sourceDocType: Guid option;
+    { sourceLanguage: ILGuid option; 
+      sourceVendor: ILGuid option;
+      sourceDocType: ILGuid option;
       sourceFile: string; }
     static member Create(language,vendor,docType,file) =
         { sourceLanguage=language; 
@@ -1083,7 +1083,7 @@ type ILFieldInit =
 [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>]
 type ILNativeType = 
     | Empty
-    | Custom of Guid * string * string * byte[] (* guid,nativeTypeName,custMarshallerName,cookieString *)
+    | Custom of ILGuid * string * string * byte[] (* guid,nativeTypeName,custMarshallerName,cookieString *)
     | FixedSysString of int32
     | FixedArray of int32
     | Currency
@@ -4141,7 +4141,7 @@ let rec unscopeILTypeSpecQuick (tspec:ILTypeSpec) =
     let tref = tspec.TypeRef
     let tinst = tspec.GenericArgs
     let qtref = qunscope_tref tref
-    if ILList.isEmpty tinst && Option.isNone qtref then 
+    if List.isEmpty tinst && Option.isNone qtref then 
         None (* avoid reallocation in the common case *)
     else
         match qtref with 
@@ -4171,11 +4171,11 @@ and unscopeILType typ =
     | x -> x
 
 and unscopeILTypes i = 
-    if ILList.isEmpty i then i
-    else ILList.map unscopeILType i
+    if List.isEmpty i then i
+    else List.map unscopeILType i
 
 and unscopeILCallSig csig = 
-    mkILCallSigRaw (csig.CallingConv,unscopeILTypes csig.ArgTypes,unscopeILType csig.ReturnType)
+    mkILCallSig (csig.CallingConv,unscopeILTypes csig.ArgTypes,unscopeILType csig.ReturnType)
 
 let resolveILMethodRefWithRescope r td (mref:ILMethodRef) = 
     let args = mref.ArgTypes

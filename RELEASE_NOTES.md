@@ -1,3 +1,6 @@
+#### 8.0.0
+  * Integrate fsharp\fsharp and Microsoft\visualfsharp to c494a9cab525dbd89585f7b733ea5310471a8001
+
 #### 7.0.0
   * Integrate fsharp\fsharp and Microsoft\visualfsharp to 835b79c041f9032fceeceb39f680e0662cba92ec
 

@@ -56,7 +56,7 @@ type PrimaryAssembly =
 // ==================================================================== 
 
 // Guids (Note: consider adjusting these to the System.Guid type)
-type Guid = byte[]
+type ILGuid = byte[]
 
 [<StructuralEquality; StructuralComparison>]
 type ILPlatform = 
@@ -68,10 +68,10 @@ type ILPlatform =
 /// points and some other locations. 
 [<Sealed>]
 type ILSourceDocument =
-    static member Create : language: Guid option * vendor: Guid option * documentType: Guid option * file: string -> ILSourceDocument
-    member Language: Guid option
-    member Vendor: Guid option
-    member DocumentType: Guid option
+    static member Create : language: ILGuid option * vendor: ILGuid option * documentType: ILGuid option * file: string -> ILSourceDocument
+    member Language: ILGuid option
+    member Vendor: ILGuid option
+    member DocumentType: ILGuid option
     member File: string
 
 
@@ -738,7 +738,7 @@ type ILNativeVariant =
 [<RequireQualifiedAccess; StructuralEquality; StructuralComparison>]
 type ILNativeType = 
     | Empty
-    | Custom of Guid * string * string * byte[] (* guid,nativeTypeName,custMarshallerName,cookieString *)
+    | Custom of ILGuid * string * string * byte[] (* guid,nativeTypeName,custMarshallerName,cookieString *)
     | FixedSysString of int32
     | FixedArray of int32
     | Currency

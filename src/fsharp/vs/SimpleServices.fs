@@ -113,11 +113,11 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         let checker = InteractiveChecker.Create()
         let fileversion = 0
         let loadTime = DateTime.Now
-
+        let referenceResolver = MSBuildReferenceResolver.Resolver 
 
         /// Tokenize a single line, returning token information and a tokenization state represented by an integer
         member x.TokenizeLine (line: string, state: int64) : FSharpTokenInfo[] * int64 = 
-            let tokenizer = FSharpSourceTokenizer([], "example.fsx")
+            let tokenizer = FSharpSourceTokenizer([], None)
             let lineTokenizer = tokenizer.CreateLineTokenizer line
             let state = ref (None, state)
             let tokens = 
@@ -171,11 +171,11 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             checker.ParseAndCheckProject(options)
 
         member x.Compile (argv: string[])  = 
-            CompileHelpers.compileFromArgs (argv, None, None)
+            CompileHelpers.compileFromArgs (argv, referenceResolver,None, None)
 
         member x.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool, ?noframework:bool) =
             let noframework = defaultArg noframework false
-            CompileHelpers.compileFromAsts (ast, assemblyName, outFile, dependencies, noframework, pdbFile, executable, None, None)
+            CompileHelpers.compileFromAsts (referenceResolver, ast, assemblyName, outFile, dependencies, noframework, pdbFile, executable, None, None)
 
         member x.CompileToDynamicAssembly (otherFlags: string[], execute: (TextWriter * TextWriter) option)  = 
             CompileHelpers.setOutputStreams execute
@@ -187,10 +187,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 
             // Function to generate and store the results of compilation 
             let debugInfo =  otherFlags |> Array.exists (fun arg -> arg = "-g" || arg = "--debug:+" || arg = "/debug:+")
-            let dynamicAssemblyCreator = Some (CompileHelpers.dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
+            let dynamicAssemblyCreator = Some (CompileHelpers.createDynamicAssembly (debugInfo, tcImportsRef, execute.IsSome, assemblyBuilderRef))
 
             // Perform the compilation, given the above capturing function.
-            let errorsAndWarnings, result = CompileHelpers.compileFromArgs (otherFlags, tcImportsCapture, dynamicAssemblyCreator)
+            let errorsAndWarnings, result = CompileHelpers.compileFromArgs (otherFlags, referenceResolver, tcImportsCapture, dynamicAssemblyCreator)
 
             // Retrieve and return the results
             let assemblyOpt = 
@@ -216,11 +216,11 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let outFile = Path.Combine(location, assemblyName + ".dll")
 
             // Function to generate and store the results of compilation 
-            let dynamicAssemblyCreator = Some (CompileHelpers.dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
+            let dynamicAssemblyCreator = Some (CompileHelpers.createDynamicAssembly (debugInfo, tcImportsRef, execute.IsSome, assemblyBuilderRef))
 
             // Perform the compilation, given the above capturing function.
             let errorsAndWarnings, result = 
-                CompileHelpers.compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
+                CompileHelpers.compileFromAsts (referenceResolver, asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
 
             // Retrieve and return the results
             let assemblyOpt = 

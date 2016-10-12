@@ -412,11 +412,11 @@ module FSharpExprConvert =
 
         | Expr.LetRec(binds,body,_,_) -> 
             let vs = valsOfBinds binds
-            let vsR = vs |> FlatList.map (ConvVal cenv)
+            let vsR = vs |> List.map (ConvVal cenv)
             let env = env.BindVals vs
             let bodyR = ConvExpr cenv env body 
-            let bindsR = FlatList.zip vsR (binds |> FlatList.map (fun b -> b.Expr |> ConvExpr cenv env))
-            E.LetRec(FlatList.toList bindsR,bodyR) 
+            let bindsR = List.zip vsR (binds |> List.map (fun b -> b.Expr |> ConvExpr cenv env))
+            E.LetRec(bindsR,bodyR) 
   
         | Expr.Lambda(_,_,_,vs,b,_,_) -> 
             let v,b = MultiLambdaToTupledLambda cenv.g vs b 
@@ -1020,7 +1020,7 @@ module FSharpExprConvert =
         | TDSuccess (args,n) -> 
                 // TAST stores pattern bindings in reverse order for some reason
                 // Reverse them here to give a good presentation to the user
-                let args = List.rev (FlatList.toList args)
+                let args = List.rev args
                 let argsR = ConvExprs cenv env args          
                 E.DecisionTreeSuccess(n, argsR)
           

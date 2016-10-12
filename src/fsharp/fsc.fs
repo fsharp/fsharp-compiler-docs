@@ -1952,9 +1952,9 @@ let main1(tcGlobals, tcImports: TcImports, frameworkTcImports, generatedCcu, typ
 
 
 // set up typecheck for given AST without parsing any command line parameters
-let main1OfAst (openBinariesInMemory, assemblyName, target, outfile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider: ErrorLoggerProvider, inputs : ParsedInput list) =
+let main1OfAst (referenceResolver, openBinariesInMemory, assemblyName, target, outfile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider: ErrorLoggerProvider, inputs : ParsedInput list) =
 
-    let tcConfigB = TcConfigBuilder.CreateNew(defaultFSharpBinariesDir, (*optimizeForMemory*) false, Directory.GetCurrentDirectory(), isInteractive=false, isInvalidationSupported=false)
+    let tcConfigB = TcConfigBuilder.CreateNew(referenceResolver, defaultFSharpBinariesDir, (*optimizeForMemory*) false, Directory.GetCurrentDirectory(), isInteractive=false, isInvalidationSupported=false)
     tcConfigB.openBinariesInMemory <- openBinariesInMemory
     tcConfigB.framework <- not noframework 
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
@@ -2136,7 +2136,7 @@ let main4 dynamicAssemblyCreator (Args(tcConfig, errorLogger:ErrorLogger, ilGlob
     let pdbfile = pdbfile |> Option.map (expandFileNameIfNeeded tcConfig >> FileSystem.GetFullPathShim)
     match dynamicAssemblyCreator with 
     | None -> FileWriter.EmitIL (tcConfig,ilGlobals,errorLogger,outfile,pdbfile,ilxMainModule,signingInfo,exiter)
-    | Some da -> da (tcConfig,ilGlobals,errorLogger,outfile,pdbfile,ilxMainModule,signingInfo); 
+    | Some da -> da (ilGlobals,outfile,ilxMainModule)
 
     AbortOnError(errorLogger, tcConfig, exiter)
 
@@ -2161,8 +2161,8 @@ let typecheckAndCompile(argv,referenceResolver,bannerAlreadyPrinted,openBinaries
     |> main4 dynamicAssemblyCreator
 
 
-let compileOfAst (openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
-    main1OfAst (openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs)
+let compileOfAst (referenceResolver, openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
+    main1OfAst (referenceResolver, openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs)
     |> main2
     |> main2b (tcImportsCapture, dynamicAssemblyCreator)
     |> main3

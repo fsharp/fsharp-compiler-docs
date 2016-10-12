@@ -2123,16 +2123,16 @@ module CompileHelpers =
             1
 
     /// Compile using the given flags.  Source files names are resolved via the FileSystem API. The output file must be given by a -o flag. 
-    let compileFromArgs (argv: string[], tcImportsCapture, dynamicAssemblyCreator)  = 
+    let compileFromArgs (argv: string[], referenceResolver, tcImportsCapture, dynamicAssemblyCreator)  = 
     
         let errors, errorLogger, loggerProvider = mkCompilationErorHandlers()
         let result = 
             tryCompile errorLogger (fun exiter -> 
-                mainCompile (argv, (*bannerAlreadyPrinted*)true, (*openBinariesInMemory*)true, exiter, loggerProvider, tcImportsCapture, dynamicAssemblyCreator) )
+                mainCompile (argv, referenceResolver, (*bannerAlreadyPrinted*)true, (*openBinariesInMemory*)true, exiter, loggerProvider, tcImportsCapture, dynamicAssemblyCreator) )
     
         errors.ToArray(), result
 
-    let compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, pdbFile, executable, tcImportsCapture, dynamicAssemblyCreator) =
+    let compileFromAsts (referenceResolver, asts, assemblyName, outFile, dependencies, noframework, pdbFile, executable, tcImportsCapture, dynamicAssemblyCreator) =
 
         let errors, errorLogger, loggerProvider = mkCompilationErorHandlers()
     
@@ -2141,11 +2141,11 @@ module CompileHelpers =
     
         let result = 
             tryCompile errorLogger (fun exiter -> 
-                compileOfAst ((*openBinariesInMemory=*)true, assemblyName, target, outFile, pdbFile, dependencies, noframework, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator))
+                compileOfAst (referenceResolver, (*openBinariesInMemory=*)true, assemblyName, target, outFile, pdbFile, dependencies, noframework, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator))
 
         errors.ToArray(), result
 
-    let dynamicAssemblyCreator (debugInfo: bool, tcImportsRef: TcImports option ref, execute: _ option, assemblyBuilderRef: _ option ref) (_tcConfig,ilGlobals,_errorLogger,outfile,_pdbfile,ilxMainModule,_signingInfo) =
+    let createDynamicAssembly (debugInfo: bool, tcImportsRef: TcImports option ref, execute: bool, assemblyBuilderRef: _ option ref) (ilGlobals,outfile,ilxMainModule) =
 
         // Create an assembly builder
         let assemblyName = System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile)
@@ -2176,7 +2176,7 @@ module CompileHelpers =
         let _emEnv,execs = ILRuntimeWriter.emitModuleFragment(ilGlobals, ILRuntimeWriter.emEnv0, assemblyBuilder, moduleBuilder, ilxMainModule, debugInfo, assemblyResolver)
 
         // Execute the top-level initialization, if requested
-        if execute.IsSome then 
+        if execute then 
             for exec in execs do 
                 match exec() with 
                 | None -> ()
@@ -2770,11 +2770,11 @@ type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, ke
     member ic.TryGetRecentTypeCheckResultsForFile(filename, options, ?source) = ic.TryGetRecentCheckResultsForFile(filename,options,?source=source)
 
     member ic.Compile(argv: string[]) =
-        CompileHelpers.compileFromArgs (argv, None, None)
+        CompileHelpers.compileFromArgs (argv, referenceResolver, None, None)
 
     member ic.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool, ?noframework:bool) =
             let noframework = defaultArg noframework false
-            CompileHelpers.compileFromAsts (ast, assemblyName, outFile, dependencies, noframework, pdbFile, executable, None, None)
+            CompileHelpers.compileFromAsts (referenceResolver, ast, assemblyName, outFile, dependencies, noframework, pdbFile, executable, None, None)
 
     member ic.CompileToDynamicAssembly (otherFlags: string[], execute: (TextWriter * TextWriter) option)  = 
         CompileHelpers.setOutputStreams execute
@@ -2786,10 +2786,10 @@ type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, ke
 
         // Function to generate and store the results of compilation 
         let debugInfo =  otherFlags |> Array.exists (fun arg -> arg = "-g" || arg = "--debug:+" || arg = "/debug:+")
-        let dynamicAssemblyCreator = Some (CompileHelpers.dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
+        let dynamicAssemblyCreator = Some (CompileHelpers.createDynamicAssembly (debugInfo, tcImportsRef, execute.IsSome, assemblyBuilderRef))
 
         // Perform the compilation, given the above capturing function.
-        let errorsAndWarnings, result = CompileHelpers.compileFromArgs (otherFlags, tcImportsCapture, dynamicAssemblyCreator)
+        let errorsAndWarnings, result = CompileHelpers.compileFromArgs (otherFlags, referenceResolver, tcImportsCapture, dynamicAssemblyCreator)
 
         // Retrieve and return the results
         let assemblyOpt = 
@@ -2815,11 +2815,11 @@ type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, ke
         let outFile = Path.Combine(location, assemblyName + ".dll")
 
         // Function to generate and store the results of compilation 
-        let dynamicAssemblyCreator = Some (CompileHelpers.dynamicAssemblyCreator (debugInfo, tcImportsRef, execute, assemblyBuilderRef))
+        let dynamicAssemblyCreator = Some (CompileHelpers.createDynamicAssembly (debugInfo, tcImportsRef, execute.IsSome, assemblyBuilderRef))
 
         // Perform the compilation, given the above capturing function.
         let errorsAndWarnings, result = 
-            CompileHelpers.compileFromAsts (asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
+            CompileHelpers.compileFromAsts (referenceResolver, asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
 
         // Retrieve and return the results
         let assemblyOpt = 

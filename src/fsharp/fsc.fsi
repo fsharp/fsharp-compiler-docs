@@ -47,7 +47,7 @@ val mainCompile :
     exiter: Exiter * 
     loggerProvider: ErrorLoggerProvider * 
     tcImportsCapture: (TcImports -> unit) option *
-    dynamicAssemblyCreator: (TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option
+    dynamicAssemblyCreator: (ILGlobals * string * ILModuleDef -> unit) option
       -> unit
 
 val compileOfAst : 
@@ -63,7 +63,7 @@ val compileOfAst :
     loggerProvider: ErrorLoggerProvider * 
     inputs:ParsedInput list *
     tcImportsCapture : (TcImports -> unit) option *
-    dynamicAssemblyCreator: (TcConfig * ILGlobals * ErrorLogger * string * string option * ILModuleDef * SigningInfo -> unit) option
+    dynamicAssemblyCreator: (ILGlobals * string * ILModuleDef -> unit) option
       -> unit
 
 //---------------------------------------------------------------------------

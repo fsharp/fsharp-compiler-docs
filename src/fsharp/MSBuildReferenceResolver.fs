@@ -336,7 +336,6 @@ module internal MSBuildReferenceResolver =
                                 item
                           |]
 #endif
-        let rawFileNamePath = if allowRawFileName then ["{RawFileName}"] else []
 
         rar.SearchPaths <- searchPaths |> Array.ofList
                                   

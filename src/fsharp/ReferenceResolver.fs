@@ -109,6 +109,7 @@ let SimplisticResolver =
                         | _ -> ()  ]
 
 
+            let results = ResizeArray()
             let searchPaths = 
               [ yield! targetFrameworkDirectories 
                 yield! explicitIncludeDirs 
@@ -117,33 +118,58 @@ let SimplisticResolver =
                 if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then 
                     yield! registrySearchPaths() ]
 
-            [| for (baggage,r) in references do
+            for (baggage,r) in references do
+              try
                 let mutable found = false
                 let success path = 
                     if not found then 
                         found <- true
-                        [ { itemSpec = path; prepareToolTip = snd; baggage=baggage } ] 
-                    else []
-                if Path.IsPathRooted(r) then 
+                        results.Add { itemSpec = path; prepareToolTip = snd; baggage=baggage } 
+
+                if not found && Path.IsPathRooted(r) then 
                     if FileSystem.SafeExists(r) then 
-                        yield! success r
-                else
-                    let isFileName = 
-                        r.EndsWith("dll",StringComparison.InvariantCultureIgnoreCase) ||
-                        r.EndsWith("exe",StringComparison.InvariantCultureIgnoreCase)  
+                        success r
 
-                    let qual = if isFileName then r else try AssemblyName(r).Name + ".dll"  with _ -> r + ".dll"
+                // For this one we need to get the version search exactly right, without doing a load
+                if not found && r.StartsWith("FSharp.Core, Version=")  && Environment.OSVersion.Platform = PlatformID.Win32NT then 
+                    let n = AssemblyName(r)
+                    let fscoreDir0 = 
+                        let PF = 
+                            match Environment.GetEnvironmentVariable("ProgramFiles(x86)") with
+                            | null -> Environment.GetEnvironmentVariable("ProgramFiles")  
+                            | s -> s 
+                        PF + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\"  + n.Version.ToString()
+                    let trialPath = Path.Combine(fscoreDir0,n.Name + ".dll")
+                    printfn "searching %s" trialPath
+                    if FileSystem.SafeExists(trialPath) then 
+                        success trialPath
 
-                    for searchPath in searchPaths do 
-                        if not found then 
-                            let trialPath = Path.Combine(searchPath,qual)
-                            if FileSystem.SafeExists(trialPath) then 
-                                yield! success trialPath
+                // Try to use Assemby.Load rather than searching paths for assemblies with explicit versions
+                if not found && r.Contains(",") then 
+                    let ass = try Some (Assembly.Load(r)) with _ -> None
+                    match ass with 
+                    | None -> ()
+                    | Some ass -> success ass.Location 
+
+                let isFileName = 
+                    r.EndsWith("dll",StringComparison.InvariantCultureIgnoreCase) ||
+                    r.EndsWith("exe",StringComparison.InvariantCultureIgnoreCase)  
+
+                let qual = if isFileName then r else try AssemblyName(r).Name + ".dll"  with _ -> r + ".dll"
+
+                for searchPath in searchPaths do 
                     if not found then 
-                        let ass = try Some (System.Reflection.Assembly.ReflectionOnlyLoad(r)) with _ -> None
-                        match ass with 
-                        | None -> ()
-                        | Some ass -> yield! success ass.Location |] }
+                        let trialPath = Path.Combine(searchPath,qual)
+                        if FileSystem.SafeExists(trialPath) then 
+                            success trialPath
+
+                if not found then 
+                    let ass = try Some (Assembly.Load(r)) with _ -> None
+                    match ass with 
+                    | Some ass -> success ass.Location 
+                    | None -> ()
+              with e -> logWarning "SR001" (e.ToString())
+            results.ToArray() }
 
 #if INTERACTIVE
 SimplisticResolver.DotNetFrameworkReferenceAssembliesRootDirectory
@@ -168,14 +194,14 @@ resolve [ "FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7
 #endif
 
 let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) = 
-    //let msbuildEnabled = msbuildEnabled && false
+    let msbuildEnabled = msbuildEnabled && false
     let tryMSBuild v = 
       if msbuildEnabled then 
         // Detect if MSBuild v12 is on the machine, if so use the resolver from there
-        let mb = try System.Reflection.Assembly.Load(sprintf "Microsoft.Build.Framework, Version=%s.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" v) |> Option.ofObj with _ -> None
-        let ass = mb |> Option.bind (fun _ -> try System.Reflection.Assembly.Load(sprintf "FSharp.Compiler.Service.MSBuild.v%s" v) |> Option.ofObj with _ -> None)
+        let mb = try Assembly.Load(sprintf "Microsoft.Build.Framework, Version=%s.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" v) |> Option.ofObj with _ -> None
+        let ass = mb |> Option.bind (fun _ -> try Assembly.Load(sprintf "FSharp.Compiler.Service.MSBuild.v%s" v) |> Option.ofObj with _ -> None)
         let ty = ass |> Option.bind (fun ass -> ass.GetType("Microsoft.FSharp.Compiler.MSBuildReferenceResolver") |> Option.ofObj)
-        let obj = ty |> Option.bind (fun ty -> ty.InvokeMember("get_Resolver",System.Reflection.BindingFlags.Static ||| System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.InvokeMethod ||| System.Reflection.BindingFlags.NonPublic, null, null, [| |]) |> Option.ofObj)
+        let obj = ty |> Option.bind (fun ty -> ty.InvokeMember("get_Resolver",BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.InvokeMethod ||| BindingFlags.NonPublic, null, null, [| |]) |> Option.ofObj)
         let resolver = obj |> Option.bind (fun obj -> match obj with :? Resolver as r -> Some r | _ -> None)
         resolver
       else None

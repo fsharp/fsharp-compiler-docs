@@ -8,7 +8,6 @@ open System
 open System.Collections
 open System.Collections.Generic
 open Internal.Utilities
-open Internal.Utilities.Collections
 
 #if FX_RESHAPED_REFLECTION
 open Microsoft.FSharp.Core.ReflectionAdapters

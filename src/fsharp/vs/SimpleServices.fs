@@ -108,12 +108,12 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.GetDeclarations(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) = x.GetDeclarationListInfo(Line.fromZ line, col, qualifyingNames, partialName, ?xmlCommentRetriever=xmlCommentRetriever)
 
     /// Provides simple services for checking and compiling F# scripts
-    type public SimpleSourceCodeServices() =
+    type public SimpleSourceCodeServices(?msbuildEnabled) =
 
-        let checker = InteractiveChecker.Create()
+        let checker = InteractiveChecker.Create(?msbuildEnabled=msbuildEnabled)
         let fileversion = 0
         let loadTime = DateTime.Now
-        let referenceResolver = MSBuildReferenceResolver.Resolver 
+        let referenceResolver = checker.ReferenceResolver
 
         /// Tokenize a single line, returning token information and a tokenization state represented by an integer
         member x.TokenizeLine (line: string, state: int64) : FSharpTokenInfo[] * int64 = 

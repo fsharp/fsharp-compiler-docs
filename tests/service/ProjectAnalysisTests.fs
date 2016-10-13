@@ -4511,15 +4511,6 @@ module Project35b =
 #endif
 
 [<Test>]
-let ``Test project35b Dependency files for ParseFileInProject`` () =
-    // This is testing legacy functionality
-    let parseFileResults = checker.ParseFileInProject(Project35b.fileName1, Project35b.fileSource1, Project35b.options) |> Async.RunSynchronously
-    for d in parseFileResults.DependencyFiles do 
-        printfn "ParseFileInProject dependency: %s" d
-    parseFileResults.DependencyFiles |> List.exists (fun s -> s.Contains "notexist.dll") |> shouldEqual true
-    parseFileResults.DependencyFiles |> List.exists (fun s -> s.Contains Project35b.fileName1) |> shouldEqual true
-
-[<Test>]
 let ``Test project35b Dependency files for ParseAndCheckFileInProject`` () =
     let checkFileResults = 
         checker.ParseAndCheckFileInProject(Project35b.fileName1, 0, Project35b.fileSource1, Project35b.options) |> Async.RunSynchronously

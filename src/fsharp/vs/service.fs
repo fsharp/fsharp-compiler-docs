@@ -2736,12 +2736,14 @@ type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, ke
     let maxMemEvent = new Event<unit>()
 
     /// Instantiate an interactive checker.    
-    static member Create(?projectCacheSize, ?keepAssemblyContents, ?keepAllBackgroundResolutions) = 
-        let referenceResolver = MSBuildReferenceResolver.Resolver 
+    static member Create(?projectCacheSize, ?keepAssemblyContents, ?keepAllBackgroundResolutions, ?msbuildEnabled) = 
+        let referenceResolver = SimulatedMSBuildReferenceResolver.GetBestAvailableResolver(defaultArg msbuildEnabled true)
         let keepAssemblyContents = defaultArg keepAssemblyContents false
         let keepAllBackgroundResolutions = defaultArg keepAllBackgroundResolutions true
         let projectCacheSizeReal = defaultArg projectCacheSize projectCacheSizeDefault
         new FSharpChecker(referenceResolver, projectCacheSizeReal,keepAssemblyContents, keepAllBackgroundResolutions)
+
+    member ic.ReferenceResolver = referenceResolver
 
     member ic.MatchBracesAlternate(filename, source, options) =
         async { 

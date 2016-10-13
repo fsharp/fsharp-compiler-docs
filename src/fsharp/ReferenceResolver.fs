@@ -217,7 +217,10 @@ let SimulatedMSBuildResolver =
             results.ToArray() }
 
 let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) = 
-#if !RESHAPED_MSBUILD
+#if RESHAPED_MSBUILD
+    ignore msbuildVersion
+    ignore msbuildEnabled
+#else
     let msbuildEnabled = msbuildEnabled && false
     let msbuildVersion = defaultArg msbuildVersion  "12"
     let tryMSBuild v = 

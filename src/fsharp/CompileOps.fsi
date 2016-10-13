@@ -308,6 +308,8 @@ type TcConfigBuilder =
       mutable jitTracking : bool
       mutable portablePDB : bool
       mutable embeddedPDB : bool
+      mutable embedAllSource : bool
+      mutable embedSourceList : string list
       mutable ignoreSymbolStoreSequencePoints : bool
       mutable internConstantStrings : bool
       mutable extraOptimizationIterations : int
@@ -380,6 +382,7 @@ type TcConfigBuilder =
     member AddIncludePath : range * string * string -> unit
     member AddReferencedAssemblyByPath : range * string -> unit
     member RemoveReferencedAssemblyByPath : range * string -> unit
+    member AddEmbeddedSourceFile : string -> unit
     member AddEmbeddedResource : string -> unit
     
     static member SplitCommandLineResourceInfo : string -> string * string * ILResourceAccess
@@ -461,6 +464,8 @@ type TcConfig =
     member jitTracking : bool
     member portablePDB : bool
     member embeddedPDB : bool
+    member embedAllSource : bool
+    member embedSourceList : string list
     member ignoreSymbolStoreSequencePoints : bool
     member internConstantStrings : bool
     member extraOptimizationIterations : int
@@ -510,7 +515,7 @@ type TcConfig =
 
 
     member ComputeLightSyntaxInitialStatus : string -> bool
-    member ClrRoot : string list
+    member TargetFrameworkDirectories : string list
     
     /// Get the loaded sources that exist and issue a warning for the ones that don't
     member GetAvailableLoadedSources : unit -> (range*string) list
@@ -730,7 +735,7 @@ val TypeCheckClosedInputSetFinish : TypedImplFile list * TcState -> TcState * Ty
 val TypeCheckClosedInputSet :(unit -> bool) * TcConfig * TcImports * TcGlobals * Ast.LongIdent option * TcState * Ast.ParsedInput  list  -> TcState * TopAttribs * TypedImplFile list * TcEnv
 
 /// Check a single input and finish the checking
-val TypeCheckSingleInputAndFinishEventually :
+val TypeCheckOneInputAndFinishEventually :
     (unit -> bool) * TcConfig * TcImports * TcGlobals * Ast.LongIdent option * NameResolution.TcResultsSink * TcState * Ast.ParsedInput 
         -> Eventually<(TcEnv * TopAttribs * TypedImplFile list) * TcState>
 

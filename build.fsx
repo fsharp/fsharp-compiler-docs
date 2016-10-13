@@ -156,7 +156,12 @@ Target "NuGet.NetFx" (fun _ ->
 
 Target "PublishNuGet" (fun _ ->
     Paket.Push (fun p -> 
+        let apikey =
+            match getBuildParam "nuget-apikey" with
+            | s when not (String.IsNullOrWhiteSpace s) -> s
+            | _ -> getUserInput "Nuget API Key: "
         { p with
+            ApiKey = apikey
             WorkingDir = buildDir }) 
 )
 
@@ -193,11 +198,11 @@ Target "GitHubRelease" (fun _ ->
     let user =
         match getBuildParam "github-user" with
         | s when not (String.IsNullOrWhiteSpace s) -> s
-        | _ -> getUserInput "Username: "
+        | _ -> getUserInput "GitHub Username: "
     let pw =
         match getBuildParam "github-pw" with
         | s when not (String.IsNullOrWhiteSpace s) -> s
-        | _ -> getUserPassword "Password: "
+        | _ -> getUserPassword "GitHub Password: "
     let remote =
         Git.CommandHelper.getGitResult "" "remote -v"
         |> Seq.filter (fun (s: string) -> s.EndsWith("(push)"))

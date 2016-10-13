@@ -108,9 +108,9 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
         member x.GetDeclarations(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) = x.GetDeclarationListInfo(Line.fromZ line, col, qualifyingNames, partialName, ?xmlCommentRetriever=xmlCommentRetriever)
 
     /// Provides simple services for checking and compiling F# scripts
-    type public SimpleSourceCodeServices(?msbuildEnabled, ?msbuildVersion) =
+    type public SimpleSourceCodeServices(?msbuildEnabled) =
 
-        let checker = InteractiveChecker.Create(?msbuildEnabled=msbuildEnabled, ?msbuildVersion=msbuildVersion)
+        let checker = InteractiveChecker.Create(?msbuildEnabled=msbuildEnabled)
         let fileversion = 0
         let loadTime = DateTime.Now
         let referenceResolver = checker.ReferenceResolver

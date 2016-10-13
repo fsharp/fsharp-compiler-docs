@@ -167,7 +167,7 @@
         "../vs/ServiceUntypedParse.fsi",
         "../vs/ServiceUntypedParse.fs",
         "../../utils/reshapedmsbuild.fs",
-        "../MSBuildReferenceResolver.fs",
+        "../SimulatedMSBuildReferenceResolver.fs",
         "../vs/service.fsi",
         "../vs/service.fs",
         "../vs/SimpleServices.fsi",

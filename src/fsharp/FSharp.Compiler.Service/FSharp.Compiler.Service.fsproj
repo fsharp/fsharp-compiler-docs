@@ -604,6 +604,9 @@
     <Compile Include="..\..\utils\reshapedmsbuild.fs">
       <Link>Service/reshapedmsbuild.fs</Link>
     </Compile>
+    <Compile Include="..\SimulatedMSBuildReferenceResolver.fs">
+      <Link>Service/SimulatedMSBuildReferenceResolver.fs</Link>
+    </Compile>
     <Compile Include="..\vs\service.fsi">
       <Link>Service/service.fsi</Link>
     </Compile>

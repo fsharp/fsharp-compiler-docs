@@ -158,8 +158,8 @@ let SimulatedMSBuildResolver =
                 with e -> logWarning "SR001" (e.ToString())
 
                 let isFileName = 
-                    r.EndsWith("dll",StringComparison.InvariantCultureIgnoreCase) ||
-                    r.EndsWith("exe",StringComparison.InvariantCultureIgnoreCase)  
+                    r.EndsWith("dll",StringComparison.OrdinalIgnoreCase) ||
+                    r.EndsWith("exe",StringComparison.OrdinalIgnoreCase)  
 
                 let qual = if isFileName then r else try AssemblyName(r).Name + ".dll"  with _ -> r + ".dll"
 

@@ -46,9 +46,7 @@
 (lazy) computations, e.g. the actual reading of some aspects
 of a type definition may be delayed if the reader being used supports
 this.</p>
-
-<p>This is an abstract type equivalent to "ILTypeDef list"</p>
-
+<p>This is an abstract type equivalent to "ILTypeDef list".</p>
 
 </div>
   <h3>Instance members</h3>
@@ -60,62 +58,81 @@ this.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2130', 2130)" onmouseover="showTip(event, '2130', 2130)">
-            AsList
+          <code onmouseout="hideTip(event, '2055', 2055)" onmouseover="showTip(event, '2055', 2055)">
+            AsArray
           </code>
-          <div class="tip" id="2130">
-            <strong>Signature:</strong> ILTypeDef list<br />
+          <div class="tip" id="2055">
+            <strong>Signature:</strong> ILTypeDef []<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fs#L1712-1712" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fs#L1561-1561" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>get_AsArray</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2131', 2131)" onmouseover="showTip(event, '2131', 2131)">
-            AsListOfLazyTypeDefs
+          <code onmouseout="hideTip(event, '2056', 2056)" onmouseover="showTip(event, '2056', 2056)">
+            AsArrayOfLazyTypeDefs
           </code>
-          <div class="tip" id="2131">
-            <strong>Signature:</strong> (string list * string * ILAttributes * Lazy&lt;ILTypeDef&gt;) list<br />
+          <div class="tip" id="2056">
+            <strong>Signature:</strong> (string list * string * ILAttributes * Lazy&lt;ILTypeDef&gt;) array<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fs#L1714-1714" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fs#L1571-1571" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get some information about the type defs, but do not force the read of the type defs themselves</p>
+          <p>Get some information about the type defs, but do not force the read of the type defs themselves.</p>
 
 
-
+              <p>CompiledName: <code>get_AsArrayOfLazyTypeDefs</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2132', 2132)" onmouseover="showTip(event, '2132', 2132)">
+          <code onmouseout="hideTip(event, '2057', 2057)" onmouseover="showTip(event, '2057', 2057)">
+            AsList
+          </code>
+          <div class="tip" id="2057">
+            <strong>Signature:</strong> ILTypeDef list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fs#L1562-1562" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>get_AsList</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2058', 2058)" onmouseover="showTip(event, '2058', 2058)">
             FindByName(arg1)
           </code>
-          <div class="tip" id="2132">
+          <div class="tip" id="2058">
             <strong>Signature:</strong> string -&gt; ILTypeDef<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fs#L1716-1716" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fs#L1573-1573" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Calls to [FindByName] will result in any laziness in the overall 
-set of ILTypeDefs being read in in addition 
-to the details for the type found, but the remaining individual 
+          <p>Calls to <c>FindByName</c> will result in any laziness in the overall
+set of ILTypeDefs being read in in addition
+to the details for the type found, but the remaining individual
 type definitions will not be read.</p>
-
 
 
         </td>

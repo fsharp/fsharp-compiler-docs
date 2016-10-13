@@ -43,7 +43,6 @@
 <div class="xmldoc">
 <p>A subtype of FSharpSymbol that represents a generic parameter for an FSharpSymbol</p>
 
-
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -54,11 +53,137 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2668', 2668)" onmouseover="showTip(event, '2668', 2668)">
+          <code onmouseout="hideTip(event, '2613', 2613)" onmouseover="showTip(event, '2613', 2613)">
             Attributes
           </code>
-          <div class="tip" id="2668">
+          <div class="tip" id="2613">
             <strong>Signature:</strong> IList&lt;FSharpAttribute&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L868-868" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the declared attributes of the type parameter.</p>
+
+
+              <p>CompiledName: <code>get_Attributes</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2614', 2614)" onmouseover="showTip(event, '2614', 2614)">
+            Constraints
+          </code>
+          <div class="tip" id="2614">
+            <strong>Signature:</strong> IList&lt;FSharpGenericParameterConstraint&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L873-873" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the declared or inferred constraints for the type parameter</p>
+
+
+              <p>CompiledName: <code>get_Constraints</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2615', 2615)" onmouseover="showTip(event, '2615', 2615)">
+            DeclarationLocation
+          </code>
+          <div class="tip" id="2615">
+            <strong>Signature:</strong> range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L862-862" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the range of the generic parameter</p>
+
+
+              <p>CompiledName: <code>get_DeclarationLocation</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2616', 2616)" onmouseover="showTip(event, '2616', 2616)">
+            IsCompilerGenerated
+          </code>
+          <div class="tip" id="2616">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L863-863" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates if this is a compiler generated type parameter</p>
+
+
+              <p>CompiledName: <code>get_IsCompilerGenerated</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2617', 2617)" onmouseover="showTip(event, '2617', 2617)">
+            IsMeasure
+          </code>
+          <div class="tip" id="2617">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L865-865" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates if this is a measure variable</p>
+
+
+              <p>CompiledName: <code>get_IsMeasure</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2618', 2618)" onmouseover="showTip(event, '2618', 2618)">
+            IsSolveAtCompileTime
+          </code>
+          <div class="tip" id="2618">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L867-867" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates if this is a statically resolved type variable</p>
+
+
+              <p>CompiledName: <code>get_IsSolveAtCompileTime</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2619', 2619)" onmouseover="showTip(event, '2619', 2619)">
+            Name
+          </code>
+          <div class="tip" id="2619">
+            <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -66,20 +191,20 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the declared attributes of the type parameter.</p>
+          <p>Get the name of the generic parameter</p>
 
 
-
+              <p>CompiledName: <code>get_Name</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2669', 2669)" onmouseover="showTip(event, '2669', 2669)">
-            Constraints
+          <code onmouseout="hideTip(event, '2620', 2620)" onmouseover="showTip(event, '2620', 2620)">
+            XmlDoc
           </code>
-          <div class="tip" id="2669">
-            <strong>Signature:</strong> IList&lt;FSharpGenericParameterConstraint&gt;<br />
+          <div class="tip" id="2620">
+            <strong>Signature:</strong> IList&lt;string&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -87,136 +212,10 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the declared or inferred constraints for the type parameter</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2670', 2670)" onmouseover="showTip(event, '2670', 2670)">
-            DeclarationLocation
-          </code>
-          <div class="tip" id="2670">
-            <strong>Signature:</strong> range<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L855-855" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Get the range of the generic parameter</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2671', 2671)" onmouseover="showTip(event, '2671', 2671)">
-            IsCompilerGenerated
-          </code>
-          <div class="tip" id="2671">
-            <strong>Signature:</strong> bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L856-856" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Indicates if this is a compiler generated type parameter</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2672', 2672)" onmouseover="showTip(event, '2672', 2672)">
-            IsMeasure
-          </code>
-          <div class="tip" id="2672">
-            <strong>Signature:</strong> bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L858-858" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Indicates if this is a measure variable</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2673', 2673)" onmouseover="showTip(event, '2673', 2673)">
-            IsSolveAtCompileTime
-          </code>
-          <div class="tip" id="2673">
-            <strong>Signature:</strong> bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L860-860" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Indicates if this is a statically resolved type variable</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2674', 2674)" onmouseover="showTip(event, '2674', 2674)">
-            Name
-          </code>
-          <div class="tip" id="2674">
-            <strong>Signature:</strong> string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L854-854" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Get the name of the generic parameter</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2675', 2675)" onmouseover="showTip(event, '2675', 2675)">
-            XmlDoc
-          </code>
-          <div class="tip" id="2675">
-            <strong>Signature:</strong> IList&lt;string&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L859-859" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
           <p>Get the in-memory XML documentation for the type parameter, used when code is checked in-memory</p>
 
 
-
+              <p>CompiledName: <code>get_XmlDoc</code></p>
         </td>
       </tr>
     </tbody>

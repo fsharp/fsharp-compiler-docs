@@ -35,20 +35,15 @@
         <div class="span9" id="main">
           
 <h1><a name="コンパイラの組み込み" class="anchor" href="#コンパイラの組み込み">コンパイラの組み込み</a></h1>
-
 <p>このチュートリアルではF#コンパイラをホストする方法を紹介します。</p>
-
 <blockquote>
-  <p><strong>注意:</strong> 以下で使用しているAPIは実験的なもので、
-  新しいnugetパッケージの公開に伴って変更される可能性があります。
+<p><strong>注意:</strong> 以下で使用しているAPIは実験的なもので、
+新しいnugetパッケージの公開に伴って変更される可能性があります。
 <strong>注意:</strong> F#コンパイラをホストする方法はいくつかあります。
-  一番簡単な方法は <code>fsc.exe</code> のプロセスを使って引数を渡す方法です。</p>
+一番簡単な方法は <code>fsc.exe</code> のプロセスを使って引数を渡す方法です。</p>
 </blockquote>
-
 <hr />
-
 <p>まず、F# Interactiveサービスを含むライブラリへの参照を追加します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -63,9 +58,7 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>次に、一時ファイルへコンテンツを書き込みます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -94,18 +87,14 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>そしてコンパイラを呼び出します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 23)" onmouseover="showTip(event, 'fs17', 23)" class="i">errors1</span>, <span onmouseout="hideTip(event, 'fs18', 24)" onmouseover="showTip(event, 'fs18', 24)" class="i">exitCode1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs7', 25)" onmouseover="showTip(event, 'fs7', 25)" class="i">scs</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 26)" onmouseover="showTip(event, 'fs19', 26)" class="f">Compile</span>([| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;-o&quot;</span>; <span onmouseout="hideTip(event, 'fs14', 27)" onmouseover="showTip(event, 'fs14', 27)" class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span onmouseout="hideTip(event, 'fs12', 28)" onmouseover="showTip(event, 'fs12', 28)" class="i">fn2</span> |])
 </code></pre></td>
 </tr>
 </table>
-
 <p>エラーが発生した場合は「終了コード」とエラーの配列から原因を特定できます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -132,19 +121,13 @@
 </code></pre></td>
 </tr>
 </table>
-
 <h1><a name="動的アセンブリへのコンパイル" class="anchor" href="#動的アセンブリへのコンパイル">動的アセンブリへのコンパイル</a></h1>
-
 <p>コードを動的アセンブリとしてコンパイルすることもできます。
 動的アセンブリはF# Interactiveコードジェネレータでも使用されています。</p>
-
 <p>この機能はたとえばファイルシステムが必ずしも利用できないような状況で役に立ちます。</p>
-
 <p>出力ファイルの名前を指定する "-o" オプションを指定することは可能ですが、
 実際には出力ファイルがディスク上に書き込まれることはありません。</p>
-
 <p>'execute' 引数に 'None' を指定するとアセンブリ用の初期化コードが実行されません。</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -153,9 +136,7 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>'Some' を指定するとアセンブリ用の初期化コードが実行されます。</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -172,7 +153,7 @@
 <div class="tip" id="fs5">namespace System</div>
 <div class="tip" id="fs6">namespace System.IO</div>
 <div class="tip" id="fs7">val scs : SimpleSourceCodeServices<br /><br />Full name: Compiler.scs</div>
-<div class="tip" id="fs8">Multiple items<br />type SimpleSourceCodeServices =<br />&#160;&#160;new : unit -&gt; SimpleSourceCodeServices<br />&#160;&#160;member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />&#160;&#160;member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />&#160;&#160;member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />&#160;&#160;member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />&#160;&#160;member TokenizeFile : source:string -&gt; FSharpTokenInfo [] []<br />&#160;&#160;member TokenizeLine : line:string * state:int64 -&gt; FSharpTokenInfo [] * int64<br /><br />Full name: Microsoft.FSharp.Compiler.SimpleSourceCodeServices.SimpleSourceCodeServices<br /><br />--------------------<br />new : unit -&gt; SimpleSourceCodeServices</div>
+<div class="tip" id="fs8">Multiple items<br />type SimpleSourceCodeServices =<br />&#160;&#160;new : ?msbuildEnabled:bool -&gt; SimpleSourceCodeServices<br />&#160;&#160;member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />&#160;&#160;member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />&#160;&#160;member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />&#160;&#160;member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />&#160;&#160;member TokenizeFile : source:string -&gt; FSharpTokenInfo [] []<br />&#160;&#160;member TokenizeLine : line:string * state:int64 -&gt; FSharpTokenInfo [] * int64<br /><br />Full name: Microsoft.FSharp.Compiler.SimpleSourceCodeServices.SimpleSourceCodeServices<br /><br />--------------------<br />new : ?msbuildEnabled:bool -&gt; SimpleSourceCodeServices</div>
 <div class="tip" id="fs9">val fn : string<br /><br />Full name: Compiler.fn</div>
 <div class="tip" id="fs10">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : [&lt;ParamArray&gt;] paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string<br />&#160;&#160;static member GetExtension : path:string -&gt; string<br />&#160;&#160;static member GetFileName : path:string -&gt; string<br />&#160;&#160;...<br /><br />Full name: System.IO.Path</div>
 <div class="tip" id="fs11">Path.GetTempFileName() : string</div>

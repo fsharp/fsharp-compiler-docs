@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ILList<'T> - F# Compiler Services</title>
+    <title>InlineDelayInit<'T> - F# Compiler Services</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
@@ -36,17 +36,88 @@
 
 
 
-<h1>ILList<'T></h1>
+<h1>InlineDelayInit<'T></h1>
 <p>
-  <span>Namespace: Microsoft.FSharp.Compiler.AbstractIL</span><br />
-  <span>Parent Module: <a href="microsoft-fsharp-compiler-abstractil-il.html">IL</a></span>
+  <span>Namespace: Microsoft.FSharp.Compiler.AbstractIL.Internal</span><br />
+  <span>Parent Module: <a href="microsoft-fsharp-compiler-abstractil-internal-library.html">Library</a></span>
 </p>
 <div class="xmldoc">
-<p>The type used to store relatively small lists in the Abstract IL data structures, i.e. for ILTypes, ILGenericArgs, ILParameters and ILLocals.
-See comments in il.fs for why we've isolated this representation and the possible future choices we might use here.</p>
-
+<p>An efficient lazy for inline storage in a class type. Results in fewer thunks.</p>
 
 </div>
+  <h3>Record Fields</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Record Field</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2163', 2163)" onmouseover="showTip(event, '2163', 2163)">
+            func
+          </code>
+          <div class="tip" id="2163">
+            <strong>Signature:</strong> Func&lt;&#39;T&gt;<br />
+              <strong>Modifiers:</strong> mutable<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L49-49" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2164', 2164)" onmouseover="showTip(event, '2164', 2164)">
+            store
+          </code>
+          <div class="tip" id="2164">
+            <strong>Signature:</strong> &#39;T<br />
+              <strong>Modifiers:</strong> mutable<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L48-48" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Constructors</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Constructor</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2165', 2165)" onmouseover="showTip(event, '2165', 2165)">
+            new(f)
+          </code>
+          <div class="tip" id="2165">
+            <strong>Signature:</strong> (f:(unit -&gt; &#39;T)) -&gt; InlineDelayInit&lt;&#39;T&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L47-47" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>.ctor</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
     <thead>
@@ -56,93 +127,20 @@ See comments in il.fs for why we've isolated this representation and the possibl
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1757', 1757)" onmouseover="showTip(event, '1757', 1757)">
-            Head
+          <code onmouseout="hideTip(event, '2166', 2166)" onmouseover="showTip(event, '2166', 2166)">
+            Value
           </code>
-          <div class="tip" id="1757">
+          <div class="tip" id="2166">
             <strong>Signature:</strong> &#39;T<br />
                       </div>
         </td>
         <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L50-50" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
           
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1758', 1758)" onmouseover="showTip(event, '1758', 1758)">
-            IsEmpty
-          </code>
-          <div class="tip" id="1758">
-            <strong>Signature:</strong> bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1759', 1759)" onmouseover="showTip(event, '1759', 1759)">
-            [index]
-          </code>
-          <div class="tip" id="1759">
-            <strong>Signature:</strong> index:int -&gt; &#39;T<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1760', 1760)" onmouseover="showTip(event, '1760', 1760)">
-            Length
-          </code>
-          <div class="tip" id="1760">
-            <strong>Signature:</strong> int<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1761', 1761)" onmouseover="showTip(event, '1761', 1761)">
-            Tail
-          </code>
-          <div class="tip" id="1761">
-            <strong>Signature:</strong> &#39;T list<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <h3>Static members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Static member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1762', 1762)" onmouseover="showTip(event, '1762', 1762)">
-            Empty
-          </code>
-          <div class="tip" id="1762">
-            <strong>Signature:</strong> &#39;T list<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          
+              <p>CompiledName: <code>get_Value</code></p>
         </td>
       </tr>
     </tbody>

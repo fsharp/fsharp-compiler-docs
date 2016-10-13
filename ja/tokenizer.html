@@ -35,24 +35,19 @@
         <div class="span9" id="main">
           
 <h1><a name="コンパイラサービス-F-トークナイザを使用する" class="anchor" href="#コンパイラサービス-F-トークナイザを使用する">コンパイラサービス：F#トークナイザを使用する</a></h1>
-
 <p>このチュートリアルではF#言語トークナイザの呼び出し方を紹介します。
 F#のソースコードに対して、トークナイザは
 コードの各行にあるトークンに関する情報を含んだソースコード行のリストを生成します。
 各トークンに対してはトークンの種類や位置を取得したり、
 トークンの種類(キーワード、識別子、数値、演算子など)に応じた
 色を取得したりすることができます。</p>
-
 <blockquote>
-  <p><strong>注意:</strong> 以下で使用しているAPIは実験的なもので、
-  新しいnugetパッケージの公開に伴って変更される可能性があります。</p>
+<p><strong>注意:</strong> 以下で使用しているAPIは実験的なもので、
+新しいnugetパッケージの公開に伴って変更される可能性があります。</p>
 </blockquote>
-
 <h2><a name="トークナイザの作成" class="anchor" href="#トークナイザの作成">トークナイザの作成</a></h2>
-
 <p>トークナイザを使用するには、 <code>FSharp.Compiler.Service.dll</code> への参照を追加した後に
 <code>SourceCodeServices</code> 名前空間をオープンします：</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -61,7 +56,6 @@ F#のソースコードに対して、トークナイザは
 </code></pre></td>
 </tr>
 </table>
-
 <p>すると <code>FSharpSourceTokenizer</code> のインスタンスを作成できるようになります。
 このクラスには2つの引数を指定します。
 最初の引数には定義済みのシンボルのリスト、
@@ -70,43 +64,34 @@ F#のソースコードに対して、トークナイザは
 トークナイザが <code>#if</code> ディレクティブを処理する必要があるからです。
 ファイル名はソースコードの位置を特定する場合にのみ指定する必要があります
 (存在しないファイル名でも指定できます):</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">sourceTok</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="t">FSharpSourceTokenizer</span>([], <span class="s">&quot;C:</span><span class="e">\\</span><span class="s">test.fsx&quot;</span>)
 </code></pre></td>
 </tr>
 </table>
-
 <p><code>sourceTok</code> オブジェクトを使用することでF#ソースコードの各行を
 (繰り返し)トークン化することができます。</p>
-
 <h2><a name="F-コードのトークン化" class="anchor" href="#F-コードのトークン化">F#コードのトークン化</a></h2>
-
 <p>トークナイザはソースファイル全体ではなく、行単位で処理を行います。
 トークンを取得した後、トークナイザは新しいステートを( <code>int64</code> 値として)返します。
 この値を使うとF#コードをより効率的にトークン化できます。
 つまり、ソースコードが変更された場合もファイル全体を
 再度トークン化する必要はありません。
 変更された部分だけをトークン化すればよいのです。</p>
-
 <h3><a name="1行をトークン化する" class="anchor" href="#1行をトークン化する">1行をトークン化する</a></h3>
-
 <p>1行をトークン化するには、先ほど作成した <code>FSharpSourceTokenizer</code> オブジェクトに対して
 <code>CreateLineTokenizer</code> を呼び、 <code>FSharpLineTokenizer</code> を作成します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">tokenizer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="i">sourceTok</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="f">CreateLineTokenizer</span>(<span class="s">&quot;let answer=42&quot;</span>)
 </code></pre></td>
 </tr>
 </table>
-
 <p>そして <code>tokenizer</code> の <code>ScanToken</code> を繰り返し <code>None</code> を返すまで
 (つまり最終行に到達するまで)繰り返し呼び出すような単純な再帰関数を用意します。
 この関数が成功すると、必要な詳細情報をすべて含んだ <code>FSharpTokenInfo</code> オブジェクトが
 返されます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -129,38 +114,32 @@ F#のソースコードに対して、トークナイザは
 </code></pre></td>
 </tr>
 </table>
-
 <p>この関数は、複数行コードや複数行コメント内の前方の行をトークン化する場合に
 必要となるような新しい状態を返します。
 初期値としては <code>0L</code> を指定します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs9', 27)" onmouseover="showTip(event, 'fs9', 27)" class="f">tokenizeLine</span> <span onmouseout="hideTip(event, 'fs10', 28)" onmouseover="showTip(event, 'fs10', 28)" class="i">tokenizer</span> <span class="n">0L</span>
 </code></pre></td>
 </tr>
 </table>
-
 <p>この結果は LET WHITESPACE IDENT EQUALS INT32 という
 トークン名のシーケンスになります。
 <code>FSharpTokenInfo</code> にはたとえば以下のような興味深いプロパティが多数あります:</p>
-
 <ul>
-<li><code>CharClass</code> および <code>ColorClass</code> はF#コードを色づけする場合に使用できるような、
-トークンのカテゴリに関する情報を返します。</li>
+<li>
+<code>CharClass</code> および <code>ColorClass</code> はF#コードを色づけする場合に使用できるような、
+トークンのカテゴリに関する情報を返します。
+</li>
 <li><code>LeftColumn</code> および <code>RightColumn</code> は行内におけるトークンの位置を返します。</li>
 <li><code>TokenName</code> は(F# レキサ内で定義された)トークンの名前を返します。</li>
 </ul>
-
 <p>なおトークナイザはステートフルであることに注意してください。
 つまり、1行を複数回トークン化したい場合にはその都度 <code>CreateLineTokenizer</code> を
 呼び出す必要があります。</p>
-
 <h3><a name="サンプルコードのトークン化" class="anchor" href="#サンプルコードのトークン化">サンプルコードのトークン化</a></h3>
-
 <p>トークナイザをもっと長いサンプルコードやファイル全体に対して実行する場合、
 サンプル入力を <code>string</code> のコレクションとして読み取る必要があります:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -173,14 +152,12 @@ F#のソースコードに対して、トークナイザは
 </code></pre></td>
 </tr>
 </table>
-
 <p>複数行の入力値をトークン化する場合も、現在の状態を保持するような
 再帰関数が必要になります。
 以下の関数はソースコード行を文字列のリストとして受け取ります
 (また、行番号および現在の状態も受け取ります)。
 各行に対して新しいトークナイザを作成して、
 直前の行における <strong>最後</strong> の状態を使って <code>tokenizeLine</code> を呼び出します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -207,12 +184,10 @@ F#のソースコードに対して、トークナイザは
 </code></pre></td>
 </tr>
 </table>
-
 <p>ここでは単に(先ほど定義した) <code>tokenizeLine</code> を呼び出して、
 各行にあるすべてのトークンの名前を表示しています。
 この関数は先と同じく、初期状態の値 <code>0L</code> と、1行目を表す <code>1</code> を
 指定して呼び出すことができます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -223,10 +198,8 @@ F#のソースコードに対して、トークナイザは
 </code></pre></td>
 </tr>
 </table>
-
 <p>重要ではない部分(各行の先頭にある空白文字や、1行目のように空白文字しかない行)
 を除けば、このコードを実行すると以下のような出力になります:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -241,7 +214,6 @@ Line 2
 Line 3
   IDENT WHITESPACE STRING_TEXT (...) STRING_TEXT STRING 
 </code></pre></td></tr></table>
-
 <p>注目すべきは、単一行コメントや文字列に対して、
 トークナイザが複数回(大まかにいって単語単位で) <code>LINE_COMMENT</code> や
 <code>STRING_TEXT</code> を返しているところです。
@@ -253,7 +225,7 @@ Line 3
 <div class="tip" id="fs3">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs4">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs5">val sourceTok : FSharpSourceTokenizer<br /><br />Full name: Tokenizer.sourceTok</div>
-<div class="tip" id="fs6">Multiple items<br />type FSharpSourceTokenizer =<br />&#160;&#160;new : conditionalDefines:string list * fileName:string -&gt; FSharpSourceTokenizer<br />&#160;&#160;member CreateBufferTokenizer : bufferFiller:(char [] * int * int -&gt; int) -&gt; FSharpLineTokenizer<br />&#160;&#160;member CreateLineTokenizer : lineText:string -&gt; FSharpLineTokenizer<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpSourceTokenizer<br /><br />--------------------<br />new : conditionalDefines:string list * fileName:string -&gt; FSharpSourceTokenizer</div>
+<div class="tip" id="fs6">Multiple items<br />type FSharpSourceTokenizer =<br />&#160;&#160;new : conditionalDefines:string list * fileName:string option -&gt; FSharpSourceTokenizer<br />&#160;&#160;member CreateBufferTokenizer : bufferFiller:(char [] * int * int -&gt; int) -&gt; FSharpLineTokenizer<br />&#160;&#160;member CreateLineTokenizer : lineText:string -&gt; FSharpLineTokenizer<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpSourceTokenizer<br /><br />--------------------<br />new : conditionalDefines:string list * fileName:string option -&gt; FSharpSourceTokenizer</div>
 <div class="tip" id="fs7">val tokenizer : FSharpLineTokenizer<br /><br />Full name: Tokenizer.tokenizer</div>
 <div class="tip" id="fs8">member FSharpSourceTokenizer.CreateLineTokenizer : lineText:string -&gt; FSharpLineTokenizer</div>
 <div class="tip" id="fs9">val tokenizeLine : tokenizer:FSharpLineTokenizer -&gt; state:FSharpTokenizerLexState -&gt; FSharpTokenizerLexState<br /><br />Full name: Tokenizer.tokenizeLine<br /><em><br /><br />&#160;F#コード1行をトークン化します</em></div>

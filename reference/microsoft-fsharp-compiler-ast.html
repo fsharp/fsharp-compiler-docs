@@ -57,7 +57,6 @@
           </td>
           <td class="xmldoc"><p>denotes location of the separator block + optional position of the semicolon (used for tooling support)</p>
 
-
 </td>
         </tr>
         <tr>
@@ -85,7 +84,6 @@
           <td class="xmldoc"><p>Specifies how the 'endline' function in the lexer should continue after
 it reaches end of line or eof. The options are to continue with 'token' function
 or to continue with 'skip' function.</p>
-
 
 </td>
         </tr>
@@ -122,7 +120,6 @@ comments eliminated by the lexer.  These carry a specification of
 a continuation for the lexer for continued processing after we've dealt with
 the whitespace.</p>
 
-
 </td>
         </tr>
         <tr>
@@ -149,7 +146,6 @@ the whitespace.</p>
           </td>
           <td class="xmldoc"><p>Note the member kind is actually computed partially by a syntax tree transformation in tc.fs</p>
 
-
 </td>
         </tr>
         <tr>
@@ -158,7 +154,6 @@ the whitespace.</p>
           </td>
           <td class="xmldoc"><p>Generates compiler-generated names. Each name generated also includes the StartLine number of the range passed in
 at the point of first generation.</p>
-
 
 </td>
         </tr>
@@ -233,12 +228,11 @@ at the point of first generation.</p>
             <a href="microsoft-fsharp-compiler-ast-qualifiednameoffile.html">QualifiedNameOfFile</a>
           </td>
           <td class="xmldoc"><p>ImplFile(modname,isScript,qualName,hashDirectives,modules,isLastCompiland)
-QualifiedNameOfFile acts to fully-qualify module specifications and implementations, 
-most importantly the ones that simply contribute fragments to a namespace (i.e. the ParsedSigFileFragment.NamespaceFragment case) 
-There may be multiple such fragments in a single assembly.  There may thus also 
-be multiple matching pairs of these in an assembly, all contributing types to the same 
+QualifiedNameOfFile acts to fully-qualify module specifications and implementations,
+most importantly the ones that simply contribute fragments to a namespace (i.e. the ParsedSigFileFragment.NamespaceFragment case)
+There may be multiple such fragments in a single assembly.  There may thus also
+be multiple matching pairs of these in an assembly, all contributing types to the same
 namespace.</p>
-
 
 </td>
         </tr>
@@ -247,7 +241,6 @@ namespace.</p>
             <a href="microsoft-fsharp-compiler-ast-recordfieldname.html">RecordFieldName</a>
           </td>
           <td class="xmldoc"><p>stores pair: record field name + (true if given record field name is syntactically correct and can be used in name resolution)</p>
-
 
 </td>
         </tr>
@@ -262,7 +255,6 @@ namespace.</p>
             <a href="microsoft-fsharp-compiler-ast-seqexpronly.html">SeqExprOnly</a>
           </td>
           <td class="xmldoc"><p>Indicates if a for loop is 'for x in e1 -&gt; e2', only valid in sequence expressions</p>
-
 
 </td>
         </tr>
@@ -322,7 +314,6 @@ namespace.</p>
 return precisely the same name. Each name generated also includes the StartLine number of the range passed in
 at the point of first generation.</p>
 
-
 </td>
         </tr>
         <tr>
@@ -336,7 +327,6 @@ at the point of first generation.</p>
             <a href="microsoft-fsharp-compiler-ast-synarginfo.html">SynArgInfo</a>
           </td>
           <td class="xmldoc"><p>The argument names and other metadata for a parameter for a member or function</p>
-
 
 </td>
         </tr>
@@ -370,7 +360,6 @@ at the point of first generation.</p>
           </td>
           <td class="xmldoc"><p>The kind associated with a binding - "let", "do" or a standalone expression</p>
 
-
 </td>
         </tr>
         <tr>
@@ -385,11 +374,9 @@ at the point of first generation.</p>
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree associated with the name of a type definition or module
 in signature or implementation.</p>
-
-<p>THis includes the name, attributes, type parameters, constraints, documentation and accessibility 
+<p>THis includes the name, attributes, type parameters, constraints, documentation and accessibility
 for a type definition or module. For modules, entries such as the type parameters are
 always empty.</p>
-
 
 </td>
         </tr>
@@ -398,7 +385,6 @@ always empty.</p>
             <a href="microsoft-fsharp-compiler-ast-synconst.html">SynConst</a>
           </td>
           <td class="xmldoc"><p>The unchecked abstract syntax tree of constants in F# types and expressions.</p>
-
 
 </td>
         </tr>
@@ -426,15 +412,13 @@ always empty.</p>
           </td>
           <td class="xmldoc"><p>'exception E = ... with ...'</p>
 
-
 </td>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="microsoft-fsharp-compiler-ast-synexceptionrepr.html">SynExceptionRepr</a>
+            <a href="microsoft-fsharp-compiler-ast-synexceptiondefnrepr.html">SynExceptionDefnRepr</a>
           </td>
           <td class="xmldoc"><p>'exception E = ... '</p>
-
 
 </td>
         </tr>
@@ -455,7 +439,6 @@ always empty.</p>
             <a href="microsoft-fsharp-compiler-ast-synfield.html">SynField</a>
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for a field declaration in a record or class</p>
-
 
 </td>
         </tr>
@@ -487,9 +470,8 @@ always empty.</p>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-ast-synmeasure.html">SynMeasure</a>
           </td>
-          <td class="xmldoc"><p>The unchecked abstract syntax tree of F# unit of measure annotations. 
+          <td class="xmldoc"><p>The unchecked abstract syntax tree of F# unit of measure annotations.
 This should probably be merged with the representation of SynType.</p>
-
 
 </td>
         </tr>
@@ -511,7 +493,6 @@ This should probably be merged with the representation of SynType.</p>
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for a member signature, used in signature files, abstract member declarations
 and member constraints.</p>
-
 
 </td>
         </tr>
@@ -537,8 +518,7 @@ and member constraints.</p>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-ast-synmoduleornamespace.html">SynModuleOrNamespace</a>
           </td>
-          <td class="xmldoc"><p>SynModuleOrNamespace(lid,isModule,decls,xmlDoc,attribs,SynAccess,m)</p>
-
+          <td class="xmldoc"><p>SynModuleOrNamespace(lid,isRec,isModule,decls,xmlDoc,attribs,SynAccess,m)</p>
 
 </td>
         </tr>
@@ -572,7 +552,6 @@ and member constraints.</p>
           </td>
           <td class="xmldoc"><p>The unchecked abstract syntax tree of F# unit of measure exponents.</p>
 
-
 </td>
         </tr>
         <tr>
@@ -581,9 +560,8 @@ and member constraints.</p>
           </td>
           <td class="xmldoc"><p>The syntactic elements associated with the "return" of a function or method. Some of this is
 mostly dummy information to make the return element look like an argument,
-the important thing is that (a) you can give a return type for the function or method, and 
+the important thing is that (a) you can give a return type for the function or method, and
 (b) you can associate .NET attributes to return of a function or method and these get stored in .NET metadata.</p>
-
 
 </td>
         </tr>
@@ -605,9 +583,8 @@ the important thing is that (a) you can give a return type for the function or m
           </td>
           <td class="xmldoc"><p>Represents a simple set of variable bindings a, (a,b) or (a:Type,b:Type) at a lambda,
 function definition or other binding point, after the elimination of pattern matching
-from the construct, e.g. after changing a "function pat1 -&gt; rule1 | ..." to a 
+from the construct, e.g. after changing a "function pat1 -&gt; rule1 | ..." to a
 "fun v -&gt; match v with ..."</p>
-
 
 </td>
         </tr>
@@ -629,7 +606,6 @@ from the construct, e.g. after changing a "function pat1 -&gt; rule1 | ..." to a
           </td>
           <td class="xmldoc"><p>Represents the explicit declaration of a type parameter</p>
 
-
 </td>
         </tr>
         <tr>
@@ -638,7 +614,6 @@ from the construct, e.g. after changing a "function pat1 -&gt; rule1 | ..." to a
           </td>
           <td class="xmldoc"><p>The unchecked abstract syntax tree of F# types</p>
 
-
 </td>
         </tr>
         <tr>
@@ -646,7 +621,6 @@ from the construct, e.g. after changing a "function pat1 -&gt; rule1 | ..." to a
             <a href="microsoft-fsharp-compiler-ast-syntypeconstraint.html">SynTypeConstraint</a>
           </td>
           <td class="xmldoc"><p>The unchecked abstract syntax tree of F# type constraints</p>
-
 
 </td>
         </tr>
@@ -674,7 +648,6 @@ from the construct, e.g. after changing a "function pat1 -&gt; rule1 | ..." to a
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for a type definition in a signature</p>
 
-
 </td>
         </tr>
         <tr>
@@ -682,9 +655,8 @@ from the construct, e.g. after changing a "function pat1 -&gt; rule1 | ..." to a
             <a href="microsoft-fsharp-compiler-ast-syntypedefnsigrepr.html">SynTypeDefnSigRepr</a>
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for the right-hand-side of a type definition in a signature.
-Note: in practice, using a discriminated union to make a distinction between 
+Note: in practice, using a discriminated union to make a distinction between
 "simple" types and "object oriented" types is not particularly useful.</p>
-
 
 </td>
         </tr>
@@ -694,7 +666,6 @@ Note: in practice, using a discriminated union to make a distinction between
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for the core of a simple type definition, in either signature
 or implementation.</p>
-
 
 </td>
         </tr>
@@ -710,7 +681,6 @@ or implementation.</p>
           </td>
           <td class="xmldoc"><p>The untyped, unchecked syntax tree for the right-hand-side of union definition, excluding members,
 in either a signature or implementation.</p>
-
 
 </td>
         </tr>
@@ -732,7 +702,6 @@ in either a signature or implementation.</p>
           </td>
           <td class="xmldoc"><p>The argument names and other metadata for a member or function</p>
 
-
 </td>
         </tr>
         <tr>
@@ -747,7 +716,6 @@ in either a signature or implementation.</p>
           </td>
           <td class="xmldoc"><p>The names and other metadata for the type parameters for a member or function</p>
 
-
 </td>
         </tr>
         <tr>
@@ -758,7 +726,6 @@ in either a signature or implementation.</p>
 when a syntax error occurs. The first object is the ParseErrorContext which contains a dump of
 information about the grammar at the point where the error occured, e.g. what tokens
 are valid to shift next at that point in the grammar. This information is processed in CompileOps.fs.</p>
-
 
 </td>
         </tr>
@@ -779,7 +746,6 @@ are valid to shift next at that point in the grammar. This information is proces
             <a href="microsoft-fsharp-compiler-ast-xmldoccollector.html">XmlDocCollector</a>
           </td>
           <td class="xmldoc"><p>Used to collect XML documentation during lexing and parsing.</p>
-
 
 </td>
         </tr>
@@ -815,7 +781,6 @@ are valid to shift next at that point in the grammar. This information is proces
           <td class="xmldoc"><p>XmlDoc F# lexer/parser state, held in the BufferLocalStore for the lexer.
 This is the only use of the lexer BufferLocalStore in the codebase.</p>
 
-
 </td>
         </tr>
         <tr>
@@ -823,11 +788,9 @@ This is the only use of the lexer BufferLocalStore in the codebase.</p>
             <a href="microsoft-fsharp-compiler-ast-syninfo.html">SynInfo</a>
           </td>
           <td class="xmldoc"><p>Operations related to the syntactic analysis of arguments of value, function and member definitions and signatures.</p>
-
 <p>Function and member definitions have strongly syntactically constrained arities.  We infer
 the arity from the syntax.</p>
-
-<p>For example, we record the arity for: 
+<p>For example, we record the arity for:
 StaticProperty --&gt; [1]               -- for unit arg
 this.InstanceProperty --&gt; [1;1]        -- for unit arg
 StaticMethod(args) --&gt; map InferSynArgInfoFromSimplePat args
@@ -836,12 +799,10 @@ this.InstanceProperty with get(argpat) --&gt; 1 :: [InferSynArgInfoFromSimplePat
 StaticProperty with get(argpat) --&gt; [InferSynArgInfoFromSimplePat argpat]
 this.InstanceProperty with get() --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat]
 StaticProperty with get() --&gt; [InferSynArgInfoFromSimplePat argpat]</p>
-
 <p>this.InstanceProperty with set(argpat)(v) --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat; 1]
 StaticProperty with set(argpat)(v) --&gt; [InferSynArgInfoFromSimplePat argpat; 1]
 this.InstanceProperty with set(v) --&gt; 1 :: [1]
 StaticProperty with set(v) --&gt; [1]</p>
-
 
 </td>
         </tr>
@@ -867,7 +828,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1997-1997" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2060-2060" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -881,11 +842,11 @@ StaticProperty with set(v) --&gt; [1]</p>
             appFunOpt funOpt x
           </code>
           <div class="tip" id="2">
-            <strong>Signature:</strong> funOpt:(&#39;?248254 -&gt; &#39;?248254) option -&gt; x:&#39;?248254 -&gt; &#39;?248254<br />
-                          <strong>Type parameters:</strong> '?248254          </div>
+            <strong>Signature:</strong> funOpt:(&#39;?353813 -&gt; &#39;?353813) option -&gt; x:&#39;?353813 -&gt; &#39;?353813<br />
+                          <strong>Type parameters:</strong> '?353813          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1616-1616" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1679-1679" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -903,7 +864,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1806-1806" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1869-1869" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -921,7 +882,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1419-1419" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1482-1482" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -939,7 +900,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1995-1995" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2058-2058" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -953,11 +914,11 @@ StaticProperty with set(v) --&gt; [1]</p>
             composeFunOpt funOpt1 funOpt2
           </code>
           <div class="tip" id="6">
-            <strong>Signature:</strong> funOpt1:(&#39;?248256 -&gt; &#39;?248256) option -&gt; funOpt2:(&#39;?248256 -&gt; &#39;?248256) option -&gt; (&#39;?248256 -&gt; &#39;?248256) option<br />
-                          <strong>Type parameters:</strong> '?248256          </div>
+            <strong>Signature:</strong> funOpt1:(&#39;?353815 -&gt; &#39;?353815) option -&gt; funOpt2:(&#39;?353815 -&gt; &#39;?353815) option -&gt; (&#39;?353815 -&gt; &#39;?353815) option<br />
+                          <strong>Type parameters:</strong> '?353815          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1617-1617" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1680-1680" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -975,7 +936,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1994-1994" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2057-2057" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1000,7 +961,6 @@ StaticProperty with set(v) --&gt; [1]</p>
           <p>The prefix of the names used for the fake namespace path added to all dynamic code entries in FSI.EXE</p>
 
 
-
         </td>
       </tr>
       <tr>
@@ -1014,7 +974,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1416-1416" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1479-1479" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1032,7 +992,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2000-2000" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2063-2063" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1050,12 +1010,11 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1521-1521" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1584-1584" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>This affects placement of sequence points</p>
-
 
 
         </td>
@@ -1071,7 +1030,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2028-2028" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2091-2091" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1089,7 +1048,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1540-1540" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1603-1603" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1107,7 +1066,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1541-1541" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1604-1604" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1125,7 +1084,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1731-1731" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1794-1794" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1143,7 +1102,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1732-1732" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1795-1795" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1161,7 +1120,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1733-1733" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1796-1796" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1179,7 +1138,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1734-1734" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1797-1797" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1197,7 +1156,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1735-1735" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1798-1798" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1215,7 +1174,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1761-1761" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1824-1824" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1233,7 +1192,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1724-1724" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1787-1787" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1251,7 +1210,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1988-1988" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2051-2051" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1269,7 +1228,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1980-1980" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2043-2043" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1287,7 +1246,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1729-1729" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1792-1792" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1305,7 +1264,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1505-1505" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1568-1568" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1323,7 +1282,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1759-1759" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1822-1822" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1341,7 +1300,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1777-1777" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1840-1840" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1359,7 +1318,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1737-1737" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1800-1800" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1377,7 +1336,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1741-1741" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1804-1804" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1395,7 +1354,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1739-1739" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1802-1802" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1413,7 +1372,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1788-1788" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1851-1851" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1431,7 +1390,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1751-1751" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1814-1814" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1449,7 +1408,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1736-1736" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1799-1799" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1467,7 +1426,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1799-1799" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1862-1862" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1485,7 +1444,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1492-1492" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1555-1555" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1503,7 +1462,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1494-1494" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1557-1557" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1521,7 +1480,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1499-1499" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1562-1562" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1539,7 +1498,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1720-1720" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1783-1783" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1557,7 +1516,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1495-1495" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1558-1558" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1575,7 +1534,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1718-1718" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1781-1781" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1593,7 +1552,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1545-1545" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1608-1608" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1611,7 +1570,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1543-1543" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1606-1606" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1629,7 +1588,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1728-1728" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1791-1791" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1647,7 +1606,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1738-1738" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1801-1801" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1665,7 +1624,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1726-1726" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1789-1789" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1683,7 +1642,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1727-1727" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1790-1790" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1701,7 +1660,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1504-1504" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1567-1567" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1719,7 +1678,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1544-1544" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1607-1607" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1737,7 +1696,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1725-1725" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1788-1788" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1755,7 +1714,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1757-1757" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1820-1820" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1773,7 +1732,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1758-1758" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1821-1821" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1791,7 +1750,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2001-2001" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2064-2064" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1809,7 +1768,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1993-1993" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2056-2056" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1827,7 +1786,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1716-1716" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1779-1779" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1845,7 +1804,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1717-1717" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1780-1780" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1863,7 +1822,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1996-1996" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2059-2059" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1881,12 +1840,11 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1688-1688" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1751-1751" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Helper for parsing the inline IL fragments.</p>
-
 
 
         </td>
@@ -1902,12 +1860,11 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1703-1703" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1766-1766" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Helper for parsing the inline IL fragments.</p>
-
 
 
         </td>
@@ -1923,7 +1880,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1418-1418" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1481-1481" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1941,7 +1898,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1493-1493" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1556-1556" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1959,17 +1916,16 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1660-1660" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1723-1723" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>"fun (UnionCase x) (UnionCase y) -&gt; body" 
-      ==&gt; 
-  "fun tmp1 tmp2 -&gt; 
-       let (UnionCase x) = tmp1 in 
-       let (UnionCase y) = tmp2 in 
-       body"</p>
-
+          <p>"fun (UnionCase x) (UnionCase y) -&gt; body"
+==&gt;
+"fun tmp1 tmp2 -&gt;
+let (UnionCase x) = tmp1 in
+let (UnionCase y) = tmp2 in
+body"</p>
 
 
         </td>
@@ -1985,7 +1941,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1646-1646" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1709-1709" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2003,7 +1959,7 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1424-1424" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1487-1487" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2021,13 +1977,12 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1576-1576" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1639-1639" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Push non-simple parts of a patten match over onto the r.h.s. of a lambda.
 Return a simple pattern and a function to build a match on the r.h.s. if the pattern is complex</p>
-
 
 
         </td>
@@ -2043,7 +1998,7 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1618-1618" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1681-1681" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2061,7 +2016,7 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1998-1998" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2061-2061" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2079,7 +2034,7 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2190-2190" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2253-2253" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2097,7 +2052,7 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1421-1421" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1484-1484" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2115,7 +2070,7 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1417-1417" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1480-1480" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2133,7 +2088,7 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1422-1422" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1485-1485" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2151,7 +2106,7 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1420-1420" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1483-1483" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -2177,14 +2132,14 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1508-1508" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1571-1571" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Match a long identifier, including the case for single identifiers which gets a more optimized node in the syntax tree.</p>
 
 
-
+              <p>CompiledName: <code>|LongOrSingleIdent|_|</code></p>
         </td>
       </tr>
       <tr>
@@ -2198,11 +2153,12 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1514-1514" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1577-1577" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>|SingleIdent|_|</code></p>
         </td>
       </tr>
       <tr>
@@ -2216,11 +2172,12 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1559-1559" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1622-1622" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>|SynExprErrorSkip|</code></p>
         </td>
       </tr>
       <tr>
@@ -2234,11 +2191,12 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1564-1564" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1627-1627" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>|SynExprParen|_|</code></p>
         </td>
       </tr>
       <tr>
@@ -2252,11 +2210,12 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1569-1569" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1632-1632" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>|SynPatErrorSkip|</code></p>
         </td>
       </tr>
       <tr>
@@ -2270,14 +2229,14 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1548-1548" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1611-1611" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Extract the argument for patterns corresponding to the declaration of 'new ... = ...'</p>
 
 
-
+              <p>CompiledName: <code>|SynPatForConstructorDecl|_|</code></p>
         </td>
       </tr>
       <tr>
@@ -2291,14 +2250,14 @@ Return a simple pattern and a function to build a match on the r.h.s. if the pat
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1554-1554" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1617-1617" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Recognize the '()' in 'new()'</p>
 
 
-
+              <p>CompiledName: <code>|SynPatForNullaryArgs|_|</code></p>
         </td>
       </tr>
     </tbody>

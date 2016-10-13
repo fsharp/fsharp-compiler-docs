@@ -35,24 +35,19 @@
         <div class="span9" id="main">
           
 <h1><a name="Compiler-Services-Editor-services" class="anchor" href="#Compiler-Services-Editor-services">Compiler Services: Editor services</a></h1>
-
 <p>This tutorial demonstrates how to use the editor services provided by the F# compiler.
 This API is used to provide auto-complete, tool-tips, parameter info help, matching of
-brackets and other functions in F# editors including Visual Studio, Xamarin Studio and Emacs 
+brackets and other functions in F# editors including Visual Studio, Xamarin Studio and Emacs
 (see <a href="https://github.com/fsharp/fsharpbinding">fsharpbindings</a> project for more information).
-Similarly to <a href="untypedtree.html">the tutorial on using untyped AST</a>, we start by 
+Similarly to <a href="untypedtree.html">the tutorial on using untyped AST</a>, we start by
 getting the <code>InteractiveChecker</code> object.</p>
-
 <blockquote>
-  <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
 </blockquote>
-
 <h2><a name="Type-checking-sample-source-code" class="anchor" href="#Type-checking-sample-source-code">Type checking sample source code</a></h2>
-
 <p>As in the <a href="untypedtree.html">previous tutorial (using untyped AST)</a>, we start by referencing
 <code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
 of <code>InteractiveChecker</code>:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -73,11 +68,9 @@ of <code>InteractiveChecker</code>:</p>
 </code></pre></td>
 </tr>
 </table>
-
-<p>As <a href="untypedtree.html">previously</a>, we use <code>GetProjectOptionsFromScriptRoot</code> to get a context 
+<p>As <a href="untypedtree.html">previously</a>, we use <code>GetProjectOptionsFromScriptRoot</code> to get a context
 where the specified input is the only file passed to the compiler (and it is treated as a
 script file or stand-alone F# source code).</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -116,13 +109,11 @@ script file or stand-alone F# source code).</p>
 </code></pre></td>
 </tr>
 </table>
-
-<p>To perform type checking, we first need to parse the input using 
+<p>To perform type checking, we first need to parse the input using
 <code>ParseFileInProject</code>, which gives us access to the <a href="untypedtree.html">untyped AST</a>. However,
 then we need to call <code>CheckFileInProject</code> to perform the full type checking. This function
-also requires the result of <code>ParseFileInProject</code>, so the two functions are often called 
+also requires the result of <code>ParseFileInProject</code>, so the two functions are often called
 together.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -135,11 +126,9 @@ together.</p>
 </code></pre></td>
 </tr>
 </table>
-
-<p>Before we look at the interesting operations provided by <code>TypeCheckResults</code>, we 
+<p>Before we look at the interesting operations provided by <code>TypeCheckResults</code>, we
 need to run the type checker on a sample input. On F# code with errors, you would get some type checking
 result (but it may contain incorrectly "guessed" results).</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -152,9 +141,7 @@ result (but it may contain incorrectly "guessed" results).</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Alternatively you can use <code>ParseAndCheckFileInProject</code> to check both in one step:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -165,11 +152,9 @@ result (but it may contain incorrectly "guessed" results).</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The function returns both the untyped parse result (which we do not use in this
 tutorial), but also a <code>CheckFileAnswer</code> value, which gives us access to all
 the interesting functionality...</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -182,27 +167,20 @@ the interesting functionality...</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Here, we type check a simple function that (conditionally) prints "Hello world".
 On the last line, we leave an additional dot in <code>msg.</code> so that we can get the
 completion list on the <code>msg</code> value (we expect to see various methods on the string
 type there).</p>
-
 <h2><a name="Using-type-checking-results" class="anchor" href="#Using-type-checking-results">Using type checking results</a></h2>
-
 <p>Let's now look at some of the API that is exposed by the <code>TypeCheckResults</code> type. In general,
 this is the type that lets you implement most of the interesting F# source code editor services.</p>
-
 <h3><a name="Getting-a-tool-tip" class="anchor" href="#Getting-a-tool-tip">Getting a tool tip</a></h3>
-
 <p>To get a tool tip, you can use <code>GetToolTipTextAlternate</code> method. The method takes a line number and character
 offset. Both of the numbers are zero-based. In the sample code, we want to get tooltip for the <code>foo</code>
 function that is defined on line 3 (line 0 is blank) and the letter <code>f</code> starts at index 7 (the tooltip
 would work anywhere inside the identifier).</p>
-
 <p>In addition, the method takes a tag of token which is typically <code>IDENT</code>, when getting tooltip for an
 identifier (the other option lets you get tooltip with full assembly location when using <code>#r "..."</code>).</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -221,33 +199,26 @@ identifier (the other option lets you get tooltip with full assembly location wh
 </code></pre></td>
 </tr>
 </table>
-
 <blockquote>
-  <p><strong>NOTE:</strong> <code>GetToolTipTextAlternate</code> is an alternative name for the old <code>GetToolTipText</code>. The old <code>GetToolTipText</code> was
+<p><strong>NOTE:</strong> <code>GetToolTipTextAlternate</code> is an alternative name for the old <code>GetToolTipText</code>. The old <code>GetToolTipText</code> was
 deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  <code>GetToolTipTextAlternate</code> will be renamed back to <code>GetToolTipText</code>.</p>
 </blockquote>
-
 <p>Aside from the location and token kind, the function also requires the current contents of the line
 (useful when the source code changes) and a <code>Names</code> value, which is a list of strings representing
 the current long name. For example to get tooltip for the <code>Random</code> identifier in a long name
-<code>System.Random</code>, you would use location somewhere in the string <code>Random</code> and you would pass 
+<code>System.Random</code>, you would use location somewhere in the string <code>Random</code> and you would pass
 <code>["System"; "Random"]</code> as the <code>Names</code> value.</p>
-
 <p>The returned value is of type <code>ToolTipText</code> which contains a discriminated union <code>ToolTipElement</code>.
 The union represents different kinds of tool tips that you can get from the compiler.</p>
-
 <h3><a name="Getting-auto-complete-lists" class="anchor" href="#Getting-auto-complete-lists">Getting auto-complete lists</a></h3>
-
 <p>The next method exposed by <code>TypeCheckResults</code> lets us perform auto-complete on a given location.
 This can be called on any identifier or in any scope (in which case you get a list of names visible
-in the scope) or immediately after <code>.</code> to get a list of members of some object. Here, we get a 
+in the scope) or immediately after <code>.</code> to get a list of members of some object. Here, we get a
 list of members of the string value <code>msg</code>.</p>
-
-<p>To do this, we call <code>GetDeclarationListInfo</code> with the location of the <code>.</code> symbol on the last line 
+<p>To do this, we call <code>GetDeclarationListInfo</code> with the location of the <code>.</code> symbol on the last line
 (ending with <code>printfn "%s" msg.</code>). The offsets are one-based, so the location is <code>7, 23</code>.
 We also need to specify a function that says that the text has not changed and the current identifer
 where we need to perform the completion.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -270,27 +241,22 @@ where we need to perform the completion.</p>
 </code></pre></td>
 </tr>
 </table>
-
 <blockquote>
-  <p><strong>NOTE:</strong> <code>v</code> is an alternative name for the old <code>GetDeclarations</code>. The old <code>GetDeclarations</code> was
+<p><strong>NOTE:</strong> <code>v</code> is an alternative name for the old <code>GetDeclarations</code>. The old <code>GetDeclarations</code> was
 deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  <code>GetDeclarationListInfo</code> will be renamed back to <code>GetDeclarations</code>.</p>
 </blockquote>
-
-<p>When you run the code, you should get a list containing the usual string methods such as 
-<code>Substring</code>, <code>ToUpper</code>, <code>ToLower</code> etc. The fourth argument of <code>GetDeclarations</code>, here <code>([], "msg")</code>, 
+<p>When you run the code, you should get a list containing the usual string methods such as
+<code>Substring</code>, <code>ToUpper</code>, <code>ToLower</code> etc. The fourth argument of <code>GetDeclarations</code>, here <code>([], "msg")</code>,
 specifies the context for the auto-completion. Here, we want a completion on a complete name
 <code>msg</code>, but you could for example use <code>(["System"; "Collections"], "Generic")</code> to get a completion list
 for a fully qualified namespace.</p>
-
 <h3><a name="Getting-parameter-information" class="anchor" href="#Getting-parameter-information">Getting parameter information</a></h3>
-
-<p>The next common feature of editors is to provide information about overloads of a method. In our 
+<p>The next common feature of editors is to provide information about overloads of a method. In our
 sample code, we use <code>String.Concat</code> which has a number of overloads. We can get the list using
 <code>GetMethods</code> operation. As previously, this takes zero-indexed offset of the location that we are
 interested in (here, right at the end of the <code>String.Concat</code> identifier) and we also need to provide
 the identifier again (so that the compiler can provide up-to-date information when the source code
 changes):</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -315,39 +281,30 @@ changes):</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The code uses the <code>Display</code> property to get the annotation for each parameter. This returns information
 such as <code>arg0: obj</code> or <code>params args: obj[]</code> or <code>str0: string, str1: string</code>. We concatenate the parameters
 and print a type annotation with the method name.</p>
-
 <h2><a name="Asynchronous-and-immediate-operations" class="anchor" href="#Asynchronous-and-immediate-operations">Asynchronous and immediate operations</a></h2>
-
 <p>You may have noticed that <code>CheckFileInProject</code> is an asynchronous operation.
 This indicates that type checking of F# code can take some time.
 The F# compiler performs the work in background (automatically) and when
 we call <code>CheckFileInProject</code> method, it returns an asynchronous operation.</p>
-
 <p>There is also the <code>CheckFileInProjectIfReady</code> method. This returns immediately if the
 type checking operation can't be started immediately, e.g. if other files in the project
 are not yet type-checked. In this case, a background worker might choose to do other
 work in the meantime, or give up on type checking the file until the <code>FileTypeCheckStateIsDirty</code> event
 is raised.</p>
-
 <blockquote>
-  <p>The <a href="https://github.com/fsharp/fsharpbinding">fsharpbinding</a> project has more advanced
+<p>The <a href="https://github.com/fsharp/fsharpbinding">fsharpbinding</a> project has more advanced
 example of handling the background work where all requests are sent through an F# agent.
 This may be a more appropriate for implementing editor support.</p>
 </blockquote>
-
 <h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
-
 <p>The <code>CheckFileAnswer</code> object contains other useful methods that were not covered in this tutorial. You
 can use it to get location of a declaration for a given identifier, additional colorization information
 (the F# 3.1 colorizes computation builder identifiers &amp; query operators) and others.</p>
-
 <p>Using the FSharpChecker component in multi-project, incremental and interactive editing situations may involve
 knowledge of the <a href="queue.html">FSharpChecker operations queue</a> and the <a href="caches.html">FSharpChecker caches</a>.</p>
-
 <p>Finally, if you are implementing an editor support for an editor that cannot directly call .NET API,
 you can call many of the methods discussed here via a command line interface that is available in the
 <a href="https://github.com/fsharp/fsharpbinding/tree/master/FSharp.AutoComplete">FSharp.AutoComplete</a> project.</p>
@@ -358,8 +315,8 @@ you can call many of the methods discussed here via a command line interface tha
 <div class="tip" id="fs4">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs5">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs6">val checker : FSharpChecker<br /><br />Full name: Editor.checker</div>
-<div class="tip" id="fs7">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
-<div class="tip" id="fs8">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker</div>
+<div class="tip" id="fs7">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member KeepProjectAlive : options:FSharpProjectOptions -&gt; Async&lt;IDisposable&gt;<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member private ReferenceResolver : Resolver<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
+<div class="tip" id="fs8">static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker</div>
 <div class="tip" id="fs9">val input : string<br /><br />Full name: Editor.input</div>
 <div class="tip" id="fs10">val inputLines : string []<br /><br />Full name: Editor.inputLines</div>
 <div class="tip" id="fs11">String.Split([&lt;ParamArray&gt;] separator: char []) : string []<br />String.Split(separator: string [], options: StringSplitOptions) : string []<br />String.Split(separator: char [], options: StringSplitOptions) : string []<br />String.Split(separator: char [], count: int) : string []<br />String.Split(separator: string [], count: int, options: StringSplitOptions) : string []<br />String.Split(separator: char [], count: int, options: StringSplitOptions) : string []</div>

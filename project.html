@@ -35,19 +35,14 @@
         <div class="span9" id="main">
           
 <h1><a name="Compiler-Services-Project-Analysis" class="anchor" href="#Compiler-Services-Project-Analysis">Compiler Services: Project Analysis</a></h1>
-
 <p>This tutorial demonstrates how to can analyze a whole project using services provided by the F# compiler.</p>
-
 <blockquote>
-  <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.</p>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.</p>
 </blockquote>
-
 <h2><a name="Getting-whole-project-results" class="anchor" href="#Getting-whole-project-results">Getting whole-project results</a></h2>
-
 <p>As in the <a href="untypedtree.html">previous tutorial (using untyped AST)</a>, we start by referencing
 <code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
 of <code>InteractiveChecker</code>:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -72,9 +67,7 @@ of <code>InteractiveChecker</code>:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Here are our sample inputs:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -149,9 +142,7 @@ of <code>InteractiveChecker</code>:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>We use <code>GetProjectOptionsFromCommandLineArgs</code> to treat two files as a project:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -198,7 +189,7 @@ of <code>InteractiveChecker</code>:</p>
     <span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 47)" onmouseover="showTip(event, 'fs26', 47)" class="f">sysLib</span> <span onmouseout="hideTip(event, 'fs27', 48)" onmouseover="showTip(event, 'fs27', 48)" class="i">nm</span> <span class="o">=</span> 
         <span class="k">if</span> <span onmouseout="hideTip(event, 'fs1', 49)" onmouseover="showTip(event, 'fs1', 49)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 50)" onmouseover="showTip(event, 'fs28', 50)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 51)" onmouseover="showTip(event, 'fs29', 51)" class="i">OSVersion</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 52)" onmouseover="showTip(event, 'fs30', 52)" class="i">Platform</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 53)" onmouseover="showTip(event, 'fs1', 53)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 54)" onmouseover="showTip(event, 'fs31', 54)" class="t">PlatformID</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 55)" onmouseover="showTip(event, 'fs32', 55)" class="i">Win32NT</span> <span class="k">then</span>
             <span class="c">// file references only valid on Windows</span>
-            <span onmouseout="hideTip(event, 'fs1', 56)" onmouseover="showTip(event, 'fs1', 56)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 57)" onmouseover="showTip(event, 'fs28', 57)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 58)" onmouseover="showTip(event, 'fs33', 58)" class="f">GetFolderPath</span>(<span onmouseout="hideTip(event, 'fs1', 59)" onmouseover="showTip(event, 'fs1', 59)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 60)" onmouseover="showTip(event, 'fs28', 60)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 61)" onmouseover="showTip(event, 'fs34', 61)" class="i">SpecialFolder</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 62)" onmouseover="showTip(event, 'fs35', 62)" class="i">ProgramFilesX86</span>) <span class="o">+</span>
+            <span onmouseout="hideTip(event, 'fs1', 56)" onmouseover="showTip(event, 'fs1', 56)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 57)" onmouseover="showTip(event, 'fs28', 57)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 58)" onmouseover="showTip(event, 'fs33', 58)" class="f">GetFolderPath</span>(<span onmouseout="hideTip(event, 'fs1', 59)" onmouseover="showTip(event, 'fs1', 59)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 60)" onmouseover="showTip(event, 'fs28', 60)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 61)" onmouseover="showTip(event, 'fs34', 61)" class="t">SpecialFolder</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 62)" onmouseover="showTip(event, 'fs35', 62)" class="i">ProgramFilesX86</span>) <span class="o">+</span>
             <span class="s">@&quot;\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\&quot;</span> <span class="o">+</span> <span onmouseout="hideTip(event, 'fs27', 63)" onmouseover="showTip(event, 'fs27', 63)" class="i">nm</span> <span class="o">+</span> <span class="s">&quot;.dll&quot;</span>
         <span class="k">else</span>
             <span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 64)" onmouseover="showTip(event, 'fs36', 64)" class="i">sysDir</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 65)" onmouseover="showTip(event, 'fs1', 65)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs37', 66)" onmouseover="showTip(event, 'fs37', 66)" class="i">Runtime</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 67)" onmouseover="showTip(event, 'fs38', 67)" class="i">InteropServices</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 68)" onmouseover="showTip(event, 'fs39', 68)" class="t">RuntimeEnvironment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 69)" onmouseover="showTip(event, 'fs40', 69)" class="f">GetRuntimeDirectory</span>()
@@ -208,7 +199,7 @@ of <code>InteractiveChecker</code>:</p>
     <span class="k">let</span> <span onmouseout="hideTip(event, 'fs44', 80)" onmouseover="showTip(event, 'fs44', 80)" class="f">fsCore4300</span>() <span class="o">=</span> 
         <span class="k">if</span> <span onmouseout="hideTip(event, 'fs1', 81)" onmouseover="showTip(event, 'fs1', 81)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 82)" onmouseover="showTip(event, 'fs28', 82)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 83)" onmouseover="showTip(event, 'fs29', 83)" class="i">OSVersion</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 84)" onmouseover="showTip(event, 'fs30', 84)" class="i">Platform</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 85)" onmouseover="showTip(event, 'fs1', 85)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 86)" onmouseover="showTip(event, 'fs31', 86)" class="t">PlatformID</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 87)" onmouseover="showTip(event, 'fs32', 87)" class="i">Win32NT</span> <span class="k">then</span>
             <span class="c">// file references only valid on Windows</span>
-            <span onmouseout="hideTip(event, 'fs1', 88)" onmouseover="showTip(event, 'fs1', 88)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 89)" onmouseover="showTip(event, 'fs28', 89)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 90)" onmouseover="showTip(event, 'fs33', 90)" class="f">GetFolderPath</span>(<span onmouseout="hideTip(event, 'fs1', 91)" onmouseover="showTip(event, 'fs1', 91)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 92)" onmouseover="showTip(event, 'fs28', 92)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 93)" onmouseover="showTip(event, 'fs34', 93)" class="i">SpecialFolder</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 94)" onmouseover="showTip(event, 'fs35', 94)" class="i">ProgramFilesX86</span>) <span class="o">+</span>
+            <span onmouseout="hideTip(event, 'fs1', 88)" onmouseover="showTip(event, 'fs1', 88)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 89)" onmouseover="showTip(event, 'fs28', 89)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 90)" onmouseover="showTip(event, 'fs33', 90)" class="f">GetFolderPath</span>(<span onmouseout="hideTip(event, 'fs1', 91)" onmouseover="showTip(event, 'fs1', 91)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 92)" onmouseover="showTip(event, 'fs28', 92)" class="t">Environment</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 93)" onmouseover="showTip(event, 'fs34', 93)" class="t">SpecialFolder</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 94)" onmouseover="showTip(event, 'fs35', 94)" class="i">ProgramFilesX86</span>) <span class="o">+</span>
             <span class="s">@&quot;\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll&quot;</span>  
         <span class="k">else</span> 
             <span onmouseout="hideTip(event, 'fs26', 95)" onmouseover="showTip(event, 'fs26', 95)" class="f">sysLib</span> <span class="s">&quot;FSharp.Core&quot;</span>
@@ -238,18 +229,14 @@ of <code>InteractiveChecker</code>:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Now check the entire project (using the files saved on disk):</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs49', 114)" onmouseover="showTip(event, 'fs49', 114)" class="i">wholeProjectResults</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 115)" onmouseover="showTip(event, 'fs8', 115)" class="i">checker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 116)" onmouseover="showTip(event, 'fs50', 116)" class="f">ParseAndCheckProject</span>(<span onmouseout="hideTip(event, 'fs25', 117)" onmouseover="showTip(event, 'fs25', 117)" class="i">projectOptions</span>) <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs51', 118)" onmouseover="showTip(event, 'fs51', 118)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs52', 119)" onmouseover="showTip(event, 'fs52', 119)" class="f">RunSynchronously</span>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Now look at the errors and warnings:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -268,9 +255,7 @@ of <code>InteractiveChecker</code>:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Now look at the inferred signature for the project:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -283,9 +268,7 @@ of <code>InteractiveChecker</code>:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>You can also get all symbols in the project:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -314,10 +297,8 @@ of <code>InteractiveChecker</code>:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>After checking the whole project, you can access the background results for individual files
 in the project. This will be fast and will not involve any additional checking.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -328,9 +309,7 @@ in the project. This will be fast and will not involve any additional checking.<
 </code></pre></td>
 </tr>
 </table>
-
 <p>You can now resolve symbols in each file:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -349,9 +328,7 @@ in the project. This will be fast and will not involve any additional checking.<
 </code></pre></td>
 </tr>
 </table>
-
 <p>You can find out more about a symbol by doing type checks on various symbol kinds:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -366,9 +343,7 @@ in the project. This will be fast and will not involve any additional checking.<
 </code></pre></td>
 </tr>
 </table>
-
 <p>For each symbol, you can look up the references to that symbol:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -379,9 +354,7 @@ in the project. This will be fast and will not involve any additional checking.<
 </code></pre></td>
 </tr>
 </table>
-
 <p>You can iterate all the defined symbols in the inferred signature and find where they are used:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -394,9 +367,7 @@ in the project. This will be fast and will not involve any additional checking.<
 </code></pre></td>
 </tr>
 </table>
-
 <p>You can also look at all the symbols uses in the whole project (including uses of symbols with local scope)</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -407,10 +378,8 @@ in the project. This will be fast and will not involve any additional checking.<
 </code></pre></td>
 </tr>
 </table>
-
-<p>You can also request checks of updated versions of files within the project (note that the other files 
+<p>You can also request checks of updated versions of files within the project (note that the other files
 in the project are still read from disk, unless you are using the <a href="filesystem.html">FileSystem API</a>):</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -449,9 +418,7 @@ in the project are still read from disk, unless you are using the <a href="files
 </code></pre></td>
 </tr>
 </table>
-
 <p>Again, you can resolve symbols and ask for references:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -478,9 +445,7 @@ in the project are still read from disk, unless you are using the <a href="files
 </code></pre></td>
 </tr>
 </table>
-
 <p>Or ask for all the symbols uses in the file (including uses of symbols with local scope)</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -491,9 +456,7 @@ in the project are still read from disk, unless you are using the <a href="files
 </code></pre></td>
 </tr>
 </table>
-
 <p>Or ask for all the uses of one symbol in one file:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -512,35 +475,27 @@ in the project are still read from disk, unless you are using the <a href="files
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Analyzing-multiple-projects" class="anchor" href="#Analyzing-multiple-projects">Analyzing multiple projects</a></h2>
-
-<p>If you have multiple F# projects to analyze which include references from some projects to others, 
-then the simplest way to do this is to build the projects and specify the cross-project references using 
+<p>If you have multiple F# projects to analyze which include references from some projects to others,
+then the simplest way to do this is to build the projects and specify the cross-project references using
 a <code>-r:path-to-output-of-project.dll</code> argument in the ProjectOptions. However, this requires the build
 of each project to succeed, producing the DLL file on disk which can be referred to.</p>
-
 <p>In some situations, e.g. in an IDE, you may wish to allow references to other F# projects prior to successful compilation to
 a DLL. To do this, fill in the ProjectReferences entry in ProjectOptions, which recursively specifies the project
 options for dependent projects. Each project reference still needs a corresponding <code>-r:path-to-output-of-project.dll</code>
 command line argument in ProjectOptions, along with an entry in ProjectReferences.
 The first element of each tuple in the ProjectReferences entry should be the DLL name, i.e. <code>path-to-output-of-project.dll</code>.
 This should be the same as the text used in the <code>-r</code> project reference.</p>
-
 <p>When a project reference is used, the analysis will make use of the results of incremental
 analysis of the referenced F# project from source files, without requiring the compilation of these files to DLLs.</p>
-
 <p>To efficiently analyze a set of F# projects which include cross-references, you should populate the ProjectReferences
 correctly and then analyze each project in turn.</p>
-
 <blockquote>
-  <p><strong>NOTE:</strong> Project references are disabled if the assembly being referred to contains type provider components - 
-  specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will 
-  still be required on disk.</p>
+<p><strong>NOTE:</strong> Project references are disabled if the assembly being referred to contains type provider components -
+specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will
+still be required on disk.</p>
 </blockquote>
-
 <h2><a name="Cracking-a-project-file" class="anchor" href="#Cracking-a-project-file">Cracking a project file</a></h2>
-
 <p>F# projects normally use the '.fsproj' project file format.
 A project cracking facility is provided as a separate NuGet package:
 FSharp.Compiler.Service.ProjectCracker. This NuGet package contains a
@@ -552,17 +507,14 @@ you install using Paket or NuGet, then this will be configured for you
 automatically. If not, you should reference the provided <code>.targets</code>
 file manually in your application. This can be found in the NuGet
 package at <code>build/net45/FSharp.Compiler.Service.ProjectCrackerTool.targets</code>.</p>
-
 <p>The reason for this split is so that the analysis of an F# project
 file is performed out of process, in order that the necessary assembly
 binding redirects can be applied without requiring the caller to
 arrange this. In this way MSBuild versions from 4 up to 14 can be
 accommodated transparently.</p>
-
 <p>In this example we get the project options for one of the
 project files in the F# Compiler Service project itself - you should also be able to use this technique
 for any project that builds cleanly using the command line tools 'xbuild' or 'msbuild'.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -573,30 +525,23 @@ for any project that builds cleanly using the command line tools 'xbuild' or 'ms
 </code></pre></td>
 </tr>
 </table>
-
 <p>You can also request RELEASE mode and set other build configuration parameters:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs114', 309)" onmouseover="showTip(event, 'fs114', 309)" class="t">ProjectCracker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs115', 310)" onmouseover="showTip(event, 'fs115', 310)" class="f">GetProjectOptionsFromProjectFile</span>(<span onmouseout="hideTip(event, 'fs113', 311)" onmouseover="showTip(event, 'fs113', 311)" class="i">projectFile</span>, [(<span class="s">&quot;Configuration&quot;</span>, <span class="s">&quot;Release&quot;</span>)])
 </code></pre></td>
 </tr>
 </table>
-
 <p>For debugging purposes it is also possible to obtain a detailed log from the assembly resolution process.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs116', 312)" onmouseover="showTip(event, 'fs116', 312)" class="i">options</span>, <span onmouseout="hideTip(event, 'fs117', 313)" onmouseover="showTip(event, 'fs117', 313)" class="i">logs</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs114', 314)" onmouseover="showTip(event, 'fs114', 314)" class="t">ProjectCracker</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs118', 315)" onmouseover="showTip(event, 'fs118', 315)" class="f">GetProjectOptionsFromProjectFileLogged</span>(<span onmouseout="hideTip(event, 'fs113', 316)" onmouseover="showTip(event, 'fs113', 316)" class="i">projectFile</span>, [(<span class="s">&quot;Configuration&quot;</span>, <span class="s">&quot;Release&quot;</span>)])
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
-
-<p>As you have seen, the <code>ParseAndCheckProject</code> lets you access results of project-wide analysis 
+<p>As you have seen, the <code>ParseAndCheckProject</code> lets you access results of project-wide analysis
 such as symbol references. To learn more about working with symbols, see <a href="symbols.html">Symbols</a>.</p>
-
 <p>Using the FSharpChecker component in multi-project, incremental and interactive editing situations may involve
 knowledge of the <a href="queue.html">FSharpChecker operations queue</a> and the <a href="caches.html">FSharpChecker caches</a>.</p>
 
@@ -608,8 +553,8 @@ knowledge of the <a href="queue.html">FSharpChecker operations queue</a> and the
 <div class="tip" id="fs6">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs7">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs8">val checker : FSharpChecker<br /><br />Full name: Project.checker</div>
-<div class="tip" id="fs9">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
-<div class="tip" id="fs10">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker</div>
+<div class="tip" id="fs9">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member KeepProjectAlive : options:FSharpProjectOptions -&gt; Async&lt;IDisposable&gt;<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member private ReferenceResolver : Resolver<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
+<div class="tip" id="fs10">static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker</div>
 <div class="tip" id="fs11">namespace System.IO</div>
 <div class="tip" id="fs12">val base1 : string<br /><br />Full name: Project.Inputs.base1</div>
 <div class="tip" id="fs13">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : [&lt;ParamArray&gt;] paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string<br />&#160;&#160;static member GetExtension : path:string -&gt; string<br />&#160;&#160;static member GetFileName : path:string -&gt; string<br />&#160;&#160;...<br /><br />Full name: System.IO.Path</div>
@@ -662,7 +607,7 @@ knowledge of the <a href="queue.html">FSharpChecker operations queue</a> and the
 <div class="tip" id="fs60">val allSymbolsInEntities : entities:IList&lt;FSharpEntity&gt; -&gt; FSharpSymbol list<br /><br />Full name: Project.allSymbolsInEntities</div>
 <div class="tip" id="fs61">val entities : IList&lt;FSharpEntity&gt;</div>
 <div class="tip" id="fs62">type IList&lt;&#39;T&gt; =<br />&#160;&#160;member IndexOf : item:&#39;T -&gt; int<br />&#160;&#160;member Insert : index:int * item:&#39;T -&gt; unit<br />&#160;&#160;member Item : int -&gt; &#39;T with get, set<br />&#160;&#160;member RemoveAt : index:int -&gt; unit<br /><br />Full name: System.Collections.Generic.IList&lt;_&gt;</div>
-<div class="tip" id="fs63">type FSharpEntity =<br />&#160;&#160;inherit FSharpSymbol<br />&#160;&#160;private new : cenv * EntityRef -&gt; FSharpEntity<br />&#160;&#160;member AbbreviatedType : FSharpType<br />&#160;&#160;member AccessPath : string<br />&#160;&#160;member Accessibility : FSharpAccessibility<br />&#160;&#160;member AllInterfaces : IList&lt;FSharpType&gt;<br />&#160;&#160;member Attributes : IList&lt;FSharpAttribute&gt;<br />&#160;&#160;member BaseType : FSharpType option<br />&#160;&#160;member CompiledName : string<br />&#160;&#160;member DeclarationLocation : range<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpEntity</div>
+<div class="tip" id="fs63">type FSharpEntity =<br />&#160;&#160;inherit FSharpSymbol<br />&#160;&#160;private new : cenv * EntityRef -&gt; FSharpEntity<br />&#160;&#160;member AbbreviatedType : FSharpType<br />&#160;&#160;member AccessPath : string<br />&#160;&#160;member Accessibility : FSharpAccessibility<br />&#160;&#160;member AllInterfaces : IList&lt;FSharpType&gt;<br />&#160;&#160;member ArrayRank : int<br />&#160;&#160;member Attributes : IList&lt;FSharpAttribute&gt;<br />&#160;&#160;member BaseType : FSharpType option<br />&#160;&#160;member CompiledName : string<br />&#160;&#160;...<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpEntity</div>
 <div class="tip" id="fs64">val e : FSharpEntity</div>
 <div class="tip" id="fs65">type FSharpSymbol =<br />&#160;&#160;member IsAccessible : FSharpAccessibilityRights -&gt; bool<br />&#160;&#160;member IsEffectivelySameAs : other:FSharpSymbol -&gt; bool<br />&#160;&#160;member Assembly : FSharpAssembly<br />&#160;&#160;member DeclarationLocation : range option<br />&#160;&#160;member DisplayName : string<br />&#160;&#160;member FullName : string<br />&#160;&#160;member ImplementationLocation : range option<br />&#160;&#160;member private Item : Item<br />&#160;&#160;member SignatureLocation : range option<br />&#160;&#160;static member private Create : g:TcGlobals * thisCcu:CcuThunk * tcImports:TcImports * item:Item -&gt; FSharpSymbol<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpSymbol</div>
 <div class="tip" id="fs66">property FSharpEntity.MembersFunctionsAndValues: IList&lt;FSharpMemberOrFunctionOrValue&gt;</div>

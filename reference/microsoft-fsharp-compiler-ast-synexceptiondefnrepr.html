@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ILBasicBlock - F# Compiler Services</title>
+    <title>SynExceptionDefnRepr - F# Compiler Services</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
@@ -36,55 +36,33 @@
 
 
 
-<h1>ILBasicBlock</h1>
+<h1>SynExceptionDefnRepr</h1>
 <p>
-  <span>Namespace: Microsoft.FSharp.Compiler.AbstractIL</span><br />
-  <span>Parent Module: <a href="microsoft-fsharp-compiler-abstractil-il.html">IL</a></span>
+  <span>Namespace: Microsoft.FSharp.Compiler</span><br />
+  <span>Parent Module: <a href="microsoft-fsharp-compiler-ast.html">Ast</a></span>
 </p>
 <div class="xmldoc">
-<p>A list of instructions ending in an unconditionally
-branching instruction. A basic block has a label which must be unique
-within the method it is located in.  Only the first instruction of
-a basic block can be the target of a branch.</p>
-
+<p>'exception E = ... '</p>
 
 </div>
-  <h3>Record Fields</h3>
+  <h3>Union Cases</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Record Field</td><td>Description</td></tr>
+      <tr><td>Union Case</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1416', 1416)" onmouseover="showTip(event, '1416', 1416)">
-            Instructions
+          <code onmouseout="hideTip(event, '900', 900)" onmouseover="showTip(event, '900', 900)">
+            SynExceptionDefnRepr(...)
           </code>
-          <div class="tip" id="1416">
-            <strong>Signature:</strong> ILInstr []<br />
+          <div class="tip" id="900">
+            <strong>Signature:</strong> SynAttributes * SynUnionCase * LongIdent option * PreXmlDoc * SynAccess option * range<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L709-709" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1417', 1417)" onmouseover="showTip(event, '1417', 1417)">
-            Label
-          </code>
-          <div class="tip" id="1417">
-            <strong>Signature:</strong> ILCodeLabel<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L708-708" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1303-1303" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -102,19 +80,20 @@ a basic block can be the target of a branch.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1418', 1418)" onmouseover="showTip(event, '1418', 1418)">
-            Fallthrough
+          <code onmouseout="hideTip(event, '901', 901)" onmouseover="showTip(event, '901', 901)">
+            Range
           </code>
-          <div class="tip" id="1418">
-            <strong>Signature:</strong> ILCodeLabel option<br />
+          <div class="tip" id="901">
+            <strong>Signature:</strong> range<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fs#L1164-1164" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1304-1304" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>get_Range</code></p>
         </td>
       </tr>
     </tbody>

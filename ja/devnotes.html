@@ -35,67 +35,61 @@
         <div class="span9" id="main">
           
 <h1><a name="開発者用メモ" class="anchor" href="#開発者用メモ">開発者用メモ</a></h1>
-
 <p>F#コンパイラの修正版クローンではクライアントの編集機能やF#コンパイラの埋め込み、
 F# Interactiveをサービスとして動作させるための機能が追加されています。</p>
-
 <h2><a name="コンポーネント" class="anchor" href="#コンポーネント">コンポーネント</a></h2>
-
 <p>まず <code>FSharp.Compiler.Service.dll</code> というコンポーネントがあります。
 このコンポーネントにはリファクタリングやその他の編集ツールが完全なF# ASTやパーサ機能を利用できるように
 可視性を変更するというマイナーな変更だけが加えられています。
 主な狙いとしては、メインコンパイラの安定版かつドキュメントが備えられたフォークを用意することにより、
 このコンポーネントにある共通コードを様々なツールで共有できるようにすることです。</p>
-
 <p>2つ目のコンポーネントはF# Interactiveをサービスとして組み込めるようにするためのもので、
 <code>fsi.exe</code> のソースコードに多数の変更が加えられており、
 <code>EvalExpression</code> や <code>EvalInteraction</code> といった関数が追加されています。</p>
-
 <p>このレポジトリは以下の点を除けば 'fsharp' と <strong>同一</strong> です:</p>
-
 <ul>
-<li><code>FSharp.Compiler.Service.dll</code> のビルド、特に以下の点に関する変更:
+<li>
+<p><code>FSharp.Compiler.Service.dll</code> のビルド、特に以下の点に関する変更:</p>
 <ul>
 <li>アセンブリ名の変更</li>
-<li><code>FSharp.Compiler.Service.dll</code> のみビルドされる</li>
-<li><p>ブートストラッパーやプロトコンパイラを使用しない。
-F#コンパイラがインストール済みであることを想定。</p></li>
-</ul></li>
-<li><p>FAKEを使用するビルドスクリプト。
+<li><p><code>FSharp.Compiler.Service.dll</code> のみビルドされる</p></li>
+<li>
+<p>ブートストラッパーやプロトコンパイラを使用しない。
+F#コンパイラがインストール済みであることを想定。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>FAKEを使用するビルドスクリプト。
 すべてのコードのビルドとNuGetパッケージ、ドキュメントの生成、
 NuGetパッケージの配布に必要なファイルの生成などがFAKEによって行われる。
-(<a href="https://github.com/fsprojects/FSharp.ProjectScaffold">F# プロジェクト スキャフォールド</a> に準拠)</p></li>
-<li><p>新機能追加のためにコンパイラのソースコードを変更。
-また、評価用関数を実装するためにF# Interactiveサービスに対する変更を追加。</p></li>
-<li><p>F#編集用クライアントで使用されるAPIを改善するためにコンパイラのソースコードを変更。</p></li>
-<li><p>コンパイラサービスAPIに新機能を追加するためにコンパイラのソースコードを変更。</p></li>
+(<a href="https://github.com/fsprojects/FSharp.ProjectScaffold">F# プロジェクト スキャフォールド</a> に準拠)</p>
+</li>
+<li>
+<p>新機能追加のためにコンパイラのソースコードを変更。
+また、評価用関数を実装するためにF# Interactiveサービスに対する変更を追加。</p>
+</li>
+<li>F#編集用クライアントで使用されるAPIを改善するためにコンパイラのソースコードを変更。</li>
+<li>コンパイラサービスAPIに新機能を追加するためにコンパイラのソースコードを変更。</li>
 </ul>
-
 <p><code>fsharp/fsharp</code> のレポジトリに言語あるいはコンパイラが追加コミットされた場合、
 それらはこのレポジトリにもマージされるべきで、同時に新しいNuGetパッケージもリリースする必要があります。</p>
-
 <h2><a name="ビルドとNuGet" class="anchor" href="#ビルドとNuGet">ビルドとNuGet</a></h2>
-
 <p>ビルドの手順は <a href="https://github.com/fsprojects/FSharp.ProjectScaffold">F# プロジェクト スキャフォールド</a>
 で推奨されているものに準じます。
 プロジェクトを独自にビルドする場合、以下の手順に従ってください:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">git clone https://github.com/fsharp/FSharp.Compiler.Service
 cd FSharp.Compiler.Service
 </code></pre></td></tr></table>
-
 <p>次に、(Windowsであれば) <code>build.cmd</code> または(LinuxやMac OSであれば) <code>build.sh</code> を実行してすべてをビルドします。
 ファイルは <code>bin</code> ディレクトリ内に出力されます。
 ドキュメントやNuGetパッケージもビルドしたい場合には <code>build Release</code> を実行します
 (このコマンドはGitHub上のドキュメントを更新しようとしますが、GitHubのレポジトリに適切な権限を持っている場合にのみ有効です)。</p>
-
 <h2><a name="クライアント" class="anchor" href="#クライアント">クライアント</a></h2>
-
 <p>このコンポーネントは以下のようなツールで使用されています:</p>
-
 <ul>
 <li><a href="https://github.com/dungpa/fantomas">Fantomas</a> - F# コードフォーマットツール</li>
 <li><a href="https://github.com/Lewix/fsharp-refactor">Fsharp-Refactor</a> - F#用リファクタリングツール</li>

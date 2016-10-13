@@ -35,20 +35,15 @@
         <div class="span9" id="main">
           
 <h1><a name="コンパイラサービス-ファイルシステム仮想化" class="anchor" href="#コンパイラサービス-ファイルシステム仮想化">コンパイラサービス: ファイルシステム仮想化</a></h1>
-
 <p><code>FSharp.Compiler.Service</code> にはファイルシステムを表すグローバル変数があります。
 この変数を設定するこにより、ファイルシステムが利用できない状況でも
 コンパイラをホストすることができるようになります。</p>
-
 <blockquote>
-  <p><strong>注意:</strong> 以下で使用しているAPIは実験的なもので、
-  新しいnugetパッケージの公開に伴って変更される可能性があります。</p>
+<p><strong>注意:</strong> 以下で使用しているAPIは実験的なもので、
+新しいnugetパッケージの公開に伴って変更される可能性があります。</p>
 </blockquote>
-
 <h2><a name="FileSystemの設定" class="anchor" href="#FileSystemの設定">FileSystemの設定</a></h2>
-
 <p>以下の例ではディスクからの読み取りを行うような実装をファイルシステムに設定しています:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -187,9 +182,7 @@
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="FileSystemによるコンパイルの実行" class="anchor" href="#FileSystemによるコンパイルの実行">FileSystemによるコンパイルの実行</a></h2>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -270,16 +263,12 @@
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="まとめ" class="anchor" href="#まとめ">まとめ</a></h2>
-
 <p>このチュートリアルでは FSharp.Compiler.Service コンポーネントで使用される
 ファイルシステムに注目して、グローバルな設定を変更する方法について紹介しました。</p>
-
 <p>このチュートリアルの執筆時点では、以下に列挙したSystem.IOの操作に対しては
 仮想化されたファイルシステムAPIが用意されない予定になっています。
 将来のバージョンのコンパイラサービスではこれらのAPIが追加されるかもしれません。</p>
-
 <ul>
 <li>Path.Combine</li>
 <li>Path.DirectorySeparatorChar</li>
@@ -289,13 +278,10 @@
 <li>Path.HasExtension</li>
 <li>Path.GetRandomFileName (アセンブリ内にコンパイル済みwin32リソースを生成する場合にのみ使用される)</li>
 </ul>
-
 <p><strong>注意:</strong> <code>SourceCodeServices</code> API内の一部の操作では、
 引数にファイルの内容だけでなくファイル名を指定する必要があります。
 これらのAPIにおいて、ファイル名はエラーの報告のためだけに使用されます。</p>
-
 <p><strong>注意:</strong> 型プロバイダーコンポーネントは仮想化されたファイルシステムを使用しません。</p>
-
 <p><strong>注意:</strong> コンパイラサービスは <code>--simpleresolution</code> が指定されていない場合、
 MSBuildを使ってアセンブリの解決を試みることがあります。
 <code>FileSystem</code> APIを使用する場合、通常はコンパイラへのフラグとして
@@ -365,8 +351,8 @@ MSBuildを使ってアセンブリの解決を試みることがあります。
 <div class="tip" id="fs60">val myFileSystem : MyFileSystem<br /><br />Full name: Filesystem.myFileSystem</div>
 <div class="tip" id="fs61">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs62">val checker : FSharpChecker<br /><br />Full name: Filesystem.checker</div>
-<div class="tip" id="fs63">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
-<div class="tip" id="fs64">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker</div>
+<div class="tip" id="fs63">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member KeepProjectAlive : options:FSharpProjectOptions -&gt; Async&lt;IDisposable&gt;<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member private ReferenceResolver : Resolver<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
+<div class="tip" id="fs64">static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker</div>
 <div class="tip" id="fs65">val projectOptions : FSharpProjectOptions<br /><br />Full name: Filesystem.projectOptions</div>
 <div class="tip" id="fs66">val allFlags : string []</div>
 <div class="tip" id="fs67">val references : string list</div>

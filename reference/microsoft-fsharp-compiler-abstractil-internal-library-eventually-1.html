@@ -43,16 +43,20 @@
 </p>
 <div class="xmldoc">
 <p>Computations that can cooperatively yield by returning a continuation</p>
-
 <ul>
-<li><p>Any yield of a NotYetDone should typically be "abandonable" without adverse consequences. No resource release
-will be called when the computation is abandoned.</p></li>
-<li><p>Computations suspend via a NotYetDone may use local state (mutables), where these are
-captured by the NotYetDone closure. Computations do not need to be restartable.</p></li>
-<li>The key thing is that you can take an Eventually value and run it with 
-Eventually.repeatedlyProgressUntilDoneOrTimeShareOver</li>
+<li>
+<p>Any yield of a NotYetDone should typically be "abandonable" without adverse consequences. No resource release
+will be called when the computation is abandoned.</p>
+</li>
+<li>
+<p>Computations suspend via a NotYetDone may use local state (mutables), where these are
+captured by the NotYetDone closure. Computations do not need to be restartable.</p>
+</li>
+<li>
+<p>The key thing is that you can take an Eventually value and run it with
+Eventually.repeatedlyProgressUntilDoneOrTimeShareOver</p>
+</li>
 </ul>
-
 
 </div>
   <h3>Union Cases</h3>
@@ -64,15 +68,15 @@ Eventually.repeatedlyProgressUntilDoneOrTimeShareOver</li>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2226', 2226)" onmouseover="showTip(event, '2226', 2226)">
+          <code onmouseout="hideTip(event, '2152', 2152)" onmouseover="showTip(event, '2152', 2152)">
             Done(&#39;T)
           </code>
-          <div class="tip" id="2226">
+          <div class="tip" id="2152">
             <strong>Signature:</strong> &#39;T<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L610-610" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L496-496" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -82,15 +86,15 @@ Eventually.repeatedlyProgressUntilDoneOrTimeShareOver</li>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2227', 2227)" onmouseover="showTip(event, '2227', 2227)">
+          <code onmouseout="hideTip(event, '2153', 2153)" onmouseover="showTip(event, '2153', 2153)">
             NotYetDone(unit -&gt; Eventually&lt;&#39;T&gt;)
           </code>
-          <div class="tip" id="2227">
+          <div class="tip" id="2153">
             <strong>Signature:</strong> unit -&gt; Eventually&lt;&#39;T&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L611-611" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L497-497" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

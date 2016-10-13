@@ -43,7 +43,6 @@
 <div class="xmldoc">
 <p>Renamed to FSharpParseFileResults</p>
 
-
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -54,32 +53,72 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3136', 3136)" onmouseover="showTip(event, '3136', 3136)">
+          <code onmouseout="hideTip(event, '3090', 3090)" onmouseover="showTip(event, '3090', 3090)">
             DependencyFiles
           </code>
-          <div class="tip" id="3136">
+          <div class="tip" id="3090">
             <strong>Signature:</strong> string list<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L356-356" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L355-355" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>When these files change then the build is invalid</p>
-
-
-
+          
+              <p>CompiledName: <code>get_DependencyFiles</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3137', 3137)" onmouseover="showTip(event, '3137', 3137)">
+          <code onmouseout="hideTip(event, '3091', 3091)" onmouseover="showTip(event, '3091', 3091)">
             Errors
           </code>
-          <div class="tip" id="3137">
+          <div class="tip" id="3091">
             <strong>Signature:</strong> FSharpErrorInfo []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L83-83" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the errors and warnings for the parse</p>
+
+
+              <p>CompiledName: <code>get_Errors</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3092', 3092)" onmouseover="showTip(event, '3092', 3092)">
+            FileName
+          </code>
+          <div class="tip" id="3092">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L357-357" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Name of the file for which this information were created</p>
+
+
+              <p>CompiledName: <code>get_FileName</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3093', 3093)" onmouseover="showTip(event, '3093', 3093)">
+            ParseHadErrors
+          </code>
+          <div class="tip" id="3093">
+            <strong>Signature:</strong> bool<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -87,41 +126,20 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the errors and warnings for the parse</p>
+          <p>Indicates if any errors occured during the parse</p>
 
 
-
+              <p>CompiledName: <code>get_ParseHadErrors</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3138', 3138)" onmouseover="showTip(event, '3138', 3138)">
-            FileName
+          <code onmouseout="hideTip(event, '3094', 3094)" onmouseover="showTip(event, '3094', 3094)">
+            ParseTree
           </code>
-          <div class="tip" id="3138">
-            <strong>Signature:</strong> string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L358-358" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Name of the file for which this information were created</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3139', 3139)" onmouseover="showTip(event, '3139', 3139)">
-            ParseHadErrors
-          </code>
-          <div class="tip" id="3139">
-            <strong>Signature:</strong> bool<br />
+          <div class="tip" id="3094">
+            <strong>Signature:</strong> ParsedInput option<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -129,31 +147,10 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Indicates if any errors occured during the parse</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3140', 3140)" onmouseover="showTip(event, '3140', 3140)">
-            ParseTree
-          </code>
-          <div class="tip" id="3140">
-            <strong>Signature:</strong> ParsedInput option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceUntypedParse.fs#L89-89" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
           <p>The syntax tree resulting from the parse</p>
 
 
-
+              <p>CompiledName: <code>get_ParseTree</code></p>
         </td>
       </tr>
     </tbody>

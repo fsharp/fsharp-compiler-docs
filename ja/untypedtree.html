@@ -35,7 +35,6 @@
         <div class="span9" id="main">
           
 <h1><a name="コンパイラサービス-型無し構文木の処理" class="anchor" href="#コンパイラサービス-型無し構文木の処理">コンパイラサービス：型無し構文木の処理</a></h1>
-
 <p>このチュートリアルではF#コードに対する型無し抽象構文木
 (untyped abstract syntax tree: untyped AST)
 を取得する方法、および木全体を走査する方法を紹介します。
@@ -46,16 +45,13 @@
 解決されないような曖昧さも残されています。
 また、 <a href="editor.html">エディタサービス</a> として提供されているAPIと
 型無しASTの情報を組み合わせることもできます。</p>
-
 <blockquote>
-  <p><strong>注釈:</strong> 以下で使用しているAPIは試験的なもので、将来的に変更される場合があります。
-  つまりFSharp.Compiler.Service.dll には既存のものと重複する機能が多数あるため、
-  将来的にはもっときちんとした形に変更されます。
-  そのため、これらのサービスを使用するAPIには破壊的変更が加えられる可能性があります。</p>
+<p><strong>注釈:</strong> 以下で使用しているAPIは試験的なもので、将来的に変更される場合があります。
+つまりFSharp.Compiler.Service.dll には既存のものと重複する機能が多数あるため、
+将来的にはもっときちんとした形に変更されます。
+そのため、これらのサービスを使用するAPIには破壊的変更が加えられる可能性があります。</p>
 </blockquote>
-
 <h2><a name="型無しASTの取得" class="anchor" href="#型無しASTの取得">型無しASTの取得</a></h2>
-
 <p>型無しASTにアクセスするには、 <code>FSharpChecker</code> のインスタンスを作成します。
 これは型チェックおよびパース用のコンテキストを表す型で、、
 スタンドアロンのF#スクリプトファイル(たとえばVisual Studioで開いたファイル)、
@@ -65,11 +61,9 @@
 「型無しパース」を実行できます。
 次のフェーズは「型有りパース」で、これは <a href="editor.html">エディタサービス</a> で
 使用されるものです。</p>
-
 <p>インタラクティブチェッカーを使用するには、
 <code>FSharp.Compiler.Service.dll</code> への参照を追加した後、
 <code>SourceCodeServices</code> 名前空間をオープンします：</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -80,13 +74,10 @@
 </code></pre></td>
 </tr>
 </table>
-
 <h3><a name="型無しパースの実行" class="anchor" href="#型無しパースの実行">型無しパースの実行</a></h3>
-
 <p>型無しパース処理は(それなりの時間がかかる型チェック処理と比較すると)
 かなり高速なため、同期的に実行できます。
 まず <code>FSharpChecker</code> を作成します。</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -95,7 +86,6 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>ASTを取得するために、ファイル名とソースコードを受け取る関数を用意します
 (ファイル名は位置情報のためだけに使用されるもので、存在しなくても構いません)。
 まず、コンテキストを表す「インタラクティブチェッカーオプション」を
@@ -104,7 +94,6 @@
 スクリプトファイルのコンテキストを推測させることができます。
 そして <code>UntypedParse</code> メソッドを呼び出した後、
 <code>ParseTree</code> プロパティの値を返します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -141,29 +130,23 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p><code>FSharpChecker</code> の詳細については
 <a href="../reference/microsoft-fsharp-compiler-sourcecodeservices-FSharpChecker.html"> APIドキュメント</a>
 の他に、F# ソースコードのインラインコメントも参考になるでしょう
 ( <a href="https://github.com/fsharp/fsharp/blob/fsharp_31/src/fsharp/vs/service.fsi"><code>service.fsi</code> のソースコードを参照</a> )。</p>
-
 <h2><a name="ASTの走査" class="anchor" href="#ASTの走査">ASTの走査</a></h2>
-
 <p>抽象構文木は(式やパターン、宣言など)それぞれ異なる文法的要素を表現する、
 多数の判別共用体として定義されています。
 ASTを理解するには
 <a href="https://github.com/fsharp/fsharp/blob/master/src/fsharp/ast.fs#L464"><code>ast.fs</code>内にあるソースコード</a>
 の定義を確認する方法が一番よいでしょう。</p>
-
 <p>ASTに関連する要素は以下の名前空間に含まれています:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 34)" onmouseover="showTip(event, 'fs2', 34)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 35)" onmouseover="showTip(event, 'fs3', 35)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 36)" onmouseover="showTip(event, 'fs4', 36)" class="i">Compiler</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 37)" onmouseover="showTip(event, 'fs23', 37)" class="i">Ast</span>
 </code></pre></td>
 </tr>
 </table>
-
 <p>ASTを処理する場合、異なる文法的要素に対するパターンマッチを行うような
 相互再帰関数を多数用意することになります。
 サポートすべき要素は非常に多種多様です。
@@ -171,9 +154,7 @@ ASTを理解するには
 モジュール内における(letバインディングや型などの)宣言などがあります。
 モジュール内のlet宣言には式が含まれ、さらにこの式に
 パターンが含まれていることもあります。</p>
-
 <h3><a name="パターンと式を走査する" class="anchor" href="#パターンと式を走査する">パターンと式を走査する</a></h3>
-
 <p>まずは式とパターンを走査する関数から始めます。
 この関数は要素を走査しつつ、要素に関する情報を画面に表示します。
 パターンの場合、入力は <code>SynPat</code> 型であり、この型には <code>Wild</code> ( <code>_</code> パターンを表す)や
@@ -181,7 +162,6 @@ ASTを理解するには
 <code>LongIdent</code> ( <code>Foo.Bar</code> 形式の名前)など、多数のケースがあります。
 なお、基本的にパース後のパターンは元のソースコードの見た目よりも複雑になります
 (具体的には <code>Named</code> がかなり多数現れます):</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -210,19 +190,16 @@ ASTを理解するには
 </code></pre></td>
 </tr>
 </table>
-
 <p>この関数は (<code>bar という名前の (foo, _)</code> のような、
 ネストされたパターンに対応するために) 再帰関数になっていますが、
 以降で定義するいずれの関数も呼び出しません
 (パターンはその他の文法的な要素を含むことができないからです)。</p>
-
 <p>次の関数は式全体を走査するものです。
 これは処理の大部分が行われる関数で、
 20以上のケースをカバーすることになるでしょう
 ( <code>SynExpr</code> と入力するとその他のオプションが確認できます)。
 以下のコードでは <code>if .. then ..</code> と <code>let .. = ...</code> という式を
 処理する方法だけを紹介しています:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -275,14 +252,11 @@ ASTを理解するには
 </code></pre></td>
 </tr>
 </table>
-
 <p><code>visitExpression</code> 関数はモジュール内のすべてのトップレベル宣言を走査するような
 関数から呼ばれることになります。
 今回のチュートリアルでは型やメンバーを無視していますが、
 これらを走査する場合も <code>visitExpression</code> を呼び出すことになるでしょう。</p>
-
 <h3><a name="宣言を走査する" class="anchor" href="#宣言を走査する">宣言を走査する</a></h3>
-
 <p>既に説明したように、1つのファイルに対するASTには多数のモジュールや
 名前空間の宣言が(トップレベルノードとして)含まれ、
 モジュール内にも(letバインディングや型の)宣言が、
@@ -290,7 +264,6 @@ ASTを理解するには
 以下の関数はそれぞれの宣言を走査します。
 ただし今回は型やネストされたモジュール、その他の要素については無視して、
 トップレベルの(値および関数に対する) <code>let</code> バインディングだけを対象にしています:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -327,11 +300,9 @@ ASTを理解するには
 </code></pre></td>
 </tr>
 </table>
-
 <p><code>visitDeclarations</code> 関数はモジュールや名前空間の宣言のシーケンスを走査する
 関数から呼ばれることになります。
 このシーケンスはたとえば複数の <code>namespace Foo</code> 宣言を含むようなファイルに対応します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -348,26 +319,22 @@ ASTを理解するには
 <span class="c">/// 暗黙的にモジュールまたは名前空間の宣言が存在することに注意。</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs71', 145)" onmouseover="showTip(event, 'fs71', 145)" class="f">visitModulesAndNamespaces</span> <span onmouseout="hideTip(event, 'fs72', 146)" onmouseover="showTip(event, 'fs72', 146)" class="i">modulesOrNss</span> <span class="o">=</span>
   <span class="k">for</span> <span onmouseout="hideTip(event, 'fs73', 147)" onmouseover="showTip(event, 'fs73', 147)" class="i">moduleOrNs</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs72', 148)" onmouseover="showTip(event, 'fs72', 148)" class="i">modulesOrNss</span> <span class="k">do</span>
-    <span class="k">let</span> (<span onmouseout="hideTip(event, 'fs74', 149)" onmouseover="showTip(event, 'fs74', 149)" class="p">SynModuleOrNamespace</span>(<span onmouseout="hideTip(event, 'fs75', 150)" onmouseover="showTip(event, 'fs75', 150)" class="i">lid</span>, <span onmouseout="hideTip(event, 'fs76', 151)" onmouseover="showTip(event, 'fs76', 151)" class="i">isMod</span>, <span onmouseout="hideTip(event, 'fs77', 152)" onmouseover="showTip(event, 'fs77', 152)" class="i">decls</span>, <span onmouseout="hideTip(event, 'fs78', 153)" onmouseover="showTip(event, 'fs78', 153)" class="i">xml</span>, <span onmouseout="hideTip(event, 'fs56', 154)" onmouseover="showTip(event, 'fs56', 154)" class="i">attrs</span>, _, <span onmouseout="hideTip(event, 'fs61', 155)" onmouseover="showTip(event, 'fs61', 155)" class="i">m</span>)) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs73', 156)" onmouseover="showTip(event, 'fs73', 156)" class="i">moduleOrNs</span>
-    <span onmouseout="hideTip(event, 'fs27', 157)" onmouseover="showTip(event, 'fs27', 157)" class="f">printfn</span> <span class="s">&quot;名前空間またはモジュール: </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs75', 158)" onmouseover="showTip(event, 'fs75', 158)" class="i">lid</span>
-    <span onmouseout="hideTip(event, 'fs64', 159)" onmouseover="showTip(event, 'fs64', 159)" class="f">visitDeclarations</span> <span onmouseout="hideTip(event, 'fs77', 160)" onmouseover="showTip(event, 'fs77', 160)" class="i">decls</span>
+    <span class="k">let</span> (<span onmouseout="hideTip(event, 'fs74', 149)" onmouseover="showTip(event, 'fs74', 149)" class="i">SynModuleOrNamespace</span>(<span class="i">lid</span>, <span class="i">isMod</span>, <span class="i">decls</span>, <span class="i">xml</span>, <span class="i">attrs</span>, _, <span class="i">m</span>)) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs73', 150)" onmouseover="showTip(event, 'fs73', 150)" class="i">moduleOrNs</span>
+    <span onmouseout="hideTip(event, 'fs27', 151)" onmouseover="showTip(event, 'fs27', 151)" class="i">printfn</span> <span class="s">&quot;名前空間またはモジュール: %A&quot;</span> <span class="i">lid</span>
+    <span onmouseout="hideTip(event, 'fs64', 152)" onmouseover="showTip(event, 'fs64', 152)" class="i">visitDeclarations</span> <span class="i">decls</span>
 </code></pre></td>
 </tr>
 </table>
-
 <p>以上でASTの要素を(宣言から始まって式やパターンに至るまで)走査するための
 関数がそろったので、サンプル入力からASTを取得した後、
 上記の関数を実行することができるようになりました。</p>
-
 <h2><a name="すべてを組み合わせる" class="anchor" href="#すべてを組み合わせる">すべてを組み合わせる</a></h2>
-
 <p>既に説明したように、 <code>getUntypedTree</code> 関数では <code>FSharpChecker</code> を使って
 ASTに対する第1フェーズ(パース)を行ってツリーを返しています。
 この関数にはF#のソースコードとともに、ファイルのパスを指定する必要があります。
 (単に位置情報として利用されるだけなので)
 指定先のパスにファイルが存在している必要はなく、
 UnixとWindowsどちらの形式でも指定できます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -381,32 +348,29 @@ UnixとWindowsどちらの形式でも指定できます:</p>
 <span class="l">11: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// コンパイラサービスへのサンプル入力</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs79', 161)" onmouseover="showTip(event, 'fs79', 161)" class="i">input</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs75', 153)" onmouseover="showTip(event, 'fs75', 153)" class="i">input</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">  let foo() = </span>
 <span class="s">    let msg = &quot;Hello world&quot;</span>
 <span class="s">    if true then </span>
 <span class="s">      printfn &quot;%s&quot; msg &quot;&quot;&quot;</span>
 <span class="c">// Unix形式のファイル名</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs80', 162)" onmouseover="showTip(event, 'fs80', 162)" class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs76', 154)" onmouseover="showTip(event, 'fs76', 154)" class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
 
 <span class="c">// サンプルF#コードに対するASTを取得</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs81', 163)" onmouseover="showTip(event, 'fs81', 163)" class="i">tree</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs82', 164)" onmouseover="showTip(event, 'fs82', 164)" class="f">getUntypedTree</span>(<span onmouseout="hideTip(event, 'fs80', 165)" onmouseover="showTip(event, 'fs80', 165)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs79', 166)" onmouseover="showTip(event, 'fs79', 166)" class="i">input</span>) 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs77', 155)" onmouseover="showTip(event, 'fs77', 155)" class="i">tree</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs78', 156)" onmouseover="showTip(event, 'fs78', 156)" class="f">getUntypedTree</span>(<span onmouseout="hideTip(event, 'fs76', 157)" onmouseover="showTip(event, 'fs76', 157)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs75', 158)" onmouseover="showTip(event, 'fs75', 158)" class="i">input</span>) 
 </code></pre></td>
 </tr>
 </table>
-
 <p>このコードをF# Interactiveで実行した場合、コンソールに <code>tree;;</code> と入力すると、
 データ構造に対する文字列表現が表示されることが確認できます。
 ツリーには大量の情報が含まれているため、あまり読みやすいものではありませんが、
 木が動作する様子を想像することはできるでしょう。</p>
-
 <p><code>tree</code> の返値はやはり判別共用体で、2つのケースに分かれます。
 1つはF#のシグネチャファイル( <code>*.fsi</code> )を表す <code>ParsedInput.SigFile</code> で、
 もう1つは通常のソースコード( <code>*.fsx</code> または <code>*.fs</code> )を表す
 <code>ParsedInput.ImplFile</code> です。
 上記の手順で作成した関数に渡すことができるモジュールや名前空間のシーケンスは
 実装ファイルに含まれています:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -416,18 +380,16 @@ UnixとWindowsどちらの形式でも指定できます:</p>
 <span class="l">7: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// 実装ファイルの詳細をチェックする</span>
-<span class="k">match</span> <span onmouseout="hideTip(event, 'fs81', 167)" onmouseover="showTip(event, 'fs81', 167)" class="i">tree</span> <span class="k">with</span>
-| <span onmouseout="hideTip(event, 'fs83', 168)" onmouseover="showTip(event, 'fs83', 168)" class="t">ParsedInput</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs84', 169)" onmouseover="showTip(event, 'fs84', 169)" class="p">ImplFile</span>(<span onmouseout="hideTip(event, 'fs85', 170)" onmouseover="showTip(event, 'fs85', 170)" class="i">implFile</span>) <span class="k">-&gt;</span>
+<span class="k">match</span> <span onmouseout="hideTip(event, 'fs77', 159)" onmouseover="showTip(event, 'fs77', 159)" class="i">tree</span> <span class="k">with</span>
+| <span onmouseout="hideTip(event, 'fs79', 160)" onmouseover="showTip(event, 'fs79', 160)" class="t">ParsedInput</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs80', 161)" onmouseover="showTip(event, 'fs80', 161)" class="p">ImplFile</span>(<span onmouseout="hideTip(event, 'fs81', 162)" onmouseover="showTip(event, 'fs81', 162)" class="i">implFile</span>) <span class="k">-&gt;</span>
     <span class="c">// 宣言を展開してそれぞれを走査する</span>
-    <span class="k">let</span> (<span onmouseout="hideTip(event, 'fs86', 171)" onmouseover="showTip(event, 'fs86', 171)" class="p">ParsedImplFileInput</span>(<span onmouseout="hideTip(event, 'fs87', 172)" onmouseover="showTip(event, 'fs87', 172)" class="i">fn</span>, <span onmouseout="hideTip(event, 'fs88', 173)" onmouseover="showTip(event, 'fs88', 173)" class="i">script</span>, <span onmouseout="hideTip(event, 'fs89', 174)" onmouseover="showTip(event, 'fs89', 174)" class="i">name</span>, _, _, <span onmouseout="hideTip(event, 'fs90', 175)" onmouseover="showTip(event, 'fs90', 175)" class="i">modules</span>, _)) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs85', 176)" onmouseover="showTip(event, 'fs85', 176)" class="i">implFile</span>
-    <span onmouseout="hideTip(event, 'fs71', 177)" onmouseover="showTip(event, 'fs71', 177)" class="f">visitModulesAndNamespaces</span> <span onmouseout="hideTip(event, 'fs90', 178)" onmouseover="showTip(event, 'fs90', 178)" class="i">modules</span>
-| _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs22', 179)" onmouseover="showTip(event, 'fs22', 179)" class="f">failwith</span> <span class="s">&quot;F# インターフェイスファイル (*.fsi) は未サポートです。&quot;</span>
+    <span class="k">let</span> (<span onmouseout="hideTip(event, 'fs82', 163)" onmouseover="showTip(event, 'fs82', 163)" class="p">ParsedImplFileInput</span>(<span onmouseout="hideTip(event, 'fs83', 164)" onmouseover="showTip(event, 'fs83', 164)" class="i">fn</span>, <span onmouseout="hideTip(event, 'fs84', 165)" onmouseover="showTip(event, 'fs84', 165)" class="i">script</span>, <span onmouseout="hideTip(event, 'fs85', 166)" onmouseover="showTip(event, 'fs85', 166)" class="i">name</span>, _, _, <span onmouseout="hideTip(event, 'fs86', 167)" onmouseover="showTip(event, 'fs86', 167)" class="i">modules</span>, _)) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs81', 168)" onmouseover="showTip(event, 'fs81', 168)" class="i">implFile</span>
+    <span onmouseout="hideTip(event, 'fs71', 169)" onmouseover="showTip(event, 'fs71', 169)" class="f">visitModulesAndNamespaces</span> <span onmouseout="hideTip(event, 'fs86', 170)" onmouseover="showTip(event, 'fs86', 170)" class="i">modules</span>
+| _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs22', 171)" onmouseover="showTip(event, 'fs22', 171)" class="f">failwith</span> <span class="s">&quot;F# インターフェイスファイル (*.fsi) は未サポートです。&quot;</span>
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="まとめ" class="anchor" href="#まとめ">まとめ</a></h2>
-
 <p>このチュートリアルでは型無し抽象構文木に対する基本的な走査方法を紹介しました。
 このトピックは包括的なものであるため、1つの記事ですべてを説明することは不可能です。
 さらに深く理解するためには、型無しASTを活用するツールのよい例として
@@ -442,8 +404,8 @@ UnixとWindowsどちらの形式でも指定できます:</p>
 <div class="tip" id="fs4">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs5">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs6">val checker : FSharpChecker<br /><br />Full name: Untypedtree.checker</div>
-<div class="tip" id="fs7">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
-<div class="tip" id="fs8">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker</div>
+<div class="tip" id="fs7">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member KeepProjectAlive : options:FSharpProjectOptions -&gt; Async&lt;IDisposable&gt;<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member private ReferenceResolver : Resolver<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
+<div class="tip" id="fs8">static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker</div>
 <div class="tip" id="fs9">val getUntypedTree : file:string * input:string -&gt; Compiler.Ast.ParsedInput<br /><br />Full name: Untypedtree.getUntypedTree<br /><em><br /><br />&#160;特定の入力に対する型無し構文木を取得する</em></div>
 <div class="tip" id="fs10">val file : string</div>
 <div class="tip" id="fs11">val input : string</div>
@@ -460,33 +422,33 @@ UnixとWindowsどちらの形式でも指定できます:</p>
 <div class="tip" id="fs22">val failwith : message:string -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.failwith</div>
 <div class="tip" id="fs23">module Ast<br /><br />from Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs24">val visitPattern : _arg1:SynPat -&gt; unit<br /><br />Full name: Untypedtree.visitPattern<br /><em><br /><br />&#160;パターンの走査<br />&#160;これは let &lt;pat&gt; = &lt;expr&gt; あるいは &#39;match&#39; 式に対する例です</em></div>
-<div class="tip" id="fs25">type SynPat =<br />&#160;&#160;| Const of SynConst * range<br />&#160;&#160;| Wild of range<br />&#160;&#160;| Named of SynPat * Ident * bool * SynAccess option * range<br />&#160;&#160;| Typed of SynPat * SynType * range<br />&#160;&#160;| Attrib of SynPat * SynAttributes * range<br />&#160;&#160;| Or of SynPat * SynPat * range<br />&#160;&#160;| Ands of SynPat list * range<br />&#160;&#160;| LongIdent of LongIdentWithDots * Ident option * SynValTyparDecls option * SynConstructorArgs * SynAccess option * range<br />&#160;&#160;| Tuple of SynPat list * range<br />&#160;&#160;| Paren of SynPat * range<br />&#160;&#160;...<br />&#160;&#160;member Range : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.SynPat</div>
-<div class="tip" id="fs26">union case SynPat.Wild: Compiler.Range.range -&gt; SynPat</div>
+<div class="tip" id="fs25">type SynPat =<br />&#160;&#160;| Const of constant: SynConst * range: range<br />&#160;&#160;| Wild of range: range<br />&#160;&#160;| Named of SynPat * id: Ident * isThisVar: bool * accessiblity: SynAccess option * range: range<br />&#160;&#160;| Typed of SynPat * typeName: SynType * range: range<br />&#160;&#160;| Attrib of SynPat * attributes: SynAttributes * range: range<br />&#160;&#160;| Or of SynPat * SynPat * range: range<br />&#160;&#160;| Ands of SynPat list * range: range<br />&#160;&#160;| LongIdent of dotId: LongIdentWithDots * Ident option * SynValTyparDecls option * SynConstructorArgs * SynAccess option * range: range<br />&#160;&#160;| Tuple of SynPat list * range: range<br />&#160;&#160;| StructTuple of SynPat list * range: range<br />&#160;&#160;...<br />&#160;&#160;member Range : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.SynPat</div>
+<div class="tip" id="fs26">union case SynPat.Wild: range: Compiler.Range.range -&gt; SynPat</div>
 <div class="tip" id="fs27">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fs28">union case SynPat.Named: SynPat * Ident * bool * SynAccess option * Compiler.Range.range -&gt; SynPat</div>
+<div class="tip" id="fs28">union case SynPat.Named: SynPat * id: Ident * isThisVar: bool * accessiblity: SynAccess option * range: Compiler.Range.range -&gt; SynPat</div>
 <div class="tip" id="fs29">val pat : SynPat</div>
 <div class="tip" id="fs30">val name : Ident</div>
 <div class="tip" id="fs31">property Ident.idText: string</div>
-<div class="tip" id="fs32">union case SynPat.LongIdent: LongIdentWithDots * Ident option * SynValTyparDecls option * SynConstructorArgs * SynAccess option * Compiler.Range.range -&gt; SynPat</div>
-<div class="tip" id="fs33">Multiple items<br />union case LongIdentWithDots.LongIdentWithDots: LongIdent * Compiler.Range.range list -&gt; LongIdentWithDots<br /><br />--------------------<br />type LongIdentWithDots =<br />&#160;&#160;| LongIdentWithDots of LongIdent * range list<br />&#160;&#160;member Lid : LongIdent<br />&#160;&#160;member Range : range<br />&#160;&#160;member RangeSansAnyExtraDot : range<br />&#160;&#160;member ThereIsAnExtraDotAtTheEnd : bool<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.LongIdentWithDots</div>
+<div class="tip" id="fs32">union case SynPat.LongIdent: dotId: LongIdentWithDots * Ident option * SynValTyparDecls option * SynConstructorArgs * SynAccess option * range: Compiler.Range.range -&gt; SynPat</div>
+<div class="tip" id="fs33">Multiple items<br />union case LongIdentWithDots.LongIdentWithDots: id: LongIdent * dotms: Compiler.Range.range list -&gt; LongIdentWithDots<br /><br />--------------------<br />type LongIdentWithDots =<br />&#160;&#160;| LongIdentWithDots of id: LongIdent * dotms: range list<br />&#160;&#160;member Lid : LongIdent<br />&#160;&#160;member Range : range<br />&#160;&#160;member RangeSansAnyExtraDot : range<br />&#160;&#160;member ThereIsAnExtraDotAtTheEnd : bool<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.LongIdentWithDots</div>
 <div class="tip" id="fs34">val ident : LongIdent</div>
 <div class="tip" id="fs35">val names : string</div>
 <div class="tip" id="fs36">Multiple items<br />type String =<br />&#160;&#160;new : value:char -&gt; string + 7 overloads<br />&#160;&#160;member Chars : int -&gt; char<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;member Contains : value:string -&gt; bool<br />&#160;&#160;member CopyTo : sourceIndex:int * destination:char[] * destinationIndex:int * count:int -&gt; unit<br />&#160;&#160;member EndsWith : value:string -&gt; bool + 2 overloads<br />&#160;&#160;member Equals : obj:obj -&gt; bool + 2 overloads<br />&#160;&#160;member GetEnumerator : unit -&gt; CharEnumerator<br />&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;...<br /><br />Full name: System.String<br /><br />--------------------<br />String(value: nativeptr&lt;char&gt;) : unit<br />String(value: nativeptr&lt;sbyte&gt;) : unit<br />String(value: char []) : unit<br />String(c: char, count: int) : unit<br />String(value: nativeptr&lt;char&gt;, startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int) : unit<br />String(value: char [], startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int, enc: Text.Encoding) : unit</div>
 <div class="tip" id="fs37">val concat : sep:string -&gt; strings:seq&lt;string&gt; -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.String.concat</div>
 <div class="tip" id="fs38">val i : Ident</div>
 <div class="tip" id="fs39">val visitExpression : _arg1:SynExpr -&gt; unit<br /><br />Full name: Untypedtree.visitExpression<br /><em><br /><br />&#160;式を走査する。<br />&#160;式に2つあるいは3つの部分式が含まれていた場合(&#39;else&#39;の分岐がない場合は2つ)、<br />&#160;let式にはパターンおよび2つの部分式が含まれる</em></div>
-<div class="tip" id="fs40">type SynExpr =<br />&#160;&#160;| Paren of SynExpr * range * range option * range<br />&#160;&#160;| Quote of SynExpr * bool * SynExpr * bool * range<br />&#160;&#160;| Const of SynConst * range<br />&#160;&#160;| Typed of SynExpr * SynType * range<br />&#160;&#160;| Tuple of SynExpr list * range list * range<br />&#160;&#160;| ArrayOrList of bool * SynExpr list * range<br />&#160;&#160;| Record of (SynType * SynExpr * range * BlockSeparator option * range) option * (SynExpr * BlockSeparator) option * (RecordFieldName * SynExpr option * BlockSeparator option) list * range<br />&#160;&#160;| New of bool * SynType * SynExpr * range<br />&#160;&#160;| ObjExpr of SynType * (SynExpr * Ident option) option * SynBinding list * SynInterfaceImpl list * range * range<br />&#160;&#160;| While of SequencePointInfoForWhileLoop * SynExpr * SynExpr * range<br />&#160;&#160;...<br />&#160;&#160;member IsArbExprAndThusAlreadyReportedError : bool<br />&#160;&#160;member Range : range<br />&#160;&#160;member RangeOfFirstPortion : range<br />&#160;&#160;member RangeSansAnyExtraDot : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.SynExpr</div>
-<div class="tip" id="fs41">union case SynExpr.IfThenElse: SynExpr * SynExpr * SynExpr option * SequencePointInfoForBinding * bool * Compiler.Range.range * Compiler.Range.range -&gt; SynExpr</div>
+<div class="tip" id="fs40">type SynExpr =<br />&#160;&#160;| Paren of expr: SynExpr * leftParenRange: range * rightParenRange: range option * range: range<br />&#160;&#160;| Quote of operator: SynExpr * isRaw: bool * quotedSynExpr: SynExpr * isFromQueryExpression: bool * range: range<br />&#160;&#160;| Const of constant: SynConst * range: range<br />&#160;&#160;| Typed of expr: SynExpr * typeSig: SynType * range: range<br />&#160;&#160;| Tuple of exprs: SynExpr list * commaRanges: range list * range: range<br />&#160;&#160;| StructTuple of SynExpr list * range list * range: range<br />&#160;&#160;| ArrayOrList of isList: bool * exprs: SynExpr list * range: range<br />&#160;&#160;| Record of baseInfo: (SynType * SynExpr * range * BlockSeparator option * range) option * copyInfo: (SynExpr * BlockSeparator) option * recordFields: (RecordFieldName * SynExpr option * BlockSeparator option) list * range: range<br />&#160;&#160;| New of isProtected: bool * typeName: SynType * expr: SynExpr * range: range<br />&#160;&#160;| ObjExpr of objType: SynType * argOpt: (SynExpr * Ident option) option * bindings: SynBinding list * extraImpls: SynInterfaceImpl list * newPos: range * range: range<br />&#160;&#160;...<br />&#160;&#160;member IsArbExprAndThusAlreadyReportedError : bool<br />&#160;&#160;member Range : range<br />&#160;&#160;member RangeOfFirstPortion : range<br />&#160;&#160;member RangeSansAnyExtraDot : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.SynExpr</div>
+<div class="tip" id="fs41">union case SynExpr.IfThenElse: exprGuard: SynExpr * exprThen: SynExpr * optionalExprElse: SynExpr option * spIfToThen: SequencePointInfoForBinding * isFromErrorRecovery: bool * ifToThen: Compiler.Range.range * range: Compiler.Range.range -&gt; SynExpr</div>
 <div class="tip" id="fs42">val cond : SynExpr</div>
 <div class="tip" id="fs43">val trueBranch : SynExpr</div>
 <div class="tip" id="fs44">val falseBranchOpt : SynExpr option</div>
 <div class="tip" id="fs45">module Option<br /><br />from Microsoft.FSharp.Core</div>
 <div class="tip" id="fs46">val iter : action:(&#39;T -&gt; unit) -&gt; option:&#39;T option -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Option.iter</div>
-<div class="tip" id="fs47">union case SynExpr.LetOrUse: bool * bool * SynBinding list * SynExpr * Compiler.Range.range -&gt; SynExpr</div>
+<div class="tip" id="fs47">union case SynExpr.LetOrUse: isRecursive: bool * isUse: bool * bindings: SynBinding list * exprBody: SynExpr * range: Compiler.Range.range -&gt; SynExpr</div>
 <div class="tip" id="fs48">val bindings : SynBinding list</div>
 <div class="tip" id="fs49">val body : SynExpr</div>
 <div class="tip" id="fs50">val binding : SynBinding</div>
-<div class="tip" id="fs51">union case SynBinding.Binding: SynAccess option * SynBindingKind * bool * bool * SynAttributes * PreXmlDoc * SynValData * SynPat * SynBindingReturnInfo option * SynExpr * Compiler.Range.range * SequencePointInfoForBinding -&gt; SynBinding</div>
+<div class="tip" id="fs51">union case SynBinding.Binding: access: SynAccess option * bindingKind: SynBindingKind * mustInline: bool * isMutable: bool * attributes: SynAttributes * xmlDoc: PreXmlDoc * SynValData * headPat: SynPat * SynBindingReturnInfo option * expr: SynExpr * lhsRange: Compiler.Range.range * spBind: SequencePointInfoForBinding -&gt; SynBinding</div>
 <div class="tip" id="fs52">val access : SynAccess option</div>
 <div class="tip" id="fs53">val kind : SynBindingKind</div>
 <div class="tip" id="fs54">val inlin : bool</div>
@@ -502,30 +464,26 @@ UnixとWindowsどちらの形式でも指定できます:</p>
 <div class="tip" id="fs64">val visitDeclarations : decls:seq&lt;SynModuleDecl&gt; -&gt; unit<br /><br />Full name: Untypedtree.visitDeclarations<br /><em><br /><br />&#160;モジュール内の宣言リストを走査する。<br />&#160;モジュール内のトップレベルに記述できるすべての要素<br />&#160;(letバインディングやネストされたモジュール、型の宣言など)が対象になる。</em></div>
 <div class="tip" id="fs65">val decls : seq&lt;SynModuleDecl&gt;</div>
 <div class="tip" id="fs66">val declaration : SynModuleDecl</div>
-<div class="tip" id="fs67">type SynModuleDecl =<br />&#160;&#160;| ModuleAbbrev of Ident * LongIdent * range<br />&#160;&#160;| NestedModule of SynComponentInfo * SynModuleDecls * bool * range<br />&#160;&#160;| Let of bool * SynBinding list * range<br />&#160;&#160;| DoExpr of SequencePointInfoForBinding * SynExpr * range<br />&#160;&#160;| Types of SynTypeDefn list * range<br />&#160;&#160;| Exception of SynExceptionDefn * range<br />&#160;&#160;| Open of LongIdentWithDots * range<br />&#160;&#160;| Attributes of SynAttributes * range<br />&#160;&#160;| HashDirective of ParsedHashDirective * range<br />&#160;&#160;| NamespaceFragment of SynModuleOrNamespace<br />&#160;&#160;member Range : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.SynModuleDecl</div>
+<div class="tip" id="fs67">type SynModuleDecl =<br />&#160;&#160;| ModuleAbbrev of Ident * LongIdent * range<br />&#160;&#160;| NestedModule of SynComponentInfo * isRec: bool * SynModuleDecls * bool * range<br />&#160;&#160;| Let of bool * SynBinding list * range<br />&#160;&#160;| DoExpr of SequencePointInfoForBinding * SynExpr * range<br />&#160;&#160;| Types of SynTypeDefn list * range<br />&#160;&#160;| Exception of SynExceptionDefn * range<br />&#160;&#160;| Open of LongIdentWithDots * range<br />&#160;&#160;| Attributes of SynAttributes * range<br />&#160;&#160;| HashDirective of ParsedHashDirective * range<br />&#160;&#160;| NamespaceFragment of SynModuleOrNamespace<br />&#160;&#160;member Range : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.SynModuleDecl</div>
 <div class="tip" id="fs68">union case SynModuleDecl.Let: bool * SynBinding list * Compiler.Range.range -&gt; SynModuleDecl</div>
 <div class="tip" id="fs69">val isRec : bool</div>
 <div class="tip" id="fs70">val range : Compiler.Range.range</div>
-<div class="tip" id="fs71">val visitModulesAndNamespaces : modulesOrNss:seq&lt;SynModuleOrNamespace&gt; -&gt; unit<br /><br />Full name: Untypedtree.visitModulesAndNamespaces<br /><em><br /><br />&#160;すべてのモジュールや名前空間の宣言を走査する<br />&#160;(基本的には &#39;module Foo =&#39; または &#39;namespace Foo.Bar&#39; というコード)<br />&#160;なおファイル中で明示的に定義されていない場合であっても<br />&#160;暗黙的にモジュールまたは名前空間の宣言が存在することに注意。</em></div>
-<div class="tip" id="fs72">val modulesOrNss : seq&lt;SynModuleOrNamespace&gt;</div>
-<div class="tip" id="fs73">val moduleOrNs : SynModuleOrNamespace</div>
-<div class="tip" id="fs74">Multiple items<br />union case SynModuleOrNamespace.SynModuleOrNamespace: LongIdent * bool * SynModuleDecls * PreXmlDoc * SynAttributes * SynAccess option * Compiler.Range.range -&gt; SynModuleOrNamespace<br /><br />--------------------<br />type SynModuleOrNamespace =<br />&#160;&#160;| SynModuleOrNamespace of LongIdent * bool * SynModuleDecls * PreXmlDoc * SynAttributes * SynAccess option * range<br />&#160;&#160;member Range : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.SynModuleOrNamespace</div>
-<div class="tip" id="fs75">val lid : LongIdent</div>
-<div class="tip" id="fs76">val isMod : bool</div>
-<div class="tip" id="fs77">val decls : SynModuleDecls</div>
-<div class="tip" id="fs78">val xml : PreXmlDoc</div>
-<div class="tip" id="fs79">val input : string<br /><br />Full name: Untypedtree.input</div>
-<div class="tip" id="fs80">val file : string<br /><br />Full name: Untypedtree.file</div>
-<div class="tip" id="fs81">val tree : ParsedInput<br /><br />Full name: Untypedtree.tree</div>
-<div class="tip" id="fs82">val getUntypedTree : file:string * input:string -&gt; ParsedInput<br /><br />Full name: Untypedtree.getUntypedTree<br /><em><br /><br />&#160;特定の入力に対する型無し構文木を取得する</em></div>
-<div class="tip" id="fs83">type ParsedInput =<br />&#160;&#160;| ImplFile of ParsedImplFileInput<br />&#160;&#160;| SigFile of ParsedSigFileInput<br />&#160;&#160;member Range : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.ParsedInput</div>
-<div class="tip" id="fs84">union case ParsedInput.ImplFile: ParsedImplFileInput -&gt; ParsedInput</div>
-<div class="tip" id="fs85">val implFile : ParsedImplFileInput</div>
-<div class="tip" id="fs86">Multiple items<br />union case ParsedImplFileInput.ParsedImplFileInput: string * bool * QualifiedNameOfFile * ScopedPragma list * ParsedHashDirective list * SynModuleOrNamespace list * bool -&gt; ParsedImplFileInput<br /><br />--------------------<br />type ParsedImplFileInput = | ParsedImplFileInput of string * bool * QualifiedNameOfFile * ScopedPragma list * ParsedHashDirective list * SynModuleOrNamespace list * bool<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.ParsedImplFileInput</div>
-<div class="tip" id="fs87">val fn : string</div>
-<div class="tip" id="fs88">val script : bool</div>
-<div class="tip" id="fs89">val name : QualifiedNameOfFile</div>
-<div class="tip" id="fs90">val modules : SynModuleOrNamespace list</div>
+<div class="tip" id="fs71">val visitModulesAndNamespaces : modulesOrNss:seq&lt;&#39;a&gt; -&gt; unit<br /><br />Full name: Untypedtree.visitModulesAndNamespaces<br /><em><br /><br />&#160;すべてのモジュールや名前空間の宣言を走査する<br />&#160;(基本的には &#39;module Foo =&#39; または &#39;namespace Foo.Bar&#39; というコード)<br />&#160;なおファイル中で明示的に定義されていない場合であっても<br />&#160;暗黙的にモジュールまたは名前空間の宣言が存在することに注意。</em></div>
+<div class="tip" id="fs72">val modulesOrNss : seq&lt;&#39;a&gt;</div>
+<div class="tip" id="fs73">val moduleOrNs : &#39;a</div>
+<div class="tip" id="fs74">Multiple items<br />union case SynModuleOrNamespace.SynModuleOrNamespace: id: LongIdent * isRec: bool * isModule: bool * decls: SynModuleDecls * xmlDoc: PreXmlDoc * attributes: SynAttributes * access: SynAccess option * range: Compiler.Range.range -&gt; SynModuleOrNamespace<br /><br />--------------------<br />type SynModuleOrNamespace =<br />&#160;&#160;| SynModuleOrNamespace of id: LongIdent * isRec: bool * isModule: bool * decls: SynModuleDecls * xmlDoc: PreXmlDoc * attributes: SynAttributes * access: SynAccess option * range: range<br />&#160;&#160;member Range : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.SynModuleOrNamespace</div>
+<div class="tip" id="fs75">val input : string<br /><br />Full name: Untypedtree.input</div>
+<div class="tip" id="fs76">val file : string<br /><br />Full name: Untypedtree.file</div>
+<div class="tip" id="fs77">val tree : ParsedInput<br /><br />Full name: Untypedtree.tree</div>
+<div class="tip" id="fs78">val getUntypedTree : file:string * input:string -&gt; ParsedInput<br /><br />Full name: Untypedtree.getUntypedTree<br /><em><br /><br />&#160;特定の入力に対する型無し構文木を取得する</em></div>
+<div class="tip" id="fs79">type ParsedInput =<br />&#160;&#160;| ImplFile of ParsedImplFileInput<br />&#160;&#160;| SigFile of ParsedSigFileInput<br />&#160;&#160;member Range : range<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.ParsedInput</div>
+<div class="tip" id="fs80">union case ParsedInput.ImplFile: ParsedImplFileInput -&gt; ParsedInput</div>
+<div class="tip" id="fs81">val implFile : ParsedImplFileInput</div>
+<div class="tip" id="fs82">Multiple items<br />union case ParsedImplFileInput.ParsedImplFileInput: filename: string * isScript: bool * QualifiedNameOfFile * ScopedPragma list * ParsedHashDirective list * SynModuleOrNamespace list * (bool * bool) -&gt; ParsedImplFileInput<br /><br />--------------------<br />type ParsedImplFileInput = | ParsedImplFileInput of filename: string * isScript: bool * QualifiedNameOfFile * ScopedPragma list * ParsedHashDirective list * SynModuleOrNamespace list * (bool * bool)<br /><br />Full name: Microsoft.FSharp.Compiler.Ast.ParsedImplFileInput</div>
+<div class="tip" id="fs83">val fn : string</div>
+<div class="tip" id="fs84">val script : bool</div>
+<div class="tip" id="fs85">val name : QualifiedNameOfFile</div>
+<div class="tip" id="fs86">val modules : SynModuleOrNamespace list</div>
 
         </div>
         <div class="span3">

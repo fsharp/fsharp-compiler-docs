@@ -44,7 +44,6 @@
 <p>Represents the results of type checking. A mild simplification of SourceCodeService's CheckFileResults.
 Normally it is better to use the full CheckFileResults directly, available from 'FullResults'.</p>
 
-
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -55,131 +54,53 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2374', 2374)" onmouseover="showTip(event, '2374', 2374)">
+          <code onmouseout="hideTip(event, '2299', 2299)" onmouseover="showTip(event, '2299', 2299)">
             Errors
           </code>
-          <div class="tip" id="2374">
+          <div class="tip" id="2299">
             <strong>Signature:</strong> FSharpErrorInfo []<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L75-75" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L76-76" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Return the errors resulting from the type-checking</p>
 
 
-
+              <p>CompiledName: <code>get_Errors</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2375', 2375)" onmouseover="showTip(event, '2375', 2375)">
+          <code onmouseout="hideTip(event, '2300', 2300)" onmouseover="showTip(event, '2300', 2300)">
             FullResults
           </code>
-          <div class="tip" id="2375">
+          <div class="tip" id="2300">
             <strong>Signature:</strong> CheckFileResults<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L98-98" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L99-99" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get the full type checking results</p>
 
 
-
+              <p>CompiledName: <code>get_FullResults</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2376', 2376)" onmouseover="showTip(event, '2376', 2376)">
+          <code onmouseout="hideTip(event, '2301', 2301)" onmouseover="showTip(event, '2301', 2301)">
             GetDataTipText(...)
           </code>
-          <div class="tip" id="2376">
+          <div class="tip" id="2301">
             <strong>Signature:</strong> (line:Line0 * col:int * names:string list * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L106-106" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2377', 2377)" onmouseover="showTip(event, '2377', 2377)">
-            GetDeclarationListInfo(...)
-          </code>
-          <div class="tip" id="2377">
-            <strong>Signature:</strong> (line:int * col:int * qualifyingNames:string list * partialName:string * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; Async&lt;SimpleDeclaration []&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L78-78" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Get the declarations at the given code location.</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2378', 2378)" onmouseover="showTip(event, '2378', 2378)">
-            GetDeclarationLocation(...)
-          </code>
-          <div class="tip" id="2378">
-            <strong>Signature:</strong> (line:Line0 * col:int * names:string list * isDecl:bool) -&gt; FindDeclResult<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L105-105" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2379', 2379)" onmouseover="showTip(event, '2379', 2379)">
-            GetDeclarationLocationAlternate(...)
-          </code>
-          <div class="tip" id="2379">
-            <strong>Signature:</strong> (line:int * col:int * names:string list * isDecl:bool) -&gt; Async&lt;FindDeclResult&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L94-94" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Get the location of the declaration at the given position</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2380', 2380)" onmouseover="showTip(event, '2380', 2380)">
-            GetDeclarations(...)
-          </code>
-          <div class="tip" id="2380">
-            <strong>Signature:</strong> (line:Line0 * col:int * qualifyingNames:string list * partialName:string * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; Async&lt;SimpleDeclaration []&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -193,15 +114,35 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2381', 2381)" onmouseover="showTip(event, '2381', 2381)">
-            GetF1Keyword(line, col, names)
+          <code onmouseout="hideTip(event, '2302', 2302)" onmouseover="showTip(event, '2302', 2302)">
+            GetDeclarationListInfo(...)
           </code>
-          <div class="tip" id="2381">
-            <strong>Signature:</strong> (line:Line0 * col:int * names:string list) -&gt; string option<br />
+          <div class="tip" id="2302">
+            <strong>Signature:</strong> (line:int * col:int * qualifyingNames:string list * partialName:string * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; Async&lt;SimpleDeclaration []&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L103-103" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L79-79" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the declarations at the given code location.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2303', 2303)" onmouseover="showTip(event, '2303', 2303)">
+            GetDeclarationLocation(...)
+          </code>
+          <div class="tip" id="2303">
+            <strong>Signature:</strong> (line:Line0 * col:int * names:string list * isDecl:bool) -&gt; FindDeclResult<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L106-106" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -211,20 +152,19 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2382', 2382)" onmouseover="showTip(event, '2382', 2382)">
-            GetF1KeywordAlternate(line, col, names)
+          <code onmouseout="hideTip(event, '2304', 2304)" onmouseover="showTip(event, '2304', 2304)">
+            GetDeclarationLocationAlternate(...)
           </code>
-          <div class="tip" id="2382">
-            <strong>Signature:</strong> (line:int * col:int * names:string list) -&gt; Async&lt;string option&gt;<br />
+          <div class="tip" id="2304">
+            <strong>Signature:</strong> (line:int * col:int * names:string list * isDecl:bool) -&gt; Async&lt;FindDeclResult&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L83-83" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L95-95" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the Visual Studio F1-help keyword for the item at the given position</p>
-
+          <p>Get the location of the declaration at the given position</p>
 
 
         </td>
@@ -232,11 +172,29 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2383', 2383)" onmouseover="showTip(event, '2383', 2383)">
-            GetToolTipText(...)
+          <code onmouseout="hideTip(event, '2305', 2305)" onmouseover="showTip(event, '2305', 2305)">
+            GetDeclarations(...)
           </code>
-          <div class="tip" id="2383">
-            <strong>Signature:</strong> (line:Line0 * col:int * names:string list * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; string<br />
+          <div class="tip" id="2305">
+            <strong>Signature:</strong> (line:Line0 * col:int * qualifyingNames:string list * partialName:string * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; Async&lt;SimpleDeclaration []&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L108-108" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2306', 2306)" onmouseover="showTip(event, '2306', 2306)">
+            GetF1Keyword(line, col, names)
+          </code>
+          <div class="tip" id="2306">
+            <strong>Signature:</strong> (line:Line0 * col:int * names:string list) -&gt; string option<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -250,20 +208,57 @@ Normally it is better to use the full CheckFileResults directly, available from 
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2384', 2384)" onmouseover="showTip(event, '2384', 2384)">
+          <code onmouseout="hideTip(event, '2307', 2307)" onmouseover="showTip(event, '2307', 2307)">
+            GetF1KeywordAlternate(line, col, names)
+          </code>
+          <div class="tip" id="2307">
+            <strong>Signature:</strong> (line:int * col:int * names:string list) -&gt; Async&lt;string option&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L84-84" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the Visual Studio F1-help keyword for the item at the given position</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2308', 2308)" onmouseover="showTip(event, '2308', 2308)">
+            GetToolTipText(...)
+          </code>
+          <div class="tip" id="2308">
+            <strong>Signature:</strong> (line:Line0 * col:int * names:string list * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L105-105" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2309', 2309)" onmouseover="showTip(event, '2309', 2309)">
             GetToolTipTextAlternate(...)
           </code>
-          <div class="tip" id="2384">
+          <div class="tip" id="2309">
             <strong>Signature:</strong> (line:int * col:int * names:string list * xmlCommentRetriever:(string * string -&gt; string) option) -&gt; Async&lt;string&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L87-87" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/SimpleServices.fs#L88-88" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get the data tip text at the given position</p>
-
 
 
         </td>

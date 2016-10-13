@@ -35,27 +35,20 @@
         <div class="span9" id="main">
           
 <h1><a name="Hosted-Compiler" class="anchor" href="#Hosted-Compiler">Hosted Compiler</a></h1>
-
 <p>This tutorial demonstrates how to host the F# compiler.</p>
-
 <blockquote>
-  <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
 </blockquote>
-
 <blockquote>
-  <p><strong>NOTE:</strong> There are several options for hosting the F# compiler. The easiest one is to use the 
+<p><strong>NOTE:</strong> There are several options for hosting the F# compiler. The easiest one is to use the
 <code>fsc.exe</code> process and pass arguments.</p>
 </blockquote>
-
 <blockquote>
-  <p><strong>NOTE:</strong> By default <a href="https://github.com/fsharp/FSharp.Compiler.Service/issues/156">compilations using FSharp.Compiler.Service reference FSharp.Core 4.3.0.0</a> (matching F# 3.0).  You can override
+<p><strong>NOTE:</strong> By default <a href="https://github.com/fsharp/FSharp.Compiler.Service/issues/156">compilations using FSharp.Compiler.Service reference FSharp.Core 4.3.0.0</a> (matching F# 3.0).  You can override
 this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitly in your command-line arguments.</p>
 </blockquote>
-
 <hr />
-
 <p>First, we need to reference the libraries that contain F# interactive service:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -70,9 +63,7 @@ this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitl
 </code></pre></td>
 </tr>
 </table>
-
 <p>Now write content to a temporary file:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -101,18 +92,14 @@ this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitl
 </code></pre></td>
 </tr>
 </table>
-
 <p>Now invoke the compiler:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 23)" onmouseover="showTip(event, 'fs17', 23)" class="i">errors1</span>, <span onmouseout="hideTip(event, 'fs18', 24)" onmouseover="showTip(event, 'fs18', 24)" class="i">exitCode1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs7', 25)" onmouseover="showTip(event, 'fs7', 25)" class="i">scs</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 26)" onmouseover="showTip(event, 'fs19', 26)" class="f">Compile</span>([| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;-o&quot;</span>; <span onmouseout="hideTip(event, 'fs14', 27)" onmouseover="showTip(event, 'fs14', 27)" class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span onmouseout="hideTip(event, 'fs12', 28)" onmouseover="showTip(event, 'fs12', 28)" class="i">fn2</span> |])
 </code></pre></td>
 </tr>
 </table>
-
 <p>If errors occur you can see this in the 'exitCode' and the returned array of errors:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -131,17 +118,12 @@ this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitl
 </code></pre></td>
 </tr>
 </table>
-
 <h1><a name="Compiling-to-a-dynamic-assembly" class="anchor" href="#Compiling-to-a-dynamic-assembly">Compiling to a dynamic assembly</a></h1>
-
 <p>You can also compile to a dynamic assembly, which uses the F# Interactive code generator.
 This can be useful if you are, for example, in a situation where writing to the file system
 is not really an option.</p>
-
 <p>You still have to pass the "-o" option to name the output file, but the output file is not actually written to disk.</p>
-
 <p>The 'None' option indicates that the initiatlization code for the assembly is not executed.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -170,7 +152,7 @@ is not really an option.</p>
 <div class="tip" id="fs5">namespace System</div>
 <div class="tip" id="fs6">namespace System.IO</div>
 <div class="tip" id="fs7">val scs : SimpleSourceCodeServices<br /><br />Full name: Compiler.scs</div>
-<div class="tip" id="fs8">Multiple items<br />type SimpleSourceCodeServices =<br />&#160;&#160;new : unit -&gt; SimpleSourceCodeServices<br />&#160;&#160;member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />&#160;&#160;member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />&#160;&#160;member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />&#160;&#160;member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />&#160;&#160;member TokenizeFile : source:string -&gt; FSharpTokenInfo [] []<br />&#160;&#160;member TokenizeLine : line:string * state:int64 -&gt; FSharpTokenInfo [] * int64<br /><br />Full name: Microsoft.FSharp.Compiler.SimpleSourceCodeServices.SimpleSourceCodeServices<br /><br />--------------------<br />new : unit -&gt; SimpleSourceCodeServices</div>
+<div class="tip" id="fs8">Multiple items<br />type SimpleSourceCodeServices =<br />&#160;&#160;new : ?msbuildEnabled:bool -&gt; SimpleSourceCodeServices<br />&#160;&#160;member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />&#160;&#160;member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />&#160;&#160;member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />&#160;&#160;member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />&#160;&#160;member TokenizeFile : source:string -&gt; FSharpTokenInfo [] []<br />&#160;&#160;member TokenizeLine : line:string * state:int64 -&gt; FSharpTokenInfo [] * int64<br /><br />Full name: Microsoft.FSharp.Compiler.SimpleSourceCodeServices.SimpleSourceCodeServices<br /><br />--------------------<br />new : ?msbuildEnabled:bool -&gt; SimpleSourceCodeServices</div>
 <div class="tip" id="fs9">val fn : string<br /><br />Full name: Compiler.fn</div>
 <div class="tip" id="fs10">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : [&lt;ParamArray&gt;] paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string<br />&#160;&#160;static member GetExtension : path:string -&gt; string<br />&#160;&#160;static member GetFileName : path:string -&gt; string<br />&#160;&#160;...<br /><br />Full name: System.IO.Path</div>
 <div class="tip" id="fs11">Path.GetTempFileName() : string</div>

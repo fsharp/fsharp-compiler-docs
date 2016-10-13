@@ -42,164 +42,25 @@
   <span>Parent Module: <a href="microsoft-fsharp-compiler-abstractil-il.html">IL</a></span>
 </p>
 <div class="xmldoc">
-<p>ILCode</p>
-
-<p>The code for a method is made up of a "code" object.  Each "code"
-object gives the contents of the method in a "semi-structured" form, i.e.
-  1. The structure implicit in the IL exception handling tables
-     has been made explicit
-  2. No relative offsets are used in the code: all branches and
-     switch targets are made explicit as labels.
-  3. All "fallthroughs" from one basic block to the next have
-     been made explicit, by adding extra "branch" instructions to
-     the end of basic blocks which simply fallthrough to another basic
-     block.</p>
-
-<p>You can convert a straight-line sequence of instructions to structured
-code by using buildILCode and 
-Most of the interesting code is contained in BasicBlocks. If you're
-just interested in getting started with the format then begin
-by simply considering methods which do not contain any branch 
-instructions, or methods which do not contain any exception handling
-constructs.</p>
-
-<p>The above format has the great advantage that you can insert and 
-delete new code blocks without needing to fixup relative offsets
-or exception tables.</p>
-
-<p>ILBasicBlock(bblock)
-  See above</p>
-
-<p>GroupBlock(localDebugInfo, blocks)
-  A set of blocks, with interior branching between the blocks.  For example
-      B1:  ldarg 1
-           br B2</p>
-
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-<span class="l">2: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">  <span class="i">B2</span><span class="o">:</span>  <span class="i">pop</span>
-       <span class="i">ret</span>
-</code></pre></td>
-</tr>
-</table>
-
-<p>will be two basic blocks
-      let b1 = ILBasicBlock("B1", [| I<em>ldarg(1); I</em>br("B2") |])
-      let b2 = ILBasicBlock("B2", [| I<em>arith(AI</em>pop); I_ret |])
-      GroupBlock([], [b1; b2])</p>
-
-<p>A GroupBlock can include a list of debug info records for locally 
-  scoped local variables.  These indicate that within the given blocks
-  the given local variables are used for the given Debug info 
-  will only be recorded for local variables
-  declared in these nodes, and the local variable will only appear live 
-  in the debugger for the instructions covered by this node. So if you 
-  omit or erase these nodes then no debug info will be emitted for local 
-  variables.  If necessary you can have one outer ScopeBlock which specifies 
-  the information for all the local variables</p>
-
-<p>Not all the destination labels used within a group of blocks need
-  be satisfied by that group alone.  For example, the interior "try" code
-  of "try"-"catch" construct may be:
-      B1:  ldarg 1
-           br B2</p>
-
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-<span class="l">2: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">  <span class="i">B2</span><span class="o">:</span>  <span class="i">pop</span>
-       <span class="i">leave</span> <span class="i">B3</span>
-</code></pre></td>
-</tr>
-</table>
-
-<p>Again there will be two basic blocks grouped together:
-      let b1 = ILBasicBlock("B1", [| I<em>ldarg(1); I</em>br("B2") |])
-      let b2 = ILBasicBlock("B2", [| I<em>arith(AI</em>pop); I_leave("B3") |])
-      GroupBlock([], [b1; b2])
-  Here the code must be embedded in a method where "B3" is a label 
-  somewhere in the method.</p>
-
-<p>RestrictBlock(labels,code) 
-  This block hides labels, i.e. the given set of labels represent
-  wiring which is purely internal to the given code block, and may not
-  be used as the target of a branch by any blocks which this block
-  is placed alongside.</p>
-
-<p>For example, if a method is made up of:
-      B1:  ldarg 1
-           br B2</p>
-
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">  <span class="i">B2</span><span class="o">:</span>  <span class="i">ret</span>
-</code></pre></td>
-</tr>
-</table>
-
-<p>then the label "B2" is internal.  The overall code will
-  be two basic blocks grouped together, surrounded by a RestrictBlock.
-  The label "B1" is then the only remaining visible entry to the method
-  and execution will begin at that label.</p>
-
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">  <span class="k">let</span> <span class="i">b1</span> <span class="o">=</span> <span class="i">ILBasicBlock</span>(<span class="s">&quot;B1&quot;</span>, [| <span class="i">I_ldarg</span>(<span class="n">1</span>); <span class="i">I_br</span>(<span class="s">&quot;B2&quot;</span>) |])
-  <span class="k">let</span> <span class="i">b2</span> <span class="o">=</span> <span class="i">ILBasicBlock</span>(<span class="s">&quot;B2&quot;</span>, [| <span class="i">I_arith</span>(<span class="i">AI_pop</span>); <span class="i">I_leave</span>(<span class="s">&quot;B3&quot;</span>) |])
-  <span class="k">let</span> <span class="i">gb1</span> <span class="o">=</span> <span class="i">GroupBlock</span>([], [<span class="i">b1</span>; <span class="i">b2</span>])
-  <span class="i">RestrictBlock</span>([<span class="s">&quot;B2&quot;</span>], <span class="i">gb1</span>)
-</code></pre></td>
-</tr>
-</table>
-
-<p>RestrictBlock is necessary to build well-formed code.</p>
-
-<p>TryBlock(trycode,seh)</p>
-
-<p>A try-catch, try-finally or try-fault block.<br />
-  If an exception is raised while executing
-  an instruction in 'trycode' then the exception handler given by
-  'seh' is executed.</p>
-
-<p>Well-formedness conditions for code:</p>
-
-<p>Well-formed code includes nodes which explicitly "hide" interior labels.
-  For example, the code object for a method may have only one entry
-  label which is not hidden, and this label will be the label where 
-  execution begins.</p>
-
-<p>Both filter and catch blocks must have one 
-  and only one entry.  These entry labels are not visible 
-  outside the filter and catch blocks. Filter has no 
-  exits (it always uses endfilter), catch may have exits. 
-  The "try" block can have multiple entries, i.e. you can branch 
-  into a try from outside.  They can have multiple exits, each of 
-  which will be a "leave".</p>
-
-
 </div>
-  <h3>Union Cases</h3>
+  <h3>Record Fields</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Union Case</td><td>Description</td></tr>
+      <tr><td>Record Field</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1446', 1446)" onmouseover="showTip(event, '1446', 1446)">
-            GroupBlock(...)
+          <code onmouseout="hideTip(event, '1388', 1388)" onmouseover="showTip(event, '1388', 1388)">
+            Exceptions
           </code>
-          <div class="tip" id="1446">
-            <strong>Signature:</strong> ILDebugMapping list * ILCode list<br />
+          <div class="tip" id="1388">
+            <strong>Signature:</strong> ILExceptionSpec list<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L835-835" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L666-666" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -209,15 +70,15 @@ or exception tables.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1447', 1447)" onmouseover="showTip(event, '1447', 1447)">
-            ILBasicBlock(ILBasicBlock)
+          <code onmouseout="hideTip(event, '1389', 1389)" onmouseover="showTip(event, '1389', 1389)">
+            Instrs
           </code>
-          <div class="tip" id="1447">
-            <strong>Signature:</strong> ILBasicBlock<br />
+          <div class="tip" id="1389">
+            <strong>Signature:</strong> ILInstr []<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L834-834" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L665-665" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -227,15 +88,15 @@ or exception tables.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1448', 1448)" onmouseover="showTip(event, '1448', 1448)">
-            RestrictBlock(ILCodeLabel list,ILCode)
+          <code onmouseout="hideTip(event, '1390', 1390)" onmouseover="showTip(event, '1390', 1390)">
+            Labels
           </code>
-          <div class="tip" id="1448">
-            <strong>Signature:</strong> ILCodeLabel list * ILCode<br />
+          <div class="tip" id="1390">
+            <strong>Signature:</strong> Dictionary&lt;ILCodeLabel,int&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L836-836" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L664-664" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -245,15 +106,15 @@ or exception tables.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1449', 1449)" onmouseover="showTip(event, '1449', 1449)">
-            TryBlock(ILCode,ILExceptionBlock)
+          <code onmouseout="hideTip(event, '1391', 1391)" onmouseover="showTip(event, '1391', 1391)">
+            Locals
           </code>
-          <div class="tip" id="1449">
-            <strong>Signature:</strong> ILCode * ILExceptionBlock<br />
+          <div class="tip" id="1391">
+            <strong>Signature:</strong> ILLocalDebugInfo list<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L837-837" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L667-667" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

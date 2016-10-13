@@ -52,25 +52,24 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '827', 827)" onmouseover="showTip(event, '827', 827)">
-            LongIdentWithDots(LongIdent,range list)
+          <code onmouseout="hideTip(event, '763', 763)" onmouseover="showTip(event, '763', 763)">
+            LongIdentWithDots(id,dotms)
           </code>
-          <div class="tip" id="827">
+          <div class="tip" id="763">
             <strong>Signature:</strong> LongIdent * range list<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L157-157" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L156-156" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>LongIdentWithDots(lid, dotms) <br />
+          <p>LongIdentWithDots(lid, dotms)<br />
 Typically dotms.Length = lid.Length-1, but they may be same if (incomplete) code ends in a dot, e.g. "Foo.Bar."
-The dots mostly matter for parsing, and are typically ignored by the typechecker, but 
+The dots mostly matter for parsing, and are typically ignored by the typechecker, but
 if dotms.Length = lid.Length, then the parser must have reported an error, so the typechecker is allowed
 more freedom about typechecking these expressions.
 LongIdent can be empty list - it is used to denote that name of some AST element is absent (i.e. empty type name in inherit)</p>
-
 
 
         </td>
@@ -86,65 +85,49 @@ LongIdent can be empty list - it is used to denote that name of some AST element
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '828', 828)" onmouseover="showTip(event, '828', 828)">
+          <code onmouseout="hideTip(event, '764', 764)" onmouseover="showTip(event, '764', 764)">
             Lid
           </code>
-          <div class="tip" id="828">
+          <div class="tip" id="764">
             <strong>Signature:</strong> LongIdent<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L165-165" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L164-164" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>get_Lid</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '829', 829)" onmouseover="showTip(event, '829', 829)">
+          <code onmouseout="hideTip(event, '765', 765)" onmouseover="showTip(event, '765', 765)">
             Range
           </code>
-          <div class="tip" id="829">
+          <div class="tip" id="765">
             <strong>Signature:</strong> range<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L158-158" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L157-157" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>get_Range</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '830', 830)" onmouseover="showTip(event, '830', 830)">
+          <code onmouseout="hideTip(event, '766', 766)" onmouseover="showTip(event, '766', 766)">
             RangeSansAnyExtraDot
           </code>
-          <div class="tip" id="830">
+          <div class="tip" id="766">
             <strong>Signature:</strong> range<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L167-167" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '831', 831)" onmouseover="showTip(event, '831', 831)">
-            ThereIsAnExtraDotAtTheEnd
-          </code>
-          <div class="tip" id="831">
-            <strong>Signature:</strong> bool<br />
                       </div>
         </td>
         <td class="xmldoc">
@@ -153,6 +136,26 @@ LongIdent can be empty list - it is used to denote that name of some AST element
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>get_RangeSansAnyExtraDot</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '767', 767)" onmouseover="showTip(event, '767', 767)">
+            ThereIsAnExtraDotAtTheEnd
+          </code>
+          <div class="tip" id="767">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L165-165" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>get_ThereIsAnExtraDotAtTheEnd</code></p>
         </td>
       </tr>
     </tbody>

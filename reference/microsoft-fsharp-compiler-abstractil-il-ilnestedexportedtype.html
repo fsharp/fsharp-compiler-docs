@@ -43,31 +43,26 @@
 </p>
 <div class="xmldoc">
 <p>"Classes Elsewhere" - classes in auxiliary modules.</p>
-
-<p>Manifests include declarations for all the classes in an 
+<p>Manifests include declarations for all the classes in an
 assembly, regardless of which module they are in.</p>
-
-<p>The ".class extern" construct describes so-called exported types -- 
+<p>The ".class extern" construct describes so-called exported types --
 these are public classes defined in the auxiliary modules of this assembly,
 i.e. modules other than the manifest-carrying module.</p>
-
-<p>For example, if you have a two-module 
-assembly (A.DLL and B.DLL), and the manifest resides in the A.DLL, 
+<p>For example, if you have a two-module
+assembly (A.DLL and B.DLL), and the manifest resides in the A.DLL,
 then in the manifest all the public classes declared in B.DLL should
-be defined as exported types, i.e., as ".class extern". The public classes 
-defined in A.DLL should not be defined as ".class extern" -- they are 
-already available in the manifest-carrying module. The union of all 
-public classes defined in the manifest-carrying module and all 
-exported types defined there is the set of all classes exposed by 
-this assembly. Thus, by analysing the metadata of the manifest-carrying 
-module of an assembly, you can identify all the classes exposed by 
+be defined as exported types, i.e., as ".class extern". The public classes
+defined in A.DLL should not be defined as ".class extern" -- they are
+already available in the manifest-carrying module. The union of all
+public classes defined in the manifest-carrying module and all
+exported types defined there is the set of all classes exposed by
+this assembly. Thus, by analysing the metadata of the manifest-carrying
+module of an assembly, you can identify all the classes exposed by
 this assembly, and where to find them.</p>
-
-<p>Nested classes found in external modules should also be located in 
+<p>Nested classes found in external modules should also be located in
 this table, suitably nested inside another "ILExportedTypeOrForwarder"
 definition.
 these are only found in the "Nested" field of ILExportedTypeOrForwarder objects</p>
-
 
 </div>
   <h3>Record Fields</h3>
@@ -79,15 +74,15 @@ these are only found in the "Nested" field of ILExportedTypeOrForwarder objects<
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1965', 1965)" onmouseover="showTip(event, '1965', 1965)">
+          <code onmouseout="hideTip(event, '1892', 1892)" onmouseover="showTip(event, '1892', 1892)">
             Access
           </code>
-          <div class="tip" id="1965">
+          <div class="tip" id="1892">
             <strong>Signature:</strong> ILMemberAccess<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L1504-1504" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L1317-1317" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -97,15 +92,15 @@ these are only found in the "Nested" field of ILExportedTypeOrForwarder objects<
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1966', 1966)" onmouseover="showTip(event, '1966', 1966)">
+          <code onmouseout="hideTip(event, '1893', 1893)" onmouseover="showTip(event, '1893', 1893)">
             CustomAttrs
           </code>
-          <div class="tip" id="1966">
+          <div class="tip" id="1893">
             <strong>Signature:</strong> ILAttributes<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L1506-1506" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L1319-1319" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -115,15 +110,15 @@ these are only found in the "Nested" field of ILExportedTypeOrForwarder objects<
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1967', 1967)" onmouseover="showTip(event, '1967', 1967)">
+          <code onmouseout="hideTip(event, '1894', 1894)" onmouseover="showTip(event, '1894', 1894)">
             Name
           </code>
-          <div class="tip" id="1967">
+          <div class="tip" id="1894">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L1503-1503" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L1316-1316" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -133,15 +128,15 @@ these are only found in the "Nested" field of ILExportedTypeOrForwarder objects<
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1968', 1968)" onmouseover="showTip(event, '1968', 1968)">
+          <code onmouseout="hideTip(event, '1895', 1895)" onmouseover="showTip(event, '1895', 1895)">
             Nested
           </code>
-          <div class="tip" id="1968">
+          <div class="tip" id="1895">
             <strong>Signature:</strong> ILNestedExportedTypes<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L1505-1505" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L1318-1318" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

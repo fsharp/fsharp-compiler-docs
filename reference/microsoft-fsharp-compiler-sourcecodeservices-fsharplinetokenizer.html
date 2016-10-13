@@ -45,10 +45,8 @@
 the first line of text. Returns an array of ranges of the text and two enumerations categorizing the
 tokens and characters covered by that range, i.e. FSharpTokenColorKind and FSharpTokenCharKind.  The enumerations
 are somewhat adhoc but useful enough to give good colorization options to the user in an IDE.</p>
-
-<p>A new lexState is also returned.  An IDE-plugin should in general cache the lexState 
+<p>A new lexState is also returned.  An IDE-plugin should in general cache the lexState
 values for each line of the edited code.</p>
-
 
 </div>
   <h3>Instance members</h3>
@@ -60,10 +58,10 @@ values for each line of the edited code.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2716', 2716)" onmouseover="showTip(event, '2716', 2716)">
+          <code onmouseout="hideTip(event, '2661', 2661)" onmouseover="showTip(event, '2661', 2661)">
             ScanToken(lexState)
           </code>
-          <div class="tip" id="2716">
+          <div class="tip" id="2661">
             <strong>Signature:</strong> lexState:FSharpTokenizerLexState -&gt; FSharpTokenInfo option * FSharpTokenizerLexState<br />
                       </div>
         </td>
@@ -73,7 +71,6 @@ values for each line of the edited code.</p>
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Scan one token from the line</p>
-
 
 
         </td>
@@ -89,15 +86,15 @@ values for each line of the edited code.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2717', 2717)" onmouseover="showTip(event, '2717', 2717)">
+          <code onmouseout="hideTip(event, '2662', 2662)" onmouseover="showTip(event, '2662', 2662)">
             ColorStateOfLexState(arg1)
           </code>
-          <div class="tip" id="2717">
+          <div class="tip" id="2662">
             <strong>Signature:</strong> FSharpTokenizerLexState -&gt; FSharpTokenizerColorState<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fs#L727-727" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fs#L725-725" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -107,15 +104,15 @@ values for each line of the edited code.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2718', 2718)" onmouseover="showTip(event, '2718', 2718)">
+          <code onmouseout="hideTip(event, '2663', 2663)" onmouseover="showTip(event, '2663', 2663)">
             LexStateOfColorState(arg1)
           </code>
-          <div class="tip" id="2718">
+          <div class="tip" id="2663">
             <strong>Signature:</strong> FSharpTokenizerColorState -&gt; FSharpTokenizerLexState<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fs#L731-731" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceLexing.fs#L729-729" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

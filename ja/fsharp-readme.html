@@ -35,41 +35,31 @@
         <div class="span9" id="main">
           
 <h1><a name="F-コンパイラのREADME" class="anchor" href="#F-コンパイラのREADME">F# コンパイラのREADME</a></h1>
-
 <blockquote>
-  <p><strong>注意:</strong> このreadmeファイルはF# コンパイラソースコード
+<p><strong>注意:</strong> このreadmeファイルはF# コンパイラソースコード
 (<a href="https://github.com/fsharp/fsharp">github.com/fsharp/fsharp</a>)
 に付属していたオリジナルのファイルのコピーです。
 F# Compiler Servicesプロジェクトは元々F# Compilerプロジェクトから派生したもので、
 いくつかのサービスを公開するために若干の変更が加えられています。
 ここに含まれるreadmeファイルは参考程度にとどめてください。</p>
 </blockquote>
-
 <p>このプロジェクトには(オープンソース版の)F# コンパイラ、コアライブラリ、コアツールが含まれます。
 いずれもApache 2.0ライセンスが適用されます。
 <code>master</code> ブランチは最新バージョンのF#(現時点ではF# 3.0)に対応します。
 なおコンパイラをブートストラップするために、
 このプロジェクトの以前のバージョンでビルドされたバイナリが使用されます。</p>
-
 <h2><a name="必須要件" class="anchor" href="#必須要件">必須要件</a></h2>
-
 <p>Mono 2.9以上のバージョンが必要です。Mono 3.0が推奨されます。</p>
-
 <p>OS Xの場合、automake 2.69が必要です。
 <a href="http://brew.sh/">homebrew</a> 経由でインストールする場合は
 以下のようにします:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">brew install automake
 </code></pre></td></tr></table>
-
 <h2><a name="ビルド" class="anchor" href="#ビルド">ビルド</a></h2>
-
 <h3><a name="Linuxおよびその他のUnixシステムの場合" class="anchor" href="#Linuxおよびその他のUnixシステムの場合">Linuxおよびその他のUnixシステムの場合</a></h3>
-
 <p>通常の手順は以下の通りです:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -78,14 +68,10 @@ F# Compiler Servicesプロジェクトは元々F# Compilerプロジェクトか�
 make
 sudo make install
 </code></pre></td></tr></table>
-
 <p>デフォルトでは最適化されたバイナリが生成されます。
 デバッグ版をビルドする場合は <code>make CONFIG=debug</code> とします。</p>
-
 <h3><a name="MacOS-OSX-の場合" class="anchor" href="#MacOS-OSX-の場合">MacOS (OSX)の場合</a></h3>
-
 <p>Monoのバージョンを指定するprefixを設定します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -94,16 +80,12 @@ sudo make install
 make
 sudo make install
 </code></pre></td></tr></table>
-
 <p>デフォルトでは最適化されたバイナリが生成されます。
 デバッグ版をビルドする場合は <code>make CONFIG=debug</code> とします。</p>
-
 <h3><a name="Windows上でmsbuildを使用する-つまり-NETがインストールされている-場合" class="anchor" href="#Windows上でmsbuildを使用する-つまり-NETがインストールされている-場合">Windows上でmsbuildを使用する(つまり.NETがインストールされている)場合</a></h3>
-
 <p>VS2010がインストールされておらず、VS2012しかインストールされていない場合には
 <a href="http://www.microsoft.com/en-us/download/details.aspx?id=13450">F# 2.0 ランタイム</a>
 のインストールが必要です:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -116,12 +98,10 @@ ngen install ..\lib\proto\4.0\fsc-proto.exe (optional)
 msbuild fsharp-library-build.proj /p:Configuration=Release
 msbuild fsharp-compiler-build.proj /p:Configuration=Release
 </code></pre></td></tr></table>
-
 <p>また、.NET 2.0やMono 2.1、MonoTouch、Silverlight 5.0、
 Windows Phone 7.1、ポータブルプロファイル47(.NET4.5+Silverlight5+Windows8)、
 ポータブルプロファイル88(.NET4+Silverlight4+WindowsPhone7.1+Windows8)、
 Xbox 360用XNA 4.0のプロファイルに対応するFSharp.Coreをビルドすることもできます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -140,21 +120,16 @@ msbuild fsharp-library-build.proj /p:TargetFramework=sl5 /p:Configuration=Releas
 msbuild fsharp-library-build.proj /p:TargetFramework=wp7 /p:Configuration=Release
 msbuild fsharp-library-build.proj /p:TargetFramework=net40-xna40-xbox360 /p:Configuration=Release
 </code></pre></td></tr></table>
-
 <p>Silverlight 5.0用にFSharp.CoreとFSharp.Compiler.Silverlight.dll
 をビルドすることもできます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">msbuild fsharp-library-build.proj /p:TargetFramework=sl5-compiler  /p:Configuration=Release
 msbuild fsharp-compiler-build.proj /p:TargetFramework=sl5-compiler /p:Configuration=Release
 </code></pre></td></tr></table>
-
 <p>デバッグ版バイナリを出力する場合は <code>/p:Configuration=Debug</code> に変更します。</p>
-
 <h3><a name="Windows上でxbuildを使用する-つまり-NETがインストールされておらず-Mono-3-0だけがインストールされている-場合" class="anchor" href="#Windows上でxbuildを使用する-つまり-NETがインストールされておらず-Mono-3-0だけがインストールされている-場合">Windows上でxbuildを使用する(つまり.NETがインストールされておらず、Mono 3.0だけがインストールされている)場合</a></h3>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -165,33 +140,24 @@ xbuild fsharp-proto-build.proj
 xbuild fsharp-library-build.proj
 xbuild fsharp-compiler-build.proj
 </code></pre></td></tr></table>
-
 <p>xbuildを使用したビルドはMono準拠の公開用バイナリ生成にはまだ対応していないため
 (src/fsharp/targets.make を参照)、個人的な使用にとどめ、
 公開用のビルドには使用してはいけません。</p>
-
 <h2><a name="厳密名" class="anchor" href="#厳密名">厳密名</a></h2>
-
 <p>生成されたFSharp.Core.dllには遅延署名だけが行われます
 (Monoでは厳密名が必須ではありません)。
 厳密名で署名されたFSharp.Core.dllが必要であれば以下を使用してください:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">lib\bootstrap\signed\3.0\v4.0\FSharp.Core.dll
 </code></pre></td></tr></table>
-
 <h2><a name="生成されるファイル" class="anchor" href="#生成されるファイル">生成されるファイル</a></h2>
-
 <p>ビルドが完了すると、メインのコンパイラバイナリは以下の場所に生成されます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">lib/release/4.0
 </code></pre></td></tr></table>
-
 <p>.NET 2.0やMonoAndroid、MonoTouch(Monoプロファイル2.1)は以下の場所に生成されます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -200,9 +166,7 @@ xbuild fsharp-compiler-build.proj
 lib/release/2.1
 lib/release/2.1monotouch
 </code></pre></td></tr></table>
-
 <p><code>make install</code>　を実行した場合のプレフィックスは以下のようになります:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -227,74 +191,54 @@ lib/release/2.1monotouch
 /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/gac/.../FSharp.Compiler.dll
 ...
 </code></pre></td></tr></table>
-
 <p>またxbuildをサポートする場合は以下のプレフィックスになります:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/Microsoft\ F#/v4.0/*
 /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/Microsoft\ SDKs/F#/3.0/Framework/*
 </code></pre></td></tr></table>
-
 <p>(これらの名前はVisual Studio由来のプロジェクトファイルで使用されている
 Microsoft.FSharp.Targetsファイル内における正式名です)</p>
-
 <p>また、以下のスクリプトが配置されます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">/usr/bin/fsharpc   (F# コンパイラ)
 /usr/bin/fsharpi   (F# Interactive)
 </code></pre></td></tr></table>
-
 <h2><a name="開発者用メモ" class="anchor" href="#開発者用メモ">開発者用メモ</a></h2>
-
 <h3><a name="継続的インテグレーションビルド" class="anchor" href="#継続的インテグレーションビルド">継続的インテグレーションビルド</a></h3>
-
 <p>このプロジェクトはJetBrains/Teamcityサーバー上において、
 F#コミュニティプロジェクトの一部として継続的インテグレーション
 (CI:continuous integration)ビルドが行われています:</p>
-
 <p><a href="http://teamcity.codebetter.com/project.html?projectId=project61&amp;tab=projectOverview"><a href="http://teamcity.codebetter.com/project.html?projectId=project61&amp;tab=projectOverview">http://teamcity.codebetter.com/project.html?projectId=project61&tab=projectOverview</a></a></p>
-
 <p>主な管理者は @forki です。
 今のところMono用に'make' installと、
 Windows用に 'cd src; msbuild fsharp-build.proj' のビルドが行われています。
 ビルドされたバイナリは保存されておらず、
 単にサニティチェックだけが対象になっています。</p>
-
 <h3><a name="Visual-StudioまたはMonoDevelop上でコンパイラを編集する" class="anchor" href="#Visual-StudioまたはMonoDevelop上でコンパイラを編集する">Visual StudioまたはMonoDevelop上でコンパイラを編集する</a></h3>
-
 <p><code>all-vs2012.sln</code> を開いてモードをDebugまたはReleaseに設定します。
 コンパイラはコンパイル中でも気を利かせてワークフローに若干介入することがあるため、
 実際にコンパイルを実行するには上記にあるようなコマンドライン経由で
 コンパイルするとよいでしょう。</p>
-
 <p>MonoDevelopでサポートされているF#ではプロセス内バックグラウンドコンパイラが
 使用されます。
 Mac上ではこれが原因でガベージコレクションを止めることがあり、
 MonoDevelop上でのコンパイラの編集がしづらくなる場合があります。</p>
-
 <h3><a name="NET-4-x用にF-Coreの単体テストをビルドする-省略可" class="anchor" href="#NET-4-x用にF-Coreの単体テストをビルドする-省略可">.NET 4.x用にF# Coreの単体テストをビルドする(省略可)</a></h3>
-
 <p>このプロジェクトでは、 <code>FSharp.Core.dll</code> や <code>FSharp.Compiler.dll</code> の一部を
 チェックする単体テストをビルドするためにprotoコンパイラを使用しています。
 また、 <code>tests\fsharp</code> 以下にもいくつかのテストがあります。</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">msbuild fsharp-library-unittests-build.proj /p:TargetFramework=net40
 </code></pre></td></tr></table>
-
 <p><em>注意: 単体テストをビルドする場合、NUnitをインストールしておく必要があります。</em></p>
-
 <h3><a name="検証および使用方法" class="anchor" href="#検証および使用方法">検証および使用方法</a></h3>
-
 <p>ビルドされたバイナリを簡単に検証するには、以下のようにして <code>fsi.exe</code>
 (F# Interactive) を起動してみるとよいでしょう:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -313,23 +257,18 @@ echo printfn "hello world" &gt; hello.fs
 lib\debug\4.0\fsc.exe hello.fs
 hello.exe
 </code></pre></td></tr></table>
-
 <h3><a name="Windows上で-コンパイラのテストを実行する" class="anchor" href="#Windows上で-コンパイラのテストを実行する">(Windows上で)コンパイラのテストを実行する</a></h3>
-
 <p><code>tests\fsharp\core</code> 以下には言語機能のテストがあります。
 テスト機構は素朴なもので、残念なことにバッチファイルを使用しています。
 これらのテストをWindows上で実行するには以下のようにします:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">cd ..\tests\fsharp\core
 ..\..\build-and-run-all-installed-ilx-configs.bat results.log
 </code></pre></td></tr></table>
-
 <p>それぞれのテストディレクトリには1つのテスト結果ファイルが生成され、
 発生したエラーも記録されます。</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -344,23 +283,17 @@ tests\fsharp\core\queriesNullableOperators
 tests\fsharp\core\queriesOverIEnumerable
 ...
 </code></pre></td></tr></table>
-
 <p>LINQクエリに対するいくつかのテストではSQL Serverのインストールが必要です。
 テストが失敗すると、たとえば以下のように出力されます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="text">ERRORLEVEL=1: in tests\fsharp\core\csfromfs\build.bat
 </code></pre></td></tr></table>
-
 <p>この場合、関連するディレクトリに移動した後、
 <code>build.bat</code> および <code>run.bat</code> を実行します。</p>
-
 <h2><a name="歴史" class="anchor" href="#歴史">歴史</a></h2>
-
 <p>Microsoftから公開されたF#コンパイラのソースは
 <a href="http://fsharppowerpack.codeplex.com">fsharppowerpack.codeplex.com</a> にあります。</p>
-
 <p>ブートストラップ用ライブラリ、ツール、F#コンパイラが利用できます。
 <code>lib/bootstrap/X.0</code> ディレクトリにはMonoビルド用ライブラリやコンパイラ、
 ビルドをブートストラップするために使用するツールなどが含まれています。

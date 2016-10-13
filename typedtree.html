@@ -35,25 +35,18 @@
         <div class="span9" id="main">
           
 <h1><a name="Compiler-Services-Processing-typed-expression-tree" class="anchor" href="#Compiler-Services-Processing-typed-expression-tree">Compiler Services: Processing typed expression tree</a></h1>
-
 <p>This tutorial demonstrates how to get the checked, typed expressions tree (TAST)
 for F# code and how to walk over the tree.</p>
-
 <p>This can be used for creating tools such as source code analyzers and refactoring tools.
 You can also combine the information with the API available
 from <a href="symbols.html">symbols</a>.</p>
-
 <blockquote>
-  <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
 </blockquote>
-
 <h2><a name="Getting-checked-expressions" class="anchor" href="#Getting-checked-expressions">Getting checked expressions</a></h2>
-
 <p>To access the type-checked, resolved expressions, you need to create an instance of <code>InteractiveChecker</code>.</p>
-
 <p>To use the interactive checker, reference <code>FSharp.Compiler.Service.dll</code> and open the
 <code>SourceCodeServices</code> namespace:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -66,12 +59,9 @@ from <a href="symbols.html">symbols</a>.</p>
 </code></pre></td>
 </tr>
 </table>
-
 <h3><a name="Checking-code" class="anchor" href="#Checking-code">Checking code</a></h3>
-
 <p>We first parse and check some code as in the <a href="symbols.html">symbols</a> tutorial.
 One difference is that we set keepAssemblyContents to true.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -102,11 +92,8 @@ One difference is that we set keepAssemblyContents to true.</p>
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Getting-the-expressions" class="anchor" href="#Getting-the-expressions">Getting the expressions</a></h2>
-
 <p>After type checking a file, you can access the declarations and contents of the assembly, including expressions:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -151,22 +138,18 @@ One difference is that we set keepAssemblyContents to true.</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Checked assemblies are made up of a series of checked implementation files.  The "file" granularity
 matters in F# because initialization actions are triggered at the granularity of files.
 In this case there is only one implementation file in the project:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 42)" onmouseover="showTip(event, 'fs26', 42)" class="i">checkedFile</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs24', 43)" onmouseover="showTip(event, 'fs24', 43)" class="i">checkProjectResults</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 44)" onmouseover="showTip(event, 'fs27', 44)" class="i">AssemblyContents</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 45)" onmouseover="showTip(event, 'fs28', 45)" class="i">ImplementationFiles</span><span class="o">.</span>[<span class="n">0</span>]
 </code></pre></td>
 </tr>
 </table>
-
 <p>Checked assemblies are made up of a series of checked implementation files.  The "file" granularity
 matters in F# because initialization actions are triggered at the granularity of files.
 In this case there is only one implementation file in the project:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -211,15 +194,12 @@ In this case there is only one implementation file in the project:</p>
 </code></pre></td>
 </tr>
 </table>
-
-<p>As can be seen, the only declaration in the implementation file is that of the module MyLibrary, which 
+<p>As can be seen, the only declaration in the implementation file is that of the module MyLibrary, which
 contains fours sub-declarations.</p>
-
 <blockquote>
-  <p>As an aside, one peculiarity here is that the member declarations (e.g. the "MyMethod" member) are returned as part of the containing module entity, not as part of their class.
+<p>As an aside, one peculiarity here is that the member declarations (e.g. the "MyMethod" member) are returned as part of the containing module entity, not as part of their class.
 Note that the class constructor is returned as a separate declaration. The class type definition has been "split" into a constructor and the other declarations.</p>
 </blockquote>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -232,9 +212,7 @@ Note that the class constructor is returned as a separate declaration. The class
 </code></pre></td>
 </tr>
 </table>
-
 <p>What about the expressions, for example the body of function "foo"? Let's find it:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -247,14 +225,11 @@ Note that the class constructor is returned as a separate declaration. The class
 </code></pre></td>
 </tr>
 </table>
-
-<p>Here 'fooSymbol' is a symbold associated with the declaration of 'foo', 
-'fooArgs' represents the formal arguments to the 'foo' function, and 'fooExpression' 
+<p>Here 'fooSymbol' is a symbold associated with the declaration of 'foo',
+'fooArgs' represents the formal arguments to the 'foo' function, and 'fooExpression'
 is an expression for the implementation of the 'foo' function.</p>
-
-<p>Once you have an expression, you can work with it much like an F# quotation.  For example, 
+<p>Once you have an expression, you can work with it much like an F# quotation.  For example,
 you can find its declaration range and its type:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -263,12 +238,9 @@ you can find its declaration range and its type:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <h3><a name="Walking-over-expressions" class="anchor" href="#Walking-over-expressions">Walking over expressions</a></h3>
-
 <p>Expressions are analyzed using active patterns, much like F# quotations.
 Here is a generic expression visitor:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -441,33 +413,31 @@ Here is a generic expression visitor:</p>
         <span onmouseout="hideTip(event, 'fs55', 437)" onmouseover="showTip(event, 'fs55', 437)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 438)" onmouseover="showTip(event, 'fs56', 438)" class="f">f</span> <span onmouseout="hideTip(event, 'fs154', 439)" onmouseover="showTip(event, 'fs154', 439)" class="i">baseCallExpr</span>
         <span onmouseout="hideTip(event, 'fs101', 440)" onmouseover="showTip(event, 'fs101', 440)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs102', 441)" onmouseover="showTip(event, 'fs102', 441)" class="f">iter</span> (<span onmouseout="hideTip(event, 'fs157', 442)" onmouseover="showTip(event, 'fs157', 442)" class="f">visitObjMember</span> <span onmouseout="hideTip(event, 'fs56', 443)" onmouseover="showTip(event, 'fs56', 443)" class="f">f</span>) <span onmouseout="hideTip(event, 'fs155', 444)" onmouseover="showTip(event, 'fs155', 444)" class="i">overrides</span>
         <span onmouseout="hideTip(event, 'fs101', 445)" onmouseover="showTip(event, 'fs101', 445)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs102', 446)" onmouseover="showTip(event, 'fs102', 446)" class="f">iter</span> (<span onmouseout="hideTip(event, 'fs103', 447)" onmouseover="showTip(event, 'fs103', 447)" class="f">snd</span> <span class="o">&gt;</span><span class="o">&gt;</span> <span onmouseout="hideTip(event, 'fs101', 448)" onmouseover="showTip(event, 'fs101', 448)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs102', 449)" onmouseover="showTip(event, 'fs102', 449)" class="f">iter</span> (<span onmouseout="hideTip(event, 'fs157', 450)" onmouseover="showTip(event, 'fs157', 450)" class="f">visitObjMember</span> <span onmouseout="hideTip(event, 'fs56', 451)" onmouseover="showTip(event, 'fs56', 451)" class="f">f</span>)) <span onmouseout="hideTip(event, 'fs156', 452)" onmouseover="showTip(event, 'fs156', 452)" class="i">interfaceImplementations</span>
-    | <span onmouseout="hideTip(event, 'fs58', 453)" onmouseover="showTip(event, 'fs58', 453)" class="t">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs158', 454)" onmouseover="showTip(event, 'fs158', 454)" class="p">TraitCall</span>(<span onmouseout="hideTip(event, 'fs159', 455)" onmouseover="showTip(event, 'fs159', 455)" class="i">sourceTypes</span>, <span onmouseout="hideTip(event, 'fs160', 456)" onmouseover="showTip(event, 'fs160', 456)" class="i">traitName</span>, <span onmouseout="hideTip(event, 'fs65', 457)" onmouseover="showTip(event, 'fs65', 457)" class="i">typeArgs</span>, <span onmouseout="hideTip(event, 'fs161', 458)" onmouseover="showTip(event, 'fs161', 458)" class="i">typeInstantiation</span>, <span onmouseout="hideTip(event, 'fs66', 459)" onmouseover="showTip(event, 'fs66', 459)" class="i">argExprs</span>) <span class="k">-&gt;</span> 
-        <span onmouseout="hideTip(event, 'fs67', 460)" onmouseover="showTip(event, 'fs67', 460)" class="f">visitExprs</span> <span onmouseout="hideTip(event, 'fs56', 461)" onmouseover="showTip(event, 'fs56', 461)" class="f">f</span> <span onmouseout="hideTip(event, 'fs66', 462)" onmouseover="showTip(event, 'fs66', 462)" class="i">argExprs</span>
-    | <span onmouseout="hideTip(event, 'fs58', 463)" onmouseover="showTip(event, 'fs58', 463)" class="t">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs162', 464)" onmouseover="showTip(event, 'fs162', 464)" class="p">ValueSet</span>(<span onmouseout="hideTip(event, 'fs163', 465)" onmouseover="showTip(event, 'fs163', 465)" class="i">valToSet</span>, <span onmouseout="hideTip(event, 'fs88', 466)" onmouseover="showTip(event, 'fs88', 466)" class="i">valueExpr</span>) <span class="k">-&gt;</span> 
-        <span onmouseout="hideTip(event, 'fs55', 467)" onmouseover="showTip(event, 'fs55', 467)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 468)" onmouseover="showTip(event, 'fs56', 468)" class="f">f</span> <span onmouseout="hideTip(event, 'fs88', 469)" onmouseover="showTip(event, 'fs88', 469)" class="i">valueExpr</span>
-    | <span onmouseout="hideTip(event, 'fs58', 470)" onmouseover="showTip(event, 'fs58', 470)" class="t">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs164', 471)" onmouseover="showTip(event, 'fs164', 471)" class="p">WhileLoop</span>(<span onmouseout="hideTip(event, 'fs90', 472)" onmouseover="showTip(event, 'fs90', 472)" class="i">guardExpr</span>, <span onmouseout="hideTip(event, 'fs95', 473)" onmouseover="showTip(event, 'fs95', 473)" class="i">bodyExpr</span>) <span class="k">-&gt;</span> 
-        <span onmouseout="hideTip(event, 'fs55', 474)" onmouseover="showTip(event, 'fs55', 474)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 475)" onmouseover="showTip(event, 'fs56', 475)" class="f">f</span> <span onmouseout="hideTip(event, 'fs90', 476)" onmouseover="showTip(event, 'fs90', 476)" class="i">guardExpr</span>; <span onmouseout="hideTip(event, 'fs55', 477)" onmouseover="showTip(event, 'fs55', 477)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 478)" onmouseover="showTip(event, 'fs56', 478)" class="f">f</span> <span onmouseout="hideTip(event, 'fs95', 479)" onmouseover="showTip(event, 'fs95', 479)" class="i">bodyExpr</span>
-    | <span onmouseout="hideTip(event, 'fs58', 480)" onmouseover="showTip(event, 'fs58', 480)" class="t">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs165', 481)" onmouseover="showTip(event, 'fs165', 481)" class="p">BaseValue</span> <span onmouseout="hideTip(event, 'fs166', 482)" onmouseover="showTip(event, 'fs166', 482)" class="i">baseType</span> <span class="k">-&gt;</span> ()
-    | <span onmouseout="hideTip(event, 'fs58', 483)" onmouseover="showTip(event, 'fs58', 483)" class="t">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs167', 484)" onmouseover="showTip(event, 'fs167', 484)" class="p">DefaultValue</span> <span onmouseout="hideTip(event, 'fs168', 485)" onmouseover="showTip(event, 'fs168', 485)" class="i">defaultType</span> <span class="k">-&gt;</span> ()
-    | <span onmouseout="hideTip(event, 'fs58', 486)" onmouseover="showTip(event, 'fs58', 486)" class="t">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs169', 487)" onmouseover="showTip(event, 'fs169', 487)" class="p">ThisValue</span> <span onmouseout="hideTip(event, 'fs170', 488)" onmouseover="showTip(event, 'fs170', 488)" class="i">thisType</span> <span class="k">-&gt;</span> ()
-    | <span onmouseout="hideTip(event, 'fs58', 489)" onmouseover="showTip(event, 'fs58', 489)" class="t">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs171', 490)" onmouseover="showTip(event, 'fs171', 490)" class="p">Const</span>(<span onmouseout="hideTip(event, 'fs172', 491)" onmouseover="showTip(event, 'fs172', 491)" class="i">constValueObj</span>, <span onmouseout="hideTip(event, 'fs173', 492)" onmouseover="showTip(event, 'fs173', 492)" class="i">constType</span>) <span class="k">-&gt;</span> ()
-    | <span onmouseout="hideTip(event, 'fs58', 493)" onmouseover="showTip(event, 'fs58', 493)" class="t">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs174', 494)" onmouseover="showTip(event, 'fs174', 494)" class="p">Value</span>(<span onmouseout="hideTip(event, 'fs175', 495)" onmouseover="showTip(event, 'fs175', 495)" class="i">valueToGet</span>) <span class="k">-&gt;</span> ()
-    | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs49', 496)" onmouseover="showTip(event, 'fs49', 496)" class="f">failwith</span> (<span onmouseout="hideTip(event, 'fs176', 497)" onmouseover="showTip(event, 'fs176', 497)" class="f">sprintf</span> <span class="s">&quot;unrecognized </span><span class="pf">%+A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs43', 498)" onmouseover="showTip(event, 'fs43', 498)" class="i">e</span>)
+    | <span onmouseout="hideTip(event, 'fs58', 453)" onmouseover="showTip(event, 'fs58', 453)" class="t">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs158', 454)" onmouseover="showTip(event, 'fs158', 454)" class="i">TraitCall</span>(<span class="i">sourceTypes</span>, <span class="i">traitName</span>, <span class="i">typeArgs</span>, <span class="i">typeInstantiation</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span> 
+        <span onmouseout="hideTip(event, 'fs67', 455)" onmouseover="showTip(event, 'fs67', 455)" class="i">visitExprs</span> <span onmouseout="hideTip(event, 'fs56', 456)" onmouseover="showTip(event, 'fs56', 456)" class="i">f</span> <span class="i">argExprs</span>
+    | <span onmouseout="hideTip(event, 'fs58', 457)" onmouseover="showTip(event, 'fs58', 457)" class="i">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs159', 458)" onmouseover="showTip(event, 'fs159', 458)" class="i">ValueSet</span>(<span class="i">valToSet</span>, <span class="i">valueExpr</span>) <span class="k">-&gt;</span> 
+        <span onmouseout="hideTip(event, 'fs55', 459)" onmouseover="showTip(event, 'fs55', 459)" class="i">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 460)" onmouseover="showTip(event, 'fs56', 460)" class="i">f</span> <span class="i">valueExpr</span>
+    | <span onmouseout="hideTip(event, 'fs58', 461)" onmouseover="showTip(event, 'fs58', 461)" class="i">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs160', 462)" onmouseover="showTip(event, 'fs160', 462)" class="i">WhileLoop</span>(<span class="i">guardExpr</span>, <span class="i">bodyExpr</span>) <span class="k">-&gt;</span> 
+        <span onmouseout="hideTip(event, 'fs55', 463)" onmouseover="showTip(event, 'fs55', 463)" class="i">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 464)" onmouseover="showTip(event, 'fs56', 464)" class="i">f</span> <span class="i">guardExpr</span>; <span onmouseout="hideTip(event, 'fs55', 465)" onmouseover="showTip(event, 'fs55', 465)" class="i">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 466)" onmouseover="showTip(event, 'fs56', 466)" class="i">f</span> <span class="i">bodyExpr</span>
+    | <span onmouseout="hideTip(event, 'fs58', 467)" onmouseover="showTip(event, 'fs58', 467)" class="i">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs161', 468)" onmouseover="showTip(event, 'fs161', 468)" class="i">BaseValue</span> <span class="i">baseType</span> <span class="k">-&gt;</span> ()
+    | <span onmouseout="hideTip(event, 'fs58', 469)" onmouseover="showTip(event, 'fs58', 469)" class="i">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs162', 470)" onmouseover="showTip(event, 'fs162', 470)" class="i">DefaultValue</span> <span class="i">defaultType</span> <span class="k">-&gt;</span> ()
+    | <span onmouseout="hideTip(event, 'fs58', 471)" onmouseover="showTip(event, 'fs58', 471)" class="i">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs163', 472)" onmouseover="showTip(event, 'fs163', 472)" class="i">ThisValue</span> <span class="i">thisType</span> <span class="k">-&gt;</span> ()
+    | <span onmouseout="hideTip(event, 'fs58', 473)" onmouseover="showTip(event, 'fs58', 473)" class="i">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs164', 474)" onmouseover="showTip(event, 'fs164', 474)" class="i">Const</span>(<span class="i">constValueObj</span>, <span class="i">constType</span>) <span class="k">-&gt;</span> ()
+    | <span onmouseout="hideTip(event, 'fs58', 475)" onmouseover="showTip(event, 'fs58', 475)" class="i">BasicPatterns</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs165', 476)" onmouseover="showTip(event, 'fs165', 476)" class="i">Value</span>(<span class="i">valueToGet</span>) <span class="k">-&gt;</span> ()
+    | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs49', 477)" onmouseover="showTip(event, 'fs49', 477)" class="i">failwith</span> (<span onmouseout="hideTip(event, 'fs166', 478)" onmouseover="showTip(event, 'fs166', 478)" class="i">sprintf</span> <span class="s">&quot;unrecognized %+A&quot;</span> <span onmouseout="hideTip(event, 'fs43', 479)" onmouseover="showTip(event, 'fs43', 479)" class="i">e</span>)
 
-<span class="k">and</span> <span onmouseout="hideTip(event, 'fs67', 499)" onmouseover="showTip(event, 'fs67', 499)" class="f">visitExprs</span> <span onmouseout="hideTip(event, 'fs56', 500)" onmouseover="showTip(event, 'fs56', 500)" class="f">f</span> <span onmouseout="hideTip(event, 'fs177', 501)" onmouseover="showTip(event, 'fs177', 501)" class="i">exprs</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs101', 502)" onmouseover="showTip(event, 'fs101', 502)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs102', 503)" onmouseover="showTip(event, 'fs102', 503)" class="f">iter</span> (<span onmouseout="hideTip(event, 'fs55', 504)" onmouseover="showTip(event, 'fs55', 504)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 505)" onmouseover="showTip(event, 'fs56', 505)" class="f">f</span>) <span onmouseout="hideTip(event, 'fs177', 506)" onmouseover="showTip(event, 'fs177', 506)" class="i">exprs</span>
+<span class="k">and</span> <span onmouseout="hideTip(event, 'fs67', 480)" onmouseover="showTip(event, 'fs67', 480)" class="f">visitExprs</span> <span onmouseout="hideTip(event, 'fs56', 481)" onmouseover="showTip(event, 'fs56', 481)" class="f">f</span> <span onmouseout="hideTip(event, 'fs167', 482)" onmouseover="showTip(event, 'fs167', 482)" class="i">exprs</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs101', 483)" onmouseover="showTip(event, 'fs101', 483)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs102', 484)" onmouseover="showTip(event, 'fs102', 484)" class="f">iter</span> (<span onmouseout="hideTip(event, 'fs55', 485)" onmouseover="showTip(event, 'fs55', 485)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 486)" onmouseover="showTip(event, 'fs56', 486)" class="f">f</span>) <span onmouseout="hideTip(event, 'fs167', 487)" onmouseover="showTip(event, 'fs167', 487)" class="i">exprs</span>
 
-<span class="k">and</span> <span onmouseout="hideTip(event, 'fs73', 507)" onmouseover="showTip(event, 'fs73', 507)" class="f">visitObjArg</span> <span onmouseout="hideTip(event, 'fs56', 508)" onmouseover="showTip(event, 'fs56', 508)" class="f">f</span> <span onmouseout="hideTip(event, 'fs178', 509)" onmouseover="showTip(event, 'fs178', 509)" class="i">objOpt</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs179', 510)" onmouseover="showTip(event, 'fs179', 510)" class="t">Option</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs180', 511)" onmouseover="showTip(event, 'fs180', 511)" class="f">iter</span> (<span onmouseout="hideTip(event, 'fs55', 512)" onmouseover="showTip(event, 'fs55', 512)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 513)" onmouseover="showTip(event, 'fs56', 513)" class="f">f</span>) <span onmouseout="hideTip(event, 'fs178', 514)" onmouseover="showTip(event, 'fs178', 514)" class="i">objOpt</span>
+<span class="k">and</span> <span onmouseout="hideTip(event, 'fs73', 488)" onmouseover="showTip(event, 'fs73', 488)" class="f">visitObjArg</span> <span onmouseout="hideTip(event, 'fs56', 489)" onmouseover="showTip(event, 'fs56', 489)" class="f">f</span> <span onmouseout="hideTip(event, 'fs168', 490)" onmouseover="showTip(event, 'fs168', 490)" class="i">objOpt</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs169', 491)" onmouseover="showTip(event, 'fs169', 491)" class="t">Option</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs170', 492)" onmouseover="showTip(event, 'fs170', 492)" class="f">iter</span> (<span onmouseout="hideTip(event, 'fs55', 493)" onmouseover="showTip(event, 'fs55', 493)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 494)" onmouseover="showTip(event, 'fs56', 494)" class="f">f</span>) <span onmouseout="hideTip(event, 'fs168', 495)" onmouseover="showTip(event, 'fs168', 495)" class="i">objOpt</span>
 
-<span class="k">and</span> <span onmouseout="hideTip(event, 'fs157', 515)" onmouseover="showTip(event, 'fs157', 515)" class="f">visitObjMember</span> <span onmouseout="hideTip(event, 'fs56', 516)" onmouseover="showTip(event, 'fs56', 516)" class="f">f</span> <span onmouseout="hideTip(event, 'fs181', 517)" onmouseover="showTip(event, 'fs181', 517)" class="i">memb</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs55', 518)" onmouseover="showTip(event, 'fs55', 518)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 519)" onmouseover="showTip(event, 'fs56', 519)" class="f">f</span> <span onmouseout="hideTip(event, 'fs181', 520)" onmouseover="showTip(event, 'fs181', 520)" class="i">memb</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs182', 521)" onmouseover="showTip(event, 'fs182', 521)" class="i">Body</span>
+<span class="k">and</span> <span onmouseout="hideTip(event, 'fs157', 496)" onmouseover="showTip(event, 'fs157', 496)" class="f">visitObjMember</span> <span onmouseout="hideTip(event, 'fs56', 497)" onmouseover="showTip(event, 'fs56', 497)" class="f">f</span> <span onmouseout="hideTip(event, 'fs171', 498)" onmouseover="showTip(event, 'fs171', 498)" class="i">memb</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs55', 499)" onmouseover="showTip(event, 'fs55', 499)" class="f">visitExpr</span> <span onmouseout="hideTip(event, 'fs56', 500)" onmouseover="showTip(event, 'fs56', 500)" class="f">f</span> <span onmouseout="hideTip(event, 'fs171', 501)" onmouseover="showTip(event, 'fs171', 501)" class="i">memb</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs172', 502)" onmouseover="showTip(event, 'fs172', 502)" class="i">Body</span>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Let's use this expresssion walker:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -485,7 +455,7 @@ Here is a generic expression visitor:</p>
 <span class="l">15: </span>
 <span class="l">16: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs52', 522)" onmouseover="showTip(event, 'fs52', 522)" class="i">fooExpression</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs55', 523)" onmouseover="showTip(event, 'fs55', 523)" class="f">visitExpr</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs43', 524)" onmouseover="showTip(event, 'fs43', 524)" class="i">e</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs36', 525)" onmouseover="showTip(event, 'fs36', 525)" class="f">printfn</span> <span class="s">&quot;Visiting </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs43', 526)" onmouseover="showTip(event, 'fs43', 526)" class="i">e</span>)
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs52', 503)" onmouseover="showTip(event, 'fs52', 503)" class="i">fooExpression</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs55', 504)" onmouseover="showTip(event, 'fs55', 504)" class="f">visitExpr</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs43', 505)" onmouseover="showTip(event, 'fs43', 505)" class="i">e</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs36', 506)" onmouseover="showTip(event, 'fs36', 506)" class="f">printfn</span> <span class="s">&quot;Visiting </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs43', 507)" onmouseover="showTip(event, 'fs43', 507)" class="i">e</span>)
 
 <span class="c">// Prints:</span>
 <span class="c">//</span>
@@ -504,20 +474,15 @@ Here is a generic expression visitor:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Note that</p>
-
 <ul>
-<li><p>The visitExpr function is recursive (for nested expressions).</p></li>
-<li><p>Pattern matching is removed from the tree, into a form called 'decision trees'.</p></li>
+<li>The visitExpr function is recursive (for nested expressions).</li>
+<li>Pattern matching is removed from the tree, into a form called 'decision trees'.</li>
 </ul>
-
 <h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
-
 <p>In this tutorial, we looked at basic of working with checked declarations and expressions.</p>
-
 <p>In practice, it is also useful to combine the information here
-with some information you can obtain from the <a href="symbols.html">symbols</a> 
+with some information you can obtain from the <a href="symbols.html">symbols</a>
 tutorial.</p>
 
 <div class="tip" id="fs1">namespace System</div>
@@ -527,8 +492,8 @@ tutorial.</p>
 <div class="tip" id="fs5">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs6">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs7">val checker : FSharpChecker<br /><br />Full name: Typedtree.checker</div>
-<div class="tip" id="fs8">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
-<div class="tip" id="fs9">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker</div>
+<div class="tip" id="fs8">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member KeepProjectAlive : options:FSharpProjectOptions -&gt; Async&lt;IDisposable&gt;<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member private ReferenceResolver : Resolver<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
+<div class="tip" id="fs9">static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker</div>
 <div class="tip" id="fs10">val parseAndCheckSingleFile : input:string -&gt; FSharpCheckProjectResults<br /><br />Full name: Typedtree.parseAndCheckSingleFile</div>
 <div class="tip" id="fs11">val input : string</div>
 <div class="tip" id="fs12">val file : string</div>
@@ -677,31 +642,21 @@ tutorial.</p>
 <div class="tip" id="fs155">val overrides : FSharpObjectExprOverride list</div>
 <div class="tip" id="fs156">val interfaceImplementations : (FSharpType * FSharpObjectExprOverride list) list</div>
 <div class="tip" id="fs157">val visitObjMember : f:(FSharpExpr -&gt; unit) -&gt; memb:FSharpObjectExprOverride -&gt; unit<br /><br />Full name: Typedtree.visitObjMember</div>
-<div class="tip" id="fs158">active recognizer TraitCall: FSharpExpr -&gt; (FSharpType list * string * FSharpType list * FSharpType list * FSharpExpr list) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |TraitCall|_| )</div>
-<div class="tip" id="fs159">val sourceTypes : FSharpType list</div>
-<div class="tip" id="fs160">val traitName : string</div>
-<div class="tip" id="fs161">val typeInstantiation : FSharpType list</div>
-<div class="tip" id="fs162">active recognizer ValueSet: FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpExpr) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |ValueSet|_| )</div>
-<div class="tip" id="fs163">val valToSet : FSharpMemberOrFunctionOrValue</div>
-<div class="tip" id="fs164">active recognizer WhileLoop: FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |WhileLoop|_| )</div>
-<div class="tip" id="fs165">active recognizer BaseValue: FSharpExpr -&gt; FSharpType option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |BaseValue|_| )</div>
-<div class="tip" id="fs166">val baseType : FSharpType</div>
-<div class="tip" id="fs167">active recognizer DefaultValue: FSharpExpr -&gt; FSharpType option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |DefaultValue|_| )</div>
-<div class="tip" id="fs168">val defaultType : FSharpType</div>
-<div class="tip" id="fs169">active recognizer ThisValue: FSharpExpr -&gt; FSharpType option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |ThisValue|_| )</div>
-<div class="tip" id="fs170">val thisType : FSharpType</div>
-<div class="tip" id="fs171">active recognizer Const: FSharpExpr -&gt; (obj * FSharpType) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |Const|_| )</div>
-<div class="tip" id="fs172">val constValueObj : obj</div>
-<div class="tip" id="fs173">val constType : FSharpType</div>
-<div class="tip" id="fs174">active recognizer Value: FSharpExpr -&gt; FSharpMemberOrFunctionOrValue option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |Value|_| )</div>
-<div class="tip" id="fs175">val valueToGet : FSharpMemberOrFunctionOrValue</div>
-<div class="tip" id="fs176">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
-<div class="tip" id="fs177">val exprs : FSharpExpr list</div>
-<div class="tip" id="fs178">val objOpt : FSharpExpr option</div>
-<div class="tip" id="fs179">module Option<br /><br />from Microsoft.FSharp.Core</div>
-<div class="tip" id="fs180">val iter : action:(&#39;T -&gt; unit) -&gt; option:&#39;T option -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Option.iter</div>
-<div class="tip" id="fs181">val memb : FSharpObjectExprOverride</div>
-<div class="tip" id="fs182">property FSharpObjectExprOverride.Body: FSharpExpr</div>
+<div class="tip" id="fs158">active recognizer TraitCall: FSharpExpr -&gt; (FSharpType list * string * Compiler.Ast.MemberFlags * FSharpType list * FSharpType list * FSharpExpr list) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |TraitCall|_| )</div>
+<div class="tip" id="fs159">active recognizer ValueSet: FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpExpr) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |ValueSet|_| )</div>
+<div class="tip" id="fs160">active recognizer WhileLoop: FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |WhileLoop|_| )</div>
+<div class="tip" id="fs161">active recognizer BaseValue: FSharpExpr -&gt; FSharpType option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |BaseValue|_| )</div>
+<div class="tip" id="fs162">active recognizer DefaultValue: FSharpExpr -&gt; FSharpType option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |DefaultValue|_| )</div>
+<div class="tip" id="fs163">active recognizer ThisValue: FSharpExpr -&gt; FSharpType option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |ThisValue|_| )</div>
+<div class="tip" id="fs164">active recognizer Const: FSharpExpr -&gt; (obj * FSharpType) option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |Const|_| )</div>
+<div class="tip" id="fs165">active recognizer Value: FSharpExpr -&gt; FSharpMemberOrFunctionOrValue option<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.BasicPatterns.( |Value|_| )</div>
+<div class="tip" id="fs166">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
+<div class="tip" id="fs167">val exprs : FSharpExpr list</div>
+<div class="tip" id="fs168">val objOpt : FSharpExpr option</div>
+<div class="tip" id="fs169">module Option<br /><br />from Microsoft.FSharp.Core</div>
+<div class="tip" id="fs170">val iter : action:(&#39;T -&gt; unit) -&gt; option:&#39;T option -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Option.iter</div>
+<div class="tip" id="fs171">val memb : FSharpObjectExprOverride</div>
+<div class="tip" id="fs172">property FSharpObjectExprOverride.Body: FSharpExpr</div>
 
         </div>
         <div class="span3">

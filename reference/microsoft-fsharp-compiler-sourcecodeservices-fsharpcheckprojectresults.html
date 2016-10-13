@@ -43,7 +43,6 @@
 <div class="xmldoc">
 <p>A handle to the results of CheckFileInProject.</p>
 
-
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -54,148 +53,169 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2525', 2525)" onmouseover="showTip(event, '2525', 2525)">
+          <code onmouseout="hideTip(event, '2455', 2455)" onmouseover="showTip(event, '2455', 2455)">
             AssemblyContents
           </code>
-          <div class="tip" id="2525">
+          <div class="tip" id="2455">
             <strong>Signature:</strong> FSharpAssemblyContents<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1896-1896" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1784-1784" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get a view of the overall contents of the assembly. Only valid to use if HasCriticalErrors is false.</p>
 
 
-
+              <p>CompiledName: <code>get_AssemblyContents</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2526', 2526)" onmouseover="showTip(event, '2526', 2526)">
+          <code onmouseout="hideTip(event, '2456', 2456)" onmouseover="showTip(event, '2456', 2456)">
             AssemblySignature
           </code>
-          <div class="tip" id="2526">
+          <div class="tip" id="2456">
             <strong>Signature:</strong> FSharpAssemblySignature<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1892-1892" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1780-1780" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get a view of the overall signature of the assembly. Only valid to use if HasCriticalErrors is false.</p>
 
 
-
+              <p>CompiledName: <code>get_AssemblySignature</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2527', 2527)" onmouseover="showTip(event, '2527', 2527)">
+          <code onmouseout="hideTip(event, '2457', 2457)" onmouseover="showTip(event, '2457', 2457)">
+            DependencyFiles
+          </code>
+          <div class="tip" id="2457">
+            <strong>Signature:</strong> string list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1826-1826" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates the set of files which must be watched to accurately track changes that affect these results,
+Clients interested in reacting to updates to these files should watch these files and take actions as described
+in the documentation for compiler service.</p>
+
+
+              <p>CompiledName: <code>get_DependencyFiles</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2458', 2458)" onmouseover="showTip(event, '2458', 2458)">
             Errors
           </code>
-          <div class="tip" id="2527">
+          <div class="tip" id="2458">
             <strong>Signature:</strong> FSharpErrorInfo []<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1888-1888" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1776-1776" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The errors returned by processing the project</p>
 
 
-
+              <p>CompiledName: <code>get_Errors</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2528', 2528)" onmouseover="showTip(event, '2528', 2528)">
+          <code onmouseout="hideTip(event, '2459', 2459)" onmouseover="showTip(event, '2459', 2459)">
             GetAllUsesOfAllSymbols()
           </code>
-          <div class="tip" id="2528">
+          <div class="tip" id="2459">
             <strong>Signature:</strong> unit -&gt; Async&lt;FSharpSymbolUse []&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1916-1916" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1805-1805" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get all textual usages of all symbols throughout the project</p>
 
 
-
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2529', 2529)" onmouseover="showTip(event, '2529', 2529)">
+          <code onmouseout="hideTip(event, '2460', 2460)" onmouseover="showTip(event, '2460', 2460)">
             GetUsesOfSymbol(symbol)
           </code>
-          <div class="tip" id="2529">
+          <div class="tip" id="2460">
             <strong>Signature:</strong> symbol:FSharpSymbol -&gt; Async&lt;FSharpSymbolUse []&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1906-1906" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1794-1794" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get the textual usages that resolved to the given symbol throughout the project</p>
 
 
-
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2530', 2530)" onmouseover="showTip(event, '2530', 2530)">
+          <code onmouseout="hideTip(event, '2461', 2461)" onmouseover="showTip(event, '2461', 2461)">
             HasCriticalErrors
           </code>
-          <div class="tip" id="2530">
+          <div class="tip" id="2461">
             <strong>Signature:</strong> bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1890-1890" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1778-1778" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Indicates if critical errors existed in the project options</p>
 
 
-
+              <p>CompiledName: <code>get_HasCriticalErrors</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2531', 2531)" onmouseover="showTip(event, '2531', 2531)">
+          <code onmouseout="hideTip(event, '2462', 2462)" onmouseover="showTip(event, '2462', 2462)">
             ProjectContext
           </code>
-          <div class="tip" id="2531">
+          <div class="tip" id="2462">
             <strong>Signature:</strong> FSharpProjectContext<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1925-1925" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L1815-1815" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get the resolution of the ProjectOptions</p>
 
 
-
+              <p>CompiledName: <code>get_ProjectContext</code></p>
         </td>
       </tr>
     </tbody>

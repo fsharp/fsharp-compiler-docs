@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ILInstrSetExtension<'Extension> - F# Compiler Services</title>
+    <title>ILLocalDebugMapping - F# Compiler Services</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
@@ -36,12 +36,16 @@
 
 
 
-<h1>ILInstrSetExtension<'Extension></h1>
+<h1>ILLocalDebugMapping</h1>
 <p>
   <span>Namespace: Microsoft.FSharp.Compiler.AbstractIL</span><br />
   <span>Parent Module: <a href="microsoft-fsharp-compiler-abstractil-il.html">IL</a></span>
 </p>
 <div class="xmldoc">
+<p>Indicates that a particular local variable has a particular source
+language name within a given set of ranges. This does not effect local
+variable numbering, which is global over the whole method.</p>
+
 </div>
   <h3>Record Fields</h3>
   <table class="table table-bordered member-list">
@@ -52,15 +56,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1752', 1752)" onmouseover="showTip(event, '1752', 1752)">
-            instrExtDests
+          <code onmouseout="hideTip(event, '1692', 1692)" onmouseover="showTip(event, '1692', 1692)">
+            LocalIndex
           </code>
-          <div class="tip" id="1752">
-            <strong>Signature:</strong> &#39;Extension -&gt; ILCodeLabel list<br />
+          <div class="tip" id="1692">
+            <strong>Signature:</strong> int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L684-684" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L654-654" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -70,51 +74,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1753', 1753)" onmouseover="showTip(event, '1753', 1753)">
-            instrExtFallthrough
+          <code onmouseout="hideTip(event, '1693', 1693)" onmouseover="showTip(event, '1693', 1693)">
+            LocalName
           </code>
-          <div class="tip" id="1753">
-            <strong>Signature:</strong> &#39;Extension -&gt; ILCodeLabel option<br />
+          <div class="tip" id="1693">
+            <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L685-685" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1754', 1754)" onmouseover="showTip(event, '1754', 1754)">
-            instrExtIsTailcall
-          </code>
-          <div class="tip" id="1754">
-            <strong>Signature:</strong> &#39;Extension -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L686-686" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1755', 1755)" onmouseover="showTip(event, '1755', 1755)">
-            instrExtRelabel
-          </code>
-          <div class="tip" id="1755">
-            <strong>Signature:</strong> (ILCodeLabel -&gt; ILCodeLabel) -&gt; &#39;Extension -&gt; &#39;Extension<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L687-687" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/il.fsi#L655-655" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

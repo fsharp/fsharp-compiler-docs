@@ -43,11 +43,9 @@
 </p>
 <div class="xmldoc">
 <p>Operations related to the syntactic analysis of arguments of value, function and member definitions and signatures.</p>
-
 <p>Function and member definitions have strongly syntactically constrained arities.  We infer
 the arity from the syntax.</p>
-
-<p>For example, we record the arity for: 
+<p>For example, we record the arity for:
 StaticProperty --&gt; [1]               -- for unit arg
 this.InstanceProperty --&gt; [1;1]        -- for unit arg
 StaticMethod(args) --&gt; map InferSynArgInfoFromSimplePat args
@@ -56,12 +54,10 @@ this.InstanceProperty with get(argpat) --&gt; 1 :: [InferSynArgInfoFromSimplePat
 StaticProperty with get(argpat) --&gt; [InferSynArgInfoFromSimplePat argpat]
 this.InstanceProperty with get() --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat]
 StaticProperty with get() --&gt; [InferSynArgInfoFromSimplePat argpat]</p>
-
 <p>this.InstanceProperty with set(argpat)(v) --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat; 1]
 StaticProperty with set(argpat)(v) --&gt; [InferSynArgInfoFromSimplePat argpat; 1]
 this.InstanceProperty with set(v) --&gt; 1 :: [1]
 StaticProperty with set(v) --&gt; [1]</p>
-
 
 </div>
 
@@ -84,12 +80,11 @@ StaticProperty with set(v) --&gt; [1]</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1911-1911" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1974-1974" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Make sure only a solitary unit argument has unit elimination</p>
-
 
 
         </td>
@@ -101,18 +96,17 @@ StaticProperty with set(v) --&gt; [1]</p>
             AdjustMemberArgs memFlags infosForArgs
           </code>
           <div class="tip" id="85">
-            <strong>Signature:</strong> memFlags:MemberKind -&gt; infosForArgs:&#39;?248464 list list -&gt; &#39;?248464 list list<br />
-                          <strong>Type parameters:</strong> '?248464          </div>
+            <strong>Signature:</strong> memFlags:MemberKind -&gt; infosForArgs:&#39;a list list -&gt; &#39;a list list<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1919-1919" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1982-1982" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Transform a property declared using '[static] member P = expr' to a method taking a "unit" argument.
 This is similar to IncorporateEmptyTupledArgForPropertyGetter, but applies to member definitions
 rather than member signatures.</p>
-
 
 
         </td>
@@ -128,12 +122,11 @@ rather than member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1885-1885" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1948-1948" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get the argument counts for each curried argument group. Used in some adhoc places in tc.fs.</p>
-
 
 
         </td>
@@ -149,12 +142,11 @@ rather than member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1888-1888" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1951-1951" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get the argument attributes from the syntactic information for an argument.</p>
-
 
 
         </td>
@@ -170,7 +162,7 @@ rather than member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1942-1942" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2005-2005" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -188,12 +180,11 @@ rather than member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1856-1856" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1919-1919" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Determine if a syntactic information represents a member without arguments (which is implicitly a property getter)</p>
-
 
 
         </td>
@@ -209,13 +200,12 @@ rather than member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1864-1864" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1927-1927" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Check if there are any optional arguments in the syntactic argument information. Used when adjusting the
 types of optional arguments for function and member signatures.</p>
-
 
 
         </td>
@@ -231,13 +221,12 @@ types of optional arguments for function and member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1868-1868" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1931-1931" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Add a parameter entry to the syntactic value information to represent the '()' argument to a property getter. This is 
+          <p>Add a parameter entry to the syntactic value information to represent the '()' argument to a property getter. This is
 used for the implicit '()' argument in property getter signature specifications.</p>
-
 
 
         </td>
@@ -253,13 +242,12 @@ used for the implicit '()' argument in property getter signature specifications.
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1872-1872" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1935-1935" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Add a parameter entry to the syntactic value information to represent the 'this' argument. This is 
+          <p>Add a parameter entry to the syntactic value information to represent the 'this' argument. This is
 used for the implicit 'this' argument in member signature specifications.</p>
-
 
 
         </td>
@@ -275,13 +263,12 @@ used for the implicit 'this' argument in member signature specifications.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1876-1876" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1939-1939" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Add a parameter entry to the syntactic value information to represent the value argument for a property setter. This is 
+          <p>Add a parameter entry to the syntactic value information to represent the value argument for a property setter. This is
 used for the implicit value argument in property setter signature specifications.</p>
-
 
 
         </td>
@@ -297,14 +284,13 @@ used for the implicit value argument in property setter signature specifications
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1927-1927" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1990-1990" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>For 'let' definitions, we infer syntactic argument information from the r.h.s. of a definition, if it
 is an immediate 'fun ... -&gt; ...' or 'function ...' expression. This is noted in the F# language specification.
 This does not apply to member definitions.</p>
-
 
 
         </td>
@@ -320,12 +306,11 @@ This does not apply to member definitions.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1905-1905" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1968-1968" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Infer the syntactic argument info for one or more arguments a pattern.</p>
-
 
 
         </td>
@@ -341,12 +326,11 @@ This does not apply to member definitions.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1891-1891" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1954-1954" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Infer the syntactic argument info for a single argument from a simple pattern.</p>
-
 
 
         </td>
@@ -362,12 +346,11 @@ This does not apply to member definitions.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1899-1899" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1962-1962" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Infer the syntactic argument info for one or more arguments one or more simple patterns.</p>
-
 
 
         </td>
@@ -383,7 +366,7 @@ This does not apply to member definitions.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1935-1935" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1998-1998" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -401,14 +384,13 @@ This does not apply to member definitions.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1947-1947" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L2010-2010" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Infer the syntactic information for a 'let' or 'member' definition, based on the argument pattern,
 any declared return information (e.g. .NET attributes on the return element), and the r.h.s. expression
 in the case of 'let' definitions.</p>
-
 
 
         </td>
@@ -424,13 +406,12 @@ in the case of 'let' definitions.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1860-1860" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1923-1923" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Check if one particular argument is an optional argument. Used when adjusting the
 types of optional arguments for function and member signatures.</p>
-
 
 
         </td>
@@ -446,12 +427,11 @@ types of optional arguments for function and member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1853-1853" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1916-1916" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The 'argument' information for the 'this'/'self' parameter in the cases where it is not given explicitly</p>
-
 
 
         </td>
@@ -467,12 +447,11 @@ types of optional arguments for function and member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1847-1847" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1910-1910" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The argument information for a '()' argument</p>
-
 
 
         </td>
@@ -488,12 +467,11 @@ types of optional arguments for function and member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1850-1850" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1913-1913" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The 'argument' information for a return value where no attributes are given for the return value (the normal case)</p>
-
 
 
         </td>
@@ -509,12 +487,11 @@ types of optional arguments for function and member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1844-1844" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1907-1907" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The argument information for a curried argument without a name</p>
-
 
 
         </td>
@@ -530,12 +507,11 @@ types of optional arguments for function and member signatures.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1841-1841" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1904-1904" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The argument information for an argument without a name</p>
-
 
 
         </td>

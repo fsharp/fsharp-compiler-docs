@@ -44,7 +44,6 @@
 <div class="xmldoc">
 <p>Operations supported by the currently executing F# Interactive session.</p>
 
-
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -55,513 +54,511 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2350', 2350)" onmouseover="showTip(event, '2350', 2350)">
+          <code onmouseout="hideTip(event, '2275', 2275)" onmouseover="showTip(event, '2275', 2275)">
             AddPrinter(arg1)
           </code>
-          <div class="tip" id="2350">
+          <div class="tip" id="2275">
             <strong>Signature:</strong> ((&#39;T -&gt; string)) -&gt; unit<br />
                           <strong>Type parameters:</strong> 'T          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2765-2765" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2871-2871" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Register a printer that controls the output of the interactive session.</p>
 
 
-
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2351', 2351)" onmouseover="showTip(event, '2351', 2351)">
+          <code onmouseout="hideTip(event, '2276', 2276)" onmouseover="showTip(event, '2276', 2276)">
             AddPrintTransformer(arg1)
           </code>
-          <div class="tip" id="2351">
+          <div class="tip" id="2276">
             <strong>Signature:</strong> ((&#39;T -&gt; obj)) -&gt; unit<br />
                           <strong>Type parameters:</strong> 'T          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2772-2772" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2878-2878" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Register a print transformer that controls the output of the interactive session.</p>
 
 
-
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2352', 2352)" onmouseover="showTip(event, '2352', 2352)">
+          <code onmouseout="hideTip(event, '2277', 2277)" onmouseover="showTip(event, '2277', 2277)">
             CommandLineArgs()
           </code>
-          <div class="tip" id="2352">
+          <div class="tip" id="2277">
             <strong>Signature:</strong> unit -&gt; string []<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2764-2764" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2870-2870" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The command line arguments after ignoring the arguments relevant to the interactive
- environment and replacing the first argument with the name of the last script file,
- if any. Thus 'fsi.exe test1.fs test2.fs -- hello goodbye' will give arguments
- 'test2.fs', 'hello', 'goodbye'.  This value will normally be different to those
- returned by System.Environment.GetCommandLineArgs.</p>
+environment and replacing the first argument with the name of the last script file,
+if any. Thus 'fsi.exe test1.fs test2.fs -- hello goodbye' will give arguments
+'test2.fs', 'hello', 'goodbye'.  This value will normally be different to those
+returned by System.Environment.GetCommandLineArgs.</p>
 
 
-
+              <p>CompiledName: <code>set_CommandLineArgs</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2353', 2353)" onmouseover="showTip(event, '2353', 2353)">
+          <code onmouseout="hideTip(event, '2278', 2278)" onmouseover="showTip(event, '2278', 2278)">
             CommandLineArgs()
           </code>
-          <div class="tip" id="2353">
+          <div class="tip" id="2278">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2764-2764" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2870-2870" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The command line arguments after ignoring the arguments relevant to the interactive
- environment and replacing the first argument with the name of the last script file,
- if any. Thus 'fsi.exe test1.fs test2.fs -- hello goodbye' will give arguments
- 'test2.fs', 'hello', 'goodbye'.  This value will normally be different to those
- returned by System.Environment.GetCommandLineArgs.</p>
+environment and replacing the first argument with the name of the last script file,
+if any. Thus 'fsi.exe test1.fs test2.fs -- hello goodbye' will give arguments
+'test2.fs', 'hello', 'goodbye'.  This value will normally be different to those
+returned by System.Environment.GetCommandLineArgs.</p>
 
 
-
+              <p>CompiledName: <code>get_CommandLineArgs</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2354', 2354)" onmouseover="showTip(event, '2354', 2354)">
+          <code onmouseout="hideTip(event, '2279', 2279)" onmouseover="showTip(event, '2279', 2279)">
             EventLoop()
           </code>
-          <div class="tip" id="2354">
+          <div class="tip" id="2279">
             <strong>Signature:</strong> unit -&gt; IEventLoop<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2770-2770" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2876-2876" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Gets or sets a the current event loop being used to process interactions.</p>
 
 
-
+              <p>CompiledName: <code>set_EventLoop</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2355', 2355)" onmouseover="showTip(event, '2355', 2355)">
+          <code onmouseout="hideTip(event, '2280', 2280)" onmouseover="showTip(event, '2280', 2280)">
             EventLoop()
           </code>
-          <div class="tip" id="2355">
+          <div class="tip" id="2280">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2769-2769" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2875-2875" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Gets or sets a the current event loop being used to process interactions.</p>
 
 
-
+              <p>CompiledName: <code>get_EventLoop</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2356', 2356)" onmouseover="showTip(event, '2356', 2356)">
+          <code onmouseout="hideTip(event, '2281', 2281)" onmouseover="showTip(event, '2281', 2281)">
             FloatingPointFormat()
           </code>
-          <div class="tip" id="2356">
+          <div class="tip" id="2281">
             <strong>Signature:</strong> unit -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2753-2753" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2859-2859" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the floating point format used in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>set_FloatingPointFormat</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2357', 2357)" onmouseover="showTip(event, '2357', 2357)">
+          <code onmouseout="hideTip(event, '2282', 2282)" onmouseover="showTip(event, '2282', 2282)">
             FloatingPointFormat()
           </code>
-          <div class="tip" id="2357">
+          <div class="tip" id="2282">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2753-2753" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2859-2859" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the floating point format used in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>get_FloatingPointFormat</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2358', 2358)" onmouseover="showTip(event, '2358', 2358)">
+          <code onmouseout="hideTip(event, '2283', 2283)" onmouseover="showTip(event, '2283', 2283)">
             FormatProvider()
           </code>
-          <div class="tip" id="2358">
+          <div class="tip" id="2283">
             <strong>Signature:</strong> unit -&gt; IFormatProvider<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2754-2754" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2860-2860" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the format provider used in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>set_FormatProvider</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2359', 2359)" onmouseover="showTip(event, '2359', 2359)">
+          <code onmouseout="hideTip(event, '2284', 2284)" onmouseover="showTip(event, '2284', 2284)">
             FormatProvider()
           </code>
-          <div class="tip" id="2359">
+          <div class="tip" id="2284">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2754-2754" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2860-2860" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the format provider used in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>get_FormatProvider</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2360', 2360)" onmouseover="showTip(event, '2360', 2360)">
+          <code onmouseout="hideTip(event, '2285', 2285)" onmouseover="showTip(event, '2285', 2285)">
             PrintDepth()
           </code>
-          <div class="tip" id="2360">
+          <div class="tip" id="2285">
             <strong>Signature:</strong> unit -&gt; int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2756-2756" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2862-2862" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the print depth of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>set_PrintDepth</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2361', 2361)" onmouseover="showTip(event, '2361', 2361)">
+          <code onmouseout="hideTip(event, '2286', 2286)" onmouseover="showTip(event, '2286', 2286)">
             PrintDepth()
           </code>
-          <div class="tip" id="2361">
+          <div class="tip" id="2286">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2756-2756" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2862-2862" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the print depth of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>get_PrintDepth</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2362', 2362)" onmouseover="showTip(event, '2362', 2362)">
+          <code onmouseout="hideTip(event, '2287', 2287)" onmouseover="showTip(event, '2287', 2287)">
             PrintLength()
           </code>
-          <div class="tip" id="2362">
+          <div class="tip" id="2287">
             <strong>Signature:</strong> unit -&gt; int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2757-2757" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2863-2863" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the total print length of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>set_PrintLength</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2363', 2363)" onmouseover="showTip(event, '2363', 2363)">
+          <code onmouseout="hideTip(event, '2288', 2288)" onmouseover="showTip(event, '2288', 2288)">
             PrintLength()
           </code>
-          <div class="tip" id="2363">
+          <div class="tip" id="2288">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2757-2757" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2863-2863" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the total print length of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>get_PrintLength</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2364', 2364)" onmouseover="showTip(event, '2364', 2364)">
+          <code onmouseout="hideTip(event, '2289', 2289)" onmouseover="showTip(event, '2289', 2289)">
             PrintSize()
           </code>
-          <div class="tip" id="2364">
+          <div class="tip" id="2289">
             <strong>Signature:</strong> unit -&gt; int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2758-2758" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2864-2864" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the total print size of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>set_PrintSize</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2365', 2365)" onmouseover="showTip(event, '2365', 2365)">
+          <code onmouseout="hideTip(event, '2290', 2290)" onmouseover="showTip(event, '2290', 2290)">
             PrintSize()
           </code>
-          <div class="tip" id="2365">
+          <div class="tip" id="2290">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2758-2758" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2864-2864" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the total print size of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>get_PrintSize</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2366', 2366)" onmouseover="showTip(event, '2366', 2366)">
+          <code onmouseout="hideTip(event, '2291', 2291)" onmouseover="showTip(event, '2291', 2291)">
             PrintWidth()
           </code>
-          <div class="tip" id="2366">
+          <div class="tip" id="2291">
             <strong>Signature:</strong> unit -&gt; int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2755-2755" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2861-2861" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the print width of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>set_PrintWidth</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2367', 2367)" onmouseover="showTip(event, '2367', 2367)">
+          <code onmouseout="hideTip(event, '2292', 2292)" onmouseover="showTip(event, '2292', 2292)">
             PrintWidth()
           </code>
-          <div class="tip" id="2367">
+          <div class="tip" id="2292">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2755-2755" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2861-2861" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get or set the print width of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>get_PrintWidth</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2368', 2368)" onmouseover="showTip(event, '2368', 2368)">
+          <code onmouseout="hideTip(event, '2293', 2293)" onmouseover="showTip(event, '2293', 2293)">
             ShowDeclarationValues()
           </code>
-          <div class="tip" id="2368">
+          <div class="tip" id="2293">
             <strong>Signature:</strong> unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2759-2759" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2865-2865" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>When set to 'false', disables the display of declaration values in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>set_ShowDeclarationValues</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2369', 2369)" onmouseover="showTip(event, '2369', 2369)">
+          <code onmouseout="hideTip(event, '2294', 2294)" onmouseover="showTip(event, '2294', 2294)">
             ShowDeclarationValues()
           </code>
-          <div class="tip" id="2369">
+          <div class="tip" id="2294">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2759-2759" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2865-2865" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>When set to 'false', disables the display of declaration values in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>get_ShowDeclarationValues</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2370', 2370)" onmouseover="showTip(event, '2370', 2370)">
+          <code onmouseout="hideTip(event, '2295', 2295)" onmouseover="showTip(event, '2295', 2295)">
             ShowIEnumerable()
           </code>
-          <div class="tip" id="2370">
+          <div class="tip" id="2295">
             <strong>Signature:</strong> unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2761-2761" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2867-2867" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>When set to 'false', disables the display of sequences in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>set_ShowIEnumerable</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2371', 2371)" onmouseover="showTip(event, '2371', 2371)">
+          <code onmouseout="hideTip(event, '2296', 2296)" onmouseover="showTip(event, '2296', 2296)">
             ShowIEnumerable()
           </code>
-          <div class="tip" id="2371">
+          <div class="tip" id="2296">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2761-2761" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2867-2867" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>When set to 'false', disables the display of sequences in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>get_ShowIEnumerable</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2372', 2372)" onmouseover="showTip(event, '2372', 2372)">
+          <code onmouseout="hideTip(event, '2297', 2297)" onmouseover="showTip(event, '2297', 2297)">
             ShowProperties()
           </code>
-          <div class="tip" id="2372">
+          <div class="tip" id="2297">
             <strong>Signature:</strong> unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2760-2760" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2866-2866" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>When set to 'false', disables the display of properties of evaluated objects in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>set_ShowProperties</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2373', 2373)" onmouseover="showTip(event, '2373', 2373)">
+          <code onmouseout="hideTip(event, '2298', 2298)" onmouseover="showTip(event, '2298', 2298)">
             ShowProperties()
           </code>
-          <div class="tip" id="2373">
+          <div class="tip" id="2298">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2760-2760" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2866-2866" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>When set to 'false', disables the display of properties of evaluated objects in the output of the interactive session.</p>
 
 
-
+              <p>CompiledName: <code>get_ShowProperties</code></p>
         </td>
       </tr>
     </tbody>

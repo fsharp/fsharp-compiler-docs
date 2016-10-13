@@ -57,7 +57,6 @@
           </td>
           <td class="xmldoc"><p>Closed enumeration of build phases.</p>
 
-
 </td>
         </tr>
         <tr>
@@ -139,11 +138,9 @@
           <td class="xmldoc"><p>Thrown when immediate, local error recovery is not possible. This indicates
 we've reported an error but need to make a non-local transfer of control.
 Error recovery may catch this and continue (see 'errorRecovery')</p>
-
 <p>The exception that caused the report is carried as data because in some
 situations (LazyWithContext) we may need to re-report the original error
 when a lazy thunk is re-evaluated.</p>
-
 
 </td>
         </tr>
@@ -152,7 +149,6 @@ when a lazy thunk is re-evaluated.</p>
             <a href="microsoft-fsharp-compiler-errorlogger-stopprocessingexn.html">StopProcessingExn</a>
           </td>
           <td class="xmldoc"><p>Thrown when we stop processing the F# Interactive entry or #load.</p>
-
 
 </td>
         </tr>
@@ -196,8 +192,7 @@ when a lazy thunk is re-evaluated.</p>
           <td class="type-name">
             <a href="microsoft-fsharp-compiler-errorlogger-wrappederror.html">WrappedError</a>
           </td>
-          <td class="xmldoc"><p>Thrown when want to add some range information to some .NET exception</p>
-
+          <td class="xmldoc"><p>Thrown when we want to add some range information to a .NET exception</p>
 
 </td>
         </tr>
@@ -213,7 +208,6 @@ when a lazy thunk is re-evaluated.</p>
             <a href="microsoft-fsharp-compiler-errorlogger-buildphasesubcategory.html">BuildPhaseSubcategory</a>
           </td>
           <td class="xmldoc"><p>Literal build phase subcategory strings.</p>
-
 
 </td>
         </tr>
@@ -241,18 +235,18 @@ when a lazy thunk is re-evaluated.</p>
             ( ++ ) res f
           </code>
           <div class="tip" id="106">
-            <strong>Signature:</strong> res:OperationResult&lt;&#39;?247399&gt; -&gt; f:(&#39;?247399 -&gt; OperationResult&lt;&#39;?247400&gt;) -&gt; OperationResult&lt;&#39;?247400&gt;<br />
-                          <strong>Type parameters:</strong> '?247399, '?247400          </div>
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;a&gt; -&gt; f:(&#39;a -&gt; OperationResult&lt;&#39;b&gt;) -&gt; OperationResult&lt;&#39;b&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L445-445" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L461-461" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The bind in the monad. Stop on first error. Accumulate warnings and continue.</p>
 
 
-
+              <p>CompiledName: <code>op_PlusPlus</code></p>
         </td>
       </tr>
       <tr>
@@ -266,7 +260,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L249-249" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L251-251" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -280,11 +274,11 @@ when a lazy thunk is re-evaluated.</p>
             AtLeastOneD f l
           </code>
           <div class="tip" id="108">
-            <strong>Signature:</strong> f:(&#39;?247431 -&gt; OperationResult&lt;bool&gt;) -&gt; l:&#39;?247431 list -&gt; OperationResult&lt;bool&gt;<br />
-                          <strong>Type parameters:</strong> '?247431          </div>
+            <strong>Signature:</strong> f:(&#39;g -&gt; OperationResult&lt;bool&gt;) -&gt; l:&#39;g list -&gt; OperationResult&lt;bool&gt;<br />
+                          <strong>Type parameters:</strong> 'g          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L492-492" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L508-508" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -316,11 +310,11 @@ when a lazy thunk is re-evaluated.</p>
             CheckNoErrorsAndGetWarnings res
           </code>
           <div class="tip" id="110">
-            <strong>Signature:</strong> res:OperationResult&lt;&#39;?247397&gt; -&gt; exn list option<br />
-                          <strong>Type parameters:</strong> '?247397          </div>
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;b&gt; -&gt; exn list option<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L442-442" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L458-458" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -334,11 +328,11 @@ when a lazy thunk is re-evaluated.</p>
             CommitOperationResult res
           </code>
           <div class="tip" id="111">
-            <strong>Signature:</strong> res:OperationResult&lt;&#39;?247388&gt; -&gt; &#39;?247388<br />
-                          <strong>Type parameters:</strong> '?247388          </div>
+            <strong>Signature:</strong> res:OperationResult&lt;&#39;a&gt; -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L431-431" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L447-447" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -356,7 +350,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L440-440" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L456-456" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -370,11 +364,11 @@ when a lazy thunk is re-evaluated.</p>
             conditionallySuppressErrorReporting (...)
           </code>
           <div class="tip" id="113">
-            <strong>Signature:</strong> cond:bool -&gt; f:(unit -&gt; &#39;?247384) -&gt; &#39;?247384<br />
-                          <strong>Type parameters:</strong> '?247384          </div>
+            <strong>Signature:</strong> cond:bool -&gt; f:(unit -&gt; &#39;t) -&gt; &#39;t<br />
+                          <strong>Type parameters:</strong> 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L412-412" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L428-428" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -392,7 +386,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L396-396" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L412-412" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -410,7 +404,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L390-390" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L406-406" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -428,7 +422,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L240-240" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L242-242" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -442,11 +436,11 @@ when a lazy thunk is re-evaluated.</p>
             error exn
           </code>
           <div class="tip" id="117">
-            <strong>Signature:</strong> exn:exn -&gt; &#39;?247365<br />
-                          <strong>Type parameters:</strong> '?247365          </div>
+            <strong>Signature:</strong> exn:exn -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L376-376" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L392-392" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -460,11 +454,11 @@ when a lazy thunk is re-evaluated.</p>
             ErrorD err
           </code>
           <div class="tip" id="118">
-            <strong>Signature:</strong> err:exn -&gt; OperationResult&lt;&#39;?247391&gt;<br />
-                          <strong>Type parameters:</strong> '?247391          </div>
+            <strong>Signature:</strong> err:exn -&gt; OperationResult&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L438-438" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L454-454" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -482,7 +476,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L374-374" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L390-390" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -500,7 +494,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L382-382" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L398-398" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -518,7 +512,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L384-384" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L400-400" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -536,7 +530,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L380-380" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L396-396" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -568,16 +562,15 @@ when a lazy thunk is re-evaluated.</p>
             Iterate2D f xs ys
           </code>
           <div class="tip" id="124">
-            <strong>Signature:</strong> f:(&#39;?247425 -&gt; &#39;?247426 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?247425 list -&gt; ys:&#39;?247426 list -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?247425, '?247426          </div>
+            <strong>Signature:</strong> f:(&#39;g -&gt; &#39;h -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;g list -&gt; ys:&#39;h list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> 'g, 'h          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L480-480" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L496-496" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Stop on first error. Accumulate warnings and continue.</p>
-
 
 
         </td>
@@ -589,16 +582,15 @@ when a lazy thunk is re-evaluated.</p>
             IterateD f xs
           </code>
           <div class="tip" id="125">
-            <strong>Signature:</strong> f:(&#39;?247402 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?247402 list -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?247402          </div>
+            <strong>Signature:</strong> f:(&#39;a -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;a list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L457-457" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L473-473" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Stop on first error. Accumulate warnings and continue.</p>
-
 
 
         </td>
@@ -610,16 +602,15 @@ when a lazy thunk is re-evaluated.</p>
             IterateIdxD f xs
           </code>
           <div class="tip" id="126">
-            <strong>Signature:</strong> f:(int -&gt; &#39;?247423 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?247423 list -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?247423          </div>
+            <strong>Signature:</strong> f:(int -&gt; &#39;g -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;g list -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> 'g          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L475-475" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L491-491" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Stop on first error. Report index</p>
-
 
 
         </td>
@@ -635,7 +626,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L394-394" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L410-410" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -653,7 +644,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L395-395" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L411-411" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -667,11 +658,11 @@ when a lazy thunk is re-evaluated.</p>
             MapD f xs
           </code>
           <div class="tip" id="129">
-            <strong>Signature:</strong> f:(&#39;?247405 -&gt; OperationResult&lt;&#39;?247406&gt;) -&gt; xs:&#39;?247405 list -&gt; OperationResult&lt;&#39;?247406 list&gt;<br />
-                          <strong>Type parameters:</strong> '?247405, '?247406          </div>
+            <strong>Signature:</strong> f:(&#39;?352890 -&gt; OperationResult&lt;&#39;?352891&gt;) -&gt; xs:&#39;?352890 list -&gt; OperationResult&lt;&#39;?352891 list&gt;<br />
+                          <strong>Type parameters:</strong> '?352890, '?352891          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L459-459" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L475-475" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -689,7 +680,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L397-397" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L413-413" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -707,7 +698,7 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L499-499" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L515-515" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -725,14 +716,13 @@ when a lazy thunk is re-evaluated.</p>
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L504-504" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L520-520" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>fixes given string by replacing all control chars with spaces.
-NOTE: newlines are recognized and replaced with stringThatIsAProxyForANewlineInFlatErrors (ASCII 29, the 'group separator'), 
+NOTE: newlines are recognized and replaced with stringThatIsAProxyForANewlineInFlatErrors (ASCII 29, the 'group separator'),
 which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so that multi-line errors can be displayed in QuickInfo</p>
-
 
 
         </td>
@@ -744,16 +734,15 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             OptionD f xs
           </code>
           <div class="tip" id="133">
-            <strong>Signature:</strong> f:(&#39;?247421 -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;?247421 option -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> '?247421          </div>
+            <strong>Signature:</strong> f:(&#39;b -&gt; OperationResult&lt;unit&gt;) -&gt; xs:&#39;b option -&gt; OperationResult&lt;unit&gt;<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L472-472" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L488-488" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Stop on first error. Accumulate warnings and continue.</p>
-
 
 
         </td>
@@ -765,11 +754,11 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             phasedError p
           </code>
           <div class="tip" id="134">
-            <strong>Signature:</strong> p:PhasedError -&gt; &#39;?247367<br />
-                          <strong>Type parameters:</strong> '?247367          </div>
+            <strong>Signature:</strong> p:PhasedError -&gt; &#39;?352852<br />
+                          <strong>Type parameters:</strong> '?352852          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L378-378" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L394-394" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -783,8 +772,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             protectAssemblyExploration dflt f
           </code>
           <div class="tip" id="135">
-            <strong>Signature:</strong> dflt:&#39;?247307 -&gt; f:(unit -&gt; &#39;?247307) -&gt; &#39;?247307<br />
-                          <strong>Type parameters:</strong> '?247307          </div>
+            <strong>Signature:</strong> dflt:&#39;a -&gt; f:(unit -&gt; &#39;a) -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L70-70" class="github-link">
@@ -801,8 +790,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             protectAssemblyExplorationF dflt f
           </code>
           <div class="tip" id="136">
-            <strong>Signature:</strong> dflt:(string * string -&gt; &#39;?247309) -&gt; f:(unit -&gt; &#39;?247309) -&gt; &#39;?247309<br />
-                          <strong>Type parameters:</strong> '?247309          </div>
+            <strong>Signature:</strong> dflt:(string * string -&gt; &#39;b) -&gt; f:(unit -&gt; &#39;b) -&gt; &#39;b<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L77-77" class="github-link">
@@ -819,8 +808,8 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             protectAssemblyExplorationNoReraise (...)
           </code>
           <div class="tip" id="137">
-            <strong>Signature:</strong> dflt1:&#39;?247311 -&gt; dflt2:&#39;?247311 -&gt; f:(unit -&gt; &#39;?247311) -&gt; &#39;?247311<br />
-                          <strong>Type parameters:</strong> '?247311          </div>
+            <strong>Signature:</strong> dflt1:&#39;a -&gt; dflt2:&#39;a -&gt; f:(unit -&gt; &#39;a) -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L84-84" class="github-link">
@@ -837,16 +826,15 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             PushErrorLoggerPhaseUntilUnwind (...)
           </code>
           <div class="tip" id="138">
-            <strong>Signature:</strong> errorLoggerTransformer:(ErrorLogger -&gt; &#39;?247358) -&gt; IDisposable<br />
-                          <strong>Type parameters:</strong> '?247358          </div>
+            <strong>Signature:</strong> errorLoggerTransformer:(ErrorLogger -&gt; &#39;a) -&gt; IDisposable<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L354-354" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L370-370" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>NOTE: The change will be undone when the returned "unwind" object disposes</p>
-
 
 
         </td>
@@ -862,12 +850,11 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L347-347" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L363-363" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>NOTE: The change will be undone when the returned "unwind" object disposes</p>
-
 
 
         </td>
@@ -883,7 +870,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L110-110" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L111-111" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -901,7 +888,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L436-436" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L452-452" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -919,7 +906,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L491-491" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L507-507" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -933,11 +920,11 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             report f
           </code>
           <div class="tip" id="143">
-            <strong>Signature:</strong> f:(unit -&gt; &#39;?247374) -&gt; &#39;?247374<br />
-                          <strong>Type parameters:</strong> '?247374          </div>
+            <strong>Signature:</strong> f:(unit -&gt; &#39;?352859) -&gt; &#39;?352859<br />
+                          <strong>Type parameters:</strong> '?352859          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L387-387" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L403-403" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -955,7 +942,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L393-393" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L409-409" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -969,11 +956,11 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             ReportWarnings warns
           </code>
           <div class="tip" id="145">
-            <strong>Signature:</strong> warns:&#39;?247386 list -&gt; unit<br />
-                          <strong>Type parameters:</strong> '?247386          </div>
+            <strong>Signature:</strong> warns:&#39;b list -&gt; unit<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L426-426" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L442-442" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -987,11 +974,11 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             ResultD x
           </code>
           <div class="tip" id="146">
-            <strong>Signature:</strong> x:&#39;?247395 -&gt; OperationResult&lt;&#39;?247395&gt;<br />
-                          <strong>Type parameters:</strong> '?247395          </div>
+            <strong>Signature:</strong> x:&#39;g -&gt; OperationResult&lt;&#39;g&gt;<br />
+                          <strong>Type parameters:</strong> 'g          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L441-441" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L457-457" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1009,7 +996,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L369-369" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L385-385" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1027,7 +1014,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L370-370" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L386-386" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1045,7 +1032,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L371-371" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L387-387" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1081,7 +1068,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L383-383" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L399-399" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1099,7 +1086,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L497-497" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L513-513" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1113,11 +1100,11 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             suppressErrorReporting f
           </code>
           <div class="tip" id="153">
-            <strong>Signature:</strong> f:(unit -&gt; &#39;?247382) -&gt; &#39;?247382<br />
-                          <strong>Type parameters:</strong> '?247382          </div>
+            <strong>Signature:</strong> f:(unit -&gt; &#39;t) -&gt; &#39;t<br />
+                          <strong>Type parameters:</strong> 't          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L399-399" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L415-415" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1135,7 +1122,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L469-469" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L485-485" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1149,11 +1136,11 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
             TryD f g
           </code>
           <div class="tip" id="155">
-            <strong>Signature:</strong> f:(unit -&gt; OperationResult&lt;&#39;?247428&gt;) -&gt; g:(exn -&gt; OperationResult&lt;&#39;?247428&gt;) -&gt; OperationResult&lt;&#39;?247428&gt;<br />
-                          <strong>Type parameters:</strong> '?247428          </div>
+            <strong>Signature:</strong> f:(unit -&gt; OperationResult&lt;&#39;g&gt;) -&gt; g:(exn -&gt; OperationResult&lt;&#39;g&gt;) -&gt; OperationResult&lt;&#39;g&gt;<br />
+                          <strong>Type parameters:</strong> 'g          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L486-486" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L502-502" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1171,12 +1158,11 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L259-259" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L261-261" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>When no errorLogger is installed (on the thread) use this one.</p>
-
 
 
         </td>
@@ -1192,7 +1178,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L439-439" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L455-455" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1210,7 +1196,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L375-375" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L391-391" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1228,7 +1214,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L381-381" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L397-397" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1246,7 +1232,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L458-458" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ErrorLogger.fs#L474-474" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -1277,6 +1263,7 @@ which is decoded by the IDE with 'NewlineifyErrorString' back into newlines, so 
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>|StopProcessing|_|</code></p>
         </td>
       </tr>
     </tbody>

@@ -35,22 +35,17 @@
         <div class="span9" id="main">
           
 <h1><a name="Compiler-Services-Using-the-F-tokenizer" class="anchor" href="#Compiler-Services-Using-the-F-tokenizer">Compiler Services: Using the F# tokenizer</a></h1>
-
-<p>This tutorial demonstrates how to call the F# language tokenizer. Given F# 
+<p>This tutorial demonstrates how to call the F# language tokenizer. Given F#
 source code, the tokenizer generates a list of source code lines that contain
 information about tokens on each line. For each token, you can get the type
-of the token, exact location as well as color kind of the token (keyword, 
+of the token, exact location as well as color kind of the token (keyword,
 identifier, number, operator, etc.).</p>
-
 <blockquote>
-  <p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
 </blockquote>
-
 <h2><a name="Creating-the-tokenizer" class="anchor" href="#Creating-the-tokenizer">Creating the tokenizer</a></h2>
-
 <p>To use the tokenizer, reference <code>FSharp.Compiler.Service.dll</code> and open the
 <code>SourceCodeServices</code> namespace:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -59,46 +54,36 @@ identifier, number, operator, etc.).</p>
 </code></pre></td>
 </tr>
 </table>
-
-<p>Now you can create an instance of <code>FSharpSourceTokenizer</code>. The class takes two 
+<p>Now you can create an instance of <code>FSharpSourceTokenizer</code>. The class takes two
 arguments - the first is the list of defined symbols and the second is the
 file name of the source code. The defined symbols are required because the
 tokenizer handles <code>#if</code> directives. The file name is required only to specify
 locations of the source code (and it does not have to exist):</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">sourceTok</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="t">FSharpSourceTokenizer</span>([], <span class="s">&quot;C:</span><span class="e">\\</span><span class="s">test.fsx&quot;</span>)
 </code></pre></td>
 </tr>
 </table>
-
-<p>Using the <code>sourceTok</code> object, we can now (repeatedly) tokenize lines of 
+<p>Using the <code>sourceTok</code> object, we can now (repeatedly) tokenize lines of
 F# source code.</p>
-
 <h2><a name="Tokenizing-F-code" class="anchor" href="#Tokenizing-F-code">Tokenizing F# code</a></h2>
-
 <p>The tokenizer operates on individual lines rather than on the entire source
 file. After getting a token, the tokenizer also returns new state (as <code>int64</code> value).
 This can be used to tokenize F# code more efficiently. When source code changes,
 you do not need to re-tokenize the entire file - only the parts that have changed.</p>
-
 <h3><a name="Tokenizing-single-line" class="anchor" href="#Tokenizing-single-line">Tokenizing single line</a></h3>
-
 <p>To tokenize a single line, we create a <code>FSharpLineTokenizer</code> by calling <code>CreateLineTokenizer</code>
 on the <code>FSharpSourceTokenizer</code> object that we created earlier:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">tokenizer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="i">sourceTok</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="f">CreateLineTokenizer</span>(<span class="s">&quot;let answer=42&quot;</span>)
 </code></pre></td>
 </tr>
 </table>
-
 <p>Now, we can write a simple recursive function that calls <code>ScanToken</code> on the <code>tokenizer</code>
-until it returns <code>None</code> (indicating the end of line). When the function suceeds, it 
+until it returns <code>None</code> (indicating the end of line). When the function suceeds, it
 returns <code>FSharpTokenInfo</code> object with all the interesting details:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -121,35 +106,29 @@ returns <code>FSharpTokenInfo</code> object with all the interesting details:</p
 </code></pre></td>
 </tr>
 </table>
-
 <p>The function returns the new state, which is needed if you need to tokenize multiple lines
 and an earlier line ends with a multi-line comment. As an initial state, we can use <code>0L</code>:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs9', 27)" onmouseover="showTip(event, 'fs9', 27)" class="f">tokenizeLine</span> <span onmouseout="hideTip(event, 'fs10', 28)" onmouseover="showTip(event, 'fs10', 28)" class="i">tokenizer</span> <span class="n">0L</span>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The result is a sequence of tokens with names LET, WHITESPACE, IDENT, EQUALS and INT32.
 There is a number of interesting properties on <code>FSharpTokenInfo</code> including:</p>
-
 <ul>
-<li><code>CharClass</code> and <code>ColorClass</code> return information about the token category that
-can be used for colorizing F# code.</li>
+<li>
+<code>CharClass</code> and <code>ColorClass</code> return information about the token category that
+can be used for colorizing F# code.
+</li>
 <li><code>LeftColumn</code> and <code>RightColumn</code> return the location of the token inside the line.</li>
 <li><code>TokenName</code> is the name of the token (as defined in the F# lexer)</li>
 </ul>
-
 <p>Note that the tokenizer is stateful - if you want to tokenize single line multiple times,
 you need to call <code>CreateLineTokenizer</code> again.</p>
-
 <h3><a name="Tokenizing-sample-code" class="anchor" href="#Tokenizing-sample-code">Tokenizing sample code</a></h3>
-
 <p>To run the tokenizer on a longer sample code or an entire file, you need to read the
 sample input as a collection of <code>string</code> values:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -162,12 +141,10 @@ sample input as a collection of <code>string</code> values:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>To tokenize multi-line input, we again need a recursive function that keeps the current
 state. The following function takes the lines as a list of strings (together with line number
 and the current state). We create a new tokenizer for each line and call <code>tokenizeLine</code>
 using the state from the <em>end</em> of the previous line:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -194,11 +171,9 @@ using the state from the <em>end</em> of the previous line:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The function simply calls <code>tokenizeLine</code> (defined earlier) to print the names of all
 the tokens on each line. We can call it on the previous input with <code>0L</code> as the initial
 state and <code>1</code> as the number of the first line:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -209,10 +184,8 @@ state and <code>1</code> as the number of the first line:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Ignoring some unimportant details (like whitespace at the beginning of each line and
 the first line which is just whitespace), the code generates the following output:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -227,10 +200,9 @@ Line 2
 Line 3
   IDENT WHITESPACE STRING_TEXT (...) STRING_TEXT STRING 
 </code></pre></td></tr></table>
-
 <p>It is worth noting that the tokenizer yields multiple <code>LINE_COMMENT</code> tokens and multiple
 <code>STRING_TEXT</code> tokens for each single comment or string (roughly, one for each word), so
-if you want to get the entire text of a comment/string, you need to concatenate the 
+if you want to get the entire text of a comment/string, you need to concatenate the
 tokens.</p>
 
 <div class="tip" id="fs1">namespace Microsoft</div>
@@ -238,7 +210,7 @@ tokens.</p>
 <div class="tip" id="fs3">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs4">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs5">val sourceTok : FSharpSourceTokenizer<br /><br />Full name: Tokenizer.sourceTok</div>
-<div class="tip" id="fs6">Multiple items<br />type FSharpSourceTokenizer =<br />&#160;&#160;new : conditionalDefines:string list * fileName:string -&gt; FSharpSourceTokenizer<br />&#160;&#160;member CreateBufferTokenizer : bufferFiller:(char [] * int * int -&gt; int) -&gt; FSharpLineTokenizer<br />&#160;&#160;member CreateLineTokenizer : lineText:string -&gt; FSharpLineTokenizer<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpSourceTokenizer<br /><br />--------------------<br />new : conditionalDefines:string list * fileName:string -&gt; FSharpSourceTokenizer</div>
+<div class="tip" id="fs6">Multiple items<br />type FSharpSourceTokenizer =<br />&#160;&#160;new : conditionalDefines:string list * fileName:string option -&gt; FSharpSourceTokenizer<br />&#160;&#160;member CreateBufferTokenizer : bufferFiller:(char [] * int * int -&gt; int) -&gt; FSharpLineTokenizer<br />&#160;&#160;member CreateLineTokenizer : lineText:string -&gt; FSharpLineTokenizer<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpSourceTokenizer<br /><br />--------------------<br />new : conditionalDefines:string list * fileName:string option -&gt; FSharpSourceTokenizer</div>
 <div class="tip" id="fs7">val tokenizer : FSharpLineTokenizer<br /><br />Full name: Tokenizer.tokenizer</div>
 <div class="tip" id="fs8">member FSharpSourceTokenizer.CreateLineTokenizer : lineText:string -&gt; FSharpLineTokenizer</div>
 <div class="tip" id="fs9">val tokenizeLine : tokenizer:FSharpLineTokenizer -&gt; state:FSharpTokenizerLexState -&gt; FSharpTokenizerLexState<br /><br />Full name: Tokenizer.tokenizeLine<br /><em><br /><br />&#160;Tokenize a single line of F# code</em></div>

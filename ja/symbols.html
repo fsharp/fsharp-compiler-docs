@@ -35,20 +35,16 @@
         <div class="span9" id="main">
           
 <h1><a name="コンパイラサービス-シンボルの処理" class="anchor" href="#コンパイラサービス-シンボルの処理">コンパイラサービス: シンボルの処理</a></h1>
-
 <p>このチュートリアルでは、F#コンパイラによって提供される
 シンボルの扱い方についてのデモを紹介します。
 シンボルの参照に関する情報については <a href="project.html">プロジェクト全体の分析</a>
 も参考にしてください。</p>
-
 <blockquote>
-  <p><strong>注意:</strong> 以下で使用しているAPIは試験的なもので、
-  最新のnugetパッケージの公開に伴って変更されることがあります。</p>
+<p><strong>注意:</strong> 以下で使用しているAPIは試験的なもので、
+最新のnugetパッケージの公開に伴って変更されることがあります。</p>
 </blockquote>
-
 <p>これまでと同じく、 <code>FSharp.Compiler.Service.dll</code> への参照を追加した後、
 適切な名前空間をオープンし、 <code>FSharpChecker</code> のインスタンスを作成します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -71,9 +67,7 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>そして特定の入力値に対して型チェックを行います:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -110,19 +104,14 @@
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="ファイルに対する解決済みのシグネチャ情報を取得する" class="anchor" href="#ファイルに対する解決済みのシグネチャ情報を取得する">ファイルに対する解決済みのシグネチャ情報を取得する</a></h2>
-
 <p>ファイルに対する型チェックが完了すると、
 <code>TypeCheckResults</code> の <code>PartialAssemblySignature</code> プロパティを参照することにより、
 チェック中の特定のファイルを含む、推論されたプロジェクトのシグネチャに
 アクセスすることができます。</p>
-
 <p>モジュールや型、属性、メンバ、値、関数、共用体、レコード型、測定単位、
 およびその他のF#言語要素に対する完全なシグネチャ情報が参照できます。</p>
-
 <p>ただし型付き式ツリーに対する情報は(今のところ)この方法では利用できません。</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -155,9 +144,7 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>これでコードに対する部分的なアセンブリのシグネチャが取得できるようになります:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -168,9 +155,7 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>そしてコードを含むモジュールに関連したエンティティを取得します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -181,27 +166,21 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>そしてコード内の型定義に関連したエンティティを取得します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 57)" onmouseover="showTip(event, 'fs35', 57)" class="i">classEntity</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs33', 58)" onmouseover="showTip(event, 'fs33', 58)" class="i">moduleEntity</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 59)" onmouseover="showTip(event, 'fs36', 59)" class="i">NestedEntities</span><span class="o">.</span>[<span class="n">0</span>]
 </code></pre></td>
 </tr>
 </table>
-
 <p>そしてコード内で定義された関数に関連した値を取得します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs37', 60)" onmouseover="showTip(event, 'fs37', 60)" class="i">fnVal</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs33', 61)" onmouseover="showTip(event, 'fs33', 61)" class="i">moduleEntity</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 62)" onmouseover="showTip(event, 'fs38', 62)" class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]
 </code></pre></td>
 </tr>
 </table>
-
 <p>関数値に関するプロパティの値を確認してみましょう。</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -252,11 +231,9 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>次に、この関数の型がファーストクラスの値として使用されているかどうかチェックします。
 (ちなみに <code>CurriedParameterGroups</code> プロパティには引数の名前など、
 より多くの情報も含まれています)</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -275,12 +252,10 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>というわけで <code>int * int -&gt; unit</code> という型を表現するオブジェクトが取得できて、
 その1つめの 'int' を確認できたわけです。
 また、以下のようにすると 'int' 型についてのより詳細な情報が取得でき、
 それが名前付きの型であり、F#の型省略形 <code>type int = int32</code> であることがわかります:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -289,9 +264,7 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>型省略形の右辺、つまり <code>int32</code> についてもチェックしてみましょう:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -302,9 +275,7 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>そして再び型省略形 <code>type int32 = System.Int32</code> から型に関する完全な情報が取得できます:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -315,11 +286,9 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p>ファイルに対する型チェックの結果には、
 コンパイル時に使用されたプロジェクト(あるいはスクリプト)のオプションに関する
 <code>ProjectContext</code> と呼ばれる情報も含まれています:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -336,26 +305,25 @@
 </code></pre></td>
 </tr>
 </table>
-
 <p><strong>注意:</strong></p>
-
 <ul>
-<li>不完全なコードが存在する場合、一部あるいはすべての属性が意図したとおりには
-並ばないことがあります。</li>
-<li>(実際には非常によくあることですが)一部のアセンブリが見つからない場合、
+<li>
+不完全なコードが存在する場合、一部あるいはすべての属性が意図したとおりには
+並ばないことがあります。
+</li>
+<li>
+(実際には非常によくあることですが)一部のアセンブリが見つからない場合、
 外部アセンブリに関連する値やメンバ、エンティティにおける 'IsUnresolved' が
 trueになることがあります。
-IsUnresolvedによる例外に対処できるよう、堅牢なコードにしておくべきです。</li>
+IsUnresolvedによる例外に対処できるよう、堅牢なコードにしておくべきです。
+</li>
 </ul>
-
 <h2><a name="プロジェクト全体に対するシンボル情報を取得する" class="anchor" href="#プロジェクト全体に対するシンボル情報を取得する">プロジェクト全体に対するシンボル情報を取得する</a></h2>
-
 <p>プロジェクト全体をチェックする場合、チェッカーを作成した後に <code>parseAndCheckScript</code>
 を呼び出します。
 今回の場合は単に1つのスクリプトだけが含まれたプロジェクトをチェックします。
 異なる "projOptions" を指定すると、巨大なプロジェクトに対する設定を
 構成することもできます。</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -380,9 +348,7 @@ IsUnresolvedによる例外に対処できるよう、堅牢なコードにし�
 </code></pre></td>
 </tr>
 </table>
-
 <p>そして特定の入力に対してこの関数を呼び出します:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -395,9 +361,7 @@ IsUnresolvedによる例外に対処できるよう、堅牢なコードにし�
 </code></pre></td>
 </tr>
 </table>
-
 <p>結果は以下の通りです:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -424,8 +388,8 @@ IsUnresolvedによる例外に対処できるよう、堅牢なコードにし�
 <div class="tip" id="fs5">namespace Microsoft.FSharp.Compiler</div>
 <div class="tip" id="fs6">namespace Microsoft.FSharp.Compiler.SourceCodeServices</div>
 <div class="tip" id="fs7">val checker : FSharpChecker<br /><br />Full name: Symbols.checker</div>
-<div class="tip" id="fs8">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentTypeCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : unit -&gt; FSharpChecker<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br />static member Instance : FSharpChecker<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
-<div class="tip" id="fs9">static member FSharpChecker.Create : unit -&gt; FSharpChecker<br />static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool -&gt; FSharpChecker</div>
+<div class="tip" id="fs8">type FSharpChecker<br />member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />member CheckFileInProjectIfReady : parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />member CheckProjectInBackground : options:FSharpProjectOptions -&gt; unit<br />member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />member Compile : argv:string [] -&gt; FSharpErrorInfo [] * int<br />member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int<br />member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option -&gt; FSharpErrorInfo [] * int * Assembly option<br />member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -&gt; FSharpErrorInfo [] * int * Assembly option<br />member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member GetProjectOptionsFromCommandLineArgs : projectFileName:string * argv:string [] * ?loadedTimeStamp:DateTime -&gt; FSharpProjectOptions<br />member GetProjectOptionsFromScript : filename:string * source:string * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool -&gt; Async&lt;FSharpProjectOptions&gt;<br />member InvalidateAll : unit -&gt; unit<br />member InvalidateConfiguration : options:FSharpProjectOptions -&gt; unit<br />member KeepProjectAlive : options:FSharpProjectOptions -&gt; Async&lt;IDisposable&gt;<br />member MatchBracesAlternate : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;(range * range) []&gt;<br />member NotifyProjectCleaned : options:FSharpProjectOptions -&gt; unit<br />member ParseAndCheckFileInProject : filename:string * fileversion:int * source:string * options:FSharpProjectOptions * ?isResultObsolete:IsResultObsolete * ?textSnapshotInfo:obj -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />member ParseAndCheckProject : options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />member ParseFileInProject : filename:string * source:string * options:FSharpProjectOptions -&gt; Async&lt;FSharpParseFileResults&gt;<br />member TryGetRecentCheckResultsForFile : filename:string * options:FSharpProjectOptions * ?source:string -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />member BeforeBackgroundFileCheck : IEvent&lt;string&gt;<br />member CurrentQueueLength : int<br />member FileChecked : IEvent&lt;string&gt;<br />member FileParsed : IEvent&lt;string&gt;<br />member private FrameworkImportsCache : FrameworkImportsCache<br />member ImplicitlyStartBackgroundWork : bool<br />member MaxMemory : int<br />member MaxMemoryReached : IEvent&lt;unit&gt;<br />member PauseBeforeBackgroundWork : int<br />member ProjectChecked : IEvent&lt;string&gt;<br />member private ReactorOps : IReactorOperations<br />member private ReferenceResolver : Resolver<br />member ImplicitlyStartBackgroundWork : bool with set<br />member MaxMemory : int with set<br />member PauseBeforeBackgroundWork : int with set<br />static member Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker<br />static member GlobalForegroundParseCountStatistic : int<br />static member GlobalForegroundTypeCheckCountStatistic : int<br /><br />Full name: Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker</div>
+<div class="tip" id="fs9">static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?msbuildEnabled:bool -&gt; FSharpChecker</div>
 <div class="tip" id="fs10">val parseAndTypeCheckSingleFile : file:string * input:string -&gt; FSharpParseFileResults * FSharpCheckFileResults<br /><br />Full name: Symbols.parseAndTypeCheckSingleFile</div>
 <div class="tip" id="fs11">val file : string</div>
 <div class="tip" id="fs12">val input : string</div>

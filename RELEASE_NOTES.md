@@ -1,5 +1,10 @@
 #### 8.0.0
   * Integrate fsharp\fsharp and Microsoft\visualfsharp to c494a9cab525dbd89585f7b733ea5310471a8001
+  * Then integrate to 	2002675f8aba5b3576a924a2e1e47b18e4e9a83d
+  * Add module values to navigable items https://github.com/fsharp/FSharp.Compiler.Service/pull/650
+  * Optionally remove dependency on MSBuild reference resolution https://github.com/fsharp/FSharp.Compiler.Service/pull/649
+  * Compiler api harmonise https://github.com/fsharp/FSharp.Compiler.Service/pull/639
+  * Various bits of work on .NET Core version (buildable from source but not in nuget package)
 
 #### 7.0.0
   * Integrate fsharp\fsharp and Microsoft\visualfsharp to 835b79c041f9032fceeceb39f680e0662cba92ec

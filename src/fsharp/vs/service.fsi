@@ -179,7 +179,7 @@ type FSharpCheckFileResults =
     ///    'record field' locations and r.h.s. of 'range' operator a..b
     /// </param>
     /// <param name="line">The line number where the completion is happening</param>
-    /// <param name="colAtEndOfNamesAndResidue">The column number (1-based) at the end of the 'names' text </param>
+    /// <param name="colAtEndOfNamesAndResidue">The column number at the end of the 'names' text </param>
     /// <param name="qualifyingNames">The long identifier to the left of the '.'</param>
     /// <param name="partialName">The residue of a partial long identifier to the right of the '.'</param>
     /// <param name="lineStr">The residue of a partial long identifier to the right of the '.'</param>
@@ -203,7 +203,7 @@ type FSharpCheckFileResults =
     ///    'record field' locations and r.h.s. of 'range' operator a..b
     /// </param>
     /// <param name="line">The line number where the completion is happening</param>
-    /// <param name="colAtEndOfNamesAndResidue">The column number (1-based) at the end of the 'names' text </param>
+    /// <param name="colAtEndOfNamesAndResidue">The column number at the end of the 'names' text </param>
     /// <param name="qualifyingNames">The long identifier to the left of the '.'</param>
     /// <param name="partialName">The residue of a partial long identifier to the right of the '.'</param>
     /// <param name="lineStr">The residue of a partial long identifier to the right of the '.'</param>

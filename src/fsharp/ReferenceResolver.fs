@@ -34,6 +34,11 @@ type Resolver =
     /// a .NET Framework version to use for scripts.
     abstract HighestInstalledNetFrameworkVersion : unit -> string
     
+    /// Get the Reference Assemblies directory for the .NET Framework (on Windows)
+    /// This is added to the default resolution path for 
+    /// design-time compilations.
+    abstract DotNetFrameworkReferenceAssembliesRootDirectory : string
+
     /// Perform assembly resolution on the given references under the given conditions
     abstract Resolve :
         resolutionEnvironment: ResolutionEnvironment *
@@ -47,5 +52,5 @@ type Resolver =
         explicitIncludeDirs:string list *
         implicitIncludeDir:string *
         logMessage:(string->unit) *
-        logErrorOrWarning:(bool -> string -> string -> unit)
+        logErrorOrWarning:((*isError*)bool -> string -> string -> unit)
             -> ResolvedFile[]

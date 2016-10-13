@@ -32,7 +32,7 @@ let internal SimulatedMSBuildResolver =
 #endif
 
         member __.Resolve(resolutionEnvironment, references, targetFrameworkVersion, targetFrameworkDirectories, targetProcessorArchitecture,                
-                            outputDirectory, fsharpCoreDir, explicitIncludeDirs, implicitIncludeDir, logMessage, logWarning, logError) =
+                            fsharpCoreDir, explicitIncludeDirs, implicitIncludeDir, logMessage, logWarningOrError) =
 
 #if !RESHAPED_MSBUILD
             let registrySearchPaths() = 
@@ -88,7 +88,7 @@ let internal SimulatedMSBuildResolver =
                     if not found && Path.IsPathRooted(r) then 
                         if FileSystem.SafeExists(r) then 
                             success r
-                with e -> logWarning "SR001" (e.ToString())
+                with e -> logWarningOrError false "SR001" (e.ToString())
 
 #if !RESHAPED_MSBUILD
                 // For this one we need to get the version search exactly right, without doing a load
@@ -104,7 +104,7 @@ let internal SimulatedMSBuildResolver =
                         let trialPath = Path.Combine(fscoreDir0,n.Name + ".dll")
                         if FileSystem.SafeExists(trialPath) then 
                             success trialPath
-                with e -> logWarning "SR001" (e.ToString())
+                with e -> logWarningOrError false "SR001" (e.ToString())
 #endif
 
                 let isFileName = 
@@ -119,7 +119,7 @@ let internal SimulatedMSBuildResolver =
                         let trialPath = Path.Combine(searchPath,qual)
                         if FileSystem.SafeExists(trialPath) then 
                             success trialPath
-                  with e -> logWarning "SR001" (e.ToString())
+                  with e -> logWarningOrError false "SR001" (e.ToString())
 
 #if !RESHAPED_MSBUILD
                 try 
@@ -160,7 +160,7 @@ let internal SimulatedMSBuildResolver =
                                         //printfn "searching GAC: %s" trialPath
                                         if FileSystem.SafeExists(trialPath) then 
                                             success trialPath
-                with e -> logWarning "SR001" (e.ToString())
+                with e -> logWarningOrError false "SR001" (e.ToString())
 #endif
 
             results.ToArray() }

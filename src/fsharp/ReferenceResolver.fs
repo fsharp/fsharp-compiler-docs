@@ -118,11 +118,13 @@ let SimplisticResolver =
                 if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then 
                     yield! registrySearchPaths() ]
 
-            for (baggage,r) in references do
+            for (r, baggage) in references do
               try
+                printfn "resolving %s" r
                 let mutable found = false
                 let success path = 
                     if not found then 
+                        printfn "resolved %s --> %s" r path
                         found <- true
                         results.Add { itemSpec = path; prepareToolTip = snd; baggage=baggage } 
 
@@ -140,7 +142,6 @@ let SimplisticResolver =
                             | s -> s 
                         PF + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\"  + n.Version.ToString()
                     let trialPath = Path.Combine(fscoreDir0,n.Name + ".dll")
-                    printfn "searching %s" trialPath
                     if FileSystem.SafeExists(trialPath) then 
                         success trialPath
 
@@ -163,11 +164,11 @@ let SimplisticResolver =
                         if FileSystem.SafeExists(trialPath) then 
                             success trialPath
 
-                if not found then 
-                    let ass = try Some (Assembly.Load(r)) with _ -> None
-                    match ass with 
-                    | Some ass -> success ass.Location 
-                    | None -> ()
+                //if not found then 
+                //    let ass = try Some (Assembly.Load(r)) with _ -> None
+                //    match ass with 
+                //    | Some ass -> success ass.Location 
+                //    | None -> ()
               with e -> logWarning "SR001" (e.ToString())
             results.ToArray() }
 
@@ -186,7 +187,7 @@ let fscoreDir =
         System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
 
 let resolve s = 
-    SimplisticResolver.Resolve(ResolutionEnvironment.CompileTimeLike,[| for a in s -> ("", a) |],"v4.5.1", [SimplisticResolver.DotNetFrameworkReferenceAssembliesRootDirectory + @"\v4.5.1" ],"", "", fscoreDir,[],__SOURCE_DIRECTORY__,ignore, (fun _ _ -> ()), (fun _ _-> ()))
+    SimplisticResolver.Resolve(ResolutionEnvironment.CompileTimeLike,[| for a in s -> (a, "") |],"v4.5.1", [SimplisticResolver.DotNetFrameworkReferenceAssembliesRootDirectory + @"\v4.5.1" ],"", "", fscoreDir,[],__SOURCE_DIRECTORY__,ignore, (fun _ _ -> ()), (fun _ _-> ()))
 
 resolve ["System"; "mscorlib"; "mscorlib.dll"; "FSharp.Core"; "FSharp.Core.dll"; "Microsoft.SqlServer.Dmf.dll"; "Microsoft.SqlServer.Dmf"  ]
 
@@ -194,7 +195,7 @@ resolve [ "FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7
 #endif
 
 let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) = 
-    //let msbuildEnabled = msbuildEnabled && false
+    let msbuildEnabled = msbuildEnabled && false
     let tryMSBuild v = 
       if msbuildEnabled then 
         // Detect if MSBuild v12 is on the machine, if so use the resolver from there

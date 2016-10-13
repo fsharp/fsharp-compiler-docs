@@ -133,6 +133,8 @@ module NavigationImpl =
                   | _ -> (lid, m)
                 [ createMemberLid(lidShow, kind, icon, unionRanges rangeMerge m) ]
             | SynPat.LongIdent(LongIdentWithDots(lid,_), _,_, _, _, _), _ -> [ createMemberLid(lid, FieldDecl, iIconGroupConstant, unionRanges (List.head lid).idRange m) ]
+            | SynPat.Named (_,ident,_,_,r), _ ->
+                [ createMemberLid([ident], FieldDecl, iIconGroupConstant, r)]
             | _ -> []
         
         // Process a class declaration or F# type declaration

@@ -24,12 +24,33 @@ type FSharpNavigationDeclarationItemKind =
     | FieldDecl
     | OtherDecl
 
+[<RequireQualifiedAccess>]
+type FSharpEnclosingEntityKind =
+    | Namespace
+    | Module
+    | Class
+    | Exception
+    | Interface
+    | Record
+    | Enum
+    | DU
+
 /// Represents an item to be displayed in the navigation bar
 [<Sealed>]
-type FSharpNavigationDeclarationItem(uniqueName: string, name: string, kind: FSharpNavigationDeclarationItemKind, glyph: int, range: range, bodyRange: range, singleTopLevel:bool) = 
+type FSharpNavigationDeclarationItem
+    (
+        uniqueName: string, 
+        name: string, 
+        kind: FSharpNavigationDeclarationItemKind, 
+        glyph: int, 
+        range: range, 
+        bodyRange: range, 
+        singleTopLevel: bool,
+        enclosingEntityKind: FSharpEnclosingEntityKind,
+        isAbstract: bool
+    ) = 
     
     member x.bodyRange = bodyRange
-    
     member x.UniqueName = uniqueName
     member x.Name = name
     member x.Glyph = glyph
@@ -37,10 +58,14 @@ type FSharpNavigationDeclarationItem(uniqueName: string, name: string, kind: FSh
     member x.Range = range
     member x.BodyRange = bodyRange 
     member x.IsSingleTopLevel = singleTopLevel
+    member x.EnclosingEntityKind = enclosingEntityKind
+    member x.IsAbstract = isAbstract
+    
     member x.WithUniqueName(uniqueName: string) =
-      FSharpNavigationDeclarationItem(uniqueName, name, kind, glyph, range, bodyRange, singleTopLevel)
-    static member Create(name: string, kind, glyph: int, range: range, bodyRange: range, singleTopLevel:bool) = 
-      FSharpNavigationDeclarationItem("", name, kind, glyph, range, bodyRange, singleTopLevel)
+      FSharpNavigationDeclarationItem (uniqueName, name, kind, glyph, range, bodyRange, singleTopLevel, enclosingEntityKind, isAbstract)
+    
+    static member Create(name: string, kind, glyph: int, range: range, bodyRange: range, singleTopLevel: bool, enclosingEntityKind, isAbstract) = 
+      FSharpNavigationDeclarationItem("", name, kind, glyph, range, bodyRange, singleTopLevel, enclosingEntityKind, isAbstract)
 
 /// Represents top-level declarations (that should be in the type drop-down)
 /// with nested declarations (that can be shown in the member drop-down)
@@ -92,26 +117,29 @@ module NavigationImpl =
             sprintf "%s_%d_of_%d" name idx total
 
         // Create declaration (for the left dropdown)                
-        let createDeclLid(baseName, lid, kind, baseGlyph, m, bodym, nested) =
+        let createDeclLid(baseName, lid, kind, baseGlyph, m, bodym, nested, enclosingEntityKind, isAbstract) =
             let name = (if baseName <> "" then baseName + "." else "") + (textOfLid lid)
             FSharpNavigationDeclarationItem.Create
-              (name, kind, baseGlyph * 6, m, bodym, false), (addItemName name), nested
+              (name, kind, baseGlyph * 6, m, bodym, false, enclosingEntityKind, isAbstract), (addItemName name), nested
             
-        let createDecl(baseName, (id:Ident), kind, baseGlyph, m, bodym, nested) =
+        let createDecl(baseName, (id:Ident), kind, baseGlyph, m, bodym, nested, enclosingEntityKind, isAbstract) =
             let name = (if baseName <> "" then baseName + "." else "") + (id.idText)
             FSharpNavigationDeclarationItem.Create
-              (name, kind, baseGlyph * 6, m, bodym, false), (addItemName name), nested
+              (name, kind, baseGlyph * 6, m, bodym, false, enclosingEntityKind, isAbstract), (addItemName name), nested
          
         // Create member-kind-of-thing for the right dropdown
-        let createMemberLid(lid, kind, baseGlyph, m) =
-            FSharpNavigationDeclarationItem.Create(textOfLid lid, kind, baseGlyph * 6, m, m, false), (addItemName(textOfLid lid))
+        let createMemberLid(lid, kind, baseGlyph, m, enclosingEntityKind, isAbstract) =
+            FSharpNavigationDeclarationItem.Create(textOfLid lid, kind, baseGlyph * 6, m, m, false, enclosingEntityKind, isAbstract), 
+                (addItemName(textOfLid lid))
 
-        let createMember((id:Ident), kind, baseGlyph, m) =
-            FSharpNavigationDeclarationItem.Create(id.idText, kind, baseGlyph * 6, m, m, false), (addItemName(id.idText))
-            
+        let createMember((id:Ident), kind, baseGlyph, m, enclosingEntityKind, isAbstract) =
+            FSharpNavigationDeclarationItem.Create(id.idText, kind, baseGlyph * 6, m, m, false, enclosingEntityKind, isAbstract), 
+                (addItemName(id.idText))
 
         // Process let-binding
-        let processBinding isMember (Binding(_, _, _, _, _, _, SynValData(memebrOpt, _, _), synPat, _, synExpr, _, _)) =
+        let processBinding isMember enclosingEntityKind isAbstract 
+            (Binding(_, _, _, _, _, _, SynValData(memebrOpt, _, _), synPat, _, synExpr, _, _)) =
+
             let m = match synExpr with 
                     | SynExpr.Typed(e, _, _) -> e.Range // fix range for properties with type annotations
                     | _ -> synExpr.Range
@@ -131,53 +159,63 @@ module NavigationImpl =
                   | _thisVar::nm::_ -> (List.tail lid, nm.idRange) 
                   | hd::_ -> (lid, hd.idRange) 
                   | _ -> (lid, m)
-                [ createMemberLid(lidShow, kind, icon, unionRanges rangeMerge m) ]
-            | SynPat.LongIdent(LongIdentWithDots(lid,_), _,_, _, _, _), _ -> [ createMemberLid(lid, FieldDecl, iIconGroupConstant, unionRanges (List.head lid).idRange m) ]
+                [ createMemberLid(lidShow, kind, icon, unionRanges rangeMerge m, enclosingEntityKind, isAbstract) ]
+            | SynPat.LongIdent(LongIdentWithDots(lid,_), _,_, _, _, _), _ -> 
+                [ createMemberLid(lid, FieldDecl, iIconGroupConstant, unionRanges (List.head lid).idRange m, enclosingEntityKind, isAbstract) ]
+            | SynPat.Named (_,ident,_,_,r), _ ->
+                [ createMemberLid([ident], FieldDecl, iIconGroupConstant, r, enclosingEntityKind, isAbstract)]
             | _ -> []
         
         // Process a class declaration or F# type declaration
         let rec processExnDefnRepr baseName nested (SynExceptionDefnRepr(_, (UnionCase(_, id, fldspec, _, _, _)), _, _, _, m)) =
             // Exception declaration
-            [ createDecl(baseName, id, ExnDecl, iIconGroupException, m, fldspecRange fldspec, nested) ] 
+            [ createDecl(baseName, id, ExnDecl, iIconGroupException, m, fldspecRange fldspec, nested, 
+                FSharpEnclosingEntityKind.Exception, false) ] 
 
         // Process a class declaration or F# type declaration
         and processExnDefn baseName (SynExceptionDefn(repr, membDefns, _)) =  
-            let nested = processMembers membDefns |> snd
+            let nested = processMembers membDefns FSharpEnclosingEntityKind.Exception |> snd
             processExnDefnRepr baseName nested repr
 
         and processTycon baseName (TypeDefn(ComponentInfo(_, _, _, lid, _, _, _, _), repr, membDefns, m)) =
-            let topMembers = processMembers membDefns |> snd
+            let topMembers = processMembers membDefns FSharpEnclosingEntityKind.Class |> snd
             match repr with
             | SynTypeDefnRepr.Exception repr -> processExnDefnRepr baseName [] repr
             | SynTypeDefnRepr.ObjectModel(_, membDefns, mb) ->
                 // F# class declaration
-                let members = processMembers membDefns |> snd
+                let members = processMembers membDefns FSharpEnclosingEntityKind.Class |> snd
                 let nested = members@topMembers
-                ([ createDeclLid(baseName, lid, TypeDecl, iIconGroupClass, m, bodyRange mb nested, nested) ]: ((FSharpNavigationDeclarationItem * int * _) list))
+                ([ createDeclLid(baseName, lid, TypeDecl, iIconGroupClass, m, bodyRange mb nested, nested,
+                        FSharpEnclosingEntityKind.Class, false) ]: ((FSharpNavigationDeclarationItem * int * _) list))
             | SynTypeDefnRepr.Simple(simple, _) ->
                 // F# type declaration
                 match simple with
                 | SynTypeDefnSimpleRepr.Union(_, cases, mb) ->
                     let cases = 
                         [ for (UnionCase(_, id, fldspec, _, _, _)) in cases -> 
-                            createMember(id, OtherDecl, iIconGroupValueType, unionRanges (fldspecRange fldspec) id.idRange) ]
+                            createMember(id, OtherDecl, iIconGroupValueType, unionRanges (fldspecRange fldspec) id.idRange,
+                                FSharpEnclosingEntityKind.DU, false) ]
                     let nested = cases@topMembers              
-                    [ createDeclLid(baseName, lid, TypeDecl, iIconGroupUnion, m, bodyRange mb nested, nested) ]
+                    [ createDeclLid(baseName, lid, TypeDecl, iIconGroupUnion, m, bodyRange mb nested, nested,
+                        FSharpEnclosingEntityKind.DU, false) ]
                 | SynTypeDefnSimpleRepr.Enum(cases, mb) -> 
                     let cases = 
                         [ for (EnumCase(_, id, _, _, m)) in cases ->
-                            createMember(id, FieldDecl, iIconGroupEnumMember, m) ]
+                            createMember(id, FieldDecl, iIconGroupEnumMember, m, FSharpEnclosingEntityKind.Enum, false) ]
                     let nested = cases@topMembers
-                    [ createDeclLid(baseName, lid, TypeDecl, iIconGroupEnum, m, bodyRange mb nested, nested) ]
+                    [ createDeclLid(baseName, lid, TypeDecl, iIconGroupEnum, m, bodyRange mb nested, nested,
+                        FSharpEnclosingEntityKind.Enum, false) ]
                 | SynTypeDefnSimpleRepr.Record(_, fields, mb) ->
                     let fields = 
                         [ for (Field(_, _, id, _, _, _, _, m)) in fields do
                             if (id.IsSome) then
-                              yield createMember(id.Value, FieldDecl, iIconGroupFieldBlue, m) ]
+                              yield createMember(id.Value, FieldDecl, iIconGroupFieldBlue, m, FSharpEnclosingEntityKind.Record, false) ]
                     let nested = fields@topMembers
-                    [ createDeclLid(baseName, lid, TypeDecl, iIconGroupType, m, bodyRange mb nested, nested) ]
+                    [ createDeclLid(baseName, lid, TypeDecl, iIconGroupType, m, bodyRange mb nested, nested, 
+                        FSharpEnclosingEntityKind.Record, false) ]
                 | SynTypeDefnSimpleRepr.TypeAbbrev(_, _, mb) ->
-                    [ createDeclLid(baseName, lid, TypeDecl, iIconGroupTypedef, m, bodyRange mb topMembers, topMembers) ]
+                    [ createDeclLid(baseName, lid, TypeDecl, iIconGroupTypedef, m, bodyRange mb topMembers, topMembers,
+                        FSharpEnclosingEntityKind.Class, false) ]
                           
                 //| SynTypeDefnSimpleRepr.General of TyconKind * (SynType * range * ident option) list * (valSpfn * MemberFlags) list * fieldDecls * bool * bool * range 
                 //| SynTypeDefnSimpleRepr.LibraryOnlyILAssembly of ILType * range
@@ -185,35 +223,37 @@ module NavigationImpl =
                 | _ -> [] 
                   
         // Returns class-members for the right dropdown                  
-        and processMembers members: (range * list<FSharpNavigationDeclarationItem * int>) = 
+        and processMembers (members: SynMemberDefns) (enclosingEntityKind: FSharpEnclosingEntityKind)
+            : (range * list<FSharpNavigationDeclarationItem * int>) = 
+
             let members = members |> List.map (fun memb ->
                (memb.Range,
                 match memb with
-                | SynMemberDefn.LetBindings(binds, _, _, _) -> List.collect (processBinding false) binds
-                | SynMemberDefn.Member(bind, _) -> processBinding true bind
+                | SynMemberDefn.LetBindings(binds, _, _, _) -> List.collect (processBinding false enclosingEntityKind false) binds
+                | SynMemberDefn.Member(bind, _) -> processBinding true enclosingEntityKind false bind
                 | SynMemberDefn.ValField(Field(_, _, Some(rcid), ty, _, _, _, _), _) ->
-                    [ createMember(rcid, FieldDecl, iIconGroupFieldBlue, ty.Range) ]
+                    [ createMember(rcid, FieldDecl, iIconGroupFieldBlue, ty.Range, enclosingEntityKind, false) ]
                 | SynMemberDefn.AutoProperty(_attribs,_isStatic,id,_tyOpt,_propKind,_,_xmlDoc,_access,_synExpr, _, _) -> 
-                    [ createMember(id, FieldDecl, iIconGroupFieldBlue, id.idRange) ]
+                    [ createMember(id, FieldDecl, iIconGroupFieldBlue, id.idRange, enclosingEntityKind, false) ]
                 | SynMemberDefn.AbstractSlot(ValSpfn(_, id, _, ty, _, _, _, _, _, _, _), _, _) ->
-                    [ createMember(id, MethodDecl, iIconGroupMethod2, ty.Range) ]
+                    [ createMember(id, MethodDecl, iIconGroupMethod2, ty.Range, enclosingEntityKind, true) ]
                 | SynMemberDefn.NestedType _ -> failwith "tycon as member????" //processTycon tycon                
                 | SynMemberDefn.Interface(_, Some(membs), _) ->
-                    processMembers membs |> snd
+                    processMembers membs FSharpEnclosingEntityKind.Interface |> snd
                 | _ -> []  )) 
             ((members |> Seq.map fst |> Seq.fold unionRangesChecked range.Zero),
              (members |> List.map snd |> List.concat))
 
         // Process declarations in a module that belong to the right drop-down (let bindings)
         let processNestedDeclarations decls = decls |> List.collect (function
-            | SynModuleDecl.Let(_, binds, _) -> List.collect (processBinding false) binds
+            | SynModuleDecl.Let(_, binds, _) -> List.collect (processBinding false FSharpEnclosingEntityKind.Module false) binds
             | _ -> [] )        
 
         // Process declarations nested in a module that should be displayed in the left dropdown
         // (such as type declarations, nested modules etc.)                            
         let rec processFSharpNavigationTopLevelDeclarations(baseName, decls) = decls |> List.collect (function
             | SynModuleDecl.ModuleAbbrev(id, lid, m) ->
-                [ createDecl(baseName, id, ModuleDecl, iIconGroupModule, m, rangeOfLid lid, []) ]
+                [ createDecl(baseName, id, ModuleDecl, iIconGroupModule, m, rangeOfLid lid, [], FSharpEnclosingEntityKind.Namespace, false) ]
                 
             | SynModuleDecl.NestedModule(ComponentInfo(_, _, _, lid, _, _, _, _), _isRec, decls, _, m) ->                
                 // Find let bindings (for the right dropdown)
@@ -222,7 +262,8 @@ module NavigationImpl =
                 
                 // Get nested modules and types (for the left dropdown)
                 let other = processFSharpNavigationTopLevelDeclarations(newBaseName, decls)
-                createDeclLid(baseName, lid, ModuleDecl, iIconGroupModule, m, unionRangesChecked (rangeOfDecls nested) (moduleRange (rangeOfLid lid) other), nested)::other
+                createDeclLid(baseName, lid, ModuleDecl, iIconGroupModule, m, unionRangesChecked (rangeOfDecls nested) 
+                    (moduleRange (rangeOfLid lid) other), nested, FSharpEnclosingEntityKind.Module, false)::other
                   
             | SynModuleDecl.Types(tydefs, _) -> tydefs |> List.collect (processTycon baseName)                                    
             | SynModuleDecl.Exception (defn,_) -> processExnDefn baseName defn
@@ -245,7 +286,7 @@ module NavigationImpl =
                         (textOfLid id, (if isModule then ModuleFileDecl else NamespaceDecl),
                             iIconGroupModule * 6, m, 
                             unionRangesChecked (rangeOfDecls nested) (moduleRange (rangeOfLid id) other), 
-                            singleTopLevel), (addItemName(textOfLid id)), nested
+                            singleTopLevel, FSharpEnclosingEntityKind.Module, false), (addItemName(textOfLid id)), nested
                 decl::other )
                   
         let items = 

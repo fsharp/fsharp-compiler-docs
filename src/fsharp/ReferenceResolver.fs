@@ -198,31 +198,8 @@ let SimulatedMSBuildResolver =
                 //    | None -> ()
             results.ToArray() }
 
-#if INTERACTIVE
-SimulatedMSBuildResolver.DotNetFrameworkReferenceAssembliesRootDirectory
-SimulatedMSBuildResolver.HighestInstalledNetFrameworkVersion()
-
-let fscoreDir = 
-    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-        let PF = 
-            match Environment.GetEnvironmentVariable("ProgramFiles(x86)") with
-            | null -> Environment.GetEnvironmentVariable("ProgramFiles")  // if PFx86 is null, then we are 32-bit and just get PF
-            | s -> s 
-        PF + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0"  
-    else 
-        System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
-
-let resolve s = 
-    SimulatedMSBuildResolver.Resolve(ResolutionEnvironment.CompileTimeLike,[| for a in s -> (a, "") |],"v4.5.1", [SimulatedMSBuildResolver.DotNetFrameworkReferenceAssembliesRootDirectory + @"\v4.5.1" ],"", "", fscoreDir,[],__SOURCE_DIRECTORY__,ignore, (fun _ _ -> ()), (fun _ _-> ()))
-
-resolve ["System"; "mscorlib"; "mscorlib.dll"; "FSharp.Core"; "FSharp.Core.dll"; "Microsoft.SqlServer.Dmf.dll"; "Microsoft.SqlServer.Dmf"  ]
-
-resolve [ "FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" ]
-
-resolve [                 "EventViewer, Version=6.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" ]
-#endif
-
 let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) = 
+#if !RESHAPED_MSBUILD
     let msbuildEnabled = msbuildEnabled && false
     let msbuildVersion = defaultArg msbuildVersion  "12"
     let tryMSBuild v = 
@@ -245,4 +222,44 @@ let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) =
     match (if msbuildEnabled && msbuildVersion <> "12" then tryMSBuild "12" else None) with 
     | Some r -> r
     | None -> 
+#endif
     SimulatedMSBuildResolver 
+
+
+#if INTERACTIVE
+// Some manual testing
+SimulatedMSBuildResolver.DotNetFrameworkReferenceAssembliesRootDirectory
+SimulatedMSBuildResolver.HighestInstalledNetFrameworkVersion()
+
+let fscoreDir = 
+    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+        let PF = 
+            match Environment.GetEnvironmentVariable("ProgramFiles(x86)") with
+            | null -> Environment.GetEnvironmentVariable("ProgramFiles")  // if PFx86 is null, then we are 32-bit and just get PF
+            | s -> s 
+        PF + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0"  
+    else 
+        System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+
+let resolve s = 
+    SimulatedMSBuildResolver.Resolve(ResolutionEnvironment.CompileTimeLike,[| for a in s -> (a, "") |],"v4.5.1", [SimulatedMSBuildResolver.DotNetFrameworkReferenceAssembliesRootDirectory + @"\v4.5.1" ],"", "", fscoreDir,[],__SOURCE_DIRECTORY__,ignore, (fun _ _ -> ()), (fun _ _-> ()))
+
+// Resolve partial name
+resolve ["FSharp.Core" ]
+
+// Resolve partial name
+resolve ["FSharp.Core.dll" ]
+
+// Resolve from reference assemblies
+resolve ["System"; "mscorlib"; "mscorlib.dll" ]
+
+// Resolve from Registry AssemblyFolders
+resolve ["Microsoft.SqlServer.Dmf.dll"; "Microsoft.SqlServer.Dmf"  ]
+
+// Resolve exact version of FSharp.Core
+resolve [ "FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" ]
+
+// Resolve from GAC:
+resolve [                 "EventViewer, Version=6.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" ]
+#endif
+

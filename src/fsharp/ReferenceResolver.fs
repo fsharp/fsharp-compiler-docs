@@ -65,7 +65,7 @@ type Resolver =
         logerror:(string->string->unit)
             -> ResolvedFile[]
 
-let SimplisticResolver =
+let SimulatedMSBuildResolver =
     { new Resolver with 
         member __.HighestInstalledNetFrameworkVersion() = "v4.5"
         member __.DotNetFrameworkReferenceAssembliesRootDirectory = 
@@ -119,7 +119,6 @@ let SimplisticResolver =
                     yield! registrySearchPaths() ]
 
             for (r, baggage) in references do
-              try
                 printfn "resolving %s" r
                 let mutable found = false
                 let success path = 
@@ -128,29 +127,35 @@ let SimplisticResolver =
                         found <- true
                         results.Add { itemSpec = path; prepareToolTip = snd; baggage=baggage } 
 
-                if not found && Path.IsPathRooted(r) then 
-                    if FileSystem.SafeExists(r) then 
-                        success r
+                try 
+                    if not found && Path.IsPathRooted(r) then 
+                        if FileSystem.SafeExists(r) then 
+                            success r
+                with e -> logWarning "SR001" (e.ToString())
 
                 // For this one we need to get the version search exactly right, without doing a load
-                if not found && r.StartsWith("FSharp.Core, Version=")  && Environment.OSVersion.Platform = PlatformID.Win32NT then 
-                    let n = AssemblyName(r)
-                    let fscoreDir0 = 
-                        let PF = 
-                            match Environment.GetEnvironmentVariable("ProgramFiles(x86)") with
-                            | null -> Environment.GetEnvironmentVariable("ProgramFiles")  
-                            | s -> s 
-                        PF + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\"  + n.Version.ToString()
-                    let trialPath = Path.Combine(fscoreDir0,n.Name + ".dll")
-                    if FileSystem.SafeExists(trialPath) then 
-                        success trialPath
+                try 
+                    if not found && r.StartsWith("FSharp.Core, Version=")  && Environment.OSVersion.Platform = PlatformID.Win32NT then 
+                        let n = AssemblyName(r)
+                        let fscoreDir0 = 
+                            let PF = 
+                                match Environment.GetEnvironmentVariable("ProgramFiles(x86)") with
+                                | null -> Environment.GetEnvironmentVariable("ProgramFiles")  
+                                | s -> s 
+                            PF + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\"  + n.Version.ToString()
+                        let trialPath = Path.Combine(fscoreDir0,n.Name + ".dll")
+                        if FileSystem.SafeExists(trialPath) then 
+                            success trialPath
+                with e -> logWarning "SR001" (e.ToString())
 
                 // Try to use Assemby.Load rather than searching paths for assemblies with explicit versions
-                if not found && r.Contains(",") then 
-                    let ass = try Some (Assembly.Load(r)) with _ -> None
-                    match ass with 
-                    | None -> ()
-                    | Some ass -> success ass.Location 
+                try 
+                    if not found && r.Contains(",") then 
+                        let ass = try Some (Assembly.Load(r)) with _ -> None
+                        match ass with 
+                        | None -> ()
+                        | Some ass -> success ass.Location 
+                with e -> logWarning "SR001" (e.ToString())
 
                 let isFileName = 
                     r.EndsWith("dll",StringComparison.InvariantCultureIgnoreCase) ||
@@ -159,22 +164,43 @@ let SimplisticResolver =
                 let qual = if isFileName then r else try AssemblyName(r).Name + ".dll"  with _ -> r + ".dll"
 
                 for searchPath in searchPaths do 
+                  try 
                     if not found then 
                         let trialPath = Path.Combine(searchPath,qual)
                         if FileSystem.SafeExists(trialPath) then 
                             success trialPath
+                  with e -> logWarning "SR001" (e.ToString())
+
+                try 
+                    // Seach the GAC on Windows
+                    if not found && not isFileName && Environment.OSVersion.Platform = PlatformID.Win32NT then 
+                        let n = AssemblyName(r)
+                        let netfx = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+                        let gac = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(netfx.TrimEnd('\\'))),"assembly")
+                        for gacdir in Directory.EnumerateDirectories(gac) do 
+                            let assdir = Path.Combine(gacdir,n.Name)
+                            if Directory.Exists(assdir) then 
+                                let verdir = Path.Combine(assdir,"v4.0_"+n.Version.ToString()+"__"+String.concat "" [| for b in n.GetPublicKeyToken() -> sprintf "%02x" b |])
+                                printfn "searching GAC: %s" verdir
+
+                                if Directory.Exists(verdir) then 
+                                    let trialPath = Path.Combine(verdir,qual)
+                                    printfn "searching GAC: %s" trialPath
+                                    if FileSystem.SafeExists(trialPath) then 
+                                        success trialPath
+                with e -> logWarning "SR001" (e.ToString())
+
 
                 //if not found then 
                 //    let ass = try Some (Assembly.Load(r)) with _ -> None
                 //    match ass with 
                 //    | Some ass -> success ass.Location 
                 //    | None -> ()
-              with e -> logWarning "SR001" (e.ToString())
             results.ToArray() }
 
 #if INTERACTIVE
-SimplisticResolver.DotNetFrameworkReferenceAssembliesRootDirectory
-SimplisticResolver.HighestInstalledNetFrameworkVersion()
+SimulatedMSBuildResolver.DotNetFrameworkReferenceAssembliesRootDirectory
+SimulatedMSBuildResolver.HighestInstalledNetFrameworkVersion()
 
 let fscoreDir = 
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
@@ -187,26 +213,27 @@ let fscoreDir =
         System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
 
 let resolve s = 
-    SimplisticResolver.Resolve(ResolutionEnvironment.CompileTimeLike,[| for a in s -> (a, "") |],"v4.5.1", [SimplisticResolver.DotNetFrameworkReferenceAssembliesRootDirectory + @"\v4.5.1" ],"", "", fscoreDir,[],__SOURCE_DIRECTORY__,ignore, (fun _ _ -> ()), (fun _ _-> ()))
+    SimulatedMSBuildResolver.Resolve(ResolutionEnvironment.CompileTimeLike,[| for a in s -> (a, "") |],"v4.5.1", [SimulatedMSBuildResolver.DotNetFrameworkReferenceAssembliesRootDirectory + @"\v4.5.1" ],"", "", fscoreDir,[],__SOURCE_DIRECTORY__,ignore, (fun _ _ -> ()), (fun _ _-> ()))
 
 resolve ["System"; "mscorlib"; "mscorlib.dll"; "FSharp.Core"; "FSharp.Core.dll"; "Microsoft.SqlServer.Dmf.dll"; "Microsoft.SqlServer.Dmf"  ]
 
 resolve [ "FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" ]
+
+resolve [                 "EventViewer, Version=6.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" ]
 #endif
 
 let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) = 
     let msbuildEnabled = msbuildEnabled && false
+    let msbuildVersion = defaultArg msbuildVersion  "12"
     let tryMSBuild v = 
-      if msbuildEnabled then 
-        // Detect if MSBuild v12 is on the machine, if so use the resolver from there
+        // Detect if MSBuild is on the machine, if so use the resolver from there
         let mb = try Assembly.Load(sprintf "Microsoft.Build.Framework, Version=%s.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" v) |> Option.ofObj with _ -> None
         let ass = mb |> Option.bind (fun _ -> try Assembly.Load(sprintf "FSharp.Compiler.Service.MSBuild.v%s" v) |> Option.ofObj with _ -> None)
         let ty = ass |> Option.bind (fun ass -> ass.GetType("Microsoft.FSharp.Compiler.MSBuildReferenceResolver") |> Option.ofObj)
         let obj = ty |> Option.bind (fun ty -> ty.InvokeMember("get_Resolver",BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.InvokeMethod ||| BindingFlags.NonPublic, null, null, [| |]) |> Option.ofObj)
         let resolver = obj |> Option.bind (fun obj -> match obj with :? Resolver as r -> Some r | _ -> None)
         resolver
-      else None
-    match tryMSBuild (defaultArg msbuildVersion  "12") with 
+    match (if msbuildEnabled then tryMSBuild msbuildVersion else None) with 
     | Some r -> r
     | None -> 
     //match tryMSBuild "15" with 
@@ -215,7 +242,7 @@ let GetDefaultResolver(msbuildEnabled: bool, msbuildVersion: string option) =
     //match tryMSBuild "14" with 
     //| Some r -> r
     //| None -> 
-    match tryMSBuild "12" with 
+    match (if msbuildEnabled && msbuildVersion <> "12" then tryMSBuild "12" else None) with 
     | Some r -> r
     | None -> 
-    SimplisticResolver 
+    SimulatedMSBuildResolver 

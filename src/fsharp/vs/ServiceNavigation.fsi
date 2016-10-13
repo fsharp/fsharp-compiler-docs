@@ -21,6 +21,17 @@ type FSharpNavigationDeclarationItemKind =
     | FieldDecl
     | OtherDecl
 
+[<RequireQualifiedAccess>]
+type FSharpEnclosingEntityKind =
+    | Namespace
+    | Module
+    | Class
+    | Exception
+    | Interface
+    | Record
+    | Enum
+    | DU
+
 /// Represents an item to be displayed in the navigation bar
 [<Sealed>]
 type (*internal*) FSharpNavigationDeclarationItem = 
@@ -31,6 +42,8 @@ type (*internal*) FSharpNavigationDeclarationItem =
     member Range : Range.range
     member BodyRange : Range.range
     member IsSingleTopLevel : bool
+    member EnclosingEntityKind: FSharpEnclosingEntityKind
+    member IsAbstract: bool
 
 /// Represents top-level declarations (that should be in the type drop-down)
 /// with nested declarations (that can be shown in the member drop-down)

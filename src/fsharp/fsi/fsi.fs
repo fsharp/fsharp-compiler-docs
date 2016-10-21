@@ -1513,14 +1513,11 @@ module internal MagicAssemblyResolution =
 
     let Install(tcConfigB, tcImports: TcImports, fsiDynamicCompiler: FsiDynamicCompiler, fsiConsoleOutput: FsiConsoleOutput) = 
 
-        let rangeStdin = rangeN Lexhelp.stdinMockFilename 0
-
 #if TODO_REWORK_ASSEMBLY_LOAD
         ignore tcConfigB
         ignore tcImports
         ignore fsiDynamicCompiler
         ignore fsiConsoleOutput
-        ignore rangeStdin
         { new System.IDisposable with 
              member x.Dispose() = () }
 #else
@@ -2317,7 +2314,7 @@ let internal DriveFsiEventLoop (fsi: FsiEvaluationSessionHostConfig, fsiConsoleO
 
 /// The primary type, representing a full F# Interactive session, reading from the given
 /// text input, writing to the given text output and error writers.
-type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], inReader:TextReader, outWriter:TextWriter, errorWriter: TextWriter, fsiCollectible: bool, msbuildEnabled: bool) = 
+type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], inReader:TextReader, outWriter:TextWriter, errorWriter: TextWriter, fsiCollectible: bool, msbuildEnabled: bool, checker: FSharpChecker) = 
 #if DYNAMIC_CODE_REWRITES_CONSOLE_WRITE
     do
         Microsoft.FSharp.Core.Printf.setWriter outWriter
@@ -2456,10 +2453,6 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 
 
     let fsiConsoleInput = FsiConsoleInput(fsi, fsiOptions, inReader, outWriter)
-
-    /// The single, global interactive checker that can be safely used in conjunction with other operations
-    /// on the FsiEvaluationSession.  
-    let checker = FSharpChecker.Create()
 
     let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = 
         try 
@@ -2721,8 +2714,12 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
         GC.KeepAlive fsiInterruptController.EventHandlers
 
 
-    static member Create(fsiConfig, argv, inReader, outWriter, errorWriter, ?collectible, ?msbuildEnabled) = 
-        new FsiEvaluationSession(fsiConfig, argv, inReader, outWriter, errorWriter, defaultArg collectible false, defaultArg msbuildEnabled true)
+    static member Create(fsiConfig, argv, inReader, outWriter, errorWriter, ?collectible, ?msbuildEnabled, ?checker) = 
+        /// The single, global interactive checker that can be safely used in conjunction with other operations
+        /// on the FsiEvaluationSession.  
+        let checker = match checker with None -> FSharpChecker.Create() | Some c -> c
+
+        new FsiEvaluationSession(fsiConfig, argv, inReader, outWriter, errorWriter, defaultArg collectible false, defaultArg msbuildEnabled true, checker)
     
     static member GetDefaultConfiguration(fsiObj:obj) = FsiEvaluationSession.GetDefaultConfiguration(fsiObj, true)
     

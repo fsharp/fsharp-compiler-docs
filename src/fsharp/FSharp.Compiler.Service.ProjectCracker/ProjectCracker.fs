@@ -18,8 +18,9 @@ type ProjectCracker =
 
         let rec convert (opts: Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool.ProjectOptions) : FSharpProjectOptions =
             let referencedProjects = Array.map (fun (a, b) -> a, convert b) opts.ReferencedProjectOptions
+            
             let sourceFiles, otherOptions = 
-                opts.Options |> Array.partition (fun x -> x.EndsWith (".fs", StringComparison.InvariantCultureIgnoreCase))
+                opts.Options |> Array.partition (fun x -> Path.GetExtension(x).ToLower() = ".fs")
             
             let sepChar = Path.DirectorySeparatorChar
             

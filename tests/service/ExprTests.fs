@@ -872,7 +872,7 @@ let ``Check use of type provider that provides calls to F# code`` () =
         |> checker.ParseAndCheckProject 
         |> Async.RunSynchronously
 
-    res.Errors.Length |> shouldEqual 0
+    Assert.AreEqual ([||], res.Errors, sprintf "Should not be errors, but: %A" res.Errors)
                                                                                        
     let results = 
         [ for f in res.AssemblyContents.ImplementationFiles do

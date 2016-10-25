@@ -37,15 +37,22 @@ let checkOptionNotPresent (opts:string[]) s =
 let getReferencedFilenames = Array.choose (fun (o:string) -> if o.StartsWith("-r:") then o.[3..] |> (Path.GetFileName >> Some) else None)
 let getReferencedFilenamesAndContainingFolders = Array.choose (fun (o:string) -> if o.StartsWith("-r:") then o.[3..] |> (fun r -> ((r |> Path.GetFileName), (r |> Path.GetDirectoryName |> Path.GetFileName)) |> Some) else None)
 let getOutputFile = Array.pick (fun (o:string) -> if o.StartsWith("--out:") then o.[6..] |> Some else None)
-let getCompiledFilenames = Array.choose (fun (o:string) -> if o.EndsWith(".fs") then o |> (Path.GetFileName >> Some) else None)
+
+let getCompiledFilenames = 
+    Array.choose (fun (opt: string) -> 
+        if opt.EndsWith ".fs" then 
+            opt |> Path.GetFileName |> Some
+        else None)
+    >> Array.distinct
 
 [<Test>]
 let ``Project file parsing example 1 Default Configuration`` () = 
     let projectFile = __SOURCE_DIRECTORY__ + @"/FSharp.Compiler.Service.Tests.fsproj"
     let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile)
 
+    checkOption options.ProjectFileNames "FileSystemTests.fs"
+    
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
-    checkOption options.OtherOptions "FileSystemTests.fs"
     checkOption options.OtherOptions "--define:TRACE"
     checkOption options.OtherOptions "--define:DEBUG"
     checkOption options.OtherOptions "--flaterrors"
@@ -58,8 +65,9 @@ let ``Project file parsing example 1 Release Configuration`` () =
     // Check with Configuration = Release
     let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [("Configuration", "Release")])
 
+    checkOption options.ProjectFileNames "FileSystemTests.fs"
+
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
-    checkOption options.OtherOptions "FileSystemTests.fs"
     checkOption options.OtherOptions "--define:TRACE"
     checkOptionNotPresent options.OtherOptions "--define:DEBUG"
     checkOption options.OtherOptions "--debug:pdbonly"
@@ -68,11 +76,11 @@ let ``Project file parsing example 1 Release Configuration`` () =
 let ``Project file parsing example 1 Default configuration relative path`` () = 
     let projectFile = "FSharp.Compiler.Service.Tests.fsproj"
     Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__)
-
     let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile)
 
+    checkOption options.ProjectFileNames "FileSystemTests.fs"
+
     checkOption options.OtherOptions "FSharp.Compiler.Service.dll"
-    checkOption options.OtherOptions "FileSystemTests.fs"
     checkOption options.OtherOptions "--define:TRACE"
     checkOption options.OtherOptions "--define:DEBUG"
     checkOption options.OtherOptions "--flaterrors"
@@ -110,21 +118,16 @@ let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted
 
 [<Test>]
 let ``Project file parsing -- compile files 1``() =
-  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
-
-  p.OtherOptions
-  |> getCompiledFilenames
-  |> set
-  |> should equal (set [ "Test1File1.fs"; "Test1File2.fs" ])
+  let opts = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test1.fsproj")
+  CollectionAssert.AreEqual (["Test1File2.fs"; "Test1File1.fs"], opts.ProjectFileNames |> Array.map Path.GetFileName)
+  CollectionAssert.IsEmpty (getCompiledFilenames opts.OtherOptions)
 
 [<Test>]
 let ``Project file parsing -- compile files 2``() =
-  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
+  let opts = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
 
-  p.OtherOptions
-  |> getCompiledFilenames
-  |> set
-  |> should equal (set [ "Test2File1.fs"; "Test2File2.fs" ])
+  CollectionAssert.AreEqual (["Test2File2.fs"; "Test2File1.fs"], opts.ProjectFileNames |> Array.map Path.GetFileName)
+  CollectionAssert.IsEmpty (getCompiledFilenames opts.OtherOptions)
 
 [<Test>]
 let ``Project file parsing -- bad project file``() =
@@ -192,18 +195,16 @@ let ``Project file parsing -- reference project output file``() =
   |> Array.choose (fun (o:string) -> if o.StartsWith("-r:") then o.[3..] |> Some else None)
   |> should contain (normalizePath (__SOURCE_DIRECTORY__ + @"/data/DifferingOutputDir/Dir1/OutputDir1/Test1.dll"))
 
-
 [<Test>]
 let ``Project file parsing -- Tools Version 12``() =
-  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
-
-  checkOption (getReferencedFilenames p.OtherOptions) "System.Core.dll"
+  let opts = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
+  checkOption (getReferencedFilenames opts.OtherOptions) "System.Core.dll"
 
 [<Test>]
 let ``Project file parsing -- Logging``() =
-  let f = normalizePath (__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
-  let p, logMap = ProjectCracker.GetProjectOptionsFromProjectFileLogged(f, enableLogging=true)
-  let log = logMap.[f]
+  let projectFileName = normalizePath (__SOURCE_DIRECTORY__ + @"/data/ToolsVersion12.fsproj")
+  let _, logMap = ProjectCracker.GetProjectOptionsFromProjectFileLogged(projectFileName, enableLogging=true)
+  let log = logMap.[projectFileName]
 
   if runningOnMono then
     Assert.That(log, Is.StringContaining("Reference System.Core resolved"))
@@ -386,30 +387,26 @@ let ``Project file parsing -- Exe with a PCL reference``() =
 
 [<Test>]
 let ``Project file parsing -- project file contains project reference to out-of-solution project and is used in release mode``() =
-
-    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
-    let p = ProjectCracker.GetProjectOptionsFromProjectFile(f,[("Configuration","Release")])
-    let references = getReferencedFilenamesAndContainingFolders p.OtherOptions |> set
+    let projectFileName = normalizePath(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
+    let opts = ProjectCracker.GetProjectOptionsFromProjectFile(projectFileName,[("Configuration","Release")])
+    let references = getReferencedFilenamesAndContainingFolders opts.OtherOptions |> set
     // Check the reference is to a release DLL
     references |> should contain ("Test1.dll", "Release")
 
 [<Test>]
 let ``Project file parsing -- project file contains project reference to out-of-solution project and is used in debug mode``() =
 
-    let f = normalizePath(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
-    let p = ProjectCracker.GetProjectOptionsFromProjectFile(f,[("Configuration","Debug")])
-    let references = getReferencedFilenamesAndContainingFolders p.OtherOptions |> set
+    let projectFileName = normalizePath(__SOURCE_DIRECTORY__ + @"/data/Test2.fsproj")
+    let opts = ProjectCracker.GetProjectOptionsFromProjectFile(projectFileName,[("Configuration","Debug")])
+    let references = getReferencedFilenamesAndContainingFolders opts.OtherOptions |> set
     // Check the reference is to a debug DLL
     references |> should contain ("Test1.dll", "Debug")
 
 [<Test>]
 let ``Project file parsing -- space in file name``() =
-  let p = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Space in name.fsproj")
-
-  p.OtherOptions
-  |> getCompiledFilenames
-  |> set
-  |> should equal (set [ "Test2File1.fs"; "Test2File2.fs" ])
+  let opts = ProjectCracker.GetProjectOptionsFromProjectFile(__SOURCE_DIRECTORY__ + @"/data/Space in name.fsproj")
+  CollectionAssert.AreEqual (["Test2File2.fs"; "Test2File1.fs"], opts.ProjectFileNames |> Array.map Path.GetFileName)
+  CollectionAssert.IsEmpty (getCompiledFilenames opts.OtherOptions)
 
 [<Test>]
 let ``Project file parsing -- report files``() =

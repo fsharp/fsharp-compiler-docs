@@ -10,7 +10,6 @@ open System.IO
 open System
 
 type ProjectCracker =
-
     static member GetProjectOptionsFromProjectFileLogged(projectFileName : string, ?properties : (string * string) list, ?loadedTimeStamp, ?enableLogging) =
         let loadedTimeStamp = defaultArg loadedTimeStamp DateTime.MaxValue // Not 'now', we don't want to force reloading
         let properties = defaultArg properties []
@@ -19,10 +18,23 @@ type ProjectCracker =
 
         let rec convert (opts: Microsoft.FSharp.Compiler.SourceCodeServices.ProjectCrackerTool.ProjectOptions) : FSharpProjectOptions =
             let referencedProjects = Array.map (fun (a, b) -> a, convert b) opts.ReferencedProjectOptions
+            
+            let sourceFiles, otherOptions = 
+                opts.Options |> Array.partition (fun x -> Path.GetExtension(x).ToLower() = ".fs")
+            
+            let sepChar = Path.DirectorySeparatorChar
+            
+            let sourceFiles = sourceFiles |> Array.map (fun x -> 
+                match sepChar with
+                | '\\' -> x.Replace('/', '\\')
+                | '/' -> x.Replace('\\', '/')
+                | _ -> x
+            )
+
             logMap := Map.add opts.ProjectFile opts.LogOutput !logMap
             { ProjectFileName = opts.ProjectFile
-              ProjectFileNames = [| |]
-              OtherOptions = opts.Options
+              ProjectFileNames = sourceFiles
+              OtherOptions = otherOptions
               ReferencedProjects = referencedProjects
               IsIncompleteTypeCheckEnvironment = false
               UseScriptResolutionRules = false

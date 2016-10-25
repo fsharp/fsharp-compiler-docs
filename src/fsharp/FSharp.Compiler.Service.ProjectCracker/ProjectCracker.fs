@@ -60,8 +60,10 @@ type ProjectCracker =
             arguments.Append(' ').Append(k).Append(' ').Append(v) |> ignore
         let codebase = Path.GetDirectoryName(Uri(typeof<ProjectCracker>.Assembly.CodeBase).LocalPath)
         
+        let crackerFilename = Path.Combine(codebase,"FSharp.Compiler.Service.ProjectCrackerTool.exe")
+        if not (File.Exists crackerFilename) then failwithf "ProjectCracker exe not found at: %s it must be next to the ProjectCracker dll." crackerFilename
         let p = new System.Diagnostics.Process()
-        p.StartInfo.FileName <- Path.Combine(codebase,"FSharp.Compiler.Service.ProjectCrackerTool.exe")
+        p.StartInfo.FileName <- crackerFilename
         p.StartInfo.Arguments <- arguments.ToString()
         p.StartInfo.UseShellExecute <- false
         p.StartInfo.CreateNoWindow <- true

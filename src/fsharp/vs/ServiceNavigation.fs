@@ -141,8 +141,8 @@ module NavigationImpl =
             (Binding(_, _, _, _, _, _, SynValData(memebrOpt, _, _), synPat, _, synExpr, _, _)) =
 
             let m = match synExpr with 
-                    | SynExpr.Typed(e, _, _) -> e.Range // fix range for properties with type annotations
-                    | _ -> synExpr.Range
+                    | SynExpr.Typed(e, _, _) -> Some e.Range // fix range for properties with type annotations
+                    | _ -> None
             match synPat, memebrOpt with
             | SynPat.LongIdent(LongIdentWithDots(lid,_), _,_, _, _, _), Some(flags) when isMember -> 
                 let icon, kind =
@@ -154,14 +154,25 @@ module NavigationImpl =
                   | MemberKind.PropertyGetSet
                   | MemberKind.PropertySet
                   | MemberKind.PropertyGet -> iIconGroupProperty, PropertyDecl
-                let lidShow, rangeMerge = 
+                let lidShowAndrangeMerge = 
                   match lid with 
-                  | _thisVar::nm::_ -> (List.tail lid, nm.idRange) 
-                  | hd::_ -> (lid, hd.idRange) 
-                  | _ -> (lid, m)
-                [ createMemberLid(lidShow, kind, icon, unionRanges rangeMerge m, enclosingEntityKind, isAbstract) ]
+                  | _thisVar::nm::_ -> Some (List.tail lid, nm.idRange) 
+                  | hd::_ -> Some (lid, hd.idRange) 
+                  | _ -> m |> Option.map (fun m -> lid, m)
+                match lidShowAndrangeMerge with
+                | Some (lidShow, rangeMerge) ->
+                    let range = 
+                        match m with
+                        | Some m -> unionRanges rangeMerge m
+                        | None -> rangeMerge
+                    [ createMemberLid(lidShow, kind, icon, range, enclosingEntityKind, isAbstract) ]
+                | None -> []
             | SynPat.LongIdent(LongIdentWithDots(lid,_), _,_, _, _, _), _ -> 
-                [ createMemberLid(lid, FieldDecl, iIconGroupConstant, unionRanges (List.head lid).idRange m, enclosingEntityKind, isAbstract) ]
+                let range =
+                    match m with
+                    | Some m -> unionRanges (List.head lid).idRange m
+                    | None -> (List.head lid).idRange
+                [ createMemberLid(lid, FieldDecl, iIconGroupConstant, range, enclosingEntityKind, isAbstract) ]
             | SynPat.Named (_,ident,_,_,r), _ ->
                 [ createMemberLid([ident], FieldDecl, iIconGroupConstant, r, enclosingEntityKind, isAbstract)]
             | _ -> []
@@ -231,8 +242,8 @@ module NavigationImpl =
                 match memb with
                 | SynMemberDefn.LetBindings(binds, _, _, _) -> List.collect (processBinding false enclosingEntityKind false) binds
                 | SynMemberDefn.Member(bind, _) -> processBinding true enclosingEntityKind false bind
-                | SynMemberDefn.ValField(Field(_, _, Some(rcid), ty, _, _, _, _), _) ->
-                    [ createMember(rcid, FieldDecl, iIconGroupFieldBlue, ty.Range, enclosingEntityKind, false) ]
+                | SynMemberDefn.ValField(Field(_, _, Some(rcid), _, _, _, _, _), _) ->
+                    [ createMember(rcid, FieldDecl, iIconGroupFieldBlue, rcid.idRange, enclosingEntityKind, false) ]
                 | SynMemberDefn.AutoProperty(_attribs,_isStatic,id,_tyOpt,_propKind,_,_xmlDoc,_access,_synExpr, _, _) -> 
                     [ createMember(id, FieldDecl, iIconGroupFieldBlue, id.idRange, enclosingEntityKind, false) ]
                 | SynMemberDefn.AbstractSlot(ValSpfn(_, id, _, ty, _, _, _, _, _, _, _), _, _) ->
@@ -295,6 +306,8 @@ module NavigationImpl =
             |> Array.map (fun (d, idx, nest) -> 
                 let nest = nest |> Array.ofList |> Array.map (fun (decl, idx) -> decl.WithUniqueName(uniqueName d.Name idx))
                 nest |> Array.sortInPlaceWith (fun a b -> compare a.Name b.Name)
+                let nest = nest |> Array.distinctBy (fun x -> x.Range, x.BodyRange, x.Name, x.Kind) 
+                
                 { Declaration = d.WithUniqueName(uniqueName d.Name idx); Nested = nest } )                  
         items |> Array.sortInPlaceWith (fun a b -> compare a.Declaration.Name b.Declaration.Name)
         new FSharpNavigationItems(items)

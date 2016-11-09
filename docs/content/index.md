@@ -61,7 +61,7 @@ Projects using the F# Compiler Services
 Some of the projects using the F# Compiler Services are:
 
  * [**The Visual F# Power Tools**](http://fsprojects.github.io/VisualFSharpPowerTools/) 
- * [**The Xamarin and MonoDevelop Tools for F#**]https://github.com/mono/monodevelop/tree/master/main/external/fsharpbinding) 
+ * [**The Xamarin and MonoDevelop Tools for F#**](https://github.com/mono/monodevelop/tree/master/main/external/fsharpbinding) 
  * [**The Emacs Plugin for F#**](https://github.com/fsharp/emacs-fsharp-mode) 
  * [**The Vim Plugin for F#**](https://github.com/fsharp/vim-fsharp) 
  * [**iFSharp**](https://github.com/BayardRock/IfSharp)  - iPython-style notebook engine for F#

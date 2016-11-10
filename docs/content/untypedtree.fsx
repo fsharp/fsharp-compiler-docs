@@ -183,7 +183,7 @@ with multiple `namespace Foo` declarations:
 /// does not explicitly define it..
 let visitModulesAndNamespaces modulesOrNss =
   for moduleOrNs in modulesOrNss do
-    let (SynModuleOrNamespace(lid, isMod, decls, xml, attrs, _, m)) = moduleOrNs
+    let (SynModuleOrNamespace(lid, isRec, isMod, decls, xml, attrs, _, m)) = moduleOrNs
     printfn "Namespace or module: %A" lid
     visitDeclarations decls
 (**

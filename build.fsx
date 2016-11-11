@@ -14,6 +14,11 @@ open Fake.UserInputHelper
 open Fake.AssemblyInfoFile
 open SourceLink
 
+#if MONO
+// prevent incorrect output encoding (e.g. https://github.com/fsharp/FAKE/issues/1196)
+System.Console.OutputEncoding <- System.Text.Encoding.UTF8
+#endif
+
 // --------------------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
 // --------------------------------------------------------------------------------------
@@ -257,18 +262,24 @@ Target "CodeGen.NetCore" (fun _ ->
     run "dotnet" "restore -v Information"
 
     // run tools
-    let runInDir exe = runCmdIn "src/fsharp/FSharp.Compiler.Service/" exe
-    let fsLex fslFilePath outFilePath = runInDir "lib/bootstrap/4.0/fslex.exe" @"%s --unicode %s -o %s" fslFilePath lexArgs outFilePath
-    let fsYacc = runInDir "lib/bootstrap/4.0/fsyacc.exe"
+#if MONO
+    let toolDir = "../../../lib/bootstrap/4.0/"
+#else
+    let toolDir = "lib/bootstrap/4.0/"
+#endif
+    let workDir = "src/fsharp/FSharp.Compiler.Service/"
+    let runInDir exe = runCmdIn workDir exe
+    let fsLex fsl out = runInDir (toolDir + "fslex.exe") "%s --unicode %s -o %s" fsl lexArgs out
+    let fsYacc fsy out m o = runInDir (toolDir + "fsyacc.exe") "%s %s %s %s %s -o %s" fsy lexArgs yaccArgs m o out
 
     runInDir "dotnet" "fssrgen ../FSComp.txt ./FSComp.fs ./FSComp.resx"
     runInDir "dotnet" "fssrgen ../fsi/FSIstrings.txt ./FSIstrings.fs ./FSIstrings.resx"
     fsLex "../lex.fsl" "lex.fs"
     fsLex "../pplex.fsl" "pplex.fs"
     fsLex "../../absil/illex.fsl" "illex.fs"
-    fsYacc "../../absil/ilpars.fsy %s %s %s %s -o ilpars.fs" lexArgs yaccArgs module1 open1
-    fsYacc "../pars.fsy %s %s %s %s -o pars.fs" lexArgs yaccArgs module2 open2
-    fsYacc "../pppars.fsy %s %s %s %s -o pppars.fs" lexArgs yaccArgs module3 open3
+    fsYacc "../../absil/ilpars.fsy" "ilpars.fs" module1 open1
+    fsYacc "../pars.fsy" "pars.fs" module2 open2
+    fsYacc "../pppars.fsy" "pppars.fs" module3 open3
 )
 
 Target "Build.NetCore" (fun _ ->

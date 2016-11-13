@@ -270,16 +270,19 @@
   },
   "dependencies": {
     "NETStandard.Library": "1.6.0",
-    "System.Diagnostics.TraceSource": "4.0.0",
-    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
     "System.Collections.Immutable": "1.2.0",
+    "System.Diagnostics.Process": "4.1.0",
+    "System.Diagnostics.TraceSource": "4.0.0",
+    "System.Reflection.Emit": "4.0.1",
+    "System.Reflection.Metadata": "1.4.1-beta-24227-04",
+    "System.Reflection.TypeExtensions": "4.1.0",
+    "System.Runtime.Loader": "4.0.0",
     "System.Security.Cryptography.Algorithms": "4.2.0",
     "System.Security.Cryptography.Primitives": "4.0.0",
-    "System.Reflection.Metadata": "1.4.1-beta-24227-04",
-    "System.Diagnostics.Process": "4.1.0"
+    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*"
   },
   "tools": {
-    "dotnet-fssrgen": "3.2.*",
+    "dotnet-fssrgen": "3.3.*",
     "dotnet-mergenupkg": { "version": "1.0.*" },
     "dotnet-compile-fsc": {
       "version": "1.0.0-preview2-*",

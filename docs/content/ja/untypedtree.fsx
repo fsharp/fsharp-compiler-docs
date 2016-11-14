@@ -212,7 +212,7 @@ let visitDeclarations decls =
 /// 暗黙的にモジュールまたは名前空間の宣言が存在することに注意。
 let visitModulesAndNamespaces modulesOrNss =
   for moduleOrNs in modulesOrNss do
-    let (SynModuleOrNamespace(lid, isMod, decls, xml, attrs, _, m)) = moduleOrNs
+    let (SynModuleOrNamespace(lid, isRec, isMod, decls, xml, attrs, _, m)) = moduleOrNs
     printfn "名前空間またはモジュール: %A" lid
     visitDeclarations decls
 (**

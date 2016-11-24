@@ -89,6 +89,8 @@ let ``Project file parsing example 1 Default configuration relative path`` () =
 
 [<Test>]
 let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() = 
+  if not runningOnMno then  // Disabled on Mono due to lack of installed PCL reference libraries - the modern way is to reference the FSHarp.Core nuget package so this is ok
+
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj"
     let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [])
 
@@ -103,6 +105,8 @@ let ``Project file parsing VS2013_FSharp_Portable_Library_net45``() =
 
 [<Test>]
 let ``Project file parsing Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78``() = 
+  if not runningOnMno then  // Disabled on Mono due to lack of installed PCL reference libraries - the modern way is to reference the FSHarp.Core nuget package so this is ok
+
     let projectFile = __SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj"
     Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/")
     let options = ProjectCracker.GetProjectOptionsFromProjectFile(projectFile, [])
@@ -242,6 +246,8 @@ let ``Project file parsing -- multi language project``() =
 
 [<Test>]
 let ``Project file parsing -- PCL profile7 project``() =
+  if not runningOnMno then  // Disabled on Mono due to lack of installed PCL reference libraries - the modern way is to reference the FSHarp.Core nuget package so this is ok
+
 
     let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net45/Sample_VS2013_FSharp_Portable_Library_net45.fsproj")
 
@@ -290,6 +296,8 @@ let ``Project file parsing -- PCL profile7 project``() =
 
 [<Test>]
 let ``Project file parsing -- PCL profile78 project``() =
+  if not runningOnMno then  // Disabled on Mono due to lack of installed PCL reference libraries - the modern way is to reference the FSHarp.Core nuget package so this is ok
+
 
     let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile78/Sample_VS2013_FSharp_Portable_Library_net451.fsproj")
 
@@ -329,7 +337,7 @@ let ``Project file parsing -- PCL profile78 project``() =
 
 [<Test>]
 let ``Project file parsing -- PCL profile259 project``() =
-
+  if not runningOnMno then  // Disabled on Mono due to lack of installed PCL reference libraries - the modern way is to reference the FSHarp.Core nuget package so this is ok
     let f = normalizePath (__SOURCE_DIRECTORY__ + @"/../projects/Sample_VS2013_FSharp_Portable_Library_net451_adjusted_to_profile259/Sample_VS2013_FSharp_Portable_Library_net451.fsproj")
 
     let options = ProjectCracker.GetProjectOptionsFromProjectFile(f)

@@ -19,9 +19,11 @@ script:
 # Fails on Travis Linux Mono latest (4.6.1) because FSharp.Core PCLs are not installed, see
 # https://github.com/fsharp/fsharp/issues/623#issuecomment-253165838
 
-#matrix:
-#  allow_failures:
-#    - os: linux
-#      mono: latest
+matrix:
+  allow_failures:
+    - os: linux
+      mono: latest
+    - os: osx
+      mono: 4.4.2
 
 

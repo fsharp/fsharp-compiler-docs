@@ -241,7 +241,7 @@ let rec visitExpr f (e:FSharpExpr) =
         visitExpr f baseCallExpr
         List.iter (visitObjMember f) overrides
         List.iter (snd >> List.iter (visitObjMember f)) interfaceImplementations
-    | BasicPatterns.TraitCall(sourceTypes, traitName, typeArgs, typeInstantiation, argExprs) -> 
+    | BasicPatterns.TraitCall(sourceTypes, traitName, typeArgs, typeInstantiation, argTypes, argExprs) -> 
         visitExprs f argExprs
     | BasicPatterns.ValueSet(valToSet, valueExpr) -> 
         visitExpr f valueExpr

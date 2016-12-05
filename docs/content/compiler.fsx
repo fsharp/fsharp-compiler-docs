@@ -28,17 +28,18 @@ First, we need to reference the libraries that contain F# interactive service:
 *)
 
 #r "FSharp.Compiler.Service.dll"
-open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open System.IO
+open Microsoft.FSharp.Compiler.SourceCodeServices
 
-let scs = SimpleSourceCodeServices()
+// Create an interactive checker instance 
+let checker = FSharpChecker.Create()
 
 (**
 Now write content to a temporary file:
 
 *)
 let fn = Path.GetTempFileName()
-let fn2 = Path.ChangeExtension(fn, ".fs")
+let fn2 = Path.ChangeExtension(fn, ".fsx")
 let fn3 = Path.ChangeExtension(fn, ".dll")
 
 File.WriteAllText(fn2, """
@@ -54,7 +55,7 @@ let x = 3 + 4
 Now invoke the compiler:
 *)
 
-let errors1, exitCode1 = scs.Compile([| "fsc.exe"; "-o"; fn3; "-a"; fn2 |])
+let errors1, exitCode1 = checker.Compile([| "fsc.exe"; "-o"; fn3; "-a"; fn2 |])
 
 (** 
 
@@ -67,7 +68,7 @@ module M
 let x = 1.0 + "" // a type error
 """)
 
-let errors1b, exitCode1b = scs.Compile([| "fsc.exe"; "-o"; fn3; "-a"; fn2 |])
+let errors1b, exitCode1b = checker.Compile([| "fsc.exe"; "-o"; fn3; "-a"; fn2 |])
 
 (**
 
@@ -83,11 +84,11 @@ You still have to pass the "-o" option to name the output file, but the output f
 The 'None' option indicates that the initiatlization code for the assembly is not executed. 
 *)
 let errors2, exitCode2, dynAssembly2 = 
-    scs.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |], execute=None)
+    checker.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |], execute=None)
 
 (*
 Passing 'Some' for the 'execute' parameter executes  the initiatlization code for the assembly.
 *)
 let errors3, exitCode3, dynAssembly3 = 
-    scs.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |], Some(stdout,stderr))
+    checker.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |], Some(stdout,stderr))
 

@@ -15,7 +15,6 @@ open System.IO
 
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
-open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open FSharp.Compiler.Service.Tests
 open FSharp.Compiler.Service.Tests.Common
 
@@ -111,7 +110,6 @@ type DebugMode =
     | Full
 
 let checker = FSharpChecker.Create()
-let compiler = new SimpleSourceCodeServices()
 
 /// Ensures the default FSharp.Core referenced by the F# compiler service (if none is 
 /// provided explicitly) is available in the output directory.
@@ -127,10 +125,10 @@ let ensureDefaultFSharpCoreAvailable tmpDir  =
         File.Copy(fsCoreDefaultReference(), Path.Combine(tmpDir, Path.GetFileName(fsCoreDefaultReference())), overwrite = true)
 #endif
 
-let compile isDll debugMode (assemblyName : string) (code : string) (dependencies : string list) =
+let compile isDll debugMode (assemblyName : string) (ext: string) (code : string) (dependencies : string list) =
     let tmp = Path.Combine(Path.GetTempPath(),"test"+string(hash (isDll,debugMode,assemblyName,code,dependencies)))
     try Directory.CreateDirectory(tmp) |> ignore with _ -> ()
-    let sourceFile = Path.Combine(tmp, assemblyName + ".fs")
+    let sourceFile = Path.Combine(tmp, assemblyName + "." + ext)
     let outFile = Path.Combine(tmp, assemblyName + if isDll then ".dll" else ".exe")
     let pdbFile = Path.Combine(tmp, assemblyName + pdbExtension isDll)
     do File.WriteAllText(sourceFile, code)
@@ -164,7 +162,7 @@ let compile isDll debugMode (assemblyName : string) (code : string) (dependencie
     ensureDefaultFSharpCoreAvailable tmp
         
     printfn "args: %A" args
-    let errorInfo, id = compiler.Compile args
+    let errorInfo, id = checker.Compile args
     for err in errorInfo do 
        printfn "error: %A" err
     if id <> 0 then raise <| CompilationError(assemblyName, id, errorInfo)
@@ -172,9 +170,9 @@ let compile isDll debugMode (assemblyName : string) (code : string) (dependencie
     outFile
 
 //sizeof<nativeint>
-let compileAndVerify isDll debugMode assemblyName code dependencies =
+let compileAndVerify isDll debugMode assemblyName ext code dependencies =
     let verifier = new PEVerifier ()
-    let outFile = compile isDll debugMode assemblyName code dependencies 
+    let outFile = compile isDll debugMode assemblyName ext code dependencies 
     verifier.Verify outFile
     outFile
 
@@ -186,7 +184,7 @@ let compileAndVerifyAst (name : string, ast : Ast.ParsedInput list, references :
 
     ensureDefaultFSharpCoreAvailable outDir
 
-    let errors, id = compiler.Compile(ast, name, outFile, references, executable = false)
+    let errors, id = checker.Compile(ast, name, outFile, references, executable = false)
     for err in errors do printfn "error: %A" err
     Assert.AreEqual (errors.Length, 0)
     if id <> 0 then raise <| CompilationError(name, id, errors)
@@ -225,7 +223,7 @@ module Foo
     printfn "done!" // make the code have some initialization effect
 """
 
-    compileAndVerify true PdbOnly "Foo" code [] |> ignore
+    compileAndVerify true PdbOnly "Foo" "fs" code [] |> ignore
 
 [<Test>]
 let ``3. Simple FSC executable test`` () =
@@ -236,7 +234,7 @@ module Bar
     let main _ = printfn "Hello, World!" ; 42
 
 """
-    let outFile = compileAndVerify false PdbOnly "Bar" code []
+    let outFile = compileAndVerify false PdbOnly "Bar" "fs" code []
 
     use proc = Process.Start(outFile, "")
     proc.WaitForExit()
@@ -295,7 +293,7 @@ module Bar
 
 """    
     try
-        compile false PdbOnly "Bar" code [] |> ignore
+        compile false PdbOnly "Bar" "fs" code [] |> ignore
     with
     | :? CompilationError as exn  ->
             Assert.AreEqual(6,exn.Data2.[0].StartLineAlternate)
@@ -307,19 +305,34 @@ let ``Check cols are indexed by 1`` () =
     let code = "let x = 1 + a"
 
     try
-        compile false PdbOnly "Foo" code [] |> ignore
+        compile false PdbOnly "Foo" "fs" code [] |> ignore
     with
     | :? CompilationError as exn  ->
             Assert.True(exn.Data2.[0].ToString().Contains("Foo.fs (1,13)-(1,14)"))
     | _  -> failwith "No compilation error"
 
 
+[<Test>]
+let ``Check compile of bad fsx`` () =
+    let code = """
+#load "missing.fsx"
+#r "missing.dll"
+    """
+
+    try
+        compile false PdbOnly "Foo" "fsx" code [] |> ignore
+    with
+    | :? CompilationError as exn  ->
+            Assert.True(exn.Data2.[0].ToString().Contains("Could not load file '"))
+            Assert.True(exn.Data2.[0].ToString().Contains("missing.fsx"))
+            Assert.True(exn.Data2.[1].ToString().Contains("Could not locate the assembly \"missing.dll\""))
+    | _  -> failwith "No compilation error"
+
 
 #if STRESS
 // For this stress test the aim is to check if we have a memory leak
 
 module StressTest1 = 
-    open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
     open System.IO
 
     [<Test>]

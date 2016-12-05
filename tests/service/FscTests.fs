@@ -125,7 +125,7 @@ let ensureDefaultFSharpCoreAvailable tmpDir  =
         File.Copy(fsCoreDefaultReference(), Path.Combine(tmpDir, Path.GetFileName(fsCoreDefaultReference())), overwrite = true)
 #endif
 
-let compile isDll debugMode (assemblyName : string) (ext: string) (code : string) (dependencies : string list) =
+let compile isDll debugMode (assemblyName : string) (ext: string) (code : string) (dependencies : string list) (extraArgs: string list) =
     let tmp = Path.Combine(Path.GetTempPath(),"test"+string(hash (isDll,debugMode,assemblyName,code,dependencies)))
     try Directory.CreateDirectory(tmp) |> ignore with _ -> ()
     let sourceFile = Path.Combine(tmp, assemblyName + "." + ext)
@@ -156,7 +156,10 @@ let compile isDll debugMode (assemblyName : string) (ext: string) (code : string
 
             yield sprintf "--out:%s" outFile
 
+            yield! extraArgs
+
             yield sourceFile
+
         |]
 
     ensureDefaultFSharpCoreAvailable tmp
@@ -172,7 +175,7 @@ let compile isDll debugMode (assemblyName : string) (ext: string) (code : string
 //sizeof<nativeint>
 let compileAndVerify isDll debugMode assemblyName ext code dependencies =
     let verifier = new PEVerifier ()
-    let outFile = compile isDll debugMode assemblyName ext code dependencies 
+    let outFile = compile isDll debugMode assemblyName ext code dependencies  []
     verifier.Verify outFile
     outFile
 
@@ -293,7 +296,8 @@ module Bar
 
 """    
     try
-        compile false PdbOnly "Bar" "fs" code [] |> ignore
+        let outFile : string = compile false PdbOnly "Bar" "fs" code [] [] 
+        ()
     with
     | :? CompilationError as exn  ->
             Assert.AreEqual(6,exn.Data2.[0].StartLineAlternate)
@@ -305,7 +309,8 @@ let ``Check cols are indexed by 1`` () =
     let code = "let x = 1 + a"
 
     try
-        compile false PdbOnly "Foo" "fs" code [] |> ignore
+        let outFile : string = compile false PdbOnly "Foo" "fs" code [] []
+        ()
     with
     | :? CompilationError as exn  ->
             Assert.True(exn.Data2.[0].ToString().Contains("Foo.fs (1,13)-(1,14)"))
@@ -320,12 +325,28 @@ let ``Check compile of bad fsx`` () =
     """
 
     try
-        compile false PdbOnly "Foo" "fsx" code [] |> ignore
+        let outFile : string = compile false PdbOnly "Foo" "fsx" code [] []
+        ()
     with
     | :? CompilationError as exn  ->
             Assert.True(exn.Data2.[0].ToString().Contains("Could not load file '"))
             Assert.True(exn.Data2.[0].ToString().Contains("missing.fsx"))
             Assert.True(exn.Data2.[1].ToString().Contains("Could not locate the assembly \"missing.dll\""))
+    | _  -> failwith "No compilation error"
+
+
+[<Test>]
+let ``Check compile of good fsx with bad option`` () =
+    let code = """
+let x = 1
+    """
+
+    try
+        let outFile : string = compile false PdbOnly "Foo" "fsx" code []  ["-r:missing.dll"]
+        ()
+    with
+    | :? CompilationError as exn  ->
+            Assert.True(exn.Data2.[0].ToString().Contains("startup (1,1)-(1,81) parameter error Could not resolve this reference"))
     | _  -> failwith "No compilation error"
 
 
@@ -348,7 +369,8 @@ type C() =
 let x = 3 + 4
 """
 
-        compile true PdbOnly "Foo" code [] |> ignore
+        let outFile : string = compile true PdbOnly "Foo" "fs" code [] []
+        ()
 
 #endif
 

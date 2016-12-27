@@ -203,11 +203,11 @@ module internal Params =
         | _ -> None
 #endif
 
+#if EXTENSIONTYPING
     let StaticParamsOfItem (infoReader:InfoReader) m denv d = 
         let amap = infoReader.amap
         let g = infoReader.g
         match d with
-#if EXTENSIONTYPING
         | ItemIsWithStaticArguments m g staticParameters ->
             staticParameters 
                 |> Array.map (fun sp -> 
@@ -219,8 +219,10 @@ module internal Params =
                       name = spName,
                       canonicalTypeTextForSorting = spKind,
                       display = sprintf "%s%s: %s" (if spOpt then "?" else "") spName spKind))
-#endif
         | _ -> [| |]
+#else
+    let StaticParamsOfItem _infoReader _m _denv _d = [||]
+#endif
 
     let rec ParamsOfItem (infoReader:InfoReader) m denv d = 
         let amap = infoReader.amap
@@ -386,7 +388,11 @@ type FSharpMethodGroup( name: string, unsortedMethods: FSharpMethodGroupItem[] )
                           description = FSharpToolTipText [FormatDescriptionOfItem true infoReader m denv item],
                           typeText = FormatReturnTypeOfItem infoReader m denv item,
                           parameters = (Params.ParamsOfItem infoReader m denv item |> Array.ofList),
+                          #if EXTENSIONTYPING
                           hasParameters = (match item with Params.ItemIsProvidedTypeWithStaticArguments m g _ -> false | _ -> true),
+                          #else
+                          hasParameters = true,
+                          #endif
                           staticParameters = Params.StaticParamsOfItem infoReader m denv item
                         ))
 #if FX_ATLEAST_40
@@ -2646,14 +2652,15 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
 
     member bc.NotifyProjectCleaned(options : FSharpProjectOptions) =
         match incrementalBuildersCache.TryGetAny options with
-        | None -> ()
-        | Some (builderOpt, _, _) ->
+        | None -> ()        
 #if EXTENSIONTYPING
+        | Some (builderOpt, _, _) ->
             builderOpt |> Option.iter (fun builder -> 
                 if builder.ThereAreLiveTypeProviders then
                     bc.InvalidateConfiguration(options))
-#else
             ()
+#else
+        | Some _ -> ()
 #endif
 
     member bc.CheckProjectInBackground(options) =

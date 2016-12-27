@@ -38,7 +38,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5'">$(DefineConstants);FX_ATLEAST_45</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_ATLEAST_40</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_ATLEAST_40;EXTENSIONTYPING</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

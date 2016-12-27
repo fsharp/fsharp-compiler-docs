@@ -1594,9 +1594,8 @@ type ILFieldInfo =
         | ILFieldInfo(_, x1), ILFieldInfo(_, x2) -> (x1 === x2)
 #if EXTENSIONTYPING
         | ProvidedField(_,fi1,_), ProvidedField(_,fi2,_)-> ProvidedFieldInfo.TaintedEquals (fi1, fi2) 
-#endif
         | _ -> false
-
+#endif
      /// Get an (uninstantiated) reference to the field as an Abstract IL ILFieldRef
     member x.ILFieldRef = rescopeILFieldRef x.ScopeRef (mkILFieldRef(x.ILTypeRef,x.FieldName,x.ILFieldType))
     override x.ToString() =  x.FieldName

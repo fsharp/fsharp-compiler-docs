@@ -108,7 +108,11 @@ let ``Test project1 whole project errors`` () =
 let ``Test Project1 should have protected FullName and TryFullName return same results`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
     let rec getFullNameComparisons (entity: FSharpEntity) = 
+        #if EXTENSIONTYPING
         seq { if not entity.IsProvided && entity.Accessibility.IsPublic then
+        #else
+        seq { if entity.Accessibility.IsPublic then
+        #endif
                 yield (entity.TryFullName = try Some entity.FullName with _ -> None)
                 for e in entity.NestedEntities do
                     yield! getFullNameComparisons e }
@@ -121,8 +125,12 @@ let ``Test Project1 should have protected FullName and TryFullName return same r
 [<Test; Ignore "FCS should not throw exceptions on FSharpEntity.BaseType">]
 let ``Test project1 should not throw exceptions on entities from referenced assemblies`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(Project1.options) |> Async.RunSynchronously
-    let rec getAllBaseTypes (entity: FSharpEntity) = 
+    let rec getAllBaseTypes (entity: FSharpEntity) =
+        #if EXTENSIONTYPING
         seq { if not entity.IsProvided && entity.Accessibility.IsPublic then
+        #else 
+        seq{
+        #endif
                 if not entity.IsUnresolved then yield entity.BaseType
                 for e in entity.NestedEntities do
                     yield! getAllBaseTypes e }
@@ -520,6 +528,7 @@ let ``Test project1 all uses of all symbols`` () =
     set expected - set allUsesOfAllSymbols |> shouldEqual Set.empty
     (set expected = set allUsesOfAllSymbols) |> shouldEqual true
 
+#if EXTENSIONTYPING
 [<Test>]
 let ``Test file explicit parse symbols`` () = 
 
@@ -606,7 +615,7 @@ let ``Test file explicit parse all symbols`` () =
                ("C", "file1", ((9, 15), (9, 16)), ["class"]);
                ("CAbbrev", "file1", ((9, 5), (9, 12)), ["abbrev"]);
                ("M", "file1", ((1, 7), (1, 8)), ["module"])]
-
+#endif
 
 //-----------------------------------------------------------------------------------------
 
@@ -3937,7 +3946,7 @@ type Use() =
     let fileNames = [fileName1]
     let args = mkProjectCommandLineArgs (dllName, fileNames)
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
-
+#if EXTENSIONTYPING
 [<Test>]
 let ``Test project28 all symbols in signature`` () = 
     let wholeProjectResults = checker.ParseAndCheckProject(Project28.options) |> Async.RunSynchronously
@@ -3947,14 +3956,18 @@ let ``Test project28 all symbols in signature`` () =
         |> Seq.map (fun s ->
                         let typeName = s.GetType().Name
                         match s with
+                        #if EXTENSIONTYPING
                         | :? FSharpEntity as fse -> typeName, fse.DisplayName, fse.XmlDocSig
+                        #endif
                         | :? FSharpField as fsf -> typeName, fsf.DisplayName, fsf.XmlDocSig
                         | :? FSharpMemberOrFunctionOrValue as fsm -> typeName, fsm.DisplayName, fsm.XmlDocSig
                         | :? FSharpUnionCase as fsu -> typeName, fsu.DisplayName, fsu.XmlDocSig
                         | :? FSharpActivePatternCase as ap -> typeName, ap.DisplayName, ap.XmlDocSig
                         | :? FSharpGenericParameter as fsg -> typeName, fsg.DisplayName, ""
                         | :? FSharpParameter as fsp -> typeName, fsp.DisplayName, ""
+                        #if EXTENSIONTYPING
                         | :? FSharpStaticParameter as fss -> typeName, fss.DisplayName, ""
+                        #endif
                         | _ -> typeName, s.DisplayName, "unknown")
         |> Seq.toArray
 
@@ -3992,7 +4005,7 @@ let ``Test project28 all symbols in signature`` () =
               ("FSharpMemberOrFunctionOrValue", "( .ctor )", "M:M.Use.#ctor");
               ("FSharpMemberOrFunctionOrValue", "Test", "M:M.Use.Test``1(``0)");
               ("FSharpGenericParameter", "?", "")|]
-
+#endif
 module Project29 = 
     open System.IO
 

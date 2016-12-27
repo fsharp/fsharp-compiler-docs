@@ -102,10 +102,11 @@ module Impl =
     /// Convert an IL type definition accessibility into an F# accessibility
     let getApproxFSharpAccessibilityOfEntity (entity: EntityRef) = 
         match metadataOfTycon entity.Deref with 
+        #if EXTENSIONTYPING
         | ProvidedTypeMetadata _info -> 
             // This is an approximation - for generative type providers some type definitions can be private.
             taccessPublic
-
+        #endif
         | ILTypeMetadata (_,td) -> 
             match td.Access with 
             | ILTypeDefAccess.Public 
@@ -253,7 +254,11 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
     member x.QualifiedName = 
         checkIsResolved()
         let fail() = invalidOp (sprintf "the type '%s' does not have a qualified name" x.LogicalName)
+        #if EXTENSIONTYPING
         if entity.IsTypeAbbrev || entity.IsProvidedErasedTycon || entity.IsNamespace then fail()
+        #else
+        if entity.IsTypeAbbrev || entity.IsNamespace then fail()
+        #endif
         match entity.CompiledRepresentation with 
         | CompiledTypeRepr.ILAsmNamed(tref,_,_) -> tref.QualifiedName
         | CompiledTypeRepr.ILAsmOpen _ -> fail()
@@ -266,7 +271,11 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
     
     member x.TryFullName = 
         if isUnresolved() then None
+        #if EXTENSIONTYPING
         elif entity.IsTypeAbbrev || entity.IsProvidedErasedTycon then None
+        #else
+        elif entity.IsTypeAbbrev then None
+        #endif
         elif entity.IsNamespace  then Some entity.DemangledModuleOrNamespaceName 
         else
             match entity.CompiledRepresentation with 
@@ -303,7 +312,7 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
     member __.ArrayRank  = 
         checkIsResolved()
         rankOfArrayTyconRef cenv.g entity
-
+#if EXTENSIONTYPING
     member __.IsProvided  = 
         isResolved() &&
         entity.IsProvided
@@ -319,11 +328,13 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
     member __.IsProvidedAndGenerated  = 
         isResolved() &&
         entity.IsProvidedGeneratedTycon
-
+#endif
     member __.IsClass = 
         isResolved() &&
-        match metadataOfTycon entity.Deref with 
+        match metadataOfTycon entity.Deref with
+        #if EXTENSIONTYPING 
         | ProvidedTypeMetadata info -> info.IsClass
+        #endif
         | ILTypeMetadata (_,td) -> (td.tdKind = ILTypeDefKind.Class)
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> entity.Deref.IsFSharpClassTycon
 
@@ -342,7 +353,9 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
     member __.IsDelegate = 
         isResolved() &&
         match metadataOfTycon entity.Deref with 
+        #if EXTENSIONTYPING
         | ProvidedTypeMetadata info -> info.IsDelegate ()
+        #endif
         | ILTypeMetadata (_,td) -> (td.tdKind = ILTypeDefKind.Delegate)
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> entity.IsFSharpDelegateTycon
 
@@ -470,12 +483,14 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
 
     member x.StaticParameters = 
         match entity.TypeReprInfo with 
+        #if EXTENSIONTYPING
         | TProvidedTypeExtensionPoint info -> 
             let m = x.DeclarationLocation
             let typeBeforeArguments = info.ProvidedType 
             let staticParameters = typeBeforeArguments.PApplyWithProvider((fun (typeBeforeArguments,provider) -> typeBeforeArguments.GetStaticParameters(provider)), range=m) 
             let staticParameters = staticParameters.PApplyArray(id, "GetStaticParameters", m)
             [| for p in staticParameters -> FSharpStaticParameter(cenv,  p, m) |]
+        #endif
         | _ -> [| |]
       |> makeReadOnlyCollection
 
@@ -1962,7 +1977,7 @@ and FSharpAttribute(cenv: cenv, attrib: AttribInfo) =
 
     override __.ToString() = 
         if entityIsUnresolved attrib.TyconRef then "attribute ???" else "attribute " + attrib.TyconRef.CompiledName + "(...)" 
-    
+#if EXTENSIONTYPING    
 and FSharpStaticParameter(cenv,  sp: Tainted< ExtensionTyping.ProvidedParameterInfo >, m) = 
     inherit FSharpSymbol(cenv,  
                          (fun () -> 
@@ -2001,7 +2016,7 @@ and FSharpStaticParameter(cenv,  sp: Tainted< ExtensionTyping.ProvidedParameterI
     override x.GetHashCode() = hash x.Name
     override x.ToString() = 
         "static parameter " + x.Name 
-
+#endif
 and FSharpParameter(cenv, typ:TType, topArgInfo:ArgReprInfo, mOpt, isParamArrayArg, isOutArg, isOptionalArg) = 
     inherit FSharpSymbol(cenv,  
                          (fun () -> 
@@ -2073,7 +2088,9 @@ and FSharpAssembly internal (cenv, ccu: CcuThunk) =
     member __.CodeLocation = ccu.SourceCodeDirectory
     member __.FileName = ccu.FileName
     member __.SimpleName = ccu.AssemblyName 
+    #if EXTENSIONTYPING
     member __.IsProviderGenerated = ccu.IsProviderGenerated
+    #endif
     member __.Contents = FSharpAssemblySignature(cenv, ccu)
                  
     override x.ToString() = x.QualifiedName

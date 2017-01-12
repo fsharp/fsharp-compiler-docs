@@ -144,7 +144,7 @@ let (fooSymbol, fooArgs, fooExpression) =
     | _ -> failwith "unexpected"
 
 
-(** Here 'fooSymbol' is a symbold associated with the declaration of 'foo', 
+(** Here 'fooSymbol' is a symbol associated with the declaration of 'foo', 
 'fooArgs' represents the formal arguments to the 'foo' function, and 'fooExpression' 
 is an expression for the implementation of the 'foo' function.
 

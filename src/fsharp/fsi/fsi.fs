@@ -1513,14 +1513,11 @@ module internal MagicAssemblyResolution =
 
     let Install(tcConfigB, tcImports: TcImports, fsiDynamicCompiler: FsiDynamicCompiler, fsiConsoleOutput: FsiConsoleOutput) = 
 
-        let rangeStdin = rangeN Lexhelp.stdinMockFilename 0
-
 #if TODO_REWORK_ASSEMBLY_LOAD
         ignore tcConfigB
         ignore tcImports
         ignore fsiDynamicCompiler
         ignore fsiConsoleOutput
-        ignore rangeStdin
         { new System.IDisposable with 
              member x.Dispose() = () }
 #else
@@ -2459,7 +2456,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 
     /// The single, global interactive checker that can be safely used in conjunction with other operations
     /// on the FsiEvaluationSession.  
-    let checker = FSharpChecker.Create()
+    let checker = FSharpChecker.Create(msbuildEnabled=msbuildEnabled)
 
     let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = 
         try 

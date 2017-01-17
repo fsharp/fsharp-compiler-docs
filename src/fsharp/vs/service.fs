@@ -2725,7 +2725,7 @@ type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, ke
 
     let backgroundCompiler = BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContents, keepAllBackgroundResolutions)
 
-    static let globalInstance = FSharpChecker.Create()
+    static let globalInstance = lazy FSharpChecker.Create()
         
     // Parse using backgroundCompiler
     let ComputeBraceMatching(filename:string,source,options:FSharpProjectOptions) = 
@@ -2996,7 +2996,7 @@ type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, ke
         bc.ParseFileInProject(filename, source, options) 
         |> Async.RunSynchronously
 
-    static member Instance = globalInstance
+    static member Instance = globalInstance.Value
     member internal __.FrameworkImportsCache = backgroundCompiler.FrameworkImportsCache
 
 

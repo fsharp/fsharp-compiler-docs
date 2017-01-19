@@ -3007,7 +3007,7 @@ type FsiInteractiveChecker(referenceResolver, reactorOps: IReactorOperations, tc
 
     member __.ParseAndCheckInteraction (source) =
 
-        let mainInputFileName = "stdin.fsx" 
+        let mainInputFileName = Path.Combine(tcConfig.implicitIncludeDir, "stdin.fsx")
         // Note: projectSourceFiles is only used to compute isLastCompiland, and is ignored if Build.IsScript(mainInputFileName) is true (which it is in this case).
         let projectSourceFiles = [ ]
         let parseErrors, _matchPairs, inputOpt, anyErrors = Parser.ParseOneFile (source, false, true, mainInputFileName, projectSourceFiles, tcConfig)
@@ -3018,7 +3018,7 @@ type FsiInteractiveChecker(referenceResolver, reactorOps: IReactorOperations, tc
             let fsiCompilerOptions = CompileOptions.GetCoreFsiCompilerOptions tcConfigB 
             CompileOptions.ParseCompilerOptions (ignore, fsiCompilerOptions, [ ])
 
-        let loadClosure = LoadClosure.ComputeClosureOfSourceText(referenceResolver,mainInputFileName, source, CodeContext.Editing, tcConfig.useSimpleResolution, tcConfig.useFsiAuxLib, new Lexhelp.LexResourceManager(), applyCompilerOptions)
+        let loadClosure = LoadClosure.ComputeClosureOfSourceText(referenceResolver, mainInputFileName, source, CodeContext.Editing, tcConfig.useSimpleResolution, tcConfig.useFsiAuxLib, new Lexhelp.LexResourceManager(), applyCompilerOptions)
         let backgroundErrors = []
         let tcErrors, tcFileResult = 
             Parser.TypeCheckOneFile(parseResults,source,mainInputFileName,"project",tcConfig,tcGlobals,tcImports,  tcState,

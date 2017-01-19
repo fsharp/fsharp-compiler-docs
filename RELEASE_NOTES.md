@@ -1,3 +1,10 @@
+#### 9.0.0
+  * Update names of union fields in AST API
+  * Fix load closure for ParseAndCheckInteraction
+  * Fix #631 compiler dependency on MSBuild (https://github.com/fsharp/FSharp.Compiler.Service/pull/657)
+  * Fixed netcore codegen on Linux
+  * Explicit error when cracker exe is missing
+
 #### 8.0.0
   * Integrate fsharp\fsharp and Microsoft\visualfsharp to c494a9cab525dbd89585f7b733ea5310471a8001
   * Then integrate to 	2002675f8aba5b3576a924a2e1e47b18e4e9a83d

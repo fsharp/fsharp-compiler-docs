@@ -28,7 +28,7 @@ file name of the source code. The defined symbols are required because the
 tokenizer handles `#if` directives. The file name is required only to specify
 locations of the source code (and it does not have to exist):
 *)
-let sourceTok = FSharpSourceTokenizer([], "C:\\test.fsx")
+let sourceTok = FSharpSourceTokenizer([], Some "C:\\test.fsx")
 (**
 Using the `sourceTok` object, we can now (repeatedly) tokenize lines of 
 F# source code.

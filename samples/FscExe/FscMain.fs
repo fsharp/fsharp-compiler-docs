@@ -8,10 +8,10 @@ open System.IO
 open System.Reflection
 open System.Runtime.CompilerServices
 open Microsoft.FSharp.Compiler
+open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.AbstractIL.IL // runningOnMono 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
 open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.Range
 
 #if FX_RESHAPED_REFLECTION
@@ -83,7 +83,7 @@ module FSharpResidentCompiler =
                               let! (pwd,argv, reply: AsyncReplyChannel<_>) = inbox.Receive()
                               if !progress then printfn "server agent: got compilation request, argv = %A" argv
                               Environment.CurrentDirectory <- pwd
-                              let errors, exitCode = SimpleSourceCodeServices().Compile (argv); 
+                              let errors, exitCode = FSharpChecker.Create().Compile (argv); 
                               for error in errors do eprintfn "%s" (error.ToString())
                               if !progress then printfn "server: finished compilation request, argv = %A" argv
                               let output = outputCollector.GetTextAndClear()
@@ -286,7 +286,7 @@ module Driver =
             match exitCodeOpt with 
             | Some exitCode -> exitCode
             | None -> 
-                let errors, exitCode = SimpleSourceCodeServices().Compile (argv) 
+                let errors, exitCode = FSharpChecker.Create().Compile (argv) 
                 for error in errors do eprintfn "%s" (error.ToString())
                 exitCode
 
@@ -295,7 +295,7 @@ module Driver =
             0
         
         else
-            let errors, exitCode = SimpleSourceCodeServices().Compile (argv)
+            let errors, exitCode = FSharpChecker.Create().Compile (argv)
             for error in errors do eprintfn "%s" (error.ToString())
             exitCode
 

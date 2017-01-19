@@ -449,7 +449,7 @@ let ``Test OtherOptions order for GetProjectOptionsFromScript`` () =
         projOpts.OtherOptions
         |> Array.map Path.GetFileNameWithoutExtension
         |> shouldEqual  expected2
-    let otherArgs = [|"--noframework"; "3"; "System.Numerics"; "mscorlib"; "System"; "System.Xml"; "System.Runtime.Remoting"; "System.Runtime.Serialization.Formatters.Soap"; "System.Data"; "System.Drawing"; "System.Core"; "System.Runtime"; "System.Linq"; "System.Reflection"; "System.Linq.Expressions"; "System.Threading.Tasks"; "System.IO"; "System.Net.Requests"; "System.Collections"; "System.Runtime.Numerics"; "System.Threading"; "System.Web"; "System.Web.Services"; "System.Windows.Forms"; "FSharp.Compiler.Interactive.Settings"|]
+    let otherArgs = [|"--noframework"; "3"; "System.Numerics"; "mscorlib"; "FSharp.Core"; "System"; "System.Xml"; "System.Runtime.Remoting"; "System.Runtime.Serialization.Formatters.Soap"; "System.Data"; "System.Drawing"; "System.Core"; "System.Runtime"; "System.Linq"; "System.Reflection"; "System.Linq.Expressions"; "System.Threading.Tasks"; "System.IO"; "System.Net.Requests"; "System.Collections"; "System.Runtime.Numerics"; "System.Threading"; "System.Web"; "System.Web.Services"; "System.Windows.Forms"; "FSharp.Compiler.Interactive.Settings"|]
     test "Main1" otherArgs
     test "Main2" otherArgs
     test "Main3" otherArgs

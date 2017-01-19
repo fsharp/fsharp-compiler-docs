@@ -2251,11 +2251,10 @@ type internal FsiInteractionProcessor
         let names  = names |> List.filter (fun name -> name.StartsWith(stem,StringComparison.Ordinal)) 
         names
 
-    member __.ParseAndCheckInteraction (checker, istate, text:string) =
+    member __.ParseAndCheckInteraction (referenceResolver, checker, istate, text:string) =
         let tcConfig = TcConfig.Create(tcConfigB,validate=false)
 
-        let loadClosure = None
-        let fsiInteractiveChecker = FsiInteractiveChecker(checker, tcConfig, istate.tcGlobals, istate.tcImports, istate.tcState, loadClosure)
+        let fsiInteractiveChecker = FsiInteractiveChecker(referenceResolver, checker, tcConfig, istate.tcGlobals, istate.tcImports, istate.tcState)
         fsiInteractiveChecker.ParseAndCheckInteraction(text)
 
 
@@ -2537,7 +2536,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
         fsiInteractionProcessor.CompletionsForPartialLID (fsiInteractionProcessor.CurrentState, longIdent)  |> Seq.ofList
 
     member x.ParseAndCheckInteraction(code) = 
-        fsiInteractionProcessor.ParseAndCheckInteraction (checker.ReactorOps, fsiInteractionProcessor.CurrentState, code)  
+        fsiInteractionProcessor.ParseAndCheckInteraction (referenceResolver, checker.ReactorOps, fsiInteractionProcessor.CurrentState, code)  
 
     member x.CurrentPartialAssemblySignature = 
         fsiDynamicCompiler.CurrentPartialAssemblySignature (fsiInteractionProcessor.CurrentState)  

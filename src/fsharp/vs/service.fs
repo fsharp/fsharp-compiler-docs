@@ -2999,7 +2999,7 @@ type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, ke
     member internal __.FrameworkImportsCache = backgroundCompiler.FrameworkImportsCache
 
 
-type FsiInteractiveChecker(referenceResolver, reactorOps: IReactorOperations, tcConfig, tcGlobals, tcImports, tcState) =
+type FsiInteractiveChecker(referenceResolver, reactorOps: IReactorOperations, tcConfig: TcConfig, tcGlobals, tcImports, tcState) =
     let keepAssemblyContents = false
 
     static member CreateErrorInfos (tcConfig, allErrors, mainInputFileName, errors) = 

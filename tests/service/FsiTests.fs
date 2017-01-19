@@ -215,7 +215,7 @@ let ``ParseAndCheckInteraction test 1``() =
     fsiSession.EvalInteraction """ let xxxxxx = 1 """  
     fsiSession.EvalInteraction """ type CCCC() = member x.MMMMM()  = 1 + 1 """  
     let untypedResults, typedResults, _ = fsiSession.ParseAndCheckInteraction("xxxxxx")
-    untypedResults.FileName |> shouldEqual "stdin.fsx"
+    Path.GetFileName(untypedResults.FileName) |> shouldEqual "stdin.fsx"
     untypedResults.Errors.Length |> shouldEqual 0
     untypedResults.ParseHadErrors |> shouldEqual false
 
@@ -231,6 +231,21 @@ let ``ParseAndCheckInteraction test 1``() =
         | _ -> failwith "incorrect tool tip"
 
     Assert.True(tooltip.Contains("val xxxxxx : int"))
+
+[<Test>]
+let ``ParseAndCheckInteraction test 2``() = 
+    let fileName1 = Path.Combine(Path.Combine(__SOURCE_DIRECTORY__, "data"), "testscript.fsx")
+    File.WriteAllText(fileName1, "let x = 1")
+    let interaction1 = 
+        sprintf """
+#load @"%s"  
+let y = Testscript.x + 1 
+"""        fileName1
+    let untypedResults, typedResults, _ = fsiSession.ParseAndCheckInteraction interaction1
+    Path.GetFileName(untypedResults.FileName) |> shouldEqual "stdin.fsx"
+    untypedResults.Errors.Length |> shouldEqual 0
+    untypedResults.ParseHadErrors |> shouldEqual false
+
 
 [<Test>]
 let ``Bad arguments to session creation 1``() = 

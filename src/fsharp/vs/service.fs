@@ -2614,9 +2614,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
 #endif
             let loadedTimeStamp = defaultArg loadedTimeStamp DateTime.MaxValue // Not 'now', we don't want to force reloading
             let applyCompilerOptions tcConfigB  = 
-                let collect _name = ()
                 let fsiCompilerOptions = CompileOptions.GetCoreFsiCompilerOptions tcConfigB 
-                CompileOptions.ParseCompilerOptions (collect, fsiCompilerOptions, Array.toList otherFlags)
+                CompileOptions.ParseCompilerOptions (ignore, fsiCompilerOptions, Array.toList otherFlags)
             let fas = LoadClosure.ComputeClosureOfSourceText(referenceResolver,filename, source, CodeContext.Editing, useSimpleResolution, useFsiAuxLib, new Lexhelp.LexResourceManager(), applyCompilerOptions)
             let otherFlags = 
                 [| yield "--noframework"; yield "--warn:3"; 
@@ -3000,7 +2999,7 @@ type FSharpChecker(referenceResolver, projectCacheSize, keepAssemblyContents, ke
     member internal __.FrameworkImportsCache = backgroundCompiler.FrameworkImportsCache
 
 
-type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, tcImports, tcState, loadClosure) =
+type FsiInteractiveChecker(referenceResolver, reactorOps: IReactorOperations, tcConfig: TcConfig, tcGlobals, tcImports, tcState) =
     let keepAssemblyContents = false
 
     static member CreateErrorInfos (tcConfig, allErrors, mainInputFileName, errors) = 
@@ -3008,17 +3007,22 @@ type FsiInteractiveChecker(reactorOps: IReactorOperations, tcConfig, tcGlobals, 
 
     member __.ParseAndCheckInteraction (source) =
 
-        let mainInputFileName = "stdin.fsx" 
+        let mainInputFileName = Path.Combine(tcConfig.implicitIncludeDir, "stdin.fsx")
         // Note: projectSourceFiles is only used to compute isLastCompiland, and is ignored if Build.IsScript(mainInputFileName) is true (which it is in this case).
         let projectSourceFiles = [ ]
         let parseErrors, _matchPairs, inputOpt, anyErrors = Parser.ParseOneFile (source, false, true, mainInputFileName, projectSourceFiles, tcConfig)
         let dependencyFiles = [] // interactions have no dependencies
         let parseResults = FSharpParseFileResults(parseErrors, inputOpt, parseHadErrors = anyErrors, dependencyFiles = dependencyFiles)
 
+        let applyCompilerOptions tcConfigB  = 
+            let fsiCompilerOptions = CompileOptions.GetCoreFsiCompilerOptions tcConfigB 
+            CompileOptions.ParseCompilerOptions (ignore, fsiCompilerOptions, [ ])
+
+        let loadClosure = LoadClosure.ComputeClosureOfSourceText(referenceResolver, mainInputFileName, source, CodeContext.Editing, tcConfig.useSimpleResolution, tcConfig.useFsiAuxLib, new Lexhelp.LexResourceManager(), applyCompilerOptions)
         let backgroundErrors = []
         let tcErrors, tcFileResult = 
             Parser.TypeCheckOneFile(parseResults,source,mainInputFileName,"project",tcConfig,tcGlobals,tcImports,  tcState,
-                                    loadClosure,backgroundErrors,reactorOps,(fun () -> true),(fun _ -> false),None)
+                                    Some loadClosure,backgroundErrors,reactorOps,(fun () -> true),(fun _ -> false),None)
 
         match tcFileResult with 
         | Parser.TypeCheckAborted.No scope ->

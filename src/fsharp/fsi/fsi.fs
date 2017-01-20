@@ -367,6 +367,13 @@ type internal FsiValuePrinter(fsi: FsiEvaluationSessionHostConfig, ilGlobals, ge
         else
             None
     
+    
+    /// Format a value
+    member valuePrinter.FormatValue (obj:obj, objTy) = 
+        let opts        = valuePrinter.GetFsiPrintOptions()
+        let lay = valuePrinter.PrintValue (FsiValuePrinterMode.PrintExpr, opts, obj, objTy)
+        Internal.Utilities.StructuredFormat.Display.layout_to_string opts lay
+    
     /// Fetch the saved value of an expression out of the 'it' register and show it.
     member valuePrinter.InvokeExprPrinter (denv, emEnv, ilxGenerator: IlxAssemblyGenerator, vref) = 
         let opts        = valuePrinter.GetFsiPrintOptions()
@@ -1263,6 +1270,9 @@ type internal FsiDynamicCompiler
 
     member __.CurrentPartialAssemblySignature(istate) = 
         FSharpAssemblySignature(istate.tcGlobals, istate.tcState.Ccu, istate.tcImports, None, istate.tcState.PartialAssemblySignature)
+
+    member __.FormatValue(obj:obj, objTy) = 
+        valuePrinter.FormatValue(obj, objTy)
 
 
 //----------------------------------------------------------------------------
@@ -2621,6 +2631,9 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     member x.PartialAssemblySignatureUpdated = fsiInteractionProcessor.PartialAssemblySignatureUpdated
 
     member x.InteractiveChecker = checker
+
+    member x.FormatValue(obj:obj, objTy) = 
+        fsiDynamicCompiler.FormatValue(obj, objTy)
 
     member x.EvalExpression(sourceText) = 
         fsiInteractionProcessor.EvalExpression(sourceText, dummyScriptFileName, errorLogger)

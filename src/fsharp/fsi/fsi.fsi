@@ -188,6 +188,9 @@ type FsiEvaluationSession =
     /// by input from 'stdin'.
     member EvalExpressionNonThrowing : code: string -> Choice<FsiValue option, exn> * FSharpErrorInfo[] 
 
+    /// Format a value to a string using the current PrintDepth, PrintLength etc settings provided by the active fsi configuration object
+    member FormatValue : reflectionValue: obj * reflectionType: System.Type -> string
+
     /// Raised when an interaction is successfully typechecked and executed, resulting in an update to the
     /// type checking state.  
     ///

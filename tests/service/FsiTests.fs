@@ -125,6 +125,55 @@ let ``EvalExpression function value 3``() =
     fsiSession.EvalExpression "incr"  |> fun s -> s.IsSome
     |> shouldEqual true
 
+[<Test>]
+let ``EvalExpression display value 1``() = 
+    let v = fsiSession.EvalExpression "[1..200]"  |> Option.get
+    let s = fsiSession.FormatValue(v.ReflectionValue, v.ReflectionType)
+    s |> shouldEqual """[1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16; 17; 18; 19; 20; 21; 22;
+ 23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36; 37; 38; 39; 40; 41;
+ 42; 43; 44; 45; 46; 47; 48; 49; 50; 51; 52; 53; 54; 55; 56; 57; 58; 59; 60;
+ 61; 62; 63; 64; 65; 66; 67; 68; 69; 70; 71; 72; 73; 74; 75; 76; 77; 78; 79;
+ 80; 81; 82; 83; 84; 85; 86; 87; 88; 89; 90; 91; 92; 93; 94; 95; 96; 97; 98;
+ 99; 100; ...]"""
+    begin 
+      use _holder = 
+        let origPrintLength = fsi.PrintLength
+        fsi.PrintLength <- 200
+        { new System.IDisposable with member __.Dispose() = fsi.PrintLength <- origPrintLength }
+      let sB = fsiSession.FormatValue(v.ReflectionValue, v.ReflectionType)
+
+      sB |> shouldEqual """[1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16; 17; 18; 19; 20; 21; 22;
+ 23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36; 37; 38; 39; 40; 41;
+ 42; 43; 44; 45; 46; 47; 48; 49; 50; 51; 52; 53; 54; 55; 56; 57; 58; 59; 60;
+ 61; 62; 63; 64; 65; 66; 67; 68; 69; 70; 71; 72; 73; 74; 75; 76; 77; 78; 79;
+ 80; 81; 82; 83; 84; 85; 86; 87; 88; 89; 90; 91; 92; 93; 94; 95; 96; 97; 98;
+ 99; 100; 101; 102; 103; 104; 105; 106; 107; 108; 109; 110; 111; 112; 113; 114;
+ 115; 116; 117; 118; 119; 120; 121; 122; 123; 124; 125; 126; 127; 128; 129;
+ 130; 131; 132; 133; 134; 135; 136; 137; 138; 139; 140; 141; 142; 143; 144;
+ 145; 146; 147; 148; 149; 150; 151; 152; 153; 154; 155; 156; 157; 158; 159;
+ 160; 161; 162; 163; 164; 165; 166; 167; 168; 169; 170; 171; 172; 173; 174;
+ 175; 176; 177; 178; 179; 180; 181; 182; 183; 184; 185; 186; 187; 188; 189;
+ 190; 191; 192; 193; 194; 195; 196; 197; 198; 199; 200]"""
+
+    end
+    let v2 = fsiSession.EvalExpression "(System.Math.PI, System.Math.PI*10.0)"  |> Option.get
+    let s2 = fsiSession.FormatValue(v2.ReflectionValue, v2.ReflectionType)
+
+    s2 |> shouldEqual "(3.141592654, 31.41592654)"
+
+    begin 
+        use _holder2 = 
+            let orig = fsi.FloatingPointFormat
+            fsi.FloatingPointFormat <- "g3"
+            { new System.IDisposable with member __.Dispose() = fsi.FloatingPointFormat <- orig }
+
+        let s2B = fsiSession.FormatValue(v2.ReflectionValue, v2.ReflectionType)
+
+        s2B |> shouldEqual "(3.14, 31.4)"
+    end
+
+
+
 [<Test; Ignore("Failing test for #135")>]
 let ``EvalExpression function value 4``() = 
     fsiSession.EvalInteraction  "let hello(s : System.IO.TextReader) = printfn \"Hello World\""

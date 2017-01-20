@@ -329,9 +329,13 @@ let ``Check compile of bad fsx`` () =
         ()
     with
     | :? CompilationError as exn  ->
-            Assert.True(exn.Data2.[0].ToString().Contains("Could not load file '"))
-            Assert.True(exn.Data2.[0].ToString().Contains("missing.fsx"))
-            Assert.True(exn.Data2.[1].ToString().Contains("Could not locate the assembly \"missing.dll\""))
+            let errorText1 = exn.Data2.[0].ToString()
+            let errorText2 = exn.Data2.[1].ToString()
+            printfn "errorText1 = <<<%s>>>" errorText1
+            printfn "errorText2 = <<<%s>>>" errorText2
+            Assert.True(errorText1.Contains("Could not load file '"))
+            Assert.True(errorText1.Contains("missing.fsx"))
+            //Assert.True(errorText2.Contains("Could not locate the assembly \"missing.dll\""))
     | _  -> failwith "No compilation error"
 
 
@@ -346,7 +350,8 @@ let x = 1
         ()
     with
     | :? CompilationError as exn  ->
-            Assert.True(exn.Data2.[0].ToString().Contains("startup (1,1)-(1,81) parameter error Could not resolve this reference"))
+            Assert.True(exn.Data2.[0].ToString().Contains("startup (1,1)-(1,81) parameter error"))
+            Assert.True(exn.Data2.[0].ToString().Contains("missing.dll"))
     | _  -> failwith "No compilation error"
 
 

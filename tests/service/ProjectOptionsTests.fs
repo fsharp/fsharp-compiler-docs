@@ -447,7 +447,7 @@ let ``Test OtherOptions order for GetProjectOptionsFromScript`` () =
         let projOpts = checker.GetProjectOptionsFromScript(scriptPath, scriptSource) |> Async.RunSynchronously
 
         projOpts.OtherOptions
-        |> Array.map Path.GetFileNameWithoutExtension
+        |> Array.map (fun s -> if s.StartsWith "--" then s else Path.GetFileNameWithoutExtension s)
         |> shouldEqual  expected2
     let otherArgs = [|"--noframework"; "--warn:3"; "System.Numerics"; "mscorlib"; "FSharp.Core"; "System"; "System.Xml"; "System.Runtime.Remoting"; "System.Runtime.Serialization.Formatters.Soap"; "System.Data"; "System.Drawing"; "System.Core"; "System.Runtime"; "System.Linq"; "System.Reflection"; "System.Linq.Expressions"; "System.Threading.Tasks"; "System.IO"; "System.Net.Requests"; "System.Collections"; "System.Runtime.Numerics"; "System.Threading"; "System.Web"; "System.Web.Services"; "System.Windows.Forms"; "FSharp.Compiler.Interactive.Settings"|]
     test "Main1" otherArgs

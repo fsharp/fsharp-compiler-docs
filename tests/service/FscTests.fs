@@ -350,8 +350,10 @@ let x = 1
         ()
     with
     | :? CompilationError as exn  ->
-            Assert.True(exn.Data2.[0].ToString().Contains("startup (1,1)-(1,81) parameter error"))
-            Assert.True(exn.Data2.[0].ToString().Contains("missing.dll"))
+            let contains (s1:string)  s2 = 
+                Assert.True(s1.Contains(s2), sprintf "Expected '%s' to contain '%s'" s1 s2)
+            contains (exn.Data2.[0].ToString()) "startup (1,1)-(1,1) parameter error"
+            contains (exn.Data2.[0].ToString()) "missing.dll"
     | _  -> failwith "No compilation error"
 
 

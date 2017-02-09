@@ -2634,7 +2634,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     /// A host calls this to get the active language ID if provided by fsi-server-lcid
     member x.LCID = fsiOptions.FsiLCID
 
-#if NO_FSI_SERVER
+#if FX_NO_APP_DOMAINS
     member x.ReportUnhandledException (exn:exn) = ignore exn; ()
 #else
     /// A host calls this to report an unhandled exception in a standard way, e.g. an exception on the GUI thread gets printed to stderr
@@ -2816,39 +2816,6 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     
     static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) =
     
-        // TODO: this dotnet/core polyfill can be removed when it surfaces in Type
-        let getMember (name: string) (memberType: MemberTypes) (attr: BindingFlags) (declaringType: Type) =
-            let memberType =
-                if memberType &&& MemberTypes.NestedType = MemberTypes.NestedType then
-                    memberType ||| MemberTypes.TypeInfo
-                else
-                    memberType
-            declaringType.GetMembers(attr) |> Array.filter(fun m -> 0 <> (int(m.MemberType &&& memberType)) && m.Name = name)
-
-        let rec tryFindMember (name: string) (memberType: MemberTypes) (declaringType: Type) =
-            let bindingFlags = BindingFlags.Instance ||| BindingFlags.Public ||| BindingFlags.NonPublic
-            match declaringType |> getMember name memberType bindingFlags with
-            | [||] -> declaringType.GetInterfaces() |> Array.tryPick (tryFindMember name memberType)
-            | [|m|] -> Some m
-            | _ -> raise <| new AmbiguousMatchException(sprintf "Ambiguous match for member '%s'" name)
-
-        let getInstanceProperty (obj:obj) (nm:string) =
-            let p = (tryFindMember nm MemberTypes.Property <| obj.GetType()).Value :?> PropertyInfo
-            p.GetValue(obj, [||]) |> unbox
-
-        let setInstanceProperty (obj:obj) (nm:string) (v:obj) =
-            let p = (tryFindMember nm MemberTypes.Property <| obj.GetType()).Value :?> PropertyInfo
-            p.SetValue(obj, v, [||]) |> unbox
-
-        let callInstanceMethod0 (obj:obj) (typeArgs : Type []) (nm:string) =
-            let m = (tryFindMember nm MemberTypes.Method <| obj.GetType()).Value :?> MethodInfo
-            let m = match typeArgs with [||] -> m | _ -> m.MakeGenericMethod(typeArgs)
-            m.Invoke(obj, [||]) |> unbox
-
-        let callInstanceMethod1 (obj:obj) (typeArgs : Type []) (nm:string) (v:obj) =
-            let m = (tryFindMember nm MemberTypes.Method <| obj.GetType()).Value :?> MethodInfo
-            let m = match typeArgs with [||] -> m | _ -> m.MakeGenericMethod(typeArgs)
-            m.Invoke(obj, [|v|]) |> unbox
 
         // We want to avoid modifying FSharp.Compiler.Interactive.Settings to avoid republishing that DLL.
         // So we access these via reflection

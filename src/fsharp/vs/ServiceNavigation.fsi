@@ -38,12 +38,14 @@ type (*internal*) FSharpNavigationDeclarationItem =
     member Name : string
     member UniqueName : string
     member Glyph : int
+    member GlyphMajor : ItemDescriptionIcons.GlyphMajor
     member Kind : FSharpNavigationDeclarationItemKind
     member Range : Range.range
     member BodyRange : Range.range
     member IsSingleTopLevel : bool
     member EnclosingEntityKind: FSharpEnclosingEntityKind
     member IsAbstract: bool
+    member Access : Ast.SynAccess option
 
 /// Represents top-level declarations (that should be in the type drop-down)
 /// with nested declarations (that can be shown in the member drop-down)
@@ -62,6 +64,8 @@ type (*internal*) FSharpNavigationItems =
 // implementation details used by other code in the compiler    
 module internal NavigationImpl =
     val internal getNavigationFromImplFile : Ast.SynModuleOrNamespace list -> FSharpNavigationItems
+    val internal getNavigationFromSigFile : Ast.SynModuleOrNamespaceSig list -> FSharpNavigationItems
+    val internal getNavigation : Ast.ParsedInput -> FSharpNavigationItems
     val internal empty : FSharpNavigationItems
 
 [<System.Obsolete("This type has been renamed to FSharpNavigationTopLevelDeclaration")>]
@@ -79,3 +83,39 @@ type NavigationItems = FSharpNavigationItems
 [<System.Obsolete("This type has been renamed to FSharpNavigationDeclarationItemKind")>]
 /// Renamed to FSharpNavigationDeclarationItemKind
 type DeclarationItemKind = FSharpNavigationDeclarationItemKind
+
+module NavigateTo =
+    [<RequireQualifiedAccess>]
+    type NavigableItemKind =
+        | Module
+        | ModuleAbbreviation
+        | Exception
+        | Type
+        | ModuleValue
+        | Field
+        | Property
+        | Constructor
+        | Member
+        | EnumCase
+        | UnionCase
+
+    [<RequireQualifiedAccess>]
+    type ContainerType =
+        | File
+        | Namespace
+        | Module
+        | Type
+        | Exception
+
+    type Container =
+        { Type: ContainerType
+          Name: string }
+    
+    type NavigableItem = 
+        { Name: string
+          Range: Range.range
+          IsSignature: bool
+          Kind: NavigableItemKind
+          Container: Container }
+
+    val getNavigableItems : Ast.ParsedInput -> NavigableItem []

@@ -1,3 +1,21 @@
+4.0.1.21
+  * Fix [#656](https://github.com/fsharp/fsharp/issues/656)  - error FS0193: internal error: No access to the given key
+
+4.0.1.20
+  * Fix #639 - Problems with F# scripts on Mono 
+
+4.0.1.19
+  * Fix FSharp.Compiler.Tools targets for .NET Core usage
+
+4.0.1.16
+  * Fix FSharp.Compiler.Tools package dependencies
+
+4.0.1.15
+  * Fix null condition in Fsc task
+
+4.0.1.13
+  * Integrate visualfsharp master to 2002675/216a38b
+
 4.0.1.3
   * Integrate Microsoft\visualfsharp to 688c26bdbbfc766326fc45e4d918f87fcba1e7ba. F# 4.1 work
   * [Inlined function causes "FS0078: Unable to find the file"](https://github.com/fsharp/fsharp/issues/584)

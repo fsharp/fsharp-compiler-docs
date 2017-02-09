@@ -159,7 +159,7 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             let! options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
             // do an typecheck
             let textSnapshotInfo = "" // TODO
-            let! parseResults, checkResults = checker.ParseAndCheckFileInProject(filename, fileversion, source, options, IsResultObsolete (fun _ -> false), textSnapshotInfo) 
+            let! parseResults, checkResults = checker.ParseAndCheckFileInProject(filename, fileversion, source, options, textSnapshotInfo) 
             // return the info
             match checkResults with 
             | CheckFileAnswer.Aborted -> return! invalidOp "aborted"

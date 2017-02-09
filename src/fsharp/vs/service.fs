@@ -68,8 +68,6 @@ module EnvMisc =
 [<Sealed>]
 type FSharpMethodGroupItemParameter(name: string, canonicalTypeTextForSorting: string, display: Layout, isOptional: bool) = 
     member __.ParameterName = name
-    [<Obsolete("This member has been renamed to 'ParameterName'")>]
-    member __.Name = name
     member __.CanonicalTypeTextForSorting = canonicalTypeTextForSorting
     member __.Description = ""
     member __.StructuredDisplay = display
@@ -323,8 +321,6 @@ type FSharpMethodGroupItem(description: FSharpToolTipText<Layout>, xmlDoc: FShar
     member __.XmlDoc = xmlDoc
     member __.StructuredTypeText = typeText
     member __.TypeText = showL typeText
-    [<Obsolete("This member has been renamed to 'TypeText'")>]
-    member __.Type = showL typeText
     member __.Parameters = parameters
     member __.HasParameters = hasParameters
     member __.HasParamArrayArg = hasParamArrayArg
@@ -357,8 +353,6 @@ type FSharpMethodGroup( name: string, unsortedMethods: FSharpMethodGroupItem[] )
         |> Array.sortBy (fun meth -> 
             let parms = meth.Parameters
             parms.Length, (parms |> Array.map (fun p -> p.CanonicalTypeTextForSorting)))
-    [<Obsolete("This member has been renamed to 'MethodName'")>]
-    member x.Name = name
     member x.MethodName = name
     member x.Methods = methods
 
@@ -2180,7 +2174,7 @@ module CompileHelpers =
 
         let errorSink isError exn = 
             let mainError,relatedErrors = SplitRelatedDiagnostics exn 
-            let oneError trim e = errors.Add(ErrorInfo.CreateFromException (e, isError, trim, Range.range0))
+            let oneError trim e = errors.Add(FSharpErrorInfo.CreateFromException (e, isError, trim, Range.range0))
             oneError false mainError
             List.iter (oneError true) relatedErrors
 
@@ -3166,62 +3160,3 @@ module PrettyNaming =
     let QuoteIdentifierIfNeeded id = Lexhelp.Keywords.QuoteIdentifierIfNeeded id
     let KeywordNames = Lexhelp.Keywords.keywordNames
 
-//----------------------------------------------------------------------------
-// Obsolete
-//
-
-        
-[<Obsolete("This type has been renamed to FSharpMethodGroupItemParameter")>]
-type Param = FSharpMethodGroupItemParameter
-
-[<Obsolete("This type has been renamed to FSharpMethodGroupItemParameter")>]
-type MethodGroupItemParameter = FSharpMethodGroupItemParameter
-
-[<Obsolete("This type has been renamed to FSharpMethodGroupItem")>]
-type Method = FSharpMethodGroupItem
-
-[<Obsolete("This type has been renamed to FSharpProjectOptions")>]
-type CheckOptions = FSharpProjectOptions
-
-[<Obsolete("This type has been renamed to FSharpCheckFileAnswer")>]
-type TypeCheckAnswer = FSharpCheckFileAnswer
-
-[<Obsolete("This type has been renamed to FSharpCheckFileResults")>]
-type TypeCheckResults = FSharpCheckFileResults
-
-[<Obsolete("This type has been renamed to FSharpParseFileResults")>]
-type UntypedParseInfo = FSharpParseFileResults
-
-/// This file has become eligible to be re-typechecked.
-[<Obsolete("NotifyFileTypeCheckStateIsDirty has been replaced by the FileTypeCheckStateIsDirty event on the FSharpChecker type")>]
-type NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
-        
-[<Obsolete("This type has been renamed to FSharpMethodGroupItem")>]
-type MethodGroupItem = FSharpMethodGroupItem
-
-[<Obsolete("This type has been renamed to FSharpMethodGroup")>]
-type MethodGroup = FSharpMethodGroup
-
-[<Obsolete("This type has been renamed to FSharpProjectOptions")>]
-type ProjectOptions = FSharpProjectOptions
-
-[<Obsolete("This type has been renamed to FSharpCheckFileAnswer")>]
-type CheckFileAnswer = FSharpCheckFileAnswer
-        
-[<Obsolete("This type has been renamed to FSharpProjectContext")>]
-type ProjectContext = FSharpProjectContext
-
-[<Obsolete("This type has been renamed to FSharpCheckFileResults")>]
-type CheckFileResults = FSharpCheckFileResults
-
-[<Obsolete("This type has been renamed to FSharpFindDeclFailureReason")>]
-type FindDeclFailureReason = FSharpFindDeclFailureReason
-
-[<Obsolete("This type has been renamed to FSharpFindDeclResult")>]
-type FindDeclResult = FSharpFindDeclResult
-
-[<Obsolete("This type has been renamed to FSharpCheckProjectResults")>]
-type CheckProjectResults = FSharpCheckProjectResults
-
-[<Obsolete("This type has been renamed to FSharpChecker")>]
-type InteractiveChecker = FSharpChecker

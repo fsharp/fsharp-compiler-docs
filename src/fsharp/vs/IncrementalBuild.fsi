@@ -26,10 +26,6 @@ type (*internal*) FSharpErrorInfo =
     member FileName: string
     member StartLineAlternate:int
     member EndLineAlternate:int
-    [<Obsolete("This member has been replaced by StartLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member StartLine:Line0
-    [<Obsolete("This member has been replaced by EndLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member EndLine:Line0
     member StartColumn:int
     member EndColumn:int
     member Severity:FSharpErrorSeverity
@@ -194,14 +190,6 @@ type internal IncrementalBuilder =
 
       static member KeepBuilderAlive : IncrementalBuilder option -> IDisposable
       member IsBeingKeptAliveApartFromCacheEntry : bool
-
-[<Obsolete("This type has been renamed to FSharpErrorInfo")>]
-/// Renamed to FSharpErrorInfo
-type ErrorInfo = FSharpErrorInfo
-
-[<Obsolete("This type has been renamed to FSharpErrorSeverity")>]
-/// Renamed to FSharpErrorSeverity
-type Severity = FSharpErrorSeverity
 
 /// Generalized Incremental Builder. This is exposed only for unittesting purposes.
 module internal IncrementalBuild =

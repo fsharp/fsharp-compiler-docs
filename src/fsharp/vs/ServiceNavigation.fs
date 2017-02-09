@@ -731,14 +731,3 @@ module NavigateTo =
     
         result.ToArray()
 
-[<System.Obsolete("This type has been renamed to FSharpNavigationTopLevelDeclaration")>]
-type TopLevelDeclaration = FSharpNavigationTopLevelDeclaration
-
-[<System.Obsolete("This type has been renamed to FSharpNavigationDeclarationItem")>]
-type DeclarationItem = FSharpNavigationDeclarationItem
-
-[<System.Obsolete("This type has been renamed to FSharpNavigationItems")>]
-type NavigationItems = FSharpNavigationItems
-
-[<System.Obsolete("This type has been renamed to FSharpNavigationDeclarationItemKind")>]
-type DeclarationItemKind = FSharpNavigationDeclarationItemKind

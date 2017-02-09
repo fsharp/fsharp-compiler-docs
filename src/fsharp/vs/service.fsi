@@ -41,9 +41,6 @@ type FSharpMethodGroupItemParameter =
     /// The descriptive help text to display for the parameter.
     member Description: string
 
-    [<Obsolete("This member has been renamed to 'ParameterName'")>]
-    member Name: string
-
     /// Is the parameter optional
     member IsOptional: bool
 
@@ -79,9 +76,6 @@ type FSharpMethodGroupItem =
     /// Does the type name or method support a static arguments list, like TP<42,"foo"> or conn.CreateCommand<42, "foo">(arg1, arg2)?
     member StaticParameters: FSharpMethodGroupItemParameter[]
 
-    [<Obsolete("This member has been renamed to 'TypeText'")>]
-    member Type: string
-
 /// Represents a group of methods (or other items) returned by GetMethods.  
 [<Sealed>]
 type FSharpMethodGroup = 
@@ -90,9 +84,6 @@ type FSharpMethodGroup =
 
     /// The methods (or other items) in the group
     member Methods: FSharpMethodGroupItem[] 
-
-    [<Obsolete("This member has been renamed to 'MethodName'")>]
-    member Name: string
 
 /// Represents the reason why the GetDeclarationLocation operation failed.
 [<RequireQualifiedAccess>]
@@ -164,10 +155,6 @@ type FSharpSymbolUse =
 
     /// The range of text representing the reference to the symbol
     member RangeAlternate: range
-    [<Obsolete("This member has been replaced by RangeAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member Range: Range01
-    [<Obsolete("Renamed to IsFromDefinition")>]
-    member IsDefinition : bool
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -318,41 +305,6 @@ type FSharpCheckFileResults =
 
     member internal IsRelativeNameResolvable: cursorPos : pos * plid : string list * item: Item -> Async<bool>
 
-    [<System.Obsolete("Please change to use GetSymbolUseAtLocation(...).Symbol")>]
-    member GetSymbolAtLocationAlternate  : line:int * colAtEndOfNames:int * lineText:string * names:string list -> Async<FSharpSymbol option>
-
-    [<Obsolete("This member has been replaced by GetSymbolAtLocationAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetSymbolAtLocation  : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> FSharpSymbol option
-
-    [<Obsolete("This member has been replaced by GetExtraColorizationsAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetExtraColorizations : unit -> (Range01 * FSharpTokenColorKind)[]
-
-    [<Obsolete("This member has been replaced by GetDeclarationListInfo, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetDeclarations : ParsedFileResultsOpt:FSharpParseFileResults option * line: Line0 * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * Range01 -> bool) -> Async<FSharpDeclarationListInfo>
-
-    [<Obsolete("This member has been replaced by GetToolTipTextAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetToolTipText : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> FSharpToolTipText
-
-    [<Obsolete("This method has been renamed to GetToolTipText")>]
-    member GetDataTipText : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int -> FSharpToolTipText
-
-    [<Obsolete("This member has been replaced by GetF1KeywordAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetF1Keyword                   : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list -> string option
-
-    [<Obsolete("This member has been replaced by GetMethodsAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetMethods                     : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list option -> FSharpMethodGroup
-    [<Obsolete("This member has been replaced by GetDeclarationLocationAlternate, which accepts a 1-based line number rather than a 0-based line number. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * preferSignature:bool -> FSharpFindDeclResult
-
-    [<Obsolete("This overload is obsolete. The tokenTag parameter is no longer required for this member")>]
-    member GetDeclarationLocation         : line:Line0 * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * preferSignature:bool -> FSharpFindDeclResult
-
-    [<Obsolete("This method has been renamed to 'GetDeclarationListInfo'")>]
-    member GetDeclarationsAlternate : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpDeclarationListInfo>
-
-    [<Obsolete("This method has been renamed to 'GetDeclarationListSymbols'")>]
-    member GetDeclarationSymbols : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpSymbolUse list list>
-
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -415,8 +367,6 @@ type FSharpProjectOptions =
       /// Extra information passed back on event trigger
       ExtraProjectInfo : obj option
     }
-    [<Obsolete("This member has been renamed to 'OtherOptions'")>]
-    member ProjectOptions: string[] 
          
           
 module internal CompileHelpers =
@@ -456,9 +406,6 @@ type FSharpChecker =
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script, used to determine active --define conditionals and other options relevant to parsing.</param>
     member MatchBracesAlternate : filename : string * source: string * options: FSharpProjectOptions -> Async<(range * range)[]>
-
-    [<Obsolete("This member has been replaced by MatchBracesAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member MatchBraces : filename : string * source: string * options: FSharpProjectOptions -> (Range01 * Range01)[]
 
     /// <summary>
     /// <para>Parse a source code file, returning a handle that can be used for obtaining navigation bar information
@@ -610,9 +557,6 @@ type FSharpChecker =
     member GetProjectOptionsFromProjectFile : projectFileName: string * ?properties : (string * string) list * ?loadedTimeStamp: DateTime -> FSharpProjectOptions
 #endif
 
-    [<Obsolete("This member has been renamed to 'GetProjectOptionsFromScript'")>]
-    member GetProjectOptionsFromScriptRoot : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool -> FSharpProjectOptions
-
     /// <summary>
     /// <para>Like ParseFileInProject, but uses results from the background builder.</para>
     /// <para>All files are read from the FileSystem API, including the file being checked.</para>
@@ -665,9 +609,6 @@ type FSharpChecker =
     /// <param name="source">Optionally, specify source that must match the previous parse precisely.</param>
     member TryGetRecentCheckResultsForFile : filename: string * options:FSharpProjectOptions * ?source: string -> (FSharpParseFileResults * FSharpCheckFileResults * (*version*)int) option
 
-    [<Obsolete("Renamed to TryGetRecentCheckResultsForFile")>]
-    member TryGetRecentTypeCheckResultsForFile : filename: string * options:FSharpProjectOptions * ?source: string -> (FSharpParseFileResults * FSharpCheckFileResults * (*version*)int) option
-
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     /// For example, the type provider approvals file may have changed.
     member InvalidateAll : unit -> unit    
@@ -676,20 +617,9 @@ type FSharpChecker =
     /// For example, dependent references may have been deleted or created.
     member InvalidateConfiguration: options: FSharpProjectOptions -> unit    
 
-    [<Obsolete("This method has been renamed to CheckProjectInBackground")>]
-    member StartBackgroundCompile: options: FSharpProjectOptions -> unit
-
     /// Set the project to be checked in the background.  Overrides any previous call to <c>CheckProjectInBackground</c>
     member CheckProjectInBackground: options: FSharpProjectOptions -> unit
 
-    /// Stop the background compile.
-    [<Obsolete("Explicitly stopping background compilation is not recommended and the functionality to allow this may be rearchitected in future release.  If you use this functionality please add an issue on http://github.com/fsharp/FSharp.Compiler.Service describing how you use it and ignore this warning.")>]
-    member StopBackgroundCompile : unit -> unit
-
-    /// Block until the background compile finishes.
-    [<Obsolete("Explicitly waiting for background compilation is not recommended and the functionality to allow this may be rearchitected in future release.  If you use this functionality please add an issue on http://github.com/fsharp/FSharp.Compiler.Service describing how you use it and ignore this warning.")>]
-    member WaitForBackgroundCompile : unit -> unit
-    
     /// Report a statistic for testability
     static member GlobalForegroundParseCountStatistic : int
 
@@ -739,9 +669,6 @@ type FSharpChecker =
     /// Get or set the pause time in milliseconds before background work is started.
     member PauseBeforeBackgroundWork: int with get, set
     
-    [<Obsolete("Renamed to BeforeBackgroundFileCheck")>]
-    member FileTypeCheckStateIsDirty : IEvent<string * obj option>
-
     /// Notify the host that a project has been fully checked in the background (using file contents provided by the file system API)
     ///
     /// The event may be raised on a background thread.
@@ -749,15 +676,6 @@ type FSharpChecker =
 
     // For internal use only 
     member internal ReactorOps : IReactorOperations
-
-    [<Obsolete("This member now takes an additional 'otherFlags' argument")>]
-    member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimeStamp : DateTime -> FSharpProjectOptions
-
-    [<Obsolete("This member has been renamed to GetProjectOptionsFromScript")>]
-    member GetCheckOptionsFromScriptRoot : filename : string * source : string * loadedTimeStamp : DateTime * otherFlags: string[] -> FSharpProjectOptions
-
-    [<Obsolete("This member has been renamed to ParseFileInProject")>]
-    member UntypedParse : filename: string * source: string * options: FSharpProjectOptions -> FSharpParseFileResults        
 
     [<Obsolete("Please create an instance of FSharpChecker using FSharpChecker.Create")>]
     static member Instance : FSharpChecker
@@ -810,70 +728,3 @@ module PrettyNaming =
     /// All the keywords in the F# langauge 
     val KeywordNames : string list
 
-[<Obsolete("This type has been renamed to FSharpMethodGroupItemParameter")>]
-/// Renamed to FSharpMethodGroupItemParameter
-type Param = FSharpMethodGroupItemParameter
-
-[<Obsolete("This type has been renamed to FSharpMethodGroupItem")>]
-/// Renamed to FSharpMethodGroupItem
-type Method = FSharpMethodGroupItem
-
-[<Obsolete("This type has been renamed to FSharpMethodGroupItem")>]
-/// Renamed to FSharpMethodGroupItem
-type MethodGroupItem = FSharpMethodGroupItem
-
-[<Obsolete("This type has been renamed to FSharpMethodGroup")>]
-/// Renamed to FSharpMethodGroup
-type MethodGroup = FSharpMethodGroup
-
-[<Obsolete("This type has been renamed to FSharpProjectOptions")>]
-/// Renamed to FSharpProjectOptions
-type CheckOptions = FSharpProjectOptions
-
-[<Obsolete("This type has been renamed to FSharpProjectOptions")>]
-/// Renamed to FSharpProjectOptions
-type ProjectOptions = FSharpProjectOptions
-
-[<Obsolete("This type has been renamed to FSharpCheckFileAnswer")>]
-/// Renamed to FSharpCheckFileAnswer
-type TypeCheckAnswer = FSharpCheckFileAnswer
-
-[<Obsolete("This type has been renamed to FSharpCheckFileAnswer")>]
-/// Renamed to FSharpCheckFileAnswer
-type CheckFileAnswer = FSharpCheckFileAnswer
-
-[<Obsolete("This type has been renamed to FSharpCheckFileResults")>]
-/// Renamed to FSharpCheckFileResults
-type TypeCheckResults = FSharpCheckFileResults
-
-[<Obsolete("This type has been renamed to FSharpParseFileResults")>]
-/// Renamed to FSharpParseFileResults
-type UntypedParseInfo = FSharpParseFileResults
-
-[<Obsolete("NotifyFileTypeCheckStateIsDirty has been replaced by the FileTypeCheckStateIsDirty event on the FSharpChecker type")>]
-/// Obsolete and replaced
-type NotifyFileTypeCheckStateIsDirty = NotifyFileTypeCheckStateIsDirty of (string -> unit)
-        
-[<Obsolete("This type has been renamed to FSharpProjectContext")>]
-/// Renamed to FSharpProjectContext
-type ProjectContext = FSharpProjectContext
-
-[<Obsolete("This type has been renamed to FSharpCheckFileResults")>]
-/// Renamed to FSharpCheckFileResults
-type CheckFileResults = FSharpCheckFileResults
-
-[<Obsolete("This type has been renamed to FSharpFindDeclFailureReason")>]
-/// Renamed to FSharpFindDeclFailureReason
-type FindDeclFailureReason = FSharpFindDeclFailureReason
-
-[<Obsolete("This type has been renamed to FSharpFindDeclResult")>]
-/// Renamed to FSharpFindDeclResult
-type FindDeclResult = FSharpFindDeclResult
-
-[<Obsolete("This type has been renamed to FSharpCheckProjectResults")>]
-/// Renamed to FSharpCheckProjectResults
-type CheckProjectResults = FSharpCheckProjectResults
-
-[<Obsolete("This type has been renamed to FSharpChecker")>]
-/// Renamed to FSharpChecker
-type InteractiveChecker = FSharpChecker

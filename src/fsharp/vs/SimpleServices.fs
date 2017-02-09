@@ -57,62 +57,10 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
             | FSharpToolTipText(its) -> for item in its do buildFormatElement false item sb commentRetriever
             sb.ToString().Trim('\n', '\r')
 
-    /// Represents a declaration returned by GetDeclarations
-    type SimpleDeclaration internal (name: string, description: unit -> string) = 
-        /// Get the name of a declaration
-        member x.Name = name
-        /// Compute the description for a declaration
-        member x.GetDescription() = description()
-
-    /// Represents the results of type checking
-    type SimpleCheckFileResults(info: Microsoft.FSharp.Compiler.SourceCodeServices.ParseFileResults,
-                                results:Microsoft.FSharp.Compiler.SourceCodeServices.CheckFileResults,
-                                source: string[]) = 
-
-        let identToken = FSharpTokenTag.Identifier
-        let hasChangedSinceLastTypeCheck _ = false
-
-        /// Return the errors resulting from the type-checking
-        member x.Errors = results.Errors
-
-        /// Get the declarations at the given code location.
-        member x.GetDeclarationListInfo(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) =
-            async { let! items = results.GetDeclarationListInfo(Some info, line, col, source.[int line], qualifyingNames, partialName, hasChangedSinceLastTypeCheck)
-                    return [| for i in items.Items -> SimpleDeclaration(i.Name, (fun () -> formatTip i.DescriptionText xmlCommentRetriever)) |] }
-
-        /// Get the Visual Studio F1-help keyword for the item at the given position
-        member x.GetF1KeywordAlternate(line, col, names) =
-            results.GetF1KeywordAlternate(line, col, source.[int line], names)
-
-        /// Get the data tip text at the given position
-        member x.GetToolTipTextAlternate(line, col, names, ?xmlCommentRetriever) =
-            async { 
-                let! tip = results.GetToolTipTextAlternate(line, col, source.[int line], names, identToken)
-                return formatTip tip xmlCommentRetriever
-            }
-
-        /// Get the location of the declaration at the given position
-        member x.GetDeclarationLocationAlternate(line, col, names, preferSig) =
-            results.GetDeclarationLocationAlternate(line, col, source.[int line], names, preferSig)
-
-        /// Get the full type checking results 
-        member x.FullResults = results
-
-
-        // Obsolete
-        
-        member x.GetF1Keyword(line, col, names) = x.GetF1KeywordAlternate(Line.fromZ line, col, names) |> Async.RunSynchronously
-        member x.GetToolTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipTextAlternate(Line.fromZ line, col, names, ?xmlCommentRetriever=xmlCommentRetriever) |> Async.RunSynchronously
-        member x.GetDeclarationLocation(line, col, names, preferSig) = x.GetDeclarationLocationAlternate(Line.fromZ line, col, names, preferSig) |> Async.RunSynchronously
-        member x.GetDataTipText(line, col, names, ?xmlCommentRetriever) = x.GetToolTipText(line, col, names, ?xmlCommentRetriever=xmlCommentRetriever) 
-        member x.GetDeclarations(line, col, qualifyingNames, partialName, ?xmlCommentRetriever) = x.GetDeclarationListInfo(Line.fromZ line, col, qualifyingNames, partialName, ?xmlCommentRetriever=xmlCommentRetriever)
-
     /// Provides simple services for checking and compiling F# scripts
     type public SimpleSourceCodeServices(?msbuildEnabled) =
 
-        let checker = InteractiveChecker.Create(?msbuildEnabled=msbuildEnabled)
-        let fileversion = 0
-        let loadTime = DateTime.Now
+        let checker = FSharpChecker.Create(?msbuildEnabled=msbuildEnabled)
         let referenceResolver = checker.ReferenceResolver
 
         /// Tokenize a single line, returning token information and a tokenization state represented by an integer
@@ -135,40 +83,6 @@ namespace Microsoft.FSharp.Compiler.SimpleSourceCodeServices
                          state := n 
                          yield tokens |]
             tokens
-
-        /// Return information about matching braces in a single file.
-        member x.MatchBracesAlternate (filename, source: string, ?otherFlags) = 
-            async { 
-                let! options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
-                return! checker.MatchBracesAlternate(filename, source,  options)
-            }
-
-        member x.MatchBraces (filename, source, ?otherFlags) = 
-            async { 
-                let! options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
-                return checker.MatchBraces(filename, source,  options)
-            } |> Async.RunSynchronously
-
-        [<System.Obsolete("This method has been renamed to ParseAndCheckScript")>]
-        member x.TypeCheckScript (filename, source, otherFlags) = 
-            x.ParseAndCheckScript (filename, source, otherFlags) 
-
-        /// For errors, quick info, goto-definition, declaration list intellisense, method overload intellisense
-        member x.ParseAndCheckScript (filename, source, ?otherFlags) = 
-          async { 
-            let! options = checker.GetProjectOptionsFromScript(filename, source, loadTime, ?otherFlags=otherFlags)
-            // do an typecheck
-            let textSnapshotInfo = "" // TODO
-            let! parseResults, checkResults = checker.ParseAndCheckFileInProject(filename, fileversion, source, options, textSnapshotInfo) 
-            // return the info
-            match checkResults with 
-            | CheckFileAnswer.Aborted -> return! invalidOp "aborted"
-            | CheckFileAnswer.Succeeded res -> return SimpleCheckFileResults(parseResults, res, source.Split('\n'))
-          }
-
-        member x.ParseAndCheckProject (projectFileName, argv:string[]) = 
-            let options = checker.GetProjectOptionsFromCommandLineArgs(projectFileName, argv)
-            checker.ParseAndCheckProject(options)
 
         member x.Compile (argv: string[])  = 
             CompileHelpers.compileFromArgs (argv, referenceResolver,None, None)

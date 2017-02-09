@@ -25,6 +25,3 @@ type (*internal*) FSharpNoteworthyParamInfoLocations =
 
     static member Find : pos * Ast.ParsedInput -> FSharpNoteworthyParamInfoLocations option
 
-[<System.Obsolete("This type has been renamed to FSharpNoteworthyParamInfoLocations")>]
-/// Renamed to FSharpNoteworthyParamInfoLocations
-type NoteworthyParamInfoLocations = FSharpNoteworthyParamInfoLocations

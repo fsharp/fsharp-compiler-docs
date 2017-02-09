@@ -68,22 +68,6 @@ module internal NavigationImpl =
     val internal getNavigation : Ast.ParsedInput -> FSharpNavigationItems
     val internal empty : FSharpNavigationItems
 
-[<System.Obsolete("This type has been renamed to FSharpNavigationTopLevelDeclaration")>]
-/// Renamed to FSharpNavigationTopLevelDeclaration
-type TopLevelDeclaration = FSharpNavigationTopLevelDeclaration
-
-[<System.Obsolete("This type has been renamed to FSharpNavigationDeclarationItem")>]
-/// Renamed to FSharpNavigationDeclarationItem
-type DeclarationItem = FSharpNavigationDeclarationItem
-
-[<System.Obsolete("This type has been renamed to FSharpNavigationItems")>]
-/// Renamed to FSharpNavigationItems
-type NavigationItems = FSharpNavigationItems
-
-[<System.Obsolete("This type has been renamed to FSharpNavigationDeclarationItemKind")>]
-/// Renamed to FSharpNavigationDeclarationItemKind
-type DeclarationItemKind = FSharpNavigationDeclarationItemKind
-
 module NavigateTo =
     [<RequireQualifiedAccess>]
     type NavigableItemKind =

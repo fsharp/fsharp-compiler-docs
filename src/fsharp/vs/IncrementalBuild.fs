@@ -1874,8 +1874,3 @@ type IncrementalBuilder(frameworkTcImportsCache: FrameworkImportsCache, tcConfig
 
     member b.IsBeingKeptAliveApartFromCacheEntry = (referenceCount >= 2)
 
-[<Obsolete("This type has been renamed to FSharpErrorInfo")>]
-type ErrorInfo = FSharpErrorInfo
-
-[<Obsolete("This type has been renamed to FSharpErrorSeverity")>]
-type Severity = FSharpErrorSeverity

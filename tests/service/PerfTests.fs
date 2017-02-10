@@ -55,7 +55,7 @@ let ``Test request for parse and check doesn't check whole project`` () =
     backgroundCheckCount.Value |> shouldEqual 0
     let checkResults1 = checker.CheckFileInProject(parseResults1, Project1.fileNames.[5], 0, Project1.fileSources2.[5], Project1.options)  |> Async.RunSynchronously
     let pD, tD = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
-    backgroundParseCount.Value |> shouldEqual 10 // This could be reduced to 5 - the whole project gets parsed 
+    backgroundParseCount.Value |> shouldEqual 5
     backgroundCheckCount.Value |> shouldEqual 5
     (pD - pC) |> shouldEqual 0
     (tD - tC) |> shouldEqual 1
@@ -64,7 +64,7 @@ let ``Test request for parse and check doesn't check whole project`` () =
     let pE, tE = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
     (pE - pD) |> shouldEqual 0
     (tE - tD) |> shouldEqual 1
-    backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
+    backgroundParseCount.Value |> shouldEqual 7 // but note, the project does not get reparsed
     backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
 
     // A subsequent ParseAndCheck of identical source code doesn't do any more anything
@@ -72,7 +72,7 @@ let ``Test request for parse and check doesn't check whole project`` () =
     let pF, tF = FSharpChecker.GlobalForegroundParseCountStatistic, FSharpChecker.GlobalForegroundTypeCheckCountStatistic
     (pF - pE) |> shouldEqual 0  // note, no new parse of the file
     (tF - tE) |> shouldEqual 0  // note, no new typecheck of the file
-    backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
+    backgroundParseCount.Value |> shouldEqual 7 // but note, the project does not get reparsed
     backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
 
     ()

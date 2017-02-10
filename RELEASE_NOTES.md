@@ -1,5 +1,6 @@
 #### 10.0.0
   * Integrate fsharp\fsharp and Microsoft\visualfsharp to c3e55bf0b10bf08790235dc585b8cdc75f71618e
+  * Integrate fsharp\fsharp and Microsoft\visualfsharp to 11c0a085c96a91102cc881145ce281271ac159fe
   * Some API changes for structured text provision for tagged structured text
 
 #### 10.0.1

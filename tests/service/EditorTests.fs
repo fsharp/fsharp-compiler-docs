@@ -488,12 +488,12 @@ let _ = List.iter(printfn \"\"\"%-A
 
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocationsAndArity() 
-    |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-    |> shouldEqual [|(2, 19, 2, 21, 1);
-                     (4, 12, 4, 14, 1);
-                     (6, 29, 6, 31, 1);
-                     (7, 29, 7, 30, 1);
-                     (7, 33, 7, 34, 1)|]
+    |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
+    |> shouldEqual [|(2, 19, 2, 22, 1);
+                     (4, 12, 4, 15, 1);
+                     (6, 29, 6, 32, 1);
+                     (7, 29, 7, 31, 1); 
+                     (7, 33, 7, 35,1 )|]
  
 [<Test>]
 let ``Printf specifiers for user-defined functions`` () = 
@@ -510,12 +510,12 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-    |> shouldEqual [|(3, 24, 3, 25, 1); 
-                     (3, 29, 3, 30, 1);
-                     (4, 58, 4, 59, 1);
-                     (4, 75, 4, 76, 1);
-                     (4, 82, 4, 83, 1);
-                     (4, 108, 4, 109, 1)|]
+    |> shouldEqual [|(3, 24, 3, 26, 1); 
+                     (3, 29, 3, 31, 1);
+                     (4, 58, 4, 60, 1); 
+                     (4, 75, 4, 77, 1); 
+                     (4, 82, 4, 84, 1); 
+                     (4, 108, 4, 110, 1)|]
 
 [<Test>]
 let ``should not report format specifiers for illformed format strings`` () = 

@@ -29,6 +29,7 @@
     <OutputPath>..\..\..\bin\$(TargetFrameworkVersion)</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <DefineConstants>$(DefineConstants);CROSS_PLATFORM_COMPILER</DefineConstants>
+    <DefineConstants>$(DefineConstants);ENABLE_MONO_SUPPORT</DefineConstants>
     <DefineConstants Condition="$(TargetFrameworkVersion) == 'v4.5'">$(DefineConstants);FX_ATLEAST_45</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_ATLEAST_40</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_MSBUILDRESOLVER_RUNTIMELIKE</DefineConstants>

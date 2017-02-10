@@ -12,15 +12,6 @@ open System.Runtime.InteropServices
 module internal FSharpEnvironment =
 
     /// The F# version reported in the banner
-#if COMPILER_SERVICE
-    let DotNetBuildString = "(private)"
-#else
-    /// The .NET runtime version that F# was built against (e.g. "v4.0.21104")
-    let DotNetRuntime = sprintf "v%s.%s.%s" Microsoft.BuildSettings.Version.Major Microsoft.BuildSettings.Version.Minor Microsoft.BuildSettings.Version.ProductBuild
-
-    /// The .NET build string that F# was built against (e.g. "4.0.21104.0")
-    let DotNetBuildString = Microsoft.BuildSettings.Version.OfFile
-#endif
     let FSharpBannerVersion = "4.1"
 
     let versionOf<'t> =
@@ -65,7 +56,7 @@ module internal FSharpEnvironment =
     // WARNING: Do not change this revision number unless you absolutely know what you're doing.
     let FSharpBinaryMetadataFormatRevision = "2.0.0.0"
 
-#if NO_WIN_REGISTRY
+#if FX_NO_WIN_REGISTRY
 #else
     [<DllImport("Advapi32.dll", CharSet = CharSet.Unicode, BestFitMapping = false)>]
     extern uint32 RegOpenKeyExW(UIntPtr _hKey, string _lpSubKey, uint32 _ulOptions, int _samDesired, UIntPtr & _phkResult);
@@ -86,7 +77,7 @@ module internal FSharpEnvironment =
     // See: ndp\clr\src\BCL\System\IO\Path.cs
     let maxPath = 260;
     let maxDataLength = (new System.Text.UTF32Encoding()).GetMaxByteCount(maxPath)
-#if NO_WIN_REGISTRY
+#if FX_NO_WIN_REGISTRY
 #else
     let KEY_WOW64_DEFAULT = 0x0000
     let KEY_WOW64_32KEY = 0x0200
@@ -102,23 +93,6 @@ module internal FSharpEnvironment =
                 System.Diagnostics.Debug.Assert(false, sprintf "Failed in GetDefaultRegistryStringValueViaDotNet: %s" (e.ToString()))
                 null)
 
-// RegistryView.Registry API is not available before .NET 4.0
-#if FX_ATLEAST_40_COMPILER_LOCATION
-    let Get32BitRegistryStringValueViaDotNet(subKey: string) =
-        Option.ofString
-            (try
-                let key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32)
-                match key with
-                | null -> null
-                | _ ->
-                    let sub = key.OpenSubKey(subKey)
-                    match sub with
-                    | null -> null
-                    | _ -> downcast (sub.GetValue(null, null))
-             with e->
-                System.Diagnostics.Debug.Assert(false, sprintf "Failed in Get32BitRegistryStringValueViaDotNet: %s" (e.ToString()))
-                null)
-#endif
 
     let Get32BitRegistryStringValueViaPInvoke(subKey:string) = 
         Option.ofString
@@ -182,21 +156,7 @@ module internal FSharpEnvironment =
 #endif
             s
         else
-#if FX_ATLEAST_40_COMPILER_LOCATION
-            match Get32BitRegistryStringValueViaDotNet(subKey) with
-            | None -> Get32BitRegistryStringValueViaPInvoke(subKey) 
-            | s ->
-#if DEBUG
-                // If we got here AND we're on .NET 4.0 then we can validate that Get32BitRegistryStringValueViaPInvoke(...) works
-                // by comparing against the result from Get32BitRegistryStringValueViaDotNet(...)
-                let viaPinvoke = Get32BitRegistryStringValueViaPInvoke(subKey)
-                System.Diagnostics.Debug.Assert((s = viaPinvoke), sprintf "Non-32bit path: pi=%A def=%A" viaPinvoke s)
-#endif
-                s
-#else
             Get32BitRegistryStringValueViaPInvoke(subKey) 
-#endif
-
 #endif
 
     let internal tryCurrentDomain() =
@@ -226,28 +186,6 @@ module internal FSharpEnvironment =
             Some locationFromAppConfig
 #endif
 
-    /// Try to find the F# compiler location by looking at the "fsharpi" script installed by F# packages
-    let internal tryFsharpiScript(url:string) =
-        try
-            let str = File.ReadAllText(url)
-            let reg = new System.Text.RegularExpressions.Regex("mono.* (\/.*)\/fsi\.exe")
-            let res = reg.Match(str)
-            if res.Success then Some(res.Groups.[1].Value) else None
-        with e -> 
-            None
-
-
-    let BackupInstallationProbePoints = 
-        [ // prefer the latest installation of Mono on Mac
-          "/Library/Frameworks/Mono.framework/Versions/Current"
-          // prefer freshly built F# compilers on Linux
-          "/usr/local"
-          // otherwise look in the standard place
-          "/usr" ]
-
-    let safeExists f = (try File.Exists(f) with _ -> false)
-
-
     // The default location of FSharp.Core.dll and fsc.exe based on the version of fsc.exe that is running
     // Used for
     //     - location of design-time copies of FSharp.Core.dll and FSharp.Compiler.Interactive.Settings.dll for the default assumed environment for scripts
@@ -256,16 +194,15 @@ module internal FSharpEnvironment =
     //     - default location of fsi.exe in FSharp.VS.FSI.dll
     //     - default location of fsc.exe in FSharp.Compiler.CodeDom.dll
     //     - default F# binaries directory in (project system) Project.fs
-#if NO_WIN_REGISTRY
     let BinFolderOfDefaultFSharpCompiler(probePoint:string option) = 
         ignore probePoint
+#if FX_NO_WIN_REGISTRY
 #if FX_NO_APP_DOMAINS
         Some System.AppContext.BaseDirectory
 #else
         Some System.AppDomain.CurrentDomain.BaseDirectory
 #endif
 #else
-    let BinFolderOfDefaultFSharpCompiler(probePoint:string option) = 
         // Check for an app.config setting to redirect the default compiler location
         // Like fsharp-compiler-location
         try 
@@ -275,6 +212,7 @@ module internal FSharpEnvironment =
             | Some _ ->  result 
             | None -> 
             
+                let safeExists f = (try File.Exists(f) with _ -> false)
                 // Look in the probePoint if given, e.g. look for a compiler alongside of FSharp.Build.dll
                 match probePoint with 
                 | Some p when safeExists (Path.Combine(p,"fsc.exe")) || safeExists (Path.Combine(p,"Fsc.exe")) -> Some p 
@@ -308,41 +246,20 @@ module internal FSharpEnvironment =
                         | Some _ ->  result 
                         | None ->
                 
-                            // On Unix we let you set FSHARP_COMPILER_BIN. I've rarely seen this used and its not documented in the install instructions.
-                            let result = 
-                                let var = System.Environment.GetEnvironmentVariable("FSHARP_COMPILER_BIN")
-                                if String.IsNullOrEmpty(var) then None
-                                else Some(var)
-                            match result with 
-                            | Some _ -> result
-                            | None -> 
-                
-                                // On Unix we probe 'bin' under various hardwired paths for the scripts 'fsharpc' and 'fsharpi'. 
-                                // We then loko in the script to see the Mono location it is pointing to. 
-                                // This is pretty fragile, e.g. the script lookup is done via a regular expression.
-                                // Really we should just search the path or otherwise resolve the 'mono' command?
-                                let result = 
-                                    BackupInstallationProbePoints |> List.tryPick (fun x -> 
-                                        let file f = Path.Combine(Path.Combine(x,"bin"),f)
-                                        let exists f = safeExists(file f)
-                                        match (if exists "fsc" && exists "fsi" then tryFsharpiScript (file "fsi") else None) with
-                                        | Some res -> Some res
-                                        | None ->
-                                        match (if exists "fsharpc" && exists "fsharpi" then tryFsharpiScript (file "fsharpi") else None) with
-                                        | Some res -> Some res
-                                        | None -> None)
-                        
-                                match result with 
-                                | Some _ -> result
-                                | None -> 
-                                    // This was failing on rolling build for staging because the prototype compiler doesn't have the key. Disable there.
-                                    // For the prototype compiler, we can just use the current domain
-                                    tryCurrentDomain()
+                        // On Unix we let you set FSHARP_COMPILER_BIN. I've rarely seen this used and its not documented in the install instructions.
+                        let result = 
+                            let var = System.Environment.GetEnvironmentVariable("FSHARP_COMPILER_BIN")
+                            if String.IsNullOrEmpty(var) then None
+                            else Some(var)
+                        match result with 
+                        | Some _ -> result
+                        | None -> 
+                        // For the prototype compiler, we can just use the current domain
+                        tryCurrentDomain()
         with e -> 
             System.Diagnostics.Debug.Assert(false, "Error while determining default location of F# compiler")
             None
 
-#if FX_ATLEAST_45_COMPILER_LOCATION
 
     // Apply the given function to the registry entry corresponding to the subkey.
     // The reg key is disposed at the end of the scope.
@@ -362,7 +279,7 @@ module internal FSharpEnvironment =
             | null -> false
             | _ -> regkey.GetValue("Release", 0) :?> int |> (fun s -> s >= 0x50000)) // 0x50000 implies 4.5.0
       with _ -> false
-
+ 
     // Check if the framework version 4.5 or above is installed
     let IsNetFx45OrAboveInstalled =
         IsNetFx45OrAboveInstalledAt @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client" ||
@@ -374,8 +291,5 @@ module internal FSharpEnvironment =
             let version = new Version(versionOf<System.Int32>) 
             let major = version.Major
             major > 4 || (major = 4 && IsNetFx45OrAboveInstalled)
-#else
-    let IsRunningOnNetFx45OrAbove = false
-#endif
 
 #endif

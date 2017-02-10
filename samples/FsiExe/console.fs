@@ -6,29 +6,6 @@ open System
 open System.Text
 open System.Collections.Generic
 
-/// System.Console.ReadKey appears to return an ANSI character (not the expected the unicode character).
-/// When this fix flag is true, this byte is converted to a char using the System.Console.InputEncoding.
-/// This is a code-around for bug://1345.
-/// Fixes to System.Console.ReadKey may break this code around, hence the option here.
-module internal ConsoleOptions =
-
-  let fixNonUnicodeSystemConsoleReadKey = false
-  let readKeyFixup (c:char) =
-    if fixNonUnicodeSystemConsoleReadKey then
-      // Assumes the c:char is actually a byte in the System.Console.InputEncoding.
-      // Convert it to a Unicode char through the encoding.
-      if 0 <= int c && int c <= 255 then
-        let chars = System.Console.InputEncoding.GetChars [| byte c |]
-        if chars.Length = 1 then
-          chars.[0] // fixed up char
-        else
-          assert("readKeyFixHook: InputEncoding.GetChars(single-byte) returned multiple chars" = "")
-          c // no fix up
-      else
-        assert("readKeyFixHook: given char is outside the 0..255 byte range" = "")
-        c // no fix up
-    else
-      c
 
 type internal Style = Prompt | Out | Error
 
@@ -346,7 +323,6 @@ type internal ReadLineConsole() =
             // REVIEW: the Ctrl-Z code is not recognised as EOF by the lexer.
             // REVIEW: looks like a relic of the port of readline, which is currently removable.
             let c = if (key.Key = ConsoleKey.F6) then '\x1A' else key.KeyChar
-            let c = ConsoleOptions.readKeyFixup c
             insertChar(c);
             
         let backspace() =                 

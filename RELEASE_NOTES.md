@@ -1,4 +1,8 @@
-#### 9.0.1
+#### 10.0.0
+  * Integrate fsharp\fsharp and Microsoft\visualfsharp to c3e55bf0b10bf08790235dc585b8cdc75f71618e
+  * Some API changes for structured text provision for tagged structured text
+
+#### 10.0.1
   * [Adds FormatValue to FsiEvaluationSession, using the fsi object values for formatting](https://github.com/fsharp/FSharp.Compiler.Service/pull/686)
 
 #### 9.0.0

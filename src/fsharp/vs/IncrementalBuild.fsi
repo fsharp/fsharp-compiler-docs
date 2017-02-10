@@ -3,6 +3,8 @@
 namespace Microsoft.FSharp.Compiler
 
 open System
+open System.Threading
+open System.Threading.Tasks
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.ErrorLogger
@@ -24,25 +26,21 @@ type (*internal*) FSharpErrorInfo =
     member FileName: string
     member StartLineAlternate:int
     member EndLineAlternate:int
-    [<Obsolete("This member has been replaced by StartLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member StartLine:Line0
-    [<Obsolete("This member has been replaced by EndLineAlternate, which produces 1-based line numbers rather than a 0-based line numbers. See https://github.com/fsharp/FSharp.Compiler.Service/issues/64")>]
-    member EndLine:Line0
     member StartColumn:int
     member EndColumn:int
     member Severity:FSharpErrorSeverity
     member Message:string
     member Subcategory:string
     member ErrorNumber:int
-    static member internal CreateFromExceptionAndAdjustEof : PhasedError * bool * bool * range * lastPosInFile:(int*int) -> FSharpErrorInfo
-    static member internal CreateFromException : PhasedError * bool * bool * range -> FSharpErrorInfo
+    static member internal CreateFromExceptionAndAdjustEof : PhasedDiagnostic * isError: bool * trim: bool * range * lastPosInFile:(int*int) -> FSharpErrorInfo
+    static member internal CreateFromException : PhasedDiagnostic * isError: bool * trim: bool * range -> FSharpErrorInfo
 
 // Implementation details used by other code in the compiler    
 [<Sealed>]
 type internal ErrorScope = 
     interface IDisposable
     new : unit -> ErrorScope
-    member ErrorsAndWarnings : FSharpErrorInfo list
+    member Diagnostics : FSharpErrorInfo list
     static member Protect<'a> : range -> (unit->'a) -> (string->'a) -> 'a
     static member ProtectWithDefault<'a> : range -> (unit -> 'a) -> 'a -> 'a
     static member ProtectAndDiscard : range -> (unit -> unit) -> unit
@@ -73,7 +71,7 @@ type internal CompilationErrorLogger =
     new : debugName:string * tcConfig:TcConfig ->  CompilationErrorLogger
             
     /// Get the captured errors
-    member GetErrors : unit -> (PhasedError * FSharpErrorSeverity) list
+    member GetErrors : unit -> (PhasedDiagnostic * FSharpErrorSeverity) list
 
 /// Represents the state in the incremental graph assocaited with checking a file
 type internal PartialCheckResults = 
@@ -87,7 +85,7 @@ type internal PartialCheckResults =
       TcEnvAtEnd : TypeChecker.TcEnv
 
       /// Represents the collected errors from type checking
-      Errors : (PhasedError * FSharpErrorSeverity) list 
+      Errors : (PhasedDiagnostic * FSharpErrorSeverity) list 
 
       /// Represents the collected name resolutions from type checking
       TcResolutions: TcResolutions list 
@@ -122,7 +120,7 @@ type internal IncrementalBuilder =
       /// Raised just before a file is type-checked, to invalidate the state of the file in VS and force VS to request a new direct typecheck of the file.
       /// The incremental builder also typechecks the file (error and intellisense results from the backgroud builder are not
       /// used by VS). 
-      member BeforeTypeCheckFile : IEvent<string>
+      member BeforeFileChecked : IEvent<string>
 
       /// Raised just after a file is parsed
       member FileParsed : IEvent<string>
@@ -144,7 +142,7 @@ type internal IncrementalBuilder =
       member ThereAreLiveTypeProviders : bool
 #endif
       /// Perform one step in the F# build. Return true if the background work is finished.
-      member Step : TimeStampCache -> bool
+      member Step : TimeStampCache * ct: CancellationToken -> bool
 
       /// Get the preceding typecheck state of a slot, without checking if it is up-to-date w.r.t.
       /// the timestamps on files and referenced DLLs prior to this one. Return None if the result is not available.
@@ -160,25 +158,25 @@ type internal IncrementalBuilder =
       /// to the necessary point if the result is not available. This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetCheckResultsBeforeFileInProject : filename:string -> PartialCheckResults 
+      member GetCheckResultsBeforeFileInProject : filename:string * ct: CancellationToken -> PartialCheckResults 
 
       /// Get the typecheck state after checking a file. Compute the entire type check of the project up
       /// to the necessary point if the result is not available. This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetCheckResultsAfterFileInProject : filename:string -> PartialCheckResults 
+      member GetCheckResultsAfterFileInProject : filename:string * ct: CancellationToken -> PartialCheckResults 
 
       /// Get the typecheck result after the end of the last file. The typecheck of the project is not 'completed'.
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetCheckResultsAfterLastFileInProject : unit -> PartialCheckResults 
+      member GetCheckResultsAfterLastFileInProject : ct: CancellationToken  -> PartialCheckResults 
 
       /// Get the final typecheck result. If 'generateTypedImplFiles' was set on Create then the TypedAssemblyAfterOptimization will contain implementations.
       /// This may be a long-running operation.
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
-      member GetCheckResultsAndImplementationsForProject : unit -> PartialCheckResults * IL.ILAssemblyRef * IRawFSharpAssemblyData option * TypedImplFile list option
+      member GetCheckResultsAndImplementationsForProject : ct: CancellationToken  -> PartialCheckResults * IL.ILAssemblyRef * IRawFSharpAssemblyData option * TypedImplFile list option
 
       /// Get the logical time stamp that is associated with the output of the project if it were gully built immediately
       member GetLogicalTimeStampForProject: cache: TimeStampCache -> DateTime
@@ -186,20 +184,12 @@ type internal IncrementalBuilder =
       /// Await the untyped parse results for a particular slot in the vector of parse results.
       ///
       /// This may be a marginally long-running operation (parses are relatively quick, only one file needs to be parsed)
-      member GetParseResultsForFile : filename:string -> Ast.ParsedInput option * Range.range * string * (PhasedError * FSharpErrorSeverity) list
+      member GetParseResultsForFile : filename:string * ct: CancellationToken -> Ast.ParsedInput option * Range.range * string * (PhasedDiagnostic * FSharpErrorSeverity) list
 
-      static member TryCreateBackgroundBuilderForProjectOptions : ReferenceResolver.Resolver * FrameworkImportsCache * scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * isIncompleteTypeCheckEnvironment : bool * keepAssemblyContents: bool * keepAllBackgroundResolutions: bool -> IncrementalBuilder option * FSharpErrorInfo list 
+      static member TryCreateBackgroundBuilderForProjectOptions : ReferenceResolver.Resolver * FrameworkImportsCache * scriptClosureOptions:LoadClosure option * sourceFiles:string list * commandLineArgs:string list * projectReferences: IProjectReference list * projectDirectory:string * useScriptResolutionRules:bool * keepAssemblyContents: bool * keepAllBackgroundResolutions: bool -> IncrementalBuilder option * FSharpErrorInfo list 
 
       static member KeepBuilderAlive : IncrementalBuilder option -> IDisposable
       member IsBeingKeptAliveApartFromCacheEntry : bool
-
-[<Obsolete("This type has been renamed to FSharpErrorInfo")>]
-/// Renamed to FSharpErrorInfo
-type ErrorInfo = FSharpErrorInfo
-
-[<Obsolete("This type has been renamed to FSharpErrorSeverity")>]
-/// Renamed to FSharpErrorSeverity
-type Severity = FSharpErrorSeverity
 
 /// Generalized Incremental Builder. This is exposed only for unittesting purposes.
 module internal IncrementalBuild =
@@ -252,11 +242,17 @@ module internal IncrementalBuild =
 
     type Target = Target of INode * int  option
 
+    /// Used for unit testing. Causes all steps of underlying incremental graph evaluation to throw OperationCanceledException
+    val LocallyInjectCancellationFault : unit -> IDisposable
+    
     /// Evaluate a build. Only required for unit testing.
-    val Eval : TimeStampCache -> Target -> PartialBuild -> PartialBuild
+    val Eval : TimeStampCache -> (PartialBuild -> unit) -> CancellationToken -> INode -> PartialBuild -> PartialBuild
+
+    /// Evaluate a build for a vector up to a limit. Only required for unit testing.
+    val EvalUpTo : TimeStampCache -> (PartialBuild -> unit) -> CancellationToken -> INode * int -> PartialBuild -> PartialBuild
 
     /// Do one step in the build. Only required for unit testing.
-    val Step : TimeStampCache -> Target -> PartialBuild -> PartialBuild option
+    val Step : TimeStampCache -> (PartialBuild -> unit) -> CancellationToken -> Target -> PartialBuild -> PartialBuild option
     /// Get a scalar vector. Result must be available. Only required for unit testing.
     val GetScalarResult : Scalar<'T> * PartialBuild -> ('T * System.DateTime) option
     /// Get a result vector. All results must be available or thrown an exception. Only required for unit testing.

@@ -39,7 +39,9 @@ type ProjectCracker =
               IsIncompleteTypeCheckEnvironment = false
               UseScriptResolutionRules = false
               LoadTime = loadedTimeStamp
-              UnresolvedReferences = None }
+              UnresolvedReferences = None 
+              OriginalLoadReferences = []
+              ExtraProjectInfo = None }
 
 #if NETSTANDARD1_6
         let arguments = [|

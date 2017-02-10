@@ -9,6 +9,7 @@ namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
 open System.Collections.Generic
 open Microsoft.FSharp.Compiler 
+open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.ErrorLogger
 
@@ -30,9 +31,6 @@ type FSharpParseFileResults =
 
     /// Return the inner-most range associated with a possible breakpoint location
     member ValidateBreakpointLocation : pos:pos -> range option
-
-    [<System.Obsolete("This property is now on FSharpCheckFileResults and FSharpCheckProjectResults. It indicates the set of file dependencies for checking a file or project.")>]
-    member DependencyFiles : string list
 
     /// Get the errors and warnings for the parse
     member Errors : FSharpErrorInfo[]
@@ -74,20 +72,26 @@ type internal CompletionContext =
     // completing named parameters\setters in parameter list of constructor\method calls
     // end of name ast node * list of properties\parameters that were already set
     | ParameterList of pos * HashSet<string>
+    | AttributeApplication
+
+type internal ModuleKind = { IsAutoOpen: bool; HasModuleSuffix: bool }
+
+type internal EntityKind =
+    | Attribute
+    | Type
+    | FunctionOrValue of isActivePattern:bool
+    | Module of ModuleKind
 
 // implementation details used by other code in the compiler    
-module (*internal*) UntypedParseImpl =
-    open Microsoft.FSharp.Compiler.Ast
+module (* internal *) UntypedParseImpl =
     val TryFindExpressionASTLeftOfDotLeftOfCursor : pos * ParsedInput option -> (pos * bool) option
     val GetRangeOfExprLeftOfDot : pos  * ParsedInput option -> range option
     val TryFindExpressionIslandInPosition : pos * ParsedInput option -> string option
     val TryGetCompletionContext : pos * FSharpParseFileResults option -> CompletionContext option
+    val GetEntityKind: pos * ParsedInput -> EntityKind option
 
 // implementation details used by other code in the compiler    
 module internal SourceFileImpl =
     val IsInterfaceFile : string -> bool 
     val AdditionalDefinesForUseInEditor : string -> string list
 
-[<System.Obsolete("This type has been renamed to FSharpParseFileResults")>]
-/// Renamed to FSharpParseFileResults
-type ParseFileResults = FSharpParseFileResults

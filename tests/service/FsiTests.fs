@@ -129,7 +129,10 @@ let ``EvalExpression function value 3``() =
 let ``EvalExpression display value 1``() = 
     let v = fsiSession.EvalExpression "[1..200]"  |> Option.get
     let s = fsiSession.FormatValue(v.ReflectionValue, v.ReflectionType)
-    s |> shouldEqual """[1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16; 17; 18; 19; 20; 21; 22;
+    let equalToString (s1: string) (s2: string) = 
+        s1.Replace("\r\n","\n") |> shouldEqual (s2.Replace("\r\n","\n"))
+
+    s |> equalToString """[1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16; 17; 18; 19; 20; 21; 22;
  23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36; 37; 38; 39; 40; 41;
  42; 43; 44; 45; 46; 47; 48; 49; 50; 51; 52; 53; 54; 55; 56; 57; 58; 59; 60;
  61; 62; 63; 64; 65; 66; 67; 68; 69; 70; 71; 72; 73; 74; 75; 76; 77; 78; 79;
@@ -142,7 +145,7 @@ let ``EvalExpression display value 1``() =
         { new System.IDisposable with member __.Dispose() = fsi.PrintLength <- origPrintLength }
       let sB = fsiSession.FormatValue(v.ReflectionValue, v.ReflectionType)
 
-      sB |> shouldEqual """[1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16; 17; 18; 19; 20; 21; 22;
+      sB |> equalToString """[1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16; 17; 18; 19; 20; 21; 22;
  23; 24; 25; 26; 27; 28; 29; 30; 31; 32; 33; 34; 35; 36; 37; 38; 39; 40; 41;
  42; 43; 44; 45; 46; 47; 48; 49; 50; 51; 52; 53; 54; 55; 56; 57; 58; 59; 60;
  61; 62; 63; 64; 65; 66; 67; 68; 69; 70; 71; 72; 73; 74; 75; 76; 77; 78; 79;
@@ -159,7 +162,7 @@ let ``EvalExpression display value 1``() =
     let v2 = fsiSession.EvalExpression "(System.Math.PI, System.Math.PI*10.0)"  |> Option.get
     let s2 = fsiSession.FormatValue(v2.ReflectionValue, v2.ReflectionType)
 
-    s2 |> shouldEqual "(3.141592654, 31.41592654)"
+    s2 |> equalToString "(3.141592654, 31.41592654)"
 
     begin 
         use _holder2 = 
@@ -169,7 +172,7 @@ let ``EvalExpression display value 1``() =
 
         let s2B = fsiSession.FormatValue(v2.ReflectionValue, v2.ReflectionType)
 
-        s2B |> shouldEqual "(3.14, 31.4)"
+        s2B |> equalToString "(3.14, 31.4)"
     end
 
 

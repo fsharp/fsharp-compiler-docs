@@ -14,31 +14,31 @@ open Microsoft.FSharp.Compiler.TypeChecker
 [<AbstractClass>]
 type ErrorLoggerProvider =
     new : unit -> ErrorLoggerProvider
-    abstract CreateErrorLoggerThatQuitsAfterMaxErrors : tcConfigBuilder : TcConfigBuilder * exiter : Exiter -> ErrorLogger
+    abstract CreateErrorLoggerUpToMaxErrors : tcConfigBuilder : TcConfigBuilder * exiter : Exiter -> ErrorLogger
 
-#if NO_COMPILER_BACKEND
-#else
-
-type SigningInfo = SigningInfo of (* delaysign:*) bool * (* publicsign:*) bool * (*signer:*)  string option * (*container:*) string option
+type StrongNameSigningInfo 
 
 val EncodeInterfaceData: tcConfig:TcConfig * tcGlobals:TcGlobals * exportRemapping:Tastops.Remap * generatedCcu: Tast.CcuThunk * outfile: string * isIncrementalBuild: bool -> ILAttribute list * ILResource list
-val ValidateKeySigningAttributes : tcConfig:TcConfig * tcGlobals:TcGlobals * TypeChecker.TopAttribs -> SigningInfo
-val GetSigner : SigningInfo -> ILBinaryWriter.ILStrongNameSigner option
-
-type ILResource with 
-    /// Read the bytes from a resource local to an assembly
-    member internal Bytes : byte[]
+val ValidateKeySigningAttributes : tcConfig:TcConfig * tcGlobals:TcGlobals * TypeChecker.TopAttribs -> StrongNameSigningInfo
+val GetStrongNameSigner : StrongNameSigningInfo -> ILBinaryWriter.ILStrongNameSigner option
 
 /// Proccess the given set of command line arguments
-#if FX_LCIDFROMCODEPAGE
 val internal ProcessCommandLineFlags : TcConfigBuilder * setProcessThreadLocals:(TcConfigBuilder -> unit) * lcidFromCodePage : int option * argv:string[] -> string list
-#else
-val internal ProcessCommandLineFlags : TcConfigBuilder * setProcessThreadLocals:(TcConfigBuilder -> unit) * argv:string[] -> string list
-#endif
 
 //---------------------------------------------------------------------------
-// The entry point used by fsc.exe and
-// the micro API into the compiler used by the visualfsharp test infrastructure
+// The entry point used by fsc.exe
+
+val typecheckAndCompile : 
+    argv : string[] * 
+    referenceResolver: ReferenceResolver.Resolver * 
+    bannerAlreadyPrinted : bool * 
+    openBinariesInMemory: bool * 
+    exiter : Exiter *
+    loggerProvider: ErrorLoggerProvider *
+    tcImportsCapture: (TcImports -> unit) option *
+    dynamicAssemblyCreator: (TcGlobals * string * ILModuleDef -> unit) option
+      -> unit
+
 val mainCompile : 
     argv: string[] * 
     referenceResolver: ReferenceResolver.Resolver * 
@@ -47,7 +47,7 @@ val mainCompile :
     exiter: Exiter * 
     loggerProvider: ErrorLoggerProvider * 
     tcImportsCapture: (TcImports -> unit) option *
-    dynamicAssemblyCreator: (ILGlobals * string * ILModuleDef -> unit) option
+    dynamicAssemblyCreator: (TcGlobals * string * ILModuleDef -> unit) option
       -> unit
 
 val compileOfAst : 
@@ -63,20 +63,16 @@ val compileOfAst :
     loggerProvider: ErrorLoggerProvider * 
     inputs:ParsedInput list *
     tcImportsCapture : (TcImports -> unit) option *
-    dynamicAssemblyCreator: (ILGlobals * string * ILModuleDef -> unit) option
+    dynamicAssemblyCreator: (TcGlobals * string * ILModuleDef -> unit) option
       -> unit
 
-//---------------------------------------------------------------------------
-// The micro API into the compiler used by the visualfsharp test infrastructure
 
-[<RequireQualifiedAccess>]
-type CompilationOutput = 
-    { Errors : ErrorOrWarning[]
-      Warnings : ErrorOrWarning[] }
-
-type InProcCompiler = 
-    new : ReferenceResolver.Resolver -> InProcCompiler
-    member Compile : args : string[] -> bool * CompilationOutput
+/// Part of LegacyHostedCompilerForTesting
+type InProcErrorLoggerProvider = 
+    new : unit -> InProcErrorLoggerProvider
+    member Provider : ErrorLoggerProvider
+    member CapturedWarnings : Diagnostic[]
+    member CapturedErrors : Diagnostic[]
 
 
 module internal MainModuleBuilder =
@@ -84,4 +80,3 @@ module internal MainModuleBuilder =
     val fileVersion: warn: (exn -> unit) -> findStringAttr: (string -> string option) -> assemblyVersion: AbstractIL.IL.ILVersionInfo -> AbstractIL.IL.ILVersionInfo
     val productVersion: warn: (exn -> unit) -> findStringAttr: (string -> string option) -> fileVersion: AbstractIL.IL.ILVersionInfo -> string
     val productVersionToILVersionInfo: string -> AbstractIL.IL.ILVersionInfo
-#endif

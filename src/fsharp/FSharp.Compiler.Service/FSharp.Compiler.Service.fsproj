@@ -202,9 +202,6 @@
     <Compile Include="..\lib.fs">
       <Link>Utilities/lib.fs</Link>
     </Compile>
-    <Compile Include="..\ErrorResolutionHints.fs">
-      <Link>Utilities/ErrorResolutionHints.fs</Link>
-    </Compile>
     <Compile Include="..\InternalCollections.fsi">
       <Link>Utilities/InternalCollections.fsi</Link>
     </Compile>
@@ -225,6 +222,9 @@
     </Compile>
     <Compile Include="..\ErrorLogger.fs">
       <Link>ErrorLogging/ErrorLogger.fs</Link>
+    </Compile>
+    <Compile Include="..\ErrorResolutionHints.fs">
+      <Link>ErrorLogging/ErrorResolutionHints.fs</Link>
     </Compile>
     <Compile Include="..\ReferenceResolver.fs">
       <Link>ReferenceResolution/ReferenceResolver.fs</Link>
@@ -607,6 +607,14 @@
     <Compile Include="..\SimulatedMSBuildReferenceResolver.fs">
       <Link>Service/SimulatedMSBuildReferenceResolver.fs</Link>
     </Compile>
+<!--
+    <Compile Include="..\vs\ServiceAssemblyContent.fs">
+      <Link>Service/ServiceAssemblyContent.fs</Link>
+    </Compile>
+    <Compile Include="..\vs\ServiceXmlDocParser.fs">
+      <Link>Service/ServiceXmlDocParser.fs</Link>
+    </Compile>
+-->
     <Compile Include="..\vs\service.fsi">
       <Link>Service/service.fsi</Link>
     </Compile>
@@ -633,6 +641,7 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>False</Private>
     </Reference>

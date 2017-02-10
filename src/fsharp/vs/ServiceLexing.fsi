@@ -214,35 +214,3 @@ type FSharpSourceTokenizer =
 module internal TestExpose =     
     val TokenInfo                                    : Parser.token -> (FSharpTokenColorKind * FSharpTokenCharKind * FSharpTokenTriggerClass) 
 
-
-[<System.Obsolete("This type has been renamed to FSharpSourceTokenizer")>]
-/// Renamed to FSharpSourceTokenizer
-type SourceTokenizer = FSharpSourceTokenizer
-
-[<System.Obsolete("This type has been renamed to FSharpLineTokenizer")>]
-/// Renamed to FSharpLineTokenizer
-type LineTokenizer = FSharpLineTokenizer
-
-[<System.Obsolete("This type has been renamed to FSharpTokenInfo")>]
-/// Renamed to FSharpTokenInfo
-type TokenInformation = FSharpTokenInfo
-
-[<System.Obsolete("This type has been renamed to FSharpTokenTriggerClass")>]
-/// Renamed to FSharpTokenTriggerClass
-type TriggerClass = FSharpTokenTriggerClass
-
-[<System.Obsolete("This type has been renamed to FSharpTokenCharKind")>]
-/// Renamed to FSharpTokenCharKind
-type TokenCharKind = FSharpTokenCharKind
-
-[<System.Obsolete("This type has been renamed to FSharpTokenColorKind")>]
-/// Renamed to FSharpTokenColorKind
-type TokenColorKind = FSharpTokenColorKind
-
-[<System.Obsolete("This type has been renamed to FSharpTokenizerColorState")>]
-/// Renamed to FSharpTokenizerColorState
-type ColorState = FSharpTokenizerColorState
-
-[<System.Obsolete("This type has been renamed to FSharpTokenizerLexState")>]
-/// Renamed to FSharpTokenizerLexState
-type LexState = FSharpTokenizerLexState

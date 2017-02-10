@@ -266,7 +266,7 @@ let ``PartialAssemblySignatureUpdated test``() =
 let ``ParseAndCheckInteraction test 1``() = 
     fsiSession.EvalInteraction """ let xxxxxx = 1 """  
     fsiSession.EvalInteraction """ type CCCC() = member x.MMMMM()  = 1 + 1 """  
-    let untypedResults, typedResults, _ = fsiSession.ParseAndCheckInteraction("xxxxxx")
+    let untypedResults, typedResults, _ = fsiSession.ParseAndCheckInteraction("xxxxxx") |> Async.RunSynchronously
     Path.GetFileName(untypedResults.FileName) |> shouldEqual "stdin.fsx"
     untypedResults.Errors.Length |> shouldEqual 0
     untypedResults.ParseHadErrors |> shouldEqual false
@@ -293,7 +293,7 @@ let ``ParseAndCheckInteraction test 2``() =
 #load @"%s"  
 let y = Testscript.x + 1 
 """        fileName1
-    let untypedResults, typedResults, _ = fsiSession.ParseAndCheckInteraction interaction1
+    let untypedResults, typedResults, _ = fsiSession.ParseAndCheckInteraction interaction1 |> Async.RunSynchronously
     Path.GetFileName(untypedResults.FileName) |> shouldEqual "stdin.fsx"
     untypedResults.Errors.Length |> shouldEqual 0
     untypedResults.ParseHadErrors |> shouldEqual false

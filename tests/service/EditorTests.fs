@@ -440,36 +440,18 @@ let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-    |> shouldEqual [|(2, 45, 2, 46, 1); 
-                     (3, 23, 3, 24, 1); 
-                     (4, 38, 4, 39, 1); 
-                     (5, 27, 5, 28, 1); 
-                     (6, 17, 6, 19, 2);
-                     (7, 17, 7, 21, 1); 
-                     (8, 17, 8, 22, 1);
-                     (9, 18, 9, 21, 1); 
-                     (10, 18, 10, 20, 1);
-                     (12, 12, 12, 14, 1); 
-                     (15, 12, 15, 14, 1);
-                     (16, 28, 16, 29, 1); 
-                     (18, 30, 18, 31, 1);
-                     (19, 30, 19, 31, 1);
-                     (20, 19, 20, 24, 1); 
-                     (21, 18, 21, 19, 1);
-                     (21, 22, 21, 25, 1);
-                     (22, 17, 22, 18, 0);
-                     (23, 18, 23, 20, 1);
-                     (24, 19, 24, 22, 1);
-                     (25, 20, 25, 24, 1);
-                     (26, 21, 26, 23, 2);
-                     (27, 22, 27, 26, 2);
-                     (28, 23, 28, 27, 3);
-                     (29, 24, 29, 27, 2);
-                     (30, 25, 30, 29, 2);
-                     (31, 26, 31, 30, 2);
-                     (32, 27, 32, 31, 1);
-                     (33, 28, 33, 29, 2);
-                     (34, 29, 34, 31, 3)|]
+    |> shouldEqual
+         [|(2, 45, 2, 47, 1); (3, 23, 3, 25, 1); (4, 38, 4, 40, 1); (5, 27, 5, 29
+, 1);
+          (6, 17, 6, 20, 2); (7, 17, 7, 22, 1); (8, 17, 8, 23, 1); (9, 18, 9, 22, 1);
+          (10, 18, 10, 21, 1); (12, 12, 12, 15, 1); (15, 12, 15, 15, 1);
+          (16, 28, 16, 30, 1); (18, 30, 18, 32, 1); (19, 30, 19, 32, 1);
+          (20, 19, 20, 25, 1); (21, 18, 21, 20, 1); (21, 22, 21, 26, 1);
+          (22, 17, 22, 19, 0); (23, 18, 23, 21, 1); (24, 19, 24, 23, 1);
+          (25, 20, 25, 25, 1); (26, 21, 26, 24, 2); (27, 22, 27, 27, 2);
+          (28, 23, 28, 28, 3); (29, 24, 29, 28, 2); (30, 25, 30, 30, 2);
+          (31, 26, 31, 31, 2); (32, 27, 32, 32, 1); (33, 28, 33, 30, 2);
+          (34, 29, 34, 32, 3)|]
 
 [<Test>]
 let ``Printf specifiers for triple-quote strings`` () = 
@@ -488,12 +470,12 @@ let _ = List.iter(printfn \"\"\"%-A
 
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocationsAndArity() 
-    |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-    |> shouldEqual [|(2, 19, 2, 21, 1);
-                     (4, 12, 4, 14, 1);
-                     (6, 29, 6, 31, 1);
-                     (7, 29, 7, 30, 1);
-                     (7, 33, 7, 34, 1)|]
+    |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
+    |> shouldEqual [|(2, 19, 2, 22, 1);
+                     (4, 12, 4, 15, 1);
+                     (6, 29, 6, 32, 1);
+                     (7, 29, 7, 31, 1); 
+                     (7, 33, 7, 35,1 )|]
  
 [<Test>]
 let ``Printf specifiers for user-defined functions`` () = 
@@ -510,12 +492,12 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
     typeCheckResults.Errors |> shouldEqual [||]
     typeCheckResults.GetFormatSpecifierLocationsAndArity() 
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-    |> shouldEqual [|(3, 24, 3, 25, 1); 
-                     (3, 29, 3, 30, 1);
-                     (4, 58, 4, 59, 1);
-                     (4, 75, 4, 76, 1);
-                     (4, 82, 4, 83, 1);
-                     (4, 108, 4, 109, 1)|]
+    |> shouldEqual [|(3, 24, 3, 26, 1); 
+                     (3, 29, 3, 31, 1);
+                     (4, 58, 4, 60, 1); 
+                     (4, 75, 4, 77, 1); 
+                     (4, 82, 4, 84, 1); 
+                     (4, 108, 4, 110, 1)|]
 
 [<Test>]
 let ``should not report format specifiers for illformed format strings`` () = 

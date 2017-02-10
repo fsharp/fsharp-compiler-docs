@@ -1692,6 +1692,7 @@ let DefaultReferencesForScriptsAndOutOfProjectSources(assumeDotNetFramework) =
           yield "System.Collections" // System.Collections.Generic.List<T>
           yield "System.Runtime.Numerics" // BigInteger
           yield "System.Threading"  // OperationCanceledException
+          //yield "System.ValueTuple"
 
           yield "System.Web"
           yield "System.Web.Services"

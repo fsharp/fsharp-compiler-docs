@@ -448,10 +448,6 @@ type FSharpChecker =
     /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentCheckResultsForFile when looking up the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script.</param>
-    /// <param name="isResultObsolete">
-    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
-    //      source code in the editor. Type checking is abandoned when this returns 'true'.
-    /// </param>
     /// <param name="textSnapshotInfo">
     ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
     ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 
@@ -468,8 +464,7 @@ type FSharpChecker =
     ///    Note: all files except the one being checked are read from the FileSystem API
     /// </para>
     /// <para>
-    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available or if the check
-    ////  was abandoned due to isResultObsolete returning 'true' at some checkpoint during type checking.
+    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available.
     /// </para>
     /// </summary>
     ///
@@ -478,10 +473,6 @@ type FSharpChecker =
     /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentCheckResultsForFile when looking up the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script.</param>
-    /// <param name="isResultObsolete">
-    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
-    //      source code in the editor. Type checking is abandoned when this returns 'true'.
-    /// </param>
     /// <param name="textSnapshotInfo">
     ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
     ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 
@@ -498,8 +489,7 @@ type FSharpChecker =
     ///    Note: all files except the one being checked are read from the FileSystem API
     /// </para>
     /// <para>
-    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available or if the check
-    ////  was abandoned due to isResultObsolete returning 'true' at some checkpoint during type checking.
+    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available.
     /// </para>
     /// </summary>
     ///
@@ -507,10 +497,6 @@ type FSharpChecker =
     /// <param name="fileversion">An integer that can be used to indicate the version of the file. This will be returned by TryGetRecentCheckResultsForFile when looking up the file.</param>
     /// <param name="source">The full source for the file.</param>
     /// <param name="options">The options for the project or script.</param>
-    /// <param name="isResultObsolete">
-    ///     A callback to check if a requested result is already obsolete, e.g. because of changed 
-    //      source code in the editor. Type checking is abandoned when this returns 'true'.
-    /// </param>
     /// <param name="textSnapshotInfo">
     ///     An item passed back to 'hasTextChangedSinceLastTypecheck' to help determine if 
     ///     an approximate intellisense resolution is inaccurate because a range of text has changed. This 

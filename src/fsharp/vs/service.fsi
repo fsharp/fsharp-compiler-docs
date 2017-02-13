@@ -157,7 +157,7 @@ type FSharpSymbolUse =
     member RangeAlternate: range
 
 [<RequireQualifiedAccess>]
-type internal SemanticClassificationType =
+type (*internal*) SemanticClassificationType =
     | ReferenceType
     | ValueType
     | UnionCase

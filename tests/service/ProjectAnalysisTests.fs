@@ -4505,10 +4505,16 @@ module Project35b =
     open System.IO
 
     let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fsx")
+#if DOTNETCORE
     let fileSource1 = """
-#r "System.dll"
+#r "System.Private.CoreLib.dll"
 #r "notexist.dll"
 """
+#else
+    let fileSource1 = """
+#r "notexist.dll"
+"""
+#endif
     File.WriteAllText(fileName1, fileSource1)
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
@@ -4521,6 +4527,23 @@ module Project35b =
     let options = checker.GetProjectOptionsFromCommandLineArgs (projPath, args2)
 #else    
     let options = checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously
+#endif
+
+[<Test>]
+let ``Test Project35b whole project errors`` () = 
+#if DOTNETCORE
+    let options = checker.GetProjectOptionsFromScript(Project35b.fileName1, Project35b.fileSource1, assumeDotNetFramework=false) |> Async.RunSynchronously
+#else
+    let options = checker.GetProjectOptionsFromScript(Project35b.fileName1, Project35b.fileSource1) |> Async.RunSynchronously
+#endif
+    let wholeProjectResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
+    for e in wholeProjectResults.Errors do 
+        printfn "Project35b error: <<<%s>>>" e.Message
+    wholeProjectResults.Errors.Length
+#if DOTNETCORE
+    |> shouldEqual 1
+#else
+    |> shouldEqual 2
 #endif
 
 [<Test>]

@@ -4530,7 +4530,7 @@ module Project35b =
 #endif
 
 [<Test>]
-let ``Test Project35b whole project errors`` () = 
+let ``Test Project35b whole project errors`` () =
 #if DOTNETCORE
     let options = checker.GetProjectOptionsFromScript(Project35b.fileName1, Project35b.fileSource1, assumeDotNetFramework=false) |> Async.RunSynchronously
 #else

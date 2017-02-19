@@ -43,7 +43,7 @@ type SimpleSourceCodeServices =
     /// TypeCheck and compile provided AST
     member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -> FSharpErrorInfo [] * int
 
-    /// Compiles to a dynamic assembly usinng the given flags.  
+    /// Compiles to a dynamic assembly using the given flags.  
     ///
     /// The first argument is ignored and can just be "fsc.exe".
     ///

@@ -3463,19 +3463,6 @@ type TcAssemblyResolutions(results : AssemblyResolution list, unresolved : Unres
     member tcResolutions.TryFindByOriginalReferenceText nm = originalReferenceToResolution.TryFind nm
         
     static member ResolveAssemblyReferences (ctok, tcConfig:TcConfig, assemblyList:AssemblyReference list, knownUnresolved:UnresolvedAssemblyReference list) : TcAssemblyResolutions =
-        let fallBack() = 
-            let resolutions = 
-                assemblyList 
-                |> List.map (fun assemblyReference -> 
-                       try 
-                           Choice1Of2 (tcConfig.ResolveLibWithDirectories (CcuLoadFailureAction.RaiseError, assemblyReference) |> Option.get)
-                       with e -> 
-                           errorRecovery e assemblyReference.Range
-                           Choice2Of2 assemblyReference)
-            let successes = resolutions |> List.choose (function Choice1Of2 x -> Some x | _ -> None)
-            let failures = resolutions |> List.choose (function Choice2Of2 x -> Some (UnresolvedAssemblyReference(x.Text,[x])) | _ -> None)
-            successes, failures
-
         let resolved,unresolved = 
             if tcConfig.useSimpleResolution then 
                 let resolutions = 

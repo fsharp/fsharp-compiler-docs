@@ -14,6 +14,7 @@ nuget FSharp.Formatting
 nuget SourceLink.Fake
 nuget fssrgen
 nuget FSharp.SRGen.Build.Tasks
+nuget FsLexYacc
 
 nuget System.Collections.Immutable 1.2.0
 nuget System.Reflection.Metadata 1.4.1-beta-24227-04

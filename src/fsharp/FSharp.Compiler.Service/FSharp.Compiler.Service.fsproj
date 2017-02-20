@@ -22,7 +22,6 @@
     <BaseAddress>0x06800000</BaseAddress>
     <OtherFlags>$(OtherFlags) /warnon:1182</OtherFlags>
     <Tailcalls>true</Tailcalls>
-    <FsLexUnicode>true</FsLexUnicode>
     <OtherFlags>$(OtherFlags) --times</OtherFlags>
     <NoWarn>$(NoWarn);69;65;54;61;75</NoWarn>
     <DebugSymbols>true</DebugSymbols>
@@ -54,7 +53,7 @@
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
   </PropertyGroup>
   <PropertyGroup>
-    <FsLexYaccPath>$(SolutionDir)lib\bootstrap\4.0</FsLexYaccPath>
+    <FsLexYaccPath>$(SolutionDir)packages\FsLexYacc\build</FsLexYaccPath>
     <FsSrGenToolPath>$(SolutionDir)packages\FsSrGen\lib\net46</FsSrGenToolPath>
     <FsLexToolPath>$(FsLexYaccPath)</FsLexToolPath>
     <FsYaccToolPath>$(FsLexYaccPath)</FsYaccToolPath>
@@ -95,24 +94,12 @@
     <EmbeddedResource Include="..\FSStrings.resx">
       <Link>FSStrings.resx</Link>
     </EmbeddedResource>
-    <FsLex Include="..\lex.fsl">
-      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
-      <Link>lex.fsl</Link>
-    </FsLex>
-    <FsLex Include="..\..\absil\illex.fsl">
-      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
-      <Link>illex.fsl</Link>
-    </FsLex>
     <FsYacc Include="..\..\absil\ilpars.fsy">
-      <Module>Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser</Module>
-      <Open>Microsoft.FSharp.Compiler.AbstractIL</Open>
-      <OtherFlags>--internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
+      <OtherFlags>--module Microsoft.FSharp.Compiler.AbstractIL.Internal.AsciiParser --open Microsoft.FSharp.Compiler.AbstractIL --internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
       <Link>ilpars.fsy</Link>
     </FsYacc>
     <FsYacc Include="..\pars.fsy">
-      <Module>Microsoft.FSharp.Compiler.Parser</Module>
-      <Open>Microsoft.FSharp.Compiler</Open>
-      <OtherFlags>--internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
+      <OtherFlags>--module Microsoft.FSharp.Compiler.Parser --open Microsoft.FSharp.Compiler --internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
       <Link>pars.fsy</Link>
     </FsYacc>
     <Compile Include="..\..\utils\reshapedreflection.fs">
@@ -230,7 +217,7 @@
       <Link>ReferenceResolution/ReferenceResolver.fs</Link>
     </Compile>
     <FsLex Include="..\..\absil\illex.fsl">
-      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
+      <OtherFlags>--unicode --lexlib Internal.Utilities.Text.Lexing</OtherFlags>
       <Link>AbsIL/illex.fsl</Link>
     </FsLex>
     <Compile Include="..\..\absil\il.fsi">
@@ -324,17 +311,15 @@
       <Link>ILXErase/EraseUnions.fs</Link>
     </Compile>
     <FsLex Include="..\lex.fsl">
-      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
+      <OtherFlags>--unicode --lexlib Internal.Utilities.Text.Lexing</OtherFlags>
       <Link>ParserAndUntypedAST/lex.fsl</Link>
     </FsLex>
     <FsLex Include="..\pplex.fsl">
-      <OtherFlags>--lexlib Internal.Utilities.Text.Lexing</OtherFlags>
+      <OtherFlags>--unicode --lexlib Internal.Utilities.Text.Lexing</OtherFlags>
       <Link>ParserAndUntypedAST/pplex.fsl</Link>
     </FsLex>
     <FsYacc Include="..\pppars.fsy">
-      <Module>Microsoft.FSharp.Compiler.PPParser</Module>
-      <Open>Microsoft.FSharp.Compiler</Open>
-      <OtherFlags>--internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
+      <OtherFlags>--module Microsoft.FSharp.Compiler.PPParser --open Microsoft.FSharp.Compiler --internal --lexlib Internal.Utilities.Text.Lexing --parslib Internal.Utilities.Text.Parsing</OtherFlags>
       <Link>ParserAndUntypedAST/pppars.fsy</Link>
     </FsYacc>
     <Compile Include="..\UnicodeLexing.fsi">

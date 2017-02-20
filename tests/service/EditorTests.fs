@@ -112,7 +112,7 @@ let ``Intro test`` () =
                ("Concat", ["str0: string"; "str1: string"; "str2: string"; "str3: string"])]
 
 
-#if !DOTNETCORE // InternalsVisibleTo on IncrementalBuild.LocallyInjectCancellationFault not working for some reason?
+#if !INTERACTIVE && !DOTNETCORE // InternalsVisibleTo on IncrementalBuild.LocallyInjectCancellationFault not working for some reason?
 [<Test>]
 let ``Basic cancellation test`` () = 
    try 

@@ -98,9 +98,5 @@
     <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
   </PropertyGroup>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
-  <UsingTask TaskName="CopyRuntimeDependencies" AssemblyFile="..\..\..\.paket\paket.exe" />
-  <Target Name="AfterBuild" Condition="Exists('..\..\..\.paket\paket.exe')">
-    <CopyRuntimeDependencies OutputPath="$(OutDir)" TargetFramework="$(TargetFrameworkIdentifier) - $(TargetFrameworkVersion)" ProjectsWithRuntimeLibs="System.Threading" />
-  </Target>
   <Import Project="$(SolutionDir)\.paket\paket.targets" />
 </Project>

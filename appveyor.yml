@@ -3,20 +3,13 @@ os: Visual Studio 2015
 init:
   - git config --global core.autocrlf input
 
-<<<<<<< HEAD
 environment:
   matrix:
     - BUILD_TARGET: CreatePackage
     
 build_script:
-  - ps: dotnet --info
-  - cmd: build.cmd %BUILD_TARGET%
-=======
-build_script: 
   - cmd: dotnet --version
-  - cmd: build.bat
-  - ps: .\appveyor.ps1
->>>>>>> 5a942daf930d7023c78f578ec6876b86a6f13f1e
+  - cmd: build.cmd %BUILD_TARGET%
 
 test: off
 version: '{build}'

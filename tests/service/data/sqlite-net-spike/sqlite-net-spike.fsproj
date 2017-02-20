@@ -49,7 +49,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6'">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
       <ItemGroup>
         <Reference Include="SQLite.Net">
           <HintPath>..\..\..\..\packages\SQLite.Net-PCL\lib\net4\SQLite.Net.dll</HintPath>
@@ -79,7 +79,7 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6'">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
       <ItemGroup>
         <Reference Include="SQLite.Net.Platform.Generic">
           <HintPath>..\..\..\..\packages\SQLite.Net.Platform.Generic\lib\net40\SQLite.Net.Platform.Generic.dll</HintPath>

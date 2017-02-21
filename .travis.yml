@@ -7,11 +7,12 @@ os:
 mono:
   - latest
   - 4.4.2
-  - 4.2.2
+
+#  - 4.2.2
 
 sudo: false
 
-install:
+install: travis_wait mvn install
 
 script: 
   - ./build.sh NuGet

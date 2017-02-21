@@ -8,7 +8,7 @@ environment:
     - BUILD_TARGET: CreatePackage
     
 build_script:
-  - ps: dotnet --info
+  - cmd: dotnet --version
   - cmd: build.cmd %BUILD_TARGET%
 
 test: off

@@ -177,19 +177,19 @@ type DisposablesTracker() =
 // TypeCheck, AdjustForScriptCompile
 //----------------------------------------------------------------------------
 
-let TypeCheck (tcConfig, tcImports, tcGlobals, errorLogger:ErrorLogger, assemblyName, niceNameGen, tcEnv0, inputs, exiter: Exiter) =
+let TypeCheck (ctok, tcConfig, tcImports, tcGlobals, errorLogger:ErrorLogger, assemblyName, niceNameGen, tcEnv0, inputs, exiter: Exiter) =
     try 
         if isNil inputs then error(Error(FSComp.SR.fscNoImplementationFiles(), Range.rangeStartup))
         let ccuName = assemblyName
         let tcInitialState = GetInitialTcState (rangeStartup, ccuName, tcConfig, tcGlobals, tcImports, niceNameGen, tcEnv0)
-        TypeCheckClosedInputSet ((fun () -> errorLogger.ErrorCount > 0), tcConfig, tcImports, tcGlobals, None, tcInitialState, inputs)
+        TypeCheckClosedInputSet (ctok, (fun () -> errorLogger.ErrorCount > 0), tcConfig, tcImports, tcGlobals, None, tcInitialState, inputs)
     with e -> 
         errorRecovery e rangeStartup
         exiter.Exit 1
 
 
 /// Check for .fsx and, if present, compute the load closure for of #loaded files.
-let AdjustForScriptCompile(tcConfigB:TcConfigBuilder, commandLineSourceFiles, lexResourceManager) =
+let AdjustForScriptCompile(ctok, tcConfigB:TcConfigBuilder, commandLineSourceFiles, lexResourceManager) =
 
     let combineFilePath file =
         try
@@ -212,12 +212,12 @@ let AdjustForScriptCompile(tcConfigB:TcConfigBuilder, commandLineSourceFiles, le
     
     let AppendClosureInformation(filename) =
         if IsScript filename then 
-            let closure = LoadClosure.ComputeClosureOfSourceFiles(tcConfig, [filename, rangeStartup], CodeContext.Compilation, lexResourceManager=lexResourceManager)
+            let closure = LoadClosure.ComputeClosureOfSourceFiles(ctok, tcConfig, [filename, rangeStartup], CodeContext.Compilation, lexResourceManager=lexResourceManager)
             // Record the references from the analysis of the script. The full resolutions are recorded as the corresponding #I paths used to resolve them
             // are local to the scripts and not added to the tcConfigB (they are added to localized clones of the tcConfigB).
             let references = closure.References |> List.collect snd |> List.filter (fun r->r.originalReference.Range<>range0 && r.originalReference.Range<>rangeStartup)
             references |> List.iter (fun r-> tcConfigB.AddReferencedAssemblyByPath(r.originalReference.Range, r.resolvedPath))
-            closure.NoWarns |> List.collect (fun (n, ms) -> ms|>List.map(fun m->m, n)) |> List.iter tcConfigB.TurnWarningOff
+            closure.NoWarns |> List.collect (fun (n, ms) -> ms|>List.map(fun m->m, n)) |> List.iter (fun (x,m) -> tcConfigB.TurnWarningOff(x, m))
             closure.SourceFiles |> List.map fst |> List.iter AddIfNotPresent
             closure.AllRootFileDiagnostics |> List.iter diagnosticSink
             
@@ -840,12 +840,12 @@ module MainModuleBuilder =
 
 
     let CreateMainModule  
-            (tcConfig:TcConfig, tcGlobals, tcImports:TcImports, 
+            (ctok, tcConfig:TcConfig, tcGlobals, tcImports:TcImports, 
              pdbfile, assemblyName, outfile, topAttrs, 
              (iattrs, intfDataResources), optDataResources, 
              codegenResults, assemVerFromAttrib, metadataVersion, secDecls) =
 
-
+        RequireCompilationThread ctok
         let ilTypeDefs = 
             //let topTypeDef = mkILTypeDefForGlobalFunctions tcGlobals.ilg (mkILMethods [], emptyILFields)
             mkILTypeDefs codegenResults.ilTypeDefs
@@ -1243,7 +1243,7 @@ module StaticLinker =
           mutable visited: bool }
 
     // Find all IL modules that are to be statically linked given the static linking roots.
-    let FindDependentILModulesForStaticLinking (tcConfig:TcConfig, tcImports:TcImports, ilxMainModule) = 
+    let FindDependentILModulesForStaticLinking (ctok, tcConfig:TcConfig, tcImports:TcImports, ilxMainModule) = 
         if not tcConfig.standalone && tcConfig.extraStaticLinkRoots.IsEmpty then 
             []
         else
@@ -1267,10 +1267,10 @@ module StaticLinker =
                         depModuleTable.[ilAssemRef.Name] <- dummyEntry ilAssemRef.Name
                     else
                         if not (depModuleTable.ContainsKey ilAssemRef.Name) then 
-                            match tcImports.TryFindDllInfo(Range.rangeStartup, ilAssemRef.Name, lookupOnly=false) with 
+                            match tcImports.TryFindDllInfo(ctok, Range.rangeStartup, ilAssemRef.Name, lookupOnly=false) with 
                             | Some dllInfo ->
                                 let ccu = 
-                                    match tcImports.FindCcuFromAssemblyRef (Range.rangeStartup, ilAssemRef) with 
+                                    match tcImports.FindCcuFromAssemblyRef (ctok, Range.rangeStartup, ilAssemRef) with 
                                     | ResolvedCcu ccu -> Some ccu
                                     | UnresolvedCcu(_ccuName) -> None
 
@@ -1332,14 +1332,14 @@ module StaticLinker =
                     yield (n.ccu, n.data)  ]
 
     // Add all provider-generated assemblies into the static linking set
-    let FindProviderGeneratedILModules (tcImports:TcImports, providerGeneratedAssemblies: (ImportedBinary * _) list) = 
+    let FindProviderGeneratedILModules (ctok, tcImports:TcImports, providerGeneratedAssemblies: (ImportedBinary * _) list) = 
         [ for (importedBinary, provAssemStaticLinkInfo) in providerGeneratedAssemblies do 
               let ilAssemRef  = importedBinary.ILScopeRef.AssemblyRef
               if debugStaticLinking then printfn "adding provider-generated assembly '%s' into static linking set" ilAssemRef.Name
-              match tcImports.TryFindDllInfo(Range.rangeStartup, ilAssemRef.Name, lookupOnly=false) with 
+              match tcImports.TryFindDllInfo(ctok, Range.rangeStartup, ilAssemRef.Name, lookupOnly=false) with 
               | Some dllInfo ->
                   let ccu = 
-                      match tcImports.FindCcuFromAssemblyRef (Range.rangeStartup, ilAssemRef) with 
+                      match tcImports.FindCcuFromAssemblyRef (ctok, Range.rangeStartup, ilAssemRef) with 
                       | ResolvedCcu ccu -> Some ccu
                       | UnresolvedCcu(_ccuName) -> None
 
@@ -1350,7 +1350,7 @@ module StaticLinker =
     // Compute a static linker. This only captures tcImports (a large data structure) if
     // static linking is enabled. Normally this is not the case, which lets us collect tcImports
     // prior to this point.
-    let StaticLink (tcConfig:TcConfig, tcImports:TcImports, ilGlobals:ILGlobals) = 
+    let StaticLink (ctok, tcConfig:TcConfig, tcImports:TcImports, ilGlobals:ILGlobals) = 
 
 #if EXTENSIONTYPING
         let providerGeneratedAssemblies = 
@@ -1375,13 +1375,13 @@ module StaticLinker =
             (fun ilxMainModule  ->
               ReportTime tcConfig "Find assembly references"
 
-              let dependentILModules = FindDependentILModulesForStaticLinking (tcConfig, tcImports, ilxMainModule)
+              let dependentILModules = FindDependentILModulesForStaticLinking (ctok, tcConfig, tcImports, ilxMainModule)
 
               ReportTime tcConfig "Static link"
 
 #if EXTENSIONTYPING
               Morphs.enableMorphCustomAttributeData()
-              let providerGeneratedILModules =  FindProviderGeneratedILModules (tcImports, providerGeneratedAssemblies) 
+              let providerGeneratedILModules =  FindProviderGeneratedILModules (ctok, tcImports, providerGeneratedAssemblies) 
 
               // Transform the ILTypeRefs references in the IL of all provider-generated assemblies so that the references
               // are now local.
@@ -1519,7 +1519,7 @@ module StaticLinker =
                       if (not isMscorlib && name = PrimaryAssembly.Mscorlib.Name) then
                           error (Error(FSComp.SR.fscStaticLinkingNoProfileMismatches(), rangeCmdArgs))
                       scopeRef
-                  let rewriteAssemblyRefsToMatchLibraries = NormalizeAssemblyRefs tcImports
+                  let rewriteAssemblyRefsToMatchLibraries = NormalizeAssemblyRefs (ctok, tcImports)
                   Morphs.morphILTypeRefsInILModuleMemoized ilGlobals (Morphs.morphILScopeRefsInILTypeRef (validateTargetPlatform >> rewriteExternalRefsToLocalRefs >> rewriteAssemblyRefsToMatchLibraries)) ilxMainModule
 
               ilxMainModule)
@@ -1640,7 +1640,7 @@ let CopyFSharpCore(outFile: string, referencedDlls: AssemblyReference list) =
 [<NoEquality; NoComparison>]
 type Args<'T> = Args  of 'T
 
-let main0(argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory:bool, exiter:Exiter, errorLoggerProvider : ErrorLoggerProvider, disposables : DisposablesTracker) = 
+let main0(ctok, argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory:bool, exiter:Exiter, errorLoggerProvider : ErrorLoggerProvider, disposables : DisposablesTracker) = 
 
     // See Bug 735819 
     let lcidFromCodePage = 
@@ -1699,7 +1699,7 @@ let main0(argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory:bo
         try 
             let sourceFiles = 
                 let files = ProcessCommandLineFlags (tcConfigB, setProcessThreadLocals, lcidFromCodePage, argv)
-                AdjustForScriptCompile(tcConfigB, files, lexResourceManager)
+                AdjustForScriptCompile(ctok, tcConfigB, files, lexResourceManager)
             sourceFiles
 
         with e -> 
@@ -1714,7 +1714,7 @@ let main0(argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory:bo
     // Create tcGlobals and frameworkTcImports
     let outfile, pdbfile, assemblyName = 
         try 
-            tcConfigB.DecideNames sourceFiles 
+            tcConfigB.DecideNames sourceFiles
         with e ->
             errorRecovery e rangeStartup
             delayForFlagsLogger.ForwardDelayedDiagnostics(tcConfigB)
@@ -1747,17 +1747,17 @@ let main0(argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory:bo
     // Resolve assemblies
     ReportTime tcConfig "Import mscorlib and FSharp.Core.dll"
     let foundationalTcConfigP = TcConfigProvider.Constant(tcConfig)
-    let sysRes, otherRes, knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
+    let sysRes, otherRes, knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(ctok, tcConfig)
     
     // Import basic assemblies
-    let tcGlobals, frameworkTcImports = TcImports.BuildFrameworkTcImports (foundationalTcConfigP, sysRes, otherRes)
+    let tcGlobals, frameworkTcImports = TcImports.BuildFrameworkTcImports (ctok, foundationalTcConfigP, sysRes, otherRes)
 
     // Register framework tcImports to be disposed in future
     disposables.Register frameworkTcImports
 
     // Parse sourceFiles 
     ReportTime tcConfig "Parse inputs"
-    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse)            
+    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind BuildPhase.Parse
     let inputs =
         try
             let isLastCompiland, isExe = sourceFiles |> tcConfig.ComputeCanContainEntryPoint 
@@ -1780,13 +1780,13 @@ let main0(argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory:bo
     if tcConfig.printAst then                
         inputs |> List.iter (fun (input, _filename) -> printf "AST:\n"; printfn "%+A" input; printf "\n") 
 
-    let tcConfig = (tcConfig, inputs) ||> List.fold ApplyMetaCommandsFromInputToTcConfig 
+    let tcConfig = (tcConfig, inputs) ||> List.fold (fun z (x, m) -> ApplyMetaCommandsFromInputToTcConfig(z, x, m))
     let tcConfigP = TcConfigProvider.Constant(tcConfig)
 
     // Import other assemblies
     ReportTime tcConfig "Import non-system references"
     let tcGlobals, tcImports =  
-        let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP, tcGlobals, frameworkTcImports, otherRes, knownUnresolved)
+        let tcImports = TcImports.BuildNonFrameworkTcImports(ctok, tcConfigP, tcGlobals, frameworkTcImports, otherRes, knownUnresolved)
         tcGlobals, tcImports
 
     // register tcImports to be disposed in future
@@ -1799,24 +1799,24 @@ let main0(argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory:bo
 
     // Build the initial type checking environment
     ReportTime tcConfig "Typecheck"
-    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.TypeCheck)            
+    use unwindParsePhase = PushThreadBuildPhaseUntilUnwind BuildPhase.TypeCheck
     let tcEnv0 = GetInitialTcEnv (assemblyName, rangeStartup, tcConfig, tcImports, tcGlobals)
 
     // Type check the inputs
     let inputs = inputs |> List.map fst
     let tcState, topAttrs, typedAssembly, _tcEnvAtEnd = 
-        TypeCheck(tcConfig, tcImports, tcGlobals, errorLogger, assemblyName, NiceNameGenerator(), tcEnv0, inputs, exiter)
+        TypeCheck(ctok, tcConfig, tcImports, tcGlobals, errorLogger, assemblyName, NiceNameGenerator(), tcEnv0, inputs, exiter)
 
     AbortOnError(errorLogger, exiter)
     ReportTime tcConfig "Typechecked"
 
-    Args (tcGlobals, tcImports, frameworkTcImports, tcState.Ccu, typedAssembly, topAttrs, tcConfig, outfile, pdbfile, assemblyName, errorLogger, exiter)
+    Args (ctok, tcGlobals, tcImports, frameworkTcImports, tcState.Ccu, typedAssembly, topAttrs, tcConfig, outfile, pdbfile, assemblyName, errorLogger, exiter)
 
-let main1(Args (tcGlobals, tcImports: TcImports, frameworkTcImports, generatedCcu, typedImplFiles, topAttrs, tcConfig: TcConfig, outfile, pdbfile, assemblyName, errorLogger, exiter: Exiter)) =
+let main1(Args (ctok, tcGlobals, tcImports: TcImports, frameworkTcImports, generatedCcu, typedImplFiles, topAttrs, tcConfig: TcConfig, outfile, pdbfile, assemblyName, errorLogger, exiter: Exiter)) =
 
     if tcConfig.typeCheckOnly then exiter.Exit 0
     
-    use unwindPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.CodeGen)
+    use unwindPhase = PushThreadBuildPhaseUntilUnwind BuildPhase.CodeGen
     let signingInfo = ValidateKeySigningAttributes (tcConfig, tcGlobals, topAttrs)
     
     AbortOnError(errorLogger, exiter)
@@ -1842,7 +1842,7 @@ let main1(Args (tcGlobals, tcImports: TcImports, frameworkTcImports, generatedCc
     // write interface, xmldoc
     begin
       ReportTime tcConfig ("Write Interface File")
-      use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Output)    
+      use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind BuildPhase.Output
       if tcConfig.printSignature   then InterfaceFileWriter.WriteInterfaceFile (tcGlobals, tcConfig, InfoReader(tcGlobals, tcImports.GetImportMap()), typedImplFiles)
 
       ReportTime tcConfig ("Write XML document signatures")
@@ -1858,11 +1858,11 @@ let main1(Args (tcGlobals, tcImports: TcImports, frameworkTcImports, generatedCc
     end
 
     // Pass on only the minimum information required for the next phase
-    Args (tcConfig, tcImports, frameworkTcImports, tcGlobals, errorLogger, generatedCcu, outfile, typedImplFiles, topAttrs, pdbfile, assemblyName, assemVerFromAttrib, signingInfo, exiter)
+    Args (ctok, tcConfig, tcImports, frameworkTcImports, tcGlobals, errorLogger, generatedCcu, outfile, typedImplFiles, topAttrs, pdbfile, assemblyName, assemVerFromAttrib, signingInfo, exiter)
 
 
 // set up typecheck for given AST without parsing any command line parameters
-let main1OfAst (referenceResolver, openBinariesInMemory, assemblyName, target, outfile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider: ErrorLoggerProvider, inputs : ParsedInput list) =
+let main1OfAst (ctok, referenceResolver, openBinariesInMemory, assemblyName, target, outfile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider: ErrorLoggerProvider, inputs : ParsedInput list) =
 
     let defaultFSharpBinariesDir = Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
     let tcConfigB = TcConfigBuilder.CreateNew(referenceResolver, defaultFSharpBinariesDir, (*optimizeForMemory*) false, Directory.GetCurrentDirectory(), isInteractive=false, isInvalidationSupported=false)
@@ -1893,24 +1893,24 @@ let main1OfAst (referenceResolver, openBinariesInMemory, assemblyName, target, o
             exiter.Exit 1
     
     let foundationalTcConfigP = TcConfigProvider.Constant(tcConfig)
-    let sysRes,otherRes,knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(tcConfig)
-    let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (foundationalTcConfigP, sysRes, otherRes)
+    let sysRes,otherRes,knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(ctok, tcConfig)
+    let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (ctok, foundationalTcConfigP, sysRes, otherRes)
 
     use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse) 
 
     let meta = Directory.GetCurrentDirectory()
-    let tcConfig = (tcConfig,inputs) ||> List.fold (fun tcc inp -> ApplyMetaCommandsFromInputToTcConfig tcc (inp,meta))
+    let tcConfig = (tcConfig,inputs) ||> List.fold (fun tcc inp -> ApplyMetaCommandsFromInputToTcConfig (tcc, inp,meta))
     let tcConfigP = TcConfigProvider.Constant(tcConfig)
 
     let tcGlobals,tcImports =  
-        let tcImports = TcImports.BuildNonFrameworkTcImports(tcConfigP,tcGlobals,frameworkTcImports,otherRes,knownUnresolved)
+        let tcImports = TcImports.BuildNonFrameworkTcImports(ctok, tcConfigP, tcGlobals, frameworkTcImports, otherRes,knownUnresolved)
         tcGlobals,tcImports
 
     use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.TypeCheck)            
     let tcEnv0 = GetInitialTcEnv (assemblyName, rangeStartup, tcConfig, tcImports, tcGlobals)
 
     let tcState,topAttrs,typedAssembly,_tcEnvAtEnd = 
-        TypeCheck(tcConfig,tcImports,tcGlobals,errorLogger,assemblyName,NiceNameGenerator(),tcEnv0,inputs,exiter)
+        TypeCheck(ctok, tcConfig, tcImports, tcGlobals, errorLogger, assemblyName, NiceNameGenerator(), tcEnv0, inputs,exiter)
 
     let generatedCcu = tcState.Ccu
 
@@ -1929,11 +1929,11 @@ let main1OfAst (referenceResolver, openBinariesInMemory, assemblyName, target, o
     // Pass on only the minimum information required for the next phase to ensure GC kicks in.
     // In principle the JIT should be able to do good liveness analysis to clean things up, but the
     // data structures involved here are so large we can't take the risk.
-    Args(tcConfig,tcImports,frameworkTcImports,tcGlobals,errorLogger,generatedCcu,outfile,typedAssembly,topAttrs,pdbFile,assemblyName,assemVerFromAttrib,signingInfo,exiter)
+    Args(ctok, tcConfig, tcImports, frameworkTcImports, tcGlobals, errorLogger, generatedCcu, outfile, typedAssembly, topAttrs, pdbFile, assemblyName, assemVerFromAttrib, signingInfo ,exiter)
 
   
 /// Phase 2a: encode signature data, optimize, encode optimization data
-let main2a(Args (tcConfig, tcImports, frameworkTcImports: TcImports, tcGlobals, errorLogger: ErrorLogger, generatedCcu: CcuThunk, outfile, typedImplFiles, topAttrs, pdbfile, assemblyName, assemVerFromAttrib, signingInfo, exiter: Exiter)) = 
+let main2a(Args (ctok, tcConfig, tcImports, frameworkTcImports: TcImports, tcGlobals, errorLogger: ErrorLogger, generatedCcu: CcuThunk, outfile, typedImplFiles, topAttrs, pdbfile, assemblyName, assemVerFromAttrib, signingInfo, exiter: Exiter)) = 
       
     // Encode the signature data
     ReportTime tcConfig ("Encode Interface Data")
@@ -1947,7 +1947,7 @@ let main2a(Args (tcConfig, tcImports, frameworkTcImports: TcImports, tcGlobals, 
         exiter.Exit 1
         
     // Perform optimization
-    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Optimize)
+    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind BuildPhase.Optimize
     
     let optEnv0 = GetInitialOptimizationEnv (tcImports, tcGlobals)
    
@@ -1965,10 +1965,10 @@ let main2a(Args (tcConfig, tcImports, frameworkTcImports: TcImports, tcGlobals, 
     let optDataResources = EncodeOptimizationData(tcGlobals, tcConfig, outfile, exportRemapping, (generatedCcu, optimizationData))
 
     // Pass on only the minimum information required for the next phase
-    Args (tcConfig, tcImports, tcGlobals, errorLogger, generatedCcu, outfile, optimizedImpls, topAttrs, pdbfile, assemblyName, (sigDataAttributes, sigDataResources), optDataResources, assemVerFromAttrib, signingInfo, metadataVersion, exiter)
+    Args (ctok, tcConfig, tcImports, tcGlobals, errorLogger, generatedCcu, outfile, optimizedImpls, topAttrs, pdbfile, assemblyName, (sigDataAttributes, sigDataResources), optDataResources, assemVerFromAttrib, signingInfo, metadataVersion, exiter)
 
 /// Phase 2b: IL code generation
-let main2b (tcImportsCapture,dynamicAssemblyCreator) (Args (tcConfig: TcConfig, tcImports, tcGlobals: TcGlobals, errorLogger, generatedCcu: CcuThunk, outfile, optimizedImpls, topAttrs, pdbfile, assemblyName, idata, optDataResources, assemVerFromAttrib, signingInfo, metadataVersion, exiter: Exiter)) = 
+let main2b (tcImportsCapture,dynamicAssemblyCreator) (Args (ctok, tcConfig: TcConfig, tcImports, tcGlobals: TcGlobals, errorLogger, generatedCcu: CcuThunk, outfile, optimizedImpls, topAttrs, pdbfile, assemblyName, idata, optDataResources, assemVerFromAttrib, signingInfo, metadataVersion, exiter: Exiter)) = 
 
     match tcImportsCapture with 
     | None -> ()
@@ -1978,11 +1978,11 @@ let main2b (tcImportsCapture,dynamicAssemblyCreator) (Args (tcConfig: TcConfig, 
     let ilGlobals = tcGlobals.ilg
     if tcConfig.standalone && generatedCcu.UsesFSharp20PlusQuotations then    
         error(Error(FSComp.SR.fscQuotationLiteralsStaticLinking0(), rangeStartup))  
-    let staticLinker = StaticLinker.StaticLink (tcConfig, tcImports, ilGlobals)
+    let staticLinker = StaticLinker.StaticLink (ctok, tcConfig, tcImports, ilGlobals)
 
     // Generate IL code
     ReportTime tcConfig "TAST -> IL"
-    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind  (BuildPhase.IlxGen)
+    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind BuildPhase.IlxGen
     let ilxGenerator = CreateIlxAssemblyGenerator (tcConfig, tcImports, tcGlobals, (LightweightTcValForUsingInBuildMethodCall tcGlobals), generatedCcu)
 
     // Check if System.SerializableAttribute exists in mscorlib.dll, 
@@ -1996,17 +1996,17 @@ let main2b (tcImportsCapture,dynamicAssemblyCreator) (Args (tcConfig: TcConfig, 
     let permissionSets = ilxGenerator.CreatePermissionSets securityAttrs
     let secDecls = if securityAttrs.Length > 0 then mkILSecurityDecls permissionSets else emptyILSecurityDecls
 
-    let ilxMainModule = MainModuleBuilder.CreateMainModule (tcConfig, tcGlobals, tcImports, pdbfile, assemblyName, outfile, topAttrs, idata, optDataResources, codegenResults, assemVerFromAttrib, metadataVersion, secDecls)
+    let ilxMainModule = MainModuleBuilder.CreateMainModule (ctok, tcConfig, tcGlobals, tcImports, pdbfile, assemblyName, outfile, topAttrs, idata, optDataResources, codegenResults, assemVerFromAttrib, metadataVersion, secDecls)
 
     AbortOnError(errorLogger, exiter)
     
     // Pass on only the minimum information required for the next phase
-    Args (tcConfig, errorLogger, staticLinker, tcGlobals, outfile, pdbfile, ilxMainModule, signingInfo, exiter)
+    Args (ctok, tcConfig, tcGlobals, errorLogger, staticLinker, outfile, pdbfile, ilxMainModule, signingInfo, exiter)
 
 /// Phase 3: static linking
-let main3(Args (tcConfig, errorLogger: ErrorLogger, staticLinker, tcGlobals, outfile, pdbfile, ilxMainModule, signingInfo, exiter:Exiter)) = 
+let main3(Args (ctok, tcConfig, tcGlobals, errorLogger: ErrorLogger, staticLinker, outfile, pdbfile, ilxMainModule, signingInfo, exiter:Exiter)) = 
         
-    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Output)    
+    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind BuildPhase.Output
 
     // Static linking, if any
     let ilxMainModule =  
@@ -2018,13 +2018,15 @@ let main3(Args (tcConfig, errorLogger: ErrorLogger, staticLinker, tcGlobals, out
     AbortOnError(errorLogger, exiter)
         
     // Pass on only the minimum information required for the next phase
-    Args (tcConfig, errorLogger, tcGlobals, ilxMainModule, outfile, pdbfile, signingInfo, exiter)
+    Args (ctok, tcConfig, errorLogger, tcGlobals, ilxMainModule, outfile, pdbfile, signingInfo, exiter)
 
 /// Phase 4: write the binaries
-let main4 dynamicAssemblyCreator (Args (tcConfig, errorLogger: ErrorLogger, tcGlobals: TcGlobals, ilxMainModule, outfile, pdbfile, signingInfo, exiter: Exiter)) = 
+let main4 dynamicAssemblyCreator (Args (ctok, tcConfig, errorLogger: ErrorLogger, tcGlobals: TcGlobals, ilxMainModule, outfile, pdbfile, signingInfo, exiter: Exiter)) = 
     ReportTime tcConfig "Write .NET Binary"
-    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Output)    
+    use unwindBuildPhase = PushThreadBuildPhaseUntilUnwind BuildPhase.Output
     let outfile = tcConfig.MakePathAbsolute outfile
+
+    DoesNotRequireCompilerThreadTokenAndCouldPossiblyBeMadeConcurrent  ctok
 
     let pdbfile = pdbfile |> Option.map (tcConfig.MakePathAbsolute >> Path.GetFullPath)
 
@@ -2068,10 +2070,14 @@ let main4 dynamicAssemblyCreator (Args (tcConfig, errorLogger: ErrorLogger, tcGl
 
 /// Entry point typecheckAndCompile
 let typecheckAndCompile (argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) =
+
+    // Explanation: Compilation happens on whichever thread calls this function.
+    let ctok = AssumeCompilationThreadWithoutEvidence ()
+
     use d = new DisposablesTracker()
     use e = new SaveAndRestoreConsoleEncoding()
 
-    main0(argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, d)
+    main0(ctok, argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, d)
     |> main1
     |> main2a
     |> main2b (tcImportsCapture,dynamicAssemblyCreator)
@@ -2080,7 +2086,10 @@ let typecheckAndCompile (argv, referenceResolver, bannerAlreadyPrinted, openBina
 
 
 let compileOfAst (referenceResolver, openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
-    main1OfAst (referenceResolver, openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs)
+    // Explanation: Compilation happens on whichever thread calls this function.
+    let ctok = AssumeCompilationThreadWithoutEvidence ()
+
+    main1OfAst (ctok, referenceResolver, openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs)
     |> main2a
     |> main2b (tcImportsCapture, dynamicAssemblyCreator)
     |> main3

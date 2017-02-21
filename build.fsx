@@ -263,9 +263,9 @@ Target "CodeGen.NetCore" (fun _ ->
 
     // run tools
 #if MONO
-    let toolDir = "../../../lib/bootstrap/4.0/"
+    let toolDir = "../../../packages/FsLexYacc/build/"
 #else
-    let toolDir = "lib/bootstrap/4.0/"
+    let toolDir = "packages/FsLexYacc/build/"
 #endif
     let workDir = "src/fsharp/FSharp.Compiler.Service/"
     let runInDir exe = runCmdIn workDir exe

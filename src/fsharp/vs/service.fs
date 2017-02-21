@@ -2913,7 +2913,7 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
                     if builder.ThereAreLiveTypeProviders then
                         bc.InvalidateConfiguration(options)))
 #else
-        ()
+        async.Return ()
 #endif
 
     member bc.CheckProjectInBackground (options) =

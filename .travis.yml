@@ -12,9 +12,7 @@ mono:
 
 sudo: false
 
-# timeouts due to large number of package downoads?
-# see https://docs.travis-ci.com/user/common-build-problems/#Build-times-out-because-no-output-was-received
-install: travis_wait mvn install
+install:
 
 script: 
   - ./build.sh NuGet

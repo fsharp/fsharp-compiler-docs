@@ -1375,7 +1375,7 @@ type IncrementalBuilder(ctokCtor: CompilationThreadToken, frameworkTcImportsCach
     /// This is a build task function that gets placed into the build rules as the computation for a VectorStamp
     ///
     /// Get the timestamp of the given file name.
-    let StampFileNameTask cache _ctok (_m:range, filename:string, _isLastCompiland, timeStamper: (TimeStampCache -> DateTime)) =
+    let StampFileNameTask cache _ctok (_m:range, _filename:string, _isLastCompiland, timeStamper: (TimeStampCache -> DateTime)) =
         assertNotDisposed()
         timeStamper cache 
                             
@@ -1405,7 +1405,7 @@ type IncrementalBuilder(ctokCtor: CompilationThreadToken, frameworkTcImportsCach
     /// This is a build task function that gets placed into the build rules as the computation for a Vector.Stamp
     ///
     /// Timestamps of referenced assemblies are taken from the file's timestamp.
-    let StampReferencedAssemblyTask cache ctok (_ref, timeStamper: TimeStampCache -> DateTime) =
+    let StampReferencedAssemblyTask cache _ctok (_ref, timeStamper: TimeStampCache -> DateTime) =
         timeStamper cache 
                 
          

@@ -1,6 +1,6 @@
 frameworks: net45, netstandard16, netcoreapp10
 
-source https://www.myget.org/F/dotnet-core/api/v3/index.json
+# source https://www.myget.org/F/dotnet-core/api/v3/index.json
 source https://www.nuget.org/api/v2/
 
 nuget NUnit 2.6.3

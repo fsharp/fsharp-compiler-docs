@@ -2904,18 +2904,17 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
                bc.CheckProjectInBackground(options))
 
     member bc.NotifyProjectCleaned (options : FSharpProjectOptions) =
+#if EXTENSIONTYPING
         reactor.EnqueueAndAwaitOpAsync("NotifyProjectCleaned", fun ctok _ct -> 
             match incrementalBuildersCache.TryGetAny (ctok, options) with
             | None -> ()
             | Some (builderOpt, _, _) ->
-#if EXTENSIONTYPING
                 builderOpt |> Option.iter (fun builder -> 
                     if builder.ThereAreLiveTypeProviders then
-                        bc.InvalidateConfiguration(options))
+                        bc.InvalidateConfiguration(options)))
 #else
-                ()
+        ()
 #endif
-        )
 
     member bc.CheckProjectInBackground (options) =
         let cache = TimeStampCache() // Only one TimeStampCache is used for the duration of each background project check

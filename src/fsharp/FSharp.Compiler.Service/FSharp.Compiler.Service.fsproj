@@ -50,6 +50,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\..\</SolutionDir>
     <TargetFrameworkProfile />
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <OtherFlags>$(OtherFlags) /warnon:1182</OtherFlags>
   </PropertyGroup>
   <PropertyGroup>
     <FsLexYaccPath>$(SolutionDir)packages\FsLexYacc\build</FsLexYaccPath>

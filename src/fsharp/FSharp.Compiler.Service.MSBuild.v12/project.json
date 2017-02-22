@@ -1,5 +1,5 @@
 {
-  "version": "11.0.1",
+  "version": "11.0.2",
   "buildOptions": {
     "debugType": "portable",
     "compilerName": "fsc",
@@ -33,7 +33,7 @@
     "System.Reflection.Metadata": "1.4.1-beta-24227-04",
     "System.Diagnostics.Process": "4.1.0",
     "FSharp.Compiler.Service": {
-      "version": "11.0.1",
+      "version": "11.0.2",
       "target": "project"
     }
   },

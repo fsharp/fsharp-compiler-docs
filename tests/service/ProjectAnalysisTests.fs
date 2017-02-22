@@ -5049,9 +5049,9 @@ let ``Test request for parse and check doesn't check whole project`` () =
 #if FCS_RETAIN_BACKGROUND_PARSE_RESULTS
     backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
 #else
-    backgroundParseCount.Value |> shouldEqual 7 // but note, the project does not get reparsed
+    (backgroundParseCount.Value <= 8) |> shouldEqual true // but note, the project does not get reparsed
 #endif
-    backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
+    (backgroundCheckCount.Value <= 8) |> shouldEqual true // only two extra typechecks of files
 
     // A subsequent ParseAndCheck of identical source code doesn't do any more anything
     let checkResults2 = checker.ParseAndCheckFileInProject(ProjectBig.fileNames.[7], 0, ProjectBig.fileSources2.[7], ProjectBig.options)  |> Async.RunSynchronously
@@ -5061,9 +5061,9 @@ let ``Test request for parse and check doesn't check whole project`` () =
 #if FCS_RETAIN_BACKGROUND_PARSE_RESULTS
     backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
 #else
-    backgroundParseCount.Value |> shouldEqual 7 // but note, the project does not get reparsed
+    (backgroundParseCount.Value <= 8) |> shouldEqual true // but note, the project does not get reparsed
 #endif
-    backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
+    (backgroundCheckCount.Value <= 8) |> shouldEqual true // only two extra typechecks of files
 
     ()
 

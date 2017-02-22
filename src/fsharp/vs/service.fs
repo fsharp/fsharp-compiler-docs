@@ -253,11 +253,11 @@ module internal Params =
         | Item.Value vref -> 
             let getParamsOfTypes() = 
                 let _, tau = vref.TypeScheme
-                if isFunTy denv.g tau then 
-                    let arg,rtau = destFunTy denv.g tau 
+                match tryDestFunTy denv.g tau with
+                | Some(arg,rtau) ->
                     let args = tryDestRefTupleTy denv.g arg 
                     ParamsOfTypes g denv args rtau
-                else []
+                | None -> []
             match vref.ValReprInfo with
             | None -> 
                 // ValReprInfo = None i.e. in let bindings defined in types or in local functions
@@ -2537,9 +2537,6 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
             foregroundTypeCheckCount <- foregroundTypeCheckCount + 1
             parseCacheLock.AcquireLock (fun ltok -> 
                 parseAndCheckFileInProjectCachePossiblyStale.Set(ltok, (filename,options),(parseResults,typedResults,fileVersion))  
-                
-                Console.WriteLine(sprintf "parseAndCheckFileInProjectCache SET key = %+A" (filename,source,options))
-                
                 parseAndCheckFileInProjectCache.Set(ltok, (filename,source,options),(parseResults,typedResults,fileVersion,priorTimeStamp))
                 parseFileInProjectCache.Set(ltok, (filename,source,options),parseResults))
 

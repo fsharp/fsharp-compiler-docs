@@ -3462,7 +3462,7 @@ type TcAssemblyResolutions(results : AssemblyResolution list, unresolved : Unres
     member tcResolutions.TryFindByResolvedPath nm = resolvedPathToResolution.TryFind nm
     member tcResolutions.TryFindByOriginalReferenceText nm = originalReferenceToResolution.TryFind nm
         
-    static member ResolveAssemblyReferences (ctok, tcConfig:TcConfig, assemblyList:AssemblyReference list, knownUnresolved:UnresolvedAssemblyReference list) : TcAssemblyResolutions =
+    static member ResolveAssemblyReferences (ctok, tcConfig:TcConfig,assemblyList:AssemblyReference list, knownUnresolved:UnresolvedAssemblyReference list) : TcAssemblyResolutions =
         let resolved,unresolved = 
             if tcConfig.useSimpleResolution then 
                 let resolutions = 
@@ -4027,7 +4027,7 @@ type TcImports(tcConfigP:TcConfigProvider, initialResolutions:TcAssemblyResoluti
                 entity.ModuleOrNamespaceType.AddProvidedTypeEntity(newEntity)
             | None -> ()
 
-            entity.Data.entity_tycon_repr <-
+            entity.entity_tycon_repr <-
                 match entity.TypeReprInfo with 
                 // This is the first extension 
                 | TNoRepr -> 

@@ -197,6 +197,7 @@ module internal FSharpEnvironment =
     let BinFolderOfDefaultFSharpCompiler(probePoint:string option) = 
         ignore probePoint
 #if FX_NO_WIN_REGISTRY
+        ignore probePoint
 #if FX_NO_APP_DOMAINS
         Some System.AppContext.BaseDirectory
 #else

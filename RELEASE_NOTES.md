@@ -1,4 +1,4 @@
-#### 11.0.3
+#### 11.0.4
   * Fix [out of range exception](https://github.com/fsharp/FSharp.Compiler.Service/issues/709)
 
 #### 11.0.2

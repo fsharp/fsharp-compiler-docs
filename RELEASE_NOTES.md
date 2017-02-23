@@ -1,3 +1,6 @@
+#### 11.0.3
+  * Fix [out of range exception](https://github.com/fsharp/FSharp.Compiler.Service/issues/709)
+
 #### 11.0.2
   * Integrate fsharp\fsharp and Microsoft\visualfsharp to 262deb017cfcd0f0d4138779ff42ede7dbf44c46
 

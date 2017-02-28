@@ -53,8 +53,8 @@
     <OtherFlags>$(OtherFlags) /warnon:1182</OtherFlags>
   </PropertyGroup>
   <PropertyGroup>
+    <FsiToolPath>$(SolutionDir)packages\FSharp.Compiler.Tools.4.0.1.21\tools</FsiToolPath>
     <FsLexYaccPath>$(SolutionDir)packages\FsLexYacc\build</FsLexYaccPath>
-    <FsSrGenToolPath>$(SolutionDir)packages\FsSrGen\lib\net46</FsSrGenToolPath>
     <FsLexToolPath>$(FsLexYaccPath)</FsLexToolPath>
     <FsYaccToolPath>$(FsLexYaccPath)</FsYaccToolPath>
     <FsLexToolExe>fslex.exe</FsLexToolExe>
@@ -638,9 +638,9 @@
     <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
   </PropertyGroup>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
-  <Import Project="$(SolutionDir)\packages\FSharp.SRGen.Build.Tasks\content\FSharp.SRGen.targets" />
+  <Import Project="$(SolutionDir)src\scripts\fssrgen.targets" />
   <Import Project="$(FsLexYaccPath)\FsLexYacc.targets" />
-  <Import Project="$(SolutionDir)\.paket\paket.targets" />
+  <Import Project="$(SolutionDir).paket\paket.targets" />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
       <ItemGroup>

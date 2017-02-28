@@ -76,23 +76,6 @@ Target "CleanDocs" (fun _ ->
     CleanDirs ["docs/output"]
 )
 
-// --------------------------------------------------------------------------------------
-// Build library & test project
-
-Target "GenerateFSIStrings" (fun _ -> 
-    // Generate FSIStrings using the FSSrGen tool
-    execProcess (fun p -> 
-      let dir = __SOURCE_DIRECTORY__ </> "src/fsharp/fsi"
-      p.Arguments <- "FSIstrings.txt FSIstrings.fs FSIstrings.resx"
-      p.WorkingDirectory <- dir
-      p.FileName <- !! "packages/FsSrGen/lib/net46/fssrgen.exe" |> Seq.head ) TimeSpan.MaxValue
-    |> ignore
-//    execProcess (fun p -> 
- //     p.Arguments <- "u+x packages/FsSrGen/lib/net46/fssrgen.exe"
- //     p.WorkingDirectory <- __SOURCE_DIRECTORY__ 
- //     p.FileName <- "chmod") TimeSpan.MaxValue
- //   |> ignore
-)
 
 Target "Build.NetFx" (fun _ ->
     netFrameworks
@@ -320,7 +303,6 @@ Target "All.NetFx" DoNothing
 "Clean"
   =?> ("BuildVersion", isAppVeyorBuild)
   ==> "AssemblyInfo"
-  ==> "GenerateFSIStrings"
   ==> "CodeGen.NetCore"
   ==> "Build.NetCore"
   ==> "RunTests.NetCore"
@@ -329,7 +311,6 @@ Target "All.NetFx" DoNothing
 "Clean"
   =?> ("BuildVersion", isAppVeyorBuild)
   ==> "AssemblyInfo"
-  ==> "GenerateFSIStrings"
   ==> "Build.NetFx"
   ==> "RunTests.NetFx"
   ==> "All.NetFx"

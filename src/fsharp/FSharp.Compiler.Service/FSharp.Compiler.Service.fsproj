@@ -53,7 +53,8 @@
     <OtherFlags>$(OtherFlags) /warnon:1182</OtherFlags>
   </PropertyGroup>
   <PropertyGroup>
-    <FsiToolPath>$(SolutionDir)packages\FSharp.Compiler.Tools.4.0.1.21\tools</FsiToolPath>
+    <FsiToolPath>$(SolutionDir)packages\FSharp.Compiler.Tools\tools</FsiToolPath>
+    <FsiToolExe>fsi.exe</FsiToolExe>
     <FsLexYaccPath>$(SolutionDir)packages\FsLexYacc\build</FsLexYaccPath>
     <FsLexToolPath>$(FsLexYaccPath)</FsLexToolPath>
     <FsYaccToolPath>$(FsLexYaccPath)</FsYaccToolPath>
@@ -83,14 +84,12 @@
     <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs" Condition="Exists('..\..\assemblyinfo\assemblyinfo.shared.fs')">
       <Link>AssemblyInfo/assemblyinfo.shared.fs</Link>
     </Compile>
-    <FsSrGen Include="..\FSComp.txt" Condition="'$(NoFsSrGenTask)' != 'true'">
+    <FsSrGen Include="..\FSComp.txt">
       <Link>FSComp.txt</Link>
     </FsSrGen>
-    <FsSrGen Include="..\fsi\FSIstrings.txt" Condition="'$(NoFsSrGenTask)' != 'true'">
+    <FsSrGen Include="..\fsi\FSIstrings.txt">
       <Link>FSIstrings.txt</Link>
     </FsSrGen>
-    <Compile Include="$(IntermediateOutputPath)\FSComp.fs" Condition="'$(NoFsSrGenTask)' == 'true'" />
-    <Compile Include="$(IntermediateOutputPath)\FSIstrings.fs" Condition="'$(NoFsSrGenTask)' == 'true'" />
     <EmbeddedResource Include="..\FSStrings.resx">
       <Link>FSStrings.resx</Link>
     </EmbeddedResource>

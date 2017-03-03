@@ -14,6 +14,23 @@ For more information about the project, see:
  * [F# Compiler Service documentation](http://fsharp.github.io/FSharp.Compiler.Service/)
  * [Developer notes explain the project structure](http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html)
 
+Build
+-----
+
+.NET Framework:
+
+    build.cmd All.NetFx 
+    (unix: ./build.sh All.NetFx)
+
+.NET Core
+
+    build All.NetCore
+
+Both:
+
+    build All
+
+
 Build Status
 ------------
 

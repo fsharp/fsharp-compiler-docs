@@ -12,10 +12,9 @@ nuget SQLite.Net.Platform.Generic 2.4.1
 nuget FAKE
 nuget FSharp.Formatting
 nuget SourceLink.Fake
-nuget fssrgen
-nuget FSharp.SRGen.Build.Tasks
 nuget FsLexYacc
 nuget FSharp.Core 4.0.0.1
+nuget FSharp.Compiler.Tools 4.0.1.21
 
 nuget System.Collections.Immutable 1.2.0
 nuget System.Reflection.Metadata 1.4.1-beta-24227-04

@@ -14,7 +14,7 @@ For more information about the project, see:
  * [F# Compiler Service documentation](http://fsharp.github.io/FSharp.Compiler.Service/)
  * [Developer notes explain the project structure](http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html)
 
-Build
+Build and Test
 -----
 
 .NET Framework:

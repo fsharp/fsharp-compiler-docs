@@ -276,7 +276,7 @@
     "System.Runtime.Loader": "4.0.0",
     "System.Security.Cryptography.Algorithms": "4.2.0",
     "System.Security.Cryptography.Primitives": "4.0.0",
-    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*"
+    "FSharp.Core": "4.1.0"
   },
   "tools": {
     "dotnet-fssrgen": "3.3.*",

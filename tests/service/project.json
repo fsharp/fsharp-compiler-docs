@@ -47,7 +47,7 @@
     },
 
     "dependencies": {
-        "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+        "FSharp.Core": "4.1.0",
         "NUnit": "3.4.1",
         "dotnet-test-nunit": "3.4.0-beta-2",
         "FSharp.Compiler.Service": { "target": "project" }

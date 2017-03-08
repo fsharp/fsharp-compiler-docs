@@ -1,3 +1,6 @@
+#### 11.0.5
+  * Fix [stack overflow exception](https://github.com/fsharp/FSharp.Compiler.Service/issues/672)
+
 #### 11.0.4
   * Fix [out of range exception](https://github.com/fsharp/FSharp.Compiler.Service/issues/709)
 

@@ -29,7 +29,7 @@
     ]
   },
   "dependencies": {
-    "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-*",
+    "FSharp.Core": "4.1.0",
     "Microsoft.Build": "14.3.0",
     "Microsoft.Build.Framework": "14.3.0",
     "Microsoft.Build.Tasks.Core": "14.3.0",

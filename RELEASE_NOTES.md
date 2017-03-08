@@ -1,4 +1,4 @@
-#### 11.0.7
+#### 11.0.8
   * Depend on FSharp.Core package
 
 #### 11.0.6

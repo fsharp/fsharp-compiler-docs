@@ -1367,7 +1367,7 @@ type IncrementalBuilder(ctokCtor: CompilationThreadToken, frameworkTcImportsCach
     let assertNotDisposed() =
         if disposed then  
             System.Diagnostics.Debug.Assert(false, "IncrementalBuild object has already been disposed!")
-    let mutable referenceCount = 0
+    let referenceCount = ref 0
 
     //----------------------------------------------------
     // START OF BUILD TASK FUNCTIONS 
@@ -1666,17 +1666,17 @@ type IncrementalBuilder(ctokCtor: CompilationThreadToken, frameworkTcImportsCach
 
     member this.IncrementUsageCount() = 
         assertNotDisposed() 
-        referenceCount  <- referenceCount  + 1
+        System.Threading.Interlocked.Increment(referenceCount) |> ignore
         { new System.IDisposable with member x.Dispose() = this.DecrementUsageCount() }
 
     member this.DecrementUsageCount() = 
         assertNotDisposed()
-        referenceCount  <- referenceCount  - 1
-        if referenceCount = 0 then 
+        System.Threading.Interlocked.Decrement(referenceCount) |> ignore
+        if !referenceCount = 0 then 
                 disposed <- true
                 disposeCleanupItem()
 
-    member __.IsAlive = referenceCount > 0
+    member __.IsAlive = !referenceCount > 0
 
     member __.TcConfig = tcConfig
     member __.FileParsed = fileParsed.Publish
@@ -1901,5 +1901,5 @@ type IncrementalBuilder(ctokCtor: CompilationThreadToken, frameworkTcImportsCach
         | Some builder -> builder.IncrementUsageCount() 
         | None -> { new System.IDisposable with member __.Dispose() = () }
 
-    member builder.IsBeingKeptAliveApartFromCacheEntry = (referenceCount >= 2)
+    member builder.IsBeingKeptAliveApartFromCacheEntry = (!referenceCount >= 2)
 

@@ -1666,13 +1666,13 @@ type IncrementalBuilder(ctokCtor: CompilationThreadToken, frameworkTcImportsCach
 
     member this.IncrementUsageCount() = 
         assertNotDisposed() 
-        referenceCount  <- referenceCount  + 1
+        System.Threading.Interlocked.Increment(&referenceCount) |> ignore
         { new System.IDisposable with member x.Dispose() = this.DecrementUsageCount() }
 
     member this.DecrementUsageCount() = 
         assertNotDisposed()
-        referenceCount  <- referenceCount  - 1
-        if referenceCount = 0 then 
+        let currentValue =  System.Threading.Interlocked.Decrement(&referenceCount)
+        if currentValue = 0 then 
                 disposed <- true
                 disposeCleanupItem()
 

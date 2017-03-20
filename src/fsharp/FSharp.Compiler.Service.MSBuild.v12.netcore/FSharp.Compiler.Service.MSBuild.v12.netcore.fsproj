@@ -1,5 +1,4 @@
-﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
-
+<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
     <VersionPrefix>11.0.8</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
@@ -13,15 +12,12 @@
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win81;dnxcore50</PackageTargetFallback>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.MSBuild.v12.dll.fs;..\..\assemblyinfo\assemblyinfo.shared.fs;..\..\utils\reshapedmsbuild.fs;..\MSBuildReferenceResolver.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="../FSharp.Compiler.Service.netcore/FSharp.Compiler.Service.netcore.fsproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.0.0" />
     <PackageReference Include="System.Collections.Immutable" Version="1.2.0" />
@@ -32,11 +28,9 @@
     <PackageReference Include="FSharp.Core" Version="4.1.*" />
     <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
   </ItemGroup>
-
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-fssrgen" Version="3.2.*" />
     <DotNetCliToolReference Include="dotnet-mergenupkg" Version="1.0.*" />
     <DotNetCliToolReference Include="dotnet-compile-fsc" Version="1.0.0-preview2-*" />
   </ItemGroup>
-
 </Project>

@@ -1,5 +1,4 @@
-﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
-
+<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
     <VersionPrefix>11.0.8</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
@@ -16,7 +15,6 @@
     <!-- we set EnableDefaultEmbeddedResourceItems because I like the explicitness -->
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="../../assemblyinfo/assemblyinfo.FSharp.Compiler.Service.dll.fs">
       <Link>AssemblyInfo/assemblyinfo.FSharp.Compiler.Service.dll.fs</Link>
@@ -175,6 +173,9 @@
     </Compile>
     <Compile Include="../../absil/ilmorph.fs">
       <Link>AbsIL/ilmorph.fs</Link>
+    </Compile>
+    <Compile Include="../../absil/ilsign.fs">
+      <Link>AbsIL/ilsign.fs</Link>
     </Compile>
     <Compile Include="../../absil/ilsupp.fsi">
       <Link>AbsIL/ilsupp.fsi</Link>
@@ -531,7 +532,6 @@
     <Compile Include="pars.fs" />
     <Compile Include="pppars.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="System.Collections.Immutable" Version="1.2.0" />
     <PackageReference Include="System.Diagnostics.Process" Version="4.1.0" />
@@ -545,7 +545,6 @@
     <PackageReference Include="FSharp.Core" Version="4.1.*" />
     <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
   </ItemGroup>
-
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-fssrgen" Version="3.3.*" />
     <DotNetCliToolReference Include="dotnet-mergenupkg" Version="1.0.*" />

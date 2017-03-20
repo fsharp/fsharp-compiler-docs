@@ -243,7 +243,7 @@ Target "CodeGen.NetCore" (fun _ ->
 
     // restore all the required tools, declared in each fsproj
     !! "**/*netcore.fsproj"
-    ++ "tests/service/service.fsproj"
+    ++ "tests/service.netcore/service.fsproj"
     |> Seq.iter (fun path ->
         let parent = System.IO.FileInfo(path).DirectoryName
         tracefn "restoring at %s" path
@@ -279,7 +279,7 @@ Target "Build.NetCore" (fun _ ->
 )
 
 Target "RunTests.NetCore" (fun _ ->
-    runCmdIn "tests/service/" "dotnet" "test -c Release --result:TestResults.NetCore.xml;format=nunit3"
+    runCmdIn "tests/service.netcore/" "dotnet" "test -c Release -- --result:TestResults.NetCore.xml;format=nunit3"
 )
 
 

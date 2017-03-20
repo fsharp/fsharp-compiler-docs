@@ -30,6 +30,8 @@
     <EmbeddedResource Include="../FSStrings.resx">
       <Link>FSStrings.resx</Link>
     </EmbeddedResource>
+    <Compile Include="FSComp.fs" />
+    <Compile Include="FSIstrings.fs" />
     <Compile Include="../../utils/reshapedreflection.fs">
       <Link>Reshaped/reshapedreflection.fs</Link>
     </Compile>

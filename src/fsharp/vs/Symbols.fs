@@ -1720,6 +1720,11 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
 
     member x.Data = d
 
+    member x.IsValCompiledAsMethod =
+        match d with
+        | V valRef -> IlxGen.IsValCompiledAsMethod cenv.g valRef.Deref
+        | _ -> false
+
     override x.Equals(other : obj) =
         box x === other ||
         match other with

@@ -798,6 +798,9 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
     /// Get the accessibility information for the member, function or value
     member Accessibility : FSharpAccessibility
 
+    /// Indicated if this is a value compiled to a method
+    member IsValCompiledAsMethod : bool
+
 
 /// A subtype of FSharpSymbol that represents a parameter 
 and [<Class>] FSharpParameter =

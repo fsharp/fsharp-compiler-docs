@@ -24,15 +24,15 @@ open NUnit.Framework
 open ReflectionAdapters
 #endif
 
-exception 
+exception
    VerificationException of (*assembly:*)string * (*errorCode:*)int * (*output:*)string
    with override e.Message = sprintf "Verification of '%s' failed with code %d, message <<<%s>>>" e.Data0 e.Data1 e.Data2
 
-exception 
+exception
    CompilationError of (*assembly:*)string * (*errorCode:*)int * (*info:*)FSharpErrorInfo []
    with override e.Message = sprintf "Compilation of '%s' failed with code %d (%A)" e.Data0 e.Data1 e.Data2
 
-let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e->  false        
+let runningOnMono = try System.Type.GetType("Mono.Runtime") <> null with e->  false
 let pdbExtension isDll = (if runningOnMono then (if isDll then ".dll.mdb" else ".exe.mdb") else ".pdb")
 
 type PEVerifier () =
@@ -43,7 +43,7 @@ type PEVerifier () =
     let verifierInfo =
 #if FX_ATLEAST_PORTABLE
         None
-#else           
+#else
         if runsOnMono then
             Some ("pedump", "--verify all")
         else
@@ -51,10 +51,10 @@ type PEVerifier () =
                 let file = Path.Combine(dir.FullName, fileName)
                 if File.Exists file then Some file
                 else
-                    dir.GetDirectories() 
+                    dir.GetDirectories()
                     |> Array.sortBy(fun d -> d.Name)
-                    |> Array.filter(fun d -> 
-                        match d.Name with 
+                    |> Array.filter(fun d ->
+                        match d.Name with
                         // skip old SDK directories
                         | "v6.0" | "v6.0A" | "v7.0" | "v7.0A" | "v7.1" | "v7.1A" -> false
                         | _ -> true)
@@ -92,16 +92,16 @@ type PEVerifier () =
 
     member __.Verify(assemblyPath : string) =
         match verifierInfo with
-        | Some (verifierPath, switches) -> 
+        | Some (verifierPath, switches) ->
             let id,stdOut,stdErr = execute(verifierPath, sprintf "%s \"%s\"" switches assemblyPath)
             if id = expectedExitCode && String.IsNullOrWhiteSpace stdErr then ()
             else
                 printfn "Verification failure, stdout: <<<%s>>>" stdOut
                 printfn "Verification failure, stderr: <<<%s>>>" stdErr
                 raise <| VerificationException(assemblyPath, id, stdOut + "\n" + stdErr)
-        | None -> 
+        | None ->
            printfn "Skipping verification part of test because verifier not found"
-            
+
 
 
 type DebugMode =
@@ -111,7 +111,7 @@ type DebugMode =
 
 let checker = FSharpChecker.Create()
 
-/// Ensures the default FSharp.Core referenced by the F# compiler service (if none is 
+/// Ensures the default FSharp.Core referenced by the F# compiler service (if none is
 /// provided explicitly) is available in the output directory.
 let ensureDefaultFSharpCoreAvailable tmpDir  =
 #if FX_ATLEAST_PORTABLE
@@ -119,9 +119,9 @@ let ensureDefaultFSharpCoreAvailable tmpDir  =
 #else
     // FSharp.Compiler.Service references FSharp.Core 4.3.0.0 by default.  That's wrong? But the output won't verify
     // or run on a system without FSharp.Core 4.3.0.0 in the GAC or in the same directory, or with a binding redirect in place.
-    // 
+    //
     // So just copy the FSharp.Core 4.3.0.0 to the tmp directory. Only need to do this on Windows.
-    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows
         File.Copy(fsCoreDefaultReference(), Path.Combine(tmpDir, Path.GetFileName(fsCoreDefaultReference())), overwrite = true)
 #endif
 
@@ -163,10 +163,10 @@ let compile isDll debugMode (assemblyName : string) (ext: string) (code : string
         |]
 
     ensureDefaultFSharpCoreAvailable tmp
-        
+
     printfn "args: %A" args
     let errorInfo, id = checker.Compile args
-    for err in errorInfo do 
+    for err in errorInfo do
        printfn "error: %A" err
     if id <> 0 then raise <| CompilationError(assemblyName, id, errorInfo)
     Assert.AreEqual (errorInfo.Length, 0)
@@ -193,7 +193,7 @@ let compileAndVerifyAst (name : string, ast : Ast.ParsedInput list, references :
     if id <> 0 then raise <| CompilationError(name, id, errors)
 
     // copy local explicit references for verification
-    for ref in references do 
+    for ref in references do
         let name = Path.GetFileName ref
         File.Copy(ref, Path.Combine(outDir, name), overwrite = true)
 
@@ -246,6 +246,9 @@ module Bar
 
 
 [<Test>]
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
 let ``4. Compile from simple AST`` () =
     let code = """
 module Foo
@@ -262,6 +265,9 @@ module Foo
     compileAndVerifyAst("foo", ast, [])
 
 [<Test>]
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
 let ``5. Compile from AST with explicit assembly reference`` () =
     let code = """
 module Bar
@@ -294,9 +300,9 @@ module Bar
 
     let sum = doStuff "1" 2
 
-"""    
+"""
     try
-        let outFile : string = compile false PdbOnly "Bar" "fs" code [] [] 
+        let outFile : string = compile false PdbOnly "Bar" "fs" code [] []
         ()
     with
     | :? CompilationError as exn  ->
@@ -350,7 +356,7 @@ let x = 1
         ()
     with
     | :? CompilationError as exn  ->
-            let contains (s1:string)  s2 = 
+            let contains (s1:string)  s2 =
                 Assert.True(s1.Contains(s2), sprintf "Expected '%s' to contain '%s'" s1 s2)
             contains (exn.Data2.[0].ToString()) "startup (1,1)-(1,1) parameter error"
             contains (exn.Data2.[0].ToString()) "missing.dll"
@@ -360,7 +366,7 @@ let x = 1
 #if STRESS
 // For this stress test the aim is to check if we have a memory leak
 
-module StressTest1 = 
+module StressTest1 =
     open System.IO
 
     [<Test>]
@@ -370,7 +376,7 @@ module StressTest1 =
         let code = """
 module M
 
-type C() = 
+type C() =
     member x.P = 1
 
 let x = 3 + 4
@@ -389,10 +395,9 @@ let ``Check read of mscorlib`` () =
     let options = { options with optimizeForMemory=true}
     let reader = Microsoft.FSharp.Compiler.AbstractIL.ILBinaryReader.OpenILModuleReaderAfterReadingAllBytes "C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\mscorlib.dll" options
     let greg = reader.ILModuleDef.TypeDefs.FindByName "System.Globalization.GregorianCalendar"
-    for attr in greg.CustomAttrs.AsList do 
+    for attr in greg.CustomAttrs.AsList do
         printfn "%A" attr.Method
 
 *)
 
 
-  

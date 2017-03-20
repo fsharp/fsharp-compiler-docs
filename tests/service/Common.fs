@@ -9,33 +9,33 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open ReflectionAdapters
 #endif
 
-// Create one global interactive checker instance 
+// Create one global interactive checker instance
 let checker = FSharpChecker.Create()
 
-type TempFile(ext, contents) = 
+type TempFile(ext, contents) =
     let tmpFile =  Path.ChangeExtension(System.IO.Path.GetTempFileName() , ext)
     do File.WriteAllText(tmpFile, contents)
-    interface System.IDisposable with 
+    interface System.IDisposable with
         member x.Dispose() = try File.Delete tmpFile with _ -> ()
     member x.Name = tmpFile
 
 #nowarn "57"
 
-let getBackgroundParseResultsForScriptText (input) = 
+let getBackgroundParseResultsForScriptText (input) =
     use file =  new TempFile("fsx", input)
     let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
     checker.GetBackgroundParseResultsForFileInProject(file.Name, checkOptions)  |> Async.RunSynchronously
 
 
-let getBackgroundCheckResultsForScriptText (input) = 
+let getBackgroundCheckResultsForScriptText (input) =
     use file =  new TempFile("fsx", input)
     let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
     checker.GetBackgroundCheckResultsForFileInProject(file.Name, checkOptions) |> Async.RunSynchronously
 
 
-let sysLib nm = 
+let sysLib nm =
 #if !FX_ATLEAST_PORTABLE
-    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+    if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows
         let programFilesx86Folder = System.Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
         programFilesx86Folder + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\" + nm + ".dll"
     else
@@ -46,53 +46,50 @@ let sysLib nm =
         let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
 #endif
         let (++) a b = System.IO.Path.Combine(a,b)
-        sysDir ++ nm + ".dll" 
+        sysDir ++ nm + ".dll"
 
 [<AutoOpen>]
-module Helpers = 
+module Helpers =
     open System
     type DummyType = A | B
     let PathRelativeToTestAssembly p = Path.Combine(Path.GetDirectoryName(Uri(typeof<DummyType>.Assembly.CodeBase).LocalPath), p)
 
-let fsCoreDefaultReference() = 
+let fsCoreDefaultReference() =
 #if !FX_ATLEAST_PORTABLE
-     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
+     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows
         let programFilesx86Folder = System.Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
-        programFilesx86Folder + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0\FSharp.Core.dll"  
-     else 
+        programFilesx86Folder + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0\FSharp.Core.dll"
+     else
 #endif
         sysLib "FSharp.Core"
 
-let mkProjectCommandLineArgs (dllName, fileNames) = 
-  let args = 
-    [|  yield "--simpleresolution" 
-        yield "--noframework" 
-        yield "--debug:full" 
-        yield "--define:DEBUG" 
+let mkProjectCommandLineArgs (dllName, fileNames) =
+  let args =
+    [|  yield "--simpleresolution"
+        yield "--noframework"
+        yield "--debug:full"
+        yield "--define:DEBUG"
 #if NETCOREAPP1_0
-        yield "--targetprofile:netcore" 
+        yield "--targetprofile:netcore"
 #endif
-        yield "--optimize-" 
+        yield "--optimize-"
         yield "--out:" + dllName
-        yield "--doc:test.xml" 
-        yield "--warn:3" 
-        yield "--fullpaths" 
-        yield "--flaterrors" 
-        yield "--target:library" 
-        for x in fileNames do 
+        yield "--doc:test.xml"
+        yield "--warn:3"
+        yield "--fullpaths"
+        yield "--flaterrors"
+        yield "--target:library"
+        for x in fileNames do
             yield x
         let references =
 #if DOTNETCORE
-            Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/obj/Debug/netstandard1.6/dotnet-compile-fsc.rsp")
-                |> File.ReadAllLines
-                |> Array.filter (fun s -> s.StartsWith("-r:"))
-                |> Array.map (fun s -> s.Replace("-r:","")) 
-#else        
+            [ ]
+#else
             [ yield sysLib "mscorlib"
               yield sysLib "System"
               yield sysLib "System.Core"
               yield fsCoreDefaultReference() ]
-#endif              
+#endif
         for r in references do
             yield "-r:" + r
      |]
@@ -100,29 +97,25 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
   args
 
 #if DOTNETCORE
-let mkProjectCommandLineArgsForScript (dllName, fileNames) = 
-    [|  yield "--simpleresolution" 
-        yield "--noframework" 
-        yield "--debug:full" 
-        yield "--define:DEBUG" 
+let mkProjectCommandLineArgsForScript (dllName, fileNames) =
+    [|  yield "--simpleresolution"
+        yield "--noframework"
+        yield "--debug:full"
+        yield "--define:DEBUG"
 #if NETCOREAPP1_0
-        yield "--targetprofile:netcore" 
+        yield "--targetprofile:netcore"
 #endif
-        yield "--optimize-" 
+        yield "--optimize-"
         yield "--out:" + dllName
-        yield "--doc:test.xml" 
-        yield "--warn:3" 
-        yield "--fullpaths" 
-        yield "--flaterrors" 
-        yield "--target:library" 
-        for x in fileNames do 
+        yield "--doc:test.xml"
+        yield "--warn:3"
+        yield "--fullpaths"
+        yield "--flaterrors"
+        yield "--target:library"
+        for x in fileNames do
             yield x
-    //    let implDir = Path.GetDirectoryName(typeof<System.Object>.Assembly.Location)
         let references =
-            Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/obj/Debug/netstandard1.6/dotnet-compile-fsc.rsp")
-            |> File.ReadAllLines
-            |> Array.filter (fun s -> s.StartsWith("-r:"))
-            |> Array.map (fun s -> s.Replace("-r:",""))
+            [ ]
         for r in references do
             yield "-r:" + r
      |]
@@ -140,7 +133,7 @@ let parseSourceCode (name: string, code: string) =
     let parseResults = checker.ParseFileInProject(filePath, code, options) |> Async.RunSynchronously
     parseResults.ParseTree
 
-let parseAndCheckScript (file, input) = 
+let parseAndCheckScript (file, input) =
 
 #if DOTNETCORE
     let dllName = Path.ChangeExtension(file, ".dll")
@@ -149,12 +142,12 @@ let parseAndCheckScript (file, input) =
     printfn "file = %A, args = %A" file args
     let projectOptions = checker.GetProjectOptionsFromCommandLineArgs (projName, args)
 
-#else    
+#else
     let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
 #endif
 
     let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, projectOptions) |> Async.RunSynchronously
-    
+
     // if parseResult.Errors.Length > 0 then
     //     printfn "---> Parse Input = %A" input
     //     printfn "---> Parse Error = %A" parseResult.Errors
@@ -163,23 +156,23 @@ let parseAndCheckScript (file, input) =
     | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
     | res -> failwithf "Parsing did not finish... (%A)" res
 
-/// Extract range info 
+/// Extract range info
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)
 
 /// Extract range info  and convert to zero-based line  - please don't use this one any more
 let tupsZ (m:Range.range) = (m.StartLine-1, m.StartColumn), (m.EndLine-1, m.EndColumn)
 
-let attribsOfSymbolUse (s:FSharpSymbolUse) = 
-    [ if s.IsFromDefinition then yield "defn" 
+let attribsOfSymbolUse (s:FSharpSymbolUse) =
+    [ if s.IsFromDefinition then yield "defn"
       if s.IsFromType then yield "type"
       if s.IsFromAttribute then yield "attribute"
       if s.IsFromDispatchSlotImplementation then yield "override"
-      if s.IsFromPattern then yield "pattern" 
-      if s.IsFromComputationExpression then yield "compexpr" ] 
+      if s.IsFromPattern then yield "pattern"
+      if s.IsFromComputationExpression then yield "compexpr" ]
 
-let attribsOfSymbol (s:FSharpSymbol) = 
-    [ match s with 
-        | :? FSharpField as v -> 
+let attribsOfSymbol (s:FSharpSymbol) =
+    [ match s with
+        | :? FSharpField as v ->
             yield "field"
             if v.IsCompilerGenerated then yield "compgen"
             if v.IsDefaultValue then yield "default"
@@ -189,7 +182,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsLiteral then yield sprintf "%A" v.LiteralValue.Value
 
 
-        | :? FSharpEntity as v -> 
+        | :? FSharpEntity as v ->
             v.TryFullName |> ignore // check there is no failure here
             if v.IsNamespace then yield "namespace"
             if v.IsFSharpModule then yield "module"
@@ -212,7 +205,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsUnresolved then yield "unresolved"
             if v.IsValueType then yield "valuetype"
 
-        | :? FSharpMemberOrFunctionOrValue as v -> 
+        | :? FSharpMemberOrFunctionOrValue as v ->
             if v.IsActivePattern then yield "apat"
             if v.IsDispatchSlot then yield "slot"
             if v.IsModuleValueOrMember && not v.IsMember then yield "val"
@@ -228,7 +221,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsTypeFunction then yield "typefun"
             if v.IsCompilerGenerated then yield "compgen"
             if v.IsImplicitConstructor then yield "ctor"
-            if v.IsMutable then yield "mutable" 
+            if v.IsMutable then yield "mutable"
             if v.IsOverrideOrExplicitInterfaceImplementation then yield "overridemem"
             if v.IsInstanceMember && not v.IsInstanceMemberInCompiledCode && not v.IsExtensionMember then yield "funky"
             if v.IsExplicitInterfaceImplementation then yield "intfmem"
@@ -237,25 +230,25 @@ let attribsOfSymbol (s:FSharpSymbol) =
 //            if v.LiteralValue.IsSome then yield "literal"
         | _ -> () ]
 
-let rec allSymbolsInEntities compGen (entities: IList<FSharpEntity>) = 
-    [ for e in entities do 
-          yield (e :> FSharpSymbol) 
-          for gp in e.GenericParameters do 
-            if compGen || not gp.IsCompilerGenerated then 
+let rec allSymbolsInEntities compGen (entities: IList<FSharpEntity>) =
+    [ for e in entities do
+          yield (e :> FSharpSymbol)
+          for gp in e.GenericParameters do
+            if compGen || not gp.IsCompilerGenerated then
              yield (gp :> FSharpSymbol)
           for x in e.MembersFunctionsAndValues do
-             if compGen || not x.IsCompilerGenerated then 
+             if compGen || not x.IsCompilerGenerated then
                yield (x :> FSharpSymbol)
-             for gp in x.GenericParameters do 
-              if compGen || not gp.IsCompilerGenerated then 
+             for gp in x.GenericParameters do
+              if compGen || not gp.IsCompilerGenerated then
                yield (gp :> FSharpSymbol)
           for x in e.UnionCases do
              yield (x :> FSharpSymbol)
              for f in x.UnionCaseFields do
-                 if compGen || not f.IsCompilerGenerated then 
+                 if compGen || not f.IsCompilerGenerated then
                      yield (f :> FSharpSymbol)
           for x in e.FSharpFields do
-             if compGen || not x.IsCompilerGenerated then 
+             if compGen || not x.IsCompilerGenerated then
                  yield (x :> FSharpSymbol)
           yield! allSymbolsInEntities compGen e.NestedEntities ]
 

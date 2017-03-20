@@ -5,17 +5,17 @@
 //
 // Technique 2:
 //
-//   Enable some tests in the #if EXE section at the end of the file, 
+//   Enable some tests in the #if EXE section at the end of the file,
 //   then compile this file as an EXE that has InternalsVisibleTo access into the
 //   appropriate DLLs.  This can be the quickest way to get turnaround on updating the tests
 //   and capturing large amounts of structured output.
 (*
     cd Debug\net40\bin
-    .\fsc.exe --define:EXE -r:.\Microsoft.Build.Utilities.Core.dll -o VisualFSharp.Unittests.exe -g --optimize- -r .\FSharp.LanguageService.Compiler.dll -r nunit.framework.dll ..\..\..\tests\service\FsUnit.fs ..\..\..\tests\service\Common.fs /delaysign /keyfile:..\..\..\src\fsharp\msft.pubkey ..\..\..\tests\service\EditorTests.fs 
-    .\VisualFSharp.Unittests.exe 
+    .\fsc.exe --define:EXE -r:.\Microsoft.Build.Utilities.Core.dll -o VisualFSharp.Unittests.exe -g --optimize- -r .\FSharp.LanguageService.Compiler.dll -r nunit.framework.dll ..\..\..\tests\service\FsUnit.fs ..\..\..\tests\service\Common.fs /delaysign /keyfile:..\..\..\src\fsharp\msft.pubkey ..\..\..\tests\service\EditorTests.fs
+    .\VisualFSharp.Unittests.exe
 *)
-// Technique 3: 
-// 
+// Technique 3:
+//
 //    Use F# Interactive.  This only works for FSHarp.Compiler.Service.dll which has a public API
 
 #if INTERACTIVE
@@ -35,7 +35,7 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
-let stringMethods = 
+let stringMethods =
 #if DOTNETCORE
     ["Chars"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
     "GetHashCode"; "GetType"; "IndexOf";
@@ -52,23 +52,26 @@ let stringMethods =
     "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"]
 #endif
 
-let input = 
+let input =
   """
   open System
-  
-  let foo() = 
+
+  let foo() =
     let msg = String.Concat("Hello"," ","world")
-    if true then 
+    if true then
       printfn "%s" msg.
   """
 
 [<Test>]
-let ``Intro test`` () = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Intro test`` () =
 
     // Split the input & define file name
     let inputLines = input.Split('\n')
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults =  parseAndCheckScript(file, input)
     let identToken = FSharpTokenTag.IDENT
 //    let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
 
@@ -78,7 +81,7 @@ let ``Intro test`` () =
     (match typeCheckResults.Errors.Length with 1 | 2 -> true | _ -> false)  |> shouldEqual true
 
     // So we check that the messages are the same
-    for msg in typeCheckResults.Errors do 
+    for msg in typeCheckResults.Errors do
         printfn "Good! got an error, hopefully with the right text: %A" msg
         msg.Message.Contains("Missing qualification after '.'") |> shouldEqual true
 
@@ -108,24 +111,24 @@ let ``Intro test`` () =
                ("Concat", ["str0: string"; "str1: string"; "str2: string"]);
 #if !DOTNETCORE
                ("Concat", ["arg0: obj"; "arg1: obj"; "arg2: obj"; "arg3: obj"]);
-#endif               
+#endif
                ("Concat", ["str0: string"; "str1: string"; "str2: string"; "str3: string"])]
 
 
 #if !INTERACTIVE && !DOTNETCORE // InternalsVisibleTo on IncrementalBuild.LocallyInjectCancellationFault not working for some reason?
 [<Test>]
-let ``Basic cancellation test`` () = 
-   try 
+let ``Basic cancellation test`` () =
+   try
     printfn "locally injecting a cancellation condition in incremental building"
     use _holder = IncrementalBuild.LocallyInjectCancellationFault()
-    
+
     // Split the input & define file name
     let inputLines = input.Split('\n')
     let file = "/home/user/Test.fsx"
-    async { 
+    async {
         checker.ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients()
-        let! checkOptions = checker.GetProjectOptionsFromScript(file, input) 
-        let! parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, checkOptions) 
+        let! checkOptions = checker.GetProjectOptionsFromScript(file, input)
+        let! parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, checkOptions)
         return parseResult, typedRes
     } |> Async.RunSynchronously
       |> ignore
@@ -134,13 +137,16 @@ let ``Basic cancellation test`` () =
 #endif
 
 [<Test>]
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
 let ``GetMethodsAsSymbols should return all overloads of a method as FSharpSymbolUse`` () =
 
     let extractCurriedParams (symbol:FSharpSymbolUse) =
         match symbol.Symbol with
         | :? FSharpMemberOrFunctionOrValue as mvf ->
-            [for pg in mvf.CurriedParameterGroups do 
-                for (p:FSharpParameter) in pg do 
+            [for pg in mvf.CurriedParameterGroups do
+                for (p:FSharpParameter) in pg do
                     yield p.DisplayName, p.Type.Format (symbol.DisplayContext)]
         | _ -> []
 
@@ -171,37 +177,43 @@ let ``GetMethodsAsSymbols should return all overloads of a method as FSharpSymbo
     | None -> failwith "No symbols returned"
 
 
-let input2 = 
+let input2 =
         """
 [<System.CLSCompliant(true)>]
-let foo(x, y) = 
+let foo(x, y) =
     let msg = String.Concat("Hello"," ","world")
-    if true then 
-        printfn "x = %d, y = %d" x y 
+    if true then
+        printfn "x = %d, y = %d" x y
         printfn "%s" msg
 
-type C() = 
+type C() =
     member x.P = 1
         """
 
 [<Test>]
-let ``Symbols basic test`` () = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Symbols basic test`` () =
 
     let file = "/home/user/Test.fsx"
     let untyped2, typeCheckResults2 = parseAndCheckScript(file, input2)
 
     let partialAssemblySignature = typeCheckResults2.PartialAssemblySignature
-    
+
     partialAssemblySignature.Entities.Count |> shouldEqual 1  // one entity
 
 [<Test>]
-let ``Symbols many tests`` () = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Symbols many tests`` () =
 
     let file = "/home/user/Test.fsx"
     let untyped2, typeCheckResults2 = parseAndCheckScript(file, input2)
 
     let partialAssemblySignature = typeCheckResults2.PartialAssemblySignature
-    
+
     partialAssemblySignature.Entities.Count |> shouldEqual 1  // one entity
     let moduleEntity = partialAssemblySignature.Entities.[0]
 
@@ -239,7 +251,7 @@ let ``Symbols many tests`` () =
     fnVal.IsTypeFunction |> shouldEqual false
 
     fnVal.FullType.IsFunctionType |> shouldEqual true // int * int -> unit
-    fnVal.FullType.GenericArguments.[0].IsTupleType |> shouldEqual true // int * int 
+    fnVal.FullType.GenericArguments.[0].IsTupleType |> shouldEqual true // int * int
     let argTy1 = fnVal.FullType.GenericArguments.[0].GenericArguments.[0]
 
     argTy1.TypeDefinition.DisplayName |> shouldEqual "int" // int
@@ -249,29 +261,32 @@ let ``Symbols many tests`` () =
 
     let argTy1b = argTy1.TypeDefinition.AbbreviatedType
     argTy1b.TypeDefinition.Namespace |> shouldEqual (Some "Microsoft.FSharp.Core")
-    argTy1b.TypeDefinition.CompiledName |> shouldEqual "int32" 
+    argTy1b.TypeDefinition.CompiledName |> shouldEqual "int32"
 
     let argTy1c = argTy1b.TypeDefinition.AbbreviatedType
     argTy1c.TypeDefinition.Namespace |> shouldEqual (Some "System")
-    argTy1c.TypeDefinition.CompiledName |> shouldEqual "Int32" 
+    argTy1c.TypeDefinition.CompiledName |> shouldEqual "Int32"
 
     let typeCheckContext = typeCheckResults2.ProjectContext
-    
-    typeCheckContext.GetReferencedAssemblies() |> List.exists (fun s -> s.FileName.Value.Contains(coreLibAssemblyName)) |> shouldEqual true
-    
 
-let input3 = 
+    typeCheckContext.GetReferencedAssemblies() |> List.exists (fun s -> s.FileName.Value.Contains(coreLibAssemblyName)) |> shouldEqual true
+
+
+let input3 =
   """
 let date = System.DateTime.Now.ToString().PadRight(25)
   """
 
 [<Test>]
-let ``Expression typing test`` () = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Expression typing test`` () =
 
     // Split the input & define file name
     let inputLines = input3.Split('\n')
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults =  parseAndCheckScript(file, input3) 
+    let parseResult, typeCheckResults =  parseAndCheckScript(file, input3)
     let identToken = FSharpTokenTag.IDENT
 
     // We only expect one reported error. However,
@@ -281,123 +296,148 @@ let ``Expression typing test`` () =
 
     // Get declarations (autocomplete) for a location
     //
-    // Getting the declarations at columns 42 to 43 with [], "" for the names and residue 
-    // gives the results for the string type. 
-    // 
-    for col in 42..43 do 
+    // Getting the declarations at columns 42 to 43 with [], "" for the names and residue
+    // gives the results for the string type.
+    //
+    for col in 42..43 do
         let decls =  typeCheckResults.GetDeclarationListInfo(Some parseResult, 2, col, inputLines.[1], [], "", fun _ -> false)|> Async.RunSynchronously
         let autoCompleteSet = set [ for item in decls.Items -> item.Name ]
         autoCompleteSet |> shouldEqual (set stringMethods)
 
 // The underlying problem is that the parser error recovery doesn't include _any_ information for
 // the incomplete member:
-//    member x.Test = 
+//    member x.Test =
 
-[<Test; Ignore("Currently failing, see #139")>]
-let ``Find function from member 1`` () = 
-    let input = 
+[<Test>]
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#else
+[<Ignore("Currently failing, see #139")>]
+#endif
+let ``Find function from member 1`` () =
+    let input =
       """
-type Test() = 
+type Test() =
     let abc a b c = a + b + c
-    member x.Test = """ 
+    member x.Test = """
 
     // Split the input & define file name
     let inputLines = input.Split('\n')
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults =  parseAndCheckScript(file, input)
 
     let decls = typeCheckResults.GetDeclarationListInfo(Some parseResult, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     //decls.Items |> Array.map (fun d -> d.Name) |> printfn "---> decls.Items = %A"
     decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
 
 [<Test>]
-let ``Find function from member 2`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Find function from member 2`` () =
+    let input =
       """
-type Test() = 
+type Test() =
     let abc a b c = a + b + c
-    member x.Test = a""" 
+    member x.Test = a"""
 
     // Split the input & define file name
     let inputLines = input.Split('\n')
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults =  parseAndCheckScript(file, input)
 
     let decls = typeCheckResults.GetDeclarationListInfo(Some parseResult, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     //decls.Items |> Array.map (fun d -> d.Name) |> printfn "---> decls.Items = %A"
     decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
- 
+
 [<Test>]
-let ``Find function from var`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Find function from var`` () =
+    let input =
       """
-type Test() = 
+type Test() =
     let abc a b c = a + b + c
-    let test = """ 
+    let test = """
 
     // Split the input & define file name
     let inputLines = input.Split('\n')
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults =  parseAndCheckScript(file, input)
 
     let decls = typeCheckResults.GetDeclarationListInfo(Some parseResult, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     //decls.Items |> Array.map (fun d -> d.Name) |> printfn "---> decls.Items = %A"
     decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
 
-[<Test; Ignore("Currently failing, see #139")>]
-let ``Symbol based find function from member 1`` () = 
-    let input = 
+[<Test>]
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#else
+[<Ignore("Currently failing, see #139")>]
+#endif
+let ``Symbol based find function from member 1`` () =
+    let input =
       """
-type Test() = 
+type Test() =
     let abc a b c = a + b + c
-    member x.Test = """ 
+    member x.Test = """
 
     // Split the input & define file name
     let inputLines = input.Split('\n')
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults =  parseAndCheckScript(file, input)
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some parseResult, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     //decls |> List.map (fun d -> d.Head.Symbol.DisplayName) |> printfn "---> decls = %A"
     decls |> Seq.exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
 
 [<Test>]
-let ``Symbol based find function from member 2`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Symbol based find function from member 2`` () =
+    let input =
       """
-type Test() = 
+type Test() =
     let abc a b c = a + b + c
-    member x.Test = a""" 
+    member x.Test = a"""
 
     // Split the input & define file name
     let inputLines = input.Split('\n')
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults =  parseAndCheckScript(file, input)
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some parseResult, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     //decls |> List.map (fun d -> d.Head.Symbol.DisplayName) |> printfn "---> decls = %A"
     decls |> Seq.exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
 
 [<Test>]
-let ``Symbol based find function from var`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Symbol based find function from var`` () =
+    let input =
       """
-type Test() = 
+type Test() =
     let abc a b c = a + b + c
-    let test = """ 
+    let test = """
 
     // Split the input & define file name
     let inputLines = input.Split('\n')
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults =  parseAndCheckScript(file, input)
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some parseResult, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
     //decls |> List.map (fun d -> d.Head.Symbol.DisplayName) |> printfn "---> decls = %A"
     decls |> Seq.exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
 
 [<Test>]
-let ``Printf specifiers for regular and verbatim strings`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Printf specifiers for regular and verbatim strings`` () =
+    let input =
       """let os = System.Text.StringBuilder()
 let _ = Microsoft.FSharp.Core.Printf.printf "%A" 0
 let _ = Printf.printf "%A" 0
@@ -418,7 +458,7 @@ let _ = List.map (sprintf @"%A
 let _ = (10, 12) ||> sprintf "%A
                               %O"
 let _ = sprintf "\n%-8.1e+567" 1.0
-let _ = sprintf @"%O\n%-5s" "1" "2" 
+let _ = sprintf @"%O\n%-5s" "1" "2"
 let _ = sprintf "%%"
 let _ = sprintf " %*%" 2
 let _ = sprintf "  %.*%" 2
@@ -435,10 +475,10 @@ let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2
 """
 
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults = parseAndCheckScript(file, input)
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
+    typeCheckResults.GetFormatSpecifierLocationsAndArity()
     |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual
          [|(2, 45, 2, 47, 1); (3, 23, 3, 25, 1); (4, 38, 4, 40, 1); (5, 27, 5, 29
@@ -454,8 +494,11 @@ let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2
           (34, 29, 34, 32, 3)|]
 
 [<Test>]
-let ``Printf specifiers for triple-quote strings`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Printf specifiers for triple-quote strings`` () =
+    let input =
       "
 let _ = sprintf \"\"\"%-A\"\"\" -10
 let _ = printfn \"\"\"
@@ -466,20 +509,23 @@ let _ = List.iter(printfn \"\"\"%-A
                              \"\"\" 1 2)"
 
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults = parseAndCheckScript(file, input)
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
+    typeCheckResults.GetFormatSpecifierLocationsAndArity()
     |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [|(2, 19, 2, 22, 1);
                      (4, 12, 4, 15, 1);
                      (6, 29, 6, 32, 1);
-                     (7, 29, 7, 31, 1); 
+                     (7, 29, 7, 31, 1);
                      (7, 33, 7, 35,1 )|]
- 
+
 [<Test>]
-let ``Printf specifiers for user-defined functions`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Printf specifiers for user-defined functions`` () =
+    let input =
       """
 let debug msg = Printf.kprintf System.Diagnostics.Debug.WriteLine msg
 let _ = debug "Message: %i - %O" 1 "Ok"
@@ -487,51 +533,60 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
 """
 
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults = parseAndCheckScript(file, input)
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
+    typeCheckResults.GetFormatSpecifierLocationsAndArity()
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-    |> shouldEqual [|(3, 24, 3, 26, 1); 
+    |> shouldEqual [|(3, 24, 3, 26, 1);
                      (3, 29, 3, 31, 1);
-                     (4, 58, 4, 60, 1); 
-                     (4, 75, 4, 77, 1); 
-                     (4, 82, 4, 84, 1); 
+                     (4, 58, 4, 60, 1);
+                     (4, 75, 4, 77, 1);
+                     (4, 82, 4, 84, 1);
                      (4, 108, 4, 110, 1)|]
 
 [<Test>]
-let ``should not report format specifiers for illformed format strings`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``should not report format specifiers for illformed format strings`` () =
+    let input =
       """
 let _ = sprintf "%.7f %7.1A %7.f %--8.1f"
 let _ = sprintf "ABCDE"
 """
 
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
-    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
+    let parseResult, typeCheckResults = parseAndCheckScript(file, input)
+    typeCheckResults.GetFormatSpecifierLocationsAndArity()
     |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
     |> shouldEqual [||]
 
 [<Test>]
-let ``Single case discreminated union type definition`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Single case discreminated union type definition`` () =
+    let input =
       """
 type DU = Case1
 """
 
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults = parseAndCheckScript(file, input)
     typeCheckResults.GetAllUsesOfAllSymbolsInFile()
     |> Async.RunSynchronously
-    |> Array.map (fun su -> 
-        let r = su.RangeAlternate 
+    |> Array.map (fun su ->
+        let r = su.RangeAlternate
         r.StartLine, r.StartColumn, r.EndLine, r.EndColumn)
     |> shouldEqual [|(2, 10, 2, 15); (2, 5, 2, 7); (1, 0, 1, 0)|]
 
 [<Test>]
-let ``Synthetic symbols should not be reported`` () = 
-    let input = 
+#if DOTNETCORE
+[<Ignore("Can't parse reference args yet")>]
+#endif
+let ``Synthetic symbols should not be reported`` () =
+    let input =
       """
 let arr = [|1|]
 let number1, number2 = 1, 2
@@ -540,37 +595,37 @@ let _ = arr.[..number2]
 """
 
     let file = "/home/user/Test.fsx"
-    let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
+    let parseResult, typeCheckResults = parseAndCheckScript(file, input)
     typeCheckResults.GetAllUsesOfAllSymbolsInFile()
     |> Async.RunSynchronously
-    |> Array.map (fun su -> 
-        let r = su.RangeAlternate 
+    |> Array.map (fun su ->
+        let r = su.RangeAlternate
         su.Symbol.ToString(), (r.StartLine, r.StartColumn, r.EndLine, r.EndColumn))
-    |> shouldEqual 
-        [|("val arr", (2, 4, 2, 7)); 
+    |> shouldEqual
+        [|("val arr", (2, 4, 2, 7));
           ("val number2", (3, 13, 3, 20));
-          ("val number1", (3, 4, 3, 11)); 
+          ("val number1", (3, 4, 3, 11));
           ("val arr", (4, 8, 4, 11));
-          ("OperatorIntrinsics", (4, 11, 4, 12)); 
+          ("OperatorIntrinsics", (4, 11, 4, 12));
           ("Operators", (4, 11, 4, 12));
-          ("Core", (4, 11, 4, 12)); 
+          ("Core", (4, 11, 4, 12));
           ("FSharp", (4, 11, 4, 12));
-          ("Microsoft", (4, 11, 4, 12)); 
+          ("Microsoft", (4, 11, 4, 12));
           ("val number1", (4, 16, 4, 23));
-          ("val arr", (5, 8, 5, 11)); 
+          ("val arr", (5, 8, 5, 11));
           ("OperatorIntrinsics", (5, 11, 5, 12));
-          ("Operators", (5, 11, 5, 12)); 
+          ("Operators", (5, 11, 5, 12));
           ("Core", (5, 11, 5, 12));
-          ("FSharp", (5, 11, 5, 12)); 
+          ("FSharp", (5, 11, 5, 12));
           ("Microsoft", (5, 11, 5, 12));
-          ("val number2", (5, 15, 5, 22)); 
+          ("val number2", (5, 15, 5, 22));
           ("Test", (1, 0, 1, 0))|]
 
 //-------------------------------------------------------------------------------
 
 
 #if TEST_TP_PROJECTS
-module TPProject = 
+module TPProject =
     open System.IO
 
     let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
@@ -603,7 +658,7 @@ let _ = RegexTypedStatic.IsMatch<"ABC" >(  (*$*) ) // TEST: no assert on Ctrl-sp
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
 [<Test>]
-let ``Test TPProject all symbols`` () = 
+let ``Test TPProject all symbols`` () =
 
     let wholeProjectResults = checker.ParseAndCheckProject(TPProject.options) |> Async.RunSynchronously
     let allSymbolUses = wholeProjectResults.GetAllUsesOfAllSymbols() |> Async.RunSynchronously
@@ -642,10 +697,10 @@ let ``Test TPProject all symbols`` () =
 
 
 [<Test>]
-let ``Test TPProject errors`` () = 
+let ``Test TPProject errors`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(TPProject.options) |> Async.RunSynchronously
     let parseResult, typeCheckAnswer = checker.ParseAndCheckFileInProject(TPProject.fileName1, 0, TPProject.fileSource1, TPProject.options) |> Async.RunSynchronously
-    let typeCheckResults = 
+    let typeCheckResults =
         match typeCheckAnswer with
         | FSharpCheckFileAnswer.Succeeded(res) -> res
         | res -> failwithf "Parsing did not finish... (%A)" res
@@ -665,30 +720,30 @@ let ``Test TPProject errors`` () =
          (15, 33, 15, 38, "No static parameter exists with name ''");
          (16, 40, 16, 50, "This expression was expected to have type    'string'    but here has type    'unit'    ")]
 
-let internal extractToolTipText (FSharpToolTipText(els)) = 
-    [ for e in els do 
+let internal extractToolTipText (FSharpToolTipText(els)) =
+    [ for e in els do
         match e with
         | FSharpToolTipElement.Single (txt,_) -> yield txt
         | FSharpToolTipElement.Group txts -> for (t,_) in txts do yield t
         | FSharpToolTipElement.CompositionError err -> yield err
         | FSharpToolTipElement.None -> yield "NONE!"
-        | FSharpToolTipElement.SingleParameter (txt,p,_) -> yield txt ] 
+        | FSharpToolTipElement.SingleParameter (txt,p,_) -> yield txt ]
 
 [<Test>]
-let ``Test TPProject quick info`` () = 
+let ``Test TPProject quick info`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(TPProject.options) |> Async.RunSynchronously
     let parseResult, typeCheckAnswer = checker.ParseAndCheckFileInProject(TPProject.fileName1, 0, TPProject.fileSource1, TPProject.options) |> Async.RunSynchronously
-    let typeCheckResults = 
+    let typeCheckResults =
         match typeCheckAnswer with
         | FSharpCheckFileAnswer.Succeeded(res) -> res
         | res -> failwithf "Parsing did not finish... (%A)" res
 
     let toolTips  =
-      [ for lineNum in 0 .. TPProject.fileLines1.Length - 1 do 
+      [ for lineNum in 0 .. TPProject.fileLines1.Length - 1 do
          let lineText = TPProject.fileLines1.[lineNum]
-         if lineText.Contains(".IsMatch") then 
+         if lineText.Contains(".IsMatch") then
             let colAtEndOfNames = lineText.IndexOf(".IsMatch") + ".IsMatch".Length
-            let res = typeCheckResults.GetToolTipTextAlternate(lineNum, colAtEndOfNames, lineText, ["RegexTypedStatic";"IsMatch"], FSharpTokenTag.IDENT) |> Async.RunSynchronously 
+            let res = typeCheckResults.GetToolTipTextAlternate(lineNum, colAtEndOfNames, lineText, ["RegexTypedStatic";"IsMatch"], FSharpTokenTag.IDENT) |> Async.RunSynchronously
             yield lineNum, extractToolTipText  res ]
     //printfn "toolTips = \n----\n%A\n----" toolTips
 
@@ -709,25 +764,25 @@ let ``Test TPProject quick info`` () =
 
 
 [<Test>]
-let ``Test TPProject param info`` () = 
+let ``Test TPProject param info`` () =
     let wholeProjectResults = checker.ParseAndCheckProject(TPProject.options) |> Async.RunSynchronously
     let parseResult, typeCheckAnswer = checker.ParseAndCheckFileInProject(TPProject.fileName1, 0, TPProject.fileSource1, TPProject.options) |> Async.RunSynchronously
-    let typeCheckResults = 
+    let typeCheckResults =
         match typeCheckAnswer with
         | FSharpCheckFileAnswer.Succeeded(res) -> res
         | res -> failwithf "Parsing did not finish... (%A)" res
 
     let paramInfos =
-      [ for lineNum in 0 .. TPProject.fileLines1.Length - 1 do 
+      [ for lineNum in 0 .. TPProject.fileLines1.Length - 1 do
          let lineText = TPProject.fileLines1.[lineNum]
-         if lineText.Contains(".IsMatch") then 
+         if lineText.Contains(".IsMatch") then
             let colAtEndOfNames = lineText.IndexOf(".IsMatch")  + ".IsMatch".Length
-            let meths = typeCheckResults.GetMethodsAlternate(lineNum, colAtEndOfNames, lineText, Some ["RegexTypedStatic";"IsMatch"]) |> Async.RunSynchronously 
-            let elems = 
-                [ for meth in meths.Methods do 
+            let meths = typeCheckResults.GetMethodsAlternate(lineNum, colAtEndOfNames, lineText, Some ["RegexTypedStatic";"IsMatch"]) |> Async.RunSynchronously
+            let elems =
+                [ for meth in meths.Methods do
                    yield extractToolTipText  meth.Description, meth.HasParameters, [ for p in meth.Parameters -> p.ParameterName ], [ for p in meth.StaticParameters -> p.ParameterName ] ]
             yield lineNum, elems]
-    //printfn "paramInfos = \n----\n%A\n----" paramInfos 
+    //printfn "paramInfos = \n----\n%A\n----" paramInfos
 
     // This tests that properly statically-instantiated methods have the right method lists and parameter info
     paramInfos |> shouldEqual
@@ -748,11 +803,11 @@ let ``Test TPProject param info`` () =
 
 #if EXE
 
-``Intro test`` () 
-//``Test TPProject all symbols`` () 
-//``Test TPProject errors`` () 
-//``Test TPProject quick info`` () 
-//``Test TPProject param info`` () 
+``Intro test`` ()
+//``Test TPProject all symbols`` ()
+//``Test TPProject errors`` ()
+//``Test TPProject quick info`` ()
+//``Test TPProject param info`` ()
 ``Basic cancellation test`` ()
-``Intro test`` () 
+``Intro test`` ()
 #endif

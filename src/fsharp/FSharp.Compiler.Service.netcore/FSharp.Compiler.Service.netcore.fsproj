@@ -548,7 +548,6 @@
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-fssrgen" Version="3.3.*" />
     <DotNetCliToolReference Include="dotnet-mergenupkg" Version="1.0.*" />
-    <DotNetCliToolReference Include="dotnet-compile-fsc" Version="1.0.0-preview2-*" />
   </ItemGroup>
 
 </Project>

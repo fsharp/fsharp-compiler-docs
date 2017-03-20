@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------
-// FAKE build script 
+// FAKE build script
 // --------------------------------------------------------------------------------------
 
 #I "packages/FAKE/tools"
@@ -35,7 +35,7 @@ let gitRaw = environVarOrDefault "gitRaw" "https://raw.githubusercontent.com/fsh
 let netFrameworks = [(* "v4.0"; *) "v4.5"]
 
 // --------------------------------------------------------------------------------------
-// The rest of the code is standard F# build script 
+// The rest of the code is standard F# build script
 // --------------------------------------------------------------------------------------
 
 let buildDir = "bin"
@@ -47,7 +47,7 @@ let isVersionTag tag = Version.TryParse tag |> fst
 let hasRepoVersionTag = isAppVeyorBuild && AppVeyorEnvironment.RepoTag && isVersionTag AppVeyorEnvironment.RepoTagName
 let assemblyVersion = if hasRepoVersionTag then AppVeyorEnvironment.RepoTagName else release.NugetVersion
 let buildDate = DateTime.UtcNow
-let buildVersion = 
+let buildVersion =
     if hasRepoVersionTag then assemblyVersion
     else if isAppVeyorBuild then sprintf "%s-b%s" assemblyVersion AppVeyorEnvironment.BuildNumber
     else assemblyVersion
@@ -79,7 +79,7 @@ Target "CleanDocs" (fun _ ->
 
 Target "Build.NetFx" (fun _ ->
     netFrameworks
-    |> List.iter (fun framework -> 
+    |> List.iter (fun framework ->
         !! (project + ".sln")
         |> MSBuild "" "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
         |> Log (".NET " + framework + " Build-Output: "))
@@ -90,11 +90,11 @@ Target "SourceLink" (fun _ ->
     ()
     #else
     netFrameworks
-    |> List.iter (fun framework -> 
+    |> List.iter (fun framework ->
         let outputPath = __SOURCE_DIRECTORY__ </> buildDir </> framework
         let proj = VsProj.Load "src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
                         ["Configuration","Release"; "TargetFrameworkVersion",framework; "OutputPath",outputPath]
-        let sourceFiles = 
+        let sourceFiles =
             SetBaseDir __SOURCE_DIRECTORY__ proj.Compiles
             // generated and in fsproj as Compile, but in .gitignore, not source indexed
             -- "src/fsharp/FSharp.Compiler.Service/illex.fs" // <FsLex Include="..\..\absil\illex.fsl">
@@ -113,7 +113,7 @@ Target "SourceLink" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests.NetFx" (fun _ ->
-    !! (if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll" 
+    !! (if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll"
         else "./bin/**/FSharp.Compiler.Service.Tests.dll")
     |> NUnit (fun p ->
         { p with
@@ -127,14 +127,14 @@ Target "RunTests.NetFx" (fun _ ->
 // Build a NuGet package
 
 Target "NuGet.NetFx" (fun _ ->
-    Paket.Pack (fun p -> 
-        { p with 
+    Paket.Pack (fun p ->
+        { p with
             TemplateFile = "nuget/FSharp.Compiler.Service.template"
             Version = release.NugetVersion
             OutputPath = buildDir
             ReleaseNotes = toLines release.Notes })
-    Paket.Pack (fun p -> 
-        { p with 
+    Paket.Pack (fun p ->
+        { p with
             TemplateFile = "nuget/projectcracker.template"
             Version = release.NugetVersion
             OutputPath = buildDir
@@ -143,14 +143,14 @@ Target "NuGet.NetFx" (fun _ ->
 
 
 Target "PublishNuGet" (fun _ ->
-    Paket.Push (fun p -> 
+    Paket.Push (fun p ->
         let apikey =
             match getBuildParam "nuget-apikey" with
             | s when not (String.IsNullOrWhiteSpace s) -> s
             | _ -> getUserInput "Nuget API Key: "
         { p with
             ApiKey = apikey
-            WorkingDir = buildDir }) 
+            WorkingDir = buildDir })
 )
 
 // --------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ Target "GenerateDocsJa" (fun _ ->
 
 Target "ReleaseDocs" (fun _ ->
     let tempDocsDir = "temp/gh-pages"
-    if not (System.IO.Directory.Exists tempDocsDir) then 
+    if not (System.IO.Directory.Exists tempDocsDir) then
         Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") "gh-pages" tempDocsDir
 
     fullclean tempDocsDir
@@ -203,12 +203,12 @@ Target "GitHubRelease" (fun _ ->
 
     Branches.tag "" release.NugetVersion
     Branches.pushTag "" remote release.NugetVersion
-    
+
     // release on github
     createClient user pw
-    |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes 
+    |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
     |> uploadFile (buildDir</>("FSharp.Compiler.Service." + release.NugetVersion + ".nupkg"))
-    |> releaseDraft    
+    |> releaseDraft
     |> Async.RunSynchronously
 )
 
@@ -217,14 +217,14 @@ Target "GitHubRelease" (fun _ ->
 
 let isDotnetSDKInstalled =
     match Fake.EnvironmentHelper.environVarOrNone "FCS_DNC" with
-    | Some flag -> 
+    | Some flag ->
         match bool.TryParse flag with
         | true, result -> result
         | _ -> false
-    | None -> 
-        try 
-            Shell.Exec("dotnet", "--info") = 0 
-        with 
+    | None ->
+        try
+            Shell.Exec("dotnet", "--info") = 0
+        with
         _ -> false
 
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
@@ -241,8 +241,14 @@ Target "CodeGen.NetCore" (fun _ ->
     let open2 = "--open Microsoft.FSharp.Compiler"
     let open3 = "--open Microsoft.FSharp.Compiler"
 
-    // dotnet restore
-    run "dotnet" "restore -v Information"
+    // restore all the required tools, declared in each fsproj
+    !! "**/*netcore.fsproj"
+    ++ "tests/service/service.fsproj"
+    |> Seq.iter (fun path ->
+        let parent = System.IO.FileInfo(path).DirectoryName
+        tracefn "restoring at %s" path
+        runCmdIn parent "dotnet" "restore %s -v detailed" path
+    )
 
     // run tools
 #if MONO
@@ -250,7 +256,7 @@ Target "CodeGen.NetCore" (fun _ ->
 #else
     let toolDir = "packages/FsLexYacc/build/"
 #endif
-    let workDir = "src/fsharp/FSharp.Compiler.Service/"
+    let workDir = "src/fsharp/FSharp.Compiler.Service.netcore/"
     let runInDir exe = runCmdIn workDir exe
     let fsLex fsl out = runInDir (toolDir + "fslex.exe") "%s --unicode %s -o %s" fsl lexArgs out
     let fsYacc fsy out m o = runInDir (toolDir + "fsyacc.exe") "%s %s %s %s %s -o %s" fsy lexArgs yaccArgs m o out
@@ -266,10 +272,10 @@ Target "CodeGen.NetCore" (fun _ ->
 )
 
 Target "Build.NetCore" (fun _ ->
-    [ "src/fsharp/FSharp.Compiler.Service/";
-      "src/fsharp/FSharp.Compiler.Service.ProjectCracker/";
-      "src/fsharp/FSharp.Compiler.Service.ProjectCrackerTool/" ]
-    |> List.iter (run "dotnet" "-v pack %s -c Release")
+    [ "src/fsharp/FSharp.Compiler.Service.netcore/";
+      "src/fsharp/FSharp.Compiler.Service.ProjectCracker.netcore/";
+      "src/fsharp/FSharp.Compiler.Service.ProjectCrackerTool.netcore/" ]
+    |> List.iter (run "dotnet" "pack %s -v detailed -c Release")
 )
 
 Target "RunTests.NetCore" (fun _ ->
@@ -283,7 +289,7 @@ Target "Nuget.AddNetCore" (fun _ ->
         let nupkg = sprintf "../../../%s/FSharp.Compiler.Service.%s.nupkg" buildDir release.AssemblyVersion
         let netcoreNupkg = sprintf "bin/Release/FSharp.Compiler.Service.%s.nupkg" release.AssemblyVersion
         runCmdIn "src/fsharp/FSharp.Compiler.Service" "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
-    
+
     do
         let nupkg = sprintf "../../../%s/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" buildDir release.AssemblyVersion
         let netcoreNupkg = sprintf "bin/Release/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" release.AssemblyVersion

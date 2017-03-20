@@ -1,0 +1,44 @@
+﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <DefineConstants>$(DefineConstants);DOTNETCORE;FX_ATLEAST_45;FX_ATLEAST_PORTABLE;FX_NO_RUNTIMEENVIRONMENT;FX_RESHAPED_REFLECTION;TODO_REWORK_ASSEMBLY_LOAD</DefineConstants>
+    <NoWarn>$(NoWarn);44</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DelaySign>true</DelaySign>
+    <DebugType>portable</DebugType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>service</AssemblyName>
+    <PackageId>service</PackageId>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8</PackageTargetFallback>
+    <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="data\**;FscTests.fs;ProjectOptionsTests.fs;FileSystemTests.fs;FsiTests.fs;MultiProjectAnalysisTests.fs;CSharpProjectAnalysis.fs" />
+    <None Include="App.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/fsharp/FSharp.Compiler.Service.netcore/FSharp.Compiler.Service.netcore.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20170106-08" />
+    <PackageReference Include="NUnit" Version="3.4.1" />
+    <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-2" />
+    <PackageReference Include="FSharp.Core" Version="4.1.*" />
+    <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
+  </ItemGroup>
+
+  <Target Name="PrecompileScript" BeforeTargets="BeforeBuild">
+    <Exec Command="dotnet restore &quot;$(MSBuildProjectDirectory)/../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/project.json&quot;" />
+    <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)/../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/project.json&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="dotnet-compile-fsc" Version="1.0.0-preview2-*" />
+  </ItemGroup>
+
+</Project>

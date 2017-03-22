@@ -279,7 +279,7 @@ Target "Build.NetCore" (fun _ ->
 )
 
 Target "RunTests.NetCore" (fun _ ->
-    runCmdIn "tests/service.netcore/" "dotnet" "test -c Release -- --result:TestResults.NetCore.xml;format=nunit3"
+    runCmdIn "tests/service.netcore/" "dotnet" "run -c Release -- --result:TestResults.NetCore.xml;format=nunit3"
 )
 
 

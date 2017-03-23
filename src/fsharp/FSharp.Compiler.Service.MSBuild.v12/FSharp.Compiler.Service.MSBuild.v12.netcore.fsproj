@@ -2,21 +2,28 @@
   <PropertyGroup>
     <VersionPrefix>11.0.8</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <DefineConstants>$(DefineConstants);FX_ATLEAST_35;FX_ATLEAST_40;FX_ATLEAST_45;FX_ATLEAST_LINQ;FX_ATLEAST_PORTABLE;TODO_REWORK_ASSEMBLY_LOAD</DefineConstants>
+    <DefineConstants>
+      $(DefineConstants);
+      FX_ATLEAST_35;
+      FX_ATLEAST_40;
+      FX_ATLEAST_45;
+      FX_ATLEAST_LINQ;
+      FX_ATLEAST_PORTABLE;
+      TODO_REWORK_ASSEMBLY_LOAD;
+    </DefineConstants>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DelaySign>true</DelaySign>
     <DebugType>portable</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>FSharp.Compiler.Service.MSBuild.v12</AssemblyName>
-    <PackageId>FSharp.Compiler.Service.MSBuild.v12</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win81;dnxcore50</PackageTargetFallback>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.MSBuild.v12.dll.fs;..\..\assemblyinfo\assemblyinfo.shared.fs;..\..\utils\reshapedmsbuild.fs;..\MSBuildReferenceResolver.fs" />
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.FSharp.Compiler.Service.MSBuild.v12.dll.fs" />
+    <Compile Include="..\..\assemblyinfo\assemblyinfo.shared.fs" />
+    <Compile Include="..\..\utils\reshapedmsbuild.fs" />
+    <Compile Include="..\MSBuildReferenceResolver.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../FSharp.Compiler.Service.netcore/FSharp.Compiler.Service.netcore.fsproj" />
+    <ProjectReference Include="../FSharp.Compiler.Service/FSharp.Compiler.Service.netcore.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.0.0" />
@@ -27,9 +34,5 @@
     <PackageReference Include="System.Diagnostics.Process" Version="4.1.0" />
     <PackageReference Include="FSharp.Core" Version="4.1.*" />
     <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
-  </ItemGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-fssrgen" Version="3.2.*" />
-    <DotNetCliToolReference Include="dotnet-mergenupkg" Version="1.0.*" />
   </ItemGroup>
 </Project>

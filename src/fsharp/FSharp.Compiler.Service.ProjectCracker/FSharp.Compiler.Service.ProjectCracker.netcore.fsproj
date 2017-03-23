@@ -2,8 +2,15 @@
   <PropertyGroup>
     <VersionPrefix>11.0.8</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <DefineConstants>$(DefineConstants);DOTNETCORE</DefineConstants>
-    <NoWarn>$(NoWarn);44;2003</NoWarn>
+    <DefineConstants>
+      $(DefineConstants);
+      DOTNETCORE;
+    </DefineConstants>
+    <NoWarn>
+      $(NoWarn);
+      44;
+      2003;
+    </NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DelaySign>true</DelaySign>
     <DebugType>portable</DebugType>
@@ -22,7 +29,7 @@
     <Compile Include="../FSharp.Compiler.Service.ProjectCracker/ProjectCracker.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../FSharp.Compiler.Service.netcore/FSharp.Compiler.Service.netcore.fsproj" />
+    <ProjectReference Include="../FSharp.Compiler.Service/FSharp.Compiler.Service.netcore.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="4.1.*" />
@@ -33,8 +40,4 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="14.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.0.2" />
   </ItemGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-mergenupkg" Version="1.0.*" />
-  </ItemGroup>
-
 </Project>

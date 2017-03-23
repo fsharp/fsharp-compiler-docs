@@ -545,6 +545,8 @@
     <Compile Include="ilpars.fs" />
     <Compile Include="pars.fs" />
     <Compile Include="pppars.fs" />
+    <Compile Include="FSComp.fs" />
+    <Compile Include="FSIstrings.fs" />
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <Import Project="$(SolutionDir)src\scripts\fssrgen.targets" />

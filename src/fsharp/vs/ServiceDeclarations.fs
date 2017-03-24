@@ -286,8 +286,11 @@ module internal ItemDescriptionsImpl =
             // Generalize to get a formal signature 
             let formalTypars = tcref.Typars(m)
             let formalTypeInst = generalizeTypars formalTypars
-            let formalTypeInfo = ILTypeInfo.FromType g (TType_app(tcref,formalTypeInst))
-            Some(nlref.Ccu.FileName,formalTypars,formalTypeInfo)
+            let ty = TType_app(tcref,formalTypeInst)
+            if isILAppTy g ty then
+                let formalTypeInfo = ILTypeInfo.FromType g ty
+                Some(nlref.Ccu.FileName,formalTypars,formalTypeInfo)
+            else None
 
     let mkXmlComment thing =
         match thing with

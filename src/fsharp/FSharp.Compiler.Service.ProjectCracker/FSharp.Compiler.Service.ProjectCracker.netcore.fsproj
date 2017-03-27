@@ -3,15 +3,8 @@
     <VersionPrefix>11.0.8</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
     <OutputType>Library</OutputType>
-    <DefineConstants>
-      $(DefineConstants);
-      DOTNETCORE;
-    </DefineConstants>
-    <NoWarn>
-      $(NoWarn);
-      44;
-      2003;
-    </NoWarn>
+    <DefineConstants>$(DefineConstants);DOTNETCORE;</DefineConstants>
+    <NoWarn>$(NoWarn);44;2003;</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

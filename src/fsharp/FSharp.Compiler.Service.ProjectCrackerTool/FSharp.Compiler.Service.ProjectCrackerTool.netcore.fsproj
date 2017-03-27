@@ -1,17 +1,16 @@
 <Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
+    <OutputType>Exe</OutputType>
     <DefineConstants>
       $(DefineConstants);
       DOTNETCORE;
     </DefineConstants>
-    <DebugType>portable</DebugType>
-    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerOptions.fs" />
-    <Compile Include="../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerTool.fs" />
-    <Compile Include="../FSharp.Compiler.Service.ProjectCrackerTool/Program.fs" />
+    <Compile Include="ProjectCrackerOptions.fs" />
+    <Compile Include="ProjectCrackerTool.fs" />
+    <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>

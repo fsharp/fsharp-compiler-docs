@@ -11,7 +11,6 @@
     <Compile Include="ProjectCrackerOptions.fs" />
     <Compile Include="ProjectCrackerTool.fs" />
     <Compile Include="Program.fs" />
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="14.3.0" />

@@ -1,5 +1,15 @@
 os: Visual Studio 2015
 
+environment:
+  CLI_VERSION: 1.0.0-preview2-003156
+
+install:
+  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
+  - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
+  - ps: Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.ps1" -OutFile "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1"
+  - ps: '& "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1" -Version $env:CLI_VERSION -InstallDir $env:DOTNET_INSTALL_DIR -Channel preview'
+  - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
+
 init:
   - git config --global core.autocrlf input
 
@@ -8,7 +18,7 @@ environment:
     - BUILD_TARGET: CreatePackage
     
 build_script:
-  - cmd: dotnet --version
+  - cmd: dotnet --info
   - cmd: build.cmd %BUILD_TARGET%
 
 test: off

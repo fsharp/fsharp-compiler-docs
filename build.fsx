@@ -263,8 +263,8 @@ Target "CodeGen.NetCore" (fun _ ->
     let fsLex fsl out = runCmdIn isMono "." (sprintf "%s/fslex.exe" toolDir) "%s --unicode %s -o %s" fsl lexArgs out
     let fsYacc fsy out m o = runCmdIn isMono "." (sprintf "%s/fsyacc.exe" toolDir) "%s %s %s %s %s -o %s" fsy lexArgs yaccArgs m o out
 
-    run false "dotnet" "fssrgen src/fsharp/FSComp.txt src/fsharp/FSharp.Compiler.Service/FSComp.fs src/fsharp/FSharp.Compiler.Service/FSComp.resx %s" fcsNetcore
-    run false "dotnet" "fssrgen src/fsharp/fsi/FSIstrings.txt src/fsharp/FSharp.Compiler.Service/FSIstrings.fs src/fsharp/FSharp.Compiler.Service/FSIstrings.resx %s" fcsNetcore
+    run false "dotnet" "fssrgen src/fsharp/FSComp.txt src/fsharp/FSharp.Compiler.Service/FSComp.fs src/fsharp/FSharp.Compiler.Service/FSComp.resx"
+    run false "dotnet" "fssrgen src/fsharp/fsi/FSIstrings.txt src/fsharp/FSharp.Compiler.Service/FSIstrings.fs src/fsharp/FSharp.Compiler.Service/FSIstrings.resx"
     fsLex "src/fsharp/lex.fsl" "src/fsharp/FSharp.Compiler.Service/lex.fs"
     fsLex "src/fsharp/pplex.fsl" "src/fsharp/FSharp.Compiler.Service/pplex.fs"
     fsLex "src/absil/illex.fsl" "src/fsharp/FSharp.Compiler.Service/illex.fs"

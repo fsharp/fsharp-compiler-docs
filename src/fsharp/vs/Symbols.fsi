@@ -76,6 +76,7 @@ type [<Class>] FSharpSymbol =
     /// This is the relation used by GetUsesOfSymbol and GetUsesOfSymbolInFile.
     member IsEffectivelySameAs : other: FSharpSymbol -> bool
 
+    static member GetAccessibility : FSharpSymbol -> FSharpAccessibility option
 
 
 /// Represents an assembly as seen by the F# language
@@ -86,9 +87,6 @@ and [<Class>] FSharpAssembly =
     /// The qualified name of the assembly
     member QualifiedName: string 
     
-    [<System.Obsolete("This item is obsolete, it is not useful")>]
-    member CodeLocation: string 
-      
     /// The contents of the this assembly 
     member Contents:  FSharpAssemblySignature
 
@@ -258,8 +256,6 @@ and [<Class>] FSharpEntity =
 
     /// Get the properties, events and methods of a type definitions, or the functions and values of a module
     member MembersFunctionsAndValues : IList<FSharpMemberOrFunctionOrValue>
-    [<System.Obsolete("Renamed to MembersFunctionsAndValues")>]
-    member MembersOrValues : IList<FSharpMemberOrFunctionOrValue>
 
     /// Get the modules and types defined in a module, or the nested types of a type
     member NestedEntities : IList<FSharpEntity>
@@ -268,9 +264,6 @@ and [<Class>] FSharpEntity =
     /// This includes static fields, the 'val' bindings in classes and structs, and the value definitions in enums.
     /// For classes, the list may include compiler generated fields implied by the use of primary constructors.
     member FSharpFields : IList<FSharpField>
-
-    [<System.Obsolete("Renamed to FSharpFields")>]
-    member RecordFields : IList<FSharpField>
 
     /// Get the type abbreviated by an F# type abbreviation
     member AbbreviatedType   : FSharpType 
@@ -282,11 +275,14 @@ and [<Class>] FSharpEntity =
     /// Indicates if the type is a delegate with the given Invoke signature 
     member FSharpDelegateSignature : FSharpDelegateSignature
 
-      /// Get the declared accessibility of the type
+    /// Get the declared accessibility of the type
     member Accessibility: FSharpAccessibility 
 
-      /// Get the declared accessibility of the representation, not taking signatures into account 
+    /// Get the declared accessibility of the representation, not taking signatures into account 
     member RepresentationAccessibility: FSharpAccessibility
+
+    /// Get all compilation paths, taking `Module` suffixes into account.
+    member AllCompilationPaths : string list
 
 /// Represents a delegate signature in an F# symbol
 and [<Class>] FSharpDelegateSignature =
@@ -375,9 +371,6 @@ and [<Class>] FSharpUnionCase =
     member IsUnresolved : bool
 
 
-/// Renamed to FSharpField
-and [<System.Obsolete("Renamed to FSharpField")>] FSharpRecordField = FSharpField
-
 /// A subtype of FSharpSymbol that represents a record or union case field as seen by the F# language
 and [<Class>] FSharpField =
 
@@ -441,17 +434,6 @@ and [<Class>] FSharpAccessibilityRights =
     internal new : CcuThunk * AccessorDomain -> FSharpAccessibilityRights
     member internal Contents : AccessorDomain
 
-/// Indicates the accessibility of a symbol, as seen by the F# language
-and [<Class>] FSharpAccessibility = 
-    /// Indicates the symbol has public accessibility
-    member IsPublic : bool
-
-    /// Indicates the symbol has private accessibility
-    member IsPrivate : bool
-
-    /// Indicates the symbol has internal accessibility
-    member IsInternal : bool
-
 /// A subtype of FSharpSymbol that represents a generic parameter for an FSharpSymbol
 and [<Class>] FSharpGenericParameter = 
 
@@ -501,9 +483,6 @@ and [<Class>] FSharpStaticParameter =
 
     /// Indicates if the static parameter is optional
     member IsOptional : bool
-
-    [<System.ObsoleteAttribute("This member is no longer used, use IsOptional instead")>]
-    member HasDefaultValue : bool
 #endif
 
 /// Represents further information about a member constraint on a generic type parameter
@@ -616,11 +595,6 @@ and [<RequireQualifiedAccess>] FSharpInlineAnnotation =
    /// Indictes the value is never inlined 
    | NeverInline 
 
-/// Renamed to FSharpMemberOrFunctionOrValue
-and [<System.Obsolete("Renamed to FSharpMemberOrFunctionOrValue")>] FSharpMemberOrVal =  FSharpMemberOrFunctionOrValue
-/// Renamed to FSharpMemberOrFunctionOrValue
-and [<System.Obsolete("Renamed to FSharpMemberOrFunctionOrValue")>] FSharpMemberFunctionOrValue =  FSharpMemberOrFunctionOrValue
-
 /// A subtype of F# symbol that represents an F# method, property, event, function or value, including extension members.
 and [<Class>] FSharpMemberOrFunctionOrValue = 
 
@@ -657,9 +631,6 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
 
     /// Indicates if this is an extension member?
     member IsExtensionMember : bool
-
-    [<System.Obsolete("Renamed to IsOverrideOrExplicitInterfaceImplementation")>]
-    member IsOverrideOrExplicitMember : bool
 
     /// Indicates if this is an 'override', 'default' or an explicit implementation of an interface member
     member IsOverrideOrExplicitInterfaceImplementation : bool
@@ -714,14 +685,6 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
 
     /// Indicates if this is an abstract member?
     member IsDispatchSlot : bool
-
-    /// Indicates if this is a getter method for a property, or a use of a property in getter mode
-    [<System.Obsolete("Renamed to IsPropertyGetterMethod, which returns 'true' only for method symbols, not for property symbols")>]
-    member IsGetterMethod: bool 
-
-    /// Indicates if this is a setter method for a property, or a use of a property in setter mode
-    [<System.Obsolete("Renamed to IsPropertySetterMethod, which returns 'true' only for method symbols, not for property symbols")>]
-    member IsSetterMethod: bool 
 
     /// Indicates if this is a getter method for a property, or a use of a property in getter mode
     member IsPropertyGetterMethod: bool 

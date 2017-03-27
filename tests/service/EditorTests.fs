@@ -55,7 +55,7 @@ let stringMethods =
 let input = 
   """
   open System
-  
+
   let foo() = 
     let msg = String.Concat("Hello"," ","world")
     if true then 
@@ -70,7 +70,6 @@ let ``Intro test`` () =
     let file = "/home/user/Test.fsx"
     let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
     let identToken = FSharpTokenTag.IDENT
-//    let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
 
     // We only expect one reported error. However,
     // on Unix, using filenames like /home/user/Test.fsx gives a second copy of all parse errors due to the
@@ -87,8 +86,13 @@ let ``Intro test`` () =
     (sprintf "%A" tip).Replace("\n","") |> shouldEqual """FSharpToolTipText [Single ("val foo : unit -> unitFull name: Test.foo",None)]"""
     // Get declarations (autocomplete) for a location
     let decls =  typeCheckResults.GetDeclarationListInfo(Some parseResult, 7, 23, inputLines.[6], [], "msg", fun _ -> false)|> Async.RunSynchronously
-    [ for item in decls.Items -> item.Name ] |> shouldEqual stringMethods
-
+    [ for item in decls.Items -> item.Name ] |> shouldEqual
+          ["Chars"; "Clone"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
+           "GetEnumerator"; "GetHashCode"; "GetType"; "GetTypeCode"; "IndexOf";
+           "IndexOfAny"; "Insert"; "IsNormalized"; "LastIndexOf"; "LastIndexOfAny";
+           "Length"; "Normalize"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
+           "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
+           "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"]
     // Get overloads of the String.Concat method
     let methods = typeCheckResults.GetMethodsAlternate(5, 27, inputLines.[4], Some ["String"; "Concat"]) |> Async.RunSynchronously
 
@@ -124,7 +128,7 @@ let ``Basic cancellation test`` () =
     let file = "/home/user/Test.fsx"
     async { 
         checker.ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients()
-        let! checkOptions = checker.GetProjectOptionsFromScript(file, input) 
+        let! (checkOptions,_) = checker.GetProjectOptionsFromScript(file, input) 
         let! parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, checkOptions) 
         return parseResult, typedRes
     } |> Async.RunSynchronously
@@ -286,8 +290,14 @@ let ``Expression typing test`` () =
     // 
     for col in 42..43 do 
         let decls =  typeCheckResults.GetDeclarationListInfo(Some parseResult, 2, col, inputLines.[1], [], "", fun _ -> false)|> Async.RunSynchronously
-        let autoCompleteSet = set [ for item in decls.Items -> item.Name ]
-        autoCompleteSet |> shouldEqual (set stringMethods)
+        set [ for item in decls.Items -> item.Name ] |> shouldEqual
+           (set
+              ["Chars"; "Clone"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
+               "GetEnumerator"; "GetHashCode"; "GetType"; "GetTypeCode"; "IndexOf";
+               "IndexOfAny"; "Insert"; "IsNormalized"; "LastIndexOf"; "LastIndexOfAny";
+               "Length"; "Normalize"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
+               "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
+               "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"])
 
 // The underlying problem is that the parser error recovery doesn't include _any_ information for
 // the incomplete member:
@@ -307,7 +317,11 @@ type Test() =
     let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
 
     let decls = typeCheckResults.GetDeclarationListInfo(Some parseResult, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
-    //decls.Items |> Array.map (fun d -> d.Name) |> printfn "---> decls.Items = %A"
+    let item = decls.Items |> Array.tryFind (fun d -> d.Name = "abc")
+    match item with
+    | Some item -> 
+       printf "%s" item.Name
+    | _ -> ()
     decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
 
 [<Test>]
@@ -324,7 +338,11 @@ type Test() =
     let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
 
     let decls = typeCheckResults.GetDeclarationListInfo(Some parseResult, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
-    //decls.Items |> Array.map (fun d -> d.Name) |> printfn "---> decls.Items = %A"
+    let item = decls.Items |> Array.tryFind (fun d -> d.Name = "abc")
+    match item with
+    | Some item -> 
+       printf "%s" item.Name
+    | _ -> ()
     decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
  
 [<Test>]
@@ -341,7 +359,6 @@ type Test() =
     let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
 
     let decls = typeCheckResults.GetDeclarationListInfo(Some parseResult, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
-    //decls.Items |> Array.map (fun d -> d.Name) |> printfn "---> decls.Items = %A"
     decls.Items |> Seq.exists (fun d -> d.Name = "abc") |> shouldEqual true
 
 [<Test; Ignore("Currently failing, see #139")>]
@@ -358,7 +375,12 @@ type Test() =
     let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some parseResult, 4, 21, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
-    //decls |> List.map (fun d -> d.Head.Symbol.DisplayName) |> printfn "---> decls = %A"
+    let item = decls |> List.tryFind (fun d -> d.Head.Symbol.DisplayName = "abc")
+    match item with
+    | Some items -> 
+       for symbolUse in items do
+           printf "%s" symbolUse.Symbol.DisplayName
+    | _ -> ()
     decls |> Seq.exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
 
 [<Test>]
@@ -375,8 +397,14 @@ type Test() =
     let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some parseResult, 4, 22, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
-    //decls |> List.map (fun d -> d.Head.Symbol.DisplayName) |> printfn "---> decls = %A"
+    let item = decls |> List.tryFind (fun d -> d.Head.Symbol.DisplayName = "abc")
+    match item with
+    | Some items -> 
+       for symbolUse in items do
+           printf "%s" symbolUse.Symbol.DisplayName
+    | _ -> ()
     decls |> Seq.exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
+    true |> should equal true
 
 [<Test>]
 let ``Symbol based find function from var`` () = 
@@ -392,17 +420,16 @@ type Test() =
     let parseResult, typeCheckResults =  parseAndCheckScript(file, input) 
 
     let decls = typeCheckResults.GetDeclarationListSymbols(Some parseResult, 4, 15, inputLines.[3], [], "", fun _ -> false)|> Async.RunSynchronously
-    //decls |> List.map (fun d -> d.Head.Symbol.DisplayName) |> printfn "---> decls = %A"
-    decls |> Seq.exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
+    decls|> Seq .exists (fun d -> d.Head.Symbol.DisplayName = "abc") |> shouldEqual true
 
 [<Test>]
 let ``Printf specifiers for regular and verbatim strings`` () = 
     let input = 
-      """let os = System.Text.StringBuilder()
+      """
 let _ = Microsoft.FSharp.Core.Printf.printf "%A" 0
 let _ = Printf.printf "%A" 0
 let _ = Printf.kprintf (fun _ -> ()) "%A" 1
-let _ = Printf.bprintf os "%A" 1
+let _ = Printf.bprintf null "%A" 1
 let _ = sprintf "%*d" 1
 let _ = sprintf "%7.1f" 1.0
 let _ = sprintf "%-8.1e+567" 1.0
@@ -418,40 +445,30 @@ let _ = List.map (sprintf @"%A
 let _ = (10, 12) ||> sprintf "%A
                               %O"
 let _ = sprintf "\n%-8.1e+567" 1.0
-let _ = sprintf @"%O\n%-5s" "1" "2" 
-let _ = sprintf "%%"
-let _ = sprintf " %*%" 2
-let _ = sprintf "  %.*%" 2
-let _ = sprintf "   %*.1%" 2
-let _ = sprintf "    %*s" 10 "hello"
-let _ = sprintf "     %*.*%" 2 3
-let _ = sprintf "      %*.*f" 2 3 4.5
-let _ = sprintf "       %.*f" 3 4.5
-let _ = sprintf "        %*.1f" 3 4.5
-let _ = sprintf "         %6.*f" 3 4.5
-let _ = sprintf "          %6.*%" 3
-let _ =  printf "           %a" (fun _ _ -> ()) 2
-let _ =  printf "            %*a" 3 (fun _ _ -> ()) 2
-"""
+let _ = sprintf @"%O\n%-5s" "1" "2" """
 
     let file = "/home/user/Test.fsx"
     let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
-    |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-    |> shouldEqual
-         [|(2, 45, 2, 47, 1); (3, 23, 3, 25, 1); (4, 38, 4, 40, 1); (5, 27, 5, 29
-, 1);
-          (6, 17, 6, 20, 2); (7, 17, 7, 22, 1); (8, 17, 8, 23, 1); (9, 18, 9, 22, 1);
-          (10, 18, 10, 21, 1); (12, 12, 12, 15, 1); (15, 12, 15, 15, 1);
-          (16, 28, 16, 30, 1); (18, 30, 18, 32, 1); (19, 30, 19, 32, 1);
-          (20, 19, 20, 25, 1); (21, 18, 21, 20, 1); (21, 22, 21, 26, 1);
-          (22, 17, 22, 19, 0); (23, 18, 23, 21, 1); (24, 19, 24, 23, 1);
-          (25, 20, 25, 25, 1); (26, 21, 26, 24, 2); (27, 22, 27, 27, 2);
-          (28, 23, 28, 28, 3); (29, 24, 29, 28, 2); (30, 25, 30, 30, 2);
-          (31, 26, 31, 31, 2); (32, 27, 32, 32, 1); (33, 28, 33, 30, 2);
-          (34, 29, 34, 32, 3)|]
+    typeCheckResults.GetFormatSpecifierLocations() 
+    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
+    |> shouldEqual [|(2, 45, 2, 47); 
+                     (3, 23, 3, 25); 
+                     (4, 38, 4, 40); 
+                     (5, 29, 5, 31); 
+                     (6, 17, 6, 20);
+                     (7, 17, 7, 22); 
+                     (8, 17, 8, 23);
+                     (9, 18, 9, 22); 
+                     (10, 18, 10, 21);
+                     (12, 12, 12, 15); 
+                     (15, 12, 15, 15);
+                     (16, 28, 16, 30); 
+                     (18, 30, 18, 32);
+                     (19, 30, 19, 32);
+                     (20, 19, 20, 25); 
+                     (21, 18, 21, 20); (21, 22, 21, 26)|]
 
 [<Test>]
 let ``Printf specifiers for triple-quote strings`` () = 
@@ -469,13 +486,12 @@ let _ = List.iter(printfn \"\"\"%-A
     let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
-    |> Array.map (fun (range,numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-    |> shouldEqual [|(2, 19, 2, 22, 1);
-                     (4, 12, 4, 15, 1);
-                     (6, 29, 6, 32, 1);
-                     (7, 29, 7, 31, 1); 
-                     (7, 33, 7, 35,1 )|]
+    typeCheckResults.GetFormatSpecifierLocations() 
+    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
+    |> shouldEqual [|(2, 19, 2, 22);
+                     (4, 12, 4, 15);
+                     (6, 29, 6, 32);
+                     (7, 29, 7, 31); (7, 33, 7, 35)|]
  
 [<Test>]
 let ``Printf specifiers for user-defined functions`` () = 
@@ -490,27 +506,25 @@ let _ = debug "[LanguageService] Type checking fails for '%s' with content=%A an
     let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
 
     typeCheckResults.Errors |> shouldEqual [||]
-    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
-    |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
-    |> shouldEqual [|(3, 24, 3, 26, 1); 
-                     (3, 29, 3, 31, 1);
-                     (4, 58, 4, 60, 1); 
-                     (4, 75, 4, 77, 1); 
-                     (4, 82, 4, 84, 1); 
-                     (4, 108, 4, 110, 1)|]
+    typeCheckResults.GetFormatSpecifierLocations() 
+    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
+    |> shouldEqual [|(3, 24, 3, 26); 
+                     (3, 29, 3, 31);
+                     (4, 58, 4, 60); (4, 75, 4, 77); (4, 82, 4, 84); (4, 108, 4, 110)|]
 
 [<Test>]
 let ``should not report format specifiers for illformed format strings`` () = 
     let input = 
       """
 let _ = sprintf "%.7f %7.1A %7.f %--8.1f"
+let _ = sprintf "%%A"
 let _ = sprintf "ABCDE"
 """
 
     let file = "/home/user/Test.fsx"
     let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
-    typeCheckResults.GetFormatSpecifierLocationsAndArity() 
-    |> Array.map (fun (range, numArgs) -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn, numArgs)
+    typeCheckResults.GetFormatSpecifierLocations() 
+    |> Array.map (fun range -> range.StartLine, range.StartColumn, range.EndLine, range.EndColumn)
     |> shouldEqual [||]
 
 [<Test>]
@@ -598,7 +612,7 @@ let _ = RegexTypedStatic.IsMatch<"ABC" >(  (*$*) ) // TEST: no assert on Ctrl-sp
     File.WriteAllText(fileName1, fileSource1)
     let fileLines1 = File.ReadAllLines(fileName1)
     let fileNames = [fileName1]
-    let args = Array.append (mkProjectCommandLineArgs (dllName, fileNames)) [| "-r:" + PathRelativeToTestAssembly(@"UnitTestsResources\MockTypeProviders\DummyProviderForLanguageServiceTesting.dll") |]
+    let args = Array.append (mkProjectCommandLineArgs (dllName, fileNames)) [| "-r:" + PathRelativeToTestAssembly(@"UnitTests\MockTypeProviders\DummyProviderForLanguageServiceTesting.dll") |]
     let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 

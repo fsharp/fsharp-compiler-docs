@@ -242,7 +242,7 @@ Target "CodeGen.NetCore" (fun _ ->
     let open3 = "--open Microsoft.FSharp.Compiler"
 
     // dotnet restore
-    run "dotnet" "restore -v Information"
+    run "dotnet" "restore"
 
     // run tools
 #if MONO

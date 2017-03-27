@@ -8,6 +8,7 @@ module (*internal*) Microsoft.FSharp.Compiler.Interactive.Shell
 [<assembly: System.CLSCompliant(true)>]  
 do()
 
+open Internal.Utilities
 
 open System
 open System.Collections.Generic
@@ -48,7 +49,7 @@ open Microsoft.FSharp.Compiler.Tastops
 open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
-open Internal.Utilities
+
 open Internal.Utilities.Collections
 open Internal.Utilities.StructuredFormat
 
@@ -72,7 +73,7 @@ open System.Runtime.CompilerServices
 // For the FSI as a service methods...
 //----------------------------------------------------------------------------
 
-type FsiValue(reflectionValue:obj, reflectionType:Type, fsharpType:FSharpType) = 
+type FsiValue(reflectionValue:obj, reflectionType:Type, fsharpType:FSharpType) =  
   member x.ReflectionValue = reflectionValue
   member x.ReflectionType = reflectionType
   member x.FSharpType = fsharpType
@@ -87,7 +88,7 @@ module internal Utilities =
     type private AnyToLayoutSpecialization<'T>() = 
         interface IAnyToLayoutCall with
             member this.AnyToLayout(options, o : obj, ty : Type) = Internal.Utilities.StructuredFormat.Display.any_to_layout options ((Unchecked.unbox o : 'T), ty)
-            member this.FsiAnyToLayout(options, o : obj, ty : Type) = Internal.Utilities.StructuredFormat.Display.fsi_any_to_layout options ((Unchecked.unbox o : 'T), ty)
+            member this.FsiAnyToLayout(options, o : obj, ty : Type) = Internal.Utilities.StructuredFormat.Display.any_to_layout options ((Unchecked.unbox o : 'T), ty)
     
     let getAnyToLayoutCall ty = 
         let specialized = typedefof<AnyToLayoutSpecialization<_>>.MakeGenericType [| ty |]
@@ -152,24 +153,24 @@ module internal Utilities =
 
                 member r.AddText z s =
                     let color =
-                        match s with
-                        | TaggedText.Keyword _ -> ConsoleColor.White
-                        | TaggedText.TypeParameter _
-                        | TaggedText.Alias _
-                        | TaggedText.Class _ 
-                        | TaggedText.Module _
-                        | TaggedText.Interface _
-                        | TaggedText.Record _
-                        | TaggedText.Struct _
-                        | TaggedText.Union _
-                        | TaggedText.UnknownType _ -> ConsoleColor.Cyan
-                        | TaggedText.UnionCase _
-                        | TaggedText.ActivePatternCase _ -> ConsoleColor.Magenta
-                        | TaggedText.StringLiteral _ -> ConsoleColor.Yellow
-                        | TaggedText.NumericLiteral _ -> ConsoleColor.Green
+                        match s.Tag with
+                        | LayoutTag.Keyword -> ConsoleColor.White
+                        | LayoutTag.TypeParameter
+                        | LayoutTag.Alias
+                        | LayoutTag.Class 
+                        | LayoutTag.Module
+                        | LayoutTag.Interface
+                        | LayoutTag.Record
+                        | LayoutTag.Struct
+                        | LayoutTag.Union
+                        | LayoutTag.UnknownType -> ConsoleColor.Cyan
+                        | LayoutTag.UnionCase
+                        | LayoutTag.ActivePatternCase -> ConsoleColor.Magenta
+                        | LayoutTag.StringLiteral -> ConsoleColor.Yellow
+                        | LayoutTag.NumericLiteral -> ConsoleColor.Green
                         | _ -> Console.ForegroundColor
 
-                    DoWithColor color (fun () -> outWriter.Write s.Value)
+                    DoWithColor color (fun () -> outWriter.Write s.Text)
 
                     z
 
@@ -191,6 +192,8 @@ module internal Utilities =
         |> ignore
 
         outWriter.WriteLine()
+
+let referencedAssemblies = Dictionary<string, DateTime>()
 
 #if FX_RESHAPED_REFLECTION
 // restore type alias
@@ -529,10 +532,9 @@ type internal FsiStdinSyphon(errorWriter: TextWriter) =
         Utilities.ignoreAllErrors (fun () -> 
             let isError = true
             DoWithErrorColor isError (fun () ->
-                errorWriter.WriteLine();
                 writeViaBufferWithEnvironmentNewLines errorWriter (OutputDiagnosticContext "  " syphon.GetLine) err; 
                 writeViaBufferWithEnvironmentNewLines errorWriter (OutputDiagnostic (tcConfig.implicitIncludeDir,tcConfig.showFullPaths,tcConfig.flatErrors,tcConfig.errorStyle,isError))  err;
-                errorWriter.WriteLine()
+                errorWriter.WriteLine("\n")
                 errorWriter.Flush()))
 
 
@@ -635,6 +637,7 @@ type internal FsiCommandLineOptions(fsi: FsiEvaluationSessionHostConfig, argv: s
     let mutable fsiLCID = None
 
     // internal options  
+    let mutable probeToSeeIfConsoleWorks         = true 
     let mutable peekAheadOnConsoleToPermitTyping = true   
 
     let isInteractiveServer() = fsiServerName <> ""  
@@ -700,6 +703,7 @@ type internal FsiCommandLineOptions(fsi: FsiEvaluationSessionHostConfig, argv: s
        PrivateOptions(
         [
          // Private options, related to diagnostics around console probing 
+         CompilerOption("probeconsole","", OptionSwitch (fun flag -> probeToSeeIfConsoleWorks <- flag=OptionSwitch.On), None, None); // "Probe to see if Console looks functional");
          CompilerOption("peekahead","", OptionSwitch (fun flag -> peekAheadOnConsoleToPermitTyping <- flag=OptionSwitch.On), None, None); // "Probe to see if Console looks functional");
 
          // Disables interaction (to be used by libraries embedding FSI only!)
@@ -806,6 +810,7 @@ type internal FsiCommandLineOptions(fsi: FsiEvaluationSessionHostConfig, argv: s
     member __.FsiServerOutputCodePage = fsiServerOutputCodePage
     member __.FsiLCID with get() = fsiLCID and set v = fsiLCID <- v
     member __.IsInteractiveServer = isInteractiveServer()
+    member __.ProbeToSeeIfConsoleWorks = probeToSeeIfConsoleWorks
     member __.EnableConsoleKeyProcessing = enableConsoleKeyProcessing
 
     member __.Interact = interact
@@ -889,10 +894,24 @@ type internal FsiConsolePrompt(fsiOptions: FsiCommandLineOptions, fsiConsoleOutp
 //----------------------------------------------------------------------------
 type internal FsiConsoleInput(fsi: FsiEvaluationSessionHostConfig, fsiOptions: FsiCommandLineOptions, inReader: TextReader, outWriter: TextWriter) =
 
+    let consoleLooksOperational() =
+        if fsiOptions.ProbeToSeeIfConsoleWorks then 
+            try
+                // Probe to see if the console looks functional on this version of .NET
+                let _ = Console.KeyAvailable 
+                let _ = Console.ForegroundColor
+                let _ = Console.CursorLeft <- Console.CursorLeft
+                true
+            with _ -> 
+                (* warning(Failure("Note: there was a problem setting up custom readline console support. Consider starting fsi.exe with the --no-readline option")); *)
+                false
+        else
+            true 
+
     let consoleOpt =
         // The "console.fs" code does a limited form of "TAB-completion".
         // Currently, it turns on if it looks like we have a console.
-        if fsiOptions.EnableConsoleKeyProcessing then
+        if fsiOptions.EnableConsoleKeyProcessing && consoleLooksOperational() then
             fsi.OptionalConsoleReadLine
         else
             None
@@ -914,7 +933,7 @@ type internal FsiConsoleInput(fsi: FsiEvaluationSessionHostConfig, fsiOptions: F
               | Some console when fsiOptions.EnableConsoleKeyProcessing && not fsiOptions.IsInteractiveServer ->
                   if List.isEmpty fsiOptions.SourceFiles then 
                       if !progress then fprintfn outWriter "first-line-reader-thread reading first line...";
-                      firstLine <- Some(console()); 
+                      firstLine <- Some(console()) 
                       if !progress then fprintfn outWriter "first-line-reader-thread got first line = %A..." firstLine;
                   consoleReaderStartupDone.Set() |> ignore 
                   if !progress then fprintfn outWriter "first-line-reader-thread has set signal and exited." ;
@@ -966,7 +985,7 @@ let internal WithImplicitHome (tcConfigB, dir) f =
     try f() 
     finally tcConfigB.implicitIncludeDir <- old
 
-
+open Microsoft.FSharp.Compiler.Ast
 
 /// Encapsulates the coordination of the typechecking, optimization and code generation
 /// components of the F# compiler for interactively executed fragments of code.
@@ -1361,10 +1380,59 @@ type internal FsiDynamicCompiler
 
     member __.CurrentPartialAssemblySignature(istate) = 
         FSharpAssemblySignature(istate.tcGlobals, istate.tcState.Ccu, istate.tcImports, None, istate.tcState.PartialAssemblySignature)
-
+    
     member __.FormatValue(obj:obj, objTy) = 
         valuePrinter.FormatValue(obj, objTy)
 
+type internal FsiIntellisenseProvider(tcGlobals, tcImports: TcImports) = 
+
+    let rangeStdin = rangeN Lexhelp.stdinMockFilename 0
+
+    //----------------------------------------------------------------------------
+    // FsiIntellisense - v1 - identifier completion - namedItemInEnvL
+    //----------------------------------------------------------------------------
+
+    member __.CompletionsForPartialLID istate (prefix:string) =
+        let lid,stem =
+            if prefix.IndexOf(".",StringComparison.Ordinal) >= 0 then
+                let parts = prefix.Split(Array.ofList ['.'])
+                let n = parts.Length
+                Array.sub parts 0 (n-1) |> Array.toList,parts.[n-1]
+            else
+                [],prefix   
+        let tcState = istate.tcState (* folded through now? *)
+
+        let amap = tcImports.GetImportMap()
+        let infoReader = new InfoReader(tcGlobals,amap)
+        let ncenv = new NameResolution.NameResolver(tcGlobals,amap,infoReader,NameResolution.FakeInstantiationGenerator)
+        // Note: for the accessor domain we should use (AccessRightsOfEnv tcState.TcEnvFromImpls)
+        let ad = AccessibleFromSomeFSharpCode
+        let nItems = NameResolution.ResolvePartialLongIdent ncenv tcState.TcEnvFromImpls.NameEnv (ConstraintSolver.IsApplicableMethApprox tcGlobals amap rangeStdin) rangeStdin ad lid false
+        let names  = nItems |> List.map (fun d -> d.DisplayName) 
+        let names  = names |> List.filter (fun (name:string) -> name.StartsWith(stem,StringComparison.Ordinal)) 
+        names
+
+#if FSI_SERVER_INTELLISENSE
+    //----------------------------------------------------------------------------
+    // FsiIntellisense (posible feature for v2) - GetDeclarations
+    //----------------------------------------------------------------------------
+
+    member __.FsiGetDeclarations istate (text:string) (names:string[]) =
+        try
+          let tcConfig = TcConfig.Create(tcConfigB,validate=false)
+          Microsoft.FSharp.Compiler.SourceCodeServices.FsiIntelisense.getDeclarations
+            (tcConfig,
+             tcGlobals,
+             tcImports,
+             istate.tcState) 
+            text 
+            names
+        with
+          e ->
+            System.Windows.Forms.MessageBox.Show("FsiGetDeclarations: throws:\n" ^ e.ToString()) |> ignore
+            [| |]
+
+#endif
 
 //----------------------------------------------------------------------------
 // ctrl-c handling
@@ -1682,7 +1750,7 @@ module internal MagicAssemblyResolution =
 #endif
                    
                    // As a last resort, try to find the reference without an extension
-                   match tcImports.TryFindExistingFullyQualifiedPathFromAssemblyRef(ILAssemblyRef.Create(simpleAssemName,None,None,false,None,None)) with
+                   match tcImports.TryFindExistingFullyQualifiedPathFromAssemblyRef(ctok,ILAssemblyRef.Create(simpleAssemName,None,None,false,None,None)) with
                    | Some(resolvedPath) -> 
                        OkResult([],Choice1Of2 resolvedPath)
                    | None -> 
@@ -2567,12 +2635,14 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
         try 
             let tcConfig = tcConfigP.Get(ctokStartup)
             checker.FrameworkImportsCache.Get (ctokStartup, tcConfig)
+            |> Cancellable.runWithoutCancellation
         with e -> 
             stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
 
     let tcImports =  
       try 
           TcImports.BuildNonFrameworkTcImports(ctokStartup, tcConfigP, tcGlobals, frameworkTcImports, nonFrameworkResolutions, unresolvedReferences)
+          |> Cancellable.runWithoutCancellation
       with e -> 
           stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
 
@@ -2589,13 +2659,13 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     let resolveAssemblyRef (aref: ILAssemblyRef) = 
         // Explanation: This callback is invoked during compilation to resolve assembly references
         // We don't yet propagate the ctok through these calls (though it looks plausible to do so).
-#if EXTENSIONTYPING
         let ctok = AssumeCompilationThreadWithoutEvidence ()
+#if EXTENSIONTYPING
         match tcImports.TryFindProviderGeneratedAssemblyByName (ctok, aref.Name) with
         | Some assembly -> Some (Choice2Of2 assembly)
         | None -> 
 #endif
-        match tcImports.TryFindExistingFullyQualifiedPathFromAssemblyRef aref with
+        match tcImports.TryFindExistingFullyQualifiedPathFromAssemblyRef (ctok, aref) with
         | Some resolvedPath -> Some (Choice1Of2 resolvedPath)
         | None -> None
           
@@ -2609,6 +2679,8 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     let initialInteractiveState = fsiDynamicCompiler.GetInitialInteractiveState ()
       
     let fsiStdinLexerProvider = FsiStdinLexerProvider(tcConfigB, fsiStdinSyphon, fsiConsoleInput, fsiConsoleOutput, fsiOptions, lexResourceManager)
+
+    let fsiIntellisenseProvider = FsiIntellisenseProvider(tcGlobals, tcImports)
 
     let fsiInteractionProcessor = FsiInteractionProcessor(fsi, tcConfigB, fsiOptions, fsiDynamicCompiler, fsiConsolePrompt, fsiConsoleOutput, fsiInterruptController, fsiStdinLexerProvider, lexResourceManager, initialInteractiveState) 
 

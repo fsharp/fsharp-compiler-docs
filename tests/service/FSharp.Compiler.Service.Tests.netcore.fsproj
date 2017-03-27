@@ -46,7 +46,6 @@
     <!--<Compile Include="../service/ProjectAnalysisTests.fs">
       <Link>ProjectAnalysisTests.fs</Link>
     </Compile>-->
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.netcore.fsproj" />

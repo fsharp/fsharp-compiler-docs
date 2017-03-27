@@ -2,6 +2,7 @@
   <PropertyGroup>
     <VersionPrefix>11.0.8</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
+    <OutputType>Library</OutputType>
     <DefineConstants>
       $(DefineConstants);
       DOTNETCORE;
@@ -13,10 +14,8 @@
     </NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DelaySign>true</DelaySign>
-    <DebugType>portable</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>FSharp.Compiler.Service.ProjectCracker</AssemblyName>
-    <OutputType>Library</OutputType>
     <PackageId>FSharp.Compiler.Service.ProjectCracker</PackageId>
   </PropertyGroup>
   <ItemGroup>
@@ -26,7 +25,7 @@
     <Compile Include="../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerTool.fs">
       <Link>ProjectCrackerTool.fs</Link>
     </Compile>
-    <Compile Include="../FSharp.Compiler.Service.ProjectCracker/ProjectCracker.fs" />
+    <Compile Include="ProjectCracker.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../FSharp.Compiler.Service/FSharp.Compiler.Service.netcore.fsproj" />

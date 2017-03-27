@@ -1,16 +1,27 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{B6B68AE6-E7A4-4D43-9B34-FFA74BFE192B}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		.travis.yml = .travis.yml
+		appveyor.yml = appveyor.yml
+		build-mono.sh = build-mono.sh
 		build.cmd = build.cmd
 		build.fsx = build.fsx
 		build.sh = build.sh
+		CONTRIBUTING.md = CONTRIBUTING.md
 		nuget\FSharp.Compiler.Service.nuspec = nuget\FSharp.Compiler.Service.nuspec
+		global.json = global.json
+		ISSUE_TEMPLATE.md = ISSUE_TEMPLATE.md
+		LICENSE = LICENSE
 		paket.dependencies = paket.dependencies
+		paket.lock = paket.lock
+		prepare-mono.sh = prepare-mono.sh
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
+		test-mono.sh = test-mono.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{83FEE492-6701-4E59-9184-16B1D30E91F8}"

@@ -107,7 +107,7 @@ module Impl =
             // This is an approximation - for generative type providers some type definitions can be private.
             taccessPublic
         #endif
-        | ILTypeMetadata (_,td) -> 
+        | ILTypeMetadata (TILObjectReprData(_,_,td)) -> 
             match td.Access with 
             | ILTypeDefAccess.Public 
             | ILTypeDefAccess.Nested ILMemberAccess.Public -> taccessPublic 
@@ -335,7 +335,7 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
         #if EXTENSIONTYPING 
         | ProvidedTypeMetadata info -> info.IsClass
         #endif
-        | ILTypeMetadata (_,td) -> (td.tdKind = ILTypeDefKind.Class)
+        | ILTypeMetadata (TILObjectReprData(_,_,td)) -> (td.tdKind = ILTypeDefKind.Class)
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> entity.Deref.IsFSharpClassTycon
 
     member __.IsByRef = 
@@ -356,7 +356,7 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
         #if EXTENSIONTYPING
         | ProvidedTypeMetadata info -> info.IsDelegate ()
         #endif
-        | ILTypeMetadata (_,td) -> (td.tdKind = ILTypeDefKind.Delegate)
+        | ILTypeMetadata (TILObjectReprData(_,_,td)) -> (td.tdKind = ILTypeDefKind.Delegate)
         | FSharpOrArrayOrByrefOrTupleOrExnTypeMetadata -> entity.IsFSharpDelegateTycon
 
     member __.IsEnum = 
@@ -420,6 +420,11 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
         let ty = generalizedTyconRef entity
         Infos.ExistsHeadTypeInEntireHierarchy cenv.g cenv.amap range0 ty cenv.g.tcref_System_Attribute
         
+    member x.IsDisposableType =
+        if isUnresolved() then false else
+        let ty = generalizedTyconRef entity
+        Infos.ExistsHeadTypeInEntireHierarchy cenv.g cenv.amap range0 ty cenv.g.tcref_System_IDisposable
+
     member x.BaseType = 
         checkIsResolved()        
         GetSuperTypeOfType cenv.g cenv.amap range0 (generalizedTyconRef entity) 
@@ -532,6 +537,19 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
         GetAttribInfosOfEntity cenv.g cenv.amap range0 entity
         |> List.map (fun a -> FSharpAttribute(cenv,  a))
         |> makeReadOnlyCollection
+
+    member __.AllCompilationPaths =
+        checkIsResolved()
+        let (CompilationPath.CompPath(_, parts)) = entity.CompilationPath
+        ([], parts) ||> List.fold (fun res (part, kind) ->
+            let parts =
+                match kind with
+                | ModuleOrNamespaceKind.FSharpModuleWithSuffix ->
+                    [part; part.[..part.Length - 7]]
+                | _ -> [part]
+
+            parts |> List.collect (fun part -> 
+                res |> List.map (fun path -> path + "." + part)))
 
     override x.Equals(other : obj) =
         box x === other ||
@@ -2167,4 +2185,10 @@ type FSharpSymbol with
         | Item.Types _
         | Item.DelegateCtor _  -> dflt()
 
-
+    static member GetAccessibility (symbol: FSharpSymbol) =
+        match symbol with
+        | :? FSharpEntity as x -> Some x.Accessibility
+        | :? FSharpField as x -> Some x.Accessibility
+        | :? FSharpUnionCase as x -> Some x.Accessibility
+        | :? FSharpMemberFunctionOrValue as x -> Some x.Accessibility
+        | _ -> None

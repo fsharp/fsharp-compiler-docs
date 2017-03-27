@@ -20,6 +20,14 @@ open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.NameResolution
 open Microsoft.FSharp.Compiler.CompileOps
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
+open Microsoft.FSharp.Compiler 
+open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.TcGlobals 
+open Microsoft.FSharp.Compiler.Infos
+open Microsoft.FSharp.Compiler.NameResolution
+open Microsoft.FSharp.Compiler.InfoReader
+open Microsoft.FSharp.Compiler.Tast
+open Microsoft.FSharp.Compiler.Tastops
 
 /// Represents one parameter for one method (or other item) in a group. 
 [<Sealed>]
@@ -112,7 +120,7 @@ type FSharpFindDeclResult =
      
 /// Represents the checking context implied by the ProjectOptions 
 [<Sealed>]
-type FSharpProjectContext =
+type internal FSharpProjectContext =
     /// Get the resolution and full contents of the assemblies referenced by the project options
     member GetReferencedAssemblies : unit -> FSharpAssembly list
 
@@ -168,9 +176,19 @@ type (*internal*) SemanticClassificationType =
     | Module
     | Printf
     | ComputationExpression
+<<<<<<< HEAD
     | IntrinsicType
+    | IntrinsicFunction
+||||||| parent of bf0f7e8ac... desired changeset
+    | IntrinsicType
+=======
+    | IntrinsicFunction
+>>>>>>> bf0f7e8ac... desired changeset
     | Enumeration
     | Interface
+    | TypeArgument
+    | Operator
+    | Disposable
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -225,7 +243,7 @@ type FSharpCheckFileResults =
     ///    'record field' locations and r.h.s. of 'range' operator a..b
     /// </param>
     /// <param name="line">The line number where the completion is happening</param>
-    /// <param name="colAtEndOfNamesAndResidue">The column number at the end of the 'names' text </param>
+    /// <param name="colAtEndOfNamesAndResidue">The column number (1-based) at the end of the 'names' text </param>
     /// <param name="qualifyingNames">The long identifier to the left of the '.'</param>
     /// <param name="partialName">The residue of a partial long identifier to the right of the '.'</param>
     /// <param name="lineStr">The residue of a partial long identifier to the right of the '.'</param>
@@ -316,8 +334,6 @@ type FSharpCheckFileResults =
 
     /// Get the textual usages that resolved to the given symbol throughout the file
     member GetUsesOfSymbolInFile : symbol:FSharpSymbol -> Async<FSharpSymbolUse[]>
-
-    member internal GetVisibleNamespacesAndModulesAtPoint : pos -> Async<Tast.ModuleOrNamespaceRef[]>
 
     /// Determines if a long ident is resolvable at a specific point.
     member internal IsRelativeNameResolvable: cursorPos : pos * plid : string list * item: Item -> Async<bool>
@@ -466,7 +482,8 @@ type FSharpChecker =
     ///    Note: all files except the one being checked are read from the FileSystem API
     /// </para>
     /// <para>
-    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available.
+    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available or if the check
+    ////  was abandoned due to some checkpoint during type checking.
     /// </para>
     /// </summary>
     ///
@@ -491,7 +508,8 @@ type FSharpChecker =
     ///    Note: all files except the one being checked are read from the FileSystem API
     /// </para>
     /// <para>
-    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available.
+    ///   Return FSharpCheckFileAnswer.Aborted if a parse tree was not available or if the check
+    ////  was abandoned due to some checkpoint during type checking.
     /// </para>
     /// </summary>
     ///
@@ -533,7 +551,19 @@ type FSharpChecker =
     /// <param name="loadedTimeStamp">Indicates when the script was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the script to be considered as a new project,
     /// so that references are re-resolved.</param>
+<<<<<<< HEAD
+    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool * ?extraProjectInfo: obj -> Async<FSharpProjectOptions * FSharpErrorInfo list>
+||||||| parent of bf0f7e8ac... desired changeset
     member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool * ?assumeDotNetFramework: bool * ?extraProjectInfo: obj -> Async<FSharpProjectOptions>
+=======
+<<<<<<< HEAD
+    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool * ?assumeDotNetFramework: bool * ?extraProjectInfo: obj -> Async<FSharpProjectOptions>
+||||||| merged common ancestors
+    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool * ?extraProjectInfo: obj -> Async<FSharpProjectOptions>
+=======
+    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool * ?extraProjectInfo: obj -> Async<FSharpProjectOptions * FSharpErrorInfo list>
+>>>>>>> msfsharp/master
+>>>>>>> bf0f7e8ac... desired changeset
 
     /// <summary>
     /// <para>Get the FSharpProjectOptions implied by a set of command line arguments.</para>
@@ -619,9 +649,20 @@ type FSharpChecker =
     /// For example, dependent references may have been deleted or created.
     member InvalidateConfiguration: options: FSharpProjectOptions -> unit    
 
+    /// Begin background parsing the given project.
+    member StartBackgroundCompile: options: FSharpProjectOptions -> unit
+
     /// Set the project to be checked in the background.  Overrides any previous call to <c>CheckProjectInBackground</c>
     member CheckProjectInBackground: options: FSharpProjectOptions -> unit
 
+    /// Stop the background compile.
+    //[<Obsolete("Explicitly stopping background compilation is not recommended and the functionality to allow this may be rearchitected in future release.  If you use this functionality please add an issue on http://github.com/fsharp/FSharp.Compiler.Service describing how you use it and ignore this warning.")>]
+    member StopBackgroundCompile : unit -> unit
+
+    /// Block until the background compile finishes.
+    //[<Obsolete("Explicitly waiting for background compilation is not recommended and the functionality to allow this may be rearchitected in future release.  If you use this functionality please add an issue on http://github.com/fsharp/FSharp.Compiler.Service describing how you use it and ignore this warning.")>]
+    member WaitForBackgroundCompile : unit -> unit
+    
     /// Report a statistic for testability
     static member GlobalForegroundParseCountStatistic : int
 

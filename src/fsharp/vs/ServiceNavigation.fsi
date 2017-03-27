@@ -21,30 +21,16 @@ type FSharpNavigationDeclarationItemKind =
     | FieldDecl
     | OtherDecl
 
-[<RequireQualifiedAccess>]
-type FSharpEnclosingEntityKind =
-    | Namespace
-    | Module
-    | Class
-    | Exception
-    | Interface
-    | Record
-    | Enum
-    | DU
-
 /// Represents an item to be displayed in the navigation bar
 [<Sealed>]
 type (*internal*) FSharpNavigationDeclarationItem = 
     member Name : string
     member UniqueName : string
-    member Glyph : int
-    member GlyphMajor : ItemDescriptionIcons.GlyphMajor
+    member Glyph : FSharpGlyph
     member Kind : FSharpNavigationDeclarationItemKind
     member Range : Range.range
     member BodyRange : Range.range
     member IsSingleTopLevel : bool
-    member EnclosingEntityKind: FSharpEnclosingEntityKind
-    member IsAbstract: bool
     member Access : Ast.SynAccess option
 
 /// Represents top-level declarations (that should be in the type drop-down)

@@ -1,6 +1,6 @@
 ﻿#if INTERACTIVE
-#r "../../bin/v4.5/FSharp.Compiler.Service.dll"
-#r "../../packages/NUnit/lib/nunit.framework.dll"
+#r "../../Debug/net40/bin/FSharp.LanguageService.Compiler.dll"
+#r "../../Debug/net40/bin/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
@@ -89,6 +89,7 @@ let mmmm2 : M.CAbbrev = new M.CAbbrev() // note, these don't count as uses of C
     let args = mkProjectCommandLineArgs (dllName, fileNames)
     let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let cleanFileName a = if a = fileName1 then "file1" else if a = fileName2 then "file2" else "??"
+
 
 [<Test>]
 let ``Test project1 whole project errors`` () = 
@@ -4520,7 +4521,7 @@ module Project35b =
     let args2 = Array.append args [| "-r:notexist.dll" |]
     let options = checker.GetProjectOptionsFromCommandLineArgs (projPath, args2)
 #else    
-    let options = checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously
+    let (options,_) = checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously
 #endif
 
 [<Test>]
@@ -5049,9 +5050,9 @@ let ``Test request for parse and check doesn't check whole project`` () =
 #if FCS_RETAIN_BACKGROUND_PARSE_RESULTS
     backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
 #else
-    (backgroundParseCount.Value <= 8) |> shouldEqual true // but note, the project does not get reparsed
+    backgroundParseCount.Value |> shouldEqual 7 // but note, the project does not get reparsed
 #endif
-    (backgroundCheckCount.Value <= 8) |> shouldEqual true // only two extra typechecks of files
+    backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
 
     // A subsequent ParseAndCheck of identical source code doesn't do any more anything
     let checkResults2 = checker.ParseAndCheckFileInProject(ProjectBig.fileNames.[7], 0, ProjectBig.fileSources2.[7], ProjectBig.options)  |> Async.RunSynchronously
@@ -5061,9 +5062,9 @@ let ``Test request for parse and check doesn't check whole project`` () =
 #if FCS_RETAIN_BACKGROUND_PARSE_RESULTS
     backgroundParseCount.Value |> shouldEqual 10 // but note, the project does not get reparsed
 #else
-    (backgroundParseCount.Value <= 8) |> shouldEqual true // but note, the project does not get reparsed
+    backgroundParseCount.Value |> shouldEqual 7 // but note, the project does not get reparsed
 #endif
-    (backgroundCheckCount.Value <= 8) |> shouldEqual true // only two extra typechecks of files
+    backgroundCheckCount.Value |> shouldEqual 7 // only two extra typechecks of files
 
     ()
 

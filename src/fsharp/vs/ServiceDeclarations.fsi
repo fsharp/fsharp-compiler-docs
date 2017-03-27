@@ -66,6 +66,32 @@ module internal Tooltips =
     val ToFSharpToolTipText: FSharpStructuredToolTipText -> FSharpToolTipText
     val Map: f: ('T1 -> 'T2) -> a: Async<'T1> -> Async<'T2>
 
+[<RequireQualifiedAccess>]
+type CompletionItemKind =
+    | Field
+    | Property
+    | Method of isExtension : bool
+    | Event
+    | Argument
+    | Other
+
+/// Indicates the accessibility of a symbol, as seen by the F# language
+and [<Class>] FSharpAccessibility = 
+    internal new: Accessibility * ?isProtected: bool -> FSharpAccessibility
+
+    /// Indicates the symbol has public accessibility
+    member IsPublic : bool
+
+    /// Indicates the symbol has private accessibility
+    member IsPrivate : bool
+
+    /// Indicates the symbol has internal accessibility
+    member IsInternal : bool
+
+    /// The underlying Accessibility
+    member internal Contents : Accessibility
+
+
 [<Sealed>]
 /// Represents a declaration in F# source code, with information attached ready for display by an editor.
 /// Returned by GetDeclarations.
@@ -86,11 +112,20 @@ type FSharpDeclarationListItem =
     /// Get the description text, asynchronously.  Never returns "Loading...".
     member StructuredDescriptionTextAsync : Async<FSharpStructuredToolTipText>
     member DescriptionTextAsync : Async<FSharpToolTipText>
-    /// Get the glyph integer for the declaration as used by Visual Studio.
-    member Glyph : int
-    member GlyphMajor : ItemDescriptionIcons.GlyphMajor
-    member GlyphMinor : ItemDescriptionIcons.GlyphMinor
+    member Glyph : FSharpGlyph
     member IsAttribute : bool
+    member Accessibility : FSharpAccessibility option
+    member Kind : CompletionItemKind
+    member IsOwnMember : bool
+    member MinorPriority : int
+    member FullName : string
+
+type internal CompletionItem =
+    { Item: Item
+      Kind: CompletionItemKind
+      IsOwnMember: bool
+      MinorPriority: int
+      Type: TyconRef option }
 
 [<Sealed>]
 /// Represents a set of declarations in F# source code, with information attached ready for display by an editor.
@@ -101,7 +136,7 @@ type FSharpDeclarationListInfo =
     member Items : FSharpDeclarationListItem[]
 
     // Implementation details used by other code in the compiler    
-    static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * items:Item list * reactor:IReactorOperations * checkAlive:(unit -> bool) -> FSharpDeclarationListInfo
+    static member internal Create : infoReader:InfoReader * m:range * denv:DisplayEnv * getAccessibility:(Item -> FSharpAccessibility option) * items:CompletionItem list * reactor:IReactorOperations * checkAlive:(unit -> bool) -> FSharpDeclarationListInfo
     static member internal Error : message:string -> FSharpDeclarationListInfo
     static member Empty : FSharpDeclarationListInfo
 
@@ -126,11 +161,18 @@ module internal ItemDescriptionsImpl =
     val FormatStructuredReturnTypeOfItem  : InfoReader -> range -> DisplayEnv -> Item -> Layout
     val FormatReturnTypeOfItem  : InfoReader -> range -> DisplayEnv -> Item -> string
     val RemoveDuplicateItems : TcGlobals -> Item list -> Item list
+    val RemoveDuplicateItemsWithType : TcGlobals -> (Item * TType option) list -> (Item * TType option) list
     val RemoveExplicitlySuppressed : TcGlobals -> Item list -> Item list
+    val RemoveDuplicateCompletionItems : TcGlobals -> CompletionItem list -> CompletionItem list
+    val RemoveExplicitlySuppressedCompletionItems : TcGlobals -> CompletionItem list -> CompletionItem list
+    val RemoveExplicitlySuppressedItemsWithType : TcGlobals -> (Item * TType option) list -> (Item * TType option) list
     val GetF1Keyword : Item -> string option
     val rangeOfItem : TcGlobals -> bool option -> Item -> range option
     val fileNameOfItem : TcGlobals -> string option -> range -> Item -> string
     val FullNameOfItem : TcGlobals -> Item -> string
     val ccuOfItem : TcGlobals -> Item -> CcuThunk option
-
+    val mutable ToolTipFault : string option
+    val FormatStructuredDescriptionOfItem : isDecl:bool -> InfoReader -> range -> DisplayEnv -> Item -> FSharpStructuredToolTipElement
+    val GlyphOfItem : DisplayEnv * Item -> FSharpGlyph
+    val IsAttribute : InfoReader -> Item -> bool
 

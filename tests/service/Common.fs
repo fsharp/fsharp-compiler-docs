@@ -1,4 +1,4 @@
-module FSharp.Compiler.Service.Tests.Common
+﻿module internal FSharp.Compiler.Service.Tests.Common
 
 open System.IO
 open System.Collections.Generic
@@ -12,6 +12,13 @@ open ReflectionAdapters
 // Create one global interactive checker instance 
 let checker = FSharpChecker.Create()
 
+let parseAndCheckScript (file, input) = 
+    let checkOptions, _diagnostics = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
+    let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, checkOptions) |> Async.RunSynchronously
+    match typedRes with
+    | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
+    | res -> failwithf "Parsing did not finish... (%A)" res
+
 type TempFile(ext, contents) = 
     let tmpFile =  Path.ChangeExtension(System.IO.Path.GetTempFileName() , ext)
     do File.WriteAllText(tmpFile, contents)
@@ -23,13 +30,13 @@ type TempFile(ext, contents) =
 
 let getBackgroundParseResultsForScriptText (input) = 
     use file =  new TempFile("fsx", input)
-    let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
+    let checkOptions, _diagnostics = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
     checker.GetBackgroundParseResultsForFileInProject(file.Name, checkOptions)  |> Async.RunSynchronously
 
 
 let getBackgroundCheckResultsForScriptText (input) = 
     use file =  new TempFile("fsx", input)
-    let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
+    let checkOptions, _diagnostics = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
     checker.GetBackgroundCheckResultsForFileInProject(file.Name, checkOptions) |> Async.RunSynchronously
 
 
@@ -37,7 +44,7 @@ let sysLib nm =
 #if !FX_ATLEAST_PORTABLE
     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
         let programFilesx86Folder = System.Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
-        programFilesx86Folder + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\" + nm + ".dll"
+        programFilesx86Folder + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\" + nm + ".dll"
     else
 #endif
 #if FX_NO_RUNTIMEENVIRONMENT
@@ -150,7 +157,7 @@ let parseAndCheckScript (file, input) =
     let projectOptions = checker.GetProjectOptionsFromCommandLineArgs (projName, args)
 
 #else    
-    let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
+    let projectOptions,_ = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
 #endif
 
     let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, projectOptions) |> Async.RunSynchronously

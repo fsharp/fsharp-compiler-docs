@@ -250,7 +250,6 @@ type internal TcSymbolUses =
     /// Get the locations of all the printf format specifiers in the file
     member GetFormatSpecifierLocationsAndArity : unit -> (range * int)[]
 
-
 /// An abstract type for reporting the results of name resolution and type checking
 type ITypecheckResultsSink =
 
@@ -406,6 +405,9 @@ val internal ResolveExprDotLongIdentAndComputeRange : TcResultsSink -> NameResol
 
 /// A generator of type instantiations used when no more specific type instantiation is known.
 val FakeInstantiationGenerator : range -> Typar list -> TType list
+
+/// Try to resolve a long identifier as type.
+val TryToResolveLongIdentAsType : NameResolver -> NameResolutionEnv -> range -> string list -> TType option
 
 /// Resolve a (possibly incomplete) long identifier to a set of possible resolutions.
 val ResolvePartialLongIdent : NameResolver -> NameResolutionEnv -> (MethInfo -> TType -> bool) -> range -> AccessorDomain -> string list -> bool -> Item list

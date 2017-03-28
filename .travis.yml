@@ -17,7 +17,9 @@ install:
 script: 
   - ./build.sh NuGet
 
-# Fails on Travis Linux Mono latest because FSharp.Core 4.3.0.0 is not available, see
+# Fails on Travis OSX too often because there are network outages on that configuration getting the Mono MDK
+
+# Fails on Travis Linux Mono latest and 4.8.0 because FSharp.Core 4.3.0.0 is not available, see
 #   https://github.com/fsharp/fsharp/pull/689
 #   https://github.com/mono/linux-packaging-fsharp/pull/3
 
@@ -30,4 +32,6 @@ matrix:
   allow_failures:
     - os: linux
       mono: latest
+    - os: linux
+      mono: 4.8.0
 

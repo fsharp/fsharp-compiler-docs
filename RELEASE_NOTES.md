@@ -1,3 +1,9 @@
+#### 11.0.9
+  * [Make incremental builder counter atomic](https://github.com/fsharp/FSharp.Compiler.Service/pull/724)
+  * [Add IsValCompiledAsMethod to FSharpMemberOrFunctionOrValue](https://github.com/fsharp/FSharp.Compiler.Service/pull/727)
+  * [Check before ILTypeInfo.FromType](https://github.com/fsharp/FSharp.Compiler.Service/issues/734)
+  * [Transition over to dotnet cli Fsproj](https://github.com/fsharp/FSharp.Compiler.Service/issues/700)
+
 #### 11.0.8
   * Depend on FSharp.Core package
 

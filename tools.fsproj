@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <DotNetCliToolReference Include="dotnet-mergenupkg" Version="1.0.*" />
+    <DotNetCliToolReference Include="dotnet-fssrgen" Version="3.3.*" />
+  </ItemGroup>
+</Project>

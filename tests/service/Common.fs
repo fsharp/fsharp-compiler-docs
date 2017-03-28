@@ -9,7 +9,39 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open ReflectionAdapters
 #endif
 
-// Create one global interactive checker instance 
+#if DOTNETCORE
+let readRefs (folder : string) (projectFile: string) =
+    let runProcess (workingDir: string) (exePath: string) (args: string) =
+        let psi = System.Diagnostics.ProcessStartInfo()
+        psi.FileName <- exePath
+        psi.WorkingDirectory <- workingDir
+        psi.RedirectStandardOutput <- false
+        psi.RedirectStandardError <- false
+        psi.Arguments <- args
+        psi.CreateNoWindow <- true
+        psi.UseShellExecute <- false
+
+        use p = new System.Diagnostics.Process()
+        p.StartInfo <- psi
+        p.Start() |> ignore
+        p.WaitForExit()
+
+        let exitCode = p.ExitCode
+        exitCode, ()
+
+    let runCmd exePath args = runProcess folder exePath (args |> String.concat " ")
+    let msbuildExec = Dotnet.ProjInfo.Inspect.dotnetMsbuild runCmd
+    let result = Dotnet.ProjInfo.Inspect.getProjectInfo ignore msbuildExec Dotnet.ProjInfo.Inspect.getFscArgs [] projectFile
+    match result with
+    | Ok(Dotnet.ProjInfo.Inspect.GetResult.FscArgs x) ->
+        x
+        |> List.filter (fun s -> s.StartsWith("-r:"))
+        |> List.map (fun s -> s.Replace("-r:", ""))
+    | _ -> []
+#endif
+
+
+// Create one global interactive checker instance
 let checker = FSharpChecker.Create()
 
 type TempFile(ext, contents) = 
@@ -83,11 +115,10 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
             yield x
         let references =
 #if DOTNETCORE
-            Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/obj/Debug/netstandard1.6/dotnet-compile-fsc.rsp")
-                |> File.ReadAllLines
-                |> Array.filter (fun s -> s.StartsWith("-r:"))
-                |> Array.map (fun s -> s.Replace("-r:","")) 
-#else        
+            let file = "Sample_NETCoreSDK_FSharp_Library_netstandard1.6.fsproj"
+            let projDir = Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6")
+            readRefs projDir file
+#else
             [ yield sysLib "mscorlib"
               yield sysLib "System"
               yield sysLib "System.Core"
@@ -119,10 +150,9 @@ let mkProjectCommandLineArgsForScript (dllName, fileNames) =
             yield x
     //    let implDir = Path.GetDirectoryName(typeof<System.Object>.Assembly.Location)
         let references =
-            Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/obj/Debug/netstandard1.6/dotnet-compile-fsc.rsp")
-            |> File.ReadAllLines
-            |> Array.filter (fun s -> s.StartsWith("-r:"))
-            |> Array.map (fun s -> s.Replace("-r:",""))
+            let file = "Sample_NETCoreSDK_FSharp_Library_netstandard1.6.fsproj"
+            let projDir = Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6")
+            readRefs projDir file
         for r in references do
             yield "-r:" + r
      |]

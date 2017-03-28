@@ -6,9 +6,9 @@ os:
 
 mono:
   - latest
+  - 4.8.0
   - 4.4.2
 
-#  - 4.2.2
 
 sudo: false
 
@@ -21,9 +21,12 @@ script:
 # https://github.com/fsharp/fsharp/issues/623#issuecomment-253165838
 
 matrix:
+  exclude:
+    - os: osx
+      mono: 4.4.2
+    - os: osx
+      mono: 4.8.0
   allow_failures:
     - os: linux
       mono: latest
-    - os: osx
-      mono: 4.4.2
 

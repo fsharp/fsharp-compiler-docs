@@ -2390,7 +2390,7 @@ module CompileHelpers =
         let assemblyName = System.Reflection.AssemblyName(System.IO.Path.GetFileNameWithoutExtension outfile)
         let flags = System.Reflection.Emit.AssemblyBuilderAccess.Run
 #if FX_NO_APP_DOMAINS
-        let assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, flags)
+        let assemblyBuilder = System.Reflection.Emit.AssemblyBuilder.DefineDynamicAssembly(assemblyName, flags)
         let moduleBuilder = assemblyBuilder.DefineDynamicModule("IncrementalModule")
 #else
         let assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, flags)

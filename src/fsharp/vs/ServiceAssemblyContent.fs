@@ -283,7 +283,10 @@ module AssemblyContentProvider =
 
     let rec private traverseEntity contentType (parent: Parent) (entity: FSharpEntity) = 
 
-        seq { if not entity.IsProvided then
+        seq { 
+#if EXTENSIONTYPING 
+              if not entity.IsProvided then
+#endif
                 match contentType, entity.Accessibility.IsPublic with
                 | Full, _ | Public, true ->
                     let ns = entity.Namespace |> Option.map (fun x -> x.Split '.') |> Option.orElse parent.Namespace
@@ -357,7 +360,11 @@ module AssemblyContentProvider =
         // on-demand.  However a more compete review may be warranted.
         use _ignoreAllDiagnostics = new ErrorScope()  
 
+#if EXTENSIONTYPING 
         match assemblies |> List.filter (fun x -> not x.IsProviderGenerated), fileName with
+#else
+        match assemblies, fileName with
+#endif
         | [], _ -> []
         | assemblies, Some fileName ->
             let fileWriteTime = FileInfo(fileName).LastWriteTime 

@@ -7,7 +7,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 let checker = FSharpChecker.Create()
 
 let parseWithTypeInfo (file, input) = 
-    let checkOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
+    let checkOptions, _errors = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
     let untypedRes = checker.ParseFileInProject(file, input, checkOptions) |> Async.RunSynchronously
     
     match checker.CheckFileInProject(untypedRes, file, 0, input, checkOptions) |> Async.RunSynchronously with 
@@ -37,7 +37,7 @@ printfn "%A" tip
 
 // Get declarations (autocomplete) for a location
 let decls = 
-    parsed.GetDeclarationListInfo(Some untyped, 5, 23, inputLines.[4], [], "msg") 
+    parsed.GetDeclarationListInfo(Some untyped, 5, 23, inputLines.[4], [], "msg", (fun () -> [])) 
     |> Async.RunSynchronously
 
 for item in decls.Items do

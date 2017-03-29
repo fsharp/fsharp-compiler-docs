@@ -152,24 +152,24 @@ module internal Utilities =
 
                 member r.AddText z s =
                     let color =
-                        match s with
-                        | TaggedText.Keyword _ -> ConsoleColor.White
-                        | TaggedText.TypeParameter _
-                        | TaggedText.Alias _
-                        | TaggedText.Class _ 
-                        | TaggedText.Module _
-                        | TaggedText.Interface _
-                        | TaggedText.Record _
-                        | TaggedText.Struct _
-                        | TaggedText.Union _
-                        | TaggedText.UnknownType _ -> ConsoleColor.Cyan
-                        | TaggedText.UnionCase _
-                        | TaggedText.ActivePatternCase _ -> ConsoleColor.Magenta
-                        | TaggedText.StringLiteral _ -> ConsoleColor.Yellow
-                        | TaggedText.NumericLiteral _ -> ConsoleColor.Green
+                        match s.Tag with
+                        | LayoutTag.Keyword -> ConsoleColor.White
+                        | LayoutTag.TypeParameter
+                        | LayoutTag.Alias
+                        | LayoutTag.Class 
+                        | LayoutTag.Module
+                        | LayoutTag.Interface
+                        | LayoutTag.Record
+                        | LayoutTag.Struct
+                        | LayoutTag.Union
+                        | LayoutTag.UnknownType -> ConsoleColor.Cyan
+                        | LayoutTag.UnionCase
+                        | LayoutTag.ActivePatternCase -> ConsoleColor.Magenta
+                        | LayoutTag.StringLiteral -> ConsoleColor.Yellow
+                        | LayoutTag.NumericLiteral -> ConsoleColor.Green
                         | _ -> Console.ForegroundColor
 
-                    DoWithColor color (fun () -> outWriter.Write s.Value)
+                    DoWithColor color (fun () -> outWriter.Write s.Text)
 
                     z
 
@@ -1682,7 +1682,7 @@ module internal MagicAssemblyResolution =
 #endif
                    
                    // As a last resort, try to find the reference without an extension
-                   match tcImports.TryFindExistingFullyQualifiedPathFromAssemblyRef(ILAssemblyRef.Create(simpleAssemName,None,None,false,None,None)) with
+                   match tcImports.TryFindExistingFullyQualifiedPathFromAssemblyRef(ctok, ILAssemblyRef.Create(simpleAssemName,None,None,false,None,None)) with
                    | Some(resolvedPath) -> 
                        OkResult([],Choice1Of2 resolvedPath)
                    | None -> 
@@ -2566,13 +2566,13 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = 
         try 
             let tcConfig = tcConfigP.Get(ctokStartup)
-            checker.FrameworkImportsCache.Get (ctokStartup, tcConfig)
+            checker.FrameworkImportsCache.Get (ctokStartup, tcConfig) |> Cancellable.runWithoutCancellation
         with e -> 
             stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
 
     let tcImports =  
       try 
-          TcImports.BuildNonFrameworkTcImports(ctokStartup, tcConfigP, tcGlobals, frameworkTcImports, nonFrameworkResolutions, unresolvedReferences)
+          TcImports.BuildNonFrameworkTcImports(ctokStartup, tcConfigP, tcGlobals, frameworkTcImports, nonFrameworkResolutions, unresolvedReferences) |> Cancellable.runWithoutCancellation
       with e -> 
           stopProcessingRecovery e range0; failwithf "Error creating evaluation session: %A" e
 
@@ -2595,7 +2595,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
         | Some assembly -> Some (Choice2Of2 assembly)
         | None -> 
 #endif
-        match tcImports.TryFindExistingFullyQualifiedPathFromAssemblyRef aref with
+        match tcImports.TryFindExistingFullyQualifiedPathFromAssemblyRef (ctok, aref) with
         | Some resolvedPath -> Some (Choice1Of2 resolvedPath)
         | None -> None
           

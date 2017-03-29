@@ -14,11 +14,11 @@ nuget FSharp.Formatting
 nuget SourceLink.Fake
 nuget FsLexYacc
 nuget FSharp.Core 4.0.0.1
-nuget FSharp.Compiler.Tools 4.0.1.21
+nuget FSharp.Compiler.Tools 4.1.4
 
-nuget System.Collections.Immutable 1.2.0
-nuget System.Reflection.Metadata 1.4.1-beta-24227-04
-nuget Microsoft.DiaSymReader.PortablePdb 1.1.0
-nuget Microsoft.DiaSymReader 1.0.8
+nuget System.Collections.Immutable 1.3.1
+nuget System.Reflection.Metadata 1.4.2
+nuget Microsoft.DiaSymReader.PortablePdb 1.2.0
+nuget Microsoft.DiaSymReader 1.1.0
 
 github fsharp/FAKE modules/Octokit/Octokit.fsx

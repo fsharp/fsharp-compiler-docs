@@ -165,7 +165,7 @@ let compile isDll debugMode (assemblyName : string) (ext: string) (code : string
     ensureDefaultFSharpCoreAvailable tmp
         
     printfn "args: %A" args
-    let errorInfo, id = checker.Compile args
+    let errorInfo, id = checker.Compile args |> Async.RunSynchronously
     for err in errorInfo do 
        printfn "error: %A" err
     if id <> 0 then raise <| CompilationError(assemblyName, id, errorInfo)
@@ -187,7 +187,7 @@ let compileAndVerifyAst (name : string, ast : Ast.ParsedInput list, references :
 
     ensureDefaultFSharpCoreAvailable outDir
 
-    let errors, id = checker.Compile(ast, name, outFile, references, executable = false)
+    let errors, id = checker.Compile(ast, name, outFile, references, executable = false) |> Async.RunSynchronously
     for err in errors do printfn "error: %A" err
     Assert.AreEqual (errors.Length, 0)
     if id <> 0 then raise <| CompilationError(name, id, errors)

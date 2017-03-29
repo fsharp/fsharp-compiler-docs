@@ -49,19 +49,19 @@ module internal SourceFile =
    /// Whether or not this file should be a single-file project
    val MustBeSingleFileProject : string -> bool
 
-type internal CompletionPath = string list * string option // plid * residue
+type CompletionPath = string list * string option // plid * residue
 
-type internal InheritanceContext = 
+type InheritanceContext = 
     | Class
     | Interface
     | Unknown
 
-type internal RecordContext =
+type RecordContext =
     | CopyOnUpdate of range * CompletionPath // range
     | Constructor of string // typename
     | New of CompletionPath
 
-type internal CompletionContext = 
+type CompletionContext = 
     // completion context cannot be determined due to errors
     | Invalid
     // completing something after the inherit keyword
@@ -73,22 +73,24 @@ type internal CompletionContext =
     // end of name ast node * list of properties\parameters that were already set
     | ParameterList of pos * HashSet<string>
     | AttributeApplication
+    | OpenDeclaration
 
-type internal ModuleKind = { IsAutoOpen: bool; HasModuleSuffix: bool }
+type ModuleKind = { IsAutoOpen: bool; HasModuleSuffix: bool }
 
-type internal EntityKind =
+type EntityKind =
     | Attribute
     | Type
     | FunctionOrValue of isActivePattern:bool
     | Module of ModuleKind
 
 // implementation details used by other code in the compiler    
-module (* internal *) UntypedParseImpl =
+module UntypedParseImpl =
     val TryFindExpressionASTLeftOfDotLeftOfCursor : pos * ParsedInput option -> (pos * bool) option
     val GetRangeOfExprLeftOfDot : pos  * ParsedInput option -> range option
     val TryFindExpressionIslandInPosition : pos * ParsedInput option -> string option
     val TryGetCompletionContext : pos * FSharpParseFileResults option * lineStr: string -> CompletionContext option
     val GetEntityKind: pos * ParsedInput -> EntityKind option
+    val GetFullNameOfSmallestModuleOrNamespaceAtPoint : ParsedInput * pos -> string[]
 
 // implementation details used by other code in the compiler    
 module internal SourceFileImpl =

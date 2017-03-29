@@ -20,6 +20,14 @@ open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.NameResolution
 open Microsoft.FSharp.Compiler.CompileOps
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
+open Microsoft.FSharp.Compiler 
+open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.TcGlobals 
+open Microsoft.FSharp.Compiler.Infos
+open Microsoft.FSharp.Compiler.NameResolution
+open Microsoft.FSharp.Compiler.InfoReader
+open Microsoft.FSharp.Compiler.Tast
+open Microsoft.FSharp.Compiler.Tastops
 
 /// Represents one parameter for one method (or other item) in a group. 
 [<Sealed>]
@@ -168,9 +176,12 @@ type (*internal*) SemanticClassificationType =
     | Module
     | Printf
     | ComputationExpression
-    | IntrinsicType
+    | IntrinsicFunction
     | Enumeration
     | Interface
+    | TypeArgument
+    | Operator
+    | Disposable
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]
@@ -215,7 +226,7 @@ type FSharpCheckFileResults =
     ///    and assume that we're going to repeat the operation later on.
     /// </param>
 
-    member GetDeclarationListInfo : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpDeclarationListInfo>
+    member GetDeclarationListInfo : ParsedFileResultsOpt:FSharpParseFileResults option * line: int * colAtEndOfPartialName: int * lineText:string * qualifyingNames: string list * partialName: string * getAllSymbols: (unit -> AssemblySymbol list) * ?hasTextChangedSinceLastTypecheck: (obj * range -> bool) -> Async<FSharpDeclarationListInfo>
 
     /// <summary>Get the items for a declaration list in FSharpSymbol format</summary>
     ///
@@ -384,16 +395,6 @@ type FSharpProjectOptions =
       ExtraProjectInfo : obj option
     }
          
-          
-module internal CompileHelpers =
-    val mkCompilationErorHandlers : unit -> List<FSharpErrorInfo> * ErrorLogger * ErrorLoggerProvider
-    val tryCompile : errorLogger:ErrorLogger -> f:(Exiter -> unit) -> int
-    val compileFromArgs : argv:string [] * referenceResolver: ReferenceResolver.Resolver * tcImportsCapture:(TcImports -> unit) option * dynamicAssemblyCreator:(TcGlobals * string * ILModuleDef -> unit) option -> FSharpErrorInfo [] * int
-    val compileFromAsts : referenceResolver: ReferenceResolver.Resolver * asts:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * noframework:bool * pdbFile:string option * executable:bool option * tcImportsCapture:(TcImports -> unit) option * dynamicAssemblyCreator:(TcGlobals * string * ILModuleDef -> unit) option -> FSharpErrorInfo [] * int
-    val createDynamicAssembly : debugInfo:bool * tcImportsRef:TcImports option ref * execute:bool * assemblyBuilderRef:Reflection.Emit.AssemblyBuilder option ref -> ilGlobals:TcGlobals * outfile:string * ilxMainModule:ILModuleDef -> unit
-    val setOutputStreams : execute:(#TextWriter * #TextWriter) option -> unit
-
-
 /// The result of calling TypeCheckResult including the possibility of abort and background compiler not caught up.
 [<RequireQualifiedAccess>]
 type FSharpCheckFileAnswer =
@@ -533,7 +534,7 @@ type FSharpChecker =
     /// <param name="loadedTimeStamp">Indicates when the script was loaded into the editing environment,
     /// so that an 'unload' and 'reload' action will cause the script to be considered as a new project,
     /// so that references are re-resolved.</param>
-    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool * ?assumeDotNetFramework: bool * ?extraProjectInfo: obj -> Async<FSharpProjectOptions>
+    member GetProjectOptionsFromScript : filename: string * source: string * ?loadedTimeStamp: DateTime * ?otherFlags: string[] * ?useFsiAuxLib: bool * ?assumeDotNetFramework: bool * ?extraProjectInfo: obj -> Async<FSharpProjectOptions * FSharpErrorInfo list>
 
     /// <summary>
     /// <para>Get the FSharpProjectOptions implied by a set of command line arguments.</para>
@@ -580,10 +581,10 @@ type FSharpChecker =
     /// Compile using the given flags.  Source files names are resolved via the FileSystem API. 
     /// The output file must be given by a -o flag. 
     /// The first argument is ignored and can just be "fsc.exe".
-    member Compile: argv:string [] -> FSharpErrorInfo [] * int
+    member Compile: argv:string [] -> Async<FSharpErrorInfo [] * int>
     
     /// TypeCheck and compile provided AST
-    member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -> FSharpErrorInfo [] * int
+    member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -> Async<FSharpErrorInfo [] * int>
 
     /// Compiles to a dynamic assembly using the given flags.  
     ///
@@ -595,10 +596,10 @@ type FSharpChecker =
     /// If the 'execute' parameter is given the entry points for the code are executed and 
     /// the given TextWriters are used for the stdout and stderr streams respectively. In this 
     /// case, a global setting is modified during the execution.
-    member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option -> FSharpErrorInfo [] * int * System.Reflection.Assembly option
+    member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option -> Async<FSharpErrorInfo [] * int * System.Reflection.Assembly option>
 
     /// TypeCheck and compile provided AST
-    member CompileToDynamicAssembly: ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -> FSharpErrorInfo [] * int * System.Reflection.Assembly option
+    member CompileToDynamicAssembly: ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -> Async<FSharpErrorInfo [] * int * System.Reflection.Assembly option>
        
     /// <summary>
     /// Try to get type check results for a file. This looks up the results of recent type checks of the
@@ -684,6 +685,12 @@ type FSharpChecker =
     member internal FrameworkImportsCache : FrameworkImportsCache
     member internal ReferenceResolver : ReferenceResolver.Resolver
 
+    /// Tokenize a single line, returning token information and a tokenization state represented by an integer
+    member TokenizeLine: line:string * state:int64 -> FSharpTokenInfo [] * int64
+
+    /// Tokenize an entire file, line by line
+    member TokenizeFile: source:string -> FSharpTokenInfo [] []
+
 
 
 // An object to typecheck source in a given typechecking environment.
@@ -720,6 +727,7 @@ module DebuggerEnvironment =
 module PrettyNaming =
     val IsIdentifierPartCharacter     : char -> bool
     val IsLongIdentifierPartCharacter : char -> bool
+    val IsOperatorName                : string -> bool
     val GetLongNameFromString         : string -> string list
 
     val FormatAndOtherOverloadsString : int -> string

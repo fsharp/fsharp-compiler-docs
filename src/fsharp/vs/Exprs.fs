@@ -980,24 +980,24 @@ module FSharpExprConvert =
             (csl,acc) ||> List.foldBack (fun (TCase(discrim,dtree)) acc -> 
                     let acc = acc |> Mk cenv m dtreeRetTy
                     match discrim with 
-                    | Test.UnionCase (ucref, tyargs) -> 
+                    | DecisionTreeTest.UnionCase (ucref, tyargs) -> 
                         let objR = ConvExpr cenv env e1
                         let ucR = ConvUnionCaseRef cenv ucref 
                         let utypR = ConvType cenv (mkAppTy ucref.TyconRef tyargs)
                         E.IfThenElse (E.UnionCaseTest (objR, utypR, ucR) |> Mk cenv m cenv.g.bool_ty, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
-                    | Test.Const (Const.Bool true) -> 
+                    | DecisionTreeTest.Const (Const.Bool true) -> 
                         let e1R = ConvExpr cenv env e1
                         E.IfThenElse (e1R, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
-                    | Test.Const (Const.Bool false) -> 
+                    | DecisionTreeTest.Const (Const.Bool false) -> 
                         let e1R = ConvExpr cenv env e1
                         // Note, reverse the branches
                         E.IfThenElse (e1R, acc, ConvDecisionTree cenv env dtreeRetTy dtree m) 
-                    | Test.Const c -> 
+                    | DecisionTreeTest.Const c -> 
                         let ty = tyOfExpr cenv.g e1
                         let eq = mkCallEqualsOperator cenv.g m ty e1 (Expr.Const (c, m, ty))
                         let eqR = ConvExpr cenv env eq 
                         E.IfThenElse (eqR, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
-                    | Test.IsNull -> 
+                    | DecisionTreeTest.IsNull -> 
                         // Decompile cached isinst tests
                         match e1 with 
                         | Expr.Val(vref,_,_) when env.isinstVals.ContainsVal vref.Deref  ->
@@ -1011,11 +1011,11 @@ module FSharpExprConvert =
                             let eq = mkCallEqualsOperator cenv.g m ty e1 (Expr.Const (Const.Zero, m, ty))
                             let eqR = ConvExpr cenv env eq 
                             E.IfThenElse (eqR, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
-                    | Test.IsInst (_srcty, tgty) -> 
+                    | DecisionTreeTest.IsInst (_srcty, tgty) -> 
                         let e1R = ConvExpr cenv env e1
                         E.IfThenElse (E.TypeTest (ConvType cenv tgty, e1R)  |> Mk cenv m cenv.g.bool_ty, ConvDecisionTree cenv env dtreeRetTy dtree m, acc) 
-                    | Test.ActivePatternCase _ -> wfail("unexpected Test.ActivePatternCase test in quoted expression",m)
-                    | Test.ArrayLength _ -> wfail("FSharp.Compiler.Service cannot yet return array pattern matching", m))
+                    | DecisionTreeTest.ActivePatternCase _ -> wfail("unexpected Test.ActivePatternCase test in quoted expression",m)
+                    | DecisionTreeTest.ArrayLength _ -> wfail("FSharp.Compiler.Service cannot yet return array pattern matching", m))
 
         | TDSuccess (args,n) -> 
                 // TAST stores pattern bindings in reverse order for some reason

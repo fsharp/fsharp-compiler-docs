@@ -3,7 +3,63 @@
     <VersionPrefix>11.0.10</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>FSharp.Compiler.Service</AssemblyName>
-    <DefineConstants>$(DefineConstants);BUILDING_WITH_LKG;COMPILED_AS_LANGUAGE_SERVICE_DLL;COMPILER;COMPILER_SERVICE;COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_4_0_0;EXTENSIBLE_DUMPER;FSHARP_CORE_4_5;FX_PORTABLE_OR_NETSTANDARD;FX_ATLEAST_PORTABLE;NETSTANDARD1_6;PREFERRED_UI_LANG;FX_EVENTWAITHANDLE_NO_IDISPOSABLE;FX_NO_APP_DOMAINS;FX_NO_ARRAY_LONG_LENGTH;FX_NO_BEGINEND_READWRITE;FX_NO_BINARY_SERIALIZATION;FX_NO_CONVERTER;FX_NO_CORHOST_SIGNER;FX_NO_CUSTOMATTRIBUTEDATA;FX_NO_DEFAULT_DEPENDENCY_TYPE;FX_NO_EXIT_CONTEXT_FLAGS;FX_NO_HEAPTERMINATION;FX_NO_LINKEDRESOURCES;FX_NO_PARAMETERIZED_THREAD_START;FX_NO_PDB_READER;FX_NO_PDB_WRITER;FX_NO_REFLECTION_MODULE_HANDLES;FX_NO_RUNTIMEENVIRONMENT;FX_NO_SECURITY_PERMISSIONS;FX_NO_SERVERCODEPAGES;FX_NO_SYMBOLSTORE;FX_NO_SYSTEM_CONFIGURATION;FX_NO_THREAD;FX_NO_THREADABORT;FX_NO_WAITONE_MILLISECONDS;FX_NO_WEB_CLIENT;FX_NO_WINFORMS;FX_NO_WIN_REGISTRY;FX_REDUCED_CONSOLE;FX_REDUCED_EXCEPTIONS;FX_RESHAPED_CONSOLE;FX_RESHAPED_GLOBALIZATION;FX_RESHAPED_REFEMIT;FX_RESHAPED_REFLECTION;FX_RESHAPED_REFLECTION_CORECLR;FSI_TODO_NETCORE;INCLUDE_METADATA_READER;INCLUDE_METADATA_WRITER;NO_DEBUG_LOG;NO_INLINE_IL_PARSER;NO_LOADER_OPTIMIZATION;NO_LOGGING_GUI;RESHAPED_MSBUILD;SIGNED;STRONG_NAME_AND_DELAY_SIGN_FSHARP_COMPILER_WITH_MSFT_KEY;TODO_REWORK_ASSEMBLY_LOAD;TODO_REWORK_SERVER;</DefineConstants>
+    <DefineConstants>$(DefineConstants);BUILDING_WITH_LKG</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILED_AS_LANGUAGE_SERVICE_DLL</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILER_SERVICE</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_4_0_0</DefineConstants>
+    <DefineConstants>$(DefineConstants);EXTENSIBLE_DUMPER</DefineConstants>
+    <DefineConstants>$(DefineConstants);FSHARP_CORE_4_5</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_PORTABLE_OR_NETSTANDARD</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_ATLEAST_PORTABLE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETSTANDARD1_6</DefineConstants>
+    <DefineConstants>$(DefineConstants);PREFERRED_UI_LANG</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_EVENTWAITHANDLE_NO_IDISPOSABLE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_APP_DOMAINS</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_ARRAY_LONG_LENGTH</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_BEGINEND_READWRITE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_BINARY_SERIALIZATION</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_CONVERTER</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_CORHOST_SIGNER</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_CUSTOMATTRIBUTEDATA</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_DEFAULT_DEPENDENCY_TYPE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_EXIT_CONTEXT_FLAGS</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_HEAPTERMINATION</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_LINKEDRESOURCES</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_PARAMETERIZED_THREAD_START</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_PDB_READER</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_PDB_WRITER</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_REFLECTION_MODULE_HANDLES</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_RUNTIMEENVIRONMENT</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_SECURITY_PERMISSIONS</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_SERVERCODEPAGES</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_SYMBOLSTORE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_SYSTEM_CONFIGURATION</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_THREAD</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_THREADABORT</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_WAITONE_MILLISECONDS</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_WEB_CLIENT</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_WINFORMS</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_WIN_REGISTRY</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_REDUCED_CONSOLE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_REDUCED_EXCEPTIONS</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_RESHAPED_CONSOLE</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_RESHAPED_GLOBALIZATION</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_RESHAPED_REFEMIT</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_RESHAPED_REFLECTION</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_RESHAPED_REFLECTION_CORECLR</DefineConstants>
+    <DefineConstants>$(DefineConstants);FSI_TODO_NETCORE</DefineConstants>
+    <DefineConstants>$(DefineConstants);INCLUDE_METADATA_READER</DefineConstants>
+    <DefineConstants>$(DefineConstants);INCLUDE_METADATA_WRITER</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_DEBUG_LOG</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_INLINE_IL_PARSER</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_LOADER_OPTIMIZATION</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_LOGGING_GUI</DefineConstants>
+    <DefineConstants>$(DefineConstants);RESHAPED_MSBUILD</DefineConstants>
+    <DefineConstants>$(DefineConstants);SIGNED</DefineConstants>
+    <DefineConstants>$(DefineConstants);STRONG_NAME_AND_DELAY_SIGN_FSHARP_COMPILER_WITH_MSFT_KEY</DefineConstants>
+    <DefineConstants>$(DefineConstants);TODO_REWORK_ASSEMBLY_LOAD</DefineConstants>
+    <DefineConstants>$(DefineConstants);TODO_REWORK_SERVER</DefineConstants>
     <NoWarn>$(NoWarn);44;69;65;54;61;75;62;9;2003;</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DelaySign>true</DelaySign>
@@ -503,6 +559,12 @@
     <Compile Include="../SimulatedMSBuildReferenceResolver.fs">
       <Link>Service/SimulatedMSBuildReferenceResolver.fs</Link>
     </Compile>
+    <Compile Include="..\vs\ServiceAssemblyContent.fsi">
+      <Link>Service/ServiceAssemblyContent.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\ServiceAssemblyContent.fs">
+      <Link>Service/ServiceAssemblyContent.fs</Link>
+    </Compile>
     <Compile Include="../vs/service.fsi">
       <Link>Service/service.fsi</Link>
     </Compile>
@@ -540,4 +602,5 @@
     <PackageReference Include="FSharp.Core" Version="4.1.*" />
     <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
   </ItemGroup>
+  <Import Project="..\..\..\.paket\Paket.Restore.targets" />
 </Project>

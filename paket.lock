@@ -1,9 +1,9 @@
 FRAMEWORK: NET45, NETSTANDARD16, NETCORE10
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.50.1)
+    FAKE (4.57.3)
     FSharp.Compiler.Service (2.0.0.6)
-    FSharp.Compiler.Tools (4.0.1.21)
+    FSharp.Compiler.Tools (4.1.4)
     FSharp.Core (4.0.0.1)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
@@ -14,54 +14,65 @@ NUGET
       FsLexYacc.Runtime (>= 7.0.5 < 7.1)
     FsLexYacc.Runtime (7.0.5)
       FSharp.Core (>= 3.1.2.5)
-    Microsoft.DiaSymReader (1.0.8)
+    Microsoft.DiaSymReader (1.1)
       System.Diagnostics.Debug (>= 4.0.11) - framework: net45, netstandard16
       System.Runtime (>= 4.1) - framework: net45, netstandard16
       System.Runtime.InteropServices (>= 4.1) - framework: net45, netstandard16
-    Microsoft.DiaSymReader.PortablePdb (1.1)
-      Microsoft.DiaSymReader (>= 1.0.8) - framework: net45, netstandard16
-      System.Collections (>= 4.0.11) - framework: net45, netstandard16
-      System.Collections.Immutable (>= 1.2) - framework: net45, netstandard16
-      System.Diagnostics.Debug (>= 4.0.11) - framework: net45, netstandard16
-      System.Globalization (>= 4.0) - framework: net45, netstandard16
-      System.IO (>= 4.1) - framework: net45, netstandard16
-      System.Linq (>= 4.1) - framework: net45, netstandard16
-      System.Reflection (>= 4.1) - framework: net45, netstandard16
-      System.Reflection.Metadata (>= 1.3) - framework: net45, netstandard16
-      System.Reflection.Primitives (>= 4.0.1) - framework: net45, netstandard16
-      System.Runtime (>= 4.1) - framework: net45, netstandard16
-      System.Runtime.Extensions (>= 4.1) - framework: net45, netstandard16
-      System.Runtime.InteropServices (>= 4.1) - framework: net45, netstandard16
-      System.Text.Encoding (>= 4.0.11) - framework: net45, netstandard16
-      System.Threading (>= 4.0.11) - framework: net45, netstandard16
-      System.Xml.XDocument (>= 4.0.11) - framework: net45, netstandard16
+    Microsoft.DiaSymReader.PortablePdb (1.2)
+      Microsoft.DiaSymReader (>= 1.1) - framework: net45, netstandard16
+      System.Collections (>= 4.3) - framework: net45, netstandard16
+      System.Collections.Immutable (>= 1.3.1) - framework: net45, netstandard16
+      System.Diagnostics.Debug (>= 4.3) - framework: net45, netstandard16
+      System.Globalization (>= 4.3) - framework: net45, netstandard16
+      System.IO (>= 4.3) - framework: net45, netstandard16
+      System.Linq (>= 4.3) - framework: net45, netstandard16
+      System.Reflection (>= 4.3) - framework: net45, netstandard16
+      System.Reflection.Metadata (>= 1.4.2) - framework: net45, netstandard16
+      System.Reflection.Primitives (>= 4.3) - framework: net45, netstandard16
+      System.Runtime (>= 4.3) - framework: net45, netstandard16
+      System.Runtime.Extensions (>= 4.3) - framework: net45, netstandard16
+      System.Runtime.InteropServices (>= 4.3) - framework: net45, netstandard16
+      System.Text.Encoding (>= 4.3) - framework: net45, netstandard16
+      System.Threading (>= 4.3) - framework: net45, netstandard16
     Microsoft.NETCore.Platforms (1.1)
     Microsoft.NETCore.Targets (1.1)
     NUnit (2.6.3)
     NUnit.Runners (2.6.3)
     Octokit (0.24)
+    runtime.native.System (4.3) - framework: net45, netstandard16
+      Microsoft.NETCore.Platforms (>= 1.1)
+      Microsoft.NETCore.Targets (>= 1.1)
+    runtime.native.System.IO.Compression (4.3) - framework: net45, netstandard16
+      Microsoft.NETCore.Platforms (>= 1.1)
+      Microsoft.NETCore.Targets (>= 1.1)
     SourceLink.Fake (1.1)
     SQLite.Net-PCL (3.0.5)
     SQLite.Net.Platform.Generic (2.4.1)
       SQLite.Net-PCL
+    System.Buffers (4.3) - framework: net45, netstandard16
+      System.Diagnostics.Debug (>= 4.3) - framework: netstandard16
+      System.Diagnostics.Tracing (>= 4.3) - framework: netstandard16
+      System.Resources.ResourceManager (>= 4.3) - framework: netstandard16
+      System.Runtime (>= 4.3) - framework: netstandard16
+      System.Threading (>= 4.3) - framework: netstandard16
     System.Collections (4.3)
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
-    System.Collections.Immutable (1.2)
-      System.Collections (>= 4.0.11) - framework: netstandard16
-      System.Diagnostics.Debug (>= 4.0.11) - framework: netstandard16
-      System.Globalization (>= 4.0.11) - framework: netstandard16
-      System.Linq (>= 4.1) - framework: netstandard16
-      System.Resources.ResourceManager (>= 4.0.1) - framework: netstandard16
-      System.Runtime (>= 4.1) - framework: netstandard16
-      System.Runtime.Extensions (>= 4.1) - framework: netstandard16
-      System.Threading (>= 4.0.11) - framework: netstandard16
+    System.Collections.Immutable (1.3.1)
+      System.Collections (>= 4.3) - framework: netstandard16
+      System.Diagnostics.Debug (>= 4.3) - framework: netstandard16
+      System.Globalization (>= 4.3) - framework: netstandard16
+      System.Linq (>= 4.3) - framework: netstandard16
+      System.Resources.ResourceManager (>= 4.3) - framework: netstandard16
+      System.Runtime (>= 4.3) - framework: netstandard16
+      System.Runtime.Extensions (>= 4.3) - framework: netstandard16
+      System.Threading (>= 4.3) - framework: netstandard16
     System.Diagnostics.Debug (4.3)
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
-    System.Diagnostics.Tools (4.3) - framework: net45, netstandard16
+    System.Diagnostics.Tracing (4.3) - framework: net45, netstandard16
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
@@ -75,17 +86,22 @@ NUGET
       System.Runtime (>= 4.3) - framework: netstandard16
       System.Text.Encoding (>= 4.3) - framework: netstandard16
       System.Threading.Tasks (>= 4.3) - framework: netstandard16
-    System.IO.FileSystem (4.3) - framework: net45, netstandard16
+    System.IO.Compression (4.3) - framework: net45, netstandard16
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
-      Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
+      runtime.native.System (>= 4.3) - framework: netstandard16
+      runtime.native.System.IO.Compression (>= 4.3) - framework: netstandard16
+      System.Buffers (>= 4.3) - framework: netstandard16
+      System.Collections (>= 4.3) - framework: netstandard16
+      System.Diagnostics.Debug (>= 4.3) - framework: netstandard16
       System.IO (>= 4.3) - framework: netstandard16
-      System.IO.FileSystem.Primitives (>= 4.3) - framework: net45, >= net46, netstandard16
+      System.Resources.ResourceManager (>= 4.3) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
+      System.Runtime.Extensions (>= 4.3) - framework: netstandard16
       System.Runtime.Handles (>= 4.3) - framework: netstandard16
+      System.Runtime.InteropServices (>= 4.3) - framework: netstandard16
       System.Text.Encoding (>= 4.3) - framework: netstandard16
+      System.Threading (>= 4.3) - framework: netstandard16
       System.Threading.Tasks (>= 4.3) - framework: netstandard16
-    System.IO.FileSystem.Primitives (4.3)
-      System.Runtime (>= 4.3) - framework: netstandard16
     System.Linq (4.3)
       System.Collections (>= 4.3) - framework: netstandard16
       System.Diagnostics.Debug (>= 4.3) - framework: netstandard16
@@ -103,22 +119,23 @@ NUGET
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
       System.Reflection (>= 4.3) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
-    System.Reflection.Metadata (1.4.1-beta-24227-04)
-      System.Collections (>= 4.0.11) - framework: netstandard16
-      System.Collections.Immutable (>= 1.2) - framework: net45, netstandard16
-      System.Diagnostics.Debug (>= 4.0.11) - framework: netstandard16
-      System.IO (>= 4.1) - framework: netstandard16
-      System.Linq (>= 4.1) - framework: netstandard16
-      System.Reflection (>= 4.1) - framework: netstandard16
-      System.Reflection.Extensions (>= 4.0.1) - framework: netstandard16
-      System.Reflection.Primitives (>= 4.0.1) - framework: netstandard16
-      System.Resources.ResourceManager (>= 4.0.1) - framework: netstandard16
-      System.Runtime (>= 4.1) - framework: netstandard16
-      System.Runtime.Extensions (>= 4.1) - framework: netstandard16
-      System.Runtime.InteropServices (>= 4.1) - framework: netstandard16
-      System.Text.Encoding (>= 4.0.11) - framework: netstandard16
-      System.Text.Encoding.Extensions (>= 4.0.11) - framework: netstandard16
-      System.Threading (>= 4.0.11) - framework: netstandard16
+    System.Reflection.Metadata (1.4.2)
+      System.Collections (>= 4.3) - framework: netstandard16
+      System.Collections.Immutable (>= 1.3.1) - framework: net45, netstandard16
+      System.Diagnostics.Debug (>= 4.3) - framework: netstandard16
+      System.IO (>= 4.3) - framework: netstandard16
+      System.IO.Compression (>= 4.3) - framework: netstandard16
+      System.Linq (>= 4.3) - framework: netstandard16
+      System.Reflection (>= 4.3) - framework: netstandard16
+      System.Reflection.Extensions (>= 4.3) - framework: netstandard16
+      System.Reflection.Primitives (>= 4.3) - framework: netstandard16
+      System.Resources.ResourceManager (>= 4.3) - framework: netstandard16
+      System.Runtime (>= 4.3) - framework: netstandard16
+      System.Runtime.Extensions (>= 4.3) - framework: netstandard16
+      System.Runtime.InteropServices (>= 4.3) - framework: netstandard16
+      System.Text.Encoding (>= 4.3) - framework: netstandard16
+      System.Text.Encoding.Extensions (>= 4.3) - framework: netstandard16
+      System.Threading (>= 4.3) - framework: netstandard16
     System.Reflection.Primitives (4.3)
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
@@ -136,7 +153,7 @@ NUGET
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
-    System.Runtime.Handles (4.3) - framework: net45, netstandard16
+    System.Runtime.Handles (4.3)
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
@@ -151,18 +168,11 @@ NUGET
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
-    System.Text.Encoding.Extensions (4.3)
+    System.Text.Encoding.Extensions (4.3) - framework: net45, netstandard16
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
       System.Text.Encoding (>= 4.3) - framework: netstandard16
-    System.Text.RegularExpressions (4.3) - framework: net45, netstandard16
-      System.Collections (>= 4.3) - framework: netstandard16
-      System.Globalization (>= 4.3) - framework: netstandard16
-      System.Resources.ResourceManager (>= 4.3) - framework: netstandard16
-      System.Runtime (>= 4.3) - framework: netstandard16
-      System.Runtime.Extensions (>= 4.3) - framework: netstandard16
-      System.Threading (>= 4.3) - framework: netstandard16
     System.Threading (4.3)
       System.Runtime (>= 4.3) - framework: netstandard16
       System.Threading.Tasks (>= 4.3) - framework: netstandard16
@@ -170,40 +180,7 @@ NUGET
       Microsoft.NETCore.Platforms (>= 1.1) - framework: netstandard16
       Microsoft.NETCore.Targets (>= 1.1) - framework: netstandard16
       System.Runtime (>= 4.3) - framework: netstandard16
-    System.Threading.Tasks.Extensions (4.3) - framework: net45, netstandard16
-      System.Collections (>= 4.3) - framework: netstandard16
-      System.Runtime (>= 4.3) - framework: netstandard16
-      System.Threading.Tasks (>= 4.3) - framework: netstandard16
-    System.Xml.ReaderWriter (4.3) - framework: net45, netstandard16
-      System.Collections (>= 4.3) - framework: netstandard16
-      System.Diagnostics.Debug (>= 4.3) - framework: netstandard16
-      System.Globalization (>= 4.3) - framework: netstandard16
-      System.IO (>= 4.3) - framework: netstandard16
-      System.IO.FileSystem (>= 4.3) - framework: netstandard16
-      System.IO.FileSystem.Primitives (>= 4.3) - framework: netstandard16
-      System.Resources.ResourceManager (>= 4.3) - framework: netstandard16
-      System.Runtime (>= 4.3) - framework: netstandard16
-      System.Runtime.Extensions (>= 4.3) - framework: netstandard16
-      System.Runtime.InteropServices (>= 4.3) - framework: netstandard16
-      System.Text.Encoding (>= 4.3) - framework: netstandard16
-      System.Text.Encoding.Extensions (>= 4.3) - framework: netstandard16
-      System.Text.RegularExpressions (>= 4.3) - framework: netstandard16
-      System.Threading.Tasks (>= 4.3) - framework: netstandard16
-      System.Threading.Tasks.Extensions (>= 4.3) - framework: netstandard16
-    System.Xml.XDocument (4.3) - framework: net45, netstandard16
-      System.Collections (>= 4.3) - framework: netstandard16
-      System.Diagnostics.Debug (>= 4.3) - framework: netstandard16
-      System.Diagnostics.Tools (>= 4.3) - framework: netstandard16
-      System.Globalization (>= 4.3) - framework: netstandard16
-      System.IO (>= 4.3) - framework: netstandard16
-      System.Reflection (>= 4.3) - framework: netstandard16
-      System.Resources.ResourceManager (>= 4.3) - framework: netstandard16
-      System.Runtime (>= 4.3) - framework: netstandard16
-      System.Runtime.Extensions (>= 4.3) - framework: netstandard16
-      System.Text.Encoding (>= 4.3) - framework: netstandard16
-      System.Threading (>= 4.3) - framework: netstandard16
-      System.Xml.ReaderWriter (>= 4.3) - framework: netstandard16
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (199528dc8aac0ca31094283c8834b136aa52e395)
+    modules/Octokit/Octokit.fsx (116f266b01a5718a7e3edd09fdf14aaaeb674837)
       Octokit (>= 0.20)

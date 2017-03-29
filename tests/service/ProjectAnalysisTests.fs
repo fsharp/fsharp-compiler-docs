@@ -4520,7 +4520,7 @@ module Project35b =
     let args2 = Array.append args [| "-r:notexist.dll" |]
     let options = checker.GetProjectOptionsFromCommandLineArgs (projPath, args2)
 #else    
-    let options = checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously
+    let internal options =  checker.GetProjectOptionsFromScript(fileName1, fileSource1) |> Async.RunSynchronously |> fst
 #endif
 
 [<Test>]

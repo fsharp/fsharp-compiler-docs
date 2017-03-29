@@ -32,4 +32,5 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="14.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.0.2" />
   </ItemGroup>
+  <Import Project="..\..\..\.paket\Paket.Restore.targets" />
 </Project>

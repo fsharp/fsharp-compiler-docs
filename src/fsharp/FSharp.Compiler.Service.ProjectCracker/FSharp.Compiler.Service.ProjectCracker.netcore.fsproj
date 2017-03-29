@@ -1,6 +1,6 @@
 <Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>11.0.9</VersionPrefix>
+    <VersionPrefix>11.0.10</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
     <OutputType>Library</OutputType>
     <DefineConstants>$(DefineConstants);DOTNETCORE;</DefineConstants>

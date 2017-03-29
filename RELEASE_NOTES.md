@@ -1,3 +1,6 @@
+#### 11.0.10
+  * [Fix F# Interactive on Mono 4.0.9+](https://github.com/fsharp/fsharp/pull/696)
+
 #### 11.0.9
   * [Make incremental builder counter atomic](https://github.com/fsharp/FSharp.Compiler.Service/pull/724)
   * [Add IsValCompiledAsMethod to FSharpMemberOrFunctionOrValue](https://github.com/fsharp/FSharp.Compiler.Service/pull/727)

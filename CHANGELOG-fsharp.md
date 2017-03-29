@@ -1,3 +1,9 @@
+4.1.1
+  * Update compiler tools
+
+4.1.0.2
+  * Include DiaSymReader DLLs in nuget package
+
 4.1.0.0
   * Updates to FSharp.Core nuget package for F# 4.1
 

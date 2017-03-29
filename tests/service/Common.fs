@@ -44,29 +44,6 @@ let readRefs (folder : string) (projectFile: string) =
 // Create one global interactive checker instance
 let checker = FSharpChecker.Create()
 
-let parseAndCheckScript (file, input) = 
-
-#if DOTNETCORE
-    let dllName = Path.ChangeExtension(file, ".dll")
-    let projName = Path.ChangeExtension(file, ".fsproj")
-    let args = mkProjectCommandLineArgsForScript (dllName, [file])
-    printfn "file = %A, args = %A" file args
-    let projectOptions = checker.GetProjectOptionsFromCommandLineArgs (projName, args)
-
-#else    
-    let projectOptions, _diagnostics = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
-#endif
-
-    let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, projectOptions) |> Async.RunSynchronously
-    
-    // if parseResult.Errors.Length > 0 then
-    //     printfn "---> Parse Input = %A" input
-    //     printfn "---> Parse Error = %A" parseResult.Errors
-
-    match typedRes with
-    | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
-    | res -> failwithf "Parsing did not finish... (%A)" res
-
 type TempFile(ext, contents) = 
     let tmpFile =  Path.ChangeExtension(System.IO.Path.GetTempFileName() , ext)
     do File.WriteAllText(tmpFile, contents)
@@ -180,6 +157,29 @@ let mkProjectCommandLineArgsForScript (dllName, fileNames) =
             yield "-r:" + r
      |]
 #endif
+
+let parseAndCheckScript (file, input) = 
+
+#if DOTNETCORE
+    let dllName = Path.ChangeExtension(file, ".dll")
+    let projName = Path.ChangeExtension(file, ".fsproj")
+    let args = mkProjectCommandLineArgsForScript (dllName, [file])
+    printfn "file = %A, args = %A" file args
+    let projectOptions = checker.GetProjectOptionsFromCommandLineArgs (projName, args)
+
+#else    
+    let projectOptions, _diagnostics = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
+#endif
+
+    let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, projectOptions) |> Async.RunSynchronously
+    
+    // if parseResult.Errors.Length > 0 then
+    //     printfn "---> Parse Input = %A" input
+    //     printfn "---> Parse Error = %A" parseResult.Errors
+
+    match typedRes with
+    | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
+    | res -> failwithf "Parsing did not finish... (%A)" res
 
 let parseSourceCode (name: string, code: string) =
     let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))

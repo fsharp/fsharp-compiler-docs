@@ -10,7 +10,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>FSharp.Compiler.Service.ProjectCracker</AssemblyName>
     <PackageId>FSharp.Compiler.Service.ProjectCracker</PackageId>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../FSharp.Compiler.Service.ProjectCrackerTool/ProjectCrackerOptions.fs">

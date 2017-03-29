@@ -14,41 +14,19 @@ For more information about the project, see:
  * [F# Compiler Service documentation](http://fsharp.github.io/FSharp.Compiler.Service/)
  * [Developer notes explain the project structure](http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html)
 
-
 Build and Test
 -----
 
-#### Note on dotnet-cli
-
-This repository still uses an old version of dotnet-cli (1.0.0-preview2-003156).
-If you get the following error when running the build, then your version is probably too new:
-
-```
-MSBUILD : error MSB1018: Verbosity level is not valid.
-Switch: Information
-
-For switch syntax, type "MSBuild /help"
-```
-
-- go to https://github.com/dotnet/core/blob/master/release-notes/download-archive.md
-- choose the preview2  ( 1.0.3 with SDK Preview 2 build 3156 is ok)
-- download "sdk binaries" (not installer)
-- unzip
-- add that dir to `PATH`
-- now `dotnet --version` is `1.0.0-preview2-003156`
-
-
-
-__.NET Framework:__
+.NET Framework:
 
     build.cmd All.NetFx 
     (unix: ./build.sh All.NetFx)
 
-__.NET Core__
+.NET Core
 
     build All.NetCore
 
-__Both:__
+Both:
 
     build All
 

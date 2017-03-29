@@ -21,5 +21,6 @@ files
     ../bin/v4.5/FSharp.Compiler.Service.dll.?db ==> lib/net45
     ../bin/v4.5/FSharp.Compiler.Service.MSBuild.v12.dll ==> lib/net45
 dependencies
+	System.ValueTuple >= LOCKEDVERSION
 	System.Collections.Immutable >= LOCKEDVERSION
 	System.Reflection.Metadata >= LOCKEDVERSION

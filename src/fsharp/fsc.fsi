@@ -30,6 +30,7 @@ val internal ProcessCommandLineFlags : TcConfigBuilder * setProcessThreadLocals:
 // The entry point used by fsc.exe
 
 val typecheckAndCompile : 
+    ctok: CompilationThreadToken *
     argv : string[] * 
     referenceResolver: ReferenceResolver.Resolver * 
     bannerAlreadyPrinted : bool * 
@@ -41,6 +42,7 @@ val typecheckAndCompile :
       -> unit
 
 val mainCompile : 
+    ctok: CompilationThreadToken *
     argv: string[] * 
     referenceResolver: ReferenceResolver.Resolver * 
     bannerAlreadyPrinted: bool * 
@@ -52,6 +54,7 @@ val mainCompile :
       -> unit
 
 val compileOfAst : 
+    ctok: CompilationThreadToken *
     referenceResolver: ReferenceResolver.Resolver * 
     openBinariesInMemory: bool * 
     assemblyName:string * 

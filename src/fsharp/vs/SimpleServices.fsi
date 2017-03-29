@@ -24,37 +24,27 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 
 /// Provides simpler version of services for checking and compiling F# scripts
+[<System.Obsolete("Please create an instance of FSharpChecker and use the corresponding method on that instance")>]
 type SimpleSourceCodeServices = 
 
-    /// Create a singleton global isntance for checking and compiling F# scripts
+    [<System.Obsolete("Please create an instance of FSharpChecker and use the corresponding method on that instance")>]
     new: ?msbuildEnabled: bool -> SimpleSourceCodeServices
 
-    /// Tokenize a single line, returning token information and a tokenization state represented by an integer
+    [<System.Obsolete("Please create an instance of FSharpChecker and use the corresponding method on that instance")>]
     member TokenizeLine: line:string * state:int64 -> FSharpTokenInfo [] * int64
 
-    /// Tokenize an entire file, line by line
+    [<System.Obsolete("Please create an instance of FSharpChecker and use the corresponding method on that instance")>]
     member TokenizeFile: source:string -> FSharpTokenInfo [] []
 
-    /// Compile using the given flags.  Source files names are resolved via the FileSystem API. 
-    /// The output file must be given by a -o flag. 
-    /// The first argument is ignored and can just be "fsc.exe".
+    [<System.Obsolete("Please create an instance of FSharpChecker and use the corresponding method on that instance")>]
     member Compile: argv:string [] -> FSharpErrorInfo [] * int
     
-    /// TypeCheck and compile provided AST
+    [<System.Obsolete("Please create an instance of FSharpChecker and use the corresponding method on that instance")>]
     member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool -> FSharpErrorInfo [] * int
 
-    /// Compiles to a dynamic assembly using the given flags.  
-    ///
-    /// The first argument is ignored and can just be "fsc.exe".
-    ///
-    /// Any source files names are resolved via the FileSystem API. An output file name must be given by a -o flag, but this will not
-    /// be written - instead a dynamic assembly will be created and loaded.
-    ///
-    /// If the 'execute' parameter is given the entry points for the code are executed and 
-    /// the given TextWriters are used for the stdout and stderr streams respectively. In this 
-    /// case, a global setting is modified during the execution.
+    [<System.Obsolete("Please create an instance of FSharpChecker and use the corresponding method on that instance")>]
     member CompileToDynamicAssembly: otherFlags:string [] * execute:(TextWriter * TextWriter) option -> FSharpErrorInfo [] * int * System.Reflection.Assembly option
 
-    /// TypeCheck and compile provided AST
+    [<System.Obsolete("Please create an instance of FSharpChecker and use the corresponding method on that instance")>]
     member CompileToDynamicAssembly: ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool -> FSharpErrorInfo [] * int * System.Reflection.Assembly option
             

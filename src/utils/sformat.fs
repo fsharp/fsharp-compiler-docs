@@ -52,88 +52,58 @@ namespace Microsoft.FSharp.Text.StructuredFormat
     open ReflectionAdapters
 #endif
 
-    [<NoEquality; NoComparison>]
-#if COMPILER
-    type (* internal *) TaggedText =
+    [<StructuralEquality; NoComparison>]
+#if COMPILER_SERVICE
+    type LayoutTag =
 #else
-    type TaggedText =
+    type internal LayoutTag =
 #endif
-        | ActivePatternCase of string
-        | ActivePatternResult of string
-        | Alias of string
-        | Class of string
-        | Union of string
-        | UnionCase of string
-        | Delegate of string
-        | Enum of string
-        | Event of string
-        | Field of string
-        | Interface of string
-        | Keyword of string
-        | LineBreak of string
-        | Local of string
-        | Record of string
-        | RecordField of string
-        | Method of string
-        | Member of string
-        | ModuleBinding of string
-        | Module of string
-        | Namespace of string
-        | NumericLiteral of string
-        | Operator of string
-        | Parameter of string
-        | Property of string
-        | Space of string
-        | StringLiteral of string
-        | Struct of string
-        | TypeParameter of string
-        | Text of string
-        | Punctuation of string
-        | UnknownType of string
-        | UnknownEntity of string
-        with 
-        member this.Value = 
-            match this with 
-            | ActivePatternCase t
-            | ActivePatternResult t
-            | Alias t
-            | Class t
-            | Union t
-            | UnionCase t
-            | Delegate t
-            | Enum t
-            | Event t
-            | Field t
-            | Interface t
-            | Keyword t
-            | LineBreak t
-            | Local t
-            | Record t
-            | RecordField t
-            | Method t
-            | Member t
-            | Module t
-            | ModuleBinding t
-            | Namespace t
-            | NumericLiteral t
-            | Operator t
-            | Parameter t
-            | Property t
-            | Space t
-            | StringLiteral t
-            | Struct t
-            | TypeParameter t
-            | Text t
-            | Punctuation t
-            | UnknownType t
-            | UnknownEntity t -> t
-        member this.Length = this.Value.Length
-        static member GetText(t: TaggedText) = t.Value
-    
-#if COMPILER
-    type (* internal *) TaggedTextWriter =
+        | ActivePatternCase
+        | ActivePatternResult
+        | Alias
+        | Class
+        | Union
+        | UnionCase
+        | Delegate
+        | Enum
+        | Event
+        | Field
+        | Interface
+        | Keyword
+        | LineBreak
+        | Local
+        | Record
+        | RecordField
+        | Method
+        | Member
+        | ModuleBinding
+        | Module
+        | Namespace
+        | NumericLiteral
+        | Operator
+        | Parameter
+        | Property
+        | Space
+        | StringLiteral
+        | Struct
+        | TypeParameter
+        | Text
+        | Punctuation
+        | UnknownType
+        | UnknownEntity
+
+#if COMPILER_SERVICE
+    type TaggedText =
 #else
+    type (* internal *) TaggedText =
+#endif
+        abstract Tag: LayoutTag
+        abstract Text: string
+    
+#if COMPILER_SERVICE
     type TaggedTextWriter =
+#else
+    type (* internal *) TaggedTextWriter =
 #endif
         abstract Write: t: TaggedText -> unit
         abstract WriteLine: unit -> unit
@@ -142,10 +112,10 @@ namespace Microsoft.FSharp.Text.StructuredFormat
     ///  - unbreakable, or
     ///  - breakable, and if broken the second block has a given indentation.
     [<StructuralEquality; NoComparison>]
-#if COMPILER
-    type (* internal *) Joint =
-#else
+#if COMPILER_SERVICE
     type Joint =
+#else
+    type (* internal *) Joint =
 #endif
      | Unbreakable
      | Breakable of int
@@ -156,100 +126,111 @@ namespace Microsoft.FSharp.Text.StructuredFormat
     ///
     /// If either juxt flag is true, then no space between words.
     [<NoEquality; NoComparison>]
-#if COMPILER
-    type (* internal *) Layout =
-#else
+#if COMPILER_SERVICE
     type Layout =
+#else
+    type (* internal *) Layout =
 #endif
      | ObjLeaf of bool * obj * bool
      | Leaf of bool * TaggedText * bool
      | Node of bool * layout * bool * layout * bool * joint
      | Attr of string * (string * string) list * layout
 
-#if COMPILER
-    and internal layout = Layout
-#else
+#if COMPILER_SERVICE
     and layout = Layout
+#else
+    and internal layout = Layout
 #endif
 
-#if COMPILER
-    and internal joint = Joint
-#else
+#if COMPILER_SERVICE
     and joint = Joint
+#else
+    and internal joint = Joint
 #endif
 
     [<NoEquality; NoComparison>]
-#if COMPILER
-    type internal IEnvironment = 
-#else
+#if COMPILER_SERVICE
     type IEnvironment = 
+#else
+    type internal IEnvironment = 
 #endif
         abstract GetLayout : obj -> layout
         abstract MaxColumns : int
         abstract MaxRows : int
 
-#if COMPILER 
-    module (* internal *) TaggedTextOps =
-#else
+#if COMPILER_SERVICE
     module TaggedTextOps =
+#else
+    module (* internal *) TaggedTextOps =
 #endif
-        let tagAlias = TaggedText.Alias
+        let tag tag text = 
+          { new TaggedText with 
+            member x.Tag = tag
+            member x.Text = text }
+
+        let length (tt: TaggedText) = tt.Text.Length
+        let toText (tt: TaggedText) = tt.Text
+
+        let tagAlias t = tag LayoutTag.Alias t
+        let keywordFunctions = Set ["raise"; "reraise"; "typeof"; "typedefof"; "sizeof"; "nameof"]
         let keywordTypes = 
           [
-            "array";
-            "bigint";
-            "bool";
-            "byref";
-            "byte";
-            "char";
-            "decimal";
-            "double";
-            "float";
-            "float32";
-            "int";
-            "int16";
-            "int32";
-            "int64";
-            "list";
-            "nativeint";
-            "obj";
-            "sbyte";
-            "seq";
-            "single";
-            "string";
-            "unit";
-            "uint";
-            "uint16";
-            "uint32";
-            "uint64";
-            "unativeint";
+            "array"
+            "bigint"
+            "bool"
+            "byref"
+            "byte"
+            "char"
+            "decimal"
+            "double"
+            "float"
+            "float32"
+            "int"
+            "int8"
+            "int16"
+            "int32"
+            "int64"
+            "list"
+            "nativeint"
+            "obj"
+            "sbyte"
+            "seq"
+            "single"
+            "string"
+            "unit"
+            "uint"
+            "uint8"
+            "uint16"
+            "uint32"
+            "uint64"
+            "unativeint"
           ] |> Set.ofList
-        let tagClass name = if Set.contains name keywordTypes then TaggedText.Keyword name else TaggedText.Class name
-        let tagUnionCase = TaggedText.UnionCase
-        let tagDelegate = TaggedText.Delegate
-        let tagEnum = TaggedText.Enum
-        let tagEvent = TaggedText.Event
-        let tagField = TaggedText.Field
-        let tagInterface = TaggedText.Interface
-        let tagKeyword = TaggedText.Keyword
-        let tagLineBreak = TaggedText.LineBreak
-        let tagLocal = TaggedText.Local
-        let tagRecord = TaggedText.Record
-        let tagRecordField = TaggedText.RecordField
-        let tagMethod = TaggedText.Method
-        let tagModule = TaggedText.Module
-        let tagModuleBinding = TaggedText.ModuleBinding
-        let tagNamespace = TaggedText.Namespace
-        let tagNumericLiteral = TaggedText.NumericLiteral
-        let tagOperator = TaggedText.Operator
-        let tagParameter = TaggedText.Parameter
-        let tagProperty = TaggedText.Property
-        let tagSpace = TaggedText.Space
-        let tagStringLiteral = TaggedText.StringLiteral
-        let tagStruct name = if Set.contains name keywordTypes then TaggedText.Keyword name else TaggedText.Struct name
-        let tagTypeParameter = TaggedText.TypeParameter
-        let tagText = TaggedText.Text
-        let tagPunctuation = TaggedText.Punctuation
+        let tagClass name = if Set.contains name keywordTypes then tag LayoutTag.Keyword name else tag LayoutTag.Class name
+        let tagUnionCase t = tag LayoutTag.UnionCase t
+        let tagDelegate t = tag LayoutTag.Delegate t
+        let tagEnum t = tag LayoutTag.Enum t
+        let tagEvent t = tag LayoutTag.Event t
+        let tagField t = tag LayoutTag.Field t
+        let tagInterface t = tag LayoutTag.Interface t
+        let tagKeyword t = tag LayoutTag.Keyword t
+        let tagLineBreak t = tag LayoutTag.LineBreak t
+        let tagLocal t = tag LayoutTag.Local t
+        let tagRecord t = tag LayoutTag.Record t
+        let tagRecordField t = tag LayoutTag.RecordField t
+        let tagMethod t = tag LayoutTag.Method t
+        let tagModule t = tag LayoutTag.Module t
+        let tagModuleBinding name = if keywordFunctions.Contains name then tag LayoutTag.Keyword name else tag LayoutTag.ModuleBinding name
+        let tagNamespace t = tag LayoutTag.Namespace t
+        let tagNumericLiteral t = tag LayoutTag.NumericLiteral t
+        let tagOperator t = tag LayoutTag.Operator t
+        let tagParameter t = tag LayoutTag.Parameter t
+        let tagProperty t = tag LayoutTag.Property t
+        let tagSpace t = tag LayoutTag.Space t
+        let tagStringLiteral t = tag LayoutTag.StringLiteral t
+        let tagStruct t = tag LayoutTag.Struct t
+        let tagTypeParameter t = tag LayoutTag.TypeParameter t
+        let tagText t = tag LayoutTag.Text t
+        let tagPunctuation t = tag LayoutTag.Punctuation t
 
         module Literals =
             // common tagged literals
@@ -267,10 +248,10 @@ namespace Microsoft.FSharp.Text.StructuredFormat
             let arrow = tagPunctuation "->"
             let questionMark = tagPunctuation "?"
      
-#if COMPILER
-    module (* internal *) LayoutOps = 
-#else
+#if COMPILER_SERVICE
     module LayoutOps = 
+#else
+    module (* internal *) LayoutOps = 
 #endif
         open TaggedTextOps
 
@@ -298,16 +279,16 @@ namespace Microsoft.FSharp.Text.StructuredFormat
 
         let objL (obj:obj) = 
             match obj with 
-            | :? string as s -> Leaf (false, TaggedText.Text s, false)
+            | :? string as s -> Leaf (false, tag LayoutTag.Text s, false)
             | o -> ObjLeaf (false, o, false)
         let sLeaf  (l, t, r) = Leaf (l, t, r)
         let wordL  str = sLeaf (false,str,false)
         let sepL   str = sLeaf (true ,str,true)   
         let rightL str = sLeaf (true ,str,false)   
         let leftL  str = sLeaf (false,str,true)
-        let emptyL = sLeaf (true, TaggedText.Text "",true)
+        let emptyL = sLeaf (true, tag LayoutTag.Text "",true)
         let isEmptyL = function 
-            | Leaf(true, s, true) -> s.Value = ""
+            | Leaf(true, s, true) -> s.Text = ""
             | _ -> false
 
         let aboveL  l r = mkNode l r (Broken 0)
@@ -372,10 +353,10 @@ namespace Microsoft.FSharp.Text.StructuredFormat
           
     /// These are a typical set of options used to control structured formatting.
     [<NoEquality; NoComparison>]
-#if COMPILER
-    type internal FormatOptions =
-#else
+#if COMPILER_SERVICE
     type FormatOptions =
+#else
+    type internal FormatOptions =
 #endif
         { FloatingPointFormat: string;
           AttributeProcessor: (string -> (string * string) list -> bool -> unit);
@@ -423,10 +404,10 @@ namespace Microsoft.FSharp.Text.StructuredFormat
 
 
 
-#if COMPILER
-    module internal ReflectUtils = 
-#else
+#if COMPILER_SERVICE
     module ReflectUtils = 
+#else
+    module internal ReflectUtils = 
 #endif
         open System
         open System.Reflection
@@ -555,10 +536,10 @@ namespace Microsoft.FSharp.Text.StructuredFormat
                 | _ -> 
                   GetValueInfoOfObject bindingFlags (obj) 
 
-#if COMPILER
-    module internal Display = 
-#else
+#if COMPILER_SERVICE
     module Display = 
+#else
+    module internal Display = 
 #endif
 
         open ReflectUtils
@@ -677,7 +658,7 @@ namespace Microsoft.FSharp.Text.StructuredFormat
                     | ObjLeaf (jl, ObjToTaggedText text, jr) ->
                         // save the formatted text from the squash
                         let layout = Leaf(jl, text, jr) 
-                        let textWidth = text.Length
+                        let textWidth = length text
                         let rec fitLeaf breaks pos =
                           if pos + textWidth <= maxWidth then
                               breaks,layout,pos + textWidth,textWidth // great, it fits 
@@ -753,7 +734,7 @@ namespace Microsoft.FSharp.Text.StructuredFormat
                     let text = leafFormatter obj
                     addText z text                 
                 | Leaf (_,obj,_)                 -> 
-                    addText z obj.Value
+                    addText z obj.Text
                 | Node (_,l,_,r,_,Broken indent) 
                      // Print width = 0 implies 1D layout, no squash
                      when not (opts.PrintWidth = 0)  -> 
@@ -784,7 +765,7 @@ namespace Microsoft.FSharp.Text.StructuredFormat
             // z is just current indent 
             let z0 = 0
             let index i = i
-            let addText z text  = write text;  (z + text.Length)
+            let addText z text  = write text;  (z + length text)
             let newLine _ n     = // \n then spaces... 
                 let indent = new System.String(' ',n)
                 chan.WriteLine();
@@ -1386,7 +1367,7 @@ namespace Microsoft.FSharp.Text.StructuredFormat
 
         let asTaggedTextWriter (tw: TextWriter) =
             { new TaggedTextWriter with
-                member __.Write(t) = tw.Write t.Value
+                member __.Write(t) = tw.Write t.Text
                 member __.WriteLine() = tw.WriteLine() }
 
         let output_layout_tagged opts oc l = 
@@ -1398,7 +1379,7 @@ namespace Microsoft.FSharp.Text.StructuredFormat
 
         let layout_to_string opts l = 
             l |> squash_layout opts 
-              |> showL opts ((leafFormatter opts) >> TaggedText.GetText)
+              |> showL opts ((leafFormatter opts) >> toText)
 
         let output_any_ex opts oc x = x |> any_to_layout opts |> output_layout opts oc
 

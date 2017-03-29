@@ -75,8 +75,8 @@ type [<Class>] FSharpSymbol =
     ///
     /// This is the relation used by GetUsesOfSymbol and GetUsesOfSymbolInFile.
     member IsEffectivelySameAs : other: FSharpSymbol -> bool
-
-
+    member IsExplicitlySuppressed : bool
+    static member GetAccessibility : FSharpSymbol -> FSharpAccessibility option
 
 /// Represents an assembly as seen by the F# language
 and [<Class>] FSharpAssembly = 
@@ -282,11 +282,14 @@ and [<Class>] FSharpEntity =
     /// Indicates if the type is a delegate with the given Invoke signature 
     member FSharpDelegateSignature : FSharpDelegateSignature
 
-      /// Get the declared accessibility of the type
+    /// Get the declared accessibility of the type
     member Accessibility: FSharpAccessibility 
 
-      /// Get the declared accessibility of the representation, not taking signatures into account 
+    /// Get the declared accessibility of the representation, not taking signatures into account 
     member RepresentationAccessibility: FSharpAccessibility
+
+    /// Get all compilation paths, taking `Module` suffixes into account.
+    member AllCompilationPaths : string list
 
 /// Represents a delegate signature in an F# symbol
 and [<Class>] FSharpDelegateSignature =
@@ -440,17 +443,6 @@ and [<Class>] FSharpField =
 and [<Class>] FSharpAccessibilityRights =
     internal new : CcuThunk * AccessorDomain -> FSharpAccessibilityRights
     member internal Contents : AccessorDomain
-
-/// Indicates the accessibility of a symbol, as seen by the F# language
-and [<Class>] FSharpAccessibility = 
-    /// Indicates the symbol has public accessibility
-    member IsPublic : bool
-
-    /// Indicates the symbol has private accessibility
-    member IsPrivate : bool
-
-    /// Indicates the symbol has internal accessibility
-    member IsInternal : bool
 
 /// A subtype of FSharpSymbol that represents a generic parameter for an FSharpSymbol
 and [<Class>] FSharpGenericParameter = 
@@ -800,6 +792,9 @@ and [<Class>] FSharpMemberOrFunctionOrValue =
 
     /// Indicated if this is a value compiled to a method
     member IsValCompiledAsMethod : bool
+
+    /// Indicates if this is a constructor.
+    member IsConstructor : bool
 
 
 /// A subtype of FSharpSymbol that represents a parameter 

@@ -55,13 +55,13 @@ type TempFile(ext, contents) =
 
 let getBackgroundParseResultsForScriptText (input) = 
     use file =  new TempFile("fsx", input)
-    let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
+    let checkOptions, _diagnostics = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
     checker.GetBackgroundParseResultsForFileInProject(file.Name, checkOptions)  |> Async.RunSynchronously
 
 
 let getBackgroundCheckResultsForScriptText (input) = 
     use file =  new TempFile("fsx", input)
-    let checkOptions = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
+    let checkOptions, _diagnostics = checker.GetProjectOptionsFromScript(file.Name, input) |> Async.RunSynchronously
     checker.GetBackgroundCheckResultsForFileInProject(file.Name, checkOptions) |> Async.RunSynchronously
 
 
@@ -158,18 +158,6 @@ let mkProjectCommandLineArgsForScript (dllName, fileNames) =
      |]
 #endif
 
-let parseSourceCode (name: string, code: string) =
-    let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))
-    try Directory.CreateDirectory(location) |> ignore with _ -> ()
-
-    let projPath = Path.Combine(location, name + ".fsproj")
-    let filePath = Path.Combine(location, name + ".fs")
-    let dllPath = Path.Combine(location, name + ".dll")
-    let args = mkProjectCommandLineArgs(dllPath, [filePath])
-    let options = checker.GetProjectOptionsFromCommandLineArgs(projPath, args)
-    let parseResults = checker.ParseFileInProject(filePath, code, options) |> Async.RunSynchronously
-    parseResults.ParseTree
-
 let parseAndCheckScript (file, input) = 
 
 #if DOTNETCORE
@@ -180,7 +168,7 @@ let parseAndCheckScript (file, input) =
     let projectOptions = checker.GetProjectOptionsFromCommandLineArgs (projName, args)
 
 #else    
-    let projectOptions = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
+    let projectOptions, _diagnostics = checker.GetProjectOptionsFromScript(file, input) |> Async.RunSynchronously
 #endif
 
     let parseResult, typedRes = checker.ParseAndCheckFileInProject(file, 0, input, projectOptions) |> Async.RunSynchronously
@@ -192,6 +180,18 @@ let parseAndCheckScript (file, input) =
     match typedRes with
     | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
     | res -> failwithf "Parsing did not finish... (%A)" res
+
+let parseSourceCode (name: string, code: string) =
+    let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))
+    try Directory.CreateDirectory(location) |> ignore with _ -> ()
+
+    let projPath = Path.Combine(location, name + ".fsproj")
+    let filePath = Path.Combine(location, name + ".fs")
+    let dllPath = Path.Combine(location, name + ".dll")
+    let args = mkProjectCommandLineArgs(dllPath, [filePath])
+    let options = checker.GetProjectOptionsFromCommandLineArgs(projPath, args)
+    let parseResults = checker.ParseFileInProject(filePath, code, options) |> Async.RunSynchronously
+    parseResults.ParseTree
 
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)

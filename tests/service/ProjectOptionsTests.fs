@@ -444,7 +444,7 @@ let ``Test OtherOptions order for GetProjectOptionsFromScript`` () =
     let test scriptName expected2 =
         let scriptPath = __SOURCE_DIRECTORY__ + @"/data/ScriptProject/" + scriptName + ".fsx"
         let scriptSource = File.ReadAllText scriptPath
-        let projOpts = checker.GetProjectOptionsFromScript(scriptPath, scriptSource) |> Async.RunSynchronously
+        let projOpts, _diagnostics = checker.GetProjectOptionsFromScript(scriptPath, scriptSource) |> Async.RunSynchronously
 
         projOpts.OtherOptions
         |> Array.map (fun s -> if s.StartsWith "--" then s else Path.GetFileNameWithoutExtension s)
@@ -465,7 +465,9 @@ let ``Test ProjectFileNames order for GetProjectOptionsFromScript`` () = // See 
     let test scriptName expected =
         let scriptPath = __SOURCE_DIRECTORY__ + @"/data/ScriptProject/" + scriptName + ".fsx"
         let scriptSource = File.ReadAllText scriptPath
-        let projOpts = checker.GetProjectOptionsFromScript(scriptPath, scriptSource) |> Async.RunSynchronously
+        let projOpts, _diagnostics =
+            checker.GetProjectOptionsFromScript(scriptPath, scriptSource)
+            |> Async.RunSynchronously
         projOpts.ProjectFileNames
         |> Array.map Path.GetFileNameWithoutExtension
         |> shouldEqual  expected

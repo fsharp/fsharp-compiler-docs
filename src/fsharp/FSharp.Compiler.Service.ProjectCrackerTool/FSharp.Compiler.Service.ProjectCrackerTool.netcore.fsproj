@@ -1,6 +1,7 @@
 <Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>FSharp.Compiler.Service.ProjectCrackerTool</AssemblyName>
     <OutputType>Exe</OutputType>
     <DefineConstants>$(DefineConstants);DOTNETCORE;</DefineConstants>
   </PropertyGroup>
@@ -18,4 +19,5 @@
     <PackageReference Include="FSharp.Core" Version="4.1.*" />
     <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
   </ItemGroup>
+  <Import Project="..\..\..\.paket\Paket.Restore.targets" />
 </Project>

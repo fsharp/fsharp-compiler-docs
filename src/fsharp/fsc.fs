@@ -448,19 +448,18 @@ let GenerateInterfaceData(tcConfig:TcConfig) =
     not tcConfig.standalone && not tcConfig.noSignatureData 
 
 let EncodeInterfaceData(tcConfig:TcConfig, tcGlobals, exportRemapping, generatedCcu, outfile, isIncrementalBuild) = 
-      if GenerateInterfaceData(tcConfig) then 
-        if verbose then dprintfn "Generating interface data attribute..."
+    if GenerateInterfaceData(tcConfig) then 
         let resource = WriteSignatureData (tcConfig, tcGlobals, exportRemapping, generatedCcu, outfile)
-        if verbose then dprintf "Generated interface data attribute!\n"
-        // REVIEW: need a better test for this
-        if (tcConfig.useOptimizationDataFile || tcGlobals.compilingFslib) && not isIncrementalBuild then 
-            let sigDataFileName = (Filename.chopExtension outfile)+".sigdata"
-            File.WriteAllBytes(sigDataFileName, resource.Bytes)
-        let sigAttr = mkSignatureDataVersionAttr tcGlobals (IL.parseILVersion Internal.Utilities.FSharpEnvironment.FSharpBinaryMetadataFormatRevision) 
         // The resource gets written to a file for FSharp.Core
+        let useDataFiles = (tcConfig.useOptimizationDataFile || tcGlobals.compilingFslib) && not isIncrementalBuild
         let resources = 
-            [ if not tcGlobals.compilingFslib then 
-                 yield  resource ]
+            if useDataFiles then 
+                let sigDataFileName = (Filename.chopExtension outfile)+".sigdata"
+                File.WriteAllBytes(sigDataFileName, resource.Bytes)
+                []
+            else
+                [ resource ]
+        let sigAttr = mkSignatureDataVersionAttr tcGlobals (IL.parseILVersion Internal.Utilities.FSharpEnvironment.FSharpBinaryMetadataFormatRevision) 
         [sigAttr], resources
       else 
         [], []
@@ -1750,7 +1749,7 @@ let main0(ctok, argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMem
     let sysRes, otherRes, knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(ctok, tcConfig)
     
     // Import basic assemblies
-    let tcGlobals, frameworkTcImports = TcImports.BuildFrameworkTcImports (ctok, foundationalTcConfigP, sysRes, otherRes)
+    let tcGlobals, frameworkTcImports = TcImports.BuildFrameworkTcImports (ctok, foundationalTcConfigP, sysRes, otherRes) |> Cancellable.runWithoutCancellation
 
     // Register framework tcImports to be disposed in future
     disposables.Register frameworkTcImports
@@ -1785,9 +1784,7 @@ let main0(ctok, argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMem
 
     // Import other assemblies
     ReportTime tcConfig "Import non-system references"
-    let tcGlobals, tcImports =  
-        let tcImports = TcImports.BuildNonFrameworkTcImports(ctok, tcConfigP, tcGlobals, frameworkTcImports, otherRes, knownUnresolved)
-        tcGlobals, tcImports
+    let tcImports = TcImports.BuildNonFrameworkTcImports(ctok, tcConfigP, tcGlobals, frameworkTcImports, otherRes, knownUnresolved)  |> Cancellable.runWithoutCancellation
 
     // register tcImports to be disposed in future
     disposables.Register tcImports
@@ -1894,7 +1891,7 @@ let main1OfAst (ctok, referenceResolver, openBinariesInMemory, assemblyName, tar
     
     let foundationalTcConfigP = TcConfigProvider.Constant(tcConfig)
     let sysRes,otherRes,knownUnresolved = TcAssemblyResolutions.SplitNonFoundationalResolutions(ctok, tcConfig)
-    let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (ctok, foundationalTcConfigP, sysRes, otherRes)
+    let tcGlobals,frameworkTcImports = TcImports.BuildFrameworkTcImports (ctok, foundationalTcConfigP, sysRes, otherRes) |> Cancellable.runWithoutCancellation
 
     use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.Parse) 
 
@@ -1903,7 +1900,7 @@ let main1OfAst (ctok, referenceResolver, openBinariesInMemory, assemblyName, tar
     let tcConfigP = TcConfigProvider.Constant(tcConfig)
 
     let tcGlobals,tcImports =  
-        let tcImports = TcImports.BuildNonFrameworkTcImports(ctok, tcConfigP, tcGlobals, frameworkTcImports, otherRes,knownUnresolved)
+        let tcImports = TcImports.BuildNonFrameworkTcImports(ctok, tcConfigP, tcGlobals, frameworkTcImports, otherRes,knownUnresolved) |> Cancellable.runWithoutCancellation
         tcGlobals,tcImports
 
     use unwindParsePhase = PushThreadBuildPhaseUntilUnwind (BuildPhase.TypeCheck)            
@@ -2069,10 +2066,7 @@ let main4 dynamicAssemblyCreator (Args (ctok, tcConfig, errorLogger: ErrorLogger
 //-----------------------------------------------------------------------------
 
 /// Entry point typecheckAndCompile
-let typecheckAndCompile (argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) =
-
-    // Explanation: Compilation happens on whichever thread calls this function.
-    let ctok = AssumeCompilationThreadWithoutEvidence ()
+let typecheckAndCompile (ctok, argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter:Exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) =
 
     use d = new DisposablesTracker()
     use e = new SaveAndRestoreConsoleEncoding()
@@ -2085,17 +2079,14 @@ let typecheckAndCompile (argv, referenceResolver, bannerAlreadyPrinted, openBina
     |> main4 dynamicAssemblyCreator
 
 
-let compileOfAst (referenceResolver, openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
-    // Explanation: Compilation happens on whichever thread calls this function.
-    let ctok = AssumeCompilationThreadWithoutEvidence ()
-
+let compileOfAst (ctok, referenceResolver, openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
     main1OfAst (ctok, referenceResolver, openBinariesInMemory, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs)
     |> main2a
     |> main2b (tcImportsCapture, dynamicAssemblyCreator)
     |> main3
     |> main4 dynamicAssemblyCreator
 
-let mainCompile (argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) = 
+let mainCompile (ctok, argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator) = 
     //System.Runtime.GCSettings.LatencyMode <- System.Runtime.GCLatencyMode.Batch
-    typecheckAndCompile(argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator)
+    typecheckAndCompile(ctok, argv, referenceResolver, bannerAlreadyPrinted, openBinariesInMemory, exiter, errorLoggerProvider, tcImportsCapture, dynamicAssemblyCreator)
 

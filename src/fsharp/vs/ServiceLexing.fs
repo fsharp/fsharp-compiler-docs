@@ -750,6 +750,13 @@ type FSharpSourceTokenizer(defineConstants : string list, filename : Option<stri
         let lexbuf = UnicodeLexing.FunctionAsLexbuf bufferFiller
         FSharpLineTokenizer(lexbuf, None, filename, lexArgsLightOn, lexArgsLightOff)
 
+module Keywords =
+    open Microsoft.FSharp.Compiler.Lexhelp.Keywords
+
+    let QuoteIdentifierIfNeeded s = QuoteIdentifierIfNeeded s
+    let NormalizeIdentifierBackticks s = NormalizeIdentifierBackticks s
+    let KeywordsWithDescription = keywordsWithDescription
+
 [<System.Obsolete("This type has been renamed to FSharpSourceTokenizer")>]
 type SourceTokenizer = FSharpSourceTokenizer
 

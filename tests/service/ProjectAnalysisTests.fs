@@ -5066,4 +5066,18 @@ let ``Test request for parse and check doesn't check whole project`` () =
     (backgroundCheckCount.Value <= 8) |> shouldEqual true // only two extra typechecks of files
 
     ()
-
+    
+[<Test>]
+// Simplified repro for https://github.com/Microsoft/visualfsharp/issues/2679
+let ``add files with same name from different folders`` () = 
+    let fileNames =
+        [ __SOURCE_DIRECTORY__ + "/data/samename/folder1/a.fs"
+          __SOURCE_DIRECTORY__ + "/data/samename/folder2/a.fs" ]
+    let projFileName = __SOURCE_DIRECTORY__ + "/data/samename/tempet.fsproj"
+    let args = mkProjectCommandLineArgs ("test.dll", fileNames)
+    let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let wholeProjectResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
+    wholeProjectResults.Errors
+    |> Seq.filter (fun x -> x.Severity = FSharpErrorSeverity.Error)
+    |> Seq.length
+    |> shouldEqual 0

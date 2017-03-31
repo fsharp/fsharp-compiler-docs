@@ -5077,7 +5077,11 @@ let ``add files with same name from different folders`` () =
     let args = mkProjectCommandLineArgs ("test.dll", fileNames)
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let wholeProjectResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
-    wholeProjectResults.Errors
-    |> Seq.filter (fun x -> x.Severity = FSharpErrorSeverity.Error)
-    |> Seq.length
-    |> shouldEqual 0
+    let errors =
+        wholeProjectResults.Errors
+        |> Array.filter (fun x -> x.Severity = FSharpErrorSeverity.Error)
+    if errors.Length > 0 then
+        printfn "add files with same name from different folders"
+        for err in errors do
+            printfn "ERROR: %s" err.Message
+    shouldEqual 0 errors.Length

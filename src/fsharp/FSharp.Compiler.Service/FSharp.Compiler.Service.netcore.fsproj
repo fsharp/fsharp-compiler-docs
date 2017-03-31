@@ -1,6 +1,6 @@
 <Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>12.0.1</VersionPrefix>
+    <VersionPrefix>12.0.2</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>FSharp.Compiler.Service</AssemblyName>
     <DefineConstants>$(DefineConstants);BUILDING_WITH_LKG</DefineConstants>

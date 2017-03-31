@@ -1,3 +1,6 @@
+#### 12.0.2
+  * De-duplicate module names
+
 #### 12.0.1
   * [Integrate visualfsharp and fsharp](https://github.com/fsharp/fsharp/pull/696)
 

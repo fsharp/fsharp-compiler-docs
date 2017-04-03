@@ -1,3 +1,6 @@
+#### 12.0.3
+  * [De-duplicate module names again](https://github.com/fsharp/FSharp.Compiler.Service/pull/749)
+
 #### 12.0.2
   * De-duplicate module names
 

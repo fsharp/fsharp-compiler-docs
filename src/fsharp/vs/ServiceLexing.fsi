@@ -213,5 +213,14 @@ type FSharpSourceTokenizer =
     
 
 module internal TestExpose =     
-    val TokenInfo                                    : Parser.token -> (FSharpTokenColorKind * FSharpTokenCharKind * FSharpTokenTriggerClass) 
+    val TokenInfo : Parser.token -> (FSharpTokenColorKind * FSharpTokenCharKind * FSharpTokenTriggerClass)
 
+module Keywords =
+    /// Add backticks if the identifier is a keyword.
+    val QuoteIdentifierIfNeeded : string -> string
+
+    /// Remove backticks if present.
+    val NormalizeIdentifierBackticks : string -> string
+
+    /// Keywords paired with their descriptions. Used in completion and quick info.
+    val KeywordsWithDescription : (string * string) list

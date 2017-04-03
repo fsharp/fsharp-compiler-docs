@@ -1349,6 +1349,9 @@ type IncrementalBuilder(tcGlobals,frameworkTcImports, nonFrameworkAssemblyInputs
     let StampFileNameTask (cache: TimeStampCache) _ctok (_m:range, filename:string, _isLastCompiland) =
         assertNotDisposed()
         cache.GetFileTimeStamp filename
+
+    // Deduplicate module names
+    let moduleNamesDict = Dictionary<string,Set<string>>()
                             
     /// This is a build task function that gets placed into the build rules as the computation for a VectorMap
     ///
@@ -1365,8 +1368,10 @@ type IncrementalBuilder(tcGlobals,frameworkTcImports, nonFrameworkAssemblyInputs
 
         try  
             IncrementalBuilderEventTesting.MRU.Add(IncrementalBuilderEventTesting.IBEParsed filename)
-            let result = ParseOneInputFile(tcConfig,lexResourceManager, [], filename ,isLastCompiland,errorLogger,(*retryLocked*)true)
+            let input = ParseOneInputFile(tcConfig,lexResourceManager, [], filename ,isLastCompiland,errorLogger,(*retryLocked*)true)
             fileParsed.Trigger (filename)
+            let result = Option.map (DeduplicateParsedInputModuleName moduleNamesDict) input
+
             result,sourceRange,filename,errorLogger.GetErrors ()
         with exn -> 
             System.Diagnostics.Debug.Assert(false, sprintf "unexpected failure in IncrementalFSharpBuild.Parse\nerror = %s" (exn.ToString()))

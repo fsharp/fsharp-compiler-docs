@@ -523,10 +523,22 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
     member x.RecordFields = x.FSharpFields
     member x.FSharpFields =
         if isUnresolved() then makeReadOnlyCollection[] else
+    
+        if entity.IsILEnumTycon then
+            let (TILObjectReprData(scoref,enc,tdef)) = entity.ILTyconInfo
+            let formalTypars = entity.Typars(range.Zero)
+            let formalTypeInst = generalizeTypars formalTypars
+            let ty = TType_app(entity,formalTypeInst)
+            let formalTypeInfo = ILTypeInfo.FromType cenv.g ty
+            tdef.Fields.AsList
+            |> List.map (fun tdef -> let ilFieldInfo = ILFieldInfo(formalTypeInfo, tdef)
+                                     FSharpField(cenv, FSharpFieldData.ILField(cenv.g, ilFieldInfo) ))
+            |> makeReadOnlyCollection
 
-        entity.AllFieldsAsList
-        |> List.map (fun x -> FSharpField(cenv,  mkRecdFieldRef entity x.Name))
-        |> makeReadOnlyCollection
+        else
+            entity.AllFieldsAsList
+            |> List.map (fun x -> FSharpField(cenv,  mkRecdFieldRef entity x.Name))
+            |> makeReadOnlyCollection
 
     member x.AbbreviatedType   = 
         checkIsResolved()
@@ -653,7 +665,7 @@ and FSharpFieldData =
         | Union (v,_) -> v.TyconRef
         | ILField (g,f) -> tcrefOfAppTy g f.EnclosingType
 
-and FSharpField(cenv, d: FSharpFieldData)  =
+and FSharpField(cenv: cenv, d: FSharpFieldData)  =
     inherit FSharpSymbol (cenv,  
                           (fun () -> 
                                 match d with 

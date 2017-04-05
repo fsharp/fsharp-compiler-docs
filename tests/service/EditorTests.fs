@@ -564,6 +564,56 @@ let _ = arr.[..number2]
           ("val number2", (5, 15, 5, 22)); 
           ("Test", (1, 0, 1, 0))|]
 
+
+[<Test>]
+let ``Enums should have fields`` () =
+    let input = """
+type EnumTest = One = 1 | Two = 2 | Three = 3
+let test = EnumTest.One
+let test2 = System.StringComparison.CurrentCulture
+let test3 = System.Text.RegularExpressions.RegexOptions.Compiled
+"""
+    let file = "/home/user/Test.fsx"
+    let parseResult, typeCheckResults = parseAndCheckScript(file, input) 
+    let allSymbols = typeCheckResults.GetAllUsesOfAllSymbolsInFile() |> Async.RunSynchronously
+    let enums =
+        allSymbols
+        |> Array.choose(fun s -> match s.Symbol with :? FSharpEntity as e when e.IsEnum -> Some e | _ -> None)
+        |> Array.distinct
+        |> Array.map(fun e -> (e.DisplayName, e.FSharpFields
+                                              |> Seq.map(fun f -> f.Name, f.LiteralValue )
+                                              |> Seq.toList))
+
+    enums |> shouldEqual
+        [| "EnumTest", [ ("value__", None)
+                         ("One", Some (box 1))
+                         ("Two", Some (box 2))
+                         ("Three", Some (box 3))
+                       ]
+           "StringComparison", [ ("value__", None)
+                                 ("CurrentCulture", Some (box 0))
+                                 ("CurrentCultureIgnoreCase", Some (box 1))
+                                 ("InvariantCulture", Some (box 2))
+                                 ("InvariantCultureIgnoreCase", Some (box 3))
+                                 ("Ordinal", Some (box 4))
+                                 ("OrdinalIgnoreCase", Some (box 5))
+                               ]
+           "RegexOptions", [ ("value__", None)
+                             ("None", Some (box 0))
+                             ("IgnoreCase", Some (box 1))
+                             ("Multiline", Some (box 2))
+                             ("ExplicitCapture", Some (box 4))
+                             ("Compiled", Some (box 8))
+                             ("Singleline", Some (box 16))
+                             ("IgnorePatternWhitespace", Some (box 32))
+                             ("RightToLeft", Some (box 64))
+                             ("ECMAScript", Some (box 256))
+                             ("CultureInvariant", Some (box 512))
+                           ]
+        |]
+
+
+
 //-------------------------------------------------------------------------------
 
 

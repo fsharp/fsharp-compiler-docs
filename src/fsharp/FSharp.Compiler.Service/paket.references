@@ -1,5 +1,4 @@
 System.Collections.Immutable
 System.Reflection.Metadata
-System.ValueTuple
 Microsoft.DiaSymReader.PortablePdb
 Microsoft.DiaSymReader

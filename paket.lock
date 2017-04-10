@@ -186,5 +186,5 @@ NUGET
       System.Runtime (>= 4.3) - framework: netstandard16
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (8a0082b3cea5849e1ba1fbdb014f4197aa62d09a)
+    modules/Octokit/Octokit.fsx (5e78ad79e69e3c3bff23ad907594fa53b81e1304)
       Octokit (>= 0.20)

@@ -4,19 +4,18 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\..\</SolutionDir>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>893c3cd9-5af8-4027-a667-21e62fc2c703</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FSharp.Compiler.Service.ProjectCracker</RootNamespace>
     <AssemblyName>FSharp.Compiler.Service.ProjectCracker</AssemblyName>
     <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.5</TargetFrameworkVersion>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <Name>FSharp.Compiler.Service.ProjectCracker</Name>
     <OutputPath>..\..\..\bin\$(TargetFrameworkVersion)</OutputPath>
     <DocumentationFile>..\..\..\bin\$(TargetFrameworkVersion)\FSharp.Compiler.Service.ProjectCracker.xml</DocumentationFile>
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -61,5 +60,5 @@
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
-	<Import Project="$(SolutionDir)\packages\FSharp.Compiler.Tools\tools\Microsoft.FSharp.Targets" />
+  <Import Project="$(SolutionDir)\packages\FSharp.Compiler.Tools\tools\Microsoft.FSharp.Targets" />
 </Project>

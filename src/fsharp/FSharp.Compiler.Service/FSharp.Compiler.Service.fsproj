@@ -13,6 +13,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\..\</SolutionDir>
     <OutputType>Library</OutputType>
     <AssemblyName>FSharp.Compiler.Service</AssemblyName>
     <NoWarn>$(NoWarn);44;62;9</NoWarn>
@@ -47,7 +48,6 @@
     <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\..\</SolutionDir>
     <TargetFrameworkProfile />
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
     <OtherFlags>$(OtherFlags) /warnon:1182</OtherFlags>

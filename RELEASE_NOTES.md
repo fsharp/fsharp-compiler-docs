@@ -1,4 +1,4 @@
-#### 12.0.4
+#### 12.0.5
   * Remove dependency on System.ValueTuple
 
 #### 12.0.3

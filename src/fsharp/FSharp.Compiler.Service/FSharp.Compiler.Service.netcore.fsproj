@@ -80,6 +80,9 @@
     <EmbeddedResource Include="../FSStrings.resx">
       <Link>FSStrings.resx</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="FSIstrings.resx">
+      <Link>FSIstrings.resx</Link>
+    </EmbeddedResource>
     <Compile Include="FSComp.fs" />
     <Compile Include="FSIstrings.fs" />
     <Compile Include="../../utils/reshapedreflection.fs">

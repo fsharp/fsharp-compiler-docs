@@ -525,7 +525,7 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
         if isUnresolved() then makeReadOnlyCollection[] else
     
         if entity.IsILEnumTycon then
-            let (TILObjectReprData(scoref,enc,tdef)) = entity.ILTyconInfo
+            let (TILObjectReprData(_scoref,_enc,tdef)) = entity.ILTyconInfo
             let formalTypars = entity.Typars(range.Zero)
             let formalTypeInst = generalizeTypars formalTypars
             let ty = TType_app(entity,formalTypeInst)

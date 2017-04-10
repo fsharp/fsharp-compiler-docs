@@ -632,6 +632,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
@@ -639,10 +640,6 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <PropertyGroup>
-    <FSharpTargetsPath>
-    </FSharpTargetsPath>
-  </PropertyGroup>
   <Import Project="$(SolutionDir)\packages\FSharp.Compiler.Tools\tools\Microsoft.FSharp.Targets" />
   <Import Project="$(SolutionDir)src\scripts\fssrgen.targets" />
   <Import Project="$(SolutionDir)packages\FsLexYacc\build\FsLexYacc.targets" />

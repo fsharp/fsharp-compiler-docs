@@ -1115,6 +1115,29 @@ and FSharpMemberOrValData =
 
 and FSharpMemberOrVal = FSharpMemberOrFunctionOrValue
 
+// TODO: stubbed for now
+and FSharpValue = FSharpMemberOrFunctionOrValue
+and FSharpExnCase = FSharpMemberOrFunctionOrValue
+and FSharpRecdField = FSharpMemberOrFunctionOrValue
+and FSharpEvent = FSharpMemberOrFunctionOrValue
+and FSharpProperty = FSharpMemberOrFunctionOrValue
+and FSharpMethodGroup = FSharpMemberOrFunctionOrValue
+and FSharpCtorGroup = FSharpMemberOrFunctionOrValue
+and FSharpDelegateCtor = FSharpMemberOrFunctionOrValue
+and FSharpUnqualifiedType = FSharpMemberOrFunctionOrValue
+and FSharpTypes = FSharpMemberOrFunctionOrValue
+and FSharpModuleOrNamespaces = FSharpMemberOrFunctionOrValue
+and FSharpSetterArg = FSharpMemberOrFunctionOrValue
+and FSharpCustomBuilder = FSharpMemberOrFunctionOrValue
+and FSharpCustomOperation = FSharpMemberOrFunctionOrValue
+and FSharpTypeVar = FSharpMemberOrFunctionOrValue
+and FSharpActivePatternResult = FSharpMemberOrFunctionOrValue
+and FSharpArgName = FSharpMemberOrFunctionOrValue
+and FSharpImplicitOp = FSharpMemberOrFunctionOrValue
+and FSharpILField = FSharpMemberOrFunctionOrValue
+and FSharpFakeInterfaceCtor = FSharpMemberOrFunctionOrValue
+and FSharpNewDef = FSharpMemberOrFunctionOrValue
+
 and FSharpMemberFunctionOrValue =  FSharpMemberOrFunctionOrValue
 
 and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) = 

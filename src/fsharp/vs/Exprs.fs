@@ -490,6 +490,9 @@ module FSharpExprConvert =
                 let projR = FSharpField(cenv, ucref, n)
                 E.UnionCaseSet(ConvExpr cenv env e1, typR, mkR, projR, ConvExpr cenv env e2) 
 
+            | TOp.UnionCaseFieldGetAddr (_ucref,_n),_tyargs,_ ->
+                E.AddressOf(ConvLValueExpr cenv env expr) 
+
             | TOp.ValFieldGetAddr(_rfref),_tyargs,_ -> 
                 E.AddressOf(ConvLValueExpr cenv env expr)
 

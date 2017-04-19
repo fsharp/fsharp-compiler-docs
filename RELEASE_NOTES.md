@@ -1,3 +1,6 @@
+#### 12.0.6
+  * [758: Fix project cracker when invalid path given](https://github.com/fsharp/FSharp.Compiler.Service/pull/758)
+
 #### 12.0.5
   * Remove dependency on System.ValueTuple
 

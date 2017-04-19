@@ -215,6 +215,7 @@ module FSharpExprConvert =
             | TOp.LValueOp(LGetAddr,vref),_,_ -> exprForValRef m vref
             | TOp.ValFieldGetAddr(rfref),[],_ -> mkStaticRecdFieldGet(rfref,tyargs,m)
             | TOp.ValFieldGetAddr(rfref),[arg],_ -> mkRecdFieldGetViaExprAddr(exprOfExprAddr cenv arg,rfref,tyargs,m)
+            | TOp.UnionCaseFieldGetAddr(uref,n),[arg],_ -> mkUnionCaseFieldGetProvenViaExprAddr(exprOfExprAddr cenv arg,uref,tyargs,n,m)
             | TOp.ILAsm([ I_ldflda(fspec) ],rtys),[arg],_  -> mkAsmExpr([ mkNormalLdfld(fspec) ],tyargs, [exprOfExprAddr cenv arg], rtys, m)
             | TOp.ILAsm([ I_ldsflda(fspec) ],rtys),_,_  -> mkAsmExpr([ mkNormalLdsfld(fspec) ],tyargs, args, rtys, m)
             | TOp.ILAsm(([ I_ldelema(_ro,_isNativePtr,shape,_tyarg) ] ),_), (arr::idxs), [elemty]  -> 

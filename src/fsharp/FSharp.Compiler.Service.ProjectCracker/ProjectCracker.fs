@@ -20,7 +20,7 @@ type ProjectCracker =
             let referencedProjects = Array.map (fun (a, b) -> a, convert b) opts.ReferencedProjectOptions
             
             let sourceFiles, otherOptions = 
-                opts.Options |> Array.partition (fun x -> x.IndexOfAny(Path.GetInvalidPathChars()) = -1 && Path.GetExtension(x).ToLower() = ".fs")
+                opts.Options |> Array.partition (fun x -> not (FileSystem.IsInvalidPathShim(x)) && Path.GetExtension(x).ToLower() = ".fs")
             
             let sepChar = Path.DirectorySeparatorChar
             

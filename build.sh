@@ -20,7 +20,7 @@ else
   if [[ ! -e ~/.config/.mono/certs ]]; then
     mozroots --import --sync --quiet
   fi
-  
+  ls -lR /usr/lib/mono
   mono .paket/paket.bootstrapper.exe
   exit_code=$?
   if [ $exit_code -ne 0 ]; then

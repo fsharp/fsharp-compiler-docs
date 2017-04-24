@@ -779,6 +779,9 @@ module Cancellable =
     /// Represents a canceled computation
     let canceled() = Cancellable (fun _ -> ValueOrCancelled.Cancelled (new OperationCanceledException()))
 
+    /// Represents a computation which always returns a precalculated value
+    let value v = Cancellable (fun _ -> ValueOrCancelled.Value v)
+
     /// Catch exceptions in a computation
     let private catch (Cancellable e) = 
         Cancellable (fun ct -> 
@@ -1268,3 +1271,49 @@ module Shim =
                 System.Text.Encoding.GetEncoding(n)
 
     let mutable FileSystem = DefaultFileSystem() :> IFileSystem 
+    
+
+//-------------------------------------------------------------------------
+// Library: Concurrency
+//------------------------------------------------------------------------
+
+module ConcurrentIncrement =
+    let rec tryIncrementOrNoneIfZero (r:byref<int>) =
+        // Why is this so complex?
+        //
+        // The goal is to detect an attempted resurrection of a dead builder (where count = 0).
+
+        // Imagine a parallel, much simpler implementation:
+        (*
+         member this.TryIncrementUsageCount() = 
+             if System.Threading.Interlocked.Increment(&referenceCount) > 1 then 
+                Some { new System.IDisposable with member x.Dispose() = this.DecrementUsageCount() }
+             else 
+                 referenceCount = 0
+                 None
+        *)
+        // Let's take a builder which has been disposed (count=0), and two threads calling TryIncrementUsageCount at the same time.
+        // The first thread will increment it from 0 to 1, and correctly detect that the builder was dead.
+        // But the seconds thread will then increment it from 1 to 2, and think that the builder was alive.
+
+        // Interlocked.CompareExchange works like this (just atomically):
+        (*
+        let CompareExchange(location, value, comparand) =
+            if comparand = location then
+                location <- value
+                location
+            else
+                location
+        *)
+        // If it goes into the second branch, then someone else updated the value between us reading it and calling CEX, so we need to retry the operation, rereading the value.
+        let initialValue = r
+        if initialValue = 0 then None
+        else
+            let computedValue = initialValue + 1
+            let exchanged = System.Threading.Interlocked.CompareExchange(&r, computedValue, initialValue)
+            if exchanged = initialValue then
+                Some computedValue
+            else if exchanged = 0 then None
+            else
+                // someone else changed 'referenceCount' in the meantime - try again
+                tryIncrementOrNoneIfZero &r

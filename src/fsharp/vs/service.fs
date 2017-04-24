@@ -2112,10 +2112,10 @@ type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo 
 
     let decrementer = 
         match details with 
-        | Some (_,Some builder,_) -> 
+        | Some (_,builderOpt,_) -> 
             // Increment the usage count on the IncrementalBuilder. We want to keep the IncrementalBuilder and all associated
             // resources and type providers alive for the duration of the lifetime of this object.
-            builder.IncrementUsageCount()
+            IncrementalBuilder.KeepBuilderAlive builderOpt
         | _ -> { new System.IDisposable with member x.Dispose() = () } 
 
     let mutable disposed = false
@@ -2143,7 +2143,7 @@ type FSharpCheckFileResults(errors: FSharpErrorInfo[], scopeOptX: TypeCheckInfo 
             return dflt
         | Some (scope, builderOpt, reactor) -> 
             // Ensure the builder doesn't get released while running operations asynchronously. 
-            use _unwind = match builderOpt with Some builder -> builder.IncrementUsageCount() | None -> { new System.IDisposable with member __.Dispose() = () }
+            use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
             let! res = reactor.EnqueueAndAwaitOpAsync(desc, fun ctok ->  f ctok scope |> cancellable.Return)
             return res
       }
@@ -2496,8 +2496,12 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
                    Array.toList options.OtherOptions, projectReferences, options.ProjectDirectory, 
                    options.UseScriptResolutionRules, keepAssemblyContents, keepAllBackgroundResolutions, maxTimeShareMilliseconds)
 
-        // We're putting the builder in the cache, so increment its count.
-        let decrement = IncrementalBuilder.KeepBuilderAlive builderOpt
+        // We're putting the builder in the cache.
+        // The builder is constructed with a reference-count of 1, so we don't need to Increment it here.
+        let decrement =
+            match builderOpt with
+            | Some builder -> { new System.IDisposable with member __.Dispose() = builder.DecrementUsageCount() }
+            | None -> { new System.IDisposable with member __.Dispose() = () }
 
         match builderOpt with 
         | None -> ()
@@ -2534,16 +2538,27 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
                  requiredToKeep=(fun (builderOpt,_,_) -> match builderOpt with None -> false | Some (b:IncrementalBuilder) -> b.IsBeingKeptAliveApartFromCacheEntry),
                  onDiscard = (fun (_, _, decrement:IDisposable) -> decrement.Dispose()))
 
+    /// returns an incremental builder. If found in the cache it is taken from there, otherwise a new builder is created, put in the cache and returned.
+    /// The returned builder has already been incremented once, dispose the third item of the returned tuple to decrement it after usage.
     let getOrCreateBuilder (ctok, options) =
       cancellable {
         RequireCompilationThread ctok
-        match incrementalBuildersCache.TryGet (ctok, options) with
-        | Some b -> return b
-        | None -> 
-            let! b = CreateOneIncrementalBuilder (ctok, options)
-            incrementalBuildersCache.Set (ctok, options, b)
-            return b
-      }
+        let createAndSetBuilder () = cancellable {
+            let! builderOpt,errList,decrement = CreateOneIncrementalBuilder (ctok, options)
+            incrementalBuildersCache.Set (ctok, options, (builderOpt,errList,decrement))
+            return builderOpt,errList
+        }
+        let! builderOpt,errList = 
+            match incrementalBuildersCache.TryGet (ctok, options) with
+            | Some (builderOpt,errList,_) -> Cancellable.value (builderOpt,errList)
+            | None -> createAndSetBuilder ()        
+        let decrementer = 
+            match builderOpt with 
+            | Some builder ->
+                match builder.TryIncrementUsageCount() with Some d -> d | None -> failwith "internal cache error: it should have been impossible for the builder to get disposed at this point!"
+            | _ -> { new System.IDisposable with member x.Dispose() = () }
+        return builderOpt,errList,decrementer
+    }
 
     let parseCacheLock = Lock<ParseCacheLockToken>()
     
@@ -2640,8 +2655,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
             | Some (parseResults, _checkResults,_,_) ->  return parseResults
             | _ -> 
             foregroundParseCount <- foregroundParseCount + 1
-            let! builderOpt,creationErrors,_ = getOrCreateBuilder (ctok, options)
-            use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
+            let! builderOpt,creationErrors,unwind = getOrCreateBuilder (ctok, options)
+            use _unwind = unwind
             match builderOpt with
             | None -> return FSharpParseFileResults(List.toArray creationErrors, None, true, [])
             | Some builder -> 
@@ -2659,8 +2674,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
     member bc.GetBackgroundParseResultsForFileInProject(filename, options) =
         reactor.EnqueueAndAwaitOpAsync("GetBackgroundParseResultsForFileInProject " + filename, fun ctok -> 
           cancellable {
-            let! builderOpt, creationErrors, _ = getOrCreateBuilder (ctok, options)
-            use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
+            let! builderOpt, creationErrors, unwind = getOrCreateBuilder (ctok, options)
+            use _unwind = unwind
             match builderOpt with
             | None -> return FSharpParseFileResults(List.toArray creationErrors, None, true, [])
             | Some builder -> 
@@ -2673,8 +2688,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
     member bc.MatchBraces(filename:string, source, options)=
         reactor.EnqueueAndAwaitOpAsync("MatchBraces " + filename, fun ctok -> 
           cancellable {
-            let! builderOpt,_,_ = getOrCreateBuilder (ctok, options)
-            use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
+            let! builderOpt,_,unwind = getOrCreateBuilder (ctok, options)
+            use _unwind = unwind
             match builderOpt with
             | None -> return [| |]
             | Some builder -> 
@@ -2795,8 +2810,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
     member bc.CheckFileInProject(parseResults: FSharpParseFileResults, filename, fileVersion, source, options, textSnapshotInfo) =
         let execWithReactorAsync action = reactor.EnqueueAndAwaitOpAsync("CheckFileInProject " + filename, action)
         async {
-            let! builderOpt,creationErrors,_ = execWithReactorAsync <| fun ctok -> getOrCreateBuilder (ctok, options) // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
-            use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
+            let! builderOpt,creationErrors,unwind = execWithReactorAsync <| fun ctok -> getOrCreateBuilder (ctok, options) // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
+            use _unwind = unwind
             match builderOpt with
             | None -> return FSharpCheckFileAnswer.Succeeded (MakeCheckFileResultsEmpty(creationErrors))
             | Some builder -> 
@@ -2816,8 +2831,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
     member bc.ParseAndCheckFileInProject(filename:string, fileVersion, source, options:FSharpProjectOptions,textSnapshotInfo) =
         let execWithReactorAsync action = reactor.EnqueueAndAwaitOpAsync("ParseAndCheckFileInProject " + filename, action)
         async {
-            let! builderOpt,creationErrors,_ = execWithReactorAsync <| fun ctok -> getOrCreateBuilder (ctok, options) // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
-            use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
+            let! builderOpt,creationErrors,unwind = execWithReactorAsync <| fun ctok -> getOrCreateBuilder (ctok, options) // Q: Whis it it ok to ignore creationErrors in the build cache? A: These errors will be appended into the typecheck results
+            use _unwind = unwind
             match builderOpt with
             | None -> 
                 let parseResults = FSharpParseFileResults(List.toArray creationErrors, None, true, [])
@@ -2848,8 +2863,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
     member bc.GetBackgroundCheckResultsForFileInProject(filename,options) =
         reactor.EnqueueAndAwaitOpAsync("GetBackgroundCheckResultsForFileInProject " + filename, fun ctok -> 
           cancellable {
-            let! builderOpt, creationErrors, _ = getOrCreateBuilder (ctok, options)
-            use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
+            let! builderOpt, creationErrors, unwind = getOrCreateBuilder (ctok, options)
+            use _unwind = unwind
             match builderOpt with
             | None -> 
                 let parseResults = FSharpParseFileResults(Array.ofList creationErrors, None, true, [])
@@ -2887,8 +2902,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
     /// Parse and typecheck the whole project (the implementation, called recursively as project graph is evaluated)
     member private bc.ParseAndCheckProjectImpl(options, ctok) : Cancellable<FSharpCheckProjectResults> =
       cancellable {
-        let! builderOpt,creationErrors,_ = getOrCreateBuilder (ctok, options)
-        use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
+        let! builderOpt,creationErrors,unwind = getOrCreateBuilder (ctok, options)
+        use _unwind = unwind
         match builderOpt with 
         | None -> 
             return FSharpCheckProjectResults (keepAssemblyContents, Array.ofList creationErrors, None, reactorOps)
@@ -2903,8 +2918,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
 
         // NOTE: This creation of the background builder is currently run as uncancellable.  Creating background builders is generally
         // cheap though the timestamp computations look suspicious for transitive project references.
-        let builderOpt,_creationErrors,_ = getOrCreateBuilder (ctok, options) |> Cancellable.runWithoutCancellation
-        use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
+        let builderOpt,_creationErrors,unwind = getOrCreateBuilder (ctok, options) |> Cancellable.runWithoutCancellation
+        use _unwind = unwind
         match builderOpt with 
         | None -> None
         | Some builder -> Some (builder.GetLogicalTimeStampForProject(cache, ctok))
@@ -2913,9 +2928,9 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
     member bc.KeepProjectAlive(options) =
         reactor.EnqueueAndAwaitOpAsync("KeepProjectAlive " + options.ProjectFileName, fun ctok -> 
           cancellable {
-            let! builderOpt,_creationErrors,_ = getOrCreateBuilder (ctok, options)
+            let! _,_creationErrors,unwind = getOrCreateBuilder (ctok, options)
             // This increments, and lets the caller decrement
-            return IncrementalBuilder.KeepBuilderAlive builderOpt
+            return unwind
           })
 
     /// Parse and typecheck the whole project.
@@ -2995,8 +3010,8 @@ type BackgroundCompiler(referenceResolver, projectCacheSize, keepAssemblyContent
     member bc.CheckProjectInBackground (options) =
         reactor.SetBackgroundOp (Some (fun ctok -> 
             // The creation of the background builder can't currently be cancelled
-            let builderOpt,_,_ = getOrCreateBuilder (ctok, options) |> Cancellable.runWithoutCancellation
-            use _unwind = IncrementalBuilder.KeepBuilderAlive builderOpt
+            let builderOpt,_,unwind = getOrCreateBuilder (ctok, options) |> Cancellable.runWithoutCancellation
+            use _unwind = unwind
             match builderOpt with 
             | None -> false
             | Some builder -> 

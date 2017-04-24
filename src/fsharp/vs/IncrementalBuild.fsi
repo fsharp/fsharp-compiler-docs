@@ -104,10 +104,17 @@ type internal PartialCheckResults =
 [<Class>]
 type internal IncrementalBuilder = 
 
-      /// Increment the usage count on the IncrementalBuilder by 1. Ths initial usage count is 0. The returns an IDisposable which will 
-      /// decrement the usage count on the entire build by 1 and dispose if it is no longer used by anyone.
-      member IncrementUsageCount : unit -> IDisposable
+      /// Try to increment the usage count on the IncrementalBuilder by 1. The initial usage count is 1.
+      /// If the builder was still alive, it returns an IDisposable which will 
+      /// decrement the usage count on the entire build by 1 and dispose it if it is no longer used by anyone.
+      /// If it was already disposed, it will return None and the builder may no longer be used.
+      member TryIncrementUsageCount : unit -> IDisposable option
      
+      /// Decrement the usage count by one.
+      /// DO NOT USE THIS METHOD DIRECTLY, call TryIncrementUsageCount and dispose of the result.
+      /// Only used by the function which created the IncrementalBuilder, because it is constructed with a usage count of 1.
+      member DecrementUsageCount : unit -> unit
+
       /// Check if the builder is not disposed
       member IsAlive : bool
 

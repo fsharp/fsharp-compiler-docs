@@ -5112,7 +5112,7 @@ let foo (a: Foo): bool =
 
 [<Test>]
 let ``Test typed AST for struct unions`` () = // See https://github.com/fsharp/FSharp.Compiler.Service/issues/756
-    let wholeProjectResults = checker.ParseAndCheckProject(ProjectStructUnions.options) |> Async.RunSynchronously
+    let wholeProjectResults = Project36.keepAssemblyContentsChecker.ParseAndCheckProject(ProjectStructUnions.options) |> Async.RunSynchronously
     let declarations =
         let checkedFile = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
         match checkedFile.Declarations.[0] with
@@ -5123,8 +5123,9 @@ let ``Test typed AST for struct unions`` () = // See https://github.com/fsharp/F
         | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(_,_,e) -> e
         | FSharpImplementationFileDeclaration.InitAction e -> e
         | _ -> failwith "unexpected declaration"
-    match getExpr 9 with
-    | BasicPatterns.UnionCaseTest(BasicPatterns.AddressOf(BasicPatterns.UnionCaseGet _), BasicPatterns.Const(true, _), BasicPatterns.Const(false, _)) ->
-        true
+    match getExpr (declarations.Length - 1) with
+    | BasicPatterns.IfThenElse(BasicPatterns.UnionCaseTest(BasicPatterns.AddressOf(BasicPatterns.UnionCaseGet _),_,uci),
+                                BasicPatterns.Const(trueValue, _), BasicPatterns.Const(falseValue, _))
+        when uci.Name = "Ok" && obj.Equals(trueValue, true) && obj.Equals(falseValue, false) -> true
     | _ -> failwith "unexpected expression"
     |> shouldEqual true

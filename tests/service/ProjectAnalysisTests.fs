@@ -5096,6 +5096,9 @@ module ProjectStructUnions =
     let fileSource1 = """
 module M
 
+// Custom struct result type as test projects still use FSharp.Core 4.0
+type [<Struct>] Result<'a,'b> = Ok of ResultValue:'a | Error of ErrorValue:'b
+
 type Foo =
     | Foo of Result<int, string>
 

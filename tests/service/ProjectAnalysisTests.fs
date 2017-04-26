@@ -5085,3 +5085,50 @@ let ``add files with same name from different folders`` () =
         for err in errors do
             printfn "ERROR: %s" err.Message
     shouldEqual 0 errors.Length
+
+module ProjectStructUnions = 
+    open System.IO
+
+    let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let base2 = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(base2, ".dll")
+    let projFileName = Path.ChangeExtension(base2, ".fsproj")
+    let fileSource1 = """
+module M
+
+// Custom struct result type as test projects still use FSharp.Core 4.0
+type [<Struct>] Result<'a,'b> = Ok of ResultValue:'a | Error of ErrorValue:'b
+
+type Foo =
+    | Foo of Result<int, string>
+
+let foo (a: Foo): bool =
+    match a with
+    | Foo(Ok(_)) -> true
+    | _ -> false
+    """
+
+    File.WriteAllText(fileName1, fileSource1)
+    let fileNames = [fileName1]
+    let args = mkProjectCommandLineArgs (dllName, fileNames)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+
+[<Test>]
+let ``Test typed AST for struct unions`` () = // See https://github.com/fsharp/FSharp.Compiler.Service/issues/756
+    let wholeProjectResults = Project36.keepAssemblyContentsChecker.ParseAndCheckProject(ProjectStructUnions.options) |> Async.RunSynchronously
+    let declarations =
+        let checkedFile = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
+        match checkedFile.Declarations.[0] with
+        | FSharpImplementationFileDeclaration.Entity (_, subDecls) -> subDecls
+        | _ -> failwith "unexpected declaration"
+    let getExpr exprIndex =
+        match declarations.[exprIndex] with
+        | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(_,_,e) -> e
+        | FSharpImplementationFileDeclaration.InitAction e -> e
+        | _ -> failwith "unexpected declaration"
+    match getExpr (declarations.Length - 1) with
+    | BasicPatterns.IfThenElse(BasicPatterns.UnionCaseTest(BasicPatterns.AddressOf(BasicPatterns.UnionCaseGet _),_,uci),
+                                BasicPatterns.Const(trueValue, _), BasicPatterns.Const(falseValue, _))
+        when uci.Name = "Ok" && obj.Equals(trueValue, true) && obj.Equals(falseValue, false) -> true
+    | _ -> failwith "unexpected expression"
+    |> shouldEqual true

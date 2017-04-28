@@ -13,7 +13,6 @@
     <Name>FSharp.Compiler.Service.Tests</Name>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
     <OutputPath>..\..\bin\$(TargetFrameworkVersion)\</OutputPath>
     <Tailcalls>true</Tailcalls>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>

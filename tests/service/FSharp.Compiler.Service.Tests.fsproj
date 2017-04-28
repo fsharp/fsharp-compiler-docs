@@ -1,18 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>5ef9ff95-1c75-458a-983a-168e43945913</ProjectGuid>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <OutputType>Library</OutputType>
-    <RootNamespace>FSharp.Compiler.Service.Tests</RootNamespace>
     <AssemblyName>FSharp.Compiler.Service.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProjectGuid>5ef9ff95-1c75-458a-983a-168e43945913</ProjectGuid>
+    <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' ">v4.5</TargetFrameworkVersion>
     <Name>FSharp.Compiler.Service.Tests</Name>
     <TargetFrameworkProfile />
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <OutputPath>..\..\bin\$(TargetFrameworkVersion)\</OutputPath>
     <Tailcalls>true</Tailcalls>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>

@@ -29,7 +29,15 @@ open System.Collections
 open System.Reflection
 
 type TaskItem (itemSpec:string) =
-    let assembly = Assembly.Load(new AssemblyName("Microsoft.Build.Utilities.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"))
+    let assembly =
+        Assembly.Load(
+            new AssemblyName(
+#if !NETSTANDARD1_5
+                "Microsoft.Build.Utilities.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+#else
+                "Microsoft.Build.Utilities.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+#endif
+            ))
     let buildUtilitiesTaskType = assembly.GetType("Microsoft.Build.Utilities.Task")
     let instance = Activator.CreateInstance(buildUtilitiesTaskType, [|itemSpec|])
 
@@ -795,7 +803,15 @@ module internal ToolLocationHelper =
 //        instance.GetType().GetPropserty(propName, BindingFlags.Public).SetValue(instance, propValue, null)
 
     type ResolveAssemblyReference () =
-        let assembly = Assembly.Load(new AssemblyName("Microsoft.Build.Tasks.v4.0, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"))
+        let assembly =
+            Assembly.Load(
+                new AssemblyName(
+#if !NETSTANDARD1_5
+                    "Microsoft.Build.Tasks.v4.0, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+#else
+                    "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+#endif
+                ))
         let resolveAssemblyReferenceType = assembly.GetType("Microsoft.Build.Tasks.ResolveAssemblyReference")
         let instance = Activator.CreateInstance(resolveAssemblyReferenceType)
 

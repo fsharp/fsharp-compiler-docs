@@ -2484,6 +2484,10 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
                                   true, // long running: optimizeForMemory 
                                   currentDirectory,isInteractive=true, 
                                   isInvalidationSupported=false)
+#if NETSTANDARD1_5
+    do tcConfigB.useMonoResolution <- true
+    do tcConfigB.primaryAssembly <- PrimaryAssembly.DotNetCore
+#endif
     let tcConfigP = TcConfigProvider.BasedOnMutableBuilder(tcConfigB)
     do tcConfigB.resolutionEnvironment <- ReferenceResolver.RuntimeLike // See Bug 3608
     do tcConfigB.useFsiAuxLib <- fsi.UseFsiAuxLib

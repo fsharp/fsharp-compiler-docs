@@ -27,6 +27,20 @@ open Internal.Utilities
 open Internal.Utilities.Collections
 
 
+module private DisposableHelper =
+    open System.Diagnostics
+
+    let makeOnceDisposable cb =
+        let wasDisposed = ref 0
+        { new IDisposable with
+            member x.Dispose() =
+                if 0 = System.Threading.Interlocked.CompareExchange(wasDisposed, 1, 0) then
+                    cb()
+                else
+                    Debug.Assert(false, "detected double-dispose!")
+        }
+
+
 [<AutoOpen>]
 module internal IncrementalBuild =
 
@@ -1338,7 +1352,7 @@ type IncrementalBuilder(tcGlobals,frameworkTcImports, nonFrameworkAssemblyInputs
     let assertNotDisposed() =
         if disposed then  
             System.Diagnostics.Debug.Assert(false, "IncrementalBuild object has already been disposed!")
-    let mutable referenceCount = 0
+    let mutable referenceCount = 1
 
     //----------------------------------------------------
     // START OF BUILD TASK FUNCTIONS 
@@ -1641,17 +1655,19 @@ type IncrementalBuilder(tcGlobals,frameworkTcImports, nonFrameworkAssemblyInputs
     let MaxTimeStampInDependencies cache (ctok: CompilationThreadToken) (output:INode) = 
         IncrementalBuild.MaxTimeStampInDependencies cache ctok output.Name partialBuild 
 
-    member this.IncrementUsageCount() = 
-        assertNotDisposed() 
-        System.Threading.Interlocked.Increment(&referenceCount) |> ignore
-        { new System.IDisposable with member x.Dispose() = this.DecrementUsageCount() }
+    /// Try to increment the usage count. If it returns None, then the object has been disposed by someone else already and may no longer be used.
+    member this.TryIncrementUsageCount() =
+        ConcurrentIncrement.tryIncrementOrNoneIfZero (&referenceCount)
+        |> Option.map (fun _ -> assertNotDisposed() ; DisposableHelper.makeOnceDisposable this.DecrementUsageCount)
+            
 
     member this.DecrementUsageCount() = 
         assertNotDisposed()
-        let currentValue =  System.Threading.Interlocked.Decrement(&referenceCount)
-        if currentValue = 0 then 
-                disposed <- true
-                disposeCleanupItem()
+        System.Diagnostics.Debug.Assert(referenceCount > 0, "referenceCount <= 0, that means Decrement was called more often than Increment!")            
+        let newValue =  System.Threading.Interlocked.Decrement(&referenceCount)
+        if newValue = 0 then 
+            disposed <- true
+            disposeCleanupItem()
 
     member __.IsAlive = referenceCount > 0
 
@@ -1926,8 +1942,11 @@ type IncrementalBuilder(tcGlobals,frameworkTcImports, nonFrameworkAssemblyInputs
       }
     static member KeepBuilderAlive (builderOpt: IncrementalBuilder option) = 
         match builderOpt with 
-        | Some builder -> builder.IncrementUsageCount() 
-        | None -> { new System.IDisposable with member __.Dispose() = () }
+        | Some builder ->
+            match builder.TryIncrementUsageCount() with
+            | Some v -> v
+            | None -> DisposableHelper.makeOnceDisposable id
+        | None -> DisposableHelper.makeOnceDisposable id
 
     member builder.IsBeingKeptAliveApartFromCacheEntry = (referenceCount >= 2)
 

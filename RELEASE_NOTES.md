@@ -1,3 +1,6 @@
+#### 12.0.7
+  * Integrate visualfsharp master 
+
 #### 12.0.6
   * [758: Fix project cracker when invalid path given](https://github.com/fsharp/FSharp.Compiler.Service/pull/758)
 

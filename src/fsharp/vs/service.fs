@@ -2426,7 +2426,7 @@ module CompileHelpers =
 
         // The function used to resolve typees while emitting the code
         let assemblyResolver s = 
-            match tcImportsRef.Value.Value.TryFindExistingFullyQualifiedPathFromAssemblyRef (ctok, s) with 
+            match tcImportsRef.Value.Value.TryFindExistingFullyQualifiedPathByExactAssemblyRef (ctok, s) with 
             | Some res -> Some (Choice1Of2 res)
             | None -> None
 

@@ -234,7 +234,7 @@ module internal IncrementalBuild =
         /// Get the time stamp if available. Otherwise MaxValue.        
         member x.Timestamp = match x with Available(_,ts,_) -> ts | InProgress(_,ts) -> ts | _ -> DateTime.MaxValue
 
-        /// Get the time stamp if available. Otheriwse MaxValue.        
+        /// Get the time stamp if available. Otherwise MaxValue.        
         member x.InputSignature = match x with Available(_,_,signature) -> signature | _ -> UnevaluatedInput
         
         member x.ResultIsInProgress =  match x with | InProgress _ -> true | _ -> false
@@ -812,12 +812,12 @@ module internal IncrementalBuild =
             
     /// Evaluate an output of the build.
     ///
-    /// Intermediate progrewss along the way may be saved through the use of the 'save' function.
+    /// Intermediate progress along the way may be saved through the use of the 'save' function.
     let Eval cache ctok save node bt = EvalLeafsFirst cache ctok save (Target(node,None)) bt
 
     /// Evaluate an output of the build.
     ///
-    /// Intermediate progrewss along the way may be saved through the use of the 'save' function.
+    /// Intermediate progress along the way may be saved through the use of the 'save' function.
     let EvalUpTo cache ctok save (node, n) bt = EvalLeafsFirst cache ctok save (Target(node, Some n)) bt
 
     /// Check if an output is up-to-date and ready
@@ -993,7 +993,7 @@ type FSharpErrorInfo(fileName, s:pos, e:pos, severity: FSharpErrorSeverity, mess
     static member (*internal*) CreateFromException(exn, isError, trim:bool, fallbackRange:range) = 
         let m = match GetRangeOfDiagnostic exn with Some m -> m | None -> fallbackRange 
         let e = if trim then m.Start else m.End
-        let msg = bufs (fun buf -> OutputPhasedDiagnostic ErrorLogger.ErrorStyle.DefaultErrors buf exn false)
+        let msg = bufs (fun buf -> OutputPhasedDiagnostic buf exn false)
         let errorNum = GetDiagnosticNumber exn
         FSharpErrorInfo(m.FileName, m.Start, e, (if isError then FSharpErrorSeverity.Error else FSharpErrorSeverity.Warning), msg, exn.Subcategory(), errorNum)
         
@@ -1101,7 +1101,7 @@ module IncrementalBuilderEventTesting =
         | IBETypechecked of string // filename
         | IBECreated
 
-    // ++GLOBAL MUTBALE STATE FOR TESTING++
+    // ++GLOBAL MUTABLE STATE FOR TESTING++
     let MRU = new FixedLengthMRU<IBEvent>()  
     let GetMostRecentIncrementalBuildEvents(n) = MRU.MostRecentList(n)
     let GetCurrentIncrementalBuildEventNum() = MRU.CurrentEventNum 
@@ -1534,7 +1534,7 @@ type IncrementalBuilder(tcGlobals,frameworkTcImports, nonFrameworkAssemblyInputs
   
         let ilAssemRef, tcAssemblyDataOpt, tcAssemblyExprOpt = 
           try
-            // TypeCheckClosedInputSetFinish fills in tcState.Ccu but in incrfemental scenarios we don't want this,
+            // TypeCheckClosedInputSetFinish fills in tcState.Ccu but in incremental scenarios we don't want this,
             // so we make this temporary here
             let oldContents = tcState.Ccu.Deref.Contents
             try
@@ -1825,7 +1825,7 @@ type IncrementalBuilder(tcGlobals,frameworkTcImports, nonFrameworkAssemblyInputs
                 let tcConfigB = 
                     TcConfigBuilder.CreateNew(referenceResolver, defaultFSharpBinariesDir, implicitIncludeDir=projectDirectory, 
                                                 optimizeForMemory=true, isInteractive=false, isInvalidationSupported=true) 
-                // The following uses more memory but means we don'T take read-exclusions on the DLLs we reference 
+                // The following uses more memory but means we don't take read-exclusions on the DLLs we reference 
                 // Could detect well-known assemblies--ie System.dll--and open them with read-locks 
                 tcConfigB.openBinariesInMemory <- true
                 tcConfigB.resolutionEnvironment 

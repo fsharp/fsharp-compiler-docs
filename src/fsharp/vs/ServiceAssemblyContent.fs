@@ -496,11 +496,20 @@ type InsertContext =
     { ScopeKind: ScopeKind
       Pos: pos }
 
+<<<<<<< HEAD
+=======
+type Module =
+    { Idents: Idents
+      Range: range }
+
+type OpenStatementInsertionPoint =
+    | TopLevel
+    | Nearest
+
+>>>>>>> 3e8ef35285d6faaa7c3cb3140e7513e735fd5fcc
 module ParsedInput =
     open Microsoft.FSharp.Compiler
     open Microsoft.FSharp.Compiler.Ast
-
-    type private EndLine = int
 
     /// An recursive pattern that collect all sequential expressions to avoid StackOverflowException
     let rec (|Sequentials|_|) = function
@@ -857,33 +866,36 @@ module ParsedInput =
         | true, idents -> Some idents
         | _ -> None
 
-    type Col = int
-
     type Scope =
         { Idents: Idents
           Kind: ScopeKind }
 
-    let tryFindNearestPointAndModules (currentLine: int) (ast: ParsedInput) = 
+    let tryFindNearestPointAndModules (currentLine: int) (ast: ParsedInput) (insertionPoint: OpenStatementInsertionPoint) = 
         // We ignore all diagnostics during this operation
         //
         // Based on an initial review, no diagnostics should be generated.  However the code should be checked more closely.
         use _ignoreAllDiagnostics = new ErrorScope()  
 
-        let result: (Scope * pos) option ref = ref None
+        let result: (Scope * pos * (* finished *) bool) option ref = ref None
         let ns: string[] option ref = ref None
-        let modules = ResizeArray<Idents * EndLine * Col>()  
+        let modules = ResizeArray<Module>()  
 
         let inline longIdentToIdents ident = ident |> Seq.map (fun x -> string x) |> Seq.toArray
         
-        let addModule (longIdent: LongIdent) endLine col =
-            modules.Add(longIdent |> List.map string |> List.toArray, endLine, col)
+        let addModule (longIdent: LongIdent, range: range) =
+            modules.Add 
+                { Idents = longIdent |> List.map string |> List.toArray 
+                  Range = range }
 
         let doRange kind (scope: LongIdent) line col =
             if line <= currentLine then
-                match !result with
-                | None -> 
-                    result := Some ({ Idents = longIdentToIdents scope; Kind = kind }, mkPos line col)
-                | Some (oldScope, oldPos) ->
+                match !result, insertionPoint with
+                | None, _ -> 
+                    result := Some ({ Idents = longIdentToIdents scope; Kind = kind }, mkPos line col, false)
+                | Some (_, _, true), _ -> ()
+                | Some (oldScope, oldPos, false), OpenStatementInsertionPoint.TopLevel when kind <> OpenDeclaration ->
+                    result := Some (oldScope, oldPos, true)
+                | Some (oldScope, oldPos, _), _ ->
                     match kind, oldScope.Kind with
                     | (Namespace | NestedModule | TopModule), OpenDeclaration
                     | _ when oldPos.Line <= line ->
@@ -893,7 +905,8 @@ module ParsedInput =
                                         | [] -> oldScope.Idents 
                                         | _ -> longIdentToIdents scope
                                     Kind = kind },
-                                  mkPos line col)
+                                  mkPos line col,
+                                  false)
                     | _ -> ()
 
         let getMinColumn (decls: SynModuleDecls) =
@@ -938,7 +951,7 @@ module ParsedInput =
                     | _ -> Namespace
 
                 doRange scopeKind fullIdent startLine range.StartColumn
-                addModule fullIdent range.EndLine range.StartColumn
+                addModule (fullIdent, range)
                 List.iter (walkSynModuleDecl fullIdent) decls
 
         and walkSynModuleDecl (parent: LongIdent) (decl: SynModuleDecl) =
@@ -946,7 +959,7 @@ module ParsedInput =
             | SynModuleDecl.NamespaceFragment fragment -> walkSynModuleOrNamespace parent fragment
             | SynModuleDecl.NestedModule(ComponentInfo(_, _, _, ident, _, _, _, _), _, decls, _, range) ->
                 let fullIdent = parent @ ident
-                addModule fullIdent range.EndLine range.StartColumn
+                addModule (fullIdent, range)
                 if range.EndLine >= currentLine then
                     let moduleBodyIdentation = getMinColumn decls |> Option.defaultValue (range.StartColumn + 4)
                     doRange NestedModule fullIdent range.StartLine moduleBodyIdentation
@@ -961,32 +974,33 @@ module ParsedInput =
 
         let res =
             !result
-            |> Option.map (fun (scope, pos) ->
+            |> Option.map (fun (scope, pos, _) ->
                 let ns = !ns |> Option.map longIdentToIdents
                 scope, ns, mkPos (pos.Line + 1) pos.Column)
         
         let modules = 
             modules 
-            |> Seq.filter (fun (_, endLine, _) -> endLine < currentLine)
-            |> Seq.sortBy (fun (m, _, _) -> -m.Length)
+            |> Seq.filter (fun x -> x.Range.EndLine < currentLine)
+            |> Seq.sortBy (fun x -> -x.Idents.Length)
             |> Seq.toList
 
         res, modules
 
-    let findBestPositionToInsertOpenDeclaration (modules: (Idents * EndLine * Col) list) scope pos (entity: Idents) =
-        match modules |> List.filter (fun (m, _, _) -> entity |> Array.startsWith m ) with
+    let findBestPositionToInsertOpenDeclaration (modules: Module list) scope pos (entity: Idents) =
+        match modules |> List.filter (fun x -> entity |> Array.startsWith x.Idents) with
         | [] -> { ScopeKind = scope.Kind; Pos = pos }
-        | (_, endLine, startCol) :: _ ->
+        | m :: _ ->
             //printfn "All modules: %A, Win module: %A" modules m
             let scopeKind =
                 match scope.Kind with
                 | TopModule -> NestedModule
                 | x -> x
-            { ScopeKind = scopeKind; Pos = mkPos (Line.fromZ endLine) startCol }
+            { ScopeKind = scopeKind
+              Pos = mkPos (Line.fromZ m.Range.EndLine) m.Range.StartColumn }
 
-    let tryFindInsertionContext (currentLine: int) (ast: ParsedInput) (partiallyQualifiedName: MaybeUnresolvedIdents) = 
-        let res, modules = tryFindNearestPointAndModules currentLine ast
-        // CLEANUP: does this realy need to be a partial application with pre-computation?  Can this be made more expicit?
+    let tryFindInsertionContext (currentLine: int) (ast: ParsedInput) (partiallyQualifiedName: MaybeUnresolvedIdents) (insertionPoint: OpenStatementInsertionPoint) = 
+        let res, modules = tryFindNearestPointAndModules currentLine ast insertionPoint
+        // CLEANUP: does this really need to be a partial application with pre-computation?  Can this be made more explicit?
         fun (requiresQualifiedAccessParent: Idents option, autoOpenParent: Idents option, entityNamespace: Idents option, entity: Idents) ->
 
             // We ignore all diagnostics during this operation
@@ -1027,8 +1041,8 @@ module ParsedInput =
 
         mkPos line ctx.Pos.Column
     
-    let tryFindNearestPointToInsertOpenDeclaration (currentLine: int) (ast: ParsedInput) (entity: Idents) =
-        match tryFindNearestPointAndModules currentLine ast with
+    let tryFindNearestPointToInsertOpenDeclaration (currentLine: int) (ast: ParsedInput) (entity: Idents) (insertionPoint: OpenStatementInsertionPoint) =
+        match tryFindNearestPointAndModules currentLine ast insertionPoint with
         | Some (scope, _, point), modules -> 
             Some (findBestPositionToInsertOpenDeclaration modules scope point entity)
         | _ -> None

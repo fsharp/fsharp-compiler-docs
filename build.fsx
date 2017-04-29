@@ -42,7 +42,9 @@ let buildDir = "bin"
 let releaseDir = "artefacts/release"
 let debugDir = "artefacts/debug"
 
-let buildDebugPackage = environVar "DEBUG_PACKAGE" <> "false"
+
+let publishDebugPackage = environVar "DEBUG_PACKAGE_PUBLISH" = "true"
+let buildDebugPackage = publishDebugPackage || environVar "DEBUG_PACKAGE" <> "false"
 
 // Read release notes & version info from RELEASE_NOTES.md
 let release = LoadReleaseNotes (__SOURCE_DIRECTORY__ + "/RELEASE_NOTES.md")
@@ -147,8 +149,8 @@ Target "SourceLink" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests.NetFx" (fun _ ->
-    !! (if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll"
-        else "./bin/**/FSharp.Compiler.Service.Tests.dll")
+    !! ((*if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll"
+        else*) sprintf "./%s/**/FSharp.Compiler.Service.Tests.dll" releaseDir)
     |> NUnit (fun p ->
         { p with
             Framework = "v4.0.30319"
@@ -198,14 +200,15 @@ Target "PublishNuGet" (fun _ ->
         { p with
             ApiKey = apikey
             WorkingDir = releaseDir })
-    Paket.Push (fun p ->
-        let apikey =
-            match getBuildParam "nuget-apikey" with
-            | s when not (String.IsNullOrWhiteSpace s) -> s
-            | _ -> getUserInput "Nuget API Key: "
-        { p with
-            ApiKey = apikey
-            WorkingDir = debugDir })
+    if publishDebugPackage then
+        Paket.Push (fun p ->
+            let apikey =
+                match getBuildParam "nuget-apikey" with
+                | s when not (String.IsNullOrWhiteSpace s) -> s
+                | _ -> getUserInput "Nuget API Key: "
+            { p with
+                ApiKey = apikey
+                WorkingDir = debugDir })
 )
 
 // --------------------------------------------------------------------------------------
@@ -258,7 +261,7 @@ Target "GitHubRelease" (fun _ ->
 
     Branches.tag "" nugetVersion
     Branches.pushTag "" remote nugetVersion
-    if buildDebugPackage then
+    if publishDebugPackage then
         Branches.tag "" nugetDebugVersion
         Branches.pushTag "" remote nugetDebugVersion
 
@@ -269,7 +272,7 @@ Target "GitHubRelease" (fun _ ->
     |> releaseDraft
     |> Async.RunSynchronously
 
-    if buildDebugPackage then
+    if publishDebugPackage then
         createClient user pw
         |> createDraft gitOwner gitName nugetDebugVersion true release.Notes
         |> uploadFile (debugDir</>("FSharp.Compiler.Service." + nugetDebugVersion + ".nupkg"))

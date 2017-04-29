@@ -165,6 +165,7 @@ Target "RunTests.NetFx" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 Target "NuGet.NetFx" (fun _ ->
+    CopyDir buildDir releaseDir allFiles
     Paket.Pack (fun p ->
         { p with
             TemplateFile = "nuget/FSharp.Compiler.Service.template"
@@ -177,8 +178,10 @@ Target "NuGet.NetFx" (fun _ ->
             Version = nugetVersion
             OutputPath = releaseDir
             ReleaseNotes = toLines release.Notes })
+    CleanDir buildDir
 )
 Target "NuGet.NetFx.Debug" (fun _ ->
+    CopyDir buildDir debugDir allFiles
     Paket.Pack (fun p ->
         { p with
             TemplateFile = "nuget/FSharp.Compiler.Service.template"
@@ -191,6 +194,7 @@ Target "NuGet.NetFx.Debug" (fun _ ->
             Version = nugetDebugVersion
             OutputPath = debugDir
             ReleaseNotes = toLines release.Notes })
+    CleanDir buildDir
 )
 
 

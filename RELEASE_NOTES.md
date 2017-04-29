@@ -1,3 +1,6 @@
+#### 12.0.8
+  * Set bit on output executables correctly
+  
 #### 12.0.7
   * Integrate visualfsharp master 
 

@@ -423,6 +423,7 @@ Target "All.NetFx" DoNothing
 
 "All.NetFx"
   ==> "NuGet.NetFx"
+  =?> ("NuGet.NetFx.Debug", buildDebugPackage)
   =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
   =?> ("Nuget.AddNetCore.Debug", buildDebugPackage && isDotnetSDKInstalled)
   ==> "NuGet"

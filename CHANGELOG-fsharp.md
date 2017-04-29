@@ -1,3 +1,21 @@
+4.1.15
+  * fix regression on binding redirects for System.Collections.Immutable
+
+4.1.10
+  * Integrate visualfsharp to 55ffe91
+
+4.1.9
+  * Fix duplicate resources on OSX
+
+4.1.8
+  * [Fix regression in Microsoft.Build.FSharp.targets](https://github.com/fsharp/fsharp/pull/707)
+
+4.1.7
+  * [fix binding redirects for System.Collections.Immutable](https://github.com/fsharp/fsharp/issues/699)
+
+4.1.6
+  * fix version of library going in /usr/lib/mono/fsharp
+
 4.1.4
   * [align fsc task and target file](https://github.com/fsharp/fsharp/pull/690)
   * [use install layout that includes mono/fsharp](https://github.com/fsharp/fsharp/pull/689)

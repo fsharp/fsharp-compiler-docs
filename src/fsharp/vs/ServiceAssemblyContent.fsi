@@ -58,7 +58,7 @@ type AssemblySymbol =
       /// Function that returns `EntityKind` based of given `LookupKind`.
       Kind: LookupType -> EntityKind }
 
-/// `RawEntity` list retrived from an assembly.
+/// `RawEntity` list retrieved from an assembly.
 type internal AssemblyContentCacheEntry =
     { /// Assembly file last write time.
       FileWriteTime: DateTime 
@@ -128,13 +128,23 @@ type InsertContext =
       /// Current position (F# compiler line number).
       Pos: pos }
 
+/// Where open statements should be added.
+type internal OpenStatementInsertionPoint =
+    | TopLevel
+    | Nearest
+
 /// Parse AST helpers.
 module ParsedInput =
+
     /// Returns `InsertContext` based on current position and symbol idents.
-    val tryFindInsertionContext : currentLine: int -> ast: Ast.ParsedInput -> MaybeUnresolvedIdents -> (( (* requiresQualifiedAccessParent: *) Idents option * (* autoOpenParent: *) Idents option * (*  entityNamespace *) Idents option * (* entity: *) Idents) -> (Entity * InsertContext)[])
+    val tryFindInsertionContext : 
+        currentLine: int -> 
+        ast: Ast.ParsedInput -> MaybeUnresolvedIdents -> 
+        insertionPoint: OpenStatementInsertionPoint ->
+        (( (* requiresQualifiedAccessParent: *) Idents option * (* autoOpenParent: *) Idents option * (*  entityNamespace *) Idents option * (* entity: *) Idents) -> (Entity * InsertContext)[])
     
     /// Returns `InsertContext` based on current position and symbol idents.
-    val tryFindNearestPointToInsertOpenDeclaration : currentLine: int -> ast: Ast.ParsedInput -> entity: Idents -> InsertContext option
+    val tryFindNearestPointToInsertOpenDeclaration : currentLine: int -> ast: Ast.ParsedInput -> entity: Idents -> insertionPoint: OpenStatementInsertionPoint -> InsertContext option
 
     /// Returns lond identifier at position.
     val getLongIdentAt : ast: Ast.ParsedInput -> pos: Range.pos -> Ast.LongIdent option

@@ -50,7 +50,7 @@ If using Paket, add the source at the top of `paket.dependencies`.
 Maintainers
 -----------
 
-The maintainers of this repository appointed by the F# Core Engineering Group are:
+The maintainers of this repository from the F# Core Engineering Group are:
 
- - [Robin Neatherway](https://github.com/rneatherway), [Tomas Petricek](http://github.com/tpetricek) 
- - with help and guidance from [Don Syme](http://github.com/dsyme), [Dave Thomas](http://github.com/7sharp9), [Lincoln Atkinson](http://github.com/latkin), [Kevin Ransom](http://github.com/KevinRansom) and [Vladimir Matveev](http://github.com/vladima)
+ - [Don Syme](http://github.com/dsyme), [Dave Thomas](http://github.com/7sharp9)
+ - with help and guidance from [Robin Neatherway](https://github.com/rneatherway), [Tomas Petricek](http://github.com/tpetricek), [Lincoln Atkinson](http://github.com/latkin), [Kevin Ransom](http://github.com/KevinRansom), [Vladimir Matveev](http://github.com/vladima) and others

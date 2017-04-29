@@ -837,7 +837,7 @@ module internal ItemDescriptionsImpl =
                 wordL (tagText (FSComp.SR.typeInfoUnionCase())) ^^
                 NicePrint.layoutTyconRef denv ucinfo.TyconRef ^^
                 sepL (tagPunctuation ".") ^^
-                wordL (tagUnionCase (DecompileOpName uc.Id.idText)) ^^
+                wordL (tagUnionCase (DecompileOpName uc.Id.idText) |> mkNav uc.DefinitionRange) ^^
                 RightL.colon ^^
                 (if List.isEmpty recd then emptyL else NicePrint.layoutUnionCases denv recd ^^ WordL.arrow) ^^
                 NicePrint.layoutTy denv rty
@@ -848,7 +848,7 @@ module internal ItemDescriptionsImpl =
             let items = apinfo.ActiveTags
             let layout = 
                 wordL (tagText ((FSComp.SR.typeInfoActivePatternResult()))) ^^
-                wordL (tagActivePatternResult (List.item idx items)) ^^
+                wordL (tagActivePatternResult (List.item idx items) |> mkNav apinfo.Range) ^^
                 RightL.colon ^^
                 NicePrint.layoutTy denv ty
             FSharpStructuredToolTipElement.Single(layout, xml)
@@ -862,7 +862,7 @@ module internal ItemDescriptionsImpl =
             let _, ptau, _cxs = PrettyTypes.PrettifyTypes1 denv.g tau
             let layout =
                 wordL (tagText (FSComp.SR.typeInfoActiveRecognizer())) ^^
-                wordL (tagActivePatternCase apref.Name) ^^
+                wordL (tagActivePatternCase apref.Name |> mkNav v.DefinitionRange) ^^
                 RightL.colon ^^
                 NicePrint.layoutTy denv ptau ^^
                 OutputFullName isDecl pubpath_of_vref fullDisplayTextOfValRefAsLayout v
@@ -882,7 +882,7 @@ module internal ItemDescriptionsImpl =
             let layout = 
                 NicePrint.layoutTyconRef denv rfinfo.TyconRef ^^
                 SepL.dot ^^
-                wordL (tagRecordField (DecompileOpName rfield.Name)) ^^
+                wordL (tagRecordField (DecompileOpName rfield.Name) |> mkNav rfield.DefinitionRange) ^^
                 RightL.colon ^^
                 NicePrint.layoutTy denv ty ^^
                 (
@@ -985,7 +985,8 @@ module internal ItemDescriptionsImpl =
            FSharpStructuredToolTipElement.Single(layout, xml)
 
         // Types.
-        | Item.Types(_,((TType_app(tcref,_)):: _)) -> 
+        | Item.Types(_,((TType_app(tcref,_)):: _))
+        | Item.UnqualifiedType (tcref :: _) -> 
             let denv = { denv with shortTypeNames = true  }
             let layout =
                 NicePrint.layoutTycon denv infoReader AccessibleFromSomewhere m (* width *) tcref.Deref ^^
@@ -1004,7 +1005,9 @@ module internal ItemDescriptionsImpl =
             
             let layout = 
                 wordL (tagKeyword kind) ^^
-                wordL (if definiteNamespace then tagNamespace (fullDisplayTextOfModRef modref) else (tagModule modref.DemangledModuleOrNamespaceName))
+                (if definiteNamespace then tagNamespace (fullDisplayTextOfModRef modref) else (tagModule modref.DemangledModuleOrNamespaceName)
+                 |> mkNav modref.DefinitionRange
+                 |> wordL)
             if not definiteNamespace then
                 let namesToAdd = 
                     ([],modrefs) 
@@ -1043,6 +1046,7 @@ module internal ItemDescriptionsImpl =
             
         | Item.SetterArg (_, item) -> 
             FormatItemDescriptionToToolTipElement isDecl infoReader m denv item
+
         |  _ -> 
             FSharpStructuredToolTipElement.None
 
@@ -1342,8 +1346,24 @@ module internal ItemDescriptionsImpl =
             | Item.MethodGroup (_, minfos, _) when minfos |> List.forall (fun minfo -> minfo.IsExtensionMember) -> FSharpGlyph.ExtensionMethod
             | Item.MethodGroup _ -> FSharpGlyph.Method
             | Item.TypeVar _ 
-            | Item.Types _ 
-            | Item.UnqualifiedType _ -> FSharpGlyph.Class   
+            | Item.Types _  -> FSharpGlyph.Class
+            | Item.UnqualifiedType (tcref :: _) -> 
+                if tcref.IsEnumTycon || tcref.IsILEnumTycon then FSharpGlyph.Enum
+                elif tcref.IsExceptionDecl then FSharpGlyph.Exception
+                elif tcref.IsFSharpDelegateTycon then FSharpGlyph.Delegate
+                elif tcref.IsFSharpInterfaceTycon then FSharpGlyph.Interface
+                elif tcref.IsFSharpStructOrEnumTycon then FSharpGlyph.Struct
+                elif tcref.IsModule then FSharpGlyph.Module
+                elif tcref.IsNamespace then FSharpGlyph.NameSpace
+                elif tcref.IsUnionTycon then FSharpGlyph.Union
+                elif tcref.IsILTycon then 
+                    let (TILObjectReprData (_, _, tydef)) = tcref.ILTyconInfo
+                    if tydef.IsInterface then FSharpGlyph.Interface
+                    elif tydef.IsDelegate then FSharpGlyph.Delegate
+                    elif tydef.IsEnum then FSharpGlyph.Enum
+                    elif tydef.IsStructOrEnum then FSharpGlyph.Struct
+                    else FSharpGlyph.Class
+                else FSharpGlyph.Class
             | Item.ModuleOrNamespaces(modref::_) -> 
                   if modref.IsNamespace then FSharpGlyph.NameSpace else FSharpGlyph.Module
             | Item.ArgName _ -> FSharpGlyph.Variable
@@ -1381,10 +1401,10 @@ type FSharpAccessibility internal (a:Accessibility, ?isProtected) =
 
 /// An intellisense declaration
 [<Sealed>]
-type FSharpDeclarationListItem(name: string, nameInCode: string, fullName: string, glyph: FSharpGlyph, info, isAttribute: bool, accessibility: FSharpAccessibility option,
+type FSharpDeclarationListItem(name: string, nameInCode: string, fullName: string, glyph: FSharpGlyph, info, accessibility: FSharpAccessibility option,
                                kind: CompletionItemKind, isOwnMember: bool, priority: int, isResolved: bool, namespaceToOpen: string option) =
 
-    let mutable descriptionTextHolder:FSharpToolTipText<_> option = None
+    let mutable descriptionTextHolder: FSharpToolTipText<_> option = None
     let mutable task = null
 
     member decl.Name = name
@@ -1439,7 +1459,6 @@ type FSharpDeclarationListItem(name: string, nameInCode: string, fullName: strin
        (fun err -> FSharpToolTipText [FSharpStructuredToolTipElement.CompositionError err])
     member decl.DescriptionText = decl.StructuredDescriptionText |> Tooltips.ToFSharpToolTipText
     member decl.Glyph = glyph 
-    member decl.IsAttribute = isAttribute
     member decl.Accessibility = accessibility
     member decl.Kind = kind
     member decl.IsOwnMember = isOwnMember
@@ -1450,12 +1469,13 @@ type FSharpDeclarationListItem(name: string, nameInCode: string, fullName: strin
 
 /// A table of declarations for Intellisense completion 
 [<Sealed>]
-type FSharpDeclarationListInfo(declarations: FSharpDeclarationListItem[], isForType: bool) = 
+type FSharpDeclarationListInfo(declarations: FSharpDeclarationListItem[], isForType: bool, isError: bool) = 
     member self.Items = declarations
     member self.IsForType = isForType
+    member self.IsError = isError
 
     // Make a 'Declarations' object for a set of selected items
-    static member Create(infoReader:InfoReader, m, denv, getAccessibility, items: CompletionItem list, reactor, currentNamespaceOrModule: string[] option, checkAlive) = 
+    static member Create(infoReader:InfoReader, m, denv, getAccessibility, items: CompletionItem list, reactor, currentNamespaceOrModule: string[] option, isAttributeApplicationContext: bool, checkAlive) = 
         let g = infoReader.g
         let isForType = items |> List.exists (fun x -> x.Type.IsSome)
         let items = items |> ItemDescriptionsImpl.RemoveExplicitlySuppressedCompletionItems g
@@ -1540,8 +1560,8 @@ type FSharpDeclarationListInfo(declarations: FSharpDeclarationListItem[], isForT
                         | resolved, _ -> resolved 
                     
                     let item = items.Head
-
                     let glyph = ItemDescriptionsImpl.GlyphOfItem(denv, item.Item)
+
                     let name, nameInCode =
                         if displayName.StartsWith "( " && displayName.EndsWith " )" then
                             let cleanName = displayName.[2..displayName.Length - 3]
@@ -1551,8 +1571,17 @@ type FSharpDeclarationListInfo(declarations: FSharpDeclarationListItem[], isForT
                             displayName,
                             match item.Unresolved with
                             | Some _ -> displayName
-                            | None ->  Lexhelp.Keywords.QuoteIdentifierIfNeeded displayName
+                            | None -> Lexhelp.Keywords.QuoteIdentifierIfNeeded displayName
+
+                    let isAttribute = ItemDescriptionsImpl.IsAttribute infoReader item.Item
                     
+                    let cutAttributeSuffix (name: string) =
+                        if isAttributeApplicationContext && isAttribute && name <> "Attribute" && name.EndsWith "Attribute" then
+                            name.[0..name.Length - "Attribute".Length - 1]
+                        else name
+
+                    let name = cutAttributeSuffix name
+                    let nameInCode = cutAttributeSuffix nameInCode
                     let fullName = ItemDescriptionsImpl.FullNameOfItem g item.Item
                     
                     let namespaceToOpen = 
@@ -1573,14 +1602,14 @@ type FSharpDeclarationListInfo(declarations: FSharpDeclarationListItem[], isForT
                             | ns -> Some (ns |> String.concat "."))
 
                     FSharpDeclarationListItem(
-                        name, nameInCode, fullName, glyph, Choice1Of2 (items, infoReader, m, denv, reactor, checkAlive), ItemDescriptionsImpl.IsAttribute infoReader item.Item, 
-                        getAccessibility item.Item, item.Kind, item.IsOwnMember, item.MinorPriority, item.Unresolved.IsNone, namespaceToOpen))
+                        name, nameInCode, fullName, glyph, Choice1Of2 (items, infoReader, m, denv, reactor, checkAlive), getAccessibility item.Item, 
+                        item.Kind, item.IsOwnMember, item.MinorPriority, item.Unresolved.IsNone, namespaceToOpen))
 
-        new FSharpDeclarationListInfo(Array.ofList decls, isForType)
+        new FSharpDeclarationListInfo(Array.ofList decls, isForType, false)
     
     static member Error msg = 
         new FSharpDeclarationListInfo(
                 [| FSharpDeclarationListItem("<Note>", "<Note>", "<Note>", FSharpGlyph.Error, Choice2Of2 (FSharpToolTipText [FSharpStructuredToolTipElement.CompositionError msg]), 
-                                             false, None, CompletionItemKind.Other, false, 0, false, None) |], false)
+                                             None, CompletionItemKind.Other, false, 0, false, None) |], false, true)
     
-    static member Empty = FSharpDeclarationListInfo([| |], false)
+    static member Empty = FSharpDeclarationListInfo([| |], false, false)

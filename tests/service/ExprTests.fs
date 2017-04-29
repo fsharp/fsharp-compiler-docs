@@ -548,7 +548,7 @@ let ``Test Declarations project1`` () =
 
     // This behaves slightly differently on Mono versions, 'null' is printed somethimes, 'None' other times
     // Presumably this is very small differences in Mono reflection causing F# printing to change behavious
-    // For now just disabling this test
+    // For now just disabling this test. See https://github.com/fsharp/FSharp.Compiler.Service/pull/766
     let filterHack l = 
         l |> List.map (fun (s:string) -> 
             s.Replace("ILArrayShape [(Some 0, None)]", "ILArrayShapeFIX")

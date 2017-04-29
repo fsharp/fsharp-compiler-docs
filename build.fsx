@@ -149,8 +149,8 @@ Target "SourceLink" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests.NetFx" (fun _ ->
-    !! ((*if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll"
-        else*) sprintf "./%s/**/FSharp.Compiler.Service.Tests.dll" releaseDir)
+    !! (if isAppVeyorBuild then sprintf "./%s/v4.5/FSharp.Compiler.Service.Tests.dll" releaseDir
+        else sprintf "./%s/**/FSharp.Compiler.Service.Tests.dll" releaseDir)
     |> NUnit (fun p ->
         { p with
             Framework = "v4.0.30319"
@@ -417,7 +417,7 @@ Target "All.NetFx" DoNothing
 "All.NetFx"
   ==> "NuGet.NetFx"
   =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
-  =?> ("Nuget.AddNetCore.Debug", buildDebugPackage)
+  =?> ("Nuget.AddNetCore.Debug", buildDebugPackage && isDotnetSDKInstalled)
   ==> "NuGet"
 
 "All"

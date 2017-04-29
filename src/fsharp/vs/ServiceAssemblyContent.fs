@@ -496,8 +496,6 @@ type InsertContext =
     { ScopeKind: ScopeKind
       Pos: pos }
 
-<<<<<<< HEAD
-=======
 type Module =
     { Idents: Idents
       Range: range }
@@ -506,7 +504,6 @@ type OpenStatementInsertionPoint =
     | TopLevel
     | Nearest
 
->>>>>>> 3e8ef35285d6faaa7c3cb3140e7513e735fd5fcc
 module ParsedInput =
     open Microsoft.FSharp.Compiler
     open Microsoft.FSharp.Compiler.Ast

@@ -149,14 +149,17 @@ Target "SourceLink" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests.NetFx" (fun _ ->
-    !! (if isAppVeyorBuild then sprintf "./%s/v4.5/FSharp.Compiler.Service.Tests.dll" releaseDir
-        else sprintf "./%s/**/FSharp.Compiler.Service.Tests.dll" releaseDir)
+    // Tests seem to depend on this path :/
+    CopyDir buildDir releaseDir allFiles
+    !! (if isAppVeyorBuild then sprintf "./bin/v4.5/FSharp.Compiler.Service.Tests.dll"
+        else sprintf "./bin/**/FSharp.Compiler.Service.Tests.dll")
     |> NUnit (fun p ->
         { p with
             Framework = "v4.0.30319"
             DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
             OutputFile = "TestResults.xml" })
+    CleanDir buildDir
 )
 
 // --------------------------------------------------------------------------------------

@@ -1,9 +1,9 @@
 FRAMEWORK: NET45, NETSTANDARD16, NETCORE10
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.59)
+    FAKE (4.53)
     FSharp.Compiler.Service (2.0.0.6)
-    FSharp.Compiler.Tools (4.1.5)
+    FSharp.Compiler.Tools (4.1.17)
     FSharp.Core (4.0.0.1)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
@@ -186,5 +186,5 @@ NUGET
       System.Runtime (>= 4.3) - framework: netstandard16
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (b865703d2b8e6b5530403f4140e3272aab55ed9b)
+    modules/Octokit/Octokit.fsx (af1b29f23ae502549ec9468eaabb583c758af683)
       Octokit (>= 0.20)

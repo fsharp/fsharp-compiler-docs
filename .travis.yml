@@ -5,6 +5,7 @@ os:
   - osx
 
 mono:
+  - weekly
   - latest
   - 4.8.0
   - 4.4.2

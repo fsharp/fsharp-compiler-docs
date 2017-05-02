@@ -39,6 +39,12 @@ let netFrameworks = [(* "v4.0"; *) "v4.5"]
 // --------------------------------------------------------------------------------------
 
 let buildDir = "bin"
+let releaseDir = "artefacts/release"
+let debugDir = "artefacts/debug"
+
+
+let publishDebugPackage = environVar "DEBUG_PACKAGE_PUBLISH" = "true"
+let buildDebugPackage = publishDebugPackage || environVar "DEBUG_PACKAGE" <> "false"
 
 // Read release notes & version info from RELEASE_NOTES.md
 let release = LoadReleaseNotes (__SOURCE_DIRECTORY__ + "/RELEASE_NOTES.md")
@@ -46,6 +52,23 @@ let isAppVeyorBuild = buildServer = BuildServer.AppVeyor
 let isVersionTag tag = Version.TryParse tag |> fst
 let hasRepoVersionTag = isAppVeyorBuild && AppVeyorEnvironment.RepoTag && isVersionTag AppVeyorEnvironment.RepoTagName
 let assemblyVersion = if hasRepoVersionTag then AppVeyorEnvironment.RepoTagName else release.NugetVersion
+let nugetVersion = release.NugetVersion
+open SemVerHelper
+let nugetDebugVersion =
+    let semVer = SemVerHelper.parse nugetVersion
+    let debugPatch, debugPreRelease =
+        match semVer.PreRelease with
+        | None -> semVer.Patch + 1, { Origin = "alpha001"; Name = "alpha"; Number = Some 1; Parts = [AlphaNumeric "alpha001"] }
+        | Some pre ->
+            let num = match pre.Number with Some i -> i + 1 | None -> 1
+            let name = pre.Name
+            let newOrigin = sprintf "%s%03d" name num
+            semVer.Patch, { Origin = newOrigin; Name = name; Number = Some num; Parts = [AlphaNumeric newOrigin] }
+    let debugVer =
+        { semVer with
+            Patch = debugPatch
+            PreRelease = Some debugPreRelease }
+    debugVer.ToString()
 let buildDate = DateTime.UtcNow
 let buildVersion =
     if hasRepoVersionTag then assemblyVersion
@@ -71,13 +94,12 @@ Target "AssemblyInfo" (fun _ ->
 // Clean build results & restore NuGet packages
 
 Target "Clean" (fun _ ->
-    CleanDirs [ buildDir ]
+    CleanDirs [ buildDir; releaseDir; debugDir ]
 )
 
 Target "CleanDocs" (fun _ ->
     CleanDirs ["docs/output"]
 )
-
 
 Target "Build.NetFx" (fun _ ->
     netFrameworks
@@ -85,6 +107,18 @@ Target "Build.NetFx" (fun _ ->
         !! (project + ".sln")
         |> MSBuild "" "Build" ["Configuration","Release"; "TargetFrameworkVersion", framework]
         |> Log (".NET " + framework + " Build-Output: "))
+    CopyDir releaseDir buildDir allFiles
+    CleanDir buildDir
+)
+
+Target "Build.NetFx.Debug" (fun _ ->
+    netFrameworks
+    |> List.iter (fun framework ->
+        !! (project + ".sln")
+        |> MSBuild "" "Build" ["Configuration","Debug"; "TargetFrameworkVersion", framework]
+        |> Log (".NET " + framework + " Build-Output: "))
+    CopyDir debugDir buildDir allFiles
+    CleanDir buildDir
 )
 
 Target "SourceLink" (fun _ ->
@@ -93,7 +127,7 @@ Target "SourceLink" (fun _ ->
     #else
     netFrameworks
     |> List.iter (fun framework ->
-        let outputPath = __SOURCE_DIRECTORY__ </> buildDir </> framework
+        let outputPath = __SOURCE_DIRECTORY__ </> releaseDir </> framework
         let proj = VsProj.Load "src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
                         ["Configuration","Release"; "TargetFrameworkVersion",framework; "OutputPath",outputPath]
         let sourceFiles =
@@ -115,32 +149,52 @@ Target "SourceLink" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests.NetFx" (fun _ ->
-    !! (if isAppVeyorBuild then "./bin/v4.5/FSharp.Compiler.Service.Tests.dll"
-        else "./bin/**/FSharp.Compiler.Service.Tests.dll")
+    // Tests seem to depend on this path :/
+    CopyDir buildDir releaseDir allFiles
+    !! (if isAppVeyorBuild then sprintf "./bin/v4.5/FSharp.Compiler.Service.Tests.dll"
+        else sprintf "./bin/**/FSharp.Compiler.Service.Tests.dll")
     |> NUnit (fun p ->
         { p with
             Framework = "v4.0.30319"
             DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
             OutputFile = "TestResults.xml" })
+    CleanDir buildDir
 )
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
-
 Target "NuGet.NetFx" (fun _ ->
+    CopyDir buildDir releaseDir allFiles
     Paket.Pack (fun p ->
         { p with
             TemplateFile = "nuget/FSharp.Compiler.Service.template"
-            Version = release.NugetVersion
-            OutputPath = buildDir
+            Version = nugetVersion
+            OutputPath = releaseDir
             ReleaseNotes = toLines release.Notes })
     Paket.Pack (fun p ->
         { p with
             TemplateFile = "nuget/projectcracker.template"
-            Version = release.NugetVersion
-            OutputPath = buildDir
+            Version = nugetVersion
+            OutputPath = releaseDir
             ReleaseNotes = toLines release.Notes })
+    CleanDir buildDir
+)
+Target "NuGet.NetFx.Debug" (fun _ ->
+    CopyDir buildDir debugDir allFiles
+    Paket.Pack (fun p ->
+        { p with
+            TemplateFile = "nuget/FSharp.Compiler.Service.template"
+            Version = nugetDebugVersion
+            OutputPath = debugDir
+            ReleaseNotes = toLines release.Notes })
+    Paket.Pack (fun p ->
+        { p with
+            TemplateFile = "nuget/projectcracker.template"
+            Version = nugetDebugVersion
+            OutputPath = debugDir
+            ReleaseNotes = toLines release.Notes })
+    CleanDir buildDir
 )
 
 
@@ -152,7 +206,16 @@ Target "PublishNuGet" (fun _ ->
             | _ -> getUserInput "Nuget API Key: "
         { p with
             ApiKey = apikey
-            WorkingDir = buildDir })
+            WorkingDir = releaseDir })
+    if publishDebugPackage then
+        Paket.Push (fun p ->
+            let apikey =
+                match getBuildParam "nuget-apikey" with
+                | s when not (String.IsNullOrWhiteSpace s) -> s
+                | _ -> getUserInput "Nuget API Key: "
+            { p with
+                ApiKey = apikey
+                WorkingDir = debugDir })
 )
 
 // --------------------------------------------------------------------------------------
@@ -200,18 +263,28 @@ Target "GitHubRelease" (fun _ ->
         |> function None -> gitHome + "/" + gitName | Some (s: string) -> s.Split().[0]
 
     StageAll ""
-    Git.Commit.Commit "" (sprintf "Bump version to %s" release.NugetVersion)
+    Git.Commit.Commit "" (sprintf "Bump version to %s (%s)" nugetVersion nugetDebugVersion)
     Branches.pushBranch "" remote (Information.getBranchName "")
 
-    Branches.tag "" release.NugetVersion
-    Branches.pushTag "" remote release.NugetVersion
+    Branches.tag "" nugetVersion
+    Branches.pushTag "" remote nugetVersion
+    if publishDebugPackage then
+        Branches.tag "" nugetDebugVersion
+        Branches.pushTag "" remote nugetDebugVersion
 
     // release on github
     createClient user pw
     |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
-    |> uploadFile (buildDir</>("FSharp.Compiler.Service." + release.NugetVersion + ".nupkg"))
+    |> uploadFile (releaseDir</>("FSharp.Compiler.Service." + nugetVersion + ".nupkg"))
     |> releaseDraft
     |> Async.RunSynchronously
+
+    if publishDebugPackage then
+        createClient user pw
+        |> createDraft gitOwner gitName nugetDebugVersion true release.Notes
+        |> uploadFile (debugDir</>("FSharp.Compiler.Service." + nugetDebugVersion + ".nupkg"))
+        |> releaseDraft
+        |> Async.RunSynchronously
 )
 
 // --------------------------------------------------------------------------------------
@@ -277,6 +350,10 @@ Target "Build.NetCore" (fun _ ->
     run false "dotnet" "pack %s -v n -c Release" netcoresln
 )
 
+Target "Build.NetCore.Debug" (fun _ ->
+    run false "dotnet" "pack %s -v n -c Debug" netcoresln
+)
+
 Target "RunTests.NetCore" (fun _ ->
     run false "dotnet" "run -p tests/service/FSharp.Compiler.Service.Tests.netcore.fsproj -c Release -- --result:TestResults.NetCore.xml;format=nunit3"
 )
@@ -285,13 +362,25 @@ Target "RunTests.NetCore" (fun _ ->
 //use dotnet-mergenupkg to merge the .netcore nuget package into the default one
 Target "Nuget.AddNetCore" (fun _ ->
     do
-        let nupkg = sprintf "%s/FSharp.Compiler.Service.%s.nupkg" buildDir release.AssemblyVersion
+        let nupkg = sprintf "%s/FSharp.Compiler.Service.%s.nupkg" releaseDir release.AssemblyVersion
         let netcoreNupkg = sprintf "src/fsharp/FSharp.Compiler.Service/bin/Release/FSharp.Compiler.Service.%s.nupkg" release.AssemblyVersion
         runCmdIn false "." "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
 
     do
-        let nupkg = sprintf "%s/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" buildDir release.AssemblyVersion
+        let nupkg = sprintf "%s/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" releaseDir release.AssemblyVersion
         let netcoreNupkg = sprintf "src/fsharp/FSharp.Compiler.Service.ProjectCracker/bin/Release/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" release.AssemblyVersion
+        runCmdIn false "." "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
+)
+
+Target "Nuget.AddNetCore.Debug" (fun _ ->
+    do
+        let nupkg = sprintf "%s/FSharp.Compiler.Service.%s.nupkg" debugDir nugetDebugVersion
+        let netcoreNupkg = sprintf "src/fsharp/FSharp.Compiler.Service/bin/Debug/FSharp.Compiler.Service.%s.nupkg" release.AssemblyVersion
+        runCmdIn false "." "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
+
+    do
+        let nupkg = sprintf "%s/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" debugDir nugetDebugVersion
+        let netcoreNupkg = sprintf "src/fsharp/FSharp.Compiler.Service.ProjectCracker/bin/Debug/FSharp.Compiler.Service.ProjectCracker.%s.nupkg" release.AssemblyVersion
         runCmdIn false "." "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
 )
 
@@ -310,6 +399,7 @@ Target "All.NetFx" DoNothing
   ==> "AssemblyInfo"
   ==> "CodeGen.NetCore"
   ==> "Build.NetCore"
+  =?> ("Build.NetCore.Debug", buildDebugPackage)
   ==> "RunTests.NetCore"
   ==> "All.NetCore"
 
@@ -317,6 +407,7 @@ Target "All.NetFx" DoNothing
   =?> ("BuildVersion", isAppVeyorBuild)
   ==> "AssemblyInfo"
   ==> "Build.NetFx"
+  =?> ("Build.NetFx.Debug", buildDebugPackage)
   ==> "RunTests.NetFx"
   ==> "All.NetFx"
 
@@ -327,9 +418,14 @@ Target "All.NetFx" DoNothing
 "All.NetCore"
   ==> "Nuget.AddNetCore"
 
+"All.NetCore"
+  =?> ("Nuget.AddNetCore.Debug", buildDebugPackage)
+
 "All.NetFx"
   ==> "NuGet.NetFx"
+  =?> ("NuGet.NetFx.Debug", buildDebugPackage)
   =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
+  =?> ("Nuget.AddNetCore.Debug", buildDebugPackage && isDotnetSDKInstalled)
   ==> "NuGet"
 
 "All"

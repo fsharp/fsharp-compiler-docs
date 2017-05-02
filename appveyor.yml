@@ -22,4 +22,7 @@ build_script:
 test: off
 version: '{build}'
 artifacts:
-  - path: bin\*.nupkg
+  - path: artefacts\release\*.nupkg
+    type: NuGetPackage
+  - path: artefacts\debug\*.nupkg
+    type: NuGetPackage

@@ -10,7 +10,7 @@ nuget SQLite.Net.Platform.Generic 2.4.1
 
 # build dependencies
 # FAKE 4.53.0 is needed - latest FAKE invokes msbuild on Unix but on Mono 4.8.x that causes a failure with 
-nuget FAKE 4.53.0
+nuget FAKE
 nuget FSharp.Formatting
 nuget SourceLink.Fake
 nuget FsLexYacc

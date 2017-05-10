@@ -5,9 +5,11 @@ os:
   - osx
 
 mono:
-  - latest
-  - beta
   - nightly
+  - beta
+  - latest
+  - 4.8.0
+  - 4.4.2
 
 
 sudo: false
@@ -23,12 +25,15 @@ script:
 #   https://github.com/fsharp/fsharp/pull/689
 #   https://github.com/mono/linux-packaging-fsharp/pull/3
 
-matrix:
-  exclude:
-    - os: osx
-      mono: 4.4.2
-    - os: osx
-      mono: 4.8.0
+allow_failures:
+  - mono: nightly
+
+#  matrix:
+#    exclude:
+#      - os: osx
+#        mono: 4.4.2
+#      - os: osx
+#        mono: 4.8.0
 
 #  allow_failures:
 #    - os: osx

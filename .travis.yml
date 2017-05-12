@@ -27,6 +27,7 @@ script:
 
 allow_failures:
   - mono: nightly
+    os: osx
 
 #  matrix:
 #    exclude:

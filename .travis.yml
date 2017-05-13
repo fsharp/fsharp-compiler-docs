@@ -11,6 +11,10 @@ mono:
   - 4.8.1
   - 4.4.2
 
+matrix:
+  allow_failures:
+    - mono: nightly
+      os: osx
 
 sudo: false
 
@@ -24,10 +28,6 @@ script:
 # Fails on Travis Linux Mono latest and 4.8.0 because FSharp.Core 4.3.0.0 is not available, see
 #   https://github.com/fsharp/fsharp/pull/689
 #   https://github.com/mono/linux-packaging-fsharp/pull/3
-
-allow_failures:
-  - mono: nightly
-    os: osx
 
 #  matrix:
 #    exclude:

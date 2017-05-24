@@ -51,6 +51,7 @@
     <Compile Include="InteractiveCheckerTests.fs" />
     <Compile Include="ExprTests.fs" />
     <Compile Include="CSharpProjectAnalysis.fs" />
+    <Compile Include="BugRepos.fs" />
     <None Include="paket.references" />
     <None Include="app.config" />
   </ItemGroup>

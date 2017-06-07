@@ -47,23 +47,24 @@ let getProjectReferences (content, dllFiles, libDirs, otherFlags) =
                  yield "-I:"+libDir
                yield! otherFlags
                yield fileName1 |])
-    let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
-    if results.HasCriticalErrors then
+    let fileCheckResults = checker.ParseAndCheckFileInProject(fileName1, 0, content, options) |> Async.RunSynchronously
+    let projectCheckResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
+    if projectCheckResults.HasCriticalErrors then
         let builder = new System.Text.StringBuilder()
-        for err in results.Errors do
+        for err in projectCheckResults.Errors do
             builder.AppendLine(sprintf "**** %s: %s" (if err.Severity = FSharpErrorSeverity.Error then "error" else "warning") err.Message)
             |> ignore
         failwith (builder.ToString())
     let assemblies =
-        results.ProjectContext.GetReferencedAssemblies()
+        projectCheckResults.ProjectContext.GetReferencedAssemblies()
         |> List.map(fun x -> x.SimpleName, x)
         |> dict
-    results, assemblies
+    fileCheckResults, projectCheckResults, assemblies
 
 [<Test>]
 let ``Test that csharp references are recognized as such`` () = 
     let csharpAssembly = typeof<CSharpClass>.Assembly.Location
-    let _, table = getProjectReferences("""module M""", [csharpAssembly], None, None)
+    let _, _, table = getProjectReferences("""module M""", [csharpAssembly], None, None)
     let ass = table.["CSharp_Analysis"]
     let search = ass.Contents.Entities |> Seq.tryFind (fun e -> e.DisplayName = "CSharpClass") 
     Assert.True search.IsSome
@@ -106,10 +107,32 @@ let _ = CSharpOuterClass.InnerEnum.Case1
 let _ = CSharpOuterClass.InnerClass.StaticMember()
 """
 
-    let results, _ = getProjectReferences(content, [csharpAssembly], None, None)
+    let _, results, _ = getProjectReferences(content, [csharpAssembly], None, None)
     results.GetAllUsesOfAllSymbols()
     |> Async.RunSynchronously
     |> Array.map (fun su -> su.Symbol.ToString())
     |> shouldEqual 
           [|"InnerEnum"; "CSharpOuterClass"; "field Case1"; "InnerClass";
             "CSharpOuterClass"; "member StaticMember"; "NestedEnumClass"|]
+
+[<Test>]
+let ``Ctor test`` () =
+    let csharpAssembly = typeof<CSharpClass>.Assembly.Location
+    let content = """
+module CtorTest
+open FSharp.Compiler.Service.Tests
+
+let _ = CSharpClass(0)
+"""
+    let (_, checkResults), _, _ = getProjectReferences(content, [csharpAssembly], None, None)
+    match checkResults with
+    | FSharpCheckFileAnswer.Succeeded(results) ->
+        let ctor =
+            results.GetAllUsesOfAllSymbolsInFile()
+            |> Async.RunSynchronously
+            |> Seq.map (fun su -> su.Symbol)
+            |> Seq.find (function :? FSharpMemberOrFunctionOrValue as mfv -> mfv.IsConstructor | _ -> false)
+        let members = (ctor :?> FSharpMemberOrFunctionOrValue).EnclosingEntity.MembersFunctionsAndValues
+        Seq.exists (fun (mfv : FSharpMemberOrFunctionOrValue) -> mfv.IsConstructor) members |> should be True
+        Seq.exists (fun (mfv : FSharpMemberOrFunctionOrValue) -> mfv.IsEffectivelySameAs ctor) members |> should be True
+    | _ -> failwith "Could not check file"

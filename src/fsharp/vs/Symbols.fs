@@ -440,7 +440,10 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
       if isUnresolved() then makeReadOnlyCollection[] else
       protect <| fun () -> 
         ([ let _, entityTy = generalizeTyconRef entity
-           if x.IsFSharpAbbreviation then 
+           let createItem (minfo : MethInfo) =
+               if minfo.IsConstructor then Item.CtorGroup (minfo.DisplayName, [minfo])
+               else Item.MethodGroup (minfo.DisplayName, [minfo], None)
+           if x.IsFSharpAbbreviation then
                ()
            elif x.IsFSharp then 
                // For F# code we emit methods members in declaration order
@@ -448,13 +451,10 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
                  // Ignore members representing the generated .cctor
                  if not v.Deref.IsClassConstructor then 
                      let fsMeth = FSMeth (cenv.g, entityTy, v, None)
-                     let item = 
-                         if fsMeth.IsConstructor then  Item.CtorGroup (fsMeth.DisplayName, [fsMeth])                          
-                         else Item.MethodGroup (fsMeth.DisplayName, [fsMeth], None)
-                     yield FSharpMemberOrFunctionOrValue(cenv,  M fsMeth, item) 
+                     yield FSharpMemberOrFunctionOrValue(cenv,  M fsMeth, createItem fsMeth)
            else
                for minfo in GetImmediateIntrinsicMethInfosOfType (None, AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 entityTy do
-                    yield FSharpMemberOrFunctionOrValue(cenv,  M minfo, Item.MethodGroup (minfo.DisplayName,[minfo],None))
+                    yield FSharpMemberOrFunctionOrValue(cenv, M minfo, createItem minfo)
            let props = GetImmediateIntrinsicPropInfosOfType (None, AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 entityTy 
            let events = cenv.infoReader.GetImmediateIntrinsicEventsOfType (None, AccessibleFromSomeFSharpCode, range0, entityTy)
            for pinfo in props do
@@ -1731,6 +1731,7 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
     member x.IsConstructor =
         match d with
         | C _ -> true
+        | M m -> m.IsConstructor || m.IsClassConstructor
         | _ -> false
 
     member x.Data = d

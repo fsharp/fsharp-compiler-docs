@@ -440,9 +440,9 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
       if isUnresolved() then makeReadOnlyCollection[] else
       protect <| fun () -> 
         ([ let _, entityTy = generalizeTyconRef entity
-           let createItem (minfo : MethInfo) =
-               if minfo.IsConstructor then Item.CtorGroup (minfo.DisplayName, [minfo])
-               else Item.MethodGroup (minfo.DisplayName, [minfo], None)
+           let createMember (minfo : MethInfo) =
+               if minfo.IsConstructor then FSharpMemberOrFunctionOrValue(cenv, C minfo, Item.CtorGroup (minfo.DisplayName, [minfo]))
+               else FSharpMemberOrFunctionOrValue(cenv, M minfo, Item.MethodGroup (minfo.DisplayName, [minfo], None))
            if x.IsFSharpAbbreviation then
                ()
            elif x.IsFSharp then 
@@ -450,11 +450,10 @@ and FSharpEntity(cenv:cenv, entity:EntityRef) =
                for v in entity.MembersOfFSharpTyconSorted do 
                  // Ignore members representing the generated .cctor
                  if not v.Deref.IsClassConstructor then 
-                     let fsMeth = FSMeth (cenv.g, entityTy, v, None)
-                     yield FSharpMemberOrFunctionOrValue(cenv,  M fsMeth, createItem fsMeth)
+                     yield createMember (FSMeth(cenv.g, entityTy, v, None))
            else
                for minfo in GetImmediateIntrinsicMethInfosOfType (None, AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 entityTy do
-                    yield FSharpMemberOrFunctionOrValue(cenv, M minfo, createItem minfo)
+                    yield createMember minfo
            let props = GetImmediateIntrinsicPropInfosOfType (None, AccessibleFromSomeFSharpCode) cenv.g cenv.amap range0 entityTy 
            let events = cenv.infoReader.GetImmediateIntrinsicEventsOfType (None, AccessibleFromSomeFSharpCode, range0, entityTy)
            for pinfo in props do
@@ -1731,7 +1730,6 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
     member x.IsConstructor =
         match d with
         | C _ -> true
-        | M m -> m.IsConstructor || m.IsClassConstructor
         | _ -> false
 
     member x.Data = d

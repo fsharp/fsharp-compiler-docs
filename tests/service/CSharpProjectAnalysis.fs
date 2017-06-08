@@ -22,7 +22,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open FSharp.Compiler.Service.Tests.Common
 
-let getProjectReferences (content, dllFiles, libDirs, otherFlags) = 
+let createOptionsForFile (content, dllFiles, libDirs, otherFlags) =
     let otherFlags = defaultArg otherFlags []
     let libDirs = defaultArg libDirs []
     let base1 = Path.GetTempFileName()
@@ -47,7 +47,9 @@ let getProjectReferences (content, dllFiles, libDirs, otherFlags) =
                  yield "-I:"+libDir
                yield! otherFlags
                yield fileName1 |])
-    let fileCheckResults = checker.ParseAndCheckFileInProject(fileName1, 0, content, options) |> Async.RunSynchronously
+    fileName1, options
+
+let getProjectReferences(options) =
     let projectCheckResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
     if projectCheckResults.HasCriticalErrors then
         let builder = new System.Text.StringBuilder()
@@ -59,12 +61,13 @@ let getProjectReferences (content, dllFiles, libDirs, otherFlags) =
         projectCheckResults.ProjectContext.GetReferencedAssemblies()
         |> List.map(fun x -> x.SimpleName, x)
         |> dict
-    fileCheckResults, projectCheckResults, assemblies
+    projectCheckResults, assemblies
 
 [<Test>]
 let ``Test that csharp references are recognized as such`` () = 
     let csharpAssembly = typeof<CSharpClass>.Assembly.Location
-    let _, _, table = getProjectReferences("""module M""", [csharpAssembly], None, None)
+    let _, options = createOptionsForFile("""module M""", [csharpAssembly], None, None)
+    let _, table = getProjectReferences(options)
     let ass = table.["CSharp_Analysis"]
     let search = ass.Contents.Entities |> Seq.tryFind (fun e -> e.DisplayName = "CSharpClass") 
     Assert.True search.IsSome
@@ -106,8 +109,8 @@ open FSharp.Compiler.Service.Tests
 let _ = CSharpOuterClass.InnerEnum.Case1
 let _ = CSharpOuterClass.InnerClass.StaticMember()
 """
-
-    let _, results, _ = getProjectReferences(content, [csharpAssembly], None, None)
+    let _, options = createOptionsForFile(content, [csharpAssembly], None, None)
+    let results, _ = getProjectReferences(options)
     results.GetAllUsesOfAllSymbols()
     |> Async.RunSynchronously
     |> Array.map (fun su -> su.Symbol.ToString())
@@ -124,7 +127,10 @@ open FSharp.Compiler.Service.Tests
 
 let _ = CSharpClass(0)
 """
-    let (_, checkResults), _, _ = getProjectReferences(content, [csharpAssembly], None, None)
+    let fileName, options = createOptionsForFile(content, [csharpAssembly], None, None)
+    let _, checkResults =
+        checker.ParseAndCheckFileInProject(fileName, 0, content, options)
+        |> Async.RunSynchronously
     match checkResults with
     | FSharpCheckFileAnswer.Succeeded(results) ->
         let ctor =

@@ -47,3 +47,11 @@ The output will be located in the `bin` directory. If you also wish to build the
 and NuGet package, run `build Release` (this also attempts to publish the documentation to
 GitHub, which only works if you have access to the GitHub repository).
 
+## Release checklist
+
+Release checklist to publish a new version on nuget.org
+
+1. Update `RELEASE_NOTES.md`
+2. Check the version numbers are correct across the source (some files duplicate them)
+3. Commit and add the necessary tag to the repo
+4. Publish the nupkgs for `FSharp.Compiler.Service` and `FSharp.Compiler.Service.ProjectCracker` once they appear in AppVeyor artifacts

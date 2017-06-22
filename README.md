@@ -19,8 +19,7 @@ Build and Test
 
 .NET Framework:
 
-   Install [.NET 4.5.1](http://www.microsoft.com/en-us/download/details.aspx?id=40779)
-   Install [MSBuild 12.0](http://www.microsoft.com/en-us/download/details.aspx?id=40760)
+   Install [.NET 4.5.1](http://www.microsoft.com/en-us/download/details.aspx?id=40779) and  [MSBuild 12.0](http://www.microsoft.com/en-us/download/details.aspx?id=40760)
 
     build.cmd All.NetFx 
     (unix: ./build.sh All.NetFx)

@@ -4,7 +4,6 @@
 
 #I "packages/FAKE/tools"
 #r "packages/FAKE/tools/FakeLib.dll"
-#load "packages/SourceLink.Fake/tools/SourceLink.fsx"
 open System
 open Fake.AppVeyor
 open Fake
@@ -12,7 +11,6 @@ open Fake.Git
 open Fake.ReleaseNotesHelper
 open Fake.UserInputHelper
 open Fake.AssemblyInfoFile
-open SourceLink
 
 #if MONO
 // prevent incorrect output encoding (e.g. https://github.com/fsharp/FAKE/issues/1196)
@@ -121,30 +119,6 @@ Target "Build.NetFx.Debug" (fun _ ->
     CleanDir buildDir
 )
 
-Target "SourceLink" (fun _ ->
-    #if MONO
-    ()
-    #else
-    netFrameworks
-    |> List.iter (fun framework ->
-        let outputPath = __SOURCE_DIRECTORY__ </> releaseDir </> framework
-        let proj = VsProj.Load "src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
-                        ["Configuration","Release"; "TargetFrameworkVersion",framework; "OutputPath",outputPath]
-        let sourceFiles =
-            SetBaseDir __SOURCE_DIRECTORY__ proj.Compiles
-            // generated and in fsproj as Compile, but in .gitignore, not source indexed
-            -- "src/fsharp/FSharp.Compiler.Service/illex.fs" // <FsLex Include="..\..\absil\illex.fsl">
-            -- "src/fsharp/FSharp.Compiler.Service/ilpars.fs"
-            -- "src/fsharp/FSharp.Compiler.Service/pplex.fs" // <FsLex Include="..\..\absil\illex.fsl">
-            -- "src/fsharp/FSharp.Compiler.Service/pppars.fs"
-            -- "src/fsharp/FSharp.Compiler.Service/lex.fs"
-            -- "src/fsharp/FSharp.Compiler.Service/pars.fs"
-        let url = sprintf "%s/%s/{0}/%%var2%%" gitRaw gitName
-        SourceLink.Index sourceFiles proj.OutputFilePdb __SOURCE_DIRECTORY__ url
-    )
-    #endif
-)
-
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
@@ -174,7 +148,13 @@ Target "NuGet.NetFx" (fun _ ->
             ReleaseNotes = toLines release.Notes })
     Paket.Pack (fun p ->
         { p with
-            TemplateFile = "nuget/projectcracker.template"
+            TemplateFile = "nuget/FSharp.Compiler.Service.ProjectCracker.template"
+            Version = nugetVersion
+            OutputPath = releaseDir
+            ReleaseNotes = toLines release.Notes })
+    Paket.Pack (fun p ->
+        { p with
+            TemplateFile = "nuget/FSharp.Compiler.Service.MSBuild.v12.template"
             Version = nugetVersion
             OutputPath = releaseDir
             ReleaseNotes = toLines release.Notes })
@@ -190,7 +170,13 @@ Target "NuGet.NetFx.Debug" (fun _ ->
             ReleaseNotes = toLines release.Notes })
     Paket.Pack (fun p ->
         { p with
-            TemplateFile = "nuget/projectcracker.template"
+            TemplateFile = "nuget/FSharp.Compiler.Service.ProjectCracker.template"
+            Version = nugetDebugVersion
+            OutputPath = debugDir
+            ReleaseNotes = toLines release.Notes })
+    Paket.Pack (fun p ->
+        { p with
+            TemplateFile = "nuget/FSharp.Compiler.Service.MSBuild.v12.template"
             Version = nugetDebugVersion
             OutputPath = debugDir
             ReleaseNotes = toLines release.Notes })
@@ -429,7 +415,6 @@ Target "All.NetFx" DoNothing
   ==> "NuGet"
 
 "All"
-  ==> "SourceLink"
   ==> "NuGet"
   ==> "CreatePackage"
   ==> "GitHubRelease"

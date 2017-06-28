@@ -1,6 +1,7 @@
 ﻿
 #if INTERACTIVE
 #r "../../bin/v4.5/FSharp.Compiler.Service.dll"
+#r "../../bin/v4.5/FSharp.Compiler.Service.ProjectCracker.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"

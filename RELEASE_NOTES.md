@@ -1,3 +1,6 @@
+#### 13.0.0
+  * Move FSharp.Compiler.Service.MSBuild.v12.dll to a separate nuget package
+  
 #### 12.0.8
   * Set bit on output executables correctly
   

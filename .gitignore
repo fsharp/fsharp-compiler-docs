@@ -136,7 +136,6 @@ src/fsharp/fsiAnyCpu/FSIstrings.resx
 
 bin
 packages
-docs/output
 *.bak
 temp/
 src/fsharp/fsi/FSIStrings.fs
@@ -191,7 +190,7 @@ artifacts/*.nupkg
 *.ldf
 .paket/paket.exe
 paket-files
-docs/tools/FSharp.Formatting.svclog
+docsrc/tools/FSharp.Formatting.svclog
 src/fsharp/FSharp.Compiler.Service/pplex.fs
 src/fsharp/FSharp.Compiler.Service/pppars.fs
 src/fsharp/FSharp.Compiler.Service/pppars.fsi

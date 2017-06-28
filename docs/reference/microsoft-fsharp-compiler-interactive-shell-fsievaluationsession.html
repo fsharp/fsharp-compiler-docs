@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FsiEvaluationSession - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>FsiEvaluationSession</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler.Interactive</span><br />
+  <span>Parent Module: <a href="microsoft-fsharp-compiler-interactive-shell.html">Shell</a></span>
+</p>
+<div class="xmldoc">
+<p>Represents an F# Interactive evaluation session.</p>
+
+</div>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2518', 2518)" onmouseover="showTip(event, '2518', 2518)">
+            CurrentPartialAssemblySignature
+          </code>
+          <div class="tip" id="2518">
+            <strong>Signature:</strong> FSharpAssemblySignature<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2655-2655" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get a handle to the resolved view of the current signature of the incrementally generated assembly.</p>
+
+
+              <p>CompiledName: <code>get_CurrentPartialAssemblySignature</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2519', 2519)" onmouseover="showTip(event, '2519', 2519)">
+            DynamicAssembly
+          </code>
+          <div class="tip" id="2519">
+            <strong>Signature:</strong> Assembly<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2658-2658" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get a handle to the dynamicly generated assembly</p>
+
+
+              <p>CompiledName: <code>get_DynamicAssembly</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2520', 2520)" onmouseover="showTip(event, '2520', 2520)">
+            EvalExpression(code)
+          </code>
+          <div class="tip" id="2520">
+            <strong>Signature:</strong> code:string -&gt; FsiValue option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2742-2742" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Execute the code as if it had been entered as one or more interactions, with an
+implicit termination at the end of the input. Stop on first error, discarding the rest
+of the input. Errors are sent to the output writer. Parsing is performed on the current thread, and execution is performed
+sycnhronously on the 'main' thread.</p>
+<p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+by input from 'stdin'.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2521', 2521)" onmouseover="showTip(event, '2521', 2521)">
+            EvalExpressionNonThrowing(code)
+          </code>
+          <div class="tip" id="2521">
+            <strong>Signature:</strong> code:string -&gt; Choice&lt;FsiValue option,exn&gt; * FSharpErrorInfo []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2752-2752" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Execute the code as if it had been entered as one or more interactions, with an
+implicit termination at the end of the input. Stop on first error, discarding the rest
+of the input. Errors and warnings are collected apart from any exception arising from execution
+which is returned via a Choice. Parsing is performed on the current thread, and execution is performed
+sycnhronously on the 'main' thread.</p>
+<p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+by input from 'stdin'.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2522', 2522)" onmouseover="showTip(event, '2522', 2522)">
+            EvalInteraction(code)
+          </code>
+          <div class="tip" id="2522">
+            <strong>Signature:</strong> code:string -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2763-2763" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Execute the code as if it had been entered as one or more interactions, with an
+implicit termination at the end of the input. Stop on first error, discarding the rest
+of the input. Errors are sent to the output writer, a 'true' return value indicates there
+were no errors overall. Execution is performed on the 'Run()' thread.</p>
+<p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+by input from 'stdin'.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2523', 2523)" onmouseover="showTip(event, '2523', 2523)">
+            EvalInteractionNonThrowing(code)
+          </code>
+          <div class="tip" id="2523">
+            <strong>Signature:</strong> code:string -&gt; Choice&lt;unit,exn&gt; * FSharpErrorInfo []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2773-2773" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Execute the code as if it had been entered as one or more interactions, with an
+implicit termination at the end of the input. Stop on first error, discarding the rest
+of the input. Errors and warnings are collected apart from any exception arising from execution
+which is returned via a Choice. Execution is performed on the 'Run()' thread.</p>
+<p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+by input from 'stdin'.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2524', 2524)" onmouseover="showTip(event, '2524', 2524)">
+            EvalScript(filePath)
+          </code>
+          <div class="tip" id="2524">
+            <strong>Signature:</strong> filePath:string -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2785-2785" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Execute the given script. Stop on first error, discarding the rest
+of the script. Errors are sent to the output writer, a 'true' return value indicates there
+were no errors overall. Execution is performed on the 'Run()' thread.</p>
+<p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+by input from 'stdin'.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2525', 2525)" onmouseover="showTip(event, '2525', 2525)">
+            EvalScriptNonThrowing(filePath)
+          </code>
+          <div class="tip" id="2525">
+            <strong>Signature:</strong> filePath:string -&gt; Choice&lt;unit,exn&gt; * FSharpErrorInfo []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2795-2795" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Execute the given script. Stop on first error, discarding the rest
+of the script. Errors and warnings are collected apart from any exception arising from execution
+which is returned via a Choice. Execution is performed on the 'Run()' thread.</p>
+<p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+by input from 'stdin'.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2526', 2526)" onmouseover="showTip(event, '2526', 2526)">
+            FormatValue(...)
+          </code>
+          <div class="tip" id="2526">
+            <strong>Signature:</strong> (reflectionValue:obj * reflectionType:Type) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2739-2739" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Format a value to a string using the current PrintDepth, PrintLength etc settings provided by the active fsi configuration object</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2527', 2527)" onmouseover="showTip(event, '2527', 2527)">
+            GetCompletions(longIdent)
+          </code>
+          <div class="tip" id="2527">
+            <strong>Signature:</strong> longIdent:string -&gt; seq&lt;string&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2648-2648" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>A host calls this to get the completions for a long identifier, e.g. in the console</p>
+<p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+by input from 'stdin'.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2528', 2528)" onmouseover="showTip(event, '2528', 2528)">
+            InteractiveChecker
+          </code>
+          <div class="tip" id="2528">
+            <strong>Signature:</strong> FSharpChecker<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2737-2737" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>The single, global interactive checker to use in conjunction with other operations
+on the FsiEvaluationSession.</p>
+<p>If you are using an FsiEvaluationSession in this process, you should only use this InteractiveChecker
+for additional checking operations.</p>
+
+
+              <p>CompiledName: <code>get_InteractiveChecker</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2529', 2529)" onmouseover="showTip(event, '2529', 2529)">
+            Interrupt()
+          </code>
+          <div class="tip" id="2529">
+            <strong>Signature:</strong> unit -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2645-2645" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>A host calls this to request an interrupt on the evaluation thread.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2530', 2530)" onmouseover="showTip(event, '2530', 2530)">
+            IsGui
+          </code>
+          <div class="tip" id="2530">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2661-2661" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>A host calls this to determine if the --gui parameter is active</p>
+
+
+              <p>CompiledName: <code>get_IsGui</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2531', 2531)" onmouseover="showTip(event, '2531', 2531)">
+            LCID
+          </code>
+          <div class="tip" id="2531">
+            <strong>Signature:</strong> int option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2664-2664" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>A host calls this to get the active language ID if provided by fsi-server-lcid</p>
+
+
+              <p>CompiledName: <code>get_LCID</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2532', 2532)" onmouseover="showTip(event, '2532', 2532)">
+            ParseAndCheckInteraction(code)
+          </code>
+          <div class="tip" id="2532">
+            <strong>Signature:</strong> code:string -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2651-2651" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Typecheck the given script fragment in the type checking context implied by the current state
+of F# Interactive. The results can be used to access intellisense, perform resolutions,
+check brace matching and other information.</p>
+<p>Operations may be run concurrently with other requests to the InteractiveChecker.</p>
+<p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
+by input from 'stdin'.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2533', 2533)" onmouseover="showTip(event, '2533', 2533)">
+            PartialAssemblySignatureUpdated
+          </code>
+          <div class="tip" id="2533">
+            <strong>Signature:</strong> IEvent&lt;unit&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2735-2735" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Raised when an interaction is successfully typechecked and executed, resulting in an update to the
+type checking state.</p>
+<p>This event is triggered after parsing and checking, either via input from 'stdin', or via a call to EvalInteraction.</p>
+
+
+              <p>CompiledName: <code>get_PartialAssemblySignatureUpdated</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2534', 2534)" onmouseover="showTip(event, '2534', 2534)">
+            ReportUnhandledException(exn)
+          </code>
+          <div class="tip" id="2534">
+            <strong>Signature:</strong> exn:exn -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2670-2670" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>A host calls this to report an unhandled exception in a standard way, e.g. an exception on the GUI thread gets printed to stderr</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2535', 2535)" onmouseover="showTip(event, '2535', 2535)">
+            Run()
+          </code>
+          <div class="tip" id="2535">
+            <strong>Signature:</strong> unit -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2821-2821" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Load the dummy interaction, load the initial files, and,
+if interacting, start the background thread to read the standard input.</p>
+<p>Performs these steps:
+- Load the dummy interaction, if any
+- Set up exception handling, if any
+- Load the initial files, if any
+- Start the background thread to read the standard input, if any
+- Sit in the GUI event loop indefinitely, if needed</p>
+
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Static members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Static member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2536', 2536)" onmouseover="showTip(event, '2536', 2536)">
+            Create(...)
+          </code>
+          <div class="tip" id="2536">
+            <strong>Signature:</strong> (fsiConfig:FsiEvaluationSessionHostConfig * argv:string [] * inReader:TextReader * outWriter:TextWriter * errorWriter:TextWriter * collectible:bool option * msbuildEnabled:bool option) -&gt; FsiEvaluationSession<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2876-2876" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers.</p>
+<summary>Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers</summary>
+<param name="fsiConfig">The dynamic configuration of the evaluation session</param>
+<param name="argv">The commmand line arguments for the evaluation session</param>
+<param name="inReader">Read input from the given reader</param>
+<param name="outWriter">Write output to the given writer</param>
+<param name="collectible">Optionally make the dynamic assmbly for the session collectible</param>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2537', 2537)" onmouseover="showTip(event, '2537', 2537)">
+            GetDefaultConfiguration()
+          </code>
+          <div class="tip" id="2537">
+            <strong>Signature:</strong> unit -&gt; FsiEvaluationSessionHostConfig<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L3003-3003" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get a configuration that uses a private inbuilt implementation of the 'fsi' object and does not
+implicitly reference FSharp.Compiler.Interactive.Settings.dll.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2538', 2538)" onmouseover="showTip(event, '2538', 2538)">
+            GetDefaultConfiguration(fsiObj)
+          </code>
+          <div class="tip" id="2538">
+            <strong>Signature:</strong> fsiObj:obj -&gt; FsiEvaluationSessionHostConfig<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2879-2879" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get a configuration that uses the 'fsi' object (normally from FSharp.Compiler.Interactive.Settings.dll,
+an object from another DLL with identical characteristics) to provide an implementation of the configuration.
+FSharp.Compiler.Interactive.Settings.dll  is referenced by default.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2539', 2539)" onmouseover="showTip(event, '2539', 2539)">
+            GetDefaultConfiguration(...)
+          </code>
+          <div class="tip" id="2539">
+            <strong>Signature:</strong> (fsiObj:obj * useFsiAuxLib:bool) -&gt; FsiEvaluationSessionHostConfig<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L2881-2881" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get a configuration that uses the 'fsi' object (normally from FSharp.Compiler.Interactive.Settings.dll,
+an object from another DLL with identical characteristics) to provide an implementation of the configuration.
+The flag indicates if FSharp.Compiler.Interactive.Settings.dll  is referenced by default.</p>
+
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiler Services: Processing typed expression tree
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Compiler-Services-Processing-typed-expression-tree" class="anchor" href="#Compiler-Services-Processing-typed-expression-tree">Compiler Services: Processing typed expression tree</a></h1>
+<p>This tutorial demonstrates how to get the checked, typed expressions tree (TAST)
+for F# code and how to walk over the tree.</p>
+<p>This can be used for creating tools such as source code analyzers and refactoring tools.
+You can also combine the information with the API available
+from <a href="symbols.html">symbols</a>.</p>
+<blockquote>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
+</blockquote>
+<h2><a name="Getting-checked-expressions" class="anchor" href="#Getting-checked-expressions">Getting checked expressions</a></h2>
+<p>To access the type-checked, resolved expressions, you need to create an instance of <code>InteractiveChecker</code>.</p>
+<p>To use the interactive checker, reference <code>FSharp.Compiler.Service.dll</code> and open the
+<code>SourceCodeServices</code> namespace:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="k">open</span> <span class="i">System</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+</code></pre></td>
+</tr>
+</table>
+<h3><a name="Checking-code" class="anchor" href="#Checking-code">Checking code</a></h3>
+<p>We first parse and check some code as in the <a href="symbols.html">symbols</a> tutorial.
+One difference is that we set keepAssemblyContents to true.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Create an interactive checker instance </span>
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>(<span class="i">keepAssemblyContents</span><span class="o">=</span><span class="k">true</span>)
+
+<span class="k">let</span> <span class="i">parseAndCheckSingleFile</span> (<span class="i">input</span>) <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">file</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">System</span><span class="o">.</span><span class="i">IO</span><span class="o">.</span><span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>(), <span class="s">&quot;fsx&quot;</span>)  
+    <span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">file</span>, <span class="i">input</span>)
+    <span class="c">// Get context representing a stand-alone (script) file</span>
+    <span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> 
+        <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>)
+        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckProject</span>(<span class="i">projOptions</span>) 
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="Getting-the-expressions" class="anchor" href="#Getting-the-expressions">Getting the expressions</a></h2>
+<p>After type checking a file, you can access the declarations and contents of the assembly, including expressions:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">input2</span> <span class="o">=</span> 
+      <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module MyLibrary </span>
+
+<span class="s">open System</span>
+
+<span class="s">let foo(x, y) = </span>
+<span class="s">    let msg = String.Concat(&quot;Hello&quot;, &quot; &quot;, &quot;world&quot;)</span>
+<span class="s">    if msg.Length &gt; 10 then </span>
+<span class="s">        10 </span>
+<span class="s">    else </span>
+<span class="s">        20</span>
+
+<span class="s">type MyClass() = </span>
+<span class="s">    member x.MyMethod() = 1</span>
+<span class="s">      &quot;&quot;&quot;</span>
+<span class="k">let</span> <span class="i">checkProjectResults</span> <span class="o">=</span> 
+    <span class="i">parseAndCheckSingleFile</span>(<span class="i">input2</span>)
+
+<span class="i">checkProjectResults</span><span class="o">.</span><span class="i">Errors</span> <span class="c">// should be empty</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Checked assemblies are made up of a series of checked implementation files.  The "file" granularity
+matters in F# because initialization actions are triggered at the granularity of files.
+In this case there is only one implementation file in the project:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">checkedFile</span> <span class="o">=</span> <span class="i">checkProjectResults</span><span class="o">.</span><span class="i">AssemblyContents</span><span class="o">.</span><span class="i">ImplementationFiles</span><span class="o">.</span>[<span class="n">0</span>]
+</code></pre></td>
+</tr>
+</table>
+<p>Checked assemblies are made up of a series of checked implementation files.  The "file" granularity
+matters in F# because initialization actions are triggered at the granularity of files.
+In this case there is only one implementation file in the project:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="k">rec</span> <span class="i">printDecl</span> <span class="i">prefix</span> <span class="i">d</span> <span class="o">=</span> 
+    <span class="k">match</span> <span class="i">d</span> <span class="k">with</span> 
+    | <span class="i">FSharpImplementationFileDeclaration</span><span class="o">.</span><span class="i">Entity</span> (<span class="i">e</span>, <span class="i">subDecls</span>) <span class="k">-&gt;</span> 
+        <span class="i">printfn</span> <span class="s">&quot;%sEntity %s was declared and contains %d sub-declarations&quot;</span> <span class="i">prefix</span> <span class="i">e</span><span class="o">.</span><span class="i">CompiledName</span> <span class="i">subDecls</span><span class="o">.</span><span class="i">Length</span>
+        <span class="k">for</span> <span class="i">subDecl</span> <span class="k">in</span> <span class="i">subDecls</span> <span class="k">do</span> 
+            <span class="i">printDecl</span> (<span class="i">prefix</span><span class="o">+</span><span class="s">&quot;    &quot;</span>) <span class="i">subDecl</span>
+    | <span class="i">FSharpImplementationFileDeclaration</span><span class="o">.</span><span class="i">MemberOrFunctionOrValue</span>(<span class="i">v</span>, <span class="i">vs</span>, <span class="i">e</span>) <span class="k">-&gt;</span> 
+        <span class="i">printfn</span> <span class="s">&quot;%sMember or value %s was declared&quot;</span> <span class="i">prefix</span>  <span class="i">v</span><span class="o">.</span><span class="i">CompiledName</span>
+    | <span class="i">FSharpImplementationFileDeclaration</span><span class="o">.</span><span class="i">InitAction</span>(<span class="i">e</span>) <span class="k">-&gt;</span> 
+        <span class="i">printfn</span> <span class="s">&quot;%sA top-level expression was declared&quot;</span> <span class="i">prefix</span> 
+
+
+<span class="k">for</span> <span class="i">d</span> <span class="k">in</span> <span class="i">checkedFile</span><span class="o">.</span><span class="i">Declarations</span> <span class="k">do</span> 
+   <span class="i">printDecl</span> <span class="s">&quot;&quot;</span> <span class="i">d</span>
+
+<span class="c">// Entity MyLibrary was declared and contains 4 sub-declarations</span>
+<span class="c">//     Member or value foo was declared</span>
+<span class="c">//     Entity MyClass was declared and contains 0 sub-declarations</span>
+<span class="c">//     Member or value .ctor was declared</span>
+<span class="c">//     Member or value MyMethod was declared</span>
+</code></pre></td>
+</tr>
+</table>
+<p>As can be seen, the only declaration in the implementation file is that of the module MyLibrary, which
+contains fours sub-declarations.</p>
+<blockquote>
+<p>As an aside, one peculiarity here is that the member declarations (e.g. the "MyMethod" member) are returned as part of the containing module entity, not as part of their class.
+Note that the class constructor is returned as a separate declaration. The class type definition has been "split" into a constructor and the other declarations.</p>
+</blockquote>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">myLibraryEntity</span>, <span class="i">myLibraryDecls</span> <span class="o">=</span>    
+   <span class="k">match</span> <span class="i">checkedFile</span><span class="o">.</span><span class="i">Declarations</span><span class="o">.</span>[<span class="n">0</span>] <span class="k">with</span> 
+   | <span class="i">FSharpImplementationFileDeclaration</span><span class="o">.</span><span class="i">Entity</span> (<span class="i">e</span>, <span class="i">subDecls</span>) <span class="k">-&gt;</span> (<span class="i">e</span>, <span class="i">subDecls</span>)
+   | _ <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;unexpected&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<p>What about the expressions, for example the body of function "foo"? Let's find it:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> (<span class="i">fooSymbol</span>, <span class="i">fooArgs</span>, <span class="i">fooExpression</span>) <span class="o">=</span> 
+    <span class="k">match</span> <span class="i">myLibraryDecls</span><span class="o">.</span>[<span class="n">0</span>] <span class="k">with</span> 
+    | <span class="i">FSharpImplementationFileDeclaration</span><span class="o">.</span><span class="i">MemberOrFunctionOrValue</span>(<span class="i">v</span>, <span class="i">vs</span>, <span class="i">e</span>) <span class="k">-&gt;</span> (<span class="i">v</span>, <span class="i">vs</span>, <span class="i">e</span>)
+    | _ <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;unexpected&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Here 'fooSymbol' is a symbol associated with the declaration of 'foo',
+'fooArgs' represents the formal arguments to the 'foo' function, and 'fooExpression'
+is an expression for the implementation of the 'foo' function.</p>
+<p>Once you have an expression, you can work with it much like an F# quotation.  For example,
+you can find its declaration range and its type:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fooExpression</span><span class="o">.</span><span class="i">Type</span>  <span class="c">// shows that the return type of the body expression is &#39;int&#39;</span>
+<span class="i">fooExpression</span><span class="o">.</span><span class="i">Range</span>  <span class="c">// shows the declaration range of the expression implementing &#39;foo&#39;</span>
+</code></pre></td>
+</tr>
+</table>
+<h3><a name="Walking-over-expressions" class="anchor" href="#Walking-over-expressions">Walking over expressions</a></h3>
+<p>Expressions are analyzed using active patterns, much like F# quotations.
+Here is a generic expression visitor:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+<span class="l">37: </span>
+<span class="l">38: </span>
+<span class="l">39: </span>
+<span class="l">40: </span>
+<span class="l">41: </span>
+<span class="l">42: </span>
+<span class="l">43: </span>
+<span class="l">44: </span>
+<span class="l">45: </span>
+<span class="l">46: </span>
+<span class="l">47: </span>
+<span class="l">48: </span>
+<span class="l">49: </span>
+<span class="l">50: </span>
+<span class="l">51: </span>
+<span class="l">52: </span>
+<span class="l">53: </span>
+<span class="l">54: </span>
+<span class="l">55: </span>
+<span class="l">56: </span>
+<span class="l">57: </span>
+<span class="l">58: </span>
+<span class="l">59: </span>
+<span class="l">60: </span>
+<span class="l">61: </span>
+<span class="l">62: </span>
+<span class="l">63: </span>
+<span class="l">64: </span>
+<span class="l">65: </span>
+<span class="l">66: </span>
+<span class="l">67: </span>
+<span class="l">68: </span>
+<span class="l">69: </span>
+<span class="l">70: </span>
+<span class="l">71: </span>
+<span class="l">72: </span>
+<span class="l">73: </span>
+<span class="l">74: </span>
+<span class="l">75: </span>
+<span class="l">76: </span>
+<span class="l">77: </span>
+<span class="l">78: </span>
+<span class="l">79: </span>
+<span class="l">80: </span>
+<span class="l">81: </span>
+<span class="l">82: </span>
+<span class="l">83: </span>
+<span class="l">84: </span>
+<span class="l">85: </span>
+<span class="l">86: </span>
+<span class="l">87: </span>
+<span class="l">88: </span>
+<span class="l">89: </span>
+<span class="l">90: </span>
+<span class="l">91: </span>
+<span class="l">92: </span>
+<span class="l">93: </span>
+<span class="l">94: </span>
+<span class="l">95: </span>
+<span class="l">96: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="k">rec</span> <span class="i">visitExpr</span> <span class="i">f</span> (<span class="i">e</span><span class="o">:</span><span class="i">FSharpExpr</span>) <span class="o">=</span> 
+    <span class="i">f</span> <span class="i">e</span>
+    <span class="k">match</span> <span class="i">e</span> <span class="k">with</span> 
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">AddressOf</span>(<span class="i">lvalueExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">lvalueExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">AddressSet</span>(<span class="i">lvalueExpr</span>, <span class="i">rvalueExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">lvalueExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">rvalueExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">Application</span>(<span class="i">funcExpr</span>, <span class="i">typeArgs</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">funcExpr</span>; <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">argExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">Call</span>(<span class="i">objExprOpt</span>, <span class="i">memberOrFunc</span>, <span class="i">typeArgs1</span>, <span class="i">typeArgs2</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitObjArg</span> <span class="i">f</span> <span class="i">objExprOpt</span>; <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">argExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">Coerce</span>(<span class="i">targetType</span>, <span class="i">inpExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">inpExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">FastIntegerForLoop</span>(<span class="i">startExpr</span>, <span class="i">limitExpr</span>, <span class="i">consumeExpr</span>, <span class="i">isUp</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">startExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">limitExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">consumeExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">ILAsm</span>(<span class="i">asmCode</span>, <span class="i">typeArgs</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">argExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">ILFieldGet</span> (<span class="i">objExprOpt</span>, <span class="i">fieldType</span>, <span class="i">fieldName</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitObjArg</span> <span class="i">f</span> <span class="i">objExprOpt</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">ILFieldSet</span> (<span class="i">objExprOpt</span>, <span class="i">fieldType</span>, <span class="i">fieldName</span>, <span class="i">valueExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitObjArg</span> <span class="i">f</span> <span class="i">objExprOpt</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">IfThenElse</span> (<span class="i">guardExpr</span>, <span class="i">thenExpr</span>, <span class="i">elseExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">guardExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">thenExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">elseExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">Lambda</span>(<span class="i">lambdaVar</span>, <span class="i">bodyExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">bodyExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">Let</span>((<span class="i">bindingVar</span>, <span class="i">bindingExpr</span>), <span class="i">bodyExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">bindingExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">bodyExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">LetRec</span>(<span class="i">recursiveBindings</span>, <span class="i">bodyExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">List</span><span class="o">.</span><span class="i">iter</span> (<span class="i">snd</span> <span class="o">&gt;</span><span class="o">&gt;</span> <span class="i">visitExpr</span> <span class="i">f</span>) <span class="i">recursiveBindings</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">bodyExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">NewArray</span>(<span class="i">arrayType</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">argExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">NewDelegate</span>(<span class="i">delegateType</span>, <span class="i">delegateBodyExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">delegateBodyExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">NewObject</span>(<span class="i">objType</span>, <span class="i">typeArgs</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">argExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">NewRecord</span>(<span class="i">recordType</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span>  
+        <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">argExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">NewTuple</span>(<span class="i">tupleType</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">argExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">NewUnionCase</span>(<span class="i">unionType</span>, <span class="i">unionCase</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">argExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">Quote</span>(<span class="i">quotedExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">quotedExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">FSharpFieldGet</span>(<span class="i">objExprOpt</span>, <span class="i">recordOrClassType</span>, <span class="i">fieldInfo</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitObjArg</span> <span class="i">f</span> <span class="i">objExprOpt</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">FSharpFieldSet</span>(<span class="i">objExprOpt</span>, <span class="i">recordOrClassType</span>, <span class="i">fieldInfo</span>, <span class="i">argExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitObjArg</span> <span class="i">f</span> <span class="i">objExprOpt</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">argExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">Sequential</span>(<span class="i">firstExpr</span>, <span class="i">secondExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">firstExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">secondExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">TryFinally</span>(<span class="i">bodyExpr</span>, <span class="i">finalizeExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">bodyExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">finalizeExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">TryWith</span>(<span class="i">bodyExpr</span>, _, _, <span class="i">catchVar</span>, <span class="i">catchExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">bodyExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">catchExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">TupleGet</span>(<span class="i">tupleType</span>, <span class="i">tupleElemIndex</span>, <span class="i">tupleExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">tupleExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">DecisionTree</span>(<span class="i">decisionExpr</span>, <span class="i">decisionTargets</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">decisionExpr</span>; <span class="i">List</span><span class="o">.</span><span class="i">iter</span> (<span class="i">snd</span> <span class="o">&gt;</span><span class="o">&gt;</span> <span class="i">visitExpr</span> <span class="i">f</span>) <span class="i">decisionTargets</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">DecisionTreeSuccess</span> (<span class="i">decisionTargetIdx</span>, <span class="i">decisionTargetExprs</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">decisionTargetExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">TypeLambda</span>(<span class="i">genericParam</span>, <span class="i">bodyExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">bodyExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">TypeTest</span>(<span class="i">ty</span>, <span class="i">inpExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">inpExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">UnionCaseSet</span>(<span class="i">unionExpr</span>, <span class="i">unionType</span>, <span class="i">unionCase</span>, <span class="i">unionCaseField</span>, <span class="i">valueExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">unionExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">valueExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">UnionCaseGet</span>(<span class="i">unionExpr</span>, <span class="i">unionType</span>, <span class="i">unionCase</span>, <span class="i">unionCaseField</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">unionExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">UnionCaseTest</span>(<span class="i">unionExpr</span>, <span class="i">unionType</span>, <span class="i">unionCase</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">unionExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">UnionCaseTag</span>(<span class="i">unionExpr</span>, <span class="i">unionType</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">unionExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">ObjectExpr</span>(<span class="i">objType</span>, <span class="i">baseCallExpr</span>, <span class="i">overrides</span>, <span class="i">interfaceImplementations</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">baseCallExpr</span>
+        <span class="i">List</span><span class="o">.</span><span class="i">iter</span> (<span class="i">visitObjMember</span> <span class="i">f</span>) <span class="i">overrides</span>
+        <span class="i">List</span><span class="o">.</span><span class="i">iter</span> (<span class="i">snd</span> <span class="o">&gt;</span><span class="o">&gt;</span> <span class="i">List</span><span class="o">.</span><span class="i">iter</span> (<span class="i">visitObjMember</span> <span class="i">f</span>)) <span class="i">interfaceImplementations</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">TraitCall</span>(<span class="i">sourceTypes</span>, <span class="i">traitName</span>, <span class="i">typeArgs</span>, <span class="i">typeInstantiation</span>, <span class="i">argTypes</span>, <span class="i">argExprs</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">argExprs</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">ValueSet</span>(<span class="i">valToSet</span>, <span class="i">valueExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">valueExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">WhileLoop</span>(<span class="i">guardExpr</span>, <span class="i">bodyExpr</span>) <span class="k">-&gt;</span> 
+        <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">guardExpr</span>; <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">bodyExpr</span>
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">BaseValue</span> <span class="i">baseType</span> <span class="k">-&gt;</span> ()
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">DefaultValue</span> <span class="i">defaultType</span> <span class="k">-&gt;</span> ()
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">ThisValue</span> <span class="i">thisType</span> <span class="k">-&gt;</span> ()
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">Const</span>(<span class="i">constValueObj</span>, <span class="i">constType</span>) <span class="k">-&gt;</span> ()
+    | <span class="i">BasicPatterns</span><span class="o">.</span><span class="i">Value</span>(<span class="i">valueToGet</span>) <span class="k">-&gt;</span> ()
+    | _ <span class="k">-&gt;</span> <span class="i">failwith</span> (<span class="i">sprintf</span> <span class="s">&quot;unrecognized %+A&quot;</span> <span class="i">e</span>)
+
+<span class="k">and</span> <span class="i">visitExprs</span> <span class="i">f</span> <span class="i">exprs</span> <span class="o">=</span> 
+    <span class="i">List</span><span class="o">.</span><span class="i">iter</span> (<span class="i">visitExpr</span> <span class="i">f</span>) <span class="i">exprs</span>
+
+<span class="k">and</span> <span class="i">visitObjArg</span> <span class="i">f</span> <span class="i">objOpt</span> <span class="o">=</span> 
+    <span class="i">Option</span><span class="o">.</span><span class="i">iter</span> (<span class="i">visitExpr</span> <span class="i">f</span>) <span class="i">objOpt</span>
+
+<span class="k">and</span> <span class="i">visitObjMember</span> <span class="i">f</span> <span class="i">memb</span> <span class="o">=</span> 
+    <span class="i">visitExpr</span> <span class="i">f</span> <span class="i">memb</span><span class="o">.</span><span class="i">Body</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Let's use this expresssion walker:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fooExpression</span> <span class="o">|&gt;</span> <span class="i">visitExpr</span> (<span class="k">fun</span> <span class="i">e</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;Visiting %A&quot;</span> <span class="i">e</span>)
+
+<span class="c">// Prints:</span>
+<span class="c">//</span>
+<span class="c">// Visiting Let...</span>
+<span class="c">// Visiting Call...</span>
+<span class="c">// Visiting Const (&quot;Hello&quot;, ...)</span>
+<span class="c">// Visiting Const (&quot; &quot;, ...)</span>
+<span class="c">// Visiting Const (&quot;world&quot;, ...)</span>
+<span class="c">// Visiting IfThenElse...</span>
+<span class="c">// Visiting Call...</span>
+<span class="c">// Visiting Call...</span>
+<span class="c">// Visiting Value ...</span>
+<span class="c">// Visiting Const ...</span>
+<span class="c">// Visiting Const ...</span>
+<span class="c">// Visiting Const ...</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Note that</p>
+<ul>
+<li>The visitExpr function is recursive (for nested expressions).</li>
+<li>Pattern matching is removed from the tree, into a form called 'decision trees'.</li>
+</ul>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
+<p>In this tutorial, we looked at basic of working with checked declarations and expressions.</p>
+<p>In practice, it is also useful to combine the information here
+with some information you can obtain from the <a href="symbols.html">symbols</a>
+tutorial.</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

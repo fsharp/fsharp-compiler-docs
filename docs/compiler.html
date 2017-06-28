@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hosted Compiler
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Hosted-Compiler" class="anchor" href="#Hosted-Compiler">Hosted Compiler</a></h1>
+<p>This tutorial demonstrates how to host the F# compiler.</p>
+<blockquote>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
+</blockquote>
+<blockquote>
+<p><strong>NOTE:</strong> There are several options for hosting the F# compiler. The easiest one is to use the
+<code>fsc.exe</code> process and pass arguments.</p>
+</blockquote>
+<blockquote>
+<p><strong>NOTE:</strong> By default <a href="https://github.com/fsharp/FSharp.Compiler.Service/issues/156">compilations using FSharp.Compiler.Service reference FSharp.Core 4.3.0.0</a> (matching F# 3.0).  You can override
+this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitly in your command-line arguments.</p>
+</blockquote>
+<hr />
+<p>First, we need to reference the libraries that contain F# interactive service:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+
+<span class="c">// Create an interactive checker instance </span>
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+</code></pre></td>
+</tr>
+</table>
+<p>Now write content to a temporary file:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">fn</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>()
+<span class="k">let</span> <span class="i">fn2</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">fn</span>, <span class="s">&quot;.fsx&quot;</span>)
+<span class="k">let</span> <span class="i">fn3</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">fn</span>, <span class="s">&quot;.dll&quot;</span>)
+
+<span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">fn2</span>, <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module M</span>
+
+<span class="s">type C() = </span>
+<span class="s">   member x.P = 1</span>
+
+<span class="s">let x = 3 + 4</span>
+<span class="s">&quot;&quot;&quot;</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>Now invoke the compiler:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">errors1</span>, <span class="i">exitCode1</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">Compile</span>([| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |])
+</code></pre></td>
+</tr>
+</table>
+<p>If errors occur you can see this in the 'exitCode' and the returned array of errors:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">fn2</span>, <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module M</span>
+
+<span class="s">let x = 1.0 + &quot;&quot; // a type error</span>
+<span class="s">&quot;&quot;&quot;</span>)
+
+<span class="k">let</span> <span class="i">errors1b</span>, <span class="i">exitCode1b</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">Compile</span>([| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |])
+</code></pre></td>
+</tr>
+</table>
+<h1><a name="Compiling-to-a-dynamic-assembly" class="anchor" href="#Compiling-to-a-dynamic-assembly">Compiling to a dynamic assembly</a></h1>
+<p>You can also compile to a dynamic assembly, which uses the F# Interactive code generator.
+This can be useful if you are, for example, in a situation where writing to the file system
+is not really an option.</p>
+<p>You still have to pass the "-o" option to name the output file, but the output file is not actually written to disk.</p>
+<p>The 'None' option indicates that the initiatlization code for the assembly is not executed.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">errors2</span>, <span class="i">exitCode2</span>, <span class="i">dynAssembly2</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">CompileToDynamicAssembly</span>([| <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |], <span class="i">execute</span><span class="o">=</span><span class="i">None</span>)
+
+<span class="c">(*</span>
+<span class="c">Passing &#39;Some&#39; for the &#39;execute&#39; parameter executes  the initiatlization code for the assembly.</span>
+<span class="c">*)</span>
+<span class="k">let</span> <span class="i">errors3</span>, <span class="i">exitCode3</span>, <span class="i">dynAssembly3</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">CompileToDynamicAssembly</span>([| <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |], <span class="i">Some</span>(<span class="i">stdout</span>,<span class="i">stderr</span>))
+</code></pre></td>
+</tr>
+</table>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

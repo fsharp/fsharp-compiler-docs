@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiler Services: Notes on FSharp.Core.dll
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Compiler-Services-Notes-on-FSharp-Core-dll" class="anchor" href="#Compiler-Services-Notes-on-FSharp-Core-dll">Compiler Services: Notes on FSharp.Core.dll</a></h1>
+<h2><a name="Shipping-an-FSharp-Core-with-your-application" class="anchor" href="#Shipping-an-FSharp-Core-with-your-application">Shipping an FSharp.Core with your application</a></h2>
+<p>When building applications or plug-in components which use FSharp.Compiler.Service.dll, you will normally also
+include a copy of FSharp.Core.dll as part of your application.</p>
+<p>For example, if you build a <code>HostedCompiler.exe</code>, you will normally place an FSharp.Core.dll (say 4.3.1.0) alongside
+your <code>HostedCompiler.exe</code>.</p>
+<p>If doing dynamic compilation and execution you may also need to include
+an FSharp.Core.optdata and FSharp.Core.sigdata, see below for guidance.</p>
+<h2><a name="Binding-redirects-for-your-application" class="anchor" href="#Binding-redirects-for-your-application">Binding redirects for your application</a></h2>
+<p>The FSharp.Compiler.Service.dll component depends on FSharp.Core 4.3.0.0.  Normally your application will target
+a later version of FSharp.Core, and you will need a <a href="http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.110).aspx">binding redirect</a> to ensure
+that FSharp.Core 4.3.0.0 forwards to which the final version of FSharp.Core.dll your application uses.
+Binding redirect files are normally generated automatically by build tools. If not, you can use one like this
+(if your tool is called <code>HostedCompiler.exe</code>, the binding redirect file is called <code>HostedCompiler.exe.config</code>)</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="o">&lt;?</span><span class="i">xml</span> <span class="i">version</span><span class="o">=</span><span class="s">&quot;1.0&quot;</span> <span class="i">encoding</span><span class="o">=</span><span class="s">&quot;utf-8&quot;</span> <span class="o">?&gt;</span>
+<span class="o">&lt;</span><span class="i">configuration</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="i">runtime</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="i">assemblyBinding</span> <span class="i">xmlns</span><span class="o">=</span><span class="s">&quot;urn:schemas-microsoft-com:asm.v1&quot;</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
+          <span class="o">&lt;</span><span class="i">assemblyIdentity</span> <span class="i">name</span><span class="o">=</span><span class="s">&quot;FSharp.Core&quot;</span> <span class="i">publicKeyToken</span><span class="o">=</span><span class="s">&quot;b03f5f7f11d50a3a&quot;</span> <span class="i">culture</span><span class="o">=</span><span class="s">&quot;neutral&quot;</span><span class="o">/&gt;</span>
+          <span class="o">&lt;</span><span class="i">bindingRedirect</span> <span class="i">oldVersion</span><span class="o">=</span><span class="s">&quot;2.0.0.0-4.3.0.0&quot;</span> <span class="i">newVersion</span><span class="o">=</span><span class="s">&quot;4.3.1.0&quot;</span><span class="o">/&gt;</span>
+        <span class="o">&lt;/</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
+      <span class="o">&lt;/</span><span class="i">assemblyBinding</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="i">runtime</span><span class="o">&gt;</span>	
+<span class="o">&lt;/</span><span class="i">configuration</span><span class="o">&gt;</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="Which-FSharp-Core-and-NET-Framework-gets-referenced-in-compilation" class="anchor" href="#Which-FSharp-Core-and-NET-Framework-gets-referenced-in-compilation">Which FSharp.Core and .NET Framework gets referenced in compilation?</a></h2>
+<p>The FSharp.Compiler.Service component can be used to do more or less any sort of F# compilation.
+In particular you can reference an explicit FSharp.Core and/or framework
+assemblies in the command line arguments (different to the FSharp.Core and a .NET Framework being used to run your tool).</p>
+<p>To target a specific FSharp.Core and/or .NET Framework assemblies, use the <code>--noframework</code> argument
+and the appropriate command-line arguments:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[&lt;<span class="i">Literal</span>&gt;]
+<span class="k">let</span> <span class="i">fsharpCorePath</span> <span class="o">=</span> 
+    <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.1.0\FSharp.Core.dll&quot;</span>
+<span class="k">let</span> <span class="i">errors2</span>, <span class="i">exitCode2</span> <span class="o">=</span> 
+  <span class="i">scs</span><span class="o">.</span><span class="i">Compile</span>(
+    [| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;--noframework&quot;</span>; 
+       <span class="s">&quot;-r&quot;</span>; <span class="i">fsharpCorePath</span>; 
+       <span class="s">&quot;-r&quot;</span>; <span class="s">@&quot;C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll&quot;</span>; 
+       <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; 
+       <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |])
+</code></pre></td>
+</tr>
+</table>
+<p>You will need to determine the location of these assemblies.  The easiest way to locate these DLLs in a cross-platform way and
+convert them to command-line arguments is to <a href="http://fsharp.github.io/FSharp.Compiler.Service/project.html">crack an F# project file</a>.<br />
+Alternatively you can compute SDK paths yourself, and some helpers to do this are in <a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/8a943dd3b545648690cb3bed652a469bdb6dd869/tests/service/Common.fs#L54">the tests for FSharp.Compiler.Service.dll</a>.</p>
+<h2><a name="What-about-if-I-am-processing-a-script-or-using" class="anchor" href="#What-about-if-I-am-processing-a-script-or-using">What about if I am processing a script or using <code>GetCheckOptionsFromScriptRoot</code></a></h2>
+<p>If you do <em>not</em> explicitly reference an FSharp.Core.dll from an SDK location, or if you are processing a script
+using <code>FsiEvaluationSession</code> or <code>GetCheckOptionsFromScriptRoot</code>, then an implicit reference to FSharp.Core will be made
+by the following choice:</p>
+<ol>
+<li><p>The version of FSharp.Core.dll statically referenced by the host assembly returned by <code>System.Reflection.Assembly.GetEntryAssembly()</code>.</p></li>
+<li>
+<p>If there is no static reference to FSharp.Core in the host assembly, then</p>
+<ul>
+<li>For FSharp.Compiler.Service 0.x series, a reference to FSharp.Core version 4.3.0.0 is added</li>
+<li>For FSharp.Compiler.Service 1.3.1.x (F# 3.1 series), a reference to FSharp.Core version 4.3.1.0 is added</li>
+<li>For FSharp.Compiler.Service 1.4.0.x (F# 4.0 series), a reference to FSharp.Core version 4.4.0.0 is added</li>
+</ul>
+</li>
+</ol>
+<h2><a name="Do-I-need-to-include-FSharp-Core-optdata-and-FSharp-Core-sigdata" class="anchor" href="#Do-I-need-to-include-FSharp-Core-optdata-and-FSharp-Core-sigdata">Do I need to include FSharp.Core.optdata and FSharp.Core.sigdata?</a></h2>
+<p>If your compilation arguments explicitly reference an FSharp.Core.dll from an SDK location, then FSharp.Core.sigdata and FSharp.Core.optdata should be alongside the DLL
+(if these files are not installed, then that's a bug in the F# SDK installation).  If your compilation
+arguments are always making an explicit reference, then you should <em>not</em> include FSharp.Core.optdata and FSharp.Core.sigdata as part of your application.</p>
+<p>If you are relying on an implicit reference (e.g. for script processing, see above), this means your tool may reference the FSharp.Core.dll
+that is part of your application.  In this case, you may either get an error that FSharp.Core.optdata and FSharp.Core.sigdata are not
+found alongside FSharp.Core.dll.  <strong>If you want to implicitly reference the FSharp.Core.dll you are including in your application,
+then also add FSharp.Core.sigdata and FSharp.Core.optdata as two additional files to your application</strong>.  When using <code>CompileToDynamicAssembly</code>, this problem
+can also manifest itself as <a href="https://github.com/fsharp/FSharp.Compiler.Service/issues/258">a stack overflow during assembly resolution</a>.</p>
+<p>Tools that dynamically compile and execute code (e.g. a <code>HostedExecution.exe</code>) often make an implicit
+reference to FSharp.Core.dll, which means they normally also include FSharp.Core.optdata and FSharp.Core.sigdata.</p>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
+<p>In this design note we have discussed three things:</p>
+<ul>
+<li>which FSharp.Core.dll is used to run your compilation tools</li>
+<li>how  to configure binding redirects for the FSharp.Core.dll used to run your compilation tools</li>
+<li>which FSharp.Core.dll and/or framework assemblies are  referenced during the checking and compilations performed by your tools.</li>
+</ul>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

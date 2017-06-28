@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>コンパイラサービス: プロジェクトの分析
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
+    <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="コンパイラサービス-プロジェクトの分析" class="anchor" href="#コンパイラサービス-プロジェクトの分析">コンパイラサービス: プロジェクトの分析</a></h1>
+<p>このチュートリアルではF#コンパイラによって提供されるサービスを使用して
+プロジェクト全体を分析する方法について紹介します。</p>
+<blockquote>
+<p><strong>注意:</strong> 以下で使用しているAPIは試験的なもので、
+最新のnugetパッケージの公開に伴って変更されることがあります。</p>
+</blockquote>
+<h2><a name="プロジェクト全体の結果を取得する" class="anchor" href="#プロジェクト全体の結果を取得する">プロジェクト全体の結果を取得する</a></h2>
+<p><a href="untypedtree.html">以前の(型無しASTを使った)チュートリアル</a> と同じく、
+まずは <code>FSharp.Compiler.Service.dll</code> への参照追加と、適切な名前空間のオープン、
+<code>FSharpChecker</code> インスタンスの作成を行います:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// F#コンパイラAPIへの参照</span>
+<span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+
+<span class="k">open</span> <span class="i">System</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">Collections</span><span class="o">.</span><span class="i">Generic</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+
+<span class="c">// インタラクティブチェッカーのインスタンスを作成</span>
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+</code></pre></td>
+</tr>
+</table>
+<p>今回のサンプル入力は以下の通りです:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">module</span> <span class="i">Inputs</span> <span class="o">=</span> 
+    <span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
+
+    <span class="k">let</span> <span class="i">base1</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>()
+    <span class="k">let</span> <span class="i">fileName1</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">base1</span>, <span class="s">&quot;.fs&quot;</span>)
+    <span class="k">let</span> <span class="i">base2</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>()
+    <span class="k">let</span> <span class="i">fileName2</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">base2</span>, <span class="s">&quot;.fs&quot;</span>)
+    <span class="k">let</span> <span class="i">dllName</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">base2</span>, <span class="s">&quot;.dll&quot;</span>)
+    <span class="k">let</span> <span class="i">projFileName</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">base2</span>, <span class="s">&quot;.fsproj&quot;</span>)
+    <span class="k">let</span> <span class="i">fileSource1</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module M</span>
+
+<span class="s">type C() = </span>
+<span class="s">    member x.P = 1</span>
+
+<span class="s">let xxx = 3 + 4</span>
+<span class="s">let fff () = xxx + xxx</span>
+<span class="s">    &quot;&quot;&quot;</span>
+    <span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">fileName1</span>, <span class="i">fileSource1</span>)
+
+    <span class="k">let</span> <span class="i">fileSource2</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module N</span>
+
+<span class="s">open M</span>
+
+<span class="s">type D1() = </span>
+<span class="s">    member x.SomeProperty = M.xxx</span>
+
+<span class="s">type D2() = </span>
+<span class="s">    member x.SomeProperty = M.fff()</span>
+
+<span class="s">// 警告を発生させる</span>
+<span class="s">let y2 = match 1 with 1 -&gt; M.xxx</span>
+<span class="s">    &quot;&quot;&quot;</span>
+    <span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">fileName2</span>, <span class="i">fileSource2</span>)
+</code></pre></td>
+</tr>
+</table>
+<p><code>GetProjectOptionsFromCommandLineArgs</code> を使用して、
+2つのファイルを1つのプロジェクトとして扱えるようにします:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">projectOptions</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromCommandLineArgs</span>
+       (<span class="i">Inputs</span><span class="o">.</span><span class="i">projFileName</span>,
+        [| <span class="k">yield</span> <span class="s">&quot;--simpleresolution&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--noframework&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--debug:full&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--define:DEBUG&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--optimize-&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--out:&quot;</span> <span class="o">+</span> <span class="i">Inputs</span><span class="o">.</span><span class="i">dllName</span>
+           <span class="k">yield</span> <span class="s">&quot;--doc:test.xml&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--warn:3&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--fullpaths&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--flaterrors&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--target:library&quot;</span> 
+           <span class="k">yield</span> <span class="i">Inputs</span><span class="o">.</span><span class="i">fileName1</span>
+           <span class="k">yield</span> <span class="i">Inputs</span><span class="o">.</span><span class="i">fileName2</span>
+           <span class="k">let</span> <span class="i">references</span> <span class="o">=</span> 
+             [ <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll&quot;</span> 
+               <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll&quot;</span> 
+               <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll&quot;</span> 
+               <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll&quot;</span>]  
+           <span class="k">for</span> <span class="i">r</span> <span class="k">in</span> <span class="i">references</span> <span class="k">do</span>
+                 <span class="k">yield</span> <span class="s">&quot;-r:&quot;</span> <span class="o">+</span> <span class="i">r</span> |])
+</code></pre></td>
+</tr>
+</table>
+<p>そして(ディスク上に保存されたファイルを使用して)
+プロジェクト全体をチェックします:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">wholeProjectResults</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckProject</span>(<span class="i">projectOptions</span>) <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>発生したエラーと警告は以下のようにしてチェックできます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span><span class="i">Length</span> <span class="c">// 1</span>
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Message</span><span class="o">.</span><span class="i">Contains</span>(<span class="s">&quot;Incomplete pattern matches on this expression&quot;</span>) <span class="c">// true</span>
+
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">StartLineAlternate</span> <span class="c">// 13</span>
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">EndLineAlternate</span> <span class="c">// 13</span>
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">StartColumn</span> <span class="c">// 15</span>
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">EndColumn</span> <span class="c">// 16</span>
+</code></pre></td>
+</tr>
+</table>
+<p>推測されたプロジェクトのシグネチャをチェックします:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[ <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">.</span><span class="i">DisplayName</span> ] <span class="c">// [&quot;N&quot;; &quot;M&quot;]</span>
+[ <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">NestedEntities</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">.</span><span class="i">DisplayName</span> ] <span class="c">// [&quot;D1&quot;; &quot;D2&quot;]</span>
+[ <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">1</span>]<span class="o">.</span><span class="i">NestedEntities</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">.</span><span class="i">DisplayName</span> ] <span class="c">// [&quot;C&quot;]</span>
+[ <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">.</span><span class="i">DisplayName</span> ] <span class="c">// [&quot;y2&quot;]</span>
+</code></pre></td>
+</tr>
+</table>
+<p>プロジェクト内の全シンボルを取得することもできます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="k">rec</span> <span class="i">allSymbolsInEntities</span> (<span class="i">entities</span><span class="o">:</span> <span class="i">IList</span><span class="o">&lt;</span><span class="i">FSharpEntity</span><span class="o">&gt;</span>) <span class="o">=</span> 
+    [ <span class="k">for</span> <span class="i">e</span> <span class="k">in</span> <span class="i">entities</span> <span class="k">do</span> 
+          <span class="k">yield</span> (<span class="i">e</span> <span class="o">:&gt;</span> <span class="i">FSharpSymbol</span>) 
+          <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">e</span><span class="o">.</span><span class="i">MembersFunctionsAndValues</span> <span class="k">do</span>
+             <span class="k">yield</span> (<span class="i">x</span> <span class="o">:&gt;</span> <span class="i">FSharpSymbol</span>)
+          <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">e</span><span class="o">.</span><span class="i">UnionCases</span> <span class="k">do</span>
+             <span class="k">yield</span> (<span class="i">x</span> <span class="o">:&gt;</span> <span class="i">FSharpSymbol</span>)
+          <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">e</span><span class="o">.</span><span class="i">FSharpFields</span> <span class="k">do</span>
+             <span class="k">yield</span> (<span class="i">x</span> <span class="o">:&gt;</span> <span class="i">FSharpSymbol</span>)
+          <span class="k">yield!</span> <span class="i">allSymbolsInEntities</span> <span class="i">e</span><span class="o">.</span><span class="i">NestedEntities</span> ]
+
+<span class="k">let</span> <span class="i">allSymbols</span> <span class="o">=</span> <span class="i">allSymbolsInEntities</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span>
+</code></pre></td>
+</tr>
+</table>
+<p>プロジェクト全体のチェックが完了した後は、
+プロジェクト内の各ファイルに対する個別の結果を取得することもできます。
+この処理は即座に完了し、改めてチェックが実行されることもありません。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">backgroundParseResults1</span>, <span class="i">backgroundTypedParse1</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">GetBackgroundCheckResultsForFileInProject</span>(<span class="i">Inputs</span><span class="o">.</span><span class="i">fileName1</span>, <span class="i">projectOptions</span>) 
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>そしてそれぞれのファイル内にあるシンボルを解決できます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">xSymbol</span> <span class="o">=</span> 
+    <span class="i">backgroundTypedParse1</span><span class="o">.</span><span class="i">GetSymbolUseAtLocation</span>(<span class="n">9</span>,<span class="n">9</span>,<span class="s">&quot;&quot;</span>,[<span class="s">&quot;xxx&quot;</span>])
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>それぞれのシンボルに対して、シンボルへの参照を検索することもできます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">usesOfXSymbol</span> <span class="o">=</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">GetUsesOfSymbol</span>(<span class="i">xSymbol</span><span class="o">.</span><span class="i">Value</span><span class="o">.</span><span class="i">Symbol</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>推測されたシグネチャ内にあるすべての定義済みシンボルに対して、
+それらがどこで使用されているのかを探し出すこともできます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">allUsesOfAllSignatureSymbols</span> <span class="o">=</span> 
+    [ <span class="k">for</span> <span class="i">s</span> <span class="k">in</span> <span class="i">allSymbols</span> <span class="k">do</span> 
+         <span class="k">yield</span> <span class="i">s</span><span class="o">.</span><span class="i">ToString</span>(), <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">GetUsesOfSymbol</span>(<span class="i">s</span>) ]
+</code></pre></td>
+</tr>
+</table>
+<p>(ローカルスコープで使用されているものも含めて)
+プロジェクト全体で使用されているすべてのシンボルを確認することもできます：</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">allUsesOfAllSymbols</span> <span class="o">=</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">GetAllUsesOfAllSymbols</span>()
+</code></pre></td>
+</tr>
+</table>
+<p>また、プロジェクト内のファイルに対して、更新後のバージョンに対して
+チェックを実行するようにリクエストすることもできます
+(なお <a href="filesystem.html">FileSystem API</a> を使用していない場合には、
+プロジェクト内のその他のファイルがまだディスクから
+読み取り中であることに注意してください):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseResults1</span>, <span class="i">checkAnswer1</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckFileInProject</span>(<span class="i">Inputs</span><span class="o">.</span><span class="i">fileName1</span>, <span class="n">0</span>, <span class="i">Inputs</span><span class="o">.</span><span class="i">fileSource1</span>, <span class="i">projectOptions</span>) 
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">checkResults1</span> <span class="o">=</span> 
+    <span class="k">match</span> <span class="i">checkAnswer1</span> <span class="k">with</span> 
+    | <span class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span class="i">Succeeded</span> <span class="i">x</span> <span class="k">-&gt;</span>  <span class="i">x</span> 
+    | _ <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;想定外の終了状態です&quot;</span>
+
+<span class="k">let</span> <span class="i">parseResults2</span>, <span class="i">checkAnswer2</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckFileInProject</span>(<span class="i">Inputs</span><span class="o">.</span><span class="i">fileName2</span>, <span class="n">0</span>, <span class="i">Inputs</span><span class="o">.</span><span class="i">fileSource2</span>, <span class="i">projectOptions</span>)
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">checkResults2</span> <span class="o">=</span> 
+    <span class="k">match</span> <span class="i">checkAnswer2</span> <span class="k">with</span> 
+    | <span class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span class="i">Succeeded</span> <span class="i">x</span> <span class="k">-&gt;</span>  <span class="i">x</span> 
+    | _ <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;想定外の終了状態です&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<p>そして再びシンボルを解決したり、参照を検索したりすることができます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">xSymbol2</span> <span class="o">=</span> 
+    <span class="i">checkResults1</span><span class="o">.</span><span class="i">GetSymbolUseAtLocation</span>(<span class="n">9</span>,<span class="n">9</span>,<span class="s">&quot;&quot;</span>,[<span class="s">&quot;xxx&quot;</span>]) 
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">usesOfXSymbol2</span> <span class="o">=</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">GetUsesOfSymbol</span>(<span class="i">xSymbol2</span><span class="o">.</span><span class="i">Value</span><span class="o">.</span><span class="i">Symbol</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>あるいは(ローカルスコープで使用されているシンボルも含めて)
+ファイル中で使用されているすべてのシンボルを検索することもできます：</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">allUsesOfAllSymbolsInFile1</span> <span class="o">=</span> <span class="i">checkResults1</span><span class="o">.</span><span class="i">GetAllUsesOfAllSymbolsInFile</span>()
+</code></pre></td>
+</tr>
+</table>
+<p>あるいは特定のファイル中で使用されているシンボルを検索することもできます：</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">allUsesOfXSymbolInFile1</span> <span class="o">=</span> <span class="i">checkResults1</span><span class="o">.</span><span class="i">GetUsesOfSymbolInFile</span>(<span class="i">xSymbol2</span><span class="o">.</span><span class="i">Value</span><span class="o">.</span><span class="i">Symbol</span>)
+
+<span class="k">let</span> <span class="i">allUsesOfXSymbolInFile2</span> <span class="o">=</span> <span class="i">checkResults2</span><span class="o">.</span><span class="i">GetUsesOfSymbolInFile</span>(<span class="i">xSymbol2</span><span class="o">.</span><span class="i">Value</span><span class="o">.</span><span class="i">Symbol</span>)
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="複数プロジェクトの分析" class="anchor" href="#複数プロジェクトの分析">複数プロジェクトの分析</a></h2>
+<p>複数のプロジェクトにまたがった参照があるような、
+複数のF# プロジェクトを分析したい場合、
+それらのプロジェクトを一旦ビルドして、
+ProjectOptionsで <code>-r:プロジェクト-出力-までの-パス.dll</code> 引数を指定して
+プロジェクトの相互参照を設定すると一番簡単です。
+しかしこの場合、それぞれのプロジェクトが正しくビルド出来、
+DLLファイルが参照可能なディスク上に生成されなければいけません。</p>
+<p>たとえばIDEを操作している場合など、状況によっては
+DLLのコンパイルが通るようになる前に
+プロジェクトを参照したいことがあるでしょう。
+この場合はProjectOptionsのReferencedProjectsを設定します。
+この値には依存するプロジェクトのオプションを再帰的に指定します。
+それぞれのプロジェクト参照にはやはり、
+ReferencedProjectsのエントリそれぞれに対応する
+<code>-r:プロジェクト-出力-までの-パス.dll</code> というコマンドライン引数を
+ProjectOptionsに設定する必要があります。</p>
+<p>プロジェクト参照が設定されると、ソースファイルからのF#プロジェクト分析処理が
+インクリメンタル分析の結果を使用して行われるようになります。
+その際にはソースファイルファイルをDLLへとコンパイルする必要はありません。</p>
+<p>相互参照を含むようなF#プロジェクトを効率よく分析するには、
+ReferencedProjectsを正しく設定した後、
+それぞれのプロジェクトを順番通りに分析していくとよいでしょう。</p>
+<blockquote>
+<p><strong>注意：</strong> プロジェクトの参照機能は試作段階です。
+プロジェクトの参照を使用すると、依存先のプロジェクトがまだ分析中で、
+要求したサービスがまだ利用できないことがあるため、
+コンパイラサービスの性能が低下することがあります。
+<strong>注意：</strong> アセンブリが型プロバイダーのコンポーネントを含む場合、
+プロジェクト参照機能は利用できません。
+プロジェクトの分析処理を強制しない限りはプロジェクト参照を設定しても
+効果がありません。
+また、分析を強制する場合にはディスク上にDLLが存在しなければいけません。</p>
+</blockquote>
+<h2><a name="まとめ" class="anchor" href="#まとめ">まとめ</a></h2>
+<p>これまで説明してきた通り、 <code>ParseAndCheckProject</code> を使用すると
+シンボルの参照などのようなプロジェクト全体の解析結果にアクセスできるようになります。
+シンボルに対する処理の詳細については <a href="symbols.html">シンボル</a> のページを参照してください。</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">GitHub上のソースコード</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">ライセンス</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">リリースノート</a></li>
+            
+            <li class="nav-header">はじめに</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/devnotes.html">開発者用メモ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/fsharp-readme.html">F#コンパイラのreadme</a></li>
+
+            <li class="nav-header">利用可能なサービス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/tokenizer.html">F#言語トークナイザ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/untypedtree.html">型無しASTの処理</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/editor.html">エディタ(IDE)のサービスを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/symbols.html">解決済みのシンボルを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/project.html">プロジェクト全体の分析</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/interactive.html">F# Interactiveの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/compiler.html">F#コンパイラの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/filesystem.html">ファイルシステムの仮想化</a></li>
+
+            <li class="nav-header">リファレンス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/../reference/index.html">API リファレンス</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

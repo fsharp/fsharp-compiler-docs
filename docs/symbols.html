@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiler Services: Working with symbols
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Compiler-Services-Working-with-symbols" class="anchor" href="#Compiler-Services-Working-with-symbols">Compiler Services: Working with symbols</a></h1>
+<p>This tutorial demonstrates how to work with symbols provided by the F# compiler. See also <a href="project.html">project wide analysis</a>
+for information on symbol references.</p>
+<blockquote>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.</p>
+</blockquote>
+<p>As usual we start by referencing <code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
+of <code>FSharpChecker</code>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Reference F# compiler API</span>
+<span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+
+<span class="k">open</span> <span class="i">System</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+
+<span class="c">// Create an interactive checker instance </span>
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+</code></pre></td>
+</tr>
+</table>
+<p>We now perform type checking on the specified input:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseAndTypeCheckSingleFile</span> (<span class="i">file</span>, <span class="i">input</span>) <span class="o">=</span> 
+    <span class="c">// Get context representing a stand-alone (script) file</span>
+    <span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> 
+        <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>)
+        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+    <span class="k">let</span> <span class="i">parseFileResults</span>, <span class="i">checkFileResults</span> <span class="o">=</span> 
+        <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckFileInProject</span>(<span class="i">file</span>, <span class="n">0</span>, <span class="i">input</span>, <span class="i">projOptions</span>) 
+        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+    <span class="c">// Wait until type checking succeeds (or 100 attempts)</span>
+    <span class="k">match</span> <span class="i">checkFileResults</span> <span class="k">with</span>
+    | <span class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span class="i">Succeeded</span>(<span class="i">res</span>) <span class="k">-&gt;</span> <span class="i">parseFileResults</span>, <span class="i">res</span>
+    | <span class="i">res</span> <span class="k">-&gt;</span> <span class="i">failwithf</span> <span class="s">&quot;Parsing did not finish... (%A)&quot;</span> <span class="i">res</span>
+
+<span class="k">let</span> <span class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="Getting-resolved-signature-information-about-the-file" class="anchor" href="#Getting-resolved-signature-information-about-the-file">Getting resolved signature information about the file</a></h2>
+<p>After type checking a file, you can access the inferred signature of a project up to and including the
+checking of the given file through the <code>PartialAssemblySignature</code> property of the <code>TypeCheckResults</code>.</p>
+<p>The full signature information is available for modules, types, attributes, members, values, functions,
+union cases, record types, units of measure and other F# language constructs.</p>
+<p>The typed expression trees are also available, see <a href="typedtree.html">typed tree tutorial</a>.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">input2</span> <span class="o">=</span> 
+      <span class="s">&quot;&quot;&quot;</span>
+<span class="s">[&lt;System.CLSCompliant(true)&gt;]</span>
+<span class="s">let foo(x, y) = </span>
+<span class="s">    let msg = String.Concat(&quot;Hello&quot;,&quot; &quot;,&quot;world&quot;)</span>
+<span class="s">    if true then </span>
+<span class="s">        printfn &quot;x = %d, y = %d&quot; x y </span>
+<span class="s">        printfn &quot;%s&quot; msg</span>
+
+<span class="s">type C() = </span>
+<span class="s">    member x.P = 1</span>
+<span class="s">      &quot;&quot;&quot;</span>
+<span class="k">let</span> <span class="i">parseFileResults</span>, <span class="i">checkFileResults</span> <span class="o">=</span> 
+    <span class="i">parseAndTypeCheckSingleFile</span>(<span class="i">file</span>, <span class="i">input2</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>Now get the partial assembly signature for the code:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">partialAssemblySignature</span> <span class="o">=</span> <span class="i">checkFileResults</span><span class="o">.</span><span class="i">PartialAssemblySignature</span>
+    
+<span class="i">partialAssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// one entity</span>
+    
+</code></pre></td>
+</tr>
+</table>
+<p>Now get the entity that corresponds to the module containing the code:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">moduleEntity</span> <span class="o">=</span> <span class="i">partialAssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]
+
+<span class="i">moduleEntity</span><span class="o">.</span><span class="i">DisplayName</span> <span class="o">=</span> <span class="s">&quot;Test&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Now get the entity that corresponds to the type definition in the code:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">classEntity</span> <span class="o">=</span> <span class="i">moduleEntity</span><span class="o">.</span><span class="i">NestedEntities</span><span class="o">.</span>[<span class="n">0</span>]
+</code></pre></td>
+</tr>
+</table>
+<p>Now get the value that corresponds to the function defined in the code:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">fnVal</span> <span class="o">=</span> <span class="i">moduleEntity</span><span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]
+</code></pre></td>
+</tr>
+</table>
+<p>Now look around at the properties describing the function value. All fo the following evaluate to <code>true</code>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fnVal</span><span class="o">.</span><span class="i">Attributes</span><span class="o">.</span><span class="i">Count</span> <span class="o">=</span> <span class="n">1</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Count</span> <span class="c">// 2</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Name</span> <span class="c">// &quot;x&quot;</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span>[<span class="n">1</span>]<span class="o">.</span><span class="i">Name</span> <span class="c">// &quot;y&quot;</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">DeclarationLocation</span><span class="o">.</span><span class="i">StartLine</span> <span class="c">// 3</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot;</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">EnclosingEntity</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;Test&quot;</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">EnclosingEntity</span><span class="o">.</span><span class="i">DeclarationLocation</span><span class="o">.</span><span class="i">StartLine</span> <span class="c">// 1</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">GenericParameters</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 0</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">InlineAnnotation</span> <span class="c">// FSharpInlineAnnotation.OptionalInline</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsActivePattern</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsCompilerGenerated</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsDispatchSlot</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsExtensionMember</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsPropertyGetterMethod</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsImplicitConstructor</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsInstanceMember</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsMember</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsModuleValueOrMember</span> <span class="c">// true</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsMutable</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsPropertySetterMethod</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsTypeFunction</span> <span class="c">// false</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Now look at the type of the function if used as a first class value. (Aside: the <code>CurriedParameterGroups</code> property contains
+more information like the names of the arguments.)</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span> <span class="c">// int * int -&gt; unit</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">IsFunctionType</span> <span class="c">// int * int -&gt; unit</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>] <span class="c">// int * int </span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">IsTupleType</span> <span class="c">// int * int </span>
+<span class="k">let</span> <span class="i">argTy1</span> <span class="o">=</span> <span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]
+
+<span class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// int</span>
+</code></pre></td>
+</tr>
+</table>
+<p>OK, so we got an object representation of the type <code>int * int -&gt; unit</code>, and we have seen the first 'int'. We can find out more about the
+type 'int' as follows, determining that it is a named type, which is an F# type abbreviation, <code>type int = int32</code>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">argTy1</span><span class="o">.</span><span class="i">HasTypeDefinition</span>
+<span class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">IsFSharpAbbreviation</span> <span class="c">// &quot;int&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<p>We can now look at the right-hand-side of the type abbreviation, which is the type <code>int32</code>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">argTy1b</span> <span class="o">=</span> <span class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">AbbreviatedType</span>
+<span class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">Namespace</span> <span class="c">// Some &quot;Microsoft.FSharp.Core&quot; </span>
+<span class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">CompiledName</span> <span class="c">// &quot;int32&quot; </span>
+</code></pre></td>
+</tr>
+</table>
+<p>Again we can now look through the type abbreviation <code>type int32 = System.Int32</code> to get the
+full information about the type:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">argTy1c</span> <span class="o">=</span> <span class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">AbbreviatedType</span>
+<span class="i">argTy1c</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">Namespace</span> <span class="c">// Some &quot;SystemCore&quot; </span>
+<span class="i">argTy1c</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">CompiledName</span> <span class="c">// &quot;Int32&quot; </span>
+</code></pre></td>
+</tr>
+</table>
+<p>The type checking results for a file also contain information extracted from the project (or script) options
+used in the compilation, called the <code>ProjectContext</code>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">projectContext</span> <span class="o">=</span> <span class="i">checkFileResults</span><span class="o">.</span><span class="i">ProjectContext</span>
+    
+<span class="k">for</span> <span class="i">ass</span> <span class="k">in</span> <span class="i">projectContext</span><span class="o">.</span><span class="i">GetReferencedAssemblies</span>() <span class="k">do</span>
+    <span class="k">match</span> <span class="i">ass</span><span class="o">.</span><span class="i">FileName</span> <span class="k">with</span> 
+    | <span class="i">None</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;compilation referenced an assembly without a file&quot;</span> 
+    | <span class="i">Some</span> <span class="i">s</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;compilation references assembly &#39;%s&#39;&quot;</span> <span class="i">s</span>
+    
+</code></pre></td>
+</tr>
+</table>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>If incomplete code is present, some or all of the attirbutes may not be quite as expected.</li>
+<li>
+If some assembly references are missing (which is actually very, very common), then 'IsUnresolved'  may
+be true on values, members and/or entites related to external assemblies.  You should be sure to make your
+code robust against IsUnresolved exceptions.
+</li>
+</ul>
+<h2><a name="Getting-symbolic-information-about-whole-projects" class="anchor" href="#Getting-symbolic-information-about-whole-projects">Getting symbolic information about whole projects</a></h2>
+<p>To check whole projects, create a checker, then call <code>parseAndCheckScript</code>. In this case, we just check
+the project for a single script. By specifying a different "projOptions" you can create
+a specification of a larger project.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseAndCheckScript</span> (<span class="i">file</span>, <span class="i">input</span>) <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> 
+        <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>)
+        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckProject</span>(<span class="i">projOptions</span>) <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Now do it for a particular input:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">tmpFile</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">System</span><span class="o">.</span><span class="i">IO</span><span class="o">.</span><span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>() , <span class="s">&quot;fs&quot;</span>)
+<span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">tmpFile</span>, <span class="i">input2</span>)
+
+<span class="k">let</span> <span class="i">projectResults</span> <span class="o">=</span> <span class="i">parseAndCheckScript</span>(<span class="i">tmpFile</span>, <span class="i">input2</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>Now look at the results:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">assemblySig</span> <span class="o">=</span> <span class="i">projectResults</span><span class="o">.</span><span class="i">AssemblySignature</span>
+    
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// one entity</span>
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Namespace</span>  <span class="c">// one entity</span>
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;Tmp28D0&quot;</span>
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1 </span>
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot; </span>
+    
+</code></pre></td>
+</tr>
+</table>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

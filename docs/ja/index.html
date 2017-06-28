@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>F# コンパイラサービス
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
+    <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="F-コンパイラサービス" class="anchor" href="#F-コンパイラサービス">F# コンパイラサービス</a></h1>
+<p>F# コンパイラサービスパッケージはF# コンパイラのソースコードから派生したコンポーネントです。
+このソースコードにはF# 言語バインディングを実装するための機能や、
+コンパイラやリファクタリングツールを元にしたツールを作成するための機能が追加されています。
+また、パッケージには自身のアプリケーションにF# スクリプトを埋め込む際に利用できるような
+F# インタラクティブサービスも含まれています。</p>
+<div class="row">
+  <div class="span1"></div>
+  <div class="span6">
+    <div class="well well-small" id="nuget">
+      F# コンパイラサービスパッケージは <a href="https://nuget.org/packages/FSharp.Compiler.Service">NuGet経由でインストールできます</a>:
+      <pre>PM> Install-Package FSharp.Compiler.Service</pre>
+    </div>
+  </div>
+  <div class="span1"></div>
+</div>
+<h2><a name="利用可能なサービス" class="anchor" href="#利用可能なサービス">利用可能なサービス</a></h2>
+<p>プロジェクトには現在以下のサービスがあり、いずれもテストされ、
+このページから参照可能なドキュメントがあります。
+ライブラリには他にも使用可能な公開APIがありますが、
+ここではドキュメント化されていません。</p>
+<ul>
+<li>
+<p><a href="tokenizer.html"><strong> F# 言語トークナイザ </strong></a> - F#ソースコードをトークンのストリームへと変換します。
+この機能はソースコードを色つき表示したり、基本的なツールを作成するような場合に有効です。
+ネストされたコメントや文字列なども適切に処理できます。</p>
+</li>
+<li>
+<p><a href="untypedtree.html"><strong> 型無しASTの処理 </strong></a> - この機能を使うことで型無し抽象構文木(AST: abstract syntax tree)にアクセスできます。
+型無しASTとは型情報を含まない解析済みのF#の文法を表すもので、
+コードフォーマットやその他様々な単純処理に利用できます。</p>
+</li>
+<li>
+<p><a href="editor.html"><strong> エディタ (IDE) サービスの使用 </strong></a> - 自動補完やツールチップ、
+引数の情報などを表示するための機能があります。
+この機能を使うと、F#サポート機能をエディタに追加したり、F#コードから
+何らかの型情報を取得したりすることができるようになります。</p>
+</li>
+<li>
+<p><a href="symbols.html"><strong> シグネチャや型、解決済みのシンボルの処理 </strong></a> -
+解決済みのシンボルや推測された型の表現、アセンブリ全体のシグネチャなどを
+型のチェック時に返すような多数のサービスがあります。</p>
+</li>
+<li>
+<p><a href="project.html"><strong> 複数プロジェクトやプロジェクト全体の処理 </strong></a> -
+すべてのプロジェクトに対するチェックを実行することにより、
+プロジェクト全体の解析結果を使って[すべての参照の検索] のような
+機能を実現できます。</p>
+</li>
+<li>
+<p><a href="interactive.html"><strong> F# Interactive のホスティング </strong></a> - 自身の.NETコードから
+F# Interactiveを.NETライブラリとして呼び出すことができるようになります。
+このAPIを使用すると、自身のプロジェクト内でF#をスクリプト言語として
+埋め込むことができるようになります。</p>
+</li>
+<li>
+<p><a href="compiler.html"><strong> F#コンパイラのホスティング </strong></a> - F# コンパイラを
+呼び出すコードを組み込むことができます。</p>
+</li>
+<li>
+<p><a href="filesystem.html"><strong> ファイルシステムAPI </strong></a> - <code>FSharp.Compiler.Service</code> コンポーネントには
+ファイルシステムを表すグローバル変数が定義されています。
+この変数を設定することによって、ファイルシステムが使用できない状況であっても
+コンパイラをホストすることができるようになります。</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>注釈:</strong> FSharp.Compiler.Service.dll には既存のものと重複する機能が多数あるため、
+将来的にはもっときちんとした形に変更されます。
+そのため、これらのサービスを使用するAPIには破壊的変更が加えられる可能性があります。</p>
+</blockquote>
+<h2><a name="貢献および著作権について" class="anchor" href="#貢献および著作権について">貢献および著作権について</a></h2>
+<p>このプロジェクトは <a href="https://github.com/fsharp/fsharp">fsharp/fsharp</a> からフォークしたもので、
+そこへさらにエディタやF#用ツール、F# Interactiveの組み込みに必要となる機能を
+追加したものです。</p>
+<p>F# ソースコードの著作権はMicrosoft Corporationおよび貢献者に、
+拡張機能の著作権は Dave Thomas, Anh-Dung Phan, Tomas Petricek および
+その他の貢献者にあります。
+ソースコードは <a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">Apache 2.0 ライセンス</a> の元に公開されています。</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">GitHub上のソースコード</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">ライセンス</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">リリースノート</a></li>
+            
+            <li class="nav-header">はじめに</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/devnotes.html">開発者用メモ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/fsharp-readme.html">F#コンパイラのreadme</a></li>
+
+            <li class="nav-header">利用可能なサービス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/tokenizer.html">F#言語トークナイザ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/untypedtree.html">型無しASTの処理</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/editor.html">エディタ(IDE)のサービスを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/symbols.html">解決済みのシンボルを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/project.html">プロジェクト全体の分析</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/interactive.html">F# Interactiveの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/compiler.html">F#コンパイラの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/filesystem.html">ファイルシステムの仮想化</a></li>
+
+            <li class="nav-header">リファレンス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/../reference/index.html">API リファレンス</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

@@ -1,3 +1,6 @@
+#### 13.0.1
+  * Move docs --> docssrc
+  
 #### 13.0.0
   * Move FSharp.Compiler.Service.MSBuild.v12.dll to a separate nuget package
   

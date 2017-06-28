@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>コンパイラサービス: エディタサービス
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
+    <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="コンパイラサービス-エディタサービス" class="anchor" href="#コンパイラサービス-エディタサービス">コンパイラサービス: エディタサービス</a></h1>
+<p>このチュートリアルはF#コンパイラによって公開されるエディタサービスの
+使用方法についてのデモです。
+このAPIにより、Visual StudioやXamarin Studio、EmacsなどのF#エディタ内において、
+自動補完機能やツールチップ表示、引数情報のヘルプ表示、括弧の補完などの機能を
+実装することができます
+(詳細については <a href="https://github.com/fsharp/fsharpbinding">fsharpbindings</a> のプロジェクトを参照してください)。
+<a href="untypedtree.html">型無しASTを使用するチュートリアル</a> と同じく、
+今回も <code>FSharpChecker</code> オブジェクトを作成するところから始めます。</p>
+<blockquote>
+<p><strong>注意:</strong> 以下で使用しているAPIは試験的なもので、最新バージョンのnugetパッケージの
+公開に伴って変更されることがあります。</p>
+</blockquote>
+<h2><a name="サンプルソースコードの型チェック" class="anchor" href="#サンプルソースコードの型チェック">サンプルソースコードの型チェック</a></h2>
+<p><a href="untypedtree.html">前回の(型無しASTを使った)チュートリアル</a> と同じく、
+<code>FSharp.Compiler.Service.dll</code> への参照を追加した後に特定の名前空間をオープンし、
+<code>FSharpChecker</code> のインスタンスを作成します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// F#コンパイラAPIを参照</span>
+<span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+
+<span class="k">open</span> <span class="i">System</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+
+<span class="c">// インタラクティブチェッカーのインスタンスを作成</span>
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+</code></pre></td>
+</tr>
+</table>
+<p><a href="untypedtree.html">前回</a> 同様、
+コンパイラに渡されるファイルとしては特定の入力値だけであるという
+コンテキストを想定するため、 <code>GetCheckOptionsFromScriptRoot</code> を使います
+(この入力値はコンパイラによってスクリプトファイル、
+あるいはスタンドアロンのF#ソースコードとみなされます)。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// サンプルの入力となる複数行文字列</span>
+<span class="k">let</span> <span class="i">input</span> <span class="o">=</span> 
+  <span class="s">&quot;&quot;&quot;</span>
+<span class="s">  open System</span>
+
+<span class="s">  let foo() = </span>
+<span class="s">    let msg = String.Concat(&quot;Hello&quot;,&quot; &quot;,&quot;world&quot;)</span>
+<span class="s">    if true then </span>
+<span class="s">      printfn &quot;%s&quot; msg.</span>
+<span class="s">  &quot;&quot;&quot;</span>
+<span class="c">// 入力値の分割とファイル名の定義</span>
+<span class="k">let</span> <span class="i">inputLines</span> <span class="o">=</span> <span class="i">input</span><span class="o">.</span><span class="i">Split</span>(<span class="s">&#39;\n&#39;</span>)
+<span class="k">let</span> <span class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
+
+<span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>) <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>型チェックを実行するには、まず <code>ParseFileInProject</code> を使って
+入力値をパースする必要があります。
+このメソッドを使うと <a href="untypedtree.html">型無しAST</a> にアクセスできるようになります。
+しかし今回は完全な型チェックを実行するため、続けて <code>CheckFileInProject</code>
+を呼び出す必要があります。
+このメソッドは <code>ParseFileInProject</code> の結果も必要とするため、
+たいていの場合にはこれら2つのメソッドをセットで呼び出すことになります。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// パースを実行</span>
+<span class="k">let</span> <span class="i">parseFileResults</span> <span class="o">=</span>
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseFileInProject</span>(<span class="i">file</span>, <span class="i">input</span>, <span class="i">projOptions</span>)
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p><code>TypeCheckResults</code> に備えられた興味深い機能の紹介に入る前に、
+サンプル入力に対して型チェッカーを実行する必要があります。
+F#コードにエラーがあった場合も何らかの型チェックの結果が返されます
+(ただし間違って「推測された」結果が含まれることがあります)。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// 型チェックを実行</span>
+<span class="k">let</span> <span class="i">checkFileAnswer</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">CheckFileInProject</span>(<span class="i">parseFileResults</span>, <span class="i">file</span>, <span class="n">0</span>, <span class="i">input</span>, <span class="i">projOptions</span>) 
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>あるいは <code>ParseAndCheckFileInProject</code> を使用すれば1つの操作で両方のチェックを行うことができます：</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseResults2</span>, <span class="i">checkFileAnswer2</span> <span class="o">=</span>
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckFileInProject</span>(<span class="i">file</span>, <span class="n">0</span>, <span class="i">input</span>, <span class="i">projOptions</span>)
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>この返り値は <code>CheckFileAnswer</code> 型で、この型に機能的に興味深いものが揃えられています...</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">checkFileResults</span> <span class="o">=</span> 
+    <span class="k">match</span> <span class="i">checkFileAnswer</span> <span class="k">with</span>
+    | <span class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span class="i">Succeeded</span>(<span class="i">res</span>) <span class="k">-&gt;</span> <span class="i">res</span>
+    | <span class="i">res</span> <span class="k">-&gt;</span> <span class="i">failwithf</span> <span class="s">&quot;パースが完了していません... (%A)&quot;</span> <span class="i">res</span>
+</code></pre></td>
+</tr>
+</table>
+<p>今回は単に(状況に応じて)「Hello world」と表示するだけの
+単純な関数の型をチェックしています。
+最終行では値 <code>msg</code> に対する補完リストを表示することができるように、
+<code>msg.</code> というようにドットを追加している点に注意してください
+(今回の場合は文字列型に対する様々なメソッドが期待されます)。</p>
+<h2><a name="型チェックの結果を使用する" class="anchor" href="#型チェックの結果を使用する">型チェックの結果を使用する</a></h2>
+<p>では <code>TypeCheckResults</code> 型で公開されているAPIをいくつか見ていきましょう。
+一般的に、F#ソースコードエディタサービスの実装に必要な機能は
+ほとんどこの型に備えられています。</p>
+<h3><a name="ツールチップの取得" class="anchor" href="#ツールチップの取得">ツールチップの取得</a></h3>
+<p>ツールチップを取得するには <code>GetToolTipTextAlternate</code> メソッドを使用します。
+このメソッドには行数と文字オフセットを指定します。
+いずれも0から始まる数値です。
+サンプルコードでは3行目(0行目は空白行)、インデックス7にある文字 <code>f</code> から始まる関数
+<code>foo</code> のツールチップを取得しています
+(ツールチップは識別子の中であれば任意の位置で機能します)。</p>
+<p>またこのメソッドにはトークンタグを指定する必要もあります。
+トークンタグは一般的には <code>IDENT</code> を指定して、識別子に対する
+ツールチップが取得できるようにします
+(あるいは <code>#r "..."</code> を使用している場合にはアセンブリの完全パスを表示させるように
+することもできるでしょう)。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// 最後の引数に指定する、IDENTトークンのタグを取得</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span>
+<span class="k">let</span> <span class="i">identToken</span> <span class="o">=</span> <span class="i">Parser</span><span class="o">.</span><span class="i">tagOfToken</span>(<span class="i">Parser</span><span class="o">.</span><span class="i">token</span><span class="o">.</span><span class="i">IDENT</span>(<span class="s">&quot;&quot;</span>)) 
+
+<span class="c">// 特定の位置におけるツールチップを取得</span>
+<span class="k">let</span> <span class="i">tip</span> <span class="o">=</span> <span class="i">checkFileResults</span><span class="o">.</span><span class="i">GetToolTipTextAlternate</span>(<span class="n">4</span>, <span class="n">7</span>, <span class="i">inputLines</span><span class="o">.</span>[<span class="n">1</span>], [<span class="s">&quot;foo&quot;</span>], <span class="i">identToken</span>)
+<span class="i">printfn</span> <span class="s">&quot;%A&quot;</span> <span class="i">tip</span>
+</code></pre></td>
+</tr>
+</table>
+<blockquote>
+<p><strong>注意：</strong> <code>GetToolTipTextAlternate</code> は古い関数 <code>GetToolTipText</code> に代わるものです。
+<code>GetToolTipText</code> は0から始まる行番号を受け取るようになっていたため、非推奨になりました。</p>
+</blockquote>
+<p>この関数には位置とトークンの種類の他にも、
+(ソースコードの変更時に役立つように)特定行の現在の内容と、
+現時点における完全修飾された <code>名前</code> を表す文字列のリストを指定する必要があります。
+たとえば完全修飾名 <code>System.Random</code> という名前を持った識別子 <code>Random</code> に対する
+ツールチップを取得する場合、 <code>Random</code> という文字列が現れる場所の他に、
+<code>["System"; "Random"]</code> という値を指定する必要があります。</p>
+<p>返り値の型は <code>ToolTipText</code> で、この型には <code>ToolTipElement</code> という
+判別共用体が含まれます。
+この共用体は、コンパイラによって返されたツールチップの種類に応じて異なります。</p>
+<h3><a name="自動補完リストの取得" class="anchor" href="#自動補完リストの取得">自動補完リストの取得</a></h3>
+<p>次に紹介する <code>TypeCheckResults</code> のメソッドを使用すると、
+特定の位置における自動補完機能を実装できます。
+この機能は任意の識別子上、
+あるいは(特定のスコープ内で利用可能な名前の一覧を取得する場合には)任意のスコープ、
+あるいは特定のオブジェクトにおけるメンバーリストを取得する場合には
+<code>.</code> の直後で呼び出すことができます。
+今回は文字列の値 <code>msg</code> に対するメンバーリストを取得することにします。</p>
+<p>そのためには最終行( <code>printfn "%s" msg.</code> で終わっている行)にある
+シンボル <code>.</code> の位置を指定して <code>GetDeclarationListInfo</code> を呼び出します。
+オフセットは1から始まるため、位置は <code>7, 23</code> になります。
+また、テキストが変更されていないことを表す関数と、
+現時点において補完する必要がある識別子を指定する必要もあります。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// 特定の位置における宣言(自動補完)を取得する</span>
+<span class="k">let</span> <span class="i">decls</span> <span class="o">=</span> 
+    <span class="i">checkFileResults</span><span class="o">.</span><span class="i">GetDeclarationListInfo</span>
+      (<span class="i">Some</span> <span class="i">parseFileResults</span>, <span class="n">7</span>, <span class="n">23</span>, <span class="i">inputLines</span><span class="o">.</span>[<span class="n">6</span>], [], <span class="s">&quot;msg&quot;</span>, <span class="k">fun</span> _ <span class="k">-&gt;</span> <span class="k">false</span>)
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="c">// 利用可能な項目を表示</span>
+<span class="k">for</span> <span class="i">item</span> <span class="k">in</span> <span class="i">decls</span><span class="o">.</span><span class="i">Items</span> <span class="k">do</span>
+    <span class="i">printfn</span> <span class="s">&quot; - %s&quot;</span> <span class="i">item</span><span class="o">.</span><span class="i">Name</span>
+</code></pre></td>
+</tr>
+</table>
+<blockquote>
+<p><strong>注意：</strong> <code>GetDeclarationListInfo</code> は古い関数 <code>GetDeclarations</code> に代わるものです。
+<code>GetDeclarations</code> は0から始まる行番号を受け取るようになっていたため、非推奨になりました。
+また、将来的には現在の <code>GetDeclarations</code> が削除され、 <code>GetDeclarationListInfo</code> が
+<code>GetDeclarations</code> になる予定です。</p>
+</blockquote>
+<p>コードを実行してみると、 <code>Substring</code> や <code>ToUpper</code> 、 <code>ToLower</code> といった
+文字列に対するいつものメソッドのリストが取得できていることでしょう。
+<code>GetDeclarations</code> の5,6番目の引数( <code>[]</code> および <code>"msg"</code> )には
+自動補完用のコンテキストを指定します。
+今回の場合は完全名 <code>msg</code> に対する補完を行いましたが、
+たとえば <code>["System"; "Collections"]</code> と <code>"Generic"</code> というように
+完全修飾された名前空間を指定して補完リストを取得することもできます。</p>
+<h3><a name="引数の情報を取得する" class="anchor" href="#引数の情報を取得する">引数の情報を取得する</a></h3>
+<p>次に一般的なエディタの機能としては、メソッドのオーバーロードに
+関する情報を提供するというものでしょう。
+サンプルコード中では多数のオーバーロードを持った <code>String.Concat</code> を使っています。
+このオーバーロード一覧は <code>GetMethods</code> で取得できます。
+先ほどと同じく、このメソッドには対象とする項目の位置を0基準のオフセットで指定し
+(今回は <code>String.Concat</code> 識別子の右側の終端)、
+識別子もやはり指定します
+(これにより、コンパイラはソースコードが変更された場合でも最新の情報に追従できます):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">//String.Concatメソッドのオーバーロードを取得する</span>
+<span class="k">let</span> <span class="i">methods</span> <span class="o">=</span> 
+    <span class="i">checkFileResults</span><span class="o">.</span><span class="i">GetMethodsAlternate</span>(<span class="n">5</span>, <span class="n">27</span>, <span class="i">inputLines</span><span class="o">.</span>[<span class="n">4</span>], <span class="i">Some</span> [<span class="s">&quot;String&quot;</span>; <span class="s">&quot;Concat&quot;</span>]) <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="c">// 連結された引数リストを表示</span>
+<span class="k">for</span> <span class="i">mi</span> <span class="k">in</span> <span class="i">methods</span><span class="o">.</span><span class="i">Methods</span> <span class="k">do</span>
+    [ <span class="k">for</span> <span class="i">p</span> <span class="k">in</span> <span class="i">mi</span><span class="o">.</span><span class="i">Parameters</span> <span class="k">-&gt;</span> <span class="i">p</span><span class="o">.</span><span class="i">Display</span> ]
+    <span class="o">|&gt;</span> <span class="i">String</span><span class="o">.</span><span class="i">concat</span> <span class="s">&quot;, &quot;</span> 
+    <span class="o">|&gt;</span> <span class="i">printfn</span> <span class="s">&quot;%s(%s)&quot;</span> <span class="i">methods</span><span class="o">.</span><span class="i">MethodName</span>
+</code></pre></td>
+</tr>
+</table>
+<p>ここでは <code>Display</code> プロパティを使用することで各引数に対する
+アノテーションを取得しています。
+このプロパティは <code>arg0: obj</code> あるいは <code>params args: obj[]</code> 、
+<code>str0: string, str1: string</code> といった情報を返します。
+これらの引数を連結した後、メソッド名とメソッドの型情報とともに表示させています。</p>
+<h2><a name="非同期操作と即時操作" class="anchor" href="#非同期操作と即時操作">非同期操作と即時操作</a></h2>
+<p><code>CheckFileInProject</code> が非同期操作であることを気にされる人もいるかもしれません。
+これはつまり、F#コードの型チェックにはある程度時間がかかることを示唆しています。
+F#コンパイラは型チェックを(自動的に)バックグラウンドで処理を進めているため、
+<code>CheckFileInProject</code> メソッドを呼び出すと非同期操作が返されることになります。</p>
+<p>また、 <code>CheckFileInProjectIfReady</code> というメソッドもあります。
+このメソッドは、型チェックの操作が即座に開始できない場合、
+つまりプロジェクト内の他のファイルがまだ型チェックされていない場合には
+処理が即座に返されます。
+この場合、バックグラウンドワーカーは一定期間他の作業を進めるか、
+<code>FileTypeCheckStateIsDirty</code> イベントが発生するまでは
+ファイルに対する型チェックを諦めるか、どちらか選択することになります。</p>
+<blockquote>
+<p><a href="https://github.com/fsharp/fsharpbinding">fsharpbinding</a> プロジェクトには
+1つのF#エージェント経由ですべてのリクエストをバックグラウンドワークとして
+処理するような、より複雑な具体例も含まれています。
+エディタの機能を実装する方法としてはこちらのほうが適切です。</p>
+</blockquote>
+<h2><a name="まとめ" class="anchor" href="#まとめ">まとめ</a></h2>
+<p><code>CheckFileAnswer</code> にはチュートリアルで紹介していないような便利なメソッドが
+多数揃えられています。
+これらを使用すれば特定の識別子に対する宣言の位置を取得したり、
+付加的な色情報を取得したりすることができます
+(F# 3.1では式ビルダーの識別子やクエリ演算子も着色表示されます)。</p>
+<p>最後に、直接.NET APIを呼び出すことができないようなエディタに対するサポート機能を
+実装する場合、ここで紹介した様々な機能を
+<a href="https://github.com/fsharp/fsharpbinding/tree/master/FSharp.AutoComplete">FSharp.AutoComplete</a>
+プロジェクトのコマンドラインインターフェイス経由で呼び出すこともできます。</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">GitHub上のソースコード</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">ライセンス</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">リリースノート</a></li>
+            
+            <li class="nav-header">はじめに</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/devnotes.html">開発者用メモ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/fsharp-readme.html">F#コンパイラのreadme</a></li>
+
+            <li class="nav-header">利用可能なサービス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/tokenizer.html">F#言語トークナイザ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/untypedtree.html">型無しASTの処理</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/editor.html">エディタ(IDE)のサービスを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/symbols.html">解決済みのシンボルを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/project.html">プロジェクト全体の分析</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/interactive.html">F# Interactiveの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/compiler.html">F#コンパイラの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/filesystem.html">ファイルシステムの仮想化</a></li>
+
+            <li class="nav-header">リファレンス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/../reference/index.html">API リファレンス</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

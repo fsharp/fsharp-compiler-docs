@@ -22,7 +22,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open FSharp.Compiler.Service.Tests.Common
 
-let createOptionsForFile (content, dllFiles, libDirs, otherFlags) =
+let internal getProjectReferences (content, dllFiles, libDirs, otherFlags) = 
     let otherFlags = defaultArg otherFlags []
     let libDirs = defaultArg libDirs []
     let base1 = Path.GetTempFileName()
@@ -47,27 +47,23 @@ let createOptionsForFile (content, dllFiles, libDirs, otherFlags) =
                  yield "-I:"+libDir
                yield! otherFlags
                yield fileName1 |])
-    fileName1, options
-
-let getProjectReferences(options) =
-    let projectCheckResults = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
-    if projectCheckResults.HasCriticalErrors then
+    let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
+    if results.HasCriticalErrors then
         let builder = new System.Text.StringBuilder()
-        for err in projectCheckResults.Errors do
+        for err in results.Errors do
             builder.AppendLine(sprintf "**** %s: %s" (if err.Severity = FSharpErrorSeverity.Error then "error" else "warning") err.Message)
             |> ignore
         failwith (builder.ToString())
     let assemblies =
-        projectCheckResults.ProjectContext.GetReferencedAssemblies()
+        results.ProjectContext.GetReferencedAssemblies()
         |> List.map(fun x -> x.SimpleName, x)
         |> dict
-    projectCheckResults, assemblies
+    results, assemblies
 
 [<Test>]
 let ``Test that csharp references are recognized as such`` () = 
-    let csharpAssembly = typeof<CSharpClass>.Assembly.Location
-    let _, options = createOptionsForFile("""module M""", [csharpAssembly], None, None)
-    let _, table = getProjectReferences(options)
+    let csharpAssembly = PathRelativeToTestAssembly "CSharp_Analysis.dll"
+    let _, table = getProjectReferences("""module M""", [csharpAssembly], None, None)
     let ass = table.["CSharp_Analysis"]
     let search = ass.Contents.Entities |> Seq.tryFind (fun e -> e.DisplayName = "CSharpClass") 
     Assert.True search.IsSome
@@ -101,7 +97,7 @@ let ``Test that csharp references are recognized as such`` () =
 
 [<Test>]
 let ``Test that symbols of csharp inner classes/enums are reported`` () = 
-    let csharpAssembly = typeof<CSharpClass>.Assembly.Location
+    let csharpAssembly = PathRelativeToTestAssembly "CSharp_Analysis.dll"
     let content = """
 module NestedEnumClass
 open FSharp.Compiler.Service.Tests
@@ -109,8 +105,8 @@ open FSharp.Compiler.Service.Tests
 let _ = CSharpOuterClass.InnerEnum.Case1
 let _ = CSharpOuterClass.InnerClass.StaticMember()
 """
-    let _, options = createOptionsForFile(content, [csharpAssembly], None, None)
-    let results, _ = getProjectReferences(options)
+
+    let results, _ = getProjectReferences(content, [csharpAssembly], None, None)
     results.GetAllUsesOfAllSymbols()
     |> Async.RunSynchronously
     |> Array.map (fun su -> su.Symbol.ToString())
@@ -127,18 +123,12 @@ open FSharp.Compiler.Service.Tests
 
 let _ = CSharpClass(0)
 """
-    let fileName, options = createOptionsForFile(content, [csharpAssembly], None, None)
-    let _, checkResults =
-        checker.ParseAndCheckFileInProject(fileName, 0, content, options)
-        |> Async.RunSynchronously
-    match checkResults with
-    | FSharpCheckFileAnswer.Succeeded(results) ->
-        let ctor =
-            results.GetAllUsesOfAllSymbolsInFile()
+    let results, _ = getProjectReferences(content, [csharpAssembly], None, None)
+    let ctor =
+            results.GetAllUsesOfAllSymbols()
             |> Async.RunSynchronously
             |> Seq.map (fun su -> su.Symbol)
             |> Seq.find (function :? FSharpMemberOrFunctionOrValue as mfv -> mfv.IsConstructor | _ -> false)
-        let members = (ctor :?> FSharpMemberOrFunctionOrValue).EnclosingEntity.MembersFunctionsAndValues
-        Seq.exists (fun (mfv : FSharpMemberOrFunctionOrValue) -> mfv.IsConstructor) members |> should be True
-        Seq.exists (fun (mfv : FSharpMemberOrFunctionOrValue) -> mfv.IsEffectivelySameAs ctor) members |> should be True
-    | _ -> failwith "Could not check file"
+    let members = (ctor :?> FSharpMemberOrFunctionOrValue).EnclosingEntity.MembersFunctionsAndValues
+    Seq.exists (fun (mfv : FSharpMemberOrFunctionOrValue) -> mfv.IsConstructor) members |> should be True
+    Seq.exists (fun (mfv : FSharpMemberOrFunctionOrValue) -> mfv.IsEffectivelySameAs ctor) members |> should be True

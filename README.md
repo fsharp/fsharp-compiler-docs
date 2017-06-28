@@ -1,15 +1,4 @@
 F# Compiler Service
-===================
-
-The F# compiler services package contains a custom build of the F# compiler that
-exposes additional functionality for implementing F# language bindings, additional
-tools based on the compiler or refactoring tools. The package also includes F#
-interactive service that can be used for embedding F# scripting into your applications.
-
-Documentation
--------------
-
-For more information about the project, see:
 
  * [F# Compiler Service documentation](http://fsharp.github.io/FSharp.Compiler.Service/)
  * [Developer notes explain the project structure](http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html)

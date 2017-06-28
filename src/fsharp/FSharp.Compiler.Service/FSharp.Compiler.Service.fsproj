@@ -29,22 +29,14 @@
     <OutputPath>..\..\..\bin\$(TargetFrameworkVersion)</OutputPath>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
     <DefineConstants>$(DefineConstants);CROSS_PLATFORM_COMPILER</DefineConstants>
-    <DefineConstants Condition="$(TargetFrameworkVersion) == 'v4.5'">$(DefineConstants);FX_ATLEAST_45</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_ATLEAST_40</DefineConstants>
-    <DefineConstants>$(DefineConstants);BE_SECURITY_TRANSPARENT</DefineConstants>
-    <DefineConstants>$(DefineConstants);TYPE_PROVIDER_SECURITY</DefineConstants>
-    <DefineConstants>$(DefineConstants);EXTENSIBLE_DUMPER</DefineConstants>
-    <DefineConstants>$(DefineConstants);INCLUDE_METADATA_WRITER</DefineConstants>
-    <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
-    <DefineConstants>$(DefineConstants);ENABLE_MONO_SUPPORT</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_MSBUILDRESOLVER_RUNTIMELIKE</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_LCIDFROMCODEPAGE</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_RESX_RESOURCE_READER</DefineConstants>
-    <DefineConstants>$(DefineConstants);FX_RESIDENT_COMPILER</DefineConstants>
-    <DefineConstants>$(DefineConstants);SHADOW_COPY_REFERENCES</DefineConstants>
     <DefineConstants>$(DefineConstants);EXTENSIONTYPING</DefineConstants>
+    <DefineConstants>$(DefineConstants);CROSS_PLATFORM_COMPILER</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILER_PUBLIC_API</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILER_SERVICE_AS_DLL</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
+    <DefineConstants>$(DefineConstants);ENABLE_MONO_SUPPORT</DefineConstants>
     <DefineConstants>$(DefineConstants);COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_4_0_0</DefineConstants>
-    <DefineConstants>$(DefineConstants);COMPILER_SERVICE</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_STRONG_NAMES</DefineConstants>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
@@ -522,6 +514,24 @@
     <Compile Include="..\fsc.fs">
       <Link>Driver/fsc.fs</Link>
     </Compile>
+    <Compile Include="..\symbols\SymbolHelpers.fsi">
+      <Link>Symbols/SymbolHelpers.fsi</Link>
+    </Compile>
+    <Compile Include="..\symbols\SymbolHelpers.fs">
+      <Link>Symbols/SymbolHelpers.fs</Link>
+    </Compile>
+    <Compile Include="..\symbols\Symbols.fsi">
+      <Link>Symbols/Symbols.fsi</Link>
+    </Compile>
+    <Compile Include="..\symbols\Symbols.fs">
+      <Link>Symbols/Symbols.fs</Link>
+    </Compile>
+    <Compile Include="..\symbols\Exprs.fsi">
+      <Link>Symbols/Exprs.fsi</Link>
+    </Compile>
+    <Compile Include="..\symbols\Exprs.fs">
+      <Link>Symbols/Exprs.fs</Link>
+    </Compile>
     <Compile Include="..\vs\IncrementalBuild.fsi">
       <Link>Service/IncrementalBuild.fsi</Link>
     </Compile>
@@ -536,24 +546,6 @@
     </Compile>
     <Compile Include="..\vs\ServiceConstants.fs">
       <Link>Service/ServiceConstants.fs</Link>
-    </Compile>
-    <Compile Include="..\vs\ServiceDeclarations.fsi">
-      <Link>Service/ServiceDeclarations.fsi</Link>
-    </Compile>
-    <Compile Include="..\vs\ServiceDeclarations.fs">
-      <Link>Service/ServiceDeclarations.fs</Link>
-    </Compile>
-    <Compile Include="..\vs\Symbols.fsi">
-      <Link>Service/Symbols.fsi</Link>
-    </Compile>
-    <Compile Include="..\vs\Symbols.fs">
-      <Link>Service/Symbols.fs</Link>
-    </Compile>
-    <Compile Include="..\vs\Exprs.fsi">
-      <Link>Service/Exprs.fsi</Link>
-    </Compile>
-    <Compile Include="..\vs\Exprs.fs">
-      <Link>Service/Exprs.fs</Link>
     </Compile>
     <Compile Include="..\vs\ServiceLexing.fsi">
       <Link>Service/ServiceLexing.fsi</Link>
@@ -588,18 +580,17 @@
     <Compile Include="..\SimulatedMSBuildReferenceResolver.fs">
       <Link>Service/SimulatedMSBuildReferenceResolver.fs</Link>
     </Compile>
+    <Compile Include="..\vs\ServiceDeclarationLists.fsi">
+      <Link>Service/ServiceDeclarationLists.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\ServiceDeclarationLists.fs">
+      <Link>Service/ServiceDeclarationLists.fs</Link>
+    </Compile>
     <Compile Include="..\vs\ServiceAssemblyContent.fsi">
       <Link>Service/ServiceAssemblyContent.fsi</Link>
     </Compile>
     <Compile Include="..\vs\ServiceAssemblyContent.fs">
       <Link>Service/ServiceAssemblyContent.fs</Link>
-    </Compile>
-    <!--
-    <Compile Include="..\vs\ServiceInterfaceStubGenerator.fsi">
-      <Link>Service/ServiceInterfaceStubGenerator.fsi</Link>
-    </Compile>
-    <Compile Include="..\vs\ServiceInterfaceStubGenerator.fs">
-      <Link>Service/ServiceInterfaceStubGenerator.fs</Link>
     </Compile>
     <Compile Include="..\vs\ServiceXmlDocParser.fsi">
       <Link>Service/ServiceXmlDocParser.fsi</Link>
@@ -607,18 +598,23 @@
     <Compile Include="..\vs\ServiceXmlDocParser.fs">
       <Link>Service/ServiceXmlDocParser.fs</Link>
     </Compile>
--->
     <Compile Include="..\vs\service.fsi">
       <Link>Service/service.fsi</Link>
     </Compile>
     <Compile Include="..\vs\service.fs">
       <Link>Service/service.fs</Link>
     </Compile>
-    <Compile Include="..\vs\SimpleServices.fsi">
-      <Link>Service/SimpleServices.fsi</Link>
+    <Compile Include="..\vs\ServiceInterfaceStubGenerator.fsi">
+      <Link>Service/ServiceInterfaceStubGenerator.fsi</Link>
     </Compile>
-    <Compile Include="..\vs\SimpleServices.fs">
-      <Link>Service/SimpleServices.fs</Link>
+    <Compile Include="..\vs\ServiceInterfaceStubGenerator.fs">
+      <Link>Service/ServiceInterfaceStubGenerator.fs</Link>
+    </Compile>
+    <Compile Include="..\vs\ServiceStructure.fsi">
+      <Link>Service/ServiceStructure.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\ServiceStructure.fs">
+      <Link>Service/ServiceStructure.fs</Link>
     </Compile>
     <Compile Include="..\fsi\fsi.fsi">
       <Link>Service/fsi.fsi</Link>

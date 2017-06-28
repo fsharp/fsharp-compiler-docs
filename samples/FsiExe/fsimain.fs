@@ -154,20 +154,7 @@ let MainMain argv =
 
     try
         let console = new Microsoft.FSharp.Compiler.Interactive.ReadLineConsole()
-        let getConsoleReadLine () = 
-                   let probeToSeeIfConsoleWorks =
-                    //if progress then fprintfn outWriter "probing to see if console works..."
-                    try
-                        // Probe to see if the console looks functional on this version of .NET
-                        let _ = Console.KeyAvailable 
-                        let c1 = Console.ForegroundColor
-                        let c2 = Console.BackgroundColor
-                        let _ = Console.CursorLeft <- Console.CursorLeft
-                        //if progress then fprintfn outWriter "probe succeeded, we might have a console, comparing foreground (%A) and background (%A) colors, if they are the same then we're running in emacs or VS on unix and we turn off readline by default..." c1 c2
-                        c1 <> c2
-                    with _ -> 
-                        //if progress then fprintfn outWriter "probe failed, we have no console..."
-                        false 
+        let getConsoleReadLine (probeToSeeIfConsoleWorks) = 
                    if probeToSeeIfConsoleWorks then 
                        Some (fun () -> console.ReadLine())
                    else
@@ -200,7 +187,7 @@ let MainMain argv =
                 member __.StartServer(fsiServerName) = StartServer fsiSession fsiServerName
                 
                 // Connect the configuration through to the 'fsi' Event loop
-                member __.OptionalConsoleReadLine = getConsoleReadLine() }
+                member __.GetOptionalConsoleReadLine(probeToSeeIfConsoleWorks) = getConsoleReadLine(probeToSeeIfConsoleWorks) }
 
         and fsiSession = FsiEvaluationSession.Create (fsiConfig, argv, Console.In, Console.Out, Console.Error)
 

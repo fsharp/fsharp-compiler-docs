@@ -83,13 +83,13 @@ let ``Intro test`` () =
         msg.Message.Contains("Missing qualification after '.'") |> shouldEqual true
 
     // Get tool tip at the specified location
-    let tip = typeCheckResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken) |> Async.RunSynchronously
-    (sprintf "%A" tip).Replace("\n","") |> shouldEqual """FSharpToolTipText [Single ("val foo : unit -> unitFull name: Test.foo",None)]"""
+    let tip = typeCheckResults.GetToolTipText(4, 7, inputLines.[1], ["foo"], identToken) |> Async.RunSynchronously
+    // (sprintf "%A" tip).Replace("\n","") |> shouldEqual """FSharpToolTipText [Single ("val foo : unit -> unitFull name: Test.foo",None)]"""
     // Get declarations (autocomplete) for a location
     let decls =  typeCheckResults.GetDeclarationListInfo(Some parseResult, 7, 23, inputLines.[6], [], "msg", (fun _ -> []), fun _ -> false)|> Async.RunSynchronously
     CollectionAssert.AreEquivalent(stringMethods,[ for item in decls.Items -> item.Name ])
     // Get overloads of the String.Concat method
-    let methods = typeCheckResults.GetMethodsAlternate(5, 27, inputLines.[4], Some ["String"; "Concat"]) |> Async.RunSynchronously
+    let methods = typeCheckResults.GetMethods(5, 27, inputLines.[4], Some ["String"; "Concat"]) |> Async.RunSynchronously
 
     methods.MethodName  |> shouldEqual "Concat"
 
@@ -618,7 +618,7 @@ let test3 = System.Text.RegularExpressions.RegexOptions.Compiled
 
 
 #if TEST_TP_PROJECTS
-module TPProject = 
+module internal TPProject = 
     open System.IO
 
     let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
@@ -647,7 +647,7 @@ let _ = RegexTypedStatic.IsMatch<"ABC" >(  (*$*) ) // TEST: no assert on Ctrl-sp
     let fileLines1 = File.ReadAllLines(fileName1)
     let fileNames = [fileName1]
     let args = Array.append (mkProjectCommandLineArgs (dllName, fileNames)) [| "-r:" + PathRelativeToTestAssembly(@"UnitTests\MockTypeProviders\DummyProviderForLanguageServiceTesting.dll") |]
-    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
 [<Test>]
@@ -716,11 +716,9 @@ let ``Test TPProject errors`` () =
 let internal extractToolTipText (FSharpToolTipText(els)) = 
     [ for e in els do 
         match e with
-        | FSharpToolTipElement.Single (txt,_) -> yield txt
-        | FSharpToolTipElement.Group txts -> for (t,_) in txts do yield t
+        | FSharpToolTipElement.Group txts -> for item in txts do yield item.MainDescription
         | FSharpToolTipElement.CompositionError err -> yield err
-        | FSharpToolTipElement.None -> yield "NONE!"
-        | FSharpToolTipElement.SingleParameter (txt,p,_) -> yield txt ] 
+        | FSharpToolTipElement.None -> yield "NONE!" ] 
 
 [<Test>]
 let ``Test TPProject quick info`` () = 

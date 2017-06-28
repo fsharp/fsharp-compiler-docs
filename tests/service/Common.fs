@@ -1,4 +1,4 @@
-module FSharp.Compiler.Service.Tests.Common
+module internal FSharp.Compiler.Service.Tests.Common
 
 open System.IO
 open System.Collections.Generic
@@ -84,9 +84,12 @@ let sysLib nm =
 module Helpers = 
     open System
     type DummyType = A | B
-    let PathRelativeToTestAssembly p = Path.Combine(Path.GetDirectoryName(Uri(typeof<DummyType>.Assembly.CodeBase).LocalPath), p)
+    let PathRelativeToTestAssembly p = Path.Combine(Path.GetDirectoryName(Uri(typeof<Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker>.Assembly.CodeBase).LocalPath), p)
 
 let fsCoreDefaultReference() = 
+    PathRelativeToTestAssembly "FSharp.Core.dll"
+
+(*
 #if !FX_ATLEAST_PORTABLE
      if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
         let programFilesx86Folder = System.Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
@@ -94,6 +97,19 @@ let fsCoreDefaultReference() =
      else 
 #endif
         sysLib "FSharp.Core"
+*)
+
+let mkStandardProjectReferences () = 
+#if DOTNETCORE
+            let file = "Sample_NETCoreSDK_FSharp_Library_netstandard1.6.fsproj"
+            let projDir = Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6")
+            readRefs projDir file
+#else
+            [ yield sysLib "mscorlib"
+              yield sysLib "System"
+              yield sysLib "System.Core"
+              yield fsCoreDefaultReference() ]
+#endif              
 
 let mkProjectCommandLineArgs (dllName, fileNames) = 
   let args = 
@@ -113,17 +129,7 @@ let mkProjectCommandLineArgs (dllName, fileNames) =
         yield "--target:library" 
         for x in fileNames do 
             yield x
-        let references =
-#if DOTNETCORE
-            let file = "Sample_NETCoreSDK_FSharp_Library_netstandard1.6.fsproj"
-            let projDir = Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6")
-            readRefs projDir file
-#else
-            [ yield sysLib "mscorlib"
-              yield sysLib "System"
-              yield sysLib "System.Core"
-              yield fsCoreDefaultReference() ]
-#endif              
+        let references = mkStandardProjectReferences ()
         for r in references do
             yield "-r:" + r
      |]
@@ -148,11 +154,7 @@ let mkProjectCommandLineArgsForScript (dllName, fileNames) =
         yield "--target:library" 
         for x in fileNames do 
             yield x
-    //    let implDir = Path.GetDirectoryName(typeof<System.Object>.Assembly.Location)
-        let references =
-            let file = "Sample_NETCoreSDK_FSharp_Library_netstandard1.6.fsproj"
-            let projDir = Path.Combine(__SOURCE_DIRECTORY__, "../projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6")
-            readRefs projDir file
+        let references = mkStandardProjectReferences ()
         for r in references do
             yield "-r:" + r
      |]
@@ -233,12 +235,12 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsFSharpUnion then yield "union"
             if v.IsInterface then yield "interface"
             if v.IsMeasure then yield "measure"
-            #if EXTENSIONTYPING
+#if EXTENSIONTYPING
             if v.IsProvided then yield "provided"
             if v.IsStaticInstantiation then yield "staticinst"
             if v.IsProvidedAndErased then yield "erased"
             if v.IsProvidedAndGenerated then yield "generated"
-            #endif
+#endif
             if v.IsUnresolved then yield "unresolved"
             if v.IsValueType then yield "valuetype"
 

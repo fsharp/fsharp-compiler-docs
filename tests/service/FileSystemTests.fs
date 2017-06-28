@@ -96,7 +96,7 @@ let ``FileSystem compilation test``() =
                    yield "-r:" + r |]
  
         { ProjectFileName = @"c:\mycode\compilation.fsproj" // Make a name that is unique in this directory.
-          ProjectFileNames = [| fileName1; fileName2 |]
+          SourceFiles = [| fileName1; fileName2 |]
           OtherOptions = allFlags 
           ReferencedProjects = [| |];
           IsIncompleteTypeCheckEnvironment = false
@@ -104,7 +104,8 @@ let ``FileSystem compilation test``() =
           LoadTime = System.DateTime.Now // Not 'now', we don't want to force reloading
           UnresolvedReferences = None 
           OriginalLoadReferences = []
-          ExtraProjectInfo = None }
+          ExtraProjectInfo = None 
+          Stamp = None }
 
     let results = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
 

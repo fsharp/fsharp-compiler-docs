@@ -31,7 +31,7 @@ let file = "/home/user/Test.fsx"
 let identTokenTag = FSharpTokenTag.Identifier
 let untyped, parsed = parseWithTypeInfo (file, input)
 // Get tool tip at the specified location
-let tip = parsed.GetToolTipTextAlternate(2, 7, inputLines.[1], [ "foo" ], identTokenTag)
+let tip = parsed.GetToolTipText(2, 7, inputLines.[1], [ "foo" ], identTokenTag) |> Async.RunSynchronously
 
 printfn "%A" tip
 

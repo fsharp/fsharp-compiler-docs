@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-module (*internal*) Microsoft.FSharp.Compiler.Interactive.Shell
+module Microsoft.FSharp.Compiler.Interactive.Shell
 
 #nowarn "55"
 
@@ -18,6 +18,7 @@ open System.IO
 open System.Text
 open System.Threading
 open System.Reflection
+open System.Runtime.CompilerServices
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.AbstractIL
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics
@@ -52,21 +53,10 @@ open Internal.Utilities
 open Internal.Utilities.Collections
 open Internal.Utilities.StructuredFormat
 
-type FormatOptions = Internal.Utilities.StructuredFormat.FormatOptions
-
-//----------------------------------------------------------------------------
-// Hardbinding dependencies should we NGEN fsi.exe
-//----------------------------------------------------------------------------
-
 #if FX_RESHAPED_REFLECTION
 open Microsoft.FSharp.Core.ReflectionAdapters
 #endif
 
-open System.Runtime.CompilerServices
-#if !FX_NO_DEFAULT_DEPENDENCY_TYPE
-[<Dependency("FSharp.Compiler",LoadHint.Always)>] do ()
-[<Dependency("FSharp.Core",LoadHint.Always)>] do ()
-#endif
 
 //----------------------------------------------------------------------------
 // For the FSI as a service methods...
@@ -226,6 +216,7 @@ type internal FsiValuePrinterMode =
     | PrintExpr 
     | PrintDecl
 
+#if COMPILER_SERVICE_AS_DLL
 type EvaluationEventArgs(fsivalue : FsiValue option, symbolUse : FSharpSymbolUse, decl: FSharpImplementationFileDeclaration) =
     inherit EventArgs()
     member x.Name = symbolUse.Symbol.DisplayName
@@ -233,12 +224,15 @@ type EvaluationEventArgs(fsivalue : FsiValue option, symbolUse : FSharpSymbolUse
     member x.SymbolUse = symbolUse
     member x.Symbol = symbolUse.Symbol
     member x.ImplementationDeclaration = decl
+#endif
 
 [<AbstractClass>]
 /// User-configurable information that changes how F# Interactive operates, stored in the 'fsi' object
 /// and accessible via the programming model
-type public FsiEvaluationSessionHostConfig () = 
+type FsiEvaluationSessionHostConfig () = 
+#if COMPILER_SERVICE_AS_DLL
     let evaluationEvent = new Event<EvaluationEventArgs> () 
+#endif
     /// Called by the evaluation session to ask the host for parameters to format text for output
     abstract FormatProvider: System.IFormatProvider  
     /// Called by the evaluation session to ask the host for parameters to format text for output
@@ -271,20 +265,20 @@ type public FsiEvaluationSessionHostConfig () =
     /// A "console" gets used if 
     ///     --readline- is specified (the default on Windows + .NET); and 
     ///     not --fsi-server (which should always be combined with --readline-); and 
-    ///     OptionalConsoleReadLine() returns a Some
+    ///     GetOptionalConsoleReadLine() returns a Some
     ///
     /// "Peekahead" occurs if --peekahead- is not specified (i.e. it is the default):
     ///     - If a console is being used then 
     ///         - a prompt is printed early 
     ///         - a background thread is created 
-    ///         - the OptionalConsoleReadLine() callback is used to read the first line
+    ///         - the GetOptionalConsoleReadLine() callback is used to read the first line
     ///     - Otherwise call inReader.Peek()
     ///
     /// Further lines are read as follows:
-    ///     - If a console is being used then use OptionalConsoleReadLine()
+    ///     - If a console is being used then use GetOptionalConsoleReadLine()
     ///     - Otherwise use inReader.ReadLine()
 
-    abstract OptionalConsoleReadLine : (unit -> string) option 
+    abstract GetOptionalConsoleReadLine : probeToSeeIfConsoleWorks: bool -> (unit -> string) option 
 
     /// The evaluation session calls this at an appropriate point in the startup phase if the --fsi-server parameter was given
     abstract StartServer : fsiServerName:string -> unit
@@ -304,10 +298,12 @@ type public FsiEvaluationSessionHostConfig () =
     /// Implicitly reference FSharp.Compiler.Interactive.Settings.dll
     abstract UseFsiAuxLib : bool
 
+#if COMPILER_SERVICE_AS_DLL
     /// Hook for listening for evaluation bindings
     member x.OnEvaluation = evaluationEvent.Publish
     member internal x.TriggerEvaluation (value, symbolUse, decl) =
         evaluationEvent.Trigger (EvaluationEventArgs (value, symbolUse, decl) )
+#endif
 
 /// Used to print value signatures along with their values, according to the current
 /// set of pretty printers installed in the system, and default printing rules.
@@ -482,10 +478,11 @@ type internal FsiValuePrinter(fsi: FsiEvaluationSessionHostConfig, g: TcGlobals,
                     let lay = valuePrinter.PrintValue (FsiValuePrinterMode.PrintExpr, opts, obj, objTy)
                     if isEmptyL lay then None else Some lay // suppress empty layout 
         let denv = { denv with suppressMutableKeyword = true } // suppress 'mutable' in 'val mutable it = ...'
-        let fullL = if Option.isNone rhsL || isEmptyL rhsL.Value then
-                      NicePrint.layoutValOrMember denv vref (* the rhs was suppressed by the printer, so no value to print *)
-                    else
-                      (NicePrint.layoutValOrMember denv vref ++ wordL (TaggedTextOps.tagText "=")) --- rhsL.Value
+        let fullL = 
+            if Option.isNone rhsL || isEmptyL rhsL.Value then
+                NicePrint.prettyLayoutOfValOrMemberNoInst denv vref (* the rhs was suppressed by the printer, so no value to print *)
+            else
+                (NicePrint.prettyLayoutOfValOrMemberNoInst denv vref ++ wordL (TaggedTextOps.tagText "=")) --- rhsL.Value
 
         Utilities.colorPrintL outWriter opts fullL
 
@@ -533,6 +530,7 @@ type internal FsiStdinSyphon(errorWriter: TextWriter) =
                 writeViaBufferWithEnvironmentNewLines errorWriter (OutputDiagnosticContext "  " syphon.GetLine) err; 
                 writeViaBufferWithEnvironmentNewLines errorWriter (OutputDiagnostic (tcConfig.implicitIncludeDir,tcConfig.showFullPaths,tcConfig.flatErrors,tcConfig.errorStyle,isError))  err;
                 errorWriter.WriteLine()
+                errorWriter.WriteLine()
                 errorWriter.Flush()))
 
 
@@ -577,7 +575,9 @@ type internal ErrorLoggerThatStopsOnFirstError(tcConfigB:TcConfigBuilder, fsiStd
                 fsiConsoleOutput.Error.WriteLine()
                 writeViaBufferWithEnvironmentNewLines fsiConsoleOutput.Error (OutputDiagnosticContext "  " fsiStdinSyphon.GetLine) err
                 writeViaBufferWithEnvironmentNewLines fsiConsoleOutput.Error (OutputDiagnostic (tcConfigB.implicitIncludeDir,tcConfigB.showFullPaths,tcConfigB.flatErrors,tcConfigB.errorStyle,isError)) err
-                fsiConsoleOutput.Error.WriteLine("\n"))
+                fsiConsoleOutput.Error.WriteLine()
+                fsiConsoleOutput.Error.WriteLine()
+                fsiConsoleOutput.Error.Flush())
 
     override x.ErrorCount = errorCount
 
@@ -614,8 +614,7 @@ type internal FsiCommandLineOptions(fsi: FsiEvaluationSessionHostConfig, argv: s
        // Mono on Win32 doesn't implement correct console processing
        not (runningOnMono && System.Environment.OSVersion.Platform = System.PlatformID.Win32NT) 
 #endif
-// In the cross-platform edition of F#, 'gui' support is currently off by default
-    let mutable gui        = not runningOnMono // override via "--gui", on by default
+    let mutable gui        = not runningOnMono // override via "--gui", on by default except when on Mono
 #if DEBUG
     let mutable showILCode = false // show modul il code 
 #endif
@@ -631,6 +630,7 @@ type internal FsiCommandLineOptions(fsi: FsiEvaluationSessionHostConfig, argv: s
     let mutable fsiLCID = None
 
     // internal options  
+    let mutable probeToSeeIfConsoleWorks         = true 
     let mutable peekAheadOnConsoleToPermitTyping = true   
 
     let isInteractiveServer() = fsiServerName <> ""  
@@ -696,10 +696,12 @@ type internal FsiCommandLineOptions(fsi: FsiEvaluationSessionHostConfig, argv: s
        PrivateOptions(
         [
          // Private options, related to diagnostics around console probing 
+         CompilerOption("probeconsole","", OptionSwitch (fun flag -> probeToSeeIfConsoleWorks <- flag=OptionSwitch.On), None, None); // "Probe to see if Console looks functional");
+
          CompilerOption("peekahead","", OptionSwitch (fun flag -> peekAheadOnConsoleToPermitTyping <- flag=OptionSwitch.On), None, None); // "Probe to see if Console looks functional");
 
          // Disables interaction (to be used by libraries embedding FSI only!)
-         CompilerOption("noninteractive","", OptionUnit (fun () -> interact <-  false), None, None);     
+         CompilerOption("noninteractive","", OptionUnit (fun () -> interact <-  false), None, None);     // "Deprecated, use --exec instead"
 
         ])
       ]
@@ -727,9 +729,7 @@ type internal FsiCommandLineOptions(fsi: FsiEvaluationSessionHostConfig, argv: s
          (* Renamed --readline and --no-readline to --tabcompletion:+|- *)
          CompilerOption("readline",             tagNone, OptionSwitch(fun flag -> enableConsoleKeyProcessing <- (flag = OptionSwitch.On)),           None, Some(FSIstrings.SR.fsiReadline()));
          CompilerOption("quotations-debug",     tagNone, OptionSwitch(fun switch -> tcConfigB.emitDebugInfoInQuotations <- switch = OptionSwitch.On),None, Some(FSIstrings.SR.fsiEmitDebugInfoInQuotations()));
-#if FSI_SHADOW_COPY_REFERENCES
          CompilerOption("shadowcopyreferences", tagNone, OptionSwitch(fun flag -> tcConfigB.shadowCopyReferences <- flag = OptionSwitch.On),         None, Some(FSIstrings.SR.shadowCopyReferences()));
-#endif
         ]);
       ]
 
@@ -802,6 +802,7 @@ type internal FsiCommandLineOptions(fsi: FsiEvaluationSessionHostConfig, argv: s
     member __.FsiServerOutputCodePage = fsiServerOutputCodePage
     member __.FsiLCID with get() = fsiLCID and set v = fsiLCID <- v
     member __.IsInteractiveServer = isInteractiveServer()
+    member __.ProbeToSeeIfConsoleWorks = probeToSeeIfConsoleWorks
     member __.EnableConsoleKeyProcessing = enableConsoleKeyProcessing
 
     member __.Interact = interact
@@ -889,7 +890,7 @@ type internal FsiConsoleInput(fsi: FsiEvaluationSessionHostConfig, fsiOptions: F
         // The "console.fs" code does a limited form of "TAB-completion".
         // Currently, it turns on if it looks like we have a console.
         if fsiOptions.EnableConsoleKeyProcessing then
-            fsi.OptionalConsoleReadLine
+            fsi.GetOptionalConsoleReadLine(fsiOptions.ProbeToSeeIfConsoleWorks)
         else
             None
 
@@ -1168,6 +1169,7 @@ type internal FsiDynamicCompiler
         let tcState = istate.tcState 
         let newState = { istate with tcState = tcState.NextStateAfterIncrementalFragment(tcEnvAtEndOfLastInput) }
 
+#if COMPILER_SERVICE_AS_DLL
         // Find all new declarations the EvaluationListener
         begin
             let contents = FSharpAssemblyContents(tcGlobals, tcState.Ccu, tcImports, declaredImpls)
@@ -1202,6 +1204,9 @@ type internal FsiDynamicCompiler
                         ()
             | _ -> ()
         end
+#else
+        ignore declaredImpls
+#endif
 
         newState
       
@@ -1602,10 +1607,10 @@ module internal MagicAssemblyResolution =
     //  It is an explicit user trust decision to load an assembly with #r. Scripts are not run automatically (for example, by double-clicking in explorer).
     //  We considered setting loadFromRemoteSources in fsi.exe.config but this would transitively confer unsafe loading to the code in the referenced 
     //  assemblies. Better to let those assemblies decide for themselves which is safer.
-#if FX_ATLEAST_40
-        Assembly.UnsafeLoadFrom(path)
-#else
+#if FSI_TODO_NETCORE
         Assembly.LoadFrom(path)
+#else
+        Assembly.UnsafeLoadFrom(path)
 #endif
 
     let Install(tcConfigB, tcImports: TcImports, fsiDynamicCompiler: FsiDynamicCompiler, fsiConsoleOutput: FsiConsoleOutput) = 
@@ -1826,14 +1831,11 @@ type internal FsiInteractionProcessor
                              lexResourceManager : LexResourceManager,
                              initialInteractiveState) = 
 
-#if FSI_SHADOW_COPY_REFERENCES
     let referencedAssemblies = Dictionary<string, DateTime>()
-#endif
 
     let mutable currState = initialInteractiveState
     let event = Control.Event<unit>()
     let setCurrState s = currState <- s; event.Trigger()
-    //let mutable queueAgent = None
 
     let runCodeOnEventLoop errorLogger f istate = 
         try 
@@ -1921,7 +1923,6 @@ type internal FsiInteractionProcessor
                 let resolutions,istate = fsiDynamicCompiler.EvalRequireReference(ctok, istate, m, path)
                 resolutions |> List.iter (fun ar -> 
                     let format = 
-#if FSI_SHADOW_COPY_REFERENCES
                         if tcConfig.shadowCopyReferences then
                             let resolvedPath = ar.resolvedPath.ToUpperInvariant()
                             let fileTime = File.GetLastWriteTimeUtc(resolvedPath)
@@ -1934,7 +1935,6 @@ type internal FsiInteractionProcessor
                             | _ ->
                                 FSIstrings.SR.fsiDidAHashr(ar.resolvedPath)
                         else
-#endif
                             FSIstrings.SR.fsiDidAHashrWithLockWarning(ar.resolvedPath)
                     fsiConsoleOutput.uprintnfnn "%s" format)
                 istate,Completed None
@@ -2357,10 +2357,10 @@ type internal FsiInteractionProcessor
         let names  = names |> List.filter (fun name -> name.StartsWith(stem,StringComparison.Ordinal)) 
         names
 
-    member __.ParseAndCheckInteraction (ctok, referenceResolver, checker, istate, text:string) =
+    member __.ParseAndCheckInteraction (ctok, legacyReferenceResolver, checker, istate, text:string) =
         let tcConfig = TcConfig.Create(tcConfigB,validate=false)
 
-        let fsiInteractiveChecker = FsiInteractiveChecker(referenceResolver, checker, tcConfig, istate.tcGlobals, istate.tcImports, istate.tcState)
+        let fsiInteractiveChecker = FsiInteractiveChecker(legacyReferenceResolver, checker, tcConfig, istate.tcGlobals, istate.tcImports, istate.tcState)
         fsiInteractiveChecker.ParseAndCheckInteraction(ctok, text)
 
 
@@ -2419,7 +2419,7 @@ let internal DriveFsiEventLoop (fsi: FsiEvaluationSessionHostConfig, fsiConsoleO
 
 /// The primary type, representing a full F# Interactive session, reading from the given
 /// text input, writing to the given text output and error writers.
-type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], inReader:TextReader, outWriter:TextWriter, errorWriter: TextWriter, fsiCollectible: bool, msbuildEnabled: bool) = 
+type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], inReader:TextReader, outWriter:TextWriter, errorWriter: TextWriter, fsiCollectible: bool, legacyReferenceResolver: ReferenceResolver.Resolver option) = 
 
 #if !FX_NO_HEAPTERMINATION
     do if not runningOnMono then Lib.UnmanagedProcessExecutionOptions.EnableHeapTerminationOnCorruption() (* SDL recommendation *)
@@ -2464,31 +2464,15 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     //----------------------------------------------------------------------------
 
     let currentDirectory = Directory.GetCurrentDirectory()
-    let defaultFSharpBinariesDir =
-#if FX_RESHAPED_REFLECTION
-         System.AppContext.BaseDirectory
-#else
-        System.AppDomain.CurrentDomain.BaseDirectory
-#endif
-        
-    // When used as part of FCS we cannot assume the current process is fsi.exe
-    // So we try to fallback to the default compiler dir.
-    let defaultFSharpBinariesDir = 
-        let safeExists f = (try File.Exists(f) with _ -> false)
-        let containsRequiredFiles =
-            [ "FSharp.Core.dll"; "FSharp.Core.sigdata"; "FSharp.Core.optdata" ]
-            |> Seq.map (fun file -> Path.Combine(defaultFSharpBinariesDir, file))
-            |> Seq.forall safeExists
-        if containsRequiredFiles then defaultFSharpBinariesDir 
-        else Internal.Utilities.FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(None).Value
 
-    let referenceResolver = SimulatedMSBuildReferenceResolver.GetBestAvailableResolver(msbuildEnabled)
-    let tcConfigB = 
-        TcConfigBuilder.CreateNew(referenceResolver,
-                                  defaultFSharpBinariesDir, 
-                                  true, // long running: optimizeForMemory 
-                                  currentDirectory,isInteractive=true, 
-                                  isInvalidationSupported=false)
+    let defaultFSharpBinariesDir = FSharpEnvironment.BinFolderOfDefaultFSharpCompiler(FSharpEnvironment.tryCurrentDomain()).Value
+
+    let legacyReferenceResolver = 
+        match legacyReferenceResolver with 
+        | None -> SimulatedMSBuildReferenceResolver.GetBestAvailableResolver()
+        | Some rr -> rr
+
+    let tcConfigB = TcConfigBuilder.CreateNew(legacyReferenceResolver, defaultFSharpBinariesDir=defaultFSharpBinariesDir, optimizeForMemory=true, implicitIncludeDir=currentDirectory, isInteractive=true, isInvalidationSupported=false, defaultCopyFSharpCore=false)
     let tcConfigP = TcConfigProvider.BasedOnMutableBuilder(tcConfigB)
     do tcConfigB.resolutionEnvironment <- ReferenceResolver.RuntimeLike // See Bug 3608
     do tcConfigB.useFsiAuxLib <- fsi.UseFsiAuxLib
@@ -2506,7 +2490,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     do SetDebugSwitch    tcConfigB (Some "pdbonly") OptionSwitch.On
     do SetTailcallSwitch tcConfigB OptionSwitch.On    
 
-#if FX_ATLEAST_40
+#if !FSI_TODO_NETCORE
     // set platform depending on whether the current process is a 64-bit process.
     // BUG 429882 : FsiAnyCPU.exe issues warnings (x64 v MSIL) when referencing 64-bit assemblies
     do tcConfigB.platform <- if IntPtr.Size = 8 then Some AMD64 else Some X86
@@ -2566,7 +2550,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 
     /// The single, global interactive checker that can be safely used in conjunction with other operations
     /// on the FsiEvaluationSession.  
-    let checker = FSharpChecker.Create(msbuildEnabled=msbuildEnabled)
+    let checker = FSharpChecker.Create(legacyReferenceResolver=legacyReferenceResolver)
 
     let (tcGlobals,frameworkTcImports,nonFrameworkResolutions,unresolvedReferences) = 
         try 
@@ -2631,7 +2615,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
             | Choice2Of2 None -> Choice2Of2 (System.Exception "Operation could not be completed due to earlier error")
             | Choice2Of2 (Some userExn) -> Choice2Of2 userExn
 
-        userRes, FsiInteractiveChecker.CreateErrorInfos (tcConfig, true, scriptFile, errs)
+        userRes, ErrorHelpers.CreateErrorInfos (tcConfig, true, scriptFile, errs)
 
     let dummyScriptFileName = "input.fsx"
 
@@ -2650,7 +2634,9 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 
     member x.ParseAndCheckInteraction(code) = 
         let ctok = AssumeCompilationThreadWithoutEvidence ()
-        fsiInteractionProcessor.ParseAndCheckInteraction (ctok, referenceResolver, checker.ReactorOps, fsiInteractionProcessor.CurrentState, code)  
+        fsiInteractionProcessor.ParseAndCheckInteraction (ctok, legacyReferenceResolver, checker.ReactorOps, fsiInteractionProcessor.CurrentState, code)  
+
+    member x.InteractiveChecker = checker
 
     member x.CurrentPartialAssemblySignature = 
         fsiDynamicCompiler.CurrentPartialAssemblySignature (fsiInteractionProcessor.CurrentState)  
@@ -2734,7 +2720,6 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
 
     member x.PartialAssemblySignatureUpdated = fsiInteractionProcessor.PartialAssemblySignatureUpdated
 
-    member x.InteractiveChecker = checker
 
     member x.FormatValue(obj:obj, objTy) = 
         fsiDynamicCompiler.FormatValue(obj, objTy)
@@ -2873,14 +2858,12 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
         GC.KeepAlive fsiInterruptController.EventHandlers
 
 
-    static member Create(fsiConfig, argv, inReader, outWriter, errorWriter, ?collectible, ?msbuildEnabled) = 
-        new FsiEvaluationSession(fsiConfig, argv, inReader, outWriter, errorWriter, defaultArg collectible false, defaultArg msbuildEnabled true)
+    static member Create(fsiConfig, argv, inReader, outWriter, errorWriter, ?collectible, ?legacyReferenceResolver) = 
+        new FsiEvaluationSession(fsiConfig, argv, inReader, outWriter, errorWriter, defaultArg collectible false, legacyReferenceResolver)
     
     static member GetDefaultConfiguration(fsiObj:obj) = FsiEvaluationSession.GetDefaultConfiguration(fsiObj, true)
     
-    static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib) =
-    
-
+    static member GetDefaultConfiguration(fsiObj:obj, useFsiAuxLib: bool) =
         // We want to avoid modifying FSharp.Compiler.Interactive.Settings to avoid republishing that DLL.
         // So we access these via reflection
         { // Connect the configuration through to the 'fsi' object from FSharp.Compiler.Interactive.Settings
@@ -2901,7 +2884,7 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
               member __.EventLoopInvoke(f : unit -> 'T) =  callInstanceMethod1 (getInstanceProperty fsiObj "EventLoop") [|typeof<'T>|] "Invoke" f
               member __.EventLoopScheduleRestart() = callInstanceMethod0 (getInstanceProperty fsiObj "EventLoop") [||] "ScheduleRestart"
               member __.UseFsiAuxLib = useFsiAuxLib
-              member __.OptionalConsoleReadLine = None }
+              member __.GetOptionalConsoleReadLine(_probe) = None }
 
 
 //-------------------------------------------------------------------------------
@@ -2914,6 +2897,9 @@ module Settings =
         abstract Invoke : (unit -> 'T) -> 'T 
         abstract ScheduleRestart : unit -> unit
     
+    // fsi.fs in FSHarp.Compiler.Sevice.dll avoids a hard dependency on FSharp.Compiler.Interactive.Settings.dll 
+    // by providing an optional reimplementation of the functionality
+
     // An implementation of IEventLoop suitable for the command-line console
     [<AutoSerializable(false)>]
     type internal SimpleEventLoop() = 
@@ -2930,12 +2916,12 @@ module Settings =
         let mutable restart = false
         interface IEventLoop with 
              member x.Run() =  
-                 running <- true;
+                 running <- true
                  let rec run() = 
                      match waitSignal2 runSignal exitSignal with 
                      | 0 -> 
                          queue |> List.iter (fun f -> result <- try Some(f()) with _ -> None); 
-                         setSignal doneSignal;
+                         setSignal doneSignal
                          run()
                      | 1 -> 
                          running <- false;
@@ -2943,19 +2929,19 @@ module Settings =
                      | _ -> run()
                  run();
              member x.Invoke(f : unit -> 'T) : 'T  = 
-                 queue <- [f >> box];
-                 setSignal runSignal;
+                 queue <- [f >> box]
+                 setSignal runSignal
                  waitSignal doneSignal
                  result.Value |> unbox
              member x.ScheduleRestart() = 
                  if running then 
-                     restart <- true;
+                     restart <- true
                      setSignal exitSignal
         interface System.IDisposable with 
              member x.Dispose() =
-                 runSignal.Dispose();
-                 exitSignal.Dispose();
-                 doneSignal.Dispose();
+                 runSignal.Dispose()
+                 exitSignal.Dispose()
+                 doneSignal.Dispose()
                      
 
 
@@ -2975,26 +2961,26 @@ module Settings =
         let mutable showProperties = true
         let mutable addedPrinters = []
 
-        member self.FloatingPointFormat with get() = fpfmt and set v = fpfmt <- v
-        member self.FormatProvider with get() = fp and set v = fp <- v
-        member self.PrintWidth  with get() = printWidth and set v = printWidth <- v
-        member self.PrintDepth  with get() = printDepth and set v = printDepth <- v
-        member self.PrintLength  with get() = printLength and set v = printLength <- v
-        member self.PrintSize  with get() = printSize and set v = printSize <- v
-        member self.ShowDeclarationValues with get() = showDeclarationValues and set v = showDeclarationValues <- v
-        member self.ShowProperties  with get() = showProperties and set v = showProperties <- v
-        member self.ShowIEnumerable with get() = showIEnumerable and set v = showIEnumerable <- v
-        member self.ShowIDictionary with get() = showIDictionary and set v = showIDictionary <- v
-        member self.AddedPrinters with get() = addedPrinters and set v = addedPrinters <- v
-        member self.CommandLineArgs with get() = args  and set v  = args <- v
-        member self.AddPrinter(printer : 'T -> string) =
+        member __.FloatingPointFormat with get() = fpfmt and set v = fpfmt <- v
+        member __.FormatProvider with get() = fp and set v = fp <- v
+        member __.PrintWidth  with get() = printWidth and set v = printWidth <- v
+        member __.PrintDepth  with get() = printDepth and set v = printDepth <- v
+        member __.PrintLength  with get() = printLength and set v = printLength <- v
+        member __.PrintSize  with get() = printSize and set v = printSize <- v
+        member __.ShowDeclarationValues with get() = showDeclarationValues and set v = showDeclarationValues <- v
+        member __.ShowProperties  with get() = showProperties and set v = showProperties <- v
+        member __.ShowIEnumerable with get() = showIEnumerable and set v = showIEnumerable <- v
+        member __.ShowIDictionary with get() = showIDictionary and set v = showIDictionary <- v
+        member __.AddedPrinters with get() = addedPrinters and set v = addedPrinters <- v
+        member __.CommandLineArgs with get() = args  and set v  = args <- v
+        member __.AddPrinter(printer : 'T -> string) =
           addedPrinters <- Choice1Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
 
-        member self.EventLoop
+        member __.EventLoop
            with get () = evLoop
            and set (x:IEventLoop)  = evLoop.ScheduleRestart(); evLoop <- x
 
-        member self.AddPrintTransformer(printer : 'T -> obj) =
+        member __.AddPrintTransformer(printer : 'T -> obj) =
           addedPrinters <- Choice2Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
     
     let fsi = InteractiveSettings()

@@ -13,6 +13,7 @@
     <OutputPath>..\..\bin\$(TargetFrameworkVersion)\</OutputPath>
     <Tailcalls>true</Tailcalls>
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

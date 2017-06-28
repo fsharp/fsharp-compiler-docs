@@ -89,16 +89,6 @@ module Helpers =
 let fsCoreDefaultReference() = 
     PathRelativeToTestAssembly "FSharp.Core.dll"
 
-(*
-#if !FX_ATLEAST_PORTABLE
-     if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then // file references only valid on Windows 
-        let programFilesx86Folder = System.Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
-        programFilesx86Folder + @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.4.0.0\FSharp.Core.dll"  
-     else 
-#endif
-        sysLib "FSharp.Core"
-*)
-
 let mkStandardProjectReferences () = 
 #if DOTNETCORE
             let file = "Sample_NETCoreSDK_FSharp_Library_netstandard1.6.fsproj"

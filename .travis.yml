@@ -5,16 +5,22 @@ os:
   - osx
 
 mono:
+  - nightly
+  - beta
   - latest
-  - 4.8.0
+  - 4.8.1
   - 4.4.2
 
+matrix:
+  allow_failures:
+    - mono: nightly
+      os: osx
 
 sudo: false
 
 install:
 
-script: 
+script:
   - ./build.sh NuGet
 
 # Fails on Travis OSX too often because there are network outages on that configuration getting the Mono MDK
@@ -23,12 +29,12 @@ script:
 #   https://github.com/fsharp/fsharp/pull/689
 #   https://github.com/mono/linux-packaging-fsharp/pull/3
 
-matrix:
-  exclude:
-    - os: osx
-      mono: 4.4.2
-    - os: osx
-      mono: 4.8.0
+#  matrix:
+#    exclude:
+#      - os: osx
+#        mono: 4.4.2
+#      - os: osx
+#        mono: 4.8.0
 
 #  allow_failures:
 #    - os: osx

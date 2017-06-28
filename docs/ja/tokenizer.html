@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>コンパイラサービス：F#トークナイザを使用する
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
+    <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="コンパイラサービス-F-トークナイザを使用する" class="anchor" href="#コンパイラサービス-F-トークナイザを使用する">コンパイラサービス：F#トークナイザを使用する</a></h1>
+<p>このチュートリアルではF#言語トークナイザの呼び出し方を紹介します。
+F#のソースコードに対して、トークナイザは
+コードの各行にあるトークンに関する情報を含んだソースコード行のリストを生成します。
+各トークンに対してはトークンの種類や位置を取得したり、
+トークンの種類(キーワード、識別子、数値、演算子など)に応じた
+色を取得したりすることができます。</p>
+<blockquote>
+<p><strong>注意:</strong> 以下で使用しているAPIは実験的なもので、
+新しいnugetパッケージの公開に伴って変更される可能性があります。</p>
+</blockquote>
+<h2><a name="トークナイザの作成" class="anchor" href="#トークナイザの作成">トークナイザの作成</a></h2>
+<p>トークナイザを使用するには、 <code>FSharp.Compiler.Service.dll</code> への参照を追加した後に
+<code>SourceCodeServices</code> 名前空間をオープンします：</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+</code></pre></td>
+</tr>
+</table>
+<p>すると <code>FSharpSourceTokenizer</code> のインスタンスを作成できるようになります。
+このクラスには2つの引数を指定します。
+最初の引数には定義済みのシンボルのリスト、
+2番目の引数にはソースコードのファイル名を指定します。
+定義済みのシンボルのリストを指定するのは、
+トークナイザが <code>#if</code> ディレクティブを処理する必要があるからです。
+ファイル名はソースコードの位置を特定する場合にのみ指定する必要があります
+(存在しないファイル名でも指定できます):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">sourceTok</span> <span class="o">=</span> <span class="i">FSharpSourceTokenizer</span>([], <span class="s">&quot;C:\\test.fsx&quot;</span>)
+</code></pre></td>
+</tr>
+</table>
+<p><code>sourceTok</code> オブジェクトを使用することでF#ソースコードの各行を
+(繰り返し)トークン化することができます。</p>
+<h2><a name="F-コードのトークン化" class="anchor" href="#F-コードのトークン化">F#コードのトークン化</a></h2>
+<p>トークナイザはソースファイル全体ではなく、行単位で処理を行います。
+トークンを取得した後、トークナイザは新しいステートを( <code>int64</code> 値として)返します。
+この値を使うとF#コードをより効率的にトークン化できます。
+つまり、ソースコードが変更された場合もファイル全体を
+再度トークン化する必要はありません。
+変更された部分だけをトークン化すればよいのです。</p>
+<h3><a name="1行をトークン化する" class="anchor" href="#1行をトークン化する">1行をトークン化する</a></h3>
+<p>1行をトークン化するには、先ほど作成した <code>FSharpSourceTokenizer</code> オブジェクトに対して
+<code>CreateLineTokenizer</code> を呼び、 <code>FSharpLineTokenizer</code> を作成します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">tokenizer</span> <span class="o">=</span> <span class="i">sourceTok</span><span class="o">.</span><span class="i">CreateLineTokenizer</span>(<span class="s">&quot;let answer=42&quot;</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>そして <code>tokenizer</code> の <code>ScanToken</code> を繰り返し <code>None</code> を返すまで
+(つまり最終行に到達するまで)繰り返し呼び出すような単純な再帰関数を用意します。
+この関数が成功すると、必要な詳細情報をすべて含んだ <code>FSharpTokenInfo</code> オブジェクトが
+返されます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// F#コード1行をトークン化します</span>
+<span class="k">let</span> <span class="k">rec</span> <span class="i">tokenizeLine</span> (<span class="i">tokenizer</span><span class="o">:</span><span class="i">FSharpLineTokenizer</span>) <span class="i">state</span> <span class="o">=</span>
+  <span class="k">match</span> <span class="i">tokenizer</span><span class="o">.</span><span class="i">ScanToken</span>(<span class="i">state</span>) <span class="k">with</span>
+  | <span class="i">Some</span> <span class="i">tok</span>, <span class="i">state</span> <span class="k">-&gt;</span>
+      <span class="c">// トークン名を表示</span>
+      <span class="i">printf</span> <span class="s">&quot;%s &quot;</span> <span class="i">tok</span><span class="o">.</span><span class="i">TokenName</span>
+      <span class="c">// 新しい状態で残りをトークン化</span>
+      <span class="i">tokenizeLine</span> <span class="i">tokenizer</span> <span class="i">state</span>
+  | <span class="i">None</span>, <span class="i">state</span> <span class="k">-&gt;</span> <span class="i">state</span>
+</code></pre></td>
+</tr>
+</table>
+<p>この関数は、複数行コードや複数行コメント内の前方の行をトークン化する場合に
+必要となるような新しい状態を返します。
+初期値としては <code>0L</code> を指定します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">tokenizeLine</span> <span class="i">tokenizer</span> <span class="n">0L</span>
+</code></pre></td>
+</tr>
+</table>
+<p>この結果は LET WHITESPACE IDENT EQUALS INT32 という
+トークン名のシーケンスになります。
+<code>FSharpTokenInfo</code> にはたとえば以下のような興味深いプロパティが多数あります:</p>
+<ul>
+<li>
+<code>CharClass</code> および <code>ColorClass</code> はF#コードを色づけする場合に使用できるような、
+トークンのカテゴリに関する情報を返します。
+</li>
+<li><code>LeftColumn</code> および <code>RightColumn</code> は行内におけるトークンの位置を返します。</li>
+<li><code>TokenName</code> は(F# レキサ内で定義された)トークンの名前を返します。</li>
+</ul>
+<p>なおトークナイザはステートフルであることに注意してください。
+つまり、1行を複数回トークン化したい場合にはその都度 <code>CreateLineTokenizer</code> を
+呼び出す必要があります。</p>
+<h3><a name="サンプルコードのトークン化" class="anchor" href="#サンプルコードのトークン化">サンプルコードのトークン化</a></h3>
+<p>トークナイザをもっと長いサンプルコードやファイル全体に対して実行する場合、
+サンプル入力を <code>string</code> のコレクションとして読み取る必要があります:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">lines</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">  // Hello world</span>
+<span class="s">  let hello() =</span>
+<span class="s">     printfn &quot;Hello world!&quot; &quot;&quot;&quot;</span><span class="o">.</span><span class="i">Split</span>(<span class="s">&#39;\r&#39;</span>,<span class="s">&#39;\n&#39;</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>複数行の入力値をトークン化する場合も、現在の状態を保持するような
+再帰関数が必要になります。
+以下の関数はソースコード行を文字列のリストとして受け取ります
+(また、行番号および現在の状態も受け取ります)。
+各行に対して新しいトークナイザを作成して、
+直前の行における <strong>最後</strong> の状態を使って <code>tokenizeLine</code> を呼び出します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// 複数行のコードに対してトークンの名前を表示します</span>
+<span class="k">let</span> <span class="k">rec</span> <span class="i">tokenizeLines</span> <span class="i">state</span> <span class="i">count</span> <span class="i">lines</span> <span class="o">=</span> 
+  <span class="k">match</span> <span class="i">lines</span> <span class="k">with</span>
+  | <span class="i">line</span><span class="o">::</span><span class="i">lines</span> <span class="k">-&gt;</span>
+      <span class="c">// トークナイザを作成して1行をトークン化</span>
+      <span class="i">printfn</span> <span class="s">&quot;\nLine %d&quot;</span> <span class="i">count</span>
+      <span class="k">let</span> <span class="i">tokenizer</span> <span class="o">=</span> <span class="i">sourceTok</span><span class="o">.</span><span class="i">CreateLineTokenizer</span>(<span class="i">line</span>)
+      <span class="k">let</span> <span class="i">state</span> <span class="o">=</span> <span class="i">tokenizeLine</span> <span class="i">tokenizer</span> <span class="i">state</span>
+      <span class="c">// 新しい状態を使って残りをトークン化</span>
+      <span class="i">tokenizeLines</span> <span class="i">state</span> (<span class="i">count</span><span class="o">+</span><span class="n">1</span>) <span class="i">lines</span>
+  | [] <span class="k">-&gt;</span> ()
+</code></pre></td>
+</tr>
+</table>
+<p>ここでは単に(先ほど定義した) <code>tokenizeLine</code> を呼び出して、
+各行にあるすべてのトークンの名前を表示しています。
+この関数は先と同じく、初期状態の値 <code>0L</code> と、1行目を表す <code>1</code> を
+指定して呼び出すことができます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">lines</span>
+<span class="o">|&gt;</span> <span class="i">List</span><span class="o">.</span><span class="i">ofSeq</span>
+<span class="o">|&gt;</span> <span class="i">tokenizeLines</span> <span class="n">0L</span> <span class="n">1</span>
+</code></pre></td>
+</tr>
+</table>
+<p>重要ではない部分(各行の先頭にある空白文字や、1行目のように空白文字しかない行)
+を除けば、このコードを実行すると以下のような出力になります:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">Line 1
+  LINE_COMMENT LINE_COMMENT (...) LINE_COMMENT 
+Line 2
+  LET WHITESPACE IDENT LPAREN RPAREN WHITESPACE EQUALS 
+Line 3
+  IDENT WHITESPACE STRING_TEXT (...) STRING_TEXT STRING 
+</code></pre></td></tr></table>
+<p>注目すべきは、単一行コメントや文字列に対して、
+トークナイザが複数回(大まかにいって単語単位で) <code>LINE_COMMENT</code> や
+<code>STRING_TEXT</code> を返しているところです。
+したがって、コメントや文字列全体をテキストとして取得したい場合には
+それぞれのトークンを連結する必要があります。</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">GitHub上のソースコード</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">ライセンス</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">リリースノート</a></li>
+            
+            <li class="nav-header">はじめに</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/devnotes.html">開発者用メモ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/fsharp-readme.html">F#コンパイラのreadme</a></li>
+
+            <li class="nav-header">利用可能なサービス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/tokenizer.html">F#言語トークナイザ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/untypedtree.html">型無しASTの処理</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/editor.html">エディタ(IDE)のサービスを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/symbols.html">解決済みのシンボルを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/project.html">プロジェクト全体の分析</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/interactive.html">F# Interactiveの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/compiler.html">F#コンパイラの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/filesystem.html">ファイルシステムの仮想化</a></li>
+
+            <li class="nav-header">リファレンス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/../reference/index.html">API リファレンス</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

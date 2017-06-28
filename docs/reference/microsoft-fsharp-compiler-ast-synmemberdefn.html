@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SynMemberDefn - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>SynMemberDefn</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler</span><br />
+  <span>Parent Module: <a href="microsoft-fsharp-compiler-ast.html">Ast</a></span>
+</p>
+<div class="xmldoc">
+</div>
+  <h3>Union Cases</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Union Case</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1332', 1332)" onmouseover="showTip(event, '1332', 1332)">
+            AbstractSlot(...)
+          </code>
+          <div class="tip" id="1332">
+            <strong>Signature:</strong> SynValSig * MemberFlags * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1345-1345" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1333', 1333)" onmouseover="showTip(event, '1333', 1333)">
+            AutoProperty(...)
+          </code>
+          <div class="tip" id="1333">
+            <strong>Signature:</strong> SynAttributes * bool * Ident * SynType option * MemberKind * MemberKind -&gt; MemberFlags * PreXmlDoc * SynAccess option * SynExpr * range option * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1354-1354" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>SynMemberDefn.AutoProperty (attribs,isStatic,id,tyOpt,propKind,memberFlags,xmlDoc,access,synExpr,mGetSet,mWholeAutoProp).</p>
+<p>F# syntax: 'member val X = expr'</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1334', 1334)" onmouseover="showTip(event, '1334', 1334)">
+            ImplicitCtor(...)
+          </code>
+          <div class="tip" id="1334">
+            <strong>Signature:</strong> SynAccess option * SynAttributes * SynSimplePat list * Ident option * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1338-1338" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>implicit ctor args as a defn line, 'as' specification</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1335', 1335)" onmouseover="showTip(event, '1335', 1335)">
+            ImplicitInherit(...)
+          </code>
+          <div class="tip" id="1335">
+            <strong>Signature:</strong> SynType * SynExpr * Ident option * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1340-1340" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>inherit <typ>(args...) as base</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1336', 1336)" onmouseover="showTip(event, '1336', 1336)">
+            Inherit(SynType,Ident option,range)
+          </code>
+          <div class="tip" id="1336">
+            <strong>Signature:</strong> SynType * Ident option * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1347-1347" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1337', 1337)" onmouseover="showTip(event, '1337', 1337)">
+            Interface(...)
+          </code>
+          <div class="tip" id="1337">
+            <strong>Signature:</strong> SynType * SynMemberDefns option * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1346-1346" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1338', 1338)" onmouseover="showTip(event, '1338', 1338)">
+            LetBindings(...)
+          </code>
+          <div class="tip" id="1338">
+            <strong>Signature:</strong> SynBinding list * bool * bool * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1344-1344" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>LetBindings(bindingList, isStatic, isRecursive, wholeRange)</p>
+<p>localDefns</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1339', 1339)" onmouseover="showTip(event, '1339', 1339)">
+            Member(memberDefn,range)
+          </code>
+          <div class="tip" id="1339">
+            <strong>Signature:</strong> SynBinding * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1336-1336" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1340', 1340)" onmouseover="showTip(event, '1340', 1340)">
+            NestedType(typeDefn,accessibility,range)
+          </code>
+          <div class="tip" id="1340">
+            <strong>Signature:</strong> SynTypeDefn * SynAccess option * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1350-1350" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>A feature that is not implemented</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1341', 1341)" onmouseover="showTip(event, '1341', 1341)">
+            Open(longId,range)
+          </code>
+          <div class="tip" id="1341">
+            <strong>Signature:</strong> LongIdent * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1335-1335" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1342', 1342)" onmouseover="showTip(event, '1342', 1342)">
+            ValField(SynField,range)
+          </code>
+          <div class="tip" id="1342">
+            <strong>Signature:</strong> SynField * range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1348-1348" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1343', 1343)" onmouseover="showTip(event, '1343', 1343)">
+            Range
+          </code>
+          <div class="tip" id="1343">
+            <strong>Signature:</strong> range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ast.fs#L1355-1355" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>get_Range</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

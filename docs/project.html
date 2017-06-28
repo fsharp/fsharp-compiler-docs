@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiler Services: Project Analysis
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Compiler-Services-Project-Analysis" class="anchor" href="#Compiler-Services-Project-Analysis">Compiler Services: Project Analysis</a></h1>
+<p>This tutorial demonstrates how to can analyze a whole project using services provided by the F# compiler.</p>
+<blockquote>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.</p>
+</blockquote>
+<h2><a name="Getting-whole-project-results" class="anchor" href="#Getting-whole-project-results">Getting whole-project results</a></h2>
+<p>As in the <a href="untypedtree.html">previous tutorial (using untyped AST)</a>, we start by referencing
+<code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
+of <code>InteractiveChecker</code>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Reference F# compiler API</span>
+<span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.ProjectCracker.dll&quot;</span>
+
+<span class="k">open</span> <span class="i">System</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">Collections</span><span class="o">.</span><span class="i">Generic</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+
+<span class="c">// Create an interactive checker instance </span>
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+</code></pre></td>
+</tr>
+</table>
+<p>Here are our sample inputs:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">module</span> <span class="i">Inputs</span> <span class="o">=</span> 
+    <span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
+
+    <span class="k">let</span> <span class="i">base1</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>()
+    <span class="k">let</span> <span class="i">fileName1</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">base1</span>, <span class="s">&quot;.fs&quot;</span>)
+    <span class="k">let</span> <span class="i">base2</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>()
+    <span class="k">let</span> <span class="i">fileName2</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">base2</span>, <span class="s">&quot;.fs&quot;</span>)
+    <span class="k">let</span> <span class="i">dllName</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">base2</span>, <span class="s">&quot;.dll&quot;</span>)
+    <span class="k">let</span> <span class="i">projFileName</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">base2</span>, <span class="s">&quot;.fsproj&quot;</span>)
+    <span class="k">let</span> <span class="i">fileSource1</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module M</span>
+
+<span class="s">type C() = </span>
+<span class="s">    member x.P = 1</span>
+
+<span class="s">let xxx = 3 + 4</span>
+<span class="s">let fff () = xxx + xxx</span>
+<span class="s">    &quot;&quot;&quot;</span>
+    <span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">fileName1</span>, <span class="i">fileSource1</span>)
+
+    <span class="k">let</span> <span class="i">fileSource2</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module N</span>
+
+<span class="s">open M</span>
+
+<span class="s">type D1() = </span>
+<span class="s">    member x.SomeProperty = M.xxx</span>
+
+<span class="s">type D2() = </span>
+<span class="s">    member x.SomeProperty = M.fff() + D1().P</span>
+
+<span class="s">// Generate a warning</span>
+<span class="s">let y2 = match 1 with 1 -&gt; M.xxx</span>
+<span class="s">    &quot;&quot;&quot;</span>
+    <span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">fileName2</span>, <span class="i">fileSource2</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>We use <code>GetProjectOptionsFromCommandLineArgs</code> to treat two files as a project:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+<span class="l">37: </span>
+<span class="l">38: </span>
+<span class="l">39: </span>
+<span class="l">40: </span>
+<span class="l">41: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">projectOptions</span> <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">sysLib</span> <span class="i">nm</span> <span class="o">=</span> 
+        <span class="k">if</span> <span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">OSVersion</span><span class="o">.</span><span class="i">Platform</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">PlatformID</span><span class="o">.</span><span class="i">Win32NT</span> <span class="k">then</span>
+            <span class="c">// file references only valid on Windows</span>
+            <span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">GetFolderPath</span>(<span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">SpecialFolder</span><span class="o">.</span><span class="i">ProgramFilesX86</span>) <span class="o">+</span>
+            <span class="s">@&quot;\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\&quot;</span> <span class="o">+</span> <span class="i">nm</span> <span class="o">+</span> <span class="s">&quot;.dll&quot;</span>
+        <span class="k">else</span>
+            <span class="k">let</span> <span class="i">sysDir</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">Runtime</span><span class="o">.</span><span class="i">InteropServices</span><span class="o">.</span><span class="i">RuntimeEnvironment</span><span class="o">.</span><span class="i">GetRuntimeDirectory</span>()
+            <span class="k">let</span> (<span class="o">++</span>) <span class="i">a</span> <span class="i">b</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span><span class="o">.</span><span class="i">Path</span><span class="o">.</span><span class="i">Combine</span>(<span class="i">a</span>,<span class="i">b</span>)
+            <span class="i">sysDir</span> <span class="o">++</span> <span class="i">nm</span> <span class="o">+</span> <span class="s">&quot;.dll&quot;</span> 
+
+    <span class="k">let</span> <span class="i">fsCore4300</span>() <span class="o">=</span> 
+        <span class="k">if</span> <span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">OSVersion</span><span class="o">.</span><span class="i">Platform</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">PlatformID</span><span class="o">.</span><span class="i">Win32NT</span> <span class="k">then</span>
+            <span class="c">// file references only valid on Windows</span>
+            <span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">GetFolderPath</span>(<span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">SpecialFolder</span><span class="o">.</span><span class="i">ProgramFilesX86</span>) <span class="o">+</span>
+            <span class="s">@&quot;\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll&quot;</span>  
+        <span class="k">else</span> 
+            <span class="i">sysLib</span> <span class="s">&quot;FSharp.Core&quot;</span>
+
+    <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromCommandLineArgs</span>
+       (<span class="i">Inputs</span><span class="o">.</span><span class="i">projFileName</span>,
+        [| <span class="k">yield</span> <span class="s">&quot;--simpleresolution&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--noframework&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--debug:full&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--define:DEBUG&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--optimize-&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--out:&quot;</span> <span class="o">+</span> <span class="i">Inputs</span><span class="o">.</span><span class="i">dllName</span>
+           <span class="k">yield</span> <span class="s">&quot;--doc:test.xml&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--warn:3&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--fullpaths&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--flaterrors&quot;</span> 
+           <span class="k">yield</span> <span class="s">&quot;--target:library&quot;</span> 
+           <span class="k">yield</span> <span class="i">Inputs</span><span class="o">.</span><span class="i">fileName1</span>
+           <span class="k">yield</span> <span class="i">Inputs</span><span class="o">.</span><span class="i">fileName2</span>
+           <span class="k">let</span> <span class="i">references</span> <span class="o">=</span>
+             [ <span class="i">sysLib</span> <span class="s">&quot;mscorlib&quot;</span> 
+               <span class="i">sysLib</span> <span class="s">&quot;System&quot;</span>
+               <span class="i">sysLib</span> <span class="s">&quot;System.Core&quot;</span>
+               <span class="i">fsCore4300</span>() ]
+           <span class="k">for</span> <span class="i">r</span> <span class="k">in</span> <span class="i">references</span> <span class="k">do</span> 
+                 <span class="k">yield</span> <span class="s">&quot;-r:&quot;</span> <span class="o">+</span> <span class="i">r</span> |])
+</code></pre></td>
+</tr>
+</table>
+<p>Now check the entire project (using the files saved on disk):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">wholeProjectResults</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckProject</span>(<span class="i">projectOptions</span>) <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Now look at the errors and warnings:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">wholeProjectResults</span> <span class="o">.</span><span class="i">Errors</span><span class="o">.</span><span class="i">Length</span> <span class="c">// 1</span>
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Message</span><span class="o">.</span><span class="i">Contains</span>(<span class="s">&quot;Incomplete pattern matches on this expression&quot;</span>) <span class="c">// yes it does</span>
+
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">StartLineAlternate</span> <span class="c">// 13</span>
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">EndLineAlternate</span> <span class="c">// 13</span>
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">StartColumn</span> <span class="c">// 15</span>
+<span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">EndColumn</span> <span class="c">// 16</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Now look at the inferred signature for the project:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[ <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">.</span><span class="i">DisplayName</span> ] <span class="c">// [&quot;N&quot;; &quot;M&quot;]</span>
+[ <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">NestedEntities</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">.</span><span class="i">DisplayName</span> ] <span class="c">// [&quot;D1&quot;; &quot;D2&quot;]</span>
+[ <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">1</span>]<span class="o">.</span><span class="i">NestedEntities</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">.</span><span class="i">DisplayName</span> ] <span class="c">// [&quot;C&quot;]</span>
+[ <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">.</span><span class="i">DisplayName</span> ] <span class="c">// [&quot;y&quot;; &quot;y2&quot;]</span>
+</code></pre></td>
+</tr>
+</table>
+<p>You can also get all symbols in the project:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="k">rec</span> <span class="i">allSymbolsInEntities</span> (<span class="i">entities</span><span class="o">:</span> <span class="i">IList</span><span class="o">&lt;</span><span class="i">FSharpEntity</span><span class="o">&gt;</span>) <span class="o">=</span> 
+    [ <span class="k">for</span> <span class="i">e</span> <span class="k">in</span> <span class="i">entities</span> <span class="k">do</span> 
+          <span class="k">yield</span> (<span class="i">e</span> <span class="o">:&gt;</span> <span class="i">FSharpSymbol</span>) 
+          <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">e</span><span class="o">.</span><span class="i">MembersFunctionsAndValues</span> <span class="k">do</span>
+             <span class="k">yield</span> (<span class="i">x</span> <span class="o">:&gt;</span> <span class="i">FSharpSymbol</span>)
+          <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">e</span><span class="o">.</span><span class="i">UnionCases</span> <span class="k">do</span>
+             <span class="k">yield</span> (<span class="i">x</span> <span class="o">:&gt;</span> <span class="i">FSharpSymbol</span>)
+          <span class="k">for</span> <span class="i">x</span> <span class="k">in</span> <span class="i">e</span><span class="o">.</span><span class="i">FSharpFields</span> <span class="k">do</span>
+             <span class="k">yield</span> (<span class="i">x</span> <span class="o">:&gt;</span> <span class="i">FSharpSymbol</span>)
+          <span class="k">yield!</span> <span class="i">allSymbolsInEntities</span> <span class="i">e</span><span class="o">.</span><span class="i">NestedEntities</span> ]
+
+<span class="k">let</span> <span class="i">allSymbols</span> <span class="o">=</span> <span class="i">allSymbolsInEntities</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span>
+</code></pre></td>
+</tr>
+</table>
+<p>After checking the whole project, you can access the background results for individual files
+in the project. This will be fast and will not involve any additional checking.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">backgroundParseResults1</span>, <span class="i">backgroundTypedParse1</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">GetBackgroundCheckResultsForFileInProject</span>(<span class="i">Inputs</span><span class="o">.</span><span class="i">fileName1</span>, <span class="i">projectOptions</span>) 
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>You can now resolve symbols in each file:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">xSymbolUseOpt</span> <span class="o">=</span> 
+    <span class="i">backgroundTypedParse1</span><span class="o">.</span><span class="i">GetSymbolUseAtLocation</span>(<span class="n">9</span>,<span class="n">9</span>,<span class="s">&quot;&quot;</span>,[<span class="s">&quot;xxx&quot;</span>])
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">xSymbolUse</span> <span class="o">=</span> <span class="i">xSymbolUseOpt</span><span class="o">.</span><span class="i">Value</span>
+
+<span class="k">let</span> <span class="i">xSymbol</span> <span class="o">=</span> <span class="i">xSymbolUse</span><span class="o">.</span><span class="i">Symbol</span>
+</code></pre></td>
+</tr>
+</table>
+<p>You can find out more about a symbol by doing type checks on various symbol kinds:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">xSymbolAsValue</span> <span class="o">=</span> 
+    <span class="k">match</span> <span class="i">xSymbol</span> <span class="k">with</span> 
+    | <span class="o">:?</span> <span class="i">FSharpMemberOrFunctionOrValue</span> <span class="k">as</span> <span class="i">xSymbolAsVal</span> <span class="k">-&gt;</span> <span class="i">xSymbolAsVal</span>
+    | _ <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;we expected this to be a member, function or value&quot;</span>
+       
+</code></pre></td>
+</tr>
+</table>
+<p>For each symbol, you can look up the references to that symbol:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">usesOfXSymbol</span> <span class="o">=</span> 
+    <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">GetUsesOfSymbol</span>(<span class="i">xSymbol</span>) 
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>You can iterate all the defined symbols in the inferred signature and find where they are used:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">allUsesOfAllSignatureSymbols</span> <span class="o">=</span> 
+    [ <span class="k">for</span> <span class="i">s</span> <span class="k">in</span> <span class="i">allSymbols</span> <span class="k">do</span> 
+         <span class="k">let</span> <span class="i">uses</span> <span class="o">=</span> <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">GetUsesOfSymbol</span>(<span class="i">s</span>) <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span> 
+         <span class="k">yield</span> <span class="i">s</span><span class="o">.</span><span class="i">ToString</span>(), <span class="i">uses</span> ]
+</code></pre></td>
+</tr>
+</table>
+<p>You can also look at all the symbols uses in the whole project (including uses of symbols with local scope)</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">allUsesOfAllSymbols</span> <span class="o">=</span>  
+    <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">GetAllUsesOfAllSymbols</span>()
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>You can also request checks of updated versions of files within the project (note that the other files
+in the project are still read from disk, unless you are using the <a href="filesystem.html">FileSystem API</a>):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseResults1</span>, <span class="i">checkAnswer1</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckFileInProject</span>(<span class="i">Inputs</span><span class="o">.</span><span class="i">fileName1</span>, <span class="n">0</span>, <span class="i">Inputs</span><span class="o">.</span><span class="i">fileSource1</span>, <span class="i">projectOptions</span>) 
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">checkResults1</span> <span class="o">=</span> 
+    <span class="k">match</span> <span class="i">checkAnswer1</span> <span class="k">with</span> 
+    | <span class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span class="i">Succeeded</span> <span class="i">x</span> <span class="k">-&gt;</span>  <span class="i">x</span> 
+    | _ <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;unexpected aborted&quot;</span>
+
+<span class="k">let</span> <span class="i">parseResults2</span>, <span class="i">checkAnswer2</span> <span class="o">=</span> 
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckFileInProject</span>(<span class="i">Inputs</span><span class="o">.</span><span class="i">fileName2</span>, <span class="n">0</span>, <span class="i">Inputs</span><span class="o">.</span><span class="i">fileSource2</span>, <span class="i">projectOptions</span>)
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">checkResults2</span> <span class="o">=</span> 
+    <span class="k">match</span> <span class="i">checkAnswer2</span> <span class="k">with</span> 
+    | <span class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span class="i">Succeeded</span> <span class="i">x</span> <span class="k">-&gt;</span>  <span class="i">x</span> 
+    | _ <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;unexpected aborted&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Again, you can resolve symbols and ask for references:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">xSymbolUse2Opt</span> <span class="o">=</span> 
+    <span class="i">checkResults1</span><span class="o">.</span><span class="i">GetSymbolUseAtLocation</span>(<span class="n">9</span>,<span class="n">9</span>,<span class="s">&quot;&quot;</span>,[<span class="s">&quot;xxx&quot;</span>])
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">xSymbolUse2</span> <span class="o">=</span> <span class="i">xSymbolUse2Opt</span><span class="o">.</span><span class="i">Value</span>
+
+<span class="k">let</span> <span class="i">xSymbol2</span> <span class="o">=</span> <span class="i">xSymbolUse2</span><span class="o">.</span><span class="i">Symbol</span>
+
+<span class="k">let</span> <span class="i">usesOfXSymbol2</span> <span class="o">=</span> 
+    <span class="i">wholeProjectResults</span><span class="o">.</span><span class="i">GetUsesOfSymbol</span>(<span class="i">xSymbol2</span>) 
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Or ask for all the symbols uses in the file (including uses of symbols with local scope)</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">allUsesOfAllSymbolsInFile1</span> <span class="o">=</span> 
+    <span class="i">checkResults1</span><span class="o">.</span><span class="i">GetAllUsesOfAllSymbolsInFile</span>()
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Or ask for all the uses of one symbol in one file:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">allUsesOfXSymbolInFile1</span> <span class="o">=</span> 
+    <span class="i">checkResults1</span><span class="o">.</span><span class="i">GetUsesOfSymbolInFile</span>(<span class="i">xSymbol2</span>)
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">allUsesOfXSymbolInFile2</span> <span class="o">=</span> 
+    <span class="i">checkResults2</span><span class="o">.</span><span class="i">GetUsesOfSymbolInFile</span>(<span class="i">xSymbol2</span>)
+    <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="Analyzing-multiple-projects" class="anchor" href="#Analyzing-multiple-projects">Analyzing multiple projects</a></h2>
+<p>If you have multiple F# projects to analyze which include references from some projects to others,
+then the simplest way to do this is to build the projects and specify the cross-project references using
+a <code>-r:path-to-output-of-project.dll</code> argument in the ProjectOptions. However, this requires the build
+of each project to succeed, producing the DLL file on disk which can be referred to.</p>
+<p>In some situations, e.g. in an IDE, you may wish to allow references to other F# projects prior to successful compilation to
+a DLL. To do this, fill in the ProjectReferences entry in ProjectOptions, which recursively specifies the project
+options for dependent projects. Each project reference still needs a corresponding <code>-r:path-to-output-of-project.dll</code>
+command line argument in ProjectOptions, along with an entry in ProjectReferences.
+The first element of each tuple in the ProjectReferences entry should be the DLL name, i.e. <code>path-to-output-of-project.dll</code>.
+This should be the same as the text used in the <code>-r</code> project reference.</p>
+<p>When a project reference is used, the analysis will make use of the results of incremental
+analysis of the referenced F# project from source files, without requiring the compilation of these files to DLLs.</p>
+<p>To efficiently analyze a set of F# projects which include cross-references, you should populate the ProjectReferences
+correctly and then analyze each project in turn.</p>
+<blockquote>
+<p><strong>NOTE:</strong> Project references are disabled if the assembly being referred to contains type provider components -
+specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will
+still be required on disk.</p>
+</blockquote>
+<h2><a name="Cracking-a-project-file" class="anchor" href="#Cracking-a-project-file">Cracking a project file</a></h2>
+<p>F# projects normally use the '.fsproj' project file format.
+A project cracking facility is provided as a separate NuGet package:
+FSharp.Compiler.Service.ProjectCracker. This NuGet package contains a
+library FSharp.Compiler.Service.ProjectCracker.dll, which should be
+referenced by your application directly, and an executable
+FSharp.Compiler.Service.ProjectCrackerTool.exe, which should be copied
+into the output folder of your application by the build process. If
+you install using Paket or NuGet, then this will be configured for you
+automatically. If not, you should reference the provided <code>.targets</code>
+file manually in your application. This can be found in the NuGet
+package at <code>build/net45/FSharp.Compiler.Service.ProjectCrackerTool.targets</code>.</p>
+<p>The reason for this split is so that the analysis of an F# project
+file is performed out of process, in order that the necessary assembly
+binding redirects can be applied without requiring the caller to
+arrange this. In this way MSBuild versions from 4 up to 14 can be
+accommodated transparently.</p>
+<p>In this example we get the project options for one of the
+project files in the F# Compiler Service project itself - you should also be able to use this technique
+for any project that builds cleanly using the command line tools 'xbuild' or 'msbuild'.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">projectFile</span>  <span class="o">=</span> <span class="k">__SOURCE_DIRECTORY__</span> <span class="o">+</span> <span class="s">@&quot;/../../src/fsharp/FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj&quot;</span>
+
+<span class="i">ProjectCracker</span><span class="o">.</span><span class="i">GetProjectOptionsFromProjectFile</span>(<span class="i">projectFile</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>You can also request RELEASE mode and set other build configuration parameters:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">ProjectCracker</span><span class="o">.</span><span class="i">GetProjectOptionsFromProjectFile</span>(<span class="i">projectFile</span>, [(<span class="s">&quot;Configuration&quot;</span>, <span class="s">&quot;Release&quot;</span>)])
+</code></pre></td>
+</tr>
+</table>
+<p>For debugging purposes it is also possible to obtain a detailed log from the assembly resolution process.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">options</span>, <span class="i">logs</span> <span class="o">=</span> <span class="i">ProjectCracker</span><span class="o">.</span><span class="i">GetProjectOptionsFromProjectFileLogged</span>(<span class="i">projectFile</span>, [(<span class="s">&quot;Configuration&quot;</span>, <span class="s">&quot;Release&quot;</span>)])
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
+<p>As you have seen, the <code>ParseAndCheckProject</code> lets you access results of project-wide analysis
+such as symbol references. To learn more about working with symbols, see <a href="symbols.html">Symbols</a>.</p>
+<p>Using the FSharpChecker component in multi-project, incremental and interactive editing situations may involve
+knowledge of the <a href="queue.html">FSharpChecker operations queue</a> and the <a href="caches.html">FSharpChecker caches</a>.</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

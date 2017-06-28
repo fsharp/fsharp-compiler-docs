@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiler Services: Virtualized File System
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Compiler-Services-Virtualized-File-System" class="anchor" href="#Compiler-Services-Virtualized-File-System">Compiler Services: Virtualized File System</a></h1>
+<p>The <code>FSharp.Compiler.Service</code> component has a global variable
+representing the file system. By setting this variable you can host the compiler in situations where a file system
+is not available.</p>
+<blockquote>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.</p>
+</blockquote>
+<h2><a name="Setting-the-FileSystem" class="anchor" href="#Setting-the-FileSystem">Setting the FileSystem</a></h2>
+<p>In the example below, we set the file system to an implementation which reads from disk</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+<span class="l">37: </span>
+<span class="l">38: </span>
+<span class="l">39: </span>
+<span class="l">40: </span>
+<span class="l">41: </span>
+<span class="l">42: </span>
+<span class="l">43: </span>
+<span class="l">44: </span>
+<span class="l">45: </span>
+<span class="l">46: </span>
+<span class="l">47: </span>
+<span class="l">48: </span>
+<span class="l">49: </span>
+<span class="l">50: </span>
+<span class="l">51: </span>
+<span class="l">52: </span>
+<span class="l">53: </span>
+<span class="l">54: </span>
+<span class="l">55: </span>
+<span class="l">56: </span>
+<span class="l">57: </span>
+<span class="l">58: </span>
+<span class="l">59: </span>
+<span class="l">60: </span>
+<span class="l">61: </span>
+<span class="l">62: </span>
+<span class="l">63: </span>
+<span class="l">64: </span>
+<span class="l">65: </span>
+<span class="l">66: </span>
+<span class="l">67: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="k">open</span> <span class="i">System</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">Collections</span><span class="o">.</span><span class="i">Generic</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">Text</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">AbstractIL</span><span class="o">.</span><span class="i">Internal</span><span class="o">.</span><span class="i">Library</span>
+
+<span class="k">let</span> <span class="i">defaultFileSystem</span> <span class="o">=</span> <span class="i">Shim</span><span class="o">.</span><span class="i">FileSystem</span>
+
+<span class="k">let</span> <span class="i">fileName1</span> <span class="o">=</span> <span class="s">@&quot;c:\mycode\test1.fs&quot;</span> <span class="c">// note, the path doesn&#39;t exist</span>
+<span class="k">let</span> <span class="i">fileName2</span> <span class="o">=</span> <span class="s">@&quot;c:\mycode\test2.fs&quot;</span> <span class="c">// note, the path doesn&#39;t exist</span>
+
+<span class="k">type</span> <span class="i">MyFileSystem</span>() <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">file1</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module File1</span>
+
+<span class="s">let A = 1&quot;&quot;&quot;</span>
+    <span class="k">let</span> <span class="i">file2</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module File2</span>
+<span class="s">let B = File1.A + File1.A&quot;&quot;&quot;</span>
+    <span class="k">let</span> <span class="i">files</span> <span class="o">=</span> <span class="i">dict</span> [(<span class="i">fileName1</span>, <span class="i">file1</span>); (<span class="i">fileName2</span>, <span class="i">file2</span>)]
+
+    <span class="k">interface</span> <span class="i">IFileSystem</span> <span class="k">with</span>
+        <span class="c">// Implement the service to open files for reading and writing</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">FileStreamReadShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="k">match</span> <span class="i">files</span><span class="o">.</span><span class="i">TryGetValue</span>(<span class="i">fileName</span>) <span class="k">with</span>
+            | <span class="k">true</span>, <span class="i">text</span> <span class="k">-&gt;</span> <span class="k">new</span> <span class="i">MemoryStream</span>(<span class="i">Encoding</span><span class="o">.</span><span class="i">UTF8</span><span class="o">.</span><span class="i">GetBytes</span>(<span class="i">text</span>)) <span class="o">:&gt;</span> <span class="i">Stream</span>
+            | _ <span class="k">-&gt;</span> <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">FileStreamReadShim</span>(<span class="i">fileName</span>)
+
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">FileStreamCreateShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">FileStreamCreateShim</span>(<span class="i">fileName</span>)
+
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">FileStreamWriteExistingShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">FileStreamWriteExistingShim</span>(<span class="i">fileName</span>)
+
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">ReadAllBytesShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="k">match</span> <span class="i">files</span><span class="o">.</span><span class="i">TryGetValue</span>(<span class="i">fileName</span>) <span class="k">with</span>
+            | <span class="k">true</span>, <span class="i">text</span> <span class="k">-&gt;</span> <span class="i">Encoding</span><span class="o">.</span><span class="i">UTF8</span><span class="o">.</span><span class="i">GetBytes</span>(<span class="i">text</span>)
+            | _ <span class="k">-&gt;</span> <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">ReadAllBytesShim</span>(<span class="i">fileName</span>)
+
+        <span class="c">// Implement the service related to temporary paths and file time stamps</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">GetTempPathShim</span>() <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">GetTempPathShim</span>()
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">GetLastWriteTimeShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">GetLastWriteTimeShim</span>(<span class="i">fileName</span>)
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">GetFullPathShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">GetFullPathShim</span>(<span class="i">fileName</span>)
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">IsInvalidPathShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">IsInvalidPathShim</span>(<span class="i">fileName</span>)
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">IsPathRootedShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">IsPathRootedShim</span>(<span class="i">fileName</span>)
+
+        <span class="c">// Implement the service related to file existence and deletion</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">SafeExists</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">files</span><span class="o">.</span><span class="i">ContainsKey</span>(<span class="i">fileName</span>) <span class="o">||</span> <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">SafeExists</span>(<span class="i">fileName</span>)
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">FileDelete</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">FileDelete</span>(<span class="i">fileName</span>)
+
+        <span class="c">// Implement the service related to assembly loading, used to load type providers</span>
+        <span class="c">// and for F# interactive.</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">AssemblyLoadFrom</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">AssemblyLoadFrom</span> <span class="i">fileName</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">AssemblyLoad</span>(<span class="i">assemblyName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">AssemblyLoad</span> <span class="i">assemblyName</span> 
+
+<span class="k">let</span> <span class="i">myFileSystem</span> <span class="o">=</span> <span class="i">MyFileSystem</span>()
+<span class="i">Shim</span><span class="o">.</span><span class="i">FileSystem</span> <span class="o">&lt;-</span> <span class="i">MyFileSystem</span>() 
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="Doing-a-compilation-with-the-FileSystem" class="anchor" href="#Doing-a-compilation-with-the-FileSystem">Doing a compilation with the FileSystem</a></h2>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+<span class="l">37: </span>
+<span class="l">38: </span>
+<span class="l">39: </span>
+<span class="l">40: </span>
+<span class="l">41: </span>
+<span class="l">42: </span>
+<span class="l">43: </span>
+<span class="l">44: </span>
+<span class="l">45: </span>
+<span class="l">46: </span>
+<span class="l">47: </span>
+<span class="l">48: </span>
+<span class="l">49: </span>
+<span class="l">50: </span>
+<span class="l">51: </span>
+<span class="l">52: </span>
+<span class="l">53: </span>
+<span class="l">54: </span>
+<span class="l">55: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+
+<span class="k">let</span> <span class="i">projectOptions</span> <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">sysLib</span> <span class="i">nm</span> <span class="o">=</span> 
+        <span class="k">if</span> <span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">OSVersion</span><span class="o">.</span><span class="i">Platform</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">PlatformID</span><span class="o">.</span><span class="i">Win32NT</span> <span class="k">then</span> <span class="c">// file references only valid on Windows </span>
+            <span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">GetFolderPath</span>(<span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">SpecialFolder</span><span class="o">.</span><span class="i">ProgramFilesX86</span>) <span class="o">+</span>
+            <span class="s">@&quot;\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\&quot;</span> <span class="o">+</span> <span class="i">nm</span> <span class="o">+</span> <span class="s">&quot;.dll&quot;</span>
+        <span class="k">else</span>
+            <span class="k">let</span> <span class="i">sysDir</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">Runtime</span><span class="o">.</span><span class="i">InteropServices</span><span class="o">.</span><span class="i">RuntimeEnvironment</span><span class="o">.</span><span class="i">GetRuntimeDirectory</span>()
+            <span class="k">let</span> (<span class="o">++</span>) <span class="i">a</span> <span class="i">b</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span><span class="o">.</span><span class="i">Path</span><span class="o">.</span><span class="i">Combine</span>(<span class="i">a</span>,<span class="i">b</span>)
+            <span class="i">sysDir</span> <span class="o">++</span> <span class="i">nm</span> <span class="o">+</span> <span class="s">&quot;.dll&quot;</span> 
+
+    <span class="k">let</span> <span class="i">fsCore4300</span>() <span class="o">=</span> 
+        <span class="k">if</span> <span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">OSVersion</span><span class="o">.</span><span class="i">Platform</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">PlatformID</span><span class="o">.</span><span class="i">Win32NT</span> <span class="k">then</span> <span class="c">// file references only valid on Windows </span>
+            <span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">GetFolderPath</span>(<span class="i">System</span><span class="o">.</span><span class="i">Environment</span><span class="o">.</span><span class="i">SpecialFolder</span><span class="o">.</span><span class="i">ProgramFilesX86</span>) <span class="o">+</span>
+            <span class="s">@&quot;\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll&quot;</span>  
+        <span class="k">else</span> 
+            <span class="i">sysLib</span> <span class="s">&quot;FSharp.Core&quot;</span>
+
+    <span class="k">let</span> <span class="i">allFlags</span> <span class="o">=</span> 
+        [| <span class="k">yield</span> <span class="s">&quot;--simpleresolution&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--noframework&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--debug:full&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--define:DEBUG&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--optimize-&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--doc:test.xml&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--warn:3&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--fullpaths&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--flaterrors&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--target:library&quot;</span>; 
+           <span class="k">let</span> <span class="i">references</span> <span class="o">=</span>
+             [ <span class="i">sysLib</span> <span class="s">&quot;mscorlib&quot;</span> 
+               <span class="i">sysLib</span> <span class="s">&quot;System&quot;</span>
+               <span class="i">sysLib</span> <span class="s">&quot;System.Core&quot;</span>
+               <span class="i">fsCore4300</span>() ]
+           <span class="k">for</span> <span class="i">r</span> <span class="k">in</span> <span class="i">references</span> <span class="k">do</span> 
+                 <span class="k">yield</span> <span class="s">&quot;-r:&quot;</span> <span class="o">+</span> <span class="i">r</span> |]
+ 
+    { <span class="i">ProjectFileName</span> <span class="o">=</span> <span class="s">@&quot;c:\mycode\compilation.fsproj&quot;</span> <span class="c">// Make a name that is unique in this directory.</span>
+      <span class="i">ProjectFileNames</span> <span class="o">=</span> [| <span class="i">fileName1</span>; <span class="i">fileName2</span> |]
+      <span class="i">OtherOptions</span> <span class="o">=</span> <span class="i">allFlags</span> 
+      <span class="i">ReferencedProjects</span> <span class="o">=</span> [| |]
+      <span class="i">IsIncompleteTypeCheckEnvironment</span> <span class="o">=</span> <span class="k">false</span>
+      <span class="i">UseScriptResolutionRules</span> <span class="o">=</span> <span class="k">true</span> 
+      <span class="i">LoadTime</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">DateTime</span><span class="o">.</span><span class="i">Now</span> <span class="c">// Note using &#39;Now&#39; forces reloading</span>
+      <span class="i">UnresolvedReferences</span> <span class="o">=</span> <span class="i">None</span> }
+
+<span class="k">let</span> <span class="i">results</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckProject</span>(<span class="i">projectOptions</span>) <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="i">results</span><span class="o">.</span><span class="i">Errors</span>
+<span class="i">results</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="c">//2</span>
+<span class="i">results</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span><span class="i">Count</span> <span class="c">//1</span>
+<span class="i">results</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;B&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
+<p>In this tutorial, we've seen how to globally customize the view of the file system used by the FSharp.Compiler.Service
+component.</p>
+<p>At the time of writing, the following System.IO operations are not considered part of the virtualized file system API.
+Future iterations on the compiler service implementation may add these to the API.</p>
+<ul>
+<li>Path.Combine</li>
+<li>Path.DirectorySeparatorChar</li>
+<li>Path.GetDirectoryName</li>
+<li>Path.GetFileName</li>
+<li>Path.GetFileNameWithoutExtension</li>
+<li>Path.HasExtension</li>
+<li>Path.GetRandomFileName (used only in generation compiled win32 resources in assemblies)</li>
+</ul>
+<p><strong>NOTE:</strong> Several operations in the <code>SourceCodeServices</code> API accept the contents of a file to parse
+or check as a parameter, in addition to a file name. In these cases, the file name is only used for
+error reporting.</p>
+<p><strong>NOTE:</strong> Type provider components do not use the virtualized file system.</p>
+<p><strong>NOTE:</strong> The compiler service may use MSBuild for assembly resolutions unless <code>--simpleresolution</code> is
+provided. When using the <code>FileSystem</code> API you will normally want to specify <code>--simpleresolution</code> as one
+of your compiler flags. Also specify <code>--noframework</code>.  You will need to supply explicit resolutions of all
+referenced .NET assemblies.</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

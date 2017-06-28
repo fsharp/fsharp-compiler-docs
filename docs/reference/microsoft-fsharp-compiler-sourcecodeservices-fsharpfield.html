@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FSharpField - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>FSharpField</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler.SourceCodeServices</span><br />
+</p>
+<div class="xmldoc">
+<p>A subtype of FSharpSymbol that represents a record or union case field as seen by the F# language</p>
+
+</div>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2878', 2878)" onmouseover="showTip(event, '2878', 2878)">
+            Accessibility
+          </code>
+          <div class="tip" id="2878">
+            <strong>Signature:</strong> FSharpAccessibility<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L811-811" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates if the declared visibility of the field, not taking signatures into account</p>
+
+
+              <p>CompiledName: <code>get_Accessibility</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2879', 2879)" onmouseover="showTip(event, '2879', 2879)">
+            DeclarationLocation
+          </code>
+          <div class="tip" id="2879">
+            <strong>Signature:</strong> range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L791-791" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the declaration location of the field</p>
+
+
+              <p>CompiledName: <code>get_DeclarationLocation</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2880', 2880)" onmouseover="showTip(event, '2880', 2880)">
+            DeclaringEntity
+          </code>
+          <div class="tip" id="2880">
+            <strong>Signature:</strong> FSharpEntity<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L706-706" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the declaring entity of this field</p>
+
+
+              <p>CompiledName: <code>get_DeclaringEntity</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2881', 2881)" onmouseover="showTip(event, '2881', 2881)">
+            FieldAttributes
+          </code>
+          <div class="tip" id="2881">
+            <strong>Signature:</strong> IList&lt;FSharpAttribute&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L797-797" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the attributes attached to generated field</p>
+
+
+              <p>CompiledName: <code>get_FieldAttributes</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2882', 2882)" onmouseover="showTip(event, '2882', 2882)">
+            FieldType
+          </code>
+          <div class="tip" id="2882">
+            <strong>Signature:</strong> FSharpType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L765-765" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the type of the field, w.r.t. the generic parameters of the enclosing type constructor</p>
+
+
+              <p>CompiledName: <code>get_FieldType</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2883', 2883)" onmouseover="showTip(event, '2883', 2883)">
+            IsCompilerGenerated
+          </code>
+          <div class="tip" id="2883">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L785-785" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates a compiler generated field, not visible to Intellisense or name resolution</p>
+
+
+              <p>CompiledName: <code>get_IsCompilerGenerated</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2884', 2884)" onmouseover="showTip(event, '2884', 2884)">
+            IsDefaultValue
+          </code>
+          <div class="tip" id="2884">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L736-736" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates if the field declared is declared 'DefaultValue'</p>
+
+
+              <p>CompiledName: <code>get_IsDefaultValue</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2885', 2885)" onmouseover="showTip(event, '2885', 2885)">
+            IsLiteral
+          </code>
+          <div class="tip" id="2885">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L718-718" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates if the field has a literal value</p>
+
+
+              <p>CompiledName: <code>get_IsLiteral</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2886', 2886)" onmouseover="showTip(event, '2886', 2886)">
+            IsMutable
+          </code>
+          <div class="tip" id="2886">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L712-712" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates if the field is declared 'static'</p>
+
+
+              <p>CompiledName: <code>get_IsMutable</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2887', 2887)" onmouseover="showTip(event, '2887', 2887)">
+            IsStatic
+          </code>
+          <div class="tip" id="2887">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L773-773" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates a static field</p>
+
+
+              <p>CompiledName: <code>get_IsStatic</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2888', 2888)" onmouseover="showTip(event, '2888', 2888)">
+            IsUnresolved
+          </code>
+          <div class="tip" id="2888">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L709-709" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates if the record field is for a type in an unresolved assembly</p>
+
+
+              <p>CompiledName: <code>get_IsUnresolved</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2889', 2889)" onmouseover="showTip(event, '2889', 2889)">
+            IsVolatile
+          </code>
+          <div class="tip" id="2889">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L730-730" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicates if the field is declared volatile</p>
+
+
+              <p>CompiledName: <code>get_IsVolatile</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2890', 2890)" onmouseover="showTip(event, '2890', 2890)">
+            LiteralValue
+          </code>
+          <div class="tip" id="2890">
+            <strong>Signature:</strong> obj option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L724-724" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the default initialization info, for static literals</p>
+
+
+              <p>CompiledName: <code>get_LiteralValue</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2891', 2891)" onmouseover="showTip(event, '2891', 2891)">
+            Name
+          </code>
+          <div class="tip" id="2891">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L779-779" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the name of the field</p>
+
+
+              <p>CompiledName: <code>get_Name</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2892', 2892)" onmouseover="showTip(event, '2892', 2892)">
+            PropertyAttributes
+          </code>
+          <div class="tip" id="2892">
+            <strong>Signature:</strong> IList&lt;FSharpAttribute&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L804-804" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the attributes attached to generated property</p>
+
+
+              <p>CompiledName: <code>get_PropertyAttributes</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2893', 2893)" onmouseover="showTip(event, '2893', 2893)">
+            XmlDoc
+          </code>
+          <div class="tip" id="2893">
+            <strong>Signature:</strong> IList&lt;string&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L758-758" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the in-memory XML documentation for the field, used when code is checked in-memory</p>
+
+
+              <p>CompiledName: <code>get_XmlDoc</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2894', 2894)" onmouseover="showTip(event, '2894', 2894)">
+            XmlDocSig
+          </code>
+          <div class="tip" id="2894">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/Symbols.fs#L742-742" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get the XML documentation signature for .xml file lookup for the field, used for .xml file lookup for compiled code</p>
+
+
+              <p>CompiledName: <code>get_XmlDocSig</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

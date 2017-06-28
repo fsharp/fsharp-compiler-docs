@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>コンパイラサービス: ファイルシステム仮想化
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
+    <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="コンパイラサービス-ファイルシステム仮想化" class="anchor" href="#コンパイラサービス-ファイルシステム仮想化">コンパイラサービス: ファイルシステム仮想化</a></h1>
+<p><code>FSharp.Compiler.Service</code> にはファイルシステムを表すグローバル変数があります。
+この変数を設定するこにより、ファイルシステムが利用できない状況でも
+コンパイラをホストすることができるようになります。</p>
+<blockquote>
+<p><strong>注意:</strong> 以下で使用しているAPIは実験的なもので、
+新しいnugetパッケージの公開に伴って変更される可能性があります。</p>
+</blockquote>
+<h2><a name="FileSystemの設定" class="anchor" href="#FileSystemの設定">FileSystemの設定</a></h2>
+<p>以下の例ではディスクからの読み取りを行うような実装をファイルシステムに設定しています:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+<span class="l">37: </span>
+<span class="l">38: </span>
+<span class="l">39: </span>
+<span class="l">40: </span>
+<span class="l">41: </span>
+<span class="l">42: </span>
+<span class="l">43: </span>
+<span class="l">44: </span>
+<span class="l">45: </span>
+<span class="l">46: </span>
+<span class="l">47: </span>
+<span class="l">48: </span>
+<span class="l">49: </span>
+<span class="l">50: </span>
+<span class="l">51: </span>
+<span class="l">52: </span>
+<span class="l">53: </span>
+<span class="l">54: </span>
+<span class="l">55: </span>
+<span class="l">56: </span>
+<span class="l">57: </span>
+<span class="l">58: </span>
+<span class="l">59: </span>
+<span class="l">60: </span>
+<span class="l">61: </span>
+<span class="l">62: </span>
+<span class="l">63: </span>
+<span class="l">64: </span>
+<span class="l">65: </span>
+<span class="l">66: </span>
+<span class="l">67: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="k">open</span> <span class="i">System</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">Collections</span><span class="o">.</span><span class="i">Generic</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">Text</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">AbstractIL</span><span class="o">.</span><span class="i">Internal</span><span class="o">.</span><span class="i">Library</span>
+
+<span class="k">let</span> <span class="i">defaultFileSystem</span> <span class="o">=</span> <span class="i">Shim</span><span class="o">.</span><span class="i">FileSystem</span>
+
+<span class="k">let</span> <span class="i">fileName1</span> <span class="o">=</span> <span class="s">@&quot;c:\mycode\test1.fs&quot;</span> <span class="c">// 注意: 実際には存在しないファイルのパス</span>
+<span class="k">let</span> <span class="i">fileName2</span> <span class="o">=</span> <span class="s">@&quot;c:\mycode\test2.fs&quot;</span> <span class="c">// 注意: 実際には存在しないファイルのパス</span>
+
+<span class="k">type</span> <span class="i">MyFileSystem</span>() <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">file1</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module File1</span>
+
+<span class="s">let A = 1&quot;&quot;&quot;</span>
+    <span class="k">let</span> <span class="i">file2</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module File2</span>
+<span class="s">let B = File1.A + File1.A&quot;&quot;&quot;</span>
+    <span class="k">let</span> <span class="i">files</span> <span class="o">=</span> <span class="i">dict</span> [(<span class="i">fileName1</span>, <span class="i">file1</span>); (<span class="i">fileName2</span>, <span class="i">file2</span>)]
+
+    <span class="k">interface</span> <span class="i">IFileSystem</span> <span class="k">with</span>
+        <span class="c">// 読み取りおよび書き込み用にファイルをオープンする機能を実装</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">FileStreamReadShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="k">match</span> <span class="i">files</span><span class="o">.</span><span class="i">TryGetValue</span>(<span class="i">fileName</span>) <span class="k">with</span>
+            | <span class="k">true</span>, <span class="i">text</span> <span class="k">-&gt;</span> <span class="k">new</span> <span class="i">MemoryStream</span>(<span class="i">Encoding</span><span class="o">.</span><span class="i">UTF8</span><span class="o">.</span><span class="i">GetBytes</span>(<span class="i">text</span>)) <span class="o">:&gt;</span> <span class="i">Stream</span>
+            | _ <span class="k">-&gt;</span> <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">FileStreamReadShim</span>(<span class="i">fileName</span>)
+
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">FileStreamCreateShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">FileStreamCreateShim</span>(<span class="i">fileName</span>)
+
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">FileStreamWriteExistingShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">FileStreamWriteExistingShim</span>(<span class="i">fileName</span>)
+
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">ReadAllBytesShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="k">match</span> <span class="i">files</span><span class="o">.</span><span class="i">TryGetValue</span>(<span class="i">fileName</span>) <span class="k">with</span>
+            | <span class="k">true</span>, <span class="i">text</span> <span class="k">-&gt;</span> <span class="i">Encoding</span><span class="o">.</span><span class="i">UTF8</span><span class="o">.</span><span class="i">GetBytes</span>(<span class="i">text</span>)
+            | _ <span class="k">-&gt;</span> <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">ReadAllBytesShim</span>(<span class="i">fileName</span>)
+
+        <span class="c">// 一時パスおよびファイルのタイムスタンプに関連する機能を実装</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">GetTempPathShim</span>() <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">GetTempPathShim</span>()
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">GetLastWriteTimeShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">GetLastWriteTimeShim</span>(<span class="i">fileName</span>)
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">GetFullPathShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">GetFullPathShim</span>(<span class="i">fileName</span>)
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">IsInvalidPathShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">IsInvalidPathShim</span>(<span class="i">fileName</span>)
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">IsPathRootedShim</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">IsPathRootedShim</span>(<span class="i">fileName</span>)
+
+        <span class="c">// ファイルの存在確認および削除に関連する機能を実装</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">SafeExists</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">files</span><span class="o">.</span><span class="i">ContainsKey</span>(<span class="i">fileName</span>) <span class="o">||</span> <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">SafeExists</span>(<span class="i">fileName</span>)
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">FileDelete</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">FileDelete</span>(<span class="i">fileName</span>)
+
+        <span class="c">// アセンブリのロードに関連する機能を実装。</span>
+        <span class="c">// 型プロバイダやF# Interactiveで使用される。</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">AssemblyLoadFrom</span>(<span class="i">fileName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">AssemblyLoadFrom</span> <span class="i">fileName</span>
+        <span class="k">member</span> <span class="i">__</span><span class="o">.</span><span class="i">AssemblyLoad</span>(<span class="i">assemblyName</span>) <span class="o">=</span> 
+            <span class="i">defaultFileSystem</span><span class="o">.</span><span class="i">AssemblyLoad</span> <span class="i">assemblyName</span> 
+
+<span class="k">let</span> <span class="i">myFileSystem</span> <span class="o">=</span> <span class="i">MyFileSystem</span>()
+<span class="i">Shim</span><span class="o">.</span><span class="i">FileSystem</span> <span class="o">&lt;-</span> <span class="i">MyFileSystem</span>() 
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="FileSystemによるコンパイルの実行" class="anchor" href="#FileSystemによるコンパイルの実行">FileSystemによるコンパイルの実行</a></h2>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+<span class="l">37: </span>
+<span class="l">38: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+<span class="k">let</span> <span class="i">projectOptions</span> <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">allFlags</span> <span class="o">=</span> 
+        [| <span class="k">yield</span> <span class="s">&quot;--simpleresolution&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--noframework&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--debug:full&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--define:DEBUG&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--optimize-&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--doc:test.xml&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--warn:3&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--fullpaths&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--flaterrors&quot;</span>; 
+           <span class="k">yield</span> <span class="s">&quot;--target:library&quot;</span>; 
+           <span class="k">let</span> <span class="i">references</span> <span class="o">=</span>
+             [ <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll&quot;</span>; 
+               <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll&quot;</span>; 
+               <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll&quot;</span>; 
+               <span class="s">@&quot;C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll&quot;</span>]
+           <span class="k">for</span> <span class="i">r</span> <span class="k">in</span> <span class="i">references</span> <span class="k">do</span> 
+                 <span class="k">yield</span> <span class="s">&quot;-r:&quot;</span> <span class="o">+</span> <span class="i">r</span> |]
+ 
+    { <span class="i">ProjectFileName</span> <span class="o">=</span> <span class="s">@&quot;c:\mycode\compilation.fsproj&quot;</span> <span class="c">// 現在のディレクトリで一意な名前を指定</span>
+      <span class="i">ProjectFileNames</span> <span class="o">=</span> [| <span class="i">fileName1</span>; <span class="i">fileName2</span> |]
+      <span class="i">OtherOptions</span> <span class="o">=</span> <span class="i">allFlags</span> 
+      <span class="i">ReferencedProjects</span><span class="o">=</span>[| |]
+      <span class="i">IsIncompleteTypeCheckEnvironment</span> <span class="o">=</span> <span class="k">false</span>
+      <span class="i">UseScriptResolutionRules</span> <span class="o">=</span> <span class="k">true</span> 
+      <span class="i">LoadTime</span> <span class="o">=</span> <span class="i">System</span><span class="o">.</span><span class="i">DateTime</span><span class="o">.</span><span class="i">Now</span> <span class="c">// &#39;Now&#39; を指定して強制的に再読込させている点に注意</span>
+      <span class="i">UnresolvedReferences</span> <span class="o">=</span> <span class="i">None</span> }
+
+<span class="k">let</span> <span class="i">results</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckProject</span>(<span class="i">projectOptions</span>) <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="i">results</span><span class="o">.</span><span class="i">Errors</span>
+<span class="i">results</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="c">//2</span>
+<span class="i">results</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span><span class="i">Count</span> <span class="c">//1</span>
+<span class="i">results</span><span class="o">.</span><span class="i">AssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;B&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="まとめ" class="anchor" href="#まとめ">まとめ</a></h2>
+<p>このチュートリアルでは FSharp.Compiler.Service コンポーネントで使用される
+ファイルシステムに注目して、グローバルな設定を変更する方法について紹介しました。</p>
+<p>このチュートリアルの執筆時点では、以下に列挙したSystem.IOの操作に対しては
+仮想化されたファイルシステムAPIが用意されない予定になっています。
+将来のバージョンのコンパイラサービスではこれらのAPIが追加されるかもしれません。</p>
+<ul>
+<li>Path.Combine</li>
+<li>Path.DirectorySeparatorChar</li>
+<li>Path.GetDirectoryName</li>
+<li>Path.GetFileName</li>
+<li>Path.GetFileNameWithoutExtension</li>
+<li>Path.HasExtension</li>
+<li>Path.GetRandomFileName (アセンブリ内にコンパイル済みwin32リソースを生成する場合にのみ使用される)</li>
+</ul>
+<p><strong>注意:</strong> <code>SourceCodeServices</code> API内の一部の操作では、
+引数にファイルの内容だけでなくファイル名を指定する必要があります。
+これらのAPIにおいて、ファイル名はエラーの報告のためだけに使用されます。</p>
+<p><strong>注意:</strong> 型プロバイダーコンポーネントは仮想化されたファイルシステムを使用しません。</p>
+<p><strong>注意:</strong> コンパイラサービスは <code>--simpleresolution</code> が指定されていない場合、
+MSBuildを使ってアセンブリの解決を試みることがあります。
+<code>FileSystem</code> APIを使用する場合、通常はコンパイラへのフラグとして
+<code>--simpleresolution</code> を指定することになります。
+それと同時に <code>--noframework</code> を指定します。
+.NETアセンブリに対するすべての参照を明示的に指定する必要があるでしょう。</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">GitHub上のソースコード</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">ライセンス</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">リリースノート</a></li>
+            
+            <li class="nav-header">はじめに</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/devnotes.html">開発者用メモ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/fsharp-readme.html">F#コンパイラのreadme</a></li>
+
+            <li class="nav-header">利用可能なサービス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/tokenizer.html">F#言語トークナイザ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/untypedtree.html">型無しASTの処理</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/editor.html">エディタ(IDE)のサービスを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/symbols.html">解決済みのシンボルを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/project.html">プロジェクト全体の分析</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/interactive.html">F# Interactiveの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/compiler.html">F#コンパイラの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/filesystem.html">ファイルシステムの仮想化</a></li>
+
+            <li class="nav-header">リファレンス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/../reference/index.html">API リファレンス</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

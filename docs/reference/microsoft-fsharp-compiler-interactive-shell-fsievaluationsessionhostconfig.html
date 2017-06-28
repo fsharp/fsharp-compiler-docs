@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FsiEvaluationSessionHostConfig - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>FsiEvaluationSessionHostConfig</h1>
+<p>
+  <span>Namespace: Microsoft.FSharp.Compiler.Interactive</span><br />
+  <span>Parent Module: <a href="microsoft-fsharp-compiler-interactive-shell.html">Shell</a></span>
+</p>
+<div class="xmldoc">
+</div>
+  <h3>Constructors</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Constructor</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2540', 2540)" onmouseover="showTip(event, '2540', 2540)">
+            new()
+          </code>
+          <div class="tip" id="2540">
+            <strong>Signature:</strong> unit -&gt; FsiEvaluationSessionHostConfig<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L240-240" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>.ctor</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2541', 2541)" onmouseover="showTip(event, '2541', 2541)">
+            AddedPrinters
+          </code>
+          <div class="tip" id="2541">
+            <strong>Signature:</strong> Choice&lt;(Type * (obj -&gt; string)),(Type * (obj -&gt; obj))&gt; list<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L247-247" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_AddedPrinters</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2542', 2542)" onmouseover="showTip(event, '2542', 2542)">
+            EventLoopInvoke(codeToRun)
+          </code>
+          <div class="tip" id="2542">
+            <strong>Signature:</strong> (codeToRun:(unit -&gt; &#39;T)) -&gt; &#39;T<br />
+              <strong>Modifiers:</strong> abstract<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L299-299" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Request that the given operation be run synchronously on the event loop.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2543', 2543)" onmouseover="showTip(event, '2543', 2543)">
+            EventLoopRun()
+          </code>
+          <div class="tip" id="2543">
+            <strong>Signature:</strong> unit -&gt; bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L296-296" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host to enter a dispatch loop like Application.Run().
+Only called if --gui option is used (which is the default).
+Gets called towards the end of startup and every time a ThreadAbort escaped to the backup driver loop.
+Return true if a 'restart' is required, which is a bit meaningless.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2544', 2544)" onmouseover="showTip(event, '2544', 2544)">
+            EventLoopScheduleRestart()
+          </code>
+          <div class="tip" id="2544">
+            <strong>Signature:</strong> unit -&gt; unit<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L302-302" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Schedule a restart for the event loop.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2545', 2545)" onmouseover="showTip(event, '2545', 2545)">
+            FloatingPointFormat
+          </code>
+          <div class="tip" id="2545">
+            <strong>Signature:</strong> string<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L245-245" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_FloatingPointFormat</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2546', 2546)" onmouseover="showTip(event, '2546', 2546)">
+            FormatProvider
+          </code>
+          <div class="tip" id="2546">
+            <strong>Signature:</strong> IFormatProvider<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L243-243" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_FormatProvider</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2547', 2547)" onmouseover="showTip(event, '2547', 2547)">
+            OnEvaluation
+          </code>
+          <div class="tip" id="2547">
+            <strong>Signature:</strong> IEvent&lt;EvaluationEventArgs&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L308-308" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Hook for listening for evaluation bindings</p>
+
+
+              <p>CompiledName: <code>get_OnEvaluation</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2548', 2548)" onmouseover="showTip(event, '2548', 2548)">
+            OptionalConsoleReadLine
+          </code>
+          <div class="tip" id="2548">
+            <strong>Signature:</strong> (unit -&gt; string) option<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L287-287" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Indicate a special console "readline" reader for the evaluation session, if any. A "console" gets used if --readline is specified (the default on Windows + .NET); and --fsi-server is  not
+given (always combine with --readline-), and OptionalConsoleReadLine is given.
+When a console is used, special rules apply to "peekahead", which allows early typing on the console.
+Peekahead happens if --peekahead- is not specified (the default).
+In this case, a prompt is printed early, a background thread is created and
+the OptionalConsoleReadLine is used to read the first line.
+If a console is not used, then inReader.Peek() is called early instead.
+Further lines are read using OptionalConsoleReadLine().
+If not provided, lines are read using inReader.ReadLine().</p>
+
+
+              <p>CompiledName: <code>get_OptionalConsoleReadLine</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2549', 2549)" onmouseover="showTip(event, '2549', 2549)">
+            PrintDepth
+          </code>
+          <div class="tip" id="2549">
+            <strong>Signature:</strong> int<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L257-257" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_PrintDepth</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2550', 2550)" onmouseover="showTip(event, '2550', 2550)">
+            PrintLength
+          </code>
+          <div class="tip" id="2550">
+            <strong>Signature:</strong> int<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L261-261" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_PrintLength</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2551', 2551)" onmouseover="showTip(event, '2551', 2551)">
+            PrintSize
+          </code>
+          <div class="tip" id="2551">
+            <strong>Signature:</strong> int<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L255-255" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_PrintSize</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2552', 2552)" onmouseover="showTip(event, '2552', 2552)">
+            PrintWidth
+          </code>
+          <div class="tip" id="2552">
+            <strong>Signature:</strong> int<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L259-259" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_PrintWidth</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2553', 2553)" onmouseover="showTip(event, '2553', 2553)">
+            ReportUserCommandLineArgs(arg1)
+          </code>
+          <div class="tip" id="2553">
+            <strong>Signature:</strong> (string []) -&gt; unit<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L265-265" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>The evaluation session calls this to report the preferred view of the command line arguments after
+stripping things like "/use:file.fsx", "-r:Foo.dll" etc.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2554', 2554)" onmouseover="showTip(event, '2554', 2554)">
+            ShowDeclarationValues
+          </code>
+          <div class="tip" id="2554">
+            <strong>Signature:</strong> bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L249-249" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_ShowDeclarationValues</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2555', 2555)" onmouseover="showTip(event, '2555', 2555)">
+            ShowIEnumerable
+          </code>
+          <div class="tip" id="2555">
+            <strong>Signature:</strong> bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L251-251" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_ShowIEnumerable</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2556', 2556)" onmouseover="showTip(event, '2556', 2556)">
+            ShowProperties
+          </code>
+          <div class="tip" id="2556">
+            <strong>Signature:</strong> bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L253-253" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_ShowProperties</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2557', 2557)" onmouseover="showTip(event, '2557', 2557)">
+            StartServer(fsiServerName)
+          </code>
+          <div class="tip" id="2557">
+            <strong>Signature:</strong> fsiServerName:string -&gt; unit<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L290-290" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>The evaluation session calls this at an appropriate point in the startup phase if the --fsi-server parameter was given</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2558', 2558)" onmouseover="showTip(event, '2558', 2558)">
+            UseFsiAuxLib
+          </code>
+          <div class="tip" id="2558">
+            <strong>Signature:</strong> bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/fsi/fsi.fs#L305-305" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Implicitly reference FSharp.Compiler.Interactive.Settings.dll</p>
+
+
+              <p>CompiledName: <code>get_UseFsiAuxLib</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

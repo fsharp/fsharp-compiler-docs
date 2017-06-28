@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>コンパイラサービス: シンボルの処理
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
+    <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="コンパイラサービス-シンボルの処理" class="anchor" href="#コンパイラサービス-シンボルの処理">コンパイラサービス: シンボルの処理</a></h1>
+<p>このチュートリアルでは、F#コンパイラによって提供される
+シンボルの扱い方についてのデモを紹介します。
+シンボルの参照に関する情報については <a href="project.html">プロジェクト全体の分析</a>
+も参考にしてください。</p>
+<blockquote>
+<p><strong>注意:</strong> 以下で使用しているAPIは試験的なもので、
+最新のnugetパッケージの公開に伴って変更されることがあります。</p>
+</blockquote>
+<p>これまでと同じく、 <code>FSharp.Compiler.Service.dll</code> への参照を追加した後、
+適切な名前空間をオープンし、 <code>FSharpChecker</code> のインスタンスを作成します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// F#コンパイラAPIへの参照</span>
+<span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+
+<span class="k">open</span> <span class="i">System</span>
+<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+
+<span class="c">// インタラクティブチェッカーのインスタンスを作成</span>
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+</code></pre></td>
+</tr>
+</table>
+<p>そして特定の入力値に対して型チェックを行います:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseAndTypeCheckSingleFile</span> (<span class="i">file</span>, <span class="i">input</span>) <span class="o">=</span> 
+    <span class="c">// スタンドアロンの(スクリプト)ファイルを表すコンテキストを取得</span>
+    <span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> 
+        <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>)
+        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+    <span class="k">let</span> <span class="i">parseFileResults</span>, <span class="i">checkFileResults</span> <span class="o">=</span> 
+        <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckFileInProject</span>(<span class="i">file</span>, <span class="n">0</span>, <span class="i">input</span>, <span class="i">projOptions</span>) 
+        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+    <span class="c">// 型チェックが成功(あるいは100%に到達)するまで待機</span>
+    <span class="k">match</span> <span class="i">checkFileResults</span> <span class="k">with</span>
+    | <span class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span class="i">Succeeded</span>(<span class="i">res</span>) <span class="k">-&gt;</span> <span class="i">parseFileResults</span>, <span class="i">res</span>
+    | <span class="i">res</span> <span class="k">-&gt;</span> <span class="i">failwithf</span> <span class="s">&quot;Parsing did not finish... (%A)&quot;</span> <span class="i">res</span>
+
+<span class="k">let</span> <span class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="ファイルに対する解決済みのシグネチャ情報を取得する" class="anchor" href="#ファイルに対する解決済みのシグネチャ情報を取得する">ファイルに対する解決済みのシグネチャ情報を取得する</a></h2>
+<p>ファイルに対する型チェックが完了すると、
+<code>TypeCheckResults</code> の <code>PartialAssemblySignature</code> プロパティを参照することにより、
+チェック中の特定のファイルを含む、推論されたプロジェクトのシグネチャに
+アクセスすることができます。</p>
+<p>モジュールや型、属性、メンバ、値、関数、共用体、レコード型、測定単位、
+およびその他のF#言語要素に対する完全なシグネチャ情報が参照できます。</p>
+<p>ただし型付き式ツリーに対する情報は(今のところ)この方法では利用できません。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">input2</span> <span class="o">=</span> 
+      <span class="s">&quot;&quot;&quot;</span>
+<span class="s">[&lt;System.CLSCompliant(true)&gt;]</span>
+<span class="s">let foo(x, y) = </span>
+<span class="s">    let msg = String.Concat(&quot;Hello&quot;,&quot; &quot;,&quot;world&quot;)</span>
+<span class="s">    if true then </span>
+<span class="s">        printfn &quot;x = %d, y = %d&quot; x y </span>
+<span class="s">        printfn &quot;%s&quot; msg</span>
+
+<span class="s">type C() = </span>
+<span class="s">    member x.P = 1</span>
+<span class="s">      &quot;&quot;&quot;</span>
+<span class="k">let</span> <span class="i">parseFileResults</span>, <span class="i">checkFileResults</span> <span class="o">=</span> 
+    <span class="i">parseAndTypeCheckSingleFile</span>(<span class="i">file</span>, <span class="i">input2</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>これでコードに対する部分的なアセンブリのシグネチャが取得できるようになります:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">partialAssemblySignature</span> <span class="o">=</span> <span class="i">checkFileResults</span><span class="o">.</span><span class="i">PartialAssemblySignature</span>
+
+<span class="i">partialAssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// エンティティは1つ</span>
+</code></pre></td>
+</tr>
+</table>
+<p>そしてコードを含むモジュールに関連したエンティティを取得します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">moduleEntity</span> <span class="o">=</span> <span class="i">partialAssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]
+
+<span class="i">moduleEntity</span><span class="o">.</span><span class="i">DisplayName</span> <span class="o">=</span> <span class="s">&quot;Test&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<p>そしてコード内の型定義に関連したエンティティを取得します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">classEntity</span> <span class="o">=</span> <span class="i">moduleEntity</span><span class="o">.</span><span class="i">NestedEntities</span><span class="o">.</span>[<span class="n">0</span>]
+</code></pre></td>
+</tr>
+</table>
+<p>そしてコード内で定義された関数に関連した値を取得します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">fnVal</span> <span class="o">=</span> <span class="i">moduleEntity</span><span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]
+</code></pre></td>
+</tr>
+</table>
+<p>関数値に関するプロパティの値を確認してみましょう。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fnVal</span><span class="o">.</span><span class="i">Attributes</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Count</span> <span class="c">// 2</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Name</span> <span class="c">// &quot;x&quot;</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span>[<span class="n">1</span>]<span class="o">.</span><span class="i">Name</span> <span class="c">// &quot;y&quot;</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">DeclarationLocation</span><span class="o">.</span><span class="i">StartLine</span> <span class="c">// 3</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot;</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">EnclosingEntity</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;Test&quot;</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">EnclosingEntity</span><span class="o">.</span><span class="i">DeclarationLocation</span><span class="o">.</span><span class="i">StartLine</span> <span class="c">// 1</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">GenericParameters</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 0</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">InlineAnnotation</span> <span class="c">// FSharpInlineAnnotation.OptionalInline</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsActivePattern</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsCompilerGenerated</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsDispatchSlot</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsExtensionMember</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsPropertyGetterMethod</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsImplicitConstructor</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsInstanceMember</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsMember</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsModuleValueOrMember</span> <span class="c">// true</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsMutable</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsPropertySetterMethod</span> <span class="c">// false</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">IsTypeFunction</span> <span class="c">// false</span>
+</code></pre></td>
+</tr>
+</table>
+<p>次に、この関数の型がファーストクラスの値として使用されているかどうかチェックします。
+(ちなみに <code>CurriedParameterGroups</code> プロパティには引数の名前など、
+より多くの情報も含まれています)</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span> <span class="c">// int * int -&gt; unit</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">IsFunctionType</span> <span class="c">// true</span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>] <span class="c">// int * int </span>
+<span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">IsTupleType</span> <span class="c">// true</span>
+<span class="k">let</span> <span class="i">argTy1</span> <span class="o">=</span> <span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]
+
+<span class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// int</span>
+</code></pre></td>
+</tr>
+</table>
+<p>というわけで <code>int * int -&gt; unit</code> という型を表現するオブジェクトが取得できて、
+その1つめの 'int' を確認できたわけです。
+また、以下のようにすると 'int' 型についてのより詳細な情報が取得でき、
+それが名前付きの型であり、F#の型省略形 <code>type int = int32</code> であることがわかります:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">argTy1</span><span class="o">.</span><span class="i">HasTypeDefinition</span> <span class="c">// true</span>
+<span class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">IsFSharpAbbreviation</span> <span class="c">// true</span>
+</code></pre></td>
+</tr>
+</table>
+<p>型省略形の右辺、つまり <code>int32</code> についてもチェックしてみましょう:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">argTy1b</span> <span class="o">=</span> <span class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">AbbreviatedType</span>
+<span class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">Namespace</span> <span class="c">// Some &quot;Microsoft.FSharp.Core&quot; </span>
+<span class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">CompiledName</span> <span class="c">// &quot;int32&quot; </span>
+</code></pre></td>
+</tr>
+</table>
+<p>そして再び型省略形 <code>type int32 = System.Int32</code> から型に関する完全な情報が取得できます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">argTy1c</span> <span class="o">=</span> <span class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">AbbreviatedType</span>
+<span class="i">argTy1c</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">Namespace</span> <span class="c">// Some &quot;System&quot; </span>
+<span class="i">argTy1c</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">CompiledName</span> <span class="c">// &quot;Int32&quot; </span>
+</code></pre></td>
+</tr>
+</table>
+<p>ファイルに対する型チェックの結果には、
+コンパイル時に使用されたプロジェクト(あるいはスクリプト)のオプションに関する
+<code>ProjectContext</code> と呼ばれる情報も含まれています:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">projectContext</span> <span class="o">=</span> <span class="i">checkFileResults</span><span class="o">.</span><span class="i">ProjectContext</span>
+
+<span class="k">for</span> <span class="i">ass</span> <span class="k">in</span> <span class="i">projectContext</span><span class="o">.</span><span class="i">GetReferencedAssemblies</span>() <span class="k">do</span>
+    <span class="k">match</span> <span class="i">ass</span><span class="o">.</span><span class="i">FileName</span> <span class="k">with</span> 
+    | <span class="i">None</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;コンパイル時にファイルの存在しないアセンブリを参照しました&quot;</span>
+    | <span class="i">Some</span> <span class="i">s</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;コンパイル時にアセンブリ &#39;%s&#39; を参照しました&quot;</span> <span class="i">s</span>
+</code></pre></td>
+</tr>
+</table>
+<p><strong>注意:</strong></p>
+<ul>
+<li>
+不完全なコードが存在する場合、一部あるいはすべての属性が意図したとおりには
+並ばないことがあります。
+</li>
+<li>
+(実際には非常によくあることですが)一部のアセンブリが見つからない場合、
+外部アセンブリに関連する値やメンバ、エンティティにおける 'IsUnresolved' が
+trueになることがあります。
+IsUnresolvedによる例外に対処できるよう、堅牢なコードにしておくべきです。
+</li>
+</ul>
+<h2><a name="プロジェクト全体に対するシンボル情報を取得する" class="anchor" href="#プロジェクト全体に対するシンボル情報を取得する">プロジェクト全体に対するシンボル情報を取得する</a></h2>
+<p>プロジェクト全体をチェックする場合、チェッカーを作成した後に <code>parseAndCheckScript</code>
+を呼び出します。
+今回の場合は単に1つのスクリプトだけが含まれたプロジェクトをチェックします。
+異なる "projOptions" を指定すると、巨大なプロジェクトに対する設定を
+構成することもできます。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseAndCheckScript</span> (<span class="i">file</span>, <span class="i">input</span>) <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> 
+        <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>)
+        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+    <span class="k">let</span> <span class="i">projResults</span> <span class="o">=</span> 
+        <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckProject</span>(<span class="i">projOptions</span>) 
+        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+    <span class="i">projResults</span>
+</code></pre></td>
+</tr>
+</table>
+<p>そして特定の入力に対してこの関数を呼び出します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">tmpFile</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">System</span><span class="o">.</span><span class="i">IO</span><span class="o">.</span><span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>() , <span class="s">&quot;fs&quot;</span>)
+<span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">tmpFile</span>, <span class="i">input2</span>)
+
+<span class="k">let</span> <span class="i">projectResults</span> <span class="o">=</span> <span class="i">parseAndCheckScript</span>(<span class="i">tmpFile</span>, <span class="i">input2</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>結果は以下の通りです:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">assemblySig</span> <span class="o">=</span> <span class="i">projectResults</span><span class="o">.</span><span class="i">AssemblySignature</span>
+
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// エンティティは1つ</span>
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Namespace</span>  <span class="c">// null</span>
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;Tmp28D0&quot;</span>
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1 </span>
+<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot; </span>
+</code></pre></td>
+</tr>
+</table>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">GitHub上のソースコード</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">ライセンス</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">リリースノート</a></li>
+            
+            <li class="nav-header">はじめに</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/devnotes.html">開発者用メモ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/fsharp-readme.html">F#コンパイラのreadme</a></li>
+
+            <li class="nav-header">利用可能なサービス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/tokenizer.html">F#言語トークナイザ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/untypedtree.html">型無しASTの処理</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/editor.html">エディタ(IDE)のサービスを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/symbols.html">解決済みのシンボルを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/project.html">プロジェクト全体の分析</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/interactive.html">F# Interactiveの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/compiler.html">F#コンパイラの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/filesystem.html">ファイルシステムの仮想化</a></li>
+
+            <li class="nav-header">リファレンス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/../reference/index.html">API リファレンス</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiler Services: Using the F# tokenizer
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Compiler-Services-Using-the-F-tokenizer" class="anchor" href="#Compiler-Services-Using-the-F-tokenizer">Compiler Services: Using the F# tokenizer</a></h1>
+<p>This tutorial demonstrates how to call the F# language tokenizer. Given F#
+source code, the tokenizer generates a list of source code lines that contain
+information about tokens on each line. For each token, you can get the type
+of the token, exact location as well as color kind of the token (keyword,
+identifier, number, operator, etc.).</p>
+<blockquote>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
+</blockquote>
+<h2><a name="Creating-the-tokenizer" class="anchor" href="#Creating-the-tokenizer">Creating the tokenizer</a></h2>
+<p>To use the tokenizer, reference <code>FSharp.Compiler.Service.dll</code> and open the
+<code>SourceCodeServices</code> namespace:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Now you can create an instance of <code>FSharpSourceTokenizer</code>. The class takes two
+arguments - the first is the list of defined symbols and the second is the
+file name of the source code. The defined symbols are required because the
+tokenizer handles <code>#if</code> directives. The file name is required only to specify
+locations of the source code (and it does not have to exist):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">sourceTok</span> <span class="o">=</span> <span class="i">FSharpSourceTokenizer</span>([], <span class="i">Some</span> <span class="s">&quot;C:\\test.fsx&quot;</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>Using the <code>sourceTok</code> object, we can now (repeatedly) tokenize lines of
+F# source code.</p>
+<h2><a name="Tokenizing-F-code" class="anchor" href="#Tokenizing-F-code">Tokenizing F# code</a></h2>
+<p>The tokenizer operates on individual lines rather than on the entire source
+file. After getting a token, the tokenizer also returns new state (as <code>int64</code> value).
+This can be used to tokenize F# code more efficiently. When source code changes,
+you do not need to re-tokenize the entire file - only the parts that have changed.</p>
+<h3><a name="Tokenizing-single-line" class="anchor" href="#Tokenizing-single-line">Tokenizing single line</a></h3>
+<p>To tokenize a single line, we create a <code>FSharpLineTokenizer</code> by calling <code>CreateLineTokenizer</code>
+on the <code>FSharpSourceTokenizer</code> object that we created earlier:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">tokenizer</span> <span class="o">=</span> <span class="i">sourceTok</span><span class="o">.</span><span class="i">CreateLineTokenizer</span>(<span class="s">&quot;let answer=42&quot;</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>Now, we can write a simple recursive function that calls <code>ScanToken</code> on the <code>tokenizer</code>
+until it returns <code>None</code> (indicating the end of line). When the function suceeds, it
+returns <code>FSharpTokenInfo</code> object with all the interesting details:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Tokenize a single line of F# code</span>
+<span class="k">let</span> <span class="k">rec</span> <span class="i">tokenizeLine</span> (<span class="i">tokenizer</span><span class="o">:</span><span class="i">FSharpLineTokenizer</span>) <span class="i">state</span> <span class="o">=</span>
+  <span class="k">match</span> <span class="i">tokenizer</span><span class="o">.</span><span class="i">ScanToken</span>(<span class="i">state</span>) <span class="k">with</span>
+  | <span class="i">Some</span> <span class="i">tok</span>, <span class="i">state</span> <span class="k">-&gt;</span>
+      <span class="c">// Print token name</span>
+      <span class="i">printf</span> <span class="s">&quot;%s &quot;</span> <span class="i">tok</span><span class="o">.</span><span class="i">TokenName</span>
+      <span class="c">// Tokenize the rest, in the new state</span>
+      <span class="i">tokenizeLine</span> <span class="i">tokenizer</span> <span class="i">state</span>
+  | <span class="i">None</span>, <span class="i">state</span> <span class="k">-&gt;</span> <span class="i">state</span>
+</code></pre></td>
+</tr>
+</table>
+<p>The function returns the new state, which is needed if you need to tokenize multiple lines
+and an earlier line ends with a multi-line comment. As an initial state, we can use <code>0L</code>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">tokenizeLine</span> <span class="i">tokenizer</span> <span class="n">0L</span>
+</code></pre></td>
+</tr>
+</table>
+<p>The result is a sequence of tokens with names LET, WHITESPACE, IDENT, EQUALS and INT32.
+There is a number of interesting properties on <code>FSharpTokenInfo</code> including:</p>
+<ul>
+<li>
+<code>CharClass</code> and <code>ColorClass</code> return information about the token category that
+can be used for colorizing F# code.
+</li>
+<li><code>LeftColumn</code> and <code>RightColumn</code> return the location of the token inside the line.</li>
+<li><code>TokenName</code> is the name of the token (as defined in the F# lexer)</li>
+</ul>
+<p>Note that the tokenizer is stateful - if you want to tokenize single line multiple times,
+you need to call <code>CreateLineTokenizer</code> again.</p>
+<h3><a name="Tokenizing-sample-code" class="anchor" href="#Tokenizing-sample-code">Tokenizing sample code</a></h3>
+<p>To run the tokenizer on a longer sample code or an entire file, you need to read the
+sample input as a collection of <code>string</code> values:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">lines</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">  // Hello world</span>
+<span class="s">  let hello() =</span>
+<span class="s">     printfn &quot;Hello world!&quot; &quot;&quot;&quot;</span><span class="o">.</span><span class="i">Split</span>(<span class="s">&#39;\r&#39;</span>,<span class="s">&#39;\n&#39;</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>To tokenize multi-line input, we again need a recursive function that keeps the current
+state. The following function takes the lines as a list of strings (together with line number
+and the current state). We create a new tokenizer for each line and call <code>tokenizeLine</code>
+using the state from the <em>end</em> of the previous line:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Print token names for multiple lines of code</span>
+<span class="k">let</span> <span class="k">rec</span> <span class="i">tokenizeLines</span> <span class="i">state</span> <span class="i">count</span> <span class="i">lines</span> <span class="o">=</span> 
+  <span class="k">match</span> <span class="i">lines</span> <span class="k">with</span>
+  | <span class="i">line</span><span class="o">::</span><span class="i">lines</span> <span class="k">-&gt;</span>
+      <span class="c">// Create tokenizer &amp; tokenize single line</span>
+      <span class="i">printfn</span> <span class="s">&quot;\nLine %d&quot;</span> <span class="i">count</span>
+      <span class="k">let</span> <span class="i">tokenizer</span> <span class="o">=</span> <span class="i">sourceTok</span><span class="o">.</span><span class="i">CreateLineTokenizer</span>(<span class="i">line</span>)
+      <span class="k">let</span> <span class="i">state</span> <span class="o">=</span> <span class="i">tokenizeLine</span> <span class="i">tokenizer</span> <span class="i">state</span>
+      <span class="c">// Tokenize the rest using new state</span>
+      <span class="i">tokenizeLines</span> <span class="i">state</span> (<span class="i">count</span><span class="o">+</span><span class="n">1</span>) <span class="i">lines</span>
+  | [] <span class="k">-&gt;</span> ()
+</code></pre></td>
+</tr>
+</table>
+<p>The function simply calls <code>tokenizeLine</code> (defined earlier) to print the names of all
+the tokens on each line. We can call it on the previous input with <code>0L</code> as the initial
+state and <code>1</code> as the number of the first line:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">lines</span>
+<span class="o">|&gt;</span> <span class="i">List</span><span class="o">.</span><span class="i">ofSeq</span>
+<span class="o">|&gt;</span> <span class="i">tokenizeLines</span> <span class="n">0L</span> <span class="n">1</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Ignoring some unimportant details (like whitespace at the beginning of each line and
+the first line which is just whitespace), the code generates the following output:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">Line 1
+  LINE_COMMENT LINE_COMMENT (...) LINE_COMMENT 
+Line 2
+  LET WHITESPACE IDENT LPAREN RPAREN WHITESPACE EQUALS 
+Line 3
+  IDENT WHITESPACE STRING_TEXT (...) STRING_TEXT STRING 
+</code></pre></td></tr></table>
+<p>It is worth noting that the tokenizer yields multiple <code>LINE_COMMENT</code> tokens and multiple
+<code>STRING_TEXT</code> tokens for each single comment or string (roughly, one for each word), so
+if you want to get the entire text of a comment/string, you need to concatenate the
+tokens.</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

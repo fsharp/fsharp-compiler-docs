@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>コンパイラサービス：型無し構文木の処理
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
+    <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="コンパイラサービス-型無し構文木の処理" class="anchor" href="#コンパイラサービス-型無し構文木の処理">コンパイラサービス：型無し構文木の処理</a></h1>
+<p>このチュートリアルではF#コードに対する型無し抽象構文木
+(untyped abstract syntax tree: untyped AST)
+を取得する方法、および木全体を走査する方法を紹介します。
+この処理を行うことによって、コードフォーマットツールや
+基本的なリファクタリングツール、コードナビゲーションツールなどを作成できます。
+型無し構文木にはコードの構造に関する情報が含まれていますが、
+型情報が含まれていないだけでなく、後で型チェッカーを通すまでは
+解決されないような曖昧さも残されています。
+また、 <a href="editor.html">エディタサービス</a> として提供されているAPIと
+型無しASTの情報を組み合わせることもできます。</p>
+<blockquote>
+<p><strong>注釈:</strong> 以下で使用しているAPIは試験的なもので、将来的に変更される場合があります。
+つまりFSharp.Compiler.Service.dll には既存のものと重複する機能が多数あるため、
+将来的にはもっときちんとした形に変更されます。
+そのため、これらのサービスを使用するAPIには破壊的変更が加えられる可能性があります。</p>
+</blockquote>
+<h2><a name="型無しASTの取得" class="anchor" href="#型無しASTの取得">型無しASTの取得</a></h2>
+<p>型無しASTにアクセスするには、 <code>FSharpChecker</code> のインスタンスを作成します。
+これは型チェックおよびパース用のコンテキストを表す型で、、
+スタンドアロンのF#スクリプトファイル(たとえばVisual Studioで開いたファイル)、
+あるいは複数ファイルで構成されたロード済みのプロジェクトファイルの
+いずれかと結びつきます。
+このインスタンスを作成すると、型チェックの最初のステップである
+「型無しパース」を実行できます。
+次のフェーズは「型有りパース」で、これは <a href="editor.html">エディタサービス</a> で
+使用されるものです。</p>
+<p>インタラクティブチェッカーを使用するには、
+<code>FSharp.Compiler.Service.dll</code> への参照を追加した後、
+<code>SourceCodeServices</code> 名前空間をオープンします：</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="k">open</span> <span class="i">System</span>
+<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+</code></pre></td>
+</tr>
+</table>
+<h3><a name="型無しパースの実行" class="anchor" href="#型無しパースの実行">型無しパースの実行</a></h3>
+<p>型無しパース処理は(それなりの時間がかかる型チェック処理と比較すると)
+かなり高速なため、同期的に実行できます。
+まず <code>FSharpChecker</code> を作成します。</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// インタラクティブチェッカーのインスタンスを作成</span>
+<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+</code></pre></td>
+</tr>
+</table>
+<p>ASTを取得するために、ファイル名とソースコードを受け取る関数を用意します
+(ファイル名は位置情報のためだけに使用されるもので、存在しなくても構いません)。
+まず、コンテキストを表す「インタラクティブチェッカーオプション」を
+用意する必要があります。
+単純な処理に対しては、 <code>GetCheckOptionsFromScriptRoot</code> を使えば
+スクリプトファイルのコンテキストを推測させることができます。
+そして <code>UntypedParse</code> メソッドを呼び出した後、
+<code>ParseTree</code> プロパティの値を返します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// 特定の入力に対する型無し構文木を取得する</span>
+<span class="k">let</span> <span class="i">getUntypedTree</span> (<span class="i">file</span>, <span class="i">input</span>) <span class="o">=</span> 
+  <span class="c">// 1つのスクリプトファイルから推測される「プロジェクト」用の</span>
+  <span class="c">// コンパイラオプションを取得する</span>
+  <span class="k">let</span> <span class="i">projectOptions</span> <span class="o">=</span>
+      <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>) 
+      <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+  <span class="c">// コンパイラの第1フェーズを実行する</span>
+  <span class="k">let</span> <span class="i">untypedRes</span> <span class="o">=</span> 
+      <span class="i">checker</span><span class="o">.</span><span class="i">ParseFileInProject</span>(<span class="i">file</span>, <span class="i">input</span>, <span class="i">projectOptions</span>) 
+      <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+  <span class="k">match</span> <span class="i">untypedRes</span><span class="o">.</span><span class="i">ParseTree</span> <span class="k">with</span>
+  | <span class="i">Some</span> <span class="i">tree</span> <span class="k">-&gt;</span> <span class="i">tree</span>
+  | <span class="i">None</span> <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;パース中に何らかの問題が発生しました!&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<p><code>FSharpChecker</code> の詳細については
+<a href="../reference/microsoft-fsharp-compiler-sourcecodeservices-FSharpChecker.html"> APIドキュメント</a>
+の他に、F# ソースコードのインラインコメントも参考になるでしょう
+( <a href="https://github.com/fsharp/fsharp/blob/fsharp_31/src/fsharp/vs/service.fsi"><code>service.fsi</code> のソースコードを参照</a> )。</p>
+<h2><a name="ASTの走査" class="anchor" href="#ASTの走査">ASTの走査</a></h2>
+<p>抽象構文木は(式やパターン、宣言など)それぞれ異なる文法的要素を表現する、
+多数の判別共用体として定義されています。
+ASTを理解するには
+<a href="https://github.com/fsharp/fsharp/blob/master/src/fsharp/ast.fs#L464"><code>ast.fs</code>内にあるソースコード</a>
+の定義を確認する方法が一番よいでしょう。</p>
+<p>ASTに関連する要素は以下の名前空間に含まれています:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">Ast</span>
+</code></pre></td>
+</tr>
+</table>
+<p>ASTを処理する場合、異なる文法的要素に対するパターンマッチを行うような
+相互再帰関数を多数用意することになります。
+サポートすべき要素は非常に多種多様です。
+たとえばトップレベル要素としてはモジュールや名前空間の宣言、
+モジュール内における(letバインディングや型などの)宣言などがあります。
+モジュール内のlet宣言には式が含まれ、さらにこの式に
+パターンが含まれていることもあります。</p>
+<h3><a name="パターンと式を走査する" class="anchor" href="#パターンと式を走査する">パターンと式を走査する</a></h3>
+<p>まずは式とパターンを走査する関数から始めます。
+この関数は要素を走査しつつ、要素に関する情報を画面に表示します。
+パターンの場合、入力は <code>SynPat</code> 型であり、この型には <code>Wild</code> ( <code>_</code> パターンを表す)や
+<code>Named</code> ( <code>&lt;pat&gt; という名前</code> のパターン)、
+<code>LongIdent</code> ( <code>Foo.Bar</code> 形式の名前)など、多数のケースがあります。
+なお、基本的にパース後のパターンは元のソースコードの見た目よりも複雑になります
+(具体的には <code>Named</code> がかなり多数現れます):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// パターンの走査</span>
+<span class="c">/// これは let &lt;pat&gt; = &lt;expr&gt; あるいは &#39;match&#39; 式に対する例です</span>
+<span class="k">let</span> <span class="k">rec</span> <span class="i">visitPattern</span> <span class="o">=</span> <span class="k">function</span>
+  | <span class="i">SynPat</span><span class="o">.</span><span class="i">Wild</span>(_) <span class="k">-&gt;</span> 
+      <span class="i">printfn</span> <span class="s">&quot;  .. アンダースコアパターン&quot;</span>
+  | <span class="i">SynPat</span><span class="o">.</span><span class="i">Named</span>(<span class="i">pat</span>, <span class="i">name</span>, _, _, _) <span class="k">-&gt;</span>
+      <span class="i">visitPattern</span> <span class="i">pat</span>
+      <span class="i">printfn</span> <span class="s">&quot;  .. 名前 &#39;%s&#39; のパターン&quot;</span> <span class="i">name</span><span class="o">.</span><span class="i">idText</span>
+  | <span class="i">SynPat</span><span class="o">.</span><span class="i">LongIdent</span>(<span class="i">LongIdentWithDots</span>(<span class="i">ident</span>, _), _, _, _, _, _) <span class="k">-&gt;</span>
+      <span class="k">let</span> <span class="i">names</span> <span class="o">=</span> <span class="i">String</span><span class="o">.</span><span class="i">concat</span> <span class="s">&quot;.&quot;</span> [ <span class="k">for</span> <span class="i">i</span> <span class="k">in</span> <span class="i">ident</span> <span class="k">-&gt;</span> <span class="i">i</span><span class="o">.</span><span class="i">idText</span> ]
+      <span class="i">printfn</span> <span class="s">&quot;  .. 識別子: %s&quot;</span> <span class="i">names</span>
+  | <span class="i">pat</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;  .. その他のパターン: %A&quot;</span> <span class="i">pat</span>
+</code></pre></td>
+</tr>
+</table>
+<p>この関数は (<code>bar という名前の (foo, _)</code> のような、
+ネストされたパターンに対応するために) 再帰関数になっていますが、
+以降で定義するいずれの関数も呼び出しません
+(パターンはその他の文法的な要素を含むことができないからです)。</p>
+<p>次の関数は式全体を走査するものです。
+これは処理の大部分が行われる関数で、
+20以上のケースをカバーすることになるでしょう
+( <code>SynExpr</code> と入力するとその他のオプションが確認できます)。
+以下のコードでは <code>if .. then ..</code> と <code>let .. = ...</code> という式を
+処理する方法だけを紹介しています:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// 式を走査する。</span>
+<span class="c">/// 式に2つあるいは3つの部分式が含まれていた場合(&#39;else&#39;の分岐がない場合は2つ)、</span>
+<span class="c">/// let式にはパターンおよび2つの部分式が含まれる</span>
+<span class="k">let</span> <span class="k">rec</span> <span class="i">visitExpression</span> <span class="o">=</span> <span class="k">function</span>
+  | <span class="i">SynExpr</span><span class="o">.</span><span class="i">IfThenElse</span>(<span class="i">cond</span>, <span class="i">trueBranch</span>, <span class="i">falseBranchOpt</span>, _, _, _, _) <span class="k">-&gt;</span>
+      <span class="c">// すべての部分式を走査</span>
+      <span class="i">printfn</span> <span class="s">&quot;条件部:&quot;</span>
+      <span class="i">visitExpression</span> <span class="i">cond</span>
+      <span class="i">visitExpression</span> <span class="i">trueBranch</span>
+      <span class="i">falseBranchOpt</span> <span class="o">|&gt;</span> <span class="i">Option</span><span class="o">.</span><span class="i">iter</span> <span class="i">visitExpression</span> 
+
+  | <span class="i">SynExpr</span><span class="o">.</span><span class="i">LetOrUse</span>(_, _, <span class="i">bindings</span>, <span class="i">body</span>, _) <span class="k">-&gt;</span>
+      <span class="c">// バインディングを走査</span>
+      <span class="c">// (&#39;let .. = .. and .. = .. in ...&#39; に対しては複数回走査されることがある)</span>
+      <span class="i">printfn</span> <span class="s">&quot;以下のバインディングを含むLetOrUse:&quot;</span>
+      <span class="k">for</span> <span class="i">binding</span> <span class="k">in</span> <span class="i">bindings</span> <span class="k">do</span>
+        <span class="k">let</span> (<span class="i">Binding</span>(<span class="i">access</span>, <span class="i">kind</span>, <span class="i">inlin</span>, <span class="i">mutabl</span>, <span class="i">attrs</span>, <span class="i">xmlDoc</span>, 
+                     <span class="i">data</span>, <span class="i">pat</span>, <span class="i">retInfo</span>, <span class="i">init</span>, <span class="i">m</span>, <span class="i">sp</span>)) <span class="o">=</span> <span class="i">binding</span>
+        <span class="i">visitPattern</span> <span class="i">pat</span> 
+        <span class="i">visitExpression</span> <span class="i">init</span>
+      <span class="c">// 本体の式を走査</span>
+      <span class="i">printfn</span> <span class="s">&quot;本体は以下:&quot;</span>
+      <span class="i">visitExpression</span> <span class="i">body</span>
+  | <span class="i">expr</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot; - サポート対象外の式: %A&quot;</span> <span class="i">expr</span>
+</code></pre></td>
+</tr>
+</table>
+<p><code>visitExpression</code> 関数はモジュール内のすべてのトップレベル宣言を走査するような
+関数から呼ばれることになります。
+今回のチュートリアルでは型やメンバーを無視していますが、
+これらを走査する場合も <code>visitExpression</code> を呼び出すことになるでしょう。</p>
+<h3><a name="宣言を走査する" class="anchor" href="#宣言を走査する">宣言を走査する</a></h3>
+<p>既に説明したように、1つのファイルに対するASTには多数のモジュールや
+名前空間の宣言が(トップレベルノードとして)含まれ、
+モジュール内にも(letバインディングや型の)宣言が、
+名前空間にも(こちらは単に型だけの)宣言が含まれます。
+以下の関数はそれぞれの宣言を走査します。
+ただし今回は型やネストされたモジュール、その他の要素については無視して、
+トップレベルの(値および関数に対する) <code>let</code> バインディングだけを対象にしています:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// モジュール内の宣言リストを走査する。</span>
+<span class="c">/// モジュール内のトップレベルに記述できるすべての要素</span>
+<span class="c">/// (letバインディングやネストされたモジュール、型の宣言など)が対象になる。</span>
+<span class="k">let</span> <span class="i">visitDeclarations</span> <span class="i">decls</span> <span class="o">=</span> 
+  <span class="k">for</span> <span class="i">declaration</span> <span class="k">in</span> <span class="i">decls</span> <span class="k">do</span>
+    <span class="k">match</span> <span class="i">declaration</span> <span class="k">with</span>
+    | <span class="i">SynModuleDecl</span><span class="o">.</span><span class="i">Let</span>(<span class="i">isRec</span>, <span class="i">bindings</span>, <span class="i">range</span>) <span class="k">-&gt;</span>
+        <span class="c">// 宣言としてのletバインディングは</span>
+        <span class="c">// (visitExpressionで処理したような)式としてのletバインディングと</span>
+        <span class="c">// 似ているが、本体を持たない</span>
+        <span class="k">for</span> <span class="i">binding</span> <span class="k">in</span> <span class="i">bindings</span> <span class="k">do</span>
+          <span class="k">let</span> (<span class="i">Binding</span>(<span class="i">access</span>, <span class="i">kind</span>, <span class="i">inlin</span>, <span class="i">mutabl</span>, <span class="i">attrs</span>, <span class="i">xmlDoc</span>, 
+                       <span class="i">data</span>, <span class="i">pat</span>, <span class="i">retInfo</span>, <span class="i">body</span>, <span class="i">m</span>, <span class="i">sp</span>)) <span class="o">=</span> <span class="i">binding</span>
+          <span class="i">visitPattern</span> <span class="i">pat</span> 
+          <span class="i">visitExpression</span> <span class="i">body</span>         
+    | _ <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot; - サポート対象外の宣言: %A&quot;</span> <span class="i">declaration</span>
+</code></pre></td>
+</tr>
+</table>
+<p><code>visitDeclarations</code> 関数はモジュールや名前空間の宣言のシーケンスを走査する
+関数から呼ばれることになります。
+このシーケンスはたとえば複数の <code>namespace Foo</code> 宣言を含むようなファイルに対応します:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// すべてのモジュールや名前空間の宣言を走査する</span>
+<span class="c">/// (基本的には &#39;module Foo =&#39; または &#39;namespace Foo.Bar&#39; というコード)</span>
+<span class="c">/// なおファイル中で明示的に定義されていない場合であっても</span>
+<span class="c">/// 暗黙的にモジュールまたは名前空間の宣言が存在することに注意。</span>
+<span class="k">let</span> <span class="i">visitModulesAndNamespaces</span> <span class="i">modulesOrNss</span> <span class="o">=</span>
+  <span class="k">for</span> <span class="i">moduleOrNs</span> <span class="k">in</span> <span class="i">modulesOrNss</span> <span class="k">do</span>
+    <span class="k">let</span> (<span class="i">SynModuleOrNamespace</span>(<span class="i">lid</span>, <span class="i">isRec</span>, <span class="i">isMod</span>, <span class="i">decls</span>, <span class="i">xml</span>, <span class="i">attrs</span>, _, <span class="i">m</span>)) <span class="o">=</span> <span class="i">moduleOrNs</span>
+    <span class="i">printfn</span> <span class="s">&quot;名前空間またはモジュール: %A&quot;</span> <span class="i">lid</span>
+    <span class="i">visitDeclarations</span> <span class="i">decls</span>
+</code></pre></td>
+</tr>
+</table>
+<p>以上でASTの要素を(宣言から始まって式やパターンに至るまで)走査するための
+関数がそろったので、サンプル入力からASTを取得した後、
+上記の関数を実行することができるようになりました。</p>
+<h2><a name="すべてを組み合わせる" class="anchor" href="#すべてを組み合わせる">すべてを組み合わせる</a></h2>
+<p>既に説明したように、 <code>getUntypedTree</code> 関数では <code>FSharpChecker</code> を使って
+ASTに対する第1フェーズ(パース)を行ってツリーを返しています。
+この関数にはF#のソースコードとともに、ファイルのパスを指定する必要があります。
+(単に位置情報として利用されるだけなので)
+指定先のパスにファイルが存在している必要はなく、
+UnixとWindowsどちらの形式でも指定できます:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// コンパイラサービスへのサンプル入力</span>
+<span class="k">let</span> <span class="i">input</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">  let foo() = </span>
+<span class="s">    let msg = &quot;Hello world&quot;</span>
+<span class="s">    if true then </span>
+<span class="s">      printfn &quot;%s&quot; msg &quot;&quot;&quot;</span>
+<span class="c">// Unix形式のファイル名</span>
+<span class="k">let</span> <span class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
+
+<span class="c">// サンプルF#コードに対するASTを取得</span>
+<span class="k">let</span> <span class="i">tree</span> <span class="o">=</span> <span class="i">getUntypedTree</span>(<span class="i">file</span>, <span class="i">input</span>) 
+</code></pre></td>
+</tr>
+</table>
+<p>このコードをF# Interactiveで実行した場合、コンソールに <code>tree;;</code> と入力すると、
+データ構造に対する文字列表現が表示されることが確認できます。
+ツリーには大量の情報が含まれているため、あまり読みやすいものではありませんが、
+木が動作する様子を想像することはできるでしょう。</p>
+<p><code>tree</code> の返値はやはり判別共用体で、2つのケースに分かれます。
+1つはF#のシグネチャファイル( <code>*.fsi</code> )を表す <code>ParsedInput.SigFile</code> で、
+もう1つは通常のソースコード( <code>*.fsx</code> または <code>*.fs</code> )を表す
+<code>ParsedInput.ImplFile</code> です。
+上記の手順で作成した関数に渡すことができるモジュールや名前空間のシーケンスは
+実装ファイルに含まれています:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// 実装ファイルの詳細をチェックする</span>
+<span class="k">match</span> <span class="i">tree</span> <span class="k">with</span>
+| <span class="i">ParsedInput</span><span class="o">.</span><span class="i">ImplFile</span>(<span class="i">implFile</span>) <span class="k">-&gt;</span>
+    <span class="c">// 宣言を展開してそれぞれを走査する</span>
+    <span class="k">let</span> (<span class="i">ParsedImplFileInput</span>(<span class="i">fn</span>, <span class="i">script</span>, <span class="i">name</span>, _, _, <span class="i">modules</span>, _)) <span class="o">=</span> <span class="i">implFile</span>
+    <span class="i">visitModulesAndNamespaces</span> <span class="i">modules</span>
+| _ <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;F# インターフェイスファイル (*.fsi) は未サポートです。&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="まとめ" class="anchor" href="#まとめ">まとめ</a></h2>
+<p>このチュートリアルでは型無し抽象構文木に対する基本的な走査方法を紹介しました。
+このトピックは包括的なものであるため、1つの記事ですべてを説明することは不可能です。
+さらに深く理解するためには、型無しASTを活用するツールのよい例として
+<a href="https://github.com/dungpa/fantomas">Fantomas project</a> を参考にするとよいでしょう。
+実際には今回参照したような情報と、次のチュートリアルで説明する
+<a href="editor.html">エディタサービス</a> から得られる情報とを
+組み合わせて利用することになるでしょう。</p>
+
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
+            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">GitHub上のソースコード</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">ライセンス</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">リリースノート</a></li>
+            
+            <li class="nav-header">はじめに</li>
+            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/devnotes.html">開発者用メモ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/fsharp-readme.html">F#コンパイラのreadme</a></li>
+
+            <li class="nav-header">利用可能なサービス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/tokenizer.html">F#言語トークナイザ</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/untypedtree.html">型無しASTの処理</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/editor.html">エディタ(IDE)のサービスを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/symbols.html">解決済みのシンボルを使用する</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/project.html">プロジェクト全体の分析</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/interactive.html">F# Interactiveの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/compiler.html">F#コンパイラの組み込み</a></li>
+            <li><a href="/FSharp.Compiler.Service/ja/filesystem.html">ファイルシステムの仮想化</a></li>
+
+            <li class="nav-header">リファレンス</li>
+            <li><a href="/FSharp.Compiler.Service/ja/../reference/index.html">API リファレンス</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

@@ -96,7 +96,7 @@ Target "Clean" (fun _ ->
 )
 
 Target "CleanDocs" (fun _ ->
-    CleanDirs ["docs/output"]
+    CleanDirs ["docs"]
 )
 
 Target "Build.NetFx" (fun _ ->
@@ -208,27 +208,16 @@ Target "PublishNuGet" (fun _ ->
 // Generate the documentation
 
 Target "GenerateDocs" (fun _ ->
-    executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"] [] |> ignore
+    executeFSIWithArgs "docsrc/tools" "generate.fsx" ["--define:RELEASE"] [] |> ignore
 )
 
 Target "GenerateDocsJa" (fun _ ->
-    executeFSIWithArgs "docs/tools" "generate.ja.fsx" ["--define:RELEASE"] [] |> ignore
+    executeFSIWithArgs "docsrc/tools" "generate.ja.fsx" ["--define:RELEASE"] [] |> ignore
 )
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
 
-Target "ReleaseDocs" (fun _ ->
-    let tempDocsDir = "temp/gh-pages"
-    if not (System.IO.Directory.Exists tempDocsDir) then
-        Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") "gh-pages" tempDocsDir
-
-    fullclean tempDocsDir
-    CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
-    StageAll tempDocsDir
-    Commit tempDocsDir (sprintf "Update generated documentation for version %s" buildVersion)
-    Branches.push "temp/gh-pages"
-)
 
 #load "paket-files/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
@@ -424,7 +413,6 @@ Target "All.NetFx" DoNothing
 "CleanDocs"
   ==> "GenerateDocsJa"
   ==> "GenerateDocs"
-  ==> "ReleaseDocs"
   ==> "Release"
 
 RunTargetOrDefault "All"

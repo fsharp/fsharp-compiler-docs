@@ -340,7 +340,7 @@ based on the declarations executed so far.</p>
 </table>
 <h2><a name="The-fsi-object" class="anchor" href="#The-fsi-object">The 'fsi' object</a></h2>
 <p>If you want your scripting code to be able to access the 'fsi' object, you should pass in an implementation of this object explicitly.
-Normally the one fromm FSharp.Compiler.Interactive.Settings.dll is used.</p>
+Normally, the one from <code>FSharp.Compiler.Interactive.Settings.dll</code> is used.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">fsiConfig2</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">GetDefaultConfiguration</span>(<span class="i">fsi</span>)

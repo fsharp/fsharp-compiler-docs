@@ -131,12 +131,15 @@ let projectOptions =
                  yield "-r:" + r |]
  
     { ProjectFileName = @"c:\mycode\compilation.fsproj" // Make a name that is unique in this directory.
-      ProjectFileNames = [| fileName1; fileName2 |]
+      SourceFiles = [| fileName1; fileName2 |]
       OtherOptions = allFlags 
       ReferencedProjects = [| |]
       IsIncompleteTypeCheckEnvironment = false
       UseScriptResolutionRules = true 
       LoadTime = System.DateTime.Now // Note using 'Now' forces reloading
+      Stamp = None
+      ExtraProjectInfo = None
+      OriginalLoadReferences = []
       UnresolvedReferences = None }
 
 let results = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously

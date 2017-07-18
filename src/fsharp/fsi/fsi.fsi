@@ -1,16 +1,11 @@
-//----------------------------------------------------------------------------
-// Copyright (c) 2002-2012 Microsoft Corporation. 
-//
-// This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// By using this source code in any fashion, you are agreeing to be bound 
-// by the terms of the Apache License, Version 2.0.
-//
-// You must not remove this notice, or any other, from this software.
-//----------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 
-module Microsoft.FSharp.Compiler.Interactive.Shell
+#if COMPILER_PUBLIC_API
+module public Microsoft.FSharp.Compiler.Interactive.Shell
+#else
+module internal Microsoft.FSharp.Compiler.Interactive.Shell
+#endif
 
 open System.IO
 open Microsoft.FSharp.Compiler
@@ -23,23 +18,31 @@ type FsiValue =
     member ReflectionValue : obj
     /// The type of the value, from the point of view of the .NET type system
     member ReflectionType : System.Type
+#if COMPILER_API
     /// The type of the value, from the point of view of the F# type system
     member FSharpType : FSharpType
+#endif 
 
+#if COMPILER_SERVICE_AS_DLL
 [<Class>]
 type EvaluationEventArgs =
     inherit System.EventArgs
-    //new : unit -> CompilerOutputStream
+
     /// The display name of the symbol defined
     member Name : string
+
     /// The value of the symbol defined, if any
     member FsiValue : FsiValue option
+
     /// The FSharpSymbolUse for the symbol defined
     member SymbolUse : FSharpSymbolUse
+
     /// The symbol defined
     member Symbol : FSharpSymbol
+
     /// The details of the expression defined
     member ImplementationDeclaration : FSharpImplementationFileDeclaration
+#endif
 
 [<AbstractClass>]
 type public FsiEvaluationSessionHostConfig = 
@@ -67,8 +70,11 @@ type public FsiEvaluationSessionHostConfig =
     /// The evaluation session calls this to report the preferred view of the command line arguments after 
     /// stripping things like "/use:file.fsx", "-r:Foo.dll" etc.
     abstract ReportUserCommandLineArgs : string [] -> unit
+
+#if COMPILER_SERVICE_AS_DLL
     /// Hook for listening for evaluation bindings
     member OnEvaluation : IEvent<EvaluationEventArgs>
+#endif
 
 
     ///<summary>
@@ -88,7 +94,7 @@ type public FsiEvaluationSessionHostConfig =
     /// <para> </para>
     ///</summary>
 
-    abstract OptionalConsoleReadLine : (unit -> string) option 
+    abstract GetOptionalConsoleReadLine : probeToSeeIfConsoleWorks: bool -> (unit -> string) option 
 
     /// The evaluation session calls this at an appropriate point in the startup phase if the --fsi-server parameter was given
     abstract StartServer : fsiServerName:string -> unit
@@ -124,7 +130,7 @@ type FsiEvaluationSession =
     /// <param name="inReader">Read input from the given reader</param>
     /// <param name="outWriter">Write output to the given writer</param>
     /// <param name="collectible">Optionally make the dynamic assmbly for the session collectible</param>
-    static member Create : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter * ?collectible: bool * ?msbuildEnabled: bool -> FsiEvaluationSession
+    static member Create : fsiConfig: FsiEvaluationSessionHostConfig * argv:string[] * inReader:TextReader * outWriter:TextWriter * errorWriter: TextWriter * ?collectible: bool * ?legacyReferenceResolver: ReferenceResolver.Resolver -> FsiEvaluationSession
 
     /// A host calls this to request an interrupt on the evaluation thread.
     member Interrupt : unit -> unit
@@ -256,7 +262,6 @@ type FsiEvaluationSession =
     static member GetDefaultConfiguration: unit -> FsiEvaluationSessionHostConfig
 
 
-
 /// A default implementation of the 'fsi' object, used by GetDefaultConfiguration()
 module Settings = 
     /// <summary>An event loop used by the currently executing F# Interactive session to execute code
@@ -271,6 +276,7 @@ module Settings =
         /// <summary>Schedule a restart for the event loop.</summary>
         abstract ScheduleRestart : unit -> unit
 
+#if COMPILER_SERVICE_AS_DLL
     [<Sealed>]
     /// <summary>Operations supported by the currently executing F# Interactive session.</summary>
     type InteractiveSettings =
@@ -332,3 +338,4 @@ type CompilerOutputStream  =
     new : unit -> CompilerOutputStream
 
     member Read : unit -> string
+#endif

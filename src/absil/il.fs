@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-module (*internal*) Microsoft.FSharp.Compiler.AbstractIL.IL
+module Microsoft.FSharp.Compiler.AbstractIL.IL 
 
 #nowarn "49"
 #nowarn "343" // The type 'ILAssemblyRef' implements 'System.IComparable' explicitly but provides no corresponding override for 'Object.Equals'.
@@ -52,15 +52,18 @@ let lazyMap f (x:Lazy<_>) =
 [<RequireQualifiedAccess>]
 type PrimaryAssembly = 
     | Mscorlib
-    | DotNetCore   
+    | System_Runtime   
+    | NetStandard   
 
     member this.Name = 
         match this with
         | Mscorlib -> "mscorlib"
-        | DotNetCore -> "System.Runtime"
+        | System_Runtime -> "System.Runtime"
+        | NetStandard -> "netstandard"
     static member IsSomePrimaryAssembly n = 
       n = PrimaryAssembly.Mscorlib.Name 
-      || n = PrimaryAssembly.DotNetCore.Name  
+      || n = PrimaryAssembly.System_Runtime.Name  
+      || n = PrimaryAssembly.NetStandard.Name  
 
 // -------------------------------------------------------------------- 
 // Utilities: type names
@@ -561,8 +564,7 @@ type ILTypeRef =
     member x.ApproxId = x.hashCode
 
     member x.AsBoxedType (tspec:ILTypeSpec) = 
-        match List.length tspec.tspecInst with 
-        | 0 -> 
+        if isNil tspec.tspecInst then
             let v = x.asBoxedType
             match box v with 
             | null -> 
@@ -570,7 +572,8 @@ type ILTypeRef =
                x.asBoxedType <- r
                r
             | _ -> v
-        | _ -> ILType.Boxed tspec
+        else 
+            ILType.Boxed tspec
 
     override x.GetHashCode() = x.hashCode
     override x.Equals(yobj) = 
@@ -1072,6 +1075,7 @@ type ILMethodBody =
     { IsZeroInit: bool;
       MaxStack: int32;
       NoInlining: bool;
+      AggressiveInlining: bool;
       Locals: ILLocals;
       Code:  ILCode;
       SourceMarker: ILSourceMarker option }
@@ -1371,6 +1375,7 @@ type ILMethodDef =
       IsPreserveSig: bool;
       IsMustRun: bool;
       IsNoInline: bool;
+      IsAggressiveInline : bool
       GenericParams: ILGenericParameterDefs;
       CustomAttrs: ILAttributes; }
     member x.ParameterTypes = typesOfILParams x.Parameters
@@ -1588,7 +1593,7 @@ and [<Sealed>] ILTypeDefs(f : unit -> (string list * string * ILAttributes * Laz
             t)
 
     member x.AsArray = [| for (_,_,_,ltd) in array.Value -> ltd.Force() |]
-    member x.AsList = x.AsArray |> Array.toList
+    member x.AsList = [ for (_,_,_,ltd) in array.Value -> ltd.Force() ]
 
     interface IEnumerable with 
         member x.GetEnumerator() = ((x :> IEnumerable<ILTypeDef>).GetEnumerator() :> IEnumerator)
@@ -2276,6 +2281,7 @@ let mkILMethodBody (zeroinit,locals,maxstack,code,tag) : ILMethodBody =
   { IsZeroInit=zeroinit
     MaxStack=maxstack
     NoInlining=false
+    AggressiveInlining=false
     Locals= locals 
     Code= code
     SourceMarker=tag }
@@ -2311,6 +2317,7 @@ let mkILCtor (access,args,impl) =
       IsUnmanagedExport=false;
       IsSynchronized=false;
       IsNoInline=false;
+      IsAggressiveInline=false
       IsMustRun=false;
       IsPreserveSig=false;
       CustomAttrs = emptyILCustomAttrs; }
@@ -2364,6 +2371,7 @@ let mkILStaticMethod (genparams,nm,access,args,ret,impl) =
       IsUnmanagedExport=false;
       IsSynchronized=false;
       IsNoInline=false;
+      IsAggressiveInline=false;
       IsMustRun=false;
       IsPreserveSig=false; }
 
@@ -2393,6 +2401,7 @@ let mkILClassCtor impl =
       IsUnmanagedExport=false; 
       IsSynchronized=false;
       IsNoInline=false;
+      IsAggressiveInline=false
       IsMustRun=false;
       IsPreserveSig=false;  } 
 
@@ -2433,6 +2442,7 @@ let mkILGenericVirtualMethod (nm,access,genparams,actual_args,actual_ret,impl) =
     IsUnmanagedExport=false; 
     IsSynchronized=false;
     IsNoInline=false;
+    IsAggressiveInline=false
     IsMustRun=false;
     IsPreserveSig=false; }
     
@@ -2462,6 +2472,7 @@ let mkILGenericNonVirtualMethod (nm,access,genparams, actual_args,actual_ret, im
     IsUnmanagedExport=false; 
     IsSynchronized=false;
     IsNoInline=false;
+    IsAggressiveInline=false
     IsMustRun=false;
     IsPreserveSig=false; }
     

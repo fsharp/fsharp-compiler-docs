@@ -32,9 +32,10 @@ val internal ProcessCommandLineFlags : TcConfigBuilder * setProcessThreadLocals:
 val typecheckAndCompile : 
     ctok: CompilationThreadToken *
     argv : string[] * 
-    referenceResolver: ReferenceResolver.Resolver * 
+    legacyReferenceResolver: ReferenceResolver.Resolver * 
     bannerAlreadyPrinted : bool * 
     openBinariesInMemory: bool * 
+    defaultCopyFSharpCore: bool * 
     exiter : Exiter *
     loggerProvider: ErrorLoggerProvider *
     tcImportsCapture: (TcImports -> unit) option *
@@ -44,9 +45,10 @@ val typecheckAndCompile :
 val mainCompile : 
     ctok: CompilationThreadToken *
     argv: string[] * 
-    referenceResolver: ReferenceResolver.Resolver * 
+    legacyReferenceResolver: ReferenceResolver.Resolver * 
     bannerAlreadyPrinted: bool * 
     openBinariesInMemory: bool * 
+    defaultCopyFSharpCore: bool * 
     exiter: Exiter * 
     loggerProvider: ErrorLoggerProvider * 
     tcImportsCapture: (TcImports -> unit) option *
@@ -55,7 +57,7 @@ val mainCompile :
 
 val compileOfAst : 
     ctok: CompilationThreadToken *
-    referenceResolver: ReferenceResolver.Resolver * 
+    legacyReferenceResolver: ReferenceResolver.Resolver * 
     openBinariesInMemory: bool * 
     assemblyName:string * 
     target:CompilerTarget * 
@@ -78,9 +80,14 @@ type InProcErrorLoggerProvider =
     member CapturedWarnings : Diagnostic[]
     member CapturedErrors : Diagnostic[]
 
+/// The default ErrorLogger implementation, reporting messages to the Console up to the maxerrors maximum
+type ConsoleLoggerProvider = 
+    new : unit -> ConsoleLoggerProvider
+    inherit ErrorLoggerProvider
 
+// For unit testing
 module internal MainModuleBuilder =
     
-    val fileVersion: warn: (exn -> unit) -> findStringAttr: (string -> string option) -> assemblyVersion: AbstractIL.IL.ILVersionInfo -> AbstractIL.IL.ILVersionInfo
-    val productVersion: warn: (exn -> unit) -> findStringAttr: (string -> string option) -> fileVersion: AbstractIL.IL.ILVersionInfo -> string
-    val productVersionToILVersionInfo: string -> AbstractIL.IL.ILVersionInfo
+    val fileVersion: warn: (exn -> unit) -> findStringAttr: (string -> string option) -> assemblyVersion: ILVersionInfo -> ILVersionInfo
+    val productVersion: warn: (exn -> unit) -> findStringAttr: (string -> string option) -> fileVersion: ILVersionInfo -> string
+    val productVersionToILVersionInfo: string -> ILVersionInfo

@@ -4,9 +4,9 @@
     <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>FSharp.Compiler.Service</AssemblyName>
     <DefineConstants>$(DefineConstants);BUILDING_WITH_LKG</DefineConstants>
-    <DefineConstants>$(DefineConstants);COMPILED_AS_LANGUAGE_SERVICE_DLL</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILER_SERVICE_AS_DLL</DefineConstants>
+    <DefineConstants>$(DefineConstants);COMPILER_PUBLIC_API</DefineConstants>
     <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
-    <DefineConstants>$(DefineConstants);COMPILER_SERVICE</DefineConstants>
     <DefineConstants>$(DefineConstants);COMPILER_SERVICE_ASSUMES_FSHARP_CORE_4_4_0_0</DefineConstants>
     <DefineConstants>$(DefineConstants);EXTENSIBLE_DUMPER</DefineConstants>
     <DefineConstants>$(DefineConstants);FSHARP_CORE_4_5</DefineConstants>
@@ -25,6 +25,7 @@
     <DefineConstants>$(DefineConstants);FX_NO_DEFAULT_DEPENDENCY_TYPE</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_NO_EXIT_CONTEXT_FLAGS</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_NO_HEAPTERMINATION</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_NO_INDENTED_TEXT_WRITER</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_NO_LINKEDRESOURCES</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_NO_PARAMETERIZED_THREAD_START</DefineConstants>
     <DefineConstants>$(DefineConstants);FX_NO_PDB_READER</DefineConstants>
@@ -55,7 +56,7 @@
     <DefineConstants>$(DefineConstants);NO_INLINE_IL_PARSER</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_LOADER_OPTIMIZATION</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_LOGGING_GUI</DefineConstants>
-    <DefineConstants>$(DefineConstants);RESHAPED_MSBUILD</DefineConstants>
+    <DefineConstants>$(DefineConstants);FX_RESHAPED_MSBUILD</DefineConstants>
     <DefineConstants>$(DefineConstants);SIGNED</DefineConstants>
     <DefineConstants>$(DefineConstants);STRONG_NAME_AND_DELAY_SIGN_FSHARP_COMPILER_WITH_MSFT_KEY</DefineConstants>
     <DefineConstants>$(DefineConstants);TODO_REWORK_ASSEMBLY_LOAD</DefineConstants>
@@ -496,71 +497,77 @@
     <Compile Include="../fsc.fs">
       <Link>Driver/fsc.fs</Link>
     </Compile>
-    <Compile Include="../vs/IncrementalBuild.fsi">
+    <Compile Include="..\symbols\SymbolHelpers.fsi">
+      <Link>Symbols/SymbolHelpers.fsi</Link>
+    </Compile>
+    <Compile Include="..\symbols\SymbolHelpers.fs">
+      <Link>Symbols/SymbolHelpers.fs</Link>
+    </Compile>
+    <Compile Include="..\symbols\Symbols.fsi">
+      <Link>Symbols/Symbols.fsi</Link>
+    </Compile>
+    <Compile Include="..\symbols\Symbols.fs">
+      <Link>Symbols/Symbols.fs</Link>
+    </Compile>
+    <Compile Include="..\symbols\Exprs.fsi">
+      <Link>Symbols/Exprs.fsi</Link>
+    </Compile>
+    <Compile Include="..\symbols\Exprs.fs">
+      <Link>Symbols/Exprs.fs</Link>
+    </Compile>
+    <Compile Include="..\vs\IncrementalBuild.fsi">
       <Link>Service/IncrementalBuild.fsi</Link>
     </Compile>
-    <Compile Include="../vs/IncrementalBuild.fs">
+    <Compile Include="..\vs\IncrementalBuild.fs">
       <Link>Service/IncrementalBuild.fs</Link>
     </Compile>
-    <Compile Include="../vs/Reactor.fsi">
+    <Compile Include="..\vs\Reactor.fsi">
       <Link>Service/Reactor.fsi</Link>
     </Compile>
-    <Compile Include="../vs/Reactor.fs">
+    <Compile Include="..\vs\Reactor.fs">
       <Link>Service/Reactor.fs</Link>
     </Compile>
-    <Compile Include="../vs/ServiceConstants.fs">
+    <Compile Include="..\vs\ServiceConstants.fs">
       <Link>Service/ServiceConstants.fs</Link>
     </Compile>
-    <Compile Include="../vs/ServiceDeclarations.fsi">
-      <Link>Service/ServiceDeclarations.fsi</Link>
-    </Compile>
-    <Compile Include="../vs/ServiceDeclarations.fs">
-      <Link>Service/ServiceDeclarations.fs</Link>
-    </Compile>
-    <Compile Include="../vs/Symbols.fsi">
-      <Link>Service/Symbols.fsi</Link>
-    </Compile>
-    <Compile Include="../vs/Symbols.fs">
-      <Link>Service/Symbols.fs</Link>
-    </Compile>
-    <Compile Include="../vs/Exprs.fsi">
-      <Link>Service/Exprs.fsi</Link>
-    </Compile>
-    <Compile Include="../vs/Exprs.fs">
-      <Link>Service/Exprs.fs</Link>
-    </Compile>
-    <Compile Include="../vs/ServiceLexing.fsi">
+    <Compile Include="..\vs\ServiceLexing.fsi">
       <Link>Service/ServiceLexing.fsi</Link>
     </Compile>
-    <Compile Include="../vs/ServiceLexing.fs">
+    <Compile Include="..\vs\ServiceLexing.fs">
       <Link>Service/ServiceLexing.fs</Link>
     </Compile>
-    <Compile Include="../vs/ServiceParseTreeWalk.fs">
+    <Compile Include="..\vs\ServiceParseTreeWalk.fs">
       <Link>Service/ServiceParseTreeWalk.fs</Link>
     </Compile>
-    <Compile Include="../vs/ServiceNavigation.fsi">
+    <Compile Include="..\vs\ServiceNavigation.fsi">
       <Link>Service/ServiceNavigation.fsi</Link>
     </Compile>
-    <Compile Include="../vs/ServiceNavigation.fs">
+    <Compile Include="..\vs\ServiceNavigation.fs">
       <Link>Service/ServiceNavigation.fs</Link>
     </Compile>
-    <Compile Include="../vs/ServiceParamInfoLocations.fsi">
+    <Compile Include="..\vs\ServiceParamInfoLocations.fsi">
       <Link>Service/ServiceParamInfoLocations.fsi</Link>
     </Compile>
-    <Compile Include="../vs/ServiceParamInfoLocations.fs">
+    <Compile Include="..\vs\ServiceParamInfoLocations.fs">
       <Link>Service/ServiceParamInfoLocations.fs</Link>
     </Compile>
-    <Compile Include="../vs/ServiceUntypedParse.fsi">
+    <Compile Include="..\vs\ServiceUntypedParse.fsi">
       <Link>Service/ServiceUntypedParse.fsi</Link>
     </Compile>
-    <Compile Include="../vs/ServiceUntypedParse.fs">
+    <Compile Include="..\vs\ServiceUntypedParse.fs">
       <Link>Service/ServiceUntypedParse.fs</Link>
     </Compile>
-    <Compile Include="../../utils/reshapedmsbuild.fs">
+    <Compile Include="..\..\utils\reshapedmsbuild.fs">
       <Link>Service/reshapedmsbuild.fs</Link>
     </Compile>
-    <Compile Include="../SimulatedMSBuildReferenceResolver.fs">
+    <Compile Include="..\SimulatedMSBuildReferenceResolver.fs">
       <Link>Service/SimulatedMSBuildReferenceResolver.fs</Link>
+    </Compile>
+    <Compile Include="..\vs\ServiceDeclarationLists.fsi">
+      <Link>Service/ServiceDeclarationLists.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\ServiceDeclarationLists.fs">
+      <Link>Service/ServiceDeclarationLists.fs</Link>
     </Compile>
     <Compile Include="..\vs\ServiceAssemblyContent.fsi">
       <Link>Service/ServiceAssemblyContent.fsi</Link>
@@ -568,37 +575,43 @@
     <Compile Include="..\vs\ServiceAssemblyContent.fs">
       <Link>Service/ServiceAssemblyContent.fs</Link>
     </Compile>
-    <Compile Include="../vs/service.fsi">
+    <Compile Include="..\vs\ServiceXmlDocParser.fsi">
+      <Link>Service/ServiceXmlDocParser.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\ServiceXmlDocParser.fs">
+      <Link>Service/ServiceXmlDocParser.fs</Link>
+    </Compile>
+    <Compile Include="..\vs\service.fsi">
       <Link>Service/service.fsi</Link>
     </Compile>
-    <Compile Include="../vs/service.fs">
+    <Compile Include="..\vs\service.fs">
       <Link>Service/service.fs</Link>
     </Compile>
-    <Compile Include="../vs/SimpleServices.fsi">
-      <Link>Service/SimpleServices.fsi</Link>
+    <Compile Include="..\vs\ServiceInterfaceStubGenerator.fsi">
+      <Link>Service/ServiceInterfaceStubGenerator.fsi</Link>
     </Compile>
-    <Compile Include="../vs/SimpleServices.fs">
-      <Link>Service/SimpleServices.fs</Link>
+    <Compile Include="..\vs\ServiceInterfaceStubGenerator.fs">
+      <Link>Service/ServiceInterfaceStubGenerator.fs</Link>
     </Compile>
-    <Compile Include="../fsi/fsi.fsi">
+    <Compile Include="..\vs\ServiceStructure.fsi">
+      <Link>Service/ServiceStructure.fsi</Link>
+    </Compile>
+    <Compile Include="..\vs\ServiceStructure.fs">
+      <Link>Service/ServiceStructure.fs</Link>
+    </Compile>
+    <Compile Include="..\fsi\fsi.fsi">
       <Link>Service/fsi.fsi</Link>
     </Compile>
-    <Compile Include="../fsi/fsi.fs">
+    <Compile Include="..\fsi\fsi.fs">
       <Link>Service/fsi.fs</Link>
     </Compile>
-    <Compile Include="illex.fs" />
-    <Compile Include="lex.fs" />
-    <Compile Include="pplex.fs" />
-    <Compile Include="ilpars.fs" />
-    <Compile Include="pars.fs" />
-    <Compile Include="pppars.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="1.3.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.3.1" />
     <PackageReference Include="System.Diagnostics.Process" Version="4.1.0" />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.0.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="1.4.1" />
+    <PackageReference Include="System.Reflection.Metadata" Version="1.4.2" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />

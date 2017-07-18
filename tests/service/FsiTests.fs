@@ -274,12 +274,12 @@ let ``ParseAndCheckInteraction test 1``() =
     // Check we can't get a declaration location for text in the F# interactive state (because the file doesn't exist)
     // TODO: check that if we use # line directives, then the file will exist correctly
     let identToken = FSharpTokenTag.IDENT
-    typedResults.GetDeclarationLocationAlternate(1,6,"xxxxxx",["xxxxxx"]) |> Async.RunSynchronously |> shouldEqual (FSharpFindDeclResult.DeclNotFound  FSharpFindDeclFailureReason.NoSourceCode) 
+    typedResults.GetDeclarationLocation(1,6,"xxxxxx",["xxxxxx"]) |> Async.RunSynchronously |> shouldEqual (FSharpFindDeclResult.DeclNotFound  FSharpFindDeclFailureReason.NoSourceCode) 
 
     // Check we can get a tooltip for text in the F# interactive state
     let tooltip = 
-        match typedResults.GetToolTipTextAlternate(1,6,"xxxxxx",["xxxxxx"],identToken)  |> Async.RunSynchronously with 
-        | FSharpToolTipText [FSharpToolTipElement.Single(text, FSharpXmlDoc.None)] -> text
+        match typedResults.GetToolTipText(1,6,"xxxxxx",["xxxxxx"],identToken)  |> Async.RunSynchronously with 
+        | FSharpToolTipText [FSharpToolTipElement.Group [d]] -> d.MainDescription
         | _ -> failwith "incorrect tool tip"
 
     Assert.True(tooltip.Contains("val xxxxxx : int"))

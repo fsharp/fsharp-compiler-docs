@@ -46,7 +46,6 @@ let gitHome = "https://github.com/" + gitOwner
 let gitName = "FSharp.Compiler.Service"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.githubusercontent.com/fsharp"
 
-let netFrameworks = [(* "v4.0"; *) "v4.5"]
 
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script
@@ -191,7 +190,7 @@ Target "CleanDocs" DoNothing
 Target "Release" DoNothing
 Target "NuGet" DoNothing
 Target "Build" DoNothing
-Target "TestThenNuGet" DoNothing
+Target "TestAndNuGet" DoNothing
 
 "Clean"
   =?> ("BuildVersion", isAppVeyorBuild)
@@ -220,13 +219,13 @@ Target "TestThenNuGet" DoNothing
   ==> "NuGet"
 
 "Test.NetFx"
-  ==> "TestThenNuGet"
+  ==> "TestAndNuGet"
 
 "NuGet"
-  ==> "TestThenNuGet"
+  ==> "TestAndNuGet"
 
 //"Test.NetStd"
-//  ==> "TestThenNuGet"
+//  ==> "TestAndNuGet"
 
 "Build"
   ==> "NuGet"

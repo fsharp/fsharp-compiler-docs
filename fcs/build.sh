@@ -2,7 +2,7 @@
 if test "$OS" = "Windows_NT"
 then
   # use .Net
-  cmd fcs/build.cmd
+  cmd fcs/build.cmd $@ 
 else
   mono .nuget/NuGet.exe restore -PackagesDirectory packages
 

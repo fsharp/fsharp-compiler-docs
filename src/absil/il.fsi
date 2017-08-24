@@ -2,7 +2,11 @@
 
 /// The "unlinked" view of .NET metadata and code.  Central to 
 ///  to Abstract IL library
-module (*internal*) Microsoft.FSharp.Compiler.AbstractIL.IL 
+#if COMPILER_PUBLIC_API
+module public Microsoft.FSharp.Compiler.AbstractIL.IL 
+#else
+module internal Microsoft.FSharp.Compiler.AbstractIL.IL 
+#endif
 
 open Internal.Utilities
 open System.Collections.Generic
@@ -10,7 +14,8 @@ open System.Collections.Generic
 [<RequireQualifiedAccess>]
 type PrimaryAssembly = 
     | Mscorlib
-    | DotNetCore
+    | System_Runtime
+    | NetStandard
 
     member Name: string
 
@@ -799,9 +804,10 @@ type ILLocals = list<ILLocal>
 [<RequireQualifiedAccess; NoComparison; NoEquality>]
 type ILMethodBody = 
     { IsZeroInit: bool;
-      /// strictly speakin should be a uint16 
+      /// strictly speaking should be a uint16 
       MaxStack: int32; 
       NoInlining: bool;
+      AggressiveInlining: bool;
       Locals: ILLocals;
       Code: ILCode;
       SourceMarker: ILSourceMarker option }
@@ -850,6 +856,7 @@ type ILAttribute =
 
 [<NoEquality; NoComparison; Sealed>]
 type ILAttributes =
+    member AsArray : ILAttribute []
     member AsList : ILAttribute list
 
 /// Method parameters and return values.
@@ -1048,6 +1055,7 @@ type ILMethodDef =
       /// .NET 2.0 feature: SafeHandle finalizer must be run.
       IsMustRun: bool; 
       IsNoInline: bool;
+      IsAggressiveInline: bool;
      
       GenericParams: ILGenericParameterDefs;
       CustomAttrs: ILAttributes; }

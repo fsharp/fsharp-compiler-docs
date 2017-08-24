@@ -19,8 +19,8 @@
 //    Use F# Interactive.  This only works for FSHarp.Compiler.Service.dll which has a public API
 
 #if INTERACTIVE
-#r "../../bin/v4.5/FSharp.Compiler.Service.dll"
-#r "../../packages/NUnit/lib/nunit.framework.dll"
+#r "../../Debug/net40/bin/FSharp.Compiler.Service.dll" // note, run 'build fcs' to generate this, this DLL has a public API so can be used from F# Interactive
+#r "../../packages/NUnit.3.5.0/lib/net45/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
@@ -83,13 +83,13 @@ let ``Intro test`` () =
         msg.Message.Contains("Missing qualification after '.'") |> shouldEqual true
 
     // Get tool tip at the specified location
-    let tip = typeCheckResults.GetToolTipTextAlternate(4, 7, inputLines.[1], ["foo"], identToken) |> Async.RunSynchronously
-    (sprintf "%A" tip).Replace("\n","") |> shouldEqual """FSharpToolTipText [Single ("val foo : unit -> unitFull name: Test.foo",None)]"""
+    let tip = typeCheckResults.GetToolTipText(4, 7, inputLines.[1], ["foo"], identToken) |> Async.RunSynchronously
+    // (sprintf "%A" tip).Replace("\n","") |> shouldEqual """FSharpToolTipText [Single ("val foo : unit -> unitFull name: Test.foo",None)]"""
     // Get declarations (autocomplete) for a location
     let decls =  typeCheckResults.GetDeclarationListInfo(Some parseResult, 7, 23, inputLines.[6], [], "msg", (fun _ -> []), fun _ -> false)|> Async.RunSynchronously
     CollectionAssert.AreEquivalent(stringMethods,[ for item in decls.Items -> item.Name ])
     // Get overloads of the String.Concat method
-    let methods = typeCheckResults.GetMethodsAlternate(5, 27, inputLines.[4], Some ["String"; "Concat"]) |> Async.RunSynchronously
+    let methods = typeCheckResults.GetMethods(5, 27, inputLines.[4], Some ["String"; "Concat"]) |> Async.RunSynchronously
 
     methods.MethodName  |> shouldEqual "Concat"
 
@@ -220,8 +220,8 @@ let ``Symbols many tests`` () =
     fnVal.CurriedParameterGroups.[0].[1].Name.Value |> shouldEqual "y"
     fnVal.DeclarationLocation.StartLine |> shouldEqual 3
     fnVal.DisplayName |> shouldEqual "foo"
-    fnVal.EnclosingEntity.DisplayName |> shouldEqual "Test"
-    fnVal.EnclosingEntity.DeclarationLocation.StartLine |> shouldEqual 1
+    fnVal.EnclosingEntity.Value.DisplayName |> shouldEqual "Test"
+    fnVal.EnclosingEntity.Value.DeclarationLocation.StartLine |> shouldEqual 1
     fnVal.GenericParameters.Count |> shouldEqual 0
     fnVal.InlineAnnotation |> shouldEqual FSharpInlineAnnotation.OptionalInline
     fnVal.IsActivePattern |> shouldEqual false
@@ -267,15 +267,16 @@ let date = System.DateTime.Now.ToString().PadRight(25)
 [<Test>]
 let ``Expression typing test`` () = 
 
+    printfn "------ Expression typing test -----------------"
     // Split the input & define file name
     let inputLines = input3.Split('\n')
     let file = "/home/user/Test.fsx"
     let parseResult, typeCheckResults =  parseAndCheckScript(file, input3) 
     let identToken = FSharpTokenTag.IDENT
 
-    // We only expect one reported error. However,
-    // on Unix, using filenames like /home/user/Test.fsx gives a second copy of all parse errors due to the
-    // way the load closure for scripts is generated. So this returns two identical errors
+    for msg in typeCheckResults.Errors do 
+        printfn "***Expression typing test: Unexpected  error: %A" msg.Message
+
     typeCheckResults.Errors.Length |> shouldEqual 0
 
     // Get declarations (autocomplete) for a location
@@ -618,7 +619,7 @@ let test3 = System.Text.RegularExpressions.RegexOptions.Compiled
 
 
 #if TEST_TP_PROJECTS
-module TPProject = 
+module internal TPProject = 
     open System.IO
 
     let fileName1 = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
@@ -647,7 +648,7 @@ let _ = RegexTypedStatic.IsMatch<"ABC" >(  (*$*) ) // TEST: no assert on Ctrl-sp
     let fileLines1 = File.ReadAllLines(fileName1)
     let fileNames = [fileName1]
     let args = Array.append (mkProjectCommandLineArgs (dllName, fileNames)) [| "-r:" + PathRelativeToTestAssembly(@"UnitTests\MockTypeProviders\DummyProviderForLanguageServiceTesting.dll") |]
-    let internal options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     let cleanFileName a = if a = fileName1 then "file1" else "??"
 
 [<Test>]
@@ -716,11 +717,9 @@ let ``Test TPProject errors`` () =
 let internal extractToolTipText (FSharpToolTipText(els)) = 
     [ for e in els do 
         match e with
-        | FSharpToolTipElement.Single (txt,_) -> yield txt
-        | FSharpToolTipElement.Group txts -> for (t,_) in txts do yield t
+        | FSharpToolTipElement.Group txts -> for item in txts do yield item.MainDescription
         | FSharpToolTipElement.CompositionError err -> yield err
-        | FSharpToolTipElement.None -> yield "NONE!"
-        | FSharpToolTipElement.SingleParameter (txt,p,_) -> yield txt ] 
+        | FSharpToolTipElement.None -> yield "NONE!" ] 
 
 [<Test>]
 let ``Test TPProject quick info`` () = 

@@ -2,17 +2,20 @@
 
 namespace Microsoft.FSharp.Compiler
 
+#if COMPILER_PUBLIC_API
+module public ReferenceResolver = 
+#else
 module internal ReferenceResolver = 
+#endif
 
-    exception ResolutionFailure
+    exception internal ResolutionFailure
 
+    [<RequireQualifiedAccess>]
     type ResolutionEnvironment = 
-        /// Indicates a script or source being compiled
-        | CompileTimeLike 
-        /// Indicates a script or source being interpreted
-        | RuntimeLike 
-        /// Indicates a script or source being edited
-        | DesignTimeLike
+        /// Indicates a script or source being edited or compiled. Uses reference assemblies (not implementation assemblies).
+        | EditingOrCompilation of isEditing: bool
+        /// Indicates a script or source being dynamically compiled and executed. Uses implementation assemblies.
+        | CompilationAndEvaluation 
 
     type ResolvedFile = 
         { /// Item specification.

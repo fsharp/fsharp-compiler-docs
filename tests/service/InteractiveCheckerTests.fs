@@ -1,7 +1,7 @@
 ﻿
 #if INTERACTIVE
-#r "../../bin/v4.5/FSharp.Compiler.Service.dll"
-#r "../../packages/NUnit/lib/nunit.framework.dll"
+#r "../../Debug/net40/bin/FSharp.Compiler.Service.dll" // note, run 'build fcs' to generate this, this DLL has a public API so can be used from F# Interactive
+#r "../../packages/NUnit.3.5.0/lib/net45/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
@@ -15,14 +15,14 @@ open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
-let longIdentToString (longIdent: Ast.LongIdent) =
+let internal longIdentToString (longIdent: Ast.LongIdent) =
     String.Join(".", longIdent |> List.map (fun ident -> ident.ToString()))
-let longIdentWithDotsToString (Ast.LongIdentWithDots (longIdent, _)) = longIdentToString longIdent
+let internal longIdentWithDotsToString (Ast.LongIdentWithDots (longIdent, _)) = longIdentToString longIdent
 
-let posToTuple (pos: Range.pos) = (pos.Line, pos.Column)
-let rangeToTuple (range: Range.range) = (posToTuple range.Start, posToTuple range.End)
+let internal posToTuple (pos: Range.pos) = (pos.Line, pos.Column)
+let internal rangeToTuple (range: Range.range) = (posToTuple range.Start, posToTuple range.End)
 
-let identsAndRanges (input: Ast.ParsedInput) =
+let internal identsAndRanges (input: Ast.ParsedInput) =
     let identAndRange ident (range: Range.range) =
         (ident, rangeToTuple range)
     let extractFromComponentInfo (componentInfo: Ast.SynComponentInfo) =
@@ -53,7 +53,7 @@ let identsAndRanges (input: Ast.ParsedInput) =
          modulesOrNamespaces |> List.collect extractFromModuleOrNamespace
     | Ast.ParsedInput.SigFile _ -> []
 
-let parseAndExtractRanges code =
+let internal parseAndExtractRanges code =
     let file = "Test"
     let result = parseSourceCode (file, code)
     match result with
@@ -69,7 +69,9 @@ let input =
 
 [<Test>]
 let ``Test ranges - namespace`` () =
-    parseAndExtractRanges input |> should equal [("N", ((4, 4), (5, 4))); ("Sample", ((4, 9), (4, 15)))]
+    let res = parseAndExtractRanges input 
+    printfn "Test ranges - namespace, res = %A" res
+    res |> shouldEqual [("N", ((4, 4), (6, 0))); ("Sample", ((4, 9), (4, 15)))]
 
 let input2 =
     """
@@ -80,7 +82,9 @@ let input2 =
     
 [<Test>]
 let ``Test ranges - module`` () =
-    parseAndExtractRanges input2 |> should equal [("M", ((2, 4), (4, 26))); ("Sample", ((4, 9), (4, 15)))]
+    let res = parseAndExtractRanges input2
+    printfn "Test ranges - module, res = %A" res
+    res |> shouldEqual [("M", ((2, 4), (4, 26))); ("Sample", ((4, 9), (4, 15)))]
 
 let input3 =
     """
@@ -91,4 +95,6 @@ let input3 =
 
 [<Test>]
 let ``Test ranges - global namespace`` () =
-    parseAndExtractRanges input3 |> should equal [("", ((4, 4), (5, 4))); ("Sample", ((4, 9), (4, 15)))]
+    let res = parseAndExtractRanges input3 
+    printfn "Test ranges - global namespace, res = %A" res
+    res |> shouldEqual [("", ((4, 4), (6, 0))); ("Sample", ((4, 9), (4, 15)))]

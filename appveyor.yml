@@ -3,7 +3,7 @@ os: Visual Studio 2015
 environment:
   CLI_VERSION: 1.0.1
   matrix:
-    - BUILD_TARGET: CreatePackage
+    - BUILD_TARGET: NuGet
 
 install:
   - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"

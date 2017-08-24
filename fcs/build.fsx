@@ -222,6 +222,9 @@ Target "TestThenNuGet" DoNothing
 "Test.NetFx"
   ==> "TestThenNuGet"
 
+"NuGet"
+  ==> "TestThenNuGet"
+
 //"Test.NetStd"
 //  ==> "TestThenNuGet"
 

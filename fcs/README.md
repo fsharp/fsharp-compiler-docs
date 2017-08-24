@@ -60,9 +60,9 @@ Yu can push the packages if you have permissions, either automatically using ``b
 
     cd fcs
     set APIKEY=...
-    ..\.nuget\nuget.exe push ..\Release\FSharp.Compiler.Service.14.0.1.nupkg %APIKEY% -Source https://nuget.org -Timeout 500
-    ..\.nuget\nuget.exe push ..\Release\FSharp.Compiler.Service.MSBuild.v12.14.0.1.nupkg %APIKEY%  -Source https://nuget.org -Timeout 500
-    ..\.nuget\nuget.exe push ..\Release\FSharp.Compiler.Service.ProjectCracker.14.0.1.nupkg %APIKEY%  -Source https://nuget.org -Timeout 500
+    ..\.nuget\nuget.exe push ..\Release\FSharp.Compiler.Service.14.0.2.nupkg %APIKEY% -Source https://nuget.org -Timeout 500
+    ..\.nuget\nuget.exe push ..\Release\FSharp.Compiler.Service.MSBuild.v12.14.0.2.nupkg %APIKEY%  -Source https://nuget.org -Timeout 500
+    ..\.nuget\nuget.exe push ..\Release\FSharp.Compiler.Service.ProjectCracker.14.0.2.nupkg %APIKEY%  -Source https://nuget.org -Timeout 500
     
 
 ### Use of Paket and FAKE

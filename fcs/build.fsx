@@ -5,11 +5,10 @@
 #I "packages/FAKE/tools"
 #r "packages/FAKE/tools/FakeLib.dll"
 open System
-open Fake.AppVeyor
+open System.IO
 open Fake
-open Fake.Git
+open Fake.AppVeyor
 open Fake.ReleaseNotesHelper
-open Fake.UserInputHelper
 
 #if MONO
 // prevent incorrect output encoding (e.g. https://github.com/fsharp/FAKE/issues/1196)
@@ -31,13 +30,12 @@ let runCmdIn workDir (exe:string) = Printf.ksprintf (fun (args:string) ->
 #endif
         |> assertExitCodeZero
 )
-let run exe = runCmdIn "." exe
 
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script
 // --------------------------------------------------------------------------------------
 
-let releaseDir = "../Release"
+let releaseDir = Path.Combine(__SOURCE_DIRECTORY__, "../Release")
 
 
 // Read release notes & version info from RELEASE_NOTES.md
@@ -99,9 +97,9 @@ Target "Test.NetFx" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 Target "NuGet.NetFx" (fun _ ->
-    run @"..\.nuget\nuget.exe" @"pack nuget\FSharp.Compiler.Service.nuspec -OutputDirectory %s" releaseDir
-    run @"..\.nuget\nuget.exe" @"pack nuget\FSharp.Compiler.Service.MSBuild.v12.nuspec -OutputDirectory %s" releaseDir
-    run @"..\.nuget\nuget.exe" @"pack nuget\FSharp.Compiler.Service.ProjectCracker.nuspec -OutputDirectory %s" releaseDir
+    runCmdIn __SOURCE_DIRECTORY__  @"..\.nuget\nuget.exe" @"pack nuget\FSharp.Compiler.Service.nuspec -OutputDirectory %s" releaseDir
+    runCmdIn __SOURCE_DIRECTORY__  @"..\.nuget\nuget.exe" @"pack nuget\FSharp.Compiler.Service.MSBuild.v12.nuspec -OutputDirectory %s" releaseDir
+    runCmdIn __SOURCE_DIRECTORY__  @"..\.nuget\nuget.exe" @"pack nuget\FSharp.Compiler.Service.ProjectCracker.nuspec -OutputDirectory %s" releaseDir
 )
 
 
@@ -123,12 +121,12 @@ let isDotnetSDKInstalled =
 
 
 Target "Build.NetStd" (fun _ ->
-    run "dotnet" "pack %s -v n -c Release" "FSharp.Compiler.Service.netstandard.sln"
+    runCmdIn __SOURCE_DIRECTORY__  "dotnet" "pack %s -v n -c Release" "FSharp.Compiler.Service.netstandard.sln"
 )
 
 
 Target "Test.NetStd" (fun _ ->
-    run "dotnet" "run -p FSharp.Compiler.Service.Tests.netcore/FSharp.Compiler.Service.Tests.netcore.fsproj -c Release -- --result:TestResults.NetStd.xml;format=nunit3"
+    runCmdIn __SOURCE_DIRECTORY__  "dotnet" "run -p FSharp.Compiler.Service.Tests.netcore/FSharp.Compiler.Service.Tests.netcore.fsproj -c Release -- --result:TestResults.NetStd.xml;format=nunit3"
 )
 
 
@@ -136,7 +134,7 @@ Target "Test.NetStd" (fun _ ->
 Target "Nuget.AddNetStd" (fun _ ->
     let nupkg = sprintf "%s/FSharp.Compiler.Service.%s.nupkg" releaseDir release.AssemblyVersion
     let netcoreNupkg = sprintf "FSharp.Compiler.Service.netstandard/bin/Release/FSharp.Compiler.Service.%s.nupkg" release.AssemblyVersion
-    runCmdIn "." "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
+    runCmdIn __SOURCE_DIRECTORY__ "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
 )
 
 

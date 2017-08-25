@@ -16,7 +16,7 @@ sudo: false
 install:
 
 script: 
-  - ./build.sh NuGet
+  - ./fcs/build.sh NuGet
 
 # Fails on Travis OSX too often because there are network outages on that configuration getting the Mono MDK
 

@@ -19,18 +19,20 @@ Build and Test
 
 .NET Framework:
 
-   Install [.NET 4.5.1](http://www.microsoft.com/en-us/download/details.aspx?id=40779) and  [MSBuild 12.0](http://www.microsoft.com/en-us/download/details.aspx?id=40760)
+    fcs\build.cmd Test.NetFx
 
-    build.cmd All.NetFx 
-    (unix: ./build.sh All.NetFx)
+    fcs/build.sh Test.NetFx
 
-.NET Core
+.NET Core / .NET Standard
 
-    build All.NetCore
+    fcs\build.cmd Test.NetStd
 
-Both:
+    fcs/build.sh Test.NetStd  
 
-    build All
+Packages:
+
+    build NuGet
+    build TestAndNuGet
 
 
 Build Status

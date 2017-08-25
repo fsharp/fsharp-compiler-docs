@@ -55,15 +55,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '825', 825)" onmouseover="showTip(event, '825', 825)">
+          <code onmouseout="hideTip(event, '827', 827)" onmouseover="showTip(event, '827', 827)">
             attempt f
           </code>
-          <div class="tip" id="825">
+          <div class="tip" id="827">
             <strong>Signature:</strong> f:(unit -&gt; &#39;T) -&gt; &#39;T option<br />
                           <strong>Type parameters:</strong> 'T          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L248-248" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L266-266" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -73,12 +73,30 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '826', 826)" onmouseover="showTip(event, '826', 826)">
+          <code onmouseout="hideTip(event, '828', 828)" onmouseover="showTip(event, '828', 828)">
             defaultValue v opt
           </code>
-          <div class="tip" id="826">
+          <div class="tip" id="828">
             <strong>Signature:</strong> v:&#39;a -&gt; opt:&#39;a option -&gt; &#39;a<br />
                           <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L279-279" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '829', 829)" onmouseover="showTip(event, '829', 829)">
+            fold f z x
+          </code>
+          <div class="tip" id="829">
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; &#39;a) -&gt; z:&#39;a -&gt; x:&#39;b option -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L261-261" class="github-link">
@@ -91,66 +109,12 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '827', 827)" onmouseover="showTip(event, '827', 827)">
-            fold f z x
-          </code>
-          <div class="tip" id="827">
-            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; &#39;a) -&gt; z:&#39;a -&gt; x:&#39;b option -&gt; &#39;a<br />
-                          <strong>Type parameters:</strong> 'a, 'b          </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L243-243" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '828', 828)" onmouseover="showTip(event, '828', 828)">
+          <code onmouseout="hideTip(event, '830', 830)" onmouseover="showTip(event, '830', 830)">
             mapFold f s opt
           </code>
-          <div class="tip" id="828">
+          <div class="tip" id="830">
             <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; &#39;c * &#39;a) -&gt; s:&#39;a -&gt; opt:&#39;b option -&gt; &#39;c option * &#39;a<br />
                           <strong>Type parameters:</strong> 'a, 'b, 'c          </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L233-233" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '829', 829)" onmouseover="showTip(event, '829', 829)">
-            orElse v opt
-          </code>
-          <div class="tip" id="829">
-            <strong>Signature:</strong> v:&#39;a option -&gt; opt:&#39;a option -&gt; &#39;a option<br />
-                          <strong>Type parameters:</strong> 'a          </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L256-256" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '830', 830)" onmouseover="showTip(event, '830', 830)">
-            orElseWith f opt
-          </code>
-          <div class="tip" id="830">
-            <strong>Signature:</strong> f:(unit -&gt; &#39;a option) -&gt; opt:&#39;a option -&gt; &#39;a option<br />
-                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
             <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L251-251" class="github-link">
@@ -164,14 +128,50 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '831', 831)" onmouseover="showTip(event, '831', 831)">
-            otherwise opt dflt
+            orElse v opt
           </code>
           <div class="tip" id="831">
-            <strong>Signature:</strong> opt:&#39;?18561 option -&gt; dflt:&#39;?18561 -&gt; &#39;?18561<br />
-                          <strong>Type parameters:</strong> '?18561          </div>
+            <strong>Signature:</strong> v:&#39;a option -&gt; opt:&#39;a option -&gt; &#39;a option<br />
+                          <strong>Type parameters:</strong> 'a          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L238-238" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L274-274" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '832', 832)" onmouseover="showTip(event, '832', 832)">
+            orElseWith f opt
+          </code>
+          <div class="tip" id="832">
+            <strong>Signature:</strong> f:(unit -&gt; &#39;a option) -&gt; opt:&#39;a option -&gt; &#39;a option<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L269-269" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '833', 833)" onmouseover="showTip(event, '833', 833)">
+            otherwise opt dflt
+          </code>
+          <div class="tip" id="833">
+            <strong>Signature:</strong> opt:&#39;?16683 option -&gt; dflt:&#39;?16683 -&gt; &#39;?16683<br />
+                          <strong>Type parameters:</strong> '?16683          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/absil/illib.fs#L256-256" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

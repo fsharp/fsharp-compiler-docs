@@ -53,15 +53,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2752', 2752)" onmouseover="showTip(event, '2752', 2752)">
+          <code onmouseout="hideTip(event, '2776', 2776)" onmouseover="showTip(event, '2776', 2776)">
             BeforeBackgroundFileCheck
           </code>
-          <div class="tip" id="2752">
+          <div class="tip" id="2776">
             <strong>Signature:</strong> IEvent&lt;string * obj option&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3325-3325" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3081-3081" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -76,15 +76,15 @@ and that the file has become eligible to be re-typechecked for errors.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2753', 2753)" onmouseover="showTip(event, '2753', 2753)">
+          <code onmouseout="hideTip(event, '2777', 2777)" onmouseover="showTip(event, '2777', 2777)">
             CheckFileInProject(...)
           </code>
-          <div class="tip" id="2753">
-            <strong>Signature:</strong> (parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * textSnapshotInfo:obj option) -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />
+          <div class="tip" id="2777">
+            <strong>Signature:</strong> (parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * textSnapshotInfo:obj option * userOpName:string option) -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3267-3267" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3018-3018" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -98,15 +98,15 @@ and that the file has become eligible to be re-typechecked for errors.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2754', 2754)" onmouseover="showTip(event, '2754', 2754)">
-            CheckFileInProjectIfReady(...)
+          <code onmouseout="hideTip(event, '2778', 2778)" onmouseover="showTip(event, '2778', 2778)">
+            CheckFileInProjectAllowingStaleCachedResults(...)
           </code>
-          <div class="tip" id="2754">
-            <strong>Signature:</strong> (parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * textSnapshotInfo:obj option) -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />
+          <div class="tip" id="2778">
+            <strong>Signature:</strong> (parsed:FSharpParseFileResults * filename:string * fileversion:int * source:string * options:FSharpProjectOptions * textSnapshotInfo:obj option * userOpName:string option) -&gt; Async&lt;FSharpCheckFileAnswer option&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3262-3262" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3012-3012" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -121,15 +121,15 @@ In this case, the caller can either retry, or wait for FileTypeCheckStateIsDirty
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2755', 2755)" onmouseover="showTip(event, '2755', 2755)">
-            CheckProjectInBackground(options)
+          <code onmouseout="hideTip(event, '2779', 2779)" onmouseover="showTip(event, '2779', 2779)">
+            CheckProjectInBackground(...)
           </code>
-          <div class="tip" id="2755">
-            <strong>Signature:</strong> options:FSharpProjectOptions -&gt; unit<br />
+          <div class="tip" id="2779">
+            <strong>Signature:</strong> (options:FSharpProjectOptions * userOpName:string option) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3310-3310" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3064-3064" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -141,15 +141,15 @@ In this case, the caller can either retry, or wait for FileTypeCheckStateIsDirty
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2756', 2756)" onmouseover="showTip(event, '2756', 2756)">
+          <code onmouseout="hideTip(event, '2780', 2780)" onmouseover="showTip(event, '2780', 2780)">
             ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients(...)
           </code>
-          <div class="tip" id="2756">
+          <div class="tip" id="2780">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3239-3239" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2992-2992" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -161,15 +161,15 @@ In this case, the caller can either retry, or wait for FileTypeCheckStateIsDirty
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2757', 2757)" onmouseover="showTip(event, '2757', 2757)">
+          <code onmouseout="hideTip(event, '2781', 2781)" onmouseover="showTip(event, '2781', 2781)">
             Compile(...)
           </code>
-          <div class="tip" id="2757">
-            <strong>Signature:</strong> (ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * pdbFile:string option * executable:bool option * noframework:bool option) -&gt; Async&lt;FSharpErrorInfo [] * int&gt;<br />
+          <div class="tip" id="2781">
+            <strong>Signature:</strong> (ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * pdbFile:string option * executable:bool option * noframework:bool option * userOpName:string option) -&gt; Async&lt;FSharpErrorInfo [] * int&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3143-3143" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2893-2893" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -181,15 +181,15 @@ In this case, the caller can either retry, or wait for FileTypeCheckStateIsDirty
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2758', 2758)" onmouseover="showTip(event, '2758', 2758)">
-            Compile(argv)
+          <code onmouseout="hideTip(event, '2782', 2782)" onmouseover="showTip(event, '2782', 2782)">
+            Compile(argv, userOpName)
           </code>
-          <div class="tip" id="2758">
-            <strong>Signature:</strong> (argv:string []) -&gt; Async&lt;FSharpErrorInfo [] * int&gt;<br />
+          <div class="tip" id="2782">
+            <strong>Signature:</strong> (argv:string [] * userOpName:string option) -&gt; Async&lt;FSharpErrorInfo [] * int&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3136-3136" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2886-2886" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -203,15 +203,15 @@ The first argument is ignored and can just be "fsc.exe".</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2759', 2759)" onmouseover="showTip(event, '2759', 2759)">
+          <code onmouseout="hideTip(event, '2783', 2783)" onmouseover="showTip(event, '2783', 2783)">
             CompileToDynamicAssembly(...)
           </code>
-          <div class="tip" id="2759">
-            <strong>Signature:</strong> (ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * debug:bool option * noframework:bool option) -&gt; Async&lt;FSharpErrorInfo [] * int * Assembly option&gt;<br />
+          <div class="tip" id="2783">
+            <strong>Signature:</strong> (ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * debug:bool option * noframework:bool option * userOpName:string option) -&gt; Async&lt;FSharpErrorInfo [] * int * Assembly option&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3178-3178" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2930-2930" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -223,15 +223,15 @@ The first argument is ignored and can just be "fsc.exe".</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2760', 2760)" onmouseover="showTip(event, '2760', 2760)">
+          <code onmouseout="hideTip(event, '2784', 2784)" onmouseover="showTip(event, '2784', 2784)">
             CompileToDynamicAssembly(...)
           </code>
-          <div class="tip" id="2760">
-            <strong>Signature:</strong> (otherFlags:string [] * execute:(TextWriter * TextWriter) option) -&gt; Async&lt;FSharpErrorInfo [] * int * Assembly option&gt;<br />
+          <div class="tip" id="2784">
+            <strong>Signature:</strong> (otherFlags:string [] * execute:(TextWriter * TextWriter) option * userOpName:string option) -&gt; Async&lt;FSharpErrorInfo [] * int * Assembly option&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3151-3151" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2902-2902" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -249,15 +249,15 @@ case, a global setting is modified during the execution.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2761', 2761)" onmouseover="showTip(event, '2761', 2761)">
+          <code onmouseout="hideTip(event, '2785', 2785)" onmouseover="showTip(event, '2785', 2785)">
             CurrentQueueLength
           </code>
-          <div class="tip" id="2761">
+          <div class="tip" id="2785">
             <strong>Signature:</strong> int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3322-3322" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3078-3078" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -272,15 +272,15 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2762', 2762)" onmouseover="showTip(event, '2762', 2762)">
+          <code onmouseout="hideTip(event, '2786', 2786)" onmouseover="showTip(event, '2786', 2786)">
             FileChecked
           </code>
-          <div class="tip" id="2762">
+          <div class="tip" id="2786">
             <strong>Signature:</strong> IEvent&lt;string * obj option&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3327-3327" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3083-3083" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -294,15 +294,15 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2763', 2763)" onmouseover="showTip(event, '2763', 2763)">
+          <code onmouseout="hideTip(event, '2787', 2787)" onmouseover="showTip(event, '2787', 2787)">
             FileParsed
           </code>
-          <div class="tip" id="2763">
+          <div class="tip" id="2787">
             <strong>Signature:</strong> IEvent&lt;string * obj option&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3326-3326" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3082-3082" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -316,15 +316,15 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2764', 2764)" onmouseover="showTip(event, '2764', 2764)">
+          <code onmouseout="hideTip(event, '2788', 2788)" onmouseover="showTip(event, '2788', 2788)">
             GetBackgroundCheckResultsForFileInProject(...)
           </code>
-          <div class="tip" id="2764">
-            <strong>Signature:</strong> (filename:string * options:FSharpProjectOptions) -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />
+          <div class="tip" id="2788">
+            <strong>Signature:</strong> (filename:string * options:FSharpProjectOptions * userOpName:string option) -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3127-3127" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2877-2877" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -336,15 +336,15 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2765', 2765)" onmouseover="showTip(event, '2765', 2765)">
+          <code onmouseout="hideTip(event, '2789', 2789)" onmouseover="showTip(event, '2789', 2789)">
             GetBackgroundParseResultsForFileInProject(...)
           </code>
-          <div class="tip" id="2765">
-            <strong>Signature:</strong> (filename:string * options:FSharpProjectOptions) -&gt; Async&lt;FSharpParseFileResults&gt;<br />
+          <div class="tip" id="2789">
+            <strong>Signature:</strong> (filename:string * options:FSharpProjectOptions * userOpName:string option) -&gt; Async&lt;FSharpParseFileResults&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3124-3124" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2873-2873" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -356,15 +356,15 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2766', 2766)" onmouseover="showTip(event, '2766', 2766)">
+          <code onmouseout="hideTip(event, '2790', 2790)" onmouseover="showTip(event, '2790', 2790)">
             GetProjectOptionsFromCommandLineArgs(...)
           </code>
-          <div class="tip" id="2766">
+          <div class="tip" id="2790">
             <strong>Signature:</strong> (projectFileName:string * argv:string [] * loadedTimeStamp:DateTime option * extraProjectInfo:obj option) -&gt; FSharpProjectOptions<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3288-3288" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3044-3044" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -376,35 +376,15 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2767', 2767)" onmouseover="showTip(event, '2767', 2767)">
-            GetProjectOptionsFromProjectFile(...)
-          </code>
-          <div class="tip" id="2767">
-            <strong>Signature:</strong> (projectFileName:string * properties:(string * string) list option * loadedTimeStamp:DateTime option) -&gt; FSharpProjectOptions<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3302-3302" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Get the project options implied by a standard F# project file in the xbuild/msbuild format.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2768', 2768)" onmouseover="showTip(event, '2768', 2768)">
+          <code onmouseout="hideTip(event, '2791', 2791)" onmouseover="showTip(event, '2791', 2791)">
             GetProjectOptionsFromScript(...)
           </code>
-          <div class="tip" id="2768">
-            <strong>Signature:</strong> (filename:string * source:string * loadedTimeStamp:DateTime option * otherFlags:string [] option * useFsiAuxLib:bool option * assumeDotNetFramework:bool option * extraProjectInfo:obj option) -&gt; Async&lt;FSharpProjectOptions * FSharpErrorInfo list&gt;<br />
+          <div class="tip" id="2791">
+            <strong>Signature:</strong> (filename:string * source:string * loadedTimeStamp:DateTime option * otherFlags:string [] option * useFsiAuxLib:bool option * assumeDotNetFramework:bool option * extraProjectInfo:obj option * optionsStamp:int64 option * userOpName:string option) -&gt; Async&lt;FSharpProjectOptions * FSharpErrorInfo list&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3285-3285" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3040-3040" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -416,15 +396,15 @@ may be in progress - such an operation is not counted in the queue length.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2769', 2769)" onmouseover="showTip(event, '2769', 2769)">
+          <code onmouseout="hideTip(event, '2792', 2792)" onmouseover="showTip(event, '2792', 2792)">
             ImplicitlyStartBackgroundWork()
           </code>
-          <div class="tip" id="2769">
+          <div class="tip" id="2792">
             <strong>Signature:</strong> unit -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3329-3329" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3085-3085" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -440,15 +420,15 @@ it prepares the project analysis results for use.  The default is 'true'.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2770', 2770)" onmouseover="showTip(event, '2770', 2770)">
+          <code onmouseout="hideTip(event, '2793', 2793)" onmouseover="showTip(event, '2793', 2793)">
             ImplicitlyStartBackgroundWork()
           </code>
-          <div class="tip" id="2770">
+          <div class="tip" id="2793">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3329-3329" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3085-3085" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -464,20 +444,19 @@ it prepares the project analysis results for use.  The default is 'true'.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2771', 2771)" onmouseover="showTip(event, '2771', 2771)">
+          <code onmouseout="hideTip(event, '2794', 2794)" onmouseover="showTip(event, '2794', 2794)">
             InvalidateAll()
           </code>
-          <div class="tip" id="2771">
+          <div class="tip" id="2794">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3214-3214" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2967-2967" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
-For example, the type provider approvals file may have changed.</p>
+          <p>This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.</p>
 
 
         </td>
@@ -485,20 +464,22 @@ For example, the type provider approvals file may have changed.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2772', 2772)" onmouseover="showTip(event, '2772', 2772)">
-            InvalidateConfiguration(options)
+          <code onmouseout="hideTip(event, '2795', 2795)" onmouseover="showTip(event, '2795', 2795)">
+            InvalidateConfiguration(...)
           </code>
-          <div class="tip" id="2772">
-            <strong>Signature:</strong> options:FSharpProjectOptions -&gt; unit<br />
+          <div class="tip" id="2795">
+            <strong>Signature:</strong> (options:FSharpProjectOptions * startBackgroundCompileIfAlreadySeen:bool option * userOpName:string option) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3248-3248" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3001-3001" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>This function is called when the configuration is known to have changed for reasons not encoded in the ProjectOptions.
-For example, dependent references may have been deleted or created.</p>
+For example, dependent references may have been deleted or created.
+<param name="startBackgroundCompileIfAlreadySeen">Start a background compile of the project if a project with the same name has already been seen before.</param>
+<param name="userOpName">An optional string used for tracing compiler operations associated with this request.</param></p>
 
 
         </td>
@@ -506,15 +487,15 @@ For example, dependent references may have been deleted or created.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2773', 2773)" onmouseover="showTip(event, '2773', 2773)">
-            KeepProjectAlive(options)
+          <code onmouseout="hideTip(event, '2796', 2796)" onmouseover="showTip(event, '2796', 2796)">
+            KeepProjectAlive(options, userOpName)
           </code>
-          <div class="tip" id="2773">
-            <strong>Signature:</strong> options:FSharpProjectOptions -&gt; Async&lt;IDisposable&gt;<br />
+          <div class="tip" id="2796">
+            <strong>Signature:</strong> (options:FSharpProjectOptions * userOpName:string option) -&gt; Async&lt;IDisposable&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3281-3281" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3035-3035" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -526,15 +507,15 @@ For example, dependent references may have been deleted or created.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2774', 2774)" onmouseover="showTip(event, '2774', 2774)">
-            MatchBracesAlternate(...)
+          <code onmouseout="hideTip(event, '2797', 2797)" onmouseover="showTip(event, '2797', 2797)">
+            MatchBraces(...)
           </code>
-          <div class="tip" id="2774">
-            <strong>Signature:</strong> (filename:string * source:string * options:FSharpProjectOptions) -&gt; Async&lt;(range * range) []&gt;<br />
+          <div class="tip" id="2797">
+            <strong>Signature:</strong> (filename:string * source:string * options:FSharpProjectOptions * userOpName:string option) -&gt; Async&lt;(range * range) []&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3110-3110" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2857-2857" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -547,15 +528,15 @@ Return an enumeration of the matching parenthetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2775', 2775)" onmouseover="showTip(event, '2775', 2775)">
+          <code onmouseout="hideTip(event, '2798', 2798)" onmouseover="showTip(event, '2798', 2798)">
             MaxMemory()
           </code>
-          <div class="tip" id="2775">
+          <div class="tip" id="2798">
             <strong>Signature:</strong> unit -&gt; int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3336-3336" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3092-3092" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -568,15 +549,15 @@ Return an enumeration of the matching parenthetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2776', 2776)" onmouseover="showTip(event, '2776', 2776)">
+          <code onmouseout="hideTip(event, '2799', 2799)" onmouseover="showTip(event, '2799', 2799)">
             MaxMemory()
           </code>
-          <div class="tip" id="2776">
+          <div class="tip" id="2799">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3336-3336" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3092-3092" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -589,15 +570,15 @@ Return an enumeration of the matching parenthetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2777', 2777)" onmouseover="showTip(event, '2777', 2777)">
+          <code onmouseout="hideTip(event, '2800', 2800)" onmouseover="showTip(event, '2800', 2800)">
             MaxMemoryReached
           </code>
-          <div class="tip" id="2777">
+          <div class="tip" id="2800">
             <strong>Signature:</strong> IEvent&lt;unit&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3335-3335" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3091-3091" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -610,15 +591,15 @@ Return an enumeration of the matching parenthetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2778', 2778)" onmouseover="showTip(event, '2778', 2778)">
-            NotifyProjectCleaned(options)
+          <code onmouseout="hideTip(event, '2801', 2801)" onmouseover="showTip(event, '2801', 2801)">
+            NotifyProjectCleaned(...)
           </code>
-          <div class="tip" id="2778">
-            <strong>Signature:</strong> options:FSharpProjectOptions -&gt; Async&lt;unit&gt;<br />
+          <div class="tip" id="2801">
+            <strong>Signature:</strong> (options:FSharpProjectOptions * userOpName:string option) -&gt; Async&lt;unit&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3257-3257" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3006-3006" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -630,15 +611,15 @@ Return an enumeration of the matching parenthetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2779', 2779)" onmouseover="showTip(event, '2779', 2779)">
+          <code onmouseout="hideTip(event, '2802', 2802)" onmouseover="showTip(event, '2802', 2802)">
             ParseAndCheckFileInProject(...)
           </code>
-          <div class="tip" id="2779">
-            <strong>Signature:</strong> (filename:string * fileversion:int * source:string * options:FSharpProjectOptions * textSnapshotInfo:obj option) -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />
+          <div class="tip" id="2802">
+            <strong>Signature:</strong> (filename:string * fileversion:int * source:string * options:FSharpProjectOptions * textSnapshotInfo:obj option * userOpName:string option) -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3273-3273" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3025-3025" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -652,15 +633,15 @@ Return an enumeration of the matching parenthetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2780', 2780)" onmouseover="showTip(event, '2780', 2780)">
-            ParseAndCheckProject(options)
+          <code onmouseout="hideTip(event, '2803', 2803)" onmouseover="showTip(event, '2803', 2803)">
+            ParseAndCheckProject(...)
           </code>
-          <div class="tip" id="2780">
-            <strong>Signature:</strong> options:FSharpProjectOptions -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />
+          <div class="tip" id="2803">
+            <strong>Signature:</strong> (options:FSharpProjectOptions * userOpName:string option) -&gt; Async&lt;FSharpCheckProjectResults&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3277-3277" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3030-3030" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -672,15 +653,15 @@ Return an enumeration of the matching parenthetical tokens in the file.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2781', 2781)" onmouseover="showTip(event, '2781', 2781)">
+          <code onmouseout="hideTip(event, '2804', 2804)" onmouseover="showTip(event, '2804', 2804)">
             ParseFileInProject(...)
           </code>
-          <div class="tip" id="2781">
-            <strong>Signature:</strong> (filename:string * source:string * options:FSharpProjectOptions) -&gt; Async&lt;FSharpParseFileResults&gt;<br />
+          <div class="tip" id="2804">
+            <strong>Signature:</strong> (filename:string * source:string * options:FSharpProjectOptions * userOpName:string option) -&gt; Async&lt;FSharpParseFileResults&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3120-3120" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2868-2868" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -693,15 +674,15 @@ To get the full information, call 'CheckFileInProject' method on the resultAll f
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2782', 2782)" onmouseover="showTip(event, '2782', 2782)">
+          <code onmouseout="hideTip(event, '2805', 2805)" onmouseover="showTip(event, '2805', 2805)">
             PauseBeforeBackgroundWork()
           </code>
-          <div class="tip" id="2782">
+          <div class="tip" id="2805">
             <strong>Signature:</strong> unit -&gt; int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3330-3330" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3086-3086" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -714,15 +695,15 @@ To get the full information, call 'CheckFileInProject' method on the resultAll f
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2783', 2783)" onmouseover="showTip(event, '2783', 2783)">
+          <code onmouseout="hideTip(event, '2806', 2806)" onmouseover="showTip(event, '2806', 2806)">
             PauseBeforeBackgroundWork()
           </code>
-          <div class="tip" id="2783">
+          <div class="tip" id="2806">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3330-3330" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3086-3086" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -735,15 +716,15 @@ To get the full information, call 'CheckFileInProject' method on the resultAll f
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2784', 2784)" onmouseover="showTip(event, '2784', 2784)">
+          <code onmouseout="hideTip(event, '2807', 2807)" onmouseover="showTip(event, '2807', 2807)">
             ProjectChecked
           </code>
-          <div class="tip" id="2784">
+          <div class="tip" id="2807">
             <strong>Signature:</strong> IEvent&lt;string * obj option&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3328-3328" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3084-3084" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -757,15 +738,35 @@ To get the full information, call 'CheckFileInProject' method on the resultAll f
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2785', 2785)" onmouseover="showTip(event, '2785', 2785)">
+          <code onmouseout="hideTip(event, '2808', 2808)" onmouseover="showTip(event, '2808', 2808)">
+            StopBackgroundCompile()
+          </code>
+          <div class="tip" id="2808">
+            <strong>Signature:</strong> unit -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3068-3068" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Stop the background compile.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2809', 2809)" onmouseover="showTip(event, '2809', 2809)">
             TokenizeFile(source)
           </code>
-          <div class="tip" id="2785">
+          <div class="tip" id="2809">
             <strong>Signature:</strong> source:string -&gt; FSharpTokenInfo [] []<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3352-3352" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3108-3108" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -777,15 +778,15 @@ To get the full information, call 'CheckFileInProject' method on the resultAll f
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2786', 2786)" onmouseover="showTip(event, '2786', 2786)">
+          <code onmouseout="hideTip(event, '2810', 2810)" onmouseover="showTip(event, '2810', 2810)">
             TokenizeLine(line, state)
           </code>
-          <div class="tip" id="2786">
+          <div class="tip" id="2810">
             <strong>Signature:</strong> (line:string * state:int64) -&gt; FSharpTokenInfo [] * int64<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3342-3342" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3098-3098" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -797,15 +798,15 @@ To get the full information, call 'CheckFileInProject' method on the resultAll f
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2787', 2787)" onmouseover="showTip(event, '2787', 2787)">
+          <code onmouseout="hideTip(event, '2811', 2811)" onmouseover="showTip(event, '2811', 2811)">
             TryGetRecentCheckResultsForFile(...)
           </code>
-          <div class="tip" id="2787">
-            <strong>Signature:</strong> (filename:string * options:FSharpProjectOptions * source:string option) -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />
+          <div class="tip" id="2811">
+            <strong>Signature:</strong> (filename:string * options:FSharpProjectOptions * source:string option * userOpName:string option) -&gt; (FSharpParseFileResults * FSharpCheckFileResults * int) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3131-3131" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2882-2882" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -813,6 +814,26 @@ To get the full information, call 'CheckFileInProject' method on the resultAll f
 same file, regardless of contents. The version tag specified in the original check of the file is returned.
 If the source of the file has changed the results returned by this function may be out of date, though may
 still be usable for generating intellisense menus and information.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2812', 2812)" onmouseover="showTip(event, '2812', 2812)">
+            WaitForBackgroundCompile()
+          </code>
+          <div class="tip" id="2812">
+            <strong>Signature:</strong> unit -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3074-3074" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Block until the background compile finishes.</p>
 
 
         </td>
@@ -828,15 +849,15 @@ still be usable for generating intellisense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2788', 2788)" onmouseover="showTip(event, '2788', 2788)">
+          <code onmouseout="hideTip(event, '2813', 2813)" onmouseover="showTip(event, '2813', 2813)">
             Create(...)
           </code>
-          <div class="tip" id="2788">
-            <strong>Signature:</strong> (projectCacheSize:int option * keepAssemblyContents:bool option * keepAllBackgroundResolutions:bool option * msbuildEnabled:bool option) -&gt; FSharpChecker<br />
+          <div class="tip" id="2813">
+            <strong>Signature:</strong> (projectCacheSize:int option * keepAssemblyContents:bool option * keepAllBackgroundResolutions:bool option * legacyReferenceResolver:Resolver option) -&gt; FSharpChecker<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3101-3101" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L2843-2843" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -848,15 +869,15 @@ still be usable for generating intellisense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2789', 2789)" onmouseover="showTip(event, '2789', 2789)">
+          <code onmouseout="hideTip(event, '2814', 2814)" onmouseover="showTip(event, '2814', 2814)">
             GlobalForegroundParseCountStatistic
           </code>
-          <div class="tip" id="2789">
+          <div class="tip" id="2814">
             <strong>Signature:</strong> int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3332-3332" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3088-3088" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -869,15 +890,15 @@ still be usable for generating intellisense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2790', 2790)" onmouseover="showTip(event, '2790', 2790)">
+          <code onmouseout="hideTip(event, '2815', 2815)" onmouseover="showTip(event, '2815', 2815)">
             GlobalForegroundTypeCheckCountStatistic
           </code>
-          <div class="tip" id="2790">
+          <div class="tip" id="2815">
             <strong>Signature:</strong> int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3333-3333" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3089-3089" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -890,15 +911,15 @@ still be usable for generating intellisense menus and information.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2791', 2791)" onmouseover="showTip(event, '2791', 2791)">
+          <code onmouseout="hideTip(event, '2816', 2816)" onmouseover="showTip(event, '2816', 2816)">
             Instance
           </code>
-          <div class="tip" id="2791">
+          <div class="tip" id="2816">
             <strong>Signature:</strong> FSharpChecker<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3338-3338" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/service.fs#L3094-3094" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

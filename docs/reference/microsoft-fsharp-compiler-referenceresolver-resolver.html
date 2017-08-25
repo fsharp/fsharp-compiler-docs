@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>UnresolvedSymbol - F# Compiler Services</title>
+    <title>Resolver - F# Compiler Services</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
@@ -36,52 +36,87 @@
 
 
 
-<h1>UnresolvedSymbol</h1>
+<h1>Resolver</h1>
 <p>
-  <span>Namespace: Microsoft.FSharp.Compiler.SourceCodeServices</span><br />
+  <span>Namespace: Microsoft.FSharp.Compiler</span><br />
+  <span>Parent Module: <a href="microsoft-fsharp-compiler-referenceresolver.html">ReferenceResolver</a></span>
 </p>
 <div class="xmldoc">
 </div>
-  <h3>Record Fields</h3>
+  <h3>Instance members</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Record Field</td><td>Description</td></tr>
+      <tr><td>Instance member</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3393', 3393)" onmouseover="showTip(event, '3393', 3393)">
-            DisplayName
+          <code onmouseout="hideTip(event, '1656', 1656)" onmouseover="showTip(event, '1656', 1656)">
+            DotNetFrameworkReferenceAssembliesRootDirectory(...)
           </code>
-          <div class="tip" id="3393">
+          <div class="tip" id="1656">
             <strong>Signature:</strong> string<br />
+              <strong>Modifiers:</strong> abstract<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L124-124" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ReferenceResolver.fs#L43-43" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Get the Reference Assemblies directory for the .NET Framework (on Windows)
+This is added to the default resolution path for
+design-time compilations.</p>
+
+
+              <p>CompiledName: <code>get_DotNetFrameworkReferenceAssembliesRootDirectory</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3394', 3394)" onmouseover="showTip(event, '3394', 3394)">
-            Namespace
+          <code onmouseout="hideTip(event, '1657', 1657)" onmouseover="showTip(event, '1657', 1657)">
+            HighestInstalledNetFrameworkVersion()
           </code>
-          <div class="tip" id="3394">
-            <strong>Signature:</strong> string []<br />
+          <div class="tip" id="1657">
+            <strong>Signature:</strong> unit -&gt; string<br />
+              <strong>Modifiers:</strong> abstract<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L125-125" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ReferenceResolver.fs#L38-38" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Get the "v4.5.1"-style moniker for the highest installed .NET Framework version.
+This is the value passed back to Resolve if no explicit "mscorlib" has been given.</p>
+<p>Note: If an explicit "mscorlib" is given, then --noframework is being used, and the whole ReferenceResolver logic is essentially
+unused.  However in the future an option may be added to allow an explicit specification of
+a .NET Framework version to use for scripts.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1658', 1658)" onmouseover="showTip(event, '1658', 1658)">
+            Resolve(...)
+          </code>
+          <div class="tip" id="1658">
+            <strong>Signature:</strong> (resolutionEnvironment:ResolutionEnvironment * references:(string * string) [] * targetFrameworkVersion:string * targetFrameworkDirectories:string list * targetProcessorArchitecture:string * fsharpCoreDir:string * explicitIncludeDirs:string list * implicitIncludeDir:string * logMessage:(string -&gt; unit) * logDiagnostic:(bool -&gt; string -&gt; string -&gt; unit)) -&gt; ResolvedFile []<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/ReferenceResolver.fs#L46-46" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Perform assembly resolution on the given references under the given conditions</p>
+
+
         </td>
       </tr>
     </tbody>

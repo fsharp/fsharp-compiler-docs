@@ -53,15 +53,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3311', 3311)" onmouseover="showTip(event, '3311', 3311)">
+          <code onmouseout="hideTip(event, '3226', 3226)" onmouseover="showTip(event, '3226', 3226)">
             CompositionError(string)
           </code>
-          <div class="tip" id="3311">
+          <div class="tip" id="3226">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L46-46" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/symbols/SymbolHelpers.fsi#L110-110" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -73,19 +73,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3312', 3312)" onmouseover="showTip(event, '3312', 3312)">
-            Group((&#39;T * FSharpXmlDoc) list)
+          <code onmouseout="hideTip(event, '3227', 3227)" onmouseover="showTip(event, '3227', 3227)">
+            Group(FSharpToolTipElementData&lt;&#39;T&gt; list)
           </code>
-          <div class="tip" id="3312">
-            <strong>Signature:</strong> (&#39;T * FSharpXmlDoc) list<br />
+          <div class="tip" id="3227">
+            <strong>Signature:</strong> FSharpToolTipElementData&lt;&#39;T&gt; list<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L44-44" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/symbols/SymbolHelpers.fsi#L107-107" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>For example, a method overload group.</p>
+          <p>A single type, method, etc with comment. May represent a method overload group.</p>
 
 
         </td>
@@ -93,59 +93,45 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3313', 3313)" onmouseover="showTip(event, '3313', 3313)">
+          <code onmouseout="hideTip(event, '3228', 3228)" onmouseover="showTip(event, '3228', 3228)">
             None
           </code>
-          <div class="tip" id="3313">
+          <div class="tip" id="3228">
             <strong>Signature:</strong> <br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L38-38" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/symbols/SymbolHelpers.fsi#L104-104" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
         </td>
       </tr>
+    </tbody>
+  </table>
+  <h3>Static members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Static member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3314', 3314)" onmouseover="showTip(event, '3314', 3314)">
-            Single(&#39;T,FSharpXmlDoc)
+          <code onmouseout="hideTip(event, '3229', 3229)" onmouseover="showTip(event, '3229', 3229)">
+            Single(...)
           </code>
-          <div class="tip" id="3314">
-            <strong>Signature:</strong> &#39;T * FSharpXmlDoc<br />
+          <div class="tip" id="3229">
+            <strong>Signature:</strong> (&#39;T * FSharpXmlDoc * typeMapping:&#39;T list option * paramName:string option * remarks:&#39;T option) -&gt; FSharpToolTipElement&lt;&#39;T&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L40-40" class="github-link">
+            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/symbols/SymbolHelpers.fs#L241-241" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>A single type, method, etc with comment.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3315', 3315)" onmouseover="showTip(event, '3315', 3315)">
-            SingleParameter(&#39;T,FSharpXmlDoc,string)
-          </code>
-          <div class="tip" id="3315">
-            <strong>Signature:</strong> &#39;T * FSharpXmlDoc * string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src/fsharp/vs/ServiceDeclarations.fsi#L42-42" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>A single parameter, with the parameter name.</p>
-
-
+          
         </td>
       </tr>
     </tbody>

@@ -149,26 +149,7 @@ A layout can be squashed to for given width which forces breaks as required.</p>
     </div>
   <h2>Microsoft.FSharp.Compiler Namespace</h2>
     <div>
-      <table class="table table-bordered type-list">
-    <thead>
-      <tr><td>Type</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-fsharperrorinfo.html">FSharpErrorInfo</a>
-          </td>
-          <td class="xmldoc"></td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-fsharperrorseverity.html">FSharpErrorSeverity</a>
-          </td>
-          <td class="xmldoc"></td>
-        </tr>
-    </tbody>
-  </table>
-  <table class="table table-bordered module-list">
+      <table class="table table-bordered module-list">
     <thead>
       <tr><td>Module</td><td>Description</td></tr>
     </thead>
@@ -202,6 +183,12 @@ A layout can be squashed to for given width which forces breaks as required.</p>
         <tr>
           <td class="module-name">
             <a href="microsoft-fsharp-compiler-range.html">Range</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="microsoft-fsharp-compiler-referenceresolver.html">ReferenceResolver</a>
           </td>
           <td class="xmldoc"></td>
         </tr>
@@ -258,25 +245,6 @@ to Abstract IL library</p>
             <a href="microsoft-fsharp-compiler-interactive-shell.html">Shell</a>
           </td>
           <td class="xmldoc"></td>
-        </tr>
-    </tbody>
-  </table>
-
-    </div>
-  <h2>Microsoft.FSharp.Compiler.SimpleSourceCodeServices Namespace</h2>
-    <div>
-      <table class="table table-bordered type-list">
-    <thead>
-      <tr><td>Type</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-simplesourcecodeservices-simplesourcecodeservices.html">SimpleSourceCodeServices</a>
-          </td>
-          <td class="xmldoc"><p>Provides simpler version of services for checking and compiling F# scripts</p>
-
-</td>
         </tr>
     </tbody>
   </table>
@@ -360,6 +328,22 @@ to Abstract IL library</p>
             <a href="microsoft-fsharp-compiler-sourcecodeservices-entitykind.html">EntityKind</a>
           </td>
           <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-externalsymbol.html">ExternalSymbol</a>
+          </td>
+          <td class="xmldoc"><p>Represents a symbol in an external (non F#) assembly</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-externaltype.html">ExternalType</a>
+          </td>
+          <td class="xmldoc"><p>Represents a type in an external (non F#) assembly.</p>
+
+</td>
         </tr>
         <tr>
           <td class="type-name">
@@ -526,6 +510,18 @@ to the Format method on FSharpType and other methods.</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharperrorinfo.html">FSharpErrorInfo</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharperrorseverity.html">FSharpErrorSeverity</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpexpr.html">FSharpExpr</a>
           </td>
           <td class="xmldoc"><p>Represents a checked and reduced expression, as seen by the F# language.  The active patterns
@@ -642,25 +638,9 @@ values for each line of the edited code.</p>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpmemberfunctionorvalue.html">FSharpMemberFunctionOrValue</a>
-          </td>
-          <td class="xmldoc"><p>Renamed to FSharpMemberOrFunctionOrValue</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpmemberorfunctionorvalue.html">FSharpMemberOrFunctionOrValue</a>
           </td>
           <td class="xmldoc"><p>A subtype of F# symbol that represents an F# method, property, event, function or value, including extension members.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpmemberorval.html">FSharpMemberOrVal</a>
-          </td>
-          <td class="xmldoc"><p>Renamed to FSharpMemberOrFunctionOrValue</p>
 
 </td>
         </tr>
@@ -767,14 +747,6 @@ with nested declarations (that can be shown in the member drop-down)</p>
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpprojectoptions.html">FSharpProjectOptions</a>
           </td>
           <td class="xmldoc"><p>A set of information describing a project or script build configuration.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharprecordfield.html">FSharpRecordField</a>
-          </td>
-          <td class="xmldoc"><p>Renamed to FSharpField</p>
 
 </td>
         </tr>
@@ -893,6 +865,14 @@ or FSharpActivePatternCase.</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharptooltipelementdata-1.html">FSharpToolTipElementData<'T></a>
+          </td>
+          <td class="xmldoc"><p>A single data tip display element</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharptooltiptext-1.html">FSharpToolTipText<'T></a>
           </td>
           <td class="xmldoc"><p>Information for building a tool tip box.</p>
@@ -995,6 +975,22 @@ or FSharpActivePatternCase.</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-openstatementinsertionpoint.html">OpenStatementInsertionPoint</a>
+          </td>
+          <td class="xmldoc"><p>Where open statements should be added.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-paramtypesymbol.html">ParamTypeSymbol</a>
+          </td>
+          <td class="xmldoc"><p>Represents the type of a single method parameter</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-position.html">Position</a>
           </td>
           <td class="xmldoc"></td>
@@ -1051,9 +1047,11 @@ or FSharpActivePatternCase.</p>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-unresolvedsymbol.html">UnresolvedSymbol</a>
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-xmldocable.html">XmlDocable</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc"><p>Represent an Xml documentation block in source code</p>
+
+</td>
         </tr>
     </tbody>
   </table>
@@ -1104,13 +1102,13 @@ or FSharpActivePatternCase.</p>
         </tr>
         <tr>
           <td class="module-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-envmisc2.html">EnvMisc2</a>
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-extensions.html">Extensions</a>
           </td>
           <td class="xmldoc"></td>
         </tr>
         <tr>
           <td class="module-name">
-            <a href="microsoft-fsharp-compiler-sourcecodeservices-extensions.html">Extensions</a>
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-externaltypemodule.html">ExternalType</a>
           </td>
           <td class="xmldoc"></td>
         </tr>
@@ -1136,6 +1134,12 @@ or FSharpActivePatternCase.</p>
         </tr>
         <tr>
           <td class="module-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-paramtypesymbolmodule.html">ParamTypeSymbol</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-parsedinput.html">ParsedInput</a>
           </td>
           <td class="xmldoc"><p>Parse AST helpers.</p>
@@ -1152,7 +1156,33 @@ or FSharpActivePatternCase.</p>
         </tr>
         <tr>
           <td class="module-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-sourcefile.html">SourceFile</a>
+          </td>
+          <td class="xmldoc"><p>Information about F# source file names</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-tooltips.html">Tooltips</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-untypedparseimpl.html">UntypedParseImpl</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-xmldoccomment.html">XmlDocComment</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-xmldocparser.html">XmlDocParser</a>
           </td>
           <td class="xmldoc"></td>
         </tr>

@@ -21,10 +21,10 @@ System.Console.OutputEncoding <- System.Text.Encoding.UTF8
 // --------------------------------------------------------------------------------------
 
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
-let runCmdIn mono workDir exe = Printf.ksprintf (fun args ->
+let runCmdIn mono workDir (exe:string) = Printf.ksprintf (fun (args:string) ->
     if mono then
         printfn "mono %s/%s %s" workDir exe args
-        Shell.Exec("mono", sprintf "%s %s" exe args, workDir)
+        Shell.Exec("mono", sprintf "%s %s" (exe.Replace("\\","/")) (args.Replace("\\","/")), workDir)
         |> assertExitCodeZero
     else
         printfn "%s/%s %s" workDir exe args

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
 
 module Microsoft.FSharp.Compiler.Interactive.Shell
 
@@ -2468,7 +2468,6 @@ type FsiEvaluationSession (fsi: FsiEvaluationSessionHostConfig, argv:string[], i
     do tcConfigB.resolutionEnvironment <- ResolutionEnvironment.EditingOrCompilation false
     do tcConfigB.useSimpleResolution <- true
     do SetTargetProfile tcConfigB "netcore" // always assume System.Runtime codegen
-    //do SetTargetProfile tcConfigB "privatecorelib" // always assume System.Private.CoreLib codegen
 #endif
 
     // Preset: --optimize+ -g --tailcalls+ (see 4505)

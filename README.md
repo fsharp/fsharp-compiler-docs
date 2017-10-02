@@ -51,6 +51,12 @@ All AppVeyor builds are available using the NuGet feed: https://ci.appveyor.com/
 
 If using Paket, add the source at the top of `paket.dependencies`.
 
+
+License
+-----------
+
+This project is subject to the MIT License. A copy of this license can be found in [License.txt](License.txt) at the root of this repo.
+
 Maintainers
 -----------
 

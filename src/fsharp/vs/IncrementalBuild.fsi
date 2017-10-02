@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
 
 namespace Microsoft.FSharp.Compiler
 
@@ -59,7 +59,10 @@ type internal PartialCheckResults =
       /// Represents the collected attributes to apply to the module of assuembly generates
       TopAttribs: TypeChecker.TopAttribs option
 
-      TimeStamp: DateTime }
+      TimeStamp: DateTime 
+      
+      /// Represents complete typechecked implementation files, including thier typechecked signatures if any.
+      ImplementationFiles: TypedImplFile list }
 
 /// Manages an incremental build graph for the build of an F# project
 [<Class>]

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
 
 //----------------------------------------------------------------------------
 // SourceCodeServices API to the compiler as an incremental service for parsing,
@@ -261,6 +261,9 @@ type internal FSharpCheckFileResults =
     /// Determines if a long ident is resolvable at a specific point.
     /// <param name="userOpName">An optional string used for tracing compiler operations associated with this request.</param>
     member internal IsRelativeNameResolvable: cursorPos : pos * plid : string list * item: Item * ?userOpName: string -> Async<bool>
+
+    /// Represents complete typechecked implementation files, including thier typechecked signatures if any.
+    member ImplementationFiles: FSharpImplementationFileContents list option
 
 /// A handle to the results of CheckFileInProject.
 [<Sealed>]

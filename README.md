@@ -51,7 +51,6 @@ All AppVeyor builds are available using the NuGet feed: https://ci.appveyor.com/
 
 If using Paket, add the source at the top of `paket.dependencies`.
 
-
 License
 -----------
 

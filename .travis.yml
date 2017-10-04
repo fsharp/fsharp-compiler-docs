@@ -16,7 +16,7 @@ sudo: false
 install:
 
 script: 
-  - ./fcs/build.sh Build.NetFx
+  - ./fcs/build.sh Build
 
 # Woes with doing more build/test on linux
 #

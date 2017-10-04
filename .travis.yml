@@ -16,11 +16,23 @@ sudo: false
 install:
 
 script: 
-  - ./fcs/build.sh Test.NetFx
+  - ./fcs/build.sh Build.NetFx
+
+# Woes with doing more build/test on linux
+#
+# This fails because NUnit gives an exception (!!!!)
+#  - ./fcs/build.sh Test.NetFx
+# 
+# System.IO.FileNotFoundException: Could not load file or assembly 'nunit.engine.api, Version=3.0.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb' or one of its dependencies.
+#
+# This fails because Nuget packaging doesn't like backslashes in the package file, but Windows does
+#  - ./fcs/build.sh NuGet
+# 
+# Not sure i this works, depends on the state of the .NET Standard build on Travis
+#  - ./fcs/build.sh Build
+# 
 
 # Fails on Travis OSX too often because there are network outages on that configuration getting the Mono MDK
-
-
 matrix:
   exclude:
     - os: osx

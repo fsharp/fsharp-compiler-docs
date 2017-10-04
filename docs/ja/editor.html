@@ -13,9 +13,9 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/style.ja.css" />
-	<link type="text/css" rel="stylesheet" href="/FSharp.Compiler.Service/ja/../content/fcs.css" />
-    <script type="text/javascript" src="/FSharp.Compiler.Service/ja/../content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="./../content/style.ja.css" />
+	<link type="text/css" rel="stylesheet" href="./../content/fcs.css" />
+    <script type="text/javascript" src="./../content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -91,6 +91,8 @@
 <span class="l">13: </span>
 <span class="l">14: </span>
 <span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// サンプルの入力となる複数行文字列</span>
 <span class="k">let</span> <span class="i">input</span> <span class="o">=</span> 
@@ -107,15 +109,17 @@
 <span class="k">let</span> <span class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
 
 <span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>) <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">parsingOptions</span>, <span class="i">_errors</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">GetParsingOptionsFromProjectOptions</span>(<span class="i">projOptions</span>)
 </code></pre></td>
 </tr>
 </table>
-<p>型チェックを実行するには、まず <code>ParseFileInProject</code> を使って
+<p>型チェックを実行するには、まず <code>ParseFile</code> を使って
 入力値をパースする必要があります。
 このメソッドを使うと <a href="untypedtree.html">型無しAST</a> にアクセスできるようになります。
 しかし今回は完全な型チェックを実行するため、続けて <code>CheckFileInProject</code>
 を呼び出す必要があります。
-このメソッドは <code>ParseFileInProject</code> の結果も必要とするため、
+このメソッドは <code>ParseFile</code> の結果も必要とするため、
 たいていの場合にはこれら2つのメソッドをセットで呼び出すことになります。</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
@@ -124,7 +128,7 @@
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// パースを実行</span>
 <span class="k">let</span> <span class="i">parseFileResults</span> <span class="o">=</span>
-    <span class="i">checker</span><span class="o">.</span><span class="i">ParseFileInProject</span>(<span class="i">file</span>, <span class="i">input</span>, <span class="i">projOptions</span>)
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseFile</span>(<span class="i">file</span>, <span class="i">input</span>, <span class="i">parsingOptions</span>)
     <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
 </code></pre></td>
 </tr>
@@ -338,15 +342,15 @@ F#コンパイラは型チェックを(自動的に)バックグラウンドで�
         </div>
         <div class="span3">
            <a href="https://nuget.org/packages/FSharp.Compiler.Service">
-            <img src="/FSharp.Compiler.Service/ja/../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+            <img src="./../images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">
-			<a href="/FSharp.Compiler.Service/ja/../ja/index.html" class="nflag"><img src="/FSharp.Compiler.Service/ja/../images/ja.png" /></a>
-            <a href="/FSharp.Compiler.Service/ja/../index.html" class="nflag nflag2"><img src="/FSharp.Compiler.Service/ja/../images/en.png" /></a>
+			<a href="./../ja/index.html" class="nflag"><img src="./../images/ja.png" /></a>
+            <a href="./../index.html" class="nflag nflag2"><img src="./../images/en.png" /></a>
 			F# Compiler Services
 			</li>
-            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
+            <li><a href="./index.html">ホームページ</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">NuGet経由でライブラリを取得</a></li>
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">GitHub上のソースコード</a></li>
@@ -354,22 +358,22 @@ F#コンパイラは型チェックを(自動的に)バックグラウンドで�
             <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">リリースノート</a></li>
             
             <li class="nav-header">はじめに</li>
-            <li><a href="/FSharp.Compiler.Service/ja/index.html">ホームページ</a></li>
-            <li><a href="/FSharp.Compiler.Service/ja/devnotes.html">開発者用メモ</a></li>
-            <li><a href="/FSharp.Compiler.Service/ja/fsharp-readme.html">F#コンパイラのreadme</a></li>
+            <li><a href="./index.html">ホームページ</a></li>
+            <li><a href="./devnotes.html">開発者用メモ</a></li>
+            <li><a href="./fsharp-readme.html">F#コンパイラのreadme</a></li>
 
             <li class="nav-header">利用可能なサービス</li>
-            <li><a href="/FSharp.Compiler.Service/ja/tokenizer.html">F#言語トークナイザ</a></li>
-            <li><a href="/FSharp.Compiler.Service/ja/untypedtree.html">型無しASTの処理</a></li>
-            <li><a href="/FSharp.Compiler.Service/ja/editor.html">エディタ(IDE)のサービスを使用する</a></li>
-            <li><a href="/FSharp.Compiler.Service/ja/symbols.html">解決済みのシンボルを使用する</a></li>
-            <li><a href="/FSharp.Compiler.Service/ja/project.html">プロジェクト全体の分析</a></li>
-            <li><a href="/FSharp.Compiler.Service/ja/interactive.html">F# Interactiveの組み込み</a></li>
-            <li><a href="/FSharp.Compiler.Service/ja/compiler.html">F#コンパイラの組み込み</a></li>
-            <li><a href="/FSharp.Compiler.Service/ja/filesystem.html">ファイルシステムの仮想化</a></li>
+            <li><a href="./tokenizer.html">F#言語トークナイザ</a></li>
+            <li><a href="./untypedtree.html">型無しASTの処理</a></li>
+            <li><a href="./editor.html">エディタ(IDE)のサービスを使用する</a></li>
+            <li><a href="./symbols.html">解決済みのシンボルを使用する</a></li>
+            <li><a href="./project.html">プロジェクト全体の分析</a></li>
+            <li><a href="./interactive.html">F# Interactiveの組み込み</a></li>
+            <li><a href="./compiler.html">F#コンパイラの組み込み</a></li>
+            <li><a href="./filesystem.html">ファイルシステムの仮想化</a></li>
 
             <li class="nav-header">リファレンス</li>
-            <li><a href="/FSharp.Compiler.Service/ja/../reference/index.html">API リファレンス</a></li>
+            <li><a href="./../reference/index.html">API リファレンス</a></li>
           </ul>
         </div>
       </div>

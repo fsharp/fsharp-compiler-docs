@@ -81,7 +81,7 @@ can be used to notify the checker about file changes (which we ignore).</p>
 (the file is only used for location information and does not have to exist).
 We first need to get "interactive checker options" which represents the context.
 For simple tasks, you can use <code>GetProjectOptionsFromScriptRoot</code> which infers
-the context for a script file. Then we use the <code>ParseFileInProject</code> method and
+the context for a script file. Then we use the <code>ParseFile</code> method and
 return the <code>ParseTree</code> property:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -98,6 +98,8 @@ return the <code>ParseTree</code> property:</p>
 <span class="l">13: </span>
 <span class="l">14: </span>
 <span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Get untyped tree for a specified input</span>
 <span class="k">let</span> <span class="i">getUntypedTree</span> (<span class="i">file</span>, <span class="i">input</span>) <span class="o">=</span> 
@@ -106,9 +108,11 @@ return the <code>ParseTree</code> property:</p>
       <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>)
       <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
 
+  <span class="k">let</span> <span class="i">parsingOptions</span>, <span class="i">_errors</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">GetParsingOptionsFromProjectOptions</span>(<span class="i">projOptions</span>)
+
   <span class="c">// Run the first phase (untyped parsing) of the compiler</span>
   <span class="k">let</span> <span class="i">parseFileResults</span> <span class="o">=</span> 
-      <span class="i">checker</span><span class="o">.</span><span class="i">ParseFileInProject</span>(<span class="i">file</span>, <span class="i">input</span>, <span class="i">projOptions</span>) 
+      <span class="i">checker</span><span class="o">.</span><span class="i">ParseFile</span>(<span class="i">file</span>, <span class="i">input</span>, <span class="i">parsingOptions</span>) 
       <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
 
   <span class="k">match</span> <span class="i">parseFileResults</span><span class="o">.</span><span class="i">ParseTree</span> <span class="k">with</span>

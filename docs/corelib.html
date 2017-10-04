@@ -43,11 +43,12 @@ your <code>HostedCompiler.exe</code>.</p>
 <p>If doing dynamic compilation and execution you may also need to include
 an FSharp.Core.optdata and FSharp.Core.sigdata, see below for guidance.</p>
 <h2><a name="Binding-redirects-for-your-application" class="anchor" href="#Binding-redirects-for-your-application">Binding redirects for your application</a></h2>
-<p>The FSharp.Compiler.Service.dll component depends on FSharp.Core 4.3.0.0.  Normally your application will target
+<p>The FSharp.Compiler.Service.dll component depends on FSharp.Core 4.4.0.0.  Normally your application will target
 a later version of FSharp.Core, and you will need a <a href="http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.110).aspx">binding redirect</a> to ensure
-that FSharp.Core 4.3.0.0 forwards to which the final version of FSharp.Core.dll your application uses.
+that other versions of FSharp.Core forward to the final version of FSharp.Core.dll your application uses.
 Binding redirect files are normally generated automatically by build tools. If not, you can use one like this
 (if your tool is called <code>HostedCompiler.exe</code>, the binding redirect file is called <code>HostedCompiler.exe.config</code>)</p>
+<p>Some other dependencies may also need to be reconciled and forwarded.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -59,6 +60,10 @@ Binding redirect files are normally generated automatically by build tools. If n
 <span class="l"> 9: </span>
 <span class="l">10: </span>
 <span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="o">&lt;?</span><span class="i">xml</span> <span class="i">version</span><span class="o">=</span><span class="s">&quot;1.0&quot;</span> <span class="i">encoding</span><span class="o">=</span><span class="s">&quot;utf-8&quot;</span> <span class="o">?&gt;</span>
 <span class="o">&lt;</span><span class="i">configuration</span><span class="o">&gt;</span>
@@ -66,7 +71,11 @@ Binding redirect files are normally generated automatically by build tools. If n
       <span class="o">&lt;</span><span class="i">assemblyBinding</span> <span class="i">xmlns</span><span class="o">=</span><span class="s">&quot;urn:schemas-microsoft-com:asm.v1&quot;</span><span class="o">&gt;</span>
         <span class="o">&lt;</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
           <span class="o">&lt;</span><span class="i">assemblyIdentity</span> <span class="i">name</span><span class="o">=</span><span class="s">&quot;FSharp.Core&quot;</span> <span class="i">publicKeyToken</span><span class="o">=</span><span class="s">&quot;b03f5f7f11d50a3a&quot;</span> <span class="i">culture</span><span class="o">=</span><span class="s">&quot;neutral&quot;</span><span class="o">/&gt;</span>
-          <span class="o">&lt;</span><span class="i">bindingRedirect</span> <span class="i">oldVersion</span><span class="o">=</span><span class="s">&quot;2.0.0.0-4.3.0.0&quot;</span> <span class="i">newVersion</span><span class="o">=</span><span class="s">&quot;4.3.1.0&quot;</span><span class="o">/&gt;</span>
+          <span class="o">&lt;</span><span class="i">bindingRedirect</span> <span class="i">oldVersion</span><span class="o">=</span><span class="s">&quot;2.0.0.0-4.4.0.0&quot;</span> <span class="i">newVersion</span><span class="o">=</span><span class="s">&quot;4.4.1.0&quot;</span><span class="o">/&gt;</span>
+        <span class="o">&lt;/</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
+          <span class="o">&lt;</span><span class="i">assemblyIdentity</span> <span class="i">name</span><span class="o">=</span><span class="s">&quot;System.Collections.Immutable&quot;</span> <span class="i">publicKeyToken</span><span class="o">=</span><span class="s">&quot;b03f5f7f11d50a3a&quot;</span> <span class="i">culture</span><span class="o">=</span><span class="s">&quot;neutral&quot;</span> <span class="o">/&gt;</span>
+          <span class="o">&lt;</span><span class="i">bindingRedirect</span> <span class="i">oldVersion</span><span class="o">=</span><span class="s">&quot;1.0.0.0-1.2.0.0&quot;</span> <span class="i">newVersion</span><span class="o">=</span><span class="s">&quot;1.2.1.0&quot;</span> <span class="o">/&gt;</span>
         <span class="o">&lt;/</span><span class="i">dependentAssembly</span><span class="o">&gt;</span>
       <span class="o">&lt;/</span><span class="i">assemblyBinding</span><span class="o">&gt;</span>
     <span class="o">&lt;/</span><span class="i">runtime</span><span class="o">&gt;</span>	

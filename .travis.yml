@@ -16,13 +16,10 @@ sudo: false
 install:
 
 script: 
-  - ./fcs/build.sh NuGet
+  - ./fcs/build.sh Test.NetFx
 
 # Fails on Travis OSX too often because there are network outages on that configuration getting the Mono MDK
 
-# Fails on Travis Linux Mono latest and 4.8.0 because FSharp.Core 4.3.0.0 is not available, see
-#   https://github.com/fsharp/fsharp/pull/689
-#   https://github.com/mono/linux-packaging-fsharp/pull/3
 
 matrix:
   exclude:
@@ -31,12 +28,3 @@ matrix:
     - os: osx
       mono: 4.8.0
 
-#  allow_failures:
-#    - os: osx
-#      mono: latest
-#    - os: linux
-#      mono: latest
-#    - os: linux
-#      mono: 4.8.0
-#    - os: osx
-#      mono: latest

@@ -53,20 +53,14 @@ individual files within a project, but can very greatly increase memory usage.</
 </li>
 <li><p><code>braceMatchCache</code> - an MRU cache of size <code>braceMatchCacheSize</code> (default = 5) keeping the results of calls to MatchBraces, keyed by filename, source and project options.</p></li>
 <li>
-<p><code>parseFileInProjectCache</code> - an MRU cache of size <code>parseFileInProjectCacheSize</code> (default = 2) keeping the results of ParseFileInProject,
+<p><code>parseFileCache</code> - an MRU cache of size <code>parseFileCacheSize</code> (default = 2) keeping the results of ParseFile,
 keyed by filename, source and project options.</p>
 </li>
 <li>
-<p><code>parseAndCheckFileInProjectCache</code> - an MRU cache of size <code>incrementalTypeCheckCacheSize</code> (default = 5) keeping the results of
+<p><code>checkFileInProjectCache</code> - an MRU cache of size <code>incrementalTypeCheckCacheSize</code> (default = 5) keeping the results of
 ParseAndCheckFileInProject, CheckFileInProject and/or CheckFileInProjectIfReady. This is keyed by filename, file source
 and project options.  The results held in this cache are only returned if they would reflect an accurate parse and check of the
 file.</p>
-</li>
-<li>
-<p><code>parseAndCheckFileInProjectCachePossiblyStale</code> - a somewhat peculiar MRU cache of size <code>incrementalTypeCheckCacheSize</code> (default = 5)
-keeping the results of ParseAndCheckFileInProject, CheckFileInProject and CheckFileInProjectIfReady,
-keyed by filename and project options. This cache is accessed by TryGetRecentTypeCheckResultsForFile. Because the results
-are accessed regardless of the content of the file, the checking results returned may be "stale".</p>
 </li>
 <li><p><code>getToolTipTextCache</code> - an aged lookup cache of strong size <code>getToolTipTextSize</code> (default = 5) computing the results of GetToolTipText.</p></li>
 <li>

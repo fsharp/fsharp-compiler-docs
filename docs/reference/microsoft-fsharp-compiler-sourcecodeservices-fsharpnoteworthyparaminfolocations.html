@@ -41,6 +41,8 @@
   <span>Namespace: Microsoft.FSharp.Compiler.SourceCodeServices</span><br />
 </p>
 <div class="xmldoc">
+<p>Represents the locations relevant to activating parameter info in an IDE</p>
+
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -51,10 +53,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3104', 3104)" onmouseover="showTip(event, '3104', 3104)">
+          <code onmouseout="hideTip(event, '3119', 3119)" onmouseover="showTip(event, '3119', 3119)">
             IsThereACloseParen
           </code>
-          <div class="tip" id="3104">
+          <div class="tip" id="3119">
             <strong>Signature:</strong> bool<br />
                       </div>
         </td>
@@ -63,7 +65,7 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>false if either this is a call without parens "f x" or the parser recovered as in "f(x,y"</p>
+          <p>Is false if either this is a call without parens "f x" or the parser recovered as in "f(x,y"</p>
 
 
               <p>CompiledName: <code>get_IsThereACloseParen</code></p>
@@ -72,10 +74,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3105', 3105)" onmouseover="showTip(event, '3105', 3105)">
+          <code onmouseout="hideTip(event, '3120', 3120)" onmouseover="showTip(event, '3120', 3120)">
             LongId
           </code>
-          <div class="tip" id="3105">
+          <div class="tip" id="3120">
             <strong>Signature:</strong> string list<br />
                       </div>
         </td>
@@ -84,17 +86,19 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>The text of the long identifier prior to the open-parentheses</p>
+
+
               <p>CompiledName: <code>get_LongId</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3106', 3106)" onmouseover="showTip(event, '3106', 3106)">
+          <code onmouseout="hideTip(event, '3121', 3121)" onmouseover="showTip(event, '3121', 3121)">
             LongIdEndLocation
           </code>
-          <div class="tip" id="3106">
+          <div class="tip" id="3121">
             <strong>Signature:</strong> pos<br />
                       </div>
         </td>
@@ -103,17 +107,19 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>The end location of long identifier prior to the open-parentheses</p>
+
+
               <p>CompiledName: <code>get_LongIdEndLocation</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3107', 3107)" onmouseover="showTip(event, '3107', 3107)">
+          <code onmouseout="hideTip(event, '3122', 3122)" onmouseover="showTip(event, '3122', 3122)">
             LongIdStartLocation
           </code>
-          <div class="tip" id="3107">
+          <div class="tip" id="3122">
             <strong>Signature:</strong> pos<br />
                       </div>
         </td>
@@ -122,17 +128,19 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>The start location of long identifier prior to the open-parentheses</p>
+
+
               <p>CompiledName: <code>get_LongIdStartLocation</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3108', 3108)" onmouseover="showTip(event, '3108', 3108)">
+          <code onmouseout="hideTip(event, '3123', 3123)" onmouseover="showTip(event, '3123', 3123)">
             NamedParamNames
           </code>
-          <div class="tip" id="3108">
+          <div class="tip" id="3123">
             <strong>Signature:</strong> string option []<br />
                       </div>
         </td>
@@ -141,7 +149,7 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>empty or a name if an actual named parameter; f(0,a=4,?b=None) would be [|None; Some "a"; Some "b"|]</p>
+          <p>Either empty or a name if an actual named parameter; f(0,a=4,?b=None) would be [|None; Some "a"; Some "b"|]</p>
 
 
               <p>CompiledName: <code>get_NamedParamNames</code></p>
@@ -150,10 +158,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3109', 3109)" onmouseover="showTip(event, '3109', 3109)">
+          <code onmouseout="hideTip(event, '3124', 3124)" onmouseover="showTip(event, '3124', 3124)">
             OpenParenLocation
           </code>
-          <div class="tip" id="3109">
+          <div class="tip" id="3124">
             <strong>Signature:</strong> pos<br />
                       </div>
         </td>
@@ -162,17 +170,19 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>The location of the open-parentheses</p>
+
+
               <p>CompiledName: <code>get_OpenParenLocation</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3110', 3110)" onmouseover="showTip(event, '3110', 3110)">
+          <code onmouseout="hideTip(event, '3125', 3125)" onmouseover="showTip(event, '3125', 3125)">
             TupleEndLocations
           </code>
-          <div class="tip" id="3110">
+          <div class="tip" id="3125">
             <strong>Signature:</strong> pos []<br />
                       </div>
         </td>
@@ -181,7 +191,7 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>locations of commas and close parenthesis (or, last char of last arg, if no final close parenthesis)</p>
+          <p>The locations of commas and close parenthesis (or, last char of last arg, if no final close parenthesis)</p>
 
 
               <p>CompiledName: <code>get_TupleEndLocations</code></p>
@@ -198,10 +208,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3111', 3111)" onmouseover="showTip(event, '3111', 3111)">
+          <code onmouseout="hideTip(event, '3126', 3126)" onmouseover="showTip(event, '3126', 3126)">
             Find(arg1, arg2)
           </code>
-          <div class="tip" id="3111">
+          <div class="tip" id="3126">
             <strong>Signature:</strong> (pos * ParsedInput) -&gt; FSharpNoteworthyParamInfoLocations option<br />
                       </div>
         </td>
@@ -210,7 +220,9 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Find the information about parameter info locations at a particular source location</p>
+
+
         </td>
       </tr>
     </tbody>

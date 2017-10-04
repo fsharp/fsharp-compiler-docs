@@ -88,6 +88,8 @@ script file or stand-alone F# source code).</p>
 <span class="l">15: </span>
 <span class="l">16: </span>
 <span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Sample input as a multi-line string</span>
 <span class="k">let</span> <span class="i">input</span> <span class="o">=</span> 
@@ -106,11 +108,13 @@ script file or stand-alone F# source code).</p>
 <span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> 
     <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>)
     <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+
+<span class="k">let</span> <span class="i">parsingOptions</span>, <span class="i">_errors</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">GetParsingOptionsFromProjectOptions</span>(<span class="i">projOptions</span>)
 </code></pre></td>
 </tr>
 </table>
 <p>To perform type checking, we first need to parse the input using
-<code>ParseFileInProject</code>, which gives us access to the <a href="untypedtree.html">untyped AST</a>. However,
+<code>ParseFile</code>, which gives us access to the <a href="untypedtree.html">untyped AST</a>. However,
 then we need to call <code>CheckFileInProject</code> to perform the full type checking. This function
 also requires the result of <code>ParseFileInProject</code>, so the two functions are often called
 together.</p>
@@ -118,10 +122,12 @@ together.</p>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
+<span class="l">5: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Perform parsing  </span>
+
 <span class="k">let</span> <span class="i">parseFileResults</span> <span class="o">=</span> 
-    <span class="i">checker</span><span class="o">.</span><span class="i">ParseFileInProject</span>(<span class="i">file</span>, <span class="i">input</span>, <span class="i">projOptions</span>) 
+    <span class="i">checker</span><span class="o">.</span><span class="i">ParseFile</span>(<span class="i">file</span>, <span class="i">input</span>, <span class="i">parsingOptions</span>) 
     <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
 </code></pre></td>
 </tr>

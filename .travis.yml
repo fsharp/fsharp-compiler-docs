@@ -27,10 +27,6 @@ script:
 #
 # This fails because Nuget packaging doesn't like backslashes in the package file, but Windows does
 #  - ./fcs/build.sh NuGet
-# 
-# Not sure i this works, depends on the state of the .NET Standard build on Travis
-#  - ./fcs/build.sh Build
-# 
 
 # Fails on Travis OSX too often because there are network outages on that configuration getting the Mono MDK
 matrix:

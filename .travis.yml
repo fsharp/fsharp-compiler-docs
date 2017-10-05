@@ -29,10 +29,13 @@ script:
 #  - ./fcs/build.sh NuGet
 
 # Fails on Travis OSX too often because there are network outages on that configuration getting the Mono MDK
+# Fails on Travis Linux with Mono latest do to a trust issue with certs on package restore?
 matrix:
   exclude:
     - os: osx
       mono: 4.4.2
     - os: osx
       mono: 4.8.0
+    - os: linux
+      mono: latest
 

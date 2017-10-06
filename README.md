@@ -38,7 +38,7 @@ Packages:
 Build Status
 ------------
 
-Head (branch ``master``), Mono, Linux/OSX + unit tests (Travis) [![Build Status](https://travis-ci.org/fsharp/FSharp.Compiler.Service.png?branch=master)](https://travis-ci.org/fsharp/FSharp.Compiler.Service/branches)
+Head (branch ``master``), Mono, Linux/OSX + unit tests (Travis) [![Build Status](https://travis-ci.org/fsharp/FSharp.Compiler.Service.png?branch=master)](https://travis-ci.org/fsharp/FSharp.Compiler.Service.svg?branch=master)
 
 Head (branch ``master``), Windows Server 2012 R2 + VS2015 + unit tests (AppVeyor)  [![Build status](https://ci.appveyor.com/api/projects/status/3yllu2qh19brk61d?svg=true)](https://ci.appveyor.com/project/fsgit/fsharp-compiler-service)
 

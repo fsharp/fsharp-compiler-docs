@@ -908,7 +908,7 @@ type TypeCheckInfo
             (fun () ->
                 /// Find items in the best naming environment.
                 let (nenv, ad), m = GetBestEnvForPos cursorPos
-                NameResolution.IsItemResolvable ncenv nenv m ad plid symbolUse.Item)
+                NameResolution.IsItemResolvable ncenv nenv m ad plid symbolUse.Symbol.Item)
             (fun msg ->
                 Trace.TraceInformation(sprintf "FCS: recovering from error in IsRelativeNameResolvable: '%s'" msg)
                 false)

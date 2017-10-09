@@ -901,6 +901,18 @@ type TypeCheckInfo
                 Trace.TraceInformation(sprintf "FCS: recovering from error in IsRelativeNameResolvable: '%s'" msg)
                 false)
         
+    /// Determines if a long ident is resolvable at a specific point.
+    member __.IsRelativeNameResolvable(cursorPos: pos, plid: string list, symbolUse: FSharpSymbolUse) : bool =
+        ErrorScope.Protect
+            Range.range0
+            (fun () ->
+                /// Find items in the best naming environment.
+                let (nenv, ad), m = GetBestEnvForPos cursorPos
+                NameResolution.IsItemResolvable ncenv nenv m ad plid symbolUse.Symbol.Item)
+            (fun msg ->
+                Trace.TraceInformation(sprintf "FCS: recovering from error in IsRelativeNameResolvable: '%s'" msg)
+                false)
+
     /// Get the auto-complete items at a location
     member __.GetDeclarations (ctok, parseResultsOpt, line, lineStr, colAtEndOfNamesAndResidue, qualifyingNames, partialName, getAllSymbols, hasTextChangedSinceLastTypecheck) =
         let isInterfaceFile = SourceFileImpl.IsInterfaceFile mainInputFileName

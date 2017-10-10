@@ -136,6 +136,7 @@ Target "Test.NetStd" (fun _ ->
 Target "Nuget.AddNetStd" (fun _ ->
     let nupkg = sprintf "%s/FSharp.Compiler.Service.%s.nupkg" releaseDir release.AssemblyVersion
     let netcoreNupkg = sprintf "FSharp.Compiler.Service.netstandard/bin/Release/FSharp.Compiler.Service.%s.nupkg" release.AssemblyVersion
+    runCmdIn __SOURCE_DIRECTORY__ "dotnet" "restore tools.fsproj"
     runCmdIn __SOURCE_DIRECTORY__ "dotnet" "mergenupkg --source %s --other %s --framework netstandard1.6" nupkg netcoreNupkg
 )
 

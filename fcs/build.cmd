@@ -2,11 +2,6 @@
 .nuget\NuGet.exe restore -PackagesDirectory packages
 setlocal
 cd fcs
-.paket\paket.bootstrapper.exe
-if errorlevel 1 (
-  endlocal
-  exit /b %errorlevel%
-)
 
 .paket\paket.exe restore
 if errorlevel 1 (

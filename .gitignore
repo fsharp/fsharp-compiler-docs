@@ -221,3 +221,8 @@ tests/fsharpqa/testenv/bin/System.ValueTuple.dll
 lib/netcore/fsc/bin/
 
 !lib/bootstrap/signed/**/*
+*/.fake
+/fcs/packages/
+*/paket-files/
+/fcs/TestResult.xml
+/tests/fcs/

@@ -1,4 +1,5 @@
 language: csharp
+sudo: required
 
 os:
   - linux
@@ -10,9 +11,6 @@ mono:
   - 4.8.0
   - 4.4.2
 
-
-sudo: false
-
 install:
 
 script: 
@@ -23,7 +21,6 @@ script:
 # This fails because NUnit gives an exception (!!!!)
 #  - ./fcs/build.sh Test.NetFx
 # 
-# System.IO.FileNotFoundException: Could not load file or assembly 'nunit.engine.api, Version=3.0.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb' or one of its dependencies.
 #
 # This fails because Nuget packaging doesn't like backslashes in the package file, but Windows does
 #  - ./fcs/build.sh NuGet

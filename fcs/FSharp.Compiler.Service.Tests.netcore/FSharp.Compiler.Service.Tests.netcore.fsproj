@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
@@ -56,4 +57,5 @@
     <Exec Command="dotnet restore &quot;$(MSBuildProjectDirectory)/../../tests/projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/Sample_NETCoreSDK_FSharp_Library_netstandard1.6.fsproj&quot;" />
     <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)/../../tests/projects/Sample_NETCoreSDK_FSharp_Library_netstandard1.6/Sample_NETCoreSDK_FSharp_Library_netstandard1.6.fsproj&quot;" />
   </Target>
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

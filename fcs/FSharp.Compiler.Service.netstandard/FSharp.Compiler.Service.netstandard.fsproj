@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <FSharpSourcesRoot>$(MSBuildProjectDirectory)\..\..\src</FSharpSourcesRoot>
@@ -646,5 +647,7 @@
   </ItemGroup>
   <Import Project="$(FSharpSourcesRoot)\scripts\fssrgen.targets" />
   <Import Project="$(FSharpSourcesRoot)\..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets" />
-	<Target Name="GenerateCode" AfterTargets="Restore" BeforeTargets="BeforeBuild"       DependsOnTargets="CallFsLex;CallFsYacc;ProcessFsSrGen"></Target>
+  <Target Name="GenerateCode" AfterTargets="Restore" BeforeTargets="BeforeBuild" DependsOnTargets="CallFsLex;CallFsYacc;ProcessFsSrGen">
+  </Target>
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

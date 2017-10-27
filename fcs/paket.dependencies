@@ -10,3 +10,5 @@ nuget Microsoft.Build.Framework 14.3.0
 nuget Microsoft.Build.Engine 14.3.0
 nuget Microsoft.Build 14.3.0
 nuget System.Threading.Tasks.Dataflow 4.5.24.0
+clitool dotnet-mergenupkg
+clitool dotnet-fssrgen

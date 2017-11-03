@@ -2,7 +2,7 @@ framework: net45, net46
 
 source https://www.nuget.org/api/v2/
 
-nuget FAKE
+nuget FAKE prerelease
 nuget FSharp.Formatting
 
 nuget Microsoft.Build.Utilities.Core 14.3.0

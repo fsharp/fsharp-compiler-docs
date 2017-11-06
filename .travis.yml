@@ -10,7 +10,7 @@ mono:
   - 4.8.0
   - 4.4.2
 
-dotnet: 2.0.2
+dotnet: 2.0.0
 
 sudo: false
 

@@ -1,4 +1,4 @@
-#### 17.0.1
+#### 17.0.2
   * Integrate visualfsharp master
   
 #### 16.0.3

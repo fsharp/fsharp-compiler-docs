@@ -69,11 +69,11 @@ ASTを取得するために、ファイル名とソースコードを受け取�
 let getUntypedTree (file, input) = 
   // 1つのスクリプトファイルから推測される「プロジェクト」用の
   // コンパイラオプションを取得する
-  let projectOptions =
+  let projectOptions, _errors =
       checker.GetProjectOptionsFromScript(file, input) 
       |> Async.RunSynchronously
 
-  let parsingOptions, _errors = checker.GetParsingOptionsFromProjectOptions(projOptions)
+  let parsingOptions, _errors = checker.GetParsingOptionsFromProjectOptions(projectOptions)
 
   // コンパイラの第1フェーズを実行する
   let untypedRes = 

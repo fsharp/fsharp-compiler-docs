@@ -57,11 +57,11 @@ this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitl
 <span class="l">6: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
-<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
-<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">IO</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
 
 <span class="c">// Create an interactive checker instance </span>
-<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
 </code></pre></td>
 </tr>
 </table>
@@ -79,11 +79,11 @@ this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitl
 <span class="l">11: </span>
 <span class="l">12: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">fn</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>()
-<span class="k">let</span> <span class="i">fn2</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">fn</span>, <span class="s">&quot;.fsx&quot;</span>)
-<span class="k">let</span> <span class="i">fn3</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">fn</span>, <span class="s">&quot;.dll&quot;</span>)
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">fn</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="f">GetTempFileName</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 10)" onmouseover="showTip(event, 'fs10', 10)" class="i">fn2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 11)" onmouseover="showTip(event, 'fs8', 11)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="f">ChangeExtension</span>(<span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="i">fn</span>, <span class="s">&quot;.fsx&quot;</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 14)" onmouseover="showTip(event, 'fs12', 14)" class="i">fn3</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 16)" onmouseover="showTip(event, 'fs11', 16)" class="f">ChangeExtension</span>(<span onmouseout="hideTip(event, 'fs7', 17)" onmouseover="showTip(event, 'fs7', 17)" class="i">fn</span>, <span class="s">&quot;.dll&quot;</span>)
 
-<span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">fn2</span>, <span class="s">&quot;&quot;&quot;</span>
+<span onmouseout="hideTip(event, 'fs13', 18)" onmouseover="showTip(event, 'fs13', 18)" class="t">File</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 19)" onmouseover="showTip(event, 'fs14', 19)" class="f">WriteAllText</span>(<span onmouseout="hideTip(event, 'fs10', 20)" onmouseover="showTip(event, 'fs10', 20)" class="i">fn2</span>, <span class="s">&quot;&quot;&quot;</span>
 <span class="s">module M</span>
 
 <span class="s">type C() = </span>
@@ -97,7 +97,7 @@ this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitl
 <p>Now invoke the compiler:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">errors1</span>, <span class="i">exitCode1</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">Compile</span>([| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |])
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 21)" onmouseover="showTip(event, 'fs15', 21)" class="i">errors1</span>, <span onmouseout="hideTip(event, 'fs16', 22)" onmouseover="showTip(event, 'fs16', 22)" class="i">exitCode1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 23)" onmouseover="showTip(event, 'fs6', 23)" class="i">checker</span><span class="o">.</span><span class="i">Compile</span>([| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;-o&quot;</span>; <span onmouseout="hideTip(event, 'fs12', 24)" onmouseover="showTip(event, 'fs12', 24)" class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span onmouseout="hideTip(event, 'fs10', 25)" onmouseover="showTip(event, 'fs10', 25)" class="i">fn2</span> |])
 </code></pre></td>
 </tr>
 </table>
@@ -110,13 +110,13 @@ this choice by passing a reference to FSharp.Core for 4.3.1.0 or later explicitl
 <span class="l">6: </span>
 <span class="l">7: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">fn2</span>, <span class="s">&quot;&quot;&quot;</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs13', 26)" onmouseover="showTip(event, 'fs13', 26)" class="t">File</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 27)" onmouseover="showTip(event, 'fs14', 27)" class="f">WriteAllText</span>(<span onmouseout="hideTip(event, 'fs10', 28)" onmouseover="showTip(event, 'fs10', 28)" class="i">fn2</span>, <span class="s">&quot;&quot;&quot;</span>
 <span class="s">module M</span>
 
 <span class="s">let x = 1.0 + &quot;&quot; // a type error</span>
 <span class="s">&quot;&quot;&quot;</span>)
 
-<span class="k">let</span> <span class="i">errors1b</span>, <span class="i">exitCode1b</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">Compile</span>([| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |])
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 29)" onmouseover="showTip(event, 'fs17', 29)" class="i">errors1b</span>, <span onmouseout="hideTip(event, 'fs18', 30)" onmouseover="showTip(event, 'fs18', 30)" class="i">exitCode1b</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 31)" onmouseover="showTip(event, 'fs6', 31)" class="i">checker</span><span class="o">.</span><span class="i">Compile</span>([| <span class="s">&quot;fsc.exe&quot;</span>; <span class="s">&quot;-o&quot;</span>; <span onmouseout="hideTip(event, 'fs12', 32)" onmouseover="showTip(event, 'fs12', 32)" class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span onmouseout="hideTip(event, 'fs10', 33)" onmouseover="showTip(event, 'fs10', 33)" class="i">fn2</span> |])
 </code></pre></td>
 </tr>
 </table>
@@ -135,18 +135,46 @@ is not really an option.</p>
 <span class="l">7: </span>
 <span class="l">8: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">errors2</span>, <span class="i">exitCode2</span>, <span class="i">dynAssembly2</span> <span class="o">=</span> 
-    <span class="i">checker</span><span class="o">.</span><span class="i">CompileToDynamicAssembly</span>([| <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |], <span class="i">execute</span><span class="o">=</span><span class="i">None</span>)
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs19', 34)" onmouseover="showTip(event, 'fs19', 34)" class="i">errors2</span>, <span onmouseout="hideTip(event, 'fs20', 35)" onmouseover="showTip(event, 'fs20', 35)" class="i">exitCode2</span>, <span onmouseout="hideTip(event, 'fs21', 36)" onmouseover="showTip(event, 'fs21', 36)" class="i">dynAssembly2</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs6', 37)" onmouseover="showTip(event, 'fs6', 37)" class="i">checker</span><span class="o">.</span><span class="i">CompileToDynamicAssembly</span>([| <span class="s">&quot;-o&quot;</span>; <span onmouseout="hideTip(event, 'fs12', 38)" onmouseover="showTip(event, 'fs12', 38)" class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span onmouseout="hideTip(event, 'fs10', 39)" onmouseover="showTip(event, 'fs10', 39)" class="i">fn2</span> |], <span class="i">execute</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs22', 40)" onmouseover="showTip(event, 'fs22', 40)" class="i">None</span>)
 
 <span class="c">(*</span>
 <span class="c">Passing &#39;Some&#39; for the &#39;execute&#39; parameter executes  the initiatlization code for the assembly.</span>
 <span class="c">*)</span>
-<span class="k">let</span> <span class="i">errors3</span>, <span class="i">exitCode3</span>, <span class="i">dynAssembly3</span> <span class="o">=</span> 
-    <span class="i">checker</span><span class="o">.</span><span class="i">CompileToDynamicAssembly</span>([| <span class="s">&quot;-o&quot;</span>; <span class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span class="i">fn2</span> |], <span class="i">Some</span>(<span class="i">stdout</span>,<span class="i">stderr</span>))
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs23', 41)" onmouseover="showTip(event, 'fs23', 41)" class="i">errors3</span>, <span onmouseout="hideTip(event, 'fs24', 42)" onmouseover="showTip(event, 'fs24', 42)" class="i">exitCode3</span>, <span onmouseout="hideTip(event, 'fs25', 43)" onmouseover="showTip(event, 'fs25', 43)" class="i">dynAssembly3</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs6', 44)" onmouseover="showTip(event, 'fs6', 44)" class="i">checker</span><span class="o">.</span><span class="i">CompileToDynamicAssembly</span>([| <span class="s">&quot;-o&quot;</span>; <span onmouseout="hideTip(event, 'fs12', 45)" onmouseover="showTip(event, 'fs12', 45)" class="i">fn3</span>; <span class="s">&quot;-a&quot;</span>; <span onmouseout="hideTip(event, 'fs10', 46)" onmouseover="showTip(event, 'fs10', 46)" class="i">fn2</span> |], <span onmouseout="hideTip(event, 'fs26', 47)" onmouseover="showTip(event, 'fs26', 47)" class="i">Some</span>(<span onmouseout="hideTip(event, 'fs27', 48)" onmouseover="showTip(event, 'fs27', 48)" class="i">stdout</span>,<span onmouseout="hideTip(event, 'fs28', 49)" onmouseover="showTip(event, 'fs28', 49)" class="i">stderr</span>))
 </code></pre></td>
 </tr>
 </table>
 
+<div class="tip" id="fs1">namespace System</div>
+<div class="tip" id="fs2">namespace System.IO</div>
+<div class="tip" id="fs3">namespace Microsoft</div>
+<div class="tip" id="fs4">namespace Microsoft.FSharp</div>
+<div class="tip" id="fs5">namespace Microsoft.FSharp.Compiler</div>
+<div class="tip" id="fs6">val checker : obj<br /><br />Full name: Compiler.checker</div>
+<div class="tip" id="fs7">val fn : string<br /><br />Full name: Compiler.fn</div>
+<div class="tip" id="fs8">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : [&lt;ParamArray&gt;] paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string<br />&#160;&#160;static member GetExtension : path:string -&gt; string<br />&#160;&#160;static member GetFileName : path:string -&gt; string<br />&#160;&#160;...<br /><br />Full name: System.IO.Path</div>
+<div class="tip" id="fs9">Path.GetTempFileName() : string</div>
+<div class="tip" id="fs10">val fn2 : string<br /><br />Full name: Compiler.fn2</div>
+<div class="tip" id="fs11">Path.ChangeExtension(path: string, extension: string) : string</div>
+<div class="tip" id="fs12">val fn3 : string<br /><br />Full name: Compiler.fn3</div>
+<div class="tip" id="fs13">type File =<br />&#160;&#160;static member AppendAllLines : path:string * contents:IEnumerable&lt;string&gt; -&gt; unit + 1 overload<br />&#160;&#160;static member AppendAllText : path:string * contents:string -&gt; unit + 1 overload<br />&#160;&#160;static member AppendText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Copy : sourceFileName:string * destFileName:string -&gt; unit + 1 overload<br />&#160;&#160;static member Create : path:string -&gt; FileStream + 3 overloads<br />&#160;&#160;static member CreateText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Decrypt : path:string -&gt; unit<br />&#160;&#160;static member Delete : path:string -&gt; unit<br />&#160;&#160;static member Encrypt : path:string -&gt; unit<br />&#160;&#160;static member Exists : path:string -&gt; bool<br />&#160;&#160;...<br /><br />Full name: System.IO.File</div>
+<div class="tip" id="fs14">File.WriteAllText(path: string, contents: string) : unit<br />File.WriteAllText(path: string, contents: string, encoding: System.Text.Encoding) : unit</div>
+<div class="tip" id="fs15">val errors1 : obj<br /><br />Full name: Compiler.errors1</div>
+<div class="tip" id="fs16">val exitCode1 : obj<br /><br />Full name: Compiler.exitCode1</div>
+<div class="tip" id="fs17">val errors1b : obj<br /><br />Full name: Compiler.errors1b</div>
+<div class="tip" id="fs18">val exitCode1b : obj<br /><br />Full name: Compiler.exitCode1b</div>
+<div class="tip" id="fs19">val errors2 : obj<br /><br />Full name: Compiler.errors2</div>
+<div class="tip" id="fs20">val exitCode2 : obj<br /><br />Full name: Compiler.exitCode2</div>
+<div class="tip" id="fs21">val dynAssembly2 : obj<br /><br />Full name: Compiler.dynAssembly2</div>
+<div class="tip" id="fs22">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs23">val errors3 : obj<br /><br />Full name: Compiler.errors3</div>
+<div class="tip" id="fs24">val exitCode3 : obj<br /><br />Full name: Compiler.exitCode3</div>
+<div class="tip" id="fs25">val dynAssembly3 : obj<br /><br />Full name: Compiler.dynAssembly3</div>
+<div class="tip" id="fs26">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs27">val stdout&lt;&#39;T&gt; : TextWriter<br /><br />Full name: Microsoft.FSharp.Core.Operators.stdout</div>
+<div class="tip" id="fs28">val stderr&lt;&#39;T&gt; : TextWriter<br /><br />Full name: Microsoft.FSharp.Core.Operators.stderr</div>
 
         </div>
         <div class="span3">

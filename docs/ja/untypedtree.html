@@ -121,7 +121,7 @@
       <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>) 
       <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
 
-  <span class="k">let</span> <span class="i">parsingOptions</span>, <span class="i">_errors</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">GetParsingOptionsFromProjectOptions</span>(<span class="i">projOptions</span>)
+  <span class="k">let</span> <span class="i">parsingOptions</span>, <span class="i">_errors</span> <span class="o">=</span> <span class="i">checker</span><span class="o">.</span><span class="i">GetParsingOptionsFromProjectOptions</span>(<span class="i">projectOptions</span>)
 
   <span class="c">// コンパイラの第1フェーズを実行する</span>
   <span class="k">let</span> <span class="i">untypedRes</span> <span class="o">=</span> 

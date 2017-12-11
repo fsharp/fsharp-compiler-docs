@@ -955,23 +955,26 @@ type TypeCheckInfo
                     // Remove all duplicates. We've put the types first, so this removes the DelegateCtor and DefaultStructCtor's.
                     let items = items |> RemoveDuplicateCompletionItems g
 
-                    // Group by display name
+                    // Group by DisplayName, then namespace
+                    // (We don't want types with the same display name to be grouped as overloads)
                     let items =
-                        items |> List.groupBy (fun d -> d.Item.DisplayName) 
+                        items |> List.groupBy (fun d -> d.Item.DisplayName, d.Unresolved)
 
                     // Filter out operators (and list)
                     let items = 
                         // Check whether this item looks like an operator.
-                        let isOpItem(nm, item: CompletionItem list) = 
+                        let isOpItem(displayName, item: CompletionItem list) = 
                             match item |> List.map (fun x -> x.Item) with 
                             | [Item.Value _]
-                            | [Item.MethodGroup(_,[_],_)] -> IsOperatorName nm
-                            | [Item.UnionCase _] -> IsOperatorName nm
+                            | [Item.MethodGroup(_,[_],_)] -> IsOperatorName displayName
+                            | [Item.UnionCase _] -> IsOperatorName displayName
                             | _ -> false              
 
-                        let isFSharpList nm = (nm = "[]") // list shows up as a Type and a UnionCase, only such entity with a symbolic name, but want to filter out of intellisense
+                        let isFSharpList displayName = displayName = "[]" // list shows up as a Type and a UnionCase, only such entity with a symbolic name, but want to filter out of intellisense
 
-                        items |> List.filter (fun (nm,items) -> not (isOpItem(nm,items)) && not(isFSharpList nm)) 
+                        items |> List.filter (fun ((displayName,_),items) -> 
+                            not (isOpItem(displayName,items)) 
+                            && not(isFSharpList displayName)) 
 
 
                     let items = 

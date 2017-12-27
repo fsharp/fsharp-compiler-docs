@@ -109,7 +109,7 @@ Target "BuildVersion" (fun _ ->
 
 Target "Build.NetFx" (fun _ ->
     !! "FSharp.Compiler.Service.sln"
-    |> MSBuild "" "Build" ["Configuration","Release" ]
+    |> MSBuild "" "Build" ["Configuration","Release"; "SourceLinkCreate","true"]
     |> Log (".NETFxBuild-Output: ")
 )
 

@@ -27,5 +27,4 @@ GROUP SourceLink
 STORAGE: NONE
 NUGET
   remote: https://www.nuget.org/api/v2
-    SourceLink.Create.CommandLine (2.7)
-    SourceLink.Embed.PaketFiles (2.7)
+    SourceLink.Create.GitHub (2.7)

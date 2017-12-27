@@ -18,7 +18,7 @@ CleanDir (__SOURCE_DIRECTORY__ + "/../tests/TestResults")
 File.WriteAllText(__SOURCE_DIRECTORY__ + "/../tests/TestResults/notestsyet.txt","No tests yet")
 #endif
 
-let dotnetExePath = DotNetCli.InstallDotNetSDK "2.0.2"
+let dotnetExePath = DotNetCli.InstallDotNetSDK "2.1.3"
 
 let runDotnet workingDir args =
     let result =

@@ -5,6 +5,7 @@ init:
 
 build_script:
   # dotnet installed by FAKE
+  - cmd: set DOTNET_CLI_TELEMETRY_OPTOUT=1
   - ps: $env:path = "$env:localappdata\dotnetcore;$env:path"
   - cmd: fcs\build.cmd TestAndNuGet
   - cmd: dotnet --info

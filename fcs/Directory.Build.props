@@ -1,6 +1,6 @@
 <Project>
   <ItemGroup>
-    <PackageReference Include="SourceLink.Create.GitHub" Version="2.7.0-b645" PrivateAssets="All" />
-    <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.7.0-b645" />
+    <PackageReference Include="SourceLink.Create.GitHub" Version="2.7.0-b647" PrivateAssets="All" />
+    <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.7.0-b647" />
   </ItemGroup>
 </Project>

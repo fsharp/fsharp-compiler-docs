@@ -668,5 +668,11 @@
   <ItemGroup>
     <EmbeddedFiles Include="$(IntermediateOutputPath)FSComp.fs" />
     <EmbeddedFiles Include="$(IntermediateOutputPath)FSIStrings.fs" />
+    <EmbeddedFiles Include="lex.fs" />
+    <EmbeddedFiles Include="pplex.fs" />
+    <EmbeddedFiles Include="pars.fs" />
+    <EmbeddedFiles Include="pppars.fs" />
+    <EmbeddedFiles Include="illex.fs" />
+    <EmbeddedFiles Include="ilpars.fs" />
   </ItemGroup>
 </Project>

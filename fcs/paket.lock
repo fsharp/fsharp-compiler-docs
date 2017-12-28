@@ -27,13 +27,13 @@ GROUP SourceLink
 STORAGE: NONE
 NUGET
   remote: https://ci.appveyor.com/nuget/sourcelink
-    dotnet-sourcelink-git (2.7.0-b647) - clitool: true
+    dotnet-sourcelink-git (2.7.1) - clitool: true
       LibGit2Sharp.Portable (>= 0.24.10) - restriction: >= netcoreapp1.0
       Microsoft.Extensions.CommandLineUtils (>= 1.1.1) - restriction: >= netcoreapp1.0
       Microsoft.NETCore.App (>= 1.0.5) - restriction: && (>= netcoreapp1.0) (< netcoreapp2.0)
       Microsoft.NETCore.App (>= 2.0) - restriction: >= netcoreapp2.0
       Newtonsoft.Json (>= 10.0.3) - restriction: >= netcoreapp1.0
-    SourceLink.Create.GitHub (2.7.0-b647)
+    SourceLink.Create.GitHub (2.7.1)
   remote: https://www.nuget.org/api/v2
     LibGit2Sharp.NativeBinaries (1.0.165) - restriction: >= netcoreapp1.0
     LibGit2Sharp.Portable (0.24.10) - restriction: >= netcoreapp1.0

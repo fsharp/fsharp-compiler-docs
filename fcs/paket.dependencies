@@ -14,6 +14,5 @@ nuget System.Threading.Tasks.Dataflow 4.5.24.0
 group SourceLink
   storage: none
   source https://www.nuget.org/api/v2/
-  source https://ci.appveyor.com/nuget/sourcelink/
-  nuget SourceLink.Create.GitHub 2.7.0-b647
-  clitool dotnet-sourcelink-git 2.7.0-b647
+  nuget SourceLink.Create.GitHub 2.7.1
+  clitool dotnet-sourcelink-git 2.7.1

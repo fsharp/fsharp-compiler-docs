@@ -665,4 +665,8 @@
   <Import Project="$(FSharpSourcesRoot)\scripts\fssrgen.targets" />
   <Import Project="$(FSharpSourcesRoot)\..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets" />
 	<Target Name="GenerateCode" AfterTargets="Restore" BeforeTargets="BeforeBuild"       DependsOnTargets="CallFsLex;CallFsYacc;ProcessFsSrGen"></Target>
+  <ItemGroup>
+    <EmbeddedFiles Include="$(IntermediateOutputPath)FSComp.fs" />
+    <EmbeddedFiles Include="$(IntermediateOutputPath)FSIStrings.fs" />
+  </ItemGroup>
 </Project>

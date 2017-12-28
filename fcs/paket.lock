@@ -27,4 +27,4 @@ GROUP SourceLink
 STORAGE: NONE
 NUGET
   remote: https://ci.appveyor.com/nuget/sourcelink
-    SourceLink.Create.CommandLine (2.7.2-b652)
+    SourceLink.Create.CommandLine (2.7.2-b654)

@@ -14,5 +14,4 @@ nuget System.Threading.Tasks.Dataflow 4.5.24.0
 group SourceLink
   storage: none
   source https://www.nuget.org/api/v2/
-  source https://ci.appveyor.com/nuget/sourcelink/
-  nuget SourceLink.Create.CommandLine 2.7.2-b654
+  nuget SourceLink.Create.CommandLine 2.7.2

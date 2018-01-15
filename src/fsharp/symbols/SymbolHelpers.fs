@@ -13,7 +13,6 @@ open System.IO
 
 open Microsoft.FSharp.Core.Printf
 open Microsoft.FSharp.Compiler 
-open Microsoft.FSharp.Compiler.AbstractIL.IL 
 open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library  
 open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
 
@@ -31,7 +30,6 @@ open Microsoft.FSharp.Compiler.TcGlobals
 open Microsoft.FSharp.Compiler.Infos
 open Microsoft.FSharp.Compiler.NameResolution
 open Microsoft.FSharp.Compiler.InfoReader
-open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.CompileOps
 
 module EnvMisc2 =
@@ -152,15 +150,14 @@ type internal CompilationErrorLogger (debugName: string, options: FSharpErrorSev
 
     override x.DiagnosticSink(exn, isError) = 
         if isError || ReportWarningAsError options exn then
-            diagnostics.Add(exn, isError)
+            diagnostics.Add(exn, FSharpErrorSeverity.Error)
             errorCount <- errorCount + 1
         else if ReportWarning options exn then
-            diagnostics.Add(exn, isError)
+            diagnostics.Add(exn, FSharpErrorSeverity.Warning)
 
     override x.ErrorCount = errorCount
 
-    member x.GetErrors() = 
-        [ for (e, isError) in diagnostics -> e, (if isError then FSharpErrorSeverity.Error else FSharpErrorSeverity.Warning) ]
+    member x.GetErrors() = List.ofSeq diagnostics
 
 
 /// This represents the global state established as each task function runs as part of the build.
@@ -201,11 +198,7 @@ module ErrorHelpers =
 //----------------------------------------------------------------------------
 // Object model for tooltips and helpers for their generation from items
 
-#if COMPILER_PUBLIC_API
-type Layout = Internal.Utilities.StructuredFormat.Layout
-#else
-type internal Layout = Internal.Utilities.StructuredFormat.Layout
-#endif
+type public Layout = Internal.Utilities.StructuredFormat.Layout
 
 /// Describe a comment as either a block of text or a file+signature reference into an intellidoc file.
 [<RequireQualifiedAccess>]
@@ -241,32 +234,19 @@ type FSharpToolTipElement<'T> =
         Group [ FSharpToolTipElementData<'T>.Create(layout, xml, ?typeMapping=typeMapping, ?paramName=paramName, ?remarks=remarks) ]
 
 /// A single data tip display element with where text is expressed as string
-#if COMPILER_PUBLIC_API
-type FSharpToolTipElement = FSharpToolTipElement<string>
-#else
-type internal FSharpToolTipElement = FSharpToolTipElement<string>
-#endif
+type public FSharpToolTipElement = FSharpToolTipElement<string>
 
 
 /// A single data tip display element with where text is expressed as <see cref="Layout"/>
-#if COMPILER_PUBLIC_API
-type FSharpStructuredToolTipElement = FSharpToolTipElement<Layout>
-#else
-type internal FSharpStructuredToolTipElement = FSharpToolTipElement<Layout>
-#endif
+type public FSharpStructuredToolTipElement = FSharpToolTipElement<Layout>
 
 /// Information for building a data tip box.
 type FSharpToolTipText<'T> = 
     /// A list of data tip elements to display.
     | FSharpToolTipText of FSharpToolTipElement<'T> list  
 
-#if COMPILER_PUBLIC_API
-type FSharpToolTipText = FSharpToolTipText<string>
-type FSharpStructuredToolTipText = FSharpToolTipText<Layout>
-#else
-type internal FSharpToolTipText = FSharpToolTipText<string>
-type internal FSharpStructuredToolTipText = FSharpToolTipText<Layout>
-#endif
+type public FSharpToolTipText = FSharpToolTipText<string>
+type public FSharpStructuredToolTipText = FSharpToolTipText<Layout>
 
 module Tooltips =
     let ToFSharpToolTipElement tooltip = 
@@ -341,14 +321,14 @@ module internal SymbolHelpers =
    
     let rangeOfPropInfo preferFlag (pinfo:PropInfo) =
         match pinfo with
-#if EXTENSIONTYPING 
+#if !NO_EXTENSIONTYPING 
         |   ProvidedProp(_, pi, _) -> ComputeDefinitionLocationOfProvidedItem pi
 #endif
         |   _ -> pinfo.ArbitraryValRef |> Option.map (rangeOfValRef preferFlag)
 
     let rangeOfMethInfo (g:TcGlobals) preferFlag (minfo:MethInfo) = 
         match minfo with
-#if EXTENSIONTYPING 
+#if !NO_EXTENSIONTYPING 
         |   ProvidedMeth(_, mi, _, _) -> ComputeDefinitionLocationOfProvidedItem mi
 #endif
         |   DefaultStructCtor(_, AppTy g (tcref, _)) -> Some(rangeOfEntityRef preferFlag tcref)
@@ -356,7 +336,7 @@ module internal SymbolHelpers =
 
     let rangeOfEventInfo preferFlag (einfo:EventInfo) = 
         match einfo with
-#if EXTENSIONTYPING 
+#if !NO_EXTENSIONTYPING 
         | ProvidedEvent (_, ei, _) -> ComputeDefinitionLocationOfProvidedItem ei
 #endif
         | _ -> einfo.ArbitraryValRef |> Option.map (rangeOfValRef preferFlag)
@@ -402,7 +382,7 @@ module internal SymbolHelpers =
 
     // Provided type definitions do not have a useful F# CCU for the purposes of goto-definition.
     let computeCcuOfTyconRef (tcref:TyconRef) = 
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
         if tcref.IsProvided then None else 
 #endif
         ccuOfTyconRef tcref
@@ -561,7 +541,7 @@ module internal SymbolHelpers =
 
                 Some (ccuFileName, "M:"+actualTypeName+"."+normalizedName+genArity+XmlDocArgsEnc g (formalTypars, fmtps) args)
         | DefaultStructCtor _ -> None
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
         | ProvidedMeth _ -> None
 #endif
 
@@ -577,7 +557,7 @@ module internal SymbolHelpers =
 
     let GetXmlDocSigOfProp infoReader m pinfo =
         match pinfo with 
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
         | ProvidedProp _ -> None // No signature is possible. If an xml comment existed it would have been returned by PropInfo.XmlDoc in infos.fs
 #endif
         | FSProp (g, typ, _, _) as fspinfo -> 
@@ -782,7 +762,7 @@ module internal SymbolHelpers =
             protectAssemblyExploration 1027 (fun () -> 
               match item with 
               | ItemWhereTypIsPreferred ty -> 
-                  if isAppTy g ty then hash (tcrefOfAppTy g ty).Stamp
+                  if isAppTy g ty then hash (tcrefOfAppTy g ty).LogicalName
                   else 1010
               | Item.ILField(ILFieldInfo(_, fld)) -> 
                   System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode fld // hash on the object identity of the AbstractIL metadata blob for the field
@@ -795,12 +775,12 @@ module internal SymbolHelpers =
               | Item.CtorGroup(name, meths) -> name.GetHashCode() + (meths |> List.fold (fun st a -> st + a.ComputeHashCode()) 0)
               | (Item.Value vref | Item.CustomBuilder (_, vref)) -> hash vref.LogicalName
               | Item.ActivePatternCase(APElemRef(_apinfo, vref, idx)) -> hash (vref.LogicalName, idx)
-              | Item.ExnCase(tcref) -> hash tcref.Stamp
+              | Item.ExnCase(tcref) -> hash tcref.LogicalName
               | Item.UnionCase(UnionCaseInfo(_, UCRef(tcref, n)), _) -> hash(tcref.Stamp, n)
               | Item.RecdField(RecdFieldInfo(_, RFRef(tcref, n))) -> hash(tcref.Stamp, n)
               | Item.Event evt -> evt.ComputeHashCode()
               | Item.Property(_name, pis) -> hash (pis |> List.map (fun pi -> pi.ComputeHashCode()))
-              | Item.UnqualifiedType(tcref :: _) -> hash tcref.Stamp
+              | Item.UnqualifiedType(tcref :: _) -> hash tcref.LogicalName
               | _ -> failwith "unreachable") }
 
     let CompletionItemDisplayPartialEquality g = 
@@ -1230,7 +1210,7 @@ module internal SymbolHelpers =
         |  _ -> 
             FSharpStructuredToolTipElement.None
 
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
 
     /// Determine if an item is a provided type 
     let (|ItemIsProvidedType|_|) g item =
@@ -1306,7 +1286,7 @@ module internal SymbolHelpers =
                 sprintf "%s.%s%s" typeString minfo.RawMetadata.Name paramString |> Some
 
             | DefaultStructCtor _  -> None
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
             | ProvidedMeth _ -> None
 #endif
              
@@ -1337,7 +1317,7 @@ module internal SymbolHelpers =
              match finfo with 
              | ILFieldInfo(tinfo, fdef) -> 
                  (tinfo.TyconRef |> ticksAndArgCountTextOfTyconRef)+"."+fdef.Name |> Some
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
              | ProvidedField _ -> None
 #endif
         | Item.Types(_, ((AppTy g (tcref, _)) :: _)) 
@@ -1363,7 +1343,7 @@ module internal SymbolHelpers =
                 // namespaces from type providers need to be handled separately because they don't have compiled representation
                 // otherwise we'll fail at tast.fs
                 match modref.Deref.TypeReprInfo with
-#if EXTENSIONTYPING                
+#if !NO_EXTENSIONTYPING                
                 | TProvidedNamespaceExtensionPoint _ -> 
                     modref.CompilationPathOpt
                     |> Option.bind (fun path ->
@@ -1391,7 +1371,7 @@ module internal SymbolHelpers =
                 let tcref = tinfo.TyconRef
                 (tcref |> ticksAndArgCountTextOfTyconRef)+"."+pdef.Name |> Some
             | FSProp _ -> None
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
             | ProvidedProp _ -> None
 #endif
         | Item.Property(_, []) -> None // Pathological case of the above
@@ -1410,7 +1390,7 @@ module internal SymbolHelpers =
                    | Parent tcref -> (tcref |> ticksAndArgCountTextOfTyconRef)+"."+vref.PropertyName|> Some                     
                    | ParentNone -> None
                 | None -> None
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
             | ProvidedEvent _ -> None 
 #endif
         | Item.CtorGroup(_, minfos) ->
@@ -1426,7 +1406,7 @@ module internal SymbolHelpers =
             | (DefaultStructCtor (g, typ) :: _) ->  
                 let tcref = tcrefOfAppTy g typ
                 (ticksAndArgCountTextOfTyconRef tcref) + ".#ctor" |> Some
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
             | ProvidedMeth _::_ -> None
 #endif
         | Item.CustomOperation (_, _, Some minfo) -> getKeywordForMethInfo minfo
@@ -1466,7 +1446,7 @@ module internal SymbolHelpers =
         | Item.Property(_, pinfos) -> 
             let pinfo = List.head pinfos 
             if pinfo.IsIndexer then [item] else []
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
         | ItemIsWithStaticArguments m g _ -> [item] // we pretend that provided-types-with-static-args are method-like in order to get ParamInfo for them
 #endif
         | Item.CustomOperation(_name, _helpText, _minfo) -> [item]

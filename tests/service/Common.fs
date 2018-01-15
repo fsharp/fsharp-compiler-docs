@@ -160,6 +160,23 @@ let mkProjectCommandLineArgsForScript (dllName, fileNames) =
      |]
 #endif
 
+let mkTestFileAndOptions source additionalArgs =
+    let fileName = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+    let project = Path.GetTempFileName()
+    let dllName = Path.ChangeExtension(project, ".dll")
+    let projFileName = Path.ChangeExtension(project, ".fsproj")
+    let fileSource1 = "module M"
+    File.WriteAllText(fileName, fileSource1)
+
+    let args = Array.append (mkProjectCommandLineArgs (dllName, [fileName])) additionalArgs
+    let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+    fileName, options
+
+let parseAndCheckFile fileName source options =
+    match checker.ParseAndCheckFileInProject(fileName, 0, source, options) |> Async.RunSynchronously with
+    | parseResults, FSharpCheckFileAnswer.Succeeded(checkResults) -> parseResults, checkResults
+    | _ -> failwithf "Parsing aborted unexpectedly..."
+
 let parseAndCheckScript (file, input) = 
 
 #if DOTNETCORE
@@ -236,7 +253,7 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsFSharpUnion then yield "union"
             if v.IsInterface then yield "interface"
             if v.IsMeasure then yield "measure"
-#if EXTENSIONTYPING
+#if !NO_EXTENSIONTYPING
             if v.IsProvided then yield "provided"
             if v.IsStaticInstantiation then yield "staticinst"
             if v.IsProvidedAndErased then yield "erased"

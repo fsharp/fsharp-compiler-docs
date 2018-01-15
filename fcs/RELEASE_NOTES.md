@@ -1,3 +1,6 @@
+#### 18.0.1
+  * Integrate visualfsharp master
+  
 #### 17.0.2
   * Integrate visualfsharp master
   

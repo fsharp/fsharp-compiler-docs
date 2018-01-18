@@ -228,3 +228,5 @@ lib/netcore/fsc/bin/
 /tests/fcs/
 /fcs/.paket/Paket.Restore.targets
 msbuild.binlog
+/fcs/FSharp.Compiler.Service.netstandard/*.fs
+/fcs/FSharp.Compiler.Service.netstandard/*.fsi

@@ -60,9 +60,9 @@ which does things like:
 Yu can push the packages if you have permissions, either automatically using ``build Release`` or manually
 
     set APIKEY=...
-    .nuget\nuget.exe push Release\FSharp.Compiler.Service.17.0.1.nupkg %APIKEY% -Source https://nuget.org 
-    .nuget\nuget.exe push Release\FSharp.Compiler.Service.MSBuild.v12.17.0.1.nupkg %APIKEY%  -Source https://nuget.org
-    .nuget\nuget.exe push Release\FSharp.Compiler.Service.ProjectCracker.17.0.1.nupkg %APIKEY%  -Source https://nuget.org
+    .nuget\nuget.exe push Release\FSharp.Compiler.Service.18.0.1.nupkg %APIKEY% -Source https://nuget.org 
+    .nuget\nuget.exe push Release\FSharp.Compiler.Service.MSBuild.v12.18.0.1.nupkg %APIKEY%  -Source https://nuget.org
+    .nuget\nuget.exe push Release\FSharp.Compiler.Service.ProjectCracker.18.0.1.nupkg %APIKEY%  -Source https://nuget.org
     
 
 ### Use of Paket and FAKE

@@ -100,25 +100,30 @@ is best noticed as a single change event.</p>
 <span class="l">16: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">    <span class="c">// Get the service</span>
-    <span class="k">let</span> <span class="i">vsFileWatch</span> <span class="o">=</span> <span class="i">fls</span><span class="o">.</span><span class="i">GetService</span>(<span class="i">typeof</span><span class="o">&lt;</span><span class="i">SVsFileChangeEx</span> <span class="o">&gt;</span>) <span class="o">:?&gt;</span> <span class="i">IVsFileChangeEx</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">vsFileWatch</span> <span class="o">=</span> <span class="i">fls</span><span class="o">.</span><span class="i">GetService</span>(<span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">typeof</span><span class="o">&lt;</span><span class="i">SVsFileChangeEx</span> <span class="o">&gt;</span>) <span class="o">:?&gt;</span> <span class="i">IVsFileChangeEx</span>
 
     <span class="c">// Watch the Add and Change events</span>
-    <span class="k">let</span> <span class="i">fileChangeFlags</span> <span class="o">=</span> 
-        <span class="i">uint32</span> (<span class="i">_VSFILECHANGEFLAGS</span><span class="o">.</span><span class="i">VSFILECHG_Add</span> <span class="o">|||</span> 
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">fileChangeFlags</span> <span class="o">=</span> 
+        <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="f">uint32</span> (<span class="i">_VSFILECHANGEFLAGS</span><span class="o">.</span><span class="i">VSFILECHG_Add</span> <span class="o">|||</span> 
                 <span class="c">// _VSFILECHANGEFLAGS.VSFILECHG_Del ||| // don&#39;t listen for deletes - if a file (such as a &#39;Clean&#39;ed project reference) is deleted, just keep using stale info</span>
                 <span class="i">_VSFILECHANGEFLAGS</span><span class="o">.</span><span class="i">VSFILECHG_Time</span>)
 
     <span class="c">// Advise on file changes...</span>
-    <span class="k">let</span> <span class="i">cookie</span> <span class="o">=</span> <span class="i">Com</span><span class="o">.</span><span class="i">ThrowOnFailure1</span>(<span class="i">vsFileWatch</span><span class="o">.</span><span class="i">AdviseFileChange</span>(<span class="i">file</span>, <span class="i">fileChangeFlags</span>, <span class="i">changeEvents</span>))
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">cookie</span> <span class="o">=</span> <span class="i">Com</span><span class="o">.</span><span class="i">ThrowOnFailure1</span>(<span onmouseout="hideTip(event, 'fs1', 6)" onmouseover="showTip(event, 'fs1', 6)" class="i">vsFileWatch</span><span class="o">.</span><span class="i">AdviseFileChange</span>(<span class="i">file</span>, <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="i">fileChangeFlags</span>, <span class="i">changeEvents</span>))
 
     <span class="o">..</span><span class="o">.</span>
     
     <span class="c">// Unadvise file changes...</span>
-    <span class="i">Com</span><span class="o">.</span><span class="i">ThrowOnFailure0</span>(<span class="i">vsFileWatch</span><span class="o">.</span><span class="i">UnadviseFileChange</span>(<span class="i">cookie</span>))
+    <span class="i">Com</span><span class="o">.</span><span class="i">ThrowOnFailure0</span>(<span onmouseout="hideTip(event, 'fs1', 8)" onmouseover="showTip(event, 'fs1', 8)" class="i">vsFileWatch</span><span class="o">.</span><span class="i">UnadviseFileChange</span>(<span class="i">cookie</span>))
 </code></pre></td>
 </tr>
 </table>
 
+<div class="tip" id="fs1">val vsFileWatch : obj<br /><br />Full name: react.vsFileWatch</div>
+<div class="tip" id="fs2">val typeof&lt;&#39;T&gt; : System.Type<br /><br />Full name: Microsoft.FSharp.Core.Operators.typeof</div>
+<div class="tip" id="fs3">val fileChangeFlags : uint32<br /><br />Full name: react.fileChangeFlags</div>
+<div class="tip" id="fs4">Multiple items<br />val uint32 : value:&#39;T -&gt; uint32 (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.uint32<br /><br />--------------------<br />type uint32 = System.UInt32<br /><br />Full name: Microsoft.FSharp.Core.uint32</div>
+<div class="tip" id="fs5">val cookie : obj<br /><br />Full name: react.cookie</div>
 
         </div>
         <div class="span3">

@@ -148,7 +148,22 @@ A layout can be squashed to for given width which forces breaks as required.</p>
     </div>
   <h2>Microsoft.FSharp.Compiler Namespace</h2>
     <div>
-      <table class="table table-bordered module-list">
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-fsharp-compiler-partiallongname.html">PartialLongName</a>
+          </td>
+          <td class="xmldoc"><p>Qualified long name.</p>
+
+</td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
     <thead>
       <tr><td>Module</td><td>Description</td></tr>
     </thead>
@@ -176,6 +191,25 @@ A layout can be squashed to for given width which forces breaks as required.</p>
             <a href="microsoft-fsharp-compiler-prettynaming.html">PrettyNaming</a>
           </td>
           <td class="xmldoc"><p>Anything to do with special names of identifiers and other lexical rules</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="microsoft-fsharp-compiler-quickparse.html">QuickParse</a>
+          </td>
+          <td class="xmldoc"><p>Methods for cheaply and innacurately parsing F#.</p>
+<p>These methods are very old and are mostly to do with extracting "long identifier islands"
+A.B.C
+from F# source code, an approach taken from pre-F# VS samples for implementing intelliense.</p>
+<p>This code should really no longer be needed since the language service has access to
+parsed F# source code ASTs.  However, the long identifiers are still passed back to GetDeclarations and friends in the
+F# Compiler Service and it's annoyingly hard to remove their use completely.</p>
+<p>In general it is unlikely much progress will be made by fixing this code - it will be better to
+extract more information from the F# ASTs.</p>
+<p>It's also surprising how hard even the job of getting long identifier islands can be. For example the code
+below is inaccurate for long identifier chains involving <code>...</code> identifiers.  And there are special cases
+for active pattern names and so on.</p>
 
 </td>
         </tr>
@@ -721,6 +755,14 @@ with nested declarations (that can be shown in the member drop-down)</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpopendeclaration.html">FSharpOpenDeclaration</a>
+          </td>
+          <td class="xmldoc"><p>Represents open declaration in F# code.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-fsharpparameter.html">FSharpParameter</a>
           </td>
           <td class="xmldoc"><p>A subtype of FSharpSymbol that represents a parameter</p>
@@ -1173,6 +1215,12 @@ or FSharpActivePatternCase.</p>
         </tr>
         <tr>
           <td class="module-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-symbol.html">Symbol</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-tooltips.html">Tooltips</a>
           </td>
           <td class="xmldoc"></td>
@@ -1180,6 +1228,12 @@ or FSharpActivePatternCase.</p>
         <tr>
           <td class="module-name">
             <a href="microsoft-fsharp-compiler-sourcecodeservices-untypedparseimpl.html">UntypedParseImpl</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="microsoft-fsharp-compiler-sourcecodeservices-unusedopens.html">UnusedOpens</a>
           </td>
           <td class="xmldoc"></td>
         </tr>

@@ -58,12 +58,12 @@
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// F#コンパイラAPIへの参照</span>
 <span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
 
-<span class="k">open</span> <span class="i">System</span>
-<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
-<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">System</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 2)" onmouseover="showTip(event, 'fs1', 2)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">IO</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
 
 <span class="c">// インタラクティブチェッカーのインスタンスを作成</span>
-<span class="k">let</span> <span class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="i">checker</span> <span class="o">=</span> <span class="i">FSharpChecker</span><span class="o">.</span><span class="i">Create</span>()
 </code></pre></td>
 </tr>
 </table>
@@ -85,22 +85,22 @@
 <span class="l">15: </span>
 <span class="l">16: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseAndTypeCheckSingleFile</span> (<span class="i">file</span>, <span class="i">input</span>) <span class="o">=</span> 
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="f">parseAndTypeCheckSingleFile</span> (<span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="i">input</span>) <span class="o">=</span> 
     <span class="c">// スタンドアロンの(スクリプト)ファイルを表すコンテキストを取得</span>
-    <span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> 
-        <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>)
-        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="i">projOptions</span> <span class="o">=</span> 
+        <span onmouseout="hideTip(event, 'fs6', 12)" onmouseover="showTip(event, 'fs6', 12)" class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span onmouseout="hideTip(event, 'fs8', 13)" onmouseover="showTip(event, 'fs8', 13)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs9', 14)" onmouseover="showTip(event, 'fs9', 14)" class="i">input</span>)
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs11', 15)" onmouseover="showTip(event, 'fs11', 15)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs12', 16)" onmouseover="showTip(event, 'fs12', 16)" class="f">RunSynchronously</span>
 
-    <span class="k">let</span> <span class="i">parseFileResults</span>, <span class="i">checkFileResults</span> <span class="o">=</span> 
-        <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckFileInProject</span>(<span class="i">file</span>, <span class="n">0</span>, <span class="i">input</span>, <span class="i">projOptions</span>) 
-        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs13', 17)" onmouseover="showTip(event, 'fs13', 17)" class="i">parseFileResults</span>, <span onmouseout="hideTip(event, 'fs14', 18)" onmouseover="showTip(event, 'fs14', 18)" class="i">checkFileResults</span> <span class="o">=</span> 
+        <span onmouseout="hideTip(event, 'fs6', 19)" onmouseover="showTip(event, 'fs6', 19)" class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckFileInProject</span>(<span onmouseout="hideTip(event, 'fs8', 20)" onmouseover="showTip(event, 'fs8', 20)" class="i">file</span>, <span class="n">0</span>, <span onmouseout="hideTip(event, 'fs9', 21)" onmouseover="showTip(event, 'fs9', 21)" class="i">input</span>, <span onmouseout="hideTip(event, 'fs10', 22)" onmouseover="showTip(event, 'fs10', 22)" class="i">projOptions</span>) 
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs11', 23)" onmouseover="showTip(event, 'fs11', 23)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs12', 24)" onmouseover="showTip(event, 'fs12', 24)" class="f">RunSynchronously</span>
 
     <span class="c">// 型チェックが成功(あるいは100%に到達)するまで待機</span>
-    <span class="k">match</span> <span class="i">checkFileResults</span> <span class="k">with</span>
-    | <span class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span class="i">Succeeded</span>(<span class="i">res</span>) <span class="k">-&gt;</span> <span class="i">parseFileResults</span>, <span class="i">res</span>
-    | <span class="i">res</span> <span class="k">-&gt;</span> <span class="i">failwithf</span> <span class="s">&quot;Parsing did not finish... (%A)&quot;</span> <span class="i">res</span>
+    <span class="k">match</span> <span onmouseout="hideTip(event, 'fs14', 25)" onmouseover="showTip(event, 'fs14', 25)" class="i">checkFileResults</span> <span class="k">with</span>
+    | <span class="i">FSharpCheckFileAnswer</span><span class="o">.</span><span class="i">Succeeded</span>(<span class="i">res</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs13', 26)" onmouseover="showTip(event, 'fs13', 26)" class="i">parseFileResults</span>, <span class="i">res</span>
+    | <span class="i">res</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs15', 27)" onmouseover="showTip(event, 'fs15', 27)" class="i">failwithf</span> <span class="s">&quot;Parsing did not finish... (%A)&quot;</span> <span class="i">res</span>
 
-<span class="k">let</span> <span class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 28)" onmouseover="showTip(event, 'fs16', 28)" class="i">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
 </code></pre></td>
 </tr>
 </table>
@@ -127,7 +127,7 @@
 <span class="l">13: </span>
 <span class="l">14: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">input2</span> <span class="o">=</span> 
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 29)" onmouseover="showTip(event, 'fs17', 29)" class="i">input2</span> <span class="o">=</span> 
       <span class="s">&quot;&quot;&quot;</span>
 <span class="s">[&lt;System.CLSCompliant(true)&gt;]</span>
 <span class="s">let foo(x, y) = </span>
@@ -139,8 +139,8 @@
 <span class="s">type C() = </span>
 <span class="s">    member x.P = 1</span>
 <span class="s">      &quot;&quot;&quot;</span>
-<span class="k">let</span> <span class="i">parseFileResults</span>, <span class="i">checkFileResults</span> <span class="o">=</span> 
-    <span class="i">parseAndTypeCheckSingleFile</span>(<span class="i">file</span>, <span class="i">input2</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs18', 30)" onmouseover="showTip(event, 'fs18', 30)" class="i">parseFileResults</span>, <span onmouseout="hideTip(event, 'fs19', 31)" onmouseover="showTip(event, 'fs19', 31)" class="i">checkFileResults</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs7', 32)" onmouseover="showTip(event, 'fs7', 32)" class="f">parseAndTypeCheckSingleFile</span>(<span onmouseout="hideTip(event, 'fs16', 33)" onmouseover="showTip(event, 'fs16', 33)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs17', 34)" onmouseover="showTip(event, 'fs17', 34)" class="i">input2</span>)
 </code></pre></td>
 </tr>
 </table>
@@ -149,9 +149,9 @@
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">partialAssemblySignature</span> <span class="o">=</span> <span class="i">checkFileResults</span><span class="o">.</span><span class="i">PartialAssemblySignature</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs20', 35)" onmouseover="showTip(event, 'fs20', 35)" class="i">partialAssemblySignature</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 36)" onmouseover="showTip(event, 'fs19', 36)" class="i">checkFileResults</span><span class="o">.</span><span class="i">PartialAssemblySignature</span>
 
-<span class="i">partialAssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// エンティティは1つ</span>
+<span onmouseout="hideTip(event, 'fs20', 37)" onmouseover="showTip(event, 'fs20', 37)" class="i">partialAssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// エンティティは1つ</span>
 </code></pre></td>
 </tr>
 </table>
@@ -160,23 +160,23 @@
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">moduleEntity</span> <span class="o">=</span> <span class="i">partialAssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 38)" onmouseover="showTip(event, 'fs21', 38)" class="i">moduleEntity</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 39)" onmouseover="showTip(event, 'fs20', 39)" class="i">partialAssemblySignature</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]
 
-<span class="i">moduleEntity</span><span class="o">.</span><span class="i">DisplayName</span> <span class="o">=</span> <span class="s">&quot;Test&quot;</span>
+<span onmouseout="hideTip(event, 'fs21', 40)" onmouseover="showTip(event, 'fs21', 40)" class="i">moduleEntity</span><span class="o">.</span><span class="i">DisplayName</span> <span class="o">=</span> <span class="s">&quot;Test&quot;</span>
 </code></pre></td>
 </tr>
 </table>
 <p>そしてコード内の型定義に関連したエンティティを取得します:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">classEntity</span> <span class="o">=</span> <span class="i">moduleEntity</span><span class="o">.</span><span class="i">NestedEntities</span><span class="o">.</span>[<span class="n">0</span>]
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 41)" onmouseover="showTip(event, 'fs22', 41)" class="i">classEntity</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 42)" onmouseover="showTip(event, 'fs21', 42)" class="i">moduleEntity</span><span class="o">.</span><span class="i">NestedEntities</span><span class="o">.</span>[<span class="n">0</span>]
 </code></pre></td>
 </tr>
 </table>
 <p>そしてコード内で定義された関数に関連した値を取得します:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">fnVal</span> <span class="o">=</span> <span class="i">moduleEntity</span><span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs23', 43)" onmouseover="showTip(event, 'fs23', 43)" class="i">fnVal</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 44)" onmouseover="showTip(event, 'fs21', 44)" class="i">moduleEntity</span><span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]
 </code></pre></td>
 </tr>
 </table>
@@ -205,29 +205,29 @@
 <span class="l">22: </span>
 <span class="l">23: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fnVal</span><span class="o">.</span><span class="i">Attributes</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Count</span> <span class="c">// 2</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Name</span> <span class="c">// &quot;x&quot;</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span>[<span class="n">1</span>]<span class="o">.</span><span class="i">Name</span> <span class="c">// &quot;y&quot;</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">DeclarationLocation</span><span class="o">.</span><span class="i">StartLine</span> <span class="c">// 3</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot;</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">EnclosingEntity</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;Test&quot;</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">EnclosingEntity</span><span class="o">.</span><span class="i">DeclarationLocation</span><span class="o">.</span><span class="i">StartLine</span> <span class="c">// 1</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">GenericParameters</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 0</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">InlineAnnotation</span> <span class="c">// FSharpInlineAnnotation.OptionalInline</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsActivePattern</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsCompilerGenerated</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsDispatchSlot</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsExtensionMember</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsPropertyGetterMethod</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsImplicitConstructor</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsInstanceMember</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsMember</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsModuleValueOrMember</span> <span class="c">// true</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsMutable</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsPropertySetterMethod</span> <span class="c">// false</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">IsTypeFunction</span> <span class="c">// false</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs23', 45)" onmouseover="showTip(event, 'fs23', 45)" class="i">fnVal</span><span class="o">.</span><span class="i">Attributes</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1</span>
+<span onmouseout="hideTip(event, 'fs23', 46)" onmouseover="showTip(event, 'fs23', 46)" class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1</span>
+<span onmouseout="hideTip(event, 'fs23', 47)" onmouseover="showTip(event, 'fs23', 47)" class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Count</span> <span class="c">// 2</span>
+<span onmouseout="hideTip(event, 'fs23', 48)" onmouseover="showTip(event, 'fs23', 48)" class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Name</span> <span class="c">// &quot;x&quot;</span>
+<span onmouseout="hideTip(event, 'fs23', 49)" onmouseover="showTip(event, 'fs23', 49)" class="i">fnVal</span><span class="o">.</span><span class="i">CurriedParameterGroups</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span>[<span class="n">1</span>]<span class="o">.</span><span class="i">Name</span> <span class="c">// &quot;y&quot;</span>
+<span onmouseout="hideTip(event, 'fs23', 50)" onmouseover="showTip(event, 'fs23', 50)" class="i">fnVal</span><span class="o">.</span><span class="i">DeclarationLocation</span><span class="o">.</span><span class="i">StartLine</span> <span class="c">// 3</span>
+<span onmouseout="hideTip(event, 'fs23', 51)" onmouseover="showTip(event, 'fs23', 51)" class="i">fnVal</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot;</span>
+<span onmouseout="hideTip(event, 'fs23', 52)" onmouseover="showTip(event, 'fs23', 52)" class="i">fnVal</span><span class="o">.</span><span class="i">EnclosingEntity</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;Test&quot;</span>
+<span onmouseout="hideTip(event, 'fs23', 53)" onmouseover="showTip(event, 'fs23', 53)" class="i">fnVal</span><span class="o">.</span><span class="i">EnclosingEntity</span><span class="o">.</span><span class="i">DeclarationLocation</span><span class="o">.</span><span class="i">StartLine</span> <span class="c">// 1</span>
+<span onmouseout="hideTip(event, 'fs23', 54)" onmouseover="showTip(event, 'fs23', 54)" class="i">fnVal</span><span class="o">.</span><span class="i">GenericParameters</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 0</span>
+<span onmouseout="hideTip(event, 'fs23', 55)" onmouseover="showTip(event, 'fs23', 55)" class="i">fnVal</span><span class="o">.</span><span class="i">InlineAnnotation</span> <span class="c">// FSharpInlineAnnotation.OptionalInline</span>
+<span onmouseout="hideTip(event, 'fs23', 56)" onmouseover="showTip(event, 'fs23', 56)" class="i">fnVal</span><span class="o">.</span><span class="i">IsActivePattern</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 57)" onmouseover="showTip(event, 'fs23', 57)" class="i">fnVal</span><span class="o">.</span><span class="i">IsCompilerGenerated</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 58)" onmouseover="showTip(event, 'fs23', 58)" class="i">fnVal</span><span class="o">.</span><span class="i">IsDispatchSlot</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 59)" onmouseover="showTip(event, 'fs23', 59)" class="i">fnVal</span><span class="o">.</span><span class="i">IsExtensionMember</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 60)" onmouseover="showTip(event, 'fs23', 60)" class="i">fnVal</span><span class="o">.</span><span class="i">IsPropertyGetterMethod</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 61)" onmouseover="showTip(event, 'fs23', 61)" class="i">fnVal</span><span class="o">.</span><span class="i">IsImplicitConstructor</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 62)" onmouseover="showTip(event, 'fs23', 62)" class="i">fnVal</span><span class="o">.</span><span class="i">IsInstanceMember</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 63)" onmouseover="showTip(event, 'fs23', 63)" class="i">fnVal</span><span class="o">.</span><span class="i">IsMember</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 64)" onmouseover="showTip(event, 'fs23', 64)" class="i">fnVal</span><span class="o">.</span><span class="i">IsModuleValueOrMember</span> <span class="c">// true</span>
+<span onmouseout="hideTip(event, 'fs23', 65)" onmouseover="showTip(event, 'fs23', 65)" class="i">fnVal</span><span class="o">.</span><span class="i">IsMutable</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 66)" onmouseover="showTip(event, 'fs23', 66)" class="i">fnVal</span><span class="o">.</span><span class="i">IsPropertySetterMethod</span> <span class="c">// false</span>
+<span onmouseout="hideTip(event, 'fs23', 67)" onmouseover="showTip(event, 'fs23', 67)" class="i">fnVal</span><span class="o">.</span><span class="i">IsTypeFunction</span> <span class="c">// false</span>
 </code></pre></td>
 </tr>
 </table>
@@ -242,13 +242,13 @@
 <span class="l">6: </span>
 <span class="l">7: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span> <span class="c">// int * int -&gt; unit</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">IsFunctionType</span> <span class="c">// true</span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>] <span class="c">// int * int </span>
-<span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">IsTupleType</span> <span class="c">// true</span>
-<span class="k">let</span> <span class="i">argTy1</span> <span class="o">=</span> <span class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs23', 68)" onmouseover="showTip(event, 'fs23', 68)" class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span> <span class="c">// int * int -&gt; unit</span>
+<span onmouseout="hideTip(event, 'fs23', 69)" onmouseover="showTip(event, 'fs23', 69)" class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">IsFunctionType</span> <span class="c">// true</span>
+<span onmouseout="hideTip(event, 'fs23', 70)" onmouseover="showTip(event, 'fs23', 70)" class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>] <span class="c">// int * int </span>
+<span onmouseout="hideTip(event, 'fs23', 71)" onmouseover="showTip(event, 'fs23', 71)" class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">IsTupleType</span> <span class="c">// true</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 72)" onmouseover="showTip(event, 'fs24', 72)" class="i">argTy1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs23', 73)" onmouseover="showTip(event, 'fs23', 73)" class="i">fnVal</span><span class="o">.</span><span class="i">FullType</span><span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">GenericArguments</span><span class="o">.</span>[<span class="n">0</span>]
 
-<span class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// int</span>
+<span onmouseout="hideTip(event, 'fs24', 74)" onmouseover="showTip(event, 'fs24', 74)" class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">DisplayName</span> <span class="c">// int</span>
 </code></pre></td>
 </tr>
 </table>
@@ -259,8 +259,8 @@
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">argTy1</span><span class="o">.</span><span class="i">HasTypeDefinition</span> <span class="c">// true</span>
-<span class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">IsFSharpAbbreviation</span> <span class="c">// true</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs24', 75)" onmouseover="showTip(event, 'fs24', 75)" class="i">argTy1</span><span class="o">.</span><span class="i">HasTypeDefinition</span> <span class="c">// true</span>
+<span onmouseout="hideTip(event, 'fs24', 76)" onmouseover="showTip(event, 'fs24', 76)" class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">IsFSharpAbbreviation</span> <span class="c">// true</span>
 </code></pre></td>
 </tr>
 </table>
@@ -269,9 +269,9 @@
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">argTy1b</span> <span class="o">=</span> <span class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">AbbreviatedType</span>
-<span class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">Namespace</span> <span class="c">// Some &quot;Microsoft.FSharp.Core&quot; </span>
-<span class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">CompiledName</span> <span class="c">// &quot;int32&quot; </span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 77)" onmouseover="showTip(event, 'fs25', 77)" class="i">argTy1b</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs24', 78)" onmouseover="showTip(event, 'fs24', 78)" class="i">argTy1</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">AbbreviatedType</span>
+<span onmouseout="hideTip(event, 'fs25', 79)" onmouseover="showTip(event, 'fs25', 79)" class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">Namespace</span> <span class="c">// Some &quot;Microsoft.FSharp.Core&quot; </span>
+<span onmouseout="hideTip(event, 'fs25', 80)" onmouseover="showTip(event, 'fs25', 80)" class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs26', 81)" onmouseover="showTip(event, 'fs26', 81)" class="i">CompiledName</span> <span class="c">// &quot;int32&quot; </span>
 </code></pre></td>
 </tr>
 </table>
@@ -280,9 +280,9 @@
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">argTy1c</span> <span class="o">=</span> <span class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">AbbreviatedType</span>
-<span class="i">argTy1c</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">Namespace</span> <span class="c">// Some &quot;System&quot; </span>
-<span class="i">argTy1c</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">CompiledName</span> <span class="c">// &quot;Int32&quot; </span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs27', 82)" onmouseover="showTip(event, 'fs27', 82)" class="i">argTy1c</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs25', 83)" onmouseover="showTip(event, 'fs25', 83)" class="i">argTy1b</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">AbbreviatedType</span>
+<span onmouseout="hideTip(event, 'fs27', 84)" onmouseover="showTip(event, 'fs27', 84)" class="i">argTy1c</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span class="i">Namespace</span> <span class="c">// Some &quot;System&quot; </span>
+<span onmouseout="hideTip(event, 'fs27', 85)" onmouseover="showTip(event, 'fs27', 85)" class="i">argTy1c</span><span class="o">.</span><span class="i">TypeDefinition</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs26', 86)" onmouseover="showTip(event, 'fs26', 86)" class="i">CompiledName</span> <span class="c">// &quot;Int32&quot; </span>
 </code></pre></td>
 </tr>
 </table>
@@ -296,12 +296,12 @@
 <span class="l">5: </span>
 <span class="l">6: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">projectContext</span> <span class="o">=</span> <span class="i">checkFileResults</span><span class="o">.</span><span class="i">ProjectContext</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 87)" onmouseover="showTip(event, 'fs28', 87)" class="i">projectContext</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 88)" onmouseover="showTip(event, 'fs19', 88)" class="i">checkFileResults</span><span class="o">.</span><span class="i">ProjectContext</span>
 
-<span class="k">for</span> <span class="i">ass</span> <span class="k">in</span> <span class="i">projectContext</span><span class="o">.</span><span class="i">GetReferencedAssemblies</span>() <span class="k">do</span>
-    <span class="k">match</span> <span class="i">ass</span><span class="o">.</span><span class="i">FileName</span> <span class="k">with</span> 
-    | <span class="i">None</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;コンパイル時にファイルの存在しないアセンブリを参照しました&quot;</span>
-    | <span class="i">Some</span> <span class="i">s</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;コンパイル時にアセンブリ &#39;%s&#39; を参照しました&quot;</span> <span class="i">s</span>
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 89)" onmouseover="showTip(event, 'fs29', 89)" class="i">ass</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs28', 90)" onmouseover="showTip(event, 'fs28', 90)" class="i">projectContext</span><span class="o">.</span><span class="i">GetReferencedAssemblies</span>() <span class="k">do</span>
+    <span class="k">match</span> <span onmouseout="hideTip(event, 'fs29', 91)" onmouseover="showTip(event, 'fs29', 91)" class="i">ass</span><span class="o">.</span><span class="i">FileName</span> <span class="k">with</span> 
+    | <span onmouseout="hideTip(event, 'fs30', 92)" onmouseover="showTip(event, 'fs30', 92)" class="p">None</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs31', 93)" onmouseover="showTip(event, 'fs31', 93)" class="f">printfn</span> <span class="s">&quot;コンパイル時にファイルの存在しないアセンブリを参照しました&quot;</span>
+    | <span onmouseout="hideTip(event, 'fs32', 94)" onmouseover="showTip(event, 'fs32', 94)" class="p">Some</span> <span onmouseout="hideTip(event, 'fs33', 95)" onmouseover="showTip(event, 'fs33', 95)" class="i">s</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs31', 96)" onmouseover="showTip(event, 'fs31', 96)" class="f">printfn</span> <span class="s">&quot;コンパイル時にアセンブリ &#39;</span><span class="pf">%s</span><span class="s">&#39; を参照しました&quot;</span> <span onmouseout="hideTip(event, 'fs33', 97)" onmouseover="showTip(event, 'fs33', 97)" class="i">s</span>
 </code></pre></td>
 </tr>
 </table>
@@ -335,16 +335,16 @@ IsUnresolvedによる例外に対処できるよう、堅牢なコードにし�
 <span class="l"> 9: </span>
 <span class="l">10: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseAndCheckScript</span> (<span class="i">file</span>, <span class="i">input</span>) <span class="o">=</span> 
-    <span class="k">let</span> <span class="i">projOptions</span> <span class="o">=</span> 
-        <span class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span class="i">file</span>, <span class="i">input</span>)
-        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 98)" onmouseover="showTip(event, 'fs34', 98)" class="f">parseAndCheckScript</span> (<span onmouseout="hideTip(event, 'fs8', 99)" onmouseover="showTip(event, 'fs8', 99)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs9', 100)" onmouseover="showTip(event, 'fs9', 100)" class="i">input</span>) <span class="o">=</span> 
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 101)" onmouseover="showTip(event, 'fs10', 101)" class="i">projOptions</span> <span class="o">=</span> 
+        <span onmouseout="hideTip(event, 'fs6', 102)" onmouseover="showTip(event, 'fs6', 102)" class="i">checker</span><span class="o">.</span><span class="i">GetProjectOptionsFromScript</span>(<span onmouseout="hideTip(event, 'fs8', 103)" onmouseover="showTip(event, 'fs8', 103)" class="i">file</span>, <span onmouseout="hideTip(event, 'fs9', 104)" onmouseover="showTip(event, 'fs9', 104)" class="i">input</span>)
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs11', 105)" onmouseover="showTip(event, 'fs11', 105)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs12', 106)" onmouseover="showTip(event, 'fs12', 106)" class="f">RunSynchronously</span>
 
-    <span class="k">let</span> <span class="i">projResults</span> <span class="o">=</span> 
-        <span class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckProject</span>(<span class="i">projOptions</span>) 
-        <span class="o">|&gt;</span> <span class="i">Async</span><span class="o">.</span><span class="i">RunSynchronously</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 107)" onmouseover="showTip(event, 'fs35', 107)" class="i">projResults</span> <span class="o">=</span> 
+        <span onmouseout="hideTip(event, 'fs6', 108)" onmouseover="showTip(event, 'fs6', 108)" class="i">checker</span><span class="o">.</span><span class="i">ParseAndCheckProject</span>(<span onmouseout="hideTip(event, 'fs10', 109)" onmouseover="showTip(event, 'fs10', 109)" class="i">projOptions</span>) 
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs11', 110)" onmouseover="showTip(event, 'fs11', 110)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs12', 111)" onmouseover="showTip(event, 'fs12', 111)" class="f">RunSynchronously</span>
 
-    <span class="i">projResults</span>
+    <span onmouseout="hideTip(event, 'fs35', 112)" onmouseover="showTip(event, 'fs35', 112)" class="i">projResults</span>
 </code></pre></td>
 </tr>
 </table>
@@ -354,10 +354,10 @@ IsUnresolvedによる例外に対処できるよう、堅牢なコードにし�
 <span class="l">3: </span>
 <span class="l">4: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">tmpFile</span> <span class="o">=</span> <span class="i">Path</span><span class="o">.</span><span class="i">ChangeExtension</span>(<span class="i">System</span><span class="o">.</span><span class="i">IO</span><span class="o">.</span><span class="i">Path</span><span class="o">.</span><span class="i">GetTempFileName</span>() , <span class="s">&quot;fs&quot;</span>)
-<span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="i">tmpFile</span>, <span class="i">input2</span>)
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 113)" onmouseover="showTip(event, 'fs36', 113)" class="i">tmpFile</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs37', 114)" onmouseover="showTip(event, 'fs37', 114)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 115)" onmouseover="showTip(event, 'fs38', 115)" class="f">ChangeExtension</span>(<span onmouseout="hideTip(event, 'fs1', 116)" onmouseover="showTip(event, 'fs1', 116)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 117)" onmouseover="showTip(event, 'fs2', 117)" class="i">IO</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs37', 118)" onmouseover="showTip(event, 'fs37', 118)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 119)" onmouseover="showTip(event, 'fs39', 119)" class="f">GetTempFileName</span>() , <span class="s">&quot;fs&quot;</span>)
+<span onmouseout="hideTip(event, 'fs40', 120)" onmouseover="showTip(event, 'fs40', 120)" class="t">File</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 121)" onmouseover="showTip(event, 'fs41', 121)" class="f">WriteAllText</span>(<span onmouseout="hideTip(event, 'fs36', 122)" onmouseover="showTip(event, 'fs36', 122)" class="i">tmpFile</span>, <span onmouseout="hideTip(event, 'fs17', 123)" onmouseover="showTip(event, 'fs17', 123)" class="i">input2</span>)
 
-<span class="k">let</span> <span class="i">projectResults</span> <span class="o">=</span> <span class="i">parseAndCheckScript</span>(<span class="i">tmpFile</span>, <span class="i">input2</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs42', 124)" onmouseover="showTip(event, 'fs42', 124)" class="i">projectResults</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs34', 125)" onmouseover="showTip(event, 'fs34', 125)" class="f">parseAndCheckScript</span>(<span onmouseout="hideTip(event, 'fs36', 126)" onmouseover="showTip(event, 'fs36', 126)" class="i">tmpFile</span>, <span onmouseout="hideTip(event, 'fs17', 127)" onmouseover="showTip(event, 'fs17', 127)" class="i">input2</span>)
 </code></pre></td>
 </tr>
 </table>
@@ -370,17 +370,60 @@ IsUnresolvedによる例外に対処できるよう、堅牢なコードにし�
 <span class="l">6: </span>
 <span class="l">7: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">assemblySig</span> <span class="o">=</span> <span class="i">projectResults</span><span class="o">.</span><span class="i">AssemblySignature</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs43', 128)" onmouseover="showTip(event, 'fs43', 128)" class="i">assemblySig</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs42', 129)" onmouseover="showTip(event, 'fs42', 129)" class="i">projectResults</span><span class="o">.</span><span class="i">AssemblySignature</span>
 
-<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// エンティティは1つ</span>
-<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Namespace</span>  <span class="c">// null</span>
-<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;Tmp28D0&quot;</span>
-<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1 </span>
-<span class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot; </span>
+<span onmouseout="hideTip(event, 'fs43', 130)" onmouseover="showTip(event, 'fs43', 130)" class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span><span class="i">Count</span> <span class="o">=</span> <span class="n">1</span>  <span class="c">// エンティティは1つ</span>
+<span onmouseout="hideTip(event, 'fs43', 131)" onmouseover="showTip(event, 'fs43', 131)" class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">Namespace</span>  <span class="c">// null</span>
+<span onmouseout="hideTip(event, 'fs43', 132)" onmouseover="showTip(event, 'fs43', 132)" class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;Tmp28D0&quot;</span>
+<span onmouseout="hideTip(event, 'fs43', 133)" onmouseover="showTip(event, 'fs43', 133)" class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span><span class="i">Count</span> <span class="c">// 1 </span>
+<span onmouseout="hideTip(event, 'fs43', 134)" onmouseover="showTip(event, 'fs43', 134)" class="i">assemblySig</span><span class="o">.</span><span class="i">Entities</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">MembersFunctionsAndValues</span><span class="o">.</span>[<span class="n">0</span>]<span class="o">.</span><span class="i">DisplayName</span> <span class="c">// &quot;foo&quot; </span>
 </code></pre></td>
 </tr>
 </table>
 
+<div class="tip" id="fs1">namespace System</div>
+<div class="tip" id="fs2">namespace System.IO</div>
+<div class="tip" id="fs3">namespace Microsoft</div>
+<div class="tip" id="fs4">namespace Microsoft.FSharp</div>
+<div class="tip" id="fs5">namespace Microsoft.FSharp.Compiler</div>
+<div class="tip" id="fs6">val checker : obj<br /><br />Full name: Symbols.checker</div>
+<div class="tip" id="fs7">val parseAndTypeCheckSingleFile : file:&#39;a * input:&#39;b -&gt; &#39;c<br /><br />Full name: Symbols.parseAndTypeCheckSingleFile</div>
+<div class="tip" id="fs8">val file : &#39;a</div>
+<div class="tip" id="fs9">val input : &#39;b</div>
+<div class="tip" id="fs10">val projOptions : obj</div>
+<div class="tip" id="fs11">Multiple items<br />type Async<br />static member AsBeginEnd : computation:(&#39;Arg -&gt; Async&lt;&#39;T&gt;) -&gt; (&#39;Arg * AsyncCallback * obj -&gt; IAsyncResult) * (IAsyncResult -&gt; &#39;T) * (IAsyncResult -&gt; unit)<br />static member AwaitEvent : event:IEvent&lt;&#39;Del,&#39;T&gt; * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt; (requires delegate and &#39;Del :&gt; Delegate)<br />static member AwaitIAsyncResult : iar:IAsyncResult * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />static member AwaitTask : task:Task -&gt; Async&lt;unit&gt;<br />static member AwaitTask : task:Task&lt;&#39;T&gt; -&gt; Async&lt;&#39;T&gt;<br />static member AwaitWaitHandle : waitHandle:WaitHandle * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />static member CancelDefaultToken : unit -&gt; unit<br />static member Catch : computation:Async&lt;&#39;T&gt; -&gt; Async&lt;Choice&lt;&#39;T,exn&gt;&gt;<br />static member Choice : computations:seq&lt;Async&lt;&#39;T option&gt;&gt; -&gt; Async&lt;&#39;T option&gt;<br />static member FromBeginEnd : beginAction:(AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg:&#39;Arg1 * beginAction:(&#39;Arg1 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg1:&#39;Arg1 * arg2:&#39;Arg2 * beginAction:(&#39;Arg1 * &#39;Arg2 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg1:&#39;Arg1 * arg2:&#39;Arg2 * arg3:&#39;Arg3 * beginAction:(&#39;Arg1 * &#39;Arg2 * &#39;Arg3 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromContinuations : callback:((&#39;T -&gt; unit) * (exn -&gt; unit) * (OperationCanceledException -&gt; unit) -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member Ignore : computation:Async&lt;&#39;T&gt; -&gt; Async&lt;unit&gt;<br />static member OnCancel : interruption:(unit -&gt; unit) -&gt; Async&lt;IDisposable&gt;<br />static member Parallel : computations:seq&lt;Async&lt;&#39;T&gt;&gt; -&gt; Async&lt;&#39;T []&gt;<br />static member RunSynchronously : computation:Async&lt;&#39;T&gt; * ?timeout:int * ?cancellationToken:CancellationToken -&gt; &#39;T<br />static member Sleep : millisecondsDueTime:int -&gt; Async&lt;unit&gt;<br />static member Start : computation:Async&lt;unit&gt; * ?cancellationToken:CancellationToken -&gt; unit<br />static member StartAsTask : computation:Async&lt;&#39;T&gt; * ?taskCreationOptions:TaskCreationOptions * ?cancellationToken:CancellationToken -&gt; Task&lt;&#39;T&gt;<br />static member StartChild : computation:Async&lt;&#39;T&gt; * ?millisecondsTimeout:int -&gt; Async&lt;Async&lt;&#39;T&gt;&gt;<br />static member StartChildAsTask : computation:Async&lt;&#39;T&gt; * ?taskCreationOptions:TaskCreationOptions -&gt; Async&lt;Task&lt;&#39;T&gt;&gt;<br />static member StartImmediate : computation:Async&lt;unit&gt; * ?cancellationToken:CancellationToken -&gt; unit<br />static member StartWithContinuations : computation:Async&lt;&#39;T&gt; * continuation:(&#39;T -&gt; unit) * exceptionContinuation:(exn -&gt; unit) * cancellationContinuation:(OperationCanceledException -&gt; unit) * ?cancellationToken:CancellationToken -&gt; unit<br />static member SwitchToContext : syncContext:SynchronizationContext -&gt; Async&lt;unit&gt;<br />static member SwitchToNewThread : unit -&gt; Async&lt;unit&gt;<br />static member SwitchToThreadPool : unit -&gt; Async&lt;unit&gt;<br />static member TryCancelled : computation:Async&lt;&#39;T&gt; * compensation:(OperationCanceledException -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member CancellationToken : Async&lt;CancellationToken&gt;<br />static member DefaultCancellationToken : CancellationToken<br /><br />Full name: Microsoft.FSharp.Control.Async<br /><br />--------------------<br />type Async&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Control.Async&lt;_&gt;</div>
+<div class="tip" id="fs12">static member Async.RunSynchronously : computation:Async&lt;&#39;T&gt; * ?timeout:int * ?cancellationToken:Threading.CancellationToken -&gt; &#39;T</div>
+<div class="tip" id="fs13">val parseFileResults : obj</div>
+<div class="tip" id="fs14">val checkFileResults : obj</div>
+<div class="tip" id="fs15">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
+<div class="tip" id="fs16">val file : string<br /><br />Full name: Symbols.file</div>
+<div class="tip" id="fs17">val input2 : string<br /><br />Full name: Symbols.input2</div>
+<div class="tip" id="fs18">val parseFileResults : obj<br /><br />Full name: Symbols.parseFileResults</div>
+<div class="tip" id="fs19">val checkFileResults : obj<br /><br />Full name: Symbols.checkFileResults</div>
+<div class="tip" id="fs20">val partialAssemblySignature : obj<br /><br />Full name: Symbols.partialAssemblySignature</div>
+<div class="tip" id="fs21">val moduleEntity : obj<br /><br />Full name: Symbols.moduleEntity</div>
+<div class="tip" id="fs22">val classEntity : obj<br /><br />Full name: Symbols.classEntity</div>
+<div class="tip" id="fs23">val fnVal : obj<br /><br />Full name: Symbols.fnVal</div>
+<div class="tip" id="fs24">val argTy1 : obj<br /><br />Full name: Symbols.argTy1</div>
+<div class="tip" id="fs25">val argTy1b : obj<br /><br />Full name: Symbols.argTy1b</div>
+<div class="tip" id="fs26">Multiple items<br />type CompiledNameAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : compiledName:string -&gt; CompiledNameAttribute<br />&#160;&#160;member CompiledName : string<br /><br />Full name: Microsoft.FSharp.Core.CompiledNameAttribute<br /><br />--------------------<br />new : compiledName:string -&gt; CompiledNameAttribute</div>
+<div class="tip" id="fs27">val argTy1c : obj<br /><br />Full name: Symbols.argTy1c</div>
+<div class="tip" id="fs28">val projectContext : obj<br /><br />Full name: Symbols.projectContext</div>
+<div class="tip" id="fs29">val ass : obj</div>
+<div class="tip" id="fs30">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs31">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs32">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs33">val s : string</div>
+<div class="tip" id="fs34">val parseAndCheckScript : file:&#39;a * input:&#39;b -&gt; &#39;c<br /><br />Full name: Symbols.parseAndCheckScript</div>
+<div class="tip" id="fs35">val projResults : &#39;c</div>
+<div class="tip" id="fs36">val tmpFile : string<br /><br />Full name: Symbols.tmpFile</div>
+<div class="tip" id="fs37">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : [&lt;ParamArray&gt;] paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string<br />&#160;&#160;static member GetExtension : path:string -&gt; string<br />&#160;&#160;static member GetFileName : path:string -&gt; string<br />&#160;&#160;...<br /><br />Full name: System.IO.Path</div>
+<div class="tip" id="fs38">Path.ChangeExtension(path: string, extension: string) : string</div>
+<div class="tip" id="fs39">Path.GetTempFileName() : string</div>
+<div class="tip" id="fs40">type File =<br />&#160;&#160;static member AppendAllLines : path:string * contents:IEnumerable&lt;string&gt; -&gt; unit + 1 overload<br />&#160;&#160;static member AppendAllText : path:string * contents:string -&gt; unit + 1 overload<br />&#160;&#160;static member AppendText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Copy : sourceFileName:string * destFileName:string -&gt; unit + 1 overload<br />&#160;&#160;static member Create : path:string -&gt; FileStream + 3 overloads<br />&#160;&#160;static member CreateText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Decrypt : path:string -&gt; unit<br />&#160;&#160;static member Delete : path:string -&gt; unit<br />&#160;&#160;static member Encrypt : path:string -&gt; unit<br />&#160;&#160;static member Exists : path:string -&gt; bool<br />&#160;&#160;...<br /><br />Full name: System.IO.File</div>
+<div class="tip" id="fs41">File.WriteAllText(path: string, contents: string) : unit<br />File.WriteAllText(path: string, contents: string, encoding: Text.Encoding) : unit</div>
+<div class="tip" id="fs42">val projectResults : obj<br /><br />Full name: Symbols.projectResults</div>
+<div class="tip" id="fs43">val assemblySig : obj<br /><br />Full name: Symbols.assemblySig</div>
 
         </div>
         <div class="span3">

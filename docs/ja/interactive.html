@@ -72,8 +72,8 @@ F#の評価機能を追加できます。</p>
 <span class="l">3: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
-<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
-<span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span><span class="o">.</span><span class="i">Interactive</span><span class="o">.</span><span class="i">Shell</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">Compiler</span><span class="o">.</span><span class="i">SourceCodeServices</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 4)" onmouseover="showTip(event, 'fs1', 4)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 5)" onmouseover="showTip(event, 'fs2', 5)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 6)" onmouseover="showTip(event, 'fs3', 6)" class="i">Compiler</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 7)" onmouseover="showTip(event, 'fs4', 7)" class="i">Interactive</span><span class="o">.</span><span class="i">Shell</span>
 </code></pre></td>
 </tr>
 </table>
@@ -98,23 +98,23 @@ F#の評価機能を追加できます。</p>
 <span class="l">16: </span>
 <span class="l">17: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span class="i">System</span>
-<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">IO</span>
-<span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">Text</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="i">System</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 9)" onmouseover="showTip(event, 'fs5', 9)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 10)" onmouseover="showTip(event, 'fs6', 10)" class="i">IO</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 11)" onmouseover="showTip(event, 'fs5', 11)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="i">Text</span>
 
 <span class="c">// 入出力のストリームを初期化</span>
-<span class="k">let</span> <span class="i">sbOut</span> <span class="o">=</span> <span class="k">new</span> <span class="i">StringBuilder</span>()
-<span class="k">let</span> <span class="i">sbErr</span> <span class="o">=</span> <span class="k">new</span> <span class="i">StringBuilder</span>()
-<span class="k">let</span> <span class="i">inStream</span> <span class="o">=</span> <span class="k">new</span> <span class="i">StringReader</span>(<span class="s">&quot;&quot;</span>)
-<span class="k">let</span> <span class="i">outStream</span> <span class="o">=</span> <span class="k">new</span> <span class="i">StringWriter</span>(<span class="i">sbOut</span>)
-<span class="k">let</span> <span class="i">errStream</span> <span class="o">=</span> <span class="k">new</span> <span class="i">StringWriter</span>(<span class="i">sbErr</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs8', 13)" onmouseover="showTip(event, 'fs8', 13)" class="i">sbOut</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs9', 14)" onmouseover="showTip(event, 'fs9', 14)" class="t">StringBuilder</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 15)" onmouseover="showTip(event, 'fs10', 15)" class="i">sbErr</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs9', 16)" onmouseover="showTip(event, 'fs9', 16)" class="t">StringBuilder</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 17)" onmouseover="showTip(event, 'fs11', 17)" class="i">inStream</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs12', 18)" onmouseover="showTip(event, 'fs12', 18)" class="t">StringReader</span>(<span class="s">&quot;&quot;</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs13', 19)" onmouseover="showTip(event, 'fs13', 19)" class="i">outStream</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs14', 20)" onmouseover="showTip(event, 'fs14', 20)" class="t">StringWriter</span>(<span onmouseout="hideTip(event, 'fs8', 21)" onmouseover="showTip(event, 'fs8', 21)" class="i">sbOut</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 22)" onmouseover="showTip(event, 'fs15', 22)" class="i">errStream</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs14', 23)" onmouseover="showTip(event, 'fs14', 23)" class="t">StringWriter</span>(<span onmouseout="hideTip(event, 'fs10', 24)" onmouseover="showTip(event, 'fs10', 24)" class="i">sbErr</span>)
 
 <span class="c">// コマンドライン引数を組み立てて、FSIセッションを開始する</span>
-<span class="k">let</span> <span class="i">argv</span> <span class="o">=</span> [| <span class="s">&quot;C:\\fsi.exe&quot;</span> |]
-<span class="k">let</span> <span class="i">allArgs</span> <span class="o">=</span> <span class="i">Array</span><span class="o">.</span><span class="i">append</span> <span class="i">argv</span> [|<span class="s">&quot;--noninteractive&quot;</span>|]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 25)" onmouseover="showTip(event, 'fs16', 25)" class="i">argv</span> <span class="o">=</span> [| <span class="s">&quot;C:</span><span class="e">\\</span><span class="s">fsi.exe&quot;</span> |]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 26)" onmouseover="showTip(event, 'fs17', 26)" class="i">allArgs</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs18', 27)" onmouseover="showTip(event, 'fs18', 27)" class="t">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 28)" onmouseover="showTip(event, 'fs19', 28)" class="f">append</span> <span onmouseout="hideTip(event, 'fs16', 29)" onmouseover="showTip(event, 'fs16', 29)" class="i">argv</span> [|<span class="s">&quot;--noninteractive&quot;</span>|]
 
-<span class="k">let</span> <span class="i">fsiConfig</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">GetDefaultConfiguration</span>()
-<span class="k">let</span> <span class="i">fsiSession</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">Create</span>(<span class="i">fsiConfig</span>, <span class="i">allArgs</span>, <span class="i">inStream</span>, <span class="i">outStream</span>, <span class="i">errStream</span>)  
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs20', 30)" onmouseover="showTip(event, 'fs20', 30)" class="i">fsiConfig</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">GetDefaultConfiguration</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 31)" onmouseover="showTip(event, 'fs21', 31)" class="i">fsiSession</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">Create</span>(<span onmouseout="hideTip(event, 'fs20', 32)" onmouseover="showTip(event, 'fs20', 32)" class="i">fsiConfig</span>, <span onmouseout="hideTip(event, 'fs17', 33)" onmouseover="showTip(event, 'fs17', 33)" class="i">allArgs</span>, <span onmouseout="hideTip(event, 'fs11', 34)" onmouseover="showTip(event, 'fs11', 34)" class="i">inStream</span>, <span onmouseout="hideTip(event, 'fs13', 35)" onmouseover="showTip(event, 'fs13', 35)" class="i">outStream</span>, <span onmouseout="hideTip(event, 'fs15', 36)" onmouseover="showTip(event, 'fs15', 36)" class="i">errStream</span>)  
 </code></pre></td>
 </tr>
 </table>
@@ -129,17 +129,17 @@ F#の評価機能を追加できます。</p>
 <span class="l">5: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// 式を評価して結果を返す</span>
-<span class="k">let</span> <span class="i">evalExpression</span> <span class="i">text</span> <span class="o">=</span>
-  <span class="k">match</span> <span class="i">fsiSession</span><span class="o">.</span><span class="i">EvalExpression</span>(<span class="i">text</span>) <span class="k">with</span>
-  | <span class="i">Some</span> <span class="i">value</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;%A&quot;</span> <span class="i">value</span><span class="o">.</span><span class="i">ReflectionValue</span>
-  | <span class="i">None</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;結果が得られませんでした！&quot;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 37)" onmouseover="showTip(event, 'fs22', 37)" class="f">evalExpression</span> <span onmouseout="hideTip(event, 'fs23', 38)" onmouseover="showTip(event, 'fs23', 38)" class="i">text</span> <span class="o">=</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs21', 39)" onmouseover="showTip(event, 'fs21', 39)" class="i">fsiSession</span><span class="o">.</span><span class="i">EvalExpression</span>(<span onmouseout="hideTip(event, 'fs23', 40)" onmouseover="showTip(event, 'fs23', 40)" class="i">text</span>) <span class="k">with</span>
+  | <span onmouseout="hideTip(event, 'fs24', 41)" onmouseover="showTip(event, 'fs24', 41)" class="p">Some</span> <span onmouseout="hideTip(event, 'fs25', 42)" onmouseover="showTip(event, 'fs25', 42)" class="i">value</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 43)" onmouseover="showTip(event, 'fs26', 43)" class="f">printfn</span> <span class="s">&quot;</span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs25', 44)" onmouseover="showTip(event, 'fs25', 44)" class="i">value</span><span class="o">.</span><span class="i">ReflectionValue</span>
+  | <span onmouseout="hideTip(event, 'fs27', 45)" onmouseover="showTip(event, 'fs27', 45)" class="p">None</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 46)" onmouseover="showTip(event, 'fs26', 46)" class="f">printfn</span> <span class="s">&quot;結果が得られませんでした！&quot;</span>
 </code></pre></td>
 </tr>
 </table>
 <p>これは引数に文字列を取り、それをF#コードとして評価(つまり実行)します。</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">evalExpression</span> <span class="s">&quot;42+1&quot;</span> <span class="c">// &#39;43&#39; を表示する</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs22', 47)" onmouseover="showTip(event, 'fs22', 47)" class="f">evalExpression</span> <span class="s">&quot;42+1&quot;</span> <span class="c">// &#39;43&#39; を表示する</span>
 </code></pre></td>
 </tr>
 </table>
@@ -153,12 +153,12 @@ F#の評価機能を追加できます。</p>
 <span class="l">7: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// 式を評価して、強く型付けされた結果を返す</span>
-<span class="k">let</span> <span class="i">evalExpressionTyped</span><span class="o">&lt;</span><span class="o">&#39;</span><span class="i">T</span><span class="o">&gt;</span> (<span class="i">text</span>) <span class="o">=</span>
-    <span class="k">match</span> <span class="i">fsiSession</span><span class="o">.</span><span class="i">EvalExpression</span>(<span class="i">text</span>) <span class="k">with</span>
-    | <span class="i">Some</span> <span class="i">value</span> <span class="k">-&gt;</span> <span class="i">value</span><span class="o">.</span><span class="i">ReflectionValue</span> <span class="o">|&gt;</span> <span class="i">unbox</span><span class="o">&lt;</span><span class="o">&#39;</span><span class="i">T</span><span class="o">&gt;</span>
-    | <span class="i">None</span> <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;結果が得られませんでした！&quot;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 48)" onmouseover="showTip(event, 'fs28', 48)" class="f">evalExpressionTyped</span><span class="o">&lt;</span><span class="o">&#39;</span><span class="i">T</span><span class="o">&gt;</span> (<span onmouseout="hideTip(event, 'fs29', 49)" onmouseover="showTip(event, 'fs29', 49)" class="i">text</span>) <span class="o">=</span>
+    <span class="k">match</span> <span onmouseout="hideTip(event, 'fs21', 50)" onmouseover="showTip(event, 'fs21', 50)" class="i">fsiSession</span><span class="o">.</span><span class="i">EvalExpression</span>(<span onmouseout="hideTip(event, 'fs29', 51)" onmouseover="showTip(event, 'fs29', 51)" class="i">text</span>) <span class="k">with</span>
+    | <span onmouseout="hideTip(event, 'fs24', 52)" onmouseover="showTip(event, 'fs24', 52)" class="p">Some</span> <span onmouseout="hideTip(event, 'fs25', 53)" onmouseover="showTip(event, 'fs25', 53)" class="i">value</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs25', 54)" onmouseover="showTip(event, 'fs25', 54)" class="i">value</span><span class="o">.</span><span class="i">ReflectionValue</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs30', 55)" onmouseover="showTip(event, 'fs30', 55)" class="f">unbox</span><span class="o">&lt;</span><span class="o">&#39;</span><span class="i">T</span><span class="o">&gt;</span>
+    | <span onmouseout="hideTip(event, 'fs27', 56)" onmouseover="showTip(event, 'fs27', 56)" class="p">None</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs31', 57)" onmouseover="showTip(event, 'fs31', 57)" class="f">failwith</span> <span class="s">&quot;結果が得られませんでした！&quot;</span>
 
-<span class="i">evalExpressionTyped</span><span class="o">&lt;</span><span class="i">int</span><span class="o">&gt;</span> <span class="s">&quot;42+1&quot;</span>  <span class="c">// &#39;43&#39; になる</span>
+<span onmouseout="hideTip(event, 'fs28', 58)" onmouseover="showTip(event, 'fs28', 58)" class="f">evalExpressionTyped</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs32', 59)" onmouseover="showTip(event, 'fs32', 59)" class="t">int</span><span class="o">&gt;</span> <span class="s">&quot;42+1&quot;</span>  <span class="c">// &#39;43&#39; になる</span>
 </code></pre></td>
 </tr>
 </table>
@@ -171,7 +171,7 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 実行したいコードだけを入力します:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fsiSession</span><span class="o">.</span><span class="i">EvalInteraction</span> <span class="s">&quot;printfn \&quot;bye\&quot;&quot;</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs21', 60)" onmouseover="showTip(event, 'fs21', 60)" class="i">fsiSession</span><span class="o">.</span><span class="i">EvalInteraction</span> <span class="s">&quot;printfn </span><span class="e">\&quot;</span><span class="s">bye</span><span class="e">\&quot;</span><span class="s">&quot;</span>
 </code></pre></td>
 </tr>
 </table>
@@ -179,8 +179,8 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="s">&quot;sample.fsx&quot;</span>, <span class="s">&quot;let twenty = 10 + 10&quot;</span>)
-<span class="i">fsiSession</span><span class="o">.</span><span class="i">EvalScript</span> <span class="s">&quot;sample.fsx&quot;</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs33', 61)" onmouseover="showTip(event, 'fs33', 61)" class="t">File</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 62)" onmouseover="showTip(event, 'fs34', 62)" class="f">WriteAllText</span>(<span class="s">&quot;sample.fsx&quot;</span>, <span class="s">&quot;let twenty = 10 + 10&quot;</span>)
+<span onmouseout="hideTip(event, 'fs21', 63)" onmouseover="showTip(event, 'fs21', 63)" class="i">fsiSession</span><span class="o">.</span><span class="i">EvalScript</span> <span class="s">&quot;sample.fsx&quot;</span>
 </code></pre></td>
 </tr>
 </table>
@@ -206,20 +206,20 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <span class="l">6: </span>
 <span class="l">7: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">File</span><span class="o">.</span><span class="i">WriteAllText</span>(<span class="s">&quot;sample.fsx&quot;</span>, <span class="s">&quot;let twenty = &#39;a&#39; + 10.0&quot;</span>)
-<span class="k">let</span> <span class="i">result</span>, <span class="i">warnings</span> <span class="o">=</span> <span class="i">fsiSession</span><span class="o">.</span><span class="i">EvalScriptNonThrowing</span> <span class="s">&quot;sample.fsx&quot;</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs33', 64)" onmouseover="showTip(event, 'fs33', 64)" class="t">File</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 65)" onmouseover="showTip(event, 'fs34', 65)" class="f">WriteAllText</span>(<span class="s">&quot;sample.fsx&quot;</span>, <span class="s">&quot;let twenty = &#39;a&#39; + 10.0&quot;</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 66)" onmouseover="showTip(event, 'fs35', 66)" class="i">result</span>, <span onmouseout="hideTip(event, 'fs36', 67)" onmouseover="showTip(event, 'fs36', 67)" class="i">warnings</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 68)" onmouseover="showTip(event, 'fs21', 68)" class="i">fsiSession</span><span class="o">.</span><span class="i">EvalScriptNonThrowing</span> <span class="s">&quot;sample.fsx&quot;</span>
 
 <span class="c">// 結果を表示する</span>
-<span class="k">match</span> <span class="i">result</span> <span class="k">with</span> 
-| <span class="i">Choice1Of2</span> () <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;チェックと実行はOKでした&quot;</span>
-| <span class="i">Choice2Of2</span> <span class="i">exn</span> <span class="k">-&gt;</span> <span class="i">printfn</span> <span class="s">&quot;実行例外: %s&quot;</span> <span class="i">exn</span><span class="o">.</span><span class="i">Message</span>
+<span class="k">match</span> <span onmouseout="hideTip(event, 'fs35', 69)" onmouseover="showTip(event, 'fs35', 69)" class="i">result</span> <span class="k">with</span> 
+| <span onmouseout="hideTip(event, 'fs37', 70)" onmouseover="showTip(event, 'fs37', 70)" class="p">Choice1Of2</span> () <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 71)" onmouseover="showTip(event, 'fs26', 71)" class="f">printfn</span> <span class="s">&quot;チェックと実行はOKでした&quot;</span>
+| <span onmouseout="hideTip(event, 'fs38', 72)" onmouseover="showTip(event, 'fs38', 72)" class="p">Choice2Of2</span> <span onmouseout="hideTip(event, 'fs39', 73)" onmouseover="showTip(event, 'fs39', 73)" class="i">exn</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 74)" onmouseover="showTip(event, 'fs26', 74)" class="f">printfn</span> <span class="s">&quot;実行例外: </span><span class="pf">%s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs39', 75)" onmouseover="showTip(event, 'fs39', 75)" class="i">exn</span><span class="o">.</span><span class="i">Message</span>
 </code></pre></td>
 </tr>
 </table>
 <p>は次のようになります:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">実行例外</span><span class="o">:</span> <span class="i">Operation</span> <span class="i">could</span> <span class="i">not</span> <span class="i">be</span> <span class="i">completed</span> <span class="i">due</span> <span class="k">to</span> <span class="i">earlier</span> <span class="i">error</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">実行例外</span><span class="o">:</span> <span class="i">Operation</span> <span class="i">could</span> <span onmouseout="hideTip(event, 'fs40', 76)" onmouseover="showTip(event, 'fs40', 76)" class="i">not</span> <span class="i">be</span> <span class="i">completed</span> <span class="i">due</span> <span class="k">to</span> <span class="i">earlier</span> <span class="i">error</span>
 </code></pre></td>
 </tr>
 </table>
@@ -228,8 +228,8 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <span class="l">3: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// エラーと警告を表示する</span>
-<span class="k">for</span> <span class="i">w</span> <span class="k">in</span> <span class="i">warnings</span> <span class="k">do</span> 
-   <span class="i">printfn</span> <span class="s">&quot;警告 %s 場所 %d,%d&quot;</span> <span class="i">w</span><span class="o">.</span><span class="i">Message</span> <span class="i">w</span><span class="o">.</span><span class="i">StartLineAlternate</span> <span class="i">w</span><span class="o">.</span><span class="i">StartColumn</span>
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs41', 77)" onmouseover="showTip(event, 'fs41', 77)" class="i">w</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs36', 78)" onmouseover="showTip(event, 'fs36', 78)" class="i">warnings</span> <span class="k">do</span> 
+   <span onmouseout="hideTip(event, 'fs26', 79)" onmouseover="showTip(event, 'fs26', 79)" class="f">printfn</span> <span class="s">&quot;警告 </span><span class="pf">%s</span><span class="s"> 場所 </span><span class="pf">%d</span><span class="s">,</span><span class="pf">%d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs41', 80)" onmouseover="showTip(event, 'fs41', 80)" class="i">w</span><span class="o">.</span><span class="i">Message</span> <span onmouseout="hideTip(event, 'fs41', 81)" onmouseover="showTip(event, 'fs41', 81)" class="i">w</span><span class="o">.</span><span class="i">StartLineAlternate</span> <span onmouseout="hideTip(event, 'fs41', 82)" onmouseover="showTip(event, 'fs41', 82)" class="i">w</span><span class="o">.</span><span class="i">StartColumn</span>
 </code></pre></td>
 </tr>
 </table>
@@ -237,8 +237,8 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">警告</span> <span class="i">The</span> <span class="k">type</span> <span class="o">&#39;</span><span class="i">float&#39;</span> <span class="i">does</span> <span class="i">not</span> <span class="k">match</span> <span class="i">the</span> <span class="k">type</span> <span class="o">&#39;</span><span class="i">char&#39;</span> <span class="i">場所</span> <span class="n">1</span>,<span class="n">19</span>
-<span class="i">警告</span> <span class="i">The</span> <span class="k">type</span> <span class="o">&#39;</span><span class="i">float&#39;</span> <span class="i">does</span> <span class="i">not</span> <span class="k">match</span> <span class="i">the</span> <span class="k">type</span> <span class="o">&#39;</span><span class="i">char&#39;</span> <span class="i">場所</span> <span class="n">1</span>,<span class="n">17</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">警告</span> <span class="i">The</span> <span class="k">type</span> <span class="o">&#39;</span><span class="i">float&#39;</span> <span class="i">does</span> <span onmouseout="hideTip(event, 'fs40', 83)" onmouseover="showTip(event, 'fs40', 83)" class="i">not</span> <span class="k">match</span> <span class="i">the</span> <span class="k">type</span> <span class="o">&#39;</span><span class="i">char&#39;</span> <span class="i">場所</span> <span class="n">1</span>,<span class="n">19</span>
+<span class="i">警告</span> <span class="i">The</span> <span class="k">type</span> <span class="o">&#39;</span><span class="i">float&#39;</span> <span class="i">does</span> <span onmouseout="hideTip(event, 'fs40', 84)" onmouseover="showTip(event, 'fs40', 84)" class="i">not</span> <span class="k">match</span> <span class="i">the</span> <span class="k">type</span> <span class="o">&#39;</span><span class="i">char&#39;</span> <span class="i">場所</span> <span class="n">1</span>,<span class="n">17</span>
 </code></pre></td>
 </tr>
 </table>
@@ -254,16 +254,16 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <span class="l"> 9: </span>
 <span class="l">10: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">evalExpressionTyped2</span><span class="o">&lt;</span><span class="o">&#39;</span><span class="i">T</span><span class="o">&gt;</span> <span class="i">text</span> <span class="o">=</span>
-   <span class="k">let</span> <span class="i">res</span>, <span class="i">warnings</span> <span class="o">=</span> <span class="i">fsiSession</span><span class="o">.</span><span class="i">EvalExpressionNonThrowing</span>(<span class="i">text</span>)
-   <span class="k">for</span> <span class="i">w</span> <span class="k">in</span> <span class="i">warnings</span> <span class="k">do</span> 
-       <span class="i">printfn</span> <span class="s">&quot;警告 %s 場所 %d,%d&quot;</span> <span class="i">w</span><span class="o">.</span><span class="i">Message</span> <span class="i">w</span><span class="o">.</span><span class="i">StartLineAlternate</span> <span class="i">w</span><span class="o">.</span><span class="i">StartColumn</span> 
-   <span class="k">match</span> <span class="i">res</span> <span class="k">with</span> 
-   | <span class="i">Choice1Of2</span> (<span class="i">Some</span> <span class="i">value</span>) <span class="k">-&gt;</span> <span class="i">value</span><span class="o">.</span><span class="i">ReflectionValue</span> <span class="o">|&gt;</span> <span class="i">unbox</span><span class="o">&lt;</span><span class="o">&#39;</span><span class="i">T</span><span class="o">&gt;</span>
-   | <span class="i">Choice1Of2</span> <span class="i">None</span> <span class="k">-&gt;</span> <span class="i">failwith</span> <span class="s">&quot;null または結果がありません&quot;</span>
-   | <span class="i">Choice2Of2</span> (<span class="i">exn</span><span class="o">:</span><span class="i">exn</span>) <span class="k">-&gt;</span> <span class="i">failwith</span> (<span class="i">sprintf</span> <span class="s">&quot;例外 %s&quot;</span> <span class="i">exn</span><span class="o">.</span><span class="i">Message</span>)
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs42', 85)" onmouseover="showTip(event, 'fs42', 85)" class="f">evalExpressionTyped2</span><span class="o">&lt;</span><span class="o">&#39;</span><span class="i">T</span><span class="o">&gt;</span> <span onmouseout="hideTip(event, 'fs29', 86)" onmouseover="showTip(event, 'fs29', 86)" class="i">text</span> <span class="o">=</span>
+   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs43', 87)" onmouseover="showTip(event, 'fs43', 87)" class="i">res</span>, <span onmouseout="hideTip(event, 'fs44', 88)" onmouseover="showTip(event, 'fs44', 88)" class="i">warnings</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 89)" onmouseover="showTip(event, 'fs21', 89)" class="i">fsiSession</span><span class="o">.</span><span class="i">EvalExpressionNonThrowing</span>(<span onmouseout="hideTip(event, 'fs29', 90)" onmouseover="showTip(event, 'fs29', 90)" class="i">text</span>)
+   <span class="k">for</span> <span onmouseout="hideTip(event, 'fs41', 91)" onmouseover="showTip(event, 'fs41', 91)" class="i">w</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs44', 92)" onmouseover="showTip(event, 'fs44', 92)" class="i">warnings</span> <span class="k">do</span> 
+       <span onmouseout="hideTip(event, 'fs26', 93)" onmouseover="showTip(event, 'fs26', 93)" class="f">printfn</span> <span class="s">&quot;警告 </span><span class="pf">%s</span><span class="s"> 場所 </span><span class="pf">%d</span><span class="s">,</span><span class="pf">%d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs41', 94)" onmouseover="showTip(event, 'fs41', 94)" class="i">w</span><span class="o">.</span><span class="i">Message</span> <span onmouseout="hideTip(event, 'fs41', 95)" onmouseover="showTip(event, 'fs41', 95)" class="i">w</span><span class="o">.</span><span class="i">StartLineAlternate</span> <span onmouseout="hideTip(event, 'fs41', 96)" onmouseover="showTip(event, 'fs41', 96)" class="i">w</span><span class="o">.</span><span class="i">StartColumn</span> 
+   <span class="k">match</span> <span onmouseout="hideTip(event, 'fs43', 97)" onmouseover="showTip(event, 'fs43', 97)" class="i">res</span> <span class="k">with</span> 
+   | <span onmouseout="hideTip(event, 'fs37', 98)" onmouseover="showTip(event, 'fs37', 98)" class="p">Choice1Of2</span> (<span onmouseout="hideTip(event, 'fs24', 99)" onmouseover="showTip(event, 'fs24', 99)" class="p">Some</span> <span onmouseout="hideTip(event, 'fs25', 100)" onmouseover="showTip(event, 'fs25', 100)" class="i">value</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs25', 101)" onmouseover="showTip(event, 'fs25', 101)" class="i">value</span><span class="o">.</span><span class="i">ReflectionValue</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs30', 102)" onmouseover="showTip(event, 'fs30', 102)" class="f">unbox</span><span class="o">&lt;</span><span class="o">&#39;</span><span class="i">T</span><span class="o">&gt;</span>
+   | <span onmouseout="hideTip(event, 'fs37', 103)" onmouseover="showTip(event, 'fs37', 103)" class="p">Choice1Of2</span> <span onmouseout="hideTip(event, 'fs27', 104)" onmouseover="showTip(event, 'fs27', 104)" class="p">None</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs31', 105)" onmouseover="showTip(event, 'fs31', 105)" class="f">failwith</span> <span class="s">&quot;null または結果がありません&quot;</span>
+   | <span onmouseout="hideTip(event, 'fs38', 106)" onmouseover="showTip(event, 'fs38', 106)" class="p">Choice2Of2</span> (<span onmouseout="hideTip(event, 'fs45', 107)" onmouseover="showTip(event, 'fs45', 107)" class="i">exn</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs45', 108)" onmouseover="showTip(event, 'fs45', 108)" class="t">exn</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs31', 109)" onmouseover="showTip(event, 'fs31', 109)" class="f">failwith</span> (<span onmouseout="hideTip(event, 'fs46', 110)" onmouseover="showTip(event, 'fs46', 110)" class="f">sprintf</span> <span class="s">&quot;例外 </span><span class="pf">%s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs45', 111)" onmouseover="showTip(event, 'fs45', 111)" class="i">exn</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 112)" onmouseover="showTip(event, 'fs47', 112)" class="i">Message</span>)
 
-<span class="i">evalExpressionTyped2</span><span class="o">&lt;</span><span class="i">int</span><span class="o">&gt;</span> <span class="s">&quot;42+1&quot;</span>  <span class="c">// &#39;43&#39; になる</span>
+<span onmouseout="hideTip(event, 'fs42', 113)" onmouseover="showTip(event, 'fs42', 113)" class="f">evalExpressionTyped2</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs32', 114)" onmouseover="showTip(event, 'fs32', 114)" class="t">int</span><span class="o">&gt;</span> <span class="s">&quot;42+1&quot;</span>  <span class="c">// &#39;43&#39; になる</span>
 </code></pre></td>
 </tr>
 </table>
@@ -284,9 +284,9 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <span class="l">12: </span>
 <span class="l">13: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span class="i">System</span><span class="o">.</span><span class="i">Threading</span><span class="o">.</span><span class="i">Tasks</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 115)" onmouseover="showTip(event, 'fs5', 115)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs48', 116)" onmouseover="showTip(event, 'fs48', 116)" class="i">Threading</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs49', 117)" onmouseover="showTip(event, 'fs49', 117)" class="i">Tasks</span>
 
-<span class="k">let</span> <span class="i">sampleLongRunningExpr</span> <span class="o">=</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs50', 118)" onmouseover="showTip(event, 'fs50', 118)" class="i">sampleLongRunningExpr</span> <span class="o">=</span> 
     <span class="s">&quot;&quot;&quot;</span>
 <span class="s">async { </span>
 <span class="s">    // 実行したいコード</span>
@@ -295,8 +295,8 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <span class="s">}</span>
 <span class="s">  |&gt; Async.StartAsTask&quot;&quot;&quot;</span>
 
-<span class="k">let</span> <span class="i">task1</span> <span class="o">=</span> <span class="i">evalExpressionTyped</span><span class="o">&lt;</span><span class="i">Task</span><span class="o">&lt;</span><span class="i">int</span><span class="o">&gt;</span><span class="o">&gt;</span>(<span class="i">sampleLongRunningExpr</span>)  
-<span class="k">let</span> <span class="i">task2</span> <span class="o">=</span> <span class="i">evalExpressionTyped</span><span class="o">&lt;</span><span class="i">Task</span><span class="o">&lt;</span><span class="i">int</span><span class="o">&gt;</span><span class="o">&gt;</span>(<span class="i">sampleLongRunningExpr</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs51', 119)" onmouseover="showTip(event, 'fs51', 119)" class="i">task1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs28', 120)" onmouseover="showTip(event, 'fs28', 120)" class="f">evalExpressionTyped</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs52', 121)" onmouseover="showTip(event, 'fs52', 121)" class="t">Task</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs32', 122)" onmouseover="showTip(event, 'fs32', 122)" class="t">int</span><span class="o">&gt;</span><span class="o">&gt;</span>(<span onmouseout="hideTip(event, 'fs50', 123)" onmouseover="showTip(event, 'fs50', 123)" class="i">sampleLongRunningExpr</span>)  
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs53', 124)" onmouseover="showTip(event, 'fs53', 124)" class="i">task2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs28', 125)" onmouseover="showTip(event, 'fs28', 125)" class="f">evalExpressionTyped</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs52', 126)" onmouseover="showTip(event, 'fs52', 126)" class="t">Task</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs32', 127)" onmouseover="showTip(event, 'fs32', 127)" class="t">int</span><span class="o">&gt;</span><span class="o">&gt;</span>(<span onmouseout="hideTip(event, 'fs50', 128)" onmouseover="showTip(event, 'fs50', 128)" class="i">sampleLongRunningExpr</span>)
 </code></pre></td>
 </tr>
 </table>
@@ -304,8 +304,8 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">task1</span><span class="o">.</span><span class="i">Result</span> <span class="c">// 完了後に結果が出てくる (最大5秒)</span>
-<span class="i">task2</span><span class="o">.</span><span class="i">Result</span> <span class="c">// 完了後に結果が出てくる (最大5秒)</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs51', 129)" onmouseover="showTip(event, 'fs51', 129)" class="i">task1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs54', 130)" onmouseover="showTip(event, 'fs54', 130)" class="i">Result</span> <span class="c">// 完了後に結果が出てくる (最大5秒)</span>
+<span onmouseout="hideTip(event, 'fs53', 131)" onmouseover="showTip(event, 'fs53', 131)" class="i">task2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs54', 132)" onmouseover="showTip(event, 'fs54', 132)" class="i">Result</span> <span class="c">// 完了後に結果が出てくる (最大5秒)</span>
 </code></pre></td>
 </tr>
 </table>
@@ -315,14 +315,14 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 たとえばまず宣言を評価します:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">fsiSession</span><span class="o">.</span><span class="i">EvalInteraction</span> <span class="s">&quot;let xxx = 1 + 1&quot;</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs21', 133)" onmouseover="showTip(event, 'fs21', 133)" class="i">fsiSession</span><span class="o">.</span><span class="i">EvalInteraction</span> <span class="s">&quot;let xxx = 1 + 1&quot;</span>
 </code></pre></td>
 </tr>
 </table>
 <p>次に部分的に完全な <code>xxx + xx</code> というコードの型チェックを実行したいとします:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parseResults</span>, <span class="i">checkResults</span>, <span class="i">checkProjectResults</span> <span class="o">=</span> <span class="i">fsiSession</span><span class="o">.</span><span class="i">ParseAndCheckInteraction</span>(<span class="s">&quot;xxx + xx&quot;</span>)
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs55', 134)" onmouseover="showTip(event, 'fs55', 134)" class="i">parseResults</span>, <span onmouseout="hideTip(event, 'fs56', 135)" onmouseover="showTip(event, 'fs56', 135)" class="i">checkResults</span>, <span onmouseout="hideTip(event, 'fs57', 136)" onmouseover="showTip(event, 'fs57', 136)" class="i">checkProjectResults</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 137)" onmouseover="showTip(event, 'fs21', 137)" class="i">fsiSession</span><span class="o">.</span><span class="i">ParseAndCheckInteraction</span>(<span class="s">&quot;xxx + xx&quot;</span>)
 </code></pre></td>
 </tr>
 </table>
@@ -331,7 +331,7 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 たとえば以下のようなコードでエラーを確認出来ます:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">checkResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span><span class="i">Length</span> <span class="c">// 1</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs56', 138)" onmouseover="showTip(event, 'fs56', 138)" class="i">checkResults</span><span class="o">.</span><span class="i">Errors</span><span class="o">.</span><span class="i">Length</span> <span class="c">// 1</span>
 </code></pre></td>
 </tr>
 </table>
@@ -347,12 +347,12 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <span class="l">6: </span>
 <span class="l">7: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span class="i">Microsoft</span><span class="o">.</span><span class="i">FSharp</span><span class="o">.</span><span class="i">Compiler</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 139)" onmouseover="showTip(event, 'fs1', 139)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 140)" onmouseover="showTip(event, 'fs2', 140)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 141)" onmouseover="showTip(event, 'fs3', 141)" class="i">Compiler</span>
 
 <span class="c">// ツールチップを取得する</span>
-<span class="i">checkResults</span><span class="o">.</span><span class="i">GetToolTipTextAlternate</span>(<span class="n">1</span>, <span class="n">2</span>, <span class="s">&quot;xxx + xx&quot;</span>, [<span class="s">&quot;xxx&quot;</span>], <span class="i">FSharpTokenTag</span><span class="o">.</span><span class="i">IDENT</span>) 
+<span onmouseout="hideTip(event, 'fs56', 142)" onmouseover="showTip(event, 'fs56', 142)" class="i">checkResults</span><span class="o">.</span><span class="i">GetToolTipTextAlternate</span>(<span class="n">1</span>, <span class="n">2</span>, <span class="s">&quot;xxx + xx&quot;</span>, [<span class="s">&quot;xxx&quot;</span>], <span class="i">FSharpTokenTag</span><span class="o">.</span><span class="i">IDENT</span>) 
 
-<span class="i">checkResults</span><span class="o">.</span><span class="i">GetSymbolUseAtLocation</span>(<span class="n">1</span>, <span class="n">2</span>, <span class="s">&quot;xxx + xx&quot;</span>, [<span class="s">&quot;xxx&quot;</span>]) <span class="c">// シンボル xxx</span>
+<span onmouseout="hideTip(event, 'fs56', 143)" onmouseover="showTip(event, 'fs56', 143)" class="i">checkResults</span><span class="o">.</span><span class="i">GetSymbolUseAtLocation</span>(<span class="n">1</span>, <span class="n">2</span>, <span class="s">&quot;xxx + xx&quot;</span>, [<span class="s">&quot;xxx&quot;</span>]) <span class="c">// シンボル xxx</span>
   
 </code></pre></td>
 </tr>
@@ -363,7 +363,7 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 通常、FSharp.Compiler.Interactive.Settings.dll由来の1つが使われます。</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">fsiConfig2</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">GetDefaultConfiguration</span>(<span class="i">fsi</span>)
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs58', 144)" onmouseover="showTip(event, 'fs58', 144)" class="i">fsiConfig2</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">GetDefaultConfiguration</span>(<span onmouseout="hideTip(event, 'fs59', 145)" onmouseover="showTip(event, 'fs59', 145)" class="i">fsi</span>)
 </code></pre></td>
 </tr>
 </table>
@@ -396,26 +396,94 @@ F#の式としては不正なものの、F# Interactiveコンソールには入�
 <span class="l">15: </span>
 <span class="l">16: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">collectionTest</span>() <span class="o">=</span> 
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs60', 146)" onmouseover="showTip(event, 'fs60', 146)" class="f">collectionTest</span>() <span class="o">=</span> 
 
-    <span class="k">for</span> <span class="i">i</span> <span class="k">in</span> <span class="n">1</span> <span class="o">..</span> <span class="n">200</span> <span class="k">do</span>
-        <span class="k">let</span> <span class="i">defaultArgs</span> <span class="o">=</span> [|<span class="s">&quot;fsi.exe&quot;</span>;<span class="s">&quot;--noninteractive&quot;</span>;<span class="s">&quot;--nologo&quot;</span>;<span class="s">&quot;--gui-&quot;</span>|]
-        <span class="k">use</span> <span class="i">inStream</span> <span class="o">=</span> <span class="k">new</span> <span class="i">StringReader</span>(<span class="s">&quot;&quot;</span>)
-        <span class="k">use</span> <span class="i">outStream</span> <span class="o">=</span> <span class="k">new</span> <span class="i">StringWriter</span>()
-        <span class="k">use</span> <span class="i">errStream</span> <span class="o">=</span> <span class="k">new</span> <span class="i">StringWriter</span>()
+    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs61', 147)" onmouseover="showTip(event, 'fs61', 147)" class="i">i</span> <span class="k">in</span> <span class="n">1</span> <span class="o">..</span> <span class="n">200</span> <span class="k">do</span>
+        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs62', 148)" onmouseover="showTip(event, 'fs62', 148)" class="i">defaultArgs</span> <span class="o">=</span> [|<span class="s">&quot;fsi.exe&quot;</span>;<span class="s">&quot;--noninteractive&quot;</span>;<span class="s">&quot;--nologo&quot;</span>;<span class="s">&quot;--gui-&quot;</span>|]
+        <span class="k">use</span> <span onmouseout="hideTip(event, 'fs63', 149)" onmouseover="showTip(event, 'fs63', 149)" class="i">inStream</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs12', 150)" onmouseover="showTip(event, 'fs12', 150)" class="t">StringReader</span>(<span class="s">&quot;&quot;</span>)
+        <span class="k">use</span> <span onmouseout="hideTip(event, 'fs64', 151)" onmouseover="showTip(event, 'fs64', 151)" class="i">outStream</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs14', 152)" onmouseover="showTip(event, 'fs14', 152)" class="t">StringWriter</span>()
+        <span class="k">use</span> <span onmouseout="hideTip(event, 'fs65', 153)" onmouseover="showTip(event, 'fs65', 153)" class="i">errStream</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs14', 154)" onmouseover="showTip(event, 'fs14', 154)" class="t">StringWriter</span>()
 
-        <span class="k">let</span> <span class="i">fsiConfig</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">GetDefaultConfiguration</span>()
-        <span class="k">use</span> <span class="i">session</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">Create</span>(<span class="i">fsiConfig</span>, <span class="i">defaultArgs</span>, <span class="i">inStream</span>, <span class="i">outStream</span>, <span class="i">errStream</span>, <span class="i">collectible</span><span class="o">=</span><span class="k">true</span>)
+        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs66', 155)" onmouseover="showTip(event, 'fs66', 155)" class="i">fsiConfig</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">GetDefaultConfiguration</span>()
+        <span class="k">use</span> <span onmouseout="hideTip(event, 'fs67', 156)" onmouseover="showTip(event, 'fs67', 156)" class="i">session</span> <span class="o">=</span> <span class="i">FsiEvaluationSession</span><span class="o">.</span><span class="i">Create</span>(<span onmouseout="hideTip(event, 'fs66', 157)" onmouseover="showTip(event, 'fs66', 157)" class="i">fsiConfig</span>, <span onmouseout="hideTip(event, 'fs62', 158)" onmouseover="showTip(event, 'fs62', 158)" class="i">defaultArgs</span>, <span onmouseout="hideTip(event, 'fs63', 159)" onmouseover="showTip(event, 'fs63', 159)" class="i">inStream</span>, <span onmouseout="hideTip(event, 'fs64', 160)" onmouseover="showTip(event, 'fs64', 160)" class="i">outStream</span>, <span onmouseout="hideTip(event, 'fs65', 161)" onmouseover="showTip(event, 'fs65', 161)" class="i">errStream</span>, <span class="i">collectible</span><span class="o">=</span><span class="k">true</span>)
         
-        <span class="i">session</span><span class="o">.</span><span class="i">EvalInteraction</span> (<span class="i">sprintf</span> <span class="s">&quot;type D = { v : int }&quot;</span>)
-        <span class="k">let</span> <span class="i">v</span> <span class="o">=</span> <span class="i">session</span><span class="o">.</span><span class="i">EvalExpression</span> (<span class="i">sprintf</span> <span class="s">&quot;{ v = 42 * %d }&quot;</span> <span class="i">i</span>)
-        <span class="i">printfn</span> <span class="s">&quot;その %d, 結果 = %A&quot;</span> <span class="i">i</span> <span class="i">v</span><span class="o">.</span><span class="i">Value</span><span class="o">.</span><span class="i">ReflectionValue</span>
+        <span onmouseout="hideTip(event, 'fs67', 162)" onmouseover="showTip(event, 'fs67', 162)" class="i">session</span><span class="o">.</span><span class="i">EvalInteraction</span> (<span onmouseout="hideTip(event, 'fs46', 163)" onmouseover="showTip(event, 'fs46', 163)" class="i">sprintf</span> <span class="s">&quot;type D = { v : int }&quot;</span>)
+        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs68', 164)" onmouseover="showTip(event, 'fs68', 164)" class="i">v</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs67', 165)" onmouseover="showTip(event, 'fs67', 165)" class="i">session</span><span class="o">.</span><span class="i">EvalExpression</span> (<span onmouseout="hideTip(event, 'fs46', 166)" onmouseover="showTip(event, 'fs46', 166)" class="i">sprintf</span> <span class="s">&quot;{ v = 42 * %d }&quot;</span> <span onmouseout="hideTip(event, 'fs61', 167)" onmouseover="showTip(event, 'fs61', 167)" class="i">i</span>)
+        <span onmouseout="hideTip(event, 'fs26', 168)" onmouseover="showTip(event, 'fs26', 168)" class="f">printfn</span> <span class="s">&quot;その </span><span class="pf">%d</span><span class="s">, 結果 = </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs61', 169)" onmouseover="showTip(event, 'fs61', 169)" class="i">i</span> <span onmouseout="hideTip(event, 'fs68', 170)" onmouseover="showTip(event, 'fs68', 170)" class="i">v</span><span class="o">.</span><span class="i">Value</span><span class="o">.</span><span class="i">ReflectionValue</span>
 
 <span class="c">// collectionTest()  &lt;-- このようにテストを実行する</span>
 </code></pre></td>
 </tr>
 </table>
 
+<div class="tip" id="fs1">namespace Microsoft</div>
+<div class="tip" id="fs2">namespace Microsoft.FSharp</div>
+<div class="tip" id="fs3">namespace Microsoft.FSharp.Compiler</div>
+<div class="tip" id="fs4">namespace Microsoft.FSharp.Compiler.Interactive</div>
+<div class="tip" id="fs5">namespace System</div>
+<div class="tip" id="fs6">namespace System.IO</div>
+<div class="tip" id="fs7">namespace System.Text</div>
+<div class="tip" id="fs8">val sbOut : StringBuilder<br /><br />Full name: Interactive.sbOut</div>
+<div class="tip" id="fs9">Multiple items<br />type StringBuilder =<br />&#160;&#160;new : unit -&gt; StringBuilder + 5 overloads<br />&#160;&#160;member Append : value:string -&gt; StringBuilder + 18 overloads<br />&#160;&#160;member AppendFormat : format:string * arg0:obj -&gt; StringBuilder + 4 overloads<br />&#160;&#160;member AppendLine : unit -&gt; StringBuilder + 1 overload<br />&#160;&#160;member Capacity : int with get, set<br />&#160;&#160;member Chars : int -&gt; char with get, set<br />&#160;&#160;member Clear : unit -&gt; StringBuilder<br />&#160;&#160;member CopyTo : sourceIndex:int * destination:char[] * destinationIndex:int * count:int -&gt; unit<br />&#160;&#160;member EnsureCapacity : capacity:int -&gt; int<br />&#160;&#160;member Equals : sb:StringBuilder -&gt; bool<br />&#160;&#160;...<br /><br />Full name: System.Text.StringBuilder<br /><br />--------------------<br />StringBuilder() : unit<br />StringBuilder(capacity: int) : unit<br />StringBuilder(value: string) : unit<br />StringBuilder(value: string, capacity: int) : unit<br />StringBuilder(capacity: int, maxCapacity: int) : unit<br />StringBuilder(value: string, startIndex: int, length: int, capacity: int) : unit</div>
+<div class="tip" id="fs10">val sbErr : StringBuilder<br /><br />Full name: Interactive.sbErr</div>
+<div class="tip" id="fs11">val inStream : StringReader<br /><br />Full name: Interactive.inStream</div>
+<div class="tip" id="fs12">Multiple items<br />type StringReader =<br />&#160;&#160;inherit TextReader<br />&#160;&#160;new : s:string -&gt; StringReader<br />&#160;&#160;member Close : unit -&gt; unit<br />&#160;&#160;member Peek : unit -&gt; int<br />&#160;&#160;member Read : unit -&gt; int + 1 overload<br />&#160;&#160;member ReadLine : unit -&gt; string<br />&#160;&#160;member ReadToEnd : unit -&gt; string<br /><br />Full name: System.IO.StringReader<br /><br />--------------------<br />StringReader(s: string) : unit</div>
+<div class="tip" id="fs13">val outStream : StringWriter<br /><br />Full name: Interactive.outStream</div>
+<div class="tip" id="fs14">Multiple items<br />type StringWriter =<br />&#160;&#160;inherit TextWriter<br />&#160;&#160;new : unit -&gt; StringWriter + 3 overloads<br />&#160;&#160;member Close : unit -&gt; unit<br />&#160;&#160;member Encoding : Encoding<br />&#160;&#160;member GetStringBuilder : unit -&gt; StringBuilder<br />&#160;&#160;member ToString : unit -&gt; string<br />&#160;&#160;member Write : value:char -&gt; unit + 2 overloads<br /><br />Full name: System.IO.StringWriter<br /><br />--------------------<br />StringWriter() : unit<br />StringWriter(formatProvider: IFormatProvider) : unit<br />StringWriter(sb: StringBuilder) : unit<br />StringWriter(sb: StringBuilder, formatProvider: IFormatProvider) : unit</div>
+<div class="tip" id="fs15">val errStream : StringWriter<br /><br />Full name: Interactive.errStream</div>
+<div class="tip" id="fs16">val argv : string []<br /><br />Full name: Interactive.argv</div>
+<div class="tip" id="fs17">val allArgs : string []<br /><br />Full name: Interactive.allArgs</div>
+<div class="tip" id="fs18">type Array =<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CopyTo : array:Array * index:int -&gt; unit + 1 overload<br />&#160;&#160;member GetEnumerator : unit -&gt; IEnumerator<br />&#160;&#160;member GetLength : dimension:int -&gt; int<br />&#160;&#160;member GetLongLength : dimension:int -&gt; int64<br />&#160;&#160;member GetLowerBound : dimension:int -&gt; int<br />&#160;&#160;member GetUpperBound : dimension:int -&gt; int<br />&#160;&#160;member GetValue : [&lt;ParamArray&gt;] indices:int[] -&gt; obj + 7 overloads<br />&#160;&#160;member Initialize : unit -&gt; unit<br />&#160;&#160;member IsFixedSize : bool<br />&#160;&#160;...<br /><br />Full name: System.Array</div>
+<div class="tip" id="fs19">val append : array1:&#39;T [] -&gt; array2:&#39;T [] -&gt; &#39;T []<br /><br />Full name: Microsoft.FSharp.Collections.Array.append</div>
+<div class="tip" id="fs20">val fsiConfig : obj<br /><br />Full name: Interactive.fsiConfig</div>
+<div class="tip" id="fs21">val fsiSession : obj<br /><br />Full name: Interactive.fsiSession</div>
+<div class="tip" id="fs22">val evalExpression : text:&#39;a -&gt; unit<br /><br />Full name: Interactive.evalExpression<br /><em><br /><br />&#160;式を評価して結果を返す</em></div>
+<div class="tip" id="fs23">val text : &#39;a</div>
+<div class="tip" id="fs24">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs25">val value : obj</div>
+<div class="tip" id="fs26">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs27">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs28">val evalExpressionTyped : text:string -&gt; &#39;T<br /><br />Full name: Interactive.evalExpressionTyped<br /><em><br /><br />&#160;式を評価して、強く型付けされた結果を返す</em></div>
+<div class="tip" id="fs29">val text : string</div>
+<div class="tip" id="fs30">val unbox : value:obj -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.unbox</div>
+<div class="tip" id="fs31">val failwith : message:string -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.failwith</div>
+<div class="tip" id="fs32">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;</div>
+<div class="tip" id="fs33">type File =<br />&#160;&#160;static member AppendAllLines : path:string * contents:IEnumerable&lt;string&gt; -&gt; unit + 1 overload<br />&#160;&#160;static member AppendAllText : path:string * contents:string -&gt; unit + 1 overload<br />&#160;&#160;static member AppendText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Copy : sourceFileName:string * destFileName:string -&gt; unit + 1 overload<br />&#160;&#160;static member Create : path:string -&gt; FileStream + 3 overloads<br />&#160;&#160;static member CreateText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Decrypt : path:string -&gt; unit<br />&#160;&#160;static member Delete : path:string -&gt; unit<br />&#160;&#160;static member Encrypt : path:string -&gt; unit<br />&#160;&#160;static member Exists : path:string -&gt; bool<br />&#160;&#160;...<br /><br />Full name: System.IO.File</div>
+<div class="tip" id="fs34">File.WriteAllText(path: string, contents: string) : unit<br />File.WriteAllText(path: string, contents: string, encoding: Encoding) : unit</div>
+<div class="tip" id="fs35">val result : Choice&lt;unit,obj&gt;<br /><br />Full name: Interactive.result</div>
+<div class="tip" id="fs36">val warnings : seq&lt;obj&gt;<br /><br />Full name: Interactive.warnings</div>
+<div class="tip" id="fs37">union case Choice.Choice1Of2: &#39;T1 -&gt; Choice&lt;&#39;T1,&#39;T2&gt;</div>
+<div class="tip" id="fs38">union case Choice.Choice2Of2: &#39;T2 -&gt; Choice&lt;&#39;T1,&#39;T2&gt;</div>
+<div class="tip" id="fs39">Multiple items<br />val exn : obj<br /><br />--------------------<br />type exn = Exception<br /><br />Full name: Microsoft.FSharp.Core.exn</div>
+<div class="tip" id="fs40">val not : value:bool -&gt; bool<br /><br />Full name: Microsoft.FSharp.Core.Operators.not</div>
+<div class="tip" id="fs41">val w : obj</div>
+<div class="tip" id="fs42">val evalExpressionTyped2 : text:string -&gt; &#39;T<br /><br />Full name: Interactive.evalExpressionTyped2</div>
+<div class="tip" id="fs43">val res : Choice&lt;obj option,exn&gt;</div>
+<div class="tip" id="fs44">val warnings : seq&lt;obj&gt;</div>
+<div class="tip" id="fs45">Multiple items<br />val exn : exn<br /><br />--------------------<br />type exn = Exception<br /><br />Full name: Microsoft.FSharp.Core.exn</div>
+<div class="tip" id="fs46">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
+<div class="tip" id="fs47">property Exception.Message: string</div>
+<div class="tip" id="fs48">namespace System.Threading</div>
+<div class="tip" id="fs49">namespace System.Threading.Tasks</div>
+<div class="tip" id="fs50">val sampleLongRunningExpr : string<br /><br />Full name: Interactive.sampleLongRunningExpr</div>
+<div class="tip" id="fs51">val task1 : Task&lt;int&gt;<br /><br />Full name: Interactive.task1</div>
+<div class="tip" id="fs52">Multiple items<br />type Task =<br />&#160;&#160;new : action:Action -&gt; Task + 7 overloads<br />&#160;&#160;member AsyncState : obj<br />&#160;&#160;member ContinueWith : continuationAction:Action&lt;Task&gt; -&gt; Task + 9 overloads<br />&#160;&#160;member CreationOptions : TaskCreationOptions<br />&#160;&#160;member Dispose : unit -&gt; unit<br />&#160;&#160;member Exception : AggregateException<br />&#160;&#160;member Id : int<br />&#160;&#160;member IsCanceled : bool<br />&#160;&#160;member IsCompleted : bool<br />&#160;&#160;member IsFaulted : bool<br />&#160;&#160;...<br /><br />Full name: System.Threading.Tasks.Task<br /><br />--------------------<br />type Task&lt;&#39;TResult&gt; =<br />&#160;&#160;inherit Task<br />&#160;&#160;new : function:Func&lt;&#39;TResult&gt; -&gt; Task&lt;&#39;TResult&gt; + 7 overloads<br />&#160;&#160;member ContinueWith : continuationAction:Action&lt;Task&lt;&#39;TResult&gt;&gt; -&gt; Task + 9 overloads<br />&#160;&#160;member Result : &#39;TResult with get, set<br />&#160;&#160;static member Factory : TaskFactory&lt;&#39;TResult&gt;<br /><br />Full name: System.Threading.Tasks.Task&lt;_&gt;<br /><br />--------------------<br />Task(action: Action) : unit<br />Task(action: Action, cancellationToken: Threading.CancellationToken) : unit<br />Task(action: Action, creationOptions: TaskCreationOptions) : unit<br />Task(action: Action&lt;obj&gt;, state: obj) : unit<br />Task(action: Action, cancellationToken: Threading.CancellationToken, creationOptions: TaskCreationOptions) : unit<br />Task(action: Action&lt;obj&gt;, state: obj, cancellationToken: Threading.CancellationToken) : unit<br />Task(action: Action&lt;obj&gt;, state: obj, creationOptions: TaskCreationOptions) : unit<br />Task(action: Action&lt;obj&gt;, state: obj, cancellationToken: Threading.CancellationToken, creationOptions: TaskCreationOptions) : unit<br /><br />--------------------<br />Task(function: Func&lt;&#39;TResult&gt;) : unit<br />Task(function: Func&lt;&#39;TResult&gt;, cancellationToken: Threading.CancellationToken) : unit<br />Task(function: Func&lt;&#39;TResult&gt;, creationOptions: TaskCreationOptions) : unit<br />Task(function: Func&lt;obj,&#39;TResult&gt;, state: obj) : unit<br />Task(function: Func&lt;&#39;TResult&gt;, cancellationToken: Threading.CancellationToken, creationOptions: TaskCreationOptions) : unit<br />Task(function: Func&lt;obj,&#39;TResult&gt;, state: obj, cancellationToken: Threading.CancellationToken) : unit<br />Task(function: Func&lt;obj,&#39;TResult&gt;, state: obj, creationOptions: TaskCreationOptions) : unit<br />Task(function: Func&lt;obj,&#39;TResult&gt;, state: obj, cancellationToken: Threading.CancellationToken, creationOptions: TaskCreationOptions) : unit</div>
+<div class="tip" id="fs53">val task2 : Task&lt;int&gt;<br /><br />Full name: Interactive.task2</div>
+<div class="tip" id="fs54">property Task.Result: int</div>
+<div class="tip" id="fs55">val parseResults : obj<br /><br />Full name: Interactive.parseResults</div>
+<div class="tip" id="fs56">val checkResults : obj<br /><br />Full name: Interactive.checkResults</div>
+<div class="tip" id="fs57">val checkProjectResults : obj<br /><br />Full name: Interactive.checkProjectResults</div>
+<div class="tip" id="fs58">val fsiConfig2 : obj<br /><br />Full name: Interactive.fsiConfig2</div>
+<div class="tip" id="fs59">val fsi : Interactive.InteractiveSession<br /><br />Full name: Microsoft.FSharp.Compiler.Interactive.Settings.fsi</div>
+<div class="tip" id="fs60">val collectionTest : unit -&gt; unit<br /><br />Full name: Interactive.collectionTest</div>
+<div class="tip" id="fs61">val i : int32</div>
+<div class="tip" id="fs62">val defaultArgs : string []</div>
+<div class="tip" id="fs63">val inStream : StringReader</div>
+<div class="tip" id="fs64">val outStream : StringWriter</div>
+<div class="tip" id="fs65">val errStream : StringWriter</div>
+<div class="tip" id="fs66">val fsiConfig : obj</div>
+<div class="tip" id="fs67">val session : IDisposable</div>
+<div class="tip" id="fs68">val v : obj</div>
 
         </div>
         <div class="span3">

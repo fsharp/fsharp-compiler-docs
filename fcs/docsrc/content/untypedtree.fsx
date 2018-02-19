@@ -56,7 +56,7 @@ return the `ParseTree` property:
 /// Get untyped tree for a specified input
 let getUntypedTree (file, input) = 
   // Get compiler options for the 'project' implied by a single script file
-  let projOptions = 
+  let projOptions, _errors = 
       checker.GetProjectOptionsFromScript(file, input)
       |> Async.RunSynchronously
 

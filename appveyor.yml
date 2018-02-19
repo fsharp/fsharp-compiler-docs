@@ -1,20 +1,9 @@
 os: Visual Studio 2017
 
-environment:
-  CLI_VERSION: 2.0.0
-
-install:
-  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
-  - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
-  - ps: Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1"
-  - ps: '& "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1" -Version $env:CLI_VERSION -InstallDir $env:DOTNET_INSTALL_DIR'
-  - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
-
 init:
   - git config --global core.autocrlf input
 
 build_script:
-  - cmd: dotnet --info
   - cmd: fcs\build.cmd TestAndNuGet
 
 test: off

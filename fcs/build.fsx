@@ -18,7 +18,7 @@ CleanDir (__SOURCE_DIRECTORY__ + "/../tests/TestResults")
 File.WriteAllText(__SOURCE_DIRECTORY__ + "/../tests/TestResults/notestsyet.txt","No tests yet")
 #endif
 
-let dotnetExePath = DotNetCli.InstallDotNetSDK "2.0.2"
+let dotnetExePath = DotNetCli.InstallDotNetSDK "2.1.3"
 
 let runDotnet workingDir args =
     let result =
@@ -109,7 +109,7 @@ Target "BuildVersion" (fun _ ->
 
 Target "Build.NetFx" (fun _ ->
     !! "FSharp.Compiler.Service.sln"
-    |> MSBuild "" "Build" ["Configuration","Release" ]
+    |> MSBuild "" "Build" ["Configuration","Release"; "SourceLinkCreate","true"]
     |> Log (".NETFxBuild-Output: ")
 )
 

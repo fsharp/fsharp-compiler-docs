@@ -22,3 +22,9 @@ NUGET
     System.Runtime (4.3) - restriction: || (&& (== net45) (>= netstandard1.3)) (== net46)
     System.Runtime.InteropServices (4.3) - restriction: || (&& (== net45) (>= netstandard1.3)) (== net46)
     System.Threading.Tasks.Dataflow (4.5.24)
+
+GROUP SourceLink
+STORAGE: NONE
+NUGET
+  remote: https://www.nuget.org/api/v2
+    SourceLink.Create.CommandLine (2.7.4)

@@ -8,6 +8,10 @@ if errorlevel 1 (
   exit /b %errorlevel%
 )
 
+REM see https://github.com/fsprojects/Paket/issues/3065#issuecomment-367829309
+powershell -Command {new-itemproperty -path "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319" -name "SchUseStrongCrypto" -Value 1 -PropertyType "DWord";}
+powershell -Command {new-itemproperty -path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NETFramework\v4.0.30319" -name "SchUseStrongCrypto" -Value 1 -PropertyType "DWord"}
+
 .paket\paket.exe restore
 if errorlevel 1 (
   endlocal

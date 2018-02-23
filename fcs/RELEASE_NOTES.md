@@ -1,3 +1,8 @@
+#### 21.0.1
+  * Use new .NET SDK project files
+  * FSharp.Compiler.Service nuget now uses net45 and netstandard2.0
+  * FSharp.Compiler.Service netstandard2.0 now supports type providers
+  
 #### 20.0.1
   * Integrate visualfsharp master
 

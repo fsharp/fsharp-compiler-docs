@@ -16,6 +16,7 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <DefineConstants>$(DefineConstants);FX_NO_RUNTIMEENVIRONMENT</DefineConstants>
     <DefineConstants>$(DefineConstants);NO_PROJECTCRACKER</DefineConstants>
+    <DefineConstants>$(DefineConstants);FCS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(FSharpSourcesRoot)\..\tests\service\ReshapedReflection.fs">
@@ -92,7 +93,8 @@
     <Reference Include="System.Xaml" />
     <Reference Include="WindowsBase" />
     <Reference Include="UIAutomationTypes" />
-    <ProjectReference Include="$(FSharpSourcesRoot)\..\tests\service\data\CSharp_Analysis\CSharp_Analysis.csproj" />
+    <!-- disabled until all project files are converted to .NET SDK -->
+    <!-- <ProjectReference Include="$(FSharpSourcesRoot)\..\tests\service\data\CSharp_Analysis\CSharp_Analysis.csproj" /> -->
     <ProjectReference Include="$(FSharpSourcesRoot)\..\fcs\FSharp.Compiler.Service.ProjectCracker\FSharp.Compiler.Service.ProjectCracker.fsproj" />
   </ItemGroup>
 </Project>

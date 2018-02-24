@@ -60,6 +60,7 @@ let internal getProjectReferences (content, dllFiles, libDirs, otherFlags) =
         |> dict
     results, assemblies
 
+#if !FCS // disabled in FCS testing because the CSharp_Analysis.dll is not put in the right place
 [<Test>]
 #if NETCOREAPP2_0
 [<Ignore("SKIPPED: need to check if these tests can be enabled for .NET Core testing of FSharp.Compiler.Service")>]
@@ -146,3 +147,4 @@ let _ = CSharpClass(0)
         Seq.exists (fun (mfv : FSharpMemberOrFunctionOrValue) -> mfv.IsEffectivelySameAs ctor) members |> should be True
     | None -> failwith "Expected Some for DeclaringEntity"
 
+#endif

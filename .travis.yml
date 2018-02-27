@@ -9,10 +9,9 @@ osx_image: xcode9
 mono:
   - weekly
   - latest
-  - 4.8.0
-  - 4.4.2
+  - 5.8.0
 
-dotnet: 2.0.0
+dotnet: 2.1.4
 
 sudo: false
 

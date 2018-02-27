@@ -9,5 +9,5 @@ build_script:
 test: off
 version: '{build}'
 artifacts:
-  - path: release\*.nupkg
+  - path: release\fcs\*.nupkg
     type: NuGetPackage

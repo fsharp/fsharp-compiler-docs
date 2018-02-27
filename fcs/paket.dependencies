@@ -4,6 +4,7 @@ source https://www.nuget.org/api/v2/
 
 nuget FAKE prerelease
 nuget FSharp.Formatting
+<<<<<<< HEAD
 
 nuget Microsoft.Build.Utilities.Core 14.3.0
 nuget Microsoft.Build.Framework 14.3.0
@@ -15,3 +16,5 @@ group SourceLink
   storage: none
   source https://www.nuget.org/api/v2/
   nuget SourceLink.Create.CommandLine 2.7.4
+=======
+>>>>>>> 160535234cb0bee6ec3a7cf95ad71464c45891c9

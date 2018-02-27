@@ -22,24 +22,6 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 open FSharp.Compiler.Service.Tests.Common
 
-let internal getProjectReferences (content, dllFiles) = 
-    let fileName, options = 
-      mkTestFileAndOptions content 
-       [| for dllFile in dllFiles do
-            yield "-r:"+dllFile |]
-    let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
-    if results.HasCriticalErrors then
-        let builder = new System.Text.StringBuilder()
-        for err in results.Errors do
-            builder.AppendLine(sprintf "**** %s: %s" (if err.Severity = FSharpErrorSeverity.Error then "error" else "warning") err.Message)
-            |> ignore
-        failwith (builder.ToString())
-    let assemblies =
-        results.ProjectContext.GetReferencedAssemblies()
-        |> List.map(fun x -> x.SimpleName, x)
-        |> dict
-    results, assemblies
-
 #if !FCS // disabled in FCS testing because the CSharp_Analysis.dll is not put in the right place
 [<Test>]
 #if NETCOREAPP2_0

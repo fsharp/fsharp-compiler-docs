@@ -20,7 +20,8 @@ let isMono = true
 let isMono = false
 #endif
 
-let dotnetExePath = DotNetCli.InstallDotNetSDK "2.1.4"
+
+let dotnetExePath = DotNetCli.InstallDotNetSDK "2.1.102"
 
 let runDotnet workingDir args =
     let result =

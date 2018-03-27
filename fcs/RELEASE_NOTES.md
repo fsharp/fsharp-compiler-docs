@@ -1,3 +1,6 @@
+#### 22.0.2
+  * Use correct version number in DLLs (needed until https://github.com/Microsoft/visualfsharp/issues/3113 is fixed)
+
 #### 22.0.1
   * Integrate visualfsharp master
   * Includes recent memory usage reduction work for ByteFile and ILAttributes

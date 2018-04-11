@@ -499,7 +499,8 @@ module internal SymbolHelpers =
         let ccuFileName = libFileOfEntityRef tcref
         let v = vref.Deref
         if v.XmlDocSig = "" && v.HasDeclaringEntity then
-            v.XmlDocSig <- XmlDocSigOfVal g (buildAccessPath vref.TopValDeclaringEntity.CompilationPathOpt) v
+            let ap = (buildAccessPath vref.TopValDeclaringEntity.CompilationPathOpt) + "." + vref.TopValDeclaringEntity.CompiledName
+            v.XmlDocSig <- XmlDocSigOfVal g ap v
         Some (ccuFileName, v.XmlDocSig)                
 
     let GetXmlDocSigOfRecdFieldInfo (rfinfo:RecdFieldInfo) = 

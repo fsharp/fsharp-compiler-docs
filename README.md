@@ -17,17 +17,13 @@ For more information about the project, see:
 Build and Test
 -----
 
-.NET Framework:
+On Windows:
 
-    fcs\build.cmd Test.NetFx
+    .\fcs\build.cmd Test
 
-    fcs/build.sh Test.NetFx
+On Linux:
 
-.NET Core / .NET Standard
-
-    fcs\build.cmd Test.NetStd
-
-    fcs/build.sh Test.NetStd  
+    ./fcs/build.sh Test
 
 Packages:
 

@@ -1,3 +1,6 @@
+#### 23.0.1
+  * Integrate visualfsharp master to ee938a7a5cfdf4849b091087efbf64605110541f
+
 #### 22.0.3
   * [Add entity.DeclaringEntity](https://github.com/Microsoft/visualfsharp/pull/4633), [FCS feature request](https://github.com/fsharp/FSharp.Compiler.Service/issues/830)
 

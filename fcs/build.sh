@@ -4,7 +4,9 @@ then
   # use .Net
   cmd fcs/build.cmd $@ 
 else
-  cd fcs
+  if [[ "$PWD" != *fcs ]]; then
+    cd fcs
+  fi
 
   # use mono
   if [[ ! -e ~/.config/.mono/certs ]]; then

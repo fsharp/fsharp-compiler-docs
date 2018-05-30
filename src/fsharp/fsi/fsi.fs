@@ -1162,11 +1162,12 @@ type internal FsiDynamicCompiler
 
         // Find all new declarations the EvaluationListener
         try
-            let contents = FSharpAssemblyContents(tcGlobals, tcState.Ccu, tcImports, declaredImpls)
+            let contents = FSharpAssemblyContents(tcGlobals, tcState.Ccu, Some tcState.CcuSig, tcImports, declaredImpls)
             let contentFile = contents.ImplementationFiles.[0]
             // Skip the "FSI_NNNN"
             match contentFile.Declarations with 
             | [FSharpImplementationFileDeclaration.Entity (_eFakeModule,modDecls) ] -> 
+                let cenv = SymbolEnv(newState.tcGlobals, newState.tcState.Ccu, Some newState.tcState.CcuSig, newState.tcImports)
                 for decl in modDecls do 
                     match decl with 
                     | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue (v,_,_) ->
@@ -1177,16 +1178,16 @@ type internal FsiDynamicCompiler
                             | Item.Value vref ->
                                 let optValue = newState.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(newState.emEnv), vref.Deref)
                                 match optValue with
-                                | Some (res, typ) -> Some(FsiValue(res, typ, FSharpType(tcGlobals, newState.tcState.Ccu, newState.tcImports, vref.Type)))
+                                | Some (res, typ) -> Some(FsiValue(res, typ, FSharpType(cenv, vref.Type)))
                                 | None -> None 
                             | _ -> None
 
-                        let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, v.Item)
+                        let symbol = FSharpSymbol.Create(cenv, v.Item)
                         let symbolUse = FSharpSymbolUse(tcGlobals, newState.tcState.TcEnvFromImpls.DisplayEnv, symbol, ItemOccurence.Binding, v.DeclarationLocation)
                         fsi.TriggerEvaluation (fsiValueOpt, symbolUse, decl)
                     | FSharpImplementationFileDeclaration.Entity (e,_) ->
                         // Report a top-level module or namespace definition
-                        let symbol = FSharpSymbol.Create(newState.tcGlobals, newState.tcState.Ccu, newState.tcImports, e.Item)
+                        let symbol = FSharpSymbol.Create(cenv, e.Item)
                         let symbolUse = FSharpSymbolUse(tcGlobals, newState.tcState.TcEnvFromImpls.DisplayEnv, symbol, ItemOccurence.Binding, e.DeclarationLocation)
                         fsi.TriggerEvaluation (None, symbolUse, decl)
                     | FSharpImplementationFileDeclaration.InitAction _ ->
@@ -1224,7 +1225,7 @@ type internal FsiDynamicCompiler
              //
              let optValue = istate.ilxGenerator.LookupGeneratedValue(valuePrinter.GetEvaluationContext(istate.emEnv), vref.Deref);
              match optValue with
-             | Some (res, typ) -> istate, Completed(Some(FsiValue(res, typ, FSharpType(tcGlobals, istate.tcState.Ccu, istate.tcImports, vref.Type))))
+             | Some (res, typ) -> istate, Completed(Some(FsiValue(res, typ, FSharpType(tcGlobals, istate.tcState.Ccu, istate.tcState.CcuSig, istate.tcImports, vref.Type))))
              | _ -> istate, Completed None
 
         // Return the interactive state.
@@ -1349,7 +1350,7 @@ type internal FsiDynamicCompiler
         } 
 
     member __.CurrentPartialAssemblySignature(istate) = 
-        FSharpAssemblySignature(istate.tcGlobals, istate.tcState.Ccu, istate.tcImports, None, istate.tcState.PartialAssemblySignature)
+        FSharpAssemblySignature(istate.tcGlobals, istate.tcState.Ccu, istate.tcState.CcuSig, istate.tcImports, None, istate.tcState.CcuSig)
 
     member __.FormatValue(obj:obj, objTy) = 
         valuePrinter.FormatValue(obj, objTy)

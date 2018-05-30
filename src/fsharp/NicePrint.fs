@@ -1299,8 +1299,11 @@ module InfoMemberPrinting =
             else emptyL
         let layout = 
             layout ^^
-                let tcref = minfo.ApparentEnclosingTyconRef 
-                PrintTypes.layoutTyconRef denv tcref
+                if isAppTy minfo.TcGlobals minfo.ApparentEnclosingAppType then
+                    let tcref = minfo.ApparentEnclosingTyconRef 
+                    PrintTypes.layoutTyconRef denv tcref
+                else
+                    emptyL
         let layout = 
             layout ^^
                 if minfo.IsConstructor then  
@@ -1824,11 +1827,11 @@ module private InferredSigPrinting =
             | TMDefLet _  -> true
             | TMDefDo _  -> true
             | TMDefs defs -> defs |> List.exists isConcreteNamespace 
-            | TMAbstract(ModuleOrNamespaceExprWithSig(_,def,_)) -> isConcreteNamespace def
+            | TMAbstract(ModuleOrNamespaceExprWithSig(_, def, _)) -> isConcreteNamespace def
 
-        let rec imexprLP denv  (ModuleOrNamespaceExprWithSig(_,def,_)) = imdefL denv def
+        let rec imexprLP denv  (ModuleOrNamespaceExprWithSig(_, def, _)) = imdefL denv def
 
-        and imexprL denv (ModuleOrNamespaceExprWithSig(mty,def,m)) = imexprLP denv (ModuleOrNamespaceExprWithSig(mty,def,m))
+        and imexprL denv (ModuleOrNamespaceExprWithSig(mty, def, m)) = imexprLP denv (ModuleOrNamespaceExprWithSig(mty, def, m))
 
         and imdefsL denv  x = aboveListL (x |> List.map (imdefL denv))
 
@@ -1923,6 +1926,8 @@ module private PrintData =
             let fields = tc.TrueInstanceFieldsAsList
             let lay fs x = (wordL (tagRecordField fs.rfield_id.idText) ^^ sepL (tagPunctuation "=")) --- (dataExprL denv x)
             leftL (tagPunctuation "{") ^^ semiListL (List.map2 lay fields xs) ^^ rightL (tagPunctuation "}")
+        | Expr.Op (TOp.ValFieldGet (RecdFieldRef.RFRef (tcref, name)), _, _, _) ->
+            (layoutTyconRef denv tcref) ^^ sepL (tagPunctuation ".") ^^ wordL (tagField name)
         | Expr.Op (TOp.Array,[_],xs,_)                 -> leftL (tagPunctuation "[|") ^^ semiListL (dataExprsL denv xs) ^^ RightL.rightBracketBar
         | _ -> wordL (tagPunctuation "?")
     and private dataExprsL denv xs = List.map (dataExprL denv) xs

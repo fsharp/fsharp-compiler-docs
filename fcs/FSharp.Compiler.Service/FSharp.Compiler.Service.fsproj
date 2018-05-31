@@ -24,7 +24,7 @@
     <Summary>The F# compiler as library. For editors, for tools, for scripting. For you.</Summary>
     <Description>The F# compiler services package contains a custom build of the F# compiler that exposes additional functionality for implementing F# language bindings, additional tools based on the compiler or refactoring tools. The package also includes F# interactive service that can be used for embedding F# scripting into your applications.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Authors>Microsoft Corporation; F# community contributors</Authors>
+    <Authors>F# community contributors</Authors>
     <PackageLicenseUrl>https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/fsharp/FSharp.Compiler.Service</PackageProjectUrl>
     <PackageIconUrl>https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png</PackageIconUrl>

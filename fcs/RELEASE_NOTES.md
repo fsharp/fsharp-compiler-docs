@@ -1,3 +1,6 @@
+#### 23.0.2
+  * Clarify package authors
+
 #### 23.0.1
   * Integrate visualfsharp master to ee938a7a5cfdf4849b091087efbf64605110541f
 

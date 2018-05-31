@@ -12,7 +12,7 @@
     <Description>Legacy project file cracker for the F# compiler service.</Description>
     <Summary>Legacy project file cracker for the F# compiler service.</Summary>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Authors>Microsoft Corporation; F# community contributors</Authors>
+    <Authors>F# community contributors</Authors>
     <PackageLicenseUrl>https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/fsharp/FSharp.Compiler.Service</PackageProjectUrl>
     <PackageIconUrl>https://raw.github.com/fsharp/FSharp.Compiler.Service/master/misc/logo.png</PackageIconUrl>

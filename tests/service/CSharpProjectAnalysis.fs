@@ -111,7 +111,7 @@ let _ = CSharpClass(0)
 
 let getEntitiesUses source =
     let csharpAssembly = PathRelativeToTestAssembly "CSharp_Analysis.dll"
-    let results, _ = getProjectReferences(source, [csharpAssembly], None, None)
+    let results, _ = getProjectReferences(source, [csharpAssembly])
     results.GetAllUsesOfAllSymbols()
     |> Async.RunSynchronously
     |> Seq.choose (fun su ->

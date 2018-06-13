@@ -159,3 +159,5 @@ open FSharp.Compiler.Service.Tests.Linq
     match stringSymbols with
     | e1 :: e2 :: [] -> e1.IsEffectivelySameAs(e2) |> should be False
     | _ -> sprintf "Expecting two symbols, got %A" stringSymbols |> failwith
+
+#endif

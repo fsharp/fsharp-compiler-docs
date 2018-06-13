@@ -184,7 +184,6 @@ tests/fsharpqa/Source/*FSharpQA_Failures.lst
 *.csproj.user
 *.fsproj.user
 *.sln.DotSettings.user
-*.ide
 *.log
 *.jrs
 *.chk

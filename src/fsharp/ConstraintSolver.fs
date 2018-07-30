@@ -14,7 +14,7 @@
 // The constraints are immediately processed into a normal form, in particular
 //   - type equations on inference parameters: 'tp = ty
 //   - type inequations on inference parameters: 'tp :> ty
-//   - other constraints on inference paramaters
+//   - other constraints on inference parameters
 //
 // The state of the inference engine is kept in imperative mutations to inference
 // type variables.

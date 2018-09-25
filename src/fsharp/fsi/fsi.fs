@@ -1711,7 +1711,7 @@ type internal FsiStdinLexerProvider
 
     let LexbufFromLineReader (fsiStdinSyphon: FsiStdinSyphon) readf = 
         UnicodeLexing.FunctionAsLexbuf 
-          (fun (buf: char[], start, len) -> 
+          (fun (buf, start, len) -> 
             //fprintf fsiConsoleOutput.Out "Calling ReadLine\n"
             let inputOption = try Some(readf()) with :? EndOfStreamException -> None
             inputOption |> Option.iter (fun t -> fsiStdinSyphon.Add (t + "\n"))
@@ -1725,7 +1725,11 @@ type internal FsiStdinLexerProvider
                 if ninput > len then fprintf fsiConsoleOutput.Error  "%s" (FSIstrings.SR.fsiLineTooLong())
                 let ntrimmed = min len ninput 
                 for i = 0 to ntrimmed-1 do
+#if FABLE_COMPILER
+                    buf.[i+start] <- uint16 input.[i]
+#else
                     buf.[i+start] <- input.[i]
+#endif
                 ntrimmed
         )
 

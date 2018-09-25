@@ -3,6 +3,7 @@
 namespace FSharp.Compiler.SourceCodeServices
 
 open FSharp.Compiler 
+open Internal.Utilities.Text.Lexing
 
 type Position = int * int
 type Range = Position * Position
@@ -237,7 +238,7 @@ type FSharpLineTokenizer =
 type FSharpSourceTokenizer =
     new : conditionalDefines:string list * fileName:string option -> FSharpSourceTokenizer
     member CreateLineTokenizer : lineText:string -> FSharpLineTokenizer
-    member CreateBufferTokenizer : bufferFiller:(char[] * int * int -> int) -> FSharpLineTokenizer
+    member CreateBufferTokenizer : bufferFiller:(LexBufferChar[] * int * int -> int) -> FSharpLineTokenizer
     
 module internal TestExpose =     
     val TokenInfo : Parser.token -> (FSharpTokenColorKind * FSharpTokenCharKind * FSharpTokenTriggerClass)

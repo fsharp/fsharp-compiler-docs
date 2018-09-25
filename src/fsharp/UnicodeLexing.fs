@@ -12,13 +12,13 @@ open System.IO
 
 open Internal.Utilities.Text.Lexing
 
-type Lexbuf =  LexBuffer<char>
+type Lexbuf = LexBuffer<LexBufferChar>
 
-let StringAsLexbuf (s:string) : Lexbuf =
-    LexBuffer<_>.FromChars (s.ToCharArray())
+let StringAsLexbuf =
+    Lexbuf.FromString
   
-let FunctionAsLexbuf (bufferFiller: char[] * int * int -> int) : Lexbuf =
-    LexBuffer<_>.FromFunction bufferFiller 
+let FunctionAsLexbuf =
+    Lexbuf.FromFunction
      
 // The choice of 60 retries times 50 ms is not arbitrary. The NTFS FILETIME structure 
 // uses 2 second resolution for LastWriteTime. We retry long enough to surpass this threshold 
@@ -65,5 +65,5 @@ let UnicodeFileAsLexbuf (filename,codePage : int option, retryLocked:bool) :  Le
                else 
                    reraise()
     let source = getSource 0
-    let lexbuf = LexBuffer<_>.FromChars(source.ToCharArray())  
+    let lexbuf = LexBuffer<_>.FromString (source)
     lexbuf

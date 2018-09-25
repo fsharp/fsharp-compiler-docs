@@ -37,7 +37,7 @@ type internal IParseState =
     member RaiseError<'b> : unit -> 'b 
 
     /// Return the LexBuffer for this parser instance.
-    member LexBuffer : LexBuffer<char>
+    member LexBuffer : LexBuffer<LexBufferChar>
 
 
 [<Sealed>]
@@ -118,7 +118,7 @@ type internal Tables<'tok> =
 
     /// Interpret the parser table taking input from the given lexer, using the given lex buffer, and the given start state.
     /// Returns an object indicating the final synthesized value for the parse.
-    member Interpret :  lexer:(LexBuffer<char> -> 'tok) * lexbuf:LexBuffer<char> * startState:int -> obj 
+    member Interpret :  lexer:(LexBuffer<LexBufferChar> -> 'tok) * lexbuf:LexBuffer<LexBufferChar> * startState:int -> obj 
 
 /// Indicates an accept action has occurred.
 exception internal Accept of obj

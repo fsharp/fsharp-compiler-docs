@@ -1881,7 +1881,7 @@ let main1OfAst (ctok, legacyReferenceResolver, reduceMemoryUsage, assemblyName, 
             tryGetMetadataSnapshot=tryGetMetadataSnapshot)
 
     tcConfigB.framework <- not noframework
-    tcConfigB.primaryAssembly <- primaryAssembly
+    primaryAssembly |> Option.iter (fun a -> tcConfigB.primaryAssembly <- a)
 
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
     SetOptimizeSwitch tcConfigB OptionSwitch.On

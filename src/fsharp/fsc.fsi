@@ -63,7 +63,7 @@ val compileOfAst :
     targetDll:string * 
     targetPdb:string option * 
     dependencies:string list * 
-    primaryAssembly: PrimaryAssembly *
+    primaryAssembly: PrimaryAssembly option *
     noframework:bool *
     exiter:Exiter * 
     loggerProvider: ErrorLoggerProvider * 

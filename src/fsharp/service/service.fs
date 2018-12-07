@@ -3067,7 +3067,6 @@ type FSharpChecker(legacyReferenceResolver, projectCacheSize, keepAssemblyConten
       backgroundCompiler.Reactor.EnqueueAndAwaitOpAsync (userOpName, "Compile", assemblyName, fun ctok -> 
        cancellable {
             let noframework = defaultArg noframework false
-            let primaryAssembly = defaultArg primaryAssembly PrimaryAssembly.Mscorlib
             return CompileHelpers.compileFromAsts (ctok, legacyReferenceResolver, ast, assemblyName, outFile, dependencies, primaryAssembly, noframework, pdbFile, executable, None, None)
        }
       )
@@ -3112,7 +3111,6 @@ type FSharpChecker(legacyReferenceResolver, projectCacheSize, keepAssemblyConten
         let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
 
         let debugInfo = defaultArg debug false
-        let primaryAssembly = defaultArg primaryAssembly PrimaryAssembly.Mscorlib
         let noframework = defaultArg noframework false
         let location = Path.Combine(Path.GetTempPath(),"test"+string(hash assemblyName))
         try Directory.CreateDirectory(location) |> ignore with _ -> ()

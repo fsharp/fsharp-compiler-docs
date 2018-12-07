@@ -1869,7 +1869,7 @@ let main1(Args (ctok, tcGlobals, tcImports: TcImports, frameworkTcImports, gener
 
 // This is for the compile-from-AST feature of FCS.
 // TODO: consider removing this feature from FCS, which as far as I know is not used by anyone.
-let main1OfAst (ctok, legacyReferenceResolver, reduceMemoryUsage, assemblyName, target, outfile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider: ErrorLoggerProvider, inputs : ParsedInput list) =
+let main1OfAst (ctok, legacyReferenceResolver, reduceMemoryUsage, assemblyName, target, outfile, pdbFile, dllReferences, primaryAssembly, noframework, exiter, errorLoggerProvider: ErrorLoggerProvider, inputs : ParsedInput list) =
 
     let tryGetMetadataSnapshot = (fun _ -> None)
 
@@ -1880,7 +1880,9 @@ let main1OfAst (ctok, legacyReferenceResolver, reduceMemoryUsage, assemblyName, 
             defaultCopyFSharpCore=CopyFSharpCoreFlag.No, 
             tryGetMetadataSnapshot=tryGetMetadataSnapshot)
 
-    tcConfigB.framework <- not noframework 
+    tcConfigB.framework <- not noframework
+    tcConfigB.primaryAssembly <- primaryAssembly
+
     // Preset: --optimize+ -g --tailcalls+ (see 4505)
     SetOptimizeSwitch tcConfigB OptionSwitch.On
     SetDebugSwitch    tcConfigB None (
@@ -2103,8 +2105,8 @@ let typecheckAndCompile (ctok, argv, legacyReferenceResolver, bannerAlreadyPrint
     |> main4 dynamicAssemblyCreator
 
 
-let compileOfAst (ctok, legacyReferenceResolver, reduceMemoryUsage, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
-    main1OfAst (ctok, legacyReferenceResolver, reduceMemoryUsage, assemblyName, target, outFile, pdbFile, dllReferences, noframework, exiter, errorLoggerProvider, inputs)
+let compileOfAst (ctok, legacyReferenceResolver, reduceMemoryUsage, assemblyName, target, outFile, pdbFile, dllReferences, primaryAssembly, noframework, exiter, errorLoggerProvider, inputs, tcImportsCapture, dynamicAssemblyCreator) = 
+    main1OfAst (ctok, legacyReferenceResolver, reduceMemoryUsage, assemblyName, target, outFile, pdbFile, dllReferences, primaryAssembly, noframework, exiter, errorLoggerProvider, inputs)
     |> main2a
     |> main2b (tcImportsCapture, dynamicAssemblyCreator)
     |> main3

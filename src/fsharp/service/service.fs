@@ -2247,7 +2247,7 @@ module CompileHelpers =
     
         errors.ToArray(), result
 
-    let compileFromAsts (ctok, legacyReferenceResolver, asts, assemblyName, outFile, dependencies, noframework, pdbFile, executable, tcImportsCapture, dynamicAssemblyCreator) =
+    let compileFromAsts (ctok, legacyReferenceResolver, asts, assemblyName, outFile, dependencies, primaryAssembly, noframework, pdbFile, executable, tcImportsCapture, dynamicAssemblyCreator) =
 
         let errors, errorLogger, loggerProvider = mkCompilationErorHandlers()
     
@@ -2256,7 +2256,7 @@ module CompileHelpers =
     
         let result = 
             tryCompile errorLogger (fun exiter -> 
-                compileOfAst (ctok, legacyReferenceResolver, ReduceMemoryFlag.Yes, assemblyName, target, outFile, pdbFile, dependencies, noframework, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator))
+                compileOfAst (ctok, legacyReferenceResolver, ReduceMemoryFlag.Yes, assemblyName, target, outFile, pdbFile, dependencies, primaryAssembly, noframework, exiter, loggerProvider, asts, tcImportsCapture, dynamicAssemblyCreator))
 
         errors.ToArray(), result
 
@@ -3062,12 +3062,13 @@ type FSharpChecker(legacyReferenceResolver, projectCacheSize, keepAssemblyConten
                 return CompileHelpers.compileFromArgs (ctok, argv, legacyReferenceResolver, None, None)
             })
 
-    member ic.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool, ?noframework:bool, ?userOpName: string) =
+    member ic.Compile (ast:ParsedInput list, assemblyName:string, outFile:string, dependencies:string list, ?pdbFile:string, ?executable:bool, ?primaryAssembly:PrimaryAssembly, ?noframework:bool, ?userOpName: string) =
       let userOpName = defaultArg userOpName "Unknown"
       backgroundCompiler.Reactor.EnqueueAndAwaitOpAsync (userOpName, "Compile", assemblyName, fun ctok -> 
        cancellable {
             let noframework = defaultArg noframework false
-            return CompileHelpers.compileFromAsts (ctok, legacyReferenceResolver, ast, assemblyName, outFile, dependencies, noframework, pdbFile, executable, None, None)
+            let primaryAssembly = defaultArg primaryAssembly PrimaryAssembly.Mscorlib
+            return CompileHelpers.compileFromAsts (ctok, legacyReferenceResolver, ast, assemblyName, outFile, dependencies, primaryAssembly, noframework, pdbFile, executable, None, None)
        }
       )
 
@@ -3099,7 +3100,7 @@ type FSharpChecker(legacyReferenceResolver, projectCacheSize, keepAssemblyConten
        }
       )
 
-    member ic.CompileToDynamicAssembly (asts:ParsedInput list, assemblyName:string, dependencies:string list, execute: (TextWriter * TextWriter) option, ?debug:bool, ?noframework:bool, ?userOpName: string) =
+    member ic.CompileToDynamicAssembly (asts:ParsedInput list, assemblyName:string, dependencies:string list, execute: (TextWriter * TextWriter) option, ?debug:bool, ?primaryAssembly:PrimaryAssembly, ?noframework:bool, ?userOpName: string) =
       let userOpName = defaultArg userOpName "Unknown"
       backgroundCompiler.Reactor.EnqueueAndAwaitOpAsync (userOpName, "CompileToDynamicAssembly", assemblyName, fun ctok -> 
        cancellable {
@@ -3111,6 +3112,7 @@ type FSharpChecker(legacyReferenceResolver, projectCacheSize, keepAssemblyConten
         let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
 
         let debugInfo = defaultArg debug false
+        let primaryAssembly = defaultArg primaryAssembly PrimaryAssembly.Mscorlib
         let noframework = defaultArg noframework false
         let location = Path.Combine(Path.GetTempPath(),"test"+string(hash assemblyName))
         try Directory.CreateDirectory(location) |> ignore with _ -> ()
@@ -3122,7 +3124,7 @@ type FSharpChecker(legacyReferenceResolver, projectCacheSize, keepAssemblyConten
 
         // Perform the compilation, given the above capturing function.
         let errorsAndWarnings, result = 
-            CompileHelpers.compileFromAsts (ctok, legacyReferenceResolver, asts, assemblyName, outFile, dependencies, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
+            CompileHelpers.compileFromAsts (ctok, legacyReferenceResolver, asts, assemblyName, outFile, dependencies, primaryAssembly, noframework, None, Some execute.IsSome, tcImportsCapture, dynamicAssemblyCreator)
 
         // Retrieve and return the results
         let assemblyOpt = 

@@ -590,7 +590,7 @@ type public FSharpChecker =
     /// TypeCheck and compile provided AST
     /// </summary>
     /// <param name="userOpName">An optional string used for tracing compiler operations associated with this request.</param>
-    member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool * ?userOpName: string -> Async<FSharpErrorInfo [] * int>
+    member Compile: ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?primaryAssembly:PrimaryAssembly * ?noframework:bool * ?userOpName: string -> Async<FSharpErrorInfo [] * int>
 
     /// <summary>
     /// Compiles to a dynamic assembly using the given flags.  
@@ -611,7 +611,7 @@ type public FSharpChecker =
     /// TypeCheck and compile provided AST
     /// </summary>
     /// <param name="userOpName">An optional string used for tracing compiler operations associated with this request.</param>
-    member CompileToDynamicAssembly: ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool  * ?userOpName: string -> Async<FSharpErrorInfo [] * int * System.Reflection.Assembly option>
+    member CompileToDynamicAssembly: ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?primaryAssembly:PrimaryAssembly * ?noframework:bool  * ?userOpName: string -> Async<FSharpErrorInfo [] * int * System.Reflection.Assembly option>
        
     /// <summary>
     /// Try to get type check results for a file. This looks up the results of recent type checks of the

@@ -1,0 +1,42 @@
+<Project>
+
+  <Import Project="FSharp.Profiles.props" />
+
+  <PropertyGroup>
+    <XlfLanguages>en;$(XlfLanguages)</XlfLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(UseAssetTargetFallback)' == 'true'">
+    <!--
+    HACK: Necessary because the `netstandard1.6` version of FSharp.Compiler.Private requires a package that isn't
+    necessary for `net46`, but the package has a requirement on `net462`.  The reference is excluded from the build
+    during `net46`, but for purposes of restore needs to be present.
+    -->
+    <AssetTargetFallback>$(AssetTargetFallback);net462</AssetTargetFallback>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CompileDependsOn>$(CompileDependsOn);CopyAndSubstituteTextFiles</CompileDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CopyAndSubstituteTextFiles"
+          Inputs="@(CopyAndSubstituteText)"
+          Outputs="@(CopyAndSubstituteText->'$(OutDir)%(TargetFilename)')">
+    <PropertyGroup>
+      <_ReplacementText>$([System.IO.File]::ReadAllText('%(CopyAndSubstituteText.FullPath)'))</_ReplacementText>
+      <_ReplacementText Condition="'%(CopyAndSubstituteText.Pattern1)' != ''">$(_ReplacementText.Replace('%(CopyAndSubstituteText.Pattern1)', '%(CopyAndSubstituteText.Replacement1)'))</_ReplacementText>
+      <_ReplacementText Condition="'%(CopyAndSubstituteText.Pattern2)' != ''">$(_ReplacementText.Replace('%(CopyAndSubstituteText.Pattern2)', '%(CopyAndSubstituteText.Replacement2)'))</_ReplacementText>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(OutDir)%(CopyAndSubstituteText.TargetFilename)" Lines="$(_ReplacementText)" Overwrite="true" />
+    <!-- Make sure it will get cleaned  -->
+    <CreateItem Include="$(OutDir)%(CopyAndSubstituteText.TargetFilename)">
+      <Output TaskParameter="Include" ItemName="FileWrites" />
+    </CreateItem>
+  </Target>
+
+  <Import Project="build\targets\NGenOrCrossGen.targets" />
+  <Import Project="build\targets\ConvertPortablePdbs.targets" />
+  <Import Project="build\targets\GenerateAssemblyAttributes.targets" />
+  <Import Project="build\targets\GenerateInternalsVisibleTo.targets" />
+
+</Project>

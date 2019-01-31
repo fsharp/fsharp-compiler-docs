@@ -30,8 +30,8 @@ open FSharp.Compiler.Service.Tests.Common
 let ``Test that csharp references are recognized as such`` () = 
     let csharpAssembly = PathRelativeToTestAssembly "CSharp_Analysis.dll"
     let _, table = getProjectReferences("""module M""", [csharpAssembly])
-    let ass = table.["CSharp_Analysis"]
-    let search = ass.Contents.Entities |> Seq.tryFind (fun e -> e.DisplayName = "CSharpClass") 
+    let assembly = table.["CSharp_Analysis"]
+    let search = assembly.Contents.Entities |> Seq.tryFind (fun e -> e.DisplayName = "CSharpClass") 
     Assert.True search.IsSome
     let found = search.Value
     // this is no F# thing

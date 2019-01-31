@@ -1,3 +1,6 @@
+#### 26.0.1
+ * Integrate visualfsharp master to 99e307f3a3ef2109ba6542ffc58affe76fc0e2a0
+
 #### 25.0.1
   * Integrate visualfsharp master to 15d9391e78c554f91824d2be2e69938cd811df68
 

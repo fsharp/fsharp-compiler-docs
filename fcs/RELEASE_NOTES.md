@@ -1,5 +1,11 @@
+#### 27.0.1
+  * Integrate visualfsharp master from 5a5ca976ec296d02551e79c3eb8e8db809e4304d to b0292b8a3138f02e4df7019c5955e86d10d90681
+  * Notable improvements include:
+    * Anonymous Record support for expressions
+    * Union Case Naming fixes
+
 #### 26.0.1
- * Integrate visualfsharp master to 99e307f3a3ef2109ba6542ffc58affe76fc0e2a0
+  * Integrate visualfsharp master to 99e307f3a3ef2109ba6542ffc58affe76fc0e2a0
 
 #### 25.0.1
   * Integrate visualfsharp master to 15d9391e78c554f91824d2be2e69938cd811df68

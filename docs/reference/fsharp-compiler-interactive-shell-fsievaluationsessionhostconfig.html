@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FsiEvaluationSessionHostConfig - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>FsiEvaluationSessionHostConfig</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.Interactive</span><br />
+  <span>Parent Module: <a href="fsharp-compiler-interactive-shell.html">Shell</a></span>
+</p>
+<div class="xmldoc">
+</div>
+  <h3>Constructors</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Constructor</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2691', 2691)" onmouseover="showTip(event, '2691', 2691)">
+            new()
+          </code>
+          <div class="tip" id="2691">
+            <strong>Signature:</strong> unit -&gt; FsiEvaluationSessionHostConfig<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>.ctor</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2692', 2692)" onmouseover="showTip(event, '2692', 2692)">
+            AddedPrinters
+          </code>
+          <div class="tip" id="2692">
+            <strong>Signature:</strong> Choice&lt;(Type * (obj -&gt; string)),(Type * (obj -&gt; obj))&gt; list<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_AddedPrinters</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2693', 2693)" onmouseover="showTip(event, '2693', 2693)">
+            EventLoopInvoke(codeToRun)
+          </code>
+          <div class="tip" id="2693">
+            <strong>Signature:</strong> (codeToRun:(unit -&gt; &#39;T)) -&gt; &#39;T<br />
+              <strong>Modifiers:</strong> abstract<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          <p>Request that the given operation be run synchronously on the event loop.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2694', 2694)" onmouseover="showTip(event, '2694', 2694)">
+            EventLoopRun()
+          </code>
+          <div class="tip" id="2694">
+            <strong>Signature:</strong> unit -&gt; bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host to enter a dispatch loop like Application.Run().
+Only called if --gui option is used (which is the default).
+Gets called towards the end of startup and every time a ThreadAbort escaped to the backup driver loop.
+Return true if a 'restart' is required, which is a bit meaningless.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2695', 2695)" onmouseover="showTip(event, '2695', 2695)">
+            EventLoopScheduleRestart()
+          </code>
+          <div class="tip" id="2695">
+            <strong>Signature:</strong> unit -&gt; unit<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Schedule a restart for the event loop.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2696', 2696)" onmouseover="showTip(event, '2696', 2696)">
+            FloatingPointFormat
+          </code>
+          <div class="tip" id="2696">
+            <strong>Signature:</strong> string<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_FloatingPointFormat</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2697', 2697)" onmouseover="showTip(event, '2697', 2697)">
+            FormatProvider
+          </code>
+          <div class="tip" id="2697">
+            <strong>Signature:</strong> IFormatProvider<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_FormatProvider</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2698', 2698)" onmouseover="showTip(event, '2698', 2698)">
+            GetOptionalConsoleReadLine(...)
+          </code>
+          <div class="tip" id="2698">
+            <strong>Signature:</strong> probeToSeeIfConsoleWorks:bool -&gt; (unit -&gt; string) option<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicate a special console "readline" reader for the evaluation session, if any. A "console" gets used if --readline is specified (the default on Windows + .NET); and --fsi-server is  not
+given (always combine with --readline-), and OptionalConsoleReadLine is given.
+When a console is used, special rules apply to "peekahead", which allows early typing on the console.
+Peekahead happens if --peekahead- is not specified (the default).
+In this case, a prompt is printed early, a background thread is created and
+the OptionalConsoleReadLine is used to read the first line.
+If a console is not used, then inReader.Peek() is called early instead.
+Further lines are read using OptionalConsoleReadLine().
+If not provided, lines are read using inReader.ReadLine().</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2699', 2699)" onmouseover="showTip(event, '2699', 2699)">
+            OnEvaluation
+          </code>
+          <div class="tip" id="2699">
+            <strong>Signature:</strong> IEvent&lt;EvaluationEventArgs&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Hook for listening for evaluation bindings</p>
+
+
+              <p>CompiledName: <code>get_OnEvaluation</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2700', 2700)" onmouseover="showTip(event, '2700', 2700)">
+            PrintDepth
+          </code>
+          <div class="tip" id="2700">
+            <strong>Signature:</strong> int<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_PrintDepth</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2701', 2701)" onmouseover="showTip(event, '2701', 2701)">
+            PrintLength
+          </code>
+          <div class="tip" id="2701">
+            <strong>Signature:</strong> int<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_PrintLength</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2702', 2702)" onmouseover="showTip(event, '2702', 2702)">
+            PrintSize
+          </code>
+          <div class="tip" id="2702">
+            <strong>Signature:</strong> int<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_PrintSize</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2703', 2703)" onmouseover="showTip(event, '2703', 2703)">
+            PrintWidth
+          </code>
+          <div class="tip" id="2703">
+            <strong>Signature:</strong> int<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_PrintWidth</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2704', 2704)" onmouseover="showTip(event, '2704', 2704)">
+            ReportUserCommandLineArgs(arg1)
+          </code>
+          <div class="tip" id="2704">
+            <strong>Signature:</strong> (string []) -&gt; unit<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The evaluation session calls this to report the preferred view of the command line arguments after
+stripping things like "/use:file.fsx", "-r:Foo.dll" etc.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2705', 2705)" onmouseover="showTip(event, '2705', 2705)">
+            ShowDeclarationValues
+          </code>
+          <div class="tip" id="2705">
+            <strong>Signature:</strong> bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_ShowDeclarationValues</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2706', 2706)" onmouseover="showTip(event, '2706', 2706)">
+            ShowIEnumerable
+          </code>
+          <div class="tip" id="2706">
+            <strong>Signature:</strong> bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_ShowIEnumerable</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2707', 2707)" onmouseover="showTip(event, '2707', 2707)">
+            ShowProperties
+          </code>
+          <div class="tip" id="2707">
+            <strong>Signature:</strong> bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Called by the evaluation session to ask the host for parameters to format text for output</p>
+
+
+              <p>CompiledName: <code>get_ShowProperties</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2708', 2708)" onmouseover="showTip(event, '2708', 2708)">
+            StartServer(fsiServerName)
+          </code>
+          <div class="tip" id="2708">
+            <strong>Signature:</strong> fsiServerName:string -&gt; unit<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The evaluation session calls this at an appropriate point in the startup phase if the --fsi-server parameter was given</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2709', 2709)" onmouseover="showTip(event, '2709', 2709)">
+            UseFsiAuxLib
+          </code>
+          <div class="tip" id="2709">
+            <strong>Signature:</strong> bool<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Implicitly reference FSharp.Compiler.Interactive.Settings.dll</p>
+
+
+              <p>CompiledName: <code>get_UseFsiAuxLib</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

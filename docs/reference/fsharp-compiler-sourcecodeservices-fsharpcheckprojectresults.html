@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FSharpCheckProjectResults - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>FSharpCheckProjectResults</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+</p>
+<div class="xmldoc">
+<p>A handle to the results of CheckFileInProject.</p>
+
+</div>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2965', 2965)" onmouseover="showTip(event, '2965', 2965)">
+            AssemblyContents
+          </code>
+          <div class="tip" id="2965">
+            <strong>Signature:</strong> FSharpAssemblyContents<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get a view of the overall contents of the assembly. Only valid to use if HasCriticalErrors is false.</p>
+
+
+              <p>CompiledName: <code>get_AssemblyContents</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2966', 2966)" onmouseover="showTip(event, '2966', 2966)">
+            AssemblySignature
+          </code>
+          <div class="tip" id="2966">
+            <strong>Signature:</strong> FSharpAssemblySignature<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get a view of the overall signature of the assembly. Only valid to use if HasCriticalErrors is false.</p>
+
+
+              <p>CompiledName: <code>get_AssemblySignature</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2967', 2967)" onmouseover="showTip(event, '2967', 2967)">
+            DependencyFiles
+          </code>
+          <div class="tip" id="2967">
+            <strong>Signature:</strong> string []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates the set of files which must be watched to accurately track changes that affect these results,
+Clients interested in reacting to updates to these files should watch these files and take actions as described
+in the documentation for compiler service.</p>
+
+
+              <p>CompiledName: <code>get_DependencyFiles</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2968', 2968)" onmouseover="showTip(event, '2968', 2968)">
+            Errors
+          </code>
+          <div class="tip" id="2968">
+            <strong>Signature:</strong> FSharpErrorInfo []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The errors returned by processing the project</p>
+
+
+              <p>CompiledName: <code>get_Errors</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2969', 2969)" onmouseover="showTip(event, '2969', 2969)">
+            GetAllUsesOfAllSymbols()
+          </code>
+          <div class="tip" id="2969">
+            <strong>Signature:</strong> unit -&gt; Async&lt;FSharpSymbolUse []&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get all textual usages of all symbols throughout the project</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2970', 2970)" onmouseover="showTip(event, '2970', 2970)">
+            GetOptimizedAssemblyContents()
+          </code>
+          <div class="tip" id="2970">
+            <strong>Signature:</strong> unit -&gt; FSharpAssemblyContents<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get an optimized view of the overall contents of the assembly. Only valid to use if HasCriticalErrors is false.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2971', 2971)" onmouseover="showTip(event, '2971', 2971)">
+            GetUsesOfSymbol(symbol)
+          </code>
+          <div class="tip" id="2971">
+            <strong>Signature:</strong> symbol:FSharpSymbol -&gt; Async&lt;FSharpSymbolUse []&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the textual usages that resolved to the given symbol throughout the project</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2972', 2972)" onmouseover="showTip(event, '2972', 2972)">
+            HasCriticalErrors
+          </code>
+          <div class="tip" id="2972">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates if critical errors existed in the project options</p>
+
+
+              <p>CompiledName: <code>get_HasCriticalErrors</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2973', 2973)" onmouseover="showTip(event, '2973', 2973)">
+            ProjectContext
+          </code>
+          <div class="tip" id="2973">
+            <strong>Signature:</strong> FSharpProjectContext<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the resolution of the ProjectOptions</p>
+
+
+              <p>CompiledName: <code>get_ProjectContext</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

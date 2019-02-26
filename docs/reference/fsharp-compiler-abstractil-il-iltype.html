@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ILType - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>ILType</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.AbstractIL</span><br />
+  <span>Parent Module: <a href="fsharp-compiler-abstractil-il.html">IL</a></span>
+</p>
+<div class="xmldoc">
+</div>
+  <h3>Union Cases</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Union Case</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2399', 2399)" onmouseover="showTip(event, '2399', 2399)">
+            Array(ILArrayShape,ILType)
+          </code>
+          <div class="tip" id="2399">
+            <strong>Signature:</strong> ILArrayShape * ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Array types</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2400', 2400)" onmouseover="showTip(event, '2400', 2400)">
+            Boxed(ILTypeSpec)
+          </code>
+          <div class="tip" id="2400">
+            <strong>Signature:</strong> ILTypeSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Reference types.  Also may be used for parents of members even if for members in value types.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2401', 2401)" onmouseover="showTip(event, '2401', 2401)">
+            Byref(ILType)
+          </code>
+          <div class="tip" id="2401">
+            <strong>Signature:</strong> ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Managed pointers.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2402', 2402)" onmouseover="showTip(event, '2402', 2402)">
+            FunctionPointer(ILCallingSignature)
+          </code>
+          <div class="tip" id="2402">
+            <strong>Signature:</strong> ILCallingSignature<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>ILCode pointers.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2403', 2403)" onmouseover="showTip(event, '2403', 2403)">
+            Modified(bool,ILTypeRef,ILType)
+          </code>
+          <div class="tip" id="2403">
+            <strong>Signature:</strong> bool * ILTypeRef * ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Custom modifiers.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2404', 2404)" onmouseover="showTip(event, '2404', 2404)">
+            Ptr(ILType)
+          </code>
+          <div class="tip" id="2404">
+            <strong>Signature:</strong> ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Unmanaged pointers.  Nb. the type is used by tools and for binding only, not by the verifier.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2405', 2405)" onmouseover="showTip(event, '2405', 2405)">
+            TypeVar(uint16)
+          </code>
+          <div class="tip" id="2405">
+            <strong>Signature:</strong> uint16<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Reference a generic arg.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2406', 2406)" onmouseover="showTip(event, '2406', 2406)">
+            Value(ILTypeSpec)
+          </code>
+          <div class="tip" id="2406">
+            <strong>Signature:</strong> ILTypeSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Unboxed types, including builtin types.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2407', 2407)" onmouseover="showTip(event, '2407', 2407)">
+            Void
+          </code>
+          <div class="tip" id="2407">
+            <strong>Signature:</strong> <br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Used only in return and pointer types.</p>
+
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2408', 2408)" onmouseover="showTip(event, '2408', 2408)">
+            BasicQualifiedName
+          </code>
+          <div class="tip" id="2408">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>get_BasicQualifiedName</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2409', 2409)" onmouseover="showTip(event, '2409', 2409)">
+            Boxity
+          </code>
+          <div class="tip" id="2409">
+            <strong>Signature:</strong> ILBoxity<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>get_Boxity</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2410', 2410)" onmouseover="showTip(event, '2410', 2410)">
+            GenericArgs
+          </code>
+          <div class="tip" id="2410">
+            <strong>Signature:</strong> ILGenericArgs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>get_GenericArgs</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2411', 2411)" onmouseover="showTip(event, '2411', 2411)">
+            IsNominal
+          </code>
+          <div class="tip" id="2411">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>get_IsNominal</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2412', 2412)" onmouseover="showTip(event, '2412', 2412)">
+            IsTyvar
+          </code>
+          <div class="tip" id="2412">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>get_IsTyvar</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2413', 2413)" onmouseover="showTip(event, '2413', 2413)">
+            QualifiedName
+          </code>
+          <div class="tip" id="2413">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>get_QualifiedName</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2414', 2414)" onmouseover="showTip(event, '2414', 2414)">
+            TypeRef
+          </code>
+          <div class="tip" id="2414">
+            <strong>Signature:</strong> ILTypeRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>get_TypeRef</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2415', 2415)" onmouseover="showTip(event, '2415', 2415)">
+            TypeSpec
+          </code>
+          <div class="tip" id="2415">
+            <strong>Signature:</strong> ILTypeSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The type being modified.</p>
+
+
+              <p>CompiledName: <code>get_TypeSpec</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

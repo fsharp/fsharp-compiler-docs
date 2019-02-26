@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ast - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>Ast</h1>
+<p>
+  <span>Namespace: FSharp.Compiler</span><br />
+</p>
+<div class="xmldoc">
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+  <h2>Nested types and modules</h2>
+  <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-blockseparator.html">BlockSeparator</a>
+          </td>
+          <td class="xmldoc"><p>denotes location of the separator block + optional position of the semicolon (used for tooling support)</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-expratomicflag.html">ExprAtomicFlag</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-ident.html">Ident</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-lexcont.html">LexCont</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-lexerendlinecontinuation.html">LexerEndlineContinuation</a>
+          </td>
+          <td class="xmldoc"><p>Specifies how the 'endline' function in the lexer should continue after
+it reaches end of line or eof. The options are to continue with 'token' function
+or to continue with 'skip' function.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-lexerifdefexpression.html">LexerIfdefExpression</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-lexerifdefstack.html">LexerIfdefStack</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-lexerifdefstackentries.html">LexerIfdefStackEntries</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-lexerifdefstackentry.html">LexerIfdefStackEntry</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-lexerwhitespacecontinuation.html">LexerWhitespaceContinuation</a>
+          </td>
+          <td class="xmldoc"><p>The parser defines a number of tokens for whitespace and
+comments eliminated by the lexer.  These carry a specification of
+a continuation for the lexer for continued processing after we've dealt with
+the whitespace.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-longident.html">LongIdent</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-longidentwithdots.html">LongIdentWithDots</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-memberflags.html">MemberFlags</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-memberkind.html">MemberKind</a>
+          </td>
+          <td class="xmldoc"><p>Note the member kind is actually computed partially by a syntax tree transformation in tc.fs</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-nicenamegenerator.html">NiceNameGenerator</a>
+          </td>
+          <td class="xmldoc"><p>Generates compiler-generated names. Each name generated also includes the StartLine number of the range passed in
+at the point of first generation.</p>
+<p>This type may be accessed concurrently, though in practice it is only used from the compilation thread.
+It is made concurrency-safe since a global instance of the type is allocated in tast.fs, and it is good
+policy to make all globally-allocated objects concurrency safe in case future versions of the compiler
+are used to host multiple concurrent instances of compilation.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parsedfsiinteraction.html">ParsedFsiInteraction</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parsedhashdirective.html">ParsedHashDirective</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parsedimplfile.html">ParsedImplFile</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parsedimplfilefragment.html">ParsedImplFileFragment</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parsedimplfileinput.html">ParsedImplFileInput</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parsedinput.html">ParsedInput</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parsedsigfile.html">ParsedSigFile</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parsedsigfilefragment.html">ParsedSigFileFragment</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parsedsigfileinput.html">ParsedSigFileInput</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-parserdetail.html">ParserDetail</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-prexmldoc.html">PreXmlDoc</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-qualifiednameoffile.html">QualifiedNameOfFile</a>
+          </td>
+          <td class="xmldoc"><p>QualifiedNameOfFile acts to fully-qualify module specifications and implementations,
+most importantly the ones that simply contribute fragments to a namespace (i.e. the ParsedSigFileFragment.NamespaceFragment case)
+There may be multiple such fragments in a single assembly.  There may thus also
+be multiple matching pairs of these in an assembly, all contributing types to the same
+namespace.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-recordfieldname.html">RecordFieldName</a>
+          </td>
+          <td class="xmldoc"><p>stores pair: record field name + (true if given record field name is syntactically correct and can be used in name resolution)</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-scopedpragma.html">ScopedPragma</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-seqexpronly.html">SeqExprOnly</a>
+          </td>
+          <td class="xmldoc"><p>Indicates if a for loop is 'for x in e1 -&gt; e2', only valid in sequence expressions</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-sequencepointinfoforbinding.html">SequencePointInfoForBinding</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-sequencepointinfoforfinally.html">SequencePointInfoForFinally</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-sequencepointinfoforforloop.html">SequencePointInfoForForLoop</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-sequencepointinfoforseq.html">SequencePointInfoForSeq</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-sequencepointinfofortarget.html">SequencePointInfoForTarget</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-sequencepointinfofortry.html">SequencePointInfoForTry</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-sequencepointinfoforwhileloop.html">SequencePointInfoForWhileLoop</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-sequencepointinfoforwith.html">SequencePointInfoForWith</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-stablenicenamegenerator.html">StableNiceNameGenerator</a>
+          </td>
+          <td class="xmldoc"><p>Generates compiler-generated names marked up with a source code location, but if given the same unique value then
+return precisely the same name. Each name generated also includes the StartLine number of the range passed in
+at the point of first generation.</p>
+<p>This type may be accessed concurrently, though in practice it is only used from the compilation thread.
+It is made concurrency-safe since a global instance of the type is allocated in tast.fs.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synaccess.html">SynAccess</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synarginfo.html">SynArgInfo</a>
+          </td>
+          <td class="xmldoc"><p>The argument names and other metadata for a parameter for a member or function</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synargnamegenerator.html">SynArgNameGenerator</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synattribute.html">SynAttribute</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synattributes.html">SynAttributes</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synbinding.html">SynBinding</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synbindingkind.html">SynBindingKind</a>
+          </td>
+          <td class="xmldoc"><p>The kind associated with a binding - "let", "do" or a standalone expression</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synbindingreturninfo.html">SynBindingReturnInfo</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syncomponentinfo.html">SynComponentInfo</a>
+          </td>
+          <td class="xmldoc"><p>The untyped, unchecked syntax tree associated with the name of a type definition or module
+in signature or implementation.</p>
+<p>This includes the name, attributes, type parameters, constraints, documentation and accessibility
+for a type definition or module. For modules, entries such as the type parameters are
+always empty.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synconst.html">SynConst</a>
+          </td>
+          <td class="xmldoc"><p>The unchecked abstract syntax tree of constants in F# types and expressions.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synconstructorargs.html">SynConstructorArgs</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synenumcase.html">SynEnumCase</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synenumcases.html">SynEnumCases</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synexceptiondefn.html">SynExceptionDefn</a>
+          </td>
+          <td class="xmldoc"><p>'exception E = ... with ...'</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synexceptiondefnrepr.html">SynExceptionDefnRepr</a>
+          </td>
+          <td class="xmldoc"><p>'exception E = ... '</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synexceptionsig.html">SynExceptionSig</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synexpr.html">SynExpr</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synfield.html">SynField</a>
+          </td>
+          <td class="xmldoc"><p>The untyped, unchecked syntax tree for a field declaration in a record or class</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synfields.html">SynFields</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synindexerarg.html">SynIndexerArg</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syninterfaceimpl.html">SynInterfaceImpl</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmatchclause.html">SynMatchClause</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmeasure.html">SynMeasure</a>
+          </td>
+          <td class="xmldoc"><p>The unchecked abstract syntax tree of F# unit of measure annotations.
+This should probably be merged with the representation of SynType.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmemberdefn.html">SynMemberDefn</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmemberdefns.html">SynMemberDefns</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmembersig.html">SynMemberSig</a>
+          </td>
+          <td class="xmldoc"><p>The untyped, unchecked syntax tree for a member signature, used in signature files, abstract member declarations
+and member constraints.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmembersigs.html">SynMemberSigs</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmoduledecl.html">SynModuleDecl</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmoduledecls.html">SynModuleDecls</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmoduleornamespace.html">SynModuleOrNamespace</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmoduleornamespacekind.html">SynModuleOrNamespaceKind</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmoduleornamespacesig.html">SynModuleOrNamespaceSig</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmodulesigdecl.html">SynModuleSigDecl</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synmodulesigdecls.html">SynModuleSigDecls</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synpat.html">SynPat</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synrationalconst.html">SynRationalConst</a>
+          </td>
+          <td class="xmldoc"><p>The unchecked abstract syntax tree of F# unit of measure exponents.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synreturninfo.html">SynReturnInfo</a>
+          </td>
+          <td class="xmldoc"><p>The syntactic elements associated with the "return" of a function or method. Some of this is
+mostly dummy information to make the return element look like an argument,
+the important thing is that (a) you can give a return type for the function or method, and
+(b) you can associate .NET attributes to return of a function or method and these get stored in .NET metadata.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synsimplepat.html">SynSimplePat</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synsimplepatalternativeidinfo.html">SynSimplePatAlternativeIdInfo</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synsimplepats.html">SynSimplePats</a>
+          </td>
+          <td class="xmldoc"><p>Represents a simple set of variable bindings a, (a,b) or (a:Type,b:Type) at a lambda,
+function definition or other binding point, after the elimination of pattern matching
+from the construct, e.g. after changing a "function pat1 -&gt; rule1 | ..." to a
+"fun v -&gt; match v with ..."</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synstaticoptimizationconstraint.html">SynStaticOptimizationConstraint</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntypar.html">SynTypar</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntypardecl.html">SynTyparDecl</a>
+          </td>
+          <td class="xmldoc"><p>Represents the explicit declaration of a type parameter</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntype.html">SynType</a>
+          </td>
+          <td class="xmldoc"><p>The unchecked abstract syntax tree of F# types</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntypeconstraint.html">SynTypeConstraint</a>
+          </td>
+          <td class="xmldoc"><p>The unchecked abstract syntax tree of F# type constraints</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntypedefn.html">SynTypeDefn</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntypedefnkind.html">SynTypeDefnKind</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntypedefnrepr.html">SynTypeDefnRepr</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntypedefnsig.html">SynTypeDefnSig</a>
+          </td>
+          <td class="xmldoc"><p>The untyped, unchecked syntax tree for a type definition in a signature</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntypedefnsigrepr.html">SynTypeDefnSigRepr</a>
+          </td>
+          <td class="xmldoc"><p>The untyped, unchecked syntax tree for the right-hand-side of a type definition in a signature.
+Note: in practice, using a discriminated union to make a distinction between
+"simple" types and "object oriented" types is not particularly useful.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntypedefnsimplerepr.html">SynTypeDefnSimpleRepr</a>
+          </td>
+          <td class="xmldoc"><p>The untyped, unchecked syntax tree for the core of a simple type definition, in either signature
+or implementation.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synunioncase.html">SynUnionCase</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synunioncasetype.html">SynUnionCaseType</a>
+          </td>
+          <td class="xmldoc"><p>The untyped, unchecked syntax tree for the right-hand-side of union definition, excluding members,
+in either a signature or implementation.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synunioncases.html">SynUnionCases</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synvaldata.html">SynValData</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synvalinfo.html">SynValInfo</a>
+          </td>
+          <td class="xmldoc"><p>The argument names and other metadata for a member or function</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synvalsig.html">SynValSig</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-synvaltypardecls.html">SynValTyparDecls</a>
+          </td>
+          <td class="xmldoc"><p>The names and other metadata for the type parameters for a member or function</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-syntaxerror.html">SyntaxError</a>
+          </td>
+          <td class="xmldoc"><p>The error raised by the parse<em>error</em>rich function, which is called by the parser engine
+when a syntax error occurs. The first object is the ParseErrorContext which contains a dump of
+information about the grammar at the point where the error occurred, e.g. what tokens
+are valid to shift next at that point in the grammar. This information is processed in CompileOps.fs.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-typarstaticreq.html">TyparStaticReq</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-xmldoc.html">XmlDoc</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-xmldoccollector.html">XmlDocCollector</a>
+          </td>
+          <td class="xmldoc"><p>Used to collect XML documentation during lexing and parsing.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-ast-xmldocstatics.html">XmlDocStatics</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-ast-customoperations.html">CustomOperations</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-ast-fsharplib.html">FSharpLib</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-ast-lexbuflocalxmldocstore.html">LexbufLocalXmlDocStore</a>
+          </td>
+          <td class="xmldoc"><p>XmlDoc F# lexer/parser state, held in the BufferLocalStore for the lexer.
+This is the only use of the lexer BufferLocalStore in the codebase.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-ast-syninfo.html">SynInfo</a>
+          </td>
+          <td class="xmldoc"><p>Operations related to the syntactic analysis of arguments of value, function and member definitions and signatures.</p>
+<p>Function and member definitions have strongly syntactically constrained arities.  We infer
+the arity from the syntax.</p>
+<p>For example, we record the arity for:
+StaticProperty --&gt; [1]               -- for unit arg
+this.InstanceProperty --&gt; [1;1]        -- for unit arg
+StaticMethod(args) --&gt; map InferSynArgInfoFromSimplePat args
+this.InstanceMethod() --&gt; 1 :: map InferSynArgInfoFromSimplePat args
+this.InstanceProperty with get(argpat) --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat]
+StaticProperty with get(argpat) --&gt; [InferSynArgInfoFromSimplePat argpat]
+this.InstanceProperty with get() --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat]
+StaticProperty with get() --&gt; [InferSynArgInfoFromSimplePat argpat]</p>
+<p>this.InstanceProperty with set(argpat)(v) --&gt; 1 :: [InferSynArgInfoFromSimplePat argpat; 1]
+StaticProperty with set(argpat)(v) --&gt; [InferSynArgInfoFromSimplePat argpat; 1]
+this.InstanceProperty with set(v) --&gt; 1 :: [1]
+StaticProperty with set(v) --&gt; [1]</p>
+
+</td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '1', 1)" onmouseover="showTip(event, '1', 1)">
+            AbstractMemberFlags k
+          </code>
+          <div class="tip" id="1">
+            <strong>Signature:</strong> k:MemberKind -&gt; MemberFlags<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2', 2)" onmouseover="showTip(event, '2', 2)">
+            appFunOpt funOpt x
+          </code>
+          <div class="tip" id="2">
+            <strong>Signature:</strong> funOpt:(&#39;?15316 -&gt; &#39;?15316) option -&gt; x:&#39;?15316 -&gt; &#39;?15316<br />
+                          <strong>Type parameters:</strong> '?15316          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3', 3)" onmouseover="showTip(event, '3', 3)">
+            arbExpr (debugStr, range)
+          </code>
+          <div class="tip" id="3">
+            <strong>Signature:</strong> (debugStr:string * range:range) -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '4', 4)" onmouseover="showTip(event, '4', 4)">
+            arrPathOfLid lid
+          </code>
+          <div class="tip" id="4">
+            <strong>Signature:</strong> lid:Ident list -&gt; string []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '5', 5)" onmouseover="showTip(event, '5', 5)">
+            ClassCtorMemberFlags 
+          </code>
+          <div class="tip" id="5">
+            <strong>Signature:</strong> MemberFlags<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '6', 6)" onmouseover="showTip(event, '6', 6)">
+            composeFunOpt funOpt1 funOpt2
+          </code>
+          <div class="tip" id="6">
+            <strong>Signature:</strong> funOpt1:(&#39;?15318 -&gt; &#39;?15318) option -&gt; funOpt2:(&#39;?15318 -&gt; &#39;?15318) option -&gt; (&#39;?15318 -&gt; &#39;?15318) option<br />
+                          <strong>Type parameters:</strong> '?15318          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '7', 7)" onmouseover="showTip(event, '7', 7)">
+            CtorMemberFlags 
+          </code>
+          <div class="tip" id="7">
+            <strong>Signature:</strong> MemberFlags<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '8', 8)" onmouseover="showTip(event, '8', 8)">
+            FsiDynamicModulePrefix 
+          </code>
+          <div class="tip" id="8">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The prefix of the names used for the fake namespace path added to all dynamic code entries in FSI.EXE</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '9', 9)" onmouseover="showTip(event, '9', 9)">
+            ident (s, r)
+          </code>
+          <div class="tip" id="9">
+            <strong>Signature:</strong> (s:string * r:range) -&gt; Ident<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '10', 10)" onmouseover="showTip(event, '10', 10)">
+            inferredTyparDecls 
+          </code>
+          <div class="tip" id="10">
+            <strong>Signature:</strong> SynValTyparDecls<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '11', 11)" onmouseover="showTip(event, '11', 11)">
+            IsControlFlowExpression e
+          </code>
+          <div class="tip" id="11">
+            <strong>Signature:</strong> e:SynExpr -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>This affects placement of sequence points</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '12', 12)" onmouseover="showTip(event, '12', 12)">
+            LexerIfdefEval lookup _arg1
+          </code>
+          <div class="tip" id="12">
+            <strong>Signature:</strong> lookup:(string -&gt; bool) -&gt; _arg1:LexerIfdefExpression -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '13', 13)" onmouseover="showTip(event, '13', 13)">
+            mkAnonField ty
+          </code>
+          <div class="tip" id="13">
+            <strong>Signature:</strong> ty:SynType -&gt; SynField<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '14', 14)" onmouseover="showTip(event, '14', 14)">
+            mkNamedField (ident, ty)
+          </code>
+          <div class="tip" id="14">
+            <strong>Signature:</strong> (ident:Ident * ty:SynType) -&gt; SynField<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '15', 15)" onmouseover="showTip(event, '15', 15)">
+            mkSynApp1 f x1 m
+          </code>
+          <div class="tip" id="15">
+            <strong>Signature:</strong> f:SynExpr -&gt; x1:SynExpr -&gt; m:range -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '16', 16)" onmouseover="showTip(event, '16', 16)">
+            mkSynApp2 f x1 x2 m
+          </code>
+          <div class="tip" id="16">
+            <strong>Signature:</strong> f:SynExpr -&gt; x1:SynExpr -&gt; x2:SynExpr -&gt; m:range -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '17', 17)" onmouseover="showTip(event, '17', 17)">
+            mkSynApp3 f x1 x2 x3 m
+          </code>
+          <div class="tip" id="17">
+            <strong>Signature:</strong> f:SynExpr -&gt; x1:SynExpr -&gt; x2:SynExpr -&gt; x3:SynExpr -&gt; m:range -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '18', 18)" onmouseover="showTip(event, '18', 18)">
+            mkSynApp4 f x1 x2 x3 x4 m
+          </code>
+          <div class="tip" id="18">
+            <strong>Signature:</strong> f:SynExpr -&gt; x1:SynExpr -&gt; x2:SynExpr -&gt; x3:SynExpr -&gt; x4:SynExpr -&gt; m:range -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '19', 19)" onmouseover="showTip(event, '19', 19)">
+            mkSynApp5 f x1 x2 x3 x4 x5 m
+          </code>
+          <div class="tip" id="19">
+            <strong>Signature:</strong> f:SynExpr -&gt; x1:SynExpr -&gt; x2:SynExpr -&gt; x3:SynExpr -&gt; x4:SynExpr -&gt; x5:SynExpr -&gt; m:range -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '20', 20)" onmouseover="showTip(event, '20', 20)">
+            mkSynAssign l r
+          </code>
+          <div class="tip" id="20">
+            <strong>Signature:</strong> l:SynExpr -&gt; r:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '21', 21)" onmouseover="showTip(event, '21', 21)">
+            mkSynBifix m oper x1 x2
+          </code>
+          <div class="tip" id="21">
+            <strong>Signature:</strong> m:range -&gt; oper:string -&gt; x1:SynExpr -&gt; x2:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '22', 22)" onmouseover="showTip(event, '22', 22)">
+            mkSynBinding (...)
+          </code>
+          <div class="tip" id="22">
+            <strong>Signature:</strong> (xmlDoc:PreXmlDoc * headPat:SynPat) -&gt; (vis:SynAccess option * isInline:bool * isMutable:bool * mBind:range * spBind:SequencePointInfoForBinding * retInfo:SynReturnInfo option * origRhsExpr:SynExpr * mRhs:range * staticOptimizations:(SynStaticOptimizationConstraint list * SynExpr) list * attrs:SynAttributes * memberFlagsOpt:MemberFlags option) -&gt; SynBinding<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
+            mkSynBindingRhs (...)
+          </code>
+          <div class="tip" id="23">
+            <strong>Signature:</strong> staticOptimizations:(SynStaticOptimizationConstraint list * SynExpr) list -&gt; rhsExpr:SynExpr -&gt; mRhs:range -&gt; retInfo:SynReturnInfo option -&gt; SynExpr * SynBindingReturnInfo option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
+            mkSynCaseName m n
+          </code>
+          <div class="tip" id="24">
+            <strong>Signature:</strong> m:range -&gt; n:string -&gt; Ident list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '25', 25)" onmouseover="showTip(event, '25', 25)">
+            mkSynCompGenSimplePatVar id
+          </code>
+          <div class="tip" id="25">
+            <strong>Signature:</strong> id:Ident -&gt; SynSimplePat<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '26', 26)" onmouseover="showTip(event, '26', 26)">
+            mkSynDelay m e
+          </code>
+          <div class="tip" id="26">
+            <strong>Signature:</strong> m:range -&gt; e:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '27', 27)" onmouseover="showTip(event, '27', 27)">
+            mkSynDot dotm m l r
+          </code>
+          <div class="tip" id="27">
+            <strong>Signature:</strong> dotm:range -&gt; m:range -&gt; l:SynExpr -&gt; r:Ident -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '28', 28)" onmouseover="showTip(event, '28', 28)">
+            mkSynDotBrackGet m mDot a b
+          </code>
+          <div class="tip" id="28">
+            <strong>Signature:</strong> m:range -&gt; mDot:range -&gt; a:SynExpr -&gt; b:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '29', 29)" onmouseover="showTip(event, '29', 29)">
+            mkSynDotBrackSeqSliceGet (...)
+          </code>
+          <div class="tip" id="29">
+            <strong>Signature:</strong> m:range -&gt; mDot:range -&gt; arr:SynExpr -&gt; argslist:SynIndexerArg list -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '30', 30)" onmouseover="showTip(event, '30', 30)">
+            mkSynDotBrackSliceGet (...)
+          </code>
+          <div class="tip" id="30">
+            <strong>Signature:</strong> m:range -&gt; mDot:range -&gt; arr:SynExpr -&gt; sliceArg:SynIndexerArg -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '31', 31)" onmouseover="showTip(event, '31', 31)">
+            mkSynDotMissing dotm m l
+          </code>
+          <div class="tip" id="31">
+            <strong>Signature:</strong> dotm:range -&gt; m:range -&gt; l:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '32', 32)" onmouseover="showTip(event, '32', 32)">
+            mkSynDotParenGet lhsm dotm a b
+          </code>
+          <div class="tip" id="32">
+            <strong>Signature:</strong> lhsm:range -&gt; dotm:range -&gt; a:SynExpr -&gt; b:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
+            mkSynDotParenSet m a b c
+          </code>
+          <div class="tip" id="33">
+            <strong>Signature:</strong> m:range -&gt; a:SynExpr -&gt; b:SynExpr -&gt; c:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
+            mkSynFunMatchLambdas (...)
+          </code>
+          <div class="tip" id="34">
+            <strong>Signature:</strong> synArgNameGenerator:SynArgNameGenerator -&gt; isMember:bool -&gt; wholem:range -&gt; ps:SynPat list -&gt; e:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
+            mkSynId m s
+          </code>
+          <div class="tip" id="35">
+            <strong>Signature:</strong> m:range -&gt; s:string -&gt; Ident<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
+            mkSynIdGet m n
+          </code>
+          <div class="tip" id="36">
+            <strong>Signature:</strong> m:range -&gt; n:string -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '37', 37)" onmouseover="showTip(event, '37', 37)">
+            mkSynIdGetWithAlt m id altInfo
+          </code>
+          <div class="tip" id="37">
+            <strong>Signature:</strong> m:range -&gt; id:Ident -&gt; altInfo:SynSimplePatAlternativeIdInfo ref option -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '38', 38)" onmouseover="showTip(event, '38', 38)">
+            mkSynInfix opm l oper r
+          </code>
+          <div class="tip" id="38">
+            <strong>Signature:</strong> opm:range -&gt; l:SynExpr -&gt; oper:string -&gt; r:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
+            mkSynLidGet m path n
+          </code>
+          <div class="tip" id="39">
+            <strong>Signature:</strong> m:range -&gt; path:string list -&gt; n:string -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '40', 40)" onmouseover="showTip(event, '40', 40)">
+            mkSynOperator opm oper
+          </code>
+          <div class="tip" id="40">
+            <strong>Signature:</strong> opm:range -&gt; oper:string -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+            mkSynPatMaybeVar lidwd vis m
+          </code>
+          <div class="tip" id="41">
+            <strong>Signature:</strong> lidwd:LongIdentWithDots -&gt; vis:SynAccess option -&gt; m:range -&gt; SynPat<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+            mkSynPatVar vis id
+          </code>
+          <div class="tip" id="42">
+            <strong>Signature:</strong> vis:SynAccess option -&gt; id:Ident -&gt; SynPat<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '43', 43)" onmouseover="showTip(event, '43', 43)">
+            mkSynPrefix opm m oper x
+          </code>
+          <div class="tip" id="43">
+            <strong>Signature:</strong> opm:range -&gt; m:range -&gt; oper:string -&gt; x:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
+            mkSynPrefixPrim opm m oper x
+          </code>
+          <div class="tip" id="44">
+            <strong>Signature:</strong> opm:range -&gt; m:range -&gt; oper:string -&gt; x:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
+            mkSynQMarkSet m a b c
+          </code>
+          <div class="tip" id="45">
+            <strong>Signature:</strong> m:range -&gt; a:SynExpr -&gt; b:SynExpr -&gt; c:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
+            mkSynSimplePatVar isOpt id
+          </code>
+          <div class="tip" id="46">
+            <strong>Signature:</strong> isOpt:bool -&gt; id:Ident -&gt; SynSimplePat<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
+            mkSynThisPatVar id
+          </code>
+          <div class="tip" id="47">
+            <strong>Signature:</strong> id:Ident -&gt; SynPat<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
+            mkSynTrifix m oper x1 x2 x3
+          </code>
+          <div class="tip" id="48">
+            <strong>Signature:</strong> m:range -&gt; oper:string -&gt; x1:SynExpr -&gt; x2:SynExpr -&gt; x3:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
+            mkSynUnit m
+          </code>
+          <div class="tip" id="49">
+            <strong>Signature:</strong> m:range -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+            mkSynUnitPat m
+          </code>
+          <div class="tip" id="50">
+            <strong>Signature:</strong> m:range -&gt; SynPat<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
+            noInferredTypars 
+          </code>
+          <div class="tip" id="51">
+            <strong>Signature:</strong> SynValTyparDecls<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
+            NonVirtualMemberFlags k
+          </code>
+          <div class="tip" id="52">
+            <strong>Signature:</strong> k:MemberKind -&gt; MemberFlags<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
+            opNameParenGet 
+          </code>
+          <div class="tip" id="53">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
+            opNameQMark 
+          </code>
+          <div class="tip" id="54">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
+            OverrideMemberFlags k
+          </code>
+          <div class="tip" id="55">
+            <strong>Signature:</strong> k:MemberKind -&gt; MemberFlags<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
+            ParseAssemblyCodeInstructions s m
+          </code>
+          <div class="tip" id="56">
+            <strong>Signature:</strong> s:string -&gt; m:range -&gt; ILInstr array<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Helper for parsing the inline IL fragments.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
+            ParseAssemblyCodeType s m
+          </code>
+          <div class="tip" id="57">
+            <strong>Signature:</strong> s:string -&gt; m:range -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Helper for parsing the inline IL fragments.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
+            pathOfLid lid
+          </code>
+          <div class="tip" id="58">
+            <strong>Signature:</strong> lid:Ident list -&gt; string list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
+            pathToSynLid m p
+          </code>
+          <div class="tip" id="59">
+            <strong>Signature:</strong> m:range -&gt; p:string list -&gt; Ident list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
+            PushCurriedPatternsToExpr (...)
+          </code>
+          <div class="tip" id="60">
+            <strong>Signature:</strong> synArgNameGenerator:SynArgNameGenerator -&gt; wholem:range -&gt; isMember:bool -&gt; pats:SynPat list -&gt; rhs:SynExpr -&gt; SynSimplePats list * SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>"fun (UnionCase x) (UnionCase y) -&gt; body"
+==&gt;
+"fun tmp1 tmp2 -&gt;
+let (UnionCase x) = tmp1 in
+let (UnionCase y) = tmp2 in
+body"</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
+            PushPatternToExpr (...)
+          </code>
+          <div class="tip" id="61">
+            <strong>Signature:</strong> synArgNameGenerator:SynArgNameGenerator -&gt; isMember:bool -&gt; pat:SynPat -&gt; rhs:SynExpr -&gt; SynSimplePats * SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '62', 62)" onmouseover="showTip(event, '62', 62)">
+            rangeOfLid lid
+          </code>
+          <div class="tip" id="62">
+            <strong>Signature:</strong> lid:Ident list -&gt; range<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '63', 63)" onmouseover="showTip(event, '63', 63)">
+            SimplePatOfPat synArgNameGenerator p
+          </code>
+          <div class="tip" id="63">
+            <strong>Signature:</strong> synArgNameGenerator:SynArgNameGenerator -&gt; p:SynPat -&gt; SynSimplePat * (SynExpr -&gt; SynExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Push non-simple parts of a patten match over onto the r.h.s. of a lambda.
+Return a simple pattern and a function to build a match on the r.h.s. if the pattern is complex</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '64', 64)" onmouseover="showTip(event, '64', 64)">
+            SimplePatsOfPat synArgNameGenerator p
+          </code>
+          <div class="tip" id="64">
+            <strong>Signature:</strong> synArgNameGenerator:SynArgNameGenerator -&gt; p:SynPat -&gt; SynSimplePats * (SynExpr -&gt; SynExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '65', 65)" onmouseover="showTip(event, '65', 65)">
+            StaticMemberFlags k
+          </code>
+          <div class="tip" id="65">
+            <strong>Signature:</strong> k:MemberKind -&gt; MemberFlags<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '66', 66)" onmouseover="showTip(event, '66', 66)">
+            synExprContainsError inpExpr
+          </code>
+          <div class="tip" id="66">
+            <strong>Signature:</strong> inpExpr:SynExpr -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '67', 67)" onmouseover="showTip(event, '67', 67)">
+            textOfId id
+          </code>
+          <div class="tip" id="67">
+            <strong>Signature:</strong> id:Ident -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '68', 68)" onmouseover="showTip(event, '68', 68)">
+            textOfLid lid
+          </code>
+          <div class="tip" id="68">
+            <strong>Signature:</strong> lid:Ident list -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '69', 69)" onmouseover="showTip(event, '69', 69)">
+            textOfPath path
+          </code>
+          <div class="tip" id="69">
+            <strong>Signature:</strong> path:seq&lt;string&gt; -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Active patterns</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Active pattern</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '70', 70)" onmouseover="showTip(event, '70', 70)">
+            ( |LongOrSingleIdent|_| ) inp
+          </code>
+          <div class="tip" id="70">
+            <strong>Signature:</strong> inp:SynExpr -&gt; (bool * LongIdentWithDots * SynSimplePatAlternativeIdInfo ref option * range) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Match a long identifier, including the case for single identifiers which gets a more optimized node in the syntax tree.</p>
+
+
+              <p>CompiledName: <code>|LongOrSingleIdent|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '71', 71)" onmouseover="showTip(event, '71', 71)">
+            ( |SingleIdent|_| ) inp
+          </code>
+          <div class="tip" id="71">
+            <strong>Signature:</strong> inp:SynExpr -&gt; Ident option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|SingleIdent|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '72', 72)" onmouseover="showTip(event, '72', 72)">
+            ( |SynExprErrorSkip| ) p
+          </code>
+          <div class="tip" id="72">
+            <strong>Signature:</strong> p:SynExpr -&gt; SynExpr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|SynExprErrorSkip|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
+            ( |SynExprParen|_| ) e
+          </code>
+          <div class="tip" id="73">
+            <strong>Signature:</strong> e:SynExpr -&gt; (SynExpr * range * range option * range) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|SynExprParen|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
+            ( |SynPatErrorSkip| ) p
+          </code>
+          <div class="tip" id="74">
+            <strong>Signature:</strong> p:SynPat -&gt; SynPat<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|SynPatErrorSkip|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
+            ( |SynPatForConstructorDecl|_| ) x
+          </code>
+          <div class="tip" id="75">
+            <strong>Signature:</strong> x:SynPat -&gt; SynPat option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Extract the argument for patterns corresponding to the declaration of 'new ... = ...'</p>
+
+
+              <p>CompiledName: <code>|SynPatForConstructorDecl|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
+            ( |SynPatForNullaryArgs|_| ) x
+          </code>
+          <div class="tip" id="76">
+            <strong>Signature:</strong> x:SynPat -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Recognize the '()' in 'new()'</p>
+
+
+              <p>CompiledName: <code>|SynPatForNullaryArgs|_|</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

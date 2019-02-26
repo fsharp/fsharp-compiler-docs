@@ -1,0 +1,3896 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>IL - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>IL</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.AbstractIL</span><br />
+</p>
+<div class="xmldoc">
+<p>The "unlinked" view of .NET metadata and code.  Central to the Abstract IL library</p>
+
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+  <h2>Nested types and modules</h2>
+  <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilalignment.html">ILAlignment</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilargconvention.html">ILArgConvention</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilarraybound.html">ILArrayBound</a>
+          </td>
+          <td class="xmldoc"><p>Array shapes. For most purposes the rank is the only thing that matters.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilarraybounds.html">ILArrayBounds</a>
+          </td>
+          <td class="xmldoc"><p>Lower-bound/size pairs</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilarrayshape.html">ILArrayShape</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilassemblylongevity.html">ILAssemblyLongevity</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilassemblymanifest.html">ILAssemblyManifest</a>
+          </td>
+          <td class="xmldoc"><p>The main module of an assembly is a module plus some manifest information.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilassemblyref.html">ILAssemblyRef</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilattribelem.html">ILAttribElem</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilattribute.html">ILAttribute</a>
+          </td>
+          <td class="xmldoc"><p>Custom attribute.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilattributenamedarg.html">ILAttributeNamedArg</a>
+          </td>
+          <td class="xmldoc"><p>Named args: values and flags indicating if they are fields or properties.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilattributes.html">ILAttributes</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilattributesstored.html">ILAttributesStored</a>
+          </td>
+          <td class="xmldoc"><p>Represents the efficiency-oriented storage of ILAttributes in another item.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilbasictype.html">ILBasicType</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilboxity.html">ILBoxity</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilcallingconv.html">ILCallingConv</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilcallingsignature.html">ILCallingSignature</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilcode.html">ILCode</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilcodelabel.html">ILCodeLabel</a>
+          </td>
+          <td class="xmldoc"><p>ILCode labels.  In structured code each code label refers to a basic block somewhere in the code of the method.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilcomparisoninstr.html">ILComparisonInstr</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilconst.html">ILConst</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ildefaultpinvokeencoding.html">ILDefaultPInvokeEncoding</a>
+          </td>
+          <td class="xmldoc"><p>Default Unicode encoding for P/Invoke  within a type.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilenuminfo.html">ILEnumInfo</a>
+          </td>
+          <td class="xmldoc"><p>Decompose a type definition according to its kind.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ileventdef.html">ILEventDef</a>
+          </td>
+          <td class="xmldoc"><p>Event definitions.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ileventdefs.html">ILEventDefs</a>
+          </td>
+          <td class="xmldoc"><p>Table of those events in a type definition.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ileventref.html">ILEventRef</a>
+          </td>
+          <td class="xmldoc"><p>A utility type provided for completeness</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilexceptionclause.html">ILExceptionClause</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilexceptionspec.html">ILExceptionSpec</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilexportedtypeorforwarder.html">ILExportedTypeOrForwarder</a>
+          </td>
+          <td class="xmldoc"><p>these are only found in the ILExportedTypesAndForwarders table in the manifest</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilexportedtypesandforwarders.html">ILExportedTypesAndForwarders</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilfielddef.html">ILFieldDef</a>
+          </td>
+          <td class="xmldoc"><p>Field definitions.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilfielddefs.html">ILFieldDefs</a>
+          </td>
+          <td class="xmldoc"><p>Tables of fields.  Logically equivalent to a list of fields but the table is kept in
+a form to allow efficient looking up fields by name.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilfieldinit.html">ILFieldInit</a>
+          </td>
+          <td class="xmldoc"><p>Field Init</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilfieldref.html">ILFieldRef</a>
+          </td>
+          <td class="xmldoc"><p>Formal identities of fields.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilfieldspec.html">ILFieldSpec</a>
+          </td>
+          <td class="xmldoc"><p>Field specs.  The data given for a ldfld, stfld etc. instruction.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilgenericargs.html">ILGenericArgs</a>
+          </td>
+          <td class="xmldoc"><p>Actual generic parameters are  always types.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilgenericargslist.html">ILGenericArgsList</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilgenericparameterdef.html">ILGenericParameterDef</a>
+          </td>
+          <td class="xmldoc"><p>Generic parameters.  Formal generic parameter declarations may include the bounds, if any, on the generic parameter.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilgenericparameterdefs.html">ILGenericParameterDefs</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilgenericvariance.html">ILGenericVariance</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilglobals.html">ILGlobals</a>
+          </td>
+          <td class="xmldoc"><p>A table of common references to items in primary assembly (System.Runtime or mscorlib).
+If a particular version of System.Runtime.dll has been loaded then you should
+reference items from it via an ILGlobals for that specific version built using mkILGlobals.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilguid.html">ILGuid</a>
+          </td>
+          <td class="xmldoc"><p>Represents guids</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilinstr.html">ILInstr</a>
+          </td>
+          <td class="xmldoc"><p>The instruction set.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-illazymethodbody.html">ILLazyMethodBody</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-illocal.html">ILLocal</a>
+          </td>
+          <td class="xmldoc"><p>Local variables</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-illocaldebuginfo.html">ILLocalDebugInfo</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-illocaldebugmapping.html">ILLocalDebugMapping</a>
+          </td>
+          <td class="xmldoc"><p>Indicates that a particular local variable has a particular source
+language name within a given set of ranges. This does not effect local
+variable numbering, which is global over the whole method.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-illocals.html">ILLocals</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-illocalsallocator.html">ILLocalsAllocator</a>
+          </td>
+          <td class="xmldoc"><p>Helpers for codegen: scopes for allocating new temporary variables.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmemberaccess.html">ILMemberAccess</a>
+          </td>
+          <td class="xmldoc"><p>Member Access</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmethodbody.html">ILMethodBody</a>
+          </td>
+          <td class="xmldoc"><p>IL method bodies</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmethoddef.html">ILMethodDef</a>
+          </td>
+          <td class="xmldoc"><p>IL Method definitions.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmethoddefs.html">ILMethodDefs</a>
+          </td>
+          <td class="xmldoc"><p>Tables of methods.  Logically equivalent to a list of methods but
+the table is kept in a form optimized for looking up methods by
+name and arity.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmethodimpldef.html">ILMethodImplDef</a>
+          </td>
+          <td class="xmldoc"><p>Method Impls</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmethodimpldefs.html">ILMethodImplDefs</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmethodref.html">ILMethodRef</a>
+          </td>
+          <td class="xmldoc"><p>Formal identities of methods.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmethodspec.html">ILMethodSpec</a>
+          </td>
+          <td class="xmldoc"><p>The information at the callsite of a method</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmethodvirtualinfo.html">ILMethodVirtualInfo</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmoduledef.html">ILModuleDef</a>
+          </td>
+          <td class="xmldoc"><p>One module in the "current" assembly, either a main-module or
+an auxiliary module.  The main module will have a manifest.</p>
+<p>An assembly is built by joining together a "main" module plus
+several auxiliary modules.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilmoduleref.html">ILModuleRef</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilnativeresource.html">ILNativeResource</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilnativetype.html">ILNativeType</a>
+          </td>
+          <td class="xmldoc"><p>Native Types, for marshalling to the native C interface.
+These are taken directly from the ILASM syntax, see ECMA Spec (Partition II, 7.4).</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilnativevariant.html">ILNativeVariant</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilnestedexportedtype.html">ILNestedExportedType</a>
+          </td>
+          <td class="xmldoc"><p>these are only found in the "Nested" field of ILExportedTypeOrForwarder objects</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilnestedexportedtypes.html">ILNestedExportedTypes</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iloverridesspec.html">ILOverridesSpec</a>
+          </td>
+          <td class="xmldoc">
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilparameter.html">ILParameter</a>
+          </td>
+          <td class="xmldoc"><p>Method parameters and return values.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilparameters.html">ILParameters</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilplatform.html">ILPlatform</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilpretypedef.html">ILPreTypeDef</a>
+          </td>
+          <td class="xmldoc"><p>Represents a prefix of information for ILTypeDef.</p>
+<p>The information is enough to perform name resolution for the F# compiler, probe attributes
+for ExtensionAttribute  etc.  This is key to the on-demand exploration of .NET metadata.
+This information has to be "Goldilocks" - not too much, not too little, just right.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilpropertydef.html">ILPropertyDef</a>
+          </td>
+          <td class="xmldoc"><p>Property definitions</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilpropertydefs.html">ILPropertyDefs</a>
+          </td>
+          <td class="xmldoc"><p>Table of properties in an IL type definition.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilpropertyref.html">ILPropertyRef</a>
+          </td>
+          <td class="xmldoc"><p>A utility type provided for completeness</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilreadonly.html">ILReadonly</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilreferences.html">ILReferences</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilresource.html">ILResource</a>
+          </td>
+          <td class="xmldoc"><p>"Manifest ILResources" are chunks of resource data, being one of:
+- the data section of the current module (byte[] of resource given directly).
+- in an external file in this assembly (offset given in the ILResourceLocation field).
+- as a resources in another assembly of the same name.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilresourceaccess.html">ILResourceAccess</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilresourcelocation.html">ILResourceLocation</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilresources.html">ILResources</a>
+          </td>
+          <td class="xmldoc"><p>Table of resources in a module.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilreturn.html">ILReturn</a>
+          </td>
+          <td class="xmldoc"><p>Method return values.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilscoperef.html">ILScopeRef</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilsecurityaction.html">ILSecurityAction</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilsecuritydecl.html">ILSecurityDecl</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilsecuritydecls.html">ILSecurityDecls</a>
+          </td>
+          <td class="xmldoc"><p>Abstract type equivalent to ILSecurityDecl list - use helpers
+below to construct/destruct these.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilsecuritydeclsstored.html">ILSecurityDeclsStored</a>
+          </td>
+          <td class="xmldoc"><p>Represents the efficiency-oriented storage of ILSecurityDecls in another item.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilsourcedocument.html">ILSourceDocument</a>
+          </td>
+          <td class="xmldoc"><p>Debug info.  Values of type "source" can be attached at sequence
+points and some other locations.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilsourcemarker.html">ILSourceMarker</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltailcall.html">ILTailcall</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilthisconvention.html">ILThisConvention</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltoken.html">ILToken</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltype.html">ILType</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypedef.html">ILTypeDef</a>
+          </td>
+          <td class="xmldoc"><p>Represents IL Type Definitions.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypedefaccess.html">ILTypeDefAccess</a>
+          </td>
+          <td class="xmldoc"><p>Type Access.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypedefkind.html">ILTypeDefKind</a>
+          </td>
+          <td class="xmldoc"><p>A categorization of type definitions into "kinds"</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypedeflayout.html">ILTypeDefLayout</a>
+          </td>
+          <td class="xmldoc"><p>Type Layout information.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypedeflayoutinfo.html">ILTypeDefLayoutInfo</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypedefstored.html">ILTypeDefStored</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypedefs.html">ILTypeDefs</a>
+          </td>
+          <td class="xmldoc"><p>Tables of named type definitions.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypeinit.html">ILTypeInit</a>
+          </td>
+          <td class="xmldoc"><p>Indicate the initialization semantics of a type.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltyperef.html">ILTypeRef</a>
+          </td>
+          <td class="xmldoc"><p>Type refs, i.e. references to types in some .NET assembly</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypespec.html">ILTypeSpec</a>
+          </td>
+          <td class="xmldoc"><p>Type specs and types.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-iltypes.html">ILTypes</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilvarargs.html">ILVarArgs</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilversioninfo.html">ILVersionInfo</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-ilvolatility.html">ILVolatility</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-methodbody.html">MethodBody</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-methodcodekind.html">MethodCodeKind</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-methodkind.html">MethodKind</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-pinvokecallingconvention.html">PInvokeCallingConvention</a>
+          </td>
+          <td class="xmldoc"><p>PInvoke attributes.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-pinvokecharbestfit.html">PInvokeCharBestFit</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-pinvokecharencoding.html">PInvokeCharEncoding</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-pinvokemethod.html">PInvokeMethod</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-pinvokethrowonunmappablechar.html">PInvokeThrowOnUnmappableChar</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-primaryassembly.html">PrimaryAssembly</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-il-publickey.html">PublicKey</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '410', 410)" onmouseover="showTip(event, '410', 410)">
+            addILTypeDef arg1 arg2
+          </code>
+          <div class="tip" id="410">
+            <strong>Signature:</strong> ILTypeDef -&gt; ILTypeDefs -&gt; ILTypeDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '411', 411)" onmouseover="showTip(event, '411', 411)">
+            andTailness arg1 arg2
+          </code>
+          <div class="tip" id="411">
+            <strong>Signature:</strong> ILTailcall -&gt; bool -&gt; ILTailcall<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '412', 412)" onmouseover="showTip(event, '412', 412)">
+            buildILCode arg1 lab2pc instrs arg4 arg5
+          </code>
+          <div class="tip" id="412">
+            <strong>Signature:</strong> string -&gt; lab2pc:Dictionary&lt;ILCodeLabel,int&gt; -&gt; instrs:ILInstr [] -&gt; ILExceptionSpec list -&gt; ILLocalDebugInfo list -&gt; ILCode<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '413', 413)" onmouseover="showTip(event, '413', 413)">
+            compareILVersions arg1 arg2
+          </code>
+          <div class="tip" id="413">
+            <strong>Signature:</strong> ILVersionInfo -&gt; ILVersionInfo -&gt; int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '414', 414)" onmouseover="showTip(event, '414', 414)">
+            computeILEnumInfo (arg1, arg2)
+          </code>
+          <div class="tip" id="414">
+            <strong>Signature:</strong> (string * ILFieldDefs) -&gt; ILEnumInfo<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '415', 415)" onmouseover="showTip(event, '415', 415)">
+            computeILRefs arg1
+          </code>
+          <div class="tip" id="415">
+            <strong>Signature:</strong> ILModuleDef -&gt; ILReferences<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Find the full set of assemblies referenced by a module.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '416', 416)" onmouseover="showTip(event, '416', 416)">
+            decodeILAttribData arg1 arg2
+          </code>
+          <div class="tip" id="416">
+            <strong>Signature:</strong> ILGlobals -&gt; ILAttribute -&gt; ILAttribElem list * ILAttributeNamedArg list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Not all custom attribute data can be decoded without binding types.  In particular
+enums must be bound in order to discover the size of the underlying integer.
+The following assumes enums have size int32.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '417', 417)" onmouseover="showTip(event, '417', 417)">
+            destILArrTy arg1
+          </code>
+          <div class="tip" id="417">
+            <strong>Signature:</strong> ILType -&gt; ILArrayShape * ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '418', 418)" onmouseover="showTip(event, '418', 418)">
+            destTypeDefsWithGlobalFunctionsFirst (...)
+          </code>
+          <div class="tip" id="418">
+            <strong>Signature:</strong> ILGlobals -&gt; ILTypeDefs -&gt; ILTypeDef list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>When writing a binary the fake "toplevel" type definition (called <Module>)
+must come first. This function puts it first, and creates it in the returned
+list as an empty typedef if it doesn't already exist.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '419', 419)" onmouseover="showTip(event, '419', 419)">
+            EcmaMscorlibILGlobals 
+          </code>
+          <div class="tip" id="419">
+            <strong>Signature:</strong> ILGlobals<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '420', 420)" onmouseover="showTip(event, '420', 420)">
+            ecmaPublicKey 
+          </code>
+          <div class="tip" id="420">
+            <strong>Signature:</strong> PublicKey<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>This is a 'vendor neutral' way of referencing mscorlib.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '421', 421)" onmouseover="showTip(event, '421', 421)">
+            emptyILCustomAttrs 
+          </code>
+          <div class="tip" id="421">
+            <strong>Signature:</strong> ILAttributes<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '422', 422)" onmouseover="showTip(event, '422', 422)">
+            emptyILEvents 
+          </code>
+          <div class="tip" id="422">
+            <strong>Signature:</strong> ILEventDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '423', 423)" onmouseover="showTip(event, '423', 423)">
+            emptyILFields 
+          </code>
+          <div class="tip" id="423">
+            <strong>Signature:</strong> ILFieldDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '424', 424)" onmouseover="showTip(event, '424', 424)">
+            emptyILMethodImpls 
+          </code>
+          <div class="tip" id="424">
+            <strong>Signature:</strong> ILMethodImplDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '425', 425)" onmouseover="showTip(event, '425', 425)">
+            emptyILMethods 
+          </code>
+          <div class="tip" id="425">
+            <strong>Signature:</strong> ILMethodDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '426', 426)" onmouseover="showTip(event, '426', 426)">
+            emptyILProperties 
+          </code>
+          <div class="tip" id="426">
+            <strong>Signature:</strong> ILPropertyDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '427', 427)" onmouseover="showTip(event, '427', 427)">
+            emptyILRefs 
+          </code>
+          <div class="tip" id="427">
+            <strong>Signature:</strong> ILReferences<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '428', 428)" onmouseover="showTip(event, '428', 428)">
+            emptyILSecurityDecls 
+          </code>
+          <div class="tip" id="428">
+            <strong>Signature:</strong> ILSecurityDecls<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '429', 429)" onmouseover="showTip(event, '429', 429)">
+            emptyILTypeDefs 
+          </code>
+          <div class="tip" id="429">
+            <strong>Signature:</strong> ILTypeDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '430', 430)" onmouseover="showTip(event, '430', 430)">
+            formatCodeLabel arg1
+          </code>
+          <div class="tip" id="430">
+            <strong>Signature:</strong> ILCodeLabel -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '431', 431)" onmouseover="showTip(event, '431', 431)">
+            formatILVersion arg1
+          </code>
+          <div class="tip" id="431">
+            <strong>Signature:</strong> ILVersionInfo -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '432', 432)" onmouseover="showTip(event, '432', 432)">
+            generateCodeLabel ()
+          </code>
+          <div class="tip" id="432">
+            <strong>Signature:</strong> unit -&gt; ILCodeLabel<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Making code.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '433', 433)" onmouseover="showTip(event, '433', 433)">
+            getCustomAttrData arg1 arg2
+          </code>
+          <div class="tip" id="433">
+            <strong>Signature:</strong> ILGlobals -&gt; ILAttribute -&gt; byte []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '434', 434)" onmouseover="showTip(event, '434', 434)">
+            getTyOfILEnumInfo arg1
+          </code>
+          <div class="tip" id="434">
+            <strong>Signature:</strong> ILEnumInfo -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '435', 435)" onmouseover="showTip(event, '435', 435)">
+            instILType arg1 arg2
+          </code>
+          <div class="tip" id="435">
+            <strong>Signature:</strong> ILGenericArgs -&gt; ILType -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Instantiate type variables that occur within types and other items.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '436', 436)" onmouseover="showTip(event, '436', 436)">
+            instILTypeAux arg1 arg2 arg3
+          </code>
+          <div class="tip" id="436">
+            <strong>Signature:</strong> int -&gt; ILGenericArgs -&gt; ILType -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Instantiate type variables that occur within types and other items.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '437', 437)" onmouseover="showTip(event, '437', 437)">
+            isILArrTy arg1
+          </code>
+          <div class="tip" id="437">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '438', 438)" onmouseover="showTip(event, '438', 438)">
+            isILBoolTy arg1
+          </code>
+          <div class="tip" id="438">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '439', 439)" onmouseover="showTip(event, '439', 439)">
+            isILByteTy arg1
+          </code>
+          <div class="tip" id="439">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '440', 440)" onmouseover="showTip(event, '440', 440)">
+            isILCharTy arg1
+          </code>
+          <div class="tip" id="440">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '441', 441)" onmouseover="showTip(event, '441', 441)">
+            isILDoubleTy arg1
+          </code>
+          <div class="tip" id="441">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '442', 442)" onmouseover="showTip(event, '442', 442)">
+            isILInt16Ty arg1
+          </code>
+          <div class="tip" id="442">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '443', 443)" onmouseover="showTip(event, '443', 443)">
+            isILInt32Ty arg1
+          </code>
+          <div class="tip" id="443">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '444', 444)" onmouseover="showTip(event, '444', 444)">
+            isILInt64Ty arg1
+          </code>
+          <div class="tip" id="444">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '445', 445)" onmouseover="showTip(event, '445', 445)">
+            isILIntPtrTy arg1
+          </code>
+          <div class="tip" id="445">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '446', 446)" onmouseover="showTip(event, '446', 446)">
+            isILObjectTy arg1
+          </code>
+          <div class="tip" id="446">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Discriminating different important built-in types.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '447', 447)" onmouseover="showTip(event, '447', 447)">
+            isILSByteTy arg1
+          </code>
+          <div class="tip" id="447">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '448', 448)" onmouseover="showTip(event, '448', 448)">
+            isILSingleTy arg1
+          </code>
+          <div class="tip" id="448">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '449', 449)" onmouseover="showTip(event, '449', 449)">
+            isILStringTy arg1
+          </code>
+          <div class="tip" id="449">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '450', 450)" onmouseover="showTip(event, '450', 450)">
+            isILTypedReferenceTy arg1
+          </code>
+          <div class="tip" id="450">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '451', 451)" onmouseover="showTip(event, '451', 451)">
+            isILUInt16Ty arg1
+          </code>
+          <div class="tip" id="451">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '452', 452)" onmouseover="showTip(event, '452', 452)">
+            isILUInt32Ty arg1
+          </code>
+          <div class="tip" id="452">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '453', 453)" onmouseover="showTip(event, '453', 453)">
+            isILUInt64Ty arg1
+          </code>
+          <div class="tip" id="453">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '454', 454)" onmouseover="showTip(event, '454', 454)">
+            isILUIntPtrTy arg1
+          </code>
+          <div class="tip" id="454">
+            <strong>Signature:</strong> ILType -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '455', 455)" onmouseover="showTip(event, '455', 455)">
+            isTypeNameForGlobalFunctions arg1
+          </code>
+          <div class="tip" id="455">
+            <strong>Signature:</strong> string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '456', 456)" onmouseover="showTip(event, '456', 456)">
+            methBodyAbstract 
+          </code>
+          <div class="tip" id="456">
+            <strong>Signature:</strong> ILLazyMethodBody<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '457', 457)" onmouseover="showTip(event, '457', 457)">
+            methBodyNative 
+          </code>
+          <div class="tip" id="457">
+            <strong>Signature:</strong> ILLazyMethodBody<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '458', 458)" onmouseover="showTip(event, '458', 458)">
+            methBodyNotAvailable 
+          </code>
+          <div class="tip" id="458">
+            <strong>Signature:</strong> ILLazyMethodBody<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '459', 459)" onmouseover="showTip(event, '459', 459)">
+            mkCallBaseConstructor (arg1, arg2)
+          </code>
+          <div class="tip" id="459">
+            <strong>Signature:</strong> (ILType * ILType list) -&gt; ILInstr list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '460', 460)" onmouseover="showTip(event, '460', 460)">
+            mkCtorMethSpecForDelegate (...)
+          </code>
+          <div class="tip" id="460">
+            <strong>Signature:</strong> ILGlobals -&gt; (ILType * bool) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Given a delegate type definition which lies in a particular scope,
+make a reference to its constructor.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '461', 461)" onmouseover="showTip(event, '461', 461)">
+            mkILArr1DTy arg1
+          </code>
+          <div class="tip" id="461">
+            <strong>Signature:</strong> ILType -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '462', 462)" onmouseover="showTip(event, '462', 462)">
+            mkILArrTy (arg1, arg2)
+          </code>
+          <div class="tip" id="462">
+            <strong>Signature:</strong> (ILType * ILArrayShape) -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '463', 463)" onmouseover="showTip(event, '463', 463)">
+            mkILBoxedTy arg1 arg2
+          </code>
+          <div class="tip" id="463">
+            <strong>Signature:</strong> ILTypeRef -&gt; ILGenericArgsList -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '464', 464)" onmouseover="showTip(event, '464', 464)">
+            mkILBoxedType arg1
+          </code>
+          <div class="tip" id="464">
+            <strong>Signature:</strong> ILTypeSpec -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '465', 465)" onmouseover="showTip(event, '465', 465)">
+            mkILCallSig (arg1, arg2, arg3)
+          </code>
+          <div class="tip" id="465">
+            <strong>Signature:</strong> (ILCallingConv * ILType list * ILType) -&gt; ILCallingSignature<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '466', 466)" onmouseover="showTip(event, '466', 466)">
+            mkILClassCtor arg1
+          </code>
+          <div class="tip" id="466">
+            <strong>Signature:</strong> MethodBody -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '467', 467)" onmouseover="showTip(event, '467', 467)">
+            mkILCtor (arg1, arg2, arg3)
+          </code>
+          <div class="tip" id="467">
+            <strong>Signature:</strong> (ILMemberAccess * ILParameter list * MethodBody) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '468', 468)" onmouseover="showTip(event, '468', 468)">
+            mkILCtorMethSpecForTy (arg1, arg2)
+          </code>
+          <div class="tip" id="468">
+            <strong>Signature:</strong> (ILType * ILType list) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Construct references to constructors.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '469', 469)" onmouseover="showTip(event, '469', 469)">
+            mkILCustomAttribMethRef (...)
+          </code>
+          <div class="tip" id="469">
+            <strong>Signature:</strong> ILGlobals -&gt; (ILMethodSpec * ILAttribElem list * ILAttributeNamedArg list) -&gt; ILAttribute<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make custom attributes.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '470', 470)" onmouseover="showTip(event, '470', 470)">
+            mkILCustomAttribute (...)
+          </code>
+          <div class="tip" id="470">
+            <strong>Signature:</strong> ILGlobals -&gt; (ILTypeRef * ILType list * ILAttribElem list * ILAttributeNamedArg list) -&gt; ILAttribute<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '471', 471)" onmouseover="showTip(event, '471', 471)">
+            mkILCustomAttrs arg1
+          </code>
+          <div class="tip" id="471">
+            <strong>Signature:</strong> ILAttribute list -&gt; ILAttributes<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Making tables of custom attributes, etc.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '472', 472)" onmouseover="showTip(event, '472', 472)">
+            mkILCustomAttrsFromArray arg1
+          </code>
+          <div class="tip" id="472">
+            <strong>Signature:</strong> ILAttribute [] -&gt; ILAttributes<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '473', 473)" onmouseover="showTip(event, '473', 473)">
+            mkILCustomAttrsReader arg1
+          </code>
+          <div class="tip" id="473">
+            <strong>Signature:</strong> (int32 -&gt; ILAttribute []) -&gt; ILAttributesStored<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '474', 474)" onmouseover="showTip(event, '474', 474)">
+            mkILDelegateMethods (...)
+          </code>
+          <div class="tip" id="474">
+            <strong>Signature:</strong> ILMemberAccess -&gt; ILGlobals -&gt; (ILType * ILType) -&gt; (ILParameter list * ILReturn) -&gt; ILMethodDef list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '475', 475)" onmouseover="showTip(event, '475', 475)">
+            mkILEmptyGenericParams 
+          </code>
+          <div class="tip" id="475">
+            <strong>Signature:</strong> ILGenericParameterDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make a formal generic parameters.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '476', 476)" onmouseover="showTip(event, '476', 476)">
+            mkILEvents arg1
+          </code>
+          <div class="tip" id="476">
+            <strong>Signature:</strong> ILEventDef list -&gt; ILEventDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '477', 477)" onmouseover="showTip(event, '477', 477)">
+            mkILEventsLazy arg1
+          </code>
+          <div class="tip" id="477">
+            <strong>Signature:</strong> Lazy&lt;ILEventDef list&gt; -&gt; ILEventDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '478', 478)" onmouseover="showTip(event, '478', 478)">
+            mkILExportedTypes arg1
+          </code>
+          <div class="tip" id="478">
+            <strong>Signature:</strong> ILExportedTypeOrForwarder list -&gt; ILExportedTypesAndForwarders<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '479', 479)" onmouseover="showTip(event, '479', 479)">
+            mkILExportedTypesLazy arg1
+          </code>
+          <div class="tip" id="479">
+            <strong>Signature:</strong> Lazy&lt;ILExportedTypeOrForwarder list&gt; -&gt; ILExportedTypesAndForwarders<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '480', 480)" onmouseover="showTip(event, '480', 480)">
+            mkILFieldRef (arg1, arg2, arg3)
+          </code>
+          <div class="tip" id="480">
+            <strong>Signature:</strong> (ILTypeRef * string * ILType) -&gt; ILFieldRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Construct references to fields.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '481', 481)" onmouseover="showTip(event, '481', 481)">
+            mkILFields arg1
+          </code>
+          <div class="tip" id="481">
+            <strong>Signature:</strong> ILFieldDef list -&gt; ILFieldDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '482', 482)" onmouseover="showTip(event, '482', 482)">
+            mkILFieldsLazy arg1
+          </code>
+          <div class="tip" id="482">
+            <strong>Signature:</strong> Lazy&lt;ILFieldDef list&gt; -&gt; ILFieldDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '483', 483)" onmouseover="showTip(event, '483', 483)">
+            mkILFieldSpec (arg1, arg2)
+          </code>
+          <div class="tip" id="483">
+            <strong>Signature:</strong> (ILFieldRef * ILType) -&gt; ILFieldSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '484', 484)" onmouseover="showTip(event, '484', 484)">
+            mkILFieldSpecInTy (arg1, arg2, arg3)
+          </code>
+          <div class="tip" id="484">
+            <strong>Signature:</strong> (ILType * string * ILType) -&gt; ILFieldSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '485', 485)" onmouseover="showTip(event, '485', 485)">
+            mkILFormalBoxedTy arg1 arg2
+          </code>
+          <div class="tip" id="485">
+            <strong>Signature:</strong> ILTypeRef -&gt; ILGenericParameterDef list -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make generalized versions of possibly-generic types, e.g. Given the ILTypeDef for List, return the type "List<T>".</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '486', 486)" onmouseover="showTip(event, '486', 486)">
+            mkILFormalGenericArgs arg1 arg2
+          </code>
+          <div class="tip" id="486">
+            <strong>Signature:</strong> int -&gt; ILGenericParameterDefs -&gt; ILGenericArgsList<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '487', 487)" onmouseover="showTip(event, '487', 487)">
+            mkILFormalNamedTy arg1 arg2 arg3
+          </code>
+          <div class="tip" id="487">
+            <strong>Signature:</strong> ILBoxity -&gt; ILTypeRef -&gt; ILGenericParameterDef list -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '488', 488)" onmouseover="showTip(event, '488', 488)">
+            mkILFormalTypars arg1
+          </code>
+          <div class="tip" id="488">
+            <strong>Signature:</strong> ILType list -&gt; ILGenericParameterDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '489', 489)" onmouseover="showTip(event, '489', 489)">
+            mkILGenericClass (...)
+          </code>
+          <div class="tip" id="489">
+            <strong>Signature:</strong> (string * ILTypeDefAccess * ILGenericParameterDefs * ILType * ILType list * ILMethodDefs * ILFieldDefs * ILTypeDefs * ILPropertyDefs * ILEventDefs * ILAttributes * ILTypeInit) -&gt; ILTypeDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make a type definition.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '490', 490)" onmouseover="showTip(event, '490', 490)">
+            mkILGenericNonVirtualMethod (...)
+          </code>
+          <div class="tip" id="490">
+            <strong>Signature:</strong> (string * ILMemberAccess * ILGenericParameterDefs * ILParameter list * ILReturn * MethodBody) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '491', 491)" onmouseover="showTip(event, '491', 491)">
+            mkILGenericVirtualMethod (...)
+          </code>
+          <div class="tip" id="491">
+            <strong>Signature:</strong> (string * ILMemberAccess * ILGenericParameterDefs * ILParameter list * ILReturn * MethodBody) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '492', 492)" onmouseover="showTip(event, '492', 492)">
+            mkILGlobals arg1
+          </code>
+          <div class="tip" id="492">
+            <strong>Signature:</strong> ILScopeRef -&gt; ILGlobals<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Build the table of commonly used references given functions to find types in system assemblies</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '493', 493)" onmouseover="showTip(event, '493', 493)">
+            mkILInstanceField (...)
+          </code>
+          <div class="tip" id="493">
+            <strong>Signature:</strong> (string * ILType * ILFieldInit option * ILMemberAccess) -&gt; ILFieldDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make field definitions.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '494', 494)" onmouseover="showTip(event, '494', 494)">
+            mkILInstanceMethSpecInTy (...)
+          </code>
+          <div class="tip" id="494">
+            <strong>Signature:</strong> (ILType * string * ILType list * ILType * ILGenericArgsList) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Construct references to instance methods.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '495', 495)" onmouseover="showTip(event, '495', 495)">
+            mkILLiteralField (...)
+          </code>
+          <div class="tip" id="495">
+            <strong>Signature:</strong> (string * ILType * ILFieldInit * byte [] option * ILMemberAccess) -&gt; ILFieldDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '496', 496)" onmouseover="showTip(event, '496', 496)">
+            mkILLocal arg1 arg2
+          </code>
+          <div class="tip" id="496">
+            <strong>Signature:</strong> ILType -&gt; (string * int * int) option -&gt; ILLocal<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '497', 497)" onmouseover="showTip(event, '497', 497)">
+            mkILMethodBody (...)
+          </code>
+          <div class="tip" id="497">
+            <strong>Signature:</strong> (initlocals:bool * ILLocals * int * ILCode * ILSourceMarker option) -&gt; ILMethodBody<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make method definitions.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '498', 498)" onmouseover="showTip(event, '498', 498)">
+            mkILMethodImpls arg1
+          </code>
+          <div class="tip" id="498">
+            <strong>Signature:</strong> ILMethodImplDef list -&gt; ILMethodImplDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '499', 499)" onmouseover="showTip(event, '499', 499)">
+            mkILMethodImplsLazy arg1
+          </code>
+          <div class="tip" id="499">
+            <strong>Signature:</strong> Lazy&lt;ILMethodImplDef list&gt; -&gt; ILMethodImplDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '500', 500)" onmouseover="showTip(event, '500', 500)">
+            mkILMethods arg1
+          </code>
+          <div class="tip" id="500">
+            <strong>Signature:</strong> ILMethodDef list -&gt; ILMethodDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '501', 501)" onmouseover="showTip(event, '501', 501)">
+            mkILMethodsComputed arg1
+          </code>
+          <div class="tip" id="501">
+            <strong>Signature:</strong> (unit -&gt; ILMethodDef []) -&gt; ILMethodDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '502', 502)" onmouseover="showTip(event, '502', 502)">
+            mkILMethodsFromArray arg1
+          </code>
+          <div class="tip" id="502">
+            <strong>Signature:</strong> ILMethodDef [] -&gt; ILMethodDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '503', 503)" onmouseover="showTip(event, '503', 503)">
+            mkILMethRef (...)
+          </code>
+          <div class="tip" id="503">
+            <strong>Signature:</strong> (ILTypeRef * ILCallingConv * string * int * ILType list * ILType) -&gt; ILMethodRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make method references and specs.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '504', 504)" onmouseover="showTip(event, '504', 504)">
+            mkILMethSpec (arg1, arg2, arg3, arg4)
+          </code>
+          <div class="tip" id="504">
+            <strong>Signature:</strong> (ILMethodRef * ILBoxity * ILGenericArgsList * ILGenericArgsList) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '505', 505)" onmouseover="showTip(event, '505', 505)">
+            mkILMethSpecForMethRefInTy (...)
+          </code>
+          <div class="tip" id="505">
+            <strong>Signature:</strong> (ILMethodRef * ILType * ILGenericArgsList) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '506', 506)" onmouseover="showTip(event, '506', 506)">
+            mkILMethSpecInTy (...)
+          </code>
+          <div class="tip" id="506">
+            <strong>Signature:</strong> (ILType * ILCallingConv * string * ILType list * ILType * ILGenericArgsList) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '507', 507)" onmouseover="showTip(event, '507', 507)">
+            mkILNamedTy arg1 arg2 arg3
+          </code>
+          <div class="tip" id="507">
+            <strong>Signature:</strong> ILBoxity -&gt; ILTypeRef -&gt; ILGenericArgsList -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '508', 508)" onmouseover="showTip(event, '508', 508)">
+            mkILNestedExportedTypes arg1
+          </code>
+          <div class="tip" id="508">
+            <strong>Signature:</strong> ILNestedExportedType list -&gt; ILNestedExportedTypes<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '509', 509)" onmouseover="showTip(event, '509', 509)">
+            mkILNestedExportedTypesLazy arg1
+          </code>
+          <div class="tip" id="509">
+            <strong>Signature:</strong> Lazy&lt;ILNestedExportedType list&gt; -&gt; ILNestedExportedTypes<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '510', 510)" onmouseover="showTip(event, '510', 510)">
+            mkILNestedTyRef (arg1, arg2, arg3)
+          </code>
+          <div class="tip" id="510">
+            <strong>Signature:</strong> (ILScopeRef * string list * string) -&gt; ILTypeRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make type refs.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '511', 511)" onmouseover="showTip(event, '511', 511)">
+            mkILNonGenericBoxedTy arg1
+          </code>
+          <div class="tip" id="511">
+            <strong>Signature:</strong> ILTypeRef -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '512', 512)" onmouseover="showTip(event, '512', 512)">
+            mkILNonGenericEmptyCtor arg1 arg2
+          </code>
+          <div class="tip" id="512">
+            <strong>Signature:</strong> ILSourceMarker option -&gt; ILType -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '513', 513)" onmouseover="showTip(event, '513', 513)">
+            mkILNonGenericInstanceMethod (...)
+          </code>
+          <div class="tip" id="513">
+            <strong>Signature:</strong> (string * ILMemberAccess * ILParameter list * ILReturn * MethodBody) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '514', 514)" onmouseover="showTip(event, '514', 514)">
+            mkILNonGenericInstanceMethSpecInTy (...)
+          </code>
+          <div class="tip" id="514">
+            <strong>Signature:</strong> (ILType * string * ILType list * ILType) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Construct references to instance methods.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '515', 515)" onmouseover="showTip(event, '515', 515)">
+            mkILNonGenericMethSpecInTy (...)
+          </code>
+          <div class="tip" id="515">
+            <strong>Signature:</strong> (ILType * ILCallingConv * string * ILType list * ILType) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Construct references to methods on a given type .</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '516', 516)" onmouseover="showTip(event, '516', 516)">
+            mkILNonGenericStaticMethod (...)
+          </code>
+          <div class="tip" id="516">
+            <strong>Signature:</strong> (string * ILMemberAccess * ILParameter list * ILReturn * MethodBody) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '517', 517)" onmouseover="showTip(event, '517', 517)">
+            mkILNonGenericStaticMethSpecInTy (...)
+          </code>
+          <div class="tip" id="517">
+            <strong>Signature:</strong> (ILType * string * ILType list * ILType) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Construct references to static, non-generic methods.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '518', 518)" onmouseover="showTip(event, '518', 518)">
+            mkILNonGenericTySpec arg1
+          </code>
+          <div class="tip" id="518">
+            <strong>Signature:</strong> ILTypeRef -&gt; ILTypeSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make type specs.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '519', 519)" onmouseover="showTip(event, '519', 519)">
+            mkILNonGenericValueTy arg1
+          </code>
+          <div class="tip" id="519">
+            <strong>Signature:</strong> ILTypeRef -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '520', 520)" onmouseover="showTip(event, '520', 520)">
+            mkILNonGenericVirtualMethod (...)
+          </code>
+          <div class="tip" id="520">
+            <strong>Signature:</strong> (string * ILMemberAccess * ILParameter list * ILReturn * MethodBody) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '521', 521)" onmouseover="showTip(event, '521', 521)">
+            mkILParam (arg1, arg2)
+          </code>
+          <div class="tip" id="521">
+            <strong>Signature:</strong> (string option * ILType) -&gt; ILParameter<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Derived functions for making return, parameter and local variable
+objects for use in method definitions.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '522', 522)" onmouseover="showTip(event, '522', 522)">
+            mkILParamAnon arg1
+          </code>
+          <div class="tip" id="522">
+            <strong>Signature:</strong> ILType -&gt; ILParameter<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '523', 523)" onmouseover="showTip(event, '523', 523)">
+            mkILParamNamed (arg1, arg2)
+          </code>
+          <div class="tip" id="523">
+            <strong>Signature:</strong> (string * ILType) -&gt; ILParameter<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '524', 524)" onmouseover="showTip(event, '524', 524)">
+            mkILPreTypeDef arg1
+          </code>
+          <div class="tip" id="524">
+            <strong>Signature:</strong> ILTypeDef -&gt; ILPreTypeDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '525', 525)" onmouseover="showTip(event, '525', 525)">
+            mkILPreTypeDefComputed (...)
+          </code>
+          <div class="tip" id="525">
+            <strong>Signature:</strong> (string list * string * (unit -&gt; ILTypeDef)) -&gt; ILPreTypeDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '526', 526)" onmouseover="showTip(event, '526', 526)">
+            mkILPreTypeDefRead (...)
+          </code>
+          <div class="tip" id="526">
+            <strong>Signature:</strong> (string list * string * int32 * ILTypeDefStored) -&gt; ILPreTypeDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '527', 527)" onmouseover="showTip(event, '527', 527)">
+            mkILProperties arg1
+          </code>
+          <div class="tip" id="527">
+            <strong>Signature:</strong> ILPropertyDef list -&gt; ILPropertyDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '528', 528)" onmouseover="showTip(event, '528', 528)">
+            mkILPropertiesLazy arg1
+          </code>
+          <div class="tip" id="528">
+            <strong>Signature:</strong> Lazy&lt;ILPropertyDef list&gt; -&gt; ILPropertyDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '529', 529)" onmouseover="showTip(event, '529', 529)">
+            mkILResources arg1
+          </code>
+          <div class="tip" id="529">
+            <strong>Signature:</strong> ILResource list -&gt; ILResources<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '530', 530)" onmouseover="showTip(event, '530', 530)">
+            mkILReturn arg1
+          </code>
+          <div class="tip" id="530">
+            <strong>Signature:</strong> ILType -&gt; ILReturn<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '531', 531)" onmouseover="showTip(event, '531', 531)">
+            mkILSecurityDecls arg1
+          </code>
+          <div class="tip" id="531">
+            <strong>Signature:</strong> ILSecurityDecl list -&gt; ILSecurityDecls<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '532', 532)" onmouseover="showTip(event, '532', 532)">
+            mkILSecurityDeclsReader arg1
+          </code>
+          <div class="tip" id="532">
+            <strong>Signature:</strong> (int32 -&gt; ILSecurityDecl []) -&gt; ILSecurityDeclsStored<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '533', 533)" onmouseover="showTip(event, '533', 533)">
+            mkILSimpleClass (...)
+          </code>
+          <div class="tip" id="533">
+            <strong>Signature:</strong> ILGlobals -&gt; (string * ILTypeDefAccess * ILMethodDefs * ILFieldDefs * ILTypeDefs * ILPropertyDefs * ILEventDefs * ILAttributes * ILTypeInit) -&gt; ILTypeDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '534', 534)" onmouseover="showTip(event, '534', 534)">
+            mkILSimpleModule (...)
+          </code>
+          <div class="tip" id="534">
+            <strong>Signature:</strong> assemblyName:string -&gt; moduleName:string -&gt; dll:bool -&gt; subsystemVersion:(int * int) -&gt; useHighEntropyVA:bool -&gt; ILTypeDefs -&gt; int32 option -&gt; string option -&gt; int -&gt; ILExportedTypesAndForwarders -&gt; string -&gt; ILModuleDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Making modules.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '535', 535)" onmouseover="showTip(event, '535', 535)">
+            mkILSimpleStorageCtor (...)
+          </code>
+          <div class="tip" id="535">
+            <strong>Signature:</strong> (ILSourceMarker option * ILTypeSpec option * ILType * ILParameter list * (string * ILType) list * ILMemberAccess) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '536', 536)" onmouseover="showTip(event, '536', 536)">
+            mkILSimpleStorageCtorWithParamNames (...)
+          </code>
+          <div class="tip" id="536">
+            <strong>Signature:</strong> (ILSourceMarker option * ILTypeSpec option * ILType * ILParameter list * (string * string * ILType) list * ILMemberAccess) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '537', 537)" onmouseover="showTip(event, '537', 537)">
+            mkILSimpleTypar arg1
+          </code>
+          <div class="tip" id="537">
+            <strong>Signature:</strong> string -&gt; ILGenericParameterDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '538', 538)" onmouseover="showTip(event, '538', 538)">
+            mkILStaticField (...)
+          </code>
+          <div class="tip" id="538">
+            <strong>Signature:</strong> (string * ILType * ILFieldInit option * byte [] option * ILMemberAccess) -&gt; ILFieldDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '539', 539)" onmouseover="showTip(event, '539', 539)">
+            mkILStaticMethod (...)
+          </code>
+          <div class="tip" id="539">
+            <strong>Signature:</strong> (ILGenericParameterDefs * string * ILMemberAccess * ILParameter list * ILReturn * MethodBody) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '540', 540)" onmouseover="showTip(event, '540', 540)">
+            mkILStaticMethSpecInTy (...)
+          </code>
+          <div class="tip" id="540">
+            <strong>Signature:</strong> (ILType * string * ILType list * ILType * ILGenericArgsList) -&gt; ILMethodSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Construct references to static methods.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '541', 541)" onmouseover="showTip(event, '541', 541)">
+            mkILStorageCtor (...)
+          </code>
+          <div class="tip" id="541">
+            <strong>Signature:</strong> (ILSourceMarker option * ILInstr list * ILType * (string * ILType) list * ILMemberAccess) -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Derived functions for making some simple constructors</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '542', 542)" onmouseover="showTip(event, '542', 542)">
+            mkILTy arg1 arg2
+          </code>
+          <div class="tip" id="542">
+            <strong>Signature:</strong> ILBoxity -&gt; ILTypeSpec -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make types.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '543', 543)" onmouseover="showTip(event, '543', 543)">
+            mkILTypeDefForGlobalFunctions (...)
+          </code>
+          <div class="tip" id="543">
+            <strong>Signature:</strong> ILGlobals -&gt; (ILMethodDefs * ILFieldDefs) -&gt; ILTypeDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '544', 544)" onmouseover="showTip(event, '544', 544)">
+            mkILTypeDefReader arg1
+          </code>
+          <div class="tip" id="544">
+            <strong>Signature:</strong> (int32 -&gt; ILTypeDef) -&gt; ILTypeDefStored<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '545', 545)" onmouseover="showTip(event, '545', 545)">
+            mkILTypeDefs arg1
+          </code>
+          <div class="tip" id="545">
+            <strong>Signature:</strong> ILTypeDef list -&gt; ILTypeDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '546', 546)" onmouseover="showTip(event, '546', 546)">
+            mkILTypeDefsComputed arg1
+          </code>
+          <div class="tip" id="546">
+            <strong>Signature:</strong> (unit -&gt; ILPreTypeDef []) -&gt; ILTypeDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Create table of types which is loaded/computed on-demand, and whose individual
+elements are also loaded/computed on-demand. Any call to tdefs.AsList will
+result in the laziness being forced.  Operations can examine the
+custom attributes and name of each type in order to decide whether
+to proceed with examining the other details of the type.</p>
+<p>Note that individual type definitions may contain further delays
+in their method, field and other tables.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '547', 547)" onmouseover="showTip(event, '547', 547)">
+            mkILTypeDefsFromArray arg1
+          </code>
+          <div class="tip" id="547">
+            <strong>Signature:</strong> ILTypeDef [] -&gt; ILTypeDefs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '548', 548)" onmouseover="showTip(event, '548', 548)">
+            mkILTypeForGlobalFunctions arg1
+          </code>
+          <div class="tip" id="548">
+            <strong>Signature:</strong> ILScopeRef -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The toplevel "class" for a module or assembly.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '549', 549)" onmouseover="showTip(event, '549', 549)">
+            mkILTyRef (arg1, arg2)
+          </code>
+          <div class="tip" id="549">
+            <strong>Signature:</strong> (ILScopeRef * string) -&gt; ILTypeRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '550', 550)" onmouseover="showTip(event, '550', 550)">
+            mkILTyRefInTyRef (arg1, arg2)
+          </code>
+          <div class="tip" id="550">
+            <strong>Signature:</strong> (ILTypeRef * string) -&gt; ILTypeRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '551', 551)" onmouseover="showTip(event, '551', 551)">
+            mkILTySpec (arg1, arg2)
+          </code>
+          <div class="tip" id="551">
+            <strong>Signature:</strong> (ILTypeRef * ILGenericArgsList) -&gt; ILTypeSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '552', 552)" onmouseover="showTip(event, '552', 552)">
+            mkILTyvarTy arg1
+          </code>
+          <div class="tip" id="552">
+            <strong>Signature:</strong> uint16 -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '553', 553)" onmouseover="showTip(event, '553', 553)">
+            mkILValueTy arg1 arg2
+          </code>
+          <div class="tip" id="553">
+            <strong>Signature:</strong> ILTypeRef -&gt; ILGenericArgsList -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '554', 554)" onmouseover="showTip(event, '554', 554)">
+            mkLdarg arg1
+          </code>
+          <div class="tip" id="554">
+            <strong>Signature:</strong> uint16 -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '555', 555)" onmouseover="showTip(event, '555', 555)">
+            mkLdarg0 
+          </code>
+          <div class="tip" id="555">
+            <strong>Signature:</strong> ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '556', 556)" onmouseover="showTip(event, '556', 556)">
+            mkLdcInt32 arg1
+          </code>
+          <div class="tip" id="556">
+            <strong>Signature:</strong> int32 -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '557', 557)" onmouseover="showTip(event, '557', 557)">
+            mkLdloc arg1
+          </code>
+          <div class="tip" id="557">
+            <strong>Signature:</strong> uint16 -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '558', 558)" onmouseover="showTip(event, '558', 558)">
+            mkMethBodyAux arg1
+          </code>
+          <div class="tip" id="558">
+            <strong>Signature:</strong> MethodBody -&gt; ILLazyMethodBody<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '559', 559)" onmouseover="showTip(event, '559', 559)">
+            mkMethBodyLazyAux arg1
+          </code>
+          <div class="tip" id="559">
+            <strong>Signature:</strong> Lazy&lt;MethodBody&gt; -&gt; ILLazyMethodBody<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '560', 560)" onmouseover="showTip(event, '560', 560)">
+            mkMethodBody (...)
+          </code>
+          <div class="tip" id="560">
+            <strong>Signature:</strong> (bool * ILLocals * int * ILCode * ILSourceMarker option) -&gt; MethodBody<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '561', 561)" onmouseover="showTip(event, '561', 561)">
+            mkNormalCall arg1
+          </code>
+          <div class="tip" id="561">
+            <strong>Signature:</strong> ILMethodSpec -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Derived functions for making some common patterns of instructions.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '562', 562)" onmouseover="showTip(event, '562', 562)">
+            mkNormalCallconstraint (arg1, arg2)
+          </code>
+          <div class="tip" id="562">
+            <strong>Signature:</strong> (ILType * ILMethodSpec) -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '563', 563)" onmouseover="showTip(event, '563', 563)">
+            mkNormalCallvirt arg1
+          </code>
+          <div class="tip" id="563">
+            <strong>Signature:</strong> ILMethodSpec -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '564', 564)" onmouseover="showTip(event, '564', 564)">
+            mkNormalLdfld arg1
+          </code>
+          <div class="tip" id="564">
+            <strong>Signature:</strong> ILFieldSpec -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '565', 565)" onmouseover="showTip(event, '565', 565)">
+            mkNormalLdflda arg1
+          </code>
+          <div class="tip" id="565">
+            <strong>Signature:</strong> ILFieldSpec -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '566', 566)" onmouseover="showTip(event, '566', 566)">
+            mkNormalLdobj arg1
+          </code>
+          <div class="tip" id="566">
+            <strong>Signature:</strong> ILType -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '567', 567)" onmouseover="showTip(event, '567', 567)">
+            mkNormalLdsfld arg1
+          </code>
+          <div class="tip" id="567">
+            <strong>Signature:</strong> ILFieldSpec -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '568', 568)" onmouseover="showTip(event, '568', 568)">
+            mkNormalNewobj arg1
+          </code>
+          <div class="tip" id="568">
+            <strong>Signature:</strong> ILMethodSpec -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '569', 569)" onmouseover="showTip(event, '569', 569)">
+            mkNormalStfld arg1
+          </code>
+          <div class="tip" id="569">
+            <strong>Signature:</strong> ILFieldSpec -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '570', 570)" onmouseover="showTip(event, '570', 570)">
+            mkNormalStobj arg1
+          </code>
+          <div class="tip" id="570">
+            <strong>Signature:</strong> ILType -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '571', 571)" onmouseover="showTip(event, '571', 571)">
+            mkNormalStsfld arg1
+          </code>
+          <div class="tip" id="571">
+            <strong>Signature:</strong> ILFieldSpec -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '572', 572)" onmouseover="showTip(event, '572', 572)">
+            mkPermissionSet arg1 (arg2, arg3)
+          </code>
+          <div class="tip" id="572">
+            <strong>Signature:</strong> ILGlobals -&gt; (ILSecurityAction * (ILTypeRef * (string * ILType * ILAttribElem) list) list) -&gt; ILSecurityDecl<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '573', 573)" onmouseover="showTip(event, '573', 573)">
+            mkRawDataValueTypeDef (...)
+          </code>
+          <div class="tip" id="573">
+            <strong>Signature:</strong> ILType -&gt; (string * size:int32 * pack:uint16) -&gt; ILTypeDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make a type definition for a value type used to point to raw data.
+These are useful when generating array initialization code
+according to the
+ldtoken    field valuetype '<PrivateImplementationDetails>'/'<span class="math">\[struct0x6000127-1' '&lt;PrivateImplementationDetails&gt;'::'\]</span>method0x6000127-1'
+call       void System.Runtime.CompilerServices.RuntimeHelpers::InitializeArray(class System.Array,valuetype System.RuntimeFieldHandle)
+idiom.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '574', 574)" onmouseover="showTip(event, '574', 574)">
+            mkRefForILField arg1 (arg2, arg3) arg4
+          </code>
+          <div class="tip" id="574">
+            <strong>Signature:</strong> ILScopeRef -&gt; (ILTypeDef list * ILTypeDef) -&gt; ILFieldDef -&gt; ILFieldRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '575', 575)" onmouseover="showTip(event, '575', 575)">
+            mkRefForILMethod arg1 (arg2, arg3) arg4
+          </code>
+          <div class="tip" id="575">
+            <strong>Signature:</strong> ILScopeRef -&gt; (ILTypeDef list * ILTypeDef) -&gt; ILMethodDef -&gt; ILMethodRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '576', 576)" onmouseover="showTip(event, '576', 576)">
+            mkRefForNestedILTypeDef (...)
+          </code>
+          <div class="tip" id="576">
+            <strong>Signature:</strong> ILScopeRef -&gt; (ILTypeDef list * ILTypeDef) -&gt; ILTypeRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Generate references to existing type definitions, method definitions
+etc.  Useful for generating references, e.g. to a  class we're processing
+Also used to reference type definitions that we've generated.  <a href="fsharp-compiler-abstractil-il-ilscoperef.html" title="ILScopeRef">ILScopeRef</a>
+is normally ILScopeRef.Local, unless we've generated the ILTypeDef in
+an auxiliary module or are generating multiple assemblies at
+once.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '577', 577)" onmouseover="showTip(event, '577', 577)">
+            mkRefToILAssembly arg1
+          </code>
+          <div class="tip" id="577">
+            <strong>Signature:</strong> ILAssemblyManifest -&gt; ILAssemblyRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '578', 578)" onmouseover="showTip(event, '578', 578)">
+            mkRefToILField (arg1, arg2)
+          </code>
+          <div class="tip" id="578">
+            <strong>Signature:</strong> (ILTypeRef * ILFieldDef) -&gt; ILFieldRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '579', 579)" onmouseover="showTip(event, '579', 579)">
+            mkRefToILMethod (arg1, arg2)
+          </code>
+          <div class="tip" id="579">
+            <strong>Signature:</strong> (ILTypeRef * ILMethodDef) -&gt; ILMethodRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '580', 580)" onmouseover="showTip(event, '580', 580)">
+            mkRefToILModule arg1
+          </code>
+          <div class="tip" id="580">
+            <strong>Signature:</strong> ILModuleDef -&gt; ILModuleRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '581', 581)" onmouseover="showTip(event, '581', 581)">
+            mkSimpleAssemblyRef arg1
+          </code>
+          <div class="tip" id="581">
+            <strong>Signature:</strong> string -&gt; ILAssemblyRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Generate simple references to assemblies and modules.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '582', 582)" onmouseover="showTip(event, '582', 582)">
+            mkSimpleModRef arg1
+          </code>
+          <div class="tip" id="582">
+            <strong>Signature:</strong> string -&gt; ILModuleRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '583', 583)" onmouseover="showTip(event, '583', 583)">
+            mkStloc arg1
+          </code>
+          <div class="tip" id="583">
+            <strong>Signature:</strong> uint16 -&gt; ILInstr<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '584', 584)" onmouseover="showTip(event, '584', 584)">
+            mkTypeForwarder arg1 arg2 arg3 arg4 arg5
+          </code>
+          <div class="tip" id="584">
+            <strong>Signature:</strong> ILScopeRef -&gt; string -&gt; ILNestedExportedTypes -&gt; ILAttributes -&gt; ILTypeDefAccess -&gt; ILExportedTypeOrForwarder<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '585', 585)" onmouseover="showTip(event, '585', 585)">
+            NoMetadataIdx 
+          </code>
+          <div class="tip" id="585">
+            <strong>Signature:</strong> int32<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '586', 586)" onmouseover="showTip(event, '586', 586)">
+            nonBranchingInstrsToCode arg1
+          </code>
+          <div class="tip" id="586">
+            <strong>Signature:</strong> ILInstr list -&gt; ILCode<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Make some code that is a straight line sequence of instructions.
+The function will add a "return" if the last instruction is not an exiting instruction.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '587', 587)" onmouseover="showTip(event, '587', 587)">
+            parseILVersion arg1
+          </code>
+          <div class="tip" id="587">
+            <strong>Signature:</strong> string -&gt; ILVersionInfo<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get a version number from a CLR version string, e.g. 1.0.3705.0</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '588', 588)" onmouseover="showTip(event, '588', 588)">
+            prependInstrsToClassCtor arg1 arg2 arg3
+          </code>
+          <div class="tip" id="588">
+            <strong>Signature:</strong> ILInstr list -&gt; ILSourceMarker option -&gt; ILTypeDef -&gt; ILTypeDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Injecting initialization code into a class.
+Add some code to the end of the .cctor for a type.  Create a .cctor
+if one doesn't exist already.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '589', 589)" onmouseover="showTip(event, '589', 589)">
+            prependInstrsToCode arg1 arg2
+          </code>
+          <div class="tip" id="589">
+            <strong>Signature:</strong> ILInstr list -&gt; ILCode -&gt; ILCode<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Injecting code into existing code blocks.  A branch will
+be added from the given instructions to the (unique) entry of
+the code, and the first instruction will be the new entry
+of the method.  The instructions should be non-branching.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '590', 590)" onmouseover="showTip(event, '590', 590)">
+            prependInstrsToMethod arg1 arg2
+          </code>
+          <div class="tip" id="590">
+            <strong>Signature:</strong> ILInstr list -&gt; ILMethodDef -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '591', 591)" onmouseover="showTip(event, '591', 591)">
+            rescopeILFieldRef arg1 arg2
+          </code>
+          <div class="tip" id="591">
+            <strong>Signature:</strong> ILScopeRef -&gt; ILFieldRef -&gt; ILFieldRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Rescoping. The first argument tells the function how to reference the original scope from
+the new scope.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '592', 592)" onmouseover="showTip(event, '592', 592)">
+            rescopeILMethodRef arg1 arg2
+          </code>
+          <div class="tip" id="592">
+            <strong>Signature:</strong> ILScopeRef -&gt; ILMethodRef -&gt; ILMethodRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Rescoping. The first argument tells the function how to reference the original scope from
+the new scope.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '593', 593)" onmouseover="showTip(event, '593', 593)">
+            rescopeILScopeRef arg1 arg2
+          </code>
+          <div class="tip" id="593">
+            <strong>Signature:</strong> ILScopeRef -&gt; ILScopeRef -&gt; ILScopeRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Rescoping. The first argument tells the function how to reference the original scope from
+the new scope.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '594', 594)" onmouseover="showTip(event, '594', 594)">
+            rescopeILType arg1 arg2
+          </code>
+          <div class="tip" id="594">
+            <strong>Signature:</strong> ILScopeRef -&gt; ILType -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Rescoping. The first argument tells the function how to reference the original scope from
+the new scope.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '595', 595)" onmouseover="showTip(event, '595', 595)">
+            rescopeILTypeSpec arg1 arg2
+          </code>
+          <div class="tip" id="595">
+            <strong>Signature:</strong> ILScopeRef -&gt; ILTypeSpec -&gt; ILTypeSpec<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Rescoping. The first argument tells the function how to reference the original scope from
+the new scope.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '596', 596)" onmouseover="showTip(event, '596', 596)">
+            resolveILMethodRef arg1 arg2
+          </code>
+          <div class="tip" id="596">
+            <strong>Signature:</strong> ILTypeDef -&gt; ILMethodRef -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Find the method definition corresponding to the given property or
+event operation. These are always in the same class as the property
+or event. This is useful especially if your code is not using the Ilbind
+API to bind references.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '597', 597)" onmouseover="showTip(event, '597', 597)">
+            resolveILMethodRefWithRescope (...)
+          </code>
+          <div class="tip" id="597">
+            <strong>Signature:</strong> (ILType -&gt; ILType) -&gt; ILTypeDef -&gt; ILMethodRef -&gt; ILMethodDef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '598', 598)" onmouseover="showTip(event, '598', 598)">
+            runningOnMono 
+          </code>
+          <div class="tip" id="598">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '599', 599)" onmouseover="showTip(event, '599', 599)">
+            sha1HashBytes arg1
+          </code>
+          <div class="tip" id="599">
+            <strong>Signature:</strong> byte [] -&gt; byte []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get a public key token from a public key.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '600', 600)" onmouseover="showTip(event, '600', 600)">
+            sha1HashInt64 arg1
+          </code>
+          <div class="tip" id="600">
+            <strong>Signature:</strong> byte [] -&gt; int64<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '601', 601)" onmouseover="showTip(event, '601', 601)">
+            splitILTypeName arg1
+          </code>
+          <div class="tip" id="601">
+            <strong>Signature:</strong> string -&gt; string list * string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The <c>splitILTypeName</c> utility helps you split a string representing
+a type name into the leading namespace elements (if any), the
+names of any nested types and the type name itself.  This function
+memoizes and interns the splitting of the namespace portion of
+the type name.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '602', 602)" onmouseover="showTip(event, '602', 602)">
+            splitILTypeNameWithPossibleStaticArguments (...)
+          </code>
+          <div class="tip" id="602">
+            <strong>Signature:</strong> string -&gt; string [] * string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '603', 603)" onmouseover="showTip(event, '603', 603)">
+            splitNamespace arg1
+          </code>
+          <div class="tip" id="603">
+            <strong>Signature:</strong> string -&gt; string list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '604', 604)" onmouseover="showTip(event, '604', 604)">
+            splitNamespaceToArray arg1
+          </code>
+          <div class="tip" id="604">
+            <strong>Signature:</strong> string -&gt; string []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '605', 605)" onmouseover="showTip(event, '605', 605)">
+            splitTypeNameRight arg1
+          </code>
+          <div class="tip" id="605">
+            <strong>Signature:</strong> string -&gt; string option * string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          splitTypeNameRight is like splitILTypeName except the 
+ namespace is kept as a whole string, rather than split at dots.
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '606', 606)" onmouseover="showTip(event, '606', 606)">
+            storeILCustomAttrs arg1
+          </code>
+          <div class="tip" id="606">
+            <strong>Signature:</strong> ILAttributes -&gt; ILAttributesStored<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '607', 607)" onmouseover="showTip(event, '607', 607)">
+            storeILSecurityDecls arg1
+          </code>
+          <div class="tip" id="607">
+            <strong>Signature:</strong> ILSecurityDecls -&gt; ILSecurityDeclsStored<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '608', 608)" onmouseover="showTip(event, '608', 608)">
+            typeNameForGlobalFunctions 
+          </code>
+          <div class="tip" id="608">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '609', 609)" onmouseover="showTip(event, '609', 609)">
+            typesOfILParams arg1
+          </code>
+          <div class="tip" id="609">
+            <strong>Signature:</strong> ILParameters -&gt; ILType list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '610', 610)" onmouseover="showTip(event, '610', 610)">
+            unscopeILType arg1
+          </code>
+          <div class="tip" id="610">
+            <strong>Signature:</strong> ILType -&gt; ILType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Unscoping. Clears every scope information, use for looking up IL method references only.</p>
+
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

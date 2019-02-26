@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Symbol - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>Symbol</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+</p>
+<div class="xmldoc">
+<p>Patterns over FSharpSymbol and derivatives.</p>
+
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '952', 952)" onmouseover="showTip(event, '952', 952)">
+            getAbbreviatedType(arg1)
+          </code>
+          <div class="tip" id="952">
+            <strong>Signature:</strong> FSharpType -&gt; FSharpType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '953', 953)" onmouseover="showTip(event, '953', 953)">
+            getEntityAbbreviatedType(arg1)
+          </code>
+          <div class="tip" id="953">
+            <strong>Signature:</strong> FSharpEntity -&gt; FSharpEntity * FSharpType option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '954', 954)" onmouseover="showTip(event, '954', 954)">
+            hasAttribute(arg1)
+          </code>
+          <div class="tip" id="954">
+            <strong>Signature:</strong> seq&lt;FSharpAttribute&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '955', 955)" onmouseover="showTip(event, '955', 955)">
+            hasModuleSuffixAttribute(arg1)
+          </code>
+          <div class="tip" id="955">
+            <strong>Signature:</strong> FSharpEntity -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '956', 956)" onmouseover="showTip(event, '956', 956)">
+            isAttribute(arg1)
+          </code>
+          <div class="tip" id="956">
+            <strong>Signature:</strong> FSharpAttribute -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '957', 957)" onmouseover="showTip(event, '957', 957)">
+            isOperator(name)
+          </code>
+          <div class="tip" id="957">
+            <strong>Signature:</strong> name:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '958', 958)" onmouseover="showTip(event, '958', 958)">
+            isUnnamedUnionCaseField(arg1)
+          </code>
+          <div class="tip" id="958">
+            <strong>Signature:</strong> FSharpField -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '959', 959)" onmouseover="showTip(event, '959', 959)">
+            tryGetAttribute(arg1)
+          </code>
+          <div class="tip" id="959">
+            <strong>Signature:</strong> seq&lt;FSharpAttribute&gt; -&gt; FSharpAttribute option<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Active patterns</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Active pattern</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '960', 960)" onmouseover="showTip(event, '960', 960)">
+            ( |AbbreviatedType|_| )(arg1)
+          </code>
+          <div class="tip" id="960">
+            <strong>Signature:</strong> FSharpEntity -&gt; FSharpType option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|AbbreviatedType|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '961', 961)" onmouseover="showTip(event, '961', 961)">
+            ( |AbstractClass|_| )(arg1)
+          </code>
+          <div class="tip" id="961">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|AbstractClass|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '962', 962)" onmouseover="showTip(event, '962', 962)">
+            ( |ActivePatternCase|_| )(arg1)
+          </code>
+          <div class="tip" id="962">
+            <strong>Signature:</strong> FSharpSymbol -&gt; FSharpActivePatternCase option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|ActivePatternCase|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '963', 963)" onmouseover="showTip(event, '963', 963)">
+            ( |Array|_| )(arg1)
+          </code>
+          <div class="tip" id="963">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Array|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '964', 964)" onmouseover="showTip(event, '964', 964)">
+            ( |Attribute|_| )(arg1)
+          </code>
+          <div class="tip" id="964">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Attribute|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '965', 965)" onmouseover="showTip(event, '965', 965)">
+            ( |ByRef|_| )(arg1)
+          </code>
+          <div class="tip" id="965">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|ByRef|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '966', 966)" onmouseover="showTip(event, '966', 966)">
+            ( |Class|_| )(...)
+          </code>
+          <div class="tip" id="966">
+            <strong>Signature:</strong> (original:FSharpEntity * abbreviated:FSharpEntity * &#39;a) -&gt; unit option<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Class|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '967', 967)" onmouseover="showTip(event, '967', 967)">
+            ( |Constructor|_| )(arg1)
+          </code>
+          <div class="tip" id="967">
+            <strong>Signature:</strong> FSharpMemberOrFunctionOrValue -&gt; FSharpEntity option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Constructor|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '968', 968)" onmouseover="showTip(event, '968', 968)">
+            ( |Delegate|_| )(arg1)
+          </code>
+          <div class="tip" id="968">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Delegate|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '969', 969)" onmouseover="showTip(event, '969', 969)">
+            ( |Enum|_| )(arg1)
+          </code>
+          <div class="tip" id="969">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Enum|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '970', 970)" onmouseover="showTip(event, '970', 970)">
+            ( |Event|_| )(arg1)
+          </code>
+          <div class="tip" id="970">
+            <strong>Signature:</strong> FSharpMemberOrFunctionOrValue -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Event|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '971', 971)" onmouseover="showTip(event, '971', 971)">
+            ( |ExtensionMember|_| )(arg1)
+          </code>
+          <div class="tip" id="971">
+            <strong>Signature:</strong> FSharpMemberOrFunctionOrValue -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|ExtensionMember|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '972', 972)" onmouseover="showTip(event, '972', 972)">
+            ( |Field|_| )(arg1)
+          </code>
+          <div class="tip" id="972">
+            <strong>Signature:</strong> FSharpSymbol -&gt; (FSharpField * FSharpType) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Field|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '973', 973)" onmouseover="showTip(event, '973', 973)">
+            ( |FSharpEntity|_| )(arg1)
+          </code>
+          <div class="tip" id="973">
+            <strong>Signature:</strong> FSharpSymbol -&gt; (FSharpEntity * FSharpEntity * FSharpType option) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|FSharpEntity|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '974', 974)" onmouseover="showTip(event, '974', 974)">
+            ( |FSharpException|_| )(arg1)
+          </code>
+          <div class="tip" id="974">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|FSharpException|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '975', 975)" onmouseover="showTip(event, '975', 975)">
+            ( |FSharpModule|_| )(arg1)
+          </code>
+          <div class="tip" id="975">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|FSharpModule|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '976', 976)" onmouseover="showTip(event, '976', 976)">
+            ( |FSharpType|_| )(arg1)
+          </code>
+          <div class="tip" id="976">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|FSharpType|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '977', 977)" onmouseover="showTip(event, '977', 977)">
+            ( |Function|_| )(excluded arg2)
+          </code>
+          <div class="tip" id="977">
+            <strong>Signature:</strong> excluded:bool -&gt; FSharpMemberOrFunctionOrValue -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Function|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '978', 978)" onmouseover="showTip(event, '978', 978)">
+            ( |FunctionType|_| )(arg1)
+          </code>
+          <div class="tip" id="978">
+            <strong>Signature:</strong> FSharpType -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|FunctionType|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '979', 979)" onmouseover="showTip(event, '979', 979)">
+            ( |Interface|_| )(arg1)
+          </code>
+          <div class="tip" id="979">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Interface|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '980', 980)" onmouseover="showTip(event, '980', 980)">
+            ( |MemberFunctionOrValue|_| )(arg1)
+          </code>
+          <div class="tip" id="980">
+            <strong>Signature:</strong> FSharpSymbol -&gt; FSharpMemberOrFunctionOrValue option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|MemberFunctionOrValue|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '981', 981)" onmouseover="showTip(event, '981', 981)">
+            ( |MutableVar|_| )(arg1)
+          </code>
+          <div class="tip" id="981">
+            <strong>Signature:</strong> FSharpSymbol -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|MutableVar|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '982', 982)" onmouseover="showTip(event, '982', 982)">
+            ( |Namespace|_| )(arg1)
+          </code>
+          <div class="tip" id="982">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Namespace|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '983', 983)" onmouseover="showTip(event, '983', 983)">
+            ( |Parameter|_| )(arg1)
+          </code>
+          <div class="tip" id="983">
+            <strong>Signature:</strong> FSharpSymbol -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Parameter|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '984', 984)" onmouseover="showTip(event, '984', 984)">
+            ( |Pattern|_| )(arg1)
+          </code>
+          <div class="tip" id="984">
+            <strong>Signature:</strong> FSharpSymbol -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Pattern|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '985', 985)" onmouseover="showTip(event, '985', 985)">
+            ( |ProvidedAndErasedType|_| )(arg1)
+          </code>
+          <div class="tip" id="985">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|ProvidedAndErasedType|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '986', 986)" onmouseover="showTip(event, '986', 986)">
+            ( |ProvidedType|_| )(arg1)
+          </code>
+          <div class="tip" id="986">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|ProvidedType|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '987', 987)" onmouseover="showTip(event, '987', 987)">
+            ( |Record|_| )(arg1)
+          </code>
+          <div class="tip" id="987">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Record|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '988', 988)" onmouseover="showTip(event, '988', 988)">
+            ( |RecordField|_| )(arg1)
+          </code>
+          <div class="tip" id="988">
+            <strong>Signature:</strong> FSharpSymbol -&gt; FSharpField option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|RecordField|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '989', 989)" onmouseover="showTip(event, '989', 989)">
+            ( |RefCell|_| )(arg1)
+          </code>
+          <div class="tip" id="989">
+            <strong>Signature:</strong> FSharpType -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|RefCell|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '990', 990)" onmouseover="showTip(event, '990', 990)">
+            ( |Tuple|_| )(arg1)
+          </code>
+          <div class="tip" id="990">
+            <strong>Signature:</strong> FSharpType option -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Tuple|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '991', 991)" onmouseover="showTip(event, '991', 991)">
+            ( |TypeWithDefinition|_| )(arg1)
+          </code>
+          <div class="tip" id="991">
+            <strong>Signature:</strong> FSharpType -&gt; FSharpEntity option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|TypeWithDefinition|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '992', 992)" onmouseover="showTip(event, '992', 992)">
+            ( |UnionCase|_| )(arg1)
+          </code>
+          <div class="tip" id="992">
+            <strong>Signature:</strong> FSharpSymbol -&gt; FSharpUnionCase option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|UnionCase|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '993', 993)" onmouseover="showTip(event, '993', 993)">
+            ( |UnionType|_| )(arg1)
+          </code>
+          <div class="tip" id="993">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|UnionType|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '994', 994)" onmouseover="showTip(event, '994', 994)">
+            ( |ValueType|_| )(arg1)
+          </code>
+          <div class="tip" id="994">
+            <strong>Signature:</strong> FSharpEntity -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|ValueType|_|</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

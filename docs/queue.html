@@ -47,7 +47,7 @@ by calls to <code>CheckFileInProject</code> and <code>ParseAndCheckFileInProject
 To disable implicit background checking completely, set <code>checker.ImplicitlyStartBackgroundWork</code> to false.
 To change the time before background work starts, set <code>checker.PauseBeforeBackgroundWork</code> to the required number of milliseconds.</p>
 <p>Most calls to the FSharpChecker API enqueue an operation in the FSharpChecker compiler queue. These correspond to the
-calls to EnqueueAndAwaitOpAsync in <a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/vs/service.fs">service.fs</a>.</p>
+calls to EnqueueAndAwaitOpAsync in <a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/src/fsharp/service/service.fs">service.fs</a>.</p>
 <ul>
 <li>
 <p>For example, calling <code>ParseAndCheckProject</code> enqueues a <code>ParseAndCheckProjectImpl</code> operation. The time taken for the

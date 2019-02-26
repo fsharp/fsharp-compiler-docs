@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>BasicPatterns - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>BasicPatterns</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+</p>
+<div class="xmldoc">
+<p>A collection of active patterns to analyze expressions</p>
+
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Active patterns</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Active pattern</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '814', 814)" onmouseover="showTip(event, '814', 814)">
+            ( |AddressOf|_| ) arg1
+          </code>
+          <div class="tip" id="814">
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpExpr option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which take the address of a location</p>
+
+
+              <p>CompiledName: <code>|AddressOf|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '815', 815)" onmouseover="showTip(event, '815', 815)">
+            ( |AddressSet|_| ) arg1
+          </code>
+          <div class="tip" id="815">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which set the contents of an address</p>
+
+
+              <p>CompiledName: <code>|AddressSet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '816', 816)" onmouseover="showTip(event, '816', 816)">
+            ( |AnonRecordGet|_| ) arg1
+          </code>
+          <div class="tip" id="816">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * int) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions getting a field from an anonymous record. The integer represents the
+index into the sorted fields of the anonymous record.</p>
+
+
+              <p>CompiledName: <code>|AnonRecordGet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '817', 817)" onmouseover="showTip(event, '817', 817)">
+            ( |Application|_| ) arg1
+          </code>
+          <div class="tip" id="817">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType list * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are the application of function values</p>
+
+
+              <p>CompiledName: <code>|Application|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '818', 818)" onmouseover="showTip(event, '818', 818)">
+            ( |BaseValue|_| ) arg1
+          </code>
+          <div class="tip" id="818">
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpType option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are uses of the 'base' value</p>
+
+
+              <p>CompiledName: <code>|BaseValue|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '819', 819)" onmouseover="showTip(event, '819', 819)">
+            ( |Call|_| ) arg1
+          </code>
+          <div class="tip" id="819">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpMemberOrFunctionOrValue * FSharpType list * FSharpType list * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are calls to members or module-defined functions. When calling curried functions and members the
+arguments are collapsed to a single collection of arguments, as done in the compiled version of these.</p>
+
+
+              <p>CompiledName: <code>|Call|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '820', 820)" onmouseover="showTip(event, '820', 820)">
+            ( |Coerce|_| ) arg1
+          </code>
+          <div class="tip" id="820">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which coerce the type of a value</p>
+
+
+              <p>CompiledName: <code>|Coerce|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '821', 821)" onmouseover="showTip(event, '821', 821)">
+            ( |Const|_| ) arg1
+          </code>
+          <div class="tip" id="821">
+            <strong>Signature:</strong> FSharpExpr -&gt; (obj * FSharpType) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches constant expressions, including signed and unsigned integers, strings, characters, booleans, arrays
+of bytes and arrays of unit16.</p>
+
+
+              <p>CompiledName: <code>|Const|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '822', 822)" onmouseover="showTip(event, '822', 822)">
+            ( |DecisionTree|_| ) arg1
+          </code>
+          <div class="tip" id="822">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * (FSharpMemberOrFunctionOrValue list * FSharpExpr) list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions with a decision expression, each branch of which ends in DecisionTreeSuccess pasing control and values to one of the targets.</p>
+
+
+              <p>CompiledName: <code>|DecisionTree|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '823', 823)" onmouseover="showTip(event, '823', 823)">
+            ( |DecisionTreeSuccess|_| ) arg1
+          </code>
+          <div class="tip" id="823">
+            <strong>Signature:</strong> FSharpExpr -&gt; (int * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Special expressions at the end of a conditional decision structure in the decision expression node of a DecisionTree .
+The given expressions are passed as values to the decision tree target.</p>
+
+
+              <p>CompiledName: <code>|DecisionTreeSuccess|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '824', 824)" onmouseover="showTip(event, '824', 824)">
+            ( |DefaultValue|_| ) arg1
+          </code>
+          <div class="tip" id="824">
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpType option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches default-value expressions, including null expressions</p>
+
+
+              <p>CompiledName: <code>|DefaultValue|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '825', 825)" onmouseover="showTip(event, '825', 825)">
+            ( |FastIntegerForLoop|_| ) arg1
+          </code>
+          <div class="tip" id="825">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr * FSharpExpr * bool) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches fast-integer loops (up or down)</p>
+
+
+              <p>CompiledName: <code>|FastIntegerForLoop|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '826', 826)" onmouseover="showTip(event, '826', 826)">
+            ( |FSharpFieldGet|_| ) arg1
+          </code>
+          <div class="tip" id="826">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * FSharpField) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which get a field from a record or class</p>
+
+
+              <p>CompiledName: <code>|FSharpFieldGet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '827', 827)" onmouseover="showTip(event, '827', 827)">
+            ( |FSharpFieldSet|_| ) arg1
+          </code>
+          <div class="tip" id="827">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * FSharpField * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which set a field in a record or class</p>
+
+
+              <p>CompiledName: <code>|FSharpFieldSet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '828', 828)" onmouseover="showTip(event, '828', 828)">
+            ( |IfThenElse|_| ) arg1
+          </code>
+          <div class="tip" id="828">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are conditionals</p>
+
+
+              <p>CompiledName: <code>|IfThenElse|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '829', 829)" onmouseover="showTip(event, '829', 829)">
+            ( |ILAsm|_| ) arg1
+          </code>
+          <div class="tip" id="829">
+            <strong>Signature:</strong> FSharpExpr -&gt; (string * FSharpType list * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are IL assembly code</p>
+
+
+              <p>CompiledName: <code>|ILAsm|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '830', 830)" onmouseover="showTip(event, '830', 830)">
+            ( |ILFieldGet|_| ) arg1
+          </code>
+          <div class="tip" id="830">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * string) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which fetch a field from a .NET type</p>
+
+
+              <p>CompiledName: <code>|ILFieldGet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '831', 831)" onmouseover="showTip(event, '831', 831)">
+            ( |ILFieldSet|_| ) arg1
+          </code>
+          <div class="tip" id="831">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr option * FSharpType * string * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which set a field in a .NET type</p>
+
+
+              <p>CompiledName: <code>|ILFieldSet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '832', 832)" onmouseover="showTip(event, '832', 832)">
+            ( |Lambda|_| ) arg1
+          </code>
+          <div class="tip" id="832">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are lambda abstractions</p>
+
+
+              <p>CompiledName: <code>|Lambda|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '833', 833)" onmouseover="showTip(event, '833', 833)">
+            ( |Let|_| ) arg1
+          </code>
+          <div class="tip" id="833">
+            <strong>Signature:</strong> FSharpExpr -&gt; ((FSharpMemberOrFunctionOrValue * FSharpExpr) * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are let definitions</p>
+
+
+              <p>CompiledName: <code>|Let|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '834', 834)" onmouseover="showTip(event, '834', 834)">
+            ( |LetRec|_| ) arg1
+          </code>
+          <div class="tip" id="834">
+            <strong>Signature:</strong> FSharpExpr -&gt; ((FSharpMemberOrFunctionOrValue * FSharpExpr) list * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are let-rec definitions</p>
+
+
+              <p>CompiledName: <code>|LetRec|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '835', 835)" onmouseover="showTip(event, '835', 835)">
+            ( |NewAnonRecord|_| ) arg1
+          </code>
+          <div class="tip" id="835">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches anonymous record expressions</p>
+
+
+              <p>CompiledName: <code>|NewAnonRecord|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '836', 836)" onmouseover="showTip(event, '836', 836)">
+            ( |NewArray|_| ) arg1
+          </code>
+          <div class="tip" id="836">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches array expressions</p>
+
+
+              <p>CompiledName: <code>|NewArray|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '837', 837)" onmouseover="showTip(event, '837', 837)">
+            ( |NewDelegate|_| ) arg1
+          </code>
+          <div class="tip" id="837">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which create an instance of a delegate type</p>
+
+
+              <p>CompiledName: <code>|NewDelegate|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '838', 838)" onmouseover="showTip(event, '838', 838)">
+            ( |NewObject|_| ) arg1
+          </code>
+          <div class="tip" id="838">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpType list * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are calls to object constructors</p>
+
+
+              <p>CompiledName: <code>|NewObject|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '839', 839)" onmouseover="showTip(event, '839', 839)">
+            ( |NewRecord|_| ) arg1
+          </code>
+          <div class="tip" id="839">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches record expressions</p>
+
+
+              <p>CompiledName: <code>|NewRecord|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '840', 840)" onmouseover="showTip(event, '840', 840)">
+            ( |NewTuple|_| ) arg1
+          </code>
+          <div class="tip" id="840">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches tuple expressions</p>
+
+
+              <p>CompiledName: <code>|NewTuple|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '841', 841)" onmouseover="showTip(event, '841', 841)">
+            ( |NewUnionCase|_| ) arg1
+          </code>
+          <div class="tip" id="841">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpUnionCase * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which create an object corresponding to a union case</p>
+
+
+              <p>CompiledName: <code>|NewUnionCase|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '842', 842)" onmouseover="showTip(event, '842', 842)">
+            ( |ObjectExpr|_| ) arg1
+          </code>
+          <div class="tip" id="842">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr * FSharpObjectExprOverride list * (FSharpType * FSharpObjectExprOverride list) list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches object expressions, returning the base type, the base call, the overrides and the interface implementations</p>
+
+
+              <p>CompiledName: <code>|ObjectExpr|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '843', 843)" onmouseover="showTip(event, '843', 843)">
+            ( |Quote|_| ) arg1
+          </code>
+          <div class="tip" id="843">
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpExpr option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are quotation literals</p>
+
+
+              <p>CompiledName: <code>|Quote|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '844', 844)" onmouseover="showTip(event, '844', 844)">
+            ( |Sequential|_| ) arg1
+          </code>
+          <div class="tip" id="844">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches sequential expressions</p>
+
+
+              <p>CompiledName: <code>|Sequential|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '845', 845)" onmouseover="showTip(event, '845', 845)">
+            ( |ThisValue|_| ) arg1
+          </code>
+          <div class="tip" id="845">
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpType option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are uses of the 'this' value</p>
+
+
+              <p>CompiledName: <code>|ThisValue|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '846', 846)" onmouseover="showTip(event, '846', 846)">
+            ( |TraitCall|_| ) arg1
+          </code>
+          <div class="tip" id="846">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType list * string * MemberFlags * FSharpType list * FSharpType list * FSharpExpr list) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions for an unresolved call to a trait</p>
+
+
+              <p>CompiledName: <code>|TraitCall|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '847', 847)" onmouseover="showTip(event, '847', 847)">
+            ( |TryFinally|_| ) arg1
+          </code>
+          <div class="tip" id="847">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches try/finally expressions</p>
+
+
+              <p>CompiledName: <code>|TryFinally|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '848', 848)" onmouseover="showTip(event, '848', 848)">
+            ( |TryWith|_| ) arg1
+          </code>
+          <div class="tip" id="848">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpMemberOrFunctionOrValue * FSharpExpr * FSharpMemberOrFunctionOrValue * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches try/with expressions</p>
+
+
+              <p>CompiledName: <code>|TryWith|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '849', 849)" onmouseover="showTip(event, '849', 849)">
+            ( |TupleGet|_| ) arg1
+          </code>
+          <div class="tip" id="849">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * int * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which get a value from a tuple</p>
+
+
+              <p>CompiledName: <code>|TupleGet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '850', 850)" onmouseover="showTip(event, '850', 850)">
+            ( |TypeLambda|_| ) arg1
+          </code>
+          <div class="tip" id="850">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpGenericParameter list * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are type abstractions</p>
+
+
+              <p>CompiledName: <code>|TypeLambda|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '851', 851)" onmouseover="showTip(event, '851', 851)">
+            ( |TypeTest|_| ) arg1
+          </code>
+          <div class="tip" id="851">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpType * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which test the runtime type of a value</p>
+
+
+              <p>CompiledName: <code>|TypeTest|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '852', 852)" onmouseover="showTip(event, '852', 852)">
+            ( |UnionCaseGet|_| ) arg1
+          </code>
+          <div class="tip" id="852">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * FSharpUnionCase * FSharpField) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which get a field from a union case</p>
+
+
+              <p>CompiledName: <code>|UnionCaseGet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '853', 853)" onmouseover="showTip(event, '853', 853)">
+            ( |UnionCaseSet|_| ) arg1
+          </code>
+          <div class="tip" id="853">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * FSharpUnionCase * FSharpField * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which set a field from a union case (only used in FSharp.Core itself)</p>
+
+
+              <p>CompiledName: <code>|UnionCaseSet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '854', 854)" onmouseover="showTip(event, '854', 854)">
+            ( |UnionCaseTag|_| ) arg1
+          </code>
+          <div class="tip" id="854">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which gets the tag for a union case</p>
+
+
+              <p>CompiledName: <code>|UnionCaseTag|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '855', 855)" onmouseover="showTip(event, '855', 855)">
+            ( |UnionCaseTest|_| ) arg1
+          </code>
+          <div class="tip" id="855">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpType * FSharpUnionCase) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which test if an expression corresponds to a particular union case</p>
+
+
+              <p>CompiledName: <code>|UnionCaseTest|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '856', 856)" onmouseover="showTip(event, '856', 856)">
+            ( |Value|_| ) arg1
+          </code>
+          <div class="tip" id="856">
+            <strong>Signature:</strong> FSharpExpr -&gt; FSharpMemberOrFunctionOrValue option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which are uses of values</p>
+
+
+              <p>CompiledName: <code>|Value|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '857', 857)" onmouseover="showTip(event, '857', 857)">
+            ( |ValueSet|_| ) arg1
+          </code>
+          <div class="tip" id="857">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpMemberOrFunctionOrValue * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches expressions which set the contents of a mutable variable</p>
+
+
+              <p>CompiledName: <code>|ValueSet|_|</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '858', 858)" onmouseover="showTip(event, '858', 858)">
+            ( |WhileLoop|_| ) arg1
+          </code>
+          <div class="tip" id="858">
+            <strong>Signature:</strong> FSharpExpr -&gt; (FSharpExpr * FSharpExpr) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Matches while loops</p>
+
+
+              <p>CompiledName: <code>|WhileLoop|_|</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

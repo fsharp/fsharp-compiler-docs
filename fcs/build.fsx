@@ -89,7 +89,7 @@ Target "BuildVersion" (fun _ ->
 
 Target "Build" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ "build ../src/buildtools/buildtools.proj -v n -c Proto"
-    runDotnet __SOURCE_DIRECTORY__ "build FSharp.Compiler.Service.sln -v n -c release"
+    runDotnet __SOURCE_DIRECTORY__ (sprintf "build FSharp.Compiler.Service.sln -v n -c release -p:VersionPrefix=%s" assemblyVersion)
 )
 
 Target "Test" (fun _ ->
@@ -102,7 +102,7 @@ Target "Test" (fun _ ->
 )
 
 Target "NuGet" (fun _ ->
-    runDotnet __SOURCE_DIRECTORY__ "pack FSharp.Compiler.Service.sln -v n -c release"
+    runDotnet __SOURCE_DIRECTORY__ (sprintf "pack FSharp.Compiler.Service.sln -v n -c release -p:VersionPrefix=%s" assemblyVersion)
 )
 
 Target "GenerateDocsEn" (fun _ ->

@@ -2,13 +2,12 @@
 <!-- Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information. -->
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-
-    <VersionPrefix>27.0.1</VersionPrefix>
-    <OtherFlags>--version:$(VersionPrefix)</OtherFlags>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>    
+    <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>    
     <!-- FSharp.Compiler.Tools is currently only used to get a working FSI.EXE to execute some scripts during the build -->
     <!-- The LKG FSI.EXE requires MSBuild 15 to be installed, which is painful -->
     <ToolsetFsiToolPath>$(FSharpSourcesRoot)\..\packages\FSharp.Compiler.Tools.4.1.27\tools</ToolsetFsiToolPath>
     <ToolsetFsiToolExe>fsi.exe</ToolsetFsiToolExe>
+    <!-- Disable AssemblyInformationalVersion errors for prerelease nuget version values -->
+    <NoWarn>2003;$(NoWarn)</NoWarn>
   </PropertyGroup>
 </Project>

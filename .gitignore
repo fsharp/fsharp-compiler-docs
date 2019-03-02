@@ -229,3 +229,5 @@ lib/netcore/fsc/bin/
 msbuild.binlog
 /fcs/FSharp.Compiler.Service.netstandard/*.fs
 /fcs/FSharp.Compiler.Service.netstandard/*.fsi
+
+.ionide

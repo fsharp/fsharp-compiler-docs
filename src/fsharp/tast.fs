@@ -1598,9 +1598,6 @@ and
       /// Return type constructed by the case. Normally exactly the type of the enclosing type, sometimes an abbreviation of it 
       ReturnType: TType
 
-      /// Name of the case in generated IL code 
-      CompiledName: string
-
       /// Documentation for the case 
       XmlDoc: XmlDoc
 
@@ -1635,6 +1632,13 @@ and
         | _ -> uc.Range 
 
     member uc.DisplayName = uc.Id.idText
+
+    /// Name of the case in generated IL code.
+    member uc.CompiledName =
+        let idText = uc.Id.idText
+        if idText = opNameCons then "Cons" 
+        elif idText = opNameNil then "Empty"
+        else idText
 
     member uc.RecdFieldsArray = uc.FieldTable.FieldsByIndex 
 
@@ -5662,7 +5666,6 @@ let NewRigidTypar nm m = NewTypar (TyparKind.Type, TyparRigidity.Rigid, Typar(mk
 
 let NewUnionCase id tys rty attribs docOption access: UnionCase = 
     { Id=id
-      CompiledName=nm
       XmlDoc=docOption
       XmlDocSig=""
       Accessibility=access

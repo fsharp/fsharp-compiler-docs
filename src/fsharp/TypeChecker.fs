@@ -12337,16 +12337,9 @@ module TcRecdUnionAndEnumDeclarations = begin
         let attrs = TcAttributes cenv env AttributeTargets.UnionCaseDecl synAttrs // the attributes of a union case decl get attached to the generated "static factory" method
         let vis, _ = ComputeAccessAndCompPath env None m vis None parent
         let vis = CombineReprAccess parent vis
-        let realUnionCaseName =  
-            if id.idText = opNameCons then "Cons" 
-            elif id.idText = opNameNil then "Empty"
-            else id.idText
-            
-        if realUnionCaseName = "Tags" then
-            errorR(Error(FSComp.SR.tcUnionCaseNameConflictsWithGeneratedType(realUnionCaseName, "Tags"), m))
-                        
-        CheckUnionCaseName cenv realUnionCaseName id.idRange 
-        
+
+        CheckUnionCaseName cenv id
+
         let mkName nFields i = if nFields <= 1 then "Item" else "Item"+string (i+1)
         let rfields, recordTy = 
             match args with
@@ -12354,7 +12347,7 @@ module TcRecdUnionAndEnumDeclarations = begin
                 let nFields = flds.Length
                 let rfields = flds |> List.mapi (fun i fld -> TcAnonFieldDecl cenv env parent tpenv (mkName nFields i) fld)
                 ValidateFieldNames(flds, rfields)
-                
+
                 rfields, thisTy
             | UnionCaseFullType (ty, arity) -> 
                 let ty', _ = TcTypeAndRecover cenv NoNewTypars CheckCxs ItemOccurence.UseInType env tpenv ty
@@ -12370,7 +12363,7 @@ module TcRecdUnionAndEnumDeclarations = begin
                 if not (typeEquiv cenv.g recordTy thisTy) then 
                     error(Error(FSComp.SR.tcReturnTypesForUnionMustBeSameAsType(), m))
                 rfields, recordTy
-        NewUnionCase id realUnionCaseName rfields recordTy attrs (xmldoc.ToXmlDoc()) vis
+        NewUnionCase id rfields recordTy attrs (xmldoc.ToXmlDoc()) vis
 
 
     let TcUnionCaseDecls cenv env parent (thisTy: TType) tpenv unionCases =
@@ -15621,8 +15614,8 @@ module EstablishTypeDefinitionCores =
                           
                     structLayoutAttributeCheck(false)
                     noAllowNullLiteralAttributeCheck()
-                    TcRecdUnionAndEnumDeclarations.CheckUnionCaseName  cenv unionCaseName.idText unionCaseName.idRange
-                    let unionCase = NewUnionCase unionCaseName unionCaseName.idText [] thisTy [] XmlDoc.Empty tycon.Accessibility
+                    TcRecdUnionAndEnumDeclarations.CheckUnionCaseName cenv unionCaseName
+                    let unionCase = NewUnionCase unionCaseName [] thisTy [] XmlDoc.Empty tycon.Accessibility
                     writeFakeUnionCtorsToSink [ unionCase ]
                     MakeUnionRepr [ unionCase ], None, NoSafeInitInfo
 

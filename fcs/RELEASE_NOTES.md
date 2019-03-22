@@ -1,9 +1,10 @@
 #### 27.1.1-beta.001
-  * Integrate visualfsharp master from efb57cf56 to 166ec385e
+  * Integrate visualfsharp master from efb57cf56 to af97b92e6
   * Notable improvements include:
     * XmlDoc fixes for overloads
     * Fixes for deterministic compilation
     * Improved tail-recursion when processing large expressions
+    * Better tooltip detection for operators with constraints
 
 #### 27.0.1
   * Integrate visualfsharp master from 5a5ca976ec296d02551e79c3eb8e8db809e4304d to 2c8497bb097d5c5d3ef12f355594873838a48494

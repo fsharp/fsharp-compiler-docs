@@ -1,4 +1,5 @@
 #### 27.1.1-beta.001
+  * FSharp.Compiler.Service nuget now uses net461, netstandard2.0 and FSharp.Core 4.6.2
   * Integrate visualfsharp master from efb57cf56 to af97b92e6
   * Notable improvements include:
     * XmlDoc fixes for overloads
@@ -40,7 +41,7 @@
 
 #### 21.0.1
   * Use new .NET SDK project files
-  * FSharp.Compiler.Service nuget now uses net45 and netstandard2.0
+  * FSharp.Compiler.Service nuget now uses net461 and netstandard2.0
   * FSharp.Compiler.Service netstandard2.0 now supports type providers
   
 #### 20.0.1

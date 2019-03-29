@@ -1,4 +1,4 @@
-#### 27.1.1-beta.001
+#### 28.0.0
   * Integrate visualfsharp master from efb57cf56 to 8dfc02feb
   * Notable improvements include:
     * XmlDoc fixes for overloads

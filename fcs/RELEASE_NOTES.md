@@ -1,11 +1,12 @@
 #### 27.1.1-beta.001
-  * FSharp.Compiler.Service nuget now uses net461, netstandard2.0 and FSharp.Core 4.6.2
-  * Integrate visualfsharp master from efb57cf56 to af97b92e6
+  * Integrate visualfsharp master from efb57cf56 to 8dfc02feb
   * Notable improvements include:
     * XmlDoc fixes for overloads
     * Fixes for deterministic compilation
     * Improved tail-recursion when processing large expressions
     * Better tooltip detection for operators with constraints
+    * FSharp.Compiler.Service nuget now uses net461, netstandard2.0 and FSharp.Core 4.6.2
+    * updated lexer and parser implementations to reduce stackoverflow likelihood on .net core
 
 #### 27.0.1
   * Integrate visualfsharp master from 5a5ca976ec296d02551e79c3eb8e8db809e4304d to 2c8497bb097d5c5d3ef12f355594873838a48494

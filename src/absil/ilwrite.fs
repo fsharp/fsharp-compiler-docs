@@ -464,8 +464,12 @@ type MetadataTable<'T> =
 #if DEBUG
         tbl.lookups <- tbl.lookups + 1 
 #endif
+#if FABLE_COMPILER
+        let ok, res = tbl.dict.TryGetValue(x)
+#else
         let mutable res = Unchecked.defaultof<_>
         let ok = tbl.dict.TryGetValue(x, &res)
+#endif
         if ok then res
         else tbl.AddSharedEntry x
 
@@ -769,11 +773,17 @@ let rec GetTypeRefAsTypeRefRow cenv (tref: ILTypeRef) =
     SharedRow [| ResolutionScope (rs1, rs2); nelem; nselem |]
 
 and GetTypeRefAsTypeRefIdx cenv tref = 
+#if FABLE_COMPILER
+    let ok, res = cenv.trefCache.TryGetValue(tref)
+#else
     let mutable res = 0
-    if cenv.trefCache.TryGetValue(tref, &res) then res else 
-    let res = FindOrAddSharedRow cenv TableNames.TypeRef (GetTypeRefAsTypeRefRow cenv tref)
-    cenv.trefCache.[tref] <- res
-    res
+    let ok = cenv.trefCache.TryGetValue(tref, &res)
+#endif
+    if ok then res
+    else
+        let res = FindOrAddSharedRow cenv TableNames.TypeRef (GetTypeRefAsTypeRefRow cenv tref)
+        cenv.trefCache.[tref] <- res
+        res
 
 and GetTypeDescAsTypeRefIdx cenv (scoref, enc, n) =  
     GetTypeRefAsTypeRefIdx cenv (mkILNestedTyRef (scoref, enc, n))

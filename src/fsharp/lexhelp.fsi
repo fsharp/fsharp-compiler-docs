@@ -46,13 +46,13 @@ val reusingLexbufForParsing : UnicodeLexing.Lexbuf -> (unit -> 'a) -> 'a
 
 val usingLexbufForParsing : UnicodeLexing.Lexbuf * string -> (UnicodeLexing.Lexbuf -> 'a) -> 'a
 val defaultStringFinisher : 'a -> 'b -> byte[] -> Parser.token
-val callStringFinisher : ('a -> 'b -> byte[] -> 'c) -> AbstractIL.Internal.ByteBuffer -> 'a -> 'b -> 'c
-val addUnicodeString : AbstractIL.Internal.ByteBuffer -> string -> unit
-val addUnicodeChar : AbstractIL.Internal.ByteBuffer -> int -> unit
-val addByteChar : AbstractIL.Internal.ByteBuffer -> char -> unit
+val callStringFinisher : ('a -> 'b -> byte[] -> 'c) -> ByteBuffer -> 'a -> 'b -> 'c
+val addUnicodeString : ByteBuffer -> string -> unit
+val addUnicodeChar : ByteBuffer -> int -> unit
+val addByteChar : ByteBuffer -> char -> unit
 val stringBufferAsString : byte[] -> string
-val stringBufferAsBytes : AbstractIL.Internal.ByteBuffer -> byte[]
-val stringBufferIsBytes : AbstractIL.Internal.ByteBuffer -> bool
+val stringBufferAsBytes : ByteBuffer -> byte[]
+val stringBufferIsBytes : ByteBuffer -> bool
 val newline : Lexing.LexBuffer<'a> -> unit
 val trigraph : char -> char -> char -> char
 val digit : char -> int32

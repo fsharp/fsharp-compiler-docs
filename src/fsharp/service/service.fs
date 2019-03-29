@@ -26,7 +26,9 @@ open FSharp.Compiler.AccessibilityLogic
 open FSharp.Compiler.Ast
 open FSharp.Compiler.CompileOps
 open FSharp.Compiler.CompileOptions
+#if !FABLE_COMPILER
 open FSharp.Compiler.Driver
+#endif
 open FSharp.Compiler.ErrorLogger
 open FSharp.Compiler.Lib
 open FSharp.Compiler.PrettyNaming
@@ -65,10 +67,7 @@ module EnvMisc =
     /// Maximum time share for a piece of background work before it should (cooperatively) yield
     /// to enable other requests to be serviced. Yielding means returning a continuation function
     /// (via an Eventually<_> value of case NotYetDone) that can be called as the next piece of work. 
-    let maxTimeShareMilliseconds = 
-        match System.Environment.GetEnvironmentVariable("FCS_MaxTimeShare") with 
-        | null | "" -> 100L
-        | s -> int64 s
+    let maxTimeShareMilliseconds = int64 (GetEnvInteger "FCS_MaxTimeShare" 100)
 
 
 //----------------------------------------------------------------------------
@@ -529,7 +528,10 @@ type TypeCheckInfo
                 nameMatchesResidue n1 ||
                 meths |> List.exists (fun meth ->
                     let tcref = meth.ApparentEnclosingTyconRef
-                    tcref.IsProvided || nameMatchesResidue tcref.DisplayName)
+#if !NO_EXTENSIONTYPING
+                    tcref.IsProvided || 
+#endif
+                    nameMatchesResidue tcref.DisplayName)
             | _ -> residue = n1)
             
     /// Post-filter items to make sure they have precisely the right name
@@ -1452,6 +1454,7 @@ type FSharpParsingOptions =
           CompilingFsLib = tcConfig.compilingFslib
           IsExe = tcConfig.target.IsExe }
 
+#if !FABLE_COMPILER
     static member FromTcConfigBuidler(tcConfigB: TcConfigBuilder, sourceFiles, isInteractive: bool) =
         {
           SourceFiles = sourceFiles
@@ -1462,6 +1465,7 @@ type FSharpParsingOptions =
           CompilingFsLib = tcConfigB.compilingFslib
           IsExe = tcConfigB.target.IsExe
         }
+#endif //!FABLE_COMPILER
 
 module internal Parser = 
 
@@ -1470,7 +1474,11 @@ module internal Parser =
         // number of lines in the source file
         let lastLine = (source |> Seq.sumBy (fun c -> if c = '\n' then 1 else 0)) + 1
         // length of the last line
+#if FABLE_COMPILER
+        let lastLineLength = source.Length - source.LastIndexOf("\n") - 1
+#else
         let lastLineLength = source.Length - source.LastIndexOf("\n",StringComparison.Ordinal) - 1
+#endif
         lastLine, lastLineLength
          
 
@@ -1598,7 +1606,11 @@ module internal Parser =
             Lexhelp.usingLexbufForParsing(UnicodeLexing.StringAsLexbuf(addNewLine source), fileName) (fun lexbuf ->
                 let lexfun = createLexerFunction fileName options lexbuf errHandler
                 let isLastCompiland =
+#if FABLE_COMPILER
+                    fileName.Equals(options.LastFileName, StringComparison.OrdinalIgnoreCase) ||
+#else
                     fileName.Equals(options.LastFileName, StringComparison.CurrentCultureIgnoreCase) ||
+#endif
                     CompileOps.IsScript(fileName)
                 let isExe = options.IsExe
                 try Some (ParseInput(lexfun, errHandler.ErrorLogger, lexbuf, None, fileName, (isLastCompiland, isExe)))
@@ -1630,12 +1642,18 @@ module internal Parser =
            textSnapshotInfo : obj option,
            userOpName: string) = 
         
+#if !FABLE_COMPILER
         async {
+#endif
             use _logBlock = Logger.LogBlock LogCompilerFunctionId.Service_CheckOneFile
 
             match parseResults.ParseTree with 
             // When processing the following cases, we don't need to type-check
+#if FABLE_COMPILER
+            | None -> [||], TypeCheckAborted.Yes
+#else
             | None -> return [||], TypeCheckAborted.Yes
+#endif
                    
             // Run the type checker...
             | Some parsedMainInput ->
@@ -1645,8 +1663,10 @@ module internal Parser =
                 use _unwindEL = PushErrorLoggerPhaseUntilUnwind (fun _oldLogger -> errHandler.ErrorLogger)
                 use _unwindBP = PushThreadBuildPhaseUntilUnwind BuildPhase.TypeCheck
             
+#if !FABLE_COMPILER
                 // Apply nowarns to tcConfig (may generate errors, so ensure errorLogger is installed)
                 let tcConfig = ApplyNoWarnsToTcConfig (tcConfig, parsedMainInput,Path.GetDirectoryName mainInputFileName)
+#endif
                         
                 // update the error handler with the modified tcConfig
                 errHandler.ErrorSeverityOptions <- tcConfig.errorSeverityOptions
@@ -1655,6 +1675,7 @@ module internal Parser =
                 for (err,sev) in backgroundDiagnostics do
                     diagnosticSink (err, (sev = FSharpErrorSeverity.Error))
             
+#if !FABLE_COMPILER
                 // If additional references were brought in by the preprocessor then we need to process them
                 match loadClosure with
                 | Some loadClosure ->
@@ -1710,6 +1731,7 @@ module internal Parser =
                 | None -> 
                     // For non-scripts, check for disallow #r and #load.
                     ApplyMetaCommandsFromInputToTcConfig (tcConfig, parsedMainInput,Path.GetDirectoryName mainInputFileName) |> ignore
+#endif
                     
                 // A problem arises with nice name generation, which really should only 
                 // be done in the backend, but is also done in the typechecker for better or worse. 
@@ -1718,6 +1740,22 @@ module internal Parser =
                 
                 // Typecheck the real input.  
                 let sink = TcResultsSinkImpl(tcGlobals, source = source)
+#if FABLE_COMPILER
+                ignore userOpName
+                let resOpt =
+                    try
+                        let ctok = AssumeCompilationThreadWithoutEvidence()
+                        let checkForErrors() = (parseResults.ParseHadErrors || errHandler.ErrorCount > 0)
+                        let parsedMainInput, _moduleNamesDict = DeduplicateParsedInputModuleName moduleNamesDict parsedMainInput
+                        let (tcEnvAtEnd, _, implFiles, ccuSigsForFiles), tcState =
+                            TypeCheckOneInputAndFinishEventually(checkForErrors, tcConfig, tcImports, tcGlobals, None, TcResultsSink.WithSink sink, tcState, parsedMainInput)
+                            |> Eventually.force ctok
+                        Some (tcEnvAtEnd, implFiles, ccuSigsForFiles, tcState)
+                    with
+                    | e ->
+                        errorR e
+                        Some(tcState.TcEnvFromSignatures, [], [NewEmptyModuleOrNamespaceType Namespace], tcState)
+#else //!FABLE_COMPILER
                 let! ct = Async.CancellationToken
             
                 let! resOpt =
@@ -1750,6 +1788,7 @@ module internal Parser =
                             errorR e
                             return Some(tcState.TcEnvFromSignatures, [], [NewEmptyModuleOrNamespaceType Namespace], tcState)
                     }
+#endif //!FABLE_COMPILER
                 
                 let errors = errHandler.CollectedDiagnostics
                 
@@ -1772,10 +1811,16 @@ module internal Parser =
                                       textSnapshotInfo,
                                       List.tryHead implFiles,
                                       sink.GetOpenDeclarations())     
+#if FABLE_COMPILER
+                    errors, TypeCheckAborted.No scope
+                | None -> 
+                    errors, TypeCheckAborted.Yes
+#else
                     return errors, TypeCheckAborted.No scope
                 | None -> 
                     return errors, TypeCheckAborted.Yes
         }
+#endif
 
 type UnresolvedReferencesSet = UnresolvedReferencesSet of UnresolvedAssemblyReference list
 
@@ -1837,7 +1882,7 @@ type FSharpProjectContext(thisCcu: CcuThunk, assemblies: FSharpAssembly list, ad
 
 [<Sealed>]
 // 'details' is an option because the creation of the tcGlobals etc. for the project may have failed.
-type FSharpCheckProjectResults(projectFileName:string, tcConfigOption, keepAssemblyContents, errors: FSharpErrorInfo[], 
+type FSharpCheckProjectResults(projectFileName:string, tcConfigOption, keepAssemblyContents:bool, errors: FSharpErrorInfo[], 
                                details:(TcGlobals * TcImports * CcuThunk * ModuleOrNamespaceType * TcSymbolUses list * TopAttribs option * CompileOps.IRawFSharpAssemblyData option * ILAssemblyRef * AccessorDomain * TypedImplFile list option * string[]) option) =
 
     let getDetails() = 
@@ -2165,6 +2210,8 @@ type FSharpCheckFileResults(filename: string, errors: FSharpErrorInfo[], scopeOp
         |> Option.defaultValue [| |]
 
     override info.ToString() = "FSharpCheckFileResults(" + filename + ")"
+
+#if !FABLE_COMPILER
 
 //----------------------------------------------------------------------------
 // BackgroundCompiler
@@ -3443,3 +3490,5 @@ namespace Microsoft.FSharp.Compiler.Interactive.Shell
     type CompilerInputStream = A | B
     [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
     type CompilerOutputStream  = A | B
+
+#endif //!FABLE_COMPILER

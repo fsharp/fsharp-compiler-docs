@@ -852,15 +852,15 @@ module FSharpExprConvert =
             None, env.BindIsInstVal bind.Var (ty, e)
     
         // Remove let <compilerGeneratedVar> = <var> from quotation tree
-        | Expr.Val _ when bind.Var.IsCompilerGenerated -> 
+        | Expr.Val _ when bind.Var.IsCompilerGenerated && (not bind.Var.IsMutable) -> 
             None, env.BindSubstVal bind.Var bind.Expr
 
         // Remove let <compilerGeneratedVar> = () from quotation tree
-        | Expr.Const(Const.Unit, _, _) when bind.Var.IsCompilerGenerated -> 
+        | Expr.Const(Const.Unit, _, _) when bind.Var.IsCompilerGenerated && (not bind.Var.IsMutable) -> 
             None, env.BindSubstVal bind.Var bind.Expr
 
         // Remove let unionCase = ... from quotation tree
-        | Expr.Op(TOp.UnionCaseProof _, _, [e], _) -> 
+        | Expr.Op(TOp.UnionCaseProof _, _, [e], _) when (not bind.Var.IsMutable) -> 
             None, env.BindSubstVal bind.Var e
 
         | _ ->
@@ -1145,8 +1145,13 @@ module FSharpExprConvert =
             | Const.UInt32  i ->  E.Const(box i, tyR)
             | Const.Int64   i ->  E.Const(box i, tyR)
             | Const.UInt64  i ->  E.Const(box i, tyR)
+#if FABLE_COMPILER
+            | Const.IntPtr  i ->  E.Const(box i, tyR)
+            | Const.UIntPtr i ->  E.Const(box i, tyR)
+#else
             | Const.IntPtr  i ->  E.Const(box (nativeint i), tyR)
             | Const.UIntPtr i ->  E.Const(box (unativeint i), tyR)
+#endif
             | Const.Decimal i ->  E.Const(box i, tyR)
             | Const.Double  i ->  E.Const(box i, tyR)
             | Const.Single  i ->  E.Const(box i, tyR)

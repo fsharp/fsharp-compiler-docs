@@ -982,8 +982,23 @@ module UntypedParseImpl =
         | ParsedInput.ImplFile input -> walkImplFileInput input
 
     type internal TS = AstTraversal.TraverseStep
+
+#if FABLE_COMPILER
+    let rec findMatches (prefix: string) (suffix: string) (str: string) (startIndex: int) = seq {
+        let i1 = str.IndexOf(prefix, startIndex)
+        if i1 >= 0 then
+            let i2 = str.IndexOf(suffix, i1 + prefix.Length)
+            if i2 >= 0 then
+                let index = i1 + prefix.Length
+                let count = i2 - index
+                let start = i2 + suffix.Length
+                yield index, count
+                yield! findMatches prefix suffix str start
+    }
+#else
     /// Matches the most nested [< and >] pair.
     let insideAttributeApplicationRegex = Regex(@"(?<=\[\<)(?<attribute>(.*?))(?=\>\])", RegexOptions.Compiled ||| RegexOptions.ExplicitCapture)
+#endif
 
     /// Try to determine completion context for the given pair (row, columns)
     let TryGetCompletionContext (pos, parsedInput: ParsedInput, lineStr: string) : CompletionContext option = 
@@ -1343,6 +1358,26 @@ module UntypedParseImpl =
 
              let isLongIdent = Seq.forall (fun c -> IsIdentifierPartCharacter c || c = '.' || c = ':') // ':' may occur in "[<type: AnAttribute>]"
 
+#if FABLE_COMPILER
+             // match the most nested paired [< and >] first
+             let matches =
+                findMatches "[<" ">]" lineStr 0
+                |> Seq.filter (fun (m_Index, m_Length) -> m_Index <= pos.Column && m_Index + m_Length >= pos.Column)
+                |> Seq.toArray
+
+             if not (Array.isEmpty matches) then
+                 matches
+                 |> Seq.tryPick (fun (m_Index, m_Length) ->
+                      let col = pos.Column - m_Index
+                      if col >= 0 && col < m_Length then
+                          let str = lineStr.Substring(m_Index, m_Length)
+                          let str = str.Substring(0, col).TrimStart() // cut other rhs attributes
+                          let str = cutLeadingAttributes str
+                          if isLongIdent str then
+                              Some CompletionContext.AttributeApplication
+                          else None 
+                      else None)
+#else
              // match the most nested paired [< and >] first
              let matches = 
                 insideAttributeApplicationRegex.Matches(lineStr)
@@ -1362,9 +1397,14 @@ module UntypedParseImpl =
                               Some CompletionContext.AttributeApplication
                           else None 
                       else None)
+#endif
              else
                 // Paired [< and >] were not found, try to determine that we are after [< without closing >]
+#if FABLE_COMPILER
+                match lineStr.LastIndexOf("[<") with
+#else
                 match lineStr.LastIndexOf("[<", StringComparison.Ordinal) with
+#endif
                 | -1 -> None
                 | openParenIndex when pos.Column >= openParenIndex + 2 -> 
                     let str = lineStr.[openParenIndex + 2..pos.Column - 1].TrimStart()

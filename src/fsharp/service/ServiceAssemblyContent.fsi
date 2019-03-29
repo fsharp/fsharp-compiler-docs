@@ -103,6 +103,7 @@ type public Entity =
       /// Last part of the entity's full name.
       LastIdent: string }
 
+#if !FABLE_COMPILER
 /// Provides assembly content.
 module public AssemblyContentProvider =
     /// Given a `FSharpAssemblySignature`, returns assembly content.
@@ -115,6 +116,7 @@ module public AssemblyContentProvider =
           -> fileName: string option 
           -> assemblies: FSharpAssembly list 
           -> AssemblySymbol list
+#endif
 
 /// Kind of lexical scope.
 type public ScopeKind =

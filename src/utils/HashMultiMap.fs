@@ -15,20 +15,30 @@ type internal HashMultiMap<'Key,'Value>(n: int, hasheq: IEqualityComparer<'Key>)
 
     let rest = Dictionary<_,_>(3,hasheq)
  
+#if !FABLE_COMPILER
     new (hasheq : IEqualityComparer<'Key>) = HashMultiMap<'Key,'Value>(11, hasheq)
 
     new (seq : seq<'Key * 'Value>, hasheq : IEqualityComparer<'Key>) as x = 
         new HashMultiMap<'Key,'Value>(11, hasheq)
         then seq |> Seq.iter (fun (k,v) -> x.Add(k,v))
+#endif
 
     member x.GetRest(k) =
+#if FABLE_COMPILER
+        let ok, res = rest.TryGetValue(k)
+#else
         let mutable res = []
         let ok = rest.TryGetValue(k,&res)
+#endif
         if ok then res else []
 
     member x.Add(y,z) = 
+#if FABLE_COMPILER
+        let ok, res = firstEntries.TryGetValue(y)
+#else
         let mutable res = Unchecked.defaultof<'Value>
         let ok = firstEntries.TryGetValue(y,&res)
+#endif
         if ok then 
             rest.[y] <- res :: x.GetRest(y)
         firstEntries.[y] <- z
@@ -42,7 +52,11 @@ type internal HashMultiMap<'Key,'Value>(n: int, hasheq: IEqualityComparer<'Key>)
     member x.Rest = rest
 
     member x.Copy() = 
+#if FABLE_COMPILER
+        let res = HashMultiMap<'Key,'Value>(firstEntries.Count, hasheq)
+#else
         let res = HashMultiMap<'Key,'Value>(firstEntries.Count,firstEntries.Comparer)
+#endif
         for kvp in firstEntries do 
              res.FirstEntries.Add(kvp.Key,kvp.Value)
 
@@ -52,15 +66,23 @@ type internal HashMultiMap<'Key,'Value>(n: int, hasheq: IEqualityComparer<'Key>)
 
     member x.Item 
         with get(y : 'Key) = 
+#if FABLE_COMPILER
+            let ok, res = firstEntries.TryGetValue(y)
+#else
             let mutable res = Unchecked.defaultof<'Value>
             let ok = firstEntries.TryGetValue(y,&res)
+#endif
             if ok then res else raise (KeyNotFoundException("The item was not found in collection"))
         and set (y:'Key) (z:'Value) = 
             x.Replace(y,z)
 
     member x.FindAll(y) = 
+#if FABLE_COMPILER
+        let ok, res = firstEntries.TryGetValue(y)
+#else
         let mutable res = Unchecked.defaultof<'Value>
         let ok = firstEntries.TryGetValue(y,&res)
+#endif
         if ok then res :: x.GetRest(y) else []
 
     member x.Fold f acc = 
@@ -88,13 +110,21 @@ type internal HashMultiMap<'Key,'Value>(n: int, hasheq: IEqualityComparer<'Key>)
     member x.ContainsKey(y) = firstEntries.ContainsKey(y)
 
     member x.Remove(y) = 
+#if FABLE_COMPILER
+        let ok, _ = firstEntries.TryGetValue(y)
+#else
         let mutable res = Unchecked.defaultof<'Value>
         let ok = firstEntries.TryGetValue(y,&res)
+#endif
         // NOTE: If not ok then nothing to remove - nop
         if ok then 
             // We drop the FirstEntry. Here we compute the new FirstEntry and residue MoreEntries
+#if FABLE_COMPILER
+            let ok, res = rest.TryGetValue(y)
+#else
             let mutable res = []
             let ok = rest.TryGetValue(y,&res)
+#endif
             if ok then 
                 match res with 
                 | [h] -> 
@@ -112,12 +142,30 @@ type internal HashMultiMap<'Key,'Value>(n: int, hasheq: IEqualityComparer<'Key>)
         firstEntries.[y] <- z
 
     member x.TryFind(y) =
+#if FABLE_COMPILER
+        let ok, res = firstEntries.TryGetValue(y)
+#else
         let mutable res = Unchecked.defaultof<'Value>
         let ok = firstEntries.TryGetValue(y,&res)
+#endif
         if ok then Some(res) else None
 
     member x.Count = firstEntries.Count
 
+#if FABLE_COMPILER
+    interface System.Collections.IEnumerable with
+        member s.GetEnumerator() = ((s :> IEnumerable<KeyValuePair<'Key, 'Value>>).GetEnumerator() :> System.Collections.IEnumerator)
+
+    interface IEnumerable<KeyValuePair<'Key, 'Value>> with
+        member s.GetEnumerator() = 
+            let elems = seq {
+                for kvp in firstEntries do
+                    yield kvp
+                    for z in s.GetRest(kvp.Key) do
+                        yield KeyValuePair(kvp.Key, z)
+            }
+            elems.GetEnumerator()
+#else //!FABLE_COMPILER
     interface IEnumerable<KeyValuePair<'Key, 'Value>> with
 
         member s.GetEnumerator() = 
@@ -151,6 +199,7 @@ type internal HashMultiMap<'Key,'Value>(n: int, hasheq: IEqualityComparer<'Key>)
         member s.Remove(k:'Key) = 
             let res = s.ContainsKey(k) in 
             s.Remove(k); res
+#endif
 
     interface ICollection<KeyValuePair<'Key, 'Value>> with 
 

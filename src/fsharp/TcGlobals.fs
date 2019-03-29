@@ -870,8 +870,13 @@ type public TcGlobals(compilingFslib: bool, ilg:ILGlobals, fslibCcu: CcuThunk, d
           TType_app (tcref, tinst)
       else
           let dict = getDecompileTypeDict()
+#if FABLE_COMPILER
+          let ok, builder = dict.TryGetValue(tcref.Stamp)
+#else
           let mutable builder = Unchecked.defaultof<_>
-          if dict.TryGetValue(tcref.Stamp, &builder) then builder tinst
+          let ok = dict.TryGetValue(tcref.Stamp, &builder)
+#endif
+          if ok then builder tinst
           else TType_app (tcref, tinst)
 
   /// For cosmetic purposes "improve" some .NET types, e.g. Int32 --> int32. 
@@ -880,13 +885,23 @@ type public TcGlobals(compilingFslib: bool, ilg:ILGlobals, fslibCcu: CcuThunk, d
   let improveTy (tcref: EntityRef) tinst = 
         if compilingFslib then 
             let dict = getBetterTypeDict1()
+#if FABLE_COMPILER
+            let ok, builder = dict.TryGetValue(tcref.LogicalName)
+#else
             let mutable builder = Unchecked.defaultof<_>
-            if dict.TryGetValue(tcref.LogicalName, &builder) then builder tcref tinst
+            let ok = dict.TryGetValue(tcref.LogicalName, &builder)
+#endif
+            if ok then builder tcref tinst
             else TType_app (tcref, tinst)
         else
             let dict = getBetterTypeDict2()
+#if FABLE_COMPILER
+            let ok, builder = dict.TryGetValue(tcref.Stamp)
+#else
             let mutable builder = Unchecked.defaultof<_>
-            if dict.TryGetValue(tcref.Stamp, &builder) then builder tinst
+            let ok = dict.TryGetValue(tcref.Stamp, &builder)
+#endif
+            if ok then builder tinst
             else TType_app (tcref, tinst)
 
 

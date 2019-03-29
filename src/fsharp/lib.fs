@@ -16,6 +16,10 @@ let verbose = false
 let progress = ref false 
 let tracking = ref false // intended to be a general hook to control diagnostic output when tracking down bugs
 
+#if FABLE_COMPILER
+let condition _s = false
+let GetEnvInteger _e dflt = dflt
+#else
 let condition s = 
     try (System.Environment.GetEnvironmentVariable(s) <> null) with _ -> false
 
@@ -31,6 +35,7 @@ type SaveAndRestoreConsoleEncoding () =
             try 
                 System.Console.SetOut(savedOut)
             with _ -> ()
+#endif
 
 //-------------------------------------------------------------------------
 // Library: bits
@@ -322,6 +327,7 @@ let bufs f =
     f buf 
     buf.ToString()
 
+#if !FABLE_COMPILER
 let buff (os: TextWriter) f x = 
     let buf = System.Text.StringBuilder 100 
     f buf x 
@@ -334,6 +340,7 @@ let writeViaBufferWithEnvironmentNewLines (os: TextWriter) f x =
     let text = buf.ToString()
     let text = text.Replace("\n", System.Environment.NewLine)
     os.Write text
+#endif
         
 //---------------------------------------------------------------------------
 // Imperative Graphs 
@@ -411,6 +418,7 @@ type Dumper(x:obj) =
      member self.Dump = sprintf "%A" x 
 #endif
 
+#if !FABLE_COMPILER
 //---------------------------------------------------------------------------
 // AsyncUtil
 //---------------------------------------------------------------------------
@@ -545,3 +553,5 @@ module UnmanagedProcessExecutionOptions =
                             "HeapSetInformation() returned FALSE; LastError = 0x" + 
                             GetLastError().ToString("X").PadLeft(8, '0') + "."))
 
+
+#endif //!FABLE_COMPILER

@@ -11,7 +11,9 @@ module internal FSharp.Compiler.AbstractIL.Diagnostics
 open System.IO
 open Microsoft.FSharp.Core.Printf
 
+#if !FABLE_COMPILER
 val public setDiagnosticsChannel: TextWriter option -> unit 
+#endif
 
 val public dprintfn: TextWriterFormat<'a> -> 'a 
 val public dprintf: TextWriterFormat<'a> -> 'a 

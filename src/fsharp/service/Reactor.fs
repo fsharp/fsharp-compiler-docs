@@ -14,6 +14,8 @@ type internal IReactorOperations =
     abstract EnqueueAndAwaitOpAsync : userOpName:string * opName:string * opArg:string * (CompilationThreadToken -> Cancellable<'T>) -> Async<'T>
     abstract EnqueueOp: userOpName:string * opName:string * opArg:string * (CompilationThreadToken -> unit) -> unit
 
+#if !FABLE_COMPILER
+
 [<NoEquality; NoComparison>]
 type internal ReactorCommands = 
     /// Kick off a build.
@@ -189,3 +191,4 @@ type Reactor() =
 
     static member Singleton = theReactor 
 
+#endif //!FABLE_COMPILER

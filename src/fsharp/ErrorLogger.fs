@@ -129,16 +129,22 @@ let rec AttachRange m (exn:exn) =
     else 
         match exn with
         // Strip TargetInvocationException wrappers
+#if !FABLE_COMPILER
         | :? System.Reflection.TargetInvocationException -> AttachRange m exn.InnerException
+#endif
         | UnresolvedReferenceNoRange(a) -> UnresolvedReferenceError(a, m)
         | UnresolvedPathReferenceNoRange(a, p) -> UnresolvedPathReference(a, p, m)
         | Failure(msg) -> InternalError(msg + " (Failure)", m)
+#if !FABLE_COMPILER
         | :? System.ArgumentException as exn -> InternalError(exn.Message + " (ArgumentException)", m)
+#endif
         | notARangeDual -> notARangeDual
 
 
 //----------------------------------------------------------------------------
 // Error logger interface
+
+#if !FABLE_COMPILER
 
 type Exiter = 
     abstract Exit : int -> 'T 
@@ -153,6 +159,7 @@ let QuitProcessExiter =
                 ()             
             FSComp.SR.elSysEnvExitDidntExit()
             |> failwith } 
+#endif
 
 /// Closed enumeration of build phases.
 [<RequireQualifiedAccess>]
@@ -332,6 +339,10 @@ module ErrorLoggerExtensions =
 
     /// Instruct the exception not to reset itself when thrown again.
     let PreserveStackTrace(exn) =
+#if FABLE_COMPILER
+        ignore exn
+        ()
+#else
         try 
             let preserveStackTrace = typeof<System.Exception>.GetMethod("InternalPreserveStackTrace", BindingFlags.Instance ||| BindingFlags.NonPublic)
             preserveStackTrace.Invoke(exn, null) |> ignore
@@ -339,7 +350,7 @@ module ErrorLoggerExtensions =
            // This is probably only the mono case.
            System.Diagnostics.Debug.Assert(false, "Could not preserve stack trace for watson exception.")
            ()
-
+#endif
 
     /// Reraise an exception if it is one we want to report to Watson.
     let ReraiseIfWatsonable(exn:exn) =
@@ -363,11 +374,12 @@ module ErrorLoggerExtensions =
     type ErrorLogger with  
 
         member x.ErrorR  exn = 
+#if !FABLE_COMPILER
             match exn with 
             | InternalError (s, _) 
             | Failure s  as exn -> System.Diagnostics.Debug.Assert(false, sprintf "Unexpected exception raised in compiler: %s\n%s" s (exn.ToString()))
             | _ -> ()
-
+#endif
             match exn with 
             | StopProcessing 
             | ReportedError _ -> 
@@ -645,7 +657,7 @@ let NormalizeErrorString (text : string) =
             | c ->
                 // handle remaining chars: control - replace with space, others - keep unchanged
                 let c = if Char.IsControl(c) then ' ' else c
-                buf.Append(c) |> ignore
+                buf.Append(string c) |> ignore
                 1
         i <- i + delta
     buf.ToString()

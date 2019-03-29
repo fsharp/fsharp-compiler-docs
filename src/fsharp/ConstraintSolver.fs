@@ -2061,7 +2061,7 @@ and CanMemberSigsMatchUpToCheck
                         match calledMeth.ParamArrayCallerArgs with
                         | Some args ->
                             for callerArg in args do
-                                do! subsumeArg (CalledArg((0, 0), false, NotOptional, NoCallerInfo, false, false, None, reflArgInfo, paramArrayElemTy)) callerArg
+                                do! subsumeArg (GetCalledArg((0, 0), false, NotOptional, NoCallerInfo, false, false, None, reflArgInfo, paramArrayElemTy)) callerArg
                         | _ -> ()
                 | _ -> ()
                 for argSet in calledMeth.ArgSets do
@@ -2083,7 +2083,7 @@ and CanMemberSigsMatchUpToCheck
                             let calledArgTy = rfinfo.FieldType
                             rfinfo.Name, calledArgTy
             
-                    do! subsumeArg (CalledArg((-1, 0), false, NotOptional, NoCallerInfo, false, false, Some (mkSynId m name), ReflectedArgInfo.None, calledArgTy)) caller
+                    do! subsumeArg (GetCalledArg((-1, 0), false, NotOptional, NoCallerInfo, false, false, Some (mkSynId m name), ReflectedArgInfo.None, calledArgTy)) caller
                 // - Always take the return type into account for
                 //      -- op_Explicit, op_Implicit
                 //      -- methods using tupling of unfilled out args

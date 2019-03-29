@@ -1,0 +1,3 @@
+# Codegen
+codegen/*.fs
+codegen/*.fsi

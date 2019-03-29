@@ -12,6 +12,9 @@ open FSharp.Compiler.CompileOps
 /// Represents the definitional contents of an assembly, as seen by the F# language
 type public FSharpAssemblyContents = 
 
+#if FABLE_COMPILER
+    internal new : cenv: SymbolEnv * mimpls: TypedImplFile list -> FSharpAssemblyContents
+#endif
     internal new : tcGlobals: TcGlobals * thisCcu: CcuThunk * thisCcuType: ModuleOrNamespaceType option * tcImports: TcImports * mimpls: TypedImplFile list -> FSharpAssemblyContents
 
     /// The contents of the implementation files in the assembly

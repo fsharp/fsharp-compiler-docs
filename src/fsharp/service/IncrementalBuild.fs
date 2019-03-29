@@ -27,6 +27,8 @@ open FSharp.Compiler.Range
 open FSharp.Compiler.SourceCodeServices
 open Internal.Utilities.Collections
 
+#if !FABLE_COMPILER
+
 [<AutoOpen>]
 module internal IncrementalBuild =
 
@@ -969,6 +971,21 @@ module internal IncrementalBuild =
         member b.GetInitialPartialBuild(inputs: BuildInput list) =
             ToBound(ToBuild outputs, inputs)   
 
+#endif //!FABLE_COMPILER
+
+
+#if FABLE_COMPILER
+// stub
+type IncrementalBuilder() =
+    member x.IncrementUsageCount () =
+        { new System.IDisposable with member __.Dispose() = () }
+    member x.IsAlive = false
+    static member KeepBuilderAlive (builderOpt: IncrementalBuilder option) = 
+        match builderOpt with 
+        | Some builder -> builder.IncrementUsageCount() 
+        | None -> { new System.IDisposable with member __.Dispose() = () }
+
+#else //!FABLE_COMPILER
 
         
 
@@ -1885,3 +1902,4 @@ type IncrementalBuilder(tcGlobals, frameworkTcImports, nonFrameworkAssemblyInput
 
     member __.IsBeingKeptAliveApartFromCacheEntry = (referenceCount >= 2)
 
+#endif //!FABLE_COMPILER

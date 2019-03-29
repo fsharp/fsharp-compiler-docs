@@ -92,9 +92,14 @@ let PrintCompilerOption (CompilerOption(_s, _tag, _spec, _, help) as compilerOpt
     let flagWidth = 42 // fixed width for printing of flags, e.g. --debug:{full|pdbonly|portable|embedded}
     let defaultLineWidth = 80 // the fallback width
     let lineWidth = 
+#if FABLE_COMPILER
+        defaultLineWidth
+#else
         try 
             System.Console.BufferWidth 
         with e -> defaultLineWidth
+#endif
+
     let lineWidth = if lineWidth=0 then defaultLineWidth else lineWidth (* Have seen BufferWidth=0 on Linux/Mono *)
     // Lines have this form: <flagWidth><space><description>
     //   flagWidth chars - for flags description or padding on continuation lines.
@@ -169,6 +174,7 @@ module ResponseFile =
         | CompilerOptionSpec of string
         | Comment of string
 
+#if !FABLE_COMPILER
     let parseFile path: Choice<ResponseFileData, Exception> =
         let parseLine (l: string) =
             match l with
@@ -186,6 +192,7 @@ module ResponseFile =
             Choice1Of2 data
         with e ->
             Choice2Of2 e
+#endif //!FABLE_COMPILER
 
 
 let ParseCompilerOptions (collectOtherArgument: string -> unit, blocks: CompilerOptionBlock list, args) =
@@ -245,6 +252,10 @@ let ParseCompilerOptions (collectOtherArgument: string -> unit, blocks: Compiler
     match args with 
     | [] -> ()
     | ((rsp: string) :: t) when rsp.StartsWithOrdinal("@") ->
+#if FABLE_COMPILER
+        ignore t
+        ()
+#else
         let responseFileOptions =
             let fullpath =
                 try
@@ -272,6 +283,7 @@ let ParseCompilerOptions (collectOtherArgument: string -> unit, blocks: Compiler
                     rspData |> List.choose onlyOptions
 
         processArg (responseFileOptions @ t)
+#endif //!FABLE_COMPILER
 
     | opt :: t ->  
 
@@ -552,7 +564,7 @@ let inputFileFlagsBoth (tcConfigB : TcConfigBuilder) =
 let referenceFlagAbbrev (tcConfigB: TcConfigBuilder) = 
         CompilerOption("r", tagFile, OptionString (fun s -> tcConfigB.AddReferencedAssemblyByPath (rangeStartup, s)), None,
                             Some(FSComp.SR.optsShortFormOf("--reference")) )
-      
+
 let inputFileFlagsFsi tcConfigB = inputFileFlagsBoth tcConfigB
 let inputFileFlagsFsc tcConfigB = inputFileFlagsBoth tcConfigB
 
@@ -835,10 +847,12 @@ let codePageFlag (tcConfigB: TcConfigBuilder) =
     CompilerOption
         ("codepage", tagInt,
          OptionInt (fun n -> 
+#if !FABLE_COMPILER
             try 
                 System.Text.Encoding.GetEncoding(n) |> ignore
             with :? System.ArgumentException as err -> 
                 error(Error(FSComp.SR.optsProblemWithCodepage(n, err.Message), rangeCmdArgs))
+#endif
 
             tcConfigB.inputCodePage <- Some(n)), None,
                 Some (FSComp.SR.optsCodepage()))
@@ -980,7 +994,9 @@ let testFlag tcConfigB =
                 | "FunctionSizes"    -> tcConfigB.optSettings <- { tcConfigB.optSettings with reportFunctionSizes = true }
                 | "TotalSizes"       -> tcConfigB.optSettings <- { tcConfigB.optSettings with reportTotalSizes = true }
                 | "HasEffect"        -> tcConfigB.optSettings <- { tcConfigB.optSettings with reportHasEffect = true }
+#if !FABLE_COMPILER
                 | "NoErrorText"      -> FSComp.SR.SwallowResourceText <- true
+#endif
                 | "EmitFeeFeeAs100001" -> tcConfigB.testFlagEmitFeeFeeAs100001 <- true
                 | "DumpDebugInfo"    -> tcConfigB.dumpDebugInfo <- true
                 | "ShowLoadedAssemblies" -> tcConfigB.showLoadedAssemblies <- true
@@ -1372,7 +1388,11 @@ let DisplayBannerText tcConfigB =
 let displayHelpFsc tcConfigB (blocks:CompilerOptionBlock list) =
     DisplayBannerText tcConfigB
     PrintCompilerOptionBlocks blocks
+#if FABLE_COMPILER
+    ()
+#else
     exit 0
+#endif
       
 let miscFlagsBoth tcConfigB = 
     [   CompilerOption("nologo", tagNone, OptionUnit (fun () -> tcConfigB.showBanner <- false), None, Some (FSComp.SR.optsNologo()))
@@ -1552,6 +1572,8 @@ let ApplyCommandLineArgs(tcConfigB: TcConfigBuilder, sourceFiles: string list, c
         sourceFiles
 
 
+#if !FABLE_COMPILER
+
 //----------------------------------------------------------------------------
 // PrintWholeAssemblyImplementation
 //----------------------------------------------------------------------------
@@ -1640,6 +1662,8 @@ let ReportTime (tcConfig:TcConfig) descr =
 
     nPrev := Some descr
 
+#endif //!FABLE_COMPILER
+
 //----------------------------------------------------------------------------
 // OPTIMIZATION - support - addDllToOptEnv
 //----------------------------------------------------------------------------
@@ -1659,13 +1683,18 @@ let GetInitialOptimizationEnv (tcImports:TcImports, tcGlobals:TcGlobals) =
     let optEnv = List.fold (AddExternalCcuToOpimizationEnv tcGlobals) optEnv ccuinfos 
     optEnv
    
-let ApplyAllOptimizations (tcConfig:TcConfig, tcGlobals, tcVal, outfile, importMap, isIncrementalFragment, optEnv, ccu:CcuThunk, implFiles) =
+let ApplyAllOptimizations (tcConfig:TcConfig, tcGlobals, tcVal, outfile:string, importMap, isIncrementalFragment, optEnv, ccu:CcuThunk, implFiles) =
     // NOTE: optEnv - threads through 
     //
     // Always optimize once - the results of this step give the x-module optimization 
     // info.  Subsequent optimization steps choose representations etc. which we don't 
     // want to save in the x-module info (i.e. x-module info is currently "high level"). 
+#if FABLE_COMPILER
+    ignore outfile
+#else
     PrintWholeAssemblyImplementation tcConfig outfile "pass-start" implFiles
+#endif
+
 #if DEBUG
     if tcConfig.showOptimizationData then 
         dprintf "Expression prior to optimization:\n%s\n" (Layout.showL (Layout.squashTo 192 (DebugPrint.implFilesL implFiles)))
@@ -1675,7 +1704,9 @@ let ApplyAllOptimizations (tcConfig:TcConfig, tcGlobals, tcVal, outfile, importM
 #endif
 
     let optEnv0 = optEnv
+#if !FABLE_COMPILER
     ReportTime tcConfig ("Optimizations")
+#endif
 
     // Only do abstract_big_targets on the first pass!  Only do it when TLR is on!  
     let optSettings = tcConfig.optSettings 
@@ -1753,11 +1784,13 @@ let ApplyAllOptimizations (tcConfig:TcConfig, tcGlobals, tcVal, outfile, importM
     let implFiles, implFileOptDatas = List.unzip results
     let assemblyOptData = Optimizer.UnionOptimizationInfos implFileOptDatas
     let tassembly = TypedAssemblyAfterOptimization(implFiles)
+#if !FABLE_COMPILER
     PrintWholeAssemblyImplementation tcConfig outfile "pass-end" (List.map fst implFiles)
     ReportTime tcConfig ("Ending Optimizations")
-
+#endif
     tassembly, assemblyOptData, optEnvFirstLoop
 
+#if !FABLE_COMPILER
 
 //----------------------------------------------------------------------------
 // ILX generation 
@@ -1845,3 +1878,5 @@ let DoWithErrorColor isError f =
         let errorColor = ConsoleColor.Red
         let color = if isError then errorColor else warnColor 
         DoWithColor color f
+
+#endif //!FABLE_COMPILER

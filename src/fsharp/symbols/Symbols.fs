@@ -71,7 +71,11 @@ module Impl =
          f
 
     let makeReadOnlyCollection (arr: seq<'T>) = 
+#if FABLE_COMPILER
+        System.Collections.Generic.List<_>(Seq.toArray arr) :> IList<_>
+#else
         System.Collections.ObjectModel.ReadOnlyCollection<_>(Seq.toArray arr) :> IList<_>
+#endif
         
     let makeXmlDoc (XmlDoc x) = makeReadOnlyCollection (x)
     
@@ -396,7 +400,7 @@ and FSharpEntity(cenv: SymbolEnv, entity:EntityRef) =
         let fail() = invalidOp (sprintf "the type '%s' does not have a qualified name" x.LogicalName)
 #if !NO_EXTENSIONTYPING
         if entity.IsTypeAbbrev || entity.IsProvidedErasedTycon || entity.IsNamespace then fail()
-        #else
+#else
         if entity.IsTypeAbbrev || entity.IsNamespace then fail()
 #endif
         match entity.CompiledRepresentation with 
@@ -413,7 +417,7 @@ and FSharpEntity(cenv: SymbolEnv, entity:EntityRef) =
         if isUnresolved() then None
 #if !NO_EXTENSIONTYPING
         elif entity.IsTypeAbbrev || entity.IsProvidedErasedTycon then None
-        #else
+#else
         elif entity.IsTypeAbbrev then None
 #endif
         elif entity.IsNamespace  then Some entity.DemangledModuleOrNamespaceName
@@ -452,6 +456,7 @@ and FSharpEntity(cenv: SymbolEnv, entity:EntityRef) =
     member __.ArrayRank  = 
         checkIsResolved()
         rankOfArrayTyconRef cenv.g entity
+
 #if !NO_EXTENSIONTYPING
     member __.IsProvided  = 
         isResolved() &&
@@ -469,6 +474,7 @@ and FSharpEntity(cenv: SymbolEnv, entity:EntityRef) =
         isResolved() &&
         entity.IsProvidedGeneratedTycon
 #endif
+
     member __.IsClass = 
         isResolved() &&
         match metadataOfTycon entity.Deref with
@@ -922,7 +928,11 @@ and FSharpField(cenv: SymbolEnv, d: FSharpFieldData)  =
         if isUnresolved() then None else 
         match d.TryRecdField with 
         | Choice1Of3 r -> getLiteralValue r.LiteralValue
+#if FABLE_COMPILER
+        | Choice2Of3 _f -> None
+#else
         | Choice2Of3 f -> f.LiteralValue |> Option.map AbstractIL.ILRuntimeWriter.convFieldInit 
+#endif
         | Choice3Of3 _ -> None
 
     member __.IsVolatile = 
@@ -1066,10 +1076,10 @@ and [<Class>] FSharpAccessibilityRights(thisCcu: CcuThunk, ad:AccessorDomain) =
 
     member internal __.Contents = ad
 
-and FSharpActivePatternCase(cenv, apinfo: PrettyNaming.ActivePatternInfo, ty, n, valOpt: ValRef option, item) = 
+and FSharpActivePatternCase(cenv, apinfo: PrettyNaming.ActivePatternInfo, ty, n, valOpt: ValRef option, item2) = 
 
     inherit FSharpSymbol (cenv, 
-                          (fun () -> item), 
+                          (fun () -> item2), 
                           (fun _ _ _ -> true))
 
     member __.Name = apinfo.ActiveTags.[n]
@@ -1353,10 +1363,10 @@ and FSharpMemberOrVal = FSharpMemberOrFunctionOrValue
 
 and FSharpMemberFunctionOrValue =  FSharpMemberOrFunctionOrValue
 
-and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) = 
+and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item2) = 
 
     inherit FSharpSymbol(cenv, 
-                         (fun () -> item), 
+                         (fun () -> item2), 
                          (fun this thisCcu2 ad -> 
                               let this = this :?> FSharpMemberOrFunctionOrValue 
                               checkForCrossProjectAccessibility (thisCcu2, ad) (cenv.thisCcu, this.Accessibility.Contents)) 
@@ -1409,7 +1419,7 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
         checkIsResolved()
         match d with
         | M m ->
-            match item with
+            match item2 with
             | Item.MethodGroup (_name, methodInfos, _) ->
                 let methods =
                     if matchParameterNumber then
@@ -1417,7 +1427,7 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
                         |> List.filter (fun methodInfo -> not (methodInfo.NumArgs = m.NumArgs) )
                     else methodInfos
                 methods
-                |> List.map (fun mi -> FSharpMemberOrFunctionOrValue(cenv, M mi, item))
+                |> List.map (fun mi -> FSharpMemberOrFunctionOrValue(cenv, M mi, item2))
                 |> makeReadOnlyCollection
                 |> Some
             | _ -> None
@@ -1983,7 +1993,9 @@ and FSharpMemberOrFunctionOrValue(cenv, d:FSharpMemberOrValData, item) =
 
     member x.IsValCompiledAsMethod =
         match d with
+#if !FABLE_COMPILER
         | V valRef -> IlxGen.IsFSharpValCompiledAsMethod cenv.g valRef.Deref
+#endif
         | _ -> false
 
     member x.IsValue =
@@ -2212,7 +2224,7 @@ and FSharpType(cenv, ty:TType) =
         |> makeReadOnlyCollection
 
     static member Prettify(parameter: FSharpParameter) = 
-        let prettyTy = parameter.V |> PrettyTypes.PrettifyType parameter.cenv.g |> fst
+        let prettyTy = parameter.V |> PrettyTypes.PrettifyType parameter.cenv2.g |> fst
         parameter.AdjustType(prettyTy)
 
     static member Prettify(parameters: IList<FSharpParameter>) = 
@@ -2220,7 +2232,7 @@ and FSharpType(cenv, ty:TType) =
         match parameters with 
         | [] -> []
         | h :: _ -> 
-            let cenv = h.cenv
+            let cenv = h.cenv2
             let prettyTys = parameters |> List.map (fun p -> p.V) |> PrettyTypes.PrettifyTypes cenv.g |> fst
             (parameters, prettyTys) ||> List.map2 (fun p pty -> p.AdjustType(pty))
         |> makeReadOnlyCollection
@@ -2231,14 +2243,14 @@ and FSharpType(cenv, ty:TType) =
         match hOpt with 
         | None -> xs
         | Some h -> 
-            let cenv = h.cenv
+            let cenv = h.cenv2
             let prettyTys = xs |> List.mapSquared (fun p -> p.V) |> PrettyTypes.PrettifyCurriedTypes cenv.g |> fst
             (xs, prettyTys) ||> List.map2 (List.map2 (fun p pty -> p.AdjustType(pty)))
         |> List.map makeReadOnlyCollection |> makeReadOnlyCollection
 
     static member Prettify(parameters: IList<IList<FSharpParameter>>, returnParameter: FSharpParameter) = 
         let xs = parameters |> List.ofSeq |> List.map List.ofSeq
-        let cenv = returnParameter.cenv
+        let cenv = returnParameter.cenv2
         let prettyTys, prettyRetTy = xs |> List.mapSquared (fun p -> p.V) |> (fun tys -> PrettyTypes.PrettifyCurriedSigTypes cenv.g (tys, returnParameter.V) )|> fst
         let ps = (xs, prettyTys) ||> List.map2 (List.map2 (fun p pty -> p.AdjustType(pty))) |> List.map makeReadOnlyCollection |> makeReadOnlyCollection
         ps, returnParameter.AdjustType(prettyRetTy)
@@ -2329,7 +2341,7 @@ and FSharpParameter(cenv, paramTy:TType, topArgInfo:ArgReprInfo, mOpt, isParamAr
 
     member __.Name = match idOpt with None -> None | Some v -> Some v.idText
 
-    member __.cenv: SymbolEnv = cenv
+    member __.cenv2: SymbolEnv = cenv
 
     member __.AdjustType(t) = FSharpParameter(cenv, t, topArgInfo, mOpt, isParamArrayArg, isInArg, isOutArg, isOptionalArg)
 

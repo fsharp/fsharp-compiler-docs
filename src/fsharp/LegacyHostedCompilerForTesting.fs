@@ -122,18 +122,33 @@ type internal FscCompiler(legacyReferenceResolver) =
 
     /// test if --test:ErrorRanges flag is set
     let errorRangesArg =
+#if FABLE_COMPILER
+        arg.Equals(@"/test:ErrorRanges", StringComparison.OrdinalIgnoreCase) ||
+        arg.Equals(@"--test:ErrorRanges", StringComparison.OrdinalIgnoreCase)
+#else
         let regex = Regex(@"^(/|--)test:ErrorRanges$", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
         fun arg -> regex.IsMatch(arg)
+#endif
 
     /// test if --vserrors flag is set
     let vsErrorsArg =
+#if FABLE_COMPILER
+        arg.Equals(@"/vserrors", StringComparison.OrdinalIgnoreCase) ||
+        arg.Equals(@"--vserrors", StringComparison.OrdinalIgnoreCase)
+#else
         let regex = Regex(@"^(/|--)vserrors$", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
         fun arg -> regex.IsMatch(arg)
+#endif
 
     /// test if an arg is a path to fsc.exe
     let fscExeArg = 
+#if FABLE_COMPILER
+        arg.EndsWith(@"fsc", StringComparison.OrdinalIgnoreCase) ||
+        arg.EndsWith(@"fsc.exe", StringComparison.OrdinalIgnoreCase)
+#else
         let regex = Regex(@"fsc(\.exe)?$", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
         fun arg -> regex.IsMatch(arg)
+#endif
 
     /// do compilation as if args was argv to fsc.exe
     member this.Compile(args : string array) =

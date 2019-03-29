@@ -6,6 +6,12 @@ module internal FSharp.Compiler.AbstractIL.Diagnostics
 
 open Internal.Utilities
 
+#if FABLE_COMPILER
+let dprintf fmt = printf fmt
+let dprintfn fmt = printfn fmt
+let dprintn s = printfn "%s" s
+#else
+
 let diagnosticsLog = ref (Some stdout)
 
 let setDiagnosticsChannel s = diagnosticsLog := s 
@@ -21,3 +27,4 @@ let dprintf (fmt: Format<_,_,_,_>) =
 let dprintfn (fmt: Format<_,_,_,_>) = 
     Printf.kfprintf dflushn (match !diagnosticsLog with None -> System.IO.TextWriter.Null | Some d -> d) fmt
 
+#endif

@@ -447,7 +447,7 @@ module internal DescriptionListsImpl =
     /// Get rid of groups of overloads an replace them with single items.
     /// (This looks like it is doing the a similar thing as FlattenItems, this code 
     /// duplication could potentially be removed)
-    let AnotherFlattenItems g m item =
+    let AnotherFlattenItems g _m item =
         match item with 
         | Item.CtorGroup(nm, cinfos) -> List.map (fun minfo -> Item.CtorGroup(nm, [minfo])) cinfos 
         | Item.FakeInterfaceCtor _
@@ -467,7 +467,7 @@ module internal DescriptionListsImpl =
             let pinfo = List.head pinfos 
             if pinfo.IsIndexer then [item] else []
 #if !NO_EXTENSIONTYPING
-        | SymbolHelpers.ItemIsWithStaticArguments m g _ -> 
+        | SymbolHelpers.ItemIsWithStaticArguments _m g _ -> 
             // we pretend that provided-types-with-static-args are method-like in order to get ParamInfo for them
             [item] 
 #endif
@@ -480,18 +480,21 @@ module internal DescriptionListsImpl =
 
 /// An intellisense declaration
 [<Sealed>]
-type FSharpDeclarationListItem(name: string, nameInCode: string, fullName: string, glyph: FSharpGlyph, info, accessibility: FSharpAccessibility option,
+type FSharpDeclarationListItem(name: string, nameInCode: string, fullName: string, glyph: FSharpGlyph, _info, accessibility: FSharpAccessibility option,
                                kind: CompletionItemKind, isOwnMember: bool, priority: int, isResolved: bool, namespaceToOpen: string option) =
 
+#if !FABLE_COMPILER
     let mutable descriptionTextHolder: FSharpToolTipText<_> option = None
     let mutable task = null
+#endif
 
     member __.Name = name
     member __.NameInCode = nameInCode
 
+#if !FABLE_COMPILER
     member __.StructuredDescriptionTextAsync = 
         let userOpName = "ToolTip"
-        match info with
+        match _info with
         | Choice1Of2 (items: CompletionItem list, infoReader, m, denv, reactor:IReactorOperations, checkAlive) -> 
             // reactor causes the lambda to execute on the background compiler thread, through the Reactor
             reactor.EnqueueAndAwaitOpAsync (userOpName, "StructuredDescriptionTextAsync", name, fun ctok -> 
@@ -518,7 +521,7 @@ type FSharpDeclarationListItem(name: string, nameInCode: string, fullName: strin
         match descriptionTextHolder with
         | Some descriptionText -> descriptionText
         | None ->
-            match info with
+            match _info with
             | Choice1Of2 _ -> 
                 // The dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
                 // This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
@@ -539,7 +542,9 @@ type FSharpDeclarationListItem(name: string, nameInCode: string, fullName: strin
                 result
        )
        (fun err -> FSharpToolTipText [FSharpStructuredToolTipElement.CompositionError err])
+
     member decl.DescriptionText = decl.StructuredDescriptionText |> Tooltips.ToFSharpToolTipText
+#endif
     member __.Glyph = glyph 
     member __.Accessibility = accessibility
     member __.Kind = kind
@@ -559,7 +564,7 @@ type FSharpDeclarationListInfo(declarations: FSharpDeclarationListItem[], isForT
     member __.IsError = isError
 
     // Make a 'Declarations' object for a set of selected items
-    static member Create(infoReader:InfoReader, m, denv, getAccessibility, items: CompletionItem list, reactor, currentNamespaceOrModule: string[] option, isAttributeApplicationContext: bool, checkAlive) = 
+    static member Create(infoReader:InfoReader, m:range, denv, getAccessibility, items: CompletionItem list, reactor:IReactorOperations, currentNamespaceOrModule: string[] option, isAttributeApplicationContext: bool, checkAlive:(unit -> bool)) = 
         let g = infoReader.g
         let isForType = items |> List.exists (fun x -> x.Type.IsSome)
         let items = items |> SymbolHelpers.RemoveExplicitlySuppressedCompletionItems g

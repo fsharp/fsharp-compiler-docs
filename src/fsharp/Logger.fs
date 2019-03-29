@@ -5,6 +5,13 @@ namespace FSharp.Compiler
 open System.Diagnostics.Tracing
 open System
 
+#if FABLE_COMPILER
+type EventSource() =
+    member this.IsEnabled() = false
+    member this.WriteEvent(_eventId:int, _arg1:int) = ()
+    member this.WriteEvent(_eventId:int, _arg1:string, _arg2:int) = ()
+#endif
+
 type LogCompilerFunctionId =
     | Service_ParseAndCheckFileInProject = 1
     | Service_CheckOneFile = 2

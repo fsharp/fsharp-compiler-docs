@@ -336,16 +336,16 @@ module internal ExtensionTyping =
             match ctxt with 
             | NoEntries -> None 
             | Entries(d, _) -> 
-                let mutable res = Unchecked.defaultof<_>
-                if d.TryGetValue(st, &res) then Some res else None
+                let ok, res = d.TryGetValue(st)
+                if ok then Some res else None
 
         member ctxt.TryGetTyconRef(st) = 
             match ctxt with 
             | NoEntries -> None 
             | Entries(_, d) -> 
                 let d = d.Force()
-                let mutable res = Unchecked.defaultof<_>
-                if d.TryGetValue(st, &res) then Some res else None
+                let ok, res = d.TryGetValue(st)
+                if ok then Some res else None
 
         member ctxt.RemapTyconRefs (f: obj->obj) = 
             match ctxt with 

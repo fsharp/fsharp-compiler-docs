@@ -12321,8 +12321,13 @@ module TcRecdUnionAndEnumDeclarations = begin
     let ValidateFieldNames (synFields: SynField list, tastFields: RecdField list) = 
         let seen = Dictionary()
         for (sf, f) in List.zip synFields tastFields do
+#if FABLE_COMPILER
+            let ok, synField = seen.TryGetValue(f.Name)
+            if ok then
+#else
             let mutable synField = Unchecked.defaultof<_>
             if seen.TryGetValue(f.Name, &synField) then
+#endif
                 match sf, synField with
                 | Field(_, _, Some(id), _, _, _, _, _), Field(_, _, Some(_), _, _, _, _, _) ->
                     error(Error(FSComp.SR.tcFieldNameIsUsedModeThanOnce(id.idText), id.idRange))

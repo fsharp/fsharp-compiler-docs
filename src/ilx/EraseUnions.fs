@@ -587,8 +587,12 @@ let emitDataSwitch ilg (cg: ICodeGen<'Mark>) (avoidHelpers, cuspec, cases) =
         for (i,case) in cases do dict.[i] <- case
         let failLab = cg.GenerateDelayMark ()
         let emitCase i _ = 
+#if FABLE_COMPILER
+            let ok, res = dict.TryGetValue(i)
+#else
             let mutable res = Unchecked.defaultof<_>
             let ok = dict.TryGetValue(i, &res)
+#endif
             if ok then res else cg.CodeLabel failLab
 
         let dests = Array.mapi emitCase cuspec.AlternativesArray
@@ -614,7 +618,7 @@ let mkMethodsAndPropertiesForFields (addMethodGeneratedAttrs, addPropertyGenerat
     let basicProps = 
         fields 
         |> Array.map (fun field -> 
-            ILPropertyDef(name = adjustFieldName hasHelpers field.Name,
+            ILPropertyDef.Create(name = adjustFieldName hasHelpers field.Name,
                           attributes = PropertyAttributes.None,
                           setMethod = None,
                           getMethod = Some (mkILMethRef (ilTy.TypeRef, ILCallingConv.Instance, "get_" + adjustFieldName hasHelpers field.Name, 0, [], field.Type)),
@@ -698,7 +702,7 @@ let convAlternativeDef (addMethodGeneratedAttrs, addPropertyGeneratedAttrs, addP
                           mkMethodBody(true,[],2,nonBranchingInstrsToCode 
                                     ([ mkLdarg0 ] @ mkIsData ilg (true, cuspec, num)), attr))
                       |> addMethodGeneratedAttrs ],
-                    [ ILPropertyDef(name = mkTesterName altName,
+                    [ ILPropertyDef.Create(name = mkTesterName altName,
                                     attributes = PropertyAttributes.None,
                                     setMethod = None,
                                     getMethod = Some (mkILMethRef (baseTy.TypeRef, ILCallingConv.Instance, "get_" + mkTesterName altName, 0, [], ilg.typ_Bool)),
@@ -726,7 +730,7 @@ let convAlternativeDef (addMethodGeneratedAttrs, addPropertyGeneratedAttrs, addP
 
                     let nullaryProp = 
                          
-                        ILPropertyDef(name = altName,
+                        ILPropertyDef.Create(name = altName,
                                       attributes = PropertyAttributes.None,
                                       setMethod = None,
                                       getMethod = Some (mkILMethRef (baseTy.TypeRef, ILCallingConv.Static, "get_" + altName, 0, [], baseTy)),
@@ -827,7 +831,7 @@ let convAlternativeDef (addMethodGeneratedAttrs, addPropertyGeneratedAttrs, addP
                     let debugProxyGetterProps =
                         fields 
                         |> Array.map (fun fdef -> 
-                            ILPropertyDef(name = fdef.Name,
+                            ILPropertyDef.Create(name = fdef.Name,
                                           attributes = PropertyAttributes.None,
                                           setMethod = None,
                                           getMethod = Some(mkILMethRef(debugProxyTy.TypeRef,ILCallingConv.Instance,"get_" + fdef.Name,0,[],fdef.Type)),
@@ -1039,7 +1043,7 @@ let mkClassUnionDef (addMethodGeneratedAttrs, addPropertyGeneratedAttrs, addProp
               [ mkILNonGenericInstanceMethod("get_" + tagPropertyName,cud.cudHelpersAccess,[],mkILReturn tagFieldType,body) 
                 |> addMethodGeneratedAttrs ], 
           
-              [ ILPropertyDef(name = tagPropertyName,
+              [ ILPropertyDef.Create(name = tagPropertyName,
                               attributes = PropertyAttributes.None,
                               setMethod = None,
                               getMethod = Some(mkILMethRef(baseTy.TypeRef,ILCallingConv.Instance,"get_" + tagPropertyName,0,[], tagFieldType)),
@@ -1066,7 +1070,7 @@ let mkClassUnionDef (addMethodGeneratedAttrs, addPropertyGeneratedAttrs, addProp
             None
         else
             let tdef = 
-                ILTypeDef(name = "Tags",
+                ILTypeDef.Create(name = "Tags",
                           nestedTypes = emptyILTypeDefs,
                           genericParams= td.GenericParams,
                           attributes = enum 0,

@@ -8,4 +8,7 @@ open Internal.Utilities.Text.Lexing
 type Lexbuf =  LexBuffer<LexBufferChar>
 val internal StringAsLexbuf : string -> Lexbuf
 val public FunctionAsLexbuf : (LexBufferChar[] * int * int -> int) -> Lexbuf
+
+#if !FABLE_COMPILER
 val public UnicodeFileAsLexbuf :string * int option * (*retryLocked*) bool -> Lexbuf
+#endif

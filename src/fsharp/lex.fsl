@@ -48,10 +48,10 @@ let fail args (lexbuf:UnicodeLexing.Lexbuf) msg dflt =
 // version of the F# core library parsing code with the call to "Trim"
 // removed, which appears in profiling runs as a small but significant cost.
 
-let getSign32 (s:string) (p:byref<int>) l = 
+let getSign32 (s:string) (p:int) l = 
     if (l >= p + 1 && s.[p] = '-') 
-    then p <- p + 1; -1 
-    else 1 
+    then -1, p + 1
+    else 1, p 
 
 let isOXB c = 
     let c = Char.ToLowerInvariant c
@@ -59,10 +59,11 @@ let isOXB c =
 
 let is0OXB (s:string) p l = 
     l >= p + 2 && s.[p] = '0' && isOXB s.[p+1]
-let get0OXB (s:string) (p:byref<int>)  l = 
+
+let get0OXB (s:string) (p:int) l = 
     if is0OXB s p l
-    then let r = Char.ToLowerInvariant s.[p+1] in p <- p + 2; r
-    else 'd' 
+    then let r = Char.ToLowerInvariant s.[p+1] in r, p + 2
+    else 'd', p
 
 let formatError() = raise (new System.FormatException(SR.GetString("bad format string")))
 
@@ -82,18 +83,26 @@ let removeUnderscores (s:string) =
 let parseInt32 (s:string) = 
     let s = removeUnderscores s
     let l = s.Length 
-    let mutable p = 0 
-    let sign = getSign32 s &p l 
-    let specifier = get0OXB s &p l 
+    let p = 0 
+    let sign, p = getSign32 s p l 
+    let specifier, p = get0OXB s p l 
 #if FX_RESHAPED_GLOBALIZATION
     match CultureInfo.InvariantCulture.TextInfo.ToLower(specifier) with 
 #else
-    match Char.ToLower(specifier,CultureInfo.InvariantCulture) with 
+    match Char.ToLowerInvariant(specifier) with 
 #endif
-    | 'x' -> sign * (int32 (Convert.ToUInt32(UInt64.Parse(s.Substring(p), NumberStyles.AllowHexSpecifier,CultureInfo.InvariantCulture))))
-    | 'b' -> sign * (int32 (Convert.ToUInt32(parseBinaryUInt64 s p l)))
-    | 'o' -> sign * (int32 (Convert.ToUInt32(parseOctalUInt64 s p l)))
+#if FABLE_COMPILER
+    | 'x' -> sign * Convert.ToInt32(s.Substring(p), 16)
+#else
+    | 'x' -> sign * (int32 (uint32(UInt64.Parse(s.Substring(p), NumberStyles.AllowHexSpecifier,CultureInfo.InvariantCulture))))
+#endif
+    | 'b' -> sign * (int32 (uint32(parseBinaryUInt64 s p l)))
+    | 'o' -> sign * (int32 (uint32(parseOctalUInt64 s p l)))
+#if FABLE_COMPILER
+    | _ -> Convert.ToInt32(s)
+#else
     | _ -> Int32.Parse(s, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture)
+#endif
      
 let lexemeTrimRightToInt32 args lexbuf n = 
     try parseInt32 (lexemeTrimRight lexbuf n)
@@ -358,16 +367,25 @@ rule token args skip = parse
      }
  | xieee32     
      { 
+#if FABLE_COMPILER
+       fail args lexbuf (FSComp.SR.lexInvalidFloat()) (IEEE32 0.0f)
+#else
        let s = removeUnderscores (lexemeTrimRight lexbuf 2)
        // Even though the intermediate step is an int64, display the "invalid float" message, since it will be less confusing to the user 
        let n64 = (try (int64 s) with _ -> fail args lexbuf (FSComp.SR.lexInvalidFloat()) 0L) 
        if n64 > 0xFFFFFFFFL || n64 < 0L then fail args lexbuf (FSComp.SR.lexOusideThirtyTwoBitFloat()) (IEEE32 0.0f) else
-       IEEE32 (System.BitConverter.ToSingle(System.BitConverter.GetBytes(int32 (uint32 (uint64 n64))),0)) }
-
+       IEEE32 (System.BitConverter.ToSingle(System.BitConverter.GetBytes(int32 (uint32 (uint64 n64))),0))
+#endif
+     }
  | xieee64     
      { 
+#if FABLE_COMPILER
+       fail args lexbuf (FSComp.SR.lexInvalidFloat()) (IEEE64 0.0)
+#else
        let n64 = (try int64 (removeUnderscores (lexemeTrimRight lexbuf 2)) with _ -> fail args lexbuf (FSComp.SR.lexInvalidFloat()) 0L) 
-       IEEE64 (System.BitConverter.Int64BitsToDouble(n64)) }
+       IEEE64 (System.BitConverter.Int64BitsToDouble(n64))
+#endif
+     }
        
  | bignum     
        { let s = lexeme lexbuf 

@@ -19,7 +19,11 @@ open System.Collections.Generic
 
 module QP = FSharp.Compiler.QuotationPickler
 
+#if FABLE_COMPILER
+let verboseCReflect = false
+#else
 let verboseCReflect = condition "VERBOSE_CREFLECT"
+#endif
 
 [<RequireQualifiedAccess>]
 type IsReflectedDefinition =

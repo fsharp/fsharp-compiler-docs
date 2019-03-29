@@ -572,8 +572,12 @@ let GetInfoForLocalValue cenv env (v: Val) m =
     // Abstract slots do not have values 
     if v.IsDispatchSlot then UnknownValInfo 
     else
+#if FABLE_COMPILER
+        let ok, res = cenv.localInternalVals.TryGetValue(v.Stamp)
+#else
         let mutable res = Unchecked.defaultof<_> 
         let ok = cenv.localInternalVals.TryGetValue(v.Stamp, &res)
+#endif
         if ok then res else
         match env.localExternalVals.TryFind v.Stamp with 
         | Some vval -> vval
@@ -606,7 +610,12 @@ let TryGetInfoForNonLocalEntityRef env (nleref: NonLocalEntityRef) =
 let GetInfoForNonLocalVal cenv env (vref: ValRef) =
     if vref.IsDispatchSlot then 
         UnknownValInfo
-    // REVIEW: optionally turn x-module on/off on per-module basis or  
+#if FABLE_COMPILER
+    // no inlining for FSharp.Core
+    elif vref.ToString().StartsWith("Microsoft.FSharp.") then 
+        UnknownValInfo
+#endif
+    // REVIEW: optionally turn x-module on/off on per-module basis  or  
     elif cenv.settings.crossModuleOpt () || vref.MustInline then 
         match TryGetInfoForNonLocalEntityRef env vref.nlr.EnclosingEntity.nlr with
         | Some(structInfo) ->
@@ -2466,7 +2475,12 @@ and OptimizeVal cenv env expr (v: ValRef, m) =
            e, AddValEqualityInfo cenv.g m v einfo 
 
     | None -> 
-       if v.MustInline then error(Error(FSComp.SR.optFailedToInlineValue(v.DisplayName), m))
+       if v.MustInline 
+#if FABLE_COMPILER
+            // no inlining for FSharp.Core
+            && not (v.ToString().StartsWith("Microsoft.FSharp."))
+#endif
+       then error(Error(FSComp.SR.optFailedToInlineValue(v.DisplayName), m))
        expr, (AddValEqualityInfo cenv.g m v 
                     { Info=valInfoForVal.ValExprInfo 
                       HasEffect=false 

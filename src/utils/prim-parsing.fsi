@@ -7,7 +7,18 @@ namespace Internal.Utilities.Text.Parsing
 open Internal.Utilities
 open Internal.Utilities.Text.Lexing
 
+#if FABLE_COMPILER
+type Stack<'T> =
+    new : int -> Stack<'T>
+    member Count : int
+    member Pop : unit -> 'T
+    member Peep : unit -> 'T
+    member Top : int -> 'T list
+    member Push : 'T -> unit
+    member IsEmpty : bool
+#else
 open System.Collections.Generic
+#endif
 
 [<Sealed>]
 type internal IParseState = 

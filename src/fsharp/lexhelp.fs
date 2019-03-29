@@ -43,12 +43,18 @@ type LightSyntaxStatus(initial:bool,warn:bool) =
 type LexResourceManager() =
     let strings = new System.Collections.Generic.Dictionary<string, Parser.token>(1024)
     member x.InternIdentifierToken(s) = 
+#if FABLE_COMPILER
+        let ok, res = strings.TryGetValue(s)
+#else
         let mutable res = Unchecked.defaultof<_> 
         let ok = strings.TryGetValue(s, &res)  
-        if ok then res  else 
-        let res = IDENT s
-        (strings.[s] <- res; res)
-              
+#endif
+        if ok then res 
+        else 
+            let res = IDENT s
+            strings.[s] <- res
+            res
+
 /// Lexer parameters 
 type lexargs =  
     { defines: string list
@@ -329,7 +335,11 @@ module Keywords =
                     if String.IsNullOrWhiteSpace(filename) then
                         String.Empty
                     else if filename = stdinMockFilename then
+#if !FABLE_COMPILER
                         System.IO.Directory.GetCurrentDirectory()
+#else //FABLE_COMPILER
+                        "."
+#endif
                     else
                         filename 
                         |> FileSystem.GetFullPathShim (* asserts that path is already absolute *)

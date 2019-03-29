@@ -28,7 +28,7 @@ let dotnetExePath =
     if File.Exists(pathToCli) then
         pathToCli
     else
-        DotNetCli.InstallDotNetSDK "2.1.504"
+        DotNetCli.InstallDotNetSDK "2.2.105"
 
 let runDotnet workingDir args =
     let result =
@@ -89,20 +89,22 @@ Target "BuildVersion" (fun _ ->
 
 Target "Build" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ "build ../src/buildtools/buildtools.proj -v n -c Proto"
-    runDotnet __SOURCE_DIRECTORY__ "build FSharp.Compiler.Service.sln -v n -c release"
+    let fslexPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fslex/Proto/netcoreapp2.0/fslex.dll"
+    let fsyaccPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fsyacc/Proto/netcoreapp2.0/fsyacc.dll"
+    runDotnet __SOURCE_DIRECTORY__ (sprintf "build FSharp.Compiler.Service.sln -v n -c Release /p:FsLexPath=%s /p:FsYaccPath=%s" fslexPath fsyaccPath)
 )
 
 Target "Test" (fun _ ->
     // This project file is used for the netcoreapp2.0 tests to work out reference sets
-    runDotnet __SOURCE_DIRECTORY__ "restore ../tests/projects/Sample_NETCoreSDK_FSharp_Library_netstandard2_0/Sample_NETCoreSDK_FSharp_Library_netstandard2_0.fsproj -v n"
-    runDotnet __SOURCE_DIRECTORY__ "build ../tests/projects/Sample_NETCoreSDK_FSharp_Library_netstandard2_0/Sample_NETCoreSDK_FSharp_Library_netstandard2_0.fsproj -v n"
+    runDotnet __SOURCE_DIRECTORY__ "build ../tests/projects/Sample_NETCoreSDK_FSharp_Library_netstandard2_0/Sample_NETCoreSDK_FSharp_Library_netstandard2_0.fsproj -v n /restore /p:DisableCompilerRedirection=true"
 
     // Now run the tests
-    runDotnet __SOURCE_DIRECTORY__ "test FSharp.Compiler.Service.Tests/FSharp.Compiler.Service.Tests.fsproj --no-restore --no-build -v n -c release"
+    let logFilePath = Path.Combine(__SOURCE_DIRECTORY__, "..", "artifacts", "TestResults", "Release", "FSharp.Compiler.Service.Test.xml")
+    runDotnet __SOURCE_DIRECTORY__ (sprintf "test FSharp.Compiler.Service.Tests/FSharp.Compiler.Service.Tests.fsproj --no-restore --no-build -v n -c Release --test-adapter-path . --logger \"nunit;LogFilePath=%s\"" logFilePath)
 )
 
 Target "NuGet" (fun _ ->
-    runDotnet __SOURCE_DIRECTORY__ "pack FSharp.Compiler.Service.sln -v n -c release"
+    runDotnet __SOURCE_DIRECTORY__ "pack FSharp.Compiler.Service.sln -v n -c Release"
 )
 
 Target "GenerateDocsEn" (fun _ ->

@@ -159,29 +159,12 @@ let mkTestFileAndOptions source additionalArgs =
     let project = Path.GetTempFileName()
     let dllName = Path.ChangeExtension(project, ".dll")
     let projFileName = Path.ChangeExtension(project, ".fsproj")
-    File.WriteAllText(fileName, source)
+    let fileSource1 = "module M"
+    File.WriteAllText(fileName, fileSource1)
 
     let args = Array.append (mkProjectCommandLineArgs (dllName, [fileName])) additionalArgs
     let options = checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
     fileName, options
-
-let getProjectReferences (content, dllFiles) = 
-    let fileName, options = 
-      mkTestFileAndOptions content 
-       [| for dllFile in dllFiles do
-            yield "-r:"+dllFile |]
-    let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
-    if results.HasCriticalErrors then
-        let builder = new System.Text.StringBuilder()
-        for err in results.Errors do
-            builder.AppendLine(sprintf "**** %s: %s" (if err.Severity = FSharpErrorSeverity.Error then "error" else "warning") err.Message)
-            |> ignore
-        failwith (builder.ToString())
-    let assemblies =
-        results.ProjectContext.GetReferencedAssemblies()
-        |> List.map(fun x -> x.SimpleName, x)
-        |> dict
-    results, assemblies
 
 let parseAndCheckFile fileName source options =
     match checker.ParseAndCheckFileInProject(fileName, 0, source, options) |> Async.RunSynchronously with

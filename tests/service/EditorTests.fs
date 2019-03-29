@@ -36,17 +36,12 @@ open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
 let stringMethods = 
-    ["Chars"; "Clone"; "CompareTo"; "Contains"; "CopyTo";
-    "EndsWith"; "Equals"; "GetEnumerator"; "GetHashCode"; "GetType"; "GetTypeCode";
-    "IndexOf"; "IndexOfAny"; "Insert"; "IsNormalized"; "LastIndexOf"; "LastIndexOfAny";
+    ["Chars"; "Clone"; "CompareTo"; "Contains"; "CopyTo"; "EndsWith"; "Equals";
+    "GetEnumerator"; "GetHashCode"; "GetType"; "GetTypeCode"; "IndexOf";
+    "IndexOfAny"; "Insert"; "IsNormalized"; "LastIndexOf"; "LastIndexOfAny";
     "Length"; "Normalize"; "PadLeft"; "PadRight"; "Remove"; "Replace"; "Split";
     "StartsWith"; "Substring"; "ToCharArray"; "ToLower"; "ToLowerInvariant";
-    "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"; ]
-
-// opening System introduces these methods, and some samples here, do this and then assert
-// on the string methods, so here we adjust the 'expected' list to include the new methods
-let stringMethodsWhenSystemNamespaceOpened =
-    ["AsMemory"; "AsSpan"] @ stringMethods
+    "ToString"; "ToUpper"; "ToUpperInvariant"; "Trim"; "TrimEnd"; "TrimStart"]
 
 let input = 
   """

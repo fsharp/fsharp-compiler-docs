@@ -1,3 +1,10 @@
+#### 30.0.0
+  * Integrate dotnet/fsharp master from 419a4c71b (2019-05-03) to 25560f477 (2019-05-24)
+  * Notable improvements include
+    * Dependency updates
+    * Checking for constructors in FSharpMemberOrFunctionOrValue..ctor(cenv, minfo)
+    * Fix unused opens false positive for record fields
+
 #### 29.0.0
   * Integrate visualfsharp master from 165b736b9 (2019-03-29) to 419a4c71b (2019-05-03)
   * Notable improvements include:

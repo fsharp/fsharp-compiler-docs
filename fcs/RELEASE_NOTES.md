@@ -7,7 +7,7 @@
     * Moving on from net46 targeting
     * Fixes for anonymous record generation
     * Dependency updates
-    * Checking for constructors in FSharpMemberOrFunctionOrValue..ctor(cenv, minfo)
+    * Checking for constructors in FSharpMemberOrFunctionOrValue
     * Fix unused opens false positive for record fields
 
 #### 28.0.0

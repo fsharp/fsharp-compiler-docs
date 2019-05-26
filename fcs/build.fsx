@@ -103,8 +103,19 @@ Target "Test" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ (sprintf "test FSharp.Compiler.Service.Tests/FSharp.Compiler.Service.Tests.fsproj --no-restore --no-build -v n -c Release --test-adapter-path . --logger \"nunit;LogFilePath=%s\"" logFilePath)
 )
 
+// escape a string's content so that it can be passed on the command line
+let escapeString (s: string) =
+  let replaced = s.Replace("\"", "\\\"")
+  sprintf "\"%s\"" replaced
+
 Target "NuGet" (fun _ ->
-    runDotnet __SOURCE_DIRECTORY__ "pack FSharp.Compiler.Service.sln -v n -c Release"
+    let props =
+      [ "PackageVersion", (string release.NugetVersion)
+        "PackageReleaseNotes", release.Notes |> String.concat "\n"]
+      |> Seq.map (fun (prop, value) -> sprintf "-p:%s=%s" prop (escapeString value))
+      |> String.concat " "
+
+    runDotnet __SOURCE_DIRECTORY__ (sprintf "pack FSharp.Compiler.Service.sln -v n -c Release %s" props)
 )
 
 Target "GenerateDocsEn" (fun _ ->

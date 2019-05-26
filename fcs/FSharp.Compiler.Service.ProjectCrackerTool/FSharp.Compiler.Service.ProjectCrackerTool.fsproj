@@ -6,8 +6,6 @@
   <Import Project="..\netfx.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net461</TargetFrameworks>
-    <OutputType>Exe</OutputType>
     <TargetFrameworks>$(FcsTargetNetFxFramework)</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <DefineConstants>$(DefineConstants);CROSS_PLATFORM_COMPILER</DefineConstants>
@@ -21,6 +19,8 @@
     <Compile Include="Program.fs" />
     <None Include="App.config" />
     <None Include="FSharp.Compiler.Service.ProjectCracker.targets" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.Runtime" />
     <Reference Include="System.IO" />
     <PackageReference Include="FSharp.Core" Version="$(FcsFSharpCorePkgVersion)" />

@@ -3,11 +3,12 @@
   <PropertyGroup>
     <FSharpSourcesRoot>$(MSBuildProjectDirectory)\..\..\src</FSharpSourcesRoot>
   </PropertyGroup>
-  <Import Project="..\fcs.props" />
   <Import Project="..\netfx.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net461</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>$(FcsTargetNetFxFramework)</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <DefineConstants>$(DefineConstants);CROSS_PLATFORM_COMPILER</DefineConstants>
     <DefineConstants>$(DefineConstants);ENABLE_MONO_SUPPORT</DefineConstants>
@@ -45,6 +46,8 @@
       <HintPath>$(FSharpSourcesRoot)\..\fcs\dependencies\MSBuild.v12.0\Microsoft.Build.Tasks.v12.0.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <PackageReference Include="FSharp.Core" Version="$(FcsFSharpCorePkgVersion)" />
+    <PackageReference Include="FSharp.Compiler.Service.MSBuild.v12.0" Version="1.0.0" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

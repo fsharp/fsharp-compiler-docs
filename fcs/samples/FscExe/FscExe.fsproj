@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\fcs.props" />
   <Import Project="..\..\netfx.props" />
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
+    <TargetFrameworks>$(FcsTargetNetFxFramework)</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
@@ -18,6 +18,10 @@
     <ProjectReference Include="..\..\FSharp.Compiler.Service\FSharp.Compiler.Service.fsproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <PackageReference Include="FSharp.Core" Version="$(FcsFSharpCorePkgVersion)" />
+    <ProjectReference Include="..\..\FSharp.Compiler.Service\FSharp.Compiler.Service.fsproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == '$(FcsTargetNetFxFramework)'">
     <Reference Include="System.Runtime" />
     <Reference Include="System.IO" />
   </ItemGroup>

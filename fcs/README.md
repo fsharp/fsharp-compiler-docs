@@ -28,7 +28,7 @@ There are subtle differences between FSharp.Compiler.Service and FSharp.Compiler
 FCS uses its own version number sequence for assemblies and packages, approximately following SemVer rules.
 To update the version number a global replace through fcs\... is currently needed, e.g.
 
-   fcs.props
+   Directory.Build.props
    nuget/FSharp.Compiler.Service.nuspec
    nuget/FSharp.Compiler.Service.MSBuild.v12.nuspec
    nuget/FSharp.Compiler.Service.ProjectCracker.nuspec
@@ -64,9 +64,9 @@ which does things like:
 You can push the packages if you have permissions, either automatically using ``build Release`` or manually
 
     set APIKEY=...
-    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.27.0.1.nupkg %APIKEY% -Source https://nuget.org
-    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.MSBuild.v12.27.0.1.nupkg %APIKEY%  -Source https://nuget.org
-    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.ProjectCracker.27.0.1.nupkg %APIKEY%  -Source https://nuget.org
+    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.28.0.0.nupkg %APIKEY% -Source https://nuget.org
+    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.MSBuild.v12.28.0.0.nupkg %APIKEY%  -Source https://nuget.org
+    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.ProjectCracker.28.0.0.nupkg %APIKEY%  -Source https://nuget.org
     
 
 ### Use of Paket and FAKE

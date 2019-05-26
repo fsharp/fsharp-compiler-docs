@@ -12,6 +12,7 @@
     <DefineConstants>$(DefineConstants);ENABLE_MONO_SUPPORT</DefineConstants>
     <OtherFlags>$(OtherFlags) --staticlink:FSharp.Core</OtherFlags>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ProjectCrackerOptions.fs" />

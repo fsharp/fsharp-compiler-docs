@@ -83,7 +83,6 @@
     </CopyAndSubstituteText>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="4.6.2" />
     <PackageReference Include="FSharp.Core" Version="$(FcsFSharpCorePkgVersion)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
     <PackageReference Include="NUnit" Version="3.9.0" />
@@ -108,9 +107,6 @@
     <Reference Include="System.Xaml" />
     <Reference Include="WindowsBase" />
     <Reference Include="UIAutomationTypes" />
-    <!-- disabled until all project files are converted to .NET SDK -->
-    <!-- <ProjectReference Include="$(FSharpSourcesRoot)\..\tests\service\data\CSharp_Analysis\CSharp_Analysis.csproj" /> -->
-    <ProjectReference Include="$(FSharpSourcesRoot)\..\fcs\FSharp.Compiler.Service.ProjectCracker\FSharp.Compiler.Service.ProjectCracker.fsproj" />
     <ProjectReference Include="CSharp_Analysis\CSharp_Analysis.csproj" />
     <ProjectReference Include="..\FSharp.Compiler.Service.ProjectCracker\FSharp.Compiler.Service.ProjectCracker.fsproj" />
   </ItemGroup>

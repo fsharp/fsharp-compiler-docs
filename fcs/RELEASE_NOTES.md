@@ -1,11 +1,14 @@
 #### 29.0.0
-  * Integrate visualfsharp master from 165b736b9 (2019-03-29) to 419a4c71b (2019-05-03)
+  * Integrate visualfsharp master from 165b736b9 (2019-03-29) to 25560f477 (2019-05-24)
   * Notable improvements include:
     * Improved Portable PDB debugging
     * Misc IL generation fixes
     * Representing inlined mutable variables in the AST
     * Moving on from net46 targeting
     * Fixes for anonymous record generation
+    * Dependency updates
+    * Checking for constructors in FSharpMemberOrFunctionOrValue
+    * Fix unused opens false positive for record fields
 
 #### 28.0.0
   * Integrate visualfsharp master from efb57cf56 to 8dfc02feb

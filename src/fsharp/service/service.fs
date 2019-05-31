@@ -3326,6 +3326,9 @@ module PrettyNaming =
     let QuoteIdentifierIfNeeded id = Lexhelp.Keywords.QuoteIdentifierIfNeeded id
     let KeywordNames = Lexhelp.Keywords.keywordNames
 
+module FSharpFileUtilities =
+    let isScriptFile (fileName: string) = CompileOps.IsScript fileName
+
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
     open System
@@ -3381,3 +3384,4 @@ namespace Microsoft.FSharp.Compiler.Interactive.Shell
     type CompilerInputStream = A | B
     [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
     type CompilerOutputStream  = A | B
+

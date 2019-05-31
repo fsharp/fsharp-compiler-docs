@@ -761,6 +761,10 @@ module public PrettyNaming =
     /// All the keywords in the F# language 
     val KeywordNames : string list
 
+/// A set of helpers for dealing with F# files.
+module FSharpFileUtilities =
+    val isScriptFile : string -> bool
+
 namespace Microsoft.FSharp.Compiler.SourceCodeServices
 
     open System
@@ -815,4 +819,4 @@ namespace Microsoft.FSharp.Compiler.Interactive.Shell
     [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
     type CompilerInputStream 
     [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type CompilerOutputStream  
+    type CompilerOutputStream 

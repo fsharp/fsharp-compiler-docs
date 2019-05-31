@@ -183,6 +183,7 @@ tests/fsharpqa/Source/*FSharpQA_Failures.env
 tests/fsharpqa/Source/*FSharpQA_Failures.lst
 *.csproj.user
 *.fsproj.user
+*.vbproj.user
 *.sln.DotSettings.user
 *.log
 *.jrs

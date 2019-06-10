@@ -1,3 +1,6 @@
+#### 29.0.1
+  * Fix versioning of the assembly
+
 #### 29.0.0
   * Integrate visualfsharp master from 165b736b9 (2019-03-29) to 25560f477 (2019-05-24)
   * Notable improvements include:

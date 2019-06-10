@@ -91,7 +91,7 @@ Target "Build" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ "build ../src/buildtools/buildtools.proj -v n -c Proto"
     let fslexPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fslex/Proto/netcoreapp2.1/fslex.dll"
     let fsyaccPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fsyacc/Proto/netcoreapp2.1/fsyacc.dll"
-    runDotnet __SOURCE_DIRECTORY__ (sprintf "build FSharp.Compiler.Service.sln -v n -c Release /p:FsLexPath=%s /p:FsYaccPath=%s" fslexPath fsyaccPath)
+    runDotnet __SOURCE_DIRECTORY__ (sprintf "build FSharp.Compiler.Service.sln -v n -c Release /p:FsLexPath=%s /p:FsYaccPath=%s /p:VersionPrefix=%s" fslexPath fsyaccPath assemblyVersion)
 )
 
 Target "Test" (fun _ ->
@@ -110,12 +110,12 @@ let escapeString (s: string) =
 
 Target "NuGet" (fun _ ->
     let props =
-      [ "PackageVersion", (string release.NugetVersion)
+      [ "VersionPrefix", release.NugetVersion
         "PackageReleaseNotes", release.Notes |> String.concat "\n"]
       |> Seq.map (fun (prop, value) -> sprintf "-p:%s=%s" prop (escapeString value))
       |> String.concat " "
 
-    runDotnet __SOURCE_DIRECTORY__ (sprintf "pack FSharp.Compiler.Service.sln -v n -c Release %s" props)
+    runDotnet __SOURCE_DIRECTORY__ (sprintf "pack FSharp.Compiler.Service.sln --no-build -v n -c Release %s" props)
 )
 
 Target "GenerateDocsEn" (fun _ ->

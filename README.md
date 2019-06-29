@@ -61,13 +61,22 @@ Stable builds are available in the NuGet Gallery:
 
 All AppVeyor builds are available using the NuGet feed: https://ci.appveyor.com/nuget/fsgit-fsharp-compiler-service
 
-If using Paket, add the source at the top of `paket.dependencies`.
+* [The F# Compiler Technical Guide](https://fsharp.github.io/2015/09/29/fsharp-compiler-guide.html)
+* [The F# Language Specification](https://fsharp.org/specs/language-spec/)
 
 ## License
 
-This project is subject to the MIT License. A copy of this license can be found in [License.txt](License.txt) at the root of this repo.
+This project is subject to the MIT License. A copy of this license is in [License.txt](License.txt).
 
-## Maintainers
+## Code of Conduct
+
+This project has adopted the [Contributor Covenant](https://contributor-covenant.org/) code of conduct to clarify expected behavior in our community. You can read it at [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md).
+
+## Get In Touch
+
+Members of the [F# Software Foundation](https://fsharp.org) are invited to the [FSSF Slack](https://fsharp.org/guides/slack/). You can find support from other contributors in the `#compiler` and `#editor-support` channels.
+
+Additionally, you can use the `#fsharp` tag on Twitter if you have general F# questions, including about this repository. Chances are you'll get multiple responses.
 
 The maintainers of this repository are:
 
@@ -76,3 +85,10 @@ The maintainers of this repository are:
  - [Enrico Sada](http://github.com/enricosada)
  - [Chet Husk](http://github.com/baronfel)
  - Many people have helped including [Robin Neatherway](https://github.com/rneatherway), [Dave Thomas](http://github.com/7sharp9), [Lincoln Atkinson](http://github.com/latkin), [Kevin Ransom](http://github.com/KevinRansom), [Vladimir Matveev](http://github.com/vladima) and others
+
+## About F\#
+
+* [What is F#](https://docs.microsoft.com/dotnet/fsharp/what-is-fsharp)
+* [Get started with F#](https://docs.microsoft.com/dotnet/fsharp/get-started/)
+* [F# Software Foundation](https://fsharp.org)
+* [F# Testimonials](https://fsharp.org/testimonials)

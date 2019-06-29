@@ -1,3 +1,12 @@
+#### 30.0.0
+  * Integrate dotnet/fsharp from 25560f477 to 5a8f454a1
+  * Notable improvements include:
+    * performance improvements
+    * FCS APIs for FSComp and Implement Interface
+    * line directive handling
+    * improved performance when computing quick fix suggestions
+    
+
 #### 29.0.1
   * Fix versioning of the assembly
 

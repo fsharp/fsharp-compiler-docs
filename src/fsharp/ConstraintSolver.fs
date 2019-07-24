@@ -14,7 +14,7 @@
 // The constraints are immediately processed into a normal form, in particular
 //   - type equations on inference parameters: 'tp = ty
 //   - type inequations on inference parameters: 'tp :> ty
-//   - other constraints on inference paramaters
+//   - other constraints on inference parameters
 //
 // The state of the inference engine is kept in imperative mutations to inference
 // type variables.
@@ -2193,12 +2193,11 @@ and ReportNoCandidatesError (csenv: ConstraintSolverEnv) (nUnnamedCallerArgs, nN
         match cmeth.UnassignedNamedArgs with 
         | CallerNamedArg(id, _) :: _ -> 
             if minfo.IsConstructor then
-                let predictFields() =
-                    minfo.DeclaringTyconRef.AllInstanceFieldsAsList
-                    |> List.map (fun p -> p.Name.Replace("@", ""))
-                    |> System.Collections.Generic.HashSet
+                let suggestFields (addToBuffer: string -> unit) =
+                    for p in minfo.DeclaringTyconRef.AllInstanceFieldsAsList do
+                        addToBuffer(p.Name.Replace("@", ""))
 
-                ErrorWithSuggestions((msgNum, FSComp.SR.csCtorHasNoArgumentOrReturnProperty(methodName, id.idText, msgText)), id.idRange, id.idText, predictFields)
+                ErrorWithSuggestions((msgNum, FSComp.SR.csCtorHasNoArgumentOrReturnProperty(methodName, id.idText, msgText)), id.idRange, id.idText, suggestFields)
             else
                 Error((msgNum, FSComp.SR.csMemberHasNoArgumentOrReturnProperty(methodName, id.idText, msgText)), id.idRange)
         | [] -> Error((msgNum, msgText), m)

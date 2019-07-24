@@ -308,8 +308,8 @@ let convAssemblyRef (aref: ILAssemblyRef) =
     asmName.Name <- aref.Name
     (match aref.PublicKey with 
      | None -> ()
-     | Some (PublicKey bytes) -> asmName.SetPublicKey bytes
-     | Some (PublicKeyToken bytes) -> asmName.SetPublicKeyToken bytes)
+     | Some (PublicKey      bytes) -> asmName.SetPublicKey(bytes)
+     | Some (PublicKeyToken bytes) -> asmName.SetPublicKeyToken(bytes))
     let setVersion (version: ILVersionInfo) = 
        asmName.Version <- System.Version (int32 version.Major, int32 version.Minor, int32 version.Build, int32 version.Revision)
     Option.iter setVersion aref.Version

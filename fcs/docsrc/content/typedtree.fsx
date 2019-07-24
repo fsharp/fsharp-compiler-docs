@@ -45,7 +45,9 @@ let parseAndCheckSingleFile (input) =
         checker.GetProjectOptionsFromScript(file, input)
         |> Async.RunSynchronously
 
-    checker.ParseAndCheckProject(projOptions) 
+    let fprojOptions, _ = projOptions
+
+    checker.ParseAndCheckProject (fprojOptions)
     |> Async.RunSynchronously
 
 (**

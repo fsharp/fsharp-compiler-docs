@@ -1,0 +1,13 @@
+os: Visual Studio 2017
+
+init:
+  - git config --global core.autocrlf input
+
+build_script:
+  - cmd: fcs\build.cmd TestAndNuGet
+
+test: off
+version: '{build}'
+artifacts:
+  - path: release\fcs\*.nupkg
+    type: NuGetPackage

@@ -194,7 +194,6 @@ type IMAGE_SECTION_HEADER(n: int64, ai: int32, va: int32, srd: int32, prd: int32
             buf.EmitInt32 characteristics
             buf.Close()
 
-
 let bytesToISH (buffer: byte[]) (offset: int) =
     if (buffer.Length - offset) < IMAGE_SECTION_HEADER.Width then
         invalidArg "buffer" "buffer too small to fit an IMAGE_SECTION_HEADER"
@@ -263,7 +262,6 @@ let bytesToIS (buffer: byte[]) (offset: int) =
             bytesToWord(buffer.[offset+14], buffer.[offset+15]), // Type
             buffer.[offset+16], // StorageClass
             buffer.[offset+17]) // NumberOfAuxSymbols
-
 type IMAGE_RELOCATION(va: int32, sti: int32, t: int16) =
     let mutable virtualAddress = va // Also RelocCount
     let mutable symbolTableIndex = sti
@@ -294,14 +292,12 @@ type IMAGE_RELOCATION(va: int32, sti: int32, t: int16) =
         buf.EmitInt32 symbolTableIndex
         buf.EmitUInt16 (uint16 ty)
         buf.Close()
-
 let bytesToIR (buffer: byte[]) (offset: int) =
     if (buffer.Length - offset) < IMAGE_RELOCATION.Width then
         invalidArg "buffer" "buffer too small to fit an IMAGE_RELOCATION"
     IMAGE_RELOCATION( bytesToDWord(buffer.[offset], buffer.[offset+1], buffer.[offset+2], buffer.[offset+3]),
             bytesToDWord(buffer.[offset+4], buffer.[offset+5], buffer.[offset+6], buffer.[offset+7]),
             bytesToWord(buffer.[offset+8], buffer.[offset+9]))
-
 type IMAGE_RESOURCE_DIRECTORY(c: int32, tds: int32, mjv: int16, mnv: int16, nne: int16, nie: int16) =
     let mutable characteristics = c
     let mutable timeDateStamp = tds
@@ -345,7 +341,6 @@ type IMAGE_RESOURCE_DIRECTORY(c: int32, tds: int32, mjv: int16, mnv: int16, nne:
         buf.EmitUInt16 (uint16 numberOfNamedEntries)
         buf.EmitUInt16 (uint16 numberOfIdEntries)
         buf.Close()
-
 let bytesToIRD (buffer: byte[]) (offset: int) =
     if (buffer.Length - offset) < IMAGE_RESOURCE_DIRECTORY.Width then
         invalidArg "buffer" "buffer too small to fit an IMAGE_RESOURCE_DIRECTORY"
@@ -355,7 +350,6 @@ let bytesToIRD (buffer: byte[]) (offset: int) =
         bytesToWord(buffer.[offset+10], buffer.[offset+11]), // MinorVersion
         bytesToWord(buffer.[offset+12], buffer.[offset+13]), // NumberOfNamedEntries
         bytesToWord(buffer.[offset+14], buffer.[offset+15])) // NumberOfIdEntries
-
 type IMAGE_RESOURCE_DIRECTORY_ENTRY(n: int32, o: int32) =
     let mutable name = n
     let mutable offset = o
@@ -381,13 +375,11 @@ type IMAGE_RESOURCE_DIRECTORY_ENTRY(n: int32, o: int32) =
         buf.EmitInt32 name
         buf.EmitInt32 offset
         buf.Close()
-
 let bytesToIRDE (buffer: byte[]) (offset: int) =
     if (buffer.Length - offset) < IMAGE_RESOURCE_DIRECTORY_ENTRY.Width then
         invalidArg "buffer" "buffer too small to fit an IMAGE_RESOURCE_DIRECTORY_ENTRY"
     IMAGE_RESOURCE_DIRECTORY_ENTRY( bytesToDWord(buffer.[offset], buffer.[offset+1], buffer.[offset+2], buffer.[offset+3]), // Name
         bytesToDWord(buffer.[offset+4], buffer.[offset+5], buffer.[offset+6], buffer.[offset+7])) // Offset
-
 type IMAGE_RESOURCE_DATA_ENTRY(o: int32, s: int32, c: int32, r: int32) =
     let mutable offsetToData = o
     let mutable size = s
@@ -486,7 +478,6 @@ type ResFormatHeader() =
         buf.EmitInt32 dwVersion
         buf.EmitInt32 dwCharacteristics
         buf.Close()
-
 type ResFormatNode(tid: int32, nid: int32, lid: int32, dataOffset: int32, pbLinkedResource: byte[]) =
     let mutable resHdr = ResFormatHeader()
     let mutable dataEntry = Unchecked.defaultof<IMAGE_RESOURCE_DATA_ENTRY>
@@ -533,7 +524,6 @@ type ResFormatNode(tid: int32, nid: int32, lid: int32, dataOffset: int32, pbLink
             resHdr.HeaderSize <- resHdr.HeaderSize + ((cType + 1) * 2) - 4
         if Unchecked.defaultof<byte[]> <> wzName then
             resHdr.HeaderSize <- resHdr.HeaderSize + ((cName + 1) * 2) - 4
-
         let SaveChunk(p: byte[], sz: int) =
             if Unchecked.defaultof<byte[]> <>  pUnlinkedResource then
                 Bytes.blit p 0 pUnlinkedResource (!unlinkedResourceOffset + offset) sz
@@ -541,7 +531,6 @@ type ResFormatNode(tid: int32, nid: int32, lid: int32, dataOffset: int32, pbLink
             size := !size + sz
 
             ()
-
         // ---- Constant part of the header: DWORD, DWORD
         SaveChunk(dwToBytes resHdr.DataSize)
         SaveChunk(dwToBytes resHdr.HeaderSize)
@@ -870,7 +859,6 @@ type IMetaDataDispenser =
 [<CLSCompliant(true)>]
 type IMetadataImport =
     abstract Placeholder: unit -> unit
-
 [<ComImport; Interface>]
 [<Guid("BA3FEE4C-ECB9-4E41-83B7-183FA41CD859"); InterfaceType(ComInterfaceType.InterfaceIsIUnknown)>]
 [<CLSCompliant(true)>]
@@ -895,7 +883,6 @@ type ImageDebugDirectory =
     val SizeOfData: int32
     val AddressOfRawData: int32
     val PointerToRawData: int32
-
 [<ComImport; Interface>]
 [<Guid("0B97726E-9E6D-4f05-9A26-424022093CAA"); InterfaceType(ComInterfaceType.InterfaceIsIUnknown)>]
 type ISymUnmanagedWriter2 =
@@ -1351,7 +1338,6 @@ type ICLRStrongName =
             [<In; MarshalAs(UnmanagedType.U4)>] cbKeyBlob: uint32 *
             [<Out>] ppbPublicKeyBlob: nativeint byref *
             [<Out; MarshalAs(UnmanagedType.U4)>] pcbPublicKeyBlob: uint32 byref -> unit
-
     abstract StrongNameHashSize: UnusedCOMMethod
 
     [<MethodImpl(MethodImplOptions.InternalCall, MethodCodeType=MethodCodeType.Runtime)>]
@@ -1369,7 +1355,6 @@ type ICLRStrongName =
             [<In; MarshalAs(UnmanagedType.U4)>] cbKeyBlob: uint32 *
             [<Out>] ppbSignatureBlob: nativeint *
             [<MarshalAs(UnmanagedType.U4)>] pcbSignatureBlob: uint32 byref -> unit
-
     abstract StrongNameSignatureGenerationEx: UnusedCOMMethod
 
     [<MethodImpl(MethodImplOptions.InternalCall, MethodCodeType=MethodCodeType.Runtime)>]
@@ -1377,7 +1362,6 @@ type ICLRStrongName =
             [<In; MarshalAs(UnmanagedType.LPArray, SizeParamIndex=1s)>] pbPublicKeyBlob: byte[] *
             [<In; MarshalAs(UnmanagedType.U4)>] cbPublicKeyBlob: uint32 *
             [<Out; MarshalAs(UnmanagedType.U4)>] pcbSize: uint32 byref -> unit
-
     abstract StrongNameSignatureVerification: UnusedCOMMethod
 
     [<MethodImpl(MethodImplOptions.InternalCall, MethodCodeType=MethodCodeType.Runtime)>]
@@ -1385,12 +1369,10 @@ type ICLRStrongName =
             [<In; MarshalAs(UnmanagedType.LPWStr)>] pwzFilePath: string *
             [<In; MarshalAs(UnmanagedType.I1)>] fForceVerification: bool *
             [<In; MarshalAs(UnmanagedType.I1)>] pfWasVerified: bool byref -> [<MarshalAs(UnmanagedType.I1)>] bool
-
     abstract StrongNameSignatureVerificationFromImage: UnusedCOMMethod
     abstract StrongNameTokenFromAssembly: UnusedCOMMethod
     abstract StrongNameTokenFromAssemblyEx: UnusedCOMMethod
     abstract StrongNameTokenFromPublicKey: UnusedCOMMethod
-
 
 [<System.Security.SecurityCritical; Interface>]
 [<ComImport; InterfaceType(ComInterfaceType.InterfaceIsIUnknown); Guid("BD39D1D2-BA2F-486A-89B0-B4B0CB466891")>]
@@ -1407,7 +1389,6 @@ type ICLRRuntimeInfo =
     abstract GetInterface :
         [<In; MarshalAs(UnmanagedType.LPStruct)>] coClassId: System.Guid *
         [<In; MarshalAs(UnmanagedType.LPStruct)>] interfaceId: System.Guid -> [<MarshalAs(UnmanagedType.Interface)>]System.Object
-
 [<System.Security.SecurityCritical>]
 [<DllImport("mscoree.dll", SetLastError = true, PreserveSig=false, EntryPoint="CreateInterface")>]
 let CreateInterface (

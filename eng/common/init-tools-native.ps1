@@ -79,37 +79,32 @@ try {
     $NativeTools.PSObject.Properties | ForEach-Object {
       $ToolName = $_.Name
       $ToolVersion = $_.Value
-      $LocalInstallerArguments =  @{ ToolName = "$ToolName" }
-      $LocalInstallerArguments += @{ InstallPath = "$InstallBin" }
-      $LocalInstallerArguments += @{ BaseUri = "$BaseUri" }
-      $LocalInstallerArguments += @{ CommonLibraryDirectory = "$EngCommonBaseDir" }
-      $LocalInstallerArguments += @{ Version = "$ToolVersion" }
+      $LocalInstallerCommand = $InstallerPath
+      $LocalInstallerCommand += " -ToolName $ToolName"
+      $LocalInstallerCommand += " -InstallPath $InstallBin"
+      $LocalInstallerCommand += " -BaseUri $BaseUri"
+      $LocalInstallerCommand += " -CommonLibraryDirectory $EngCommonBaseDir"
+      $LocalInstallerCommand += " -Version $ToolVersion"
 
       if ($Verbose) {
-        $LocalInstallerArguments += @{ Verbose = $True }
+        $LocalInstallerCommand += " -Verbose"
       }
       if (Get-Variable 'Force' -ErrorAction 'SilentlyContinue') {
         if($Force) {
-          $LocalInstallerArguments += @{ Force = $True }
+          $LocalInstallerCommand += " -Force"
         }
       }
       if ($Clean) {
-        $LocalInstallerArguments += @{ Clean = $True }
+        $LocalInstallerCommand += " -Clean"
       }
 
       Write-Verbose "Installing $ToolName version $ToolVersion"
-      Write-Verbose "Executing '$InstallerPath $LocalInstallerArguments'"
-      & $InstallerPath @LocalInstallerArguments
+      Write-Verbose "Executing '$LocalInstallerCommand'"
+      Invoke-Expression "$LocalInstallerCommand"
       if ($LASTEXITCODE -Ne "0") {
         $errMsg = "$ToolName installation failed"
         if ((Get-Variable 'DoNotAbortNativeToolsInstallationOnFailure' -ErrorAction 'SilentlyContinue') -and $DoNotAbortNativeToolsInstallationOnFailure) {
-            $showNativeToolsWarning = $true
-            if ((Get-Variable 'DoNotDisplayNativeToolsInstallationWarnings' -ErrorAction 'SilentlyContinue') -and $DoNotDisplayNativeToolsInstallationWarnings) {
-                $showNativeToolsWarning = $false
-            }
-            if ($showNativeToolsWarning) {
-                Write-Warning $errMsg
-            }
+            Write-Warning $errMsg
             $toolInstallationFailure = $true
         } else {
             Write-Error $errMsg

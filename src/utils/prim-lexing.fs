@@ -105,7 +105,6 @@ namespace Internal.Utilities.Text.Lexing
 
     open FSharp.Compiler.Text
     open Microsoft.FSharp.Core
-    open FSharp.Compiler.Text
     open Microsoft.FSharp.Collections
     open System.Collections.Generic
 

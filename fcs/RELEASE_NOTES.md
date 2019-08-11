@@ -3,7 +3,7 @@
   * Notable changes include:
     * Removal of the `Microsoft.FSharp.Compiler.SourceCodeServices` namespace
     * A new API for determining if an identifier needs to be quoted is available: `FSharp.Compiler.LexHelp.Keywords.DoesIdentifierNeedQuotation`
-    * Enhancements to the correctness of PDBs, especially with anonymous records
+    * Enhancements to the correctness of PDBs
     * Better string formatting of records and values
     * More stack overflow fixes in the compiler
     * Inline IL parsing error handling

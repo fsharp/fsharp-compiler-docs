@@ -69,6 +69,7 @@ function Print-Usage() {
     Write-Host ""
     Write-Host "Actions:"
     Write-Host "  -restore                  Restore packages (short: -r)"
+    Write-Host "  -norestore                Don't restore packages"
     Write-Host "  -build                    Build main solution (short: -b)"
     Write-Host "  -rebuild                  Rebuild main solution"
     Write-Host "  -pack                     Build NuGet packages, VS insertion manifests and installer"
@@ -108,6 +109,7 @@ function Process-Arguments() {
        Print-Usage
        exit 0
     }
+    $script:nodeReuse = $False;
 
     if ($testAll) {
         $script:testDesktop = $True
@@ -172,7 +174,7 @@ function BuildSolution() {
     $officialBuildId = if ($official) { $env:BUILD_BUILDNUMBER } else { "" }
     $toolsetBuildProj = InitializeToolset
     $quietRestore = !$ci
-    $testTargetFrameworks = if ($testCoreClr) { "netcoreapp2.1" } else { "" }
+    $testTargetFrameworks = if ($testCoreClr) { "netcoreapp3.0" } else { "" }
 
     # Do not set the property to true explicitly, since that would override value projects might set.
     $suppressExtensionDeployment = if (!$deployExtensions) { "/p:DeployExtension=false" } else { "" }
@@ -190,7 +192,6 @@ function BuildSolution() {
         /p:Publish=$publish `
         /p:ContinuousIntegrationBuild=$ci `
         /p:OfficialBuildId=$officialBuildId `
-        /p:BootstrapBuildPath=$bootstrapDir `
         /p:QuietRestore=$quietRestore `
         /p:QuietRestoreBinaryLog=$binaryLog `
         /p:TestTargetFrameworks=$testTargetFrameworks `
@@ -223,13 +224,14 @@ function UpdatePath() {
     TestAndAddToPath "$ArtifactsDir\bin\fsiAnyCpu\$configuration\net472"
 }
 
-function VerifyAssemblyVersions() {
-    $fsiPath = Join-Path $ArtifactsDir "bin\fsi\Proto\net472\fsi.exe"
+function VerifyAssemblyVersionsAndSymbols() {
+    $assemblyVerCheckPath = Join-Path $ArtifactsDir "Bootstrap\AssemblyCheck\AssemblyCheck.dll"
 
     # Only verify versions on CI or official build
     if ($ci -or $official) {
-        $asmVerCheckPath = "$RepoRoot\scripts"
-        Exec-Console $fsiPath """$asmVerCheckPath\AssemblyVersionCheck.fsx"" -- ""$ArtifactsDir"""
+        $dotnetPath = InitializeDotNetCli
+        $dotnetExe = Join-Path $dotnetPath "dotnet.exe"
+        Exec-Console $dotnetExe """$assemblyVerCheckPath"" ""$ArtifactsDir"""
     }
 }
 
@@ -275,6 +277,25 @@ function Prepare-TempDir() {
     Copy-Item (Join-Path $RepoRoot "tests\Resources\Directory.Build.targets") $TempDir
 }
 
+function EnablePreviewSdks() {
+  if (Test-Path variable:global:_MSBuildExe) {
+    return
+  }
+  $vsInfo = LocateVisualStudio
+  if ($vsInfo -eq $null) {
+    # Preview SDKs are allowed when no Visual Studio instance is installed
+    return
+  }
+
+  $vsId = $vsInfo.instanceId
+  $vsMajorVersion = $vsInfo.installationVersion.Split('.')[0]
+
+  $instanceDir = Join-Path ${env:USERPROFILE} "AppData\Local\Microsoft\VisualStudio\$vsMajorVersion.0_$vsId"
+  Create-Directory $instanceDir
+  $sdkFile = Join-Path $instanceDir "sdk.txt"
+  'UsePreviews=True' | Set-Content $sdkFile
+}
+
 try {
     Process-Arguments
 
@@ -286,8 +307,9 @@ try {
 
     if ($ci) {
         Prepare-TempDir
+        EnablePreviewSdks
 
-        # enable us to build netcoreapp2.1 binaries
+        # enable us to build netcoreapp2.1 product binaries
         $global:_DotNetInstallDir = Join-Path $RepoRoot ".dotnet"
         InstallDotNetSdk $global:_DotNetInstallDir $GlobalJson.tools.dotnet
         InstallDotNetSdk $global:_DotNetInstallDir "2.1.503"
@@ -306,11 +328,11 @@ try {
     }
 
     if ($build) {
-        VerifyAssemblyVersions
+        VerifyAssemblyVersionsAndSymbols
     }
 
     $desktopTargetFramework = "net472"
-    $coreclrTargetFramework = "netcoreapp2.1"
+    $coreclrTargetFramework = "netcoreapp3.0"
 
     if ($testDesktop -and -not $noVisualStudio) {
         TestUsingNUnit -testProject "$RepoRoot\tests\FSharp.Compiler.UnitTests\FSharp.Compiler.UnitTests.fsproj" -targetFramework $desktopTargetFramework

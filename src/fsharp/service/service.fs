@@ -423,6 +423,12 @@ type BackgroundCompiler(legacyReferenceResolver, projectCacheSize, keepAssemblyC
                 return res
         }
 
+    member bc.ParseFileNoCache(filename, sourceText, options, userOpName) =
+        async {
+            let parseErrors, parseTreeOpt, anyErrors = ParseAndCheckFile.parseFile(sourceText, filename, options, userOpName, false)
+            return FSharpParseFileResults(parseErrors, parseTreeOpt, anyErrors, options.SourceFiles)
+        }
+
     /// Fetch the parse information from the background compiler (which checks w.r.t. the FileSystem API)
     member __.GetBackgroundParseResultsForFileInProject(filename, options, userOpName) =
         reactor.EnqueueAndAwaitOpAsync(userOpName, "GetBackgroundParseResultsForFileInProject ", filename, fun ctok -> 
@@ -518,6 +524,7 @@ type BackgroundCompiler(legacyReferenceResolver, projectCacheSize, keepAssemblyC
                                          keepAssemblyContents,
                                          suggestNamesForErrors)
                                 let parsingOptions = FSharpParsingOptions.FromTcConfig(tcPrior.TcConfig, Array.ofList builder.SourceFiles, options.UseScriptResolutionRules)
+                                reactor.SetPreferredUILang tcPrior.TcConfig.preferredUiLang
                                 bc.RecordTypeCheckFileInProjectResults(fileName, options, parsingOptions, parseResults, fileVersion, tcPrior.TimeStamp, Some checkAnswer, sourceText.GetHashCode()) 
                                 return checkAnswer
                             finally
@@ -635,6 +642,7 @@ type BackgroundCompiler(legacyReferenceResolver, projectCacheSize, keepAssemblyC
                     
                         // Do the parsing.
                         let parsingOptions = FSharpParsingOptions.FromTcConfig(builder.TcConfig, Array.ofList (builder.SourceFiles), options.UseScriptResolutionRules)
+                        reactor.SetPreferredUILang tcPrior.TcConfig.preferredUiLang
                         let parseErrors, parseTreeOpt, anyErrors = ParseAndCheckFile.parseFile (sourceText, filename, parsingOptions, userOpName, suggestNamesForErrors)
                         let parseResults = FSharpParseFileResults(parseErrors, parseTreeOpt, anyErrors, builder.AllDependenciesDeprecated)
                         let! checkResults = bc.CheckOneFileImpl(parseResults, sourceText, filename, options, textSnapshotInfo, fileVersion, builder, tcPrior, creationErrors, userOpName)
@@ -889,7 +897,6 @@ type BackgroundCompiler(legacyReferenceResolver, projectCacheSize, keepAssemblyC
 
     static member GlobalForegroundTypeCheckCountStatistic = foregroundTypeCheckCount
 
-
 [<Sealed; AutoSerializable(false)>]
 // There is typically only one instance of this type in an IDE process.
 type FSharpChecker(legacyReferenceResolver, 
@@ -958,6 +965,11 @@ type FSharpChecker(legacyReferenceResolver,
         let userOpName = defaultArg userOpName "Unknown"
         ic.CheckMaxMemoryReached()
         backgroundCompiler.ParseFile(filename, sourceText, options, userOpName)
+
+    member ic.ParseFileNoCache(filename, sourceText, options, ?userOpName) =
+        let userOpName = defaultArg userOpName "Unknown"
+        ic.CheckMaxMemoryReached()
+        backgroundCompiler.ParseFileNoCache(filename, sourceText, options, userOpName)
 
     member ic.ParseFileInProject(filename, source: string, options, ?userOpName: string) =
         let userOpName = defaultArg userOpName "Unknown"
@@ -1265,60 +1277,3 @@ module PrettyNaming =
 
 module FSharpFileUtilities =
     let isScriptFile (fileName: string) = CompileOps.IsScript fileName
-
-namespace Microsoft.FSharp.Compiler.SourceCodeServices
-
-    open System
-
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FSharpFindDeclFailureReason  = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FSharpFindDeclResult  = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FSharpProjectContext = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type SemanticClassificationType = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FSharpCheckFileResults = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FSharpCheckProjectResults = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type UnresolvedReferencesSet  = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FSharpParsingOptions = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FSharpProjectOptions  = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FSharpCheckFileAnswer = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FSharpChecker  = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type CompilerEnvironment = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    module CompilerEnvironment = begin end
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    module DebuggerEnvironment = begin end
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    module PrettyNaming = begin end
-
-namespace Microsoft.FSharp.Compiler.Interactive.Shell
-
-    open System
-
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FsiValue = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type EvaluationEventArgs = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type public FsiEvaluationSessionHostConfig = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type FsiEvaluationSession = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    module Settings = begin end
-
-    /// Defines a read-only input stream used to feed content to the hosted F# Interactive dynamic compiler.
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type CompilerInputStream = A | B
-    [<Obsolete("The namespace Microsoft.FSharp.Compiler has been renamed FSharp.Compiler.  Please adjust your namespace references.")>]
-    type CompilerOutputStream  = A | B
-

@@ -1,3 +1,15 @@
+#### 31.0.0
+  * Integrate dotnet/fsharp from 5a8f454a1 to 05c558a61
+  * Notable changes include:
+    * Removal of the `Microsoft.FSharp.Compiler.SourceCodeServices` namespace
+    * A new API for determining if an identifier needs to be quoted is available: `FSharp.Compiler.LexHelp.Keywords.DoesIdentifierNeedQuotation`
+    * Enhancements to the correctness of PDBs
+    * Better string formatting of records and values
+    * More stack overflow fixes in the compiler
+    * Inline IL parsing error handling
+    * `LeafExpressionConverter` handles struct tuples
+    * `FSharpChecker` now can parse a file without caching: `ParseFileNoCache`
+
 #### 30.0.0
   * Integrate dotnet/fsharp from 25560f477 to 5a8f454a1
   * Notable improvements include:
@@ -5,7 +17,6 @@
     * FCS APIs for FSComp and Implement Interface
     * line directive handling
     * improved performance when computing quick fix suggestions
-    
 
 #### 29.0.1
   * Fix versioning of the assembly

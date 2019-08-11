@@ -6,18 +6,15 @@ param(
   [Parameter(Mandatory=$true)][string] $SourcelinkCliVersion    # Version of SourceLink CLI to use
 )
 
-$ErrorActionPreference = "Stop"
-Set-StrictMode -Version 2.0
+. $PSScriptRoot\post-build-utils.ps1
 
-. $PSScriptRoot\..\tools.ps1
-
-# Cache/HashMap (File -> Exist flag) used to consult whether a file exist
+# Cache/HashMap (File -> Exist flag) used to consult whether a file exist 
 # in the repository at a specific commit point. This is populated by inserting
 # all files present in the repo at a specific commit point.
 $global:RepoFiles = @{}
 
 $ValidatePackage = {
-  param(
+  param( 
     [string] $PackagePath                                 # Full path to a Symbols.NuGet package
   )
 
@@ -32,7 +29,7 @@ $ValidatePackage = {
   # Extensions for which we'll look for SourceLink information
   # For now we'll only care about Portable & Embedded PDBs
   $RelevantExtensions = @(".dll", ".exe", ".pdb")
-
+ 
   Write-Host -NoNewLine "Validating" ([System.IO.Path]::GetFileName($PackagePath)) "... "
 
   $PackageId = [System.IO.Path]::GetFileNameWithoutExtension($PackagePath)
@@ -46,13 +43,13 @@ $ValidatePackage = {
   try {
     $zip = [System.IO.Compression.ZipFile]::OpenRead($PackagePath)
 
-    $zip.Entries |
+    $zip.Entries | 
       Where-Object {$RelevantExtensions -contains [System.IO.Path]::GetExtension($_.Name)} |
         ForEach-Object {
           $FileName = $_.FullName
           $Extension = [System.IO.Path]::GetExtension($_.Name)
           $FakeName = -Join((New-Guid), $Extension)
-          $TargetFile = Join-Path -Path $ExtractPath -ChildPath $FakeName
+          $TargetFile = Join-Path -Path $ExtractPath -ChildPath $FakeName 
 
           # We ignore resource DLLs
           if ($FileName.EndsWith(".resources.dll")) {
@@ -62,7 +59,7 @@ $ValidatePackage = {
           [System.IO.Compression.ZipFileExtensions]::ExtractToFile($_, $TargetFile, $true)
 
           $ValidateFile = {
-            param(
+            param( 
               [string] $FullPath,                                # Full path to the module that has to be checked
               [string] $RealPath,
               [ref] $FailedFiles
@@ -83,7 +80,7 @@ $ValidatePackage = {
                   ForEach-Object {
                     $Link = $_
                     $CommitUrl = "https://raw.githubusercontent.com/${using:GHRepoName}/${using:GHCommit}/"
-
+                    
                     $FilePath = $Link.Replace($CommitUrl, "")
                     $Status = 200
                     $Cache = $using:RepoFiles
@@ -91,7 +88,7 @@ $ValidatePackage = {
                     if ( !($Cache.ContainsKey($FilePath)) ) {
                       try {
                         $Uri = $Link -as [System.URI]
-
+                      
                         # Only GitHub links are valid
                         if ($Uri.AbsoluteURI -ne $null -and ($Uri.Host -match "github" -or $Uri.Host -match "githubusercontent")) {
                           $Status = (Invoke-WebRequest -Uri $Link -UseBasicParsing -Method HEAD -TimeoutSec 5).StatusCode
@@ -128,15 +125,15 @@ $ValidatePackage = {
               }
             }
           }
-
+        
           &$ValidateFile $TargetFile $FileName ([ref]$FailedFiles)
         }
   }
   catch {
-
+  
   }
   finally {
-    $zip.Dispose()
+    $zip.Dispose() 
   }
 
   if ($FailedFiles -eq 0) {
@@ -163,13 +160,13 @@ function ValidateSourceLinkLinks {
     ExitWithExitCode 1
   }
 
-  $RepoTreeURL = -Join("https://api.github.com/repos/", $GHRepoName, "/git/trees/", $GHCommit, "?recursive=1")
+  $RepoTreeURL = -Join("http://api.github.com/repos/", $GHRepoName, "/git/trees/", $GHCommit, "?recursive=1")
   $CodeExtensions = @(".cs", ".vb", ".fs", ".fsi", ".fsx", ".fsscript")
 
   try {
     # Retrieve the list of files in the repo at that particular commit point and store them in the RepoFiles hash
     $Data = Invoke-WebRequest $RepoTreeURL -UseBasicParsing | ConvertFrom-Json | Select-Object -ExpandProperty tree
-
+  
     foreach ($file in $Data) {
       $Extension = [System.IO.Path]::GetExtension($file.path)
 
@@ -183,7 +180,7 @@ function ValidateSourceLinkLinks {
     Write-Host $_
     ExitWithExitCode 1
   }
-
+  
   if (Test-Path $ExtractPath) {
     Remove-Item $ExtractPath -Force -Recurse -ErrorAction SilentlyContinue
   }
@@ -200,21 +197,27 @@ function ValidateSourceLinkLinks {
   }
 }
 
-function CheckExitCode ([string]$stage) {
-  $exitCode = $LASTEXITCODE
-  if ($exitCode -ne 0) {
-    Write-PipelineTaskError "Something failed while '$stage'. Check for errors above. Exiting now..."
-    ExitWithExitCode $exitCode
+function InstallSourcelinkCli {
+  $sourcelinkCliPackageName = "sourcelink"
+
+  $dotnetRoot = InitializeDotNetCli -install:$true
+  $dotnet = "$dotnetRoot\dotnet.exe"
+  $toolList = & "$dotnet" tool list --global
+
+  if (($toolList -like "*$sourcelinkCliPackageName*") -and ($toolList -like "*$sourcelinkCliVersion*")) {
+    Write-Host "SourceLink CLI version $sourcelinkCliVersion is already installed."
+  }
+  else {
+    Write-Host "Installing SourceLink CLI version $sourcelinkCliVersion..."
+    Write-Host "You may need to restart your command window if this is the first dotnet tool you have installed."
+    & "$dotnet" tool install $sourcelinkCliPackageName --version $sourcelinkCliVersion --verbosity "minimal" --global 
   }
 }
 
 try {
-  Write-Host "Installing SourceLink CLI..."
-  Get-Location
-  . $PSScriptRoot\sourcelink-cli-init.ps1 -sourcelinkCliVersion $SourcelinkCliVersion
-  CheckExitCode "Running sourcelink-cli-init"
+  InstallSourcelinkCli
 
-  Measure-Command { ValidateSourceLinkLinks }
+  ValidateSourceLinkLinks 
 }
 catch {
   Write-Host $_

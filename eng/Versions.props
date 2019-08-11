@@ -23,14 +23,14 @@
     <FSharpCorePreviewPackageVersion>$(FSCorePackageVersion)-$(PreReleaseVersionLabel).*</FSharpCorePreviewPackageVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <FSPackageMajorVersion>10.4</FSPackageMajorVersion>
-    <FSPackageVersion>$(FSPackageMajorVersion).3</FSPackageVersion>
+    <FSPackageMajorVersion>10.5</FSPackageMajorVersion>
+    <FSPackageVersion>$(FSPackageMajorVersion).0</FSPackageVersion>
     <FSProductVersionPrefix>$(FSPackageVersion)</FSProductVersionPrefix>
     <FSProductVersion>$(FSPackageVersion).0</FSProductVersion>
   </PropertyGroup>
   <PropertyGroup>
     <VSMajorVersion>16</VSMajorVersion>
-    <VSMinorVersion>0</VSMinorVersion>
+    <VSMinorVersion>2</VSMinorVersion>
     <VSGeneralVersion>$(VSMajorVersion).0</VSGeneralVersion>
     <VSAssemblyVersionPrefix>$(VSMajorVersion).$(VSMinorVersion).0</VSAssemblyVersionPrefix>
     <VSAssemblyVersion>$(VSAssemblyVersionPrefix).0</VSAssemblyVersion>
@@ -45,21 +45,6 @@
     <!-- PR builds should explicitly specify a version number -->
   </PropertyGroup>
   <PropertyGroup>
-    <!--
-    The F# tools inserted into the RTM version of dev16 is 16.0.20190320.5, but due to a change in version number
-    computation, the current nightly package versions are 16.0.0.1920512 which won't allow for an upgrade.  To enable
-    this to work for nightly package upgrade we re-insert the build number (date) so that it's always increasing.  The
-    result is a nightly package version of 16.0.20190405.1920512 which satisfies the requirement of being larger than
-    the shipping version.
-    This change should not flow into dev16.1 as we've never published a package with a version number that looks like
-    16.1.<date>.x; they've all looked like 16.1.0.x.
-    -->
-    <_BuildNumber>$(OfficialBuildId)</_BuildNumber>
-    <_BuildNumber Condition="'$(OfficialBuildId)' == ''">$([System.DateTime]::Now.ToString(yyyyMMdd)).0</_BuildNumber>
-    <VsixVersionDateStampFix>$(_BuildNumber.Split('.')[0])</VsixVersionDateStampFix>
-    <VsixVersionPrefix>$(VSMajorVersion).$(VSMinorVersion).$(VsixVersionDateStampFix)</VsixVersionPrefix>
-  </PropertyGroup>
-  <PropertyGroup>
     <!-- default package sources -->
     <RestoreSources Condition="'$(DotNetBuildOffline)' != 'true'">
       $(RestoreSources);
@@ -70,6 +55,7 @@
       https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json;
       https://api.nuget.org/v3/index.json;
       https://dotnet.myget.org/F/roslyn/api/v3/index.json;
+      https://dotnet.myget.org/F/roslyn-analyzers/api/v3/index.json;
       https://dotnet.myget.org/F/symreader-converter/api/v3/index.json;
       https://dotnet.myget.org/F/interactive-window/api/v3/index.json;
       https://myget.org/F/vs-devcore/api/v3/index.json;
@@ -112,7 +98,10 @@
     <MicrosoftCodeAnalysisEditorFeaturesVersion>$(RoslynVersion)</MicrosoftCodeAnalysisEditorFeaturesVersion>
     <MicrosoftCodeAnalysisEditorFeaturesTextVersion>$(RoslynVersion)</MicrosoftCodeAnalysisEditorFeaturesTextVersion>
     <MicrosoftCodeAnalysisEditorFeaturesWpfVersion>$(RoslynVersion)</MicrosoftCodeAnalysisEditorFeaturesWpfVersion>
+    <MicrosoftCodeAnalysisExternalAccessFSharpVersion>$(RoslynVersion)</MicrosoftCodeAnalysisExternalAccessFSharpVersion>
     <MicrosoftCodeAnalysisWorkspacesCommonVersion>$(RoslynVersion)</MicrosoftCodeAnalysisWorkspacesCommonVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>$(RoslynVersion)</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisTestResourcesProprietaryVersion>2.0.17</MicrosoftCodeAnalysisTestResourcesProprietaryVersion>
     <MicrosoftVisualStudioLanguageServicesVersion>$(RoslynVersion)</MicrosoftVisualStudioLanguageServicesVersion>
     <!-- Microsoft Build packages -->
     <MicrosoftBuildOverallPackagesVersion>16.0.461</MicrosoftBuildOverallPackagesVersion>
@@ -179,7 +168,8 @@
     <MicrosoftCompositionVersion>1.0.30</MicrosoftCompositionVersion>
     <MicrosoftMSXMLVersion>8.0.0-alpha</MicrosoftMSXMLVersion>
     <MicrosoftNetCompilersVersion>2.7.0</MicrosoftNetCompilersVersion>
-    <MicrosoftNETCoreILDAsmVersion>2.0.3</MicrosoftNETCoreILDAsmVersion>
+    <MicrosoftNETCoreILDAsmVersion>3.0.0-preview-27318-01</MicrosoftNETCoreILDAsmVersion>
+    <MicrosoftNETCoreILAsmVersion>3.0.0-preview-27318-01</MicrosoftNETCoreILAsmVersion>
     <MicrosoftNETTestSdkVersion>15.8.0</MicrosoftNETTestSdkVersion>
     <MicrosoftVisualFSharpTypeProvidersRedistVersion>1.0.0</MicrosoftVisualFSharpTypeProvidersRedistVersion>
     <MicrosoftWin32RegistryVersion>4.3.0</MicrosoftWin32RegistryVersion>

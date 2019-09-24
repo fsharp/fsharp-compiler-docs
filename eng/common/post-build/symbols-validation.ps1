@@ -178,7 +178,6 @@ function InstallDotnetSymbol {
 
 try {
   InstallDotnetSymbol
-
   CheckSymbolsAvailable
 }
 catch {

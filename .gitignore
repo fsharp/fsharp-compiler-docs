@@ -192,6 +192,9 @@ tests/fsharpqa/Source/*FSharpQA_Failures.lst
 FSharp.Compiler.Tools.Nuget/*.nupkg
 FSharp.Core.Nuget/*.nupkg
 artifacts/*.nupkg
+*.bak                                                     
+*.vserr
+*.err
 *.orig
 *.mdf
 *.ldf

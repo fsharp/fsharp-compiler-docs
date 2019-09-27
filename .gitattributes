@@ -25,3 +25,5 @@
 targets.make text eol=lf
 
 *.bsl linguist-vendored=true
+
+*.png binary

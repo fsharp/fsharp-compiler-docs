@@ -15,9 +15,9 @@ This repo exists as a downstream packaging repository for the [FSharp.Compiler.S
 * Hosting [public documentation](http://fsharp.github.io/FSharp.Compiler.Service/)
 * Serving as a stable base for Fable
 
-It is a fork of the official F# source repository, which is located at [microsoft/visualfsharp](https://github.com/microsoft/visualfsharp). **All** issues and contributions should be raised there. All feature development should be targeted there. Once contributions are accepted into [microsoft/visualfsharp](https://github.com/microsoft/visualfsharp), they will be integrated into this repository for packaging and release.
+It is a fork of the official F# source repository, which is located at [dotnet/fsharp](https://github.com/dotnet/fsharp). **All** issues and contributions should be raised there. All feature development should be targeted there. Once contributions are accepted into [dotnet/fsharp](https://github.com/dotnet/fsharp), they will be integrated into this repository for packaging and release.
 
-If you need to add customizations to FSharp.Compiler.Service for your own uses, you should clone [microsoft/visualfsharp](https://github.com/microsoft/visualfsharp) and build the FSharp.Compiler.Service binaries from there. The process is exactly the same as it is described below.
+If you need to add customizations to FSharp.Compiler.Service for your own uses, you should clone [dotnet/fsharp](https://github.com/dotnet/fsharp) and build the FSharp.Compiler.Service binaries from there. The process is exactly the same as it is described below.
 
 ### No contribution is too small
 

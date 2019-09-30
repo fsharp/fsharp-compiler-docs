@@ -1,3 +1,15 @@
+#### 32.0.0
+
+* integrate dotnet/fsharp from e1b8537ee (2019-08-13) to 48f932cf8 (2019-09-27)
+* notable changes include:
+  * (preview) nameof
+  * (preview) open static classes
+  * Fixed 64-bit integer literal parsing
+  * Better exhaustiveness checking for byte and sbyte pattern matches
+  * Better native resource handling
+  * Script-host assembly load events
+  * Tons of other ones, check the F# 4.7 release notes for them
+
 #### 31.0.0
   * Integrate dotnet/fsharp from 5a8f454a1 to 05c558a61
   * Notable changes include:

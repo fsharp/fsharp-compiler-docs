@@ -28,6 +28,7 @@ open System.IO
 open Fake.FileHelper
 open FSharp.Literate
 open FSharp.MetadataFormat
+open FSharp.Formatting.Razor
 
 let root = "."
 
@@ -60,7 +61,7 @@ let fsfmt =  __SOURCE_DIRECTORY__ @@ ".." @@ ".." @@ @"packages" @@ "FSharp.Form
 let buildReference () =
   CleanDir (output @@ "reference")
   for lib in referenceBinaries do
-    MetadataFormat.Generate
+    RazorMetadataFormat.Generate
       ( bin @@ lib, output @@ "reference", layoutRoots,
         parameters = ("root", root)::info,
         sourceRepo = "https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src",
@@ -87,7 +88,7 @@ let buildReference () =
 let buildDocumentation () =
   for dir in [content] do
     let sub = if dir.Length > content.Length then dir.Substring(content.Length + 1) else "."
-    Literate.ProcessDirectory
+    RazorLiterate.ProcessDirectory
       ( dir, docTemplate, output @@ sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots, generateAnchors = true, processRecursive=false )
 

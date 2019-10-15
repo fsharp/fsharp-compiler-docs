@@ -237,3 +237,4 @@ msbuild.binlog
 
 .ionide
 .vscode
+**/.DS_Store

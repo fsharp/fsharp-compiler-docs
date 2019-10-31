@@ -11,6 +11,14 @@ variables:
   - name: NetCore_5_Dev_Channel_Id
     value: 131
 
+  # .NET Core 3.1 Dev
+  - name: PublicDevRelease_31_Channel_Id
+    value: 128
+
+  # .NET Core 5 Dev
+  - name: NetCore_5_Dev_Channel_Id
+    value: 131
+
   # .NET Tools - Validation
   - name: PublicValidationRelease_30_Channel_Id
     value: 9

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FSharpType - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>FSharpType</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+</p>
+<div class="xmldoc">
+</div>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3467', 3467)" onmouseover="showTip(event, '3467', 3467)">
+            AbbreviatedType
+          </code>
+          <div class="tip" id="3467">
+            <strong>Signature:</strong> FSharpType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the type for which this is an abbreviation</p>
+
+
+              <p>CompiledName: <code>get_AbbreviatedType</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3468', 3468)" onmouseover="showTip(event, '3468', 3468)">
+            AllInterfaces
+          </code>
+          <div class="tip" id="3468">
+            <strong>Signature:</strong> IList&lt;FSharpType&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get all the interface implementations, by walking the type hierarchy, taking into account the instantiation of this type
+if it is an instantiation of a generic type.</p>
+
+
+              <p>CompiledName: <code>get_AllInterfaces</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3469', 3469)" onmouseover="showTip(event, '3469', 3469)">
+            AnonRecordTypeDetails
+          </code>
+          <div class="tip" id="3469">
+            <strong>Signature:</strong> FSharpAnonRecordTypeDetails<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the details of the anonymous record type.</p>
+
+
+              <p>CompiledName: <code>get_AnonRecordTypeDetails</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3470', 3470)" onmouseover="showTip(event, '3470', 3470)">
+            BaseType
+          </code>
+          <div class="tip" id="3470">
+            <strong>Signature:</strong> FSharpType option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the base type, if any, taking into account the instantiation of this type
+if it is an instantiation of a generic type.</p>
+
+
+              <p>CompiledName: <code>get_BaseType</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3471', 3471)" onmouseover="showTip(event, '3471', 3471)">
+            Format(context)
+          </code>
+          <div class="tip" id="3471">
+            <strong>Signature:</strong> context:FSharpDisplayContext -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Format the type using the rules of the given display context</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3472', 3472)" onmouseover="showTip(event, '3472', 3472)">
+            FormatLayout(context)
+          </code>
+          <div class="tip" id="3472">
+            <strong>Signature:</strong> context:FSharpDisplayContext -&gt; Layout<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Format the type using the rules of the given display context</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3473', 3473)" onmouseover="showTip(event, '3473', 3473)">
+            GenericArguments
+          </code>
+          <div class="tip" id="3473">
+            <strong>Signature:</strong> IList&lt;FSharpType&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the generic arguments for a tuple type, a function type or a type constructed using a named entity</p>
+
+
+              <p>CompiledName: <code>get_GenericArguments</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3474', 3474)" onmouseover="showTip(event, '3474', 3474)">
+            GenericParameter
+          </code>
+          <div class="tip" id="3474">
+            <strong>Signature:</strong> FSharpGenericParameter<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the generic parameter data for a generic parameter type</p>
+
+
+              <p>CompiledName: <code>get_GenericParameter</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3475', 3475)" onmouseover="showTip(event, '3475', 3475)">
+            HasTypeDefinition
+          </code>
+          <div class="tip" id="3475">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates if the type is constructed using a named entity, including array and byref types</p>
+
+
+              <p>CompiledName: <code>get_HasTypeDefinition</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3476', 3476)" onmouseover="showTip(event, '3476', 3476)">
+            Instantiate(arg1)
+          </code>
+          <div class="tip" id="3476">
+            <strong>Signature:</strong> ((FSharpGenericParameter * FSharpType) list) -&gt; FSharpType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Instantiate generic type parameters in a type</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3477', 3477)" onmouseover="showTip(event, '3477', 3477)">
+            IsAbbreviation
+          </code>
+          <div class="tip" id="3477">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates this is an abbreviation for another type</p>
+
+
+              <p>CompiledName: <code>get_IsAbbreviation</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3478', 3478)" onmouseover="showTip(event, '3478', 3478)">
+            IsAnonRecordType
+          </code>
+          <div class="tip" id="3478">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates if the type is an anonymous record type. The GenericArguments property returns the type instantiation of the anonymous record type</p>
+
+
+              <p>CompiledName: <code>get_IsAnonRecordType</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3479', 3479)" onmouseover="showTip(event, '3479', 3479)">
+            IsFunctionType
+          </code>
+          <div class="tip" id="3479">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates if the type is a function type. The GenericArguments property returns the domain and range of the function type.</p>
+
+
+              <p>CompiledName: <code>get_IsFunctionType</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3480', 3480)" onmouseover="showTip(event, '3480', 3480)">
+            IsGenericParameter
+          </code>
+          <div class="tip" id="3480">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates if the type is a variable type, whether declared, generalized or an inference type parameter</p>
+
+
+              <p>CompiledName: <code>get_IsGenericParameter</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3481', 3481)" onmouseover="showTip(event, '3481', 3481)">
+            IsNamedType
+          </code>
+          <div class="tip" id="3481">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>get_IsNamedType</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3482', 3482)" onmouseover="showTip(event, '3482', 3482)">
+            IsStructTupleType
+          </code>
+          <div class="tip" id="3482">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates if the type is a struct tuple type. The GenericArguments property returns the elements of the tuple type.</p>
+
+
+              <p>CompiledName: <code>get_IsStructTupleType</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3483', 3483)" onmouseover="showTip(event, '3483', 3483)">
+            IsTupleType
+          </code>
+          <div class="tip" id="3483">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates if the type is a tuple type (reference or struct). The GenericArguments property returns the elements of the tuple type.</p>
+
+
+              <p>CompiledName: <code>get_IsTupleType</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3484', 3484)" onmouseover="showTip(event, '3484', 3484)">
+            IsUnresolved
+          </code>
+          <div class="tip" id="3484">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates this is a named type in an unresolved assembly</p>
+
+
+              <p>CompiledName: <code>get_IsUnresolved</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3485', 3485)" onmouseover="showTip(event, '3485', 3485)">
+            NamedEntity
+          </code>
+          <div class="tip" id="3485">
+            <strong>Signature:</strong> FSharpEntity<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>get_NamedEntity</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3486', 3486)" onmouseover="showTip(event, '3486', 3486)">
+            TypeDefinition
+          </code>
+          <div class="tip" id="3486">
+            <strong>Signature:</strong> FSharpEntity<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the type definition for a type</p>
+
+
+              <p>CompiledName: <code>get_TypeDefinition</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Static members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Static member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3487', 3487)" onmouseover="showTip(event, '3487', 3487)">
+            Prettify(parameters, returnParameter)
+          </code>
+          <div class="tip" id="3487">
+            <strong>Signature:</strong> (parameters:IList&lt;IList&lt;FSharpParameter&gt;&gt; * returnParameter:FSharpParameter) -&gt; IList&lt;IList&lt;FSharpParameter&gt;&gt; * FSharpParameter<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Adjust the types in a group of curried parameters and return type by removing any occurrences of type inference variables, replacing them
+systematically with lower-case type inference variables such as <c>'a</c>.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3488', 3488)" onmouseover="showTip(event, '3488', 3488)">
+            Prettify(parameters)
+          </code>
+          <div class="tip" id="3488">
+            <strong>Signature:</strong> parameters:IList&lt;IList&lt;FSharpParameter&gt;&gt; -&gt; IList&lt;IList&lt;FSharpParameter&gt;&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Adjust the types in a group of curried parameters by removing any occurrences of type inference variables, replacing them
+systematically with lower-case type inference variables such as <c>'a</c>.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3489', 3489)" onmouseover="showTip(event, '3489', 3489)">
+            Prettify(parameters)
+          </code>
+          <div class="tip" id="3489">
+            <strong>Signature:</strong> parameters:IList&lt;FSharpParameter&gt; -&gt; IList&lt;FSharpParameter&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Adjust the types in a group of parameters by removing any occurrences of type inference variables, replacing them
+systematically with lower-case type inference variables such as <c>'a</c>.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3490', 3490)" onmouseover="showTip(event, '3490', 3490)">
+            Prettify(parameter)
+          </code>
+          <div class="tip" id="3490">
+            <strong>Signature:</strong> parameter:FSharpParameter -&gt; FSharpParameter<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Adjust the type in a single parameter by removing any occurrences of type inference variables, replacing them
+systematically with lower-case type inference variables such as <c>'a</c>.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3491', 3491)" onmouseover="showTip(event, '3491', 3491)">
+            Prettify(types)
+          </code>
+          <div class="tip" id="3491">
+            <strong>Signature:</strong> types:IList&lt;FSharpType&gt; -&gt; IList&lt;FSharpType&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Adjust a group of types by removing any occurrences of type inference variables, replacing them
+systematically with lower-case type inference variables such as <c>'a</c>.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '3492', 3492)" onmouseover="showTip(event, '3492', 3492)">
+            Prettify(ty)
+          </code>
+          <div class="tip" id="3492">
+            <strong>Signature:</strong> ty:FSharpType -&gt; FSharpType<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Adjust the type by removing any occurrences of type inference variables, replacing them
+systematically with lower-case type inference variables such as <c>'a</c>.</p>
+
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

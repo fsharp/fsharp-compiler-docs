@@ -20,9 +20,6 @@ let isMono = true
 let isMono = false
 #endif
 
-// --------------------------------------------------------------------------------------
-// Utilities
-// --------------------------------------------------------------------------------------
 
 let dotnetExePath =
     // Build.cmd normally downloads a dotnet cli to: <repo-root>\artifacts\toolset\dotnet
@@ -94,7 +91,7 @@ Target "Build" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ "build ../src/buildtools/buildtools.proj -v n -c Proto"
     let fslexPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fslex/Proto/netcoreapp2.1/fslex.dll"
     let fsyaccPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fsyacc/Proto/netcoreapp2.1/fsyacc.dll"
-    runDotnet __SOURCE_DIRECTORY__ (sprintf "build FSharp.Compiler.Service.sln -v n -c Release /p:FsLexPath=%s /p:FsYaccPath=%s" fslexPath fsyaccPath)
+    runDotnet __SOURCE_DIRECTORY__ (sprintf "build FSharp.Compiler.Service.sln -v n -c Release /p:FsLexPath=%s /p:FsYaccPath=%s /p:VersionPrefix=%s" fslexPath fsyaccPath assemblyVersion)
 )
 
 Target "Test" (fun _ ->
@@ -106,8 +103,19 @@ Target "Test" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ (sprintf "test FSharp.Compiler.Service.Tests/FSharp.Compiler.Service.Tests.fsproj --no-restore --no-build -v n -c Release --test-adapter-path . --logger \"nunit;LogFilePath=%s\"" logFilePath)
 )
 
+// escape a string's content so that it can be passed on the command line
+let escapeString (s: string) =
+  let replaced = s.Replace("\"", "\\\"")
+  sprintf "\"%s\"" replaced
+
 Target "NuGet" (fun _ ->
-    runDotnet __SOURCE_DIRECTORY__ "pack FSharp.Compiler.Service.sln -v n -c Release"
+    let props =
+      [ "VersionPrefix", release.NugetVersion
+        "PackageReleaseNotes", release.Notes |> String.concat "\n"]
+      |> Seq.map (fun (prop, value) -> sprintf "-p:%s=%s" prop (escapeString value))
+      |> String.concat " "
+
+    runDotnet __SOURCE_DIRECTORY__ (sprintf "pack FSharp.Compiler.Service.sln --no-build -v n -c Release %s" props)
 )
 
 Target "GenerateDocsEn" (fun _ ->

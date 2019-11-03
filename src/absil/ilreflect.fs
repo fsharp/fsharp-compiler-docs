@@ -19,7 +19,6 @@ open FSharp.Compiler.AbstractIL.Internal
 open FSharp.Compiler.AbstractIL.Internal.Library
 open FSharp.Compiler.AbstractIL.Diagnostics 
 open FSharp.Compiler.AbstractIL.IL
-open FSharp.Compiler.AbstractIL.ILAsciiWriter 
 open FSharp.Compiler.ErrorLogger
 open FSharp.Compiler.Range
 open FSharp.Core.Printf
@@ -304,8 +303,8 @@ let convAssemblyRef (aref: ILAssemblyRef) =
     asmName.Name <- aref.Name
     (match aref.PublicKey with 
      | None -> ()
-     | Some (PublicKey bytes) -> asmName.SetPublicKey bytes
-     | Some (PublicKeyToken bytes) -> asmName.SetPublicKeyToken bytes)
+     | Some (PublicKey      bytes) -> asmName.SetPublicKey(bytes)
+     | Some (PublicKeyToken bytes) -> asmName.SetPublicKeyToken(bytes))
     let setVersion (version: ILVersionInfo) = 
        asmName.Version <- System.Version (int32 version.Major, int32 version.Minor, int32 version.Build, int32 version.Revision)
     Option.iter setVersion aref.Version
@@ -1724,7 +1723,7 @@ let buildMethodImplsPass3 cenv _tref (typB: TypeBuilder) emEnv (mimpl: IL.ILMeth
 // typeAttributesOf*
 //----------------------------------------------------------------------------
 
-let typeAttrbutesOfTypeDefKind x = 
+let typeAttributesOfTypeDefKind x = 
     match x with 
     // required for a TypeBuilder
     | ILTypeDefKind.Class -> TypeAttributes.Class
@@ -1733,14 +1732,14 @@ let typeAttrbutesOfTypeDefKind x =
     | ILTypeDefKind.Enum -> TypeAttributes.Class
     | ILTypeDefKind.Delegate -> TypeAttributes.Class
 
-let typeAttrbutesOfTypeAccess x =
+let typeAttributesOfTypeAccess x =
     match x with 
     | ILTypeDefAccess.Public -> TypeAttributes.Public
     | ILTypeDefAccess.Private -> TypeAttributes.NotPublic
     | ILTypeDefAccess.Nested macc -> 
         match macc with
         | ILMemberAccess.Assembly -> TypeAttributes.NestedAssembly
-        | ILMemberAccess.CompilerControlled -> failwith "Nested compiler controled."
+        | ILMemberAccess.CompilerControlled -> failwith "Nested compiler controlled."
         | ILMemberAccess.FamilyAndAssembly -> TypeAttributes.NestedFamANDAssem
         | ILMemberAccess.FamilyOrAssembly -> TypeAttributes.NestedFamORAssem
         | ILMemberAccess.Family -> TypeAttributes.NestedFamily
@@ -1929,7 +1928,7 @@ let rec getTypeRefsInType (allTypes: CollectTypes) ty acc =
         | CollectTypes.ValueTypesOnly -> acc 
         | CollectTypes.All -> getTypeRefsInType allTypes eltType acc
     | ILType.Value tspec -> 
-        // We usee CollectTypes.All because the .NET type loader appears to always eagerly require all types
+        // We use CollectTypes.All because the .NET type loader appears to always eagerly require all types
         // referred to in an instantiation of a generic value type
         tspec.TypeRef :: List.foldBack (getTypeRefsInType CollectTypes.All) tspec.GenericArgs acc
     | ILType.Boxed tspec -> 

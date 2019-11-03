@@ -341,7 +341,12 @@ function MSBuild {
     # Work around issues with Azure Artifacts credential provider
     # https://github.com/dotnet/arcade/issues/3932
     if [[ "$ci" == true ]]; then
-      dotnet nuget locals http-cache -c
+      "$_InitializeBuildTool" nuget locals http-cache -c
+
+      export NUGET_PLUGIN_HANDSHAKE_TIMEOUT_IN_SECONDS=20
+      export NUGET_PLUGIN_REQUEST_TIMEOUT_IN_SECONDS=20
+      Write-PipelineSetVariable -name "NUGET_PLUGIN_HANDSHAKE_TIMEOUT_IN_SECONDS" -value "20"
+      Write-PipelineSetVariable -name "NUGET_PLUGIN_REQUEST_TIMEOUT_IN_SECONDS" -value "20"
     fi
 
     local toolset_dir="${_InitializeToolset%/*}"
@@ -378,8 +383,6 @@ function MSBuild-Core {
     ExitWithExitCode $exit_code
   }
 }
-
-. "$scriptroot/pipeline-logging-functions.sh"
 
 ResolvePath "${BASH_SOURCE[0]}"
 _script_dir=`dirname "$_ResolvePath"`

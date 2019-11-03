@@ -1,5 +1,80 @@
+#### 32.0.0
+
+* integrate dotnet/fsharp from e1b8537ee to 48f932cf8
+* notable changes include:
+  * (preview) nameof
+  * (preview) open static classes
+  * Fixed 64-bit integer literal parsing
+  * Better exhaustiveness checking for byte and sbyte pattern matches
+  * Better native resource handling
+  * Script-host assembly load events
+
+#### 31.0.0
+  * Integrate dotnet/fsharp from 5a8f454a1 to 05c558a61
+  * Notable changes include:
+    * Removal of the `Microsoft.FSharp.Compiler.SourceCodeServices` namespace
+    * A new API for determining if an identifier needs to be quoted is available: `FSharp.Compiler.LexHelp.Keywords.DoesIdentifierNeedQuotation`
+    * Enhancements to the correctness of PDBs
+    * Better string formatting of records and values
+    * More stack overflow fixes in the compiler
+    * Inline IL parsing error handling
+    * `LeafExpressionConverter` handles struct tuples
+    * `FSharpChecker` now can parse a file without caching: `ParseFileNoCache`
+
+#### 30.0.0
+  * Integrate dotnet/fsharp from 25560f477 to 5a8f454a1
+  * Notable improvements include:
+    * performance improvements
+    * FCS APIs for FSComp and Implement Interface
+    * line directive handling
+    * improved performance when computing quick fix suggestions
+
+#### 29.0.1
+  * Fix versioning of the assembly
+
+#### 29.0.0
+  * Integrate visualfsharp master from 165b736b9 (2019-03-29) to 25560f477 (2019-05-24)
+  * Notable improvements include:
+    * Improved Portable PDB debugging
+    * Misc IL generation fixes
+    * Representing inlined mutable variables in the AST
+    * Moving on from net46 targeting
+    * Fixes for anonymous record generation
+    * Dependency updates
+    * Checking for constructors in FSharpMemberOrFunctionOrValue
+    * Fix unused opens false positive for record fields
+
+#### 28.0.0
+  * Integrate visualfsharp master from efb57cf56 to 8dfc02feb
+  * Notable improvements include:
+    * XmlDoc fixes for overloads
+    * Fixes for deterministic compilation
+    * Improved tail-recursion when processing large expressions
+    * Better tooltip detection for operators with constraints
+    * FSharp.Compiler.Service nuget now uses net461, netstandard2.0 and FSharp.Core 4.6.2
+    * updated lexer and parser implementations to reduce stackoverflow likelihood on .net core
+
+#### 27.0.1
+  * Integrate visualfsharp master from 5a5ca976ec296d02551e79c3eb8e8db809e4304d to 2c8497bb097d5c5d3ef12f355594873838a48494
+  * Notable improvements include:
+    * Anonymous Record support for expressions
+    * Union Case Naming fixes
+    * Trimming of the nuget package dependencies from 26.0.1
+
+#### 26.0.1
+  * Integrate visualfsharp master to 99e307f3a3ef2109ba6542ffc58affe76fc0e2a0
+
+#### 25.0.1
+  * Integrate visualfsharp master to 15d9391e78c554f91824d2be2e69938cd811df68
+
+#### 24.0.1
+  * Integrate visualfsharp master to 59156db2d0a744233d1baffee7088ca2d9f959c7
+
+#### 23.0.3
+  * Clarify package authors
+
 #### 23.0.1
-  * FSharp.Compiler.Service nuget now uses net461, netstandard2.0 and FSharp.Core 4.6.2
+  * Integrate visualfsharp master to ee938a7a5cfdf4849b091087efbf64605110541f
 
 #### 22.0.3
   * [Add entity.DeclaringEntity](https://github.com/Microsoft/visualfsharp/pull/4633), [FCS feature request](https://github.com/fsharp/FSharp.Compiler.Service/issues/830)
@@ -15,6 +90,9 @@
   * Use new .NET SDK project files
   * FSharp.Compiler.Service nuget now uses net461 and netstandard2.0
   * FSharp.Compiler.Service netstandard2.0 now supports type providers
+  
+#### 20.0.1
+  * Integrate visualfsharp master
 
 #### 19.0.1
   * Rename ``LogicalEnclosingEntity`` to ``ApparentEnclosingEntity`` for consistency int he F# codebase terminology.

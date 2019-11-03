@@ -12,7 +12,6 @@ open System.IO
 open System.Collections
 open System.Collections.Generic
 open System.Collections.Concurrent
-open System.Runtime.CompilerServices
 open System.Reflection
 open System.Text
 open System.Threading
@@ -1567,12 +1566,12 @@ type ILGenericParameterDefs = ILGenericParameterDef list
 
 let memberAccessOfFlags flags =
     let f = (flags &&& 0x00000007)
-    if f = 0x00000001 then ILMemberAccess.Private
-    elif f = 0x00000006 then ILMemberAccess.Public
-    elif f = 0x00000004 then ILMemberAccess.Family
-    elif f = 0x00000002 then ILMemberAccess.FamilyAndAssembly
-    elif f = 0x00000005 then ILMemberAccess.FamilyOrAssembly
-    elif f = 0x00000003 then ILMemberAccess.Assembly
+    if f = 0x00000001 then ILMemberAccess.Private 
+    elif f = 0x00000006 then ILMemberAccess.Public 
+    elif f = 0x00000004 then ILMemberAccess.Family 
+    elif f = 0x00000002 then ILMemberAccess.FamilyAndAssembly 
+    elif f = 0x00000005 then ILMemberAccess.FamilyOrAssembly 
+    elif f = 0x00000003 then ILMemberAccess.Assembly 
     else ILMemberAccess.CompilerControlled
 
 let convertMemberAccess (ilMemberAccess: ILMemberAccess) =
@@ -2133,26 +2132,33 @@ and [<Sealed>] ILTypeDefs(f : unit -> ILPreTypeDef[]) =
         let ns, n = splitILTypeName nm
         dict.Value.[(ns, n)].GetTypeDef()
 
+
+and [<NoEquality; NoComparison>] ILPreTypeDef =
+    abstract Namespace: string list
+    abstract Name: string
+    abstract GetTypeDef: unit -> ILTypeDef
+
+
 /// This is a memory-critical class. Very many of these objects get allocated and held to represent the contents of .NET assemblies.
-and [<Sealed>] ILPreTypeDef(nameSpace: string list, name: string, metadataIndex: int32, storage: ILTypeDefStored) =
+and [<Sealed>] ILPreTypeDefImpl(nameSpace: string list, name: string, metadataIndex: int32, storage: ILTypeDefStored) =
     let mutable store : ILTypeDef = Unchecked.defaultof<_>
 
-    member __.Namespace = nameSpace
-    member __.Name = name
-    member __.MetadataIndex = metadataIndex
+    interface ILPreTypeDef with
+        member __.Namespace = nameSpace
+        member __.Name = name
 
-    member x.GetTypeDef() =
-        match box store with
-        | null ->
-            match storage with
-            | ILTypeDefStored.Given td ->
-                store <- td
-                td
-            | ILTypeDefStored.Computed f ->
-                LazyInitializer.EnsureInitialized<ILTypeDef>(&store, Func<_>(fun () -> f()))
-            | ILTypeDefStored.Reader f ->
-                LazyInitializer.EnsureInitialized<ILTypeDef>(&store, Func<_>(fun () -> f x.MetadataIndex))
-        | _ -> store
+        member x.GetTypeDef() =
+            match box store with
+            | null ->
+                match storage with
+                | ILTypeDefStored.Given td ->
+                    store <- td
+                    td
+                | ILTypeDefStored.Computed f ->
+                    LazyInitializer.EnsureInitialized<ILTypeDef>(&store, Func<_>(fun () -> f()))
+                | ILTypeDefStored.Reader f ->
+                    LazyInitializer.EnsureInitialized<ILTypeDef>(&store, Func<_>(fun () -> f metadataIndex))
+            | _ -> store
 
 and ILTypeDefStored =
     | Given of ILTypeDef
@@ -2491,11 +2497,11 @@ let mkRefForNestedILTypeDef scope (enc: ILTypeDef list, td: ILTypeDef) =
 
 let mkILPreTypeDef (td: ILTypeDef) =
     let ns, n = splitILTypeName td.Name
-    ILPreTypeDef (ns, n, NoMetadataIdx, ILTypeDefStored.Given td)
+    ILPreTypeDefImpl (ns, n, NoMetadataIdx, ILTypeDefStored.Given td) :> ILPreTypeDef
 let mkILPreTypeDefComputed (ns, n, f) =
-    ILPreTypeDef (ns, n, NoMetadataIdx, ILTypeDefStored.Computed f)
+    ILPreTypeDefImpl (ns, n, NoMetadataIdx, ILTypeDefStored.Computed f) :> ILPreTypeDef
 let mkILPreTypeDefRead (ns, n, idx, f) =
-    ILPreTypeDef (ns, n, idx, f)
+    ILPreTypeDefImpl (ns, n, idx, f) :> ILPreTypeDef
 
 
 let addILTypeDef td (tdefs: ILTypeDefs) = ILTypeDefs (fun () -> [| yield mkILPreTypeDef td; yield! tdefs.AsArrayOfPreTypeDefs |])
@@ -2955,7 +2961,7 @@ let mkILNonGenericEmptyCtor tag superTy =
     mkILCtor (ILMemberAccess.Public, [], mkMethodBody (false, [], 8, nonBranchingInstrsToCode ctor, tag))
 
 // --------------------------------------------------------------------
-// Make a static, top level monomophic method - very useful for
+// Make a static, top level monomorphic method - very useful for
 // creating helper ILMethodDefs for internal use.
 // --------------------------------------------------------------------
 
@@ -3317,7 +3323,7 @@ let mkILSimpleModule assemblyName modname dll subsystemVersion useHighEntropyVA 
 // [instructions_to_code] makes the basic block structure of code from
 // a primitive array of instructions. We
 // do this be iterating over the instructions, pushing new basic blocks
-// everytime we encounter an address that has been recorded
+// every time we encounter an address that has been recorded
 // [bbstartToCodeLabelMap].
 //-----------------------------------------------------------------------
 
@@ -3555,20 +3561,20 @@ let et_R8 = 0x0Duy
 let et_STRING = 0x0Euy
 let et_PTR = 0x0Fuy
 let et_BYREF = 0x10uy
-let et_VALUETYPE = 0x11uy
-let et_CLASS = 0x12uy
-let et_VAR = 0x13uy
-let et_ARRAY = 0x14uy
-let et_WITH = 0x15uy
-let et_TYPEDBYREF = 0x16uy
-let et_I = 0x18uy
-let et_U = 0x19uy
-let et_FNPTR = 0x1Buy
-let et_OBJECT = 0x1Cuy
-let et_SZARRAY = 0x1Duy
-let et_MVAR = 0x1Euy
-let et_CMOD_REQD = 0x1Fuy
-let et_CMOD_OPT = 0x20uy
+let et_VALUETYPE      = 0x11uy
+let et_CLASS          = 0x12uy
+let et_VAR            = 0x13uy
+let et_ARRAY          = 0x14uy
+let et_WITH           = 0x15uy
+let et_TYPEDBYREF     = 0x16uy
+let et_I              = 0x18uy
+let et_U              = 0x19uy
+let et_FNPTR          = 0x1Buy
+let et_OBJECT         = 0x1Cuy
+let et_SZARRAY        = 0x1Duy
+let et_MVAR           = 0x1Euy
+let et_CMOD_REQD      = 0x1Fuy
+let et_CMOD_OPT       = 0x20uy
 
 let formatILVersion (version: ILVersionInfo) = sprintf "%d.%d.%d.%d" (int version.Major) (int version.Minor) (int version.Build) (int version.Revision)
 

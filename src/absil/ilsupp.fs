@@ -2,11 +2,8 @@
 
 module internal FSharp.Compiler.AbstractIL.Internal.Support
 
-open Internal.Utilities
 open FSharp.Compiler.AbstractIL
 open FSharp.Compiler.AbstractIL.Internal
-open FSharp.Compiler.AbstractIL.Internal.Bytes
-open FSharp.Compiler.AbstractIL.Diagnostics
 open FSharp.Compiler.AbstractIL.Internal.Library
 open FSharp.Compiler.AbstractIL.Internal.NativeRes
 #if FX_NO_CORHOST_SIGNER
@@ -15,7 +12,6 @@ open FSharp.Compiler.AbstractIL.Internal.StrongNameSign
 
 open System
 open System.IO
-open System.Text
 open System.Reflection
 
 #if !FX_NO_SYMBOLSTORE
@@ -744,7 +740,7 @@ type ISymUnmanagedWriter2 =
     abstract OpenScope: startOffset: int * pRetVal: int byref -> unit
     abstract CloseScope: endOffset: int -> unit
     abstract SetScopeRange: scopeID: int * startOffset: int * endOffset: int -> unit
-    abstract DefineLocalVariable: [<MarshalAs(UnmanagedType.LPWStr)>] varname: string *
+    abstract DefineLocalVariable: [<MarshalAs(UnmanagedType.LPWStr)>] varName: string *
                                 attributes: int *
                                 cSig: int *
                                 [<MarshalAs(UnmanagedType.LPArray, SizeParamIndex=2s)>]signature: byte[] *
@@ -754,7 +750,7 @@ type ISymUnmanagedWriter2 =
                                 addr3: int *
                                 startOffset: int *
                                 endOffset: int -> unit
-    abstract DefineParameter: [<MarshalAs(UnmanagedType.LPWStr)>] paramname: string *
+    abstract DefineParameter: [<MarshalAs(UnmanagedType.LPWStr)>] paramName: string *
                             attributes: int *
                             sequence: int *
                             addressKind: int *
@@ -762,7 +758,7 @@ type ISymUnmanagedWriter2 =
                             addr2: int *
                             addr3: int -> unit
     abstract DefineField: parent: int *
-                      [<MarshalAs(UnmanagedType.LPWStr)>] fieldname: string *
+                      [<MarshalAs(UnmanagedType.LPWStr)>] fieldName: string *
                       attributes: int *
                       cSig: int *
                       [<MarshalAs(UnmanagedType.LPArray, SizeParamIndex=3s)>]signature: byte[] *
@@ -770,7 +766,7 @@ type ISymUnmanagedWriter2 =
                       addr1: int *
                       addr2: int *
                       addr3: int -> unit
-    abstract DefineGlobalVariable: [<MarshalAs(UnmanagedType.LPWStr)>] globalvarname: string *
+    abstract DefineGlobalVariable: [<MarshalAs(UnmanagedType.LPWStr)>] globalVarName: string *
                                   attributes: int *
                                   cSig: int *
                                   [<MarshalAs(UnmanagedType.LPArray, SizeParamIndex=2s)>]signature: byte[] *
@@ -780,7 +776,7 @@ type ISymUnmanagedWriter2 =
                                   addr3: int -> unit
     abstract Close: unit -> unit
     abstract SetSymAttribute: parent: int *
-                            [<MarshalAs(UnmanagedType.LPWStr)>] attname: string *
+                            [<MarshalAs(UnmanagedType.LPWStr)>] attName: string *
                             cData: int *
                             [<MarshalAs(UnmanagedType.LPArray, SizeParamIndex=2s)>]data: byte[] -> unit
     abstract OpenNamespace: [<MarshalAs(UnmanagedType.LPWStr)>] nsname: string -> unit
@@ -809,16 +805,16 @@ type ISymUnmanagedWriter2 =
                                   [<MarshalAs(UnmanagedType.LPArray, SizeParamIndex=1s)>]endColumns: int [] -> unit
     abstract RemapToken: oldToken: int * newToken: int -> unit
     abstract Initialize2: emitter: nativeint *
-                    [<MarshalAs(UnmanagedType.LPWStr)>] tempfilename: string *
+                    [<MarshalAs(UnmanagedType.LPWStr)>] tempFileName: string *
                     stream: IStream *
                     fullBuild: bool *
-                    [<MarshalAs(UnmanagedType.LPWStr)>] finalfilename: string -> unit
-    abstract DefineConstant: [<MarshalAs(UnmanagedType.LPWStr)>] constname: string *
+                    [<MarshalAs(UnmanagedType.LPWStr)>] finalFileName: string -> unit
+    abstract DefineConstant: [<MarshalAs(UnmanagedType.LPWStr)>] constName: string *
                             value: Object *
                             cSig: int *
                             [<MarshalAs(UnmanagedType.LPArray, SizeParamIndex=2s)>]signature: byte[] -> unit
     abstract Abort: unit -> unit
-    abstract DefineLocalVariable2: [<MarshalAs(UnmanagedType.LPWStr)>] localvarname2: string *
+    abstract DefineLocalVariable2: [<MarshalAs(UnmanagedType.LPWStr)>] localVarName2: string *
                                   attributes: int *
                                   sigToken: int *
                                   addressKind: int *
@@ -827,14 +823,14 @@ type ISymUnmanagedWriter2 =
                                   addr3: int *
                                   startOffset: int *
                                   endOffset: int -> unit
-    abstract DefineGlobalVariable2: [<MarshalAs(UnmanagedType.LPWStr)>] globalvarname2: string *
+    abstract DefineGlobalVariable2: [<MarshalAs(UnmanagedType.LPWStr)>] globalVarName2: string *
                                     attributes: int *
                                     sigToken: int *
                                     addressKind: int *
                                     addr1: int *
                                     addr2: int *
                                     addr3: int -> unit
-    abstract DefineConstant2: [<MarshalAs(UnmanagedType.LPWStr)>] constantname2: string *
+    abstract DefineConstant2: [<MarshalAs(UnmanagedType.LPWStr)>] constantName2: string *
                               value: Object *
                               sigToken: int -> unit
     abstract OpenMethod2: method2: int *

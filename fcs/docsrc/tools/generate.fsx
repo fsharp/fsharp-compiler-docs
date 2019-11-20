@@ -3,6 +3,9 @@
 // (the generated documentation is stored in the 'docs' directory)
 // --------------------------------------------------------------------------------------
 
+#r "paket: groupref generate //"
+#load "./.fake/generate.fsx/intellisense.fsx"
+
 // Binaries that have XML documentation (in a corresponding generated XML file)
 let referenceBinaries = [ "FSharp.Compiler.Service.dll" ]
 // Web site location for the generated documentation
@@ -20,15 +23,12 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
-#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
-#I "../../packages/FAKE/tools"
-#r "../../packages/FAKE/tools/FakeLib.dll"
 open Fake
 open System.IO
-open Fake.FileHelper
+open Fake.IO.FileSystemOperators
+open Fake.IO
+open Fake.Core
 open FSharp.Literate
-open FSharp.MetadataFormat
-open FSharp.Formatting.Razor
 
 let root = "."
 
@@ -49,17 +49,18 @@ let layoutRoots =
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
-  CopyRecursive files output true |> Log "Copying file: "
-  ensureDirectory (output @@ "content")
-  CopyRecursive (formatting @@ "styles") (output @@ "content") true
-    |> Log "Copying styles and scripts: "
+  Shell.copyRecursive files output true 
+  |> Trace.tracefn "Copying file: %A"
+  Directory.ensure (output @@ "content")
+  Shell.copyRecursive (formatting @@ "styles") (output @@ "content") true
+  |> Trace.tracefn "Copying styles and scripts: %A"
 
 let clr =  System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
 let fsfmt =  __SOURCE_DIRECTORY__ @@ ".." @@ ".." @@ @"packages" @@ "FSharp.Formatting" @@ "lib" @@ "net40"
 
 // Build API reference from XML comments
 let buildReference () =
-  CleanDir (output @@ "reference")
+  Shell.cleanDir (output @@ "reference")
   for lib in referenceBinaries do
     RazorMetadataFormat.Generate
       ( bin @@ lib, output @@ "reference", layoutRoots,

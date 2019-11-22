@@ -72,3 +72,43 @@ type InteractiveTests() =
         let _result, errors = script.Eval(sprintf "#r \"%s\"" testAssembly)
         Assert.AreEqual(1, errors.Length)
         Assert.False(foundAssemblyReference)
+
+    [<Test>]
+    member _.``Compilation errors report a specific exception``() =
+        use script = new FSharpScript()
+        let result, _errors = script.Eval("abc")
+        match result with
+        | Ok(_) -> Assert.Fail("expected a failure")
+        | Error(ex) -> Assert.IsInstanceOf<FsiCompilationException>(ex)
+
+    [<Test>]
+    member _.``Runtime exceptions are propagated``() =
+        use script = new FSharpScript()
+        let result, errors = script.Eval("System.IO.File.ReadAllText(\"not-a-file-path-that-can-be-found-on-disk.txt\")")
+        Assert.IsEmpty(errors)
+        match result with
+        | Ok(_) -> Assert.Fail("expected a failure")
+        | Error(ex) -> Assert.IsInstanceOf<FileNotFoundException>(ex)
+
+    [<Test; Ignore("This timing test fails in different environments. Skipping so that we don't assume an arbitrary CI environment has enough compute/etc. for what we need here.")>]
+    member _.``Evaluation can be cancelled``() =
+        use script = new FSharpScript()
+        let sleepTime = 10000
+        let mutable result = None
+        let mutable wasCancelled = false
+        use tokenSource = new CancellationTokenSource()
+        let eval () =
+            try
+                result <- Some(script.Eval(sprintf "System.Threading.Thread.Sleep(%d)\n2" sleepTime, tokenSource.Token))
+                // if execution gets here (which it shouldn't), the value `2` will be returned
+            with
+            | :? OperationCanceledException -> wasCancelled <- true
+        let sw = Stopwatch.StartNew()
+        let evalTask = Task.Run(eval)
+        // cancel and wait for finish
+        tokenSource.Cancel()
+        evalTask.GetAwaiter().GetResult()
+        // ensure we cancelled and didn't complete the sleep or evaluation
+        Assert.True(wasCancelled)
+        Assert.LessOrEqual(sw.ElapsedMilliseconds, sleepTime)
+        Assert.AreEqual(None, result)

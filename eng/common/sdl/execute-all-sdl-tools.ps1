@@ -5,7 +5,7 @@ Param(
   [string] $Repository=$env:BUILD_REPOSITORY_NAME,                                               # Required: the name of the repository (e.g. dotnet/arcade)
   [string] $BranchName=$env:BUILD_SOURCEBRANCH,                                                  # Optional: name of branch or version of gdn settings; defaults to master
   [string] $SourceDirectory=$env:BUILD_SOURCESDIRECTORY,                                         # Required: the directory where source files are located
-  [string] $ArtifactsDirectory = (Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY ('artifacts')),  # Required: the directory where build artifacts are located
+  [string] $ArtifactsDirectory = (Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY ("artifacts")),  # Required: the directory where build artifacts are located
   [string] $AzureDevOpsAccessToken,                                                              # Required: access token for dnceng; should be provided via KeyVault
   [string[]] $SourceToolsList,                                                                   # Optional: list of SDL tools to run on source code
   [string[]] $ArtifactToolsList,                                                                 # Optional: list of SDL tools to run on built artifacts
@@ -22,7 +22,7 @@ Param(
   [string] $TsaCodebaseAdmin,                                                                    # Optional: only needed if TsaOnboard is true; the aliases which are admins of the TSA codebase (e.g. DOMAIN\alias); TSA is the automated framework used to upload test results as bugs.
   [string] $TsaBugAreaPath,                                                                      # Optional: only needed if TsaOnboard is true; the area path where TSA will file bugs in AzDO; TSA is the automated framework used to upload test results as bugs.
   [string] $TsaIterationPath,                                                                    # Optional: only needed if TsaOnboard is true; the iteration path where TSA will file bugs in AzDO; TSA is the automated framework used to upload test results as bugs.
-  [string] $GuardianLoggerLevel='Standard',                                                      # Optional: the logger level for the Guardian CLI; options are Trace, Verbose, Standard, Warning, and Error
+  [string] $GuardianLoggerLevel="Standard",                                                      # Optional: the logger level for the Guardian CLI; options are Trace, Verbose, Standard, Warning, and Error
   [string[]] $CrScanAdditionalRunConfigParams,                                                   # Optional: Additional Params to custom build a CredScan run config in the format @("xyz:abc","sdf:1")
   [string[]] $PoliCheckAdditionalRunConfigParams                                                 # Optional: Additional Params to custom build a Policheck run config in the format @("xyz:abc","sdf:1")
 )

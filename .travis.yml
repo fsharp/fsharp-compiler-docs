@@ -4,12 +4,12 @@ os:
   - linux
   - osx
 
-osx_image: xcode9
+osx_image: xcode11.2
 
 mono:
   - weekly
   - latest
-  - 5.8.0
+  - 6.0.0
 
 dotnet: 3.0.100
 
@@ -18,6 +18,6 @@ sudo: false
 install:
 
 script: 
-  - ./fcs/build.sh Build
+  - ./fcs/build.sh TestAndNuget
 
 

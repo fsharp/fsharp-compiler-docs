@@ -1,3 +1,14 @@
+#### 33.0.1
+
+Integrate dotnet/fsharp from 4f5f08320 to 7b25d7f82. Notable changes include:
+
+* Addition of the FsharpUnionCase.HasFields property
+* FCS builds entirely on .Net Core now
+* Better debug information for ranges
+* Support for Literal values in signature files
+* Using memory-mapped files cross-platform to read IL.
+
+
 #### 33.0.0
 
 Integrate dotnet/fsharp from 48f932cf8 to 085985140. Notable changes include:

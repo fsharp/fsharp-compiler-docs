@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FSharpCheckFileResults - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>FSharpCheckFileResults</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+</p>
+<div class="xmldoc">
+<p>A handle to the results of CheckFileInProject.</p>
+
+</div>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2943', 2943)" onmouseover="showTip(event, '2943', 2943)">
+            DependencyFiles
+          </code>
+          <div class="tip" id="2943">
+            <strong>Signature:</strong> string []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates the set of files which must be watched to accurately track changes that affect these results,
+Clients interested in reacting to updates to these files should watch these files and take actions as described
+in the documentation for compiler service.</p>
+
+
+              <p>CompiledName: <code>get_DependencyFiles</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2944', 2944)" onmouseover="showTip(event, '2944', 2944)">
+            Errors
+          </code>
+          <div class="tip" id="2944">
+            <strong>Signature:</strong> FSharpErrorInfo []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The errors returned by parsing a source file.</p>
+
+
+              <p>CompiledName: <code>get_Errors</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2945', 2945)" onmouseover="showTip(event, '2945', 2945)">
+            GetAllUsesOfAllSymbolsInFile()
+          </code>
+          <div class="tip" id="2945">
+            <strong>Signature:</strong> unit -&gt; Async&lt;FSharpSymbolUse []&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get all textual usages of all symbols throughout the file</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2946', 2946)" onmouseover="showTip(event, '2946', 2946)">
+            GetDeclarationListInfo(...)
+          </code>
+          <div class="tip" id="2946">
+            <strong>Signature:</strong> (ParsedFileResultsOpt:FSharpParseFileResults option * line:int * lineText:string * partialName:PartialLongName * getAllEntities:(unit -&gt; AssemblySymbol list) option * hasTextChangedSinceLastTypecheck:(obj * range -&gt; bool) option * userOpName:string option) -&gt; Async&lt;FSharpDeclarationListInfo&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the items for a declaration list</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2947', 2947)" onmouseover="showTip(event, '2947', 2947)">
+            GetDeclarationListSymbols(...)
+          </code>
+          <div class="tip" id="2947">
+            <strong>Signature:</strong> (ParsedFileResultsOpt:FSharpParseFileResults option * line:int * lineText:string * partialName:PartialLongName * getAllEntities:(unit -&gt; AssemblySymbol list) option * hasTextChangedSinceLastTypecheck:(obj * range -&gt; bool) option * userOpName:string option) -&gt; Async&lt;FSharpSymbolUse list list&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the items for a declaration list in FSharpSymbol format</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2948', 2948)" onmouseover="showTip(event, '2948', 2948)">
+            GetDeclarationLocation(...)
+          </code>
+          <div class="tip" id="2948">
+            <strong>Signature:</strong> (line:int * colAtEndOfNames:int * lineText:string * names:string list * preferFlag:bool option * userOpName:string option) -&gt; Async&lt;FSharpFindDeclResult&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Resolve the names at the given location to the declaration location of the corresponding construct.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2949', 2949)" onmouseover="showTip(event, '2949', 2949)">
+            GetF1Keyword(...)
+          </code>
+          <div class="tip" id="2949">
+            <strong>Signature:</strong> (line:int * colAtEndOfNames:int * lineText:string * names:string list * userOpName:string option) -&gt; Async&lt;string option&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Compute the Visual Studio F1-help key identifier for the given location, based on name resolution results</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2950', 2950)" onmouseover="showTip(event, '2950', 2950)">
+            GetFormatSpecifierLocations()
+          </code>
+          <div class="tip" id="2950">
+            <strong>Signature:</strong> unit -&gt; range []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the locations of format specifiers</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2951', 2951)" onmouseover="showTip(event, '2951', 2951)">
+            GetFormatSpecifierLocationsAndArity()
+          </code>
+          <div class="tip" id="2951">
+            <strong>Signature:</strong> unit -&gt; (range * int) []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the locations of and number of arguments associated with format specifiers</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2952', 2952)" onmouseover="showTip(event, '2952', 2952)">
+            GetMethods(...)
+          </code>
+          <div class="tip" id="2952">
+            <strong>Signature:</strong> (line:int * colAtEndOfNames:int * lineText:string * names:string list option * userOpName:string option) -&gt; Async&lt;FSharpMethodGroup&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Compute a set of method overloads to show in a dialog relevant to the given code location.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2953', 2953)" onmouseover="showTip(event, '2953', 2953)">
+            GetMethodsAsSymbols(...)
+          </code>
+          <div class="tip" id="2953">
+            <strong>Signature:</strong> (line:int * colAtEndOfNames:int * lineText:string * names:string list * userOpName:string option) -&gt; Async&lt;FSharpSymbolUse list option&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Compute a set of method overloads to show in a dialog relevant to the given code location.  The resulting method overloads are returned as symbols.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2954', 2954)" onmouseover="showTip(event, '2954', 2954)">
+            GetSemanticClassification(arg1)
+          </code>
+          <div class="tip" id="2954">
+            <strong>Signature:</strong> (range option) -&gt; (range * SemanticClassificationType) []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get any extra colorization info that is available after the typecheck</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2955', 2955)" onmouseover="showTip(event, '2955', 2955)">
+            GetStructuredToolTipText(...)
+          </code>
+          <div class="tip" id="2955">
+            <strong>Signature:</strong> (line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * userOpName:string option) -&gt; Async&lt;FSharpStructuredToolTipText&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Compute a formatted tooltip for the given location</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2956', 2956)" onmouseover="showTip(event, '2956', 2956)">
+            GetSymbolUseAtLocation(...)
+          </code>
+          <div class="tip" id="2956">
+            <strong>Signature:</strong> (line:int * colAtEndOfNames:int * lineText:string * names:string list * userOpName:string option) -&gt; Async&lt;FSharpSymbolUse option&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Resolve the names at the given location to a use of symbol.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2957', 2957)" onmouseover="showTip(event, '2957', 2957)">
+            GetToolTipText(...)
+          </code>
+          <div class="tip" id="2957">
+            <strong>Signature:</strong> (line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * userOpName:string option) -&gt; Async&lt;FSharpToolTipText&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Compute a formatted tooltip for the given location</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2958', 2958)" onmouseover="showTip(event, '2958', 2958)">
+            GetUsesOfSymbolInFile(symbol)
+          </code>
+          <div class="tip" id="2958">
+            <strong>Signature:</strong> symbol:FSharpSymbol -&gt; Async&lt;FSharpSymbolUse []&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the textual usages that resolved to the given symbol throughout the file</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2959', 2959)" onmouseover="showTip(event, '2959', 2959)">
+            HasFullTypeCheckInfo
+          </code>
+          <div class="tip" id="2959">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Indicates whether type checking successfully occurred with some results returned. If false, indicates that
+an unrecoverable error in earlier checking/parsing/resolution steps.</p>
+
+
+              <p>CompiledName: <code>get_HasFullTypeCheckInfo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2960', 2960)" onmouseover="showTip(event, '2960', 2960)">
+            ImplementationFile
+          </code>
+          <div class="tip" id="2960">
+            <strong>Signature:</strong> FSharpImplementationFileContents option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Represents complete typechecked implementation file, including its typechecked signatures if any.</p>
+
+
+              <p>CompiledName: <code>get_ImplementationFile</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2961', 2961)" onmouseover="showTip(event, '2961', 2961)">
+            IsRelativeNameResolvableFromSymbol(...)
+          </code>
+          <div class="tip" id="2961">
+            <strong>Signature:</strong> (cursorPos:pos * plid:string list * symbol:FSharpSymbol * userOpName:string option) -&gt; Async&lt;bool&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Determines if a long ident is resolvable at a specific point.
+<param name="userOpName">An optional string used for tracing compiler operations associated with this request.</param></p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2962', 2962)" onmouseover="showTip(event, '2962', 2962)">
+            OpenDeclarations
+          </code>
+          <div class="tip" id="2962">
+            <strong>Signature:</strong> FSharpOpenDeclaration []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Open declarations in the file, including auto open modules.</p>
+
+
+              <p>CompiledName: <code>get_OpenDeclarations</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2963', 2963)" onmouseover="showTip(event, '2963', 2963)">
+            PartialAssemblySignature
+          </code>
+          <div class="tip" id="2963">
+            <strong>Signature:</strong> FSharpAssemblySignature<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get a view of the contents of the assembly up to and including the file just checked</p>
+
+
+              <p>CompiledName: <code>get_PartialAssemblySignature</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '2964', 2964)" onmouseover="showTip(event, '2964', 2964)">
+            ProjectContext
+          </code>
+          <div class="tip" id="2964">
+            <strong>Signature:</strong> FSharpProjectContext<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get the resolution of the ProjectOptions</p>
+
+
+              <p>CompiledName: <code>get_ProjectContext</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

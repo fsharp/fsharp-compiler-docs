@@ -1,0 +1,12 @@
+os: Visual Studio 2019
+
+init:
+  - git config --global core.autocrlf input
+
+build_script:
+  - cmd: fcs\build.cmd TestAndNuGet
+
+test: off
+version: '{build}'
+artifacts:
+  - path: artifacts\bin\fcs\Release\*.nupkg

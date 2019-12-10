@@ -73,7 +73,7 @@ let getUntypedTree (file, input) =
       checker.GetProjectOptionsFromScript(file, input) 
       |> Async.RunSynchronously
 
-  let parsingOptions, _errors = checker.GetParsingOptionsFromProjectOptions(projOptions)
+  let parsingOptions, _errors = checker.GetParsingOptionsFromProjectOptions(projectOptions)
 
   // コンパイラの第1フェーズを実行する
   let untypedRes = 

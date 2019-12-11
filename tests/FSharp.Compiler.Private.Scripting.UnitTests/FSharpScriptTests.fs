@@ -3,8 +3,10 @@
 namespace FSharp.Compiler.Scripting.UnitTests
 
 open System
+open System.Diagnostics
 open System.IO
 open System.Threading
+open System.Threading.Tasks
 open FSharp.Compiler.Interactive.Shell
 open FSharp.Compiler.Scripting
 open NUnit.Framework
@@ -19,6 +21,14 @@ type InteractiveTests() =
         let value = opt.Value
         Assert.AreEqual(typeof<int>, value.ReflectionType)
         Assert.AreEqual(2, value.ReflectionValue :?> int)
+
+    [<Test>]
+    member __.``Declare and eval object value``() =
+        use script = new FSharpScript()
+        let opt = script.Eval("let x = 1 + 2\r\nx") |> getValue
+        let value = opt.Value
+        Assert.AreEqual(typeof<int>, value.ReflectionType)
+        Assert.AreEqual(3, value.ReflectionValue :?> int)
 
     [<Test>]
     member __.``Capture console input``() =

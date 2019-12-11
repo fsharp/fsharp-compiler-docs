@@ -1621,7 +1621,7 @@ type MethInfo =
         x.GetObjArgTypes(amap, m, minst)
         |> List.tryHead
         |> Option.bind (fun ty ->
-            if isByrefTy x.TcGlobals ty then Some ty
+            if isByrefTy x.TcGlobals ty then Some(ty)
             else None)
 
 //-------------------------------------------------------------------------

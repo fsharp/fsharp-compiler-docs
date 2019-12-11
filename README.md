@@ -1,94 +1,66 @@
-# The F# compiler, F# core library, and F# editor tools
+# F# Compiler Service
 
-You're invited to contribute to future releases of the F# compiler, core library, and tools. Development of this repository can be done on any OS supported by [.NET Core](https://dotnet.microsoft.com/).
+The FSharp.Compiler.Service package contains a custom build of the F# compiler that
+exposes additional functionality for implementing F# language bindings, additional
+tools based on the compiler or refactoring tools. The package also includes F#
+interactive service that can be used for embedding F# scripting into your applications. This repository exists entirely to create and publish that package.
 
-## Contributing
+## Purpose
 
-### Quickstart on Windows
+> This repo is (mostly) **read only**
 
-Build from the command line:
+This repo exists as a downstream packaging repository for the [FSharp.Compiler.Service](https://www.nuget.org/packages/FSharp.Compiler.Service) NuGet Package. It serves the following purposes _only_:
 
-```
-build.cmd
-```
 
-The build depends on an installation of Visual Studio. To build the compiler without this dependency use:
+* Release packaging
+* Hosting [public documentation](http://fsharp.github.io/FSharp.Compiler.Service/)
+* Serving as a stable base for Fable
 
-```
-build.cmd -noVisualStudio
-```
+It is a fork of the official F# source repository, which is located at [dotnet/fsharp](https://github.com/dotnet/fsharp). **All** issues and contributions should be raised there. All feature development should be targeted there. Once contributions are accepted into [dotnet/fsharp](https://github.com/dotnet/fsharp), they will be integrated into this repository for packaging and release.
 
-After it's finished, open either `FSharp.sln` or `VisualFSharp.sln` in your editor of choice. The latter solution is larger but includes the F# tools for Visual Studio and its associated infrastructure.
-
-### Quickstart on Linux or macOS
-
-Build from the command line:
-
-```
-./build.sh
-```
-
-After it's finished, open `FSharp.sln` in your editor of choice.
-
-### More options and information
-
-See [DEVGUIDE.md](DEVGUIDE.md) and [TESTGUIDE.md](TESTGUIDE.md) for more details on additional configurations for building and testing, how to update compiler error messages, and more.
+If you need to add customizations to FSharp.Compiler.Service for your own uses, you should clone [dotnet/fsharp](https://github.com/dotnet/fsharp) and build the FSharp.Compiler.Service binaries from there. The process is exactly the same as it is described below.
 
 ### No contribution is too small
 
 Even if you find a single-character typo, we're happy to take the change! Although the codebase can feel daunting for beginners, we and other contributors are happy to help you along.
 
+## Documentation
+
+For more information about the project, see:
+
+ * [F# Compiler Service API and usage documentation](http://fsharp.github.io/FSharp.Compiler.Service/)
+ * [Description of the project structure](http://fsharp.github.io/FSharp.Compiler.Service/devnotes.html)
+
+## Build and Test
+
+On Windows:
+
+    .\fcs\build.cmd Test
+
+On Linux:
+
+    ./fcs/build.sh Test
+
+To build NuGet packages:
+
+    build NuGet
+    build TestAndNuGet
+
 ## Build Status
 
-| Branch | Status |
-|:------:|:------:|
-|master|[![Build Status](https://dev.azure.com/dnceng/public/_apis/build/status/dotnet/fsharp/fsharp-ci?branchName=master)](https://dev.azure.com/dnceng/public/_build/latest?definitionId=496&branchName=master)|
+Branch | OS | Badge |
+------ | ------ | - |
+master | Linux/OSX | [![Build Status](https://travis-ci.org/fsharp/FSharp.Compiler.Service.svg?branch=master)](https://travis-ci.org/fsharp/FSharp.Compiler.Service) |
+master | Windows | [![Build status](https://ci.appveyor.com/api/projects/status/3yllu2qh19brk61d?svg=true)](https://ci.appveyor.com/project/fsgit/fsharp-compiler-service)  |
 
-## Using nightly releases in Visual Studio
+## NuGet package
 
-You can use the latest `master` build of the F# compiler and tools for Visual Studio via our nightly releases if you are a Visual Studio user. See details on setup here:
+[![NuGet Badge](https://buildstats.info/nuget/FSharp.Compiler.Service)](https://www.nuget.org/packages/FSharp.Compiler.Service)
 
-https://blogs.msdn.microsoft.com/dotnet/2017/03/14/announcing-nightly-releases-for-the-visual-f-tools/
+Stable builds are available in the NuGet Gallery:
+[https://www.nuget.org/packages/FSharp.Compiler.Service](https://www.nuget.org/packages/FSharp.Compiler.Service)
 
-### Even more nightly than the nightly
-
-Alternatively, if you _really_ want to live on the bleeding edge, you can set up a nightly feed for the Visual Studio preview releases, which use the latest commit in the preview branch. To do so, follow the same instructions as the above blog post, but instead with these links:
-
-* Set your feed to the preview feed: https://dotnet.myget.org/F/fsharp-preview/vsix
-* Install a VSIX manually from the preview feed: https://dotnet.myget.org/feed/fsharp-preview/package/vsix/VisualFSharp
-
-## Branches
-
-These are the branches in use:
-
-* `master`
-  - Most contributions go here.
-  - Able to be built, installed and used in the latest public Visual Studio release.
-  - May contain updated F# features and logic.
-  - Used to build nightly VSIX (see above).
-  - Gets integrated into https://github.com/fsharp/fsharp to form the basis of Mono releases
-  - Gets integrated into https://github.com/fsharp/FSharp.Compiler.Service to form the basis of FSharp.Compiler.Service releases
-
-* `dev15.9`
-  - Long-term servicing branch for VS 2017 update 15.9.x. We do not expect to service that release, but if we do, that's where the changes will go.
-
-* `dev16.x`
-  - Latest release branch for the particular point release of Visual Studio.
-  - Incorporates features and fixes from master up to a particular branch point, then selective cherry-picks.
-  - May contain new features that depend on new things or fixes in the corresponding forthcoming Visual Studio release.
-  - Gets integrated back into master once the corresponding Visual Studio release is made.
-
-## F# language and core library evolution
-
-Evolution of the F# language and core library follows a process spanning two additional repositories. The process is as follows:
-
-1. Use the [F# language suggestions repo](https://github.com/fsharp/fslang-suggestions/) to search for ideas, vote on ones you like, submit new ideas, and discuss details with the F# community.
-2. Ideas that are "approved in principle" are eligible for a new RFC in the [F# language design repo](https://github.com/fsharp/fslang-design). This is where the technical specification and discussion of approved suggestions go.
-3. Implementations and testing of an RFC are submitted to this repository.
-
-## Additional project documentation
-
-The following links can help you get an overview of some technical aspects of the F# language and compiler:
+All AppVeyor builds are available using the NuGet feed: https://ci.appveyor.com/nuget/fsgit-fsharp-compiler-service
 
 * [The F# Compiler Technical Guide](https://fsharp.github.io/2015/09/29/fsharp-compiler-guide.html)
 * [The F# Language Specification](https://fsharp.org/specs/language-spec/)
@@ -107,9 +79,15 @@ Members of the [F# Software Foundation](https://fsharp.org) are invited to the [
 
 Additionally, you can use the `#fsharp` tag on Twitter if you have general F# questions, including about this repository. Chances are you'll get multiple responses.
 
-## About F\#
+The maintainers of this repository are:
 
-If you're curious about F# itself, check out these links:
+ - [Don Syme](http://github.com/dsyme)
+ - [Tomas Petricek](http://github.com/tpetricek)
+ - [Enrico Sada](http://github.com/enricosada)
+ - [Chet Husk](http://github.com/baronfel)
+ - Many people have helped including [Robin Neatherway](https://github.com/rneatherway), [Dave Thomas](http://github.com/7sharp9), [Lincoln Atkinson](http://github.com/latkin), [Kevin Ransom](http://github.com/KevinRansom), [Vladimir Matveev](http://github.com/vladima) and others
+
+## About F\#
 
 * [What is F#](https://docs.microsoft.com/dotnet/fsharp/what-is-fsharp)
 * [Get started with F#](https://docs.microsoft.com/dotnet/fsharp/get-started/)

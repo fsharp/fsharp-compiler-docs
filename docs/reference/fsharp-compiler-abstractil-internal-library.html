@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Library - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>Library</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
+</p>
+<div class="xmldoc">
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+  <h2>Nested types and modules</h2>
+  <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-anycallerthreadtoken.html">AnyCallerThreadToken</a>
+          </td>
+          <td class="xmldoc"><p>Represents a token that indicates execution on a any of several potential user threads calling the F# compiler services.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-cancellable-1.html">Cancellable<'TResult></a>
+          </td>
+          <td class="xmldoc"><p>Represents a cancellable computation with explicit representation of a cancelled result.</p>
+<p>A cancellable computation is passed may be cancelled via a CancellationToken, which is propagated implicitly.<br />
+If cancellation occurs, it is propagated as data rather than by raising an OperationCanceledException.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-cancellablebuilder.html">CancellableBuilder</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-compilationthreadtoken.html">CompilationThreadToken</a>
+          </td>
+          <td class="xmldoc"><p>Represents a token that indicates execution on the compilation thread, i.e.
+- we have full access to the (partially mutable) TAST and TcImports data structures
+- compiler execution may result in type provider invocations when resolving types and members
+- we can access various caches in the SourceCodeServices</p>
+<p>Like other execution tokens this should be passed via argument passing and not captured/stored beyond
+the lifetime of stack-based calls. This is not checked, it is a discipline within the compiler code.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-dictionaryextensions.html">DictionaryExtensions</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-eventually-1.html">Eventually<'T></a>
+          </td>
+          <td class="xmldoc"><p>Computations that can cooperatively yield by returning a continuation</p>
+<ul>
+<li>
+<p>Any yield of a NotYetDone should typically be "abandonable" without adverse consequences. No resource release
+will be called when the computation is abandoned.</p>
+</li>
+<li>
+<p>Computations suspend via a NotYetDone may use local state (mutables), where these are
+captured by the NotYetDone closure. Computations do not need to be restartable.</p>
+</li>
+<li>
+<p>The key thing is that you can take an Eventually value and run it with
+Eventually.repeatedlyProgressUntilDoneOrTimeShareOverOrCanceled</p>
+</li>
+<li>Cancellation results in a suspended computation rather than complete abandonment</li>
+</ul>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-eventuallybuilder.html">EventuallyBuilder</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-executiontoken.html">ExecutionToken</a>
+          </td>
+          <td class="xmldoc"><p>Represents a permission active at this point in execution</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-ipartialequalitycomparer-1.html">IPartialEqualityComparer<'T></a>
+          </td>
+          <td class="xmldoc"><p>Interface that defines methods for comparing objects using partial equality relation</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-inlinedelayinit-1.html">InlineDelayInit<'T></a>
+          </td>
+          <td class="xmldoc"><p>An efficient lazy for inline storage in a class type. Results in fewer thunks.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-layeredmap-2.html">LayeredMap<'Key, 'Value></a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-layeredmultimap-2.html">LayeredMultiMap<'Key, 'Value></a>
+          </td>
+          <td class="xmldoc"><p>Immutable map collection, with explicit flattening to a backing dictionary</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-lazywithcontext-2.html">LazyWithContext<'T, 'ctxt></a>
+          </td>
+          <td class="xmldoc"><p>Just like "Lazy" but EVERY forcer must provide an instance of "ctxt", e.g. to help track errors
+on forcing back to at least one sensible user location</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-lazywithcontextfailure.html">LazyWithContextFailure</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-lock-1.html">Lock<'LockTokenType></a>
+          </td>
+          <td class="xmldoc"><p>Encapsulates a lock associated with a particular token-type representing the acquisition of that lock.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-locktoken.html">LockToken</a>
+          </td>
+          <td class="xmldoc"><p>A base type for various types of tokens that must be passed when a lock is taken.
+Each different static lock should declare a new subtype of this type.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-memoizationtable-2.html">MemoizationTable<'T, 'U></a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-multimap-2.html">MultiMap<'T, 'U></a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-namemap-1.html">NameMap<'T></a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-namemultimap-1.html">NameMultiMap<'T></a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-resultorexception-1.html">ResultOrException<'TResult></a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-undefinedexception.html">UndefinedException</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-uniquestampgenerator-1.html">UniqueStampGenerator<'T></a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-abstractil-internal-library-valueorcancelled-1.html">ValueOrCancelled<'TResult></a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-array.html">Array</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-cancellablemodule.html">Cancellable</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-dictionary.html">Dictionary</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-eventuallymodule.html">Eventually</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-ipartialequalitycomparer.html">IPartialEqualityComparer</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-lazy.html">Lazy</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-list.html">List</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-map.html">Map</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-multimapmodule.html">MultiMap</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-namemapmodule.html">NameMap</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-namemultimapmodule.html">NameMultiMap</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-option.html">Option</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-order.html">Order</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-resizearray.html">ResizeArray</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-resultorexceptionmodule.html">ResultOrException</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-shim.html">Shim</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-string.html">String</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-tables.html">Tables</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-abstractil-internal-library-valueoptioninternal.html">ValueOptionInternal</a>
+          </td>
+          <td class="xmldoc"><p>Because FSharp.Compiler.Service is a library that will target FSharp.Core 4.5.2 for the forseeable future,
+we need to stick these functions in this module rather than using the module functions for ValueOption
+that come after FSharp.Core 4.5.2.</p>
+
+</td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '613', 613)" onmouseover="showTip(event, '613', 613)">
+            ( === ) x y
+          </code>
+          <div class="tip" id="613">
+            <strong>Signature:</strong> x:&#39;a -&gt; y:&#39;a -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>op_EqualsEqualsEquals</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '614', 614)" onmouseover="showTip(event, '614', 614)">
+            ( &gt;&gt;&gt;&amp; ) x n
+          </code>
+          <div class="tip" id="614">
+            <strong>Signature:</strong> x:int32 -&gt; n:int32 -&gt; int32<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>op_GreaterGreaterGreaterAmp</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '615', 615)" onmouseover="showTip(event, '615', 615)">
+            AssumeAnyCallerThreadWithoutEvidence ()
+          </code>
+          <div class="tip" id="615">
+            <strong>Signature:</strong> unit -&gt; AnyCallerThreadToken<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '616', 616)" onmouseover="showTip(event, '616', 616)">
+            AssumeCompilationThreadWithoutEvidence (...)
+          </code>
+          <div class="tip" id="616">
+            <strong>Signature:</strong> unit -&gt; CompilationThreadToken<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Represents a place in the compiler codebase where we assume we are executing on a compilation thread</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '617', 617)" onmouseover="showTip(event, '617', 617)">
+            AssumeLockWithoutEvidence ()
+          </code>
+          <div class="tip" id="617">
+            <strong>Signature:</strong> unit -&gt; &#39;LockTokenType<br />
+                          <strong>Type parameters:</strong> 'LockTokenType          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '618', 618)" onmouseover="showTip(event, '618', 618)">
+            cancellable 
+          </code>
+          <div class="tip" id="618">
+            <strong>Signature:</strong> CancellableBuilder<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '619', 619)" onmouseover="showTip(event, '619', 619)">
+            DoesNotRequireCompilerThreadTokenAndCouldPossiblyBeMadeConcurrent (...)
+          </code>
+          <div class="tip" id="619">
+            <strong>Signature:</strong> _ctok:CompilationThreadToken -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Represents a place in the compiler codebase where we are passed a CompilationThreadToken unnecessarily.
+This reprents code that may potentially not need to be executed on the compilation thread.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '620', 620)" onmouseover="showTip(event, '620', 620)">
+            eventually 
+          </code>
+          <div class="tip" id="620">
+            <strong>Signature:</strong> EventuallyBuilder<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '621', 621)" onmouseover="showTip(event, '621', 621)">
+            foldOn p f z x
+          </code>
+          <div class="tip" id="621">
+            <strong>Signature:</strong> p:(&#39;c -&gt; &#39;d) -&gt; f:(&#39;e -&gt; &#39;d -&gt; &#39;f) -&gt; z:&#39;e -&gt; x:&#39;c -&gt; &#39;f<br />
+                          <strong>Type parameters:</strong> 'c, 'd, 'e, 'f          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '622', 622)" onmouseover="showTip(event, '622', 622)">
+            getHole r
+          </code>
+          <div class="tip" id="622">
+            <strong>Signature:</strong> r:&#39;a option ref -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+          <p>Get an initialization hole</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '623', 623)" onmouseover="showTip(event, '623', 623)">
+            isNil l
+          </code>
+          <div class="tip" id="623">
+            <strong>Signature:</strong> l:&#39;a list -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '624', 624)" onmouseover="showTip(event, '624', 624)">
+            isNilOrSingleton l
+          </code>
+          <div class="tip" id="624">
+            <strong>Signature:</strong> l:&#39;a list -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+          <p>Returns true if the list has less than 2 elements. Otherwise false.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '625', 625)" onmouseover="showTip(event, '625', 625)">
+            isNonNull x
+          </code>
+          <div class="tip" id="625">
+            <strong>Signature:</strong> x:&#39;a -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '626', 626)" onmouseover="showTip(event, '626', 626)">
+            isSingleton l
+          </code>
+          <div class="tip" id="626">
+            <strong>Signature:</strong> l:&#39;a list -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+          <p>Returns true if the list contains exactly 1 element. Otherwise false.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '627', 627)" onmouseover="showTip(event, '627', 627)">
+            LOH_SIZE_THRESHOLD_BYTES 
+          </code>
+          <div class="tip" id="627">
+            <strong>Signature:</strong> int<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Per the docs the threshold for the Large Object Heap is 85000 bytes: <a href="https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/large-object-heap#how-an-object-ends-up-on-the-large-object-heap-and-how-gc-handles-them
+We">https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/large-object-heap#how-an-object-ends-up-on-the-large-object-heap-and-how-gc-handles-them
+We</a> set the limit to slightly under that to allow for some 'slop'</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '628', 628)" onmouseover="showTip(event, '628', 628)">
+            nonNull msg x
+          </code>
+          <div class="tip" id="628">
+            <strong>Signature:</strong> msg:string -&gt; x:&#39;?17180 -&gt; &#39;?17180<br />
+                          <strong>Type parameters:</strong> '?17180          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '629', 629)" onmouseover="showTip(event, '629', 629)">
+            notFound ()
+          </code>
+          <div class="tip" id="629">
+            <strong>Signature:</strong> unit -&gt; &#39;d<br />
+                          <strong>Type parameters:</strong> 'd          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '630', 630)" onmouseover="showTip(event, '630', 630)">
+            notlazy v
+          </code>
+          <div class="tip" id="630">
+            <strong>Signature:</strong> v:&#39;a -&gt; Lazy&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '631', 631)" onmouseover="showTip(event, '631', 631)">
+            reportTime 
+          </code>
+          <div class="tip" id="631">
+            <strong>Signature:</strong> bool -&gt; string -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '632', 632)" onmouseover="showTip(event, '632', 632)">
+            RequireCompilationThread _ctok
+          </code>
+          <div class="tip" id="632">
+            <strong>Signature:</strong> _ctok:CompilationThreadToken -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Represents a place where we are stating that execution on the compilation thread is required.  The
+reason why will be documented in a comment in the code at the callsite.</p>
+
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Type extensions</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Type extension</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '633', 633)" onmouseover="showTip(event, '633', 633)">
+            AddAndMarkAsCollapsible(kvs)
+          </code>
+          <div class="tip" id="633">
+            <strong>Signature:</strong> (kvs:KeyValuePair&lt;&#39;Key,&#39;Value&gt; []) -&gt; Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>Map`2.AddAndMarkAsCollapsible</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '634', 634)" onmouseover="showTip(event, '634', 634)">
+            Empty
+          </code>
+          <div class="tip" id="634">
+            <strong>Signature:</strong> Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>Map`2.get_Empty.Static</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '635', 635)" onmouseover="showTip(event, '635', 635)">
+            Empty
+          </code>
+          <div class="tip" id="635">
+            <strong>Signature:</strong> Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>Map`2.get_Empty.Static</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '636', 636)" onmouseover="showTip(event, '636', 636)">
+            EndsWithOrdinal(value)
+          </code>
+          <div class="tip" id="636">
+            <strong>Signature:</strong> value:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>String.EndsWithOrdinal</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '637', 637)" onmouseover="showTip(event, '637', 637)">
+            LinearTryModifyThenLaterFlatten(key, f)
+          </code>
+          <div class="tip" id="637">
+            <strong>Signature:</strong> (key:&#39;Key * f:(&#39;Value option -&gt; &#39;Value)) -&gt; Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>Map`2.LinearTryModifyThenLaterFlatten</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '638', 638)" onmouseover="showTip(event, '638', 638)">
+            MarkAsCollapsible()
+          </code>
+          <div class="tip" id="638">
+            <strong>Signature:</strong> unit -&gt; Map&lt;&#39;Key,&#39;Value&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>Map`2.MarkAsCollapsible</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '639', 639)" onmouseover="showTip(event, '639', 639)">
+            StartsWithOrdinal(value)
+          </code>
+          <div class="tip" id="639">
+            <strong>Signature:</strong> value:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>String.StartsWithOrdinal</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '640', 640)" onmouseover="showTip(event, '640', 640)">
+            Values
+          </code>
+          <div class="tip" id="640">
+            <strong>Signature:</strong> &#39;Value list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>Map`2.get_Values</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '641', 641)" onmouseover="showTip(event, '641', 641)">
+            Values
+          </code>
+          <div class="tip" id="641">
+            <strong>Signature:</strong> &#39;Value list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>Map`2.get_Values</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

@@ -84,7 +84,7 @@ Target.create "NuGet" (fun _ ->
           Configuration = DotNet.BuildConfiguration.Release
           Common = packOpts.Common |> withDotnetExe |> DotNet.Options.withVerbosity (Some DotNet.Verbosity.Normal)
           MSBuildParams = { packOpts.MSBuildParams with
-                              Properties = packOpts.MSBuildParams.Properties @ [ "Version", assemblyVersion ] }
+                              Properties = packOpts.MSBuildParams.Properties @ [ "Version", assemblyVersion; "PackageReleaseNotes", release.Notes |> String.concat "\n" ] }
       }) "FSharp.Compiler.Service.sln"
 )
 

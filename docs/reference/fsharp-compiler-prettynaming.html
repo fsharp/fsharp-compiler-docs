@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>PrettyNaming - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>PrettyNaming</h1>
+<p>
+  <span>Namespace: FSharp.Compiler</span><br />
+</p>
+<div class="xmldoc">
+<p>Anything to do with special names of identifiers and other lexical rules</p>
+
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+  <h2>Nested types and modules</h2>
+  <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-prettynaming-activepatterninfo.html">ActivePatternInfo</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-prettynaming-invalidmangledstaticarg.html">InvalidMangledStaticArg</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-compiler-prettynaming-namearitypair.html">NameArityPair</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '325', 325)" onmouseover="showTip(event, '325', 325)">
+            ActivePatternInfoOfValName nm m
+          </code>
+          <div class="tip" id="325">
+            <strong>Signature:</strong> nm:string -&gt; m:range -&gt; ActivePatternInfo option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '326', 326)" onmouseover="showTip(event, '326', 326)">
+            ChopPropertyName s
+          </code>
+          <div class="tip" id="326">
+            <strong>Signature:</strong> s:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Try to chop "get<em>" or "set</em>" from a string.
+If the string does not start with "get<em>" or "set</em>", this function raises an exception.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '327', 327)" onmouseover="showTip(event, '327', 327)">
+            CompileOpName 
+          </code>
+          <div class="tip" id="327">
+            <strong>Signature:</strong> string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Compiles an operator into a mangled operator name.
+For example, "!%" becomes "op_DereferencePercent".
+This function accepts both built-in and custom operators.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '328', 328)" onmouseover="showTip(event, '328', 328)">
+            CompilerGeneratedName nm
+          </code>
+          <div class="tip" id="328">
+            <strong>Signature:</strong> nm:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '329', 329)" onmouseover="showTip(event, '329', 329)">
+            CompilerGeneratedNameSuffix (...)
+          </code>
+          <div class="tip" id="329">
+            <strong>Signature:</strong> basicName:string -&gt; suffix:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '330', 330)" onmouseover="showTip(event, '330', 330)">
+            computeMangledNameWithoutDefaultArgValues (...)
+          </code>
+          <div class="tip" id="330">
+            <strong>Signature:</strong> (nm:string * staticArgs:obj [] * defaultArgValues:(string * string option) []) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Mangle the static parameters for a provided type or method</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '331', 331)" onmouseover="showTip(event, '331', 331)">
+            DecodeGenericTypeName pos mangledName
+          </code>
+          <div class="tip" id="331">
+            <strong>Signature:</strong> pos:int -&gt; mangledName:string -&gt; NameArityPair<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '332', 332)" onmouseover="showTip(event, '332', 332)">
+            DecompileOpName 
+          </code>
+          <div class="tip" id="332">
+            <strong>Signature:</strong> string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Decompiles a mangled operator name back into an operator.
+For example, "op_DereferencePercent" becomes "!%".
+This function accepts mangled names for both built-in and custom operators.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '333', 333)" onmouseover="showTip(event, '333', 333)">
+            DemangleGenericTypeName mangledName
+          </code>
+          <div class="tip" id="333">
+            <strong>Signature:</strong> mangledName:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '334', 334)" onmouseover="showTip(event, '334', 334)">
+            DemangleGenericTypeNameWithPos (...)
+          </code>
+          <div class="tip" id="334">
+            <strong>Signature:</strong> pos:int -&gt; mangledName:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '335', 335)" onmouseover="showTip(event, '335', 335)">
+            DemangleOperatorName nm
+          </code>
+          <div class="tip" id="335">
+            <strong>Signature:</strong> nm:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '336', 336)" onmouseover="showTip(event, '336', 336)">
+            DemangleOperatorNameAsLayout (...)
+          </code>
+          <div class="tip" id="336">
+            <strong>Signature:</strong> nonOpTagged:(string -&gt; &#39;a) -&gt; nm:string -&gt; Layout<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '337', 337)" onmouseover="showTip(event, '337', 337)">
+            demangleProvidedTypeName typeLogicalName
+          </code>
+          <div class="tip" id="337">
+            <strong>Signature:</strong> typeLogicalName:string -&gt; string * (string * string) []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Demangle the static parameters</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '338', 338)" onmouseover="showTip(event, '338', 338)">
+            FSharpModuleSuffix 
+          </code>
+          <div class="tip" id="338">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '339', 339)" onmouseover="showTip(event, '339', 339)">
+            GetBasicNameOfPossibleCompilerGeneratedName (...)
+          </code>
+          <div class="tip" id="339">
+            <strong>Signature:</strong> name:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '340', 340)" onmouseover="showTip(event, '340', 340)">
+            IllegalCharactersInTypeAndNamespaceNames (...)
+          </code>
+          <div class="tip" id="340">
+            <strong>Signature:</strong> char []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '341', 341)" onmouseover="showTip(event, '341', 341)">
+            IsActivePatternName nm
+          </code>
+          <div class="tip" id="341">
+            <strong>Signature:</strong> nm:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Determines if the specified name is a valid name for an active pattern.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '342', 342)" onmouseover="showTip(event, '342', 342)">
+            IsCompilerGeneratedName nm
+          </code>
+          <div class="tip" id="342">
+            <strong>Signature:</strong> nm:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '343', 343)" onmouseover="showTip(event, '343', 343)">
+            IsIdentifierFirstCharacter c
+          </code>
+          <div class="tip" id="343">
+            <strong>Signature:</strong> c:char -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The characters that are allowed to be the first character of an identifier.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '344', 344)" onmouseover="showTip(event, '344', 344)">
+            IsIdentifierPartCharacter c
+          </code>
+          <div class="tip" id="344">
+            <strong>Signature:</strong> c:char -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>The characters that are allowed to be in an identifier.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '345', 345)" onmouseover="showTip(event, '345', 345)">
+            IsInfixOperator 
+          </code>
+          <div class="tip" id="345">
+            <strong>Signature:</strong> string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '346', 346)" onmouseover="showTip(event, '346', 346)">
+            IsLongIdentifierPartCharacter c
+          </code>
+          <div class="tip" id="346">
+            <strong>Signature:</strong> c:char -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Is this character a part of a long identifier?</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '347', 347)" onmouseover="showTip(event, '347', 347)">
+            IsMangledOpName n
+          </code>
+          <div class="tip" id="347">
+            <strong>Signature:</strong> n:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '348', 348)" onmouseover="showTip(event, '348', 348)">
+            IsOperatorName name
+          </code>
+          <div class="tip" id="348">
+            <strong>Signature:</strong> name:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Returns <code>true</code> if given string is an operator display name, e.g. ( |&gt;&gt; )</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '349', 349)" onmouseover="showTip(event, '349', 349)">
+            IsOperatorOrBacktickedName name
+          </code>
+          <div class="tip" id="349">
+            <strong>Signature:</strong> name:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Returns <code>true</code> if given string is an operator or double backticked name, e.g. ( |&gt;&gt; ) or ( long identifier ).
+(where ( long identifier ) is the display name for <code>long identifier</code>).</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '350', 350)" onmouseover="showTip(event, '350', 350)">
+            IsPrefixOperator s
+          </code>
+          <div class="tip" id="350">
+            <strong>Signature:</strong> s:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '351', 351)" onmouseover="showTip(event, '351', 351)">
+            IsPunctuation s
+          </code>
+          <div class="tip" id="351">
+            <strong>Signature:</strong> s:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '352', 352)" onmouseover="showTip(event, '352', 352)">
+            IsTernaryOperator s
+          </code>
+          <div class="tip" id="352">
+            <strong>Signature:</strong> s:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '353', 353)" onmouseover="showTip(event, '353', 353)">
+            IsValidPrefixOperatorDefinitionName s
+          </code>
+          <div class="tip" id="353">
+            <strong>Signature:</strong> s:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '354', 354)" onmouseover="showTip(event, '354', 354)">
+            IsValidPrefixOperatorUse s
+          </code>
+          <div class="tip" id="354">
+            <strong>Signature:</strong> s:string -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '355', 355)" onmouseover="showTip(event, '355', 355)">
+            MangledGlobalName 
+          </code>
+          <div class="tip" id="355">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '356', 356)" onmouseover="showTip(event, '356', 356)">
+            mangleProvidedTypeName (...)
+          </code>
+          <div class="tip" id="356">
+            <strong>Signature:</strong> (typeLogicalName:string * nonDefaultArgs:(string * string) []) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Mangle the static parameters for a provided type or method</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '357', 357)" onmouseover="showTip(event, '357', 357)">
+            opNameCons 
+          </code>
+          <div class="tip" id="357">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '358', 358)" onmouseover="showTip(event, '358', 358)">
+            opNameEquals 
+          </code>
+          <div class="tip" id="358">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '359', 359)" onmouseover="showTip(event, '359', 359)">
+            opNameEqualsNullable 
+          </code>
+          <div class="tip" id="359">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '360', 360)" onmouseover="showTip(event, '360', 360)">
+            opNameNil 
+          </code>
+          <div class="tip" id="360">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '361', 361)" onmouseover="showTip(event, '361', 361)">
+            opNameNullableEquals 
+          </code>
+          <div class="tip" id="361">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '362', 362)" onmouseover="showTip(event, '362', 362)">
+            opNameNullableEqualsNullable 
+          </code>
+          <div class="tip" id="362">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '363', 363)" onmouseover="showTip(event, '363', 363)">
+            opNamePrefix 
+          </code>
+          <div class="tip" id="363">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Prefix for compiled (mangled) operator names.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '364', 364)" onmouseover="showTip(event, '364', 364)">
+            outArgCompilerGeneratedName 
+          </code>
+          <div class="tip" id="364">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '365', 365)" onmouseover="showTip(event, '365', 365)">
+            parenGet 
+          </code>
+          <div class="tip" id="365">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '366', 366)" onmouseover="showTip(event, '366', 366)">
+            parenSet 
+          </code>
+          <div class="tip" id="366">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '367', 367)" onmouseover="showTip(event, '367', 367)">
+            qmark 
+          </code>
+          <div class="tip" id="367">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '368', 368)" onmouseover="showTip(event, '368', 368)">
+            qmarkSet 
+          </code>
+          <div class="tip" id="368">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '369', 369)" onmouseover="showTip(event, '369', 369)">
+            SplitNamesForILPath s
+          </code>
+          <div class="tip" id="369">
+            <strong>Signature:</strong> s:string -&gt; string list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '370', 370)" onmouseover="showTip(event, '370', 370)">
+            TryChopPropertyName s
+          </code>
+          <div class="tip" id="370">
+            <strong>Signature:</strong> s:string -&gt; string option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          <p>Try to chop "get<em>" or "set</em>" from a string</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '371', 371)" onmouseover="showTip(event, '371', 371)">
+            TryDemangleGenericNameAndPos n
+          </code>
+          <div class="tip" id="371">
+            <strong>Signature:</strong> n:string -&gt; int voption<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Active patterns</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Active pattern</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '372', 372)" onmouseover="showTip(event, '372', 372)">
+            ( |Control|Equality|Relational|Indexer|FixedTypes|Other| ) (...)
+          </code>
+          <div class="tip" id="372">
+            <strong>Signature:</strong> opName:string -&gt; Choice&lt;unit,unit,unit,unit,unit,unit&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+          
+              <p>CompiledName: <code>|Control|Equality|Relational|Indexer|FixedTypes|Other|</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

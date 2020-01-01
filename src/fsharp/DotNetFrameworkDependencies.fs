@@ -30,7 +30,7 @@ module internal FSharp.Compiler.DotNetFrameworkDependencies
     let getDefaultFsiLibraryLocation = Path.Combine(fSharpCompilerLocation, getFsiLibraryName + ".dll")
     let implementationAssemblyDir = Path.GetDirectoryName(typeof<obj>.Assembly.Location)
     let isRunningOnCoreClr = (typeof<obj>.Assembly).FullName.StartsWith("System.Private.CoreLib", StringComparison.InvariantCultureIgnoreCase)
-    
+
     // Use the ValueTuple that is executing with the compiler if it is from System.ValueTuple
     // or the System.ValueTuple.dll that sits alongside the compiler.  (Note we always ship one with the compiler)
     let getDefaultSystemValueTupleReference () =

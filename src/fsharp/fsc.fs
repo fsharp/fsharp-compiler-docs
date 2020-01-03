@@ -1104,6 +1104,7 @@ module MainModuleBuilder =
 /// Optional static linking of all DLLs that depend on the F# Library, plus other specified DLLs
 module StaticLinker =
 
+    open FSharp.Compiler.AbstractIL
 
     // Handles TypeForwarding for the generated IL model
     type TypeForwarding (tcImports: TcImports) =

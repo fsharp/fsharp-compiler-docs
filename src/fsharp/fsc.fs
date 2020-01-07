@@ -1104,6 +1104,7 @@ module MainModuleBuilder =
 /// Optional static linking of all DLLs that depend on the F# Library, plus other specified DLLs
 module StaticLinker =
 
+    open FSharp.Compiler.AbstractIL
 
     // Handles TypeForwarding for the generated IL model
     type TypeForwarding (tcImports: TcImports) =
@@ -1397,7 +1398,10 @@ module StaticLinker =
     // Add all provider-generated assemblies into the static linking set
     let FindProviderGeneratedILModules (ctok, tcImports: TcImports, providerGeneratedAssemblies: (ImportedBinary * _) list) = 
         [ for (importedBinary, provAssemStaticLinkInfo) in providerGeneratedAssemblies do 
-              let ilAssemRef  = importedBinary.ILScopeRef.AssemblyRef
+              let ilAssemRef =
+                match importedBinary.ILScopeRef with
+                | ILScopeRef.Assembly aref -> aref
+                | _ -> failwith "Invalid ILScopeRef, expected ILScopeRef.Assembly"
               if debugStaticLinking then printfn "adding provider-generated assembly '%s' into static linking set" ilAssemRef.Name
               match tcImports.TryFindDllInfo(ctok, Range.rangeStartup, ilAssemRef.Name, lookupOnly=false) with 
               | Some dllInfo ->

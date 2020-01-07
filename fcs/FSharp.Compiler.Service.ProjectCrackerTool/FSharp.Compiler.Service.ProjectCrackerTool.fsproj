@@ -1,4 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <FSharpSourcesRoot>$(MSBuildProjectDirectory)\..\..\src</FSharpSourcesRoot>
+  </PropertyGroup>
   <Import Project="..\netfx.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -16,7 +20,8 @@
     <Compile Include="Program.fs" />
     <None Include="App.config" />
     <None Include="FSharp.Compiler.Service.ProjectCracker.targets" />
-    <None Include="paket.references" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.Runtime" />
     <Reference Include="System.IO" />
     <PackageReference Include="FSharp.Core" Version="$(FcsFSharpCorePkgVersion)" />

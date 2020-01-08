@@ -1012,7 +1012,7 @@ type FSharpChecker(legacyReferenceResolver,
         CompileHelpers.setOutputStreams execute
         
         // References used to capture the results of compilation
-        let tcImportsRef = ref (None: TcImports option)
+        let tcImportsRef = ref None
         let assemblyBuilderRef = ref None
         let tcImportsCapture = Some (fun tcImports -> tcImportsRef := Some tcImports)
 

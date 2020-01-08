@@ -5115,11 +5115,8 @@ module ScriptPreprocessClosure =
             let tcConfigB = tcConfig.CloneOfOriginalBuilder 
             TcConfig.Create(tcConfigB, validate=false), nowarns
     
-    let FindClosureFiles
-           (mainFile, closureSources, tcConfig: TcConfig, codeContext, 
-            lexResourceManager: Lexhelp.LexResourceManager) =
-
-        let mutable tcConfig = tcConfig
+    let FindClosureFiles(mainFile, _m, closureSources, origTcConfig:TcConfig, codeContext, lexResourceManager: Lexhelp.LexResourceManager) =
+        let mutable tcConfig = origTcConfig
         
         let observedSources = Observed()
         let loadScripts = HashSet<_>()
@@ -5325,15 +5322,15 @@ module ScriptPreprocessClosure =
                  tryGetMetadataSnapshot, reduceMemoryUsage)
 
         let closureSources = [ClosureSource(filename, range0, sourceText, true)]
-        let closureFiles, tcConfig = FindClosureFiles(filename, closureSources, tcConfig, codeContext, lexResourceManager)
+        let closureFiles, tcConfig = FindClosureFiles(filename, range0, closureSources, tcConfig, codeContext, lexResourceManager)
         GetLoadClosure(ctok, filename, closureFiles, tcConfig, codeContext)
 
     /// Given source filename, find the full load closure
     /// Used from fsi.fs and fsc.fs, for #load and command line
     let GetFullClosureOfScriptFiles(ctok, tcConfig:TcConfig, files:(string*range) list,codeContext,lexResourceManager: Lexhelp.LexResourceManager) = 
-        let mainFile, _mainFileRange = List.last files
+        let mainFile, mainFileRange = List.last files
         let closureSources = files |> List.collect (fun (filename, m) -> ClosureSourceOfFilename(filename, m,tcConfig.inputCodePage,true))
-        let closureFiles,tcConfig = FindClosureFiles(mainFile, closureSources, tcConfig, codeContext, lexResourceManager)
+        let closureFiles,tcConfig = FindClosureFiles(mainFile, mainFileRange, closureSources, tcConfig, codeContext, lexResourceManager)
         GetLoadClosure(ctok, mainFile, closureFiles, tcConfig, codeContext)        
 
 type LoadClosure with

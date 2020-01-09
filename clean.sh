@@ -5,6 +5,7 @@ DEAD_DIRS=(
     "DEVGUIDE.md"
     "eng/common/templates"
     "eng/common/tools.ps1"
+    "eng/common"
     "FSharp.sln"
     "setup/"
     "src/fsharp/fsc/fsc.fsproj"

@@ -62,9 +62,9 @@ which does things like:
 You can push the packages if you have permissions, either automatically using ``build Release`` or manually
 
     set APIKEY=...
-    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.22.0.3.nupkg %APIKEY% -Source https://nuget.org
-    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.MSBuild.v12.22.0.3.nupkg %APIKEY%  -Source https://nuget.org
-    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.ProjectCracker.22.0.3.nupkg %APIKEY%  -Source https://nuget.org
+    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.32.0.0.nupkg %APIKEY% -Source https://nuget.org
+    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.MSBuild.v12.32.0.0.nupkg %APIKEY%  -Source https://nuget.org
+    ..\fsharp\.nuget\nuget.exe push %HOMEDRIVE%%HOMEPATH%\Downloads\FSharp.Compiler.Service.ProjectCracker.32.0.0.nupkg %APIKEY%  -Source https://nuget.org
 
 ### Use of Paket and FAKE
 

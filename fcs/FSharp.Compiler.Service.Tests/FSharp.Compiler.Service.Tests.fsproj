@@ -54,9 +54,6 @@
     <Compile Include="$(FSharpSourcesRoot)\..\tests\service\CSharpProjectAnalysis.fs">
       <Link>CSharpProjectAnalysis.fs</Link>
     </Compile>
-    <Compile Include="$(FSharpSourcesRoot)\..\tests\service\ProjectOptionsTests.fs">
-      <Link>ProjectOptionsTests.fs</Link>
-    </Compile>
     <Compile Include="$(FSharpSourcesRoot)\..\tests\service\StructureTests.fs">
       <Link>StructureTests.fs</Link>
     </Compile>
@@ -103,6 +100,5 @@
     <Reference Include="WindowsBase" />
     <Reference Include="UIAutomationTypes" />
     <ProjectReference Include="CSharp_Analysis\CSharp_Analysis.csproj" />
-    <ProjectReference Include="..\FSharp.Compiler.Service.ProjectCracker\FSharp.Compiler.Service.ProjectCracker.fsproj" />
   </ItemGroup>
 </Project>

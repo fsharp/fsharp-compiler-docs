@@ -284,9 +284,12 @@ let u_int32 st =
         assert(b0 = 0xFF)
         prim_u_int32 st
 
-let u_bytes st =
+let u_byte_memory st =
     let n =  (u_int32 st)
     st.is.ReadBytes n
+
+let u_bytes st =
+    (u_byte_memory st).ToArray()
 
 let u_prim_string st =
     let len =  (u_int32 st)
@@ -551,12 +554,12 @@ let p_maybe_lazy p (x: MaybeLazy<_>) st =
     p_lazy_impl p x.Value st
 
 let p_hole () =
-    let h = ref (None : ('T -> WriterState -> unit) option)
-    (fun f -> h := Some f), (fun x st -> match !h with Some f -> f x st | None -> pfailwith st "p_hole: unfilled hole")
+    let mutable h = None
+    (fun f -> h <- Some f), (fun x st -> match h with Some f -> f x st | None -> pfailwith st "p_hole: unfilled hole")
 
 let p_hole2 () =
-    let h = ref (None : ('Arg -> 'T -> WriterState -> unit) option)
-    (fun f -> h := Some f), (fun arg x st -> match !h with Some f -> f arg x st | None -> pfailwith st "p_hole2: unfilled hole")
+    let mutable h = None
+    (fun f -> h <- Some f), (fun arg x st -> match h with Some f -> f arg x st | None -> pfailwith st "p_hole2: unfilled hole")
 
 let u_array_core f n st =
     let res = Array.zeroCreate n
@@ -672,8 +675,8 @@ let u_lazy u st =
 
 
 let u_hole () =
-    let h = ref (None : 'T unpickler option)
-    (fun f -> h := Some f), (fun st -> match !h with Some f -> f st | None -> ufailwith st "u_hole: unfilled hole")
+    let mutable h = None
+    (fun f -> h <- Some f), (fun st -> match h with Some f -> f st | None -> ufailwith st "u_hole: unfilled hole")
 
 //---------------------------------------------------------------------------
 // Pickle/unpickle F# interface data
@@ -832,7 +835,7 @@ let check (ilscope: ILScopeRef) (inMap : NodeInTable<_, _>) =
         // an identical copy of the source for the DLL containing the data being unpickled.  A message will
         // then be printed indicating the name of the item.
 
-let unpickleObjWithDanglingCcus file ilscope (iILModule: ILModuleDef option) u (phase2bytes: byte[]) =
+let unpickleObjWithDanglingCcus file ilscope (iILModule: ILModuleDef option) u (phase2bytes: ReadOnlyByteMemory) =
     let st2 =
        { is = ByteStream.FromBytes (phase2bytes, 0, phase2bytes.Length)
          iilscope= ilscope
@@ -858,7 +861,7 @@ let unpickleObjWithDanglingCcus file ilscope (iILModule: ILModuleDef option) u (
             (u_array u_encoded_pubpath)
             (u_array u_encoded_nleref)
             (u_array u_encoded_simpletyp)
-            u_bytes
+            u_byte_memory
             st2
     let ccuTab       = new_itbl "iccus"       (Array.map (CcuThunk.CreateDelayed) ccuNameTab)
     let stringTab    = new_itbl "istrings"    (Array.map decode_string stringTab)
@@ -916,9 +919,11 @@ let p_ILAssemblyRef (x: ILAssemblyRef) st =
 
 let p_ILScopeRef x st =
     match x with
-    | ILScopeRef.Local         -> p_byte 0 st
-    | ILScopeRef.Module mref   -> p_byte 1 st; p_ILModuleRef mref st
-    | ILScopeRef.Assembly aref -> p_byte 2 st; p_ILAssemblyRef aref st
+    | ILScopeRef.Local           -> p_byte 0 st
+    | ILScopeRef.Module mref     -> p_byte 1 st; p_ILModuleRef mref st
+    | ILScopeRef.Assembly aref   -> p_byte 2 st; p_ILAssemblyRef aref st
+    // Encode primary assembly as a normal assembly ref
+    | ILScopeRef.PrimaryAssembly -> p_byte 2 st; p_ILAssemblyRef st.oglobals.ilg.primaryAssemblyRef st
 
 let u_ILPublicKey st =
     let tag = u_byte st

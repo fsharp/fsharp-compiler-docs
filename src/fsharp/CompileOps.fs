@@ -2333,8 +2333,8 @@ type TcConfigBuilder =
             isInvalidationSupported = isInvalidationSupported
             copyFSharpCore = defaultCopyFSharpCore
             tryGetMetadataSnapshot = tryGetMetadataSnapshot
-            includePathAdded = includePathAdded
             useFsiAuxLib = isInteractive
+            includePathAdded = includePathAdded
         }
 
     member tcConfigB.ResolveSourceFile(m, nm, pathLoadedFrom) = 
@@ -5148,7 +5148,6 @@ module ScriptPreprocessClosure =
         let getWarningNumber = fun () (m, s) -> nowarns <- (s, m) :: nowarns
         let addReferencedAssemblyByPath = fun () (m, s) -> tcConfigB.AddReferencedAssemblyByPath(m, s)
         let addDependencyManagerText = fun () (packageManagerPrefix,m,s) -> tcConfigB.AddDependencyManagerText(packageManagerPrefix,m,s)
-
         let addLoadedSource = fun () (m, s) -> tcConfigB.AddLoadedSource(m, s, pathOfMetaCommandSource)
         try 
             ProcessMetaCommandsFromInput (getWarningNumber, addReferencedAssemblyByPath, addDependencyManagerText, addLoadedSource) (tcConfigB, inp, pathOfMetaCommandSource, ())
@@ -5234,7 +5233,9 @@ module ScriptPreprocessClosure =
 
                             let tcConfigResult, noWarns = ApplyMetaCommandsFromInputToTcConfigAndGatherNoWarn (tcConfig, parsedScriptAst, pathOfMetaCommandSource)
                             tcConfig <- tcConfigResult // We accumulate the tcConfig in order to collect assembly references
-                        
+
+                            yield! resolveDependencyManagerSources filename
+
                             let postSources = tcConfig.GetAvailableLoadedSources()
                             let sources = if preSources.Length < postSources.Length then postSources.[preSources.Length..] else []
 

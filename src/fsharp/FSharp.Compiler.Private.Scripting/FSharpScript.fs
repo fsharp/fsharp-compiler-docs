@@ -36,12 +36,6 @@ type FSharpScript(?additionalArgs: string[]) =
     [<CLIEvent>]
     member __.DependencyFailed = fsi.DependencyFailed
 
-    member __.ProvideInput = stdin.ProvideInput
-
-    member __.OutputProduced = outputProduced.Publish
-
-    member __.ErrorProduced = errorProduced.Publish
-
     member __.Fsi = fsi
 
     member __.Eval(code: string, ?cancellationToken: CancellationToken) =

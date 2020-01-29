@@ -23,7 +23,7 @@ namespace Microsoft.VisualStudio.FSharp.Editor.Tests.Roslyn
 open System
 open System.Collections.Generic
 open System.IO
-open System.Linq
+open System.Linq    
 open System.Reflection
 
 open NUnit.Framework

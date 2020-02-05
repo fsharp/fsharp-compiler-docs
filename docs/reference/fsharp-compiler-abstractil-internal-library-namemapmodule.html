@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>NameMap - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>NameMap</h1>
+<p>
+  <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
+  <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span>
+</p>
+<div class="xmldoc">
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '729', 729)" onmouseover="showTip(event, '729', 729)">
+            add v x m
+          </code>
+          <div class="tip" id="729">
+            <strong>Signature:</strong> v:string -&gt; x:&#39;T -&gt; m:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '730', 730)" onmouseover="showTip(event, '730', 730)">
+            empty 
+          </code>
+          <div class="tip" id="730">
+            <strong>Signature:</strong> Map&lt;&#39;b,&#39;c&gt;<br />
+                          <strong>Type parameters:</strong> 'b, 'c          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '731', 731)" onmouseover="showTip(event, '731', 731)">
+            exists f m
+          </code>
+          <div class="tip" id="731">
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; bool) -&gt; m:Map&lt;&#39;a,&#39;b&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '732', 732)" onmouseover="showTip(event, '732', 732)">
+            existsInRange p m
+          </code>
+          <div class="tip" id="732">
+            <strong>Signature:</strong> p:(&#39;?17843 -&gt; bool) -&gt; m:Map&lt;&#39;?17844,&#39;?17843&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?17843, '?17844          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '733', 733)" onmouseover="showTip(event, '733', 733)">
+            filterRange f l
+          </code>
+          <div class="tip" id="733">
+            <strong>Signature:</strong> f:(&#39;T -&gt; bool) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '734', 734)" onmouseover="showTip(event, '734', 734)">
+            find v m
+          </code>
+          <div class="tip" id="734">
+            <strong>Signature:</strong> v:string -&gt; m:NameMap&lt;&#39;T&gt; -&gt; &#39;T<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '735', 735)" onmouseover="showTip(event, '735', 735)">
+            foldBack f m z
+          </code>
+          <div class="tip" id="735">
+            <strong>Signature:</strong> f:(string -&gt; &#39;T -&gt; &#39;?17779 -&gt; &#39;?17779) -&gt; m:NameMap&lt;&#39;T&gt; -&gt; z:&#39;?17779 -&gt; &#39;?17779<br />
+                          <strong>Type parameters:</strong> 'T, '?17779          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '736', 736)" onmouseover="showTip(event, '736', 736)">
+            foldBackRange f l acc
+          </code>
+          <div class="tip" id="736">
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;a -&gt; &#39;a) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; acc:&#39;a -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'T, 'a          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '737', 737)" onmouseover="showTip(event, '737', 737)">
+            forall f m
+          </code>
+          <div class="tip" id="737">
+            <strong>Signature:</strong> f:(&#39;?17781 -&gt; &#39;?17782 -&gt; bool) -&gt; m:Map&lt;&#39;?17781,&#39;?17782&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?17781, '?17782          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '738', 738)" onmouseover="showTip(event, '738', 738)">
+            isEmpty m
+          </code>
+          <div class="tip" id="738">
+            <strong>Signature:</strong> m:NameMap&lt;&#39;T&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '739', 739)" onmouseover="showTip(event, '739', 739)">
+            iter f l
+          </code>
+          <div class="tip" id="739">
+            <strong>Signature:</strong> f:(&#39;T -&gt; unit) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; unit<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '740', 740)" onmouseover="showTip(event, '740', 740)">
+            layer m1 m2
+          </code>
+          <div class="tip" id="740">
+            <strong>Signature:</strong> m1:NameMap&lt;&#39;T&gt; -&gt; m2:Map&lt;string,&#39;T&gt; -&gt; Map&lt;string,&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '741', 741)" onmouseover="showTip(event, '741', 741)">
+            layerAdditive addf m1 m2
+          </code>
+          <div class="tip" id="741">
+            <strong>Signature:</strong> addf:(&#39;a list -&gt; &#39;b -&gt; &#39;a list) -&gt; m1:Map&lt;&#39;c,&#39;b&gt; -&gt; m2:Map&lt;&#39;c,&#39;a list&gt; -&gt; Map&lt;&#39;c,&#39;a list&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b, 'c          </div>
+        </td>
+        <td class="xmldoc">
+          <p>Not a very useful function - only called in one place - should be changed</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '742', 742)" onmouseover="showTip(event, '742', 742)">
+            map f l
+          </code>
+          <div class="tip" id="742">
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;a) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'T, 'a          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '743', 743)" onmouseover="showTip(event, '743', 743)">
+            mapFilter f l
+          </code>
+          <div class="tip" id="743">
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?17824 option) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;?17824&gt;<br />
+                          <strong>Type parameters:</strong> 'T, '?17824          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '744', 744)" onmouseover="showTip(event, '744', 744)">
+            mapFold f s l
+          </code>
+          <div class="tip" id="744">
+            <strong>Signature:</strong> f:(&#39;?17814 -&gt; string -&gt; &#39;T -&gt; &#39;?17816 * &#39;?17814) -&gt; s:&#39;?17814 -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;?17816&gt; * &#39;?17814<br />
+                          <strong>Type parameters:</strong> '?17814, 'T, '?17816          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '745', 745)" onmouseover="showTip(event, '745', 745)">
+            mem v m
+          </code>
+          <div class="tip" id="745">
+            <strong>Signature:</strong> v:string -&gt; m:NameMap&lt;&#39;T&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '746', 746)" onmouseover="showTip(event, '746', 746)">
+            ofKeyedList f l
+          </code>
+          <div class="tip" id="746">
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b) -&gt; l:&#39;a list -&gt; Map&lt;&#39;b,&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '747', 747)" onmouseover="showTip(event, '747', 747)">
+            ofList l
+          </code>
+          <div class="tip" id="747">
+            <strong>Signature:</strong> l:(string * &#39;T) list -&gt; NameMap&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '748', 748)" onmouseover="showTip(event, '748', 748)">
+            ofSeq l
+          </code>
+          <div class="tip" id="748">
+            <strong>Signature:</strong> l:seq&lt;string * &#39;T&gt; -&gt; NameMap&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '749', 749)" onmouseover="showTip(event, '749', 749)">
+            partition f l
+          </code>
+          <div class="tip" id="749">
+            <strong>Signature:</strong> f:(&#39;T -&gt; bool) -&gt; l:NameMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;T&gt; * Map&lt;string,&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '750', 750)" onmouseover="showTip(event, '750', 750)">
+            range m
+          </code>
+          <div class="tip" id="750">
+            <strong>Signature:</strong> m:Map&lt;&#39;a,&#39;b&gt; -&gt; &#39;b list<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '751', 751)" onmouseover="showTip(event, '751', 751)">
+            suball2 errf p m1 m2
+          </code>
+          <div class="tip" id="751">
+            <strong>Signature:</strong> errf:(&#39;b -&gt; &#39;c -&gt; bool) -&gt; p:(&#39;d -&gt; &#39;c -&gt; bool) -&gt; m1:Map&lt;&#39;b,&#39;d&gt; -&gt; m2:Map&lt;&#39;b,&#39;c&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'b, 'c, 'd          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '752', 752)" onmouseover="showTip(event, '752', 752)">
+            subfold2 errf f m1 m2 acc
+          </code>
+          <div class="tip" id="752">
+            <strong>Signature:</strong> errf:(&#39;?17805 -&gt; &#39;?17806 -&gt; &#39;?17807) -&gt; f:(&#39;?17805 -&gt; &#39;?17808 -&gt; &#39;?17806 -&gt; &#39;?17807 -&gt; &#39;?17807) -&gt; m1:Map&lt;&#39;?17805,&#39;?17808&gt; -&gt; m2:Map&lt;&#39;?17805,&#39;?17806&gt; -&gt; acc:&#39;?17807 -&gt; &#39;?17807<br />
+                          <strong>Type parameters:</strong> '?17805, '?17806, '?17807, '?17808          </div>
+        </td>
+        <td class="xmldoc">
+          <p>For every entry in m2 find an entry in m1 and fold</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '753', 753)" onmouseover="showTip(event, '753', 753)">
+            toList l
+          </code>
+          <div class="tip" id="753">
+            <strong>Signature:</strong> l:NameMap&lt;&#39;T&gt; -&gt; (string * &#39;T) list<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '754', 754)" onmouseover="showTip(event, '754', 754)">
+            tryFind v m
+          </code>
+          <div class="tip" id="754">
+            <strong>Signature:</strong> v:string -&gt; m:NameMap&lt;&#39;T&gt; -&gt; &#39;T option<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '755', 755)" onmouseover="showTip(event, '755', 755)">
+            tryFindInRange p m
+          </code>
+          <div class="tip" id="755">
+            <strong>Signature:</strong> p:(&#39;?17846 -&gt; bool) -&gt; m:Map&lt;&#39;?17847,&#39;?17846&gt; -&gt; &#39;?17846 option<br />
+                          <strong>Type parameters:</strong> '?17846, '?17847          </div>
+        </td>
+        <td class="xmldoc">
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '756', 756)" onmouseover="showTip(event, '756', 756)">
+            union unionf ms
+          </code>
+          <div class="tip" id="756">
+            <strong>Signature:</strong> unionf:(seq&lt;&#39;a&gt; -&gt; &#39;b) -&gt; ms:seq&lt;NameMap&lt;&#39;a&gt;&gt; -&gt; Map&lt;string,&#39;b&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b          </div>
+        </td>
+        <td class="xmldoc">
+          <p>Union entries by identical key, using the provided function to union sets of values</p>
+
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

@@ -144,17 +144,16 @@ module internal FSharp.Compiler.DotNetFrameworkDependencies
             with _ -> defaultMscorlibVersion
 
         // Get the ProductVersion of this framework compare with table yield compatible monikers
-        match desktopProductVersionMonikers
-              |> Array.tryFind (fun (major, minor, build, revision, _) ->
-                    (majorPart >= major) &&
-                    (minorPart >= minor) &&
-                    (buildPart >= build) &&
-                    (privatePart >= revision)) with
-        | Some (_,_,_,_,moniker) ->
-            moniker
-        | None ->
-            // no TFM could be found, assume latest stable?
-            "net48"
+        match
+            desktopProductVersionMonikers
+            |> Array.tryFind (fun (major, minor, build, revision, _) ->
+                (majorPart >= major) &&
+                (minorPart >= minor) &&
+                (buildPart >= build) &&
+                (privatePart >= revision)) with
+        | Some (_,_,_,_,moniker) -> moniker
+        | None -> // if no moniker can be found, assume latest stable?
+                  "net48"
 
     /// Gets the tfm E.g netcore3.0, net472
     let executionTfm =

@@ -5167,7 +5167,7 @@ module ScriptPreprocessClosure =
                     match packageManagerLines with
                     | [] -> ()
                     | (_, _, m)::_ ->
-                        match origTcConfig.packageManagerLines |> Map.tryFind packageManagerKey with
+                        match tcConfig.packageManagerLines |> Map.tryFind packageManagerKey with
                         | Some oldDependencyManagerLines when oldDependencyManagerLines = packageManagerLines -> ()
                         | _ ->
                             match DependencyManagerIntegration.tryFindDependencyManagerByKey tcConfig.compilerToolPaths tcConfig.outputDir m packageManagerKey with

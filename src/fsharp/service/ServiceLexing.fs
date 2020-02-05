@@ -382,7 +382,6 @@ module internal LexerStateEncoding =
     let hardwhitePosStart     = lexstateNumBits+ncommentsNumBits
     let ifdefstackCountStart  = lexstateNumBits+ncommentsNumBits+hardwhiteNumBits
     let ifdefstackStart       = lexstateNumBits+ncommentsNumBits+hardwhiteNumBits+ifdefstackCountNumBits
-
     let lexstateMask          = Bits.mask64 lexstateStart lexstateNumBits
     let ncommentsMask         = Bits.mask64 ncommentsStart ncommentsNumBits
     let hardwhitePosMask      = Bits.mask64 hardwhitePosStart hardwhiteNumBits

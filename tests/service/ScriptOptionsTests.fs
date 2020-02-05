@@ -14,8 +14,6 @@ open FSharp.Compiler
 open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 
-// Add additional imports/constructs into this script text to verify that common scenarios
-// for FCS script typechecking can be supported
 let scriptSource = """
 open System
 let pi = Math.PI

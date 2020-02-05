@@ -904,7 +904,6 @@ type BackgroundCompiler(legacyReferenceResolver, projectCacheSize, keepAssemblyC
 
     static member GlobalForegroundTypeCheckCountStatistic = foregroundTypeCheckCount
 
-
 [<Sealed; AutoSerializable(false)>]
 // There is typically only one instance of this type in an IDE process.
 type FSharpChecker(legacyReferenceResolver, 

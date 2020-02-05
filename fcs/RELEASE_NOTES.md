@@ -1,8 +1,8 @@
-#### 34.0.0
+#### 34.0.1
 
-Contains commits from 32b124966 to 5a0117048 from dotnet/fsharp. Notable changes include:
+Contains commits from 32b124966 to d7018737c from dotnet/fsharp. Notable changes include:
 
-* lowered allocations for large strings and char arrays (notable source file texts)
+* lowered allocations for large strings and char arrays (notably source file texts)
 * improved support for byreflike rules with regards to type abbreviations
 * better support for scopes in recursive modules
 * better location of .net core reference assemblies
@@ -11,8 +11,9 @@ Contains commits from 32b124966 to 5a0117048 from dotnet/fsharp. Notable changes
 * FSharpChecker learned how to keep background symbol uses
 * Project cracker/project cracker tool were removed
 * Better support for consuming C# inref parameters
-* preview-level functionality for #r "nuget" in scripts
 * new services around simplifing names and finding unused declarations
+* package management in scripts (in preview)
+* and-bang syntax support (in preview)
 
 #### 33.0.1
 

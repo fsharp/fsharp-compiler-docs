@@ -29,16 +29,17 @@ open Fake.IO.FileSystemOperators
 open Fake.IO
 open Fake.Core
 open FSharp.Literate
+open FSharp.Formatting.Razor
 
 let root = "."
 
 // Paths with template/source/output locations
-let bin         = __SOURCE_DIRECTORY__ @@ "../../../release/fcs/net461"
+let bin         = __SOURCE_DIRECTORY__ @@ "../../../release/fcs/netcoreapp3.0"
 let content     = __SOURCE_DIRECTORY__ @@ "../content"
 let output      = __SOURCE_DIRECTORY__ @@ "../../../docs"
 let files       = __SOURCE_DIRECTORY__ @@ "../files"
 let templates   = __SOURCE_DIRECTORY__ @@ "templates"
-let formatting  = __SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/"
+let formatting  = @"C:\Users\nojaf\.nuget\packages\fsharp.formatting\4.0.0-alpha02" // "__SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 
 // Where to look for *.csproj templates (in this order)
@@ -55,8 +56,9 @@ let copyFiles () =
   Shell.copyRecursive (formatting @@ "styles") (output @@ "content") true
   |> Trace.tracefn "Copying styles and scripts: %A"
 
-let clr =  System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
-let fsfmt =  __SOURCE_DIRECTORY__ @@ ".." @@ ".." @@ @"packages" @@ "FSharp.Formatting" @@ "lib" @@ "net40"
+let clr = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+printfn "CLR: %s" clr
+let fsfmt = @"C:\Users\nojaf\.nuget\packages\fsharp.formatting\4.0.0-alpha02\lib\netstandard2.0" // __SOURCE_DIRECTORY__ @@ ".." @@ ".." @@ @"packages" @@ "FSharp.Formatting" @@ "lib" @@ "net40"
 
 // Build API reference from XML comments
 let buildReference () =

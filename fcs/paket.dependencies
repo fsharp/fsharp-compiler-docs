@@ -26,4 +26,5 @@ nuget FSharp.Core
 nuget Fake.Core
 nuget Fake.IO.FileSystem
 nuget Fake.Core.Trace
-nuget FSharp.Literate
+nuget FSharp.Literate 4.0.0-alpha02
+nuget FSharp.Formatting 4.0.0-alpha02

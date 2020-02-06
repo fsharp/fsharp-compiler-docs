@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../../artifacts/bin/fcs/net461"
+#I "../../../artifacts/bin/fcs/Release/netcoreapp3.0"
 (**
 Compiler Services: Virtualized File System
 ==========================================

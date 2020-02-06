@@ -11,7 +11,7 @@ cd $(dirname ${BASH_SOURCE[0]})
 
 dotnet tool restore
 dotnet paket restore
-dotnet fake -v build-t $@
+dotnet fake build -t $@
 
 # but we'll be nice and go back to the start dir at the end
 cd $start_pwd

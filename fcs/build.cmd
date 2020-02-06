@@ -19,7 +19,7 @@ if errorlevel 1 (
 :: don't care if this fails
 dotnet build-server shutdown >NUL 2>&1
 
-dotnet fake -v build -t %*
+dotnet fake build -t %*
 
 if errorlevel 1 (
   endlocal

@@ -6,6 +6,7 @@
 #r "paket: groupref generate //"
 #load "./.fake/generate.fsx/intellisense.fsx"
 
+
 // Binaries that have XML documentation (in a corresponding generated XML file)
 let referenceBinaries = [ "FSharp.Compiler.Service.dll" ]
 // Web site location for the generated documentation
@@ -39,7 +40,7 @@ let content     = __SOURCE_DIRECTORY__ @@ "../content"
 let output      = __SOURCE_DIRECTORY__ @@ "../../../docs"
 let files       = __SOURCE_DIRECTORY__ @@ "../files"
 let templates   = __SOURCE_DIRECTORY__ @@ "templates"
-let formatting  = @"C:\Users\nojaf\.nuget\packages\fsharp.formatting\4.0.0-alpha02" // "__SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/"
+let formatting  = @"C:\Users\nojaf\.nuget\packages\fsharp.formatting\4.0.0-alpha03" // "__SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 
 // Where to look for *.csproj templates (in this order)
@@ -76,13 +77,13 @@ let buildReference () =
               clr @@ "Microsoft.CSharp.dll"
               clr @@ "System.Linq.dll"
               clr @@ "System.dll"
-              bin @@ "System.Reflection.Metadata.dll"
+              clr @@ "System.Reflection.Metadata.dll"
               clr @@ "System.Numerics.dll"
-              bin @@ "System.Collections.Immutable.dll"
+              clr @@ "System.Collections.Immutable.dll"
               clr @@ "System.IO.dll"
               clr @@ "mscorlib.dll"
               fsfmt @@ "FSharp.MetadataFormat.dll"
-              fsfmt @@ "RazorEngine.dll"
+              fsfmt @@ "RazorEngine.NetCore.dll"
               bin @@ "FSharp.Core.dll"
               bin @@ "FSharp.Compiler.Service.dll"
              ] )
@@ -96,7 +97,7 @@ let buildDocumentation () =
         layoutRoots = layoutRoots, generateAnchors = true, processRecursive=false )
 
 // Generate
-copyFiles()
+// copyFiles()
 buildDocumentation()
 buildReference()
 

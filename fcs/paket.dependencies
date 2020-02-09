@@ -18,8 +18,7 @@ nuget Fake.DotNet.Paket
 group generate
 
 source https://api.nuget.org/v3/index.json
-
-storage: none
+storage: packages
 framework: netstandard2.0
 
 nuget FSharp.Core

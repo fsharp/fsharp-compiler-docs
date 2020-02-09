@@ -6,11 +6,8 @@
 #r "paket: groupref generate //"
 #load "./.fake/generate.fsx/intellisense.fsx"
 
-
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "FSharp.Compiler.Service.dll" ]
-// Web site location for the generated documentation
-let website = "https://fsharp.github.io/FSharp.Compiler.Service"
+let referenceBinaries = [ "../../../artifacts/bin/fcs/Release/net461/FSharp.Compiler.Service.dll" ]
 
 // Specify more information about your project
 let info =
@@ -24,12 +21,9 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
-open Fake
-open System.IO
 open Fake.IO.FileSystemOperators
 open Fake.IO
 open Fake.Core
-open FSharp.Literate
 open FSharp.Formatting.Razor
 
 let root = "."
@@ -40,7 +34,7 @@ let content     = __SOURCE_DIRECTORY__ @@ "../content"
 let output      = __SOURCE_DIRECTORY__ @@ "../../../docs"
 let files       = __SOURCE_DIRECTORY__ @@ "../files"
 let templates   = __SOURCE_DIRECTORY__ @@ "templates"
-let formatting  = @"C:\Users\nojaf\.nuget\packages\fsharp.formatting\4.0.0-alpha03" // "__SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/"
+let formatting  = __SOURCE_DIRECTORY__ @@ "../../packages/generate/FSharp.Formatting"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 
 // Where to look for *.csproj templates (in this order)
@@ -57,10 +51,6 @@ let copyFiles () =
   Shell.copyRecursive (formatting @@ "styles") (output @@ "content") true
   |> Trace.tracefn "Copying styles and scripts: %A"
 
-let clr = Path.GetDirectoryName(typeof<System.Object>.Assembly.Location) //System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
-printfn "CLR: %s" clr
-let fsfmt = @"C:\Users\nojaf\.nuget\packages\fsharp.formatting\4.0.0-alpha03\lib\netstandard2.0" // __SOURCE_DIRECTORY__ @@ ".." @@ ".." @@ @"packages" @@ "FSharp.Formatting" @@ "lib" @@ "net40"
-
 // Build API reference from XML comments
 let buildReference () =
   Shell.cleanDir (output @@ "reference")
@@ -69,46 +59,7 @@ let buildReference () =
       ( bin @@ lib, output @@ "reference", layoutRoots,
         parameters = ("root", root)::info,
         sourceRepo = "https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src",
-        sourceFolder = @"..\..\..\src",
-        assemblyReferences =
-             [clr @@ "System.Runtime.dll"
-              clr @@ "System.dll"
-              clr @@ "System.Core.dll"
-              clr @@ "Microsoft.CSharp.dll"
-              clr @@ "System.Linq.dll"
-              // clr @@ "System.dll"
-              clr @@ "System.Reflection.Metadata.dll"
-              clr @@ "System.Numerics.dll"
-              clr @@ "System.Collections.Immutable.dll"
-              clr @@ "System.IO.dll"
-              clr @@ "mscorlib.dll"
-              fsfmt @@ "FSharp.MetadataFormat.dll"
-              fsfmt @@ "RazorEngine.NetCore.dll"
-              @"C:\Users\nojaf\.nuget\packages\fsharp.core\4.7.0\lib\netstandard2.0\FSharp.Core.dll"
-              // bin @@ "FSharp.Core.dll"
-              bin @@ "FSharp.Compiler.Service.dll"
-//              clr @@ "System.Collections.dll"
-//              clr @@ "System.Core.dll"
-//              clr @@ "System.Data.dll"
-//              clr @@ "System.dll"
-//              clr @@ "System.Drawing.dll"
-//              clr @@ "System.IO.dll"
-//              clr @@ "System.Linq.dll"
-//              clr @@ "System.Linq.Expressions.dll"
-//              clr @@ "System.Net.Requests.dll"
-//              clr @@ "System.Numerics.dll"
-//              clr @@ "System.Reflection.dll"
-//              clr @@ "System.Runtime.dll"
-//              clr @@ "System.Runtime.Numerics.dll"
-//              clr @@ "System.Threading.dll"
-//              clr @@ "System.Threading.Tasks.dll"
-//              clr @@ "System.Web.dll"
-//              clr @@ "System.Xml.dll"
-              @"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\2.1.13\Microsoft.AspNetCore.dll"
-              @"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\2.1.13\Microsoft.AspNetCore.Razor.dll"
-              @"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\2.1.13\Microsoft.AspNetCore.Razor.Language.dll"
-              @"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\2.1.13\Microsoft.AspNetCore.Razor.Runtime.dll"
-             ] )
+        sourceFolder = @"..\..\..\src")
 
 // Build documentation from `fsx` and `md` files in `docsrc/content`
 let buildDocumentation () =
@@ -119,7 +70,7 @@ let buildDocumentation () =
         layoutRoots = layoutRoots, generateAnchors = true, processRecursive=false )
 
 // Generate
-// copyFiles()
+copyFiles()
 buildDocumentation()
 buildReference()
 

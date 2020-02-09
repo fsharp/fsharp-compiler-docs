@@ -18,7 +18,6 @@ nuget Fake.DotNet.Paket
 group generate
 
 source https://api.nuget.org/v3/index.json
-source C:\Users\nojaf\Projects\FSharp.Formatting\artifacts
 
 storage: none
 framework: netstandard2.0

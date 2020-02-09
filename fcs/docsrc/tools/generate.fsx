@@ -57,9 +57,9 @@ let copyFiles () =
   Shell.copyRecursive (formatting @@ "styles") (output @@ "content") true
   |> Trace.tracefn "Copying styles and scripts: %A"
 
-let clr = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+let clr = Path.GetDirectoryName(typeof<System.Object>.Assembly.Location) //System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
 printfn "CLR: %s" clr
-let fsfmt = @"C:\Users\nojaf\.nuget\packages\fsharp.formatting\4.0.0-alpha02\lib\netstandard2.0" // __SOURCE_DIRECTORY__ @@ ".." @@ ".." @@ @"packages" @@ "FSharp.Formatting" @@ "lib" @@ "net40"
+let fsfmt = @"C:\Users\nojaf\.nuget\packages\fsharp.formatting\4.0.0-alpha03\lib\netstandard2.0" // __SOURCE_DIRECTORY__ @@ ".." @@ ".." @@ @"packages" @@ "FSharp.Formatting" @@ "lib" @@ "net40"
 
 // Build API reference from XML comments
 let buildReference () =
@@ -76,7 +76,7 @@ let buildReference () =
               clr @@ "System.Core.dll"
               clr @@ "Microsoft.CSharp.dll"
               clr @@ "System.Linq.dll"
-              clr @@ "System.dll"
+              // clr @@ "System.dll"
               clr @@ "System.Reflection.Metadata.dll"
               clr @@ "System.Numerics.dll"
               clr @@ "System.Collections.Immutable.dll"
@@ -84,8 +84,30 @@ let buildReference () =
               clr @@ "mscorlib.dll"
               fsfmt @@ "FSharp.MetadataFormat.dll"
               fsfmt @@ "RazorEngine.NetCore.dll"
-              bin @@ "FSharp.Core.dll"
+              @"C:\Users\nojaf\.nuget\packages\fsharp.core\4.7.0\lib\netstandard2.0\FSharp.Core.dll"
+              // bin @@ "FSharp.Core.dll"
               bin @@ "FSharp.Compiler.Service.dll"
+//              clr @@ "System.Collections.dll"
+//              clr @@ "System.Core.dll"
+//              clr @@ "System.Data.dll"
+//              clr @@ "System.dll"
+//              clr @@ "System.Drawing.dll"
+//              clr @@ "System.IO.dll"
+//              clr @@ "System.Linq.dll"
+//              clr @@ "System.Linq.Expressions.dll"
+//              clr @@ "System.Net.Requests.dll"
+//              clr @@ "System.Numerics.dll"
+//              clr @@ "System.Reflection.dll"
+//              clr @@ "System.Runtime.dll"
+//              clr @@ "System.Runtime.Numerics.dll"
+//              clr @@ "System.Threading.dll"
+//              clr @@ "System.Threading.Tasks.dll"
+//              clr @@ "System.Web.dll"
+//              clr @@ "System.Xml.dll"
+              @"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\2.1.13\Microsoft.AspNetCore.dll"
+              @"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\2.1.13\Microsoft.AspNetCore.Razor.dll"
+              @"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\2.1.13\Microsoft.AspNetCore.Razor.Language.dll"
+              @"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\2.1.13\Microsoft.AspNetCore.Razor.Runtime.dll"
              ] )
 
 // Build documentation from `fsx` and `md` files in `docsrc/content`

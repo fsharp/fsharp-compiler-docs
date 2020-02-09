@@ -25,22 +25,21 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          
-<h1><a name="Compiler-Services-Notes-on-the-FSharpChecker-caches" class="anchor" href="#Compiler-Services-Notes-on-the-FSharpChecker-caches">Compiler Services: Notes on the FSharpChecker caches</a></h1>
+          <h1><a name="Compiler-Services-Notes-on-the-FSharpChecker-caches" class="anchor" href="#Compiler-Services-Notes-on-the-FSharpChecker-caches">Compiler Services: Notes on the FSharpChecker caches</a></h1>
 <p>This is a design note on the FSharpChecker component and its caches.  See also the notes on the <a href="queue.html">FSharpChecker operations queue</a></p>
 <p>Each FSharpChecker object maintains a set of caches.  These are</p>
 <ul>
 <li>
 <p><code>scriptClosureCache</code> - an MRU cache of default size <code>projectCacheSize</code> that caches the
-computation of GetProjectOptionsFromScript. This computation can be lengthy as it can involve processing the transative closure
+computation of GetProjectOptionsFromScript. This computation can be lengthy as it can involve processing the transitive closure
 of all <code>#load</code> directives, which in turn can mean parsing an unbounded number of script files</p>
 </li>
 <li>
@@ -83,7 +82,7 @@ project checkers which happen to reference the same set of system assemblies.</p
 the cache sizes above indicate the "strong" size of the cache, where memory is held regardless of the memory
 pressure on the system. Some of the caches can also hold "weak" references which can be collected at will by the GC.</p>
 <blockquote>
-<p>Note: Because of these caches, uou should generally use one global, shared FSharpChecker for everything in an IDE application.</p>
+<p>Note: Because of these caches, you should generally use one global, shared FSharpChecker for everything in an IDE application.</p>
 </blockquote>
 <h2><a name="Low-Memory-Condition" class="anchor" href="#Low-Memory-Condition">Low-Memory Condition</a></h2>
 <p>Version 1.4.0.8 added a "maximum memory" limit specified by the <code>MaxMemory</code> property on FSharpChecker (in MB). If an FCS project operation
@@ -117,10 +116,10 @@ consider the cache sizes you are using and the tradeoffs involved between increm
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -149,6 +148,6 @@ consider the cache sizes you are using and the tradeoffs involved between increm
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

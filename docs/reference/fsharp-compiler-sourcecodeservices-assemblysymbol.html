@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,11 +34,16 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>AssemblySymbol</h1>
 <p>
-  <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+
+    <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+            <span>
+            Attributes: <br />
+[&lt;NoComparison&gt;]<br />
+[&lt;NoEquality&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 <p>Represents type, module, member, function or value in a compiled assembly.</p>
@@ -52,33 +57,31 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2849', 2849)" onmouseover="showTip(event, '2849', 2849)">
+          <code onmouseout="hideTip(event, '2910', 2910)" onmouseover="showTip(event, '2910', 2910)">
             AutoOpenParent
           </code>
-          <div class="tip" id="2849">
+          <div class="tip" id="2910">
             <strong>Signature:</strong> Idents option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Parent module that has <code>AutoOpen</code> attribute.</p>
+                    <p>Parent module that has <code>AutoOpen</code> attribute.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2850', 2850)" onmouseover="showTip(event, '2850', 2850)">
+          <code onmouseout="hideTip(event, '2911', 2911)" onmouseover="showTip(event, '2911', 2911)">
             CleanedIdents
           </code>
-          <div class="tip" id="2850">
+          <div class="tip" id="2911">
             <strong>Signature:</strong> Idents<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Entity name parts with removed module suffixes (Ns.M1Module.M2Module.M3.entity -&gt; Ns.M1.M2.M3.entity)
-and replaced compiled names with display names (FSharpEntity.DisplayName, FSharpValueOrFucntion.DisplayName).
+                    <p>Entity name parts with removed module suffixes (Ns.M1Module.M2Module.M3.entity -&gt; Ns.M1.M2.M3.entity)
+and replaced compiled names with display names (FSharpEntity.DisplayName, FSharpValueOrFunction.DisplayName).
 Note: <em>all</em> parts are cleaned, not the last one.</p>
 
 
@@ -86,110 +89,103 @@ Note: <em>all</em> parts are cleaned, not the last one.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2851', 2851)" onmouseover="showTip(event, '2851', 2851)">
+          <code onmouseout="hideTip(event, '2912', 2912)" onmouseover="showTip(event, '2912', 2912)">
             FullName
           </code>
-          <div class="tip" id="2851">
+          <div class="tip" id="2912">
             <strong>Signature:</strong> string<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Full entity name as it's seen in compiled code (raw FSharpEntity.FullName, FSharpValueOrFunction.FullName).</p>
+                    <p>Full entity name as it's seen in compiled code (raw FSharpEntity.FullName, FSharpValueOrFunction.FullName).</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2852', 2852)" onmouseover="showTip(event, '2852', 2852)">
+          <code onmouseout="hideTip(event, '2913', 2913)" onmouseover="showTip(event, '2913', 2913)">
             Kind
           </code>
-          <div class="tip" id="2852">
+          <div class="tip" id="2913">
             <strong>Signature:</strong> LookupType -&gt; EntityKind<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Function that returns <a href="fsharp-compiler-sourcecodeservices-entitykind.html" title="EntityKind"><code>EntityKind</code></a> based of given <a href="fsharp-compiler-nameresolution-lookupkind.html" title="LookupKind"><code>LookupKind</code></a>.</p>
+                    <p>Function that returns <a href="fsharp-compiler-sourcecodeservices-entitykind.html" title="EntityKind"><code>EntityKind</code></a> based of given <a href="fsharp-compiler-nameresolution-lookupkind.html" title="LookupKind"><code>LookupKind</code></a>.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2853', 2853)" onmouseover="showTip(event, '2853', 2853)">
+          <code onmouseout="hideTip(event, '2914', 2914)" onmouseover="showTip(event, '2914', 2914)">
             Namespace
           </code>
-          <div class="tip" id="2853">
+          <div class="tip" id="2914">
             <strong>Signature:</strong> Idents option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p><code>FSharpEntity.Namespace</code>.</p>
+                    <p><code>FSharpEntity.Namespace</code>.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2854', 2854)" onmouseover="showTip(event, '2854', 2854)">
+          <code onmouseout="hideTip(event, '2915', 2915)" onmouseover="showTip(event, '2915', 2915)">
             NearestRequireQualifiedAccessParent
           </code>
-          <div class="tip" id="2854">
+          <div class="tip" id="2915">
             <strong>Signature:</strong> Idents option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>The most narrative parent module that has <code>RequireQualifiedAccess</code> attribute.</p>
+                    <p>The most narrative parent module that has <code>RequireQualifiedAccess</code> attribute.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2855', 2855)" onmouseover="showTip(event, '2855', 2855)">
+          <code onmouseout="hideTip(event, '2916', 2916)" onmouseover="showTip(event, '2916', 2916)">
             Symbol
           </code>
-          <div class="tip" id="2855">
+          <div class="tip" id="2916">
             <strong>Signature:</strong> FSharpSymbol<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2856', 2856)" onmouseover="showTip(event, '2856', 2856)">
+          <code onmouseout="hideTip(event, '2917', 2917)" onmouseover="showTip(event, '2917', 2917)">
             TopRequireQualifiedAccessParent
           </code>
-          <div class="tip" id="2856">
+          <div class="tip" id="2917">
             <strong>Signature:</strong> Idents option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Parent module that has the largest scope and has <code>RequireQualifiedAccess</code> attribute.</p>
+                    <p>Parent module that has the largest scope and has <code>RequireQualifiedAccess</code> attribute.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2857', 2857)" onmouseover="showTip(event, '2857', 2857)">
+          <code onmouseout="hideTip(event, '2918', 2918)" onmouseover="showTip(event, '2918', 2918)">
             UnresolvedSymbol
           </code>
-          <div class="tip" id="2857">
+          <div class="tip" id="2918">
             <strong>Signature:</strong> UnresolvedSymbol<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Cache display name and namespace, used for completion.</p>
+                    <p>Cache display name and namespace, used for completion.</p>
 
 
         </td>
@@ -211,10 +207,10 @@ Note: <em>all</em> parts are cleaned, not the last one.</p>
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -243,6 +239,6 @@ Note: <em>all</em> parts are cleaned, not the last one.</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

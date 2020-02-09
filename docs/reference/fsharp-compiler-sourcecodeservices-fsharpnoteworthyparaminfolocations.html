@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,11 +34,15 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>FSharpNoteworthyParamInfoLocations</h1>
 <p>
-  <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+
+    <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+            <span>
+            Attributes: <br />
+[&lt;Sealed&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 <p>Represents the locations relevant to activating parameter info in an IDE</p>
@@ -52,16 +56,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3314', 3314)" onmouseover="showTip(event, '3314', 3314)">
-            IsThereACloseParen
+          <code onmouseout="hideTip(event, '3380', 3380)" onmouseover="showTip(event, '3380', 3380)">
+            x.IsThereACloseParen
           </code>
-          <div class="tip" id="3314">
+          <div class="tip" id="3380">
             <strong>Signature:</strong> bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Is false if either this is a call without parens "f x" or the parser recovered as in "f(x,y"</p>
+                    <p>Is false if either this is a call without parens "f x" or the parser recovered as in "f(x,y"</p>
 
 
               <p>CompiledName: <code>get_IsThereACloseParen</code></p>
@@ -69,16 +72,15 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3315', 3315)" onmouseover="showTip(event, '3315', 3315)">
-            LongId
+          <code onmouseout="hideTip(event, '3381', 3381)" onmouseover="showTip(event, '3381', 3381)">
+            x.LongId
           </code>
-          <div class="tip" id="3315">
+          <div class="tip" id="3381">
             <strong>Signature:</strong> string list<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>The text of the long identifier prior to the open-parentheses</p>
+                    <p>The text of the long identifier prior to the open-parentheses</p>
 
 
               <p>CompiledName: <code>get_LongId</code></p>
@@ -86,16 +88,15 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3316', 3316)" onmouseover="showTip(event, '3316', 3316)">
-            LongIdEndLocation
+          <code onmouseout="hideTip(event, '3382', 3382)" onmouseover="showTip(event, '3382', 3382)">
+            x.LongIdEndLocation
           </code>
-          <div class="tip" id="3316">
+          <div class="tip" id="3382">
             <strong>Signature:</strong> pos<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>The end location of long identifier prior to the open-parentheses</p>
+                    <p>The end location of long identifier prior to the open-parentheses</p>
 
 
               <p>CompiledName: <code>get_LongIdEndLocation</code></p>
@@ -103,16 +104,15 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3317', 3317)" onmouseover="showTip(event, '3317', 3317)">
-            LongIdStartLocation
+          <code onmouseout="hideTip(event, '3383', 3383)" onmouseover="showTip(event, '3383', 3383)">
+            x.LongIdStartLocation
           </code>
-          <div class="tip" id="3317">
+          <div class="tip" id="3383">
             <strong>Signature:</strong> pos<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>The start location of long identifier prior to the open-parentheses</p>
+                    <p>The start location of long identifier prior to the open-parentheses</p>
 
 
               <p>CompiledName: <code>get_LongIdStartLocation</code></p>
@@ -120,16 +120,15 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3318', 3318)" onmouseover="showTip(event, '3318', 3318)">
-            NamedParamNames
+          <code onmouseout="hideTip(event, '3384', 3384)" onmouseover="showTip(event, '3384', 3384)">
+            x.NamedParamNames
           </code>
-          <div class="tip" id="3318">
+          <div class="tip" id="3384">
             <strong>Signature:</strong> string option []<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Either empty or a name if an actual named parameter; f(0,a=4,?b=None) would be [|None; Some "a"; Some "b"|]</p>
+                    <p>Either empty or a name if an actual named parameter; f(0,a=4,?b=None) would be [|None; Some "a"; Some "b"|]</p>
 
 
               <p>CompiledName: <code>get_NamedParamNames</code></p>
@@ -137,16 +136,15 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3319', 3319)" onmouseover="showTip(event, '3319', 3319)">
-            OpenParenLocation
+          <code onmouseout="hideTip(event, '3385', 3385)" onmouseover="showTip(event, '3385', 3385)">
+            x.OpenParenLocation
           </code>
-          <div class="tip" id="3319">
+          <div class="tip" id="3385">
             <strong>Signature:</strong> pos<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>The location of the open-parentheses</p>
+                    <p>The location of the open-parentheses</p>
 
 
               <p>CompiledName: <code>get_OpenParenLocation</code></p>
@@ -154,16 +152,15 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3320', 3320)" onmouseover="showTip(event, '3320', 3320)">
-            TupleEndLocations
+          <code onmouseout="hideTip(event, '3386', 3386)" onmouseover="showTip(event, '3386', 3386)">
+            x.TupleEndLocations
           </code>
-          <div class="tip" id="3320">
+          <div class="tip" id="3386">
             <strong>Signature:</strong> pos []<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>The locations of commas and close parenthesis (or, last char of last arg, if no final close parenthesis)</p>
+                    <p>The locations of commas and close parenthesis (or, last char of last arg, if no final close parenthesis)</p>
 
 
               <p>CompiledName: <code>get_TupleEndLocations</code></p>
@@ -179,16 +176,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '3321', 3321)" onmouseover="showTip(event, '3321', 3321)">
-            Find(arg1, arg2)
+          <code onmouseout="hideTip(event, '3387', 3387)" onmouseover="showTip(event, '3387', 3387)">
+            FSharpNoteworthyParamInfoLocations.Find(...)
           </code>
-          <div class="tip" id="3321">
+          <div class="tip" id="3387">
             <strong>Signature:</strong> (pos * ParsedInput) -&gt; FSharpNoteworthyParamInfoLocations option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Find the information about parameter info locations at a particular source location</p>
+                    <p>Find the information about parameter info locations at a particular source location</p>
 
 
         </td>
@@ -210,10 +206,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -242,6 +238,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

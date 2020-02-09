@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,18 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>SynExpr</h1>
 <p>
-  <span>Namespace: FSharp.Compiler</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-ast.html">Ast</a></span>
+
+    <span>Namespace: FSharp.Compiler</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-ast.html">Ast</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;NoEquality&gt;]<br />
+[&lt;NoComparison&gt;]<br />
+[&lt;RequireQualifiedAccess&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -51,32 +57,30 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1270', 1270)" onmouseover="showTip(event, '1270', 1270)">
+          <code onmouseout="hideTip(event, '1297', 1297)" onmouseover="showTip(event, '1297', 1297)">
             AddressOf(isByref,SynExpr,range,range)
           </code>
-          <div class="tip" id="1270">
+          <div class="tip" id="1297">
             <strong>Signature:</strong> bool * SynExpr * range * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: &amp;expr, &amp;&amp;expr</p>
+                    <p>F# syntax: &amp;expr, &amp;&amp;expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1271', 1271)" onmouseover="showTip(event, '1271', 1271)">
+          <code onmouseout="hideTip(event, '1298', 1298)" onmouseover="showTip(event, '1298', 1298)">
             AnonRecd(...)
           </code>
-          <div class="tip" id="1271">
+          <div class="tip" id="1298">
             <strong>Signature:</strong> bool * (SynExpr * BlockSeparator) option * (Ident * SynExpr) list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: {| id1=e1; ...; idN=eN |}
+                    <p>F# syntax: {| id1=e1; ...; idN=eN |}
 F# syntax: struct {| id1=e1; ...; idN=eN |}</p>
 
 
@@ -84,19 +88,18 @@ F# syntax: struct {| id1=e1; ...; idN=eN |}</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1272', 1272)" onmouseover="showTip(event, '1272', 1272)">
+          <code onmouseout="hideTip(event, '1299', 1299)" onmouseover="showTip(event, '1299', 1299)">
             App(...)
           </code>
-          <div class="tip" id="1272">
+          <div class="tip" id="1299">
             <strong>Signature:</strong> ExprAtomicFlag * bool * SynExpr * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>App(exprAtomicFlag, isInfix, funcExpr, argExpr, m)
+                    <p>App(exprAtomicFlag, isInfix, funcExpr, argExpr, m)
 - exprAtomicFlag: indicates if the application is syntactically atomic, e.g. f.[1] is atomic, but 'f x' is not
-- isInfix is true for the first app of an infix operator, e.g. 1+2 becomes App(App(+,1),2), where the inner node is marked isInfix
-(or more generally, for higher operator fixities, if App(x,y) is such that y comes before x in the source code, then the node is marked isInfix=true)</p>
+- isInfix is true for the first app of an infix operator, e.g. 1+2 becomes App(App(+, 1), 2), where the inner node is marked isInfix
+(or more generally, for higher operator fixities, if App(x, y) is such that y comes before x in the source code, then the node is marked isInfix=true)</p>
 <p>F# syntax: f x</p>
 
 
@@ -104,80 +107,75 @@ F# syntax: struct {| id1=e1; ...; idN=eN |}</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1273', 1273)" onmouseover="showTip(event, '1273', 1273)">
+          <code onmouseout="hideTip(event, '1300', 1300)" onmouseover="showTip(event, '1300', 1300)">
             ArbitraryAfterError(debugStr,range)
           </code>
-          <div class="tip" id="1273">
+          <div class="tip" id="1300">
             <strong>Signature:</strong> string * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Inserted for error recovery</p>
+                    <p>Inserted for error recovery</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1274', 1274)" onmouseover="showTip(event, '1274', 1274)">
+          <code onmouseout="hideTip(event, '1301', 1301)" onmouseover="showTip(event, '1301', 1301)">
             ArrayOrList(isList,exprs,range)
           </code>
-          <div class="tip" id="1274">
+          <div class="tip" id="1301">
             <strong>Signature:</strong> bool * SynExpr list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: [ e1; ...; en ], [| e1; ...; en |]</p>
+                    <p>F# syntax: [ e1; ...; en ], [| e1; ...; en |]</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1275', 1275)" onmouseover="showTip(event, '1275', 1275)">
+          <code onmouseout="hideTip(event, '1302', 1302)" onmouseover="showTip(event, '1302', 1302)">
             ArrayOrListOfSeqExpr(isArray,expr,range)
           </code>
-          <div class="tip" id="1275">
+          <div class="tip" id="1302">
             <strong>Signature:</strong> bool * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: [ expr ], [| expr |]</p>
+                    <p>F# syntax: [ expr ], [| expr |]</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1276', 1276)" onmouseover="showTip(event, '1276', 1276)">
+          <code onmouseout="hideTip(event, '1303', 1303)" onmouseover="showTip(event, '1303', 1303)">
             Assert(expr,range)
           </code>
-          <div class="tip" id="1276">
+          <div class="tip" id="1303">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: assert expr</p>
+                    <p>F# syntax: assert expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1277', 1277)" onmouseover="showTip(event, '1277', 1277)">
+          <code onmouseout="hideTip(event, '1304', 1304)" onmouseover="showTip(event, '1304', 1304)">
             CompExpr(...)
           </code>
-          <div class="tip" id="1277">
+          <div class="tip" id="1304">
             <strong>Signature:</strong> bool * bool ref * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>CompExpr(isArrayOrList, isNotNakedRefCell, expr)</p>
+                    <p>CompExpr(isArrayOrList, isNotNakedRefCell, expr)</p>
 <p>F# syntax: { expr }</p>
 
 
@@ -185,64 +183,60 @@ F# syntax: struct {| id1=e1; ...; idN=eN |}</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1278', 1278)" onmouseover="showTip(event, '1278', 1278)">
+          <code onmouseout="hideTip(event, '1305', 1305)" onmouseover="showTip(event, '1305', 1305)">
             Const(constant,range)
           </code>
-          <div class="tip" id="1278">
+          <div class="tip" id="1305">
             <strong>Signature:</strong> SynConst * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: 1, 1.3, () etc.</p>
+                    <p>F# syntax: 1, 1.3, () etc.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1279', 1279)" onmouseover="showTip(event, '1279', 1279)">
+          <code onmouseout="hideTip(event, '1306', 1306)" onmouseover="showTip(event, '1306', 1306)">
             DiscardAfterMissingQualificationAfterDot(...)
           </code>
-          <div class="tip" id="1279">
+          <div class="tip" id="1306">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Inserted for error recovery when there is "expr." and missing tokens or error recovery after the dot</p>
+                    <p>Inserted for error recovery when there is "expr." and missing tokens or error recovery after the dot</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1280', 1280)" onmouseover="showTip(event, '1280', 1280)">
+          <code onmouseout="hideTip(event, '1307', 1307)" onmouseover="showTip(event, '1307', 1307)">
             Do(expr,range)
           </code>
-          <div class="tip" id="1280">
+          <div class="tip" id="1307">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: do expr</p>
+                    <p>F# syntax: do expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1281', 1281)" onmouseover="showTip(event, '1281', 1281)">
+          <code onmouseout="hideTip(event, '1308', 1308)" onmouseover="showTip(event, '1308', 1308)">
             DoBang(expr,range)
           </code>
-          <div class="tip" id="1281">
+          <div class="tip" id="1308">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: do! expr
+                    <p>F# syntax: do! expr
 Computation expressions only</p>
 
 
@@ -250,16 +244,15 @@ Computation expressions only</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1282', 1282)" onmouseover="showTip(event, '1282', 1282)">
+          <code onmouseout="hideTip(event, '1309', 1309)" onmouseover="showTip(event, '1309', 1309)">
             DotGet(expr,rangeOfDot,longDotId,range)
           </code>
-          <div class="tip" id="1282">
+          <div class="tip" id="1309">
             <strong>Signature:</strong> SynExpr * range * LongIdentWithDots * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>DotGet(expr, rangeOfDot, lid, wholeRange)</p>
+                    <p>DotGet(expr, rangeOfDot, lid, wholeRange)</p>
 <p>F# syntax: expr.ident.ident</p>
 
 
@@ -267,129 +260,121 @@ Computation expressions only</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1283', 1283)" onmouseover="showTip(event, '1283', 1283)">
+          <code onmouseout="hideTip(event, '1310', 1310)" onmouseover="showTip(event, '1310', 1310)">
             DotIndexedGet(...)
           </code>
-          <div class="tip" id="1283">
+          <div class="tip" id="1310">
             <strong>Signature:</strong> SynExpr * SynIndexerArg list * range * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: expr.[expr,...,expr]</p>
+                    <p>F# syntax: expr.[expr, ..., expr]</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1284', 1284)" onmouseover="showTip(event, '1284', 1284)">
+          <code onmouseout="hideTip(event, '1311', 1311)" onmouseover="showTip(event, '1311', 1311)">
             DotIndexedSet(...)
           </code>
-          <div class="tip" id="1284">
+          <div class="tip" id="1311">
             <strong>Signature:</strong> SynExpr * SynIndexerArg list * SynExpr * range * range * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>DotIndexedSet (objectExpr, indexExprs, valueExpr, rangeOfLeftOfSet, rangeOfDot, rangeOfWholeExpr)</p>
-<p>F# syntax: expr.[expr,...,expr] &lt;- expr</p>
+                    <p>DotIndexedSet (objectExpr, indexExprs, valueExpr, rangeOfLeftOfSet, rangeOfDot, rangeOfWholeExpr)</p>
+<p>F# syntax: expr.[expr, ..., expr] &lt;- expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1285', 1285)" onmouseover="showTip(event, '1285', 1285)">
+          <code onmouseout="hideTip(event, '1312', 1312)" onmouseover="showTip(event, '1312', 1312)">
             DotNamedIndexedPropertySet(...)
           </code>
-          <div class="tip" id="1285">
+          <div class="tip" id="1312">
             <strong>Signature:</strong> SynExpr * LongIdentWithDots * SynExpr * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: expr.Items(e1) &lt;- e2 , rarely used named-property-setter notation, e.g. (stringExpr).Chars(3) &lt;- 'a'</p>
+                    <p>F# syntax: Expr.Items (e1) &lt;- e2, rarely used named-property-setter notation, e.g. (stringExpr).Chars(3) &lt;- 'a'</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1286', 1286)" onmouseover="showTip(event, '1286', 1286)">
+          <code onmouseout="hideTip(event, '1313', 1313)" onmouseover="showTip(event, '1313', 1313)">
             DotSet(SynExpr,longDotId,SynExpr,range)
           </code>
-          <div class="tip" id="1286">
+          <div class="tip" id="1313">
             <strong>Signature:</strong> SynExpr * LongIdentWithDots * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: expr.ident...ident &lt;- expr</p>
+                    <p>F# syntax: expr.ident...ident &lt;- expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1287', 1287)" onmouseover="showTip(event, '1287', 1287)">
+          <code onmouseout="hideTip(event, '1314', 1314)" onmouseover="showTip(event, '1314', 1314)">
             Downcast(expr,typeName,range)
           </code>
-          <div class="tip" id="1287">
+          <div class="tip" id="1314">
             <strong>Signature:</strong> SynExpr * SynType * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: expr :?&gt; type</p>
+                    <p>F# syntax: expr :?&gt; type</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1288', 1288)" onmouseover="showTip(event, '1288', 1288)">
+          <code onmouseout="hideTip(event, '1315', 1315)" onmouseover="showTip(event, '1315', 1315)">
             Fixed(expr,range)
           </code>
-          <div class="tip" id="1288">
+          <div class="tip" id="1315">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>'use x = fixed expr'</p>
+                    <p>'use x = fixed expr'</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1289', 1289)" onmouseover="showTip(event, '1289', 1289)">
+          <code onmouseout="hideTip(event, '1316', 1316)" onmouseover="showTip(event, '1316', 1316)">
             For(...)
           </code>
-          <div class="tip" id="1289">
+          <div class="tip" id="1316">
             <strong>Signature:</strong> SequencePointInfoForForLoop * Ident * SynExpr * bool * SynExpr * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: 'for i = ... to ... do ...'</p>
+                    <p>F# syntax: 'for i = ... to ... do ...'</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1290', 1290)" onmouseover="showTip(event, '1290', 1290)">
+          <code onmouseout="hideTip(event, '1317', 1317)" onmouseover="showTip(event, '1317', 1317)">
             ForEach(...)
           </code>
-          <div class="tip" id="1290">
+          <div class="tip" id="1317">
             <strong>Signature:</strong> SequencePointInfoForForLoop * SeqExprOnly * bool * SynPat * SynExpr * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>SynExpr.ForEach (spBind, seqExprOnly, isFromSource, pat, enumExpr, bodyExpr, mWholeExpr).</p>
+                    <p>SynExpr.ForEach (spBind, seqExprOnly, isFromSource, pat, enumExpr, bodyExpr, mWholeExpr).</p>
 <p>F# syntax: 'for ... in ... do ...'</p>
 
 
@@ -397,49 +382,46 @@ Computation expressions only</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1291', 1291)" onmouseover="showTip(event, '1291', 1291)">
+          <code onmouseout="hideTip(event, '1318', 1318)" onmouseover="showTip(event, '1318', 1318)">
             FromParseError(expr,range)
           </code>
-          <div class="tip" id="1291">
+          <div class="tip" id="1318">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Inserted for error recovery</p>
+                    <p>Inserted for error recovery</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1292', 1292)" onmouseover="showTip(event, '1292', 1292)">
+          <code onmouseout="hideTip(event, '1319', 1319)" onmouseover="showTip(event, '1319', 1319)">
             Ident(Ident)
           </code>
-          <div class="tip" id="1292">
+          <div class="tip" id="1319">
             <strong>Signature:</strong> Ident<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: ident
-Optimized representation, = SynExpr.LongIdent(false,[id],id.idRange)</p>
+                    <p>F# syntax: ident
+Optimized representation, = SynExpr.LongIdent (false, [id], id.idRange)</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1293', 1293)" onmouseover="showTip(event, '1293', 1293)">
+          <code onmouseout="hideTip(event, '1320', 1320)" onmouseover="showTip(event, '1320', 1320)">
             IfThenElse(...)
           </code>
-          <div class="tip" id="1293">
+          <div class="tip" id="1320">
             <strong>Signature:</strong> SynExpr * SynExpr * SynExpr option * SequencePointInfoForBinding * bool * range * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>IfThenElse(exprGuard,exprThen,optionalExprElse,spIfToThen,isFromErrorRecovery,mIfToThen,mIfToEndOfLastBranch)</p>
+                    <p>IfThenElse(exprGuard, exprThen, optionalExprElse, spIfToThen, isFromErrorRecovery, mIfToThen, mIfToEndOfLastBranch)</p>
 <p>F# syntax: if expr then expr
 F# syntax: if expr then expr else expr</p>
 
@@ -448,65 +430,60 @@ F# syntax: if expr then expr else expr</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1294', 1294)" onmouseover="showTip(event, '1294', 1294)">
+          <code onmouseout="hideTip(event, '1321', 1321)" onmouseover="showTip(event, '1321', 1321)">
             ImplicitZero(range)
           </code>
-          <div class="tip" id="1294">
+          <div class="tip" id="1321">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: <implicit>
-Computation expressions only, implied by final "do" or "do!"</p>
+                    <p>Used in parser error recovery and internally during type checking for translating computation expressions.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1295', 1295)" onmouseover="showTip(event, '1295', 1295)">
+          <code onmouseout="hideTip(event, '1322', 1322)" onmouseover="showTip(event, '1322', 1322)">
             InferredDowncast(expr,range)
           </code>
-          <div class="tip" id="1295">
+          <div class="tip" id="1322">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: downcast expr</p>
+                    <p>F# syntax: downcast expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1296', 1296)" onmouseover="showTip(event, '1296', 1296)">
+          <code onmouseout="hideTip(event, '1323', 1323)" onmouseover="showTip(event, '1323', 1323)">
             InferredUpcast(expr,range)
           </code>
-          <div class="tip" id="1296">
+          <div class="tip" id="1323">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: upcast expr</p>
+                    <p>F# syntax: upcast expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1297', 1297)" onmouseover="showTip(event, '1297', 1297)">
+          <code onmouseout="hideTip(event, '1324', 1324)" onmouseover="showTip(event, '1324', 1324)">
             JoinIn(SynExpr,range,SynExpr,range)
           </code>
-          <div class="tip" id="1297">
+          <div class="tip" id="1324">
             <strong>Signature:</strong> SynExpr * range * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: ... in ...
+                    <p>F# syntax: ... in ...
 Computation expressions only, based on JOIN_IN token from lex filter</p>
 
 
@@ -514,16 +491,15 @@ Computation expressions only, based on JOIN_IN token from lex filter</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1298', 1298)" onmouseover="showTip(event, '1298', 1298)">
+          <code onmouseout="hideTip(event, '1325', 1325)" onmouseover="showTip(event, '1325', 1325)">
             Lambda(...)
           </code>
-          <div class="tip" id="1298">
+          <div class="tip" id="1325">
             <strong>Signature:</strong> bool * bool * SynSimplePats * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>First bool indicates if lambda originates from a method. Patterns here are always "simple"
+                    <p>First bool indicates if lambda originates from a method. Patterns here are always "simple"
 Second bool indicates if this is a "later" part of an iterated sequence of lambdas</p>
 <p>F# syntax: fun pat -&gt; expr</p>
 
@@ -532,32 +508,30 @@ Second bool indicates if this is a "later" part of an iterated sequence of lambd
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1299', 1299)" onmouseover="showTip(event, '1299', 1299)">
+          <code onmouseout="hideTip(event, '1326', 1326)" onmouseover="showTip(event, '1326', 1326)">
             Lazy(SynExpr,range)
           </code>
-          <div class="tip" id="1299">
+          <div class="tip" id="1326">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: lazy expr</p>
+                    <p>F# syntax: lazy expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1300', 1300)" onmouseover="showTip(event, '1300', 1300)">
+          <code onmouseout="hideTip(event, '1327', 1327)" onmouseover="showTip(event, '1327', 1327)">
             LetOrUse(...)
           </code>
-          <div class="tip" id="1300">
+          <div class="tip" id="1327">
             <strong>Signature:</strong> bool * bool * SynBinding list * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>LetOrUse(isRecursive, isUse, bindings, body, wholeRange)</p>
+                    <p>LetOrUse(isRecursive, isUse, bindings, body, wholeRange)</p>
 <p>F# syntax: let pat = expr in expr
 F# syntax: let f pat1 .. patN = expr in expr
 F# syntax: let rec f pat1 .. patN = expr in expr
@@ -568,18 +542,18 @@ F# syntax: use pat = expr in expr</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1301', 1301)" onmouseover="showTip(event, '1301', 1301)">
+          <code onmouseout="hideTip(event, '1328', 1328)" onmouseover="showTip(event, '1328', 1328)">
             LetOrUseBang(...)
           </code>
-          <div class="tip" id="1301">
-            <strong>Signature:</strong> SequencePointInfoForBinding * bool * bool * SynPat * SynExpr * SynExpr * range<br />
-                      </div>
+          <div class="tip" id="1328">
+            <strong>Signature:</strong> SequencePointInfoForBinding * bool * bool * SynPat * SynExpr * (SequencePointInfoForBinding * bool * bool * SynPat * SynExpr * range) list * SynExpr * range<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>SynExpr.LetOrUseBang(spBind, isUse, isFromSource, pat, rhsExpr, bodyExpr, mWholeExpr).</p>
+                    <p>SynExpr.LetOrUseAndBang (spBind, isUse, isFromSource, pat, rhsExpr, mLetBangExpr, [(andBangSpBind, andBangIsUse, andBangIsFromSource, andBangPat, andBangRhsExpr, mAndBangExpr)], bodyExpr).</p>
 <p>F# syntax: let! pat = expr in expr
 F# syntax: use! pat = expr in expr
+F# syntax: let! pat = expr and! ... and! ... and! pat = expr in expr
 Computation expressions only</p>
 
 
@@ -587,80 +561,75 @@ Computation expressions only</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1302', 1302)" onmouseover="showTip(event, '1302', 1302)">
+          <code onmouseout="hideTip(event, '1329', 1329)" onmouseover="showTip(event, '1329', 1329)">
             LibraryOnlyILAssembly(...)
           </code>
-          <div class="tip" id="1302">
+          <div class="tip" id="1329">
             <strong>Signature:</strong> ILInstr array * SynType list * SynExpr list * SynType list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Only used in FSharp.Core</p>
+                    <p>Only used in FSharp.Core</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1303', 1303)" onmouseover="showTip(event, '1303', 1303)">
+          <code onmouseout="hideTip(event, '1330', 1330)" onmouseover="showTip(event, '1330', 1330)">
             LibraryOnlyStaticOptimization(...)
           </code>
-          <div class="tip" id="1303">
+          <div class="tip" id="1330">
             <strong>Signature:</strong> SynStaticOptimizationConstraint list * SynExpr * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Only used in FSharp.Core</p>
+                    <p>Only used in FSharp.Core</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1304', 1304)" onmouseover="showTip(event, '1304', 1304)">
+          <code onmouseout="hideTip(event, '1331', 1331)" onmouseover="showTip(event, '1331', 1331)">
             LibraryOnlyUnionCaseFieldGet(...)
           </code>
-          <div class="tip" id="1304">
+          <div class="tip" id="1331">
             <strong>Signature:</strong> SynExpr * LongIdent * int * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Only used in FSharp.Core</p>
+                    <p>Only used in FSharp.Core</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1305', 1305)" onmouseover="showTip(event, '1305', 1305)">
+          <code onmouseout="hideTip(event, '1332', 1332)" onmouseover="showTip(event, '1332', 1332)">
             LibraryOnlyUnionCaseFieldSet(...)
           </code>
-          <div class="tip" id="1305">
+          <div class="tip" id="1332">
             <strong>Signature:</strong> SynExpr * LongIdent * int * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Only used in FSharp.Core</p>
+                    <p>Only used in FSharp.Core</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1306', 1306)" onmouseover="showTip(event, '1306', 1306)">
+          <code onmouseout="hideTip(event, '1333', 1333)" onmouseover="showTip(event, '1333', 1333)">
             LongIdent(...)
           </code>
-          <div class="tip" id="1306">
+          <div class="tip" id="1333">
             <strong>Signature:</strong> bool * LongIdentWithDots * SynSimplePatAlternativeIdInfo ref option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: ident.ident...ident
+                    <p>F# syntax: ident.ident...ident
 LongIdent(isOptional, longIdent, altNameRefCell, m)
 isOptional: true if preceded by a '?' for an optional named parameter
 altNameRefCell: Normally 'None' except for some compiler-generated variables in desugaring pattern matching. See SynSimplePat.Id</p>
@@ -670,96 +639,90 @@ altNameRefCell: Normally 'None' except for some compiler-generated variables in 
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1307', 1307)" onmouseover="showTip(event, '1307', 1307)">
+          <code onmouseout="hideTip(event, '1334', 1334)" onmouseover="showTip(event, '1334', 1334)">
             LongIdentSet(longDotId,expr,range)
           </code>
-          <div class="tip" id="1307">
+          <div class="tip" id="1334">
             <strong>Signature:</strong> LongIdentWithDots * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: ident.ident...ident &lt;- expr</p>
+                    <p>F# syntax: ident.ident...ident &lt;- expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1308', 1308)" onmouseover="showTip(event, '1308', 1308)">
+          <code onmouseout="hideTip(event, '1335', 1335)" onmouseover="showTip(event, '1335', 1335)">
             Match(matchSeqPoint,expr,clauses,range)
           </code>
-          <div class="tip" id="1308">
+          <div class="tip" id="1335">
             <strong>Signature:</strong> SequencePointInfoForBinding * SynExpr * SynMatchClause list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: match expr with pat1 -&gt; expr | ... | patN -&gt; exprN</p>
+                    <p>F# syntax: match expr with pat1 -&gt; expr | ... | patN -&gt; exprN</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1309', 1309)" onmouseover="showTip(event, '1309', 1309)">
+          <code onmouseout="hideTip(event, '1336', 1336)" onmouseover="showTip(event, '1336', 1336)">
             MatchBang(...)
           </code>
-          <div class="tip" id="1309">
+          <div class="tip" id="1336">
             <strong>Signature:</strong> SequencePointInfoForBinding * SynExpr * SynMatchClause list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: match! expr with pat1 -&gt; expr | ... | patN -&gt; exprN</p>
+                    <p>F# syntax: match! expr with pat1 -&gt; expr | ... | patN -&gt; exprN</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1310', 1310)" onmouseover="showTip(event, '1310', 1310)">
+          <code onmouseout="hideTip(event, '1337', 1337)" onmouseover="showTip(event, '1337', 1337)">
             MatchLambda(...)
           </code>
-          <div class="tip" id="1310">
+          <div class="tip" id="1337">
             <strong>Signature:</strong> bool * range * SynMatchClause list * SequencePointInfoForBinding * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: function pat1 -&gt; expr | ... | patN -&gt; exprN</p>
+                    <p>F# syntax: function pat1 -&gt; expr | ... | patN -&gt; exprN</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1311', 1311)" onmouseover="showTip(event, '1311', 1311)">
+          <code onmouseout="hideTip(event, '1338', 1338)" onmouseover="showTip(event, '1338', 1338)">
             NamedIndexedPropertySet(...)
           </code>
-          <div class="tip" id="1311">
+          <div class="tip" id="1338">
             <strong>Signature:</strong> LongIdentWithDots * SynExpr * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: Type.Items(e1) &lt;- e2 , rarely used named-property-setter notation, e.g. Foo.Bar.Chars(3) &lt;- 'a'</p>
+                    <p>F# syntax: Type.Items(e1) &lt;- e2, rarely used named-property-setter notation, e.g. Foo.Bar.Chars(3) &lt;- 'a'</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1312', 1312)" onmouseover="showTip(event, '1312', 1312)">
+          <code onmouseout="hideTip(event, '1339', 1339)" onmouseover="showTip(event, '1339', 1339)">
             New(isProtected,typeName,expr,range)
           </code>
-          <div class="tip" id="1312">
+          <div class="tip" id="1339">
             <strong>Signature:</strong> bool * SynType * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: new C(...)
+                    <p>F# syntax: new C(...)
 The flag is true if known to be 'family' ('protected') scope</p>
 
 
@@ -767,32 +730,30 @@ The flag is true if known to be 'family' ('protected') scope</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1313', 1313)" onmouseover="showTip(event, '1313', 1313)">
+          <code onmouseout="hideTip(event, '1340', 1340)" onmouseover="showTip(event, '1340', 1340)">
             Null(range)
           </code>
-          <div class="tip" id="1313">
+          <div class="tip" id="1340">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: null</p>
+                    <p>F# syntax: null</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1314', 1314)" onmouseover="showTip(event, '1314', 1314)">
+          <code onmouseout="hideTip(event, '1341', 1341)" onmouseover="showTip(event, '1341', 1341)">
             ObjExpr(...)
           </code>
-          <div class="tip" id="1314">
+          <div class="tip" id="1341">
             <strong>Signature:</strong> SynType * (SynExpr * Ident option) option * SynBinding list * SynInterfaceImpl list * range * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>SynExpr.ObjExpr(objTy,argOpt,binds,extraImpls,mNewExpr,mWholeExpr)</p>
+                    <p>SynExpr.ObjExpr (objTy, argOpt, binds, extraImpls, mNewExpr, mWholeExpr)</p>
 <p>F# syntax: { new ... with ... }</p>
 
 
@@ -800,53 +761,50 @@ The flag is true if known to be 'family' ('protected') scope</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1315', 1315)" onmouseover="showTip(event, '1315', 1315)">
+          <code onmouseout="hideTip(event, '1342', 1342)" onmouseover="showTip(event, '1342', 1342)">
             Paren(...)
           </code>
-          <div class="tip" id="1315">
+          <div class="tip" id="1342">
             <strong>Signature:</strong> SynExpr * range * range option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: (expr)</p>
+                    <p>F# syntax: (expr)</p>
 <p>Paren(expr, leftParenRange, rightParenRange, wholeRangeIncludingParentheses)</p>
-<p>Parenthesized expressions. Kept in AST to distinguish A.M((x,y))
-from A.M(x,y), among other things.</p>
+<p>Parenthesized expressions. Kept in AST to distinguish A.M((x, y))
+from A.M(x, y), among other things.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1316', 1316)" onmouseover="showTip(event, '1316', 1316)">
+          <code onmouseout="hideTip(event, '1343', 1343)" onmouseover="showTip(event, '1343', 1343)">
             Quote(...)
           </code>
-          <div class="tip" id="1316">
+          <div class="tip" id="1343">
             <strong>Signature:</strong> SynExpr * bool * SynExpr * bool * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: <@ expr @>, <@@ expr @@></p>
-<p>Quote(operator,isRaw,quotedSynExpr,isFromQueryExpression,m)</p>
+                    <p>F# syntax: <@ expr @>, <@@ expr @@></p>
+<p>Quote(operator, isRaw, quotedSynExpr, isFromQueryExpression, m)</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1317', 1317)" onmouseover="showTip(event, '1317', 1317)">
+          <code onmouseout="hideTip(event, '1344', 1344)" onmouseover="showTip(event, '1344', 1344)">
             Record(...)
           </code>
-          <div class="tip" id="1317">
+          <div class="tip" id="1344">
             <strong>Signature:</strong> (SynType * SynExpr * range * BlockSeparator option * range) option * (SynExpr * BlockSeparator) option * (RecordFieldName * SynExpr option * BlockSeparator option) list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: { f1=e1; ...; fn=en }
-SynExpr.Record((baseType, baseCtorArgs, mBaseCtor, sepAfterBase, mInherits), (copyExpr, sepAfterCopyExpr), (recordFieldName, fieldValue, sepAfterField), mWholeExpr)
+                    <p>F# syntax: { f1=e1; ...; fn=en }
+SynExpr.Record ((baseType, baseCtorArgs, mBaseCtor, sepAfterBase, mInherits), (copyExpr, sepAfterCopyExpr), (recordFieldName, fieldValue, sepAfterField), mWholeExpr)
 inherit includes location of separator (for tooling)
 copyOpt contains range of the following WITH part (for tooling)
 every field includes range of separator after the field (for tooling)</p>
@@ -856,16 +814,15 @@ every field includes range of separator after the field (for tooling)</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1318', 1318)" onmouseover="showTip(event, '1318', 1318)">
+          <code onmouseout="hideTip(event, '1345', 1345)" onmouseover="showTip(event, '1345', 1345)">
             Sequential(...)
           </code>
-          <div class="tip" id="1318">
+          <div class="tip" id="1345">
             <strong>Signature:</strong> SequencePointInfoForSeq * bool * SynExpr * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Seq(seqPoint, isTrueSeq, e1, e2, m)
+                    <p>Sequential(seqPoint, isTrueSeq, e1, e2, m)
 isTrueSeq: false indicates "let v = a in b; v"</p>
 <p>F# syntax: expr; expr</p>
 
@@ -874,178 +831,182 @@ isTrueSeq: false indicates "let v = a in b; v"</p>
       </tr>
       <tr>
         <td class="member-name">
+          <code onmouseout="hideTip(event, '1346', 1346)" onmouseover="showTip(event, '1346', 1346)">
+            SequentialOrImplicitYield(...)
+          </code>
+          <div class="tip" id="1346">
+            <strong>Signature:</strong> SequencePointInfoForSeq * SynExpr * SynExpr * SynExpr * range<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Used internally during type checking for translating computation expressions.</p>
 
-          <code onmouseout="hideTip(event, '1319', 1319)" onmouseover="showTip(event, '1319', 1319)">
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1347', 1347)" onmouseover="showTip(event, '1347', 1347)">
             Set(SynExpr,SynExpr,range)
           </code>
-          <div class="tip" id="1319">
+          <div class="tip" id="1347">
             <strong>Signature:</strong> SynExpr * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: expr &lt;- expr</p>
+                    <p>F# syntax: expr &lt;- expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1320', 1320)" onmouseover="showTip(event, '1320', 1320)">
+          <code onmouseout="hideTip(event, '1348', 1348)" onmouseover="showTip(event, '1348', 1348)">
             TraitCall(...)
           </code>
-          <div class="tip" id="1320">
+          <div class="tip" id="1348">
             <strong>Signature:</strong> SynTypar list * SynMemberSig * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: ((typar1 or ... or typarN): (member-dig) expr)</p>
+                    <p>F# syntax: ((typar1 or ... or typarN): (member-dig) expr)</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1321', 1321)" onmouseover="showTip(event, '1321', 1321)">
+          <code onmouseout="hideTip(event, '1349', 1349)" onmouseover="showTip(event, '1349', 1349)">
             TryFinally(...)
           </code>
-          <div class="tip" id="1321">
+          <div class="tip" id="1349">
             <strong>Signature:</strong> SynExpr * SynExpr * range * SequencePointInfoForTry * SequencePointInfoForFinally<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: try expr finally expr</p>
+                    <p>F# syntax: try expr finally expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1322', 1322)" onmouseover="showTip(event, '1322', 1322)">
+          <code onmouseout="hideTip(event, '1350', 1350)" onmouseover="showTip(event, '1350', 1350)">
             TryWith(...)
           </code>
-          <div class="tip" id="1322">
+          <div class="tip" id="1350">
             <strong>Signature:</strong> SynExpr * range * SynMatchClause list * range * range * SequencePointInfoForTry * SequencePointInfoForWith<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: try expr with pat -&gt; expr</p>
+                    <p>F# syntax: try expr with pat -&gt; expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1323', 1323)" onmouseover="showTip(event, '1323', 1323)">
+          <code onmouseout="hideTip(event, '1351', 1351)" onmouseover="showTip(event, '1351', 1351)">
             Tuple(isStruct,exprs,commaRanges,range)
           </code>
-          <div class="tip" id="1323">
+          <div class="tip" id="1351">
             <strong>Signature:</strong> bool * SynExpr list * range list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: e1, ..., eN</p>
+                    <p>F# syntax: e1, ..., eN</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1324', 1324)" onmouseover="showTip(event, '1324', 1324)">
+          <code onmouseout="hideTip(event, '1352', 1352)" onmouseover="showTip(event, '1352', 1352)">
             TypeApp(...)
           </code>
-          <div class="tip" id="1324">
+          <div class="tip" id="1352">
             <strong>Signature:</strong> SynExpr * range * SynType list * range list * range option * range * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>TypeApp(expr, mLessThan, types, mCommas, mGreaterThan, mTypeArgs, mWholeExpr)
+                    <p>TypeApp(expr, mLessThan, types, mCommas, mGreaterThan, mTypeArgs, mWholeExpr)
 "mCommas" are the ranges for interstitial commas, these only matter for parsing/design-time tooling, the typechecker may munge/discard them</p>
-<p>F# syntax: expr<type1,...,typeN></p>
+<p>F# syntax: expr<type1, ..., typeN></p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1325', 1325)" onmouseover="showTip(event, '1325', 1325)">
+          <code onmouseout="hideTip(event, '1353', 1353)" onmouseover="showTip(event, '1353', 1353)">
             Typed(expr,typeName,range)
           </code>
-          <div class="tip" id="1325">
+          <div class="tip" id="1353">
             <strong>Signature:</strong> SynExpr * SynType * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: expr : type</p>
+                    <p>F# syntax: expr: type</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1326', 1326)" onmouseover="showTip(event, '1326', 1326)">
+          <code onmouseout="hideTip(event, '1354', 1354)" onmouseover="showTip(event, '1354', 1354)">
             TypeTest(expr,typeName,range)
           </code>
-          <div class="tip" id="1326">
+          <div class="tip" id="1354">
             <strong>Signature:</strong> SynExpr * SynType * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: expr :? type</p>
+                    <p>F# syntax: expr :? type</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1327', 1327)" onmouseover="showTip(event, '1327', 1327)">
+          <code onmouseout="hideTip(event, '1355', 1355)" onmouseover="showTip(event, '1355', 1355)">
             Upcast(expr,typeName,range)
           </code>
-          <div class="tip" id="1327">
+          <div class="tip" id="1355">
             <strong>Signature:</strong> SynExpr * SynType * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: expr :&gt; type</p>
+                    <p>F# syntax: expr :&gt; type</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1328', 1328)" onmouseover="showTip(event, '1328', 1328)">
+          <code onmouseout="hideTip(event, '1356', 1356)" onmouseover="showTip(event, '1356', 1356)">
             While(...)
           </code>
-          <div class="tip" id="1328">
+          <div class="tip" id="1356">
             <strong>Signature:</strong> SequencePointInfoForWhileLoop * SynExpr * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: 'while ... do ...'</p>
+                    <p>F# syntax: 'while ... do ...'</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1329', 1329)" onmouseover="showTip(event, '1329', 1329)">
+          <code onmouseout="hideTip(event, '1357', 1357)" onmouseover="showTip(event, '1357', 1357)">
             YieldOrReturn(bool * bool,expr,range)
           </code>
-          <div class="tip" id="1329">
+          <div class="tip" id="1357">
             <strong>Signature:</strong> bool * bool * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: yield expr
+                    <p>F# syntax: yield expr
 F# syntax: return expr
 Computation expressions only</p>
 
@@ -1054,16 +1015,15 @@ Computation expressions only</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1330', 1330)" onmouseover="showTip(event, '1330', 1330)">
+          <code onmouseout="hideTip(event, '1358', 1358)" onmouseover="showTip(event, '1358', 1358)">
             YieldOrReturnFrom(...)
           </code>
-          <div class="tip" id="1330">
+          <div class="tip" id="1358">
             <strong>Signature:</strong> bool * bool * SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>F# syntax: yield! expr
+                    <p>F# syntax: yield! expr
 F# syntax: return! expr
 Computation expressions only</p>
 
@@ -1080,31 +1040,29 @@ Computation expressions only</p>
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1331', 1331)" onmouseover="showTip(event, '1331', 1331)">
-            IsArbExprAndThusAlreadyReportedError
+          <code onmouseout="hideTip(event, '1359', 1359)" onmouseover="showTip(event, '1359', 1359)">
+            x.IsArbExprAndThusAlreadyReportedError
           </code>
-          <div class="tip" id="1331">
+          <div class="tip" id="1359">
             <strong>Signature:</strong> bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_IsArbExprAndThusAlreadyReportedError</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1332', 1332)" onmouseover="showTip(event, '1332', 1332)">
-            Range
+          <code onmouseout="hideTip(event, '1360', 1360)" onmouseover="showTip(event, '1360', 1360)">
+            x.Range
           </code>
-          <div class="tip" id="1332">
+          <div class="tip" id="1360">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Get the syntactic range of source code covered by this construct.</p>
+                    <p>Get the syntactic range of source code covered by this construct.</p>
 
 
               <p>CompiledName: <code>get_Range</code></p>
@@ -1112,16 +1070,15 @@ Computation expressions only</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1333', 1333)" onmouseover="showTip(event, '1333', 1333)">
-            RangeOfFirstPortion
+          <code onmouseout="hideTip(event, '1361', 1361)" onmouseover="showTip(event, '1361', 1361)">
+            x.RangeOfFirstPortion
           </code>
-          <div class="tip" id="1333">
+          <div class="tip" id="1361">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Attempt to get the range of the first token or initial portion only - this is extremely ad-hoc, just a cheap way to improve a certain 'query custom operation' error range</p>
+                    <p>Attempt to get the range of the first token or initial portion only - this is extremely ad-hoc, just a cheap way to improve a certain 'query custom operation' error range</p>
 
 
               <p>CompiledName: <code>get_RangeOfFirstPortion</code></p>
@@ -1129,16 +1086,15 @@ Computation expressions only</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1334', 1334)" onmouseover="showTip(event, '1334', 1334)">
-            RangeSansAnyExtraDot
+          <code onmouseout="hideTip(event, '1362', 1362)" onmouseover="showTip(event, '1362', 1362)">
+            x.RangeSansAnyExtraDot
           </code>
-          <div class="tip" id="1334">
+          <div class="tip" id="1362">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>range ignoring any (parse error) extra trailing dots</p>
+                    <p>range ignoring any (parse error) extra trailing dots</p>
 
 
               <p>CompiledName: <code>get_RangeSansAnyExtraDot</code></p>
@@ -1161,10 +1117,10 @@ Computation expressions only</p>
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -1193,6 +1149,6 @@ Computation expressions only</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

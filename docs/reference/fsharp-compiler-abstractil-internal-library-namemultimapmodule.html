@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,15 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>NameMultiMap</h1>
 <p>
   <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
   <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span>
+        <span>
+          Attributes:<br />
+[&lt;CompilationRepresentation(4)&gt;]<br />
+          
+      </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -54,142 +57,132 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '757', 757)" onmouseover="showTip(event, '757', 757)">
+          <code onmouseout="hideTip(event, '764', 764)" onmouseover="showTip(event, '764', 764)">
             add v x m
           </code>
-          <div class="tip" id="757">
+          <div class="tip" id="764">
             <strong>Signature:</strong> v:string -&gt; x:&#39;T -&gt; m:NameMultiMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;T list&gt;<br />
-                          <strong>Type parameters:</strong> 'T          </div>
+                          <strong>Type parameters:</strong> 'T                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '758', 758)" onmouseover="showTip(event, '758', 758)">
+          <code onmouseout="hideTip(event, '765', 765)" onmouseover="showTip(event, '765', 765)">
             chooseRange f m
           </code>
-          <div class="tip" id="758">
-            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;b option) -&gt; m:NameMultiMap&lt;&#39;T&gt; -&gt; &#39;b list<br />
-                          <strong>Type parameters:</strong> 'T, 'b          </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '759', 759)" onmouseover="showTip(event, '759', 759)">
-            empty 
-          </code>
-          <div class="tip" id="759">
-            <strong>Signature:</strong> NameMultiMap&lt;&#39;T&gt;<br />
-                          <strong>Type parameters:</strong> 'T          </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '760', 760)" onmouseover="showTip(event, '760', 760)">
-            existsInRange f m
-          </code>
-          <div class="tip" id="760">
-            <strong>Signature:</strong> f:(&#39;T -&gt; bool) -&gt; m:NameMultiMap&lt;&#39;T&gt; -&gt; bool<br />
-                          <strong>Type parameters:</strong> 'T          </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '761', 761)" onmouseover="showTip(event, '761', 761)">
-            find v m
-          </code>
-          <div class="tip" id="761">
-            <strong>Signature:</strong> v:string -&gt; m:NameMultiMap&lt;&#39;T&gt; -&gt; &#39;T list<br />
-                          <strong>Type parameters:</strong> 'T          </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '762', 762)" onmouseover="showTip(event, '762', 762)">
-            initBy f xs
-          </code>
-          <div class="tip" id="762">
-            <strong>Signature:</strong> f:(&#39;T -&gt; string) -&gt; xs:seq&lt;&#39;T&gt; -&gt; NameMultiMap&lt;&#39;T&gt;<br />
-                          <strong>Type parameters:</strong> 'T          </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '763', 763)" onmouseover="showTip(event, '763', 763)">
-            map f m
-          </code>
-          <div class="tip" id="763">
-            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?17864) -&gt; m:NameMultiMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;?17864 list&gt;<br />
-                          <strong>Type parameters:</strong> 'T, '?17864          </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '764', 764)" onmouseover="showTip(event, '764', 764)">
-            ofList xs
-          </code>
-          <div class="tip" id="764">
-            <strong>Signature:</strong> xs:(string * &#39;T) list -&gt; NameMultiMap&lt;&#39;T&gt;<br />
-                          <strong>Type parameters:</strong> 'T          </div>
-        </td>
-        <td class="xmldoc">
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '765', 765)" onmouseover="showTip(event, '765', 765)">
-            range m
-          </code>
           <div class="tip" id="765">
-            <strong>Signature:</strong> m:NameMultiMap&lt;&#39;T&gt; -&gt; &#39;T list<br />
-                          <strong>Type parameters:</strong> 'T          </div>
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;b option) -&gt; m:NameMultiMap&lt;&#39;T&gt; -&gt; &#39;b list<br />
+                          <strong>Type parameters:</strong> 'T, 'b                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '766', 766)" onmouseover="showTip(event, '766', 766)">
-            rangeReversingEachBucket m
+            empty
           </code>
           <div class="tip" id="766">
-            <strong>Signature:</strong> m:NameMultiMap&lt;&#39;T&gt; -&gt; &#39;T list<br />
-                          <strong>Type parameters:</strong> 'T          </div>
+            <strong>Signature:</strong> NameMultiMap&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '767', 767)" onmouseover="showTip(event, '767', 767)">
+            existsInRange f m
+          </code>
+          <div class="tip" id="767">
+            <strong>Signature:</strong> f:(&#39;T -&gt; bool) -&gt; m:NameMultiMap&lt;&#39;T&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '768', 768)" onmouseover="showTip(event, '768', 768)">
+            find v m
+          </code>
+          <div class="tip" id="768">
+            <strong>Signature:</strong> v:string -&gt; m:NameMultiMap&lt;&#39;T&gt; -&gt; &#39;T list<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '769', 769)" onmouseover="showTip(event, '769', 769)">
+            initBy f xs
+          </code>
+          <div class="tip" id="769">
+            <strong>Signature:</strong> f:(&#39;T -&gt; string) -&gt; xs:seq&lt;&#39;T&gt; -&gt; NameMultiMap&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '770', 770)" onmouseover="showTip(event, '770', 770)">
+            map f m
+          </code>
+          <div class="tip" id="770">
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?691224) -&gt; m:NameMultiMap&lt;&#39;T&gt; -&gt; Map&lt;string,&#39;?691224 list&gt;<br />
+                          <strong>Type parameters:</strong> 'T, '?691224                      </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '771', 771)" onmouseover="showTip(event, '771', 771)">
+            ofList(xs)
+          </code>
+          <div class="tip" id="771">
+            <strong>Signature:</strong> xs:(string * &#39;T) list -&gt; NameMultiMap&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '772', 772)" onmouseover="showTip(event, '772', 772)">
+            range(m)
+          </code>
+          <div class="tip" id="772">
+            <strong>Signature:</strong> m:NameMultiMap&lt;&#39;T&gt; -&gt; &#39;T list<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '773', 773)" onmouseover="showTip(event, '773', 773)">
+            rangeReversingEachBucket(m)
+          </code>
+          <div class="tip" id="773">
+            <strong>Signature:</strong> m:NameMultiMap&lt;&#39;T&gt; -&gt; &#39;T list<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                    
         </td>
       </tr>
     </tbody>
@@ -209,10 +202,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -241,6 +234,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

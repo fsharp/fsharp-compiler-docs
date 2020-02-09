@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,15 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>ErrorLoggerExtensions</h1>
 <p>
   <span>Namespace: FSharp.Compiler</span><br />
   <span>Parent Module: <a href="fsharp-compiler-errorlogger.html">ErrorLogger</a></span>
+        <span>
+          Attributes:<br />
+[&lt;AutoOpen&gt;]<br />
+          
+      </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -54,34 +57,45 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '172', 172)" onmouseover="showTip(event, '172', 172)">
-            PreserveStackTrace exn
+          <code onmouseout="hideTip(event, '175', 175)" onmouseover="showTip(event, '175', 175)">
+            PreserveStackTrace(exn)
           </code>
-          <div class="tip" id="172">
+          <div class="tip" id="175">
             <strong>Signature:</strong> exn:&#39;a -&gt; unit<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          <p>Instruct the exception not to reset itself when thrown again.</p>
+                    <p>Instruct the exception not to reset itself when thrown again.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '173', 173)" onmouseover="showTip(event, '173', 173)">
-            ReraiseIfWatsonable exn
+          <code onmouseout="hideTip(event, '176', 176)" onmouseover="showTip(event, '176', 176)">
+            ReraiseIfWatsonable(exn)
           </code>
-          <div class="tip" id="173">
+          <div class="tip" id="176">
             <strong>Signature:</strong> exn:exn -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Reraise an exception if it is one we want to report to Watson.</p>
+                    <p>Reraise an exception if it is one we want to report to Watson.</p>
 
 
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '177', 177)" onmouseover="showTip(event, '177', 177)">
+            tryAndDetectDev15
+          </code>
+          <div class="tip" id="177">
+            <strong>Signature:</strong> bool<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
         </td>
       </tr>
     </tbody>
@@ -94,106 +108,99 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '174', 174)" onmouseover="showTip(event, '174', 174)">
-            Error(exn)
+          <code onmouseout="hideTip(event, '178', 178)" onmouseover="showTip(event, '178', 178)">
+            x.Error(exn)
           </code>
-          <div class="tip" id="174">
+          <div class="tip" id="178">
             <strong>Signature:</strong> exn:exn -&gt; &#39;a<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>ErrorLogger.Error</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '175', 175)" onmouseover="showTip(event, '175', 175)">
-            ErrorR(exn)
+          <code onmouseout="hideTip(event, '179', 179)" onmouseover="showTip(event, '179', 179)">
+            x.ErrorR(exn)
           </code>
-          <div class="tip" id="175">
+          <div class="tip" id="179">
             <strong>Signature:</strong> exn:exn -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>ErrorLogger.ErrorR</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '176', 176)" onmouseover="showTip(event, '176', 176)">
-            ErrorRecovery(exn m)
+          <code onmouseout="hideTip(event, '180', 180)" onmouseover="showTip(event, '180', 180)">
+            x.ErrorRecovery exn m
           </code>
-          <div class="tip" id="176">
+          <div class="tip" id="180">
             <strong>Signature:</strong> exn:exn -&gt; m:range -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>ErrorLogger.ErrorRecovery</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '177', 177)" onmouseover="showTip(event, '177', 177)">
-            ErrorRecoveryNoRange(exn)
+          <code onmouseout="hideTip(event, '181', 181)" onmouseover="showTip(event, '181', 181)">
+            x.ErrorRecoveryNoRange(exn)
           </code>
-          <div class="tip" id="177">
+          <div class="tip" id="181">
             <strong>Signature:</strong> exn:exn -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>ErrorLogger.ErrorRecoveryNoRange</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '178', 178)" onmouseover="showTip(event, '178', 178)">
-            SimulateError(ph)
+          <code onmouseout="hideTip(event, '182', 182)" onmouseover="showTip(event, '182', 182)">
+            x.SimulateError(ph)
           </code>
-          <div class="tip" id="178">
-            <strong>Signature:</strong> ph:PhasedDiagnostic -&gt; &#39;?19329<br />
-                          <strong>Type parameters:</strong> '?19329          </div>
+          <div class="tip" id="182">
+            <strong>Signature:</strong> ph:PhasedDiagnostic -&gt; &#39;?692714<br />
+                          <strong>Type parameters:</strong> '?692714                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>ErrorLogger.SimulateError</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '179', 179)" onmouseover="showTip(event, '179', 179)">
-            StopProcessingRecovery(exn m)
+          <code onmouseout="hideTip(event, '183', 183)" onmouseover="showTip(event, '183', 183)">
+            x.StopProcessingRecovery exn m
           </code>
-          <div class="tip" id="179">
+          <div class="tip" id="183">
             <strong>Signature:</strong> exn:exn -&gt; m:range -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>ErrorLogger.StopProcessingRecovery</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '180', 180)" onmouseover="showTip(event, '180', 180)">
-            Warning(exn)
+          <code onmouseout="hideTip(event, '184', 184)" onmouseover="showTip(event, '184', 184)">
+            x.Warning(exn)
           </code>
-          <div class="tip" id="180">
+          <div class="tip" id="184">
             <strong>Signature:</strong> exn:exn -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>ErrorLogger.Warning</code></p>
         </td>
       </tr>
@@ -214,10 +221,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -246,6 +253,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

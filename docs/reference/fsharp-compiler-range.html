@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,10 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>Range</h1>
 <p>
   <span>Namespace: FSharp.Compiler</span><br />
-</p>
+  </p>
 <div class="xmldoc">
 </div>
 
@@ -55,49 +53,61 @@
           <td class="type-name">
             <a href="fsharp-compiler-range-fileindex.html">FileIndex</a>
           </td>
-          <td class="xmldoc"><p>An index into a global tables of filenames</p>
+          <td class="xmldoc">
+          <p>An index into a global tables of filenames</p>
 
-</td>
+
+          </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="fsharp-compiler-range-line0.html">Line0</a>
           </td>
-          <td class="xmldoc"><p>Represents a line number when using zero-based line counting (used by Visual Studio)</p>
+          <td class="xmldoc">
+          <p>Represents a line number when using zero-based line counting (used by Visual Studio)</p>
 
-</td>
+
+          </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="fsharp-compiler-range-pos01.html">Pos01</a>
           </td>
-          <td class="xmldoc"><p>Represents a position using zero-based line counting (used by Visual Studio)</p>
+          <td class="xmldoc">
+          <p>Represents a position using zero-based line counting (used by Visual Studio)</p>
 
-</td>
+
+          </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="fsharp-compiler-range-range01.html">Range01</a>
           </td>
-          <td class="xmldoc"><p>Represents a range using zero-based line counting (used by Visual Studio)</p>
+          <td class="xmldoc">
+          <p>Represents a range using zero-based line counting (used by Visual Studio)</p>
 
-</td>
+
+          </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="fsharp-compiler-range-pos.html">pos</a>
           </td>
-          <td class="xmldoc"><p>Represents a position in a file</p>
+          <td class="xmldoc">
+          <p>Represents a position in a file</p>
 
-</td>
+
+          </td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="fsharp-compiler-range-range.html">range</a>
           </td>
-          <td class="xmldoc"><p>Represents a range within a known file</p>
+          <td class="xmldoc">
+          <p>Represents a range within a known file</p>
 
-</td>
+
+          </td>
         </tr>
     </tbody>
   </table>
@@ -110,19 +120,25 @@
           <td class="module-name">
             <a href="fsharp-compiler-range-line.html">Line</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc">
+          
+          </td>
         </tr>
         <tr>
           <td class="module-name">
             <a href="fsharp-compiler-range-pos-0.html">Pos</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc">
+          
+          </td>
         </tr>
         <tr>
           <td class="module-name">
             <a href="fsharp-compiler-range-range-0.html">Range</a>
           </td>
-          <td class="xmldoc"></td>
+          <td class="xmldoc">
+          
+          </td>
         </tr>
     </tbody>
   </table>
@@ -137,402 +153,429 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '379', 379)" onmouseover="showTip(event, '379', 379)">
-            fileIndexOfFile filePath
-          </code>
-          <div class="tip" id="379">
-            <strong>Signature:</strong> filePath:string -&gt; FileIndex<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          <p>Convert a file path to an index</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '380', 380)" onmouseover="showTip(event, '380', 380)">
-            fileOfFileIndex arg1
-          </code>
-          <div class="tip" id="380">
-            <strong>Signature:</strong> FileIndex -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          <p>Convert an index into a file path</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '381', 381)" onmouseover="showTip(event, '381', 381)">
-            mkFileIndexRange arg1 arg2 arg3
-          </code>
-          <div class="tip" id="381">
-            <strong>Signature:</strong> FileIndex -&gt; pos -&gt; pos -&gt; range<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          <p>This view of range marks uses file indexes explicitly</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '382', 382)" onmouseover="showTip(event, '382', 382)">
-            mkPos line column
-          </code>
-          <div class="tip" id="382">
-            <strong>Signature:</strong> line:int -&gt; column:int -&gt; pos<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          <p>Create a position for the given line and column</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
           <code onmouseout="hideTip(event, '383', 383)" onmouseover="showTip(event, '383', 383)">
-            mkRange arg1 arg2 arg3
+            commandLineArgsFileName
           </code>
           <div class="tip" id="383">
-            <strong>Signature:</strong> string -&gt; pos -&gt; pos -&gt; range<br />
-                      </div>
+            <strong>Signature:</strong> string<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>This view hides the use of file indexes and just uses filenames</p>
-
-
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '384', 384)" onmouseover="showTip(event, '384', 384)">
-            outputPos arg1 arg2
+            equals arg1 arg2
           </code>
           <div class="tip" id="384">
-            <strong>Signature:</strong> TextWriter -&gt; pos -&gt; unit<br />
-                      </div>
+            <strong>Signature:</strong> range -&gt; range -&gt; bool<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Output a position</p>
-
-
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '385', 385)" onmouseover="showTip(event, '385', 385)">
-            outputRange arg1 arg2
+            fileIndexOfFile(filePath)
           </code>
           <div class="tip" id="385">
-            <strong>Signature:</strong> TextWriter -&gt; range -&gt; unit<br />
-                      </div>
+            <strong>Signature:</strong> filePath:string -&gt; FileIndex<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Output a range</p>
+                    <p>Convert a file path to an index</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '386', 386)" onmouseover="showTip(event, '386', 386)">
-            pos0 
+            fileOfFileIndex(arg1)
           </code>
           <div class="tip" id="386">
-            <strong>Signature:</strong> pos<br />
-                      </div>
+            <strong>Signature:</strong> FileIndex -&gt; string<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>The zero position</p>
+                    <p>Convert an index into a file path</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '387', 387)" onmouseover="showTip(event, '387', 387)">
-            posEq arg1 arg2
+            mkFileIndexRange arg1 arg2 arg3
           </code>
           <div class="tip" id="387">
-            <strong>Signature:</strong> pos -&gt; pos -&gt; bool<br />
-                      </div>
+            <strong>Signature:</strong> FileIndex -&gt; pos -&gt; pos -&gt; range<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Compare positions for equality</p>
+                    <p>This view of range marks uses file indexes explicitly</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '388', 388)" onmouseover="showTip(event, '388', 388)">
-            posGeq arg1 arg2
+            mkPos line column
           </code>
           <div class="tip" id="388">
-            <strong>Signature:</strong> pos -&gt; pos -&gt; bool<br />
-                      </div>
+            <strong>Signature:</strong> line:int -&gt; column:int -&gt; pos<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Compare positions for greater-than-or-equal-to</p>
+                    <p>Create a position for the given line and column</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '389', 389)" onmouseover="showTip(event, '389', 389)">
-            posGt arg1 arg2
+            mkRange arg1 arg2 arg3
           </code>
           <div class="tip" id="389">
-            <strong>Signature:</strong> pos -&gt; pos -&gt; bool<br />
-                      </div>
+            <strong>Signature:</strong> string -&gt; pos -&gt; pos -&gt; range<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Compare positions for greater-than</p>
+                    <p>This view hides the use of file indexes and just uses filenames</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '390', 390)" onmouseover="showTip(event, '390', 390)">
-            posLt arg1 arg2
+            outputPos arg1 arg2
           </code>
           <div class="tip" id="390">
-            <strong>Signature:</strong> pos -&gt; pos -&gt; bool<br />
-                      </div>
+            <strong>Signature:</strong> TextWriter -&gt; pos -&gt; unit<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Compare positions for less-than</p>
+                    <p>Output a position</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '391', 391)" onmouseover="showTip(event, '391', 391)">
-            posOrder 
+            outputRange arg1 arg2
           </code>
           <div class="tip" id="391">
-            <strong>Signature:</strong> IComparer&lt;pos&gt;<br />
-                      </div>
+            <strong>Signature:</strong> TextWriter -&gt; range -&gt; unit<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Ordering on positions</p>
+                    <p>Output a range</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '392', 392)" onmouseover="showTip(event, '392', 392)">
-            range0 
+            pos0
           </code>
           <div class="tip" id="392">
-            <strong>Signature:</strong> range<br />
-                      </div>
+            <strong>Signature:</strong> pos<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>The zero range</p>
+                    <p>The zero position</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '393', 393)" onmouseover="showTip(event, '393', 393)">
-            rangeBeforePos arg1 arg2
+            posEq arg1 arg2
           </code>
           <div class="tip" id="393">
-            <strong>Signature:</strong> range -&gt; pos -&gt; bool<br />
-                      </div>
+            <strong>Signature:</strong> pos -&gt; pos -&gt; bool<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Test to see if a range occurs fully before a position</p>
+                    <p>Compare positions for equality</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '394', 394)" onmouseover="showTip(event, '394', 394)">
-            rangeCmdArgs 
+            posGeq arg1 arg2
           </code>
           <div class="tip" id="394">
-            <strong>Signature:</strong> range<br />
-                      </div>
+            <strong>Signature:</strong> pos -&gt; pos -&gt; bool<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A range associated with a dummy file for the command line arguments</p>
+                    <p>Compare positions for greater-than-or-equal-to</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '395', 395)" onmouseover="showTip(event, '395', 395)">
-            rangeContainsPos arg1 arg2
+            posGt arg1 arg2
           </code>
           <div class="tip" id="395">
-            <strong>Signature:</strong> range -&gt; pos -&gt; bool<br />
-                      </div>
+            <strong>Signature:</strong> pos -&gt; pos -&gt; bool<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Test to see if a range contains a position</p>
+                    <p>Compare positions for greater-than</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '396', 396)" onmouseover="showTip(event, '396', 396)">
-            rangeContainsRange arg1 arg2
+            posLt arg1 arg2
           </code>
           <div class="tip" id="396">
-            <strong>Signature:</strong> range -&gt; range -&gt; bool<br />
-                      </div>
+            <strong>Signature:</strong> pos -&gt; pos -&gt; bool<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Test to see if one range contains another range</p>
+                    <p>Compare positions for less-than</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '397', 397)" onmouseover="showTip(event, '397', 397)">
-            rangeN arg1 arg2
+            posOrder
           </code>
           <div class="tip" id="397">
-            <strong>Signature:</strong> string -&gt; int -&gt; range<br />
-                      </div>
+            <strong>Signature:</strong> IComparer&lt;pos&gt;<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Make a dummy range for a file</p>
+                    <p>Ordering on positions</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '398', 398)" onmouseover="showTip(event, '398', 398)">
-            rangeOrder 
+            range0
           </code>
           <div class="tip" id="398">
-            <strong>Signature:</strong> IComparer&lt;range&gt;<br />
-                      </div>
+            <strong>Signature:</strong> range<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>not a total order, but enough to sort on ranges</p>
+                    <p>The zero range</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '399', 399)" onmouseover="showTip(event, '399', 399)">
-            rangeStartup 
+            rangeBeforePos arg1 arg2
           </code>
           <div class="tip" id="399">
-            <strong>Signature:</strong> range<br />
-                      </div>
+            <strong>Signature:</strong> range -&gt; pos -&gt; bool<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A range associated with a dummy file called "startup"</p>
+                    <p>Test to see if a range occurs fully before a position</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '400', 400)" onmouseover="showTip(event, '400', 400)">
-            stringOfPos arg1
+            rangeCmdArgs
           </code>
           <div class="tip" id="400">
-            <strong>Signature:</strong> pos -&gt; string<br />
-                      </div>
+            <strong>Signature:</strong> range<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Convert a position to a string</p>
+                    <p>A range associated with a dummy file for the command line arguments</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '401', 401)" onmouseover="showTip(event, '401', 401)">
-            stringOfRange arg1
+            rangeContainsPos arg1 arg2
           </code>
           <div class="tip" id="401">
-            <strong>Signature:</strong> range -&gt; string<br />
-                      </div>
+            <strong>Signature:</strong> range -&gt; pos -&gt; bool<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Convert a range to a string</p>
+                    <p>Test to see if a range contains a position</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '402', 402)" onmouseover="showTip(event, '402', 402)">
-            trimRangeToLine arg1
+            rangeContainsRange arg1 arg2
           </code>
           <div class="tip" id="402">
-            <strong>Signature:</strong> range -&gt; range<br />
-                      </div>
+            <strong>Signature:</strong> range -&gt; range -&gt; bool<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Reduce a range so it only covers a line</p>
+                    <p>Test to see if one range contains another range</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '403', 403)" onmouseover="showTip(event, '403', 403)">
-            unionRanges arg1 arg2
+            rangeN arg1 arg2
           </code>
           <div class="tip" id="403">
-            <strong>Signature:</strong> range -&gt; range -&gt; range<br />
-                      </div>
+            <strong>Signature:</strong> string -&gt; int -&gt; range<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Union two ranges, taking their first occurring start position and last occurring end position</p>
+                    <p>Make a dummy range for a file</p>
 
 
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '404', 404)" onmouseover="showTip(event, '404', 404)">
+            rangeOrder
+          </code>
+          <div class="tip" id="404">
+            <strong>Signature:</strong> IComparer&lt;range&gt;<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>not a total order, but enough to sort on ranges</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '405', 405)" onmouseover="showTip(event, '405', 405)">
+            rangeStartup
+          </code>
+          <div class="tip" id="405">
+            <strong>Signature:</strong> range<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>A range associated with a dummy file called "startup"</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '406', 406)" onmouseover="showTip(event, '406', 406)">
+            startupFileName
+          </code>
+          <div class="tip" id="406">
+            <strong>Signature:</strong> string<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '407', 407)" onmouseover="showTip(event, '407', 407)">
+            stringOfPos(arg1)
+          </code>
+          <div class="tip" id="407">
+            <strong>Signature:</strong> pos -&gt; string<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Convert a position to a string</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '408', 408)" onmouseover="showTip(event, '408', 408)">
+            stringOfRange(arg1)
+          </code>
+          <div class="tip" id="408">
+            <strong>Signature:</strong> range -&gt; string<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Convert a range to a string</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '409', 409)" onmouseover="showTip(event, '409', 409)">
+            trimRangeToLine(arg1)
+          </code>
+          <div class="tip" id="409">
+            <strong>Signature:</strong> range -&gt; range<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Reduce a range so it only covers a line</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '410', 410)" onmouseover="showTip(event, '410', 410)">
+            unionRanges arg1 arg2
+          </code>
+          <div class="tip" id="410">
+            <strong>Signature:</strong> range -&gt; range -&gt; range<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Union two ranges, taking their first occurring start position and last occurring end position</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '411', 411)" onmouseover="showTip(event, '411', 411)">
+            unknownFileName
+          </code>
+          <div class="tip" id="411">
+            <strong>Signature:</strong> string<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
         </td>
       </tr>
     </tbody>
@@ -552,10 +595,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -584,6 +627,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

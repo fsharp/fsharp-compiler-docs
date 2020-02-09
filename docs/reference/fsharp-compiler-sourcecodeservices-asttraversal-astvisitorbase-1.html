@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,16 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>AstVisitorBase<'T></h1>
 <p>
-  <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-sourcecodeservices-asttraversal.html">AstTraversal</a></span>
+
+    <span>Namespace: FSharp.Compiler.SourceCodeServices</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-sourcecodeservices-asttraversal.html">AstTraversal</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;AbstractClass&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -51,16 +55,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2739', 2739)" onmouseover="showTip(event, '2739', 2739)">
+          <code onmouseout="hideTip(event, '2798', 2798)" onmouseover="showTip(event, '2798', 2798)">
             new()
           </code>
-          <div class="tip" id="2739">
+          <div class="tip" id="2798">
             <strong>Signature:</strong> unit -&gt; AstVisitorBase&lt;&#39;T&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>.ctor</code></p>
         </td>
       </tr>
@@ -74,51 +77,48 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2740', 2740)" onmouseover="showTip(event, '2740', 2740)">
-            VisitBinding(arg1, arg2)
+          <code onmouseout="hideTip(event, '2799', 2799)" onmouseover="showTip(event, '2799', 2799)">
+            x.VisitBinding(arg1, arg2)
           </code>
-          <div class="tip" id="2740">
+          <div class="tip" id="2799">
             <strong>Signature:</strong> ((SynBinding -&gt; &#39;T option) * SynBinding) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitBinding allows overriding binding behavior (note: by default it would defaultTraverse expression)</p>
+                    <p>VisitBinding allows overriding binding behavior (note: by default it would defaultTraverse expression)</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2741', 2741)" onmouseover="showTip(event, '2741', 2741)">
-            VisitComponentInfo(arg1)
+          <code onmouseout="hideTip(event, '2800', 2800)" onmouseover="showTip(event, '2800', 2800)">
+            x.VisitComponentInfo(arg1)
           </code>
-          <div class="tip" id="2741">
+          <div class="tip" id="2800">
             <strong>Signature:</strong> SynComponentInfo -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitComponentInfo allows overriding behavior when visiting type component infos</p>
+                    <p>VisitComponentInfo allows overriding behavior when visiting type component infos</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2742', 2742)" onmouseover="showTip(event, '2742', 2742)">
-            VisitExpr(arg1, arg2, arg3, arg4)
+          <code onmouseout="hideTip(event, '2801', 2801)" onmouseover="showTip(event, '2801', 2801)">
+            x.VisitExpr(arg1, arg2, arg3, arg4)
           </code>
-          <div class="tip" id="2742">
+          <div class="tip" id="2801">
             <strong>Signature:</strong> (TraversePath * (SynExpr -&gt; &#39;T option) * (SynExpr -&gt; &#39;T option) * SynExpr) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitExpr(path, traverseSynExpr, defaultTraverse, expr)
+                    <p>VisitExpr(path, traverseSynExpr, defaultTraverse, expr)
 controls the behavior when a SynExpr is reached; it can just do
 defaultTraverse(expr)      if you have no special logic for this node, and want the default processing to pick which sub-node to dive deeper into
 or can inject non-default behavior, which might incorporate:
@@ -130,221 +130,208 @@ path helps to track AST nodes that were passed during traversal</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2743', 2743)" onmouseover="showTip(event, '2743', 2743)">
-            VisitHashDirective(arg1)
+          <code onmouseout="hideTip(event, '2802', 2802)" onmouseover="showTip(event, '2802', 2802)">
+            x.VisitHashDirective(arg1)
           </code>
-          <div class="tip" id="2743">
+          <div class="tip" id="2802">
             <strong>Signature:</strong> range -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitHashDirective allows overriding behavior when visiting hash directives in FSX scripts, like #r, #load and #I.</p>
+                    <p>VisitHashDirective allows overriding behavior when visiting hash directives in FSX scripts, like #r, #load and #I.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2744', 2744)" onmouseover="showTip(event, '2744', 2744)">
-            VisitImplicitInherit(...)
+          <code onmouseout="hideTip(event, '2803', 2803)" onmouseover="showTip(event, '2803', 2803)">
+            x.VisitImplicitInherit(...)
           </code>
-          <div class="tip" id="2744">
+          <div class="tip" id="2803">
             <strong>Signature:</strong> ((SynExpr -&gt; &#39;T option) * SynType * SynExpr * range) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitImplicitInherit(defaultTraverse,ty,expr,m), defaults to just visiting expr</p>
+                    <p>VisitImplicitInherit(defaultTraverse,ty,expr,m), defaults to just visiting expr</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2745', 2745)" onmouseover="showTip(event, '2745', 2745)">
-            VisitInheritSynMemberDefn(...)
+          <code onmouseout="hideTip(event, '2804', 2804)" onmouseover="showTip(event, '2804', 2804)">
+            x.VisitInheritSynMemberDefn(...)
           </code>
-          <div class="tip" id="2745">
+          <div class="tip" id="2804">
             <strong>Signature:</strong> (SynComponentInfo * SynTypeDefnKind * SynType * SynMemberDefns * range) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitInheritSynMemberDefn allows overriding inherit behavior (by default do nothing)</p>
+                    <p>VisitInheritSynMemberDefn allows overriding inherit behavior (by default do nothing)</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2746', 2746)" onmouseover="showTip(event, '2746', 2746)">
-            VisitInterfaceSynMemberDefnType(arg1)
+          <code onmouseout="hideTip(event, '2805', 2805)" onmouseover="showTip(event, '2805', 2805)">
+            x.VisitInterfaceSynMemberDefnType(arg1)
           </code>
-          <div class="tip" id="2746">
+          <div class="tip" id="2805">
             <strong>Signature:</strong> SynType -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitInterfaceSynMemberDefnType allows overriding behavior for visiting interface member in types (by default - do nothing)</p>
+                    <p>VisitInterfaceSynMemberDefnType allows overriding behavior for visiting interface member in types (by default - do nothing)</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2747', 2747)" onmouseover="showTip(event, '2747', 2747)">
-            VisitLetOrUse(arg1, arg2, arg3, arg4)
+          <code onmouseout="hideTip(event, '2806', 2806)" onmouseover="showTip(event, '2806', 2806)">
+            x.VisitLetOrUse(arg1, arg2, arg3, arg4)
           </code>
-          <div class="tip" id="2747">
+          <div class="tip" id="2806">
             <strong>Signature:</strong> (TraversePath * (SynBinding -&gt; &#39;T option) * SynBinding list * range) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitLetOrUse allows overriding behavior when visiting module or local let or use bindings</p>
+                    <p>VisitLetOrUse allows overriding behavior when visiting module or local let or use bindings</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2748', 2748)" onmouseover="showTip(event, '2748', 2748)">
-            VisitMatchClause(arg1, arg2)
+          <code onmouseout="hideTip(event, '2807', 2807)" onmouseover="showTip(event, '2807', 2807)">
+            x.VisitMatchClause(arg1, arg2)
           </code>
-          <div class="tip" id="2748">
+          <div class="tip" id="2807">
             <strong>Signature:</strong> ((SynMatchClause -&gt; &#39;T option) * SynMatchClause) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitMatchClause allows overriding clause behavior (note: by default it would defaultTraverse expression)</p>
+                    <p>VisitMatchClause allows overriding clause behavior (note: by default it would defaultTraverse expression)</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2749', 2749)" onmouseover="showTip(event, '2749', 2749)">
-            VisitModuleDecl(arg1, arg2)
+          <code onmouseout="hideTip(event, '2808', 2808)" onmouseover="showTip(event, '2808', 2808)">
+            x.VisitModuleDecl(arg1, arg2)
           </code>
-          <div class="tip" id="2749">
+          <div class="tip" id="2808">
             <strong>Signature:</strong> ((SynModuleDecl -&gt; &#39;T option) * SynModuleDecl) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitModuleDecl allows overriding module declaration behavior</p>
+                    <p>VisitModuleDecl allows overriding module declaration behavior</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2750', 2750)" onmouseover="showTip(event, '2750', 2750)">
-            VisitModuleOrNamespace(arg1)
+          <code onmouseout="hideTip(event, '2809', 2809)" onmouseover="showTip(event, '2809', 2809)">
+            x.VisitModuleOrNamespace(arg1)
           </code>
-          <div class="tip" id="2750">
+          <div class="tip" id="2809">
             <strong>Signature:</strong> SynModuleOrNamespace -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitModuleOrNamespace allows overriding behavior when visiting module or namespaces</p>
+                    <p>VisitModuleOrNamespace allows overriding behavior when visiting module or namespaces</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2751', 2751)" onmouseover="showTip(event, '2751', 2751)">
-            VisitPat(arg1, arg2)
+          <code onmouseout="hideTip(event, '2810', 2810)" onmouseover="showTip(event, '2810', 2810)">
+            x.VisitPat(arg1, arg2)
           </code>
-          <div class="tip" id="2751">
+          <div class="tip" id="2810">
             <strong>Signature:</strong> ((SynPat -&gt; &#39;T option) * SynPat) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitPat allows overriding behavior when visiting patterns</p>
+                    <p>VisitPat allows overriding behavior when visiting patterns</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2752', 2752)" onmouseover="showTip(event, '2752', 2752)">
-            VisitRecordField(arg1, arg2, arg3)
+          <code onmouseout="hideTip(event, '2811', 2811)" onmouseover="showTip(event, '2811', 2811)">
+            x.VisitRecordField(arg1, arg2, arg3)
           </code>
-          <div class="tip" id="2752">
+          <div class="tip" id="2811">
             <strong>Signature:</strong> (TraversePath * SynExpr option * LongIdentWithDots option) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitRecordField allows overriding behavior when visiting l.h.s. of constructed record instances</p>
+                    <p>VisitRecordField allows overriding behavior when visiting l.h.s. of constructed record instances</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2753', 2753)" onmouseover="showTip(event, '2753', 2753)">
-            VisitSimplePats(arg1)
+          <code onmouseout="hideTip(event, '2812', 2812)" onmouseover="showTip(event, '2812', 2812)">
+            x.VisitSimplePats(arg1)
           </code>
-          <div class="tip" id="2753">
+          <div class="tip" id="2812">
             <strong>Signature:</strong> (SynSimplePat list) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitType allows overriding behavior when visiting simple pats</p>
+                    <p>VisitType allows overriding behavior when visiting simple pats</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2754', 2754)" onmouseover="showTip(event, '2754', 2754)">
-            VisitType(arg1, arg2)
+          <code onmouseout="hideTip(event, '2813', 2813)" onmouseover="showTip(event, '2813', 2813)">
+            x.VisitType(arg1, arg2)
           </code>
-          <div class="tip" id="2754">
+          <div class="tip" id="2813">
             <strong>Signature:</strong> ((SynType -&gt; &#39;T option) * SynType) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitType allows overriding behavior when visiting type hints (x: ..., etc.)</p>
+                    <p>VisitType allows overriding behavior when visiting type hints (x: ..., etc.)</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2755', 2755)" onmouseover="showTip(event, '2755', 2755)">
-            VisitTypeAbbrev(arg1, arg2)
+          <code onmouseout="hideTip(event, '2814', 2814)" onmouseover="showTip(event, '2814', 2814)">
+            x.VisitTypeAbbrev(arg1, arg2)
           </code>
-          <div class="tip" id="2755">
+          <div class="tip" id="2814">
             <strong>Signature:</strong> (SynType * range) -&gt; &#39;T option<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>VisitTypeAbbrev(ty,m), defaults to ignoring this leaf of the AST</p>
+                    <p>VisitTypeAbbrev(ty,m), defaults to ignoring this leaf of the AST</p>
 
 
         </td>
@@ -366,10 +353,10 @@ path helps to track AST nodes that were passed during traversal</p>
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -398,6 +385,6 @@ path helps to track AST nodes that were passed during traversal</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

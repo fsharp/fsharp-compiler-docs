@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,18 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>SynMemberDefn</h1>
 <p>
-  <span>Namespace: FSharp.Compiler</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-ast.html">Ast</a></span>
+
+    <span>Namespace: FSharp.Compiler</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-ast.html">Ast</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;NoEquality&gt;]<br />
+[&lt;NoComparison&gt;]<br />
+[&lt;RequireQualifiedAccess&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -51,30 +57,28 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1358', 1358)" onmouseover="showTip(event, '1358', 1358)">
+          <code onmouseout="hideTip(event, '1386', 1386)" onmouseover="showTip(event, '1386', 1386)">
             AbstractSlot(...)
           </code>
-          <div class="tip" id="1358">
+          <div class="tip" id="1386">
             <strong>Signature:</strong> SynValSig * MemberFlags * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1359', 1359)" onmouseover="showTip(event, '1359', 1359)">
+          <code onmouseout="hideTip(event, '1387', 1387)" onmouseover="showTip(event, '1387', 1387)">
             AutoProperty(...)
           </code>
-          <div class="tip" id="1359">
+          <div class="tip" id="1387">
             <strong>Signature:</strong> SynAttributes * bool * Ident * SynType option * MemberKind * MemberKind -&gt; MemberFlags * PreXmlDoc * SynAccess option * SynExpr * range option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>SynMemberDefn.AutoProperty (attribs,isStatic,id,tyOpt,propKind,memberFlags,xmlDoc,access,synExpr,mGetSet,mWholeAutoProp).</p>
+                    <p>SynMemberDefn.AutoProperty (attribs, isStatic, id, tyOpt, propKind, memberFlags, xmlDoc, access, synExpr, mGetSet, mWholeAutoProp).</p>
 <p>F# syntax: 'member val X = expr'</p>
 
 
@@ -82,76 +86,71 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1360', 1360)" onmouseover="showTip(event, '1360', 1360)">
+          <code onmouseout="hideTip(event, '1388', 1388)" onmouseover="showTip(event, '1388', 1388)">
             ImplicitCtor(...)
           </code>
-          <div class="tip" id="1360">
-            <strong>Signature:</strong> SynAccess option * SynAttributes * SynSimplePat list * Ident option * range<br />
-                      </div>
+          <div class="tip" id="1388">
+            <strong>Signature:</strong> SynAccess option * SynAttributes * SynSimplePats * Ident option * range<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>implicit ctor args as a defn line, 'as' specification</p>
+                    <p>implicit ctor args as a defn line, 'as' specification</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1361', 1361)" onmouseover="showTip(event, '1361', 1361)">
+          <code onmouseout="hideTip(event, '1389', 1389)" onmouseover="showTip(event, '1389', 1389)">
             ImplicitInherit(...)
           </code>
-          <div class="tip" id="1361">
+          <div class="tip" id="1389">
             <strong>Signature:</strong> SynType * SynExpr * Ident option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>inherit <typ>(args...) as base</p>
+                    <p>inherit <typ>(args...) as base</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1362', 1362)" onmouseover="showTip(event, '1362', 1362)">
+          <code onmouseout="hideTip(event, '1390', 1390)" onmouseover="showTip(event, '1390', 1390)">
             Inherit(SynType,Ident option,range)
           </code>
-          <div class="tip" id="1362">
+          <div class="tip" id="1390">
             <strong>Signature:</strong> SynType * Ident option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1363', 1363)" onmouseover="showTip(event, '1363', 1363)">
+          <code onmouseout="hideTip(event, '1391', 1391)" onmouseover="showTip(event, '1391', 1391)">
             Interface(...)
           </code>
-          <div class="tip" id="1363">
+          <div class="tip" id="1391">
             <strong>Signature:</strong> SynType * SynMemberDefns option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1364', 1364)" onmouseover="showTip(event, '1364', 1364)">
+          <code onmouseout="hideTip(event, '1392', 1392)" onmouseover="showTip(event, '1392', 1392)">
             LetBindings(...)
           </code>
-          <div class="tip" id="1364">
+          <div class="tip" id="1392">
             <strong>Signature:</strong> SynBinding list * bool * bool * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>LetBindings(bindingList, isStatic, isRecursive, wholeRange)</p>
+                    <p>LetBindings(bindingList, isStatic, isRecursive, wholeRange)</p>
 <p>localDefns</p>
 
 
@@ -159,60 +158,56 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1365', 1365)" onmouseover="showTip(event, '1365', 1365)">
+          <code onmouseout="hideTip(event, '1393', 1393)" onmouseover="showTip(event, '1393', 1393)">
             Member(memberDefn,range)
           </code>
-          <div class="tip" id="1365">
+          <div class="tip" id="1393">
             <strong>Signature:</strong> SynBinding * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1366', 1366)" onmouseover="showTip(event, '1366', 1366)">
+          <code onmouseout="hideTip(event, '1394', 1394)" onmouseover="showTip(event, '1394', 1394)">
             NestedType(typeDefn,accessibility,range)
           </code>
-          <div class="tip" id="1366">
+          <div class="tip" id="1394">
             <strong>Signature:</strong> SynTypeDefn * SynAccess option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A feature that is not implemented</p>
+                    <p>A feature that is not implemented</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1367', 1367)" onmouseover="showTip(event, '1367', 1367)">
+          <code onmouseout="hideTip(event, '1395', 1395)" onmouseover="showTip(event, '1395', 1395)">
             Open(longId,range)
           </code>
-          <div class="tip" id="1367">
+          <div class="tip" id="1395">
             <strong>Signature:</strong> LongIdent * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1368', 1368)" onmouseover="showTip(event, '1368', 1368)">
+          <code onmouseout="hideTip(event, '1396', 1396)" onmouseover="showTip(event, '1396', 1396)">
             ValField(SynField,range)
           </code>
-          <div class="tip" id="1368">
+          <div class="tip" id="1396">
             <strong>Signature:</strong> SynField * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
     </tbody>
@@ -225,16 +220,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1369', 1369)" onmouseover="showTip(event, '1369', 1369)">
-            Range
+          <code onmouseout="hideTip(event, '1397', 1397)" onmouseover="showTip(event, '1397', 1397)">
+            x.Range
           </code>
-          <div class="tip" id="1369">
+          <div class="tip" id="1397">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Range</code></p>
         </td>
       </tr>
@@ -255,10 +249,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -287,6 +281,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

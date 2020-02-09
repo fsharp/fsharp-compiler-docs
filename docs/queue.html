@@ -25,16 +25,15 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          
-<h1><a name="Compiler-Services-Notes-on-the-FSharpChecker-operations-queue" class="anchor" href="#Compiler-Services-Notes-on-the-FSharpChecker-operations-queue">Compiler Services: Notes on the FSharpChecker operations queue</a></h1>
+          <h1><a name="Compiler-Services-Notes-on-the-FSharpChecker-operations-queue" class="anchor" href="#Compiler-Services-Notes-on-the-FSharpChecker-operations-queue">Compiler Services: Notes on the FSharpChecker operations queue</a></h1>
 <p>This is a design note on the FSharpChecker component and its operations queue.  See also the notes on the <a href="caches.html">FSharpChecker caches</a></p>
 <p>FSharpChecker maintains an operations queue. Items from the FSharpChecker operations queue are processed
 sequentially and in order.</p>
@@ -66,7 +65,7 @@ These use cross-threaded access to the TAST data produced by other FSharpChecker
 <p>Some tools throw a lot of interactive work at the FSharpChecker operations queue.
 If you are writing such a component, consider running your project against a debug build
 of FSharp.Compiler.Service.dll to see the Trace.WriteInformation messages indicating the length of the
-operations queuea and the time to process requests.</p>
+operations queue and the time to process requests.</p>
 <p>For those writing interactive editors which use FCS, you
 should be cautious about operations that request a check of  the entire project.
 For example, be careful about requesting the check of an entire project
@@ -98,10 +97,10 @@ enqueueing.</p>
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -130,6 +129,6 @@ enqueueing.</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

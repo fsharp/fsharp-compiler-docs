@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,18 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>SynIndexerArg</h1>
 <p>
-  <span>Namespace: FSharp.Compiler</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-ast.html">Ast</a></span>
+
+    <span>Namespace: FSharp.Compiler</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-ast.html">Ast</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;NoEquality&gt;]<br />
+[&lt;NoComparison&gt;]<br />
+[&lt;RequireQualifiedAccess&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -51,30 +57,28 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1342', 1342)" onmouseover="showTip(event, '1342', 1342)">
-            One(SynExpr)
+          <code onmouseout="hideTip(event, '1370', 1370)" onmouseover="showTip(event, '1370', 1370)">
+            One(SynExpr,fromEnd,range)
           </code>
-          <div class="tip" id="1342">
-            <strong>Signature:</strong> SynExpr<br />
-                      </div>
+          <div class="tip" id="1370">
+            <strong>Signature:</strong> SynExpr * bool * range<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1343', 1343)" onmouseover="showTip(event, '1343', 1343)">
-            Two(SynExpr,SynExpr)
+          <code onmouseout="hideTip(event, '1371', 1371)" onmouseover="showTip(event, '1371', 1371)">
+            Two(...)
           </code>
-          <div class="tip" id="1343">
-            <strong>Signature:</strong> SynExpr * SynExpr<br />
-                      </div>
+          <div class="tip" id="1371">
+            <strong>Signature:</strong> SynExpr * bool * SynExpr * bool * range * range<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
     </tbody>
@@ -87,31 +91,29 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1344', 1344)" onmouseover="showTip(event, '1344', 1344)">
-            Exprs
+          <code onmouseout="hideTip(event, '1372', 1372)" onmouseover="showTip(event, '1372', 1372)">
+            x.Exprs
           </code>
-          <div class="tip" id="1344">
+          <div class="tip" id="1372">
             <strong>Signature:</strong> SynExpr list<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Exprs</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1345', 1345)" onmouseover="showTip(event, '1345', 1345)">
-            Range
+          <code onmouseout="hideTip(event, '1373', 1373)" onmouseover="showTip(event, '1373', 1373)">
+            x.Range
           </code>
-          <div class="tip" id="1345">
+          <div class="tip" id="1373">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Range</code></p>
         </td>
       </tr>
@@ -132,10 +134,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -164,6 +166,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

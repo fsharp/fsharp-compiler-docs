@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,15 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>Cancellable</h1>
 <p>
   <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
   <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span>
+        <span>
+          Attributes:<br />
+[&lt;CompilationRepresentation(4)&gt;]<br />
+          
+      </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -54,144 +57,135 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '656', 656)" onmouseover="showTip(event, '656', 656)">
+          <code onmouseout="hideTip(event, '663', 663)" onmouseover="showTip(event, '663', 663)">
             bind f comp1
           </code>
-          <div class="tip" id="656">
-            <strong>Signature:</strong> f:(&#39;?17627 -&gt; Cancellable&lt;&#39;?17628&gt;) -&gt; comp1:Cancellable&lt;&#39;?17627&gt; -&gt; Cancellable&lt;&#39;?17628&gt;<br />
-                          <strong>Type parameters:</strong> '?17627, '?17628          </div>
-        </td>
-        <td class="xmldoc">
-          <p>Bind the result of a cancellable computation</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '657', 657)" onmouseover="showTip(event, '657', 657)">
-            canceled ()
-          </code>
-          <div class="tip" id="657">
-            <strong>Signature:</strong> unit -&gt; Cancellable&lt;&#39;a&gt;<br />
-                          <strong>Type parameters:</strong> 'a          </div>
-        </td>
-        <td class="xmldoc">
-          <p>Represents a canceled computation</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '658', 658)" onmouseover="showTip(event, '658', 658)">
-            delay f
-          </code>
-          <div class="tip" id="658">
-            <strong>Signature:</strong> f:(unit -&gt; Cancellable&lt;&#39;T&gt;) -&gt; Cancellable&lt;&#39;T&gt;<br />
-                          <strong>Type parameters:</strong> 'T          </div>
-        </td>
-        <td class="xmldoc">
-          <p>Delay a cancellable computation</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '659', 659)" onmouseover="showTip(event, '659', 659)">
-            each f seq
-          </code>
-          <div class="tip" id="659">
-            <strong>Signature:</strong> f:(&#39;a -&gt; Cancellable&lt;&#39;b&gt;) -&gt; seq:seq&lt;&#39;a&gt; -&gt; Cancellable&lt;&#39;b list&gt;<br />
-                          <strong>Type parameters:</strong> 'a, 'b          </div>
-        </td>
-        <td class="xmldoc">
-          <p>Iterate a cancellable computation over a collection</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '660', 660)" onmouseover="showTip(event, '660', 660)">
-            fold f acc seq
-          </code>
-          <div class="tip" id="660">
-            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; Cancellable&lt;&#39;a&gt;) -&gt; acc:&#39;a -&gt; seq:seq&lt;&#39;b&gt; -&gt; Cancellable&lt;&#39;a&gt;<br />
-                          <strong>Type parameters:</strong> 'a, 'b          </div>
-        </td>
-        <td class="xmldoc">
-          <p>Fold a cancellable computation along a sequence of inputs</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '661', 661)" onmouseover="showTip(event, '661', 661)">
-            map f oper
-          </code>
-          <div class="tip" id="661">
-            <strong>Signature:</strong> f:(&#39;?17630 -&gt; &#39;?17631) -&gt; oper:Cancellable&lt;&#39;?17630&gt; -&gt; Cancellable&lt;&#39;?17631&gt;<br />
-                          <strong>Type parameters:</strong> '?17630, '?17631          </div>
-        </td>
-        <td class="xmldoc">
-          <p>Map the result of a cancellable computation</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '662', 662)" onmouseover="showTip(event, '662', 662)">
-            ret x
-          </code>
-          <div class="tip" id="662">
-            <strong>Signature:</strong> x:&#39;?17633 -&gt; Cancellable&lt;&#39;?17633&gt;<br />
-                          <strong>Type parameters:</strong> '?17633          </div>
-        </td>
-        <td class="xmldoc">
-          <p>Return a simple value as the result of a cancellable computation</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '663', 663)" onmouseover="showTip(event, '663', 663)">
-            run ct arg2
-          </code>
           <div class="tip" id="663">
-            <strong>Signature:</strong> ct:CancellationToken -&gt; Cancellable&lt;&#39;a&gt; -&gt; ValueOrCancelled&lt;&#39;a&gt;<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+            <strong>Signature:</strong> f:(&#39;?690987 -&gt; Cancellable&lt;&#39;?690988&gt;) -&gt; comp1:Cancellable&lt;&#39;?690987&gt; -&gt; Cancellable&lt;&#39;?690988&gt;<br />
+                          <strong>Type parameters:</strong> '?690987, '?690988                      </div>
         </td>
         <td class="xmldoc">
-          <p>Run a cancellable computation using the given cancellation token</p>
+                    <p>Bind the result of a cancellable computation</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
           <code onmouseout="hideTip(event, '664', 664)" onmouseover="showTip(event, '664', 664)">
-            runWithoutCancellation comp
+            canceled()
           </code>
           <div class="tip" id="664">
-            <strong>Signature:</strong> comp:Cancellable&lt;&#39;a&gt; -&gt; &#39;a<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+            <strong>Signature:</strong> unit -&gt; Cancellable&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          <p>Run the computation in a mode where it may not be cancelled. The computation never results in a
+                    <p>Represents a canceled computation</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '665', 665)" onmouseover="showTip(event, '665', 665)">
+            delay(f)
+          </code>
+          <div class="tip" id="665">
+            <strong>Signature:</strong> f:(unit -&gt; Cancellable&lt;&#39;T&gt;) -&gt; Cancellable&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Delay a cancellable computation</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '666', 666)" onmouseover="showTip(event, '666', 666)">
+            each f seq
+          </code>
+          <div class="tip" id="666">
+            <strong>Signature:</strong> f:(&#39;a -&gt; Cancellable&lt;&#39;b&gt;) -&gt; seq:seq&lt;&#39;a&gt; -&gt; Cancellable&lt;&#39;b list&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Iterate a cancellable computation over a collection</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '667', 667)" onmouseover="showTip(event, '667', 667)">
+            fold f acc seq
+          </code>
+          <div class="tip" id="667">
+            <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; Cancellable&lt;&#39;a&gt;) -&gt; acc:&#39;a -&gt; seq:seq&lt;&#39;b&gt; -&gt; Cancellable&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Fold a cancellable computation along a sequence of inputs</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '668', 668)" onmouseover="showTip(event, '668', 668)">
+            map f oper
+          </code>
+          <div class="tip" id="668">
+            <strong>Signature:</strong> f:(&#39;?690990 -&gt; &#39;?690991) -&gt; oper:Cancellable&lt;&#39;?690990&gt; -&gt; Cancellable&lt;&#39;?690991&gt;<br />
+                          <strong>Type parameters:</strong> '?690990, '?690991                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Map the result of a cancellable computation</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '669', 669)" onmouseover="showTip(event, '669', 669)">
+            ret(x)
+          </code>
+          <div class="tip" id="669">
+            <strong>Signature:</strong> x:&#39;?690993 -&gt; Cancellable&lt;&#39;?690993&gt;<br />
+                          <strong>Type parameters:</strong> '?690993                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Return a simple value as the result of a cancellable computation</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '670', 670)" onmouseover="showTip(event, '670', 670)">
+            run ct arg2
+          </code>
+          <div class="tip" id="670">
+            <strong>Signature:</strong> ct:CancellationToken -&gt; Cancellable&lt;&#39;a&gt; -&gt; ValueOrCancelled&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Run a cancellable computation using the given cancellation token</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '671', 671)" onmouseover="showTip(event, '671', 671)">
+            runWithoutCancellation(comp)
+          </code>
+          <div class="tip" id="671">
+            <strong>Signature:</strong> comp:Cancellable&lt;&#39;a&gt; -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Run the computation in a mode where it may not be cancelled. The computation never results in a
 ValueOrCancelled.Cancelled.</p>
 
 
@@ -199,48 +193,45 @@ ValueOrCancelled.Cancelled.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '665', 665)" onmouseover="showTip(event, '665', 665)">
-            token ()
+          <code onmouseout="hideTip(event, '672', 672)" onmouseover="showTip(event, '672', 672)">
+            token()
           </code>
-          <div class="tip" id="665">
+          <div class="tip" id="672">
             <strong>Signature:</strong> unit -&gt; Cancellable&lt;CancellationToken&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Bind the cancellation token associated with the computation</p>
+                    <p>Bind the cancellation token associated with the computation</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '666', 666)" onmouseover="showTip(event, '666', 666)">
+          <code onmouseout="hideTip(event, '673', 673)" onmouseover="showTip(event, '673', 673)">
             tryFinally e compensation
           </code>
-          <div class="tip" id="666">
-            <strong>Signature:</strong> e:Cancellable&lt;&#39;?17650&gt; -&gt; compensation:(unit -&gt; unit) -&gt; Cancellable&lt;&#39;?17650&gt;<br />
-                          <strong>Type parameters:</strong> '?17650          </div>
+          <div class="tip" id="673">
+            <strong>Signature:</strong> e:Cancellable&lt;&#39;?691010&gt; -&gt; compensation:(unit -&gt; unit) -&gt; Cancellable&lt;&#39;?691010&gt;<br />
+                          <strong>Type parameters:</strong> '?691010                      </div>
         </td>
         <td class="xmldoc">
-          <p>Implement try/finally for a cancellable computation</p>
+                    <p>Implement try/finally for a cancellable computation</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '667', 667)" onmouseover="showTip(event, '667', 667)">
+          <code onmouseout="hideTip(event, '674', 674)" onmouseover="showTip(event, '674', 674)">
             tryWith e handler
           </code>
-          <div class="tip" id="667">
-            <strong>Signature:</strong> e:Cancellable&lt;&#39;?17652&gt; -&gt; handler:(exn -&gt; Cancellable&lt;&#39;?17652&gt;) -&gt; Cancellable&lt;&#39;?17652&gt;<br />
-                          <strong>Type parameters:</strong> '?17652          </div>
+          <div class="tip" id="674">
+            <strong>Signature:</strong> e:Cancellable&lt;&#39;?691012&gt; -&gt; handler:(exn -&gt; Cancellable&lt;&#39;?691012&gt;) -&gt; Cancellable&lt;&#39;?691012&gt;<br />
+                          <strong>Type parameters:</strong> '?691012                      </div>
         </td>
         <td class="xmldoc">
-          <p>Implement try/with for a cancellable computation</p>
+                    <p>Implement try/with for a cancellable computation</p>
 
 
         </td>
@@ -262,10 +253,10 @@ ValueOrCancelled.Cancelled.</p>
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -294,6 +285,6 @@ ValueOrCancelled.Cancelled.</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

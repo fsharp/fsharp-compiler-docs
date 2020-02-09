@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,13 +34,11 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>ResizeArray</h1>
 <p>
   <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
   <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span>
-</p>
+  </p>
 <div class="xmldoc">
 </div>
 
@@ -54,16 +52,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '772', 772)" onmouseover="showTip(event, '772', 772)">
+          <code onmouseout="hideTip(event, '779', 779)" onmouseover="showTip(event, '779', 779)">
             chunkBySize chunkSize f items
           </code>
-          <div class="tip" id="772">
-            <strong>Signature:</strong> chunkSize:int -&gt; f:(&#39;t -&gt; &#39;?17535) -&gt; items:ResizeArray&lt;&#39;t&gt; -&gt; &#39;?17535 [] []<br />
-                          <strong>Type parameters:</strong> 't, '?17535          </div>
+          <div class="tip" id="779">
+            <strong>Signature:</strong> chunkSize:int -&gt; f:(&#39;t -&gt; &#39;?690899) -&gt; items:ResizeArray&lt;&#39;t&gt; -&gt; &#39;?690899 [] []<br />
+                          <strong>Type parameters:</strong> 't, '?690899                      </div>
         </td>
         <td class="xmldoc">
-          <p>Split a ResizeArray into an array of smaller chunks.
+                    <p>Split a ResizeArray into an array of smaller chunks.
 This requires <code>items/chunkSize</code> Array copies of length <code>chunkSize</code> if <code>items/chunkSize % 0 = 0</code>,
 otherwise <code>items/chunkSize + 1</code> Array copies.</p>
 
@@ -72,16 +69,15 @@ otherwise <code>items/chunkSize + 1</code> Array copies.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '773', 773)" onmouseover="showTip(event, '773', 773)">
+          <code onmouseout="hideTip(event, '780', 780)" onmouseover="showTip(event, '780', 780)">
             mapToSmallArrayChunks f inp
           </code>
-          <div class="tip" id="773">
+          <div class="tip" id="780">
             <strong>Signature:</strong> f:(&#39;t -&gt; &#39;a) -&gt; inp:ResizeArray&lt;&#39;t&gt; -&gt; &#39;a [] []<br />
-                          <strong>Type parameters:</strong> 't, 'a          </div>
+                          <strong>Type parameters:</strong> 't, 'a                      </div>
         </td>
         <td class="xmldoc">
-          <p>Split a large ResizeArray into a series of array chunks that are each under the Large Object Heap limit.
+                    <p>Split a large ResizeArray into a series of array chunks that are each under the Large Object Heap limit.
 This is done to help prevent a stop-the-world collection of the single large array, instead allowing for a greater
 probability of smaller collections. Stop-the-world is still possible, just less likely.</p>
 
@@ -105,10 +101,10 @@ probability of smaller collections. Stop-the-world is still possible, just less 
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -137,6 +133,6 @@ probability of smaller collections. Stop-the-world is still possible, just less 
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

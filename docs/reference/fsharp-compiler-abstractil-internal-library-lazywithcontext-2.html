@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,18 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>LazyWithContext<'T, 'ctxt></h1>
 <p>
-  <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span>
+
+    <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;DefaultAugmentation(false)&gt;]<br />
+[&lt;NoEquality&gt;]<br />
+[&lt;NoComparison&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 <p>Just like "Lazy" but EVERY forcer must provide an instance of "ctxt", e.g. to help track errors
@@ -54,33 +60,31 @@ on forcing back to at least one sensible user location</p>
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2613', 2613)" onmouseover="showTip(event, '2613', 2613)">
+          <code onmouseout="hideTip(event, '2660', 2660)" onmouseover="showTip(event, '2660', 2660)">
             findOriginalException
           </code>
-          <div class="tip" id="2613">
+          <div class="tip" id="2660">
             <strong>Signature:</strong> exn -&gt; exn<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A helper to ensure we rethrow the "original" exception</p>
+                    <p>A helper to ensure we rethrow the "original" exception</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2614', 2614)" onmouseover="showTip(event, '2614', 2614)">
+          <code onmouseout="hideTip(event, '2661', 2661)" onmouseover="showTip(event, '2661', 2661)">
             funcOrException
           </code>
-          <div class="tip" id="2614">
+          <div class="tip" id="2661">
             <strong>Signature:</strong> obj<br />
               <strong>Modifiers:</strong> mutable<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>This field holds either the function to run or a LazyWithContextFailure object recording the exception raised
+                    <p>This field holds either the function to run or a LazyWithContextFailure object recording the exception raised
 from running the function. It is null if the thunk has been evaluated successfully.</p>
 
 
@@ -88,17 +92,16 @@ from running the function. It is null if the thunk has been evaluated successful
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2615', 2615)" onmouseover="showTip(event, '2615', 2615)">
+          <code onmouseout="hideTip(event, '2662', 2662)" onmouseover="showTip(event, '2662', 2662)">
             value
           </code>
-          <div class="tip" id="2615">
+          <div class="tip" id="2662">
             <strong>Signature:</strong> &#39;T<br />
               <strong>Modifiers:</strong> mutable<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>This field holds the result of a successful computation. It's initial value is Unchecked.defaultof</p>
+                    <p>This field holds the result of a successful computation. It's initial value is Unchecked.defaultof</p>
 
 
         </td>
@@ -113,60 +116,56 @@ from running the function. It is null if the thunk has been evaluated successful
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2616', 2616)" onmouseover="showTip(event, '2616', 2616)">
-            Force(ctxt)
+          <code onmouseout="hideTip(event, '2663', 2663)" onmouseover="showTip(event, '2663', 2663)">
+            x.Force(ctxt)
           </code>
-          <div class="tip" id="2616">
+          <div class="tip" id="2663">
             <strong>Signature:</strong> ctxt:&#39;ctxt -&gt; &#39;T<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2617', 2617)" onmouseover="showTip(event, '2617', 2617)">
-            IsDelayed
+          <code onmouseout="hideTip(event, '2664', 2664)" onmouseover="showTip(event, '2664', 2664)">
+            x.IsDelayed
           </code>
-          <div class="tip" id="2617">
+          <div class="tip" id="2664">
             <strong>Signature:</strong> bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_IsDelayed</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2618', 2618)" onmouseover="showTip(event, '2618', 2618)">
-            IsForced
+          <code onmouseout="hideTip(event, '2665', 2665)" onmouseover="showTip(event, '2665', 2665)">
+            x.IsForced
           </code>
-          <div class="tip" id="2618">
+          <div class="tip" id="2665">
             <strong>Signature:</strong> bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_IsForced</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2619', 2619)" onmouseover="showTip(event, '2619', 2619)">
-            UnsynchronizedForce(ctxt)
+          <code onmouseout="hideTip(event, '2666', 2666)" onmouseover="showTip(event, '2666', 2666)">
+            x.UnsynchronizedForce(ctxt)
           </code>
-          <div class="tip" id="2619">
+          <div class="tip" id="2666">
             <strong>Signature:</strong> ctxt:&#39;ctxt -&gt; &#39;T<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
     </tbody>
@@ -179,30 +178,28 @@ from running the function. It is null if the thunk has been evaluated successful
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2620', 2620)" onmouseover="showTip(event, '2620', 2620)">
-            Create(f, findOriginalException)
+          <code onmouseout="hideTip(event, '2667', 2667)" onmouseover="showTip(event, '2667', 2667)">
+            LazyWithContext.Create(...)
           </code>
-          <div class="tip" id="2620">
+          <div class="tip" id="2667">
             <strong>Signature:</strong> (f:(&#39;ctxt -&gt; &#39;T) * findOriginalException:(exn -&gt; exn)) -&gt; LazyWithContext&lt;&#39;T,&#39;ctxt&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2621', 2621)" onmouseover="showTip(event, '2621', 2621)">
-            NotLazy(x)
+          <code onmouseout="hideTip(event, '2668', 2668)" onmouseover="showTip(event, '2668', 2668)">
+            LazyWithContext.NotLazy(x)
           </code>
-          <div class="tip" id="2621">
+          <div class="tip" id="2668">
             <strong>Signature:</strong> x:&#39;T -&gt; LazyWithContext&lt;&#39;T,&#39;ctxt&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
     </tbody>
@@ -222,10 +219,10 @@ from running the function. It is null if the thunk has been evaluated successful
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -254,6 +251,6 @@ from running the function. It is null if the thunk has been evaluated successful
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

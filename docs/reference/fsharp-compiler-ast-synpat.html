@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,18 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>SynPat</h1>
 <p>
-  <span>Namespace: FSharp.Compiler</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-ast.html">Ast</a></span>
+
+    <span>Namespace: FSharp.Compiler</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-ast.html">Ast</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;NoEquality&gt;]<br />
+[&lt;NoComparison&gt;]<br />
+[&lt;RequireQualifiedAccess&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -51,282 +57,263 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1427', 1427)" onmouseover="showTip(event, '1427', 1427)">
+          <code onmouseout="hideTip(event, '1455', 1455)" onmouseover="showTip(event, '1455', 1455)">
             Ands(SynPat list,range)
           </code>
-          <div class="tip" id="1427">
+          <div class="tip" id="1455">
             <strong>Signature:</strong> SynPat list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1428', 1428)" onmouseover="showTip(event, '1428', 1428)">
+          <code onmouseout="hideTip(event, '1456', 1456)" onmouseover="showTip(event, '1456', 1456)">
             ArrayOrList(bool,SynPat list,range)
           </code>
-          <div class="tip" id="1428">
+          <div class="tip" id="1456">
             <strong>Signature:</strong> bool * SynPat list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1429', 1429)" onmouseover="showTip(event, '1429', 1429)">
+          <code onmouseout="hideTip(event, '1457', 1457)" onmouseover="showTip(event, '1457', 1457)">
             Attrib(SynPat,SynAttributes,range)
           </code>
-          <div class="tip" id="1429">
+          <div class="tip" id="1457">
             <strong>Signature:</strong> SynPat * SynAttributes * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1430', 1430)" onmouseover="showTip(event, '1430', 1430)">
+          <code onmouseout="hideTip(event, '1458', 1458)" onmouseover="showTip(event, '1458', 1458)">
             Const(SynConst,range)
           </code>
-          <div class="tip" id="1430">
+          <div class="tip" id="1458">
             <strong>Signature:</strong> SynConst * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1431', 1431)" onmouseover="showTip(event, '1431', 1431)">
+          <code onmouseout="hideTip(event, '1459', 1459)" onmouseover="showTip(event, '1459', 1459)">
             DeprecatedCharRange(char,char,range)
           </code>
-          <div class="tip" id="1431">
+          <div class="tip" id="1459">
             <strong>Signature:</strong> char * char * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Deprecated character range:ranges</p>
+                    <p>Deprecated character range: ranges</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1432', 1432)" onmouseover="showTip(event, '1432', 1432)">
+          <code onmouseout="hideTip(event, '1460', 1460)" onmouseover="showTip(event, '1460', 1460)">
             FromParseError(SynPat,range)
           </code>
-          <div class="tip" id="1432">
+          <div class="tip" id="1460">
             <strong>Signature:</strong> SynPat * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A pattern arising from a parse error</p>
+                    <p>A pattern arising from a parse error</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1433', 1433)" onmouseover="showTip(event, '1433', 1433)">
+          <code onmouseout="hideTip(event, '1461', 1461)" onmouseover="showTip(event, '1461', 1461)">
             InstanceMember(...)
           </code>
-          <div class="tip" id="1433">
+          <div class="tip" id="1461">
             <strong>Signature:</strong> Ident * Ident * Ident option * SynAccess option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Used internally in the type checker</p>
+                    <p>Used internally in the type checker</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1434', 1434)" onmouseover="showTip(event, '1434', 1434)">
+          <code onmouseout="hideTip(event, '1462', 1462)" onmouseover="showTip(event, '1462', 1462)">
             IsInst(SynType,range)
           </code>
-          <div class="tip" id="1434">
+          <div class="tip" id="1462">
             <strong>Signature:</strong> SynType * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>':? type '</p>
+                    <p>':? type '</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1435', 1435)" onmouseover="showTip(event, '1435', 1435)">
+          <code onmouseout="hideTip(event, '1463', 1463)" onmouseover="showTip(event, '1463', 1463)">
             LongIdent(...)
           </code>
-          <div class="tip" id="1435">
+          <div class="tip" id="1463">
             <strong>Signature:</strong> LongIdentWithDots * Ident option * SynValTyparDecls option * SynConstructorArgs * SynAccess option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1436', 1436)" onmouseover="showTip(event, '1436', 1436)">
+          <code onmouseout="hideTip(event, '1464', 1464)" onmouseover="showTip(event, '1464', 1464)">
             Named(...)
           </code>
-          <div class="tip" id="1436">
+          <div class="tip" id="1464">
             <strong>Signature:</strong> SynPat * Ident * bool * SynAccess option * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1437', 1437)" onmouseover="showTip(event, '1437', 1437)">
+          <code onmouseout="hideTip(event, '1465', 1465)" onmouseover="showTip(event, '1465', 1465)">
             Null(range)
           </code>
-          <div class="tip" id="1437">
+          <div class="tip" id="1465">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>'null'</p>
+                    <p>'null'</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1438', 1438)" onmouseover="showTip(event, '1438', 1438)">
+          <code onmouseout="hideTip(event, '1466', 1466)" onmouseover="showTip(event, '1466', 1466)">
             OptionalVal(Ident,range)
           </code>
-          <div class="tip" id="1438">
+          <div class="tip" id="1466">
             <strong>Signature:</strong> Ident * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>'?id' -- for optional argument names</p>
+                    <p>'?id' -- for optional argument names</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1439', 1439)" onmouseover="showTip(event, '1439', 1439)">
+          <code onmouseout="hideTip(event, '1467', 1467)" onmouseover="showTip(event, '1467', 1467)">
             Or(SynPat,SynPat,range)
           </code>
-          <div class="tip" id="1439">
+          <div class="tip" id="1467">
             <strong>Signature:</strong> SynPat * SynPat * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1440', 1440)" onmouseover="showTip(event, '1440', 1440)">
+          <code onmouseout="hideTip(event, '1468', 1468)" onmouseover="showTip(event, '1468', 1468)">
             Paren(SynPat,range)
           </code>
-          <div class="tip" id="1440">
+          <div class="tip" id="1468">
             <strong>Signature:</strong> SynPat * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1441', 1441)" onmouseover="showTip(event, '1441', 1441)">
+          <code onmouseout="hideTip(event, '1469', 1469)" onmouseover="showTip(event, '1469', 1469)">
             QuoteExpr(SynExpr,range)
           </code>
-          <div class="tip" id="1441">
+          <div class="tip" id="1469">
             <strong>Signature:</strong> SynExpr * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>&amp;lt;@ expr @&amp;gt;, used for active pattern arguments</p>
+                    <p>&lt;@ expr @&gt;, used for active pattern arguments</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1442', 1442)" onmouseover="showTip(event, '1442', 1442)">
+          <code onmouseout="hideTip(event, '1470', 1470)" onmouseover="showTip(event, '1470', 1470)">
             Record(...)
           </code>
-          <div class="tip" id="1442">
+          <div class="tip" id="1470">
             <strong>Signature:</strong> ((LongIdent * Ident) * SynPat) list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1443', 1443)" onmouseover="showTip(event, '1443', 1443)">
+          <code onmouseout="hideTip(event, '1471', 1471)" onmouseover="showTip(event, '1471', 1471)">
             Tuple(isStruct,SynPat list,range)
           </code>
-          <div class="tip" id="1443">
+          <div class="tip" id="1471">
             <strong>Signature:</strong> bool * SynPat list * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1444', 1444)" onmouseover="showTip(event, '1444', 1444)">
+          <code onmouseout="hideTip(event, '1472', 1472)" onmouseover="showTip(event, '1472', 1472)">
             Typed(SynPat,SynType,range)
           </code>
-          <div class="tip" id="1444">
+          <div class="tip" id="1472">
             <strong>Signature:</strong> SynPat * SynType * range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1445', 1445)" onmouseover="showTip(event, '1445', 1445)">
+          <code onmouseout="hideTip(event, '1473', 1473)" onmouseover="showTip(event, '1473', 1473)">
             Wild(range)
           </code>
-          <div class="tip" id="1445">
+          <div class="tip" id="1473">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
     </tbody>
@@ -339,16 +326,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1446', 1446)" onmouseover="showTip(event, '1446', 1446)">
-            Range
+          <code onmouseout="hideTip(event, '1474', 1474)" onmouseover="showTip(event, '1474', 1474)">
+            x.Range
           </code>
-          <div class="tip" id="1446">
+          <div class="tip" id="1474">
             <strong>Signature:</strong> range<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Range</code></p>
         </td>
       </tr>
@@ -369,10 +355,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -401,6 +387,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

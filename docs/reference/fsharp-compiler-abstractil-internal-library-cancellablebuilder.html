@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,13 +34,12 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>CancellableBuilder</h1>
 <p>
-  <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span>
-</p>
+
+    <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span><br />
+    </p>
 <div class="xmldoc">
 </div>
   <h3>Constructors</h3>
@@ -51,16 +50,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2571', 2571)" onmouseover="showTip(event, '2571', 2571)">
+          <code onmouseout="hideTip(event, '2618', 2618)" onmouseover="showTip(event, '2618', 2618)">
             new()
           </code>
-          <div class="tip" id="2571">
+          <div class="tip" id="2618">
             <strong>Signature:</strong> unit -&gt; CancellableBuilder<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>.ctor</code></p>
         </td>
       </tr>
@@ -74,128 +72,119 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2572', 2572)" onmouseover="showTip(event, '2572', 2572)">
-            Bind(e, k)
+          <code onmouseout="hideTip(event, '2619', 2619)" onmouseover="showTip(event, '2619', 2619)">
+            x.Bind(e, k)
           </code>
-          <div class="tip" id="2572">
+          <div class="tip" id="2619">
             <strong>Signature:</strong> (e:Cancellable&lt;&#39;a&gt; * k:(&#39;a -&gt; Cancellable&lt;&#39;b&gt;)) -&gt; Cancellable&lt;&#39;b&gt;<br />
-                          <strong>Type parameters:</strong> 'a, 'b          </div>
+                          <strong>Type parameters:</strong> 'a, 'b                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2573', 2573)" onmouseover="showTip(event, '2573', 2573)">
-            Combine(e1, e2)
+          <code onmouseout="hideTip(event, '2620', 2620)" onmouseover="showTip(event, '2620', 2620)">
+            x.Combine(e1, e2)
           </code>
-          <div class="tip" id="2573">
+          <div class="tip" id="2620">
             <strong>Signature:</strong> (e1:Cancellable&lt;unit&gt; * e2:Cancellable&lt;&#39;a&gt;) -&gt; Cancellable&lt;&#39;a&gt;<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2574', 2574)" onmouseover="showTip(event, '2574', 2574)">
-            Delay(f)
+          <code onmouseout="hideTip(event, '2621', 2621)" onmouseover="showTip(event, '2621', 2621)">
+            x.Delay(f)
           </code>
-          <div class="tip" id="2574">
+          <div class="tip" id="2621">
             <strong>Signature:</strong> (f:(unit -&gt; Cancellable&lt;&#39;a&gt;)) -&gt; Cancellable&lt;&#39;a&gt;<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2575', 2575)" onmouseover="showTip(event, '2575', 2575)">
-            Return(v)
+          <code onmouseout="hideTip(event, '2622', 2622)" onmouseover="showTip(event, '2622', 2622)">
+            x.Return(v)
           </code>
-          <div class="tip" id="2575">
+          <div class="tip" id="2622">
             <strong>Signature:</strong> v:&#39;a -&gt; Cancellable&lt;&#39;a&gt;<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2576', 2576)" onmouseover="showTip(event, '2576', 2576)">
-            ReturnFrom(v)
+          <code onmouseout="hideTip(event, '2623', 2623)" onmouseover="showTip(event, '2623', 2623)">
+            x.ReturnFrom(v)
           </code>
-          <div class="tip" id="2576">
+          <div class="tip" id="2623">
             <strong>Signature:</strong> v:&#39;a -&gt; &#39;a<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2577', 2577)" onmouseover="showTip(event, '2577', 2577)">
-            TryFinally(e, compensation)
+          <code onmouseout="hideTip(event, '2624', 2624)" onmouseover="showTip(event, '2624', 2624)">
+            x.TryFinally(e, compensation)
           </code>
-          <div class="tip" id="2577">
-            <strong>Signature:</strong> (e:Cancellable&lt;&#39;?17269&gt; * compensation:(unit -&gt; unit)) -&gt; Cancellable&lt;&#39;?17269&gt;<br />
-                          <strong>Type parameters:</strong> '?17269          </div>
+          <div class="tip" id="2624">
+            <strong>Signature:</strong> (e:Cancellable&lt;&#39;?690633&gt; * compensation:(unit -&gt; unit)) -&gt; Cancellable&lt;&#39;?690633&gt;<br />
+                          <strong>Type parameters:</strong> '?690633                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2578', 2578)" onmouseover="showTip(event, '2578', 2578)">
-            TryWith(e, handler)
+          <code onmouseout="hideTip(event, '2625', 2625)" onmouseover="showTip(event, '2625', 2625)">
+            x.TryWith(e, handler)
           </code>
-          <div class="tip" id="2578">
+          <div class="tip" id="2625">
             <strong>Signature:</strong> (e:Cancellable&lt;&#39;a&gt; * handler:(exn -&gt; Cancellable&lt;&#39;a&gt;)) -&gt; Cancellable&lt;&#39;a&gt;<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2579', 2579)" onmouseover="showTip(event, '2579', 2579)">
-            Using(resource, e)
+          <code onmouseout="hideTip(event, '2626', 2626)" onmouseover="showTip(event, '2626', 2626)">
+            x.Using(resource, e)
           </code>
-          <div class="tip" id="2579">
+          <div class="tip" id="2626">
             <strong>Signature:</strong> (resource:&#39;a * e:(&#39;a -&gt; Cancellable&lt;&#39;b&gt;)) -&gt; Cancellable&lt;&#39;b&gt;<br />
-                          <strong>Type parameters:</strong> 'a, 'b          </div>
+                          <strong>Type parameters:</strong> 'a, 'b                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2580', 2580)" onmouseover="showTip(event, '2580', 2580)">
-            Zero()
+          <code onmouseout="hideTip(event, '2627', 2627)" onmouseover="showTip(event, '2627', 2627)">
+            x.Zero()
           </code>
-          <div class="tip" id="2580">
+          <div class="tip" id="2627">
             <strong>Signature:</strong> unit -&gt; Cancellable&lt;unit&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
     </tbody>
@@ -215,10 +204,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -247,6 +236,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

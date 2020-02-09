@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,16 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>LayeredMultiMap<'Key, 'Value></h1>
 <p>
-  <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span>
+
+    <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;Sealed&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 <p>Immutable map collection, with explicit flattening to a backing dictionary</p>
@@ -53,16 +57,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2604', 2604)" onmouseover="showTip(event, '2604', 2604)">
+          <code onmouseout="hideTip(event, '2651', 2651)" onmouseover="showTip(event, '2651', 2651)">
             new(contents)
           </code>
-          <div class="tip" id="2604">
+          <div class="tip" id="2651">
             <strong>Signature:</strong> (contents:LayeredMap&lt;&#39;Key,&#39;Value list&gt;) -&gt; LayeredMultiMap&lt;&#39;Key,&#39;Value&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>.ctor</code></p>
         </td>
       </tr>
@@ -76,101 +79,94 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2605', 2605)" onmouseover="showTip(event, '2605', 2605)">
-            Add(k, v)
+          <code onmouseout="hideTip(event, '2652', 2652)" onmouseover="showTip(event, '2652', 2652)">
+            x.Add(k, v)
           </code>
-          <div class="tip" id="2605">
+          <div class="tip" id="2652">
             <strong>Signature:</strong> (k:&#39;Key * v:&#39;Value) -&gt; LayeredMultiMap&lt;&#39;Key,&#39;Value&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2606', 2606)" onmouseover="showTip(event, '2606', 2606)">
-            AddAndMarkAsCollapsible(kvs)
+          <code onmouseout="hideTip(event, '2653', 2653)" onmouseover="showTip(event, '2653', 2653)">
+            x.AddAndMarkAsCollapsible(kvs)
           </code>
-          <div class="tip" id="2606">
+          <div class="tip" id="2653">
             <strong>Signature:</strong> (kvs:KeyValuePair&lt;&#39;Key,&#39;Value&gt; []) -&gt; LayeredMultiMap&lt;&#39;Key,&#39;Value&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2607', 2607)" onmouseover="showTip(event, '2607', 2607)">
+          <code onmouseout="hideTip(event, '2654', 2654)" onmouseover="showTip(event, '2654', 2654)">
             [k]
           </code>
-          <div class="tip" id="2607">
+          <div class="tip" id="2654">
             <strong>Signature:</strong> k:&#39;Key -&gt; &#39;Value list<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Item</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2608', 2608)" onmouseover="showTip(event, '2608', 2608)">
-            MarkAsCollapsible()
+          <code onmouseout="hideTip(event, '2655', 2655)" onmouseover="showTip(event, '2655', 2655)">
+            x.MarkAsCollapsible()
           </code>
-          <div class="tip" id="2608">
+          <div class="tip" id="2655">
             <strong>Signature:</strong> unit -&gt; LayeredMultiMap&lt;&#39;Key,&#39;Value&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2609', 2609)" onmouseover="showTip(event, '2609', 2609)">
-            TryFind(k)
+          <code onmouseout="hideTip(event, '2656', 2656)" onmouseover="showTip(event, '2656', 2656)">
+            x.TryFind(k)
           </code>
-          <div class="tip" id="2609">
+          <div class="tip" id="2656">
             <strong>Signature:</strong> k:&#39;Key -&gt; &#39;Value list option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2610', 2610)" onmouseover="showTip(event, '2610', 2610)">
-            TryGetValue(k)
+          <code onmouseout="hideTip(event, '2657', 2657)" onmouseover="showTip(event, '2657', 2657)">
+            x.TryGetValue(k)
           </code>
-          <div class="tip" id="2610">
+          <div class="tip" id="2657">
             <strong>Signature:</strong> k:&#39;Key -&gt; bool * &#39;Value list<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2611', 2611)" onmouseover="showTip(event, '2611', 2611)">
-            Values
+          <code onmouseout="hideTip(event, '2658', 2658)" onmouseover="showTip(event, '2658', 2658)">
+            x.Values
           </code>
-          <div class="tip" id="2611">
+          <div class="tip" id="2658">
             <strong>Signature:</strong> &#39;Value list<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Values</code></p>
         </td>
       </tr>
@@ -184,16 +180,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2612', 2612)" onmouseover="showTip(event, '2612', 2612)">
-            Empty
+          <code onmouseout="hideTip(event, '2659', 2659)" onmouseover="showTip(event, '2659', 2659)">
+            LayeredMultiMap.Empty
           </code>
-          <div class="tip" id="2612">
+          <div class="tip" id="2659">
             <strong>Signature:</strong> LayeredMultiMap&lt;&#39;Key,&#39;Value&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Empty</code></p>
         </td>
       </tr>
@@ -214,10 +209,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -246,6 +241,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

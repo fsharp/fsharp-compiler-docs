@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,15 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>Eventually</h1>
 <p>
   <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
   <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library.html">Library</a></span>
+        <span>
+          Attributes:<br />
+[&lt;CompilationRepresentation(4)&gt;]<br />
+          
+      </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -54,100 +57,93 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '669', 669)" onmouseover="showTip(event, '669', 669)">
+          <code onmouseout="hideTip(event, '676', 676)" onmouseover="showTip(event, '676', 676)">
             bind k e
           </code>
-          <div class="tip" id="669">
-            <strong>Signature:</strong> k:(&#39;?17679 -&gt; Eventually&lt;&#39;?17680&gt;) -&gt; e:Eventually&lt;&#39;?17679&gt; -&gt; Eventually&lt;&#39;?17680&gt;<br />
-                          <strong>Type parameters:</strong> '?17679, '?17680          </div>
+          <div class="tip" id="676">
+            <strong>Signature:</strong> k:(&#39;?691039 -&gt; Eventually&lt;&#39;?691040&gt;) -&gt; e:Eventually&lt;&#39;?691039&gt; -&gt; Eventually&lt;&#39;?691040&gt;<br />
+                          <strong>Type parameters:</strong> '?691039, '?691040                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '670', 670)" onmouseover="showTip(event, '670', 670)">
-            box e
+          <code onmouseout="hideTip(event, '677', 677)" onmouseover="showTip(event, '677', 677)">
+            box(e)
           </code>
-          <div class="tip" id="670">
+          <div class="tip" id="677">
             <strong>Signature:</strong> e:Eventually&lt;&#39;c&gt; -&gt; Eventually&lt;obj&gt;<br />
-                          <strong>Type parameters:</strong> 'c          </div>
+                          <strong>Type parameters:</strong> 'c                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '671', 671)" onmouseover="showTip(event, '671', 671)">
-            catch e
+          <code onmouseout="hideTip(event, '678', 678)" onmouseover="showTip(event, '678', 678)">
+            catch(e)
           </code>
-          <div class="tip" id="671">
-            <strong>Signature:</strong> e:Eventually&lt;&#39;?17685&gt; -&gt; Eventually&lt;ResultOrException&lt;&#39;?17685&gt;&gt;<br />
-                          <strong>Type parameters:</strong> '?17685          </div>
+          <div class="tip" id="678">
+            <strong>Signature:</strong> e:Eventually&lt;&#39;?691045&gt; -&gt; Eventually&lt;ResultOrException&lt;&#39;?691045&gt;&gt;<br />
+                          <strong>Type parameters:</strong> '?691045                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '672', 672)" onmouseover="showTip(event, '672', 672)">
-            delay f
+          <code onmouseout="hideTip(event, '679', 679)" onmouseover="showTip(event, '679', 679)">
+            delay(f)
           </code>
-          <div class="tip" id="672">
+          <div class="tip" id="679">
             <strong>Signature:</strong> f:(unit -&gt; Eventually&lt;&#39;T&gt;) -&gt; Eventually&lt;&#39;T&gt;<br />
-                          <strong>Type parameters:</strong> 'T          </div>
+                          <strong>Type parameters:</strong> 'T                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '673', 673)" onmouseover="showTip(event, '673', 673)">
+          <code onmouseout="hideTip(event, '680', 680)" onmouseover="showTip(event, '680', 680)">
             fold f acc seq
           </code>
-          <div class="tip" id="673">
+          <div class="tip" id="680">
             <strong>Signature:</strong> f:(&#39;a -&gt; &#39;b -&gt; Eventually&lt;&#39;a&gt;) -&gt; acc:&#39;a -&gt; seq:seq&lt;&#39;b&gt; -&gt; Eventually&lt;&#39;a&gt;<br />
-                          <strong>Type parameters:</strong> 'a, 'b          </div>
+                          <strong>Type parameters:</strong> 'a, 'b                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '674', 674)" onmouseover="showTip(event, '674', 674)">
+          <code onmouseout="hideTip(event, '681', 681)" onmouseover="showTip(event, '681', 681)">
             force ctok e
           </code>
-          <div class="tip" id="674">
+          <div class="tip" id="681">
             <strong>Signature:</strong> ctok:CompilationThreadToken -&gt; e:Eventually&lt;&#39;a&gt; -&gt; &#39;a<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '675', 675)" onmouseover="showTip(event, '675', 675)">
+          <code onmouseout="hideTip(event, '682', 682)" onmouseover="showTip(event, '682', 682)">
             forceAsync runner e
           </code>
-          <div class="tip" id="675">
+          <div class="tip" id="682">
             <strong>Signature:</strong> runner:((CompilationThreadToken -&gt; Eventually&lt;&#39;T&gt;) -&gt; Async&lt;Eventually&lt;&#39;T&gt;&gt;) -&gt; e:Eventually&lt;&#39;T&gt; -&gt; Async&lt;&#39;T option&gt;<br />
-                          <strong>Type parameters:</strong> 'T          </div>
+                          <strong>Type parameters:</strong> 'T                      </div>
         </td>
         <td class="xmldoc">
-          <p>Keep running the asynchronous computation bit by bit. The runner gets called each time the computation is restarted.
+                    <p>Keep running the asynchronous computation bit by bit. The runner gets called each time the computation is restarted.
 Can be cancelled as an Async in the normal way.</p>
 
 
@@ -155,30 +151,28 @@ Can be cancelled as an Async in the normal way.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '676', 676)" onmouseover="showTip(event, '676', 676)">
+          <code onmouseout="hideTip(event, '683', 683)" onmouseover="showTip(event, '683', 683)">
             forceWhile ctok check e
           </code>
-          <div class="tip" id="676">
-            <strong>Signature:</strong> ctok:CompilationThreadToken -&gt; check:(unit -&gt; bool) -&gt; e:Eventually&lt;&#39;?17670&gt; -&gt; &#39;?17670 option<br />
-                          <strong>Type parameters:</strong> '?17670          </div>
+          <div class="tip" id="683">
+            <strong>Signature:</strong> ctok:CompilationThreadToken -&gt; check:(unit -&gt; bool) -&gt; e:Eventually&lt;&#39;?691030&gt; -&gt; &#39;?691030 option<br />
+                          <strong>Type parameters:</strong> '?691030                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '677', 677)" onmouseover="showTip(event, '677', 677)">
-            repeatedlyProgressUntilDoneOrTimeShareOverOrCanceled (...)
+          <code onmouseout="hideTip(event, '684', 684)" onmouseover="showTip(event, '684', 684)">
+            repeatedlyProgressUntilDoneOrTimeShareOverOrCanceled(...)
           </code>
-          <div class="tip" id="677">
+          <div class="tip" id="684">
             <strong>Signature:</strong> timeShareInMilliseconds:int64 -&gt; ct:CancellationToken -&gt; runner:(CompilationThreadToken -&gt; (&#39;b -&gt; Eventually&lt;&#39;c&gt;) -&gt; Eventually&lt;&#39;c&gt;) -&gt; e:Eventually&lt;&#39;c&gt; -&gt; Eventually&lt;&#39;c&gt;<br />
-                          <strong>Type parameters:</strong> 'b, 'c          </div>
+                          <strong>Type parameters:</strong> 'b, 'c                      </div>
         </td>
         <td class="xmldoc">
-          <p>Keep running the computation bit by bit until a time limit is reached.
+                    <p>Keep running the computation bit by bit until a time limit is reached.
 The runner gets called each time the computation is restarted</p>
 <p>If cancellation happens, the operation is left half-complete, ready to resume.</p>
 
@@ -187,44 +181,41 @@ The runner gets called each time the computation is restarted</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '678', 678)" onmouseover="showTip(event, '678', 678)">
-            token 
+          <code onmouseout="hideTip(event, '685', 685)" onmouseover="showTip(event, '685', 685)">
+            token
           </code>
-          <div class="tip" id="678">
+          <div class="tip" id="685">
             <strong>Signature:</strong> Eventually&lt;CompilationThreadToken&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '679', 679)" onmouseover="showTip(event, '679', 679)">
+          <code onmouseout="hideTip(event, '686', 686)" onmouseover="showTip(event, '686', 686)">
             tryFinally e compensation
           </code>
-          <div class="tip" id="679">
-            <strong>Signature:</strong> e:Eventually&lt;&#39;?17689&gt; -&gt; compensation:(unit -&gt; unit) -&gt; Eventually&lt;&#39;?17689&gt;<br />
-                          <strong>Type parameters:</strong> '?17689          </div>
+          <div class="tip" id="686">
+            <strong>Signature:</strong> e:Eventually&lt;&#39;?691049&gt; -&gt; compensation:(unit -&gt; unit) -&gt; Eventually&lt;&#39;?691049&gt;<br />
+                          <strong>Type parameters:</strong> '?691049                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '680', 680)" onmouseover="showTip(event, '680', 680)">
+          <code onmouseout="hideTip(event, '687', 687)" onmouseover="showTip(event, '687', 687)">
             tryWith e handler
           </code>
-          <div class="tip" id="680">
-            <strong>Signature:</strong> e:Eventually&lt;&#39;?17691&gt; -&gt; handler:(Exception -&gt; Eventually&lt;&#39;?17691&gt;) -&gt; Eventually&lt;&#39;?17691&gt;<br />
-                          <strong>Type parameters:</strong> '?17691          </div>
+          <div class="tip" id="687">
+            <strong>Signature:</strong> e:Eventually&lt;&#39;?691051&gt; -&gt; handler:(Exception -&gt; Eventually&lt;&#39;?691051&gt;) -&gt; Eventually&lt;&#39;?691051&gt;<br />
+                          <strong>Type parameters:</strong> '?691051                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
     </tbody>
@@ -244,10 +235,10 @@ The runner gets called each time the computation is restarted</p>
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -276,6 +267,6 @@ The runner gets called each time the computation is restarted</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

@@ -1,3 +1,4 @@
+version 5.226.0
 source https://api.nuget.org/v3/index.json
 
 storage: none
@@ -18,12 +19,12 @@ nuget Fake.DotNet.Paket
 group generate
 
 source https://api.nuget.org/v3/index.json
-
-storage: none
+storage: packages
 framework: netstandard2.0
 
 nuget FSharp.Core
 nuget Fake.Core
 nuget Fake.IO.FileSystem
 nuget Fake.Core.Trace
-nuget FSharp.Literate
+nuget FSharp.Literate 4.0.0-alpha03
+nuget FSharp.Formatting 4.0.0-alpha03

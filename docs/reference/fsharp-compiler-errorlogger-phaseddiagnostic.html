@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,16 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>PhasedDiagnostic</h1>
 <p>
-  <span>Namespace: FSharp.Compiler</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-errorlogger.html">ErrorLogger</a></span>
+
+    <span>Namespace: FSharp.Compiler</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-errorlogger.html">ErrorLogger</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;DebuggerDisplay(&quot;{DebugDisplay()}&quot;)&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -51,30 +55,28 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1603', 1603)" onmouseover="showTip(event, '1603', 1603)">
+          <code onmouseout="hideTip(event, '1631', 1631)" onmouseover="showTip(event, '1631', 1631)">
             Exception
           </code>
-          <div class="tip" id="1603">
+          <div class="tip" id="1631">
             <strong>Signature:</strong> exn<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1604', 1604)" onmouseover="showTip(event, '1604', 1604)">
+          <code onmouseout="hideTip(event, '1632', 1632)" onmouseover="showTip(event, '1632', 1632)">
             Phase
           </code>
-          <div class="tip" id="1604">
+          <div class="tip" id="1632">
             <strong>Signature:</strong> BuildPhase<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
     </tbody>
@@ -87,49 +89,46 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1605', 1605)" onmouseover="showTip(event, '1605', 1605)">
-            DebugDisplay()
+          <code onmouseout="hideTip(event, '1633', 1633)" onmouseover="showTip(event, '1633', 1633)">
+            x.DebugDisplay()
           </code>
-          <div class="tip" id="1605">
+          <div class="tip" id="1633">
             <strong>Signature:</strong> unit -&gt; string<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1606', 1606)" onmouseover="showTip(event, '1606', 1606)">
-            IsPhaseInCompile()
+          <code onmouseout="hideTip(event, '1634', 1634)" onmouseover="showTip(event, '1634', 1634)">
+            x.IsPhaseInCompile()
           </code>
-          <div class="tip" id="1606">
+          <div class="tip" id="1634">
             <strong>Signature:</strong> unit -&gt; bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>the language service knows about.</p>
+                    <p>the language service knows about.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1607', 1607)" onmouseover="showTip(event, '1607', 1607)">
-            Subcategory()
+          <code onmouseout="hideTip(event, '1635', 1635)" onmouseover="showTip(event, '1635', 1635)">
+            x.Subcategory()
           </code>
-          <div class="tip" id="1607">
+          <div class="tip" id="1635">
             <strong>Signature:</strong> unit -&gt; string<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>This is the textual subcategory to display in error and warning messages (shows only under --vserrors):</p>
+                    <p>This is the textual subcategory to display in error and warning messages (shows only under --vserrors):</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">file1</span><span class="o">.</span><span class="i">fs</span>(<span class="n">72</span>)<span class="o">:</span> <span class="i">subcategory</span> <span class="i">warning</span> <span class="i">FS0072</span><span class="o">:</span> <span class="i">This</span> <span class="i">is</span> <span class="i">a</span> <span class="i">warning</span> <span class="i">message</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">file1</span><span class="pn">.</span><span class="id">fs</span><span class="pn">(</span><span class="n">72</span><span class="pn">)</span><span class="pn">:</span> <span class="id">subcategory</span> <span class="id">warning</span> <span class="id">FS0072</span><span class="pn">:</span> <span class="id">This</span> <span class="id">is</span> <span class="id">a</span> <span class="id">warning</span> <span class="id">message</span>
 </code></pre></td>
 </tr>
 </table>
@@ -147,32 +146,30 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1608', 1608)" onmouseover="showTip(event, '1608', 1608)">
-            Create(exn, phase)
+          <code onmouseout="hideTip(event, '1636', 1636)" onmouseover="showTip(event, '1636', 1636)">
+            PhasedDiagnostic.Create(exn, phase)
           </code>
-          <div class="tip" id="1608">
+          <div class="tip" id="1636">
             <strong>Signature:</strong> (exn:exn * phase:BuildPhase) -&gt; PhasedDiagnostic<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Construct a phased error</p>
+                    <p>Construct a phased error</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1609', 1609)" onmouseover="showTip(event, '1609', 1609)">
-            IsSubcategoryOfCompile(subcategory)
+          <code onmouseout="hideTip(event, '1637', 1637)" onmouseover="showTip(event, '1637', 1637)">
+            PhasedDiagnostic.IsSubcategoryOfCompile(...)
           </code>
-          <div class="tip" id="1609">
+          <div class="tip" id="1637">
             <strong>Signature:</strong> subcategory:string -&gt; bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Return true if the textual phase given is from the compile part of the build process.
+                    <p>Return true if the textual phase given is from the compile part of the build process.
 This set needs to be equal to the set of subcategories that the language service can produce.</p>
 
 
@@ -195,10 +192,10 @@ This set needs to be equal to the set of subcategories that the language service
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -227,6 +224,6 @@ This set needs to be equal to the set of subcategories that the language service
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

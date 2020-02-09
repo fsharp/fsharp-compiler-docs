@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,16 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>FsiEvaluationSession</h1>
 <p>
-  <span>Namespace: FSharp.Compiler.Interactive</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-interactive-shell.html">Shell</a></span>
+
+    <span>Namespace: FSharp.Compiler.Interactive</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-interactive-shell.html">Shell</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;Class&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 <p>Represents an F# Interactive evaluation session.</p>
@@ -53,16 +57,72 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2669', 2669)" onmouseover="showTip(event, '2669', 2669)">
-            CurrentPartialAssemblySignature
+          <code onmouseout="hideTip(event, '2718', 2718)" onmouseover="showTip(event, '2718', 2718)">
+            x.add_DependencyAdded(arg1)
           </code>
-          <div class="tip" id="2669">
-            <strong>Signature:</strong> FSharpAssemblySignature<br />
-                      </div>
+          <div class="tip" id="2718">
+            <strong>Signature:</strong> (Handler&lt;string * string * string list * string list&gt;) -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CLIEvent&gt;]<br />
+          </span>
+          </div>
         </td>
         <td class="xmldoc">
-          <p>Get a handle to the resolved view of the current signature of the incrementally generated assembly.</p>
+                    <p>Event fires at the successful completion of adding a dependency via the dependency manager.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2719', 2719)" onmouseover="showTip(event, '2719', 2719)">
+            x.add_DependencyAdding(arg1)
+          </code>
+          <div class="tip" id="2719">
+            <strong>Signature:</strong> (Handler&lt;string * string&gt;) -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CLIEvent&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Event fires at the start of adding a dependency via the dependency manager.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2720', 2720)" onmouseover="showTip(event, '2720', 2720)">
+            x.add_DependencyFailed(arg1)
+          </code>
+          <div class="tip" id="2720">
+            <strong>Signature:</strong> (Handler&lt;string * string&gt;) -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CLIEvent&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Event fires at the failure to adding a dependency via the dependency manager.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2721', 2721)" onmouseover="showTip(event, '2721', 2721)">
+            x.CurrentPartialAssemblySignature
+          </code>
+          <div class="tip" id="2721">
+            <strong>Signature:</strong> FSharpAssemblySignature<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Get a handle to the resolved view of the current signature of the incrementally generated assembly.</p>
 
 
               <p>CompiledName: <code>get_CurrentPartialAssemblySignature</code></p>
@@ -70,16 +130,75 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2670', 2670)" onmouseover="showTip(event, '2670', 2670)">
-            DynamicAssembly
+          <code onmouseout="hideTip(event, '2722', 2722)" onmouseover="showTip(event, '2722', 2722)">
+            x.DependencyAdded
           </code>
-          <div class="tip" id="2670">
-            <strong>Signature:</strong> Assembly<br />
-                      </div>
+          <div class="tip" id="2722">
+            <strong>Signature:</strong> IEvent&lt;string * string * string list * string list&gt;<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CLIEvent&gt;]<br />
+          </span>
+          </div>
         </td>
         <td class="xmldoc">
-          <p>Get a handle to the dynamicly generated assembly</p>
+                    <p>Event fires at the successful completion of adding a dependency via the dependency manager.</p>
+
+
+              <p>CompiledName: <code>get_DependencyAdded</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2723', 2723)" onmouseover="showTip(event, '2723', 2723)">
+            x.DependencyAdding
+          </code>
+          <div class="tip" id="2723">
+            <strong>Signature:</strong> IEvent&lt;string * string&gt;<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CLIEvent&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Event fires at the start of adding a dependency via the dependency manager.</p>
+
+
+              <p>CompiledName: <code>get_DependencyAdding</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2724', 2724)" onmouseover="showTip(event, '2724', 2724)">
+            x.DependencyFailed
+          </code>
+          <div class="tip" id="2724">
+            <strong>Signature:</strong> IEvent&lt;string * string&gt;<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CLIEvent&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Event fires at the failure to adding a dependency via the dependency manager.</p>
+
+
+              <p>CompiledName: <code>get_DependencyFailed</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2725', 2725)" onmouseover="showTip(event, '2725', 2725)">
+            x.DynamicAssembly
+          </code>
+          <div class="tip" id="2725">
+            <strong>Signature:</strong> Assembly<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Get a handle to the dynamically generated assembly</p>
 
 
               <p>CompiledName: <code>get_DynamicAssembly</code></p>
@@ -87,19 +206,18 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2671', 2671)" onmouseover="showTip(event, '2671', 2671)">
-            EvalExpression(code)
+          <code onmouseout="hideTip(event, '2726', 2726)" onmouseover="showTip(event, '2726', 2726)">
+            x.EvalExpression(code)
           </code>
-          <div class="tip" id="2671">
+          <div class="tip" id="2726">
             <strong>Signature:</strong> code:string -&gt; FsiValue option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Execute the code as if it had been entered as one or more interactions, with an
+                    <p>Execute the code as if it had been entered as one or more interactions, with an
 implicit termination at the end of the input. Stop on first error, discarding the rest
 of the input. Errors are sent to the output writer. Parsing is performed on the current thread, and execution is performed
-sycnhronously on the 'main' thread.</p>
+synchronously on the 'main' thread.</p>
 <p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
 by input from 'stdin'.</p>
 
@@ -108,20 +226,19 @@ by input from 'stdin'.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2672', 2672)" onmouseover="showTip(event, '2672', 2672)">
-            EvalExpressionNonThrowing(code)
+          <code onmouseout="hideTip(event, '2727', 2727)" onmouseover="showTip(event, '2727', 2727)">
+            x.EvalExpressionNonThrowing(code)
           </code>
-          <div class="tip" id="2672">
+          <div class="tip" id="2727">
             <strong>Signature:</strong> code:string -&gt; Choice&lt;FsiValue option,exn&gt; * FSharpErrorInfo []<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Execute the code as if it had been entered as one or more interactions, with an
+                    <p>Execute the code as if it had been entered as one or more interactions, with an
 implicit termination at the end of the input. Stop on first error, discarding the rest
 of the input. Errors and warnings are collected apart from any exception arising from execution
 which is returned via a Choice. Parsing is performed on the current thread, and execution is performed
-sycnhronously on the 'main' thread.</p>
+synchronously on the 'main' thread.</p>
 <p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
 by input from 'stdin'.</p>
 
@@ -130,16 +247,15 @@ by input from 'stdin'.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2673', 2673)" onmouseover="showTip(event, '2673', 2673)">
-            EvalInteraction(code)
+          <code onmouseout="hideTip(event, '2728', 2728)" onmouseover="showTip(event, '2728', 2728)">
+            x.EvalInteraction(...)
           </code>
-          <div class="tip" id="2673">
-            <strong>Signature:</strong> code:string -&gt; unit<br />
-                      </div>
+          <div class="tip" id="2728">
+            <strong>Signature:</strong> (code:string * cancellationToken:CancellationToken option) -&gt; unit<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Execute the code as if it had been entered as one or more interactions, with an
+                    <p>Execute the code as if it had been entered as one or more interactions, with an
 implicit termination at the end of the input. Stop on first error, discarding the rest
 of the input. Errors are sent to the output writer, a 'true' return value indicates there
 were no errors overall. Execution is performed on the 'Run()' thread.</p>
@@ -151,16 +267,15 @@ by input from 'stdin'.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2674', 2674)" onmouseover="showTip(event, '2674', 2674)">
-            EvalInteractionNonThrowing(code)
+          <code onmouseout="hideTip(event, '2729', 2729)" onmouseover="showTip(event, '2729', 2729)">
+            x.EvalInteractionNonThrowing(...)
           </code>
-          <div class="tip" id="2674">
-            <strong>Signature:</strong> code:string -&gt; Choice&lt;unit,exn&gt; * FSharpErrorInfo []<br />
-                      </div>
+          <div class="tip" id="2729">
+            <strong>Signature:</strong> (code:string * cancellationToken:CancellationToken option) -&gt; Choice&lt;FsiValue option,exn&gt; * FSharpErrorInfo []<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Execute the code as if it had been entered as one or more interactions, with an
+                    <p>Execute the code as if it had been entered as one or more interactions, with an
 implicit termination at the end of the input. Stop on first error, discarding the rest
 of the input. Errors and warnings are collected apart from any exception arising from execution
 which is returned via a Choice. Execution is performed on the 'Run()' thread.</p>
@@ -172,16 +287,15 @@ by input from 'stdin'.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2675', 2675)" onmouseover="showTip(event, '2675', 2675)">
-            EvalScript(filePath)
+          <code onmouseout="hideTip(event, '2730', 2730)" onmouseover="showTip(event, '2730', 2730)">
+            x.EvalScript(filePath)
           </code>
-          <div class="tip" id="2675">
+          <div class="tip" id="2730">
             <strong>Signature:</strong> filePath:string -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Execute the given script. Stop on first error, discarding the rest
+                    <p>Execute the given script. Stop on first error, discarding the rest
 of the script. Errors are sent to the output writer, a 'true' return value indicates there
 were no errors overall. Execution is performed on the 'Run()' thread.</p>
 <p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
@@ -192,16 +306,15 @@ by input from 'stdin'.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2676', 2676)" onmouseover="showTip(event, '2676', 2676)">
-            EvalScriptNonThrowing(filePath)
+          <code onmouseout="hideTip(event, '2731', 2731)" onmouseover="showTip(event, '2731', 2731)">
+            x.EvalScriptNonThrowing(filePath)
           </code>
-          <div class="tip" id="2676">
+          <div class="tip" id="2731">
             <strong>Signature:</strong> filePath:string -&gt; Choice&lt;unit,exn&gt; * FSharpErrorInfo []<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Execute the given script. Stop on first error, discarding the rest
+                    <p>Execute the given script. Stop on first error, discarding the rest
 of the script. Errors and warnings are collected apart from any exception arising from execution
 which is returned via a Choice. Execution is performed on the 'Run()' thread.</p>
 <p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
@@ -212,32 +325,30 @@ by input from 'stdin'.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2677', 2677)" onmouseover="showTip(event, '2677', 2677)">
-            FormatValue(...)
+          <code onmouseout="hideTip(event, '2732', 2732)" onmouseover="showTip(event, '2732', 2732)">
+            x.FormatValue(...)
           </code>
-          <div class="tip" id="2677">
+          <div class="tip" id="2732">
             <strong>Signature:</strong> (reflectionValue:obj * reflectionType:Type) -&gt; string<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Format a value to a string using the current PrintDepth, PrintLength etc settings provided by the active fsi configuration object</p>
+                    <p>Format a value to a string using the current PrintDepth, PrintLength etc settings provided by the active fsi configuration object</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2678', 2678)" onmouseover="showTip(event, '2678', 2678)">
-            GetCompletions(longIdent)
+          <code onmouseout="hideTip(event, '2733', 2733)" onmouseover="showTip(event, '2733', 2733)">
+            x.GetCompletions(longIdent)
           </code>
-          <div class="tip" id="2678">
+          <div class="tip" id="2733">
             <strong>Signature:</strong> longIdent:string -&gt; seq&lt;string&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A host calls this to get the completions for a long identifier, e.g. in the console</p>
+                    <p>A host calls this to get the completions for a long identifier, e.g. in the console</p>
 <p>Due to a current limitation, it is not fully thread-safe to run this operation concurrently with evaluation triggered
 by input from 'stdin'.</p>
 
@@ -246,16 +357,15 @@ by input from 'stdin'.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2679', 2679)" onmouseover="showTip(event, '2679', 2679)">
-            InteractiveChecker
+          <code onmouseout="hideTip(event, '2734', 2734)" onmouseover="showTip(event, '2734', 2734)">
+            x.InteractiveChecker
           </code>
-          <div class="tip" id="2679">
+          <div class="tip" id="2734">
             <strong>Signature:</strong> FSharpChecker<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>The single, global interactive checker to use in conjunction with other operations
+                    <p>The single, global interactive checker to use in conjunction with other operations
 on the FsiEvaluationSession.</p>
 <p>If you are using an FsiEvaluationSession in this process, you should only use this InteractiveChecker
 for additional checking operations.</p>
@@ -266,32 +376,30 @@ for additional checking operations.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2680', 2680)" onmouseover="showTip(event, '2680', 2680)">
-            Interrupt()
+          <code onmouseout="hideTip(event, '2735', 2735)" onmouseover="showTip(event, '2735', 2735)">
+            x.Interrupt()
           </code>
-          <div class="tip" id="2680">
+          <div class="tip" id="2735">
             <strong>Signature:</strong> unit -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A host calls this to request an interrupt on the evaluation thread.</p>
+                    <p>A host calls this to request an interrupt on the evaluation thread.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2681', 2681)" onmouseover="showTip(event, '2681', 2681)">
-            IsGui
+          <code onmouseout="hideTip(event, '2736', 2736)" onmouseover="showTip(event, '2736', 2736)">
+            x.IsGui
           </code>
-          <div class="tip" id="2681">
+          <div class="tip" id="2736">
             <strong>Signature:</strong> bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A host calls this to determine if the --gui parameter is active</p>
+                    <p>A host calls this to determine if the --gui parameter is active</p>
 
 
               <p>CompiledName: <code>get_IsGui</code></p>
@@ -299,16 +407,15 @@ for additional checking operations.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2682', 2682)" onmouseover="showTip(event, '2682', 2682)">
-            LCID
+          <code onmouseout="hideTip(event, '2737', 2737)" onmouseover="showTip(event, '2737', 2737)">
+            x.LCID
           </code>
-          <div class="tip" id="2682">
+          <div class="tip" id="2737">
             <strong>Signature:</strong> int option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A host calls this to get the active language ID if provided by fsi-server-lcid</p>
+                    <p>A host calls this to get the active language ID if provided by fsi-server-lcid</p>
 
 
               <p>CompiledName: <code>get_LCID</code></p>
@@ -316,16 +423,15 @@ for additional checking operations.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2683', 2683)" onmouseover="showTip(event, '2683', 2683)">
-            ParseAndCheckInteraction(code)
+          <code onmouseout="hideTip(event, '2738', 2738)" onmouseover="showTip(event, '2738', 2738)">
+            x.ParseAndCheckInteraction(code)
           </code>
-          <div class="tip" id="2683">
+          <div class="tip" id="2738">
             <strong>Signature:</strong> code:string -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults * FSharpCheckProjectResults&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Typecheck the given script fragment in the type checking context implied by the current state
+                    <p>Typecheck the given script fragment in the type checking context implied by the current state
 of F# Interactive. The results can be used to access intellisense, perform resolutions,
 check brace matching and other information.</p>
 <p>Operations may be run concurrently with other requests to the InteractiveChecker.</p>
@@ -337,16 +443,15 @@ by input from 'stdin'.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2684', 2684)" onmouseover="showTip(event, '2684', 2684)">
-            PartialAssemblySignatureUpdated
+          <code onmouseout="hideTip(event, '2739', 2739)" onmouseover="showTip(event, '2739', 2739)">
+            x.PartialAssemblySignatureUpdated
           </code>
-          <div class="tip" id="2684">
+          <div class="tip" id="2739">
             <strong>Signature:</strong> IEvent&lt;unit&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Raised when an interaction is successfully typechecked and executed, resulting in an update to the
+                    <p>Raised when an interaction is successfully typechecked and executed, resulting in an update to the
 type checking state.</p>
 <p>This event is triggered after parsing and checking, either via input from 'stdin', or via a call to EvalInteraction.</p>
 
@@ -356,32 +461,87 @@ type checking state.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2685', 2685)" onmouseover="showTip(event, '2685', 2685)">
-            ReportUnhandledException(exn)
+          <code onmouseout="hideTip(event, '2740', 2740)" onmouseover="showTip(event, '2740', 2740)">
+            x.remove_DependencyAdded(arg1)
           </code>
-          <div class="tip" id="2685">
-            <strong>Signature:</strong> exn:exn -&gt; unit<br />
-                      </div>
+          <div class="tip" id="2740">
+            <strong>Signature:</strong> (Handler&lt;string * string * string list * string list&gt;) -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CLIEvent&gt;]<br />
+          </span>
+          </div>
         </td>
         <td class="xmldoc">
-          <p>A host calls this to report an unhandled exception in a standard way, e.g. an exception on the GUI thread gets printed to stderr</p>
+                    <p>Event fires at the successful completion of adding a dependency via the dependency manager.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2686', 2686)" onmouseover="showTip(event, '2686', 2686)">
-            Run()
+          <code onmouseout="hideTip(event, '2741', 2741)" onmouseover="showTip(event, '2741', 2741)">
+            x.remove_DependencyAdding(arg1)
           </code>
-          <div class="tip" id="2686">
-            <strong>Signature:</strong> unit -&gt; unit<br />
-                      </div>
+          <div class="tip" id="2741">
+            <strong>Signature:</strong> (Handler&lt;string * string&gt;) -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CLIEvent&gt;]<br />
+          </span>
+          </div>
         </td>
         <td class="xmldoc">
-          <p>Load the dummy interaction, load the initial files, and,
+                    <p>Event fires at the start of adding a dependency via the dependency manager.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2742', 2742)" onmouseover="showTip(event, '2742', 2742)">
+            x.remove_DependencyFailed(arg1)
+          </code>
+          <div class="tip" id="2742">
+            <strong>Signature:</strong> (Handler&lt;string * string&gt;) -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CLIEvent&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Event fires at the failure to adding a dependency via the dependency manager.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2743', 2743)" onmouseover="showTip(event, '2743', 2743)">
+            x.ReportUnhandledException(exn)
+          </code>
+          <div class="tip" id="2743">
+            <strong>Signature:</strong> exn:exn -&gt; unit<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>A host calls this to report an unhandled exception in a standard way, e.g. an exception on the GUI thread gets printed to stderr</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2744', 2744)" onmouseover="showTip(event, '2744', 2744)">
+            x.Run()
+          </code>
+          <div class="tip" id="2744">
+            <strong>Signature:</strong> unit -&gt; unit<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Load the dummy interaction, load the initial files, and,
 if interacting, start the background thread to read the standard input.</p>
 <p>Performs these steps:
 - Load the dummy interaction, if any
@@ -391,6 +551,22 @@ if interacting, start the background thread to read the standard input.</p>
 - Sit in the GUI event loop indefinitely, if needed</p>
 
 
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2745', 2745)" onmouseover="showTip(event, '2745', 2745)">
+            x.ValueBound
+          </code>
+          <div class="tip" id="2745">
+            <strong>Signature:</strong> IEvent&lt;obj * Type * string&gt;<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Event fires when a root-level value is bound to an identifier, e.g., via <code>let x = ...</code>.</p>
+
+
+              <p>CompiledName: <code>get_ValueBound</code></p>
         </td>
       </tr>
     </tbody>
@@ -403,38 +579,36 @@ if interacting, start the background thread to read the standard input.</p>
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2687', 2687)" onmouseover="showTip(event, '2687', 2687)">
-            Create(...)
+          <code onmouseout="hideTip(event, '2746', 2746)" onmouseover="showTip(event, '2746', 2746)">
+            FsiEvaluationSession.Create(...)
           </code>
-          <div class="tip" id="2687">
+          <div class="tip" id="2746">
             <strong>Signature:</strong> (fsiConfig:FsiEvaluationSessionHostConfig * argv:string [] * inReader:TextReader * outWriter:TextWriter * errorWriter:TextWriter * collectible:bool option * legacyReferenceResolver:Resolver option) -&gt; FsiEvaluationSession<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers.</p>
+                    <p>Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers.</p>
 <summary>Create an FsiEvaluationSession, reading from the given text input, writing to the given text output and error writers</summary>
 <param name="fsiConfig">The dynamic configuration of the evaluation session</param>
-<param name="argv">The commmand line arguments for the evaluation session</param>
+<param name="argv">The command line arguments for the evaluation session</param>
 <param name="inReader">Read input from the given reader</param>
 <param name="outWriter">Write output to the given writer</param>
-<param name="collectible">Optionally make the dynamic assmbly for the session collectible</param>
+<param name="collectible">Optionally make the dynamic assembly for the session collectible</param>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2688', 2688)" onmouseover="showTip(event, '2688', 2688)">
-            GetDefaultConfiguration()
+          <code onmouseout="hideTip(event, '2747', 2747)" onmouseover="showTip(event, '2747', 2747)">
+            FsiEvaluationSession.GetDefaultConfiguration(...)
           </code>
-          <div class="tip" id="2688">
+          <div class="tip" id="2747">
             <strong>Signature:</strong> unit -&gt; FsiEvaluationSessionHostConfig<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Get a configuration that uses a private inbuilt implementation of the 'fsi' object and does not
+                    <p>Get a configuration that uses a private inbuilt implementation of the 'fsi' object and does not
 implicitly reference FSharp.Compiler.Interactive.Settings.dll.</p>
 
 
@@ -442,16 +616,15 @@ implicitly reference FSharp.Compiler.Interactive.Settings.dll.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2689', 2689)" onmouseover="showTip(event, '2689', 2689)">
-            GetDefaultConfiguration(fsiObj)
+          <code onmouseout="hideTip(event, '2748', 2748)" onmouseover="showTip(event, '2748', 2748)">
+            FsiEvaluationSession.GetDefaultConfiguration(...)
           </code>
-          <div class="tip" id="2689">
+          <div class="tip" id="2748">
             <strong>Signature:</strong> fsiObj:obj -&gt; FsiEvaluationSessionHostConfig<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Get a configuration that uses the 'fsi' object (normally from FSharp.Compiler.Interactive.Settings.dll,
+                    <p>Get a configuration that uses the 'fsi' object (normally from FSharp.Compiler.Interactive.Settings.dll,
 an object from another DLL with identical characteristics) to provide an implementation of the configuration.
 FSharp.Compiler.Interactive.Settings.dll  is referenced by default.</p>
 
@@ -460,16 +633,15 @@ FSharp.Compiler.Interactive.Settings.dll  is referenced by default.</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2690', 2690)" onmouseover="showTip(event, '2690', 2690)">
-            GetDefaultConfiguration(...)
+          <code onmouseout="hideTip(event, '2749', 2749)" onmouseover="showTip(event, '2749', 2749)">
+            FsiEvaluationSession.GetDefaultConfiguration(...)
           </code>
-          <div class="tip" id="2690">
+          <div class="tip" id="2749">
             <strong>Signature:</strong> (fsiObj:obj * useFsiAuxLib:bool) -&gt; FsiEvaluationSessionHostConfig<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Get a configuration that uses the 'fsi' object (normally from FSharp.Compiler.Interactive.Settings.dll,
+                    <p>Get a configuration that uses the 'fsi' object (normally from FSharp.Compiler.Interactive.Settings.dll,
 an object from another DLL with identical characteristics) to provide an implementation of the configuration.
 The flag indicates if FSharp.Compiler.Interactive.Settings.dll  is referenced by default.</p>
 
@@ -493,10 +665,10 @@ The flag indicates if FSharp.Compiler.Interactive.Settings.dll  is referenced by
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -525,6 +697,6 @@ The flag indicates if FSharp.Compiler.Interactive.Settings.dll  is referenced by
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,18 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>ILScopeRef</h1>
 <p>
-  <span>Namespace: FSharp.Compiler.AbstractIL</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-abstractil-il.html">IL</a></span>
+
+    <span>Namespace: FSharp.Compiler.AbstractIL</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-abstractil-il.html">IL</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;StructuralEquality&gt;]<br />
+[&lt;StructuralComparison&gt;]<br />
+[&lt;RequireQualifiedAccess&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -51,48 +57,60 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2351', 2351)" onmouseover="showTip(event, '2351', 2351)">
+          <code onmouseout="hideTip(event, '2394', 2394)" onmouseover="showTip(event, '2394', 2394)">
             Assembly(ILAssemblyRef)
           </code>
-          <div class="tip" id="2351">
+          <div class="tip" id="2394">
             <strong>Signature:</strong> ILAssemblyRef<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A reference to a type in another assembly</p>
+                    <p>A reference to a type in another assembly</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2352', 2352)" onmouseover="showTip(event, '2352', 2352)">
+          <code onmouseout="hideTip(event, '2395', 2395)" onmouseover="showTip(event, '2395', 2395)">
             Local
           </code>
-          <div class="tip" id="2352">
+          <div class="tip" id="2395">
             <strong>Signature:</strong> <br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A reference to the type in the current module</p>
+                    <p>A reference to the type in the current module</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2353', 2353)" onmouseover="showTip(event, '2353', 2353)">
+          <code onmouseout="hideTip(event, '2396', 2396)" onmouseover="showTip(event, '2396', 2396)">
             Module(ILModuleRef)
           </code>
-          <div class="tip" id="2353">
+          <div class="tip" id="2396">
             <strong>Signature:</strong> ILModuleRef<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A reference to a type in a module in the same assembly</p>
+                    <p>A reference to a type in a module in the same assembly</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '2397', 2397)" onmouseover="showTip(event, '2397', 2397)">
+            PrimaryAssembly
+          </code>
+          <div class="tip" id="2397">
+            <strong>Signature:</strong> <br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>A reference to a type in the primary assembly</p>
 
 
         </td>
@@ -107,91 +125,29 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2354', 2354)" onmouseover="showTip(event, '2354', 2354)">
-            AssemblyRef
+          <code onmouseout="hideTip(event, '2398', 2398)" onmouseover="showTip(event, '2398', 2398)">
+            x.IsLocalRef
           </code>
-          <div class="tip" id="2354">
-            <strong>Signature:</strong> ILAssemblyRef<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          
-              <p>CompiledName: <code>get_AssemblyRef</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2355', 2355)" onmouseover="showTip(event, '2355', 2355)">
-            IsAssemblyRef
-          </code>
-          <div class="tip" id="2355">
+          <div class="tip" id="2398">
             <strong>Signature:</strong> bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
-              <p>CompiledName: <code>get_IsAssemblyRef</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2356', 2356)" onmouseover="showTip(event, '2356', 2356)">
-            IsLocalRef
-          </code>
-          <div class="tip" id="2356">
-            <strong>Signature:</strong> bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_IsLocalRef</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2357', 2357)" onmouseover="showTip(event, '2357', 2357)">
-            IsModuleRef
+          <code onmouseout="hideTip(event, '2399', 2399)" onmouseover="showTip(event, '2399', 2399)">
+            x.QualifiedName
           </code>
-          <div class="tip" id="2357">
-            <strong>Signature:</strong> bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          
-              <p>CompiledName: <code>get_IsModuleRef</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2358', 2358)" onmouseover="showTip(event, '2358', 2358)">
-            ModuleRef
-          </code>
-          <div class="tip" id="2358">
-            <strong>Signature:</strong> ILModuleRef<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-          
-              <p>CompiledName: <code>get_ModuleRef</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2359', 2359)" onmouseover="showTip(event, '2359', 2359)">
-            QualifiedName
-          </code>
-          <div class="tip" id="2359">
+          <div class="tip" id="2399">
             <strong>Signature:</strong> string<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_QualifiedName</code></p>
         </td>
       </tr>
@@ -212,10 +168,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -244,6 +200,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

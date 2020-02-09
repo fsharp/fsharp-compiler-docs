@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,13 +34,12 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>IFileSystem</h1>
 <p>
-  <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library-shim.html">Shim</a></span>
-</p>
+
+    <span>Namespace: FSharp.Compiler.AbstractIL.Internal</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-abstractil-internal-library-shim.html">Shim</a></span><br />
+    </p>
 <div class="xmldoc">
 </div>
   <h3>Instance members</h3>
@@ -51,119 +50,112 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2646', 2646)" onmouseover="showTip(event, '2646', 2646)">
-            AssemblyLoad(assemblyName)
+          <code onmouseout="hideTip(event, '2693', 2693)" onmouseover="showTip(event, '2693', 2693)">
+            x.AssemblyLoad(assemblyName)
           </code>
-          <div class="tip" id="2646">
+          <div class="tip" id="2693">
             <strong>Signature:</strong> assemblyName:AssemblyName -&gt; Assembly<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Used to load a dependency for F# Interactive and in an unused corner-case of type provider loading</p>
+                    <p>Used to load a dependency for F# Interactive and in an unused corner-case of type provider loading</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2647', 2647)" onmouseover="showTip(event, '2647', 2647)">
-            AssemblyLoadFrom(fileName)
+          <code onmouseout="hideTip(event, '2694', 2694)" onmouseover="showTip(event, '2694', 2694)">
+            x.AssemblyLoadFrom(fileName)
           </code>
-          <div class="tip" id="2647">
+          <div class="tip" id="2694">
             <strong>Signature:</strong> fileName:string -&gt; Assembly<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Used to load type providers and located assemblies in F# Interactive</p>
+                    <p>Used to load type providers and located assemblies in F# Interactive</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2648', 2648)" onmouseover="showTip(event, '2648', 2648)">
-            FileDelete(fileName)
+          <code onmouseout="hideTip(event, '2695', 2695)" onmouseover="showTip(event, '2695', 2695)">
+            x.FileDelete(fileName)
           </code>
-          <div class="tip" id="2648">
+          <div class="tip" id="2695">
             <strong>Signature:</strong> fileName:string -&gt; unit<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A shim over File.Delete</p>
+                    <p>A shim over File.Delete</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2649', 2649)" onmouseover="showTip(event, '2649', 2649)">
-            FileStreamCreateShim(fileName)
+          <code onmouseout="hideTip(event, '2696', 2696)" onmouseover="showTip(event, '2696', 2696)">
+            x.FileStreamCreateShim(fileName)
           </code>
-          <div class="tip" id="2649">
+          <div class="tip" id="2696">
             <strong>Signature:</strong> fileName:string -&gt; Stream<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A shim over FileStream with FileMode.Create,FileAccess.Write,FileShare.Read</p>
+                    <p>A shim over FileStream with FileMode.Create, FileAccess.Write, FileShare.Read</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2650', 2650)" onmouseover="showTip(event, '2650', 2650)">
-            FileStreamReadShim(fileName)
+          <code onmouseout="hideTip(event, '2697', 2697)" onmouseover="showTip(event, '2697', 2697)">
+            x.FileStreamReadShim(fileName)
           </code>
-          <div class="tip" id="2650">
+          <div class="tip" id="2697">
             <strong>Signature:</strong> fileName:string -&gt; Stream<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A shim over FileStream with FileMode.Open,FileAccess.Read,FileShare.ReadWrite</p>
+                    <p>A shim over FileStream with FileMode.Open, FileAccess.Read, FileShare.ReadWrite</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2651', 2651)" onmouseover="showTip(event, '2651', 2651)">
-            FileStreamWriteExistingShim(fileName)
+          <code onmouseout="hideTip(event, '2698', 2698)" onmouseover="showTip(event, '2698', 2698)">
+            x.FileStreamWriteExistingShim(fileName)
           </code>
-          <div class="tip" id="2651">
+          <div class="tip" id="2698">
             <strong>Signature:</strong> fileName:string -&gt; Stream<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A shim over FileStream with FileMode.Open,FileAccess.Write,FileShare.Read</p>
+                    <p>A shim over FileStream with FileMode.Open, FileAccess.Write, FileShare.Read</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2652', 2652)" onmouseover="showTip(event, '2652', 2652)">
-            GetFullPathShim(fileName)
+          <code onmouseout="hideTip(event, '2699', 2699)" onmouseover="showTip(event, '2699', 2699)">
+            x.GetFullPathShim(fileName)
           </code>
-          <div class="tip" id="2652">
+          <div class="tip" id="2699">
             <strong>Signature:</strong> fileName:string -&gt; string<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Take in a filename with an absolute path, and return the same filename
+                    <p>Take in a filename with an absolute path, and return the same filename
 but canonicalized with respect to extra path separators (e.g. C:\\foo.txt)
 and '..' portions</p>
 
@@ -172,119 +164,112 @@ and '..' portions</p>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2653', 2653)" onmouseover="showTip(event, '2653', 2653)">
-            GetLastWriteTimeShim(fileName)
+          <code onmouseout="hideTip(event, '2700', 2700)" onmouseover="showTip(event, '2700', 2700)">
+            x.GetLastWriteTimeShim(fileName)
           </code>
-          <div class="tip" id="2653">
+          <div class="tip" id="2700">
             <strong>Signature:</strong> fileName:string -&gt; DateTime<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Utc time of the last modification</p>
+                    <p>Utc time of the last modification</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2654', 2654)" onmouseover="showTip(event, '2654', 2654)">
-            GetTempPathShim()
+          <code onmouseout="hideTip(event, '2701', 2701)" onmouseover="showTip(event, '2701', 2701)">
+            x.GetTempPathShim()
           </code>
-          <div class="tip" id="2654">
+          <div class="tip" id="2701">
             <strong>Signature:</strong> unit -&gt; string<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A shim over Path.GetTempPath</p>
+                    <p>A shim over Path.GetTempPath</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2655', 2655)" onmouseover="showTip(event, '2655', 2655)">
-            IsInvalidPathShim(filename)
+          <code onmouseout="hideTip(event, '2702', 2702)" onmouseover="showTip(event, '2702', 2702)">
+            x.IsInvalidPathShim(filename)
           </code>
-          <div class="tip" id="2655">
+          <div class="tip" id="2702">
             <strong>Signature:</strong> filename:string -&gt; bool<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A shim over Path.IsInvalidPath</p>
+                    <p>A shim over Path.IsInvalidPath</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2656', 2656)" onmouseover="showTip(event, '2656', 2656)">
-            IsPathRootedShim(path)
+          <code onmouseout="hideTip(event, '2703', 2703)" onmouseover="showTip(event, '2703', 2703)">
+            x.IsPathRootedShim(path)
           </code>
-          <div class="tip" id="2656">
+          <div class="tip" id="2703">
             <strong>Signature:</strong> path:string -&gt; bool<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A shim over Path.IsPathRooted</p>
+                    <p>A shim over Path.IsPathRooted</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2657', 2657)" onmouseover="showTip(event, '2657', 2657)">
-            IsStableFileHeuristic(fileName)
+          <code onmouseout="hideTip(event, '2704', 2704)" onmouseover="showTip(event, '2704', 2704)">
+            x.IsStableFileHeuristic(fileName)
           </code>
-          <div class="tip" id="2657">
+          <div class="tip" id="2704">
             <strong>Signature:</strong> fileName:string -&gt; bool<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Used to determine if a file will not be subject to deletion during the lifetime of a typical client process.</p>
+                    <p>Used to determine if a file will not be subject to deletion during the lifetime of a typical client process.</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2658', 2658)" onmouseover="showTip(event, '2658', 2658)">
-            ReadAllBytesShim(fileName)
+          <code onmouseout="hideTip(event, '2705', 2705)" onmouseover="showTip(event, '2705', 2705)">
+            x.ReadAllBytesShim(fileName)
           </code>
-          <div class="tip" id="2658">
+          <div class="tip" id="2705">
             <strong>Signature:</strong> fileName:string -&gt; byte []<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A shim over File.ReadAllBytes</p>
+                    <p>A shim over File.ReadAllBytes</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2659', 2659)" onmouseover="showTip(event, '2659', 2659)">
-            SafeExists(fileName)
+          <code onmouseout="hideTip(event, '2706', 2706)" onmouseover="showTip(event, '2706', 2706)">
+            x.SafeExists(fileName)
           </code>
-          <div class="tip" id="2659">
+          <div class="tip" id="2706">
             <strong>Signature:</strong> fileName:string -&gt; bool<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>A shim over File.Exists</p>
+                    <p>A shim over File.Exists</p>
 
 
         </td>
@@ -306,10 +291,10 @@ and '..' portions</p>
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -338,6 +323,6 @@ and '..' portions</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

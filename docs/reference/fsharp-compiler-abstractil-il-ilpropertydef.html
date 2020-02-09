@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,12 +34,17 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>ILPropertyDef</h1>
 <p>
-  <span>Namespace: FSharp.Compiler.AbstractIL</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-abstractil-il.html">IL</a></span>
+
+    <span>Namespace: FSharp.Compiler.AbstractIL</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-abstractil-il.html">IL</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;NoComparison&gt;]<br />
+[&lt;NoEquality&gt;]<br />
+            
+        </span>
 </p>
 <div class="xmldoc">
 <p>Property definitions</p>
@@ -53,16 +58,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2308', 2308)" onmouseover="showTip(event, '2308', 2308)">
+          <code onmouseout="hideTip(event, '2356', 2356)" onmouseover="showTip(event, '2356', 2356)">
             new(...)
           </code>
-          <div class="tip" id="2308">
+          <div class="tip" id="2356">
             <strong>Signature:</strong> (name:string * attributes:PropertyAttributes * setMethod:ILMethodRef option * getMethod:ILMethodRef option * callingConv:ILThisConvention * propertyType:ILType * init:ILFieldInit option * args:ILTypes * customAttrs:ILAttributes) -&gt; ILPropertyDef<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Functional creation of a value, immediate</p>
+                    <p>Functional creation of a value, immediate</p>
 
 
               <p>CompiledName: <code>.ctor</code></p>
@@ -70,16 +74,15 @@
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2309', 2309)" onmouseover="showTip(event, '2309', 2309)">
+          <code onmouseout="hideTip(event, '2357', 2357)" onmouseover="showTip(event, '2357', 2357)">
             new(...)
           </code>
-          <div class="tip" id="2309">
+          <div class="tip" id="2357">
             <strong>Signature:</strong> (name:string * attributes:PropertyAttributes * setMethod:ILMethodRef option * getMethod:ILMethodRef option * callingConv:ILThisConvention * propertyType:ILType * init:ILFieldInit option * args:ILTypes * customAttrsStored:ILAttributesStored * metadataIndex:int32) -&gt; ILPropertyDef<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Functional creation of a value, using delayed reading via a metadata index, for ilread.fs</p>
+                    <p>Functional creation of a value, using delayed reading via a metadata index, for ilread.fs</p>
 
 
               <p>CompiledName: <code>.ctor</code></p>
@@ -95,181 +98,169 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2310', 2310)" onmouseover="showTip(event, '2310', 2310)">
-            Args
+          <code onmouseout="hideTip(event, '2358', 2358)" onmouseover="showTip(event, '2358', 2358)">
+            x.Args
           </code>
-          <div class="tip" id="2310">
+          <div class="tip" id="2358">
             <strong>Signature:</strong> ILTypes<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Args</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2311', 2311)" onmouseover="showTip(event, '2311', 2311)">
-            Attributes
+          <code onmouseout="hideTip(event, '2359', 2359)" onmouseover="showTip(event, '2359', 2359)">
+            x.Attributes
           </code>
-          <div class="tip" id="2311">
+          <div class="tip" id="2359">
             <strong>Signature:</strong> PropertyAttributes<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Attributes</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2312', 2312)" onmouseover="showTip(event, '2312', 2312)">
-            CallingConv
+          <code onmouseout="hideTip(event, '2360', 2360)" onmouseover="showTip(event, '2360', 2360)">
+            x.CallingConv
           </code>
-          <div class="tip" id="2312">
+          <div class="tip" id="2360">
             <strong>Signature:</strong> ILThisConvention<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_CallingConv</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2313', 2313)" onmouseover="showTip(event, '2313', 2313)">
-            CustomAttrs
+          <code onmouseout="hideTip(event, '2361', 2361)" onmouseover="showTip(event, '2361', 2361)">
+            x.CustomAttrs
           </code>
-          <div class="tip" id="2313">
+          <div class="tip" id="2361">
             <strong>Signature:</strong> ILAttributes<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_CustomAttrs</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2314', 2314)" onmouseover="showTip(event, '2314', 2314)">
-            GetMethod
+          <code onmouseout="hideTip(event, '2362', 2362)" onmouseover="showTip(event, '2362', 2362)">
+            x.GetMethod
           </code>
-          <div class="tip" id="2314">
+          <div class="tip" id="2362">
             <strong>Signature:</strong> ILMethodRef option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_GetMethod</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2315', 2315)" onmouseover="showTip(event, '2315', 2315)">
-            Init
+          <code onmouseout="hideTip(event, '2363', 2363)" onmouseover="showTip(event, '2363', 2363)">
+            x.Init
           </code>
-          <div class="tip" id="2315">
+          <div class="tip" id="2363">
             <strong>Signature:</strong> ILFieldInit option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Init</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2316', 2316)" onmouseover="showTip(event, '2316', 2316)">
-            IsRTSpecialName
+          <code onmouseout="hideTip(event, '2364', 2364)" onmouseover="showTip(event, '2364', 2364)">
+            x.IsRTSpecialName
           </code>
-          <div class="tip" id="2316">
+          <div class="tip" id="2364">
             <strong>Signature:</strong> bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_IsRTSpecialName</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2317', 2317)" onmouseover="showTip(event, '2317', 2317)">
-            IsSpecialName
+          <code onmouseout="hideTip(event, '2365', 2365)" onmouseover="showTip(event, '2365', 2365)">
+            x.IsSpecialName
           </code>
-          <div class="tip" id="2317">
+          <div class="tip" id="2365">
             <strong>Signature:</strong> bool<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_IsSpecialName</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2318', 2318)" onmouseover="showTip(event, '2318', 2318)">
-            Name
+          <code onmouseout="hideTip(event, '2366', 2366)" onmouseover="showTip(event, '2366', 2366)">
+            x.Name
           </code>
-          <div class="tip" id="2318">
+          <div class="tip" id="2366">
             <strong>Signature:</strong> string<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_Name</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2319', 2319)" onmouseover="showTip(event, '2319', 2319)">
-            PropertyType
+          <code onmouseout="hideTip(event, '2367', 2367)" onmouseover="showTip(event, '2367', 2367)">
+            x.PropertyType
           </code>
-          <div class="tip" id="2319">
+          <div class="tip" id="2367">
             <strong>Signature:</strong> ILType<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_PropertyType</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2320', 2320)" onmouseover="showTip(event, '2320', 2320)">
-            SetMethod
+          <code onmouseout="hideTip(event, '2368', 2368)" onmouseover="showTip(event, '2368', 2368)">
+            x.SetMethod
           </code>
-          <div class="tip" id="2320">
+          <div class="tip" id="2368">
             <strong>Signature:</strong> ILMethodRef option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>get_SetMethod</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '2321', 2321)" onmouseover="showTip(event, '2321', 2321)">
-            With(...)
+          <code onmouseout="hideTip(event, '2369', 2369)" onmouseover="showTip(event, '2369', 2369)">
+            x.With(...)
           </code>
-          <div class="tip" id="2321">
+          <div class="tip" id="2369">
             <strong>Signature:</strong> (name:string option * attributes:PropertyAttributes option * setMethod:ILMethodRef option option * getMethod:ILMethodRef option option * callingConv:ILThisConvention option * propertyType:ILType option * init:ILFieldInit option option * args:ILTypes option * customAttrs:ILAttributes option) -&gt; ILPropertyDef<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          <p>Functional update of the value</p>
+                    <p>Functional update of the value</p>
 
 
         </td>
@@ -291,10 +282,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -323,6 +314,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

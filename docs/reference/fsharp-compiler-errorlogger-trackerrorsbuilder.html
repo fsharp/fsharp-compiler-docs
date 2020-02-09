@@ -24,8 +24,8 @@
     <div class="container">
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
         </ul>
         <h3 class="muted">F# Compiler Services</h3>
       </div>
@@ -34,13 +34,12 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>TrackErrorsBuilder</h1>
 <p>
-  <span>Namespace: FSharp.Compiler</span><br />
-  <span>Parent Module: <a href="fsharp-compiler-errorlogger.html">ErrorLogger</a></span>
-</p>
+
+    <span>Namespace: FSharp.Compiler</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-errorlogger.html">ErrorLogger</a></span><br />
+    </p>
 <div class="xmldoc">
 </div>
   <h3>Constructors</h3>
@@ -51,16 +50,15 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1613', 1613)" onmouseover="showTip(event, '1613', 1613)">
+          <code onmouseout="hideTip(event, '1641', 1641)" onmouseover="showTip(event, '1641', 1641)">
             new()
           </code>
-          <div class="tip" id="1613">
+          <div class="tip" id="1641">
             <strong>Signature:</strong> unit -&gt; TrackErrorsBuilder<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
               <p>CompiledName: <code>.ctor</code></p>
         </td>
       </tr>
@@ -74,128 +72,119 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1614', 1614)" onmouseover="showTip(event, '1614', 1614)">
-            Bind(res, k)
+          <code onmouseout="hideTip(event, '1642', 1642)" onmouseover="showTip(event, '1642', 1642)">
+            x.Bind(res, k)
           </code>
-          <div class="tip" id="1614">
+          <div class="tip" id="1642">
             <strong>Signature:</strong> (res:OperationResult&lt;&#39;a&gt; * k:(&#39;a -&gt; OperationResult&lt;&#39;b&gt;)) -&gt; OperationResult&lt;&#39;b&gt;<br />
-                          <strong>Type parameters:</strong> 'a, 'b          </div>
+                          <strong>Type parameters:</strong> 'a, 'b                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1615', 1615)" onmouseover="showTip(event, '1615', 1615)">
-            Combine(expr1, expr2)
+          <code onmouseout="hideTip(event, '1643', 1643)" onmouseover="showTip(event, '1643', 1643)">
+            x.Combine(expr1, expr2)
           </code>
-          <div class="tip" id="1615">
+          <div class="tip" id="1643">
             <strong>Signature:</strong> (expr1:OperationResult&lt;&#39;h&gt; * expr2:(&#39;h -&gt; OperationResult&lt;&#39;i&gt;)) -&gt; OperationResult&lt;&#39;i&gt;<br />
-                          <strong>Type parameters:</strong> 'h, 'i          </div>
+                          <strong>Type parameters:</strong> 'h, 'i                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1616', 1616)" onmouseover="showTip(event, '1616', 1616)">
-            Delay(fn)
+          <code onmouseout="hideTip(event, '1644', 1644)" onmouseover="showTip(event, '1644', 1644)">
+            x.Delay(fn)
           </code>
-          <div class="tip" id="1616">
+          <div class="tip" id="1644">
             <strong>Signature:</strong> (fn:(unit -&gt; &#39;a)) -&gt; unit -&gt; &#39;a<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1617', 1617)" onmouseover="showTip(event, '1617', 1617)">
-            For(seq, k)
+          <code onmouseout="hideTip(event, '1645', 1645)" onmouseover="showTip(event, '1645', 1645)">
+            x.For(seq, k)
           </code>
-          <div class="tip" id="1617">
+          <div class="tip" id="1645">
             <strong>Signature:</strong> (seq:&#39;a list * k:(&#39;a -&gt; OperationResult&lt;unit&gt;)) -&gt; OperationResult&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1618', 1618)" onmouseover="showTip(event, '1618', 1618)">
-            Return(res)
+          <code onmouseout="hideTip(event, '1646', 1646)" onmouseover="showTip(event, '1646', 1646)">
+            x.Return(res)
           </code>
-          <div class="tip" id="1618">
+          <div class="tip" id="1646">
             <strong>Signature:</strong> res:&#39;h -&gt; OperationResult&lt;&#39;h&gt;<br />
-                          <strong>Type parameters:</strong> 'h          </div>
+                          <strong>Type parameters:</strong> 'h                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1619', 1619)" onmouseover="showTip(event, '1619', 1619)">
-            ReturnFrom(res)
+          <code onmouseout="hideTip(event, '1647', 1647)" onmouseover="showTip(event, '1647', 1647)">
+            x.ReturnFrom(res)
           </code>
-          <div class="tip" id="1619">
+          <div class="tip" id="1647">
             <strong>Signature:</strong> res:&#39;a -&gt; &#39;a<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1620', 1620)" onmouseover="showTip(event, '1620', 1620)">
-            Run(fn)
+          <code onmouseout="hideTip(event, '1648', 1648)" onmouseover="showTip(event, '1648', 1648)">
+            x.Run(fn)
           </code>
-          <div class="tip" id="1620">
+          <div class="tip" id="1648">
             <strong>Signature:</strong> (fn:(unit -&gt; &#39;a)) -&gt; &#39;a<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1621', 1621)" onmouseover="showTip(event, '1621', 1621)">
-            While(gd, k)
+          <code onmouseout="hideTip(event, '1649', 1649)" onmouseover="showTip(event, '1649', 1649)">
+            x.While(gd, k)
           </code>
-          <div class="tip" id="1621">
+          <div class="tip" id="1649">
             <strong>Signature:</strong> (gd:(unit -&gt; bool) * k:(unit -&gt; OperationResult&lt;unit&gt;)) -&gt; OperationResult&lt;unit&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '1622', 1622)" onmouseover="showTip(event, '1622', 1622)">
-            Zero()
+          <code onmouseout="hideTip(event, '1650', 1650)" onmouseover="showTip(event, '1650', 1650)">
+            x.Zero()
           </code>
-          <div class="tip" id="1622">
+          <div class="tip" id="1650">
             <strong>Signature:</strong> unit -&gt; OperationResult&lt;unit&gt;<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-          
+                    
         </td>
       </tr>
     </tbody>
@@ -215,10 +204,10 @@
             <li><a href="./index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-            
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>
             <li><a href="./devnotes.html">Developer notes</a></li>
@@ -247,6 +236,6 @@
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

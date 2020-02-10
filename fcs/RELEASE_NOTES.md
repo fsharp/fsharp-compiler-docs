@@ -1,3 +1,13 @@
+#### 34.0.3-beta
+
+From dotnet/fsharp:3af8959b6..134962b04:
+
+* set default script TFM to netcoreapp3.1 if none found
+* improve C#-nullable and optional interop (RFC FS-1075)
+* Add type name to `undefined name error` if known
+* improve printing via %A/fsi
+* misc. improvments to DependencyManager
+
 #### 34.0.1
 
 Contains commits from 32b124966 to d7018737c from dotnet/fsharp. Notable changes include:

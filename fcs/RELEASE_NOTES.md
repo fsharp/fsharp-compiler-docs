@@ -1,6 +1,6 @@
 #### 34.1.0
 
-From dotnet/fsharp:3af8959b6..e95cdd16e:
+From dotnet/fsharp:3af8959b6..acd7cfd25:
 
 * set default script TFM to netcoreapp3.1 if none found
 * improve C#-nullable and optional interop (RFC FS-1075)
@@ -9,6 +9,7 @@ From dotnet/fsharp:3af8959b6..e95cdd16e:
 * misc. improvments to DependencyManager
 * improve type provider support for .netcoreapp3.1 target frameworks.
 * New, optimized find-all-references API with reduced memory usage.
+* better error messages for failed overload resolution
 
 #### 34.0.1
 

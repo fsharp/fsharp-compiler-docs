@@ -3,10 +3,11 @@
 // (the generated documentation is stored in the 'docs' directory)
 // --------------------------------------------------------------------------------------
 
+#r "paket: groupref generate //"
+#load "./.fake/generate.fsx/intellisense.fsx"
+
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "FSharp.Compiler.Service.dll" ]
-// Web site location for the generated documentation
-let website = "https://fsharp.github.io/FSharp.Compiler.Service"
+let referenceBinaries = [ "../../../artifacts/bin/fcs/Release/net461/FSharp.Compiler.Service.dll" ]
 
 // Specify more information about your project
 let info =
@@ -20,24 +21,20 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
-#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
-#I "../../packages/FAKE/tools"
-#r "../../packages/FAKE/tools/FakeLib.dll"
-open Fake
-open System.IO
-open Fake.FileHelper
-open FSharp.Literate
-open FSharp.MetadataFormat
+open Fake.IO.FileSystemOperators
+open Fake.IO
+open Fake.Core
+open FSharp.Formatting.Razor
 
 let root = "."
 
 // Paths with template/source/output locations
-let bin         = __SOURCE_DIRECTORY__ @@ "../../../release/fcs/net461"
+let bin         = __SOURCE_DIRECTORY__ @@ "../../../release/fcs/netcoreapp3.0"
 let content     = __SOURCE_DIRECTORY__ @@ "../content"
 let output      = __SOURCE_DIRECTORY__ @@ "../../../docs"
 let files       = __SOURCE_DIRECTORY__ @@ "../files"
 let templates   = __SOURCE_DIRECTORY__ @@ "templates"
-let formatting  = __SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/"
+let formatting  = __SOURCE_DIRECTORY__ @@ "../../packages/generate/FSharp.Formatting"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 
 // Where to look for *.csproj templates (in this order)
@@ -48,46 +45,27 @@ let layoutRoots =
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
-  CopyRecursive files output true |> Log "Copying file: "
-  ensureDirectory (output @@ "content")
-  CopyRecursive (formatting @@ "styles") (output @@ "content") true
-    |> Log "Copying styles and scripts: "
-
-let clr =  System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
-let fsfmt =  __SOURCE_DIRECTORY__ @@ ".." @@ ".." @@ @"packages" @@ "FSharp.Formatting" @@ "lib" @@ "net40"
+  Shell.copyRecursive files output true 
+  |> Trace.tracefn "Copying file: %A"
+  Directory.ensure (output @@ "content")
+  Shell.copyRecursive (formatting @@ "styles") (output @@ "content") true
+  |> Trace.tracefn "Copying styles and scripts: %A"
 
 // Build API reference from XML comments
 let buildReference () =
-  CleanDir (output @@ "reference")
+  Shell.cleanDir (output @@ "reference")
   for lib in referenceBinaries do
-    MetadataFormat.Generate
+    RazorMetadataFormat.Generate
       ( bin @@ lib, output @@ "reference", layoutRoots,
         parameters = ("root", root)::info,
         sourceRepo = "https://github.com/fsharp/FSharp.Compiler.Service/tree/master/src",
-        sourceFolder = @"..\..\..\src",
-        assemblyReferences =
-             [clr @@ "System.Runtime.dll"
-              clr @@ "System.dll"
-              clr @@ "System.Core.dll"
-              clr @@ "Microsoft.CSharp.dll"
-              clr @@ "System.Linq.dll"
-              clr @@ "System.dll"
-              bin @@ "System.Reflection.Metadata.dll"
-              clr @@ "System.Numerics.dll"
-              bin @@ "System.Collections.Immutable.dll"
-              clr @@ "System.IO.dll"
-              clr @@ "mscorlib.dll"
-              fsfmt @@ "FSharp.MetadataFormat.dll"
-              fsfmt @@ "RazorEngine.dll"
-              bin @@ "FSharp.Core.dll"
-              bin @@ "FSharp.Compiler.Service.dll"
-             ] )
+        sourceFolder = @"..\..\..\src")
 
 // Build documentation from `fsx` and `md` files in `docsrc/content`
 let buildDocumentation () =
   for dir in [content] do
     let sub = if dir.Length > content.Length then dir.Substring(content.Length + 1) else "."
-    Literate.ProcessDirectory
+    RazorLiterate.ProcessDirectory
       ( dir, docTemplate, output @@ sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots, generateAnchors = true, processRecursive=false )
 

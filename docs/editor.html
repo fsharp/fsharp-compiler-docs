@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiler Services: Editor services
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F# compiler services for creating IDE tools, language extensions and for F# embedding">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          <h1><a name="Compiler-Services-Editor-services" class="anchor" href="#Compiler-Services-Editor-services">Compiler Services: Editor services</a></h1>
+<p>This tutorial demonstrates how to use the editor services provided by the F# compiler.
+This API is used to provide auto-complete, tool-tips, parameter info help, matching of
+brackets and other functions in F# editors including Visual Studio, Xamarin Studio and Emacs
+(see <a href="https://github.com/fsharp/fsharpbinding">fsharpbindings</a> project for more information).
+Similarly to <a href="untypedtree.html">the tutorial on using untyped AST</a>, we start by
+getting the <code>InteractiveChecker</code> object.</p>
+<blockquote>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
+</blockquote>
+<h2><a name="Type-checking-sample-source-code" class="anchor" href="#Type-checking-sample-source-code">Type checking sample source code</a></h2>
+<p>As in the <a href="untypedtree.html">previous tutorial (using untyped AST)</a>, we start by referencing
+<code>FSharp.Compiler.Service.dll</code>, opening the relevant namespace and creating an instance
+of <code>InteractiveChecker</code>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Reference F# compiler API</span>
+<span class="pp">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">System</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="id">FSharp</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="id">Compiler</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="id">SourceCodeServices</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="id">FSharp</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs3', 6)" onmouseover="showTip(event, 'fs3', 6)" class="id">Compiler</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="id">Text</span>
+
+<span class="c">// Create an interactive checker instance </span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="id">checker</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="rt">FSharpChecker</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="id">Create</span><span class="pn">(</span><span class="pn">)</span>
+</code></pre></td>
+</tr>
+</table>
+<p>As <a href="untypedtree.html">previously</a>, we use <code>GetProjectOptionsFromScriptRoot</code> to get a context
+where the specified input is the only file passed to the compiler (and it is treated as a
+script file or stand-alone F# source code).</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Sample input as a multi-line string</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="id">input</span> <span class="o">=</span> 
+  <span class="s">&quot;&quot;&quot;</span>
+<span class="s">  open System</span>
+
+<span class="s">  let foo() = </span>
+<span class="s">    let msg = String.Concat(&quot;Hello&quot;,&quot; &quot;,&quot;world&quot;)</span>
+<span class="s">    if true then </span>
+<span class="s">      printfn &quot;%s&quot; msg.</span>
+<span class="s">  &quot;&quot;&quot;</span>
+<span class="c">// Split the input &amp; define file name</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="id">inputLines</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="fn">input</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs12', 14)" onmouseover="showTip(event, 'fs12', 14)" class="id">Split</span><span class="pn">(</span><span class="s">&#39;\n&#39;</span><span class="pn">)</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs13', 15)" onmouseover="showTip(event, 'fs13', 15)" class="id">file</span> <span class="o">=</span> <span class="s">&quot;/home/user/Test.fsx&quot;</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="id">projOptions</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="id">errors</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs7', 18)" onmouseover="showTip(event, 'fs7', 18)" class="fn">checker</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="id">GetProjectOptionsFromScript</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs13', 20)" onmouseover="showTip(event, 'fs13', 20)" class="id">file</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="m">SourceText</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs18', 22)" onmouseover="showTip(event, 'fs18', 22)" class="id">ofString</span> <span onmouseout="hideTip(event, 'fs10', 23)" onmouseover="showTip(event, 'fs10', 23)" class="id">input</span><span class="pn">)</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs19', 24)" onmouseover="showTip(event, 'fs19', 24)" class="rt">Async</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs20', 25)" onmouseover="showTip(event, 'fs20', 25)" class="id">RunSynchronously</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 26)" onmouseover="showTip(event, 'fs21', 26)" class="id">parsingOptions</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs22', 27)" onmouseover="showTip(event, 'fs22', 27)" class="id">_errors</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs7', 28)" onmouseover="showTip(event, 'fs7', 28)" class="fn">checker</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs23', 29)" onmouseover="showTip(event, 'fs23', 29)" class="id">GetParsingOptionsFromProjectOptions</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs14', 30)" onmouseover="showTip(event, 'fs14', 30)" class="id">projOptions</span><span class="pn">)</span>
+</code></pre></td>
+</tr>
+</table>
+<p>To perform type checking, we first need to parse the input using
+<code>ParseFile</code>, which gives us access to the <a href="untypedtree.html">untyped AST</a>. However,
+then we need to call <code>CheckFileInProject</code> to perform the full type checking. This function
+also requires the result of <code>ParseFileInProject</code>, so the two functions are often called
+together.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Perform parsing  </span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 31)" onmouseover="showTip(event, 'fs24', 31)" class="id">parseFileResults</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs7', 32)" onmouseover="showTip(event, 'fs7', 32)" class="fn">checker</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs25', 33)" onmouseover="showTip(event, 'fs25', 33)" class="id">ParseFile</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs13', 34)" onmouseover="showTip(event, 'fs13', 34)" class="id">file</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs17', 35)" onmouseover="showTip(event, 'fs17', 35)" class="m">SourceText</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs18', 36)" onmouseover="showTip(event, 'fs18', 36)" class="id">ofString</span> <span onmouseout="hideTip(event, 'fs10', 37)" onmouseover="showTip(event, 'fs10', 37)" class="id">input</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs21', 38)" onmouseover="showTip(event, 'fs21', 38)" class="id">parsingOptions</span><span class="pn">)</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs19', 39)" onmouseover="showTip(event, 'fs19', 39)" class="rt">Async</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs20', 40)" onmouseover="showTip(event, 'fs20', 40)" class="id">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Before we look at the interesting operations provided by <code>TypeCheckResults</code>, we
+need to run the type checker on a sample input. On F# code with errors, you would get some type checking
+result (but it may contain incorrectly "guessed" results).</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Perform type checking</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 41)" onmouseover="showTip(event, 'fs26', 41)" class="id">checkFileAnswer</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs7', 42)" onmouseover="showTip(event, 'fs7', 42)" class="fn">checker</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs27', 43)" onmouseover="showTip(event, 'fs27', 43)" class="id">CheckFileInProject</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs24', 44)" onmouseover="showTip(event, 'fs24', 44)" class="id">parseFileResults</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs13', 45)" onmouseover="showTip(event, 'fs13', 45)" class="id">file</span><span class="pn">,</span> <span class="n">0</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs17', 46)" onmouseover="showTip(event, 'fs17', 46)" class="m">SourceText</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs18', 47)" onmouseover="showTip(event, 'fs18', 47)" class="id">ofString</span> <span onmouseout="hideTip(event, 'fs10', 48)" onmouseover="showTip(event, 'fs10', 48)" class="id">input</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs14', 49)" onmouseover="showTip(event, 'fs14', 49)" class="id">projOptions</span><span class="pn">)</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs19', 50)" onmouseover="showTip(event, 'fs19', 50)" class="rt">Async</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs20', 51)" onmouseover="showTip(event, 'fs20', 51)" class="id">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Alternatively you can use <code>ParseAndCheckFileInProject</code> to check both in one step:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 52)" onmouseover="showTip(event, 'fs28', 52)" class="id">parseResults2</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs29', 53)" onmouseover="showTip(event, 'fs29', 53)" class="id">checkFileAnswer2</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs7', 54)" onmouseover="showTip(event, 'fs7', 54)" class="fn">checker</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs30', 55)" onmouseover="showTip(event, 'fs30', 55)" class="id">ParseAndCheckFileInProject</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs13', 56)" onmouseover="showTip(event, 'fs13', 56)" class="id">file</span><span class="pn">,</span> <span class="n">0</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs17', 57)" onmouseover="showTip(event, 'fs17', 57)" class="m">SourceText</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs18', 58)" onmouseover="showTip(event, 'fs18', 58)" class="id">ofString</span> <span onmouseout="hideTip(event, 'fs10', 59)" onmouseover="showTip(event, 'fs10', 59)" class="id">input</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs14', 60)" onmouseover="showTip(event, 'fs14', 60)" class="id">projOptions</span><span class="pn">)</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs19', 61)" onmouseover="showTip(event, 'fs19', 61)" class="rt">Async</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs20', 62)" onmouseover="showTip(event, 'fs20', 62)" class="id">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>The function returns both the untyped parse result (which we do not use in this
+tutorial), but also a <code>CheckFileAnswer</code> value, which gives us access to all
+the interesting functionality...</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs31', 63)" onmouseover="showTip(event, 'fs31', 63)" class="id">checkFileResults</span> <span class="o">=</span> 
+    <span class="k">match</span> <span onmouseout="hideTip(event, 'fs26', 64)" onmouseover="showTip(event, 'fs26', 64)" class="id">checkFileAnswer</span> <span class="k">with</span>
+    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs32', 65)" onmouseover="showTip(event, 'fs32', 65)" class="rt">FSharpCheckFileAnswer</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs33', 66)" onmouseover="showTip(event, 'fs33', 66)" class="id">Succeeded</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs34', 67)" onmouseover="showTip(event, 'fs34', 67)" class="id">res</span><span class="pn">)</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs34', 68)" onmouseover="showTip(event, 'fs34', 68)" class="id">res</span>
+    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs35', 69)" onmouseover="showTip(event, 'fs35', 69)" class="id">res</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs36', 70)" onmouseover="showTip(event, 'fs36', 70)" class="fn">failwithf</span> <span class="s">&quot;Parsing did not finish... (</span><span class="pf">%A</span><span class="s">)&quot;</span> <span onmouseout="hideTip(event, 'fs35', 71)" onmouseover="showTip(event, 'fs35', 71)" class="id">res</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Here, we type check a simple function that (conditionally) prints "Hello world".
+On the last line, we leave an additional dot in <code>msg.</code> so that we can get the
+completion list on the <code>msg</code> value (we expect to see various methods on the string
+type there).</p>
+<h2><a name="Using-type-checking-results" class="anchor" href="#Using-type-checking-results">Using type checking results</a></h2>
+<p>Let's now look at some of the API that is exposed by the <code>TypeCheckResults</code> type. In general,
+this is the type that lets you implement most of the interesting F# source code editor services.</p>
+<h3><a name="Getting-a-tool-tip" class="anchor" href="#Getting-a-tool-tip">Getting a tool tip</a></h3>
+<p>To get a tool tip, you can use <code>GetToolTipTextAlternate</code> method. The method takes a line number and character
+offset. Both of the numbers are zero-based. In the sample code, we want to get tooltip for the <code>foo</code>
+function that is defined on line 3 (line 0 is blank) and the letter <code>f</code> starts at index 7 (the tooltip
+would work anywhere inside the identifier).</p>
+<p>In addition, the method takes a tag of token which is typically <code>IDENT</code>, when getting tooltip for an
+identifier (the other option lets you get tooltip with full assembly location when using <code>#r "..."</code>).</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Get tag of the IDENT token to be used as the last argument</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 72)" onmouseover="showTip(event, 'fs5', 72)" class="id">FSharp</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs3', 73)" onmouseover="showTip(event, 'fs3', 73)" class="id">Compiler</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs37', 74)" onmouseover="showTip(event, 'fs37', 74)" class="id">identToken</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs38', 75)" onmouseover="showTip(event, 'fs38', 75)" class="m">FSharpTokenTag</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs39', 76)" onmouseover="showTip(event, 'fs39', 76)" class="id">Identifier</span>
+
+<span class="c">// Get tool tip at the specified location</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 77)" onmouseover="showTip(event, 'fs40', 77)" class="id">tip</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs31', 78)" onmouseover="showTip(event, 'fs31', 78)" class="fn">checkFileResults</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs41', 79)" onmouseover="showTip(event, 'fs41', 79)" class="id">GetToolTipText</span><span class="pn">(</span><span class="n">4</span><span class="pn">,</span> <span class="n">7</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs11', 80)" onmouseover="showTip(event, 'fs11', 80)" class="id">inputLines</span><span class="m">.</span><span class="pn">[</span><span class="n">1</span><span class="pn">]</span><span class="pn">,</span> <span class="pn">[</span><span class="s">&quot;foo&quot;</span><span class="pn">]</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs37', 81)" onmouseover="showTip(event, 'fs37', 81)" class="id">identToken</span><span class="pn">)</span>
+<span onmouseout="hideTip(event, 'fs42', 82)" onmouseover="showTip(event, 'fs42', 82)" class="fn">printfn</span> <span class="s">&quot;</span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs40', 83)" onmouseover="showTip(event, 'fs40', 83)" class="id">tip</span>
+</code></pre></td>
+</tr>
+</table>
+<blockquote>
+<p><strong>NOTE:</strong> <code>GetToolTipTextAlternate</code> is an alternative name for the old <code>GetToolTipText</code>. The old <code>GetToolTipText</code> was
+deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  <code>GetToolTipTextAlternate</code> will be renamed back to <code>GetToolTipText</code>.</p>
+</blockquote>
+<p>Aside from the location and token kind, the function also requires the current contents of the line
+(useful when the source code changes) and a <code>Names</code> value, which is a list of strings representing
+the current long name. For example to get tooltip for the <code>Random</code> identifier in a long name
+<code>System.Random</code>, you would use location somewhere in the string <code>Random</code> and you would pass
+<code>["System"; "Random"]</code> as the <code>Names</code> value.</p>
+<p>The returned value is of type <code>ToolTipText</code> which contains a discriminated union <code>ToolTipElement</code>.
+The union represents different kinds of tool tips that you can get from the compiler.</p>
+<h3><a name="Getting-auto-complete-lists" class="anchor" href="#Getting-auto-complete-lists">Getting auto-complete lists</a></h3>
+<p>The next method exposed by <code>TypeCheckResults</code> lets us perform auto-complete on a given location.
+This can be called on any identifier or in any scope (in which case you get a list of names visible
+in the scope) or immediately after <code>.</code> to get a list of members of some object. Here, we get a
+list of members of the string value <code>msg</code>.</p>
+<p>To do this, we call <code>GetDeclarationListInfo</code> with the location of the <code>.</code> symbol on the last line
+(ending with <code>printfn "%s" msg.</code>). The offsets are one-based, so the location is <code>7, 23</code>.
+We also need to specify a function that says that the text has not changed and the current identifier
+where we need to perform the completion.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Get declarations (autocomplete) for a location</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs43', 84)" onmouseover="showTip(event, 'fs43', 84)" class="id">decls</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs31', 85)" onmouseover="showTip(event, 'fs31', 85)" class="fn">checkFileResults</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs44', 86)" onmouseover="showTip(event, 'fs44', 86)" class="id">GetDeclarationListInfo</span>
+      <span class="pn">(</span><span onmouseout="hideTip(event, 'fs45', 87)" onmouseover="showTip(event, 'fs45', 87)" class="uc">Some</span> <span onmouseout="hideTip(event, 'fs24', 88)" onmouseover="showTip(event, 'fs24', 88)" class="id">parseFileResults</span><span class="pn">,</span> <span class="n">7</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs11', 89)" onmouseover="showTip(event, 'fs11', 89)" class="id">inputLines</span><span class="m">.</span><span class="pn">[</span><span class="n">6</span><span class="pn">]</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs46', 90)" onmouseover="showTip(event, 'fs46', 90)" class="rt">PartialLongName</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs47', 91)" onmouseover="showTip(event, 'fs47', 91)" class="id">Empty</span> <span class="n">23</span><span class="pn">,</span> <span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="pn">[</span><span class="pn">]</span><span class="pn">)</span><span class="pn">,</span> <span class="k">fun</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="k">false</span><span class="pn">)</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs19', 92)" onmouseover="showTip(event, 'fs19', 92)" class="rt">Async</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs20', 93)" onmouseover="showTip(event, 'fs20', 93)" class="id">RunSynchronously</span>
+
+<span class="c">// Print the names of available items</span>
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs48', 94)" onmouseover="showTip(event, 'fs48', 94)" class="id">item</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs43', 95)" onmouseover="showTip(event, 'fs43', 95)" class="id">decls</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs49', 96)" onmouseover="showTip(event, 'fs49', 96)" class="id">Items</span> <span class="k">do</span>
+    <span onmouseout="hideTip(event, 'fs42', 97)" onmouseover="showTip(event, 'fs42', 97)" class="fn">printfn</span> <span class="s">&quot; - </span><span class="pf">%s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs48', 98)" onmouseover="showTip(event, 'fs48', 98)" class="id">item</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs50', 99)" onmouseover="showTip(event, 'fs50', 99)" class="id">Name</span>
+</code></pre></td>
+</tr>
+</table>
+<blockquote>
+<p><strong>NOTE:</strong> <code>v</code> is an alternative name for the old <code>GetDeclarations</code>. The old <code>GetDeclarations</code> was
+deprecated because it accepted zero-based line numbers.  At some point it will be removed, and  <code>GetDeclarationListInfo</code> will be renamed back to <code>GetDeclarations</code>.</p>
+</blockquote>
+<p>When you run the code, you should get a list containing the usual string methods such as
+<code>Substring</code>, <code>ToUpper</code>, <code>ToLower</code> etc. The fourth argument of <code>GetDeclarations</code>, here <code>([], "msg")</code>,
+specifies the context for the auto-completion. Here, we want a completion on a complete name
+<code>msg</code>, but you could for example use <code>(["System"; "Collections"], "Generic")</code> to get a completion list
+for a fully qualified namespace.</p>
+<h3><a name="Getting-parameter-information" class="anchor" href="#Getting-parameter-information">Getting parameter information</a></h3>
+<p>The next common feature of editors is to provide information about overloads of a method. In our
+sample code, we use <code>String.Concat</code> which has a number of overloads. We can get the list using
+<code>GetMethods</code> operation. As previously, this takes zero-indexed offset of the location that we are
+interested in (here, right at the end of the <code>String.Concat</code> identifier) and we also need to provide
+the identifier again (so that the compiler can provide up-to-date information when the source code
+changes):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Get overloads of the String.Concat method</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs51', 100)" onmouseover="showTip(event, 'fs51', 100)" class="id">methods</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs31', 101)" onmouseover="showTip(event, 'fs31', 101)" class="fn">checkFileResults</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs52', 102)" onmouseover="showTip(event, 'fs52', 102)" class="id">GetMethods</span><span class="pn">(</span><span class="n">5</span><span class="pn">,</span> <span class="n">27</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs11', 103)" onmouseover="showTip(event, 'fs11', 103)" class="id">inputLines</span><span class="m">.</span><span class="pn">[</span><span class="n">4</span><span class="pn">]</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs45', 104)" onmouseover="showTip(event, 'fs45', 104)" class="uc">Some</span> <span class="pn">[</span><span class="s">&quot;String&quot;</span><span class="pn">;</span> <span class="s">&quot;Concat&quot;</span><span class="pn">]</span><span class="pn">)</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs19', 105)" onmouseover="showTip(event, 'fs19', 105)" class="rt">Async</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs20', 106)" onmouseover="showTip(event, 'fs20', 106)" class="id">RunSynchronously</span>
+
+<span class="c">// Print concatenated parameter lists</span>
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs53', 107)" onmouseover="showTip(event, 'fs53', 107)" class="id">mi</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs51', 108)" onmouseover="showTip(event, 'fs51', 108)" class="id">methods</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs54', 109)" onmouseover="showTip(event, 'fs54', 109)" class="id">Methods</span> <span class="k">do</span>
+    <span class="pn">[</span> <span class="k">for</span> <span onmouseout="hideTip(event, 'fs55', 110)" onmouseover="showTip(event, 'fs55', 110)" class="id">p</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs53', 111)" onmouseover="showTip(event, 'fs53', 111)" class="id">mi</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs56', 112)" onmouseover="showTip(event, 'fs56', 112)" class="id">Parameters</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs55', 113)" onmouseover="showTip(event, 'fs55', 113)" class="id">p</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs57', 114)" onmouseover="showTip(event, 'fs57', 114)" class="id">Display</span> <span class="pn">]</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs58', 115)" onmouseover="showTip(event, 'fs58', 115)" class="m">String</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs59', 116)" onmouseover="showTip(event, 'fs59', 116)" class="id">concat</span> <span class="s">&quot;, &quot;</span> 
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs42', 117)" onmouseover="showTip(event, 'fs42', 117)" class="fn">printfn</span> <span class="s">&quot;</span><span class="pf">%s</span><span class="s">(</span><span class="pf">%s</span><span class="s">)&quot;</span> <span onmouseout="hideTip(event, 'fs51', 118)" onmouseover="showTip(event, 'fs51', 118)" class="id">methods</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs60', 119)" onmouseover="showTip(event, 'fs60', 119)" class="id">MethodName</span>
+</code></pre></td>
+</tr>
+</table>
+<p>The code uses the <code>Display</code> property to get the annotation for each parameter. This returns information
+such as <code>arg0: obj</code> or <code>params args: obj[]</code> or <code>str0: string, str1: string</code>. We concatenate the parameters
+and print a type annotation with the method name.</p>
+<h2><a name="Asynchronous-and-immediate-operations" class="anchor" href="#Asynchronous-and-immediate-operations">Asynchronous and immediate operations</a></h2>
+<p>You may have noticed that <code>CheckFileInProject</code> is an asynchronous operation.
+This indicates that type checking of F# code can take some time.
+The F# compiler performs the work in background (automatically) and when
+we call <code>CheckFileInProject</code> method, it returns an asynchronous operation.</p>
+<p>There is also the <code>CheckFileInProjectIfReady</code> method. This returns immediately if the
+type checking operation can't be started immediately, e.g. if other files in the project
+are not yet type-checked. In this case, a background worker might choose to do other
+work in the meantime, or give up on type checking the file until the <code>FileTypeCheckStateIsDirty</code> event
+is raised.</p>
+<blockquote>
+<p>The <a href="https://github.com/fsharp/fsharpbinding">fsharpbinding</a> project has more advanced
+example of handling the background work where all requests are sent through an F# agent.
+This may be a more appropriate for implementing editor support.</p>
+</blockquote>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
+<p>The <code>CheckFileAnswer</code> object contains other useful methods that were not covered in this tutorial. You
+can use it to get location of a declaration for a given identifier, additional colorization information
+(the F# 3.1 colorizes computation builder identifiers &amp; query operators) and others.</p>
+<p>Using the FSharpChecker component in multi-project, incremental and interactive editing situations may involve
+knowledge of the <a href="queue.html">FSharpChecker operations queue</a> and the <a href="caches.html">FSharpChecker caches</a>.</p>
+<p>Finally, if you are implementing an editor support for an editor that cannot directly call .NET API,
+you can call many of the methods discussed here via a command line interface that is available in the
+<a href="https://github.com/fsharp/fsharpbinding/tree/master/FSharp.AutoComplete">FSharp.AutoComplete</a> project.</p>
+
+<div class="tip" id="fs1">namespace System</div>
+<div class="tip" id="fs2">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp</div>
+<div class="tip" id="fs3">namespace FSharp.Compiler</div>
+<div class="tip" id="fs4">namespace FSharp.Compiler.SourceCodeServices</div>
+<div class="tip" id="fs5">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp<br /><br />--------------------<br />type FSharpAttribute =<br />&#160;&#160;member Format : context:FSharpDisplayContext -&gt; string<br />&#160;&#160;member AttributeType : FSharpEntity<br />&#160;&#160;member ConstructorArguments : IList&lt;FSharpType * obj&gt;<br />&#160;&#160;member IsUnresolved : bool<br />&#160;&#160;member NamedArguments : IList&lt;FSharpType * string * bool * obj&gt;</div>
+<div class="tip" id="fs6">namespace FSharp.Compiler.Text</div>
+<div class="tip" id="fs7">val checker : FSharpChecker</div>
+<div class="tip" id="fs8">type FSharpChecker =<br />&#160;&#160;member CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * sourceText:ISourceText * options:FSharpProjectOptions * ?textSnapshotInfo:obj * ?userOpName:string -&gt; Async&lt;FSharpCheckFileAnswer&gt;<br />&#160;&#160;member CheckProjectInBackground : options:FSharpProjectOptions * ?userOpName:string -&gt; unit<br />&#160;&#160;member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients : unit -&gt; unit<br />&#160;&#160;member Compile : argv:string [] * ?userOpName:string -&gt; Async&lt;FSharpErrorInfo [] * int&gt;<br />&#160;&#160;member Compile : ast:ParsedInput list * assemblyName:string * outFile:string * dependencies:string list * ?pdbFile:string * ?executable:bool * ?noframework:bool * ?userOpName:string -&gt; Async&lt;FSharpErrorInfo [] * int&gt;<br />&#160;&#160;member CompileToDynamicAssembly : otherFlags:string [] * execute:(TextWriter * TextWriter) option * ?userOpName:string -&gt; Async&lt;FSharpErrorInfo [] * int * Assembly option&gt;<br />&#160;&#160;member CompileToDynamicAssembly : ast:ParsedInput list * assemblyName:string * dependencies:string list * execute:(TextWriter * TextWriter) option * ?debug:bool * ?noframework:bool * ?userOpName:string -&gt; Async&lt;FSharpErrorInfo [] * int * Assembly option&gt;<br />&#160;&#160;member GetBackgroundCheckResultsForFileInProject : filename:string * options:FSharpProjectOptions * ?userOpName:string -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;<br />&#160;&#160;member GetBackgroundParseResultsForFileInProject : filename:string * options:FSharpProjectOptions * ?userOpName:string -&gt; Async&lt;FSharpParseFileResults&gt;<br />&#160;&#160;member GetParsingOptionsFromCommandLineArgs : argv:string list * ?isInteractive:bool -&gt; FSharpParsingOptions * FSharpErrorInfo list<br />&#160;&#160;...</div>
+<div class="tip" id="fs9">static member FSharpChecker.Create : ?projectCacheSize:int * ?keepAssemblyContents:bool * ?keepAllBackgroundResolutions:bool * ?legacyReferenceResolver:FSharp.Compiler.ReferenceResolver.Resolver * ?tryGetMetadataSnapshot:FSharp.Compiler.AbstractIL.ILBinaryReader.ILReaderTryGetMetadataSnapshot * ?suggestNamesForErrors:bool * ?keepAllBackgroundSymbolUses:bool -&gt; FSharpChecker</div>
+<div class="tip" id="fs10">val input : string</div>
+<div class="tip" id="fs11">val inputLines : string []</div>
+<div class="tip" id="fs12">String.Split([&lt;ParamArray&gt;] separator: char []) : string []<br />String.Split(separator: string [], options: StringSplitOptions) : string []<br />String.Split(separator: string,?options: StringSplitOptions) : string []<br />String.Split(separator: char [], options: StringSplitOptions) : string []<br />String.Split(separator: char [], count: int) : string []<br />String.Split(separator: char,?options: StringSplitOptions) : string []<br />String.Split(separator: string [], count: int, options: StringSplitOptions) : string []<br />String.Split(separator: string, count: int,?options: StringSplitOptions) : string []<br />String.Split(separator: char [], count: int, options: StringSplitOptions) : string []<br />String.Split(separator: char, count: int,?options: StringSplitOptions) : string []</div>
+<div class="tip" id="fs13">val file : string</div>
+<div class="tip" id="fs14">val projOptions : FSharpProjectOptions</div>
+<div class="tip" id="fs15">val errors : FSharpErrorInfo list</div>
+<div class="tip" id="fs16">member FSharpChecker.GetProjectOptionsFromScript : filename:string * sourceText:ISourceText * ?previewEnabled:bool * ?loadedTimeStamp:DateTime * ?otherFlags:string [] * ?useFsiAuxLib:bool * ?useSdkRefs:bool * ?assumeDotNetFramework:bool * ?extraProjectInfo:obj * ?optionsStamp:int64 * ?userOpName:string -&gt; Async&lt;FSharpProjectOptions * FSharpErrorInfo list&gt;</div>
+<div class="tip" id="fs17">module SourceText<br /><br />from FSharp.Compiler.Text</div>
+<div class="tip" id="fs18">val ofString : string -&gt; ISourceText</div>
+<div class="tip" id="fs19">Multiple items<br />type Async =<br />&#160;&#160;static member AsBeginEnd : computation:(&#39;Arg -&gt; Async&lt;&#39;T&gt;) -&gt; (&#39;Arg * AsyncCallback * obj -&gt; IAsyncResult) * (IAsyncResult -&gt; &#39;T) * (IAsyncResult -&gt; unit)<br />&#160;&#160;static member AwaitEvent : event:IEvent&lt;&#39;Del,&#39;T&gt; * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt; (requires delegate and &#39;Del :&gt; Delegate)<br />&#160;&#160;static member AwaitIAsyncResult : iar:IAsyncResult * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />&#160;&#160;static member AwaitTask : task:Task -&gt; Async&lt;unit&gt;<br />&#160;&#160;static member AwaitTask : task:Task&lt;&#39;T&gt; -&gt; Async&lt;&#39;T&gt;<br />&#160;&#160;static member AwaitWaitHandle : waitHandle:WaitHandle * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />&#160;&#160;static member CancelDefaultToken : unit -&gt; unit<br />&#160;&#160;static member Catch : computation:Async&lt;&#39;T&gt; -&gt; Async&lt;Choice&lt;&#39;T,exn&gt;&gt;<br />&#160;&#160;static member Choice : computations:seq&lt;Async&lt;&#39;T option&gt;&gt; -&gt; Async&lt;&#39;T option&gt;<br />&#160;&#160;static member FromBeginEnd : beginAction:(AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />&#160;&#160;...<br /><br />--------------------<br />type Async&lt;&#39;T&gt; =</div>
+<div class="tip" id="fs20">static member Async.RunSynchronously : computation:Async&lt;&#39;T&gt; * ?timeout:int * ?cancellationToken:Threading.CancellationToken -&gt; &#39;T</div>
+<div class="tip" id="fs21">val parsingOptions : FSharpParsingOptions</div>
+<div class="tip" id="fs22">val _errors : FSharpErrorInfo list</div>
+<div class="tip" id="fs23">member FSharpChecker.GetParsingOptionsFromProjectOptions : FSharpProjectOptions -&gt; FSharpParsingOptions * FSharpErrorInfo list</div>
+<div class="tip" id="fs24">val parseFileResults : FSharpParseFileResults</div>
+<div class="tip" id="fs25">member FSharpChecker.ParseFile : filename:string * sourceText:ISourceText * options:FSharpParsingOptions * ?userOpName:string -&gt; Async&lt;FSharpParseFileResults&gt;</div>
+<div class="tip" id="fs26">val checkFileAnswer : FSharpCheckFileAnswer</div>
+<div class="tip" id="fs27">member FSharpChecker.CheckFileInProject : parsed:FSharpParseFileResults * filename:string * fileversion:int * sourceText:ISourceText * options:FSharpProjectOptions * ?textSnapshotInfo:obj * ?userOpName:string -&gt; Async&lt;FSharpCheckFileAnswer&gt;</div>
+<div class="tip" id="fs28">val parseResults2 : FSharpParseFileResults</div>
+<div class="tip" id="fs29">val checkFileAnswer2 : FSharpCheckFileAnswer</div>
+<div class="tip" id="fs30">member FSharpChecker.ParseAndCheckFileInProject : filename:string * fileversion:int * sourceText:ISourceText * options:FSharpProjectOptions * ?textSnapshotInfo:obj * ?userOpName:string -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileAnswer&gt;</div>
+<div class="tip" id="fs31">val checkFileResults : FSharpCheckFileResults</div>
+<div class="tip" id="fs32">type FSharpCheckFileAnswer =<br />&#160;&#160;| Aborted<br />&#160;&#160;| Succeeded of FSharpCheckFileResults</div>
+<div class="tip" id="fs33">union case FSharpCheckFileAnswer.Succeeded: FSharpCheckFileResults -&gt; FSharpCheckFileAnswer</div>
+<div class="tip" id="fs34">val res : FSharpCheckFileResults</div>
+<div class="tip" id="fs35">val res : FSharpCheckFileAnswer</div>
+<div class="tip" id="fs36">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T</div>
+<div class="tip" id="fs37">val identToken : int</div>
+<div class="tip" id="fs38">module FSharpTokenTag<br /><br />from FSharp.Compiler.SourceCodeServices</div>
+<div class="tip" id="fs39">val Identifier : int</div>
+<div class="tip" id="fs40">val tip : Async&lt;FSharpToolTipText&gt;</div>
+<div class="tip" id="fs41">member FSharpCheckFileResults.GetToolTipText : line:int * colAtEndOfNames:int * lineText:string * names:string list * tokenTag:int * ?userOpName:string -&gt; Async&lt;FSharpToolTipText&gt;</div>
+<div class="tip" id="fs42">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+<div class="tip" id="fs43">val decls : FSharpDeclarationListInfo</div>
+<div class="tip" id="fs44">member FSharpCheckFileResults.GetDeclarationListInfo : ParsedFileResultsOpt:FSharpParseFileResults option * line:int * lineText:string * partialName:PartialLongName * ?getAllEntities:(unit -&gt; AssemblySymbol list) * ?hasTextChangedSinceLastTypecheck:(obj * Range.range -&gt; bool) * ?userOpName:string -&gt; Async&lt;FSharpDeclarationListInfo&gt;</div>
+<div class="tip" id="fs45">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs46">type PartialLongName =<br />&#160;&#160;{ QualifyingIdents: string list<br />&#160;&#160;&#160;&#160;PartialIdent: string<br />&#160;&#160;&#160;&#160;EndColumn: int<br />&#160;&#160;&#160;&#160;LastDotPos: int option }<br />&#160;&#160;&#160;&#160;static member Empty : endColumn:int -&gt; PartialLongName</div>
+<div class="tip" id="fs47">static member PartialLongName.Empty : endColumn:int -&gt; PartialLongName</div>
+<div class="tip" id="fs48">val item : FSharpDeclarationListItem</div>
+<div class="tip" id="fs49">property FSharpDeclarationListInfo.Items: FSharpDeclarationListItem [] with get</div>
+<div class="tip" id="fs50">property FSharpDeclarationListItem.Name: string with get</div>
+<div class="tip" id="fs51">val methods : FSharpMethodGroup</div>
+<div class="tip" id="fs52">member FSharpCheckFileResults.GetMethods : line:int * colAtEndOfNames:int * lineText:string * names:string list option * ?userOpName:string -&gt; Async&lt;FSharpMethodGroup&gt;</div>
+<div class="tip" id="fs53">val mi : FSharpMethodGroupItem</div>
+<div class="tip" id="fs54">property FSharpMethodGroup.Methods: FSharpMethodGroupItem [] with get</div>
+<div class="tip" id="fs55">val p : FSharpMethodGroupItemParameter</div>
+<div class="tip" id="fs56">property FSharpMethodGroupItem.Parameters: FSharpMethodGroupItemParameter [] with get</div>
+<div class="tip" id="fs57">property FSharpMethodGroupItemParameter.Display: string with get</div>
+<div class="tip" id="fs58">Multiple items<br />type String =<br />&#160;&#160;new : value:char[] -&gt; string + 8 overloads<br />&#160;&#160;member Chars : int -&gt; char<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;member Contains : value:string -&gt; bool + 3 overloads<br />&#160;&#160;member CopyTo : sourceIndex:int * destination:char[] * destinationIndex:int * count:int -&gt; unit<br />&#160;&#160;member EndsWith : value:string -&gt; bool + 3 overloads<br />&#160;&#160;member Equals : obj:obj -&gt; bool + 2 overloads<br />&#160;&#160;member GetEnumerator : unit -&gt; CharEnumerator<br />&#160;&#160;member GetHashCode : unit -&gt; int + 1 overload<br />&#160;&#160;...<br /><br />--------------------<br />String(value: char []) : String<br />String(value: nativeptr&lt;char&gt;) : String<br />String(value: nativeptr&lt;sbyte&gt;) : String<br />String(value: ReadOnlySpan&lt;char&gt;) : String<br />String(c: char, count: int) : String<br />String(value: char [], startIndex: int, length: int) : String<br />String(value: nativeptr&lt;char&gt;, startIndex: int, length: int) : String<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int) : String<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int, enc: Text.Encoding) : String</div>
+<div class="tip" id="fs59">val concat : sep:string -&gt; strings:seq&lt;string&gt; -&gt; string</div>
+<div class="tip" id="fs60">property FSharpMethodGroup.MethodName: string with get</div>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

@@ -1,12 +1,12 @@
 #### 34.1.0
 
-From dotnet/fsharp:3af8959b6..acd7cfd25:
+From dotnet/fsharp:3af8959b6..9d69b49b7:
 
 * set default script TFM to netcoreapp3.1 if none found
 * improve C#-nullable and optional interop (RFC FS-1075)
 * Add type name to `undefined name error` if known
 * improve printing via %A/fsi
-* misc. improvments to DependencyManager
+* misc. improvements to DependencyManager
 * improve type provider support for .netcoreapp3.1 target frameworks.
 * New, optimized find-all-references API with reduced memory usage.
 * better error messages for failed overload resolution
@@ -16,15 +16,15 @@ From dotnet/fsharp:3af8959b6..acd7cfd25:
 Contains commits from 32b124966 to d7018737c from dotnet/fsharp. Notable changes include:
 
 * lowered allocations for large strings and char arrays (notably source file texts)
-* improved support for byreflike rules with regards to type abbreviations
+* improved support for byref-like rules with regards to type abbreviations
 * better support for scopes in recursive modules
 * better location of .net core reference assemblies
 * lowered allocations for several internal compiler structures
 * better error messages for anonymous record mismatches
 * FSharpChecker learned how to keep background symbol uses
 * Project cracker/project cracker tool were removed
-* Better support for consuming C# inref parameters
-* new services around simplifing names and finding unused declarations
+* Better support for consuming C# in-ref parameters
+* new services around simplifying names and finding unused declarations
 * package management in scripts (in preview)
 * and-bang syntax support (in preview)
 
@@ -37,7 +37,6 @@ Integrate dotnet/fsharp from 4f5f08320 to 7b25d7f82. Notable changes include:
 * Better debug information for ranges
 * Support for Literal values in signature files
 * Using memory-mapped files cross-platform to read IL.
-
 
 #### 33.0.0
 

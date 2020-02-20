@@ -96,12 +96,19 @@ Target.create "GenerateDocsJa" (fun _ ->
     runDotnet "docsrc/tools" "fake" "run generate.ja.fsx"
 )
 
+open Fake.IO.Globbing.Operators
+
 Target.create "PublishNuGet" (fun _ ->
-    let apikey = Environment.environVarOrDefault "nuget-apikey" (UserInput.getUserPassword "Nuget API Key: ")
-    Paket.push (fun p ->
-        { p with
-            ApiKey = apikey
-            WorkingDir = releaseDir })
+  let apikey = lazy(Environment.environVarOrDefault "nuget-apikey" (UserInput.getUserPassword "Nuget API Key: "))
+  !! (sprintf "%s/*.%s.nupkg" releaseDir release.NugetVersion)
+  |> Seq.iter (fun nupkg ->
+    DotNet.nugetPush (fun p -> {
+      p with
+        PushParams = { p.PushParams with
+                          ApiKey = Some apikey.Value
+                          Source = Some "https://api.nuget.org/v3/index.json" }
+    }) nupkg
+  )
 )
 
 // --------------------------------------------------------------------------------------

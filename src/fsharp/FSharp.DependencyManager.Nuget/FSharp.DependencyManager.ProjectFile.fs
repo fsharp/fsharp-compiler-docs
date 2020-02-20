@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
-namespace FSharp.DependencyManager
+namespace FSharp.DependencyManager.Nuget
 
 open System
 open System.Collections
@@ -21,33 +21,40 @@ type PackageReference = {
 
 
 // Resolved assembly information
-type Resolution = {
+type internal Resolution = {
     NugetPackageId : string
     NugetPackageVersion : string
     PackageRoot : string
     FullPath : string
     IsNotImplementationReference: string
     NativePath : string
-    AppHostRuntimeIdentifier : string
     InitializeSourcePath : string }
 
 
-module ProjectFile =
+module internal ProjectFile =
 
     let findLoadsFromResolutions (resolutions:Resolution array) =
         resolutions
         |> Array.filter(fun r -> not(String.IsNullOrEmpty(r.NugetPackageId) ||
                                      String.IsNullOrEmpty(r.InitializeSourcePath)) &&
-                                     File.Exists(r.InitializeSourcePath))
+                                 File.Exists(r.InitializeSourcePath))
         |> Array.map(fun r -> r.InitializeSourcePath)
         |> Array.distinct
+
+    let findReferencesFromResolutions (resolutions:Resolution array) =
+        resolutions
+        |> Array.filter(fun r -> not(String.IsNullOrEmpty(r.NugetPackageId)) &&
+                                 File.Exists(r.FullPath))
+        |> Array.map(fun r -> r.FullPath)
+        |> Array.distinct
+
 
     let findIncludesFromResolutions (resolutions:Resolution array) =
         let managedRoots =
             resolutions
             |> Array.filter(fun r -> not(String.IsNullOrEmpty(r.NugetPackageId) ||
                                          String.IsNullOrEmpty(r.PackageRoot)) &&
-                                         Directory.Exists(r.PackageRoot))
+                                     Directory.Exists(r.PackageRoot))
             |> Array.map(fun r -> r.PackageRoot)
             |> Array.distinct
 
@@ -55,7 +62,7 @@ module ProjectFile =
             resolutions
             |> Array.filter(fun r -> not(String.IsNullOrEmpty(r.NugetPackageId) ||
                                          String.IsNullOrEmpty(r.NativePath)) &&
-                                       Directory.Exists(r.NativePath))
+                                     Directory.Exists(r.NativePath))
             |> Array.map(fun r -> r.NativePath)
             |> Array.distinct
 
@@ -72,7 +79,7 @@ module ProjectFile =
 
         [| for line in lines do
             let fields = line.Split(',')
-            if fields.Length < 8 then raise (new System.InvalidOperationException(sprintf "Internal error - Invalid resolutions file format '%s'" line))
+            if fields.Length < 7 then raise (new System.InvalidOperationException(sprintf "Internal error - Invalid resolutions file format '%s'" line))
             else {
                 NugetPackageId = fields.[0]
                 NugetPackageVersion = fields.[1]
@@ -81,7 +88,6 @@ module ProjectFile =
                 IsNotImplementationReference = fields.[4]
                 InitializeSourcePath = fields.[5]
                 NativePath = fields.[6]
-                AppHostRuntimeIdentifier = fields.[7]
             }
         |]
 
@@ -117,6 +123,7 @@ $(POUND_R)
     <IsPackable>false</IsPackable>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <DisableImplicitSystemValueTupleReference>true</DisableImplicitSystemValueTupleReference>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
 
     <!-- Temporary fix some sdks, shipped internally with broken parameterization -->
     <FSharpCoreImplicitPackageVersion Condition="'$(FSharpCoreImplicitPackageVersion)' == '{{FSharpCoreShippedPackageVersion}}'">4.7.0</FSharpCoreImplicitPackageVersion>
@@ -179,7 +186,10 @@ $(PACKAGEREFERENCES)
 
     <ItemGroup>
       <ResolvedReferenceLines Remove='*' />
-      <ResolvedReferenceLines Include='%(InteractiveResolvedFile.NugetPackageId),%(InteractiveResolvedFile.NugetPackageVersion),%(InteractiveResolvedFile.PackageRoot),%(InteractiveResolvedFile.FullPath),%(InteractiveResolvedFile.IsNotImplementationReference),%(InteractiveResolvedFile.InitializeSourcePath),%(NativeIncludeRoots.Path),$(AppHostRuntimeIdentifier)' KeepDuplicates="false" />
+      <ResolvedReferenceLines
+          Condition="'$(SCRIPTEXTENSION)'=='.fsx' and '%(InteractiveResolvedFile.NugetPackageId)'!='FSharp.Core'"
+          Include='%(InteractiveResolvedFile.NugetPackageId),%(InteractiveResolvedFile.NugetPackageVersion),%(InteractiveResolvedFile.PackageRoot),%(InteractiveResolvedFile.FullPath),%(InteractiveResolvedFile.IsNotImplementationReference),%(InteractiveResolvedFile.InitializeSourcePath),%(NativeIncludeRoots.Path)'
+          KeepDuplicates="false" />
     </ItemGroup>
 
     <WriteLinesToFile Lines='@(ResolvedReferenceLines)' 

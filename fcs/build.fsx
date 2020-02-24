@@ -6,6 +6,7 @@
 
 open System
 open System.IO
+open Paket
 open Fake.BuildServer
 open Fake.Core
 open Fake.DotNet
@@ -111,8 +112,36 @@ Target.create "PublishNuGet" (fun _ ->
   )
 )
 
+let anchor (path: string) = 
+  System.IO.Path.GetFullPath(Path.Combine(__SOURCE_DIRECTORY__, path))
+
+Target.create "ValidateVersionBump" (fun _ ->
+  let intendedVersion = Paket.PublicAPI.ParseSemVer release.NugetVersion
+  let lockfile = Paket.LockFile.LoadFrom "paket.lock"
+  let refGroup = lockfile.Groups.[Paket.Domain.GroupName "reference"]
+  let oldPackage = refGroup.Resolution.[Paket.Domain.PackageName "FSharp.Compiler.Service"]
+  let oldVersion = oldPackage.Version
+  let oldSurfaceArea = SynVer.SurfaceArea.ofAssembly (System.Reflection.Assembly.LoadFile (anchor "packages/reference/FSharp.Compiler.Service/lib/netstandard2.0/FSharp.Compiler.Service.dll"))
+  let newSurfaceArea = SynVer.SurfaceArea.ofAssembly (System.Reflection.Assembly.LoadFile (anchor "../artifacts/bin/fcs/Release/netstandard2.0/FSharp.Compiler.Service.dll"))
+  let (computedVersion, computedMagnitude) = SynVer.SurfaceArea.bump (string oldVersion) oldSurfaceArea newSurfaceArea
+  let parsedComputedVersion = Paket.PublicAPI.ParseSemVer computedVersion
+  let apiDiffs = SynVer.SurfaceArea.diff oldSurfaceArea newSurfaceArea |> String.concat "\n"
+  // todo: expand on this comparison based on the magnitudes
+  if parsedComputedVersion <> intendedVersion
+  then
+    failwithf """Version bump invalid.
+  Version packaged was %A
+  Version computed due to API diffs was %A
+  Allowed version magnitude change is %A
+  The full set of API diffs is:
+%A
+"""  intendedVersion parsedComputedVersion computedMagnitude apiDiffs
+)
+
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
+
+
 
 Target.create "Start" ignore
 Target.create "Release" ignore
@@ -140,6 +169,7 @@ open Fake.Core.TargetOperators
 
 "Build"
   ==> "NuGet"
+  // ==> "ValidateVersionBump"
   ==> "PublishNuGet"
   ==> "Release"
 

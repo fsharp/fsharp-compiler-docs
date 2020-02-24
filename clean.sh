@@ -24,6 +24,7 @@ DEAD_DIRS=(
     "tests/fsharp/tests.fs"
     "tests/fsharp/typecheck"
     "tests/fsharpqa"
+    "tests/scripts"
     "VisualFSharp.sln"
     "vsintegration"
 )

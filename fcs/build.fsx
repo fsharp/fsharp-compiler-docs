@@ -112,8 +112,29 @@ Target.create "PublishNuGet" (fun _ ->
   )
 )
 
-let anchor (path: string) = 
+let anchor (path: string) =
   System.IO.Path.GetFullPath(Path.Combine(__SOURCE_DIRECTORY__, path))
+
+let bumpMajor (semver: Paket.SemVerInfo) =
+  { semver with Major = semver.Major + 1u
+                Minor = 0u
+                Patch = 0u }
+
+let bumpMinor (semver: Paket.SemVerInfo) =
+  { semver with Minor = semver.Minor + 1u
+                Patch = 0u }
+
+let bumpPatch (semver: Paket.SemVerInfo) =
+  { semver with Patch = semver.Patch + 1u }
+
+let (|WithinRange|OutsideRange|) (leftSemver, (magnitude: SynVer.Version), rightSemver) =
+  let allowedMin =
+    match magnitude with
+    | SynVer.Version.Major -> bumpMajor leftSemver
+    | SynVer.Version.Minor -> bumpMinor leftSemver
+    | SynVer.Version.Patch -> bumpPatch leftSemver
+
+  if rightSemver < allowedMin || rightSemver < leftSemver then OutsideRange else WithinRange
 
 Target.create "ValidateVersionBump" (fun _ ->
   let intendedVersion = Paket.PublicAPI.ParseSemVer release.NugetVersion
@@ -126,9 +147,10 @@ Target.create "ValidateVersionBump" (fun _ ->
   let (computedVersion, computedMagnitude) = SynVer.SurfaceArea.bump (string oldVersion) oldSurfaceArea newSurfaceArea
   let parsedComputedVersion = Paket.PublicAPI.ParseSemVer computedVersion
   let apiDiffs = SynVer.SurfaceArea.diff oldSurfaceArea newSurfaceArea |> String.concat "\n"
-  // todo: expand on this comparison based on the magnitudes
-  if parsedComputedVersion <> intendedVersion
-  then
+  match oldVersion, computedMagnitude, intendedVersion with
+  | WithinRange ->
+    Trace.tracefn "Version %A is within the allowed range of %A from the prior version of %A" intendedVersion computedMagnitude oldVersion
+  | OutsideRange ->
     failwithf """Version bump invalid.
   Version packaged was %A
   Version computed due to API diffs was %A
@@ -169,7 +191,7 @@ open Fake.Core.TargetOperators
 
 "Build"
   ==> "NuGet"
-  // ==> "ValidateVersionBump"
+  ==> "ValidateVersionBump"
   ==> "PublishNuGet"
   ==> "Release"
 

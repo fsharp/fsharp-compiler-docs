@@ -1,3 +1,14 @@
+#### 34.1.1
+
+From dotnet/fsharp:3777cd4d8..836da28c0:
+
+* Slight tweaks to error messages around numeric literals (Thanks @Happypig375)
+* Deny taking native address of an immutable local value (Thanks @TIHan)
+* Fixes to reported ranges for wildcard self-identifiers, module abbreviations, nested modules, attributes, nested types, and fields (Thanks @auduchinok)
+* Better compiler error recovery for errors in constructor expressions (Thanks @auduchinok)
+* Fix handling of F# Options in C# members with regards to nullable type interop (Thanks @TIHan)
+* Move dependency handling of native dlls to the DependencyManager (Thanks @KevinRansom)
+
 #### 34.1.0
 
 From dotnet/fsharp:3af8959b6..9d69b49b7:

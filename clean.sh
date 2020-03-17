@@ -22,6 +22,7 @@ DEAD_DIRS=(
     "tests/fsharp/Compiler"
     "tests/fsharp/conformance"
     "tests/fsharp/core"
+    "tests/fsharp/FSharpSuite.Tests.fsproj"
     "tests/fsharp/test-framework.fs"
     "tests/fsharp/tests.fs"
     "tests/fsharp/typecheck"

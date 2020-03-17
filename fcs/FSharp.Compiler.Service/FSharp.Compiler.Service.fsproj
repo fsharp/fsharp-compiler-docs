@@ -414,6 +414,9 @@
     <Compile Include="$(FSharpSourcesRoot)/fsharp/AttributeChecking.fs">
       <Link>Logic/AttributeChecking.fs</Link>
     </Compile>
+    <Compile Include="$(FSharpSourcesRoot)/fsharp/TypeRelations.fs">
+      <Link>Logic/TypeRelations.fs</Link>
+    </Compile>
     <Compile Include="$(FSharpSourcesRoot)/fsharp/InfoReader.fs">
       <Link>Logic/InfoReader.fs</Link>
     </Compile>
@@ -431,9 +434,6 @@
     </Compile>
     <Compile Include="$(FSharpSourcesRoot)/fsharp/NameResolution.fs">
       <Link>Logic/NameResolution.fs</Link>
-    </Compile>
-    <Compile Include="$(FSharpSourcesRoot)/fsharp/TypeRelations.fs">
-      <Link>Logic/TypeRelations.fs</Link>
     </Compile>
     <Compile Include="$(FSharpSourcesRoot)/fsharp/SignatureConformance.fs">
       <Link>Logic/SignatureConformance.fs</Link>

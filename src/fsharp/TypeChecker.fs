@@ -8291,7 +8291,6 @@ and TcComputationExpression cenv env overallTy mWhole (interpExpr: Expr) builder
                 let isYield = not (customOperationMaintainsVarSpaceUsingBind nm)
                 translatedCtxt (transNoQueryOps (SynExpr.YieldOrReturn ((isYield, false), varSpaceExpr, mClause)))
             
-
             // Now run the consumeCustomOpClauses
             Some (consumeCustomOpClauses q varSpace dataCompPriorToOp comp false mClause)
 
@@ -12735,7 +12734,6 @@ module TcRecdUnionAndEnumDeclarations = begin
             TcAttributesWithPossibleTargets false cenv env AttributeTargets.FieldDeclRestricted synAttrs |> ignore
         | _ -> ()
         rfspec
-
 
     let TcAnonFieldDecl cenv env parent tpenv nm (Field(Attributes attribs, isStatic, idOpt, ty, isMutable, xmldoc, vis, m)) =
         let id = (match idOpt with None -> mkSynId m nm | Some id -> id)

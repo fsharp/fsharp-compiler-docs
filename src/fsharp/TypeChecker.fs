@@ -8706,7 +8706,7 @@ and TcComputationExpression cenv env overallTy mWhole (interpExpr: Expr) builder
                             SynExpr.LetOrUseBang (NoDebugPointAtLetBinding, false, false, varSpacePat, dataCompPrior, [], compClausesExpr, compClausesExpr.Range) 
                         else 
                             SynExpr.ForEach (DebugPointAtFor.No, SeqExprOnly false, false, varSpacePat, dataCompPrior, compClausesExpr, compClausesExpr.Range)
-                    
+
                     trans true q varSpace rebind id
     and transNoQueryOps comp =
         trans true false emptyVarSpace comp id

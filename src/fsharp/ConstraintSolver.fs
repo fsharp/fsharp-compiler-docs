@@ -65,7 +65,6 @@ open FSharp.Compiler.Tast
 open FSharp.Compiler.Tastops
 open FSharp.Compiler.TcGlobals
 open FSharp.Compiler.TypeRelations
-open FSharp.Compiler.Features
 
 //-------------------------------------------------------------------------
 // Generate type variables and record them in within the scope of the

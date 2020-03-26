@@ -1,17 +1,6 @@
-#### 34.2.0
+#### 35.0.0
 
-This version bumps the minor due to new API additions:
-
-* FSharp.Compiler.Ast
-  * rangeOfNonNilAttrs : attrs: SynAttributeList list -> range
-  * unionRangeWithListBy : projectRangeFromThing: 'A -> range * m:range * listOfThing:'A list -> range
-
-* FSharp.Compiler.PrettyNaming
-  * FSharp.Compiler.PrettyNaming.isTildaOnlyString : s:System.String -> System.Boolean
-
-* FSharp.Compiler.SourceCodeServices.FSharpErrorInfo
-  * member this.End : pos
-  * member this.Start : pos
+This version bumps the major due to API surface area changes.
 
 From dotnet/fsharp:d1a3d0705..6da2c40a4:
 
@@ -20,6 +9,8 @@ From dotnet/fsharp:d1a3d0705..6da2c40a4:
 * Improve ProvidedTypes Type generation (thanks @DedSec256)
 * Improve CodeLenses provided (thanks @realvictorprm)
 * Optimize internal member calculations in PrettyNaming and items lookup (thanks @auduchinok)
+* More fixes to compiler internals, ranges, etc (thanks @auduchinok)
+* Support for consumption of C# Default Interfaces
 
 #### 34.1.1
 

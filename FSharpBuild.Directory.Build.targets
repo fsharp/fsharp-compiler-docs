@@ -72,13 +72,13 @@
           DependsOnTargets="CopyVsixResources"
           Condition="'$(Configuration)' != 'Proto' and '$(Language)'=='F#' and '$(DisableCompilerRedirection)' != 'true' ">
 
-    <SubstituteText EmbeddedResources="@(EmbeddedResource)">
+    <!-- <SubstituteText EmbeddedResources="@(EmbeddedResource)">
       <Output TaskParameter="CopiedFiles" ItemName="CopiedFiles" />
-    </SubstituteText>
+    </SubstituteText> -->
 
     <ItemGroup>
         <EmbeddedResource Remove="@(EmbeddedResource)"/>
-        <EmbeddedResource Include="@(CopiedFiles)"/>
+        <!-- <EmbeddedResource Include="@(CopiedFiles)"/> -->
     </ItemGroup>
 
     <MakeDir Directories="$(IntermediateOutputPath)" Condition="!Exists('$(IntermediateOutputPath)')" />

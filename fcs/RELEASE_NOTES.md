@@ -1,8 +1,11 @@
 #### 35.0.0
 
-This version bumps the major due to API surface area changes.
+This version bumps the major due to API surface area changes in the AST and TAST. In addition, there's a new package for the
+built-in Nuget dependency manager for FSI: FSharp.DependencyManager.Nuget
 
-From dotnet/fsharp:d1a3d0705..6da2c40a4:
+Members are now in SyntaxTree/SyntaxTreeOps and TypedTree/TypedTreeBasics/TypedTreeOps/TypedTreePickle.
+
+From dotnet/fsharp:d1a3d0705..d9695e1b9:
 
 * Improve error recovery from patterns (thanks @auduchinok)
 * Smaller IL Emit for unsigned 64-bit constants (thanks @teo-tsirpanis)

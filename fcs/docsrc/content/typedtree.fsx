@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../../artifacts/bin/fcs/net461"
+#I "../../../artifacts/bin/fcs/Release/netcoreapp3.0"
 (**
 Compiler Services: Processing typed expression tree
 =================================================
@@ -46,7 +46,9 @@ let parseAndCheckSingleFile (input) =
         checker.GetProjectOptionsFromScript(file, SourceText.ofString input)
         |> Async.RunSynchronously
 
-    checker.ParseAndCheckProject(projOptions) 
+    let fprojOptions = projOptions
+
+    checker.ParseAndCheckProject (fprojOptions)
     |> Async.RunSynchronously
 
 (**

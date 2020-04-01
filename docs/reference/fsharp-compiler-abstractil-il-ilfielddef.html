@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ILFieldDef - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+<h1>ILFieldDef</h1>
+<p>
+
+    <span>Namespace: FSharp.Compiler.AbstractIL</span><br />
+        <span>Parent Module: <a href="fsharp-compiler-abstractil-il.html">IL</a></span><br />
+            <span>
+            Attributes: <br />
+[&lt;NoComparison&gt;]<br />
+[&lt;NoEquality&gt;]<br />
+            
+        </span>
+</p>
+<div class="xmldoc">
+<p>Field definitions.</p>
+
+</div>
+  <h3>Constructors</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Constructor</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1896', 1896)" onmouseover="showTip(event, '1896', 1896)">
+            new(...)
+          </code>
+          <div class="tip" id="1896">
+            <strong>Signature:</strong> (name:string * fieldType:ILType * attributes:FieldAttributes * data:byte [] option * literalValue:ILFieldInit option * offset:int32 option * marshal:ILNativeType option * customAttrs:ILAttributes) -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Functional creation of a value, immediate</p>
+
+
+              <p>CompiledName: <code>.ctor</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1897', 1897)" onmouseover="showTip(event, '1897', 1897)">
+            new(...)
+          </code>
+          <div class="tip" id="1897">
+            <strong>Signature:</strong> (name:string * fieldType:ILType * attributes:FieldAttributes * data:byte [] option * literalValue:ILFieldInit option * offset:int32 option * marshal:ILNativeType option * customAttrsStored:ILAttributesStored * metadataIndex:int32) -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Functional creation of a value using delayed reading via a metadata index</p>
+
+
+              <p>CompiledName: <code>.ctor</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1898', 1898)" onmouseover="showTip(event, '1898', 1898)">
+            x.Access
+          </code>
+          <div class="tip" id="1898">
+            <strong>Signature:</strong> ILMemberAccess<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_Access</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1899', 1899)" onmouseover="showTip(event, '1899', 1899)">
+            x.Attributes
+          </code>
+          <div class="tip" id="1899">
+            <strong>Signature:</strong> FieldAttributes<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_Attributes</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1900', 1900)" onmouseover="showTip(event, '1900', 1900)">
+            x.CustomAttrs
+          </code>
+          <div class="tip" id="1900">
+            <strong>Signature:</strong> ILAttributes<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_CustomAttrs</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1901', 1901)" onmouseover="showTip(event, '1901', 1901)">
+            x.Data
+          </code>
+          <div class="tip" id="1901">
+            <strong>Signature:</strong> byte [] option<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_Data</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1902', 1902)" onmouseover="showTip(event, '1902', 1902)">
+            x.FieldType
+          </code>
+          <div class="tip" id="1902">
+            <strong>Signature:</strong> ILType<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_FieldType</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1903', 1903)" onmouseover="showTip(event, '1903', 1903)">
+            x.IsInitOnly
+          </code>
+          <div class="tip" id="1903">
+            <strong>Signature:</strong> bool<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_IsInitOnly</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1904', 1904)" onmouseover="showTip(event, '1904', 1904)">
+            x.IsLiteral
+          </code>
+          <div class="tip" id="1904">
+            <strong>Signature:</strong> bool<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_IsLiteral</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1905', 1905)" onmouseover="showTip(event, '1905', 1905)">
+            x.IsSpecialName
+          </code>
+          <div class="tip" id="1905">
+            <strong>Signature:</strong> bool<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_IsSpecialName</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1906', 1906)" onmouseover="showTip(event, '1906', 1906)">
+            x.IsStatic
+          </code>
+          <div class="tip" id="1906">
+            <strong>Signature:</strong> bool<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_IsStatic</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1907', 1907)" onmouseover="showTip(event, '1907', 1907)">
+            x.LiteralValue
+          </code>
+          <div class="tip" id="1907">
+            <strong>Signature:</strong> ILFieldInit option<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_LiteralValue</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1908', 1908)" onmouseover="showTip(event, '1908', 1908)">
+            x.Marshal
+          </code>
+          <div class="tip" id="1908">
+            <strong>Signature:</strong> ILNativeType option<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_Marshal</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1909', 1909)" onmouseover="showTip(event, '1909', 1909)">
+            x.Name
+          </code>
+          <div class="tip" id="1909">
+            <strong>Signature:</strong> string<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_Name</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1910', 1910)" onmouseover="showTip(event, '1910', 1910)">
+            x.NotSerialized
+          </code>
+          <div class="tip" id="1910">
+            <strong>Signature:</strong> bool<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+              <p>CompiledName: <code>get_NotSerialized</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1911', 1911)" onmouseover="showTip(event, '1911', 1911)">
+            x.Offset
+          </code>
+          <div class="tip" id="1911">
+            <strong>Signature:</strong> int32 option<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>The explicit offset in bytes when explicit layout is used.</p>
+
+
+              <p>CompiledName: <code>get_Offset</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1912', 1912)" onmouseover="showTip(event, '1912', 1912)">
+            x.With(...)
+          </code>
+          <div class="tip" id="1912">
+            <strong>Signature:</strong> (name:string option * fieldType:ILType option * attributes:FieldAttributes option * data:byte [] option option * literalValue:ILFieldInit option option * offset:int32 option option * marshal:ILNativeType option option * customAttrs:ILAttributes option) -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Functional update of the value</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1913', 1913)" onmouseover="showTip(event, '1913', 1913)">
+            x.WithAccess(arg1)
+          </code>
+          <div class="tip" id="1913">
+            <strong>Signature:</strong> ILMemberAccess -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1914', 1914)" onmouseover="showTip(event, '1914', 1914)">
+            x.WithFieldMarshal(arg1)
+          </code>
+          <div class="tip" id="1914">
+            <strong>Signature:</strong> (ILNativeType option) -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1915', 1915)" onmouseover="showTip(event, '1915', 1915)">
+            x.WithInitOnly(arg1)
+          </code>
+          <div class="tip" id="1915">
+            <strong>Signature:</strong> bool -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1916', 1916)" onmouseover="showTip(event, '1916', 1916)">
+            x.WithLiteralDefaultValue(arg1)
+          </code>
+          <div class="tip" id="1916">
+            <strong>Signature:</strong> (ILFieldInit option) -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1917', 1917)" onmouseover="showTip(event, '1917', 1917)">
+            x.WithNotSerialized(arg1)
+          </code>
+          <div class="tip" id="1917">
+            <strong>Signature:</strong> bool -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1918', 1918)" onmouseover="showTip(event, '1918', 1918)">
+            x.WithSpecialName(arg1)
+          </code>
+          <div class="tip" id="1918">
+            <strong>Signature:</strong> bool -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1919', 1919)" onmouseover="showTip(event, '1919', 1919)">
+            x.WithStatic(arg1)
+          </code>
+          <div class="tip" id="1919">
+            <strong>Signature:</strong> bool -&gt; ILFieldDef<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

@@ -6,6 +6,7 @@
 
 open System
 open System.IO
+open Paket
 open Fake.BuildServer
 open Fake.Core
 open Fake.DotNet
@@ -35,6 +36,7 @@ let runDotnet workingDir command args =
 // --------------------------------------------------------------------------------------
 
 let releaseDir = Path.Combine(__SOURCE_DIRECTORY__, "../artifacts/bin/fcs/Release")
+let packagesDir = Path.Combine(__SOURCE_DIRECTORY__, "../artifacts/packages/Release/Shipping")
 
 // Read release notes & version info from RELEASE_NOTES.md
 let release = ReleaseNotes.load (__SOURCE_DIRECTORY__ + "/RELEASE_NOTES.md")
@@ -64,8 +66,8 @@ Target.create "BuildVersion" (fun _ ->
 
 Target.create "Build" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ "build" "../src/buildtools/buildtools.proj -v n -c Proto"
-    let fslexPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fslex/Proto/netcoreapp3.0/fslex.dll"
-    let fsyaccPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fsyacc/Proto/netcoreapp3.0/fsyacc.dll"
+    let fslexPath = Path.GetFullPath <| Path.Combine(__SOURCE_DIRECTORY__, "../artifacts/bin/fslex/Proto/netcoreapp3.1/fslex.dll")
+    let fsyaccPath = Path.GetFullPath <| Path.Combine(__SOURCE_DIRECTORY__, "../artifacts/bin/fsyacc/Proto/netcoreapp3.1/fsyacc.dll")
     runDotnet __SOURCE_DIRECTORY__ "build" (sprintf "FSharp.Compiler.Service.sln -nodereuse:false -v n -c Release /p:DisableCompilerRedirection=true /p:FsLexPath=%s /p:FsYaccPath=%s" fslexPath fsyaccPath)
 )
 
@@ -73,9 +75,9 @@ Target.create "Test" (fun _ ->
     // This project file is used for the netcoreapp2.0 tests to work out reference sets
     runDotnet __SOURCE_DIRECTORY__ "build" "../tests/projects/Sample_NETCoreSDK_FSharp_Library_netstandard2_0/Sample_NETCoreSDK_FSharp_Library_netstandard2_0.fsproj -nodereuse:false -v n /restore /p:DisableCompilerRedirection=true"
 
-    // Now run the tests
-    let logFilePath = Path.Combine(__SOURCE_DIRECTORY__, "..", "artifacts", "TestResults", "Release", "FSharp.Compiler.Service.Test.xml")
-    runDotnet __SOURCE_DIRECTORY__ "test" (sprintf "FSharp.Compiler.Service.Tests/FSharp.Compiler.Service.Tests.fsproj --no-restore --no-build -nodereuse:false -v n -c Release --test-adapter-path . --logger \"nunit;LogFilePath=%s\"" logFilePath)
+    // Now run the tests (different output files per TFM)
+    let logFilePath = Path.Combine(__SOURCE_DIRECTORY__, "..", "artifacts", "TestResults", "Release", "FSharp.Compiler.Service.Test.{framework}.xml")
+    runDotnet __SOURCE_DIRECTORY__ "test" (sprintf "FSharp.Compiler.Service.Tests/FSharp.Compiler.Service.Tests.fsproj --no-restore --no-build -nodereuse:false -v n -c Release --logger \"nunit;LogFilePath=%s\"" logFilePath)
 )
 
 Target.create "NuGet" (fun _ ->
@@ -84,7 +86,7 @@ Target.create "NuGet" (fun _ ->
           Configuration = DotNet.BuildConfiguration.Release
           Common = packOpts.Common |> withDotnetExe |> DotNet.Options.withVerbosity (Some DotNet.Verbosity.Normal)
           MSBuildParams = { packOpts.MSBuildParams with
-                              Properties = packOpts.MSBuildParams.Properties @ [ "Version", assemblyVersion ] }
+                              Properties = packOpts.MSBuildParams.Properties @ [ "Version", assemblyVersion; "VersionPrefix", assemblyVersion; "PackageReleaseNotes", release.Notes |> String.concat "\n" ] }
       }) "FSharp.Compiler.Service.sln"
 )
 
@@ -96,16 +98,74 @@ Target.create "GenerateDocsJa" (fun _ ->
     runDotnet "docsrc/tools" "fake" "run generate.ja.fsx"
 )
 
+open Fake.IO.Globbing.Operators
+
 Target.create "PublishNuGet" (fun _ ->
-    let apikey = Environment.environVarOrDefault "nuget-apikey" (UserInput.getUserPassword "Nuget API Key: ")
-    Paket.push (fun p ->
-        { p with
-            ApiKey = apikey
-            WorkingDir = releaseDir })
+  let apikey = lazy(Environment.environVarOrDefault "nuget-apikey" (UserInput.getUserPassword "Nuget API Key: "))
+  !! (sprintf "%s/*.%s.nupkg" releaseDir release.NugetVersion)
+  ++ (sprintf "%s/FSharp.DependencyManager.Nuget.%s.nupkg" releaseDir release.NugetVersion)
+  |> Seq.iter (fun nupkg ->
+    DotNet.nugetPush (fun p -> {
+      p with
+        PushParams = { p.PushParams with
+                          ApiKey = Some apikey.Value
+                          Source = Some "https://api.nuget.org/v3/index.json" }
+    }) nupkg
+  )
+)
+
+let anchor (path: string) =
+  System.IO.Path.GetFullPath(Path.Combine(__SOURCE_DIRECTORY__, path))
+
+let bumpMajor (semver: Paket.SemVerInfo) =
+  { semver with Major = semver.Major + 1u
+                Minor = 0u
+                Patch = 0u }
+
+let bumpMinor (semver: Paket.SemVerInfo) =
+  { semver with Minor = semver.Minor + 1u
+                Patch = 0u }
+
+let bumpPatch (semver: Paket.SemVerInfo) =
+  { semver with Patch = semver.Patch + 1u }
+
+let (|WithinRange|OutsideRange|) (leftSemver, (magnitude: SynVer.Version), rightSemver) =
+  let allowedMin =
+    match magnitude with
+    | SynVer.Version.Major -> bumpMajor leftSemver
+    | SynVer.Version.Minor -> bumpMinor leftSemver
+    | SynVer.Version.Patch -> bumpPatch leftSemver
+
+  if rightSemver < allowedMin || rightSemver < leftSemver then OutsideRange else WithinRange
+
+Target.create "ValidateVersionBump" (fun _ ->
+  let intendedVersion = Paket.PublicAPI.ParseSemVer release.NugetVersion
+  let lockfile = Paket.LockFile.LoadFrom "paket.lock"
+  let refGroup = lockfile.Groups.[Paket.Domain.GroupName "reference"]
+  let oldPackage = refGroup.Resolution.[Paket.Domain.PackageName "FSharp.Compiler.Service"]
+  let oldVersion = oldPackage.Version
+  let oldSurfaceArea = SynVer.SurfaceArea.ofAssembly (System.Reflection.Assembly.LoadFile (anchor "packages/reference/FSharp.Compiler.Service/lib/netstandard2.0/FSharp.Compiler.Service.dll"))
+  let newSurfaceArea = SynVer.SurfaceArea.ofAssembly (System.Reflection.Assembly.LoadFile (anchor "../artifacts/bin/fcs/Release/netstandard2.0/FSharp.Compiler.Service.dll"))
+  let (computedVersion, computedMagnitude) = SynVer.SurfaceArea.bump (string oldVersion) oldSurfaceArea newSurfaceArea
+  let parsedComputedVersion = Paket.PublicAPI.ParseSemVer computedVersion
+  let apiDiffs = SynVer.SurfaceArea.diff oldSurfaceArea newSurfaceArea |> String.concat "\n"
+  match oldVersion, computedMagnitude, intendedVersion with
+  | WithinRange ->
+    Trace.tracefn "Version %A is within the allowed range of %A from the prior version of %A" intendedVersion computedMagnitude oldVersion
+  | OutsideRange ->
+    failwithf """Version bump invalid.
+  Version packaged was %A
+  Version computed due to API diffs was %A
+  Allowed version magnitude change is %A
+  The full set of API diffs is:
+%A
+"""  intendedVersion parsedComputedVersion computedMagnitude apiDiffs
 )
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
+
+
 
 Target.create "Start" ignore
 Target.create "Release" ignore
@@ -133,6 +193,7 @@ open Fake.Core.TargetOperators
 
 "Build"
   ==> "NuGet"
+  ==> "ValidateVersionBump"
   ==> "PublishNuGet"
   ==> "Release"
 

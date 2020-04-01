@@ -1,3 +1,4 @@
+version 5.226.0
 source https://api.nuget.org/v3/index.json
 
 storage: none
@@ -14,16 +15,26 @@ nuget Fake.Core.UserInput
 nuget Fake.DotNet.Cli
 nuget Fake.DotNet.Fsi
 nuget Fake.DotNet.Paket
+nuget SynVer.FAKE
+nuget Paket.Core
 
 group generate
 
 source https://api.nuget.org/v3/index.json
-
-storage: none
+storage: packages
 framework: netstandard2.0
 
 nuget FSharp.Core
 nuget Fake.Core
 nuget Fake.IO.FileSystem
 nuget Fake.Core.Trace
-nuget FSharp.Literate
+nuget FSharp.Literate 4.0.0-alpha03
+nuget FSharp.Formatting 4.0.0-alpha03
+
+group reference
+
+source https://api.nuget.org/v3/index.json
+framework: netstandard2.0
+
+storage: packages
+nuget FSharp.Compiler.Service 34.1.1

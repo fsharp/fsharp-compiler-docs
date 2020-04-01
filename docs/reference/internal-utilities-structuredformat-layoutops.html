@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>LayoutOps - F# Compiler Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Microsoft Corporation, Dave Thomas, Anh-Dung Phan, Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+	<link type="text/css" rel="stylesheet" href="./content/fcs.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="https://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">github page</a></li>
+        </ul>
+        <h3 class="muted">F# Compiler Services</h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+<h1>LayoutOps</h1>
+<p>
+  <span>Namespace: Internal.Utilities.StructuredFormat</span><br />
+  </p>
+<div class="xmldoc">
+<p>A layout is a sequence of strings which have been joined together.
+The strings are classified as words, separators and left and right parenthesis.
+This classification determines where spaces are inserted.
+A joint is either unbreakable, breakable or broken.
+If a joint is broken the RHS layout occurs on the next line with optional indentation.
+A layout can be squashed to for given width which forces breaks as required.</p>
+
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1039', 1039)" onmouseover="showTip(event, '1039', 1039)">
+            ( -- ) layout1 layout2
+          </code>
+          <div class="tip" id="1039">
+            <strong>Signature:</strong> layout1:Layout -&gt; layout2:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join, possible break with indent=1</p>
+
+
+              <p>CompiledName: <code>op_MinusMinus</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1040', 1040)" onmouseover="showTip(event, '1040', 1040)">
+            ( --- ) layout1 layout2
+          </code>
+          <div class="tip" id="1040">
+            <strong>Signature:</strong> layout1:Layout -&gt; layout2:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join, possible break with indent=2</p>
+
+
+              <p>CompiledName: <code>op_MinusMinusMinus</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1041', 1041)" onmouseover="showTip(event, '1041', 1041)">
+            ( @@ ) layout1 layout2
+          </code>
+          <div class="tip" id="1041">
+            <strong>Signature:</strong> layout1:Layout -&gt; layout2:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join broken with ident=0</p>
+
+
+              <p>CompiledName: <code>op_AtAt</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1042', 1042)" onmouseover="showTip(event, '1042', 1042)">
+            ( @@- ) layout1 layout2
+          </code>
+          <div class="tip" id="1042">
+            <strong>Signature:</strong> layout1:Layout -&gt; layout2:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join broken with ident=1</p>
+
+
+              <p>CompiledName: <code>op_AtAtMinus</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1043', 1043)" onmouseover="showTip(event, '1043', 1043)">
+            ( @@-- ) layout1 layout2
+          </code>
+          <div class="tip" id="1043">
+            <strong>Signature:</strong> layout1:Layout -&gt; layout2:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join broken with ident=2</p>
+
+
+              <p>CompiledName: <code>op_AtAtMinusMinus</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1044', 1044)" onmouseover="showTip(event, '1044', 1044)">
+            ( ^^ ) layout1 layout2
+          </code>
+          <div class="tip" id="1044">
+            <strong>Signature:</strong> layout1:Layout -&gt; layout2:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join, unbreakable.</p>
+
+
+              <p>CompiledName: <code>op_HatHat</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1045', 1045)" onmouseover="showTip(event, '1045', 1045)">
+            ( ++ ) layout1 layout2
+          </code>
+          <div class="tip" id="1045">
+            <strong>Signature:</strong> layout1:Layout -&gt; layout2:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join, possible break with indent=0</p>
+
+
+              <p>CompiledName: <code>op_PlusPlus</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1046', 1046)" onmouseover="showTip(event, '1046', 1046)">
+            aboveL layout1 layout2
+          </code>
+          <div class="tip" id="1046">
+            <strong>Signature:</strong> layout1:Layout -&gt; layout2:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Layout two vertically.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1047', 1047)" onmouseover="showTip(event, '1047', 1047)">
+            aboveListL(layouts)
+          </code>
+          <div class="tip" id="1047">
+            <strong>Signature:</strong> layouts:Layout list -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Layout list vertically.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1048', 1048)" onmouseover="showTip(event, '1048', 1048)">
+            braceL(layout)
+          </code>
+          <div class="tip" id="1048">
+            <strong>Signature:</strong> layout:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Wrap braces around layout.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1049', 1049)" onmouseover="showTip(event, '1049', 1049)">
+            bracketL(layout)
+          </code>
+          <div class="tip" id="1049">
+            <strong>Signature:</strong> layout:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Wrap round brackets around Layout.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1050', 1050)" onmouseover="showTip(event, '1050', 1050)">
+            commaListL(layouts)
+          </code>
+          <div class="tip" id="1050">
+            <strong>Signature:</strong> layouts:Layout list -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join layouts into a comma separated list.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1051', 1051)" onmouseover="showTip(event, '1051', 1051)">
+            emptyL
+          </code>
+          <div class="tip" id="1051">
+            <strong>Signature:</strong> Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>The empty layout</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1052', 1052)" onmouseover="showTip(event, '1052', 1052)">
+            isEmptyL(layout)
+          </code>
+          <div class="tip" id="1052">
+            <strong>Signature:</strong> layout:Layout -&gt; bool<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Is it the empty layout?</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1053', 1053)" onmouseover="showTip(event, '1053', 1053)">
+            leftL(text)
+          </code>
+          <div class="tip" id="1053">
+            <strong>Signature:</strong> text:TaggedText -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>An string which is left  parenthesis (no space on the right).</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1054', 1054)" onmouseover="showTip(event, '1054', 1054)">
+            listL selector value
+          </code>
+          <div class="tip" id="1054">
+            <strong>Signature:</strong> selector:(&#39;T -&gt; Layout) -&gt; value:&#39;T list -&gt; Layout<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Layout like an F# list.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1055', 1055)" onmouseover="showTip(event, '1055', 1055)">
+            objL(value)
+          </code>
+          <div class="tip" id="1055">
+            <strong>Signature:</strong> value:obj -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>An uninterpreted leaf, to be interpreted into a string
+by the layout engine. This allows leaf layouts for numbers, strings and
+other atoms to be customized according to culture.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1056', 1056)" onmouseover="showTip(event, '1056', 1056)">
+            optionL selector value
+          </code>
+          <div class="tip" id="1056">
+            <strong>Signature:</strong> selector:(&#39;T -&gt; Layout) -&gt; value:&#39;T option -&gt; Layout<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Layout like an F# option.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1057', 1057)" onmouseover="showTip(event, '1057', 1057)">
+            rightL(text)
+          </code>
+          <div class="tip" id="1057">
+            <strong>Signature:</strong> text:TaggedText -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>An string which is right parenthesis (no space on the left).</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1058', 1058)" onmouseover="showTip(event, '1058', 1058)">
+            semiListL(layouts)
+          </code>
+          <div class="tip" id="1058">
+            <strong>Signature:</strong> layouts:Layout list -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join layouts into a semi-colon separated list.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1059', 1059)" onmouseover="showTip(event, '1059', 1059)">
+            sepL(text)
+          </code>
+          <div class="tip" id="1059">
+            <strong>Signature:</strong> text:TaggedText -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>An string which requires no spaces either side.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1060', 1060)" onmouseover="showTip(event, '1060', 1060)">
+            sepListL layout1 layouts
+          </code>
+          <div class="tip" id="1060">
+            <strong>Signature:</strong> layout1:Layout -&gt; layouts:Layout list -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join layouts into a list separated using the given Layout.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1061', 1061)" onmouseover="showTip(event, '1061', 1061)">
+            spaceListL(layouts)
+          </code>
+          <div class="tip" id="1061">
+            <strong>Signature:</strong> layouts:Layout list -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Join layouts into a space separated list.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1062', 1062)" onmouseover="showTip(event, '1062', 1062)">
+            squareBracketL(layout)
+          </code>
+          <div class="tip" id="1062">
+            <strong>Signature:</strong> layout:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Wrap square brackets around layout.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1063', 1063)" onmouseover="showTip(event, '1063', 1063)">
+            tagAttrL text maps layout
+          </code>
+          <div class="tip" id="1063">
+            <strong>Signature:</strong> text:string -&gt; maps:(string * string) list -&gt; layout:Layout -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>See tagL</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1064', 1064)" onmouseover="showTip(event, '1064', 1064)">
+            tupleL(layouts)
+          </code>
+          <div class="tip" id="1064">
+            <strong>Signature:</strong> layouts:Layout list -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>Form tuple of layouts.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1065', 1065)" onmouseover="showTip(event, '1065', 1065)">
+            unfoldL selector folder state count
+          </code>
+          <div class="tip" id="1065">
+            <strong>Signature:</strong> selector:(&#39;T -&gt; Layout) -&gt; folder:(&#39;State -&gt; (&#39;T * &#39;State) option) -&gt; state:&#39;State -&gt; count:int -&gt; Layout list<br />
+                          <strong>Type parameters:</strong> 'T, 'State                      </div>
+        </td>
+        <td class="xmldoc">
+                    <p>For limiting layout of list-like sequences (lists,arrays,etc).
+unfold a list of items using (project and z) making layout list via itemL.
+If reach maxLength (before exhausting) then truncate.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '1066', 1066)" onmouseover="showTip(event, '1066', 1066)">
+            wordL(text)
+          </code>
+          <div class="tip" id="1066">
+            <strong>Signature:</strong> text:TaggedText -&gt; Layout<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                    <p>An string leaf</p>
+
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+           <a href="https://nuget.org/packages/FSharp.Compiler.Service">
+            <img src="./images/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">
+			<a href="./ja/index.html" class="nflag"><img src="./images/ja.png" /></a>
+            <a href="./index.html" class="nflag nflag2"><img src="./images/en.png" /></a>
+			F# Compiler Services
+			</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Getting started</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li><a href="./devnotes.html">Developer notes</a></li>
+            <li><a href="./fsharp-readme.html">F# compiler readme</a></li>
+
+            <li class="nav-header">Available services</li>
+            <li><a href="./tokenizer.html">F# Language tokenizer</a></li>
+            <li><a href="./untypedtree.html">Processing untyped AST</a></li>
+            <li><a href="./editor.html">Using editor (IDE) services</a></li>
+            <li><a href="./symbols.html">Using resolved symbols</a></li>
+            <li><a href="./typedtree.html">Using resolved expressions</a></li>
+            <li><a href="./project.html">Whole-project analysis</a></li>
+            <li><a href="./interactive.html">Embedding F# interactive</a></li>
+            <li><a href="./compiler.html">Embedding F# compiler</a></li>
+            <li><a href="./filesystem.html">Virtualized file system</a></li>
+
+            <li class="nav-header">Design Notes</li>
+            <li><a href="./queue.html">The FSharpChecker operations queue</a></li>
+            <li><a href="./caches.html">The FSharpChecker caches</a></li>
+            <li><a href="./corelib.html">Notes on FSharp.Core.dll</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="./reference/index.html">API Reference</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/fsharp/FSharp.Compiler.Service"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

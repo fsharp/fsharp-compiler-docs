@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../../../artifacts/bin/fcs/net461"
+#I "../../../../artifacts/bin/fcs/Release/net461"
 (**
 コンパイラサービス：型無し構文木の処理
 ======================================
@@ -73,7 +73,7 @@ let getUntypedTree (file, input) =
       checker.GetProjectOptionsFromScript(file, input) 
       |> Async.RunSynchronously
 
-  let parsingOptions, _errors = checker.GetParsingOptionsFromProjectOptions(projOptions)
+  let parsingOptions, _errors = checker.GetParsingOptionsFromProjectOptions(projectOptions)
 
   // コンパイラの第1フェーズを実行する
   let untypedRes = 

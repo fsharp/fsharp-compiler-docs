@@ -7,11 +7,25 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>FSharp.DependencyManager.Nuget</AssemblyName>
     <NoWarn>$(NoWarn);45;55;62;75;1204</NoWarn>
+    <IsPackable>true</IsPackable>
     <AllowCrossTargeting>true</AllowCrossTargeting>
     <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
     <DefineConstants>$(DefineConstants);MSBUILD_AT_LEAST_15</DefineConstants>
     <OtherFlags>$(OtherFlags) --warnon:1182 --maxerrors:20 --extraoptimizationloops:1</OtherFlags>
     <Tailcalls>true</Tailcalls> <!-- .tail annotations always emitted for this binary, even in debug mode -->
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Summary>#r support for Nuget packages in F# Interactive</Summary>
+    <Description>Reference this package via --compilertool to get access to `#r "nuget: {package}"` support in F# scripts</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>F# community contributors</Authors>
+    <Authors>Microsoft Corporation; F# community contributors</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/fsharp/FSharp.Compiler.Service</PackageProjectUrl>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageTags>F#, fsharp, interactive, compiler, editor</PackageTags>
   </PropertyGroup>
 
   <Target Name="CopyToBuiltBin" BeforeTargets="BuiltProjectOutputGroup" AfterTargets="CoreCompile">
@@ -22,7 +36,6 @@
 
   <ItemGroup>
     <EmbeddedText Include="FSDependencyManager.txt" />
-    <Compile Include="$(FSharpSourcesRoot)\utils\CompilerLocationUtils.fs" />
     <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.ProjectFile.fs" />
     <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.Utilities.fs" />
     <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.fsi" />
@@ -34,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\FSharp.Core\FSharp.Core.fsproj" />
+    <PackageReference Include="FSharp.Core" Version="$(FcsFSharpCorePkgVersion)" />
     <PackageReference Include="System.Runtime.Loader" Version="$(SystemRuntimeLoaderVersion)" />
   </ItemGroup>
 

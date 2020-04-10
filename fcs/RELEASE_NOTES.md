@@ -1,3 +1,21 @@
+#### 35.0.0
+
+This version bumps the major due to API surface area changes in the AST and TAST. In addition, there's a new package for the
+built-in Nuget dependency manager for FSI: FSharp.DependencyManager.Nuget
+
+Members are now in SyntaxTree/SyntaxTreeOps and TypedTree/TypedTreeBasics/TypedTreeOps/TypedTreePickle.
+
+From dotnet/fsharp:d1a3d0705..522dd906c:
+
+* Improved error recovery from patterns (thanks @auduchinok)
+* Smaller IL Emit for unsigned 64-bit constants (thanks @teo-tsirpanis)
+* Improved ProvidedTypes Type generation (thanks @DedSec256)
+* Improved CodeLenses provided (thanks @realvictorprm)
+* Optimize internal member calculations in PrettyNaming and items lookup (thanks @auduchinok)
+* More fixes to compiler internals, ranges, etc (thanks @auduchinok)
+* Support for consumption of C# Default Interfaces
+* Better encapsulation of ProvidedExpr members (thanks @DedSec256)
+
 #### 34.1.1
 
 From dotnet/fsharp:3777cd4d8..836da28c0:

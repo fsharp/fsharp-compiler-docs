@@ -10,3 +10,4 @@ test: off
 version: '{build}'
 artifacts:
   - path: artifacts\bin\fcs\Release\*.nupkg
+  - path: artifacts\packages\Release\Shipping\*.nupkg

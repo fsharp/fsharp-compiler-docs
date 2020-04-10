@@ -1,12 +1,39 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-namespace Interactive.DependencyManager
+namespace Microsoft.Interactive.DependencyManager
 
 open System
 open System.Collections.Generic
 open System.IO
 open System.Reflection
 open System.Runtime.InteropServices
+open Internal.Utilities.FSharpEnvironment
+
+/// Signature for Native library resolution probe callback
+/// host implements this, it's job is to return a list of package roots to probe.
+type NativeResolutionProbe = delegate of Unit -> seq<string>
+
+module internal RidHelpers =
+
+    // Computer valid dotnet-rids for this environment:
+    //      https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
+    //
+    // Where rid is: win, win-x64, win-x86, osx-x64, linux-x64 etc ...
+    let probingRids, baseRid, platformRid =
+        let processArchitecture = RuntimeInformation.ProcessArchitecture
+        let baseRid =
+            if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then "win"
+            elif RuntimeInformation.IsOSPlatform(OSPlatform.OSX) then "osx"
+            else "linux"
+        let platformRid =
+            match processArchitecture with
+            | Architecture.X64 ->  baseRid + "-x64"
+            | Architecture.X86 -> baseRid + "-x86"
+            | Architecture.Arm64 -> baseRid + "-arm64"
+            | _ -> baseRid + "-arm"
+        [| "any"; baseRid; platformRid |], baseRid, platformRid
+
+open RidHelpers
 
 #if NETSTANDARD
 open System.Runtime.Loader
@@ -22,17 +49,10 @@ type NativeAssemblyLoadContext () =
         raise (NotImplementedException())
 
     static member NativeLoadContext = new NativeAssemblyLoadContext()
-#endif
-
-
-/// Signature for Native library resolution probe callback
-/// host implements this, it's job is to return a list of package roots to probe.
-type NativeResolutionProbe = delegate of Unit -> IEnumerable<string>
 
 
 /// Type that encapsulates Native library probing for managed packages
-type NativeDllResolveHandler (_nativeProbingRoots: NativeResolutionProbe) =
-#if NETSTANDARD
+type NativeDllResolveHandlerCoreClr (_nativeProbingRoots: NativeResolutionProbe) =
     let probingFileNames (name: string) =
         // coreclr native library probing algorithm: https://github.com/dotnet/coreclr/blob/9773db1e7b1acb3ec75c9cc0e36bd62dcbacd6d5/src/System.Private.CoreLib/shared/System/Runtime/Loader/LibraryNameVariation.Unix.cs
         let isRooted = Path.IsPathRooted name
@@ -65,24 +85,6 @@ type NativeDllResolveHandler (_nativeProbingRoots: NativeResolutionProbe) =
                         for p in prefix do                                                          // Prefix
                             yield (sprintf "%s%s" p name)
         |]
-
-    // Computer valid dotnet-rids for this environment:
-    //      https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
-    //
-    // Where rid is: win, win-x64, win-x86, osx-x64, linux-x64 etc ...
-    let probingRids =
-        let processArchitecture = RuntimeInformation.ProcessArchitecture
-        let baseRid =
-            if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then "win"
-            elif RuntimeInformation.IsOSPlatform(OSPlatform.OSX) then "osx"
-            else "linux"
-        let platformRid =
-            match processArchitecture with
-            | Architecture.X64 ->  baseRid + "-x64"
-            | Architecture.X86 -> baseRid + "-x86"
-            | Architecture.Arm64 -> baseRid + "-arm64"
-            | _ -> baseRid + "arm"
-        [| "any"; baseRid; platformRid |]
 
     let _resolveUnmanagedDll (_: Assembly) (name: string): IntPtr =
 
@@ -118,12 +120,27 @@ type NativeDllResolveHandler (_nativeProbingRoots: NativeResolutionProbe) =
     let handler = Func<Assembly, string, IntPtr> (_resolveUnmanagedDll)
 
     do if not (isNull eventInfo) then eventInfo.AddEventHandler(AssemblyLoadContext.Default, handler)
-#endif
 
     interface IDisposable with
         member _x.Dispose() =
-#if NETSTANDARD
             if not (isNull eventInfo) then
                 eventInfo.RemoveEventHandler(AssemblyLoadContext.Default, handler)
-#endif
             ()
+
+#endif
+
+type NativeDllResolveHandler (_nativeProbingRoots: NativeResolutionProbe) =
+
+    let handler:IDisposable option =
+#if NETSTANDARD
+        if isRunningOnCoreClr then
+            Some (new NativeDllResolveHandlerCoreClr(_nativeProbingRoots) :> IDisposable)
+        else
+#endif
+            None
+
+    interface IDisposable with
+        member _.Dispose() =
+            match handler with
+            | None -> ()
+            | Some handler -> handler.Dispose()

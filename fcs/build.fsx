@@ -36,6 +36,7 @@ let runDotnet workingDir command args =
 // --------------------------------------------------------------------------------------
 
 let releaseDir = Path.Combine(__SOURCE_DIRECTORY__, "../artifacts/bin/fcs/Release")
+let packagesDir = Path.Combine(__SOURCE_DIRECTORY__, "../artifacts/packages/Release/Shipping")
 
 // Read release notes & version info from RELEASE_NOTES.md
 let release = ReleaseNotes.load (__SOURCE_DIRECTORY__ + "/RELEASE_NOTES.md")
@@ -102,6 +103,7 @@ open Fake.IO.Globbing.Operators
 Target.create "PublishNuGet" (fun _ ->
   let apikey = lazy(Environment.environVarOrDefault "nuget-apikey" (UserInput.getUserPassword "Nuget API Key: "))
   !! (sprintf "%s/*.%s.nupkg" releaseDir release.NugetVersion)
+  ++ (sprintf "%s/FSharp.DependencyManager.Nuget.%s.nupkg" releaseDir release.NugetVersion)
   |> Seq.iter (fun nupkg ->
     DotNet.nugetPush (fun p -> {
       p with

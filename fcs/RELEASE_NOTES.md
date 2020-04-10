@@ -5,15 +5,16 @@ built-in Nuget dependency manager for FSI: FSharp.DependencyManager.Nuget
 
 Members are now in SyntaxTree/SyntaxTreeOps and TypedTree/TypedTreeBasics/TypedTreeOps/TypedTreePickle.
 
-From dotnet/fsharp:d1a3d0705..d9695e1b9:
+From dotnet/fsharp:d1a3d0705..522dd906c:
 
-* Improve error recovery from patterns (thanks @auduchinok)
+* Improved error recovery from patterns (thanks @auduchinok)
 * Smaller IL Emit for unsigned 64-bit constants (thanks @teo-tsirpanis)
-* Improve ProvidedTypes Type generation (thanks @DedSec256)
-* Improve CodeLenses provided (thanks @realvictorprm)
+* Improved ProvidedTypes Type generation (thanks @DedSec256)
+* Improved CodeLenses provided (thanks @realvictorprm)
 * Optimize internal member calculations in PrettyNaming and items lookup (thanks @auduchinok)
 * More fixes to compiler internals, ranges, etc (thanks @auduchinok)
 * Support for consumption of C# Default Interfaces
+* Better encapsulation of ProvidedExpr members (thanks @DedSec256)
 
 #### 34.1.1
 

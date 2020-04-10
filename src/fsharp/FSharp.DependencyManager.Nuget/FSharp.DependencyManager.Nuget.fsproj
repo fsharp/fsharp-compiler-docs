@@ -13,6 +13,19 @@
     <DefineConstants>$(DefineConstants);MSBUILD_AT_LEAST_15</DefineConstants>
     <OtherFlags>$(OtherFlags) --warnon:1182 --maxerrors:20 --extraoptimizationloops:1</OtherFlags>
     <Tailcalls>true</Tailcalls> <!-- .tail annotations always emitted for this binary, even in debug mode -->
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Summary>#r support for Nuget packages in F# Interactive</Summary>
+    <Description>Reference this package via --compilertool to get access to `#r "nuget: {package}"` support in F# scripts</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>F# community contributors</Authors>
+    <Authors>Microsoft Corporation; F# community contributors</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/fsharp/FSharp.Compiler.Service</PackageProjectUrl>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageTags>F#, fsharp, interactive, compiler, editor</PackageTags>
   </PropertyGroup>
 
   <Target Name="CopyToBuiltBin" BeforeTargets="BuiltProjectOutputGroup" AfterTargets="CoreCompile">

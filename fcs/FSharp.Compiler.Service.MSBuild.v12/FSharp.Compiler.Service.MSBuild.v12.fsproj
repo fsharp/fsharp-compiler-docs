@@ -5,13 +5,14 @@
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <DefineConstants>$(DefineConstants);CROSS_PLATFORM_COMPILER</DefineConstants>
     <DefineConstants>$(DefineConstants);ENABLE_MONO_SUPPORT</DefineConstants>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
   <PropertyGroup>
     <Description>Additional DLL for legacy compat for the F# compiler service.</Description>
     <Summary>Additional DLL for legacy compat for the F# compiler service.</Summary>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Authors>F# community contributors</Authors>
-    <PackageLicenseUrl>https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/fsharp/FSharp.Compiler.Service</PackageProjectUrl>
     <PackageIcon>logo.png</PackageIcon>
     <PackageTags>F#, compiler, msbuild</PackageTags>

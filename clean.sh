@@ -6,6 +6,7 @@ DEAD_DIRS=(
     "eng/common/templates"
     "eng/common/tools.ps1"
     "FSharp.sln"
+    "setup/"
     "src/fsharp/fsc/fsc.fsproj"
     "src/fsharp/FSharp.Build/FSharp.Build.fsproj"
     "src/fsharp/FSharp.Compiler.nuget/Microsoft.FSharp.Compiler.nuspec"

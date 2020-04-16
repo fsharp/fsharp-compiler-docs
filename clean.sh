@@ -14,6 +14,8 @@ DEAD_DIRS=(
     "src/fsharp/fsi/fsi.fsproj"
     "src/fsharp/fsiAnyCpu/fsiAnyCpu.fsproj"
     "src/fsharp/Microsoft.DotNet.DependencyManager/xlf"
+    "src/fsharp/Interactive.DependencyManager/xlf"
+    "src/fsharp/FSharp.DependencyManager.Nuget/xlf"
     "src/fsharp/xlf"
     "TESTGUIDE.md"
     "tests/EndToEndBuildTests"

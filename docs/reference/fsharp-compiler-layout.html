@@ -39,6 +39,8 @@
   <span>Namespace: FSharp.Compiler</span><br />
   </p>
 <div class="xmldoc">
+<p>DSL to create structured layout objects with optional breaks and render them</p>
+
 </div>
 
 <!-- Render nested types and modules, if there are any -->
@@ -54,7 +56,7 @@
             <a href="fsharp-compiler-layout-layoutrenderer-2.html">LayoutRenderer<'a, 'b></a>
           </td>
           <td class="xmldoc">
-          <p>render a Layout yielding an 'a using a 'b (hidden state) type</p>
+          <p>Render a Layout yielding an 'a using a 'b (hidden state) type</p>
 
 
           </td>
@@ -167,10 +169,10 @@
     <tbody>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '186', 186)" onmouseover="showTip(event, '186', 186)">
+          <code onmouseout="hideTip(event, '82', 82)" onmouseover="showTip(event, '82', 82)">
             ( -- ) arg1 arg2
           </code>
-          <div class="tip" id="186">
+          <div class="tip" id="82">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
@@ -181,122 +183,138 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '187', 187)" onmouseover="showTip(event, '187', 187)">
+          <code onmouseout="hideTip(event, '83', 83)" onmouseover="showTip(event, '83', 83)">
             ( --- ) arg1 arg2
           </code>
-          <div class="tip" id="187">
+          <div class="tip" id="83">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>optional break, indent=2</p>
+
+
               <p>CompiledName: <code>op_MinusMinusMinus</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '188', 188)" onmouseover="showTip(event, '188', 188)">
+          <code onmouseout="hideTip(event, '84', 84)" onmouseover="showTip(event, '84', 84)">
             ( ---- ) arg1 arg2
           </code>
-          <div class="tip" id="188">
+          <div class="tip" id="84">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>optional break, indent=3</p>
+
+
               <p>CompiledName: <code>op_MinusMinusMinusMinus</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '189', 189)" onmouseover="showTip(event, '189', 189)">
+          <code onmouseout="hideTip(event, '85', 85)" onmouseover="showTip(event, '85', 85)">
             ( ----- ) arg1 arg2
           </code>
-          <div class="tip" id="189">
+          <div class="tip" id="85">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>optional break, indent=4</p>
+
+
               <p>CompiledName: <code>op_MinusMinusMinusMinusMinus</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '190', 190)" onmouseover="showTip(event, '190', 190)">
+          <code onmouseout="hideTip(event, '86', 86)" onmouseover="showTip(event, '86', 86)">
             ( @@ ) arg1 arg2
           </code>
-          <div class="tip" id="190">
+          <div class="tip" id="86">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>non-optional break ident=0</p>
+
+
               <p>CompiledName: <code>op_AtAt</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '191', 191)" onmouseover="showTip(event, '191', 191)">
+          <code onmouseout="hideTip(event, '87', 87)" onmouseover="showTip(event, '87', 87)">
             ( @@- ) arg1 arg2
           </code>
-          <div class="tip" id="191">
+          <div class="tip" id="87">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>non-optional break ident=1</p>
+
+
               <p>CompiledName: <code>op_AtAtMinus</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '192', 192)" onmouseover="showTip(event, '192', 192)">
+          <code onmouseout="hideTip(event, '88', 88)" onmouseover="showTip(event, '88', 88)">
             ( @@-- ) arg1 arg2
           </code>
-          <div class="tip" id="192">
+          <div class="tip" id="88">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>non-optional break ident=2</p>
+
+
               <p>CompiledName: <code>op_AtAtMinusMinus</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '193', 193)" onmouseover="showTip(event, '193', 193)">
+          <code onmouseout="hideTip(event, '89', 89)" onmouseover="showTip(event, '89', 89)">
             ( ^^ ) arg1 arg2
           </code>
-          <div class="tip" id="193">
+          <div class="tip" id="89">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>never break "glue"</p>
+
+
               <p>CompiledName: <code>op_HatHat</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '194', 194)" onmouseover="showTip(event, '194', 194)">
+          <code onmouseout="hideTip(event, '90', 90)" onmouseover="showTip(event, '90', 90)">
             ( ++ ) arg1 arg2
           </code>
-          <div class="tip" id="194">
+          <div class="tip" id="90">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>optional break, indent=0</p>
+
+
               <p>CompiledName: <code>op_PlusPlus</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '195', 195)" onmouseover="showTip(event, '195', 195)">
+          <code onmouseout="hideTip(event, '91', 91)" onmouseover="showTip(event, '91', 91)">
             aboveL arg1 arg2
           </code>
-          <div class="tip" id="195">
+          <div class="tip" id="91">
             <strong>Signature:</strong> Layout -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
@@ -306,10 +324,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '196', 196)" onmouseover="showTip(event, '196', 196)">
+          <code onmouseout="hideTip(event, '92', 92)" onmouseover="showTip(event, '92', 92)">
             aboveListL(arg1)
           </code>
-          <div class="tip" id="196">
+          <div class="tip" id="92">
             <strong>Signature:</strong> Layout list -&gt; Layout<br />
                                   </div>
         </td>
@@ -319,10 +337,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '197', 197)" onmouseover="showTip(event, '197', 197)">
+          <code onmouseout="hideTip(event, '93', 93)" onmouseover="showTip(event, '93', 93)">
             bracketL(arg1)
           </code>
-          <div class="tip" id="197">
+          <div class="tip" id="93">
             <strong>Signature:</strong> Layout -&gt; Layout<br />
                                   </div>
         </td>
@@ -332,10 +350,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '198', 198)" onmouseover="showTip(event, '198', 198)">
+          <code onmouseout="hideTip(event, '94', 94)" onmouseover="showTip(event, '94', 94)">
             bufferL arg1 arg2
           </code>
-          <div class="tip" id="198">
+          <div class="tip" id="94">
             <strong>Signature:</strong> StringBuilder -&gt; Layout -&gt; unit<br />
                                   </div>
         </td>
@@ -345,36 +363,40 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '199', 199)" onmouseover="showTip(event, '199', 199)">
+          <code onmouseout="hideTip(event, '95', 95)" onmouseover="showTip(event, '95', 95)">
             bufferR(arg1)
           </code>
-          <div class="tip" id="199">
+          <div class="tip" id="95">
             <strong>Signature:</strong> StringBuilder -&gt; LayoutRenderer&lt;NoResult,NoState&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>Render layout to StringBuilder</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '200', 200)" onmouseover="showTip(event, '200', 200)">
+          <code onmouseout="hideTip(event, '96', 96)" onmouseover="showTip(event, '96', 96)">
             channelR(arg1)
           </code>
-          <div class="tip" id="200">
+          <div class="tip" id="96">
             <strong>Signature:</strong> TextWriter -&gt; LayoutRenderer&lt;NoResult,NoState&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>Render layout to channel</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '201', 201)" onmouseover="showTip(event, '201', 201)">
+          <code onmouseout="hideTip(event, '97', 97)" onmouseover="showTip(event, '97', 97)">
             commaListL(arg1)
           </code>
-          <div class="tip" id="201">
+          <div class="tip" id="97">
             <strong>Signature:</strong> Layout list -&gt; Layout<br />
                                   </div>
         </td>
@@ -384,10 +406,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '202', 202)" onmouseover="showTip(event, '202', 202)">
+          <code onmouseout="hideTip(event, '98', 98)" onmouseover="showTip(event, '98', 98)">
             emptyL
           </code>
-          <div class="tip" id="202">
+          <div class="tip" id="98">
             <strong>Signature:</strong> Layout<br />
                                   </div>
         </td>
@@ -397,10 +419,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '203', 203)" onmouseover="showTip(event, '203', 203)">
+          <code onmouseout="hideTip(event, '99', 99)" onmouseover="showTip(event, '99', 99)">
             isEmptyL(arg1)
           </code>
-          <div class="tip" id="203">
+          <div class="tip" id="99">
             <strong>Signature:</strong> Layout -&gt; bool<br />
                                   </div>
         </td>
@@ -410,10 +432,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '204', 204)" onmouseover="showTip(event, '204', 204)">
+          <code onmouseout="hideTip(event, '100', 100)" onmouseover="showTip(event, '100', 100)">
             leftL(arg1)
           </code>
-          <div class="tip" id="204">
+          <div class="tip" id="100">
             <strong>Signature:</strong> TaggedText -&gt; Layout<br />
                                   </div>
         </td>
@@ -423,10 +445,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '205', 205)" onmouseover="showTip(event, '205', 205)">
+          <code onmouseout="hideTip(event, '101', 101)" onmouseover="showTip(event, '101', 101)">
             listL arg1 arg2
           </code>
-          <div class="tip" id="205">
+          <div class="tip" id="101">
             <strong>Signature:</strong> (&#39;a -&gt; Layout) -&gt; &#39;a list -&gt; Layout<br />
                           <strong>Type parameters:</strong> 'a                      </div>
         </td>
@@ -436,10 +458,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '206', 206)" onmouseover="showTip(event, '206', 206)">
+          <code onmouseout="hideTip(event, '102', 102)" onmouseover="showTip(event, '102', 102)">
             mkNav arg1 arg2
           </code>
-          <div class="tip" id="206">
+          <div class="tip" id="102">
             <strong>Signature:</strong> range -&gt; TaggedText -&gt; TaggedText<br />
                                   </div>
         </td>
@@ -449,10 +471,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '207', 207)" onmouseover="showTip(event, '207', 207)">
+          <code onmouseout="hideTip(event, '103', 103)" onmouseover="showTip(event, '103', 103)">
             optionL arg1 arg2
           </code>
-          <div class="tip" id="207">
+          <div class="tip" id="103">
             <strong>Signature:</strong> (&#39;a -&gt; Layout) -&gt; &#39;a option -&gt; Layout<br />
                           <strong>Type parameters:</strong> 'a                      </div>
         </td>
@@ -462,10 +484,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '208', 208)" onmouseover="showTip(event, '208', 208)">
+          <code onmouseout="hideTip(event, '104', 104)" onmouseover="showTip(event, '104', 104)">
             outL arg1 arg2
           </code>
-          <div class="tip" id="208">
+          <div class="tip" id="104">
             <strong>Signature:</strong> TextWriter -&gt; Layout -&gt; unit<br />
                                   </div>
         </td>
@@ -475,10 +497,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '209', 209)" onmouseover="showTip(event, '209', 209)">
+          <code onmouseout="hideTip(event, '105', 105)" onmouseover="showTip(event, '105', 105)">
             renderL arg1 arg2
           </code>
-          <div class="tip" id="209">
+          <div class="tip" id="105">
             <strong>Signature:</strong> LayoutRenderer&lt;&#39;b,&#39;a&gt; -&gt; Layout -&gt; &#39;b<br />
                           <strong>Type parameters:</strong> 'b, 'a                      </div>
         </td>
@@ -490,10 +512,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '210', 210)" onmouseover="showTip(event, '210', 210)">
+          <code onmouseout="hideTip(event, '106', 106)" onmouseover="showTip(event, '106', 106)">
             rightL(arg1)
           </code>
-          <div class="tip" id="210">
+          <div class="tip" id="106">
             <strong>Signature:</strong> TaggedText -&gt; Layout<br />
                                   </div>
         </td>
@@ -503,10 +525,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '211', 211)" onmouseover="showTip(event, '211', 211)">
+          <code onmouseout="hideTip(event, '107', 107)" onmouseover="showTip(event, '107', 107)">
             semiListL(arg1)
           </code>
-          <div class="tip" id="211">
+          <div class="tip" id="107">
             <strong>Signature:</strong> Layout list -&gt; Layout<br />
                                   </div>
         </td>
@@ -516,10 +538,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '212', 212)" onmouseover="showTip(event, '212', 212)">
+          <code onmouseout="hideTip(event, '108', 108)" onmouseover="showTip(event, '108', 108)">
             sepL(arg1)
           </code>
-          <div class="tip" id="212">
+          <div class="tip" id="108">
             <strong>Signature:</strong> TaggedText -&gt; Layout<br />
                                   </div>
         </td>
@@ -529,10 +551,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '213', 213)" onmouseover="showTip(event, '213', 213)">
+          <code onmouseout="hideTip(event, '109', 109)" onmouseover="showTip(event, '109', 109)">
             sepListL arg1 arg2
           </code>
-          <div class="tip" id="213">
+          <div class="tip" id="109">
             <strong>Signature:</strong> Layout -&gt; Layout list -&gt; Layout<br />
                                   </div>
         </td>
@@ -542,10 +564,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '214', 214)" onmouseover="showTip(event, '214', 214)">
+          <code onmouseout="hideTip(event, '110', 110)" onmouseover="showTip(event, '110', 110)">
             showL(arg1)
           </code>
-          <div class="tip" id="214">
+          <div class="tip" id="110">
             <strong>Signature:</strong> Layout -&gt; string<br />
                                   </div>
         </td>
@@ -555,10 +577,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '215', 215)" onmouseover="showTip(event, '215', 215)">
+          <code onmouseout="hideTip(event, '111', 111)" onmouseover="showTip(event, '111', 111)">
             spaceListL(arg1)
           </code>
-          <div class="tip" id="215">
+          <div class="tip" id="111">
             <strong>Signature:</strong> Layout list -&gt; Layout<br />
                                   </div>
         </td>
@@ -568,10 +590,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '216', 216)" onmouseover="showTip(event, '216', 216)">
+          <code onmouseout="hideTip(event, '112', 112)" onmouseover="showTip(event, '112', 112)">
             squashTo arg1 arg2
           </code>
-          <div class="tip" id="216">
+          <div class="tip" id="112">
             <strong>Signature:</strong> int -&gt; Layout -&gt; Layout<br />
                                   </div>
         </td>
@@ -581,38 +603,40 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '217', 217)" onmouseover="showTip(event, '217', 217)">
+          <code onmouseout="hideTip(event, '113', 113)" onmouseover="showTip(event, '113', 113)">
             stringR
           </code>
-          <div class="tip" id="217">
+          <div class="tip" id="113">
             <strong>Signature:</strong> LayoutRenderer&lt;string,string list&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    <p>Primitive renders</p>
+                    <p>Render layout to string</p>
 
 
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '218', 218)" onmouseover="showTip(event, '218', 218)">
+          <code onmouseout="hideTip(event, '114', 114)" onmouseover="showTip(event, '114', 114)">
             taggedTextListR(collector)
           </code>
-          <div class="tip" id="218">
+          <div class="tip" id="114">
             <strong>Signature:</strong> collector:(TaggedText -&gt; unit) -&gt; LayoutRenderer&lt;NoResult,NoState&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                    
+                    <p>Render layout to collector of TaggedText</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '219', 219)" onmouseover="showTip(event, '219', 219)">
+          <code onmouseout="hideTip(event, '115', 115)" onmouseover="showTip(event, '115', 115)">
             tupleL(arg1)
           </code>
-          <div class="tip" id="219">
+          <div class="tip" id="115">
             <strong>Signature:</strong> Layout list -&gt; Layout<br />
                                   </div>
         </td>
@@ -622,10 +646,10 @@
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '220', 220)" onmouseover="showTip(event, '220', 220)">
+          <code onmouseout="hideTip(event, '116', 116)" onmouseover="showTip(event, '116', 116)">
             wordL(arg1)
           </code>
-          <div class="tip" id="220">
+          <div class="tip" id="116">
             <strong>Signature:</strong> TaggedText -&gt; Layout<br />
                                   </div>
         </td>
@@ -652,7 +676,7 @@
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
             <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/fcs/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>

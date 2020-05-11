@@ -44,47 +44,10 @@
     <tbody>
         <tr>
           <td class="type-name">
-            <a href="fsharp-compiler-logcompilerfunctionid.html">LogCompilerFunctionId</a>
-          </td>
-          <td class="xmldoc">
-          
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="fsharp-compiler-nicenamegenerator.html">NiceNameGenerator</a>
-          </td>
-          <td class="xmldoc">
-          <p>Generates compiler-generated names. Each name generated also includes the StartLine number of the range passed in
-at the point of first generation.</p>
-<p>This type may be accessed concurrently, though in practice it is only used from the compilation thread.
-It is made concurrency-safe since a global instance of the type is allocated in tast.fs, and it is good
-policy to make all globally-allocated objects concurrency safe in case future versions of the compiler
-are used to host multiple concurrent instances of compilation.</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
             <a href="fsharp-compiler-partiallongname.html">PartialLongName</a>
           </td>
           <td class="xmldoc">
           <p>Qualified long name.</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="fsharp-compiler-stablenicenamegenerator.html">StableNiceNameGenerator</a>
-          </td>
-          <td class="xmldoc">
-          <p>Generates compiler-generated names marked up with a source code location, but if given the same unique value then
-return precisely the same name. Each name generated also includes the StartLine number of the range passed in
-at the point of first generation.</p>
-<p>This type may be accessed concurrently, though in practice it is only used from the compilation thread.
-It is made concurrency-safe since a global instance of the type is allocated in tast.fs.</p>
 
 
           </td>
@@ -98,10 +61,12 @@ It is made concurrency-safe since a global instance of the type is allocated in 
     <tbody>
         <tr>
           <td class="module-name">
-            <a href="fsharp-compiler-ast.html">Ast</a>
+            <a href="fsharp-compiler-compilerglobalstate.html">CompilerGlobalState</a>
           </td>
           <td class="xmldoc">
-          
+          <p>Defines the global environment for all type checking.</p>
+
+
           </td>
         </tr>
         <tr>
@@ -117,6 +82,16 @@ It is made concurrency-safe since a global instance of the type is allocated in 
             <a href="fsharp-compiler-layout.html">Layout</a>
           </td>
           <td class="xmldoc">
+          <p>DSL to create structured layout objects with optional breaks and render them</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-parsehelpers.html">ParseHelpers</a>
+          </td>
+          <td class="xmldoc">
           
           </td>
         </tr>
@@ -125,7 +100,8 @@ It is made concurrency-safe since a global instance of the type is allocated in 
             <a href="fsharp-compiler-prettynaming.html">PrettyNaming</a>
           </td>
           <td class="xmldoc">
-          <p>Anything to do with special names of identifiers and other lexical rules</p>
+          <p>Some general F# utilities for mangling / unmangling / manipulating names.
+Anything to do with special names of identifiers and other lexical rules</p>
 
 
           </td>
@@ -162,6 +138,30 @@ for active pattern names and so on.</p>
         <tr>
           <td class="module-name">
             <a href="fsharp-compiler-referenceresolver.html">ReferenceResolver</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-syntaxtree.html">SyntaxTree</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-syntaxtreeops.html">SyntaxTreeOps</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-xmldoc.html">XmlDoc</a>
           </td>
           <td class="xmldoc">
           
@@ -609,7 +609,9 @@ to the Format method on FSharpType and other methods.</p>
             <a href="fsharp-compiler-sourcecodeservices-fsharperrorinfo.html">FSharpErrorInfo</a>
           </td>
           <td class="xmldoc">
-          
+          <p>Object model for diagnostics</p>
+
+
           </td>
         </tr>
         <tr>
@@ -1278,7 +1280,9 @@ or FSharpActivePatternCase.</p>
             <a href="fsharp-compiler-sourcecodeservices-semanticclassificationtype.html">SemanticClassificationType</a>
           </td>
           <td class="xmldoc">
-          
+          <p>A kind that determines what range in a source's text is semantically classified as after type-checking.</p>
+
+
           </td>
         </tr>
         <tr>
@@ -1441,6 +1445,14 @@ or FSharpActivePatternCase.</p>
         <tr>
           <td class="module-name">
             <a href="fsharp-compiler-sourcecodeservices-keywords.html">Keywords</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-compiler-sourcecodeservices-lexer.html">Lexer</a>
           </td>
           <td class="xmldoc">
           
@@ -1752,6 +1764,106 @@ A layout can be squashed to for given width which forces breaks as required.</p>
   </table>
 
     </div>
+  <h2>Microsoft.Interactive.DependencyManager Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-interactive-dependencymanager-assemblyresolutionprobe.html">AssemblyResolutionProbe</a>
+          </td>
+          <td class="xmldoc">
+          <p>Signature for ResolutionProbe callback
+host implements this, it's job is to return a list of assembly paths to probe.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-interactive-dependencymanager-assemblyresolvehandler.html">AssemblyResolveHandler</a>
+          </td>
+          <td class="xmldoc">
+          <p>Handle Assembly resolution</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-interactive-dependencymanager-dependencyprovider.html">DependencyProvider</a>
+          </td>
+          <td class="xmldoc">
+          <p>Provides DependencyManagement functions.
+Class is IDisposable</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-interactive-dependencymanager-errorreporttype.html">ErrorReportType</a>
+          </td>
+          <td class="xmldoc">
+          <p>Todo describe this API</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-interactive-dependencymanager-idependencymanagerprovider.html">IDependencyManagerProvider</a>
+          </td>
+          <td class="xmldoc">
+          <p>Wraps access to a DependencyManager implementation</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-interactive-dependencymanager-iresolvedependenciesresult.html">IResolveDependenciesResult</a>
+          </td>
+          <td class="xmldoc">
+          <p>The results of ResolveDependencies</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-interactive-dependencymanager-nativedllresolvehandler.html">NativeDllResolveHandler</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-interactive-dependencymanager-nativeresolutionprobe.html">NativeResolutionProbe</a>
+          </td>
+          <td class="xmldoc">
+          <p>Signature for Native library resolution probe callback
+host implements this, it's job is to return a list of package roots to probe.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="microsoft-interactive-dependencymanager-resolvingerrorreport.html">ResolvingErrorReport</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
 
         </div>
         <div class="span3">
@@ -1769,7 +1881,7 @@ A layout can be squashed to for given width which forces breaks as required.</p>
             <li><a href="https://www.nuget.org/packages/FSharp.Compiler.Service">Get Library via NuGet</a></li>
             <li><a href="https://github.com/fsharp/FSharp.Compiler.Service">Source Code on GitHub</a></li>
             <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/LICENSE">License</a></li>
-            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="https://github.com/fsharp/FSharp.Compiler.Service/blob/master/fcs/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Getting started</li>
             <li><a href="./index.html">Home page</a></li>

@@ -1,3 +1,21 @@
+#### 36.0.0
+
+From dotnet/fsharp:522dd906c..f422dc3e9:
+
+* Fixes to attribute range parsing (thanks @auduchinok)
+* Added nested exception details to Type Provider load errors (thanks @dsyme)
+* Improved error messages around unknown identifiers in patterns (thanks @jbeeko)
+* Better dependency probing behavior with Facade assemblies (thanks @KevinRansom)
+* APIs for programmatically adding and retrieving bindings in an FSI session (thanks @TIHan)
+* Optional parameter on `FSharpChecker.FindBackgroundReferencesInFile` API to allow for stale results (thanks @TIHan)
+* Better tooltips for function arguments (thanks @mcon)
+* Many performance tweaks to various compiler function implementations (thanks @forki)
+* Typo fixes in the AST (thanks @auduchinok)
+* Better IL emitted for usages of static members as System.Action (thanks @MoFtZ)
+* Allow for indexers to specify a type annotation (thanks @TIHan)
+* Allow languages/scripts that have no notion of upper-case to use their characters for DU identifiers (thanks @KevinRansom) 
+
+
 #### 35.0.0
 
 This version bumps the major due to API surface area changes in the AST and TAST. In addition, there's a new package for the

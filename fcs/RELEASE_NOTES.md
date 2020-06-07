@@ -1,6 +1,6 @@
 #### 36.0.0
 
-From dotnet/fsharp:522dd906c..f422dc3e9:
+From dotnet/fsharp:522dd906c..16bca5aef:
 
 * Fixes to attribute range parsing (thanks @auduchinok)
 * Added nested exception details to Type Provider load errors (thanks @dsyme)
@@ -14,6 +14,13 @@ From dotnet/fsharp:522dd906c..f422dc3e9:
 * Better IL emitted for usages of static members as System.Action (thanks @MoFtZ)
 * Allow for indexers to specify a type annotation (thanks @TIHan)
 * Allow languages/scripts that have no notion of upper-case to use their characters for DU identifiers (thanks @KevinRansom) 
+* more optimized comparison/equality for DateTime (thanks @cartermp)
+* add support for `char` for the `GenericZero/GenericOne` mechanisms (thanks @Happypig375)
+* enhancements for the dependencymanager's resolution for native scripts (thanks @KevinRansom)
+* more consistent support for type-directed nullable parameters (thanks @dsyme)
+* fix FSI's ordering of out-of-order dlls in nuget packages (thanks @KevinRansom)
+* New SyntaxTree.Paren syntax node (thanks @auduchinok)
+* add SRTP witness solutions (via the new `CallWithWitnesses` pattern) (thanks @dsyme)
 
 
 #### 35.0.0

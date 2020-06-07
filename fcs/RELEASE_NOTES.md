@@ -1,3 +1,28 @@
+#### 36.0.0
+
+From dotnet/fsharp:522dd906c..16bca5aef:
+
+* Fixes to attribute range parsing (thanks @auduchinok)
+* Added nested exception details to Type Provider load errors (thanks @dsyme)
+* Improved error messages around unknown identifiers in patterns (thanks @jbeeko)
+* Better dependency probing behavior with Facade assemblies (thanks @KevinRansom)
+* APIs for programmatically adding and retrieving bindings in an FSI session (thanks @TIHan)
+* Optional parameter on `FSharpChecker.FindBackgroundReferencesInFile` API to allow for stale results (thanks @TIHan)
+* Better tooltips for function arguments (thanks @mcon)
+* Many performance tweaks to various compiler function implementations (thanks @forki)
+* Typo fixes in the AST (thanks @auduchinok)
+* Better IL emitted for usages of static members as System.Action (thanks @MoFtZ)
+* Allow for indexers to specify a type annotation (thanks @TIHan)
+* Allow languages/scripts that have no notion of upper-case to use their characters for DU identifiers (thanks @KevinRansom) 
+* more optimized comparison/equality for DateTime (thanks @cartermp)
+* add support for `char` for the `GenericZero/GenericOne` mechanisms (thanks @Happypig375)
+* enhancements for the dependencymanager's resolution for native scripts (thanks @KevinRansom)
+* more consistent support for type-directed nullable parameters (thanks @dsyme)
+* fix FSI's ordering of out-of-order dlls in nuget packages (thanks @KevinRansom)
+* New SyntaxTree.Paren syntax node (thanks @auduchinok)
+* add SRTP witness solutions (via the new `CallWithWitnesses` pattern) (thanks @dsyme)
+
+
 #### 35.0.0
 
 This version bumps the major due to API surface area changes in the AST and TAST. In addition, there's a new package for the

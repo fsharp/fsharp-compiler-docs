@@ -236,3 +236,6 @@ msbuild.binlog
 .ionide
 .vscode
 **/.DS_Store
+/tests/fsharp/regression/5531/compilation.output.test.txt
+/tests/fsharp/core/fsfromfsviacs/compilation.langversion.old.output.txt
+/tests/fsharp/core/fsfromfsviacs/compilation.errors.output.txt

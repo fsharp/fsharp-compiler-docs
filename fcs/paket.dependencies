@@ -37,4 +37,4 @@ source https://api.nuget.org/v3/index.json
 framework: netstandard2.0
 
 storage: packages
-nuget FSharp.Compiler.Service 34.1.1
+nuget FSharp.Compiler.Service 35.0.0

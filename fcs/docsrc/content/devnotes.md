@@ -1,3 +1,9 @@
+---
+title: Developer Notes
+category: explanation
+menu_order: 2
+---
+
 Developer notes
 ===============
 
@@ -6,9 +12,9 @@ and F# interactive as services.
 
 ## Components
 
-There is one main component, `FSharp.Compiler.Service.dll`. 
-The main aim is to have a stable and documented fork of the main compiler that allows various 
-tools to share this common code.  
+There is one main component, `FSharp.Compiler.Service.dll`.
+The main aim is to have a stable and documented fork of the main compiler that allows various
+tools to share this common code.
 This component allows embedding F# Interactive as a service and contains a number of
 modifications to the source code of `fsi.exe` that adds `EvalExpression` and `EvalInteraction` functions.
 
@@ -19,7 +25,7 @@ This repo should be _identical_ to 'fsharp' except:
     - Only build `FSharp.Compiler.Service.dll`
     - No bootstrap or proto compiler is used - an installed F# compiler is assumed
 
-  - Build script using FAKE that builds everything, produces NuGet package and 
+  - Build script using FAKE that builds everything, produces NuGet package and
     generates documentation, files for publishing NuGet packages etc.
     (following [F# project scaffold](https://github.com/fsprojects/FSharp.ProjectScaffold))
 

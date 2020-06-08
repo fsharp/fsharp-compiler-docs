@@ -1,3 +1,11 @@
+(**
+---
+category: tutorial
+title: Project Analysis
+menu_order: 6
+
+---
+*)
 (*** hide ***)
 #I "../../../artifacts/bin/fcs/Release/netcoreapp3.0"
 (**
@@ -29,14 +37,14 @@ open System.Collections.Generic
 open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Text
 
-// Create an interactive checker instance 
+// Create an interactive checker instance
 let checker = FSharpChecker.Create()
 
 (**
 Here are our sample inputs:
 *)
 
-module Inputs = 
+module Inputs =
     open System.IO
 
     let base1 = Path.GetTempFileName()
@@ -48,7 +56,7 @@ module Inputs =
     let fileSource1 = """
 module M
 
-type C() = 
+type C() =
     member x.P = 1
 
 let xxx = 3 + 4
@@ -61,10 +69,10 @@ module N
 
 open M
 
-type D1() = 
+type D1() =
     member x.SomeProperty = M.xxx
 
-type D2() = 
+type D2() =
     member x.SomeProperty = M.fff() + D1().P
 
 // Generate a warning
@@ -77,8 +85,8 @@ let y2 = match 1 with 1 -> M.xxx
 We use `GetProjectOptionsFromCommandLineArgs` to treat two files as a project:
 *)
 
-let projectOptions = 
-    let sysLib nm = 
+let projectOptions =
+    let sysLib nm =
         if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then
             // file references only valid on Windows
             System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86) +
@@ -86,37 +94,37 @@ let projectOptions =
         else
             let sysDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
             let (++) a b = System.IO.Path.Combine(a,b)
-            sysDir ++ nm + ".dll" 
+            sysDir ++ nm + ".dll"
 
-    let fsCore4300() = 
+    let fsCore4300() =
         if System.Environment.OSVersion.Platform = System.PlatformID.Win32NT then
             // file references only valid on Windows
             System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86) +
-            @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"  
-        else 
+            @"\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"
+        else
             sysLib "FSharp.Core"
 
     checker.GetProjectOptionsFromCommandLineArgs
        (Inputs.projFileName,
-        [| yield "--simpleresolution" 
-           yield "--noframework" 
-           yield "--debug:full" 
-           yield "--define:DEBUG" 
-           yield "--optimize-" 
+        [| yield "--simpleresolution"
+           yield "--noframework"
+           yield "--debug:full"
+           yield "--define:DEBUG"
+           yield "--optimize-"
            yield "--out:" + Inputs.dllName
-           yield "--doc:test.xml" 
-           yield "--warn:3" 
-           yield "--fullpaths" 
-           yield "--flaterrors" 
-           yield "--target:library" 
+           yield "--doc:test.xml"
+           yield "--warn:3"
+           yield "--fullpaths"
+           yield "--flaterrors"
+           yield "--target:library"
            yield Inputs.fileName1
            yield Inputs.fileName2
            let references =
-             [ sysLib "mscorlib" 
+             [ sysLib "mscorlib"
                sysLib "System"
                sysLib "System.Core"
                fsCore4300() ]
-           for r in references do 
+           for r in references do
                  yield "-r:" + r |])
 
 (**
@@ -147,9 +155,9 @@ Now look at the inferred signature for the project:
 (**
 You can also get all symbols in the project:
 *)
-let rec allSymbolsInEntities (entities: IList<FSharpEntity>) = 
-    [ for e in entities do 
-          yield (e :> FSharpSymbol) 
+let rec allSymbolsInEntities (entities: IList<FSharpEntity>) =
+    [ for e in entities do
+          yield (e :> FSharpSymbol)
           for x in e.MembersFunctionsAndValues do
              yield (x :> FSharpSymbol)
           for x in e.UnionCases do
@@ -164,8 +172,8 @@ After checking the whole project, you can access the background results for indi
 in the project. This will be fast and will not involve any additional checking.
 *)
 
-let backgroundParseResults1, backgroundTypedParse1 = 
-    checker.GetBackgroundCheckResultsForFileInProject(Inputs.fileName1, projectOptions) 
+let backgroundParseResults1, backgroundTypedParse1 =
+    checker.GetBackgroundCheckResultsForFileInProject(Inputs.fileName1, projectOptions)
     |> Async.RunSynchronously
 
 
@@ -173,7 +181,7 @@ let backgroundParseResults1, backgroundTypedParse1 =
 You can now resolve symbols in each file:
 *)
 
-let xSymbolUseOpt = 
+let xSymbolUseOpt =
     backgroundTypedParse1.GetSymbolUseAtLocation(9,9,"",["xxx"])
     |> Async.RunSynchronously
 
@@ -185,63 +193,63 @@ let xSymbol = xSymbolUse.Symbol
 You can find out more about a symbol by doing type checks on various symbol kinds:
 *)
 
-let xSymbolAsValue = 
-    match xSymbol with 
+let xSymbolAsValue =
+    match xSymbol with
     | :? FSharpMemberOrFunctionOrValue as xSymbolAsVal -> xSymbolAsVal
     | _ -> failwith "we expected this to be a member, function or value"
-       
+
 
 (**
 For each symbol, you can look up the references to that symbol:
 *)
-let usesOfXSymbol = 
-    wholeProjectResults.GetUsesOfSymbol(xSymbol) 
+let usesOfXSymbol =
+    wholeProjectResults.GetUsesOfSymbol(xSymbol)
     |> Async.RunSynchronously
 
 (**
 You can iterate all the defined symbols in the inferred signature and find where they are used:
 *)
-let allUsesOfAllSignatureSymbols = 
-    [ for s in allSymbols do 
-         let uses = wholeProjectResults.GetUsesOfSymbol(s) |> Async.RunSynchronously 
+let allUsesOfAllSignatureSymbols =
+    [ for s in allSymbols do
+         let uses = wholeProjectResults.GetUsesOfSymbol(s) |> Async.RunSynchronously
          yield s.ToString(), uses ]
 
 (**
 You can also look at all the symbols uses in the whole project (including uses of symbols with local scope)
 *)
-let allUsesOfAllSymbols =  
+let allUsesOfAllSymbols =
     wholeProjectResults.GetAllUsesOfAllSymbols()
     |> Async.RunSynchronously
 
 (**
-You can also request checks of updated versions of files within the project (note that the other files 
+You can also request checks of updated versions of files within the project (note that the other files
 in the project are still read from disk, unless you are using the [FileSystem API](filesystem.html)):
 
 *)
 
-let parseResults1, checkAnswer1 = 
+let parseResults1, checkAnswer1 =
     checker.ParseAndCheckFileInProject(Inputs.fileName1, 0, SourceText.ofString Inputs.fileSource1, projectOptions)
     |> Async.RunSynchronously
 
-let checkResults1 = 
-    match checkAnswer1 with 
-    | FSharpCheckFileAnswer.Succeeded x ->  x 
+let checkResults1 =
+    match checkAnswer1 with
+    | FSharpCheckFileAnswer.Succeeded x ->  x
     | _ -> failwith "unexpected aborted"
 
-let parseResults2, checkAnswer2 = 
+let parseResults2, checkAnswer2 =
     checker.ParseAndCheckFileInProject(Inputs.fileName2, 0, SourceText.ofString Inputs.fileSource2, projectOptions)
     |> Async.RunSynchronously
 
-let checkResults2 = 
-    match checkAnswer2 with 
-    | FSharpCheckFileAnswer.Succeeded x ->  x 
+let checkResults2 =
+    match checkAnswer2 with
+    | FSharpCheckFileAnswer.Succeeded x ->  x
     | _ -> failwith "unexpected aborted"
 
 (**
 Again, you can resolve symbols and ask for references:
 *)
 
-let xSymbolUse2Opt = 
+let xSymbolUse2Opt =
     checkResults1.GetSymbolUseAtLocation(9,9,"",["xxx"])
     |> Async.RunSynchronously
 
@@ -249,26 +257,26 @@ let xSymbolUse2 = xSymbolUse2Opt.Value
 
 let xSymbol2 = xSymbolUse2.Symbol
 
-let usesOfXSymbol2 = 
-    wholeProjectResults.GetUsesOfSymbol(xSymbol2) 
+let usesOfXSymbol2 =
+    wholeProjectResults.GetUsesOfSymbol(xSymbol2)
     |> Async.RunSynchronously
 
 
 (**
 Or ask for all the symbols uses in the file (including uses of symbols with local scope)
 *)
-let allUsesOfAllSymbolsInFile1 = 
+let allUsesOfAllSymbolsInFile1 =
     checkResults1.GetAllUsesOfAllSymbolsInFile()
     |> Async.RunSynchronously
 
 (**
 Or ask for all the uses of one symbol in one file:
 *)
-let allUsesOfXSymbolInFile1 = 
+let allUsesOfXSymbolInFile1 =
     checkResults1.GetUsesOfSymbolInFile(xSymbol2)
     |> Async.RunSynchronously
 
-let allUsesOfXSymbolInFile2 = 
+let allUsesOfXSymbolInFile2 =
     checkResults2.GetUsesOfSymbolInFile(xSymbol2)
     |> Async.RunSynchronously
 
@@ -277,8 +285,8 @@ let allUsesOfXSymbolInFile2 =
 Analyzing multiple projects
 -----------------------------
 
-If you have multiple F# projects to analyze which include references from some projects to others, 
-then the simplest way to do this is to build the projects and specify the cross-project references using 
+If you have multiple F# projects to analyze which include references from some projects to others,
+then the simplest way to do this is to build the projects and specify the cross-project references using
 a `-r:path-to-output-of-project.dll` argument in the ProjectOptions. However, this requires the build
 of each project to succeed, producing the DLL file on disk which can be referred to.
 
@@ -293,14 +301,14 @@ When a project reference is used, the analysis will make use of the results of i
 analysis of the referenced F# project from source files, without requiring the compilation of these files to DLLs.
 
 To efficiently analyze a set of F# projects which include cross-references, you should populate the ProjectReferences
-correctly and then analyze each project in turn.   
+correctly and then analyze each project in turn.
 
 *)
 
 (**
 
-> **NOTE:** Project references are disabled if the assembly being referred to contains type provider components - 
-  specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will 
+> **NOTE:** Project references are disabled if the assembly being referred to contains type provider components -
+  specifying the project reference will have no effect beyond forcing the analysis of the project, and the DLL will
   still be required on disk.
 
 *)
@@ -309,7 +317,7 @@ correctly and then analyze each project in turn.
 Summary
 -------
 
-As you have seen, the `ParseAndCheckProject` lets you access results of project-wide analysis 
+As you have seen, the `ParseAndCheckProject` lets you access results of project-wide analysis
 such as symbol references. To learn more about working with symbols, see [Symbols](symbols.html).
 
 Using the FSharpChecker component in multi-project, incremental and interactive editing situations may involve

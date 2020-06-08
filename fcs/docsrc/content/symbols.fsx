@@ -1,3 +1,11 @@
+(**
+---
+category: tutorial
+title: Working with symbols
+menu_order: 4
+
+---
+*)
 (*** hide ***)
 #I "../../../artifacts/bin/fcs/Release/netcoreapp3.0"
 (**
@@ -21,7 +29,7 @@ open System.IO
 open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Text
 
-// Create an interactive checker instance 
+// Create an interactive checker instance
 let checker = FSharpChecker.Create()
 
 (**
@@ -30,14 +38,14 @@ We now perform type checking on the specified input:
 
 *)
 
-let parseAndTypeCheckSingleFile (file, input) = 
+let parseAndTypeCheckSingleFile (file, input) =
     // Get context representing a stand-alone (script) file
-    let projOptions, errors = 
+    let projOptions, errors =
         checker.GetProjectOptionsFromScript(file, input)
         |> Async.RunSynchronously
 
-    let parseFileResults, checkFileResults = 
-        checker.ParseAndCheckFileInProject(file, 0, input, projOptions) 
+    let parseFileResults, checkFileResults =
+        checker.ParseAndCheckFileInProject(file, 0, input, projOptions)
         |> Async.RunSynchronously
 
     // Wait until type checking succeeds (or 100 attempts)
@@ -53,35 +61,35 @@ let file = "/home/user/Test.fsx"
 After type checking a file, you can access the inferred signature of a project up to and including the
 checking of the given file through the `PartialAssemblySignature` property of the `TypeCheckResults`.
 
-The full signature information is available for modules, types, attributes, members, values, functions, 
+The full signature information is available for modules, types, attributes, members, values, functions,
 union cases, record types, units of measure and other F# language constructs.
 
 The typed expression trees are also available, see [typed tree tutorial](typedtree.html).
 
 *)
 
-let input2 = 
+let input2 =
       """
 [<System.CLSCompliant(true)>]
-let foo(x, y) = 
+let foo(x, y) =
     let msg = String.Concat("Hello"," ","world")
-    if true then 
-        printfn "x = %d, y = %d" x y 
+    if true then
+        printfn "x = %d, y = %d" x y
         printfn "%s" msg
 
-type C() = 
+type C() =
     member x.P = 1
       """
-let parseFileResults, checkFileResults = 
+let parseFileResults, checkFileResults =
     parseAndTypeCheckSingleFile(file, SourceText.ofString input2)
 
 (**
 Now get the partial assembly signature for the code:
 *)
 let partialAssemblySignature = checkFileResults.PartialAssemblySignature
-    
+
 partialAssemblySignature.Entities.Count = 1  // one entity
-    
+
 
 (**
 Now get the entity that corresponds to the module containing the code:
@@ -133,8 +141,8 @@ more information like the names of the arguments.)
 *)
 fnVal.FullType // int * int -> unit
 fnVal.FullType.IsFunctionType // int * int -> unit
-fnVal.FullType.GenericArguments.[0] // int * int 
-fnVal.FullType.GenericArguments.[0].IsTupleType // int * int 
+fnVal.FullType.GenericArguments.[0] // int * int
+fnVal.FullType.GenericArguments.[0].IsTupleType // int * int
 let argTy1 = fnVal.FullType.GenericArguments.[0].GenericArguments.[0]
 
 argTy1.TypeDefinition.DisplayName // int
@@ -152,28 +160,28 @@ We can now look at the right-hand-side of the type abbreviation, which is the ty
 *)
 
 let argTy1b = argTy1.TypeDefinition.AbbreviatedType
-argTy1b.TypeDefinition.Namespace // Some "Microsoft.FSharp.Core" 
-argTy1b.TypeDefinition.CompiledName // "int32" 
+argTy1b.TypeDefinition.Namespace // Some "Microsoft.FSharp.Core"
+argTy1b.TypeDefinition.CompiledName // "int32"
 
 (**
-Again we can now look through the type abbreviation `type int32 = System.Int32` to get the 
+Again we can now look through the type abbreviation `type int32 = System.Int32` to get the
 full information about the type:
 *)
 let argTy1c = argTy1b.TypeDefinition.AbbreviatedType
-argTy1c.TypeDefinition.Namespace // Some "SystemCore" 
-argTy1c.TypeDefinition.CompiledName // "Int32" 
+argTy1c.TypeDefinition.Namespace // Some "SystemCore"
+argTy1c.TypeDefinition.CompiledName // "Int32"
 
 (**
 The type checking results for a file also contain information extracted from the project (or script) options
 used in the compilation, called the `ProjectContext`:
 *)
 let projectContext = checkFileResults.ProjectContext
-    
+
 for assembly in projectContext.GetReferencedAssemblies() do
-    match assembly.FileName with 
-    | None -> printfn "compilation referenced an assembly without a file" 
+    match assembly.FileName with
+    | None -> printfn "compilation referenced an assembly without a file"
     | Some s -> printfn "compilation references assembly '%s'" s
-    
+
 
 (**
 **Notes:**
@@ -189,12 +197,12 @@ for assembly in projectContext.GetReferencedAssemblies() do
 
 ## Getting symbolic information about whole projects
 
-To check whole projects, create a checker, then call `parseAndCheckScript`. In this case, we just check 
-the project for a single script. By specifying a different "projOptions" you can create 
+To check whole projects, create a checker, then call `parseAndCheckScript`. In this case, we just check
+the project for a single script. By specifying a different "projOptions" you can create
 a specification of a larger project.
 *)
-let parseAndCheckScript (file, input) = 
-    let projOptions, errors = 
+let parseAndCheckScript (file, input) =
+    let projOptions, errors =
         checker.GetProjectOptionsFromScript(file, input)
         |> Async.RunSynchronously
 
@@ -215,10 +223,10 @@ Now look at the results:
 *)
 
 let assemblySig = projectResults.AssemblySignature
-    
+
 assemblySig.Entities.Count = 1  // one entity
 assemblySig.Entities.[0].Namespace  // one entity
 assemblySig.Entities.[0].DisplayName // "Tmp28D0"
-assemblySig.Entities.[0].MembersFunctionsAndValues.Count // 1 
-assemblySig.Entities.[0].MembersFunctionsAndValues.[0].DisplayName // "foo" 
-    
+assemblySig.Entities.[0].MembersFunctionsAndValues.Count // 1
+assemblySig.Entities.[0].MembersFunctionsAndValues.[0].DisplayName // "foo"
+

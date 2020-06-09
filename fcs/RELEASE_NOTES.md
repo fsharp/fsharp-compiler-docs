@@ -1,4 +1,4 @@
-#### 36.0.0
+#### 36.0.1
 
 From dotnet/fsharp:522dd906c..16bca5aef:
 

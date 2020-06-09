@@ -11,6 +11,8 @@ open Fake.BuildServer
 open Fake.Core
 open Fake.DotNet
 open Fake.IO
+open Fake.Api
+open Fake.Tools
 
 BuildServer.install [ AppVeyor.Installer ]
 // --------------------------------------------------------------------------------------
@@ -41,15 +43,8 @@ let docsDir = Path.Combine(__SOURCE_DIRECTORY__, "docsrc", "_public")
 
 // Read release notes & version info from RELEASE_NOTES.md
 let release = ReleaseNotes.load (__SOURCE_DIRECTORY__ + "/RELEASE_NOTES.md")
-let isAppVeyorBuild = AppVeyor.detect()
 let isVersionTag (tag: string) = Version.TryParse tag |> fst
-let hasRepoVersionTag = isAppVeyorBuild && AppVeyor.Environment.RepoTag && isVersionTag AppVeyor.Environment.RepoTagName
-let assemblyVersion = if hasRepoVersionTag then AppVeyor.Environment.RepoTagName else release.NugetVersion
-
-let buildVersion =
-    if hasRepoVersionTag then assemblyVersion
-    else if isAppVeyorBuild then sprintf "%s-b%s" assemblyVersion AppVeyor.Environment.BuildNumber
-    else assemblyVersion
+let assemblyVersion = release.NugetVersion
 
 Target.create "Clean" (fun _ ->
     Shell.cleanDir releaseDir
@@ -60,10 +55,6 @@ Target.create "Restore" (fun _ ->
     // We assume a paket restore has already been run
     runDotnet __SOURCE_DIRECTORY__ "restore" "../src/buildtools/buildtools.proj -v n"
     runDotnet __SOURCE_DIRECTORY__ "restore" "FSharp.Compiler.Service.sln -v n"
-)
-
-Target.create "BuildVersion" (fun _ ->
-    Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" buildVersion) |> ignore
 )
 
 Target.create "Build" (fun _ ->
@@ -99,10 +90,14 @@ Target.create "GenerateDocs" (fun _ ->
 
 open Fake.IO.Globbing.Operators
 
-Target.create "PublishNuGet" (fun _ ->
-  let apikey = lazy(Environment.environVarOrDefault "nuget-apikey" (UserInput.getUserPassword "Nuget API Key: "))
+let packagesPatterns =
   !! (sprintf "%s/*.%s.nupkg" releaseDir release.NugetVersion)
   ++ (sprintf "%s/FSharp.DependencyManager.Nuget.%s.nupkg" packagesDir release.NugetVersion)
+
+Target.create "PublishNuGet" (fun _ ->
+  let apikey = lazy(Environment.environVarOrDefault "NUGET_APIKEY" (UserInput.getUserPassword "Nuget API Key: "))
+
+  packagesPatterns
   |> Seq.iter (fun nupkg ->
     DotNet.nugetPush (fun p -> {
       p with
@@ -161,6 +156,24 @@ Target.create "ValidateVersionBump" (fun _ ->
 """  intendedVersion parsedComputedVersion computedMagnitude apiDiffs
 )
 
+Target.create "CreateRelease" (fun _ ->
+  async {
+    let client = GitHub.createClientWithToken (Environment.environVarOrDefault "GITHUB_TOKEN" (UserInput.getUserPassword "Github API Token: "))
+    let currentSha = Git.Information.getCurrentSHA1 ""
+    let releaseParams (input: GitHub.CreateReleaseParams) =
+      { input with
+          Name = sprintf "Release %s" release.NugetVersion
+          Body = release.Notes |> String.concat "\n"
+          TargetCommitish = currentSha }
+    let artifacts = packagesPatterns
+    let! release = GitHub.createRelease "fsharp" "FSharp.Compiler.Service" assemblyVersion releaseParams client
+    let! _release = GitHub.uploadFiles artifacts (async.Return release)
+    return ()
+  }
+  |> Async.RunSynchronously
+)
+
+
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
@@ -173,7 +186,6 @@ Target.create "TestAndNuGet" ignore
 open Fake.Core.TargetOperators
 
 "Start"
-  =?> ("BuildVersion", isAppVeyorBuild)
   ==> "Restore"
   ==> "Clean"
   ==> "Build"

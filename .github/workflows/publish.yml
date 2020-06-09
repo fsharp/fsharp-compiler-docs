@@ -1,0 +1,38 @@
+name: Publish
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+        dotnet: [3.1.201]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+    - name: Restore tools
+      run: dotnet tool restore
+    - name: Build and Test
+      run: dotnet fake build -t TestAndNuget
+    - name: Validate package bump
+      run: dotnet fake build -s -t ValidateVersionBump
+    - name: Publish to nuget
+      run: dotnet fake build -s -t PublishNuget
+      env:
+        NUGET_APIKEY: ${{ secrets.NUGET_APIKEY }}
+    - name: Create release
+      run: dotnet fake build -s -t CreateRelease
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+    

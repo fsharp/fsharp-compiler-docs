@@ -12,8 +12,6 @@ type PostConfig = {
     disableLiveRefresh: bool
 }
 
-
-
 ///This is following documentation structure described here https://documentation.divio.com/
 type PostCategory =
   | Tutorial
@@ -42,22 +40,6 @@ type Post = {
     category: PostCategory
     language: string option
 }
-
-
-let printPosts (sc: SiteContents) =
-    sc.TryGetValues<Post> ()
-    |> Option.defaultValue Seq.empty
-    |> Seq.map (fun post -> sprintf "* content/%s" post.file)
-    |> String.concat "\n"
-    |> printfn "known posts:\n%s"
-
-let lockAdd (sc: SiteContents) (item: Post) =
-  lock sc (fun () ->
-    printfn "Adding post %s" item.file
-    printPosts sc
-    sc.Add(item)
-    printPosts sc
-  )
 
 let tokenToCss (x: TokenKind) =
     match x with
@@ -130,7 +112,7 @@ let relative toPath fromPath =
     toUri.MakeRelativeUri(fromUri).OriginalString
 
 let loadFile projectRoot n =
-    printfn "reading markdown file %s" n
+    
     let text = System.IO.File.ReadAllText n
 
     let config = (getConfig text).Split( '\n') |> List.ofArray
@@ -167,7 +149,8 @@ let loadFile projectRoot n =
         with
         | _ -> None
 
-
+    printfn "read markdown file %s" n
+    
     { file = file
       link = link
       title = title
@@ -181,13 +164,11 @@ let loadFile projectRoot n =
 let loader (projectRoot: string) (siteContent: SiteContents) =
     try
         let postsPath = System.IO.Path.Combine(projectRoot, "content")
-        let posts =
-            Directory.GetFiles(postsPath, "*", SearchOption.AllDirectories )
-            |> Array.filter (fun n -> n.EndsWith ".md")
-            |> Array.Parallel.map (loadFile projectRoot)
 
-        posts
-        |> Array.iter (lockAdd siteContent)
+        Directory.GetFiles(postsPath, "*", SearchOption.AllDirectories )
+        |> Array.filter (fun n -> n.EndsWith ".md")
+        |> Array.Parallel.map (loadFile projectRoot)
+        |> Array.iter siteContent.Add
 
         siteContent.Add {disableLiveRefresh = true}
     with

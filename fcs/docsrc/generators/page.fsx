@@ -14,7 +14,10 @@ let generate' (ctx : SiteContents) (page: string) =
 
     match posts |> Map.tryFind page with
     | Some post ->
-        Layout.layout ctx [ !! post.content ] post.title
+        try
+            Layout.layout ctx [ !! post.content ] post.title
+        with
+        | e -> failwithf "Error while generating page for post %s\n%A" page e
     | None ->
         let allPostPaths = posts |> Map.toList |> List.map (fst >> fun s -> "* " + s) |> List.sort |> String.concat "\n"
         failwithf "Couldn't find page '%s' in available posts. Known posts are:\n%s" page allPostPaths

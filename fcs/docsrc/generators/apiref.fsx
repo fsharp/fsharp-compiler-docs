@@ -295,8 +295,12 @@ let generate' (ctx : SiteContents)  =
 
 let generate (ctx : SiteContents) (projectRoot: string) (page: string) =
     try
-        generate' ctx
-        |> List.map (fun (n,b) -> n, (Layout.render ctx b))
+        printfn "generate api ref pages"
+        let results = 
+            generate' ctx
+            |> List.map (fun (n,b) -> n, (Layout.render ctx b))
+        printfn "generated api ref pages"
+        results
     with
     | ex ->
         printfn "ERROR IN API REF GENERATION:\n%A" ex

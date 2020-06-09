@@ -14,7 +14,6 @@ let config = {
         {Script = "page.fsx"; Trigger = OnFileExt ".md"; OutputFile = Custom customRename }
         {Script = "page.fsx"; Trigger = OnFilePredicate isScriptToParse; OutputFile = Custom customRename }
         {Script = "apiref.fsx"; Trigger = Once; OutputFile = MultipleFiles (sprintf "reference/%s.html") }
-
         {Script = "lunr.fsx"; Trigger = Once; OutputFile = NewFileName "index.json" }
     ]
 }

@@ -19,8 +19,10 @@ jobs:
         dotnet-version: ${{matrix.dotnet}}
     - name: Restore tools
       run: dotnet tool restore
+      working-directory: ./fcs
     - name: Build and test
       run: dotnet fake build -t TestAndNuGet
+      working-directory: ./fcs
     - name: Archive code coverage results
       uses: actions/upload-artifact@v2
       with:

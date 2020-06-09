@@ -18,14 +18,17 @@ jobs:
         dotnet-version: 3.1.201
     - name: Restore tools
       run: dotnet tool restore
+      working-directory: ./fcs
     - name: Restore dependencies
       run: dotnet restore
+      working-directory: ./fcs
     - name: Run Fornax
       run: dotnet fake build -t GenerateDocs
+      working-directory: ./fcs
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
         personal_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docsrc/_public
+        publish_dir: ./fcs/docsrc/_public
         publish_branch: gh-pages
         force_orphan: true

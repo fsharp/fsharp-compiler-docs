@@ -22,16 +22,21 @@ jobs:
         dotnet-version: ${{ matrix.dotnet }}
     - name: Restore tools
       run: dotnet tool restore
+      working-directory: ./fcs
     - name: Build and Test
       run: dotnet fake build -t TestAndNuget
+      working-directory: ./fcs
     - name: Validate package bump
       run: dotnet fake build -s -t ValidateVersionBump
+      working-directory: ./fcs
     - name: Publish to nuget
       run: dotnet fake build -s -t PublishNuget
+      working-directory: ./fcs
       env:
         NUGET_APIKEY: ${{ secrets.NUGET_APIKEY }}
     - name: Create release
       run: dotnet fake build -s -t CreateRelease
+      working-directory: ./fcs
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           

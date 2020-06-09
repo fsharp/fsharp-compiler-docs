@@ -1218,3 +1218,16 @@ option {
   margin: 1.2rem 0;
 }
 
+
+#sidebar #languages li {
+    padding: 2px 0;
+    list-style: none;
+}
+
+
+#sidebar #languages h3 {
+    font-family: "Novacento Sans Wide", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+    color: white ;
+    margin-top:1rem;
+    padding-left: 1rem;
+}

@@ -113,6 +113,12 @@ let loadFile projectRoot n =
         let n = config |> List.find (fun n -> n.ToLower().StartsWith "category" )
         n.Split(':').[1] |> trimString |> PostCategory.Parse
 
+    let language =
+        try
+            let n = config |> List.find (fun n -> n.ToLower().StartsWith "language" )
+            n.Split(':').[1] |> trimString |> Some
+        with
+        | _ -> None
 
     { file = file
       link = link
@@ -121,7 +127,8 @@ let loadFile projectRoot n =
       menu_order = menu_order
       hide_menu = hide
       text = text
-      category = category }
+      category = category
+      language = language }
 
 let loader (projectRoot: string) (siteContet: SiteContents) =
     try

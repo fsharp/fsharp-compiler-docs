@@ -17,21 +17,26 @@ let menu (ctx : SiteContents) (page: string) =
   let siteInfo = ctx.TryGetValue<Globalloader.SiteInfo>().Value
   let rootUrl = siteInfo.root_url
 
+  let language =
+    content
+    |> Seq.tryFind (fun r -> r.title = page)
+    |> Option.bind  (fun r -> r.language)
+
   let group = content |> Seq.tryFind (fun n -> n.title = page) |> Option.map (fun n -> n.category)
 
   let explenations =
     content
-    |> Seq.filter (fun n -> n.category = Contentloader.Explanation && not n.hide_menu )
+    |> Seq.filter (fun n -> n.category = Contentloader.Explanation && not n.hide_menu && n.language = language )
     |> Seq.sortBy (fun n -> n.menu_order)
 
   let tutorials =
     content
-    |> Seq.filter (fun n -> n.category = Contentloader.Tutorial && not n.hide_menu )
+    |> Seq.filter (fun n -> n.category = Contentloader.Tutorial && not n.hide_menu && n.language = language )
     |> Seq.sortBy (fun n -> n.menu_order)
 
   let howtos =
     content
-    |> Seq.filter (fun n -> n.category = Contentloader.HowTo && not n.hide_menu )
+    |> Seq.filter (fun n -> n.category = Contentloader.HowTo && not n.hide_menu && n.language = language )
     |> Seq.sortBy (fun n -> n.menu_order)
 
   let hasTutorials = not (Seq.isEmpty tutorials)
@@ -97,6 +102,23 @@ let menu (ctx : SiteContents) (page: string) =
         ]
     ]
 
+  let renderLanguages =
+    section [Id "languages"] [
+        h3 [] [!! "Languages"]
+        ul [] [
+          li [] [
+            a [Href (rootUrl + "/index.html"); if language = None then Class "menu-group-link-active padding" else Class "padding" ] [
+            !! "English"
+            ]
+          ]
+          li [] [
+            a [Href (rootUrl + "/ja/index.html"); if language = Some "ja" then Class "menu-group-link-active padding" else Class "padding" ] [
+            !! "Japanese"
+            ]
+          ]
+        ]
+      ]
+
   let renderShortucuts =
     section [Id "shortcuts"] [
         h3 [] [!! "Shortucts"]
@@ -139,6 +161,7 @@ let menu (ctx : SiteContents) (page: string) =
       if hasTutorials then renderTuts
       if hasHowTos then renderHowTos
       renderRefs
+      renderLanguages
       renderShortucuts
       renderFooter
     ]

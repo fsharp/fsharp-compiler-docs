@@ -8,14 +8,14 @@ type SiteInfo = {
 }
 
 let config = {
-    title = "FSharp.Compiler.Service"
-    description = "Description of FSharp.Compiler.Service project"
+    title = "FSharp Compiler Service"
+    description = "F# compiler services for creating IDE tools, language extensions and for F# embedding"
     theme_variant = Some "blue"
     root_url =
       #if WATCH
         "http://localhost:8080/"
       #else
-        "TODO: ADD_ROOT_LINK"
+        "http://fsharp.github.io/FSharp.Compiler.Service/"
       #endif
 }
 

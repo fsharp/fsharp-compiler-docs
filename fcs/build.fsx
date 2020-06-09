@@ -37,6 +37,7 @@ let runDotnet workingDir command args =
 
 let releaseDir = Path.Combine(__SOURCE_DIRECTORY__, "../artifacts/bin/fcs/Release")
 let packagesDir = Path.Combine(__SOURCE_DIRECTORY__, "../artifacts/packages/Release/Shipping")
+let docsDir = Path.Combine(__SOURCE_DIRECTORY__, "docsrc", "_public")
 
 // Read release notes & version info from RELEASE_NOTES.md
 let release = ReleaseNotes.load (__SOURCE_DIRECTORY__ + "/RELEASE_NOTES.md")
@@ -52,6 +53,7 @@ let buildVersion =
 
 Target.create "Clean" (fun _ ->
     Shell.cleanDir releaseDir
+    Shell.cleanDir docsDir
 )
 
 Target.create "Restore" (fun _ ->
@@ -90,13 +92,10 @@ Target.create "NuGet" (fun _ ->
       }) "FSharp.Compiler.Service.sln"
 )
 
-Target.create "GenerateDocsEn" (fun _ ->
-    runDotnet "docsrc/tools" "fake" "run generate.fsx"
+Target.create "GenerateDocs" (fun _ ->
+    runDotnet "docsrc" "fornax" "build"
 )
 
-Target.create "GenerateDocsJa" (fun _ ->
-    runDotnet "docsrc/tools" "fake" "run generate.ja.fsx"
-)
 
 open Fake.IO.Globbing.Operators
 
@@ -169,7 +168,6 @@ Target.create "ValidateVersionBump" (fun _ ->
 
 Target.create "Start" ignore
 Target.create "Release" ignore
-Target.create "GenerateDocs" ignore
 Target.create "TestAndNuGet" ignore
 
 open Fake.Core.TargetOperators
@@ -177,6 +175,7 @@ open Fake.Core.TargetOperators
 "Start"
   =?> ("BuildVersion", isAppVeyorBuild)
   ==> "Restore"
+  ==> "Clean"
   ==> "Build"
 
 "Build"
@@ -198,11 +197,9 @@ open Fake.Core.TargetOperators
   ==> "Release"
 
 "Build"
-  // ==> "GenerateDocsEn"
   ==> "GenerateDocs"
 
 "Build"
-  // ==> "GenerateDocsJa"
   ==> "GenerateDocs"
 
 "GenerateDocs"

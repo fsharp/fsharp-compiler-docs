@@ -1,3 +1,11 @@
+(**
+---
+category: how-to
+title: Notes on FSharp.Core.dll
+menu_order: 3
+
+---
+*)
 (*** hide ***)
 #I "../../../artifacts/bin/fcs/Release/netcoreapp3.0"
 (**

@@ -1,3 +1,11 @@
+(**
+---
+category: tutorial
+title: Processing untyped AST
+menu_order: 2
+
+---
+*)
 (*** hide ***)
 #I "../../../artifacts/bin/fcs/Release/netcoreapp3.0"
 (**
@@ -10,7 +18,7 @@ such as code formatter, basic refactoring or code navigation tools. The untyped
 syntax tree contains information about the code structure, but does not contain
 types and there are some ambiguities that are resolved only later by the type
 checker. You can also combine the untyped AST information with the API available
-from [editor services](editor.html). 
+from [editor services](editor.html).
 
 > **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published
 
@@ -36,13 +44,13 @@ open FSharp.Compiler.Text
 
 ### Performing untyped parse
 
-The untyped parse operation is very fast (compared to type checking, which can 
+The untyped parse operation is very fast (compared to type checking, which can
 take notable amount of time) and so we can perform it synchronously. First, we
 need to create `FSharpChecker` - the constructor takes an argument that
 can be used to notify the checker about file changes (which we ignore).
 
 *)
-// Create an interactive checker instance 
+// Create an interactive checker instance
 let checker = FSharpChecker.Create()
 (**
 
@@ -55,17 +63,17 @@ return the `ParseTree` property:
 
 *)
 /// Get untyped tree for a specified input
-let getUntypedTree (file, input) = 
+let getUntypedTree (file, input) =
   // Get compiler options for the 'project' implied by a single script file
-  let projOptions, errors = 
+  let projOptions, errors =
       checker.GetProjectOptionsFromScript(file, input)
       |> Async.RunSynchronously
 
   let parsingOptions, _errors = checker.GetParsingOptionsFromProjectOptions(projOptions)
 
   // Run the first phase (untyped parsing) of the compiler
-  let parseFileResults = 
-      checker.ParseFile(file, input, parsingOptions) 
+  let parseFileResults =
+      checker.ParseFile(file, input, parsingOptions)
       |> Async.RunSynchronously
 
   match parseFileResults.ParseTree with
@@ -79,17 +87,17 @@ Walking over the AST
 
 The abstract syntax tree is defined as a number of discriminated unions that represent
 different syntactical elements (such as expressions, patterns, declarations etc.). The best
-way to understand the AST is to look at the definitions in [`ast.fs` in the source 
+way to understand the AST is to look at the definitions in [`ast.fs` in the source
 code](https://github.com/fsharp/fsharp/blob/master/src/fsharp/ast.fs#L464).
 
 The relevant parts are in the following namespace:
 *)
-open FSharp.Compiler.Ast
+open FSharp.Compiler.SyntaxTree
 (**
 
 When processing the AST, you will typically write a number of mutually recursive functions
 that pattern match on the different syntactical elements. There is a number of elements
-that need to be supported - the top-level element is module or namespace declaration, 
+that need to be supported - the top-level element is module or namespace declaration,
 containing declarations inside a module (let bindings, types etc.). A let declaration inside
 a module then contains expression, which can contain patterns.
 
@@ -102,10 +110,10 @@ we print information about the visited elements. For patterns, the input is of t
 is occasionally more complex than what is in the source code (in particular, `Named` is
 used more often):
 *)
-/// Walk over a pattern - this is for example used in 
+/// Walk over a pattern - this is for example used in
 /// let <pat> = <expr> or in the 'match' expression
 let rec visitPattern = function
-  | SynPat.Wild(_) -> 
+  | SynPat.Wild(_) ->
       printfn "  .. underscore pattern"
   | SynPat.Named(pat, name, _, _, _) ->
       visitPattern pat
@@ -116,14 +124,14 @@ let rec visitPattern = function
   | pat -> printfn "  .. other pattern: %A" pat
 (**
 The function is recursive (for nested patterns such as `(foo, _) as bar`), but it does not
-call any of the functions defined later (because patterns cannot contain other syntactical 
+call any of the functions defined later (because patterns cannot contain other syntactical
 elements).
 
 The next function iterates over expressions - this is where most of the work would be and
-there are around 20 cases to cover (type `SynExpr.` and you'll get completion with other 
+there are around 20 cases to cover (type `SynExpr.` and you'll get completion with other
 options). In the following, we only show how to handle `if .. then ..` and `let .. = ...`:
 *)
-/// Walk over an expression - if expression contains two or three 
+/// Walk over an expression - if expression contains two or three
 /// sub-expressions (two if the 'else' branch is missing), let expression
 /// contains pattern and two sub-expressions
 let rec visitExpression = function
@@ -132,16 +140,16 @@ let rec visitExpression = function
       printfn "Conditional:"
       visitExpression cond
       visitExpression trueBranch
-      falseBranchOpt |> Option.iter visitExpression 
+      falseBranchOpt |> Option.iter visitExpression
 
   | SynExpr.LetOrUse(_, _, bindings, body, _) ->
-      // Visit bindings (there may be multiple 
+      // Visit bindings (there may be multiple
       // for 'let .. = .. and .. = .. in ...'
       printfn "LetOrUse with the following bindings:"
       for binding in bindings do
-        let (Binding(access, kind, inlin, mutabl, attrs, xmlDoc, 
+        let (Binding(access, kind, inlin, mutabl, attrs, xmlDoc,
                      data, pat, retInfo, init, m, sp)) = binding
-        visitPattern pat 
+        visitPattern pat
         visitExpression init
       // Visit the body expression
       printfn "And the following body:"
@@ -157,30 +165,30 @@ be another source of calls to `visitExpression`.
 As mentioned earlier, the AST of a file contains a number of module or namespace declarations
 (top-level node) that contain declarations inside a module (let bindings or types) or inside
 a namespace (just types). The following functions walks over declarations - we ignore types,
-nested modules and all other elements and look only at top-level `let` bindings (values and 
+nested modules and all other elements and look only at top-level `let` bindings (values and
 functions):
 *)
 /// Walk over a list of declarations in a module. This is anything
 /// that you can write as a top-level inside module (let bindings,
 /// nested modules, type declarations etc.)
-let visitDeclarations decls = 
+let visitDeclarations decls =
   for declaration in decls do
     match declaration with
     | SynModuleDecl.Let(isRec, bindings, range) ->
         // Let binding as a declaration is similar to let binding
         // as an expression (in visitExpression), but has no body
         for binding in bindings do
-          let (Binding(access, kind, inlin, mutabl, attrs, xmlDoc, 
+          let (Binding(access, kind, inlin, mutabl, attrs, xmlDoc,
                        data, pat, retInfo, body, m, sp)) = binding
-          visitPattern pat 
-          visitExpression body         
+          visitPattern pat
+          visitExpression body
     | _ -> printfn " - not supported declaration: %A" declaration
 (**
-The `visitDeclarations` function will be called from a function that walks over a 
-sequence of module or namespace declarations. This corresponds, for example, to a file 
+The `visitDeclarations` function will be called from a function that walks over a
+sequence of module or namespace declarations. This corresponds, for example, to a file
 with multiple `namespace Foo` declarations:
 *)
-/// Walk over all module or namespace declarations 
+/// Walk over all module or namespace declarations
 /// (basically 'module Foo =' or 'namespace Foo.Bar')
 /// Note that there is one implicitly, even if the file
 /// does not explicitly define it..
@@ -198,15 +206,15 @@ Putting things together
 
 As already discussed, the `getUntypedTree` function uses `FSharpChecker` to run the first
 phase (parsing) on the AST and get back the tree. The function requires F# source code together
-with location of the file. The location does not have to exist (it is used only for location 
+with location of the file. The location does not have to exist (it is used only for location
 information) and it can be in both Unix and Windows formats:
 *)
 // Sample input for the compiler service
 let input =
   """
-  let foo() = 
+  let foo() =
     let msg = "Hello world"
-    if true then 
+    if true then
       printfn "%s" msg
   """
 
@@ -221,7 +229,7 @@ see pretty printed representation of the data structure - the tree contains a lo
 so this is not particularly readable, but it gives you good idea about how the tree looks.
 
 The returned `tree` value is again a discriminated union that can be two different cases - one case
-is `ParsedInput.SigFile` which represents F# signature file (`*.fsi`) and the other one is 
+is `ParsedInput.SigFile` which represents F# signature file (`*.fsi`) and the other one is
 `ParsedInput.ImplFile` representing regular source code (`*.fsx` or `*.fs`). The implementation
 file contains a sequence of modules or namespaces that we can pass to the function implemented
 in the previous step:
@@ -236,10 +244,10 @@ match tree with
 (**
 Summary
 -------
-In this tutorial, we looked at basic of working with the untyped abstract syntax tree. This is a 
-comprehensive topic, so it is not possible to explain everything in a single article. The 
+In this tutorial, we looked at basic of working with the untyped abstract syntax tree. This is a
+comprehensive topic, so it is not possible to explain everything in a single article. The
 [Fantomas project](https://github.com/dungpa/fantomas) is a good example of tool based on the untyped
 AST that can help you understand more. In practice, it is also useful to combine the information here
-with some information you can obtain from the [editor services](editor.html) discussed in the next 
+with some information you can obtain from the [editor services](editor.html) discussed in the next
 tutorial.
 *)

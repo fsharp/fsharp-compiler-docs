@@ -1,3 +1,12 @@
+(**
+---
+category: tutorial
+title: コンパイラの組み込み
+menu_order: 8
+language: ja
+
+---
+*)
 (*** hide ***)
 #I "../../../../artifacts/bin/fcs/Release/net461"
 (**
@@ -34,7 +43,7 @@ let fn3 = Path.ChangeExtension(fn, ".dll")
 File.WriteAllText(fn2, """
 module M
 
-type C() = 
+type C() =
    member x.P = 1
 
 let x = 3 + 4
@@ -46,7 +55,7 @@ let x = 3 + 4
 
 let errors1, exitCode1 = scs.Compile([| "fsc.exe"; "-o"; fn3; "-a"; fn2 |]) |> Async.RunSynchronously
 
-(** 
+(**
 
 エラーが発生した場合は「終了コード」とエラーの配列から原因を特定できます:
 
@@ -78,12 +87,12 @@ if exitCode1b <> 0 then
 
 'execute' 引数に 'None' を指定するとアセンブリ用の初期化コードが実行されません。
 *)
-let errors2, exitCode2, dynAssembly2 = 
+let errors2, exitCode2, dynAssembly2 =
     scs.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |], execute=None) |> Async.RunSynchronously
 
 (**
 'Some' を指定するとアセンブリ用の初期化コードが実行されます。
 *)
-let errors3, exitCode3, dynAssembly3 = 
+let errors3, exitCode3, dynAssembly3 =
     scs.CompileToDynamicAssembly([| "-o"; fn3; "-a"; fn2 |], Some(stdout,stderr)) |> Async.RunSynchronously
 

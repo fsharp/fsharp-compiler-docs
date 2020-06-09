@@ -1,3 +1,12 @@
+(**
+---
+category: how-to
+title: FSharp.Core.dll についてのメモ
+menu_order: 3
+language: ja
+
+---
+*)
 (*** hide ***)
 #I "../../../../artifacts/bin/fcs/net461"
 (**

@@ -1,3 +1,12 @@
+(**
+---
+category: tutorial
+title: ファイルシステム仮想化
+menu_order: 9
+language: ja
+
+---
+*)
 (*** hide ***)
 #I "../../../../artifacts/bin/fcs/Release/net461"
 (**
@@ -7,7 +16,7 @@
 `FSharp.Compiler.Service` にはファイルシステムを表すグローバル変数があります。
 この変数を設定するこにより、ファイルシステムが利用できない状況でも
 コンパイラをホストすることができるようになります。
-  
+
 > **注意:** 以下で使用しているAPIは実験的なもので、
   新しいnugetパッケージの公開に伴って変更される可能性があります。
 
@@ -28,7 +37,7 @@ let defaultFileSystem = Shim.FileSystem
 let fileName1 = @"c:\mycode\test1.fs" // 注意: 実際には存在しないファイルのパス
 let fileName2 = @"c:\mycode\test2.fs" // 注意: 実際には存在しないファイルのパス
 
-type MyFileSystem() = 
+type MyFileSystem() =
     let file1 = """
 module File1
 
@@ -40,58 +49,58 @@ let B = File1.A + File1.A"""
 
     interface IFileSystem with
         // 読み取りおよび書き込み用にファイルをオープンする機能を実装
-        member __.FileStreamReadShim(fileName) = 
+        member __.FileStreamReadShim(fileName) =
             match files.TryGetValue fileName with
             | true, text -> new MemoryStream(Encoding.UTF8.GetBytes(text)) :> Stream
             | _ -> defaultFileSystem.FileStreamReadShim(fileName)
 
-        member __.FileStreamCreateShim(fileName) = 
+        member __.FileStreamCreateShim(fileName) =
             defaultFileSystem.FileStreamCreateShim(fileName)
 
-        member __.IsStableFileHeuristic(fileName) = 
+        member __.IsStableFileHeuristic(fileName) =
             defaultFileSystem.IsStableFileHeuristic(fileName)
 
-        member __.FileStreamWriteExistingShim(fileName) = 
+        member __.FileStreamWriteExistingShim(fileName) =
             defaultFileSystem.FileStreamWriteExistingShim(fileName)
 
-        member __.ReadAllBytesShim(fileName) = 
+        member __.ReadAllBytesShim(fileName) =
             match files.TryGetValue fileName with
             | true, text -> Encoding.UTF8.GetBytes(text)
             | _ -> defaultFileSystem.ReadAllBytesShim(fileName)
 
         // 一時パスおよびファイルのタイムスタンプに関連する機能を実装
-        member __.GetTempPathShim() = 
+        member __.GetTempPathShim() =
             defaultFileSystem.GetTempPathShim()
 
-        member __.GetLastWriteTimeShim(fileName) = 
+        member __.GetLastWriteTimeShim(fileName) =
             defaultFileSystem.GetLastWriteTimeShim(fileName)
 
-        member __.GetFullPathShim(fileName) = 
+        member __.GetFullPathShim(fileName) =
             defaultFileSystem.GetFullPathShim(fileName)
 
-        member __.IsInvalidPathShim(fileName) = 
+        member __.IsInvalidPathShim(fileName) =
             defaultFileSystem.IsInvalidPathShim(fileName)
 
-        member __.IsPathRootedShim(fileName) = 
+        member __.IsPathRootedShim(fileName) =
             defaultFileSystem.IsPathRootedShim(fileName)
 
         // ファイルの存在確認および削除に関連する機能を実装
-        member __.SafeExists(fileName) = 
+        member __.SafeExists(fileName) =
             files.ContainsKey(fileName) || defaultFileSystem.SafeExists(fileName)
 
-        member __.FileDelete(fileName) = 
+        member __.FileDelete(fileName) =
             defaultFileSystem.FileDelete(fileName)
 
         // アセンブリのロードに関連する機能を実装。
         // 型プロバイダやF# Interactiveで使用される。
-        member __.AssemblyLoadFrom(fileName) = 
+        member __.AssemblyLoadFrom(fileName) =
             defaultFileSystem.AssemblyLoadFrom fileName
 
-        member __.AssemblyLoad(assemblyName) = 
-            defaultFileSystem.AssemblyLoad assemblyName 
+        member __.AssemblyLoad(assemblyName) =
+            defaultFileSystem.AssemblyLoad assemblyName
 
 let myFileSystem = MyFileSystem()
-Shim.FileSystem <- MyFileSystem() 
+Shim.FileSystem <- MyFileSystem()
 
 (**
 
@@ -102,36 +111,36 @@ FileSystemによるコンパイルの実行
 open FSharp.Compiler.SourceCodeServices
 
 let checker = FSharpChecker.Create()
-let projectOptions = 
-    let allFlags = 
-        [| yield "--simpleresolution"; 
-           yield "--noframework"; 
-           yield "--debug:full"; 
-           yield "--define:DEBUG"; 
-           yield "--optimize-"; 
-           yield "--doc:test.xml"; 
-           yield "--warn:3"; 
-           yield "--fullpaths"; 
-           yield "--flaterrors"; 
-           yield "--target:library"; 
+let projectOptions =
+    let allFlags =
+        [| yield "--simpleresolution";
+           yield "--noframework";
+           yield "--debug:full";
+           yield "--define:DEBUG";
+           yield "--optimize-";
+           yield "--doc:test.xml";
+           yield "--warn:3";
+           yield "--fullpaths";
+           yield "--flaterrors";
+           yield "--target:library";
            let references =
-             [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll"; 
-               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll"; 
-               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll"; 
+             [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll";
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll";
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll";
                @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"]
-           for r in references do 
+           for r in references do
                  yield "-r:" + r |]
- 
+
     { ProjectFileName = @"c:\mycode\compilation.fsproj" // 現在のディレクトリで一意な名前を指定
       ProjectId = None
       SourceFiles = [| fileName1; fileName2 |]
       OriginalLoadReferences = []
       ExtraProjectInfo=None
       Stamp = None
-      OtherOptions = allFlags 
+      OtherOptions = allFlags
       ReferencedProjects=[| |]
       IsIncompleteTypeCheckEnvironment = false
-      UseScriptResolutionRules = true 
+      UseScriptResolutionRules = true
       LoadTime = System.DateTime.Now // 'Now' を指定して強制的に再読込させている点に注意
       UnresolvedReferences = None }
 
@@ -163,7 +172,7 @@ results.AssemblySignature.Entities.[0].MembersFunctionsAndValues.[0].DisplayName
 **注意:** `SourceCodeServices` API内の一部の操作では、
 引数にファイルの内容だけでなくファイル名を指定する必要があります。
 これらのAPIにおいて、ファイル名はエラーの報告のためだけに使用されます。
-  
+
 **注意:** 型プロバイダーコンポーネントは仮想化されたファイルシステムを使用しません。
 
 **注意:** コンパイラサービスは `--simpleresolution` が指定されていない場合、

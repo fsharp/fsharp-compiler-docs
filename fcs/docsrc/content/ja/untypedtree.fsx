@@ -1,3 +1,12 @@
+(**
+---
+category: tutorial
+title: 型無し構文木の処理
+menu_order: 2
+language: ja
+
+---
+*)
 (*** hide ***)
 #I "../../../../artifacts/bin/fcs/Release/net461"
 (**
@@ -66,18 +75,18 @@ ASTを取得するために、ファイル名とソースコードを受け取�
 
 *)
 /// 特定の入力に対する型無し構文木を取得する
-let getUntypedTree (file, input) = 
+let getUntypedTree (file, input) =
   // 1つのスクリプトファイルから推測される「プロジェクト」用の
   // コンパイラオプションを取得する
   let projOptions, errors =
-      checker.GetProjectOptionsFromScript(file, input) 
+      checker.GetProjectOptionsFromScript(file, input)
       |> Async.RunSynchronously
 
   let parsingOptions, _errors = checker.GetParsingOptionsFromProjectOptions(projectOptions)
 
   // コンパイラの第1フェーズを実行する
-  let untypedRes = 
-      checker.ParseFile(file, input, parsingOptions) 
+  let untypedRes =
+      checker.ParseFile(file, input, parsingOptions)
       |> Async.RunSynchronously
 
   match untypedRes.ParseTree with
@@ -125,7 +134,7 @@ ASTを処理する場合、異なる文法的要素に対するパターンマ�
 /// パターンの走査
 /// これは let <pat> = <expr> あるいは 'match' 式に対する例です
 let rec visitPattern = function
-  | SynPat.Wild(_) -> 
+  | SynPat.Wild(_) ->
       printfn "  .. アンダースコアパターン"
   | SynPat.Named(pat, name, _, _, _) ->
       visitPattern pat
@@ -156,16 +165,16 @@ let rec visitExpression = function
       printfn "条件部:"
       visitExpression cond
       visitExpression trueBranch
-      falseBranchOpt |> Option.iter visitExpression 
+      falseBranchOpt |> Option.iter visitExpression
 
   | SynExpr.LetOrUse(_, _, bindings, body, _) ->
       // バインディングを走査
       // ('let .. = .. and .. = .. in ...' に対しては複数回走査されることがある)
       printfn "以下のバインディングを含むLetOrUse:"
       for binding in bindings do
-        let (Binding(access, kind, inlin, mutabl, attrs, xmlDoc, 
+        let (Binding(access, kind, inlin, mutabl, attrs, xmlDoc,
                      data, pat, retInfo, init, m, sp)) = binding
-        visitPattern pat 
+        visitPattern pat
         visitExpression init
       // 本体の式を走査
       printfn "本体は以下:"
@@ -190,7 +199,7 @@ let rec visitExpression = function
 /// モジュール内の宣言リストを走査する。
 /// モジュール内のトップレベルに記述できるすべての要素
 /// (letバインディングやネストされたモジュール、型の宣言など)が対象になる。
-let visitDeclarations decls = 
+let visitDeclarations decls =
   for declaration in decls do
     match declaration with
     | SynModuleDecl.Let(isRec, bindings, range) ->
@@ -198,10 +207,10 @@ let visitDeclarations decls =
         // (visitExpressionで処理したような)式としてのletバインディングと
         // 似ているが、本体を持たない
         for binding in bindings do
-          let (Binding(access, kind, inlin, mutabl, attrs, xmlDoc, 
+          let (Binding(access, kind, inlin, mutabl, attrs, xmlDoc,
                        data, pat, retInfo, body, m, sp)) = binding
-          visitPattern pat 
-          visitExpression body         
+          visitPattern pat
+          visitExpression body
     | _ -> printfn " - サポート対象外の宣言: %A" declaration
 (**
 `visitDeclarations` 関数はモジュールや名前空間の宣言のシーケンスを走査する
@@ -234,15 +243,15 @@ UnixとWindowsどちらの形式でも指定できます:
 *)
 // コンパイラサービスへのサンプル入力
 let input = """
-  let foo() = 
+  let foo() =
     let msg = "Hello world"
-    if true then 
+    if true then
       printfn "%s" msg """
 // Unix形式のファイル名
 let file = "/home/user/Test.fsx"
 
 // サンプルF#コードに対するASTを取得
-let tree = getUntypedTree(file, input) 
+let tree = getUntypedTree(file, input)
 (**
 このコードをF# Interactiveで実行した場合、コンソールに `tree;;` と入力すると、
 データ構造に対する文字列表現が表示されることが確認できます。

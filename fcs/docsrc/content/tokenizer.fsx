@@ -1,13 +1,21 @@
+(**
+---
+category: tutorial
+title: F# Language Tokenizer
+menu_order: 1
+
+---
+*)
 (*** hide ***)
 #I "../../../artifacts/bin/fcs/Release/netcoreapp3.0"
 (**
 Compiler Services: Using the F# tokenizer
 =========================================
 
-This tutorial demonstrates how to call the F# language tokenizer. Given F# 
+This tutorial demonstrates how to call the F# language tokenizer. Given F#
 source code, the tokenizer generates a list of source code lines that contain
 information about tokens on each line. For each token, you can get the type
-of the token, exact location as well as color kind of the token (keyword, 
+of the token, exact location as well as color kind of the token (keyword,
 identifier, number, operator, etc.).
 
 > **NOTE:** The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published
@@ -22,7 +30,7 @@ To use the tokenizer, reference `FSharp.Compiler.Service.dll` and open the
 #r "FSharp.Compiler.Service.dll"
 open FSharp.Compiler.SourceCodeServices
 (**
-Now you can create an instance of `FSharpSourceTokenizer`. The class takes two 
+Now you can create an instance of `FSharpSourceTokenizer`. The class takes two
 arguments - the first is the list of defined symbols and the second is the
 file name of the source code. The defined symbols are required because the
 tokenizer handles `#if` directives. The file name is required only to specify
@@ -30,7 +38,7 @@ locations of the source code (and it does not have to exist):
 *)
 let sourceTok = FSharpSourceTokenizer([], Some "C:\\test.fsx")
 (**
-Using the `sourceTok` object, we can now (repeatedly) tokenize lines of 
+Using the `sourceTok` object, we can now (repeatedly) tokenize lines of
 F# source code.
 
 Tokenizing F# code
@@ -49,7 +57,7 @@ on the `FSharpSourceTokenizer` object that we created earlier:
 let tokenizer = sourceTok.CreateLineTokenizer("let answer=42")
 (**
 Now, we can write a simple recursive function that calls `ScanToken` on the `tokenizer`
-until it returns `None` (indicating the end of line). When the function succeeds, it 
+until it returns `None` (indicating the end of line). When the function succeeds, it
 returns `FSharpTokenInfo` object with all the interesting details:
 *)
 /// Tokenize a single line of F# code
@@ -73,7 +81,7 @@ There is a number of interesting properties on `FSharpTokenInfo` including:
  - `CharClass` and `ColorClass` return information about the token category that
    can be used for colorizing F# code.
  - `LeftColumn` and `RightColumn` return the location of the token inside the line.
- - `TokenName` is the name of the token (as defined in the F# lexer) 
+ - `TokenName` is the name of the token (as defined in the F# lexer)
 
 Note that the tokenizer is stateful - if you want to tokenize single line multiple times,
 you need to call `CreateLineTokenizer` again.
@@ -94,7 +102,7 @@ and the current state). We create a new tokenizer for each line and call `tokeni
 using the state from the *end* of the previous line:
 *)
 /// Print token names for multiple lines of code
-let rec tokenizeLines state count lines = 
+let rec tokenizeLines state count lines =
   match lines with
   | line::lines ->
       // Create tokenizer & tokenize single line
@@ -118,14 +126,14 @@ the first line which is just whitespace), the code generates the following outpu
 
     [lang=text]
     Line 1
-      LINE_COMMENT LINE_COMMENT (...) LINE_COMMENT 
+      LINE_COMMENT LINE_COMMENT (...) LINE_COMMENT
     Line 2
-      LET WHITESPACE IDENT LPAREN RPAREN WHITESPACE EQUALS 
+      LET WHITESPACE IDENT LPAREN RPAREN WHITESPACE EQUALS
     Line 3
-      IDENT WHITESPACE STRING_TEXT (...) STRING_TEXT STRING 
+      IDENT WHITESPACE STRING_TEXT (...) STRING_TEXT STRING
 
 It is worth noting that the tokenizer yields multiple `LINE_COMMENT` tokens and multiple
 `STRING_TEXT` tokens for each single comment or string (roughly, one for each word), so
-if you want to get the entire text of a comment/string, you need to concatenate the 
+if you want to get the entire text of a comment/string, you need to concatenate the
 tokens.
 *)

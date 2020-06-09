@@ -1,3 +1,12 @@
+(**
+---
+category: tutorial
+title: F# Interactiveの組み込み
+menu_order: 7
+language: ja
+
+---
+*)
 (*** hide ***)
 #I "../../../../artifacts/bin/fcs/Release/net461"
 (**
@@ -66,7 +75,7 @@ let argv = [| "C:\\fsi.exe" |]
 let allArgs = Array.append argv [|"--noninteractive"|]
 
 let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
-let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, outStream, errStream)  
+let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, outStream, errStream)
 
 (**
 コードの評価および実行
@@ -143,7 +152,7 @@ File.WriteAllText("sample.fsx", "let twenty = 'a' + 10.0")
 let result, warnings = fsiSession.EvalScriptNonThrowing "sample.fsx"
 
 // 結果を表示する
-match result with 
+match result with
 | Choice1Of2 () -> printfn "チェックと実行はOKでした"
 | Choice2Of2 exn -> printfn "実行例外: %s" exn.Message
 
@@ -155,7 +164,7 @@ match result with
 *)
 
 // エラーと警告を表示する
-for w in warnings do 
+for w in warnings do
    printfn "警告 %s 場所 %d,%d" w.Message w.StartLineAlternate w.StartColumn
 
 (**
@@ -170,9 +179,9 @@ for w in warnings do
 
 let evalExpressionTyped2<'T> text =
    let res, warnings = fsiSession.EvalExpressionNonThrowing(text)
-   for w in warnings do 
-       printfn "警告 %s 場所 %d,%d" w.Message w.StartLineAlternate w.StartColumn 
-   match res with 
+   for w in warnings do
+       printfn "警告 %s 場所 %d,%d" w.Message w.StartLineAlternate w.StartColumn
+   match res with
    | Choice1Of2 (Some value) -> value.ReflectionValue |> unbox<'T>
    | Choice1Of2 None -> failwith "null または結果がありません"
    | Choice2Of2 (exn:exn) -> failwith (sprintf "例外 %s" exn.Message)
@@ -190,16 +199,16 @@ evalExpressionTyped2<int> "42+1"  // '43' になる
 
 open System.Threading.Tasks
 
-let sampleLongRunningExpr = 
+let sampleLongRunningExpr =
     """
-async { 
+async {
     // 実行したいコード
     do System.Threading.Thread.Sleep 5000
-    return 10 
+    return 10
 }
   |> Async.StartAsTask"""
 
-let task1 = evalExpressionTyped<Task<int>>(sampleLongRunningExpr)  
+let task1 = evalExpressionTyped<Task<int>>(sampleLongRunningExpr)
 let task2 = evalExpressionTyped<Task<int>>(sampleLongRunningExpr)
 
 (**
@@ -226,17 +235,17 @@ fsiSession.EvalInteraction "let xxx = 1 + 1"
 次に部分的に完全な `xxx + xx` というコードの型チェックを実行したいとします:
 *)
 
-let parseResults, checkResults, checkProjectResults = 
+let parseResults, checkResults, checkProjectResults =
     fsiSession.ParseAndCheckInteraction("xxx + xx") |> Async.RunSynchronously
 
-(** 
+(**
 `parseResults` と `checkResults` はそれぞれ [エディタ](editor.html)
 のページで説明している `ParseFileResults` と `CheckFileResults` 型です。
 たとえば以下のようなコードでエラーを確認出来ます:
 *)
 checkResults.Errors.Length // 1
 
-(** 
+(**
 コードはF# Interactiveセッション内において、その時点までに実行された
 有効な宣言からなる論理的な型コンテキストと結びつく形でチェックされます。
 
@@ -247,10 +256,10 @@ checkResults.Errors.Length // 1
 open FSharp.Compiler
 
 // ツールチップを取得する
-checkResults.GetToolTipText(1, 2, "xxx + xx", ["xxx"], FSharpTokenTag.IDENT) 
+checkResults.GetToolTipText(1, 2, "xxx + xx", ["xxx"], FSharpTokenTag.IDENT)
 
 checkResults.GetSymbolUseAtLocation(1, 2, "xxx + xx", ["xxx"]) // シンボル xxx
-  
+
 (**
 'fsi'オブジェクト
 -----------------
@@ -281,7 +290,7 @@ FsiEvaluationSessionを使用してコードを評価すると、
 評価が進んでも線形には増加しないでしょう。
 *)
 
-let collectionTest() = 
+let collectionTest() =
 
     for i in 1 .. 200 do
         let defaultArgs = [|"fsi.exe";"--noninteractive";"--nologo";"--gui-"|]
@@ -291,7 +300,7 @@ let collectionTest() =
 
         let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
         use session = FsiEvaluationSession.Create(fsiConfig, defaultArgs, inStream, outStream, errStream, collectible=true)
-        
+
         session.EvalInteraction (sprintf "type D = { v : int }")
         let v = session.EvalExpression (sprintf "{ v = 42 * %d }" i)
         printfn "その %d, 結果 = %A" i v.Value.ReflectionValue

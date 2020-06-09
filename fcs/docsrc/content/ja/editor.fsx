@@ -1,3 +1,13 @@
+(**
+---
+category: tutorial
+title: エディタサービス
+menu_order: 3
+language: ja
+
+---
+*)
+
 (*** hide ***)
 #I "../../../../artifacts/bin/fcs/Release/net461"
 (**
@@ -43,13 +53,13 @@ let checker = FSharpChecker.Create()
 
 *)
 // サンプルの入力となる複数行文字列
-let input = 
+let input =
     """
 open System
 
-let foo() = 
+let foo() =
 let msg = String.Concat("Hello"," ","world")
-if true then 
+if true then
 printfn "%s" msg.
 """
 // 入力値の分割とファイル名の定義
@@ -80,11 +90,11 @@ let parseFileResults =
 サンプル入力に対して型チェッカーを実行する必要があります。
 F#コードにエラーがあった場合も何らかの型チェックの結果が返されます
 (ただし間違って「推測された」結果が含まれることがあります)。
-*)        
+*)
 
 // 型チェックを実行
-let checkFileAnswer = 
-    checker.CheckFileInProject(parseFileResults, file, 0, input, projOptions) 
+let checkFileAnswer =
+    checker.CheckFileInProject(parseFileResults, file, 0, input, projOptions)
     |> Async.RunSynchronously
 
 (**
@@ -99,7 +109,7 @@ let parseResults2, checkFileAnswer2 =
 この返り値は `CheckFileAnswer` 型で、この型に機能的に興味深いものが揃えられています...
 *)
 
-let checkFileResults = 
+let checkFileResults =
     match checkFileAnswer with
     | FSharpCheckFileAnswer.Succeeded(res) -> res
     | res -> failwithf "パースが完了していません... (%A)" res
@@ -176,7 +186,7 @@ printfn "%A" tip
 現時点において補完する必要がある識別子を指定する必要もあります。
 *)
 // 特定の位置における宣言(自動補完)を取得する
-let decls = 
+let decls =
     checkFileResults.GetDeclarationListInfo
       (Some parseFileResults, 7, inputLines.[6], PartialLongName.Empty 23, (fun _ -> []), fun _ -> false)
       |> Async.RunSynchronously
@@ -212,13 +222,13 @@ for item in decls.Items do
 
 *)
 //String.Concatメソッドのオーバーロードを取得する
-let methods = 
+let methods =
     checkFileResults.GetMethods(5, 27, inputLines.[4], Some ["String"; "Concat"]) |> Async.RunSynchronously
 
 // 連結された引数リストを表示
 for mi in methods.Methods do
     [ for p in mi.Parameters -> p.Display ]
-    |> String.concat ", " 
+    |> String.concat ", "
     |> printfn "%s(%s)" methods.MethodName
 (**
 ここでは `Display` プロパティを使用することで各引数に対する
@@ -228,7 +238,7 @@ for mi in methods.Methods do
 これらの引数を連結した後、メソッド名とメソッドの型情報とともに表示させています。
 *)
 
-(** 
+(**
 
 ## 非同期操作と即時操作
 

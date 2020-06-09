@@ -18,18 +18,15 @@ nuget Fake.DotNet.Paket
 nuget SynVer.FAKE
 nuget Paket.Core
 
-group generate
+group Docs
+  source https://api.nuget.org/v3/index.json
 
-source https://api.nuget.org/v3/index.json
-storage: packages
-framework: netstandard2.0
+  framework: netstandard2.0
+  storage: packages
 
-nuget FSharp.Core
-nuget Fake.Core
-nuget Fake.IO.FileSystem
-nuget Fake.Core.Trace
-nuget FSharp.Literate 4.0.0-alpha03
-nuget FSharp.Formatting 4.0.0-alpha03
+  nuget FSharp.Compiler.Service ~> 35.0
+  nuget FSharp.Formatting ~> 4.1
+  nuget Newtonsoft.Json
 
 group reference
 

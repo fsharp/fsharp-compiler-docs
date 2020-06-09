@@ -11,3 +11,4 @@ FSharp.Compiler.Service.netstandard/pplex.fs
 FSharp.Compiler.Service.netstandard/pppars.fs
 FSharp.Compiler.Service.netstandard/pppars.fsi
 .idea/
+_public

@@ -1,3 +1,12 @@
+(**
+---
+category: tutorial
+title: プロジェクトの分析
+menu_order: 6
+language: ja
+
+---
+*)
 (*** hide ***)
 #I "../../../../artifacts/bin/fcs/Release/net461"
 (**
@@ -33,7 +42,7 @@ let checker = FSharpChecker.Create()
 今回のサンプル入力は以下の通りです:
 *)
 
-module Inputs = 
+module Inputs =
     open System.IO
 
     let base1 = Path.GetTempFileName()
@@ -45,7 +54,7 @@ module Inputs =
     let fileSource1 = """
 module M
 
-type C() = 
+type C() =
     member x.P = 1
 
 let xxx = 3 + 4
@@ -58,10 +67,10 @@ module N
 
 open M
 
-type D1() = 
+type D1() =
     member x.SomeProperty = M.xxx
 
-type D2() = 
+type D2() =
     member x.SomeProperty = M.fff()
 
 // 警告を発生させる
@@ -75,27 +84,27 @@ let y2 = match 1 with 1 -> M.xxx
 2つのファイルを1つのプロジェクトとして扱えるようにします:
 *)
 
-let projectOptions = 
+let projectOptions =
     checker.GetProjectOptionsFromCommandLineArgs
        (Inputs.projFileName,
-        [| yield "--simpleresolution" 
-           yield "--noframework" 
-           yield "--debug:full" 
-           yield "--define:DEBUG" 
-           yield "--optimize-" 
+        [| yield "--simpleresolution"
+           yield "--noframework"
+           yield "--debug:full"
+           yield "--define:DEBUG"
+           yield "--optimize-"
            yield "--out:" + Inputs.dllName
-           yield "--doc:test.xml" 
-           yield "--warn:3" 
-           yield "--fullpaths" 
-           yield "--flaterrors" 
-           yield "--target:library" 
+           yield "--doc:test.xml"
+           yield "--warn:3"
+           yield "--fullpaths"
+           yield "--flaterrors"
+           yield "--target:library"
            yield Inputs.fileName1
            yield Inputs.fileName2
-           let references = 
-             [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" 
-               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" 
-               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" 
-               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"]  
+           let references =
+             [ @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll"
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll"
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll"
+               @"C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll"]
            for r in references do
                  yield "-r:" + r |])
 
@@ -128,9 +137,9 @@ wholeProjectResults.Errors.[0].EndColumn // 16
 (**
 プロジェクト内の全シンボルを取得することもできます:
 *)
-let rec allSymbolsInEntities (entities: IList<FSharpEntity>) = 
-    [ for e in entities do 
-          yield (e :> FSharpSymbol) 
+let rec allSymbolsInEntities (entities: IList<FSharpEntity>) =
+    [ for e in entities do
+          yield (e :> FSharpSymbol)
           for x in e.MembersFunctionsAndValues do
              yield (x :> FSharpSymbol)
           for x in e.UnionCases do
@@ -146,8 +155,8 @@ let allSymbols = allSymbolsInEntities wholeProjectResults.AssemblySignature.Enti
 この処理は即座に完了し、改めてチェックが実行されることもありません。
 *)
 
-let backgroundParseResults1, backgroundTypedParse1 = 
-    checker.GetBackgroundCheckResultsForFileInProject(Inputs.fileName1, projectOptions) 
+let backgroundParseResults1, backgroundTypedParse1 =
+    checker.GetBackgroundCheckResultsForFileInProject(Inputs.fileName1, projectOptions)
     |> Async.RunSynchronously
 
 
@@ -155,7 +164,7 @@ let backgroundParseResults1, backgroundTypedParse1 =
 そしてそれぞれのファイル内にあるシンボルを解決できます:
 *)
 
-let xSymbol = 
+let xSymbol =
     backgroundTypedParse1.GetSymbolUseAtLocation(9,9,"",["xxx"])
     |> Async.RunSynchronously
 
@@ -168,8 +177,8 @@ let usesOfXSymbol = wholeProjectResults.GetUsesOfSymbol(xSymbol.Value.Symbol)
 推測されたシグネチャ内にあるすべての定義済みシンボルに対して、
 それらがどこで使用されているのかを探し出すこともできます:
 *)
-let allUsesOfAllSignatureSymbols = 
-    [ for s in allSymbols do 
+let allUsesOfAllSignatureSymbols =
+    [ for s in allSymbols do
          yield s.ToString(), wholeProjectResults.GetUsesOfSymbol(s) ]
 
 (**
@@ -186,30 +195,30 @@ let allUsesOfAllSymbols = wholeProjectResults.GetAllUsesOfAllSymbols()
 読み取り中であることに注意してください):
 
 *)
-let parseResults1, checkAnswer1 = 
-    checker.ParseAndCheckFileInProject(Inputs.fileName1, 0, Inputs.fileSource1, projectOptions) 
+let parseResults1, checkAnswer1 =
+    checker.ParseAndCheckFileInProject(Inputs.fileName1, 0, Inputs.fileSource1, projectOptions)
     |> Async.RunSynchronously
 
-let checkResults1 = 
-    match checkAnswer1 with 
-    | FSharpCheckFileAnswer.Succeeded x ->  x 
+let checkResults1 =
+    match checkAnswer1 with
+    | FSharpCheckFileAnswer.Succeeded x ->  x
     | _ -> failwith "想定外の終了状態です"
 
-let parseResults2, checkAnswer2 = 
+let parseResults2, checkAnswer2 =
     checker.ParseAndCheckFileInProject(Inputs.fileName2, 0, Inputs.fileSource2, projectOptions)
     |> Async.RunSynchronously
 
-let checkResults2 = 
-    match checkAnswer2 with 
-    | FSharpCheckFileAnswer.Succeeded x ->  x 
+let checkResults2 =
+    match checkAnswer2 with
+    | FSharpCheckFileAnswer.Succeeded x ->  x
     | _ -> failwith "想定外の終了状態です"
 
 (**
 そして再びシンボルを解決したり、参照を検索したりすることができます:
 *)
 
-let xSymbol2 = 
-    checkResults1.GetSymbolUseAtLocation(9,9,"",["xxx"]) 
+let xSymbol2 =
+    checkResults1.GetSymbolUseAtLocation(9,9,"",["xxx"])
     |> Async.RunSynchronously
 
 let usesOfXSymbol2 = wholeProjectResults.GetUsesOfSymbol(xSymbol2.Value.Symbol)

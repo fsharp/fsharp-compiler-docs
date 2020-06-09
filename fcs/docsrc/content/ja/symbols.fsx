@@ -1,3 +1,12 @@
+(**
+---
+category: tutorial
+title: シンボルの処理
+menu_order: 4
+language: ja
+
+---
+*)
 (*** hide ***)
 #I "../../../../artifacts/bin/fcs/Release/net461"
 (**
@@ -32,14 +41,14 @@ let checker = FSharpChecker.Create()
 
 *)
 
-let parseAndTypeCheckSingleFile (file, input) = 
+let parseAndTypeCheckSingleFile (file, input) =
     // スタンドアロンの(スクリプト)ファイルを表すコンテキストを取得
-    let projOptions, _errors = 
+    let projOptions, _errors =
         checker.GetProjectOptionsFromScript(file, input)
         |> Async.RunSynchronously
 
-    let parseFileResults, checkFileResults = 
-        checker.ParseAndCheckFileInProject(file, 0, input, projOptions) 
+    let parseFileResults, checkFileResults =
+        checker.ParseAndCheckFileInProject(file, 0, input, projOptions)
         |> Async.RunSynchronously
 
     // 型チェックが成功(あるいは100%に到達)するまで待機
@@ -64,19 +73,19 @@ let file = "/home/user/Test.fsx"
 
 *)
 
-let input2 = 
+let input2 =
       """
 [<System.CLSCompliant(true)>]
-let foo(x, y) = 
+let foo(x, y) =
     let msg = String.Concat("Hello"," ","world")
-    if true then 
-        printfn "x = %d, y = %d" x y 
+    if true then
+        printfn "x = %d, y = %d" x y
         printfn "%s" msg
 
-type C() = 
+type C() =
     member x.P = 1
       """
-let parseFileResults, checkFileResults = 
+let parseFileResults, checkFileResults =
     parseAndTypeCheckSingleFile(file, input2)
 
 (**
@@ -137,7 +146,7 @@ fnVal.IsTypeFunction // false
 *)
 fnVal.FullType // int * int -> unit
 fnVal.FullType.IsFunctionType // true
-fnVal.FullType.GenericArguments.[0] // int * int 
+fnVal.FullType.GenericArguments.[0] // int * int
 fnVal.FullType.GenericArguments.[0].IsTupleType // true
 let argTy1 = fnVal.FullType.GenericArguments.[0].GenericArguments.[0]
 
@@ -158,15 +167,15 @@ argTy1.TypeDefinition.IsFSharpAbbreviation // true
 *)
 
 let argTy1b = argTy1.TypeDefinition.AbbreviatedType
-argTy1b.TypeDefinition.Namespace // Some "Microsoft.FSharp.Core" 
-argTy1b.TypeDefinition.CompiledName // "int32" 
+argTy1b.TypeDefinition.Namespace // Some "Microsoft.FSharp.Core"
+argTy1b.TypeDefinition.CompiledName // "int32"
 
 (**
 そして再び型省略形 `type int32 = System.Int32` から型に関する完全な情報が取得できます:
 *)
 let argTy1c = argTy1b.TypeDefinition.AbbreviatedType
-argTy1c.TypeDefinition.Namespace // Some "System" 
-argTy1c.TypeDefinition.CompiledName // "Int32" 
+argTy1c.TypeDefinition.Namespace // Some "System"
+argTy1c.TypeDefinition.CompiledName // "Int32"
 
 (**
 ファイルに対する型チェックの結果には、
@@ -176,7 +185,7 @@ argTy1c.TypeDefinition.CompiledName // "Int32"
 let projectContext = checkFileResults.ProjectContext
 
 for assembly in projectContext.GetReferencedAssemblies() do
-    match assembly.FileName with 
+    match assembly.FileName with
     | None -> printfn "コンパイル時にファイルの存在しないアセンブリを参照しました"
     | Some s -> printfn "コンパイル時にアセンブリ '%s' を参照しました" s
 
@@ -202,13 +211,13 @@ for assembly in projectContext.GetReferencedAssemblies() do
 異なる "projOptions" を指定すると、巨大なプロジェクトに対する設定を
 構成することもできます。
 *)
-let parseAndCheckScript (file, input) = 
-    let projOptions, errors = 
+let parseAndCheckScript (file, input) =
+    let projOptions, errors =
         checker.GetProjectOptionsFromScript(file, input)
         |> Async.RunSynchronously
 
-    let projResults = 
-        checker.ParseAndCheckProject(projOptions) 
+    let projResults =
+        checker.ParseAndCheckProject(projOptions)
         |> Async.RunSynchronously
 
     projResults
@@ -232,5 +241,5 @@ let assemblySig = projectResults.AssemblySignature
 assemblySig.Entities.Count = 1  // エンティティは1つ
 assemblySig.Entities.[0].Namespace  // null
 assemblySig.Entities.[0].DisplayName // "Tmp28D0"
-assemblySig.Entities.[0].MembersFunctionsAndValues.Count // 1 
-assemblySig.Entities.[0].MembersFunctionsAndValues.[0].DisplayName // "foo" 
+assemblySig.Entities.[0].MembersFunctionsAndValues.Count // 1
+assemblySig.Entities.[0].MembersFunctionsAndValues.[0].DisplayName // "foo"

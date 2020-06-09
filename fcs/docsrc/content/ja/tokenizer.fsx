@@ -1,3 +1,12 @@
+(**
+---
+category: tutorial
+title: F#トークナイザを使用する
+menu_order: 1
+language: ja
+
+---
+*)
 (*** hide ***)
 #I "../../../../artifacts/bin/fcs/Release/net461"
 (**
@@ -106,7 +115,7 @@ let lines = """
 直前の行における **最後** の状態を使って `tokenizeLine` を呼び出します:
 *)
 /// 複数行のコードに対してトークンの名前を表示します
-let rec tokenizeLines state count lines = 
+let rec tokenizeLines state count lines =
   match lines with
   | line::lines ->
       // トークナイザを作成して1行をトークン化
@@ -131,11 +140,11 @@ lines
 
     [lang=text]
     Line 1
-      LINE_COMMENT LINE_COMMENT (...) LINE_COMMENT 
+      LINE_COMMENT LINE_COMMENT (...) LINE_COMMENT
     Line 2
-      LET WHITESPACE IDENT LPAREN RPAREN WHITESPACE EQUALS 
+      LET WHITESPACE IDENT LPAREN RPAREN WHITESPACE EQUALS
     Line 3
-      IDENT WHITESPACE STRING_TEXT (...) STRING_TEXT STRING 
+      IDENT WHITESPACE STRING_TEXT (...) STRING_TEXT STRING
 
 注目すべきは、単一行コメントや文字列に対して、
 トークナイザが複数回(大まかにいって単語単位で) `LINE_COMMENT` や

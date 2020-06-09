@@ -1,3 +1,11 @@
+(**
+---
+category: tutorial
+title: Embedding F# Interactive
+menu_order: 7
+
+---
+*)
 (*** hide ***)
 #I "../../../artifacts/bin/fcs/Release/netcoreapp3.0"
 (**

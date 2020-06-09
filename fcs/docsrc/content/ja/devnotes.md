@@ -1,3 +1,11 @@
+---
+title: 開発者用メモ
+category: explanation
+menu_order: 2
+language: ja
+---
+
+
 開発者用メモ
 ============
 

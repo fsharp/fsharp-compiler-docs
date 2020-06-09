@@ -3,11 +3,26 @@ open System
 #r "../../packages/docs/FSharp.Formatting/lib/netstandard2.0/FSharp.CodeFormat.dll"
 #r "../../packages/docs/FSharp.Formatting/lib/netstandard2.0/FSharp.Markdown.dll"
 #r "../../packages/docs/FSharp.Formatting/lib/netstandard2.0/FSharp.Literate.dll"
-#if !FORNAX
-#load "contentloader.fsx"
-open Contentloader
-#endif
 
+
+#load "./contentloader.fsx"
+open Contentloader
+
+let printPosts (sc: SiteContents) = 
+    sc.TryGetValues<Post> ()
+    |> Option.defaultValue Seq.empty
+    |> Seq.map (fun post -> sprintf "* content/%s" post.file)
+    |> String.concat "\n"
+    |> printfn "known posts:\n%s"
+    
+let lockAdd (sc: SiteContents) (item: Post) =
+  lock sc (fun () -> 
+    printfn "Adding post %s" item.file
+    printPosts sc
+    sc.Add(item)
+    printPosts sc
+  )
+  
 open System.IO
 open FSharp.Literate
 open FSharp.CodeFormat
@@ -38,8 +53,6 @@ let tokenToCss (x: TokenKind) =
     | TokenKind.Printf -> "hljs-regexp"
     | TokenKind.Escaped -> "hljs-regexp"
     | TokenKind.Default -> ""
-
-
 
 let isSeparator (input : string) =
     input.StartsWith "---"
@@ -84,6 +97,7 @@ let relative toPath fromPath =
     toUri.MakeRelativeUri(fromUri).OriginalString
 
 let loadFile projectRoot n =
+    printfn "reading literate file %s" n
     let text = System.IO.File.ReadAllText n
 
     let config = (getConfig' text).Split( '\n') |> List.ofArray
@@ -130,20 +144,20 @@ let loadFile projectRoot n =
       category = category
       language = language }
 
-let loader (projectRoot: string) (siteContet: SiteContents) =
+let loader (projectRoot: string) (siteContent: SiteContents) =
     try
         let postsPath = System.IO.Path.Combine(projectRoot, "content")
         let posts =
             Directory.GetFiles(postsPath, "*", SearchOption.AllDirectories )
             |> Array.filter (fun n -> n.EndsWith ".fsx")
-            |> Array.map (loadFile projectRoot)
+            |> Array.Parallel.map (loadFile projectRoot)
 
         posts
-        |> Array.iter (fun p -> siteContet.Add p)
+        |> Array.iter (lockAdd siteContent)
 
-        siteContet.Add({disableLiveRefresh = true})
+        siteContent.Add {disableLiveRefresh = true}
     with
     | ex -> printfn "EX: %A" ex
 
-    siteContet
+    siteContent
 

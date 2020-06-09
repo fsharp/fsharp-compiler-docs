@@ -19,7 +19,7 @@ let config = {
       #endif
 }
 
-let loader (projectRoot: string) (siteContet: SiteContents) =
-    siteContet.Add(config)
+let loader (projectRoot: string) (siteContent: SiteContents) =
+    siteContent.Add(config)
 
-    siteContet
+    siteContent

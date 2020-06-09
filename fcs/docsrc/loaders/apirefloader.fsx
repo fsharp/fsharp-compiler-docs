@@ -27,7 +27,7 @@ let rec collectModules pn pu nn nu (m: Module) =
     ]
 
 
-let loader (projectRoot: string) (siteContet: SiteContents) =
+let loader (projectRoot: string) (siteContent: SiteContents) =
     try
       let dlls =
         [
@@ -38,6 +38,8 @@ let loader (projectRoot: string) (siteContet: SiteContents) =
           Path.Combine(projectRoot, "..", "..", "artifacts", "bin", "fcs", "Release", "netcoreapp3.0")
         ]
       for (label, dll) in dlls do
+        printfn "generating api ref for %s at %s" label dll
+
         let output = MetadataFormat.Generate(dll, markDownComments = true, publicOnly = true, libDirs = libs)
 
         let allModules =
@@ -64,9 +66,9 @@ let loader (projectRoot: string) (siteContet: SiteContents) =
           Types = allTypes
           GeneratorOutput = output
         }
-        siteContet.Add entities
+        siteContent.Add entities
     with
     | ex ->
       printfn "%A" ex
 
-    siteContet
+    siteContent

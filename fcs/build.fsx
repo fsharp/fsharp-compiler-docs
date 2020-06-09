@@ -199,9 +199,6 @@ open Fake.Core.TargetOperators
 "Build"
   ==> "GenerateDocs"
 
-"Build"
-  ==> "GenerateDocs"
-
 "GenerateDocs"
   ==> "Release"
 

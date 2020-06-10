@@ -15,7 +15,7 @@ let config = {
       #if WATCH
         "http://localhost:8080/"
       #else
-        "http://fsharp.github.io/FSharp.Compiler.Service/"
+        "https://fsharp.github.io/FSharp.Compiler.Service/"
       #endif
 }
 

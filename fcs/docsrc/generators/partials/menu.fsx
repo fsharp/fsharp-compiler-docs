@@ -11,7 +11,7 @@ open Html
 
 let menu (ctx : SiteContents) (page: string) =
   let shortcuts = ctx.GetValues<Pageloader.Shortcut> ()
-  let all = ctx.GetValues<Apirefloader.AssemblyEntities>()
+  let apiRef = ctx.TryGetValue<Apirefloader.AssemblyEntities>()
 
   let content = ctx.GetValues<Contentloader.Post> ()
   let siteInfo = ctx.TryGetValue<Globalloader.SiteInfo>().Value
@@ -24,7 +24,7 @@ let menu (ctx : SiteContents) (page: string) =
 
   let group = content |> Seq.tryFind (fun n -> n.title = page) |> Option.map (fun n -> n.category)
 
-  let explenations =
+  let explanations =
     content
     |> Seq.filter (fun n -> n.category = Contentloader.Explanation && not n.hide_menu && n.language = language )
     |> Seq.sortBy (fun n -> n.menu_order)
@@ -40,12 +40,12 @@ let menu (ctx : SiteContents) (page: string) =
     |> Seq.sortBy (fun n -> n.menu_order)
 
   let hasTutorials = not (Seq.isEmpty tutorials)
-  let hasExplenations = not (Seq.isEmpty explenations)
+  let hasExplanations = not (Seq.isEmpty explanations)
   let hasHowTos = not (Seq.isEmpty howtos)
 
   let menuHeader =
     [
-      if hasExplenations then
+      if hasExplanations then
         li [Id "menu-explanations"; if group = Some Contentloader.Explanation then Class "dd-item menu-group-link menu-group-link-active" else  Class "dd-item menu-group-link"; ] [
           a [] [!! "Explanation"]
         ]
@@ -58,15 +58,15 @@ let menu (ctx : SiteContents) (page: string) =
           a [] [!! "How-To Guides"]
         ]
       li [ Id "menu-refs"; if group = None then Class "dd-item menu-group-link menu-group-link-active" else Class "dd-item menu-group-link";] [
-        a [] [!! "API References"]
+        a [Href (rootUrl.subRoute "/reference/index.html")] [!! "API Reference"]
       ]
     ]
 
   let renderExpls =
     ul [Id "submenu-explanations"; if group = Some Contentloader.Explanation then Class "submenu submenu-active" else Class "submenu"; ] [
-      for r in explenations ->
+      for r in explanations ->
         li [] [
-          a [Href (rootUrl + "/" +  r.link); if r.title = page then Class "active-link padding" else Class "padding"] [
+          a [Href (rootUrl.subRoute r.link); if r.title = page then Class "active-link padding" else Class "padding"] [
             !! r.title
           ]
         ]
@@ -76,7 +76,7 @@ let menu (ctx : SiteContents) (page: string) =
     ul [Id "submenu-tutorials"; if group = Some Contentloader.Tutorial then Class "submenu submenu-active" else Class "submenu"; ] [
       for r in tutorials ->
         li [] [
-          a [ Href (rootUrl + "/" + r.link); if r.title = page then Class "active-link padding" else Class "padding" ] [
+          a [ Href (rootUrl.subRoute r.link); if r.title = page then Class "active-link padding" else Class "padding" ] [
             !! r.title
           ]
         ]
@@ -86,18 +86,8 @@ let menu (ctx : SiteContents) (page: string) =
     ul [Id "submenu-howtos"; if group = Some Contentloader.HowTo then Class "submenu submenu-active" else Class "submenu"; ] [
       for r in howtos ->
         li [] [
-          a [Href (rootUrl + "/" +  r.link); if r.title = page then Class "active-link padding" else Class "padding" ] [
+          a [Href (rootUrl.subRoute r.link); if r.title = page then Class "active-link padding" else Class "padding" ] [
             !! r.title
-          ]
-        ]
-    ]
-
-  let renderRefs =
-    ul [Id "submenu-refs"; if group = None then Class "submenu submenu-active" else Class "submenu"; ] [
-      for r in all ->
-        li [] [
-          a [Href (rootUrl + "/reference/" +  r.Label + "/index.html"); if r.Label = page then Class "active-link padding" else Class "padding" ] [
-            !! r.Label
           ]
         ]
     ]
@@ -107,12 +97,12 @@ let menu (ctx : SiteContents) (page: string) =
         h3 [] [!! "Languages"]
         ul [] [
           li [] [
-            a [Href (rootUrl + "/index.html"); if language = None then Class "menu-group-link-active padding" else Class "padding" ] [
+            a [Href (rootUrl.subRoute "/index.html"); if language = None then Class "menu-group-link-active padding" else Class "padding" ] [
             !! "English"
             ]
           ]
           li [] [
-            a [Href (rootUrl + "/ja/index.html"); if language = Some "ja" then Class "menu-group-link-active padding" else Class "padding" ] [
+            a [Href (rootUrl.subRoute "/ja/index.html"); if language = Some "ja" then Class "menu-group-link-active padding" else Class "padding" ] [
             !! "Japanese"
             ]
           ]
@@ -121,7 +111,7 @@ let menu (ctx : SiteContents) (page: string) =
 
   let renderShortucuts =
     section [Id "shortcuts"] [
-        h3 [] [!! "Shortucts"]
+        h3 [] [!! "Shortcuts"]
         ul [] [
           for s in shortcuts do
             yield
@@ -150,17 +140,16 @@ let menu (ctx : SiteContents) (page: string) =
         input [Custom ("data-search-input", ""); Id "search-by"; Type "search"; Placeholder "Search..."]
         span  [Custom ("data-search-clear", "")] [i [Class "fas fa-times"] []]
       ]
-      script [Type "text/javascript"; Src (rootUrl + "/static/js/lunr.min.js")] []
-      script [Type "text/javascript"; Src (rootUrl + "/static/js/auto-complete.js")] []
-      script [Type "text/javascript";] [!! (sprintf "var baseurl ='%s'" rootUrl)]
-      script [Type "text/javascript"; Src (rootUrl + "/static/js/search.js")] []
+      script [Type "text/javascript"; Src (rootUrl.subRoute "/static/js/lunr.min.js")] []
+      script [Type "text/javascript"; Src (rootUrl.subRoute "/static/js/auto-complete.js")] []
+      script [Type "text/javascript";] [!! (sprintf "var baseurl ='%s'" (rootUrl.subRoute "")) ]
+      script [Type "text/javascript"; Src (rootUrl.subRoute "/static/js/search.js")] []
     ]
     div [Class "highlightable"] [
       ul [Class "topics"] menuHeader
-      if hasExplenations then renderExpls
+      if hasExplanations then renderExpls
       if hasTutorials then renderTuts
       if hasHowTos then renderHowTos
-      renderRefs
       renderLanguages
       renderShortucuts
       renderFooter

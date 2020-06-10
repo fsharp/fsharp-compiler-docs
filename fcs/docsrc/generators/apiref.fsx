@@ -258,24 +258,21 @@ let generateNamespace ctx (n: Namespace)  =
 
 
 let generate' (ctx : SiteContents)  =
-    let all = ctx.TryGetValues<AssemblyEntities>()
+    let all = ctx.TryGetValue<AssemblyEntities>()
     match all with
     | None -> []
-    | Some all ->
-      all
-      |> Seq.toList
-      |> List.collect (fun n ->
-        let name = n.GeneratorOutput.AssemblyGroup.Name
+    | Some assyEntities ->
+        let name = assyEntities.GeneratorOutput.AssemblyGroup.Name
         let namespaces =
-          n.GeneratorOutput.AssemblyGroup.Namespaces
+          assyEntities.GeneratorOutput.AssemblyGroup.Namespaces
           |> List.map (generateNamespace ctx)
 
         let modules =
-          n.Modules
+          assyEntities.Modules
           |> Seq.map (generateModule ctx)
 
         let types =
-          n.Types
+          assyEntities.Types
           |> Seq.map (generateType ctx)
 
         let ref =
@@ -286,11 +283,9 @@ let generate' (ctx : SiteContents)  =
             for (n, _) in namespaces do
                 a [Href (sprintf "%s.html"  n)] [!!n]
                 br []
-          ] n.Label
+          ] assyEntities.Label
 
         [("index" , ref); yield! namespaces; yield! modules; yield! types]
-        |> List.map (fun (x, y) -> (sprintf "%s/%s" n.Label x), y)
-      )
 
 
 let generate (ctx : SiteContents) (projectRoot: string) (page: string) =

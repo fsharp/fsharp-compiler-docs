@@ -27,25 +27,22 @@ let generate (ctx : SiteContents) (projectRoot: string) (page: string) =
         let entries =
           pages
           |> Seq.map (fun n ->
-              {uri = rootUrl + "/" + n.link.Replace("content/", ""); title = n.title; content = n.text}
+              {uri = rootUrl.subRoute (n.link.Replace("content/", "")); title = n.title; content = n.text}
           )
 
-        let all = ctx.TryGetValues<AssemblyEntities>()
+        let all = ctx.TryGetValue<AssemblyEntities>()
         let refs =
           match all with
           | None -> []
-          | Some all ->
-            all
-            |> Seq.toList
-            |> List.collect (fun n ->
-              let generatorOutput = n.GeneratorOutput
-              let allModules = n.Modules
-              let allTypes = n.Types
+          | Some assembyEntities ->
+              let generatorOutput = assembyEntities.GeneratorOutput
+              let allModules = assembyEntities.Modules
+              let allTypes = assembyEntities.Types
 
               let gen =
                   let ctn =
                       sprintf "%s \n %s" generatorOutput.AssemblyGroup.Name (generatorOutput.AssemblyGroup.Namespaces |> Seq.map (fun n -> n.Name) |> String.concat " ")
-                  {uri = (rootUrl + sprintf "/reference/%s/index.html" n.Label ); title = sprintf "%s - API Reference" n.Label; content = ctn }
+                  {uri = (rootUrl.subRoute "/reference/index.html"); title = sprintf "%s - API Reference" assembyEntities.Label; content = ctn }
 
               let mdlsGen =
                   allModules
@@ -61,7 +58,7 @@ let generate (ctx : SiteContents) (projectRoot: string) (page: string) =
                               (m.TypeExtensions |> List.map (fun m -> m.Name + " " + m.Comment.FullText ) |> String.concat " ")
 
 
-                      {uri = rootUrl + sprintf "/reference/%s/%s.html" n.Label m.UrlName ; title = m.Name; content = cnt }
+                      {uri = rootUrl.subRoutef "/reference/%s.html" m.UrlName ; title = m.Name; content = cnt }
                   )
 
               let tsGen =
@@ -75,10 +72,10 @@ let generate (ctx : SiteContents) (projectRoot: string) (page: string) =
                               (m.AllMembers |> List.map (fun m -> m.Name + " " + m.Comment.FullText ) |> String.concat " ")
 
 
-                      {uri = rootUrl + sprintf "/reference/%s/%s.html" n.Label m.UrlName ; title = m.Name; content = cnt }
+                      {uri = rootUrl.subRoutef "/reference/%s.html" m.UrlName ; title = m.Name; content = cnt }
                   )
               [yield! entries; gen; yield! mdlsGen; yield! tsGen]
-            )
+              
         printfn "generated search index"
         [|yield! entries; yield! refs|]
         |> Newtonsoft.Json.JsonConvert.SerializeObject

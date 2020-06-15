@@ -249,12 +249,35 @@ let private IsILMethInfoAccessible g amap m adType ad ilminfo =
 let GetILAccessOfILPropInfo (ILPropInfo(tinfo, pdef)) =
     let tdef = tinfo.RawMetadata
     let ilAccess =
-        match pdef.GetMethod with 
-        | Some mref -> (resolveILMethodRef tdef mref).Access 
-        | None -> 
-            match pdef.SetMethod with 
-            | None -> ILMemberAccess.Public
-            | Some mref -> (resolveILMethodRef tdef mref).Access
+        match pdef.GetMethod, pdef.SetMethod with 
+        | Some mref, None 
+        | None, Some mref -> (resolveILMethodRef tdef mref).Access
+
+        | Some mrefGet, Some mrefSet ->
+            let getA = (resolveILMethodRef tdef mrefGet).Access
+            let setA = (resolveILMethodRef tdef mrefSet).Access
+
+            // use the accessors to determine the visibility of the property
+            match getA, setA with
+            | ILMemberAccess.Public, _
+            | _, ILMemberAccess.Public -> ILMemberAccess.Public
+
+            | ILMemberAccess.FamilyOrAssembly, _
+            | _, ILMemberAccess.FamilyOrAssembly -> ILMemberAccess.FamilyOrAssembly
+
+            | ILMemberAccess.Assembly, _
+            | _, ILMemberAccess.Assembly -> ILMemberAccess.Assembly
+
+            | ILMemberAccess.Family, _
+            | _, ILMemberAccess.Family -> ILMemberAccess.Family
+
+            | ILMemberAccess.FamilyAndAssembly, _
+            | _, ILMemberAccess.FamilyAndAssembly -> ILMemberAccess.FamilyAndAssembly
+
+            | _ -> ILMemberAccess.Private
+
+        | None, None -> ILMemberAccess.Public
+
     ilAccess
 
 let IsILPropInfoAccessible g amap m ad pinfo =

@@ -202,10 +202,10 @@ let config configurationName envVars =
     let fsharpCompilerInteractiveSettingsArchitecture = "net472"
     let peverifyArchitecture = "net472"
 #else
-    let fscArchitecture = "netcoreapp3.0"
-    let fsiArchitecture = "netcoreapp3.0"
+    let fscArchitecture = "netcoreapp3.1"
+    let fsiArchitecture = "netcoreapp3.1"
     let fsharpCoreArchitecture = "netstandard2.0"
-    let fsharpBuildArchitecture = "netcoreapp3.0"
+    let fsharpBuildArchitecture = "netcoreapp3.1"
     let fsharpCompilerInteractiveSettingsArchitecture = "netstandard2.0"
     let peverifyArchitecture = "netcoreapp3.0"
 #endif

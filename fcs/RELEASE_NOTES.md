@@ -1,3 +1,18 @@
+#### 36.0.2
+
+This is a small bugfix release that I'm making primarily to publish a version
+of FCS with sourcelink enabled, so that tooling users can make use of that information.
+
+From dotnet/fsharp:079276b4b..37d0cccec:
+
+* Fixes for `do!` handling in computation expressions (thanks @baronfel)
+* Add missing versions in FCS' Interactive header (thanks @nightroman)
+* Support `Source`-translation in `match!` expressions (thanks @baronfel)
+* Ensure stack traces from uncaught exceptions in CEs are maintained (thanks @NinoFloris)
+* Better handling of `inline` in witness-passing codepaths (thanks @dsyme)
+* Enable publishing of FCS with sourcelink (thanks @baronfel)
+* Extend `nameof` to support naming generic parameters (`nameof<'t>`) and instance members (`nameof(Unchecked.defaultof<C>.Property)`) (thanks @dsyme)
+
 #### 36.0.1
 
 From dotnet/fsharp:522dd906c..16bca5aef:

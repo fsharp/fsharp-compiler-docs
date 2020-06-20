@@ -19,6 +19,7 @@ DEAD_DIRS=(
     "TESTGUIDE.md"
     "tests/EndToEndBuildTests"
     "tests/FSharp.Build.UnitTests"
+    "tests/FSharp.Compiler.ComponentTests"
     "tests/FSharp.Compiler.Private.Scripting.UnitTests"
     "tests/FSharp.Compiler.UnitTests"
     "tests/FSharp.Core.UnitTests"

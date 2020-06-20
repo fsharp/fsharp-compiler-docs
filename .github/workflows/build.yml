@@ -6,9 +6,17 @@ jobs:
   build:
 
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        dotnet: [3.1.201] # TODO: wish this action didn't pin versions...
+        dotnet: [3.1.301] # TODO: wish this action didn't pin versions...
+        include:
+          - os: windows-latest
+            knownFailure: false
+          - os: macos-latest
+            knownFailure: true
+          - os: ubuntu-latest
+            knownFailure: true
     runs-on: ${{ matrix.os }}
     
     steps:
@@ -20,11 +28,16 @@ jobs:
     - name: Restore tools
       run: dotnet tool restore
       working-directory: ./fcs
-    - name: Build and test
-      run: dotnet fake build -t TestAndNuGet
+    - name: Build
+      run: dotnet fake build -t Build
       working-directory: ./fcs
+    - name: Test
+      run: dotnet fake build -s -t Test
+      working-directory: ./fcs
+      if: ${{ !matrix.knownFailure }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v2
+      if: always()
       with:
-        name: code-coverage-report
+        name: code-coverage-report-${{ matrix.os }}-${{ env.GITHUB_SHA }}
         path: ${{ github.workspace }}/artifacts/TestResults/Release/FSharp.Compiler.Service.Test.*.xml

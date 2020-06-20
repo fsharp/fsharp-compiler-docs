@@ -1,3 +1,7 @@
+#### 36.0.3
+
+This is a small bugfix release that fixes a nuspec package dependency issue with Sourcelink.
+
 #### 36.0.2
 
 This is a small bugfix release that I'm making primarily to publish a version

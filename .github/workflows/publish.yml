@@ -23,8 +23,8 @@ jobs:
     - name: Restore tools
       run: dotnet tool restore
       working-directory: ./fcs
-    - name: Build and Test
-      run: dotnet fake build -t TestAndNuget
+    - name: Build and package
+      run: dotnet fake build -t NuGet
       working-directory: ./fcs
     - name: Validate package bump
       run: dotnet fake build -s -t ValidateVersionBump

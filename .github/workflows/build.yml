@@ -5,9 +5,6 @@ on: [push, pull_request]
 jobs:
   build:
 
-    # FCS tests fail for netfx on macos/ubuntu, so we encode that here.
-    continue-on-error: ${{ matrix.knownFailure }}
-
     strategy:
       fail-fast: false
       matrix:
@@ -31,9 +28,13 @@ jobs:
     - name: Restore tools
       run: dotnet tool restore
       working-directory: ./fcs
-    - name: Build and test
-      run: dotnet fake build -t TestAndNuGet
+    - name: Build
+      run: dotnet fake build -t Build
       working-directory: ./fcs
+    - name: Test
+      run: dotnet fake build -s -t Test
+      working-directory: ./fcs
+      if: ${{ !matrix.knownFailure }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v2
       if: always()

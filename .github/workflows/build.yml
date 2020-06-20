@@ -6,9 +6,10 @@ jobs:
   build:
 
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        dotnet: [3.1.201] # TODO: wish this action didn't pin versions...
+        dotnet: [3.1.301] # TODO: wish this action didn't pin versions...
     runs-on: ${{ matrix.os }}
     
     steps:
@@ -25,6 +26,7 @@ jobs:
       working-directory: ./fcs
     - name: Archive code coverage results
       uses: actions/upload-artifact@v2
+      if: always()
       with:
         name: code-coverage-report
         path: ${{ github.workspace }}/artifacts/TestResults/Release/FSharp.Compiler.Service.Test.*.xml

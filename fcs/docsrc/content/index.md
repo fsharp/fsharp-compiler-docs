@@ -83,6 +83,7 @@ Some of the projects using the F# Compiler Services are:
 * [**FSharp.Formatting**](http://tpetricek.github.io/FSharp.Formatting/) - F# tools for generating documentation (Markdown processor and F# code formatter)
 * [**FAKE**](https://fsharp.github.io/FAKE/) - "FAKE - F# Make" is a cross platform build automation system
 * [**FsLab Journal**](https://visualstudiogallery.msdn.microsoft.com/45373b36-2a4c-4b6a-b427-93c7a8effddb) - Template that makes it easy to do interactive data analysis using F# Interactive and produce nice HTML reports of your work
+* [**FarNet.FSharpFar**](https://github.com/nightroman/FarNet/tree/master/FSharpFar) - F# scripting and interactive services in Far Manager
 
 Contributing and copyright
 --------------------------

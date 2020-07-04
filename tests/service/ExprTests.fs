@@ -709,6 +709,15 @@ let ``Test Unoptimized Declarations Project1`` () =
     let file1 = wholeProjectResults.AssemblyContents.ImplementationFiles.[0]
     let file2 = wholeProjectResults.AssemblyContents.ImplementationFiles.[1]
 
+    // This behaves slightly differently on Mono versions, 'null' is printed somethimes, 'None' other times
+    // Presumably this is very small differences in Mono reflection causing F# printing to change behavious
+    // For now just disabling this test. See https://github.com/fsharp/FSharp.Compiler.Service/pull/766
+    let filterHack l = 
+        l |> List.map (fun (s:string) -> 
+            s.Replace("ILArrayShape [(Some 0, None)]", "ILArrayShapeFIX")
+             .Replace("ILArrayShape [(Some 0, null)]", "ILArrayShapeFIX")
+             .Replace("Operators.Hash<Microsoft.FSharp.Core.string> (x)", "x.GetHashCode()"))
+
     let expected = [
         "type M"; "type IntAbbrev"; "let boolEx1 = True @ (6,14--6,18)";
         "let intEx1 = 1 @ (7,13--7,14)"; "let int64Ex1 = 1 @ (8,15--8,17)";

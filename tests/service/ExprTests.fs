@@ -35,22 +35,19 @@ module internal Utils =
             if Directory.Exists tempPath then ()
             else Directory.CreateDirectory tempPath |> ignore
 
-    /// Returns the filename part of a temp file name created with Path.GetTempFileName() 
-    /// and an added process id and thread id to ensure uniqueness between threads.
+    /// Returns the filename part of a temp file name created with Path.GetTempFileName().
     let getTempFileName() =
         let tempFileName = Path.GetTempFileName()
         try
-            let tempFile, tempExt = Path.GetFileNameWithoutExtension tempFileName, Path.GetExtension tempFileName
-            let procId, threadId = Process.GetCurrentProcess().Id, Thread.CurrentThread.ManagedThreadId
-            String.concat "" [tempFile; "_"; string procId; "_"; string threadId; tempExt]  // ext includes dot
+            let tempFileName = Path.GetFileName(tempFileName)
+            tempFileName
         finally
             try 
-                // Since Path.GetTempFileName() creates a *.tmp file in the %TEMP% folder, we want to clean it up.
-                // This also prevents a system to run out of available randomized temp files (the pool is only 64k large).
+                // since Path.GetTempFileName() creates a *.tmp file in the %TEMP% folder, we want to clean it up
                 File.Delete tempFileName
             with _ -> ()
 
-    /// Clean up after a test is run. If you need to inspect the create *.fs files, change this function to do nothing, or just break here.
+    /// Clean up after a test is run. If you need to inspect the create *.fs files, change this function to do nothing.
     let cleanupTempFiles files =
         for fileName in files do 
             try
@@ -69,18 +66,6 @@ module internal Utils =
     /// Given just a filename, returns it with changed extension located in %TEMP%\ExprTests
     let getTempFilePathChangeExt tmp ext =
         Path.Combine(getTempPath(), Path.ChangeExtension(tmp, ext))
-
-    // This behaves slightly differently on Mono versions, 'null' is printed somethimes, 'None' other times
-    // Presumably this is very small differences in Mono reflection causing F# printing to change behaviour
-    // For now just disabling this test. See https://github.com/fsharp/FSharp.Compiler.Service/pull/766
-    let filterHack l = 
-        l |> List.map (fun (s:string) -> 
-            // potential difference on Mono
-            s.Replace("ILArrayShape [(Some 0, None)]", "ILArrayShape [(Some 0, null)]")
-             // spacing difference when run locally in VS
-             .Replace("I_ldelema (NormalAddress,false,ILArrayShape [(Some 0, null)],!0)]", "I_ldelema (NormalAddress, false, ILArrayShape [(Some 0, null)], !0)]")
-             // local VS IDE vs CI env difference
-             .Replace("Operators.Hash<Microsoft.FSharp.Core.string> (x)", "x.GetHashCode()"))
 
     let rec printExpr low (e:FSharpExpr) = 
         match e with 
@@ -708,7 +693,7 @@ let test{0}ToStringOperator   (e1:{1}) = string e1
 
 """
 
-[<Test>]
+/// This test is run in unison with its optimized counterpart below
 let ``Test Unoptimized Declarations Project1`` () =
     let wholeProjectResults = exprChecker.ParseAndCheckProject(snd Project1.options.Value) |> Async.RunSynchronously
 
@@ -830,17 +815,17 @@ let ``Test Unoptimized Declarations Project1`` () =
 
     printDeclarations None (List.ofSeq file1.Declarations) 
       |> Seq.toList 
-      |> Utils.filterHack
-      |> shouldPairwiseEqual (Utils.filterHack expected)
+      |> filterHack
+      |> shouldPairwiseEqual (filterHack expected)
 
     printDeclarations None (List.ofSeq file2.Declarations) 
       |> Seq.toList 
-      |> Utils.filterHack
-      |> shouldPairwiseEqual (Utils.filterHack expected2)
+      |> filterHack
+      |> shouldPairwiseEqual (filterHack expected2)
 
     ()
 
-[<Test>]
+/// This test is run in unison with its unoptimized counterpart below
 let ``Test Optimized Declarations Project1`` () =
     let wholeProjectResults = exprChecker.ParseAndCheckProject(snd Project1.options.Value) |> Async.RunSynchronously
 
@@ -993,30 +978,24 @@ let ``Test Optimized and Unoptimized Declarations for Project1`` () =
 
 let testOperators dnName fsName excludedTests expectedUnoptimized expectedOptimized =
 
-    /// File is placed in local user's %TEMP%\ExprTests folder
-    let tempPath = Path.Combine(Path.GetTempPath(), "ExprTests")
-    do 
-        if Directory.Exists tempPath then ()
-        else Directory.CreateDirectory tempPath |> ignore
-
-    let tempFileName = Path.GetFileName(Path.GetTempFileName())
-    let basePath = Path.Combine(tempPath, tempFileName)
-    let fileName = Path.ChangeExtension(basePath, ".fs")
-    let dllName = Path.ChangeExtension(basePath, ".dll")
-    let projFileName = Path.ChangeExtension(basePath, ".fsproj")
+    let tempFileName = Utils.getTempFileName()
+    let filePath = Utils.getTempFilePathChangeExt tempFileName ".fs"
+    let dllPath =Utils.getTempFilePathChangeExt tempFileName ".dll"
+    let projFilePath = Utils.getTempFilePathChangeExt tempFileName ".fsproj"
 
     try
+        createTempDir()
         let source = System.String.Format(Project1.operatorTests, dnName, fsName)
         let replace (s:string) r = s.Replace("let " + r, "// let " + r)
         let fileSource = excludedTests |> List.fold replace source
-        File.WriteAllText(fileName, fileSource)
+        File.WriteAllText(filePath, fileSource)
 
         let args = [|
-            yield! mkProjectCommandLineArgsSilent (dllName, [fileName])
+            yield! mkProjectCommandLineArgsSilent (dllPath, [filePath])
             yield @"-r:System.Numerics.dll"         // needed for some tests
         |]
 
-        let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
+        let options =  checker.GetProjectOptionsFromCommandLineArgs (projFilePath, args)
 
         let wholeProjectResults = exprChecker.ParseAndCheckProject(options) |> Async.RunSynchronously
 
@@ -1043,13 +1022,8 @@ let testOperators dnName fsName excludedTests expectedUnoptimized expectedOptimi
         |> shouldPairwiseEqual expectedOptimized
 
     finally
-        try
-            // cleanup: only the source file is written to the temp dir.
-            File.Delete fileName
-            if Directory.GetFiles(tempPath) |> Array.isEmpty then
-                Directory.Delete tempPath
+        Utils.cleanupTempFiles [filePath; dllPath; projFilePath]
 
-        with _ -> ()
     ()
 
 [<Test>]

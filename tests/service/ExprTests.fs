@@ -985,21 +985,30 @@ let ``Test Optimized and Unoptimized Declarations for Project1`` () =
 
 let testOperators dnName fsName excludedTests expectedUnoptimized expectedOptimized =
 
-    let tempFileName = Utils.getTempFileName()
-    let filePath = Utils.getTempFilePathChangeExt tempFileName ".fs"
-    let dllPath =Utils.getTempFilePathChangeExt tempFileName ".dll"
-    let projFilePath = Utils.getTempFilePathChangeExt tempFileName ".fsproj"
+    /// File is placed in local user's %TEMP%\ExprTests folder
+    let tempPath = Path.Combine(Path.GetTempPath(), "ExprTests")
+    do 
+        if Directory.Exists tempPath then ()
+        else Directory.CreateDirectory tempPath |> ignore
+
+    let tempFileName = Path.GetFileName(Path.GetTempFileName())
+    let basePath = Path.Combine(tempPath, tempFileName)
+    let fileName = Path.ChangeExtension(basePath, ".fs")
+    let dllName = Path.ChangeExtension(basePath, ".dll")
+    let projFileName = Path.ChangeExtension(basePath, ".fsproj")
 
     try
-        createTempDir()
         let source = System.String.Format(Project1.operatorTests, dnName, fsName)
         let replace (s:string) r = s.Replace("let " + r, "// let " + r)
         let fileSource = excludedTests |> List.fold replace source
-        File.WriteAllText(filePath, fileSource)
+        File.WriteAllText(fileName, fileSource)
 
-        let args = mkProjectCommandLineArgsSilent (dllPath, [filePath])
+        let args = [|
+            yield! mkProjectCommandLineArgsSilent (dllName, [fileName])
+            yield @"-r:System.Numerics.dll"         // needed for some tests
+        |]
 
-        let options =  checker.GetProjectOptionsFromCommandLineArgs (projFilePath, args)
+        let options =  checker.GetProjectOptionsFromCommandLineArgs (projFileName, args)
 
         let wholeProjectResults = exprChecker.ParseAndCheckProject(options) |> Async.RunSynchronously
 
@@ -1026,8 +1035,13 @@ let testOperators dnName fsName excludedTests expectedUnoptimized expectedOptimi
         |> shouldPairwiseEqual expectedOptimized
 
     finally
-        Utils.cleanupTempFiles [filePath; dllPath; projFilePath]
+        try
+            // cleanup: only the source file is written to the temp dir.
+            File.Delete fileName
+            if Directory.GetFiles(tempPath) |> Array.isEmpty then
+                Directory.Delete tempPath
 
+        with _ -> ()
     ()
 
 [<Test>]

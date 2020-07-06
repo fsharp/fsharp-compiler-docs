@@ -12,6 +12,7 @@ DEAD_DIRS=(
     "src/fsharp/FSharp.Build"
     "src/fsharp/FSharp.Compiler.nuget/Microsoft.FSharp.Compiler.nuspec"
     "src/fsharp/FSharp.Compiler.Private/FSharp.Compiler.Private.fsproj"
+    "src/fsharp/fsi/xlf"
     "src/fsharp/fsi/fsi.fsproj"
     "src/fsharp/fsiAnyCpu/fsiAnyCpu.fsproj"
     "src/fsharp/Interactive.DependencyManager/xlf"

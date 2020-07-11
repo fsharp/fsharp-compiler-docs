@@ -41,7 +41,7 @@ module internal Utils =
         let tempFileName = Path.GetTempFileName()
         try
             let tempFile, tempExt = Path.GetFileNameWithoutExtension tempFileName, Path.GetExtension tempFileName
-            let procId, threadId = System.Diagnostics.Process.GetCurrentProcess().Id, System.Threading.Thread.CurrentThread.ManagedThreadId
+            let procId, threadId = Process.GetCurrentProcess().Id, Thread.CurrentThread.ManagedThreadId
             String.concat "" [tempFile; "_"; string procId; "_"; string threadId; tempExt]  // ext includes dot
         finally
             try 

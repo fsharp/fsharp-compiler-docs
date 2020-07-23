@@ -1,6 +1,19 @@
+#### 37.0.0
+
+This release bring a number of new changes, including a massive enhancement to SemanticClassification types thanks to @cartermp.
+
+From dotnet/fsharp:333eb82c8..d82a0ebf6:
+
+* now allows for multiple implementations of generic interfaces (preview feature) (thanks @0x53A!)
+* the default assembly set for script resolution now includes System.Numerics (thanks @KevinRansom)
+* #r nuget package resolution is now committed eagerly, instead of delayed (thanks @KevinRansom)
+* reduced allocations for some strings in the compiler (thanks @kerams)
+* better printing for SRTP constraints (thanks @abelbraaksma/@realvictorprm)
+* more expressive DUs for semantic classification (thanks @cartermp)
+
 #### 36.0.3
 
-This is a small bugfix release that fixes a nuspec package dependency issue with Sourcelink.
+This is a small bugfix release that fixes a nuspec package dependency issue with Sourcelink
 
 #### 36.0.2
 

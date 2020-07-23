@@ -716,7 +716,7 @@ STORAGE: PACKAGES
 RESTRICTION: == netstandard2.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    FSharp.Compiler.Service (36.0.1)
+    FSharp.Compiler.Service (36.0.3)
       FSharp.Core (>= 4.6.2)
       System.Buffers (>= 4.5)
       System.Collections.Immutable (>= 1.5)

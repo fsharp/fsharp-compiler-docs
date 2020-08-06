@@ -42,7 +42,6 @@ type FSharpScript(?additionalArgs: string[], ?quiet: bool, ?langVersion: LangVer
     let fsi = FsiEvaluationSession.Create (config, argv, stdin, stdout, stderr)
 
     member __.ValueBound = fsi.ValueBound
-
     member __.Fsi = fsi
 
     member __.Eval(code: string, ?cancellationToken: CancellationToken) =

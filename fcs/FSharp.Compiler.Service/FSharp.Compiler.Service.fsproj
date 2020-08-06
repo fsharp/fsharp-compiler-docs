@@ -559,6 +559,9 @@
     <Compile Include="$(FSharpSourcesRoot)/fsharp/Microsoft.DotNet.DependencyManager/DependencyProvider.fsi">
       <Link>Driver/DependencyProvider.fsi</Link>
     </Compile>
+    <Compile Include="$(FSharpSourcesRoot)/fsharp/Microsoft.DotNet.DependencyManager/DependencyProvider.fsi">
+      <Link>Driver/DependencyProvider.fsi</Link>
+    </Compile>
     <Compile Include="$(FSharpSourcesRoot)/fsharp/Microsoft.DotNet.DependencyManager/DependencyProvider.fs">
       <Link>Driver/DependencyProvider.fs</Link>
     </Compile>

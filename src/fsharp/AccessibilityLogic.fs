@@ -364,8 +364,11 @@ let IsMethInfoAccessible amap m ad minfo = IsTypeAndMethInfoAccessible amap m ad
 
 let IsPropInfoAccessible g amap m ad = function 
     | ILProp ilpinfo -> IsILPropInfoAccessible g amap m ad ilpinfo
-    | FSProp (_, _, Some vref, _) 
-    | FSProp (_, _, _, Some vref) -> IsValAccessible ad vref
+    | FSProp (_, _, Some vref, None) 
+    | FSProp (_, _, None, Some vref) -> IsValAccessible ad vref
+    | FSProp (_, _, Some vrefGet, Some vrefSet) -> 
+        // pick most accessible
+        IsValAccessible ad vrefGet || IsValAccessible ad vrefSet
 #if !NO_EXTENSIONTYPING
     | ProvidedProp (amap, tppi, m) as pp-> 
         let access = 

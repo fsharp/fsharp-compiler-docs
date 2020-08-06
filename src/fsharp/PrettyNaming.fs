@@ -763,3 +763,4 @@ let FSharpSignatureDataResourceName = "FSharpSignatureData."
 // or 'FSharpSignatureData'
 let FSharpOptimizationDataResourceName2 = "FSharpOptimizationInfo." 
 let FSharpSignatureDataResourceName2 = "FSharpSignatureInfo."
+

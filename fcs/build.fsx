@@ -31,7 +31,7 @@ let withDotnetExe =
 let runDotnet workingDir command args =
     let result = DotNet.exec (DotNet.Options.withWorkingDirectory workingDir >> withDotnetExe) command args
 
-    if result.ExitCode <> 0 then failwithf "dotnet %s failed with errors: %s" args (result.Errors |> String.concat "\n")
+    if result.ExitCode <> 0 then failwithf "dotnet %s %s failed with code %d and errors:\n%s" command args result.ExitCode (result.Errors |> String.concat "\n")
 
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script

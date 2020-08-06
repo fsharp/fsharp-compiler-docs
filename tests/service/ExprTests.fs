@@ -709,6 +709,7 @@ let test{0}ToStringOperator   (e1:{1}) = string e1
 """
 
 /// This test is run in unison with its optimized counterpart below
+[<Test>]
 let ``Test Unoptimized Declarations Project1`` () =
     let wholeProjectResults = exprChecker.ParseAndCheckProject(snd Project1.options.Value) |> Async.RunSynchronously
 
@@ -841,6 +842,7 @@ let ``Test Unoptimized Declarations Project1`` () =
     ()
 
 /// This test is run in unison with its unoptimized counterpart below
+[<Test>]
 let ``Test Optimized Declarations Project1`` () =
     let wholeProjectResults = exprChecker.ParseAndCheckProject(snd Project1.options.Value) |> Async.RunSynchronously
 

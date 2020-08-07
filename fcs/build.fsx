@@ -70,7 +70,7 @@ Target.create "Test" (fun _ ->
 
     // Now run the tests (different output files per TFM)
     let logFilePath = Path.Combine(__SOURCE_DIRECTORY__, "..", "artifacts", "TestResults", "Release", "FSharp.Compiler.Service.Test.{framework}.xml")
-    runDotnet (Path.Combine(__SOURCE_DIRECTORY__, "FSharp.Compiler.Service.Tests")) "test" (sprintf "FSharp.Compiler.Service.Tests.fsproj --no-restore --no-build -nodereuse:false -v n -c Release --logger \"nunit;LogFilePath=%s\"" logFilePath)
+    runDotnet (Path.Combine(__SOURCE_DIRECTORY__, "FSharp.Compiler.Service.Tests")) "test" (sprintf "FSharp.Compiler.Service.Tests.fsproj -nodereuse:false -v n -c Release --logger \"nunit;LogFilePath=%s\"" logFilePath)
 )
 
 Target.create "NuGet" (fun _ ->

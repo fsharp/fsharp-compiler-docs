@@ -45,15 +45,6 @@
   </Target>
 
   <ItemGroup>
-    <EmbeddedText Include="DependencyManager.txt" />
-    <Compile Include="$(FSharpSourcesRoot)\utils\CompilerLocationUtils.fs" />
-    <Compile Include="AssemblyResolveHandler.fsi" />
-    <Compile Include="AssemblyResolveHandler.fs" />
-    <Compile Include="$(FSharpSourcesRoot)\utils\CompilerLocationUtils.fs" />
-    <Compile Include="NativeDllResolveHandler.fsi" />
-    <Compile Include="NativeDllResolveHandler.fs" />
-    <Compile Include="DependencyProvider.fsi" />
-    <Compile Include="DependencyProvider.fs" />
     <EmbeddedText Include="FSDependencyManager.txt" />
     <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.ProjectFile.fs" />
     <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.Utilities.fs" />
@@ -66,8 +57,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="$(FcsFSharpCorePkgVersion)" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\FSharp.Core\FSharp.Core.fsproj" />
+    <PackageReference Update="FSharp.Core" Version="$(FcsFSharpCorePkgVersion)" />
     <PackageReference Include="System.Runtime.Loader" Version="$(SystemRuntimeLoaderVersion)" />
   </ItemGroup>
 

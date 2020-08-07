@@ -57,11 +57,23 @@ Target.create "Restore" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ "restore" "FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj -v n"
 )
 
+let outputs =[
+  "FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
+  "../src/fsharp/FSharp.DependencyManager.Nuget/FSharp.DependencyManager.Nuget.fsproj"
+  "FSharp.Compiler.Service.MSBuild.v12/FSharp.Compiler.Service.MSBuild.v12.fsproj"
+]
+
 Target.create "Build" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ "build" "../src/buildtools/buildtools.proj -v n -c Proto"
     let fslexPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fslex/Proto/netcoreapp3.1/fslex.dll"
     let fsyaccPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fsyacc/Proto/netcoreapp3.1/fsyacc.dll"
-    runDotnet (Path.Combine(__SOURCE_DIRECTORY__, "FSharp.Compiler.Service")) "build" (sprintf "FSharp.Compiler.Service.fsproj -nodereuse:false -v n -c Release /p:DisableCompilerRedirection=true /p:FsLexPath=%s /p:FsYaccPath=%s" fslexPath fsyaccPath)
+    
+    let build relPath =
+      let dir, proj = Path.getDirectory relPath, Path.GetFileName relPath
+      runDotnet (Path.Combine(__SOURCE_DIRECTORY__, dir)) "build" (sprintf "%s -nodereuse:false -v n -c Release /p:DisableCompilerRedirection=true /p:FsLexPath=%s /p:FsYaccPath=%s" proj fslexPath fsyaccPath)
+    
+    outputs
+    |> List.iter build
 )
 
 Target.create "Test" (fun _ ->
@@ -74,13 +86,16 @@ Target.create "Test" (fun _ ->
 )
 
 Target.create "NuGet" (fun _ ->
-    DotNet.pack (fun packOpts ->
-      { packOpts with
-          Configuration = DotNet.BuildConfiguration.Release
-          Common = packOpts.Common |> withDotnetExe |> DotNet.Options.withVerbosity (Some DotNet.Verbosity.Normal)
-          MSBuildParams = { packOpts.MSBuildParams with
-                              Properties = packOpts.MSBuildParams.Properties @ [ "Version", assemblyVersion; "VersionPrefix", assemblyVersion; "PackageReleaseNotes", release.Notes |> String.concat "\n" ] }
-      }) "FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
+    outputs
+    |> List.iter (
+      DotNet.pack (fun packOpts ->
+        { packOpts with
+            Configuration = DotNet.BuildConfiguration.Release
+            Common = packOpts.Common |> withDotnetExe |> DotNet.Options.withVerbosity (Some DotNet.Verbosity.Normal)
+            MSBuildParams = { packOpts.MSBuildParams with
+                                Properties = packOpts.MSBuildParams.Properties @ [ "Version", assemblyVersion; "VersionPrefix", assemblyVersion; "PackageReleaseNotes", release.Notes |> String.concat "\n" ] }
+        })
+    )
 )
 
 Target.create "GenerateDocs" (fun _ ->

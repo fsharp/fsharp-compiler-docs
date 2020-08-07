@@ -158,7 +158,7 @@ Target.create "ValidateVersionBump" (fun _ ->
 
 Target.create "CreateRelease" (fun _ ->
   async {
-    let client = GitHub.createClientWithToken (Environment.environVarOrDefault "GITHUB_TOKEN" (UserInput.getUserPassword "Github API Token: "))
+    let client = GitHub.createClientWithToken (Environment.environVarOrNone "GITHUB_TOKEN" |> Option.defaultWith (fun _ -> UserInput.getUserPassword "Github API Token: "))
     let currentSha = Git.Information.getCurrentSHA1 ""
     let releaseParams (input: GitHub.CreateReleaseParams) =
       { input with

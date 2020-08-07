@@ -95,14 +95,16 @@ let packagesPatterns =
   ++ (sprintf "%s/FSharp.DependencyManager.Nuget.%s.nupkg" packagesDir release.NugetVersion)
 
 Target.create "PublishNuGet" (fun _ ->
-  let apikey = lazy(Environment.environVarOrDefault "NUGET_APIKEY" (UserInput.getUserPassword "Nuget API Key: "))
+  let apikey = 
+    Environment.environVarOrNone "NUGET_APIKEY" 
+    |> Option.defaultWith (fun _ -> UserInput.getUserPassword "Nuget API Key: ")
 
   packagesPatterns
   |> Seq.iter (fun nupkg ->
     DotNet.nugetPush (fun p -> {
       p with
         PushParams = { p.PushParams with
-                          ApiKey = Some apikey.Value
+                          ApiKey = Some apikey
                           Source = Some "https://api.nuget.org/v3/index.json" }
     }) nupkg
   )

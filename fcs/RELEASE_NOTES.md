@@ -2,7 +2,7 @@
 
 This release bring a number of new changes, including a massive enhancement to SemanticClassification types thanks to @cartermp.
 
-From dotnet/fsharp:333eb82c8..87114ec84:
+From dotnet/fsharp:333eb82c8..d9e070a9d:
 
 * now allows for multiple implementations of generic interfaces (preview feature) (thanks @0x53A!)
 * the default assembly set for script resolution now includes System.Numerics (thanks @KevinRansom)
@@ -12,7 +12,13 @@ From dotnet/fsharp:333eb82c8..87114ec84:
 * more expressive DUs for semantic classification (thanks @cartermp)
 * remove legacymsbuildreferenceresolver (thanks @KevinRandom)
 * supply witnesses for op_UnaryPlus (thanks @TIHan)
-* clean up CE calssifications (thanks @cartermp)
+* clean up CE classifications (thanks @cartermp)
+* Fixed tostring/equality for StringText (thanks @deviousasti)
+* Fixed error text for FS0874
+* Disallow assignment to C# Const/Readonly properties (thanks @baronfel)
+* Allow Int64.MinValue as a valid nativeint literal (thanks @abelbraaksma)
+* Enhancements to the nameof feature (preview feature)
+* String interpolation (preview feature)
 
 #### 36.0.3
 

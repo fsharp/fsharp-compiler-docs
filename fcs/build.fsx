@@ -31,7 +31,7 @@ let withDotnetExe =
 let runDotnet workingDir command args =
     let result = DotNet.exec (DotNet.Options.withWorkingDirectory workingDir >> withDotnetExe) command args
 
-    if result.ExitCode <> 0 then failwithf "dotnet %s failed with errors: %s" args (result.Errors |> String.concat "\n")
+    if result.ExitCode <> 0 then failwithf "dotnet %s %s failed with code %d and errors:\n%s" command args result.ExitCode (result.Errors |> String.concat "\n")
 
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script
@@ -54,14 +54,14 @@ Target.create "Clean" (fun _ ->
 Target.create "Restore" (fun _ ->
     // We assume a paket restore has already been run
     runDotnet __SOURCE_DIRECTORY__ "restore" "../src/buildtools/buildtools.proj -v n"
-    runDotnet __SOURCE_DIRECTORY__ "restore" "FSharp.Compiler.Service.sln -v n"
+    runDotnet __SOURCE_DIRECTORY__ "restore" "FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj -v n"
 )
 
 Target.create "Build" (fun _ ->
     runDotnet __SOURCE_DIRECTORY__ "build" "../src/buildtools/buildtools.proj -v n -c Proto"
     let fslexPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fslex/Proto/netcoreapp3.1/fslex.dll"
     let fsyaccPath = __SOURCE_DIRECTORY__ + "/../artifacts/bin/fsyacc/Proto/netcoreapp3.1/fsyacc.dll"
-    runDotnet __SOURCE_DIRECTORY__ "build" (sprintf "FSharp.Compiler.Service.sln -nodereuse:false -v n -c Release /p:DisableCompilerRedirection=true /p:FsLexPath=%s /p:FsYaccPath=%s" fslexPath fsyaccPath)
+    runDotnet (Path.Combine(__SOURCE_DIRECTORY__, "FSharp.Compiler.Service")) "build" (sprintf "FSharp.Compiler.Service.fsproj -nodereuse:false -v n -c Release /p:DisableCompilerRedirection=true /p:FsLexPath=%s /p:FsYaccPath=%s" fslexPath fsyaccPath)
 )
 
 Target.create "Test" (fun _ ->
@@ -70,7 +70,7 @@ Target.create "Test" (fun _ ->
 
     // Now run the tests (different output files per TFM)
     let logFilePath = Path.Combine(__SOURCE_DIRECTORY__, "..", "artifacts", "TestResults", "Release", "FSharp.Compiler.Service.Test.{framework}.xml")
-    runDotnet __SOURCE_DIRECTORY__ "test" (sprintf "FSharp.Compiler.Service.Tests/FSharp.Compiler.Service.Tests.fsproj --no-restore --no-build -nodereuse:false -v n -c Release --logger \"nunit;LogFilePath=%s\"" logFilePath)
+    runDotnet (Path.Combine(__SOURCE_DIRECTORY__, "FSharp.Compiler.Service.Tests")) "test" (sprintf "FSharp.Compiler.Service.Tests.fsproj -nodereuse:false -v n -c Release --logger \"nunit;LogFilePath=%s\"" logFilePath)
 )
 
 Target.create "NuGet" (fun _ ->
@@ -80,7 +80,7 @@ Target.create "NuGet" (fun _ ->
           Common = packOpts.Common |> withDotnetExe |> DotNet.Options.withVerbosity (Some DotNet.Verbosity.Normal)
           MSBuildParams = { packOpts.MSBuildParams with
                               Properties = packOpts.MSBuildParams.Properties @ [ "Version", assemblyVersion; "VersionPrefix", assemblyVersion; "PackageReleaseNotes", release.Notes |> String.concat "\n" ] }
-      }) "FSharp.Compiler.Service.sln"
+      }) "FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj"
 )
 
 Target.create "GenerateDocs" (fun _ ->

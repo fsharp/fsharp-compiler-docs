@@ -8,6 +8,8 @@
     <IsPackable>true</IsPackable>
     <TargetFrameworks Condition="'$(OS)' == 'Unix'">netstandard2.0</TargetFrameworks>
     <AssemblyName>Microsoft.DotNet.DependencyManager</AssemblyName>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <AssemblyName>FSharp.DependencyManager.Nuget</AssemblyName>
     <NoWarn>$(NoWarn);45;55;62;75;1204</NoWarn>
     <AllowCrossTargeting>true</AllowCrossTargeting>
     <OtherFlags>$(OtherFlags) --warnon:1182 --maxerrors:20 --extraoptimizationloops:1</OtherFlags>
@@ -22,14 +24,19 @@
 
   <ItemGroup>
     <EmbeddedText Include="DependencyManager.txt" />
-    <Compile Include="$(FSharpSourcesRoot)\utils\CompilerLocationUtils.fs" />
+    <EmbeddedText Include="..\..\utils\UtilsStrings.txt" />
+    <Compile Include="..\..\utils\CompilerLocationUtils.fs" />
     <Compile Include="AssemblyResolveHandler.fsi" />
     <Compile Include="AssemblyResolveHandler.fs" />
-    <Compile Include="$(FSharpSourcesRoot)\utils\CompilerLocationUtils.fs" />
     <Compile Include="NativeDllResolveHandler.fsi" />
     <Compile Include="NativeDllResolveHandler.fs" />
     <Compile Include="DependencyProvider.fsi" />
     <Compile Include="DependencyProvider.fs" />
+    <EmbeddedText Include="FSDependencyManager.txt" />
+    <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.ProjectFile.fs" />
+    <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.Utilities.fs" />
+    <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.fsi" />
+    <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.fs" />
   </ItemGroup>
 
   <ItemGroup>

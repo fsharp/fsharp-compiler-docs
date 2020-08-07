@@ -20,6 +20,8 @@ type LanguageFeature =
     | NullableOptionalInterop
     | DefaultInterfaceMemberConsumption
     | WitnessPassing
+    | InterfacesWithMultipleGenericInstantiation
+    | StringInterpolation
 
 /// LanguageVersion management
 type LanguageVersion =

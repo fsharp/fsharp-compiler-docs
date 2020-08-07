@@ -26,6 +26,16 @@
     <PackageProjectUrl>https://github.com/fsharp/FSharp.Compiler.Service</PackageProjectUrl>
     <PackageIcon>logo.png</PackageIcon>
     <PackageTags>F#, fsharp, interactive, compiler, editor</PackageTags>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+    <TargetFrameworks Condition="'$(OS)' == 'Unix'">netstandard2.0</TargetFrameworks>
+    <AssemblyName>Microsoft.DotNet.DependencyManager</AssemblyName>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <AssemblyName>FSharp.DependencyManager.Nuget</AssemblyName>
+    <NoWarn>$(NoWarn);45;55;62;75;1204</NoWarn>
+    <AllowCrossTargeting>true</AllowCrossTargeting>
+    <OtherFlags>$(OtherFlags) --warnon:1182 --maxerrors:20 --extraoptimizationloops:1</OtherFlags>
+    <Tailcalls>true</Tailcalls> <!-- .tail annotations always emitted for this binary, even in debug mode -->
   </PropertyGroup>
 
   <Target Name="CopyToBuiltBin" BeforeTargets="BuiltProjectOutputGroup" AfterTargets="CoreCompile">
@@ -35,6 +45,15 @@
   </Target>
 
   <ItemGroup>
+    <EmbeddedText Include="DependencyManager.txt" />
+    <Compile Include="$(FSharpSourcesRoot)\utils\CompilerLocationUtils.fs" />
+    <Compile Include="AssemblyResolveHandler.fsi" />
+    <Compile Include="AssemblyResolveHandler.fs" />
+    <Compile Include="$(FSharpSourcesRoot)\utils\CompilerLocationUtils.fs" />
+    <Compile Include="NativeDllResolveHandler.fsi" />
+    <Compile Include="NativeDllResolveHandler.fs" />
+    <Compile Include="DependencyProvider.fsi" />
+    <Compile Include="DependencyProvider.fs" />
     <EmbeddedText Include="FSDependencyManager.txt" />
     <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.ProjectFile.fs" />
     <Compile Include="$(FSharpSourcesRoot)\fsharp\FSharp.DependencyManager.Nuget\FSharp.DependencyManager.Utilities.fs" />
@@ -48,6 +67,7 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="$(FcsFSharpCorePkgVersion)" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\FSharp.Core\FSharp.Core.fsproj" />
     <PackageReference Include="System.Runtime.Loader" Version="$(SystemRuntimeLoaderVersion)" />
   </ItemGroup>
 
@@ -64,6 +84,7 @@
     <PackageReference Include="System.Reflection.TypeExtensions" Version="$(SystemReflectionTypeExtensionsVersion)" />
     <PackageReference Include="System.Runtime" Version="$(SystemRuntimeVersion)" />
     <PackageReference Include="System.Runtime.InteropServices" Version="$(SystemRuntimeInteropServicesVersion)" />
+    <PackageReference Include="System.Runtime.Loader" Version="$(SystemRuntimeLoaderVersion)" />
     <PackageReference Include="System.Security.Claims" Version="$(SystemSecurityClaimsVersion)" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="$(SystemSecurityCryptographyAlgorithmsVersion)" />
     <PackageReference Include="System.Security.Principal" Version="$(SystemSecurityPrincipalVersion)" />

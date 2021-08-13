@@ -1,4 +1,10 @@
-# F# Compiler Service
+# OLD NOTES - ARCHIVED REPO, NOW MERGED with [dotnet/fsharp](https://github.com/dotnet/fsharp)
+
+
+------------------------
+
+
+# F# Compiler Service (OLD NOTES - ARCHIVED REPO, NOW MERGED with [dotnet/fsharp](https://github.com/dotnet/fsharp))
 
 The FSharp.Compiler.Service package contains a custom build of the F# compiler that
 exposes additional functionality for implementing F# language bindings, additional

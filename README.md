@@ -1,4 +1,4 @@
-# FSharp.Compiler.Service API documentation generation
+# FSharp.Compiler.Service documentation generation
 
 https://fsharp.github.io/FSharp.Compiler.Service
 
@@ -9,9 +9,9 @@ signature files (`*.fsi`) in the FSharp.Compiler.Service implementation.
 
 * Fork and clone https://github.com/dotnet/fsharp locally, see below
 
-* Contribute to [the src/fsharp directory](https://github.com/dotnet/fsharp/tree/master/src/fsharp) and submit work to  `main` branch of https://github.com/dotnet/fsharp
+* Contribute to [src/fsharp directory](https://github.com/dotnet/fsharp/tree/master/docs/fcs) and [src/fsharp directory](https://github.com/dotnet/fsharp/tree/master/src/fsharp) and submit work to  `main` branch of [dotnet/fsharp](https://github.com/dotnet/fsharp)
 
-* Once accepted your work will be published through a rebuild here, so submit a dummy pull request here
+* Once accepted your work will be published through a rebuild here. A rebuild is triggered daily at 17:30 UTC or you can trigger it yourself by submitting a dummy change.
 
 ## Contributing to Generation of API Docs
 

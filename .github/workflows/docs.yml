@@ -1,6 +1,10 @@
 name: Release docs
 
 on:
+  schedule:
+    # Triggers the workflow every day at 17:30 UTC
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '30 17 * * *'
   push:
     branches:
       - main
@@ -8,13 +12,7 @@ on:
 
 jobs:
   build:
-
-    strategy:
-      matrix:
-        os: [windows-latest]
-        dotnet: [5.0.400]
-    runs-on: ${{ matrix.os }}
-
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core

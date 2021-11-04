@@ -1,6 +1,6 @@
 # FSharp.Compiler.Service documentation generation
 
-https://fsharp.github.io/FSharp.Compiler.Service
+https://fsharp.github.io/fsharp-compiler-docs
 
 ## Contributing to Library Content
 
@@ -9,7 +9,7 @@ signature files (`*.fsi`) in the FSharp.Compiler.Service implementation.
 
 * Fork and clone https://github.com/dotnet/fsharp locally, see below
 
-* Contribute to [src/fsharp directory](https://github.com/dotnet/fsharp/tree/master/docs/fcs) and [src/fsharp directory](https://github.com/dotnet/fsharp/tree/master/src/fsharp) and submit work to  `main` branch of [dotnet/fsharp](https://github.com/dotnet/fsharp)
+* Contribute to [src/fsharp directory](https://github.com/dotnet/fsharp/tree/master/docs) and [src/fsharp directory](https://github.com/dotnet/fsharp/tree/master/src/fsharp) and submit work to  `main` branch of [dotnet/fsharp](https://github.com/dotnet/fsharp)
 
 * Once accepted your work will be published through a rebuild here. A rebuild is triggered daily at 17:30 UTC or you can trigger it yourself by submitting a dummy change.
 
@@ -64,7 +64,7 @@ For now, we make a fresh build of FSharp.Compiler.Service.
 Then do iterative development using:
 
     (from 'FSharp.Compiler.Service')
-    dotnet fsdocs watch --sourcefolder fsharp  --input fsharp/docs/fcs
+    dotnet fsdocs watch --sourcefolder fsharp  --input fsharp/docs
 
 ## CI Pipeline
 

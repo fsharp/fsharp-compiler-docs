@@ -26,7 +26,7 @@ jobs:
     - name: Checkout fsharp master
       run: git clone https://github.com/dotnet/fsharp --depth 1 fsharp -b main
     - name: Build fsharp master (turn of CI build status)
-      run: cd fsharp && eng\CIBuild.cmd
+      run: cd fsharp && eng\CIBuild.cmd -noVisualStudio
     - name: Run fsdocs
       run: dotnet fsdocs build --sourcefolder fsharp --input fsharp/docs/fcs
     - name: Deploy

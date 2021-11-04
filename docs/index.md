@@ -26,4 +26,4 @@ The following namespaces are available:
 
 ## Contributing to this documentation
 
-To contribute to this documentation site and its content, please see [the notes in the corresponding GitHub repository](https://github.com/fsharp/fsharp-core-docs).
+To contribute to this documentation site and its content, please see [the notes in the corresponding GitHub repository](https://github.com/fsharp/FSharp.Compiler.Service).

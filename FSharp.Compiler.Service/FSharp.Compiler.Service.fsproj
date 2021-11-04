@@ -27,7 +27,7 @@
   <PropertyGroup>
     <!-- styling and generation settings for FsDocs default template-->
     <PackageLicenseUrl>https://github.com/dotnet/fsharp/blob/main/License.txt</PackageLicenseUrl>
-    <PackageProjectUrl>https://fsharp.github.io/fsharp-core-docs/</PackageProjectUrl>
+    <PackageProjectUrl>https://fsharp.github.io/FSharp.Compiler.Service/</PackageProjectUrl>
     <PackageIconUrl>https://fsharp.org/img/logo/fsharp128.png</PackageIconUrl>
     <PackageTags>F#;async;fsharp;streaming</PackageTags>
     <RepositoryUrl>https://github.com/dotnet/fsharp/</RepositoryUrl>

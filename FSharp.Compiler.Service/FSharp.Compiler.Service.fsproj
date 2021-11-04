@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>F# Software Foundation; Microsoft; F# Contributors</Authors>
+    <Summary>The core library for F#</Summary>
+    <Description>The core library F#</Description>
+    <Copyright>Copyright 2003-2020</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <OutputType>Library</OutputType>
+    <IsTestProject>false</IsTestProject>
+    <IsPackable>true</IsPackable>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageVersion>4.7.2</PackageVersion>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+    <!-- <TargetPath>$(MSBuildThisFileDirectory)..\packages\FSharp.Compiler.Service\lib\netstandard2.0\FSharp.Compiler.Service.dll</TargetPath> -->
+
+    <!-- for a parallel checkout and build of fsharp  -->
+    <TargetPath Condition="Exists('..\..\fsharp\build.cmd')">$(MSBuildThisFileDirectory)..\..\fsharp\artifacts\bin\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.dll</TargetPath>
+
+    <!-- for a local checkout and build of fsharp in CI -->
+    <TargetPath Condition="Exists('..\fsharp\build.cmd')">$(MSBuildThisFileDirectory)..\fsharp\artifacts\bin\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.dll</TargetPath>
+  
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- styling and generation settings for FsDocs default template-->
+    <PackageLicenseUrl>https://github.com/dotnet/fsharp/blob/main/License.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://fsharp.github.io/fsharp-core-docs/</PackageProjectUrl>
+    <PackageIconUrl>https://fsharp.org/img/logo/fsharp128.png</PackageIconUrl>
+    <PackageTags>F#;async;fsharp;streaming</PackageTags>
+    <RepositoryUrl>https://github.com/dotnet/fsharp/</RepositoryUrl>
+    <FsDocsLogoLink>https://fsharp.org</FsDocsLogoLink>
+    <FsDocsLicenseLink>https://github.com/dotnet/fsharp/blob/main/License.txt</FsDocsLicenseLink>
+    <FsDocsReleaseNotesLink>https://github.com/dotnet/fsharp/blob/main/release-notes.md</FsDocsReleaseNotesLink>
+    <RepositoryType>git</RepositoryType>
+    <FsDocsWarnOnMissingDocs>true</FsDocsWarnOnMissingDocs>
+  </PropertyGroup>
+
+</Project>
+

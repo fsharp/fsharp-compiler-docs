@@ -31,7 +31,7 @@
     <PackageIconUrl>https://fsharp.org/img/logo/fsharp128.png</PackageIconUrl>
     <PackageTags>F#;async;fsharp;streaming</PackageTags>
     <RepositoryUrl>https://github.com/dotnet/fsharp/</RepositoryUrl>
-    <FsDocsLogoLink>hhttps://fsharp.github.io/fsharp-compiler-docs/</FsDocsLogoLink>
+    <FsDocsLogoLink>https://fsharp.github.io/fsharp-compiler-docs/</FsDocsLogoLink>
     <FsDocsLicenseLink>https://github.com/dotnet/fsharp/blob/main/License.txt</FsDocsLicenseLink>
     <FsDocsReleaseNotesLink>https://github.com/dotnet/fsharp/blob/main/release-notes.md</FsDocsReleaseNotesLink>
     <RepositoryType>git</RepositoryType>

@@ -29,4 +29,4 @@ jobs:
     - name: Build fsharp master (turn of CI build status)
       run: cd fsharp && eng\CIBuild.cmd  -noVisualStudio
     - name: Run fsdocs
-      run: dotnet fsdocs build --sourcefolder fsharp --input fsharp/docs
+      run: dotnet fsdocs build --sourcefolder fsharp --input fsharp/docs --strict

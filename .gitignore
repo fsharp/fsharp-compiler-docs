@@ -9,4 +9,4 @@ FSharp.Formatting/
 .fsdocs/
 FSharp.Compiler.Service/obj/
 tmp/
-
+output/

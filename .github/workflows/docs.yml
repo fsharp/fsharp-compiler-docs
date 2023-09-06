@@ -30,7 +30,8 @@ jobs:
           global-json-file: ${{ env.FSHARP_DIR }}/global.json
       - name: Restore tools
         run: dotnet tool restore
-
+      - name: Restore FSharp.Compiler.Service.fsproj
+        run: dotnet restore FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj
       - name: Build FCS
         run: dotnet build src/Compiler/FSharp.Compiler.Service.fsproj /p:BUILDING_USING_DOTNET=true
         working-directory: ${{ env.FSHARP_DIR }}

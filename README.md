@@ -25,20 +25,21 @@ Eventually the build will just be
 
 For now, we make a fresh build of FSharp.Compiler.Service.
 
-    (start in fsharp-conpiler-docs)
-    dotnet restore fsharp-conpiler-docs
+    (start in fsharp-compiler-docs)
+    dotnet restore FSharp.Compiler.Service
+    dotnet tool restore
 
-    (make fsharp-conpiler-docs/fsharp)
+    (make fsharp-compiler-docs/fsharp)
     git clone https://github.com/dotnet/fsharp --depth 1 -b main
 
-    (build fsharp-conpiler-docs) 
+    (build fsharp-compiler-docs/fsharp) 
     pushd fsharp
-    .\build -noVisualStudio
+    dotnet build src/Compiler/FSharp.Compiler.Service.fsproj /p:BUILDING_USING_DOTNET=true
     popd
 
 Then do iterative development using:
 
-    (from fsharp-conpiler-docs)
+    (from fsharp-compiler-docs)
     dotnet fsdocs watch --sourcefolder fsharp  --input fsharp/docs
 
 ## CI Pipeline

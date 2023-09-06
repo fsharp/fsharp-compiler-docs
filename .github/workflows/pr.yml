@@ -10,13 +10,7 @@ env:
 
 jobs:
   build:
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        dotnet: [6.0.400]
-    runs-on: ${{ matrix.os }}
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Checkout fsharp main

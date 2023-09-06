@@ -18,10 +18,10 @@
     <!-- <TargetPath>$(MSBuildThisFileDirectory)..\packages\FSharp.Compiler.Service\lib\netstandard2.0\FSharp.Compiler.Service.dll</TargetPath> -->
 
     <!-- for a parallel checkout and build of fsharp  -->
-    <TargetPath Condition="Exists('..\..\fsharp\build.cmd')">$(MSBuildThisFileDirectory)..\..\fsharp\artifacts\bin\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.dll</TargetPath>
+    <TargetPath Condition="Exists('..\..\fsharp\Build.cmd')">$(MSBuildThisFileDirectory)..\..\fsharp\artifacts\bin\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.dll</TargetPath>
 
     <!-- for a local checkout and build of fsharp in CI -->
-    <TargetPath Condition="Exists('..\fsharp\build.cmd')">$(MSBuildThisFileDirectory)..\fsharp\artifacts\bin\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.dll</TargetPath>
+    <TargetPath Condition="Exists('..\fsharp\Build.cmd')">$(MSBuildThisFileDirectory)..\fsharp\artifacts\bin\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.dll</TargetPath>
   
   </PropertyGroup>
   <PropertyGroup>

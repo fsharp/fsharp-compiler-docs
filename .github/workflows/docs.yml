@@ -10,6 +10,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  FSHARP_DIR: fsharp
+
 jobs:
   build:
     runs-on: ubuntu-latest

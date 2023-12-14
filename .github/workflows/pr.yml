@@ -38,4 +38,4 @@ jobs:
               DOTNET_ROLL_FORWARD: "LatestMajor"
               # need previews because .NET 8 is what's being used at runtime
               DOTNET_ROLL_FORWARD_TO_PRERELEASE: "1"
-        run: dotnet fsdocs build --sourcefolder fsharp --input fsharp/docs
+        run: dotnet fsdocs build --eval --sourcefolder fsharp --input fsharp/docs

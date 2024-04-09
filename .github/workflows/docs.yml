@@ -44,7 +44,7 @@ jobs:
               DOTNET_ROLL_FORWARD_TO_PRERELEASE: "1"
         run: dotnet fsdocs build --eval --sourcefolder fsharp --input fsharp/docs
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output

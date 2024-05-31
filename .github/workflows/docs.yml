@@ -33,7 +33,7 @@ jobs:
       - name: Restore FSharp.Compiler.Service.fsproj
         run: dotnet restore FSharp.Compiler.Service/FSharp.Compiler.Service.fsproj
       - name: Build FCS
-        run: dotnet build src/Compiler/FSharp.Compiler.Service.fsproj /p:BUILDING_USING_DOTNET=true
+        run: dotnet build FSharp.Compiler.Service.sln
         working-directory: ${{ env.FSHARP_DIR }}
 
       - name: Run fsdocs

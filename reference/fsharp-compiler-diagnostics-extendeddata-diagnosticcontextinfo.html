@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsharp.github.io/fsharp-compiler-docs/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="DiagnosticContextInfo (F# Compiler Guide)" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/{{fsdocs-source-basename}}.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="DiagnosticContextInfo (F# Compiler Guide)">
+    
+    <title>DiagnosticContextInfo (F# Compiler Guide) | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="api-docs">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Header menu logo" src="https://fsharp.github.io/fsharp-compiler-docs/img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <div>
+  <h2>
+    DiagnosticContextInfo Type
+  </h2>
+  <dl class="fsdocs-metadata">
+    <dt>
+      Namespace: 
+      <a href="https://fsharp.github.io/fsharp-compiler-docs/reference/fsharp-compiler-diagnostics.html">
+        FSharp.Compiler.Diagnostics
+      </a>
+    </dt>
+    <dt>
+      Assembly: FSharp.Compiler.Service.dll
+    </dt>
+    <dt>
+      Parent Module: 
+      <a href="https://fsharp.github.io/fsharp-compiler-docs/reference/fsharp-compiler-diagnostics-extendeddata.html">
+        ExtendedData
+      </a>
+    </dt>
+    <dt>
+      Base Type: 
+      <code>obj</code>
+    </dt>
+    <dt>
+      All Interfaces: 
+      <code><a href="https://learn.microsoft.com/dotnet/api/system.collections.istructuralequatable">IStructuralEquatable</a></code>
+      , 
+      <code><span><a href="https://learn.microsoft.com/dotnet/api/system.icomparable-1">IComparable</a>&lt;<a href="https://fsharp.github.io/fsharp-compiler-docs/reference/fsharp-compiler-diagnostics-extendeddata-diagnosticcontextinfo.html">DiagnosticContextInfo</a>&gt;</span></code>
+      , 
+      <code><a href="https://learn.microsoft.com/dotnet/api/system.icomparable">IComparable</a></code>
+      , 
+      <code><a href="https://learn.microsoft.com/dotnet/api/system.collections.istructuralcomparable">IStructuralComparable</a></code>
+    </dt>
+  </dl>
+  <div class="fsdocs-xmldoc">
+    <div>
+      <div class="fsdocs-summary-contents">
+        <p class="fsdocs-summary">
+           Information about the context of a type equation in type-mismatch-like diagnostic
+        </p>
+      </div>
+    </div>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Union cases
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Union case
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+            <fsdocs-details-toggle></fsdocs-details-toggle>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1190', 1190)" onmouseover="showTip(event, '1190', 1190)">
+                <p>
+                  <a id="CollectionElement">
+                    <a href="#CollectionElement">
+                      <code><span>CollectionElement</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1190">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>CollectionElement</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from a list or array constructor
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L31-31" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1191', 1191)" onmouseover="showTip(event, '1191', 1191)">
+                <p>
+                  <a id="DowncastUsedInsteadOfUpcast">
+                    <a href="#DowncastUsedInsteadOfUpcast">
+                      <code><span>DowncastUsedInsteadOfUpcast</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1191">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>DowncastUsedInsteadOfUpcast</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from an downcast where a upcast could be used
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L39-39" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1192', 1192)" onmouseover="showTip(event, '1192', 1192)">
+                <p>
+                  <a id="ElseBranchResult">
+                    <a href="#ElseBranchResult">
+                      <code><span>ElseBranchResult</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1192">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ElseBranchResult</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from a type check of the result of an else branch
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L25-25" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1193', 1193)" onmouseover="showTip(event, '1193', 1193)">
+                <p>
+                  <a id="FollowingPatternMatchClause">
+                    <a href="#FollowingPatternMatchClause">
+                      <code><span>FollowingPatternMatchClause</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1193">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>FollowingPatternMatchClause</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from a return type of a pattern match clause (not the first clause)
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L41-41" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1194', 1194)" onmouseover="showTip(event, '1194', 1194)">
+                <p>
+                  <a id="IfExpression">
+                    <a href="#IfExpression">
+                      <code><span>IfExpression</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1194">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>IfExpression</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from an IF expression
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L21-21" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1195', 1195)" onmouseover="showTip(event, '1195', 1195)">
+                <p>
+                  <a id="NoContext">
+                    <a href="#NoContext">
+                      <code><span>NoContext</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1195">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>NoContext</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   No context was given
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L19-19" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1196', 1196)" onmouseover="showTip(event, '1196', 1196)">
+                <p>
+                  <a id="OmittedElseBranch">
+                    <a href="#OmittedElseBranch">
+                      <code><span>OmittedElseBranch</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1196">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>OmittedElseBranch</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from an omitted else branch
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L23-23" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1197', 1197)" onmouseover="showTip(event, '1197', 1197)">
+                <p>
+                  <a id="PatternMatchGuard">
+                    <a href="#PatternMatchGuard">
+                      <code><span>PatternMatchGuard</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1197">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>PatternMatchGuard</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from a pattern match guard
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L43-43" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1198', 1198)" onmouseover="showTip(event, '1198', 1198)">
+                <p>
+                  <a id="RecordFields">
+                    <a href="#RecordFields">
+                      <code><span>RecordFields</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1198">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>RecordFields</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from the verification of record fields
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L27-27" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1199', 1199)" onmouseover="showTip(event, '1199', 1199)">
+                <p>
+                  <a id="ReturnInComputationExpression">
+                    <a href="#ReturnInComputationExpression">
+                      <code><span>ReturnInComputationExpression</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1199">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ReturnInComputationExpression</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from a return in a computation expression
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L33-33" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1200', 1200)" onmouseover="showTip(event, '1200', 1200)">
+                <p>
+                  <a id="RuntimeTypeTest">
+                    <a href="#RuntimeTypeTest">
+                      <code><span>RuntimeTypeTest</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1200">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>RuntimeTypeTest</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from a runtime type test
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L37-37" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1201', 1201)" onmouseover="showTip(event, '1201', 1201)">
+                <p>
+                  <a id="SequenceExpression">
+                    <a href="#SequenceExpression">
+                      <code><span>SequenceExpression</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1201">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>SequenceExpression</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from a sequence expression
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L45-45" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1202', 1202)" onmouseover="showTip(event, '1202', 1202)">
+                <p>
+                  <a id="TupleInRecordFields">
+                    <a href="#TupleInRecordFields">
+                      <code><span>TupleInRecordFields</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1202">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>TupleInRecordFields</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from the verification of a tuple in record fields
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L29-29" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1203', 1203)" onmouseover="showTip(event, '1203', 1203)">
+                <p>
+                  <a id="YieldInComputationExpression">
+                    <a href="#YieldInComputationExpression">
+                      <code><span>YieldInComputationExpression</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1203">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>YieldInComputationExpression</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                   The type equation comes from a yield in a computation expression
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fsi#L35-35" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Instance members
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Instance member
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+            <fsdocs-details-toggle></fsdocs-details-toggle>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1204', 1204)" onmouseover="showTip(event, '1204', 1204)">
+                <p>
+                  <a id="IsCollectionElement">
+                    <a href="#IsCollectionElement">
+                      <code><span>this.IsCollectionElement</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1204">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsCollectionElement</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L41-41" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1205', 1205)" onmouseover="showTip(event, '1205', 1205)">
+                <p>
+                  <a id="IsDowncastUsedInsteadOfUpcast">
+                    <a href="#IsDowncastUsedInsteadOfUpcast">
+                      <code><span>this.IsDowncastUsedInsteadOfUpcast</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1205">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsDowncastUsedInsteadOfUpcast</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L45-45" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1206', 1206)" onmouseover="showTip(event, '1206', 1206)">
+                <p>
+                  <a id="IsElseBranchResult">
+                    <a href="#IsElseBranchResult">
+                      <code><span>this.IsElseBranchResult</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1206">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsElseBranchResult</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L38-38" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1207', 1207)" onmouseover="showTip(event, '1207', 1207)">
+                <p>
+                  <a id="IsFollowingPatternMatchClause">
+                    <a href="#IsFollowingPatternMatchClause">
+                      <code><span>this.IsFollowingPatternMatchClause</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1207">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsFollowingPatternMatchClause</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L46-46" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1208', 1208)" onmouseover="showTip(event, '1208', 1208)">
+                <p>
+                  <a id="IsIfExpression">
+                    <a href="#IsIfExpression">
+                      <code><span>this.IsIfExpression</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1208">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsIfExpression</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L36-36" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1209', 1209)" onmouseover="showTip(event, '1209', 1209)">
+                <p>
+                  <a id="IsNoContext">
+                    <a href="#IsNoContext">
+                      <code><span>this.IsNoContext</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1209">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsNoContext</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L35-35" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1210', 1210)" onmouseover="showTip(event, '1210', 1210)">
+                <p>
+                  <a id="IsOmittedElseBranch">
+                    <a href="#IsOmittedElseBranch">
+                      <code><span>this.IsOmittedElseBranch</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1210">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsOmittedElseBranch</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L37-37" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1211', 1211)" onmouseover="showTip(event, '1211', 1211)">
+                <p>
+                  <a id="IsPatternMatchGuard">
+                    <a href="#IsPatternMatchGuard">
+                      <code><span>this.IsPatternMatchGuard</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1211">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsPatternMatchGuard</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L47-47" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1212', 1212)" onmouseover="showTip(event, '1212', 1212)">
+                <p>
+                  <a id="IsRecordFields">
+                    <a href="#IsRecordFields">
+                      <code><span>this.IsRecordFields</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1212">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsRecordFields</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L39-39" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1213', 1213)" onmouseover="showTip(event, '1213', 1213)">
+                <p>
+                  <a id="IsReturnInComputationExpression">
+                    <a href="#IsReturnInComputationExpression">
+                      <code><span>this.IsReturnInComputationExpression</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1213">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsReturnInComputationExpression</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L42-42" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1214', 1214)" onmouseover="showTip(event, '1214', 1214)">
+                <p>
+                  <a id="IsRuntimeTypeTest">
+                    <a href="#IsRuntimeTypeTest">
+                      <code><span>this.IsRuntimeTypeTest</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1214">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsRuntimeTypeTest</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L44-44" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1215', 1215)" onmouseover="showTip(event, '1215', 1215)">
+                <p>
+                  <a id="IsSequenceExpression">
+                    <a href="#IsSequenceExpression">
+                      <code><span>this.IsSequenceExpression</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1215">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsSequenceExpression</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L48-48" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1216', 1216)" onmouseover="showTip(event, '1216', 1216)">
+                <p>
+                  <a id="IsTupleInRecordFields">
+                    <a href="#IsTupleInRecordFields">
+                      <code><span>this.IsTupleInRecordFields</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1216">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsTupleInRecordFields</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L40-40" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '1217', 1217)" onmouseover="showTip(event, '1217', 1217)">
+                <p>
+                  <a id="IsYieldInComputationExpression">
+                    <a href="#IsYieldInComputationExpression">
+                      <code><span>this.IsYieldInComputationExpression</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="1217">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsYieldInComputationExpression</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-member-xmldoc-column">
+              <div class="icon-button-row">
+                <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/FSharpDiagnostic.fs#L43-43" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+              <dl class="fsdocs-returns">
+                <dt>
+                  <span class="fsdocs-return-name">
+                    Returns: 
+                  </span>
+                  <code>bool</code>
+                </dt>
+                <dd class="fsdocs-return-docs"></dd>
+              </dl>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+</div>
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <div class="empty"></div>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-search.js"></script>
+
+</body>
+</html>

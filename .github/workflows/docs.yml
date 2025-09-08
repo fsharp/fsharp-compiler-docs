@@ -25,7 +25,7 @@ jobs:
           path: ${{ env.FSHARP_DIR }}
           ref: main
       - name: Setup .NET for FSharp
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: ${{ env.FSHARP_DIR }}/global.json
       - name: Restore tools

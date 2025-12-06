@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsharp.github.io/fsharp-compiler-docs/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Overview" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Overview">
+    
+    <title>Overview | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Header menu logo" src="https://fsharp.github.io/fsharp-compiler-docs/img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1><a name="Overview" class="anchor" href="#Overview">Overview</a></h1>
+<p>There are several artifacts involved in the development of F#:</p>
+<ul>
+<li><p>FSharp.Compiler.Service (<a href="fcs/">docs</a>, <a href="https://github.com/dotnet/fsharp/tree/main/src/Compiler">source</a>). Contains all logic for F# compilation - including parsing, syntax tree processing, typechecking, constraint solving, optimizations, IL importing, IL writing, pretty printing of F# constructs, and F# metadata format processing - and the F# compiler APIs for tooling.</p></li>
+<li><p>The <a href="https://github.com/dotnet/fsharp/tree/main/src/fsc">F# compiler executable</a>, called <code>fsc</code>, which is called as a console app. It sets the .NET GC into batch mode and then invokes <code>FSharp.Compiler.Service</code> with command-line arguments.</p></li>
+<li><p>The <a href="https://github.com/dotnet/fsharp/tree/main/src/FSharp.Core">FSharp.Core Library</a>, called <code>FSharp.Core</code>. Contains all primitive F# types and logic for how they interact, core data structures and library functions for operating on them, structured printing logic, units of measure for scientific programming, core numeric functionality, F# quotations, F# type reflection logic, and asynchronous programming types and logic.</p></li>
+<li><p>The <a href="https://github.com/dotnet/fsharp/tree/main/src/fsi">F# Interactive tool</a>, called <code>fsi</code>. A REPL for F# that supports execution and pretty-printing of F# code and results, loading F# script files, referencing assemblies, and referencing packages from NuGet.</p></li>
+</ul>
+<p>The <code>FSharp.Compiler.Service</code> is by far the largest of these components and contains nearly all logic that <code>fsc</code> and <code>fsi</code> use. It is the primary subject of this guide.</p>
+<h2><a name="Key-compiler-data-formats-and-representations" class="anchor" href="#Key-compiler-data-formats-and-representations">Key compiler data formats and representations</a></h2>
+<p>The following are the key data formats and internal data representations of the F# compiler code in its various configurations:</p>
+<ul>
+<li><p><em>Input source files</em>  Read as Unicode text, or binary for referenced assemblies.</p></li>
+<li><p><em>Input command-line arguments</em>  See <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Driver/CompilerOptions.fs">CompilerOptions.fs</a> for the full code implementing the arguments table. Command-line arguments are also accepted by the F# Compiler Service API in project specifications, and as optional input to F# Interactive.</p></li>
+<li><p><em>Tokens</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/pars.fsy">pars.fsy</a>, <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/lex.fsl">lex.fsl</a>, <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/SyntaxTree/LexHelpers.fs">LexHelpers.fs</a> and related files.</p></li>
+<li><p><em>Abstract Syntax Tree (AST)</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/SyntaxTree/SyntaxTree.fs">SyntaxTree.fs</a>, the untyped syntax tree resulting from parsing.</p></li>
+<li><p><em>Typed Abstract Syntax Tree (Typed Tree)</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/TypedTree/TypedTree.fs">TypedTree.fs</a>, <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/TypedTree/TypedTreeBasics.fs">TypedTreeBasics.fs</a>, <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/TypedTree/TypedTreeOps.fs">TypedTreeOps.fs</a>, and related files. The typed, bound syntax tree including both type/module definitions and their backing expressions, resulting from type checking and the subject of successive phases of optimization and representation change.</p></li>
+<li><p><em>Type checking context/state</em>, see for example <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Driver/ParseAndCheckInputs.fsi"><code>TcState</code> in ParseAndCheckInputs.fsi</a> and its constituent parts, particularly <code>TcEnv</code> in <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/Expressions/CheckExpressions.fsi">CheckExpressions.fsi</a> and <code>NameResolutionEnv</code> in <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/NameResolution.fsi">NameResolution.fsi</a>. A set of tables representing the available names, assemblies etc. in scope during type checking, plus associated information.</p></li>
+<li><p><em>Abstract IL</em>, the output of code generation, then used for binary generation, and the input format when reading .NET assemblies, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/AbstractIL/il.fsi"><code>ILModuleDef</code> in il.fsi</a>.</p></li>
+<li><p><em>The .NET Binary format</em> (with added "pickled" F# Metadata resource), the final output of fsc.exe, see the ECMA 335 specification and the <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/AbstractIL/ilread.fs">ilread.fs</a> and <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/AbstractIL/ilwrite.fs">ilwrite.fs</a> binary reader/generator implementations. The added F# metadata is stored in a binary resource, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/TypedTree/TypedTreePickle.fs">TypedTreePickle.fs</a>.</p></li>
+<li><p><em>The incrementally emitted .NET reflection assembly,</em> the incremental output of fsi.exe. See <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/AbstractIL/ilreflect.fs">ilreflect.fs</a>.</p></li>
+</ul>
+<h2><a name="Key-constructs-and-APIs-for-F-tooling" class="anchor" href="#Key-constructs-and-APIs-for-F-tooling">Key constructs and APIs for F# tooling</a></h2>
+<p>The following are the most relevant parts of the F# compiler tooling, making up the "engine" and API surface area of <code>FSharp.Compiler.Service</code>.</p>
+<ul>
+<li><p>The incremental project build engine state in <a href="https://github.com/dotnet/fsharp/tree/main/src/Compiler/Service/IncrementalBuild.fsi">IncrementalBuild.fsi</a>/<a href="https://github.com/dotnet/fsharp/tree/main/src/Compiler/Service/IncrementalBuild.fs">IncrementalBuild.fs</a>, a part of the F# Compiler Service API.</p></li>
+<li><p>The corresponding APIs wrapping and accessing these structures in the public-facing <a href="https://github.com/dotnet/fsharp/tree/main/src/Compiler/Service"><code>FSharp.Compiler.Service</code> API</a> and <a href="https://github.com/dotnet/fsharp/tree/main/src/Compiler/Symbols">Symbol API</a>.</p></li>
+<li><p>The <a href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">F# Compiler Service Caches</a>, the various caches maintained by an instance of an <code>FSharpChecker</code>.</p></li>
+</ul>
+<h2><a name="Key-compiler-phases" class="anchor" href="#Key-compiler-phases">Key compiler phases</a></h2>
+<p>The following is a diagram of how the different phases of the F# compiler work:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">stateDiagram-v2
+    state "Compilation phases" as Flow {
+      Lexing: Lexing
+      Parsing: Parsing
+      Import: Import
+      Typechecking: Type checking
+      Codegen: Code generation
+      Emit: IL emit
+      Inputs --&gt; Lexing: Source and signature files
+      Inputs --&gt; Import: References
+      Lexing --&gt; Parsing
+      Parsing --&gt; Typechecking
+      Import --&gt; Typechecking
+      Typechecking --&gt; Codegen
+      Codegen --&gt; Emit
+      state Lexing {
+          BasicLexing: Basic Lexing
+          WhitespaceSensitiveLexing: Whitespace Sensitive Lexing
+          [*] --&gt; BasicLexing
+          BasicLexing --&gt; WhitespaceSensitiveLexing: A token stream from input source text.
+          WhitespaceSensitiveLexing --&gt; [*]: A token stream, augmented per the F# Language Specification.
+      }
+      state Parsing {
+          Parser: Parsing
+          [*] --&gt; Parser
+          Parser --&gt; [*]: AST per the grammar in the F# Language Specification.
+      }
+      state Import {
+          Resolving: Resolving references
+          ImportNET: Importing .NET references
+          ImportFS: Importing F# references
+          [*] --&gt; Resolving
+          Resolving --&gt; ImportNET
+          Resolving --&gt; ImportFS
+          ImportNET --&gt; [*]
+          ImportFS --&gt; [*]
+      }
+      state Typechecking {
+          SequentialTypechecking: Sequentially type checking files
+          PatternMatchCompilation: Pattern match compilation
+          ConstraintSolving: Constraint solving
+          PostInferenceChecks: Post inference checks
+          [*] --&gt; SequentialTypechecking
+          SequentialTypechecking --&gt; PatternMatchCompilation
+          PatternMatchCompilation --&gt; ConstraintSolving
+          ConstraintSolving --&gt; PostInferenceChecks
+          PostInferenceChecks --&gt; [*]
+      }
+      state Codegen {
+          QuotationTranslation: Quotation translation
+          Optimization: Optimization
+          Codegeneration: Code generation
+          AbstractILRewrite: Abstract IL rewriting
+          [*] --&gt; QuotationTranslation
+          QuotationTranslation --&gt; Optimization
+          Optimization --&gt; Codegeneration
+          Codegeneration --&gt; AbstractILRewrite
+          AbstractILRewrite --&gt; [*]
+      }
+      state Emit {
+          Binary: Binary emit
+          Reflection: Reflection emit
+          Output: Output (assembly, references, PDBs, etc.)
+          [*] --&gt; Binary
+          [*] --&gt; Reflection
+          Binary --&gt; Output
+          Reflection --&gt; Output
+      }
+  }
+</code></pre></td></tr></table>
+<p>The following are the key phases and high-level logical operations of the F# compiler code in its various configurations:</p>
+<ul>
+<li><p><em>Basic lexing</em>. Produces a token stream from input source file text. F# uses the <a href="http://fsprojects.github.io/FsLexYacc/">FsLex</a> tool to process a declarative specification of the tokenizer in <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/lex.fsl">lex.fsl</a>. This compiles the tokenizer specification to a number of tables which are then interpreted by the code in <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Facilities/prim-lexing.fs">prim-lexing.fs</a> (see also <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Facilities/prim-lexing.fsi">prim-lexing.fsi</a>.</p></li>
+<li><p><em>White-space sensitive lexing</em>. Accepts and produces a token stream, augmenting per the <a href="https://fsharp.org/specs/language-spec/">F# Language Specification</a>.</p></li>
+<li><p><em>Parsing</em>. Accepts a token stream and produces an AST per the grammar in the <a href="https://fsharp.org/specs/language-spec/">F# Language Specification</a>. F# uses the <a href="http://fsprojects.github.io/FsLexYacc/">FsYacc</a> tool to process a declarative specification of the parser in <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/pars.fsy">pars.fsy</a>. This compiles the grammar to a number of tables which are then interpreted by the code in <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Facilities/prim-parsing.fs">prim-parsing.fs</a> (see also <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Facilities/prim-parsing.fsi">prim-parsing.fsi</a>.</p></li>
+<li>
+<p><em>Resolving references</em>. For .NET SDK generally references are resolved explicitly by external tooling.
+There is a legacy aspect to this if references use old .NET Framework references including for
+scripting.  See <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Facilities/ReferenceResolver.fs">ReferenceResolver.fs</a> for the abstract definition of compiler reference resolution. See <a href="../src/LegacyMsBuildResolver/LegacyMSBuildReferenceResolver.fs">LegacyMSBuildReferenceResolver.fs</a> for reference resolution used by the .NET Framework F# compiler when running on .NET Framework. See <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Facilities/SimulatedMSBuildReferenceResolver.fs">SimulatedMSBuildReferenceResolver.fs</a> when not using the .NET Framework F# compiler.
+See <a href="https://github.com/dotnet/fsharp/tree/main/src/Compiler/DependencyManager">DependencyManager</a> for reference resolution and package management used in <code>fsi</code>.</p>
+</li>
+<li><p><em>Importing referenced .NET binaries</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/import.fsi">import.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/import.fs">import.fs</a>. Accepts file references and produces a Typed Tree node for each referenced assembly, including information about its type definitions (and type forwarders if any).</p></li>
+<li><p><em>Importing referenced F# binaries and optimization information as Typed Tree data structures</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/TypedTree/TypedTreePickle.fs">TypedTreePickle.fs</a>. Accepts binary data and produces  Typed Tree nodes for each referenced assembly, including information about its type/module/function/member definitions.</p></li>
+<li>
+<p><em>Sequentially type checking files</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/CheckDeclarations.fsi">CheckDeclarations.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/CheckDeclarations.fs">CheckDeclarations.fs</a>. Accepts an AST plus a type checking context/state and produces new Typed Tree nodes
+incorporated into an updated type checking state, plus additional Typed Tree Expression nodes used during code generation.  A key part of this is
+checking syntactic types and expressions, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/CheckDeclarations.fsi">CheckExpressions.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/Expressions/CheckDeclarations.fs">CheckExpressions.fs</a> including the state held across the checking of a file (see <code>TcFileState</code>) and the
+environment active as we traverse declarations and expressions (see <code>TcEnv</code>).</p>
+</li>
+<li><p><em>Pattern match compilation</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/PatternMatchCompilation.fsi">PatternMatchCompilation.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/PatternMatchCompilation.fs">PatternMatchCompilation.fs</a>. Accepts a subset of checked Typed Tree nodes representing F# pattern matching and produces Typed Tree expressions implementing the pattern matching. Called during type checking as each construct involving pattern matching is processed.</p></li>
+<li><p><em>Constraint solving</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/ConstraintSolver.fsi">ConstraintSolver.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/ConstraintSolver.fs">ConstraintSolver.fs</a>. A constraint solver state is maintained during type checking of a single file, and constraints are progressively asserted (i.e. added to this state). Fresh inference variables are generated and variables are eliminated (solved). Variables are also generalized at various language constructs, or explicitly declared, making them "rigid". Called during type checking as each construct is processed.</p></li>
+<li><p><em>Post-inference type checks</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/PostInferenceChecks.fsi">PostInferenceChecks.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/PostInferenceChecks.fs">PostInferenceChecks.fs</a>. Called at the end of type checking/inference for each file. A range of checks that can only be enforced after type checking on a file is complete, such as analysis when using <code>byref&lt;'T&gt;</code> or other <code>IsByRefLike</code> structs.</p></li>
+<li><p><em>Quotation translation</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/QuotationTranslator.fsi">QuotationTranslator.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Checking/QuotationTranslator.fs">QuotationTranslator.fs</a>/<a href="../src/Compiler/TypedTree/QuotationPickler.fsi">QuotationPickler.fsi</a>/<a href="../src/Compiler/TypedTree/QuotationPickler.fs">QuotationPickler.fs</a>. Generates the stored information for F# quotation nodes, generated from the Typed Tree expression structures of the F# compiler. Quotations are ultimately stored as binary data plus some added type references. "ReflectedDefinition" quotations are collected and stored in a single blob.</p></li>
+<li><p><em>Optimization phases</em>, primarily the "Optimize" (peephole/inlining) and "Top Level Representation" (lambda lifting) phases, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Optimize/Optimizer.fsi">Optimizer.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Optimize/Optimizer.fs">Optimizer.fs</a> and <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Optimize/InnerLambdasToTopLevelFuncs.fsi">InnerLambdasToTopLevelFuncs.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Optimize/InnerLambdasToTopLevelFuncs.fs">InnerLambdasToTopLevelFuncs.fs</a> and <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Optimize/LowerCalls.fs">LowerCalls.fs</a>. Each of these takes Typed Tree nodes for types and expressions and either modifies the nodes in place or produces new Typed Tree nodes. These phases are orchestrated in <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Driver/CompilerOptions.fs">CompilerOptions.fs</a></p></li>
+<li><p><em>Code generation</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/CodeGen/IlxGen.fsi">IlxGen.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/CodeGen/IlxGen.fs">IlxGen.fs</a>. Accepts Typed Tree nodes and produces Abstract IL nodes, sometimes applying optimizations.</p></li>
+<li>
+<p><em>Abstract IL code rewriting</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/CodeGen/EraseClosures.fs">EraseClosures.fs</a> and
+<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/CodeGen/EraseUnions.fs">EraseUnions.fs</a>. Eliminates some constructs by rewriting Abstract IL nodes.</p>
+</li>
+<li><p><em>Binary emit</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/AbstractIL/ilwrite.fsi">ilwrite.fsi</a>/<a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/AbstractIL/ilwrite.fs">ilwrite.fs</a>.</p></li>
+<li><p><em>Reflection-Emit</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/AbstractIL/ilreflect.fs">ilreflect.fs</a>.</p></li>
+</ul>
+<p>These and transformations used to build the following:</p>
+<ul>
+<li><p><em>The F# Compiler Service API</em>, see the <a href="https://github.com/dotnet/fsharp/tree/main/src/Compiler/Symbols">Symbol API</a> and <a href="https://github.com/dotnet/fsharp/tree/main/src/Compiler/Service">Service API</a></p></li>
+<li><p><em>The F# Interactive Shell</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Interactive/fsi.fs">fsi.fs</a>.</p></li>
+<li><p><em>The F# Compiler Shell</em>, see <a href="https://github.com/dotnet/fsharp/blob/main/src/Compiler/Driver/fsc.fs">fsc.fs</a> and <a href="../src/fsc/fscmain.fs">fscmain.fs</a>.</p></li>
+</ul>
+<h2><a name="Bootstrapping" class="anchor" href="#Bootstrapping">Bootstrapping</a></h2>
+<p>The F# compiler is bootstrapped. That is, an existing F# compiler is used to build a "proto" compiler from the current source code. That "proto" compiler is then used to compile itself, producing a "final" compiler. This ensures the final compiler is compiled with all relevant optimizations and fixes.</p>
+<h2><a name="FSharp-Build" class="anchor" href="#FSharp-Build">FSharp.Build</a></h2>
+<p><code>FSharp.Build.dll</code> and <code>Microsoft.FSharp.targets</code> give MSBuild support for F# projects (<code>.fsproj</code>) and contain the targets. Although not strictly part of the F# compiler, they are essential for using F# in all contexts for .NET, aside from some more targeted scripting scenarios. The targets expose things like the <code>CoreCompile</code> and <code>Fsc</code> tasks called by MSBuild.</p>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Overview">
+      Overview
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Key-compiler-data-formats-and-representations">
+      Key compiler data formats and representations
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Key-constructs-and-APIs-for-F-tooling">
+      Key constructs and APIs for F# tooling
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Key-compiler-phases">
+      Key compiler phases
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Bootstrapping">
+      Bootstrapping
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#FSharp-Build">
+      FSharp.Build
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-search.js"></script>
+
+</body>
+</html>

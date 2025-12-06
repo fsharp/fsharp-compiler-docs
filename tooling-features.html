@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsharp.github.io/fsharp-compiler-docs/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Overview" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Overview">
+    
+    <title>Overview | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header active">
+  Language Service Internals
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Header menu logo" src="https://fsharp.github.io/fsharp-compiler-docs/img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header active">
+  Language Service Internals
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1><a name="Overview" class="anchor" href="#Overview">Overview</a></h1>
+<p>The F# Language Service (FSharp.Editor, using FSharp.Compiler.Service) is designed to support tooling in Visual Studio and other IDEs. This document gives an overview of the features supported and notes on their technical characteristics.</p>
+<h2><a name="Kinds-of-data-processed-and-served-in-F-tooling" class="anchor" href="#Kinds-of-data-processed-and-served-in-F-tooling">Kinds of data processed and served in F# tooling</a></h2>
+<p>The following tables are split into two categories: syntactic and semantic. They contain common kinds of information requested, the kind of data that is involved, and roughly how expensive the operation is in terms of expected memory allocation and CPU processing.</p>
+<h3><a name="IDE-actions-based-on-syntax" class="anchor" href="#IDE-actions-based-on-syntax">IDE actions based on syntax</a></h3>
+<table>
+<thead>
+<tr class="header">
+<th><p>Action</p></th>
+<th><p>Data inspected</p></th>
+<th><p>Data returned</p></th>
+<th><p>Expected CPU/Allocations (S/M/L/XL)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>Syntactic Classification</p></td>
+<td><p>Current doc's source text</p></td>
+<td><p>Text span and classification type for each token in the document</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="even">
+<td><p>Breakpoint Resolution</p></td>
+<td><p>Current doc's syntax tree</p></td>
+<td><p>Text span representing where breakpoints were resolved</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="odd">
+<td><p>Debugging data tip info</p></td>
+<td><p>Current doc's source text</p></td>
+<td><p>Text span representing the token being inspected</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="even">
+<td><p>Brace pair matching</p></td>
+<td><p>Current doc's source text</p></td>
+<td><p>Text spans representing brace pairs that match in the input document</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="odd">
+<td><p>"Smart" indentation</p></td>
+<td><p>Current doc's source text</p></td>
+<td><p>Indentation location in a document</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="even">
+<td><p>Code fixes operating only on syntax</p></td>
+<td><p>Current doc's source text</p></td>
+<td><p>Small text change for document</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="odd">
+<td><p>XML doc template generation</p></td>
+<td><p>Current doc's syntax tree</p></td>
+<td><p>Small (usually) text change for document</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="even">
+<td><p>Brace pair completion</p></td>
+<td><p>Current doc's source text</p></td>
+<td><p>Additional brace pair inserted into source text</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="odd">
+<td><p>Source document navigation</p></td>
+<td><p>Current doc's syntax tree</p></td>
+<td><p>"Navigation Items" with optional child navigation items containing ranges in source code</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="even">
+<td><p>Code outlining</p></td>
+<td><p>Current doc's source text</p></td>
+<td><p>Text spans representing blocks of F# code that are collapsable as a group</p></td>
+<td><p>S - M</p></td>
+</tr>
+<tr class="odd">
+<td><p>Editor formatting</p></td>
+<td><p>Current doc's source text</p></td>
+<td><p>New source text for the document</p></td>
+<td><p>S - L</p></td>
+</tr>
+<tr class="even">
+<td><p>Syntax diagnostics</p></td>
+<td><p>Current doc's source text</p></td>
+<td><p>List of diagnostic data including the span of text corresponding to the diagnostic</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="odd">
+<td><p>Global construct search and navigation</p></td>
+<td><p>All syntax trees for all projects</p></td>
+<td><p>All items that match a user's search pattern with spans of text that represent where a given item is located</p></td>
+<td><p>S-L</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>You likely noticed that nearly all of the syntactical operations are marked <code>S</code>. Aside from extreme cases, like files with 50k lines or higher, syntax-only operations typically finish very quickly. In addition to being computationally inexpensive, they are also run asynchronously and free-threaded.</p>
+<p>Editor formatting is a bit of an exception. Most IDEs offer common commands for format an entire document, and although they also offer commands to format a given text selection, users typically choose to format the whole document. This means an entire document has to be inspected and potentially rewritten based on often complex rules. In practice this isn't bad when working with a document that has already been formatted, but it can be expensive for larger documents with strange stylistic choices.</p>
+<p>Most of the syntax operations require an entire document's source text or parse tree. It stands to reason that this could be improved by operating on a diff of a parse tree instead of the whole thing. This is likely a very complex thing to implement though, since none of the F# compiler infrastructure works in this way today.</p>
+<h3><a name="IDE-actions-based-on-semantics" class="anchor" href="#IDE-actions-based-on-semantics">IDE actions based on semantics</a></h3>
+<table>
+<thead>
+<tr class="header">
+<th><p>Action</p></th>
+<th><p>Data inspected</p></th>
+<th><p>Data returned</p></th>
+<th><p>Expected CPU/Allocations (S/M/L/XL)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>Most code fixes</p></td>
+<td><p>Current document's typecheck data</p></td>
+<td><p>Set (1 or more) of suggested text replacements</p></td>
+<td><p>S-M</p></td>
+</tr>
+<tr class="even">
+<td><p>Semantic classification</p></td>
+<td><p>Current document's typecheck data</p></td>
+<td><p>Spans of text with semantic classification type for all constructs in a document</p></td>
+<td><p>S-L</p></td>
+</tr>
+<tr class="odd">
+<td><p>Code generation / refactorings</p></td>
+<td><p>Current document's typecheck data and/or current resolved symbol/symbols</p></td>
+<td><p>Text replacement(s)</p></td>
+<td><p>S-L</p></td>
+</tr>
+<tr class="even">
+<td><p>Code completion</p></td>
+<td><p>Current document's typecheck data and currently-resolved symbol user is typing at</p></td>
+<td><p>List of all symbols in scope that are "completable" based on where completion is invoked</p></td>
+<td><p>S-L</p></td>
+</tr>
+<tr class="odd">
+<td><p>Editor tooltips</p></td>
+<td><p>Current document's typecheck data and resolved symbol where user invoked a tooltip</p></td>
+<td><p>F# tooltip data based on inspecting a type and its declarations, then pretty-printing them</p></td>
+<td><p>S-XL</p></td>
+</tr>
+<tr class="even">
+<td><p>Diagnostics based on F# semantics</p></td>
+<td><p>Current document's typecheck data</p></td>
+<td><p>Diagnostic info for each symbol with diagnostics to show, including the range of text associated with the diagnostic</p></td>
+<td><p>M-XL</p></td>
+</tr>
+<tr class="odd">
+<td><p>Symbol highlighting in a document</p></td>
+<td><p>Current document's typecheck data and currently-resolved symbol where user's caret is located</p></td>
+<td><p>Ranges of text representing instances of that symbol in the document</p></td>
+<td><p>S-M</p></td>
+</tr>
+<tr class="even">
+<td><p>Semantic navigation (for example, Go to Definition)</p></td>
+<td><p>Current document's typecheck data and currently-resolved symbol where the user invoked navigation</p></td>
+<td><p>Location of a symbol's declaration</p></td>
+<td><p>S-M</p></td>
+</tr>
+<tr class="odd">
+<td><p>Rename</p></td>
+<td><p>Graph of all projects that use the symbol that rename is triggered on and the typecheck data for each of those projects</p></td>
+<td><p>List of all uses of all symbols that are to be renamed</p></td>
+<td><p>S-XL</p></td>
+</tr>
+<tr class="even">
+<td><p>Find all references</p></td>
+<td><p>Graph of all projects that Find References is triggered on and the typecheck data for each of those projects</p></td>
+<td><p>List of all uses of all symbols that are found</p></td>
+<td><p>S-XL</p></td>
+</tr>
+<tr class="odd">
+<td><p>Unused value/symbol analysis</p></td>
+<td><p>Typecheck data for the current document</p></td>
+<td><p>List of all symbols that aren't a public API and are unused</p></td>
+<td><p>S-M</p></td>
+</tr>
+<tr class="even">
+<td><p>Unused <code>open</code> analysis</p></td>
+<td><p>Typecheck data for the current document and all symbol data brought into scope by each <code>open</code> declaration</p></td>
+<td><p>List of <code>open</code> declarations whose symbols it exposes aren't used in the current document</p></td>
+<td><p>S-L</p></td>
+</tr>
+<tr class="odd">
+<td><p>Missing <code>open</code> analysis</p></td>
+<td><p>Typecheck data for the current document, resolved symbol with an error, and list of available namespaces or modules</p></td>
+<td><p>List of candidate namespaces or modules that can be opened</p></td>
+<td><p>S-M</p></td>
+</tr>
+<tr class="even">
+<td><p>Misspelled name suggestion analysis</p></td>
+<td><p>Typecheck data for the current document and resolved symbol with an error</p></td>
+<td><p>List of candidates that are in scope and best match the misspelled name based on a string distance algorithm</p></td>
+<td><p>S-M</p></td>
+</tr>
+<tr class="odd">
+<td><p>Name simplification analysis</p></td>
+<td><p>Typecheck data for the current document and all symbol data brought into scope by each <code>open</code> declaration</p></td>
+<td><p>List of text changes available for any fully- or partially-qualified symbol that can be simplified</p></td>
+<td><p>S-XL</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>You likely noticed that every cost associated with an action has a range. This is based on two factors:</p>
+<ol>
+<li>If the semantic data being operated on is cached</li>
+<li>How much semantic data must be processed for the action to be completed</li>
+</ol>
+<p>Most actions are <code>S</code> if they operate on cached data and the compiler determines that no data needs to be re-computed. The size of their range is influenced largely by the <em>kind</em> of semantic operations each action has to do, such as:</p>
+<ul>
+<li>Typechecking a single document and processing the resulting data</li>
+<li>Typechecking a document and its containing project and then processing the resulting data</li>
+<li>Resolving a single symbol in a document</li>
+<li>Resolving the definition of a single symbol in a codebase</li>
+<li>Inspecting all symbols brought into scope by a given <code>open</code> declaration</li>
+<li>Inspecting all symbols in a document</li>
+<li>Inspecting all symbols in all documents contained in a graph of projects</li>
+</ul>
+<p>For example, commands like Find All References and Rename can be cheap if a codebase is small, hence the lower bound being <code>S</code>. But if the symbol in question is used across many documents in a large project graph, they are very expensive because the entire graph must be crawled and all symbols contained in its documents must be inspected.</p>
+<p>In contrast, actions like highlighting all symbols in a document aren't terribly expensive even for very large files. That's because the symbols to be inspected are ultimately only in a single document.</p>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Overview">
+      Overview
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Kinds-of-data-processed-and-served-in-F-tooling">
+      Kinds of data processed and served in F# tooling
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#IDE-actions-based-on-syntax">
+      IDE actions based on syntax
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#IDE-actions-based-on-semantics">
+      IDE actions based on semantics
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-search.js"></script>
+
+</body>
+</html>

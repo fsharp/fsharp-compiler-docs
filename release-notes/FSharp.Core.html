@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsharp.github.io/fsharp-compiler-docs/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="FSharp.Core" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="FSharp.Core">
+    
+    <title>FSharp.Core | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header active">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Header menu logo" src="https://fsharp.github.io/fsharp-compiler-docs/img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header active">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1><a name="FSharp-Core" class="anchor" href="#FSharp-Core">FSharp.Core</a></h1>
+<h2><a name="9.0.300" class="anchor" href="#9.0.300">9.0.300 - 2025-05-13</a></h2><a href="https://www.nuget.org/packages/FSharp.Core/9.0.300" target="_blank"><img alt="Nuget" src="https://img.shields.io/badge/NuGet-9.0.300-blue"></a><h3><a name="9.0.300-Fixed" class="anchor" href="#9.0.300-Fixed">Fixed</a></h3>
+<ul>
+<li>Modified the behavior of <code>Array.insertManyAt</code> to return a copy of the original array when inserting an empty array. (<a href="https://github.com/dotnet/fsharp/pull/18353">PR #18353</a>)</li>
+</ul>
+<h3><a name="9.0.300-Added" class="anchor" href="#9.0.300-Added">Added</a></h3>
+<ul>
+<li>Added nullability annotations to <code>.Using</code> builder method for <code>async</code> and <code>task</code> builders (<a href="https://github.com/dotnet/fsharp/pull/18292">PR #18292</a>)</li>
+<li>Support for <code>and!</code> in <code>TaskBuilder</code> (<a href="https://github.com/fsharp/fslang-suggestions/issues/1363">LanguageSuggestion #1363</a>, <a href="https://github.com/dotnet/fsharp/pull/18451">PR #18451</a>)</li>
+</ul>
+<h3><a name="9.0.300-Changed" class="anchor" href="#9.0.300-Changed">Changed</a></h3>
+<h3><a name="9.0.300-Breaking Changes" class="anchor" href="#9.0.300-Breaking Changes">Breaking Changes</a></h3>
+<ul>
+<li>Struct unions with overlapping fields now generate mappings needed for reading via reflection (<a href="https://github.com/dotnet/fsharp/issues/17797">Issue #18121</a>, <a href="https://github.com/dotnet/fsharp/pull/18274">PR #18274</a>). Previous versions of FSharp.Core returned incomplete mapping between fields and cases, these older fslib versions will now report an exception.</li>
+</ul>
+
+<h2><a name="9.0.200" class="anchor" href="#9.0.200">9.0.200 - Unreleased</a></h2><h3><a name="9.0.200-Fixed" class="anchor" href="#9.0.200-Fixed">Fixed</a></h3>
+<ul>
+<li>Fix exception on Post after MailboxProcessor was disposed (<a href="https://github.com/dotnet/fsharp/issues/17849">Issue #17849</a>, <a href="https://github.com/dotnet/fsharp/pull/17922">PR #17922</a>)</li>
+<li>Fix missing null annotation in Async.SwitchToContext (<a href="https://github.com/dotnet/fsharp/issues/18055">Issue #18055</a>, <a href="https://github.com/dotnet/fsharp/pull/18059">PR #18059</a>)</li>
+</ul>
+<h3><a name="9.0.200-Added" class="anchor" href="#9.0.200-Added">Added</a></h3>
+<h3><a name="9.0.200-Changed" class="anchor" href="#9.0.200-Changed">Changed</a></h3>
+<ul>
+<li>String function changed to guarantee a non-null string return type (<a href="https://github.com/dotnet/fsharp/pull/17809">PR #17809</a>)</li>
+<li>Add Parameters as valid target for the Struct attribute (<a href="https://github.com/fsharp/fslang-suggestions/issues/1136">Language suggestion #1136</a>, <a href="https://github.com/dotnet/fsharp/pull/18098">PR #18098</a>)</li>
+</ul>
+<h3><a name="9.0.200-Breaking Changes" class="anchor" href="#9.0.200-Breaking Changes">Breaking Changes</a></h3>
+
+<h2><a name="9.0.101" class="anchor" href="#9.0.101">9.0.101 - 2025-01-14</a></h2><a href="https://www.nuget.org/packages/FSharp.Core/9.0.101" target="_blank"><img alt="Nuget" src="https://img.shields.io/badge/NuGet-9.0.101-blue"></a><h2>FSharp.Core 9.0.101 did not change compared to version 9.0.100. Below are the changes for FSharp.Core 9.0.100</h2>
+<h3><a name="9.0.101-Fixed" class="anchor" href="#9.0.101-Fixed">Fixed</a></h3>
+<ul>
+<li>Struct UnionCase doesn't seem to be a valid target for the DefaultAugmentationAttribute (<a href="https://github.com/dotnet/fsharp/issues/17499">Issue #17499</a>, <a href="https://github.com/dotnet/fsharp/pull/17502">PR #17502</a>)</li>
+</ul>
+<h3><a name="9.0.101-Added" class="anchor" href="#9.0.101-Added">Added</a></h3>
+<ul>
+<li>Enable C# collection expression support for F# lists &amp; sets. (<a href="https://github.com/fsharp/fslang-suggestions/issues/1355">Language suggestion #1355</a>, <a href="https://github.com/fsharp/fslang-design/pull/776">RFC FS-1145 (PR#776)</a>, <a href="https://github.com/dotnet/fsharp/pull/17359">PR #17359</a>)</li>
+<li>Add module functions for converting between <code>'T option</code> and <code>'T voption</code>. (<a href="https://github.com/dotnet/fsharp/pull/17436">PR #17436</a>)</li>
+</ul>
+<h3><a name="9.0.101-Changed" class="anchor" href="#9.0.101-Changed">Changed</a></h3>
+<ul>
+<li>Change compiler default setting realsig+ when building assemblies (<a href="https://github.com/dotnet/fsharp/issues/17384">Issue #17384</a>, <a href="https://github.com/dotnet/fsharp/pull/17385">PR #17378</a>)</li>
+<li>Change compiler default setting for compressedMetadata (<a href="https://github.com/dotnet/fsharp/issues/17379">Issue #17379</a>, <a href="https://github.com/dotnet/fsharp/pull/17383">PR #17383</a>)</li>
+<li>Enable FSharp 9.0 Language Version (<a href="https://github.com/dotnet/fsharp/issues/17438">Issue #17497</a>), <a href="https://github.com/dotnet/fsharp/pull/17500">PR</a>))</li>
+<li>Struct UnionCase doesn't seem to be a valid target for the DefaultAugmentationAttribute (<a href="https://github.com/dotnet/fsharp/issues/17499">Issue #17499</a>, <a href="https://github.com/dotnet/fsharp/pull/17502">PR #17502</a>)</li>
+</ul>
+<h3><a name="9.0.101-Breaking Changes" class="anchor" href="#9.0.101-Breaking Changes">Breaking Changes</a></h3>
+
+<h2><a name="9.0.100" class="anchor" href="#9.0.100">9.0.100 - 2024-11-12</a></h2><a href="https://www.nuget.org/packages/FSharp.Core/9.0.100" target="_blank"><img alt="Nuget" src="https://img.shields.io/badge/NuGet-9.0.100-blue"></a><h3><a name="9.0.100-Fixed" class="anchor" href="#9.0.100-Fixed">Fixed</a></h3>
+<ul>
+<li>Struct UnionCase doesn't seem to be a valid target for the DefaultAugmentationAttribute (<a href="https://github.com/dotnet/fsharp/issues/17499">Issue #17499</a>, <a href="https://github.com/dotnet/fsharp/pull/17502">PR #17502</a>)</li>
+</ul>
+<h3><a name="9.0.100-Added" class="anchor" href="#9.0.100-Added">Added</a></h3>
+<ul>
+<li>Enable C# collection expression support for F# lists &amp; sets. (<a href="https://github.com/fsharp/fslang-suggestions/issues/1355">Language suggestion #1355</a>, <a href="https://github.com/fsharp/fslang-design/pull/776">RFC FS-1145 (PR#776)</a>, <a href="https://github.com/dotnet/fsharp/pull/17359">PR #17359</a>)</li>
+<li>Add module functions for converting between <code>'T option</code> and <code>'T voption</code>. (<a href="https://github.com/dotnet/fsharp/pull/17436">PR #17436</a>)</li>
+</ul>
+<h3><a name="9.0.100-Changed" class="anchor" href="#9.0.100-Changed">Changed</a></h3>
+<ul>
+<li>Change compiler default setting realsig+ when building assemblies (<a href="https://github.com/dotnet/fsharp/issues/17384">Issue #17384</a>, <a href="https://github.com/dotnet/fsharp/pull/17385">PR #17378</a>)</li>
+<li>Change compiler default setting for compressedMetadata (<a href="https://github.com/dotnet/fsharp/issues/17379">Issue #17379</a>, <a href="https://github.com/dotnet/fsharp/pull/17383">PR #17383</a>)</li>
+<li>Enable FSharp 9.0 Language Version (<a href="https://github.com/dotnet/fsharp/issues/17438">Issue #17497</a>), <a href="https://github.com/dotnet/fsharp/pull/17500">PR</a>))</li>
+<li>Struct UnionCase doesn't seem to be a valid target for the DefaultAugmentationAttribute (<a href="https://github.com/dotnet/fsharp/issues/17499">Issue #17499</a>, <a href="https://github.com/dotnet/fsharp/pull/17502">PR #17502</a>)</li>
+</ul>
+<h3><a name="9.0.100-Breaking Changes" class="anchor" href="#9.0.100-Breaking Changes">Breaking Changes</a></h3>
+
+<h2><a name="8.0.400" class="anchor" href="#8.0.400">8.0.400 - 2024-08-13</a></h2><a href="https://www.nuget.org/packages/FSharp.Core/8.0.400" target="_blank"><img alt="Nuget" src="https://img.shields.io/badge/NuGet-8.0.400-blue"></a><h3><a name="8.0.400-Fixed" class="anchor" href="#8.0.400-Fixed">Fixed</a></h3>
+<h3><a name="8.0.400-Added" class="anchor" href="#8.0.400-Added">Added</a></h3>
+<ul>
+<li><code>Random functions for collections</code> (<a href="https://github.com/fsharp/fslang-design/blob/main/RFCs/FS-1135-random-functions-for-collections.md">RFC #1135</a>, <a href="https://github.com/dotnet/fsharp/pull/17277">PR #17277</a>)</li>
+</ul>
+<h3><a name="8.0.400-Changed" class="anchor" href="#8.0.400-Changed">Changed</a></h3>
+<ul>
+<li>Cache delegate in query extensions. (<a href="https://github.com/dotnet/fsharp/pull/17130">PR #17130</a>)</li>
+<li>Update <code>AllowNullLiteralAttribute</code> to also use <code>AttributeTargets.Interface</code> (<a href="https://github.com/dotnet/fsharp/pull/17173">PR #17173</a>)</li>
+<li>Update <code>StructAttribute </code> to also use <code>AttributeTargets.Class</code> (<a href="https://github.com/dotnet/fsharp/pull/17207">PR #17207</a>)</li>
+</ul>
+<h3><a name="8.0.400-Breaking Changes" class="anchor" href="#8.0.400-Breaking Changes">Breaking Changes</a></h3>
+<ul>
+<li>Fixed argument exception throwing inconsistency - accessing an out-of-bounds collection index will now throw <code>ArgumentOutOfRangeException</code> instead of <code>ArgumentException</code> (<a href="https://github.com/dotnet/fsharp/pull/17328">#17328</a>)</li>
+</ul>
+
+<h2><a name="8.0.300" class="anchor" href="#8.0.300">8.0.300 - 2024-05-14</a></h2><a href="https://www.nuget.org/packages/FSharp.Core/8.0.300" target="_blank"><img alt="Nuget" src="https://img.shields.io/badge/NuGet-8.0.300-blue"></a><h3><a name="8.0.300-Added" class="anchor" href="#8.0.300-Added">Added</a></h3>
+<ul>
+<li>Minor tweaks to inline specifications to support Visibility PR (<a href="https://github.com/dotnet/fsharp/pull/15484">PR #15484</a>, <a href="https://github.com/dotnet/fsharp/pull/15484">#PR 16427</a></li>
+<li>Optimize equality in generic contexts. (<a href="https://github.com/dotnet/fsharp/pull/16615">PR #16615</a>)</li>
+<li>Add a constructor for <code>MailboxProcessor</code> with a flag denoting that an exception will be thrown when <code>Post</code> is called after the <code>MailboxProcessor</code> has been disposed. (<a href="https://github.com/dotnet/fsharp/pull/13036">PR #13036</a>)</li>
+</ul>
+<h3><a name="8.0.300-Fixed" class="anchor" href="#8.0.300-Fixed">Fixed</a></h3>
+<ul>
+<li>Preserve original stack traces in resumable state machines generated code if available. (<a href="https://github.com/dotnet/fsharp/pull/16568">PR #16568</a>)</li>
+<li>Fix receiving and processing mailbox after Dispose. (<a href="https://github.com/dotnet/fsharp/pull/13036">PR #13036</a>)</li>
+<li>Enforce AttributeTargets on structs and classes. Also update <code>RequireQualifiedAccessAttribute</code> and <code>AutoOpenAttribute</code> to use <code>AttributeTargets.Struct</code> (<a href="https://github.com/dotnet/fsharp/pull/16790">PR #16790</a>)</li>
+<li>Enforce AttributeTargets on enums. Also update <code>RequireQualifiedAccessAttribute</code> to use <code>AttributeTargets.Enum</code> (<a href="https://github.com/dotnet/fsharp/pull/16887">PR #16887</a>)</li>
+<li>Enforce AttributeTargets on delegates. Also update <code>ReflectedDefinitionAttribute</code> to use <code>AttributeTargets.Delegate</code> (<a href="https://github.com/dotnet/fsharp/pull/16891">PR #16891</a>)</li>
+</ul>
+
+<h2><a name="8.0.200" class="anchor" href="#8.0.200">8.0.200 - 2024-02-13</a></h2><a href="https://www.nuget.org/packages/FSharp.Core/8.0.200" target="_blank"><img alt="Nuget" src="https://img.shields.io/badge/NuGet-8.0.200-blue"></a><h3><a name="8.0.200-Added" class="anchor" href="#8.0.200-Added">Added</a></h3>
+<ul>
+<li>More inlines for Result module. (<a href="https://github.com/dotnet/fsharp/pull/16106">PR #16106</a>)</li>
+<li>Added a new parameterless constructor for <code>CustomOperationAttribute</code> (<a href="https://github.com/dotnet/fsharp/pull/16475">PR #16475</a>, part of implementation for <a href="https://github.com/fsharp/fslang-suggestions/issues/1250">fslang-suggestions/1250</a>)</li>
+</ul>
+
+<h2><a name="10.0.200" class="anchor" href="#10.0.200">10.0.200 - Unreleased</a></h2><h3><a name="10.0.200-Fixed" class="anchor" href="#10.0.200-Fixed">Fixed</a></h3>
+<ul>
+<li>Fix IL2091 trimming warning in <code>LazyExtensions.Create</code> by adding <code>DynamicallyAccessedMembers</code> attribute to the generic type parameter. (<a href="https://github.com/dotnet/fsharp/issues/17356">Issue #17356</a>, <a href="https://github.com/dotnet/fsharp/pull/18302">PR #18302</a>)</li>
+</ul>
+
+<h2><a name="10.0.100" class="anchor" href="#10.0.100">10.0.100 - 2025-11-11</a></h2><a href="https://www.nuget.org/packages/FSharp.Core/10.0.100" target="_blank"><img alt="Nuget" src="https://img.shields.io/badge/NuGet-10.0.100-blue"></a><h3><a name="10.0.100-Fixed" class="anchor" href="#10.0.100-Fixed">Fixed</a></h3>
+<ul>
+<li>Correct a typo in docs for List.sort (<a href="https://github.com/dotnet/fsharp/pull/18938">PR #18938</a>)</li>
+</ul>
+<h3><a name="10.0.100-Added" class="anchor" href="#10.0.100-Added">Added</a></h3>
+<ul>
+<li>Enable more <code>string</code> optimizations by adding <code>when 'T : Enum</code> library-only library-only static optimization constraint. (<a href="https://github.com/dotnet/fsharp/pull/18546">PR #18546</a>)</li>
+</ul>
+<h3><a name="10.0.100-Changed" class="anchor" href="#10.0.100-Changed">Changed</a></h3>
+<ul>
+<li>Random functions support for zero element chosen/sampled (<a href="https://github.com/dotnet/fsharp/pull/18568">PR #18568</a>)</li>
+<li>Optimize array slicing performance. (<a href="https://github.com/dotnet/fsharp/pull/18778">PR #18778</a>)</li>
+</ul>
+<h3><a name="10.0.100-Breaking Changes" class="anchor" href="#10.0.100-Breaking Changes">Breaking Changes</a></h3>
+<ul>
+<li>1D array slicing now returns an empty array singleton instead of allocating a new array when the result is empty. (<a href="https://github.com/dotnet/fsharp/pull/18778">PR #18778</a>)</li>
+</ul>
+
+
+        <div class="fsdocs-tip" id="fs1">namespace System</div>
+<div class="fsdocs-tip" id="fs2">namespace System.IO</div>
+<div class="fsdocs-tip" id="fs3">namespace Markdig</div>
+<div class="fsdocs-tip" id="fs4">module Common</div>
+<div class="fsdocs-tip" id="fs5">val path: string</div>
+<div class="fsdocs-tip" id="fs6">type Path =
+  static member ChangeExtension: path: string * extension: string -&gt; string
+  static member Combine: path1: string * path2: string -&gt; string + 4 overloads
+  static member EndsInDirectorySeparator: path: ReadOnlySpan&lt;char&gt; -&gt; bool + 1 overload
+  static member Exists: path: string -&gt; bool
+  static member GetDirectoryName: path: ReadOnlySpan&lt;char&gt; -&gt; ReadOnlySpan&lt;char&gt; + 1 overload
+  static member GetExtension: path: ReadOnlySpan&lt;char&gt; -&gt; ReadOnlySpan&lt;char&gt; + 1 overload
+  static member GetFileName: path: ReadOnlySpan&lt;char&gt; -&gt; ReadOnlySpan&lt;char&gt; + 1 overload
+  static member GetFileNameWithoutExtension: path: ReadOnlySpan&lt;char&gt; -&gt; ReadOnlySpan&lt;char&gt; + 1 overload
+  static member GetFullPath: path: string -&gt; string + 1 overload
+  static member GetInvalidFileNameChars: unit -&gt; char array
+  ...<br /><em>&lt;summary&gt;Performs operations on &lt;see cref=&quot;T:System.String&quot; /&gt; instances that contain file or directory path information. These operations are performed in a cross-platform manner.&lt;/summary&gt;</em></div>
+<div class="fsdocs-tip" id="fs7">Path.Combine(paths: System.ReadOnlySpan&lt;string&gt;) : string<br />Path.Combine([&lt;System.ParamArray&gt;] paths: string array) : string<br />Path.Combine(path1: string, path2: string) : string<br />Path.Combine(path1: string, path2: string, path3: string) : string<br />Path.Combine(path1: string, path2: string, path3: string, path4: string) : string</div>
+<div class="fsdocs-tip" id="fs8">val nugetPackage: string</div>
+<div class="fsdocs-tip" id="fs9">val availableNuGetVersions: Set&lt;string&gt;</div>
+<div class="fsdocs-tip" id="fs10">val getAvailableNuGetVersions: packageName: string -&gt; Set&lt;string&gt;<br /><em>&#160;Find all published versions of a package on NuGet</em></div>
+<div class="fsdocs-tip" id="fs11">val processFolder: path: string -&gt; processFile: (string -&gt; string) -&gt; string<br /><em>&#160;Process all MarkDown files from the given release folder</em></div>
+<div class="fsdocs-tip" id="fs12">val file: string</div>
+<div class="fsdocs-tip" id="fs13">val version: string</div>
+<div class="fsdocs-tip" id="fs14">[&lt;return:NotNullIfNotNullAttribute (&quot;path&quot;)&gt;]
+Path.GetFileNameWithoutExtension(path: string) : string<br />Path.GetFileNameWithoutExtension(path: System.ReadOnlySpan&lt;char&gt;) : System.ReadOnlySpan&lt;char&gt;</div>
+<div class="fsdocs-tip" id="fs15">val title: string</div>
+<div class="fsdocs-tip" id="fs16">member Set.Contains: value: &#39;T -&gt; bool</div>
+<div class="fsdocs-tip" id="fs17">val tryGetReleaseDate: packageName: string -&gt; version: string -&gt; string option<br /><em>&#160;Try and find the publish date on NuGet</em></div>
+<div class="fsdocs-tip" id="fs18">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div class="fsdocs-tip" id="fs19">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="fsdocs-tip" id="fs20">val d: string</div>
+<div class="fsdocs-tip" id="fs21">val nugetBadge: string</div>
+<div class="fsdocs-tip" id="fs22">Multiple items<br />type String =
+  interface IEnumerable&lt;char&gt;
+  interface IEnumerable
+  interface ICloneable
+  interface IComparable
+  interface IComparable&lt;string&gt;
+  interface IConvertible
+  interface IEquatable&lt;string&gt;
+  interface IParsable&lt;string&gt;
+  interface ISpanParsable&lt;string&gt;
+  new: value: nativeptr&lt;char&gt; -&gt; unit + 8 overloads
+  ...<br /><em>&lt;summary&gt;Represents text as a sequence of UTF-16 code units.&lt;/summary&gt;</em><br /><br />--------------------<br />System.String(value: nativeptr&lt;char&gt;) : System.String<br />System.String(value: char array) : System.String<br />System.String(value: System.ReadOnlySpan&lt;char&gt;) : System.String<br />System.String(value: nativeptr&lt;sbyte&gt;) : System.String<br />System.String(c: char, count: int) : System.String<br />System.String(value: nativeptr&lt;char&gt;, startIndex: int, length: int) : System.String<br />System.String(value: char array, startIndex: int, length: int) : System.String<br />System.String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int) : System.String<br />System.String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int, enc: System.Text.Encoding) : System.String</div>
+<div class="fsdocs-tip" id="fs23">field System.String.Empty: string</div>
+<div class="fsdocs-tip" id="fs24">val content: string</div>
+<div class="fsdocs-tip" id="fs25">type File =
+  static member AppendAllBytes: path: string * bytes: byte array -&gt; unit + 1 overload
+  static member AppendAllBytesAsync: path: string * bytes: byte array * ?cancellationToken: CancellationToken -&gt; Task + 1 overload
+  static member AppendAllLines: path: string * contents: IEnumerable&lt;string&gt; -&gt; unit + 1 overload
+  static member AppendAllLinesAsync: path: string * contents: IEnumerable&lt;string&gt; * encoding: Encoding * ?cancellationToken: CancellationToken -&gt; Task + 1 overload
+  static member AppendAllText: path: string * contents: ReadOnlySpan&lt;char&gt; -&gt; unit + 3 overloads
+  static member AppendAllTextAsync: path: string * contents: ReadOnlyMemory&lt;char&gt; * encoding: Encoding * ?cancellationToken: CancellationToken -&gt; Task + 3 overloads
+  static member AppendText: path: string -&gt; StreamWriter
+  static member Copy: sourceFileName: string * destFileName: string -&gt; unit + 1 overload
+  static member Create: path: string -&gt; FileStream + 2 overloads
+  static member CreateSymbolicLink: path: string * pathToTarget: string -&gt; FileSystemInfo
+  ...<br /><em>&lt;summary&gt;Provides static methods for the creation, copying, deletion, moving, and opening of a single file, and aids in the creation of &lt;see cref=&quot;T:System.IO.FileStream&quot; /&gt; objects.&lt;/summary&gt;</em></div>
+<div class="fsdocs-tip" id="fs26">File.ReadAllText(path: string) : string<br />File.ReadAllText(path: string, encoding: System.Text.Encoding) : string</div>
+<div class="fsdocs-tip" id="fs27">type Markdown =
+  static member Convert: markdown: string * renderer: IMarkdownRenderer * ?pipeline: MarkdownPipeline * ?context: MarkdownParserContext -&gt; obj
+  static member Normalize: markdown: string * ?options: NormalizeOptions * ?pipeline: MarkdownPipeline * ?context: MarkdownParserContext -&gt; string + 1 overload
+  static member Parse: markdown: string * ?trackTrivia: bool -&gt; MarkdownDocument + 1 overload
+  static member ToHtml: markdown: string * ?pipeline: MarkdownPipeline * ?context: MarkdownParserContext -&gt; string + 3 overloads
+  static member ToPlainText: markdown: string * writer: TextWriter * ?pipeline: MarkdownPipeline * ?context: MarkdownParserContext -&gt; MarkdownDocument + 1 overload
+  static member Version: string<br /><em>&lt;summary&gt;
+            Provides methods for parsing a Markdown string to a syntax tree and converting it to other formats.
+            &lt;/summary&gt;</em></div>
+<div class="fsdocs-tip" id="fs28">Markdown.ToHtml(document: Syntax.MarkdownDocument, ?pipeline: MarkdownPipeline) : string<br />Markdown.ToHtml(document: Syntax.MarkdownDocument, writer: TextWriter, ?pipeline: MarkdownPipeline) : unit<br />Markdown.ToHtml(markdown: string, ?pipeline: MarkdownPipeline, ?context: MarkdownParserContext) : string<br />Markdown.ToHtml(markdown: string, writer: TextWriter, ?pipeline: MarkdownPipeline, ?context: MarkdownParserContext) : Syntax.MarkdownDocument</div>
+<div class="fsdocs-tip" id="fs29">val transformH3: version: string -&gt; input: string -&gt; string<br /><em>&#160;In order for the heading to appear in the page content menu in fsdocs,<br />&#160;they need to follow a specific HTML structure.</em></div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#FSharp-Core">
+      FSharp.Core
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#9.0.300">
+      9.0.300 - 2025-05-13
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.300-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.300-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.300-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.300-Breaking Changes">
+      Breaking Changes
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#9.0.200">
+      9.0.200 - Unreleased
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.200-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.200-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.200-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.200-Breaking Changes">
+      Breaking Changes
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#9.0.101">
+      9.0.101 - 2025-01-14
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.101-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.101-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.101-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.101-Breaking Changes">
+      Breaking Changes
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#9.0.100">
+      9.0.100 - 2024-11-12
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.100-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.100-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.100-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#9.0.100-Breaking Changes">
+      Breaking Changes
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#8.0.400">
+      8.0.400 - 2024-08-13
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#8.0.400-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#8.0.400-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#8.0.400-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#8.0.400-Breaking Changes">
+      Breaking Changes
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#8.0.300">
+      8.0.300 - 2024-05-14
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#8.0.300-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#8.0.300-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#8.0.200">
+      8.0.200 - 2024-02-13
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#8.0.200-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#10.0.200">
+      10.0.200 - Unreleased
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#10.0.200-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#10.0.100">
+      10.0.100 - 2025-11-11
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#10.0.100-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#10.0.100-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#10.0.100-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#10.0.100-Breaking Changes">
+      Breaking Changes
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-search.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsharp.github.io/fsharp-compiler-docs/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Large inputs" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Large inputs">
+    
+    <title>Large inputs | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Header menu logo" src="https://fsharp.github.io/fsharp-compiler-docs/img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1><a name="Processing-large-inputs-without-stack-overflows" class="anchor" href="#Processing-large-inputs-without-stack-overflows">Processing large inputs without stack overflows</a></h1>
+<p>The compiler accepts large inputs such as:</p>
+<ul>
+<li>Large literals, such as <code>let str = "a1" + "a2" + ... + "a1000"</code></li>
+<li>Large array expressions</li>
+<li>Large list expressions</li>
+<li>Long lists of sequential expressions</li>
+<li>Long lists of bindings, such as <code>let v1 = e1 in let v2 = e2 in ....</code></li>
+<li>Long sequences of <code>if .. then ... else</code> expressions</li>
+<li>Long sequences of <code>match x with ... | ...</code> expressions</li>
+<li>Combinations of these</li>
+</ul>
+<p>The compiler performs constant folding for large constants so there are no costs to using them at runtime. However, this is subject to a machine's stack size when compiling, leading to <code>StackOverflow</code> exceptions if those constants are very large. The same can be observed for certain kinds of array, list, or sequence expressions. This appears to be more prominent when compiling on macOS because macOS has a smaller stack size.</p>
+<p>Many sources of <code>StackOverflow</code> exceptions prior to F# 4.7 when processing these kinds of constructs were resolved by processing them on the heap via continuation passing techniques. This avoids filling data on the stack and appears to have negligible effects on overall throughput or memory usage of the compiler.</p>
+<p>There are two techniques to deal with this</p>
+<ol>
+<li>Linearizing processing of specific input shapes, keeping stacks small</li>
+<li>Using stack guards to simply temporarily move to a new thread when a certain threshold is reached.</li>
+</ol>
+<h2><a name="Linearizing-processing-if-certain-inputs" class="anchor" href="#Linearizing-processing-if-certain-inputs">Linearizing processing if certain inputs</a></h2>
+<p>Aside from array expressions, most of the previously-listed inputs are called "linear" expressions. This means that there is a single linear hole in the shape of expressions. For example:</p>
+<ul>
+<li><code>expr :: HOLE</code> (list expressions or other right-linear constructions)</li>
+<li><code>expr; HOLE</code> (sequential expressions)</li>
+<li><code>let v = expr in HOLE</code> (let expressions)</li>
+<li><code>if expr then expr else HOLE</code> (conditional expression)</li>
+<li><code>match expr with pat[vs] -&gt; e1[vs] | pat2 -&gt; HOLE</code> (for example, <code>match expr with Some x -&gt; ... | None -&gt; ...</code>)</li>
+</ul>
+<p>Processing these constructs with continuation passing is more difficult than a more "natural" approach that would use the stack.</p>
+<p>For example, consider the following contrived example:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">and</span> <span class="id">remapLinearExpr</span> <span class="id">g</span> <span class="id">compgen</span> <span class="id">tmenv</span> <span class="id">expr</span> <span class="id">contf</span> <span class="o">=</span>
+    <span class="k">match</span> <span class="id">expr</span> <span class="k">with</span>
+    <span class="pn">|</span> <span class="id">Expr</span><span class="pn">.</span><span class="id">Let</span> <span class="pn">(</span><span class="id">bind</span><span class="pn">,</span> <span class="id">bodyExpr</span><span class="pn">,</span> <span class="id">m</span><span class="pn">,</span> <span class="id">_</span><span class="pn">)</span> <span class="k">-&gt;</span>
+        <span class="o">..</span><span class="pn">.</span>
+        <span class="c">// tailcall for the linear position</span>
+        <span class="id">remapLinearExpr</span> <span class="id">g</span> <span class="id">compgen</span> <span class="id">tmenvinner</span> <span class="id">bodyExpr</span> <span class="pn">(</span><span class="id">contf</span> <span class="o">&lt;&lt;</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">bodyExpr&#39;</span> <span class="k">-&gt;</span>
+            <span class="o">..</span><span class="pn">.</span><span class="pn">)</span><span class="pn">)</span>
+
+    <span class="pn">|</span> <span class="id">Expr</span><span class="pn">.</span><span class="id">Sequential</span> <span class="pn">(</span><span class="id">expr1</span><span class="pn">,</span> <span class="id">expr2</span><span class="pn">,</span> <span class="id">dir</span><span class="pn">,</span> <span class="id">spSeq</span><span class="pn">,</span> <span class="id">m</span><span class="pn">)</span>  <span class="k">-&gt;</span>
+        <span class="o">..</span><span class="pn">.</span>
+        <span class="c">// tailcall for the linear position</span>
+        <span class="id">remapLinearExpr</span> <span class="id">g</span> <span class="id">compgen</span> <span class="id">tmenv</span> <span class="id">expr2</span> <span class="pn">(</span><span class="id">contf</span> <span class="o">&lt;&lt;</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">expr2&#39;</span> <span class="k">-&gt;</span>
+            <span class="o">..</span><span class="pn">.</span><span class="pn">)</span><span class="pn">)</span>
+
+    <span class="pn">|</span> <span class="id">LinearMatchExpr</span> <span class="pn">(</span><span class="id">spBind</span><span class="pn">,</span> <span class="id">exprm</span><span class="pn">,</span> <span class="id">dtree</span><span class="pn">,</span> <span class="id">tg1</span><span class="pn">,</span> <span class="id">expr2</span><span class="pn">,</span> <span class="id">sp2</span><span class="pn">,</span> <span class="id">m2</span><span class="pn">,</span> <span class="id">ty</span><span class="pn">)</span> <span class="k">-&gt;</span>
+        <span class="o">..</span><span class="pn">.</span>
+        <span class="c">// tailcall for the linear position</span>
+        <span class="id">remapLinearExpr</span> <span class="id">g</span> <span class="id">compgen</span> <span class="id">tmenv</span> <span class="id">expr2</span> <span class="pn">(</span><span class="id">contf</span> <span class="o">&lt;&lt;</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">expr2&#39;</span> <span class="k">-&gt;</span>  <span class="o">..</span><span class="pn">.</span><span class="pn">)</span><span class="pn">)</span>
+
+    <span class="pn">|</span> <span class="id">LinearOpExpr</span> <span class="pn">(</span><span class="id">op</span><span class="pn">,</span> <span class="id">tyargs</span><span class="pn">,</span> <span class="id">argsFront</span><span class="pn">,</span> <span class="id">argLast</span><span class="pn">,</span> <span class="id">m</span><span class="pn">)</span> <span class="k">-&gt;</span>
+        <span class="o">..</span><span class="pn">.</span>
+        <span class="c">// tailcall for the linear position</span>
+        <span class="id">remapLinearExpr</span> <span class="id">g</span> <span class="id">compgen</span> <span class="id">tmenv</span> <span class="id">argLast</span> <span class="pn">(</span><span class="id">contf</span> <span class="o">&lt;&lt;</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">argLast&#39;</span> <span class="k">-&gt;</span> <span class="o">..</span><span class="pn">.</span><span class="pn">)</span><span class="pn">)</span>
+
+    <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="id">contf</span> <span class="pn">(</span><span class="id">remapExpr</span> <span class="id">g</span> <span class="id">compgen</span> <span class="id">tmenv</span> <span class="id">e</span><span class="pn">)</span>
+
+<span class="k">and</span> <span class="id">remapExpr</span> <span class="pn">(</span><span class="id">g</span><span class="pn">:</span> <span class="id">TcGlobals</span><span class="pn">)</span> <span class="pn">(</span><span class="id">compgen</span><span class="pn">:</span><span class="id">ValCopyFlag</span><span class="pn">)</span> <span class="pn">(</span><span class="id">tmenv</span><span class="pn">:</span><span class="id">Remap</span><span class="pn">)</span> <span class="id">expr</span> <span class="o">=</span>
+    <span class="k">match</span> <span class="id">expr</span> <span class="k">with</span>
+    <span class="o">..</span><span class="pn">.</span>
+    <span class="pn">|</span> <span class="id">LinearOpExpr</span> <span class="id">_</span>
+    <span class="pn">|</span> <span class="id">LinearMatchExpr</span> <span class="id">_</span>
+    <span class="pn">|</span> <span class="id">Expr</span><span class="pn">.</span><span class="id">Sequential</span> <span class="id">_</span>
+    <span class="pn">|</span> <span class="id">Expr</span><span class="pn">.</span><span class="id">Let</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="id">remapLinearExpr</span> <span class="id">g</span> <span class="id">compgen</span> <span class="id">tmenv</span> <span class="id">expr</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">x</span> <span class="k">-&gt;</span> <span class="id">x</span><span class="pn">)</span>
+</code></pre>
+<p>The <code>remapExpr</code> operation becomes two functions, <code>remapExpr</code> (for non-linear cases) and <code>remapLinearExpr</code> (for linear cases). <code>remapLinearExpr</code> uses tailcalls for constructs in the <code>HOLE</code> positions mentioned previously, passing the result to the continuation.</p>
+<p>Some common aspects of this style of programming are:</p>
+<ul>
+<li>The tell-tale use of <code>contf</code> (continuation function)</li>
+<li>The processing of the body expression <code>e</code> of a let-expression is tail-recursive, if the next construct is also a let-expression.</li>
+<li>The processing of the <code>e2</code> expression of a sequential-expression is tail-recursive</li>
+<li>The processing of the second expression in a cons is tail-recursive</li>
+</ul>
+<p>The previous example is considered incomplete, because arbitrary <em>combinations</em> of <code>let</code> and sequential expressions aren't going to be dealt with in a tail-recursive way. The compiler generally tries to do these combinations as well.</p>
+<h2><a name="Stack-Guards" class="anchor" href="#Stack-Guards">Stack Guards</a></h2>
+<p>The <code>StackGuard</code> type is used to move to a new thread if there is no sufficient stack space for a synchronous recursive call. Compilation globals are re-installed. Sample:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="o">..</span><span class="pn">.</span>
+   <span class="id">stackGuard</span> <span class="o">=</span> <span class="id">StackGuard</span><span class="pn">(</span><span class="s">&quot;TcExpr&quot;</span><span class="pn">)</span>
+
+<span class="k">let</span> <span class="k">rec</span> <span class="o">..</span><span class="o">..</span>
+
+<span class="k">and</span> <span class="id">TcExpr</span> <span class="id">cenv</span> <span class="id">ty</span> <span class="pn">(</span><span class="id">env</span><span class="pn">:</span> <span class="id">TcEnv</span><span class="pn">)</span> <span class="id">tpenv</span> <span class="pn">(</span><span class="id">expr</span><span class="pn">:</span> <span class="id">SynExpr</span><span class="pn">)</span> <span class="o">=</span>
+
+    <span class="c">// Guard the stack for deeply nested expressions</span>
+    <span class="id">cenv</span><span class="pn">.</span><span class="id">stackGuard</span><span class="pn">.</span><span class="id">Guard</span> <span class="o">&lt;|</span> <span class="k">fun</span> <span class="pn">(</span><span class="pn">)</span> <span class="k">-&gt;</span>
+
+    <span class="o">..</span><span class="pn">.</span>
+</code></pre>
+<p>Note stack guarding doesn't result in a tailcall so will appear in recursive stack frames, because a counter must be decremented after the call.</p>
+<p>Compiling with <code>--times</code> option will show a summary if any thread switches were made due to stack guarding:</p>
+<pre class="fssnip highlighted"><code lang="fsharp">    <span class="id">StackGuard</span> <span class="id">jumps</span><span class="pn">:</span>
+    <span class="o">-----------------------------------------------------</span>
+    <span class="pn">|</span> <span class="id">caller</span> <span class="pn">|</span>        <span class="id">source</span>        <span class="pn">|</span> <span class="id">jumps</span> <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">min</span> <span class="id">depth</span> <span class="pn">|</span>
+    <span class="o">|--------|----------------------|-------|-----------|</span>
+    <span class="pn">|</span> <span class="id">exprF</span>  <span class="pn">|</span> <span class="id">TypedTreeOps</span><span class="pn">.</span><span class="id">fs</span><span class="pn">:</span><span class="n">7444</span> <span class="pn">|</span>    <span class="n">25</span> <span class="pn">|</span>      <span class="n">1601</span> <span class="pn">|</span>
+    <span class="o">-----------------------------------------------------</span>
+</code></pre>
+
+        <div class="fsdocs-tip" id="fs1">val min: e1: &#39;T -&gt; e2: &#39;T -&gt; &#39;T (requires comparison)</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Processing-large-inputs-without-stack-overflows">
+      Processing large inputs without stack overflows
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Linearizing-processing-if-certain-inputs">
+      Linearizing processing if certain inputs
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Stack-Guards">
+      Stack Guards
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-search.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsharp.github.io/fsharp-compiler-docs/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="F# LSP
+" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="F# LSP
+">
+    
+    <title>F# LSP
+ | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header active">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Header menu logo" src="https://fsharp.github.io/fsharp-compiler-docs/img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header active">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <h1><a name="F-LSP" class="anchor" href="#F-LSP">F# LSP</a></h1>
+<p>F# LSP support design proposal. To be expanded as we learn more / settle on things.</p>
+<h2><a name="Table-of-contents" class="anchor" href="#Table-of-contents">Table of contents</a></h2>
+<ul>
+<li>
+<a href="#f-lsp">F# LSP</a>
+<ul>
+<li><a href="#table-of-contents">Table of contents</a></li>
+<li><a href="#goals--requirements">Goals / Requirements</a></li>
+<li><a href="#overview">Overview</a></li>
+<li>
+<a href="#components">Components</a>
+<ul>
+<li>
+<a href="#fslsp">FsLSP</a>
+<ul>
+<li><a href="#fslspserver">FsLSPServer</a></li>
+<li>
+<a href="#workspace-state-management">Workspace State Management</a>
+<ul>
+<li><a href="#things-to-keep-track-of">Things to keep track of:</a></li>
+</ul>
+</li>
+<li><a href="#project-model">Project model</a></li>
+<li><a href="#example-sequence-diagram">Example sequence diagram</a></li>
+<li><a href="#concurrency-and-cancellation">Concurrency and cancellation</a></li>
+<li><a href="#request-tracking">Request tracking</a></li>
+<li><a href="#configuration-updates">Configuration updates</a></li>
+<li><a href="#extensibility">Extensibility</a></li>
+<li><a href="#release-process">Release process</a></li>
+</ul>
+</li>
+<li><a href="#newvsix">NewVsix</a></li>
+<li><a href="#fcs">FCS</a></li>
+</ul>
+</li>
+<li>
+<a href="#lsp-library">LSP library</a>
+<ul>
+<li><a href="#candidates">Candidates</a></li>
+</ul>
+</li>
+<li><a href="#lsp-client-">LSP client (?)</a></li>
+<li><a href="#diagnostic-mode">Diagnostic mode</a></li>
+<li><a href="#lsif">LSIF</a></li>
+<li><a href="#performance">Performance</a></li>
+<li><a href="#analyzers--refactoring-support">Analyzers \&amp; Refactoring support</a></li>
+<li><a href="#mixed-f--c-solutions">Mixed F# / C# solutions</a></li>
+<li><a href="#multiple-workspace-support">Multiple workspace support</a></li>
+<li>
+<a href="#action-plan">Action plan</a>
+<ul>
+<li><a href="#phase-0">Phase 0</a></li>
+<li><a href="#phase-1">Phase 1</a></li>
+<li><a href="#phase-2---5">Phase 2 - 5</a></li>
+</ul>
+</li>
+<li><a href="#lsp-endpoints">LSP Endpoints</a></li>
+</ul>
+</li>
+</ul>
+<h2><a name="Goals-Requirements" class="anchor" href="#Goals-Requirements">Goals / Requirements</a></h2>
+<ul>
+<li>
+Fully featured F# LSP server implementation that can be used by any editor
+<ul>
+<li>Can be used as a library (with optional customization) or executable</li>
+<li>Independent of any particular project system - this needs to be handled by the client</li>
+<li>Target LSP protocol version 3.17 (at least initially, we can upgrade as we go)</li>
+<li>Support all useful LSP APIs</li>
+<li>Support for analyzers</li>
+<li>Support for code fixes and refactoring</li>
+<li>Support for mixed F# / C# solutions (being able to delegate to C# LSP server)</li>
+<li>Good performance</li>
+<li>Support for multiple workspaces</li>
+<li>Support for LSIF</li>
+</ul>
+</li>
+<li>Visual Studio extension that will use the LSP server</li>
+</ul>
+<h2><a name="Overview" class="anchor" href="#Overview">Overview</a></h2>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">
+graph TD
+
+VS(VS) --&gt;|VS LSP client| NewVsix("NewVsix (Out-of-process)")
+
+VsCode(VS Code) --&gt; Ionide(Ionide/FSAC)
+
+Vim(Vim) --&gt; Ionide(Ionide/FSAC)
+
+FsLSPServer(FsLSP Server)
+
+NewVsix --&gt; ProjectQuery(Project Query API)
+NewVsix --&gt; FsLSP
+
+FsLSPServer --&gt; FsLSP
+
+
+
+subgraph FsLSP
+ProjectModel(Project Model)
+WorkspaceStateManagement(Workspace State Management)
+LSPLibrary(LSP Library)
+end
+
+FsLSP --&gt; FCS
+
+Ionide --&gt; FsLSPServer
+Ionide --&gt; ProjInfo(ProjInfo)
+
+style VS stroke-dasharray: 2 4
+style Vim stroke-dasharray: 2 4
+style VsCode stroke-dasharray: 2 4
+style Ionide stroke-dasharray: 2 4
+style ProjInfo stroke-dasharray: 2 4
+style LSPLibrary stroke-dasharray: 2 4
+style ProjectQuery stroke-dasharray: 2 4
+
+</code></pre></td></tr></table>
+<table>
+<thead>
+<tr class="header">
+<th><p>Component</p></th>
+<th><p>Description</p></th>
+<th><p>Release Process</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>FCS</p></td>
+<td><p>F# Compiler Service</p></td>
+<td><p>Nuget</p></td>
+</tr>
+<tr class="even">
+<td><p><strong>FsLSP</strong></p></td>
+<td><p>The F# LSP library. This can be used to create an LSP server.</p></td>
+<td><p>Nuget</p></td>
+</tr>
+<tr class="odd">
+<td><ul>
+<li><strong>FsLSPServer</strong></li>
+</ul></td>
+<td><p>The F# LSP server. An executable that can be started and will process LSP calls. Thin wrapper around FsLSP.</p></td>
+<td><p>with <strong>FsLSP</strong></p></td>
+</tr>
+<tr class="even">
+<td><ul>
+<li><strong>Workspace State Management</strong></li>
+</ul></td>
+<td><p>A system for keeping a "current snapshot" of projects the user is working with</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><ul>
+<li><strong>Project Model</strong></li>
+</ul></td>
+<td><p>A model for a project system we will use since we can't be tied to any particular one</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><ul>
+<li>LSP Library</li>
+</ul></td>
+<td><p>A ready made library we will hopefully find to simplify LSP server development</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><strong>NewVsix</strong></p></td>
+<td><p>The new VS Extension which will be powered by LSP</p></td>
+<td><p>with VS</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2><a name="Components" class="anchor" href="#Components">Components</a></h2>
+<h3><a name="FsLSP" class="anchor" href="#FsLSP">FsLSP</a></h3>
+<p>The library containing the LSP functionality. Can be used to create an LSP server by adding the transport layer.</p>
+<h4><a name="FsLSPServer" class="anchor" href="#FsLSPServer">FsLSPServer</a></h4>
+<p>The LSP server executable using STD IN/OUT for transport.</p>
+<p>Will be packaged with FsLSP and available as a dotnet tool (?)</p>
+<p>It should always target the latest .NET runtime.</p>
+<h4><a name="Workspace-State-Management" class="anchor" href="#Workspace-State-Management">Workspace State Management</a></h4>
+<p>This part of the library is responsible for keeping track of the current workspace state. The internal workspace model is used to create requests for FCS. It needs to make sure the internal state doesn't get out of sync with what's in the editor and on disk.</p>
+<h5><a name="Things-to-keep-track-of" class="anchor" href="#Things-to-keep-track-of">Things to keep track of:</a></h5>
+<ul>
+<li>Incoming document changes</li>
+<li>Documents' open/closed status</li>
+<li>Source files on-disk changes for documents that aren't open</li>
+<li>Any on-disk references that could have been rebuilt/updated</li>
+</ul>
+<h4><a name="Project-model" class="anchor" href="#Project-model">Project model</a></h4>
+<p>We need some internal model for a workspace/solution with projects. We don't want to use any project system library because we don't need most of the functionality which will be instead handled by the client.</p>
+<p>The model needs to be able to quickly absorb incoming changes and easily convert to (or already contain) inputs for FCS. We could consider a reactive/adaptive approach for this.</p>
+<p>We should keep track of versions of each project and source file including all dependencies with regards to parsing and type checking.</p>
+<h4><a name="Example-sequence-diagram" class="anchor" href="#Example-sequence-diagram">Example sequence diagram</a></h4>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">
+sequenceDiagram
+
+participant Client
+participant FsLSP
+participant WorkspaceStateManagement
+participant FCS
+
+Client-&gt;&gt;FsLSP: textDocument/didChange
+FsLSP-&gt;&gt;WorkspaceStateManagement: Update workspace state
+Client-&gt;&gt;+FsLSP: textDocument/diagnostic
+FsLSP-&gt;&gt;+WorkspaceStateManagement: Get current workspace snapshot
+WorkspaceStateManagement--&gt;&gt;-FsLSP: Current workspace snapshot
+FsLSP-&gt;&gt;+FCS: ParseAndCheckFileInProject
+FCS--&gt;&gt;-FsLSP: FSharpCheckFileResults
+FsLSP--&gt;&gt;-Client: DocumentDiagnosticReport
+
+</code></pre></td></tr></table>
+<h4><a name="Concurrency-and-cancellation" class="anchor" href="#Concurrency-and-cancellation">Concurrency and cancellation</a></h4>
+<p>We need to make sure when a project snapshot is needed to process a request, it will always contain all change notifications that were received before. There shouldn't be need for a global request queue, possibly only for change notifications inside WorkspaceStateManagement. And any language requests will wait until WorkspaceStateManagement has absorbed all previous changes.</p>
+<p>For cancellation we should decide, potentially on a case-by-case basis what to do when an incoming change notification invalidates an ongoing request.</p>
+<ol>
+<li>Do nothing and let the request run either until it completes or is cancelled by the client. This is the easiest so we will probably start with this.</li>
+<li>Cancel the request and return "cancelled" result to the client. The client then needs to deal with it.</li>
+<li>Internally restart the work updated inputs and complete the original request until cancelled. This mode might save a bunch of back-and-forth with the client when user is typing. But it requires the client to expect it and not send cancellations a re-requests for the same thing.</li>
+</ol>
+<details>
+<summary>Request update example</summary>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">
+sequenceDiagram
+
+participant Client
+participant FsLSP
+participant WorkspaceStateManagement
+participant FCS
+
+Client-&gt;&gt;+FsLSP: textDocument/diagnostic
+FsLSP-&gt;&gt;+WorkspaceStateManagement: Get current workspace snapshot
+WorkspaceStateManagement--&gt;&gt;-FsLSP: Current workspace snapshot
+FsLSP-&gt;&gt;FCS: ParseAndCheckFileInProject
+activate FCS
+Client-&gt;&gt;FsLSP: textDocument/didChange
+FsLSP-&gt;&gt;FCS: Cancel ParseAndCheckFileInProject
+deactivate FCS
+FsLSP-&gt;&gt;WorkspaceStateManagement: Update workspace state
+FsLSP-&gt;&gt;+WorkspaceStateManagement: Get current workspace snapshot
+WorkspaceStateManagement--&gt;&gt;-FsLSP: Current workspace snapshot
+
+FsLSP-&gt;&gt;+FCS: ParseAndCheckFileInProject
+FCS--&gt;&gt;-FsLSP: FSharpCheckFileResults
+FsLSP--&gt;&gt;-Client: DocumentDiagnosticReport
+
+</code></pre></td></tr></table>
+</details>
+<h4><a name="Request-tracking" class="anchor" href="#Request-tracking">Request tracking</a></h4>
+<p>This will hopefully be handled by the LSP library. Although we might need to be able to keep track of requests in progress for the purpose of cancellation.</p>
+<h4><a name="Configuration-updates" class="anchor" href="#Configuration-updates">Configuration updates</a></h4>
+<p>We should be able to apply configuration changes that require re-creating the FCS checker. We should be able to keep the caches since the results shouldn't depend on checker settings (rather only the input Project Snapshots).</p>
+<h4><a name="Extensibility" class="anchor" href="#Extensibility">Extensibility</a></h4>
+<p>The FsLSP library should be extensible by adding custom endpoints or overriding existing ones.</p>
+<p>It should also allow to hook into background processes or events to customize behavior.</p>
+<p>The code for extending the behavior should look the same as the code for implementing the core functionality. That way it's easy to test out and then potentially contribute it directly to the library.</p>
+<h4><a name="Release-process" class="anchor" href="#Release-process">Release process</a></h4>
+<p>We should use a similar release process as we have now for FCS. Potentially also provide a pre-release package with the latest version from <code>main</code>.</p>
+<h3><a name="NewVsix" class="anchor" href="#NewVsix">NewVsix</a></h3>
+<p>New VS extension that will be backed by the LSP server. It should mostly contain plumbing to connect LSP to the editor and CPS.</p>
+<p>We should build on new <a href="https://github.com/microsoft/VSExtensibility/">VisualStudio.Extensibility</a> model to run the extension out-of-process. It can also directly connect native VS LSP directly to our server which we can host directly in the extension.</p>
+<p>We might need a wrapper C# project because the new extensibility model relies on source generation.</p>
+<p>We should be able to load project information via <a href="https://github.com/microsoft/VSExtensibility/tree/main/New_Extensibility_Model/Samples/VSProjectQueryAPISample">ProjectQuery API</a> to which we can also subscribe for changes.</p>
+<p>The new extension should be able to run side by side with the current and extension gradually take over the functionality we will add to LSP.</p>
+<p>If there is any missing functionality in any of these, we might need to supplement it from our current MEF extension and connect from it to the new one.</p>
+<h3><a name="FCS" class="anchor" href="#FCS">FCS</a></h3>
+<p>The only strict requirement on FCS is to be able to process open files from memory and non-open files from filesystem. But probably best to abstract that within FsLSP and just provide <code>ISourceText</code> objects for both cases.</p>
+<p>At the moment this is possible via the experimental <code>DocumentSource.Custom</code> parameter. But hopefully we will be able to use a new <code>FSharpProjectSnapshot</code> model (from <a href="https://github.com/dotnet/fsharp/pull/15179">#15179</a>) which combines all the necessary inputs into a single object.</p>
+<h2><a name="LSP-library" class="anchor" href="#LSP-library">LSP library</a></h2>
+<p>The library needs to support all the features we want to implement including the ability to add custom F# ones. It also shouldn't incur an unnecessary performance overhead.</p>
+<h3><a name="Candidates" class="anchor" href="#Candidates">Candidates</a></h3>
+<table>
+<thead>
+<tr class="header">
+<th><p>Library</p></th>
+<th><p>Pros</p></th>
+<th><p>Cons</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>We write our own</p></td>
+<td><ul>
+<li>Complete control over everything</li>
+</ul></td>
+<td><ul>
+<li>A lot of extra work</li>
+</ul></td>
+</tr>
+<tr class="even">
+<td><p><a href="https://github.com/ionide/LanguageServerProtocol">Ionide LanguageServerProtocol</a></p></td>
+<td><ul>
+<li>Battle tested with Ionide and FSAC + Natural F# API</li>
+</ul></td>
+<td><ul>
+<li>Might not be able to fully customize it to our need</li>
+</ul></td>
+</tr>
+<tr class="odd">
+<td><p><a href="https://github.com/dotnet/roslyn/blob/main/src/Features/LanguageServer/Microsoft.CommonLanguageServerProtocol.Framework/README.md">Roslyn CLaSP</a></p></td>
+<td><ul>
+<li>Should be performant + Future support</li>
+</ul></td>
+<td><ul>
+<li>Not stable API - Unnatural C# API</li>
+</ul></td>
+</tr>
+<tr class="even">
+<td><p><a href="https://github.com/OmniSharp/csharp-language-server-protocol">OmniSharp C# LSP</a></p></td>
+<td></td>
+<td><ul>
+<li>Unnatural C# API</li>
+</ul></td>
+</tr>
+</tbody>
+</table>
+
+<p>It probably makes sense to start with an existing library which should be able to get us to a working product and only then consider writing our own in case it's the only way to enable more functionality or performance.</p>
+<h2><a name="LSP-client" class="anchor" href="#LSP-client">LSP client (?)</a></h2>
+<ul>
+<li>Is there any code that can be shared by various clients?</li>
+<li>Most likely not, since each client will be specific to its platform and project system</li>
+</ul>
+<h2><a name="Diagnostic-mode" class="anchor" href="#Diagnostic-mode">Diagnostic mode</a></h2>
+<p>Initially we will be offering the <strong>Pull Diagnostics</strong> mode where the client will request diagnostics for a particular document. It will be up to the client to ask for diagnostics for documents at appropriate times and cancel requests that are no longer needed. The client can also use this to implement background checking of all documents in the workspace.</p>
+<p>Later we can also add an option to have the server control diagnostics and publish them via <strong>Publish Diagnostics</strong>. Then it will be pushing diagnostics as they are discovered either for active document, open documents or all documents.</p>
+<h2><a name="LSIF" class="anchor" href="#LSIF">LSIF</a></h2>
+<p>We should eventually add support for LSIF. At the moment it looks like we would have to construct it manually (as in, no helpful libraries are available).</p>
+<p>This is probably lower priority than anything else.</p>
+<p>It might also be a good opportunity to re-think how we store symbols for purposes of finding references, go to definition, or code search (go to symbol in workspace by name/query).</p>
+<h2><a name="Performance" class="anchor" href="#Performance">Performance</a></h2>
+<p>Areas to pay attention to with regards to performance</p>
+<ul>
+<li>Serialization. Hopefully this will be handled reasonably by a library.</li>
+<li>Spamming too many requests. Though this will be mainly up to the client, we could think about throttling or debouncing.</li>
+<li>Caching. This will be mostly up to FCS but we can send hints about what can be cleaned up.</li>
+</ul>
+<h2><a name="Analyzers-amp-Refactoring-support" class="anchor" href="#Analyzers-amp-Refactoring-support">Analyzers &amp; Refactoring support</a></h2>
+<p>These will hopefully not require any special treatment and can just use existing LSP APIs.</p>
+<h2><a name="Mixed-F-C-solutions" class="anchor" href="#Mixed-F-C-solutions">Mixed F# / C# solutions</a></h2>
+<p>We need to figure out how to talk to C# LSP server for:</p>
+<ul>
+<li>Go to definition</li>
+<li>Find references / rename</li>
+<li>(Make sure these work both ways)</li>
+</ul>
+<h2><a name="Multiple-workspace-support" class="anchor" href="#Multiple-workspace-support">Multiple workspace support</a></h2>
+<p>We should be able to use a single instance of LSP server even for multiple workspaces. We can keep a separate instance of <code>WorkspaceStateManagement</code> for each workspace but send language requests to a single instance of FCS checker. This way it's possible to reuse some results if the workspaces share the same projects (with the same options).</p>
+<h2><a name="Action-plan" class="anchor" href="#Action-plan">Action plan</a></h2>
+<p>A rough draft of how to plan the work and which items can be done in parallel.</p>
+<h3><a name="Phase-0" class="anchor" href="#Phase-0">Phase 0</a></h3>
+<p>We need to investigate which system we'll use for the New Vsix. Ideally we're able to go with new VisualStudio.Extensibility but if that has any blockers we might need to stick to in-process MEF.</p>
+<p>We can prototype the New Vsix with some sample LSP server or maybe with an existing one like FSAC. Just to figure out how to connect it to F# projects in VS.</p>
+<p>For FsLSP we need to choose a library and implement a dummy LSP server with it that we can connect to the New Vsix and get some sort of basic setup that can then be improved upon.</p>
+<!-- Note: these charts don't contain actual time estimates -->
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">
+gantt
+    axisFormat .
+    section FsLSP
+        Choose LSP library :fs1, 1900-01-01, 1d
+        Add projects for FsLSP and FsLSPServer :fs2, after fs1, 1d
+        Implement dummy LSP server using the library :fs3, after fs2, 1d
+        Connect to NewVsix :after vsix2 fs3, 1d
+    section Vsix
+        Investigate options for NewVsix :vsix1, 1900-01-01, 1d
+        Implement NewVsix prototype with dummy or some existing LSP server :vsix2, after vsix1, 2d
+</code></pre></td></tr></table>
+<h3><a name="Phase-1" class="anchor" href="#Phase-1">Phase 1</a></h3>
+<p>Get some sort of working prototype that can do semantic highlighting and show diagnostics.</p>
+<p>Figure out how to run side-by-side and gradually take over functionality from the current Vsix, if possible.</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">
+gantt
+    axisFormat .
+    section FsLSP
+        Implement WorkspaceStateManagement :fs1, 1900-01-01, 3d
+        Implement Phase 1 endpoints :fs2, after fs1, 2d
+    section Vsix
+        Investigate running side-by-side with old Vsix :vsix1, 1900-01-01, 1d
+        Implement configuration of which features are handled by which Vsix :vsix2, after vsix1, 2d
+</code></pre></td></tr></table>
+<h3><a name="Phase-2-5" class="anchor" href="#Phase-2-5">Phase 2 - 5</a></h3>
+<p>Implement endpoints based on their assigned priority. See next section.</p>
+<p>Independently we can start on setting up the build &amp; release process for FsLSP and insertions of NewVsix into VS.</p>
+<p>Another potentially parallel track can be figuring out interop with C# LSP server for mixed solutions.</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="mermaid">
+gantt
+    axisFormat .
+    section FsLSP
+        Implement Phase 2 endpoints :fs1, 1900-01-01, 1d
+        Implement Phase 3 endpoints :fs2, after fs1, 1d
+        Implement Phase 4 endpoints :fs3, after fs2, 1d
+        Implement Phase 5 endpoints :fs4, after fs3, 1d
+    section Distribution
+        Settle on release process :d1, 1900-01-01, 1d
+        Add / update build pipelines :d2, after d1, 1d
+        Set up VS insertions :d3, after d2, 1d
+
+    section Cs interop
+        Figure out how to talk to CSharp LSP server :c1, 1900-01-01, 4d
+</code></pre></td></tr></table>
+<h2><a name="LSP-Endpoints" class="anchor" href="#LSP-Endpoints">LSP Endpoints</a></h2>
+<p>This is a preliminary list of LSP APIs we want (or don't want) to implement, roughly ordered by priority. We will probably re-classify some of them as we go.</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Name</p></th>
+<th><p>Type</p></th>
+<th><p>Direction</p></th>
+<th><p>Category</p></th>
+<th><p>Priority / Dev phase</p></th>
+<th><p>Supported by FSAC</p></th>
+<th><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>initialize</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Lifecycle</p></td>
+<td><p>0</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>initialized</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Lifecycle</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/didChange</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Document synchronization</p></td>
+<td><p>1</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/didClose</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Document synchronization</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/didOpen</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Document synchronization</p></td>
+<td><p>1</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/diagnostic</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/semanticTokens/full</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>$/logTrace</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>Lifecycle</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>$/setTrace</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Lifecycle</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>exit</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Lifecycle</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>shutdown</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Lifecycle</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>completionItem/resolve</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/completion</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/declaration</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/definition</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/hover</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/implementation</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/references</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/semanticTokens/full/delta</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/semanticTokens/range</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/typeDefinition</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/semanticTokens/refresh</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>2</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/compilerLocation</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/documentAnalyzed</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/documentation</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/documentationGenerator</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/documentationSymbol</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/dotnetaddproject</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/dotnetaddsln</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/dotnetnewlist</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/dotnetnewrun</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/dotnetremoveproject</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/fileParsed</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/lineLens</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/notifyCancel</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/notifyWorkspace</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/notifyWorkspacePeek</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/pipelineHint</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/project</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/signature</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/signatureData</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/testDetected</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/workspaceLoad</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/workspacePeek</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsproj/addExistingFile</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsproj/addFile</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsproj/addFileAbove</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsproj/addFileBelow</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsproj/moveFileDown</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsproj/moveFileUp</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsproj/removeFile</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/documentHighlight</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/documentSymbol</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/formatting</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/rename</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/signatureHelp</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>$/progress</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>Window Features</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td><p>Would be nice to have for long running operations</p></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/didChangeWatchedFiles</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>3</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/willSave</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Document synchronization</p></td>
+<td><p>4</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/willSaveWaitUntil</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Document synchronization</p></td>
+<td><p>4</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>codeAction/resolve</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>4</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>codeLens/resolve</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>4</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>inlayHint/resolve</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>4</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/codeAction</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>4</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/codeLens</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>4</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/prepareRename</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>4</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/publishDiagnostics</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>Language features</p></td>
+<td><p>4</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/codeLens/refresh</code></p></td>
+<td><p>Request</p></td>
+<td><p>↪️</p></td>
+<td><p>Language Features</p></td>
+<td><p>4</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>window/showMessage</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>Window Features</p></td>
+<td><p>4</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/configuration</code></p></td>
+<td><p>Request</p></td>
+<td><p>↪️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>4</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>workspace/diagnostic</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>4</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/didChangeConfiguration</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>4</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>workspace/symbol</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>4</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workspaceSymbol/resolve</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>4</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>notebookDocument/didChange</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Notebook Document synchronization</p></td>
+<td><p>5</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>notebookDocument/didClose</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Notebook Document synchronization</p></td>
+<td><p>5</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>notebookDocument/didOpen</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Notebook Document synchronization</p></td>
+<td><p>5</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>notebookDocument/didSave</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Notebook Document synchronization</p></td>
+<td><p>5</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/f1Help</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>❔</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>fsharp/fsdn</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>❔</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>fsharp/loadAnalyzers</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>F# Custom</p></td>
+<td><p>❔</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>callHierarchy/incomingCalls</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>callHierarchy/outgoingCalls</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>documentLink/resolve</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/documentLink</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td><p>Is this useful for us?</p></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/inlayHint</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/inlineValue</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/moniker</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/prepareCallHierarchy</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/prepareTypeHierarchy</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/rangeFormatting</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/selectionRange</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>typeHierarchy/subtypes</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>typeHierarchy/supertypes</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>client/registerCapability</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Lifecycle</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>client/unregisterCapability</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Lifecycle</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>telemetry/event</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>Window Features</p></td>
+<td><p>❔</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>window/logMessage</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>Window Features</p></td>
+<td><p>❔</p></td>
+<td><p>✅</p></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>window/workDoneProgress/cancel</code></p></td>
+<td><p>Notification</p></td>
+<td><p>⬅️</p></td>
+<td><p>Window Features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>window/workDoneProgress/create</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Window Features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>workDoneProgress/cancel</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Window Features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workDoneProgress/create</code></p></td>
+<td><p>Request</p></td>
+<td><p>⬅️</p></td>
+<td><p>Window Features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>workspace/applyEdit</code></p></td>
+<td><p>Request</p></td>
+<td><p>↪️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❔</p></td>
+<td><p>✅</p></td>
+<td><p>Could be used for refactoring?</p></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/diagnostic/refresh</code></p></td>
+<td><p>Request</p></td>
+<td><p>↪️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>workspace/executeCommand</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❔</p></td>
+<td></td>
+<td><p>Could be used for refactoring?</p></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/didSave</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Document synchronization</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+<td><p>Probably don't need this?</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/colorPresentation</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/documentColor</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>textDocument/linkedEditingRange</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>textDocument/onTypeFormatting</code></p></td>
+<td><p>Request</p></td>
+<td><p>↩️</p></td>
+<td><p>Language features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>window/showDocument</code></p></td>
+<td><p>Request</p></td>
+<td><p>↪️</p></td>
+<td><p>Window Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>window/showMessageRequest</code></p></td>
+<td><p>Request</p></td>
+<td><p>↪️</p></td>
+<td><p>Window Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>workspace/didChangeWorkspaceFolders</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/didCreateFiles</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>workspace/didDeleteFiles</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/didRenameFiles</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>workspace/willCreateFiles</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/willDeleteFiles</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><p><code>workspace/willRenameFiles</code></p></td>
+<td><p>Notification</p></td>
+<td><p>➡️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><code>workspace/workspaceFolders</code></p></td>
+<td><p>Request</p></td>
+<td><p>⬅️</p></td>
+<td><p>Workspace Features</p></td>
+<td><p>❌</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#F-LSP">
+      F# LSP
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Table-of-contents">
+      Table of contents
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Goals-Requirements">
+      Goals / Requirements
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Overview">
+      Overview
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Components">
+      Components
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#FsLSP">
+      FsLSP
+    </a>
+  </li>
+  <li class="level-4">
+    <a href="#FsLSPServer">
+      FsLSPServer
+    </a>
+  </li>
+  <li class="level-4">
+    <a href="#Workspace-State-Management">
+      Workspace State Management
+    </a>
+  </li>
+  <li class="level-5">
+    <a href="#Things-to-keep-track-of">
+      Things to keep track of:
+    </a>
+  </li>
+  <li class="level-4">
+    <a href="#Project-model">
+      Project model
+    </a>
+  </li>
+  <li class="level-4">
+    <a href="#Example-sequence-diagram">
+      Example sequence diagram
+    </a>
+  </li>
+  <li class="level-4">
+    <a href="#Concurrency-and-cancellation">
+      Concurrency and cancellation
+    </a>
+  </li>
+  <li class="level-4">
+    <a href="#Request-tracking">
+      Request tracking
+    </a>
+  </li>
+  <li class="level-4">
+    <a href="#Configuration-updates">
+      Configuration updates
+    </a>
+  </li>
+  <li class="level-4">
+    <a href="#Extensibility">
+      Extensibility
+    </a>
+  </li>
+  <li class="level-4">
+    <a href="#Release-process">
+      Release process
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#NewVsix">
+      NewVsix
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#FCS">
+      FCS
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#LSP-library">
+      LSP library
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Candidates">
+      Candidates
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#LSP-client">
+      LSP client (?)
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Diagnostic-mode">
+      Diagnostic mode
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#LSIF">
+      LSIF
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Performance">
+      Performance
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Analyzers-amp-Refactoring-support">
+      Analyzers &amp; Refactoring support
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Mixed-F-C-solutions">
+      Mixed F# / C# solutions
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Multiple-workspace-support">
+      Multiple workspace support
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Action-plan">
+      Action plan
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Phase-0">
+      Phase 0
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Phase-1">
+      Phase 1
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Phase-2-5">
+      Phase 2 - 5
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#LSP-Endpoints">
+      LSP Endpoints
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-search.js"></script>
+
+</body>
+</html>

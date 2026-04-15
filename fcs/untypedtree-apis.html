@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsharp.github.io/fsharp-compiler-docs/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Tutorial: AST APIs" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Tutorial: AST APIs">
+    
+    <title>Tutorial: AST APIs | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/PENDING_BREAKING_CHANGES.html">
+    Breaking Changes in Query Expression Fixes
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/README.html">
+    Postmortems
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/regression-fs0229-bstream-misalignment.html">
+    Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="https://fsharp.github.io/fsharp-compiler-docs/img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/PENDING_BREAKING_CHANGES.html">
+    Breaking Changes in Query Expression Fixes
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/README.html">
+    Postmortems
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/regression-fs0229-bstream-misalignment.html">
+    Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1><a name="Compiler-Services-APIs-for-the-untyped-AST" class="anchor" href="#Compiler-Services-APIs-for-the-untyped-AST">Compiler Services: APIs for the untyped AST</a></h1>
+<h2><a name="The-ParsedInput-module" class="anchor" href="#The-ParsedInput-module">The ParsedInput module</a></h2>
+<p>As established in <a href="./untypedtree.html#Walking-over-the-AST">Tutorial: Expressions</a>, the AST held in a <a href="../reference/fsharp-compiler-syntax-parsedinput.html"><code>ParsedInput</code></a> value
+can be traversed by a set of recursive functions. It can be tedious and error-prone to write these functions from scratch every time, though,
+so the <a href="../reference/fsharp-compiler-syntax-parsedinputmodule.html"><code>ParsedInput</code> module</a>
+exposes a number of functions to make common operations easier.</p>
+<p>For example:</p>
+<ul>
+<li>
+<a href="../reference/fsharp-compiler-syntax-parsedinputmodule.html#exists"><code>ParsedInput.exists</code></a>
+<ul>
+<li>May be used by tooling to determine whether the user's cursor is in a certain context, e.g., to determine whether to offer a certain tooling action.</li>
+</ul>
+</li>
+<li>
+<a href="../reference/fsharp-compiler-syntax-parsedinputmodule.html#fold"><code>ParsedInput.fold</code></a>
+<ul>
+<li>May be used when writing analyzers to collect diagnostic information for an entire source file.</li>
+</ul>
+</li>
+<li>
+<a href="../reference/fsharp-compiler-syntax-parsedinputmodule.html#foldWhile"><code>ParsedInput.foldWhile</code></a>
+<ul>
+<li>Like <code>fold</code> but supports stopping traversal early.</li>
+</ul>
+</li>
+<li>
+<a href="../reference/fsharp-compiler-syntax-parsedinputmodule.html#tryNode"><code>ParsedInput.tryNode</code></a>
+<ul>
+<li>May be used by tooling to get the last (deepest) node under the user's cursor.</li>
+</ul>
+</li>
+<li>
+<a href="../reference/fsharp-compiler-syntax-parsedinputmodule.html#tryPick"><code>ParsedInput.tryPick</code></a>
+<ul>
+<li>May be used by tooling to find the first (shallowest) matching node near the user's cursor.</li>
+</ul>
+</li>
+<li>
+<a href="../reference/fsharp-compiler-syntax-parsedinputmodule.html#tryPickLast"><code>ParsedInput.tryPickLast</code></a>
+<ul>
+<li>May be used by tooling to find the last (deepest) matching node near the user's cursor.</li>
+</ul>
+</li>
+</ul>
+<h2><a name="SyntaxVisitorBase-amp-SyntaxTraversal-Traverse" class="anchor" href="#SyntaxVisitorBase-amp-SyntaxTraversal-Traverse">SyntaxVisitorBase &amp; SyntaxTraversal.Traverse</a></h2>
+<p>While the <code>ParsedInput</code> module functions are usually the simplest way to meet most needs,
+there is also a <a href="../reference/fsharp-compiler-syntax-syntaxvisitorbase-1.html"><code>SyntaxVisitorBase</code></a>-based API that can
+provide somewhat more fine-grained control over syntax traversal for a subset of use-cases at the expense of a bit more
+ceremony and complexity.</p>
+<h2><a name="Examples" class="anchor" href="#Examples">Examples</a></h2>
+<p>Let's start by introducing a helper function for constructing an AST from source code so we can run through some real examples:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pp">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">Compiler</span><span class="pn">.</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="id">CodeAnalysis</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="4" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="5" class="id">Compiler</span><span class="pn">.</span><span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="6" class="id">Text</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="7" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="8" class="id">Compiler</span><span class="pn">.</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="9" class="id">Syntax</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="10" class="id">checker</span> <span class="o">=</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="11" class="rt">FSharpChecker</span><span class="pn">.</span><span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="12" class="id">Create</span><span class="pn">(</span><span class="pn">)</span>
+
+<span class="c">/// A helper for constructing a `ParsedInput` from a code snippet.</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="13" class="fn">mkTree</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="14" class="fn">codeSample</span> <span class="o">=</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="15" class="fn">parseFileResults</span> <span class="o">=</span>
+        <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="16" class="id">checker</span><span class="pn">.</span><span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="17" class="id">ParseFile</span><span class="pn">(</span>
+            <span class="s">&quot;FileName.fs&quot;</span><span class="pn">,</span>
+            <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="18" class="m">SourceText</span><span class="pn">.</span><span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="19" class="id">ofString</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="20" class="fn">codeSample</span><span class="pn">,</span>
+            <span class="rt">{</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="21" class="rt">FSharpParsingOptions</span><span class="pn">.</span><span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="22" class="id">Default</span> <span class="k">with</span> <span class="prop">SourceFiles</span> <span class="o">=</span> <span class="pn">[|</span> <span class="s">&quot;FileName.fs&quot;</span> <span class="pn">|]</span> <span class="pn">}</span>
+        <span class="pn">)</span>
+        <span class="o">|&gt;</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="23" class="rt">Async</span><span class="pn">.</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="24" class="id">RunSynchronously</span>
+
+    <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="25" class="fn">parseFileResults</span><span class="pn">.</span><span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="26" class="id">ParseTree</span>
+</code></pre>
+<h3><a name="ParsedInput-exists" class="anchor" href="#ParsedInput-exists">ParsedInput.exists</a></h3>
+<p>Now consider the following code sample:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="27" class="id">brokenTypeDefn</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module Lib</span>
+
+<span class="s">// Whoops, we forgot the equals sign.</span>
+<span class="s">type T { A: int; B: int }  </span>
+<span class="s">&quot;&quot;&quot;</span>
+</code></pre>
+<p>Let's say we have a code fix for adding an equals sign to a type definition that's missing one—like the one above.
+We want to offer the fix when the user's cursor is inside of—or just after—the broken type definition.</p>
+<p>We can determine this by using <code>ParsedInput.exists</code> and passing in the position of the user's cursor:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// type T { A: int; B: int } </span>
+<span class="c">// &#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;↑</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="28" class="id">posInMiddleOfTypeDefn</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="29" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="30" class="id">mkPos</span> <span class="n">5</span> <span class="n">12</span>
+</code></pre>
+<p>Given that cursor position, all we need to do is find a <code>SynTypeDefn</code> node:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="31" class="id">isPosInTypeDefn</span> <span class="o">=</span> <span class="c">// true.</span>
+    <span class="pn">(</span><span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="32" class="id">posInMiddleOfTypeDefn</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="33" class="fn">mkTree</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="34" class="id">brokenTypeDefn</span><span class="pn">)</span>
+    <span class="o">||&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="35" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="36" class="id">exists</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="37" class="id">_path</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="38" class="fn">node</span> <span class="k">-&gt;</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="39" class="fn">node</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="40" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="41" class="id">SynTypeDefn</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="k">true</span>
+        <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="k">false</span><span class="pn">)</span>
+</code></pre>
+<p>If the position passed into <code>ParsedInput.exists</code> is not contained in any node in the given AST,
+but rather is below or to the right of all nodes, <code>ParsedInput.exists</code> will fall back to exploring the nearest branch above
+and/or to the left. This is useful because the user's cursor may lie beyond the range of all nodes.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// type T { A: int; B: int }  </span>
+<span class="c">// &#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;↑</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="42" class="id">posAfterTypeDefn</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="43" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="44" class="id">mkPos</span> <span class="n">5</span> <span class="n">28</span>
+</code></pre>
+<p>Our function still returns <code>true</code> if the cursor is past the end of the type definition node itself:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="45" class="id">isPosInTypeDefn&#39;</span> <span class="o">=</span> <span class="c">// Still true.</span>
+    <span class="pn">(</span><span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="46" class="id">posAfterTypeDefn</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="47" class="fn">mkTree</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="48" class="id">brokenTypeDefn</span><span class="pn">)</span>
+    <span class="o">||&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="49" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="50" class="id">exists</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="51" class="id">_path</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="52" class="fn">node</span> <span class="k">-&gt;</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="53" class="fn">node</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="54" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="55" class="id">SynTypeDefn</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="k">true</span>
+        <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="k">false</span><span class="pn">)</span>
+</code></pre>
+<h3><a name="ParsedInput-fold" class="anchor" href="#ParsedInput-fold">ParsedInput.fold</a></h3>
+<p><code>ParsedInput.fold</code> can be useful when writing an analyzer to collect diagnostics from entire input files.</p>
+<p>Take this code that has unnecessary parentheses in both patterns and expressions:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="61" class="id">unnecessaryParentheses</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">let (x) = (id (3))</span>
+<span class="s">&quot;&quot;&quot;</span>
+</code></pre>
+<p>We can gather the ranges of all unnecessary parentheses like this:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span data-fsdocs-tip="fs39" data-fsdocs-tip-unique="62" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs40" data-fsdocs-tip-unique="63" class="id">Collections</span><span class="pn">.</span><span data-fsdocs-tip="fs41" data-fsdocs-tip-unique="64" class="id">Generic</span>
+
+<span class="k">module</span> <span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="65" class="m">HashSet</span> <span class="o">=</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs43" data-fsdocs-tip-unique="66" class="fn">add</span> <span data-fsdocs-tip="fs44" data-fsdocs-tip-unique="67" class="fn">item</span> <span class="pn">(</span><span data-fsdocs-tip="fs45" data-fsdocs-tip-unique="68" class="fn">set</span><span class="pn">:</span> <span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="69" class="rt">HashSet</span><span class="pn">&lt;</span><span class="id">_</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="o">=</span>
+        <span data-fsdocs-tip="fs46" data-fsdocs-tip-unique="70" class="fn">ignore</span> <span class="pn">(</span><span data-fsdocs-tip="fs45" data-fsdocs-tip-unique="71" class="fn">set</span><span class="pn">.</span><span data-fsdocs-tip="fs47" data-fsdocs-tip-unique="72" class="id">Add</span> <span data-fsdocs-tip="fs44" data-fsdocs-tip-unique="73" class="fn">item</span><span class="pn">)</span>
+        <span data-fsdocs-tip="fs45" data-fsdocs-tip-unique="74" class="fn">set</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="75" class="id">unnecessaryParenthesesRanges</span> <span class="o">=</span>
+   <span class="pn">(</span><span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="76" class="fn">HashSet</span> <span data-fsdocs-tip="fs49" data-fsdocs-tip-unique="77" class="m">Range</span><span class="pn">.</span><span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="78" class="id">comparer</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="79" class="fn">mkTree</span> <span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="80" class="id">unnecessaryParentheses</span><span class="pn">)</span> <span class="o">||&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="81" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs51" data-fsdocs-tip-unique="82" class="id">fold</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="83" class="fn">ranges</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="84" class="fn">path</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="85" class="fn">node</span> <span class="k">-&gt;</span>
+       <span class="k">match</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="86" class="fn">node</span> <span class="k">with</span>
+       <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="87" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="88" class="id">SynExpr</span><span class="pn">(</span><span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="89" class="rt">SynExpr</span><span class="pn">.</span><span data-fsdocs-tip="fs56" data-fsdocs-tip-unique="90" class="id">Paren</span><span class="pn">(</span><span class="prop">expr</span> <span class="o">=</span> <span data-fsdocs-tip="fs57" data-fsdocs-tip-unique="91" class="fn">inner</span><span class="pn">;</span> <span class="prop">rightParenRange</span> <span class="o">=</span> <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="92" class="uc">Some</span> <span class="id">_</span><span class="pn">;</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="93" class="prop">range</span> <span class="o">=</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="94" class="fn">range</span><span class="pn">)</span><span class="pn">)</span> <span class="k">when</span>
+           <span class="fn">not</span> <span class="pn">(</span><span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="95" class="m">SynExpr</span><span class="pn">.</span><span data-fsdocs-tip="fs60" data-fsdocs-tip-unique="96" class="id">shouldBeParenthesizedInContext</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="97" class="fn">getLineStr</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="98" class="fn">path</span> <span data-fsdocs-tip="fs57" data-fsdocs-tip-unique="99" class="fn">inner</span><span class="pn">)</span>
+           <span class="k">-&gt;</span>
+           <span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="100" class="fn">ranges</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="101" class="m">HashSet</span><span class="pn">.</span><span data-fsdocs-tip="fs43" data-fsdocs-tip-unique="102" class="id">add</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="103" class="fn">range</span>
+
+       <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="104" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs61" data-fsdocs-tip-unique="105" class="id">SynPat</span><span class="pn">(</span><span data-fsdocs-tip="fs62" data-fsdocs-tip-unique="106" class="rt">SynPat</span><span class="pn">.</span><span data-fsdocs-tip="fs63" data-fsdocs-tip-unique="107" class="id">Paren</span><span class="pn">(</span><span data-fsdocs-tip="fs64" data-fsdocs-tip-unique="108" class="fn">inner</span><span class="pn">,</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="109" class="fn">range</span><span class="pn">)</span><span class="pn">)</span> <span class="k">when</span>
+           <span class="fn">not</span> <span class="pn">(</span><span data-fsdocs-tip="fs62" data-fsdocs-tip-unique="110" class="m">SynPat</span><span class="pn">.</span><span data-fsdocs-tip="fs65" data-fsdocs-tip-unique="111" class="id">shouldBeParenthesizedInContext</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="112" class="fn">path</span> <span data-fsdocs-tip="fs64" data-fsdocs-tip-unique="113" class="fn">inner</span><span class="pn">)</span>
+           <span class="k">-&gt;</span>
+           <span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="114" class="fn">ranges</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="115" class="m">HashSet</span><span class="pn">.</span><span data-fsdocs-tip="fs43" data-fsdocs-tip-unique="116" class="id">add</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="117" class="fn">range</span>
+
+       <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span>
+           <span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="118" class="fn">ranges</span><span class="pn">)</span>
+</code></pre>
+<h3><a name="ParsedInput-tryNode" class="anchor" href="#ParsedInput-tryNode">ParsedInput.tryNode</a></h3>
+<p>Sometimes, we might just want to get whatever node is directly at a given position—for example, if the user's
+cursor is on an argument of a function being applied, we can find the node representing the argument and use its path
+to backtrack and find the function's name.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs66" data-fsdocs-tip-unique="119" class="id">functionApplication</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">f x y  </span>
+<span class="s">&quot;&quot;&quot;</span>
+</code></pre>
+<p>If we have our cursor on <code>y</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// f x y</span>
+<span class="c">// &#183;&#183;&#183;&#183;&#183;↑</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs67" data-fsdocs-tip-unique="120" class="id">posOnY</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="121" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="122" class="id">mkPos</span> <span class="n">2</span> <span class="n">5</span>
+</code></pre>
+<p>The syntax node representing the function <code>f</code> technically contains the cursor's position,
+but <code>ParsedInput.tryNode</code> will keep diving until it finds the <em>deepest</em> node containing the position.</p>
+<p>We can thus get the node representing <code>y</code> and its ancestors (the <code>path</code>) like this:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs68" data-fsdocs-tip-unique="123" class="id">yAndPath</span> <span class="o">=</span> <span class="c">// Some (SynExpr (Ident y), [SynExpr (App …); …])</span>
+    <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="124" class="fn">mkTree</span> <span data-fsdocs-tip="fs66" data-fsdocs-tip-unique="125" class="id">functionApplication</span>
+    <span class="o">|&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="126" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs69" data-fsdocs-tip-unique="127" class="id">tryNode</span> <span data-fsdocs-tip="fs67" data-fsdocs-tip-unique="128" class="id">posOnY</span>
+</code></pre>
+<p>Note that, unlike <code>ParsedInput.exists</code>, <code>ParsedInput.tryPick</code>, and <code>ParsedInput.tryPickLast</code>,
+<code>ParsedInput.tryNode</code> does <em>not</em> fall back to the nearest branch above or to the left.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// f x y</span>
+<span class="c">// &#183;&#183;&#183;&#183;&#183;&#183;↑</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs70" data-fsdocs-tip-unique="129" class="id">posAfterY</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="130" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="131" class="id">mkPos</span> <span class="n">2</span> <span class="n">8</span>
+</code></pre>
+<p>If we take the same code snippet but pass in a position after <code>y</code>,
+we get no node:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="132" class="id">nope</span> <span class="o">=</span> <span class="c">// None.</span>
+    <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="133" class="fn">mkTree</span> <span data-fsdocs-tip="fs66" data-fsdocs-tip-unique="134" class="id">functionApplication</span>
+    <span class="o">|&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="135" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs69" data-fsdocs-tip-unique="136" class="id">tryNode</span> <span data-fsdocs-tip="fs70" data-fsdocs-tip-unique="137" class="id">posAfterY</span>
+</code></pre>
+<h3><a name="ParsedInput-tryPick" class="anchor" href="#ParsedInput-tryPick">ParsedInput.tryPick</a></h3>
+<p>Now imagine that we have a code fix for converting a record construction expression into an anonymous record construction
+expression when there is no record type in scope whose fields match.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs72" data-fsdocs-tip-unique="138" class="id">recordExpr</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">let r = { A = 1; B = 2 }</span>
+<span class="s">&quot;&quot;&quot;</span>
+</code></pre>
+<p>We can offer this fix when the user's cursor is inside of a record expression by
+using <code>ParsedInput.tryPick</code> to return the surrounding record expression's range, if any.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// let r = { A = 1; B = 2 }</span>
+<span class="c">// &#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;↑</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="139" class="id">posInRecordExpr</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="140" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="141" class="id">mkPos</span> <span class="n">2</span> <span class="n">25</span>
+</code></pre>
+<p>Here, even though <code>ParsedInput.tryPick</code> will try to cleave to the given position by default,
+we want to verify that the record expression node that we've come across actually contains the position,
+since, like <code>ParsedInput.exists</code>, <code>ParsedInput.tryPick</code> will also fall back to the nearest branch above and/or
+to the left if no node actually contains the position. In this case, we don't want to offer the code fix
+if the user's cursor isn't actually inside of the record expression.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs74" data-fsdocs-tip-unique="142" class="id">recordExprRange</span> <span class="o">=</span> <span class="c">// Some (2,8--2,24).</span>
+    <span class="pn">(</span><span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="143" class="id">posInRecordExpr</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="144" class="fn">mkTree</span> <span data-fsdocs-tip="fs72" data-fsdocs-tip-unique="145" class="id">recordExpr</span><span class="pn">)</span>
+    <span class="o">||&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="146" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs75" data-fsdocs-tip-unique="147" class="id">tryPick</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="148" class="id">_path</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="149" class="fn">node</span> <span class="k">-&gt;</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="150" class="fn">node</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="151" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="152" class="id">SynExpr</span><span class="pn">(</span><span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="153" class="rt">SynExpr</span><span class="pn">.</span><span data-fsdocs-tip="fs76" data-fsdocs-tip-unique="154" class="id">Record</span><span class="pn">(</span><span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="155" class="prop">range</span> <span class="o">=</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="156" class="fn">range</span><span class="pn">)</span><span class="pn">)</span> <span class="k">when</span>
+            <span data-fsdocs-tip="fs49" data-fsdocs-tip-unique="157" class="m">Range</span><span class="pn">.</span><span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="158" class="id">rangeContainsPos</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="159" class="fn">range</span> <span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="160" class="id">posInRecordExpr</span>
+            <span class="k">-&gt;</span> <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="161" class="uc">Some</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="162" class="fn">range</span>
+        <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="163" class="uc">None</span><span class="pn">)</span>
+</code></pre>
+<p>We might also sometimes want to make use of the <code>path</code> parameter. Take this simple function definition:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs79" data-fsdocs-tip-unique="164" class="id">myFunction</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module Lib</span>
+
+<span class="s">let myFunction paramOne paramTwo =</span>
+<span class="s">    ()</span>
+<span class="s">&quot;&quot;&quot;</span>
+</code></pre>
+<p>Imagine we want to grab the <code>myFunction</code> name from the <code>headPat</code> in the <a href="../reference/fsharp-compiler-syntax-synbinding.html"><code>SynBinding</code></a>.</p>
+<p>We can write a function to match the node we're looking for—and <em>not</em> match anything we're <em>not</em> looking for (like the argument patterns)—by taking its path into account:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs80" data-fsdocs-tip-unique="165" class="id">myFunctionId</span> <span class="o">=</span> <span class="c">// Some &quot;myFunction&quot;.</span>
+    <span class="pn">(</span><span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="166" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs81" data-fsdocs-tip-unique="167" class="id">pos0</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="168" class="fn">mkTree</span> <span data-fsdocs-tip="fs79" data-fsdocs-tip-unique="169" class="id">myFunction</span><span class="pn">)</span>
+    <span class="o">||&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="170" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs75" data-fsdocs-tip-unique="171" class="id">tryPick</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="172" class="fn">path</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="173" class="fn">node</span> <span class="k">-&gt;</span>
+        <span class="c">// Match on the node and the path (the node&#39;s ancestors) to see whether:</span>
+        <span class="c">//   1. The node is a pattern.</span>
+        <span class="c">//   2. The pattern is a long identifier pattern.</span>
+        <span class="c">//   3. The pattern&#39;s parent node (the head of the path) is a binding.</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="174" class="fn">node</span><span class="pn">,</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="175" class="fn">path</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="176" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs61" data-fsdocs-tip-unique="177" class="id">SynPat</span><span class="pn">(</span><span data-fsdocs-tip="fs62" data-fsdocs-tip-unique="178" class="rt">SynPat</span><span class="pn">.</span><span data-fsdocs-tip="fs82" data-fsdocs-tip-unique="179" class="id">LongIdent</span><span class="pn">(</span><span class="prop">longDotId</span> <span class="o">=</span> <span data-fsdocs-tip="fs83" data-fsdocs-tip-unique="180" class="uc">SynLongIdent</span><span class="pn">(</span><span data-fsdocs-tip="fs84" data-fsdocs-tip-unique="181" class="prop">id</span> <span class="o">=</span> <span class="pn">[</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="182" class="fn">ident</span> <span class="pn">]</span><span class="pn">)</span><span class="pn">)</span><span class="pn">)</span><span class="pn">,</span>
+          <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="183" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs86" data-fsdocs-tip-unique="184" class="id">SynBinding</span> <span class="id">_</span> <span class="uc">::</span> <span class="id">_</span> <span class="k">-&gt;</span>
+            <span class="c">// We have found what we&#39;re looking for.</span>
+            <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="185" class="uc">Some</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="186" class="fn">ident</span><span class="pn">.</span><span data-fsdocs-tip="fs87" data-fsdocs-tip-unique="187" class="id">idText</span>
+        <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span>
+            <span class="c">// If the node or its context don&#39;t match,</span>
+            <span class="c">// we continue.</span>
+            <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="188" class="uc">None</span><span class="pn">)</span>
+</code></pre>
+<p>Instead of traversing manually from <code>ParsedInput</code> to <code>SynModuleOrNamespace</code> to <code>SynModuleDecl.Let</code> to <code>SynBinding</code> to <code>SynPat</code>, we leverage the default navigation that happens in <code>ParsedInput.tryPick</code>.<br />
+<code>ParsedInput.tryPick</code> will short-circuit once we have indicated that we have found what we're looking for by returning <code>Some value</code>.</p>
+<p>Our code sample of course only had one let-binding and thus we didn't need to specify any further logic to differentiate between bindings.</p>
+<p>Let's consider a second example involving multiple let-bindings:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs88" data-fsdocs-tip-unique="189" class="id">multipleLetsInModule</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module X</span>
+
+<span class="s">let a = 0</span>
+<span class="s">let b = 1</span>
+<span class="s">let c = 2</span>
+<span class="s">&quot;&quot;&quot;</span>
+</code></pre>
+<p>In this case, we know the user's cursor inside an IDE is placed after <code>c</code>, and we are interested in the body expression of the <em>last</em> let-binding.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// …</span>
+<span class="c">// let c = 2</span>
+<span class="c">// &#183;&#183;&#183;&#183;&#183;↑</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs89" data-fsdocs-tip-unique="190" class="id">posInLastLet</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="191" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="192" class="id">mkPos</span> <span class="n">6</span> <span class="n">5</span>
+</code></pre>
+<p>Thanks to the cursor position we passed in, we do not need to write any code to exclude the expressions of the sibling let-bindings.
+<code>ParsedInput.tryPick</code> will check whether the current position is inside any given syntax node before drilling deeper.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs90" data-fsdocs-tip-unique="193" class="id">bodyOfLetContainingPos</span> <span class="o">=</span> <span class="c">// Some (Const (Int32 2, (6,8--6,9))).</span>
+    <span class="pn">(</span><span data-fsdocs-tip="fs89" data-fsdocs-tip-unique="194" class="id">posInLastLet</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="195" class="fn">mkTree</span> <span data-fsdocs-tip="fs88" data-fsdocs-tip-unique="196" class="id">multipleLetsInModule</span><span class="pn">)</span>
+    <span class="o">||&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="197" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs75" data-fsdocs-tip-unique="198" class="id">tryPick</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="199" class="id">_path</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="200" class="fn">node</span> <span class="k">-&gt;</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="201" class="fn">node</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="202" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs86" data-fsdocs-tip-unique="203" class="id">SynBinding</span><span class="pn">(</span><span data-fsdocs-tip="fs91" data-fsdocs-tip-unique="204" class="uc">SynBinding</span><span class="pn">(</span><span class="prop">expr</span> <span class="o">=</span> <span data-fsdocs-tip="fs92" data-fsdocs-tip-unique="205" class="fn">e</span><span class="pn">)</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="206" class="uc">Some</span> <span data-fsdocs-tip="fs92" data-fsdocs-tip-unique="207" class="fn">e</span>
+        <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="208" class="uc">None</span><span class="pn">)</span>
+</code></pre>
+<p>As noted above, <code>ParsedInput.tryPick</code> will short-circuit at the first matching node.
+<code>ParsedInput.tryPickLast</code> can be used to get the <em>last</em> matching node that contains a given position.</p>
+<p>Take this example of multiple nested modules:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs93" data-fsdocs-tip-unique="209" class="id">nestedModules</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module M</span>
+
+<span class="s">module N =</span>
+<span class="s">    module O =</span>
+<span class="s">        module P = begin end</span>
+<span class="s">&quot;&quot;&quot;</span>
+</code></pre>
+<p>By using <code>ParsedInput.tryPick</code>, we'll get the name of the outermost nested module even if we pass in a position inside the innermost,
+since the innermost is contained within the outermost.</p>
+<p>This position is inside module <code>P</code>, which is nested inside of module <code>O</code>, which is nested inside of module <code>N</code>,
+which is nested inside of top-level module <code>M</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// module M</span>
+<span class="c">//</span>
+<span class="c">// module N =</span>
+<span class="c">//     module O =</span>
+<span class="c">//         module P = begin end</span>
+<span class="c">// &#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;↑</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs94" data-fsdocs-tip-unique="210" class="id">posInsideOfInnermostNestedModule</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="211" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="212" class="id">mkPos</span> <span class="n">6</span> <span class="n">28</span>
+</code></pre>
+<p><code>ParsedInput.tryPick</code> short-circuits on the first match, and since module <code>N</code> is the first
+nested module whose range contains position (6, 28), that's the result we get.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs95" data-fsdocs-tip-unique="213" class="id">outermostNestedModule</span> <span class="o">=</span> <span class="c">// Some [&quot;N&quot;].</span>
+    <span class="pn">(</span><span data-fsdocs-tip="fs94" data-fsdocs-tip-unique="214" class="id">posInsideOfInnermostNestedModule</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="215" class="fn">mkTree</span> <span data-fsdocs-tip="fs93" data-fsdocs-tip-unique="216" class="id">nestedModules</span><span class="pn">)</span>
+    <span class="o">||&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="217" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs75" data-fsdocs-tip-unique="218" class="id">tryPick</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="219" class="id">_path</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="220" class="fn">node</span> <span class="k">-&gt;</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="221" class="fn">node</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="222" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs96" data-fsdocs-tip-unique="223" class="id">SynModule</span><span class="pn">(</span><span data-fsdocs-tip="fs97" data-fsdocs-tip-unique="224" class="rt">SynModuleDecl</span><span class="pn">.</span><span data-fsdocs-tip="fs98" data-fsdocs-tip-unique="225" class="id">NestedModule</span><span class="pn">(</span><span class="prop">moduleInfo</span> <span class="o">=</span> <span data-fsdocs-tip="fs99" data-fsdocs-tip-unique="226" class="uc">SynComponentInfo</span><span class="pn">(</span><span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="227" class="prop">longId</span> <span class="o">=</span> <span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="228" class="fn">longId</span><span class="pn">)</span><span class="pn">)</span><span class="pn">)</span> <span class="k">-&gt;</span>
+            <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="229" class="uc">Some</span> <span class="pn">[</span><span class="k">for</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="230" class="fn">ident</span> <span class="k">in</span> <span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="231" class="fn">longId</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="232" class="fn">ident</span><span class="pn">.</span><span data-fsdocs-tip="fs87" data-fsdocs-tip-unique="233" class="id">idText</span><span class="pn">]</span>
+        <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="234" class="uc">None</span><span class="pn">)</span>
+</code></pre>
+<h3><a name="ParsedInput-tryPickLast" class="anchor" href="#ParsedInput-tryPickLast">ParsedInput.tryPickLast</a></h3>
+<p>If however we use the same code snippet and pass the same position into <code>ParsedInput.tryPickLast</code>,
+we can get the name of the <em>last</em> (deepest or innermost) matching node:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs101" data-fsdocs-tip-unique="235" class="id">innermostNestedModule</span> <span class="o">=</span> <span class="c">// Some [&quot;P&quot;].</span>
+    <span class="pn">(</span><span data-fsdocs-tip="fs94" data-fsdocs-tip-unique="236" class="id">posInsideOfInnermostNestedModule</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="237" class="fn">mkTree</span> <span data-fsdocs-tip="fs93" data-fsdocs-tip-unique="238" class="id">nestedModules</span><span class="pn">)</span>
+    <span class="o">||&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="239" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs102" data-fsdocs-tip-unique="240" class="id">tryPickLast</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="241" class="id">_path</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="242" class="fn">node</span> <span class="k">-&gt;</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="243" class="fn">node</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="244" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs96" data-fsdocs-tip-unique="245" class="id">SynModule</span><span class="pn">(</span><span data-fsdocs-tip="fs97" data-fsdocs-tip-unique="246" class="rt">SynModuleDecl</span><span class="pn">.</span><span data-fsdocs-tip="fs98" data-fsdocs-tip-unique="247" class="id">NestedModule</span><span class="pn">(</span><span class="prop">moduleInfo</span> <span class="o">=</span> <span data-fsdocs-tip="fs99" data-fsdocs-tip-unique="248" class="uc">SynComponentInfo</span><span class="pn">(</span><span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="249" class="prop">longId</span> <span class="o">=</span> <span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="250" class="fn">longId</span><span class="pn">)</span><span class="pn">)</span><span class="pn">)</span> <span class="k">-&gt;</span>
+            <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="251" class="uc">Some</span> <span class="pn">[</span><span class="k">for</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="252" class="fn">ident</span> <span class="k">in</span> <span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="253" class="fn">longId</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="254" class="fn">ident</span><span class="pn">.</span><span data-fsdocs-tip="fs87" data-fsdocs-tip-unique="255" class="id">idText</span><span class="pn">]</span>
+        <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="256" class="uc">None</span><span class="pn">)</span>
+</code></pre>
+<p>If we want the next-to-innermost nested module, we can do likewise but make use of the <code>path</code> parameter:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs103" data-fsdocs-tip-unique="257" class="id">nextToInnermostNestedModule</span> <span class="o">=</span> <span class="c">// Some [&quot;O&quot;].</span>
+    <span class="pn">(</span><span data-fsdocs-tip="fs94" data-fsdocs-tip-unique="258" class="id">posInsideOfInnermostNestedModule</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="259" class="fn">mkTree</span> <span data-fsdocs-tip="fs93" data-fsdocs-tip-unique="260" class="id">nestedModules</span><span class="pn">)</span>
+    <span class="o">||&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="261" class="m">ParsedInput</span><span class="pn">.</span><span data-fsdocs-tip="fs102" data-fsdocs-tip-unique="262" class="id">tryPickLast</span> <span class="pn">(</span><span class="k">fun</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="263" class="fn">path</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="264" class="fn">node</span> <span class="k">-&gt;</span>
+        <span class="k">match</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="265" class="fn">node</span><span class="pn">,</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="266" class="fn">path</span> <span class="k">with</span>
+        <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="267" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs96" data-fsdocs-tip-unique="268" class="id">SynModule</span><span class="pn">(</span><span data-fsdocs-tip="fs97" data-fsdocs-tip-unique="269" class="rt">SynModuleDecl</span><span class="pn">.</span><span data-fsdocs-tip="fs98" data-fsdocs-tip-unique="270" class="id">NestedModule</span> <span class="id">_</span><span class="pn">)</span><span class="pn">,</span>
+          <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="271" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs96" data-fsdocs-tip-unique="272" class="id">SynModule</span><span class="pn">(</span><span data-fsdocs-tip="fs97" data-fsdocs-tip-unique="273" class="rt">SynModuleDecl</span><span class="pn">.</span><span data-fsdocs-tip="fs98" data-fsdocs-tip-unique="274" class="id">NestedModule</span><span class="pn">(</span><span class="prop">moduleInfo</span> <span class="o">=</span> <span data-fsdocs-tip="fs99" data-fsdocs-tip-unique="275" class="uc">SynComponentInfo</span><span class="pn">(</span><span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="276" class="prop">longId</span> <span class="o">=</span> <span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="277" class="fn">longId</span><span class="pn">)</span><span class="pn">)</span><span class="pn">)</span> <span class="uc">::</span> <span class="id">_</span> <span class="k">-&gt;</span>
+            <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="278" class="uc">Some</span> <span class="pn">[</span><span class="k">for</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="279" class="fn">ident</span> <span class="k">in</span> <span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="280" class="fn">longId</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="281" class="fn">ident</span><span class="pn">.</span><span data-fsdocs-tip="fs87" data-fsdocs-tip-unique="282" class="id">idText</span><span class="pn">]</span>
+        <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="283" class="uc">None</span><span class="pn">)</span>
+</code></pre>
+<h3><a name="SyntaxTraversal-Traverse" class="anchor" href="#SyntaxTraversal-Traverse">SyntaxTraversal.Traverse</a></h3>
+<p>Consider again the following code sample:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="284" class="id">codeSample</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module Lib</span>
+
+<span class="s">let myFunction paramOne paramTwo =</span>
+<span class="s">    ()</span>
+<span class="s">&quot;&quot;&quot;</span>
+</code></pre>
+<p>Imagine we wish to grab the <code>myFunction</code> name from the <code>headPat</code> in the <a href="../reference/fsharp-compiler-syntax-synbinding.html">SynBinding</a>.</p>
+<p>We can create a visitor to traverse the tree and find the function name:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs104" data-fsdocs-tip-unique="285" class="id">visitor</span> <span class="o">=</span>
+    <span class="pn">{</span> <span class="k">new</span> <span data-fsdocs-tip="fs105" data-fsdocs-tip-unique="286" class="rt">SyntaxVisitorBase</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="287" class="rt">string</span><span class="pn">&gt;</span><span class="pn">(</span><span class="pn">)</span> <span class="k">with</span>
+        <span class="k">override</span> <span data-fsdocs-tip="fs106" data-fsdocs-tip-unique="288" class="fn">this</span><span class="pn">.</span><span data-fsdocs-tip="fs107" data-fsdocs-tip-unique="289" class="fn">VisitPat</span><span class="pn">(</span><span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="290" class="fn">path</span><span class="pn">,</span> <span data-fsdocs-tip="fs108" data-fsdocs-tip-unique="291" class="fn">defaultTraverse</span><span class="pn">,</span> <span data-fsdocs-tip="fs109" data-fsdocs-tip-unique="292" class="fn">synPat</span><span class="pn">)</span> <span class="o">=</span>
+            <span class="c">// First check if the pattern is what we are looking for.</span>
+            <span class="k">match</span> <span data-fsdocs-tip="fs109" data-fsdocs-tip-unique="293" class="fn">synPat</span> <span class="k">with</span>
+            <span class="pn">|</span> <span data-fsdocs-tip="fs62" data-fsdocs-tip-unique="294" class="rt">SynPat</span><span class="pn">.</span><span data-fsdocs-tip="fs82" data-fsdocs-tip-unique="295" class="id">LongIdent</span><span class="pn">(</span><span class="prop">longDotId</span> <span class="o">=</span> <span data-fsdocs-tip="fs83" data-fsdocs-tip-unique="296" class="uc">SynLongIdent</span><span class="pn">(</span><span data-fsdocs-tip="fs84" data-fsdocs-tip-unique="297" class="prop">id</span> <span class="o">=</span> <span class="pn">[</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="298" class="fn">ident</span> <span class="pn">]</span><span class="pn">)</span><span class="pn">)</span> <span class="k">-&gt;</span>
+                <span class="c">// Next we can check if the current path of visited nodes, matches our expectations.</span>
+                <span class="c">// The path will contain all the ancestors of the current node.</span>
+                <span class="k">match</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="299" class="fn">path</span> <span class="k">with</span>
+                <span class="c">// The parent node of `synPat` should be a `SynBinding`.</span>
+                <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="300" class="rt">SyntaxNode</span><span class="pn">.</span><span data-fsdocs-tip="fs86" data-fsdocs-tip-unique="301" class="id">SynBinding</span> <span class="id">_</span> <span class="uc">::</span> <span class="id">_</span> <span class="k">-&gt;</span>
+                    <span class="c">// We return a `Some` option to indicate we found what we are looking for.</span>
+                    <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="302" class="uc">Some</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="303" class="fn">ident</span><span class="pn">.</span><span data-fsdocs-tip="fs87" data-fsdocs-tip-unique="304" class="id">idText</span>
+                <span class="c">// If the parent is something else, we can skip it here.</span>
+                <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="305" class="uc">None</span>
+            <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="306" class="uc">None</span> <span class="pn">}</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs110" data-fsdocs-tip-unique="307" class="id">result</span> <span class="o">=</span> <span data-fsdocs-tip="fs111" data-fsdocs-tip-unique="308" class="m">SyntaxTraversal</span><span class="pn">.</span><span data-fsdocs-tip="fs112" data-fsdocs-tip-unique="309" class="id">Traverse</span><span class="pn">(</span><span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="310" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs81" data-fsdocs-tip-unique="311" class="id">pos0</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="312" class="fn">mkTree</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="313" class="id">codeSample</span><span class="pn">,</span> <span data-fsdocs-tip="fs104" data-fsdocs-tip-unique="314" class="id">visitor</span><span class="pn">)</span> <span class="c">// Some &quot;myFunction&quot;</span>
+</code></pre>
+<p>Instead of traversing manually from <code>ParsedInput</code> to <code>SynModuleOrNamespace</code> to <code>SynModuleDecl.Let</code> to <code>SynBinding</code> to <code>SynPat</code>, we leverage the default navigation that happens in <code>SyntaxTraversal.Traverse</code>.<br />
+A <code>SyntaxVisitorBase</code> will shortcut all other code paths once a single <code>VisitXYZ</code> override has found anything.</p>
+<p>Our code sample of course only had one let binding and thus we didn't need to specify any further logic whether to differentiate between multiple bindings.</p>
+<h3><a name="SyntaxTraversal-Traverse-using-position" class="anchor" href="#SyntaxTraversal-Traverse-using-position">SyntaxTraversal.Traverse: using position</a></h3>
+<p>Let's now consider a second example where we know the user's cursor inside an IDE is placed after <code>c</code> and we are interested in the body expression of the let binding.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs113" data-fsdocs-tip-unique="315" class="id">secondCodeSample</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module X</span>
+
+<span class="s">let a = 0</span>
+<span class="s">let b = 1</span>
+<span class="s">let c = 2</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs114" data-fsdocs-tip-unique="316" class="id">secondVisitor</span> <span class="o">=</span>
+    <span class="pn">{</span> <span class="k">new</span> <span data-fsdocs-tip="fs105" data-fsdocs-tip-unique="317" class="rt">SyntaxVisitorBase</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="318" class="rt">SynExpr</span><span class="pn">&gt;</span><span class="pn">(</span><span class="pn">)</span> <span class="k">with</span>
+        <span class="k">override</span> <span data-fsdocs-tip="fs115" data-fsdocs-tip-unique="319" class="fn">this</span><span class="pn">.</span><span data-fsdocs-tip="fs116" data-fsdocs-tip-unique="320" class="fn">VisitBinding</span><span class="pn">(</span><span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="321" class="fn">path</span><span class="pn">,</span> <span data-fsdocs-tip="fs117" data-fsdocs-tip-unique="322" class="fn">defaultTraverse</span><span class="pn">,</span> <span data-fsdocs-tip="fs118" data-fsdocs-tip-unique="323" class="fn">binding</span><span class="pn">)</span> <span class="o">=</span>
+            <span class="k">match</span> <span data-fsdocs-tip="fs118" data-fsdocs-tip-unique="324" class="fn">binding</span> <span class="k">with</span>
+            <span class="pn">|</span> <span data-fsdocs-tip="fs91" data-fsdocs-tip-unique="325" class="uc">SynBinding</span><span class="pn">(</span><span class="prop">expr</span> <span class="o">=</span> <span data-fsdocs-tip="fs92" data-fsdocs-tip-unique="326" class="fn">e</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="327" class="uc">Some</span> <span data-fsdocs-tip="fs92" data-fsdocs-tip-unique="328" class="fn">e</span> <span class="pn">}</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs119" data-fsdocs-tip-unique="329" class="id">cursorPos</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="330" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="331" class="id">mkPos</span> <span class="n">6</span> <span class="n">5</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs120" data-fsdocs-tip-unique="332" class="id">secondResult</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs111" data-fsdocs-tip-unique="333" class="m">SyntaxTraversal</span><span class="pn">.</span><span data-fsdocs-tip="fs112" data-fsdocs-tip-unique="334" class="id">Traverse</span><span class="pn">(</span><span data-fsdocs-tip="fs119" data-fsdocs-tip-unique="335" class="id">cursorPos</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="336" class="fn">mkTree</span> <span data-fsdocs-tip="fs113" data-fsdocs-tip-unique="337" class="id">secondCodeSample</span><span class="pn">,</span> <span data-fsdocs-tip="fs114" data-fsdocs-tip-unique="338" class="id">secondVisitor</span><span class="pn">)</span> <span class="c">// Some (Const (Int32 2, (6,8--6,9)))</span>
+</code></pre>
+<p>Due to our passed cursor position, we did not need to write any code to exclude the expressions of the other let bindings.
+<code>SyntaxTraversal.Traverse</code> will check whether the current position is inside any syntax node before drilling deeper.</p>
+<h3><a name="SyntaxTraversal-Traverse-using-defaultTraverse" class="anchor" href="#SyntaxTraversal-Traverse-using-defaultTraverse">SyntaxTraversal.Traverse: using defaultTraverse</a></h3>
+<p>Lastly, some <code>VisitXYZ</code> overrides can contain a defaultTraverse. This helper allows you to continue the default traversal when you currently hit a node that is not of interest.
+Consider <code>1 + 2 + 3 + 4</code>, this will be reflected in a nested infix application expression.
+If the cursor is at the end of the entire expression, we can grab the value of <code>4</code> using the following visitor:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs121" data-fsdocs-tip-unique="339" class="id">thirdCodeSample</span> <span class="o">=</span> <span class="s">&quot;let sum = 1 + 2 + 3 + 4&quot;</span>
+
+<span class="c">(*</span>
+<span class="c">AST will look like:</span>
+
+<span class="c">Let</span>
+<span class="c"> (false,</span>
+<span class="c">  [SynBinding</span>
+<span class="c">     (None, Normal, false, false, [],</span>
+<span class="c">      PreXmlDoc ((1,0), Fantomas.FCS.Xml.XmlDocCollector),</span>
+<span class="c">      SynValData</span>
+<span class="c">        (None, SynValInfo ([], SynArgInfo ([], false, None)), None,</span>
+<span class="c">         None),</span>
+<span class="c">      Named (SynIdent (sum, None), false, None, (1,4--1,7)), None,</span>
+<span class="c">      App</span>
+<span class="c">        (NonAtomic, false,</span>
+<span class="c">         App</span>
+<span class="c">           (NonAtomic, true,</span>
+<span class="c">            LongIdent</span>
+<span class="c">              (false,</span>
+<span class="c">               SynLongIdent</span>
+<span class="c">                 ([op_Addition], [], [Some (OriginalNotation &quot;+&quot;)]),</span>
+<span class="c">               None, (1,20--1,21)),</span>
+<span class="c">            App</span>
+<span class="c">              (NonAtomic, false,</span>
+<span class="c">               App</span>
+<span class="c">                 (NonAtomic, true,</span>
+<span class="c">                  LongIdent</span>
+<span class="c">                    (false,</span>
+<span class="c">                     SynLongIdent</span>
+<span class="c">                       ([op_Addition], [],</span>
+<span class="c">                        [Some (OriginalNotation &quot;+&quot;)]), None,</span>
+<span class="c">                     (1,16--1,17)),</span>
+<span class="c">                  App</span>
+<span class="c">                    (NonAtomic, false,</span>
+<span class="c">                     App</span>
+<span class="c">                       (NonAtomic, true,</span>
+<span class="c">                        LongIdent</span>
+<span class="c">                          (false,</span>
+<span class="c">                           SynLongIdent</span>
+<span class="c">                             ([op_Addition], [],</span>
+<span class="c">                              [Some (OriginalNotation &quot;+&quot;)]), None,</span>
+<span class="c">                           (1,12--1,13)),</span>
+<span class="c">                        Const (Int32 1, (1,10--1,11)), (1,10--1,13)),</span>
+<span class="c">                     Const (Int32 2, (1,14--1,15)), (1,10--1,15)),</span>
+<span class="c">                  (1,10--1,17)), Const (Int32 3, (1,18--1,19)),</span>
+<span class="c">               (1,10--1,19)), (1,10--1,21)),</span>
+<span class="c">         Const (Int32 4, (1,22--1,23)), (1,10--1,23)), (1,4--1,7),</span>
+<span class="c">      Yes (1,0--1,23), { LeadingKeyword = Let (1,0--1,3)</span>
+<span class="c">                         InlineKeyword = None</span>
+<span class="c">                         EqualsRange = Some (1,8--1,9) })</span>
+<span class="c">*)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs122" data-fsdocs-tip-unique="340" class="id">thirdCursorPos</span> <span class="o">=</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="341" class="m">Position</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="342" class="id">mkPos</span> <span class="n">1</span> <span class="n">22</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs123" data-fsdocs-tip-unique="343" class="id">thirdVisitor</span> <span class="o">=</span>
+    <span class="pn">{</span> <span class="k">new</span> <span data-fsdocs-tip="fs105" data-fsdocs-tip-unique="344" class="rt">SyntaxVisitorBase</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="345" class="vt">int</span><span class="pn">&gt;</span><span class="pn">(</span><span class="pn">)</span> <span class="k">with</span>
+        <span class="k">override</span> <span data-fsdocs-tip="fs124" data-fsdocs-tip-unique="346" class="fn">this</span><span class="pn">.</span><span data-fsdocs-tip="fs125" data-fsdocs-tip-unique="347" class="fn">VisitExpr</span><span class="pn">(</span><span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="348" class="fn">path</span><span class="pn">,</span> <span data-fsdocs-tip="fs126" data-fsdocs-tip-unique="349" class="fn">traverseSynExpr</span><span class="pn">,</span> <span data-fsdocs-tip="fs127" data-fsdocs-tip-unique="350" class="fn">defaultTraverse</span><span class="pn">,</span> <span data-fsdocs-tip="fs128" data-fsdocs-tip-unique="351" class="fn">synExpr</span><span class="pn">)</span> <span class="o">=</span>
+            <span class="k">match</span> <span data-fsdocs-tip="fs128" data-fsdocs-tip-unique="352" class="fn">synExpr</span> <span class="k">with</span>
+            <span class="pn">|</span> <span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="353" class="rt">SynExpr</span><span class="pn">.</span><span data-fsdocs-tip="fs129" data-fsdocs-tip-unique="354" class="id">Const</span> <span class="pn">(</span><span class="prop">constant</span> <span class="o">=</span> <span data-fsdocs-tip="fs130" data-fsdocs-tip-unique="355" class="rt">SynConst</span><span class="pn">.</span><span data-fsdocs-tip="fs131" data-fsdocs-tip-unique="356" class="id">Int32</span> <span data-fsdocs-tip="fs132" data-fsdocs-tip-unique="357" class="fn">v</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="358" class="uc">Some</span> <span data-fsdocs-tip="fs132" data-fsdocs-tip-unique="359" class="fn">v</span>
+            <span class="c">// We do want to continue to traverse when nodes like `SynExpr.App` are found.</span>
+            <span class="pn">|</span> <span data-fsdocs-tip="fs133" data-fsdocs-tip-unique="360" class="fn">otherExpr</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs127" data-fsdocs-tip-unique="361" class="fn">defaultTraverse</span> <span data-fsdocs-tip="fs133" data-fsdocs-tip-unique="362" class="fn">otherExpr</span> <span class="pn">}</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs134" data-fsdocs-tip-unique="363" class="id">thirdResult</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs111" data-fsdocs-tip-unique="364" class="m">SyntaxTraversal</span><span class="pn">.</span><span data-fsdocs-tip="fs112" data-fsdocs-tip-unique="365" class="id">Traverse</span><span class="pn">(</span><span data-fsdocs-tip="fs119" data-fsdocs-tip-unique="366" class="id">cursorPos</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="367" class="fn">mkTree</span> <span data-fsdocs-tip="fs121" data-fsdocs-tip-unique="368" class="id">thirdCodeSample</span><span class="pn">,</span> <span data-fsdocs-tip="fs123" data-fsdocs-tip-unique="369" class="id">thirdVisitor</span><span class="pn">)</span> <span class="c">// Some 4</span>
+</code></pre>
+<p><code>defaultTraverse</code> is especially useful when you do not know upfront what syntax tree you will be walking.<br />
+This is a common case when dealing with IDE tooling. You won't know what actual code the end-user is currently processing.</p>
+<p><strong>Note: SyntaxVisitorBase is designed to find a single value inside a tree!</strong><br />
+This is not an ideal solution when you are interested in all nodes of certain shape.<br />
+It will always verify if the given cursor position is still matching the range of the node.<br />
+As a fallback the first branch will be explored when you pass <code>Position.pos0</code>.<br />
+By design, it is meant to find a single result.</p>
+
+        <div popover class="fsdocs-tip" id="fs1">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp</div>
+<div popover class="fsdocs-tip" id="fs2">namespace FSharp.Compiler</div>
+<div popover class="fsdocs-tip" id="fs3">namespace FSharp.Compiler.CodeAnalysis</div>
+<div popover class="fsdocs-tip" id="fs4">namespace FSharp.Compiler.Text</div>
+<div popover class="fsdocs-tip" id="fs5">namespace FSharp.Compiler.Syntax</div>
+<div popover class="fsdocs-tip" id="fs6">val checker: FSharpChecker</div>
+<div popover class="fsdocs-tip" id="fs7">type FSharpChecker =
+  member CheckFileInProject: parseResults: FSharpParseFileResults * fileName: string * fileVersion: int * sourceText: ISourceText * options: FSharpProjectOptions * ?userOpName: string -&gt; Async&lt;FSharpCheckFileAnswer&gt;
+  member ClearCache: options: FSharpProjectOptions seq * ?userOpName: string -&gt; unit + 1 overload
+  member ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients: unit -&gt; unit
+  member Compile: argv: string array * ?userOpName: string -&gt; Async&lt;FSharpDiagnostic array * exn option&gt;
+  member FindBackgroundReferencesInFile: fileName: string * options: FSharpProjectOptions * symbol: FSharpSymbol * ?canInvalidateProject: bool * ?fastCheck: bool * ?userOpName: string -&gt; Async&lt;range seq&gt; + 1 overload
+  member GetBackgroundCheckResultsForFileInProject: fileName: string * options: FSharpProjectOptions * ?userOpName: string -&gt; Async&lt;FSharpParseFileResults * FSharpCheckFileResults&gt;
+  member GetBackgroundParseResultsForFileInProject: fileName: string * options: FSharpProjectOptions * ?userOpName: string -&gt; Async&lt;FSharpParseFileResults&gt;
+  member GetBackgroundSemanticClassificationForFile: fileName: string * options: FSharpProjectOptions * ?userOpName: string -&gt; Async&lt;SemanticClassificationView option&gt; + 1 overload
+  member GetParsingOptionsFromCommandLineArgs: sourceFiles: string list * argv: string list * ?isInteractive: bool * ?isEditing: bool -&gt; FSharpParsingOptions * FSharpDiagnostic list + 1 overload
+  member GetParsingOptionsFromProjectOptions: options: FSharpProjectOptions -&gt; FSharpParsingOptions * FSharpDiagnostic list
+  ...<br /><em>&lt;summary&gt;
+ Used to parse and check F# source code.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs8">static member FSharpChecker.Create: ?projectCacheSize: int * ?keepAssemblyContents: bool * ?keepAllBackgroundResolutions: bool * ?legacyReferenceResolver: LegacyReferenceResolver * ?tryGetMetadataSnapshot: FSharp.Compiler.AbstractIL.ILBinaryReader.ILReaderTryGetMetadataSnapshot * ?suggestNamesForErrors: bool * ?keepAllBackgroundSymbolUses: bool * ?enableBackgroundItemKeyStoreAndSemanticClassification: bool * ?enablePartialTypeChecking: bool * ?parallelReferenceResolution: bool * ?captureIdentifiersWhenParsing: bool * ?documentSource: DocumentSource * ?useTransparentCompiler: bool * ?transparentCompilerCacheSizes: TransparentCompiler.CacheSizes -&gt; FSharpChecker</div>
+<div popover class="fsdocs-tip" id="fs9">val mkTree: codeSample: string -&gt; ParsedInput<br /><em>&#160;A helper for constructing a `ParsedInput` from a code snippet.</em></div>
+<div popover class="fsdocs-tip" id="fs10">val codeSample: string</div>
+<div popover class="fsdocs-tip" id="fs11">val parseFileResults: FSharpParseFileResults</div>
+<div popover class="fsdocs-tip" id="fs12">member FSharpChecker.ParseFile: fileName: string * projectSnapshot: FSharpProjectSnapshot * ?userOpName: string -&gt; Async&lt;FSharpParseFileResults&gt;<br />member FSharpChecker.ParseFile: fileName: string * sourceText: ISourceText * options: FSharpParsingOptions * ?cache: bool * ?userOpName: string -&gt; Async&lt;FSharpParseFileResults&gt;</div>
+<div popover class="fsdocs-tip" id="fs13">module SourceText
+
+from FSharp.Compiler.Text<br /><em>&lt;summary&gt;
+ Functions related to ISourceText objects
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs14">val ofString: string -&gt; ISourceText<br /><em>&lt;summary&gt;
+ Creates an ISourceText object from the given string
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs15">type FSharpParsingOptions =
+  {
+    SourceFiles: string array
+    ApplyLineDirectives: bool
+    ConditionalDefines: string list
+    DiagnosticOptions: FSharpDiagnosticOptions
+    LangVersionText: string
+    IsInteractive: bool
+    StrictIndentation: bool option
+    CompilingFSharpCore: bool
+    IsExe: bool
+  }
+  static member Default: FSharpParsingOptions<br /><em>&lt;summary&gt;
+ Options used to determine active --define conditionals and other options relevant to parsing files in a project
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs16">property FSharpParsingOptions.Default: FSharpParsingOptions with get</div>
+<div popover class="fsdocs-tip" id="fs17">Multiple items<br />type Async =
+  static member AsBeginEnd: computation: (&#39;Arg -&gt; Async&lt;&#39;T&gt;) -&gt; (&#39;Arg * AsyncCallback * objnull -&gt; IAsyncResult) * (IAsyncResult -&gt; &#39;T) * (IAsyncResult -&gt; unit)
+  static member AwaitEvent: event: IEvent&lt;&#39;Del,&#39;T&gt; * ?cancelAction: (unit -&gt; unit) -&gt; Async&lt;&#39;T&gt; (requires delegate and &#39;Del :&gt; Delegate and &#39;Del: not null)
+  static member AwaitIAsyncResult: iar: IAsyncResult * ?millisecondsTimeout: int -&gt; Async&lt;bool&gt;
+  static member AwaitTask: task: Task&lt;&#39;T&gt; -&gt; Async&lt;&#39;T&gt; + 1 overload
+  static member AwaitWaitHandle: waitHandle: WaitHandle * ?millisecondsTimeout: int -&gt; Async&lt;bool&gt;
+  static member CancelDefaultToken: unit -&gt; unit
+  static member Catch: computation: Async&lt;&#39;T&gt; -&gt; Async&lt;Choice&lt;&#39;T,exn&gt;&gt;
+  static member Choice: computations: Async&lt;&#39;T option&gt; seq -&gt; Async&lt;&#39;T option&gt;
+  static member FromBeginEnd: beginAction: (AsyncCallback * objnull -&gt; IAsyncResult) * endAction: (IAsyncResult -&gt; &#39;T) * ?cancelAction: (unit -&gt; unit) -&gt; Async&lt;&#39;T&gt; + 3 overloads
+  static member FromContinuations: callback: ((&#39;T -&gt; unit) * (exn -&gt; unit) * (OperationCanceledException -&gt; unit) -&gt; unit) -&gt; Async&lt;&#39;T&gt;
+  ...<br /><br />--------------------<br />type Async&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs18">static member Async.RunSynchronously: computation: Async&lt;&#39;T&gt; * ?timeout: int * ?cancellationToken: System.Threading.CancellationToken -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs19">property FSharpParseFileResults.ParseTree: ParsedInput with get<br /><em>&lt;summary&gt;
+ The syntax tree resulting from the parse
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs20">val brokenTypeDefn: string</div>
+<div popover class="fsdocs-tip" id="fs21">val posInMiddleOfTypeDefn: pos</div>
+<div popover class="fsdocs-tip" id="fs22">Multiple items<br />module Position
+
+from FSharp.Compiler.Text<br /><br />--------------------<br />
+type Position =
+  member Column: int
+  member Line: int<br /><em>&lt;summary&gt;
+ Represents a position in a file
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs23">val mkPos: line: int -&gt; column: int -&gt; pos<br /><em>&lt;summary&gt;
+ Create a position for the given line and column
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs24">val isPosInTypeDefn: bool</div>
+<div popover class="fsdocs-tip" id="fs25">Multiple items<br />module ParsedInput
+
+from FSharp.Compiler.Syntax<br /><em>&lt;summary&gt;
+ Holds operations for working with the
+ untyped abstract syntax tree (&lt;see cref=&quot;T:FSharp.Compiler.Syntax.ParsedInput&quot; /&gt;).
+ &lt;/summary&gt;</em><br /><br />--------------------<br />type ParsedInput =
+  | ImplFile of ParsedImplFileInput
+  | SigFile of ParsedSigFileInput
+  member FileName: string
+  member Identifiers: Set&lt;string&gt;
+  member QualifiedName: QualifiedNameOfFile
+  member Range: range<br /><em>&lt;summary&gt;
+ Represents the syntax tree for a parsed implementation or signature file
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs26">val exists: predicate: (SyntaxVisitorPath -&gt; SyntaxNode -&gt; bool) -&gt; position: pos -&gt; parsedInput: ParsedInput -&gt; bool<br /><em>&lt;summary&gt;
+ Applies the given predicate to each node of the AST and its context (path)
+ down to a given position, returning true if a matching node is found, otherwise false.
+ Traversal is short-circuited if no matching node is found through the given position.
+ &lt;/summary&gt;<br />&lt;param name=&quot;predicate&quot;&gt;The predicate to match each node against.&lt;/param&gt;<br />&lt;param name=&quot;position&quot;&gt;The position in the input file down to which to apply the function.&lt;/param&gt;<br />&lt;param name=&quot;parsedInput&quot;&gt;The AST to search.&lt;/param&gt;<br />&lt;returns&gt;True if a matching node is found, or false if no matching node is found.&lt;/returns&gt;<br />&lt;example&gt;&lt;code lang=&quot;fsharp&quot;&gt;
+ let isInTypeDefn =
+     (pos, parsedInput)
+     ||&amp;gt; ParsedInput.exists (fun _path node -&amp;gt;
+         match node with
+         | SyntaxNode.SynTypeDefn _ -&amp;gt; true
+         | _ -&amp;gt; false)
+ &lt;/code&gt;&lt;/example&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs27">val _path: SyntaxVisitorPath</div>
+<div popover class="fsdocs-tip" id="fs28">val node: SyntaxNode</div>
+<div popover class="fsdocs-tip" id="fs29">Multiple items<br />module SyntaxNode
+
+from FSharp.Compiler.Syntax<br /><em>&lt;summary&gt;
+ Holds operations for working with &lt;see cref=&quot;T:FSharp.Compiler.Syntax.SyntaxNode&quot; /&gt;s
+ in the untyped abstract syntax tree (AST).
+ &lt;/summary&gt;</em><br /><br />--------------------<br />type SyntaxNode =
+  | SynPat of SynPat
+  | SynType of SynType
+  | SynExpr of SynExpr
+  | SynModule of SynModuleDecl
+  | SynModuleOrNamespace of SynModuleOrNamespace
+  | SynTypeDefn of SynTypeDefn
+  | SynMemberDefn of SynMemberDefn
+  | SynMatchClause of SynMatchClause
+  | SynBinding of SynBinding
+  | SynModuleOrNamespaceSig of SynModuleOrNamespaceSig
+  ...
+  member Range: range<br /><em>&lt;summary&gt;
+ Represents a major syntax node in the untyped abstract syntax tree.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs30">union case SyntaxNode.SynTypeDefn: SynTypeDefn -&gt; SyntaxNode</div>
+<div popover class="fsdocs-tip" id="fs31">val posAfterTypeDefn: pos</div>
+<div popover class="fsdocs-tip" id="fs32">val isPosInTypeDefn&#39;: bool</div>
+<div popover class="fsdocs-tip" id="fs33">val getLineStr: line: int -&gt; string</div>
+<div popover class="fsdocs-tip" id="fs34">val line: int</div>
+<div popover class="fsdocs-tip" id="fs35">Multiple items<br />val int: value: &#39;T -&gt; int (requires member op_Explicit)<br /><br />--------------------<br />type int = int32<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; =
+  int</div>
+<div popover class="fsdocs-tip" id="fs36">Multiple items<br />val string: value: &#39;T -&gt; string<br /><br />--------------------<br />type string = System.String</div>
+<div popover class="fsdocs-tip" id="fs37">val failwith: message: string -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs38">val unnecessaryParentheses: string</div>
+<div popover class="fsdocs-tip" id="fs39">namespace System</div>
+<div popover class="fsdocs-tip" id="fs40">namespace System.Collections</div>
+<div popover class="fsdocs-tip" id="fs41">namespace System.Collections.Generic</div>
+<div popover class="fsdocs-tip" id="fs42">Multiple items<br />type HashSet&lt;&#39;T&gt; =
+  interface ICollection&lt;&#39;T&gt;
+  interface seq&lt;&#39;T&gt;
+  interface IEnumerable
+  interface IReadOnlyCollection&lt;&#39;T&gt;
+  interface ISet&lt;&#39;T&gt;
+  interface IReadOnlySet&lt;&#39;T&gt;
+  interface IDeserializationCallback
+  interface ISerializable
+  new: unit -&gt; unit + 5 overloads
+  member Add: item: &#39;T -&gt; bool
+  ...<br /><em>&lt;summary&gt;Represents a set of values.&lt;/summary&gt;<br />&lt;typeparam name=&quot;T&quot;&gt;The type of elements in the hash set.&lt;/typeparam&gt;</em><br /><br />--------------------<br />HashSet() : HashSet&lt;&#39;T&gt;<br />HashSet(collection: &#39;T seq) : HashSet&lt;&#39;T&gt;<br />HashSet(comparer: IEqualityComparer&lt;&#39;T&gt;) : HashSet&lt;&#39;T&gt;<br />HashSet(capacity: int) : HashSet&lt;&#39;T&gt;<br />HashSet(collection: &#39;T seq, comparer: IEqualityComparer&lt;&#39;T&gt;) : HashSet&lt;&#39;T&gt;<br />HashSet(capacity: int, comparer: IEqualityComparer&lt;&#39;T&gt;) : HashSet&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs43">val add: item: &#39;a -&gt; set: HashSet&lt;&#39;a&gt; -&gt; HashSet&lt;&#39;a&gt;</div>
+<div popover class="fsdocs-tip" id="fs44">val item: &#39;a</div>
+<div popover class="fsdocs-tip" id="fs45">val set: HashSet&lt;&#39;a&gt;</div>
+<div popover class="fsdocs-tip" id="fs46">val ignore: value: &#39;T -&gt; unit</div>
+<div popover class="fsdocs-tip" id="fs47">HashSet.Add(item: &#39;a) : bool</div>
+<div popover class="fsdocs-tip" id="fs48">val unnecessaryParenthesesRanges: HashSet&lt;range&gt;</div>
+<div popover class="fsdocs-tip" id="fs49">Multiple items<br />module Range
+
+from FSharp.Compiler.Text<br /><br />--------------------<br />
+type Range =
+  member ApplyLineDirectives: unit -&gt; range
+  member End: pos
+  member EndColumn: int
+  member EndLine: int
+  member EndRange: range
+  member FileName: string
+  member IsSynthetic: bool
+  member Start: pos
+  member StartColumn: int
+  member StartLine: int
+  ...<br /><em>&lt;summary&gt;
+ Represents a range within a file
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs50">val comparer: IEqualityComparer&lt;range&gt;<br /><em>&lt;summary&gt;
+ Equality comparer for range.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs51">val fold: folder: (&#39;State -&gt; SyntaxVisitorPath -&gt; SyntaxNode -&gt; &#39;State) -&gt; state: &#39;State -&gt; parsedInput: ParsedInput -&gt; &#39;State<br /><em>&lt;summary&gt;
+ Applies a function to each node of the AST and its context (path),
+ threading an accumulator through the computation.
+ &lt;/summary&gt;<br />&lt;param name=&quot;folder&quot;&gt;The function to use to update the state given each node and its context.&lt;/param&gt;<br />&lt;param name=&quot;state&quot;&gt;The initial state.&lt;/param&gt;<br />&lt;param name=&quot;parsedInput&quot;&gt;The AST to fold over.&lt;/param&gt;<br />&lt;returns&gt;The final state.&lt;/returns&gt;<br />&lt;example&gt;&lt;code lang=&quot;fsharp&quot;&gt;
+ let unnecessaryParentheses =
+    (HashSet Range.comparer, parsedInput) ||&amp;gt; ParsedInput.fold (fun acc path node -&amp;gt;
+        match node with
+        | SyntaxNode.SynExpr (SynExpr.Paren (expr = inner; rightParenRange = Some _; range = range)) when
+            not (SynExpr.shouldBeParenthesizedInContext getLineString path inner)
+            -&amp;gt;
+            ignore (acc.Add range)
+            acc
+
+        | SyntaxNode.SynPat (SynPat.Paren (inner, range)) when
+            not (SynPat.shouldBeParenthesizedInContext path inner)
+            -&amp;gt;
+            ignore (acc.Add range)
+            acc
+
+        | _ -&amp;gt; acc)
+ &lt;/code&gt;&lt;/example&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs52">val ranges: HashSet&lt;range&gt;</div>
+<div popover class="fsdocs-tip" id="fs53">val path: SyntaxVisitorPath</div>
+<div popover class="fsdocs-tip" id="fs54">union case SyntaxNode.SynExpr: SynExpr -&gt; SyntaxNode</div>
+<div popover class="fsdocs-tip" id="fs55">Multiple items<br />module SynExpr
+
+from FSharp.Compiler.Syntax<br /><br />--------------------<br />type SynExpr =
+  | Paren of expr: SynExpr * leftParenRange: range * rightParenRange: range option * range: range
+  | Quote of operator: SynExpr * isRaw: bool * quotedExpr: SynExpr * isFromQueryExpression: bool * range: range
+  | Const of constant: SynConst * range: range
+  | Typed of expr: SynExpr * targetType: SynType * range: range
+  | Tuple of isStruct: bool * exprs: SynExpr list * commaRanges: range list * range: range
+  | AnonRecd of isStruct: bool * copyInfo: (SynExpr * BlockSeparator) option * recordFields: (SynLongIdent * range option * SynExpr) list * range: range * trivia: SynExprAnonRecdTrivia
+  | ArrayOrList of isArray: bool * exprs: SynExpr list * range: range
+  | Record of baseInfo: (SynType * SynExpr * range * BlockSeparator option * range) option * copyInfo: (SynExpr * BlockSeparator) option * recordFields: SynExprRecordField list * range: range
+  | New of isProtected: bool * targetType: SynType * expr: SynExpr * range: range
+  | ObjExpr of objType: SynType * argOptions: (SynExpr * Ident option) option * withKeyword: range option * bindings: SynBinding list * members: SynMemberDefns * extraImpls: SynInterfaceImpl list * newExprRange: range * range: range
+  ...
+  member IsArbExprAndThusAlreadyReportedError: bool
+  member Range: range
+  member RangeOfFirstPortion: range
+  member RangeWithoutAnyExtraDot: range</div>
+<div popover class="fsdocs-tip" id="fs56">union case SynExpr.Paren: expr: SynExpr * leftParenRange: range * rightParenRange: range option * range: range -&gt; SynExpr<br /><em>&lt;summary&gt;
+ F# syntax: (expr)
+
+ Parenthesized expressions. Kept in AST to distinguish A.M((x, y))
+ from A.M(x, y), among other things.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs57">val inner: SynExpr</div>
+<div popover class="fsdocs-tip" id="fs58">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs59">Multiple items<br />val range: range<br /><br />--------------------<br />type range = Range<br /><em>&lt;summary&gt;
+ Represents a range within a file
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs60">val shouldBeParenthesizedInContext: getSourceLineStr: (int -&gt; string) -&gt; path: SyntaxVisitorPath -&gt; expr: SynExpr -&gt; bool<br /><em>&lt;summary&gt;
+ Returns true if the given expression should be parenthesized in the given context, otherwise false.
+ &lt;/summary&gt;<br />&lt;param name=&quot;getSourceLineStr&quot;&gt;A function for getting the text of a given source line.&lt;/param&gt;<br />&lt;param name=&quot;path&quot;&gt;The expression&#39;s ancestor nodes.&lt;/param&gt;<br />&lt;param name=&quot;expr&quot;&gt;The expression to check.&lt;/param&gt;<br />&lt;returns&gt;True if the given expression should be parenthesized in the given context, otherwise false.&lt;/returns&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs61">union case SyntaxNode.SynPat: SynPat -&gt; SyntaxNode</div>
+<div popover class="fsdocs-tip" id="fs62">Multiple items<br />module SynPat
+
+from FSharp.Compiler.Syntax<br /><br />--------------------<br />type SynPat =
+  | Const of constant: SynConst * range: range
+  | Wild of range: range
+  | Named of ident: SynIdent * isThisVal: bool * accessibility: SynAccess option * range: range
+  | Typed of pat: SynPat * targetType: SynType * range: range
+  | Attrib of pat: SynPat * attributes: SynAttributes * range: range
+  | Or of lhsPat: SynPat * rhsPat: SynPat * range: range * trivia: SynPatOrTrivia
+  | ListCons of lhsPat: SynPat * rhsPat: SynPat * range: range * trivia: SynPatListConsTrivia
+  | Ands of pats: SynPat list * range: range
+  | As of lhsPat: SynPat * rhsPat: SynPat * range: range
+  | LongIdent of longDotId: SynLongIdent * extraId: Ident option * typarDecls: SynValTyparDecls option * argPats: SynArgPats * accessibility: SynAccess option * range: range
+  ...
+  member Range: range<br /><em>&lt;summary&gt;
+ Represents a syntax tree for an F# pattern
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs63">union case SynPat.Paren: pat: SynPat * range: range -&gt; SynPat<br /><em>&lt;summary&gt;
+ A parenthesized pattern
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs64">val inner: SynPat</div>
+<div popover class="fsdocs-tip" id="fs65">val shouldBeParenthesizedInContext: path: SyntaxVisitorPath -&gt; pat: SynPat -&gt; bool<br /><em>&lt;summary&gt;
+ Returns true if the given pattern should be parenthesized in the given context, otherwise false.
+ &lt;/summary&gt;<br />&lt;param name=&quot;path&quot;&gt;The pattern&#39;s ancestor nodes.&lt;/param&gt;<br />&lt;param name=&quot;pat&quot;&gt;The pattern to check.&lt;/param&gt;<br />&lt;returns&gt;True if the given pattern should be parenthesized in the given context, otherwise false.&lt;/returns&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs66">val functionApplication: string</div>
+<div popover class="fsdocs-tip" id="fs67">val posOnY: pos</div>
+<div popover class="fsdocs-tip" id="fs68">val yAndPath: (SyntaxNode * SyntaxVisitorPath) option</div>
+<div popover class="fsdocs-tip" id="fs69">val tryNode: position: pos -&gt; parsedInput: ParsedInput -&gt; (SyntaxNode * SyntaxVisitorPath) option<br /><em>&lt;summary&gt;
+ Dives to the deepest node that contains the given position,
+ returning the node and its path if found, or &lt;c&gt;None&lt;/c&gt; if no
+ node contains the position.
+ &lt;/summary&gt;<br />&lt;param name=&quot;position&quot;&gt;The position in the input file down to which to dive.&lt;/param&gt;<br />&lt;param name=&quot;parsedInput&quot;&gt;The AST to search.&lt;/param&gt;<br />&lt;returns&gt;The deepest node containing the given position, along with the path taken through the node&#39;s ancestors to find it.&lt;/returns&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs70">val posAfterY: pos</div>
+<div popover class="fsdocs-tip" id="fs71">val nope: (SyntaxNode * SyntaxVisitorPath) option</div>
+<div popover class="fsdocs-tip" id="fs72">val recordExpr: string</div>
+<div popover class="fsdocs-tip" id="fs73">val posInRecordExpr: pos</div>
+<div popover class="fsdocs-tip" id="fs74">val recordExprRange: range option</div>
+<div popover class="fsdocs-tip" id="fs75">val tryPick: chooser: (SyntaxVisitorPath -&gt; SyntaxNode -&gt; &#39;T option) -&gt; position: pos -&gt; parsedInput: ParsedInput -&gt; &#39;T option<br /><em>&lt;summary&gt;
+ Applies the given function to each node of the AST and its context (path)
+ down to a given position, returning &lt;c&gt;Some x&lt;/c&gt; for the first node
+ for which the function returns &lt;c&gt;Some x&lt;/c&gt; for some value &lt;c&gt;x&lt;/c&gt;, otherwise &lt;c&gt;None&lt;/c&gt;.
+ Traversal is short-circuited if no matching node is found through the given position.
+ &lt;/summary&gt;<br />&lt;param name=&quot;chooser&quot;&gt;The function to apply to each node and its context to derive an optional value.&lt;/param&gt;<br />&lt;param name=&quot;position&quot;&gt;The position in the input file down to which to apply the function.&lt;/param&gt;<br />&lt;param name=&quot;parsedInput&quot;&gt;The AST to search.&lt;/param&gt;<br />&lt;returns&gt;The first value for which the function returns &lt;c&gt;Some&lt;/c&gt;, or &lt;c&gt;None&lt;/c&gt; if no matching node is found.&lt;/returns&gt;<br />&lt;example&gt;&lt;code lang=&quot;fsharp&quot;&gt;
+ let range =
+     (pos, parsedInput) ||&amp;gt; ParsedInput.tryPick (fun _path node -&amp;gt;
+       match node with
+       | SyntaxNode.SynExpr (SynExpr.InterpolatedString (range = range)) when
+           rangeContainsPos range pos
+           -&amp;gt; Some range
+       | _ -&amp;gt; None)
+ &lt;/code&gt;&lt;/example&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs76">union case SynExpr.Record: baseInfo: (SynType * SynExpr * range * BlockSeparator option * range) option * copyInfo: (SynExpr * BlockSeparator) option * recordFields: SynExprRecordField list * range: range -&gt; SynExpr<br /><em>&lt;summary&gt;
+ F# syntax: { f1=e1; ...; fn=en }
+ inherit includes location of separator (for tooling)
+ copyOpt contains range of the following WITH part (for tooling)
+ every field includes range of separator after the field (for tooling)
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs77">val rangeContainsPos: range -&gt; pos -&gt; bool<br /><em>&lt;summary&gt;
+ Test to see if a range contains a position
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs78">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs79">val myFunction: string</div>
+<div popover class="fsdocs-tip" id="fs80">val myFunctionId: string option</div>
+<div popover class="fsdocs-tip" id="fs81">val pos0: pos<br /><em>&lt;summary&gt;
+ The zero position
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs82">union case SynPat.LongIdent: longDotId: SynLongIdent * extraId: Ident option * typarDecls: SynValTyparDecls option * argPats: SynArgPats * accessibility: SynAccess option * range: range -&gt; SynPat<br /><em>&lt;summary&gt;
+ A long identifier pattern possibly with argument patterns
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs83">Multiple items<br />union case SynLongIdent.SynLongIdent: id: LongIdent * dotRanges: range list * trivia: FSharp.Compiler.SyntaxTrivia.IdentTrivia option list -&gt; SynLongIdent<br /><br />--------------------<br />type SynLongIdent =
+  | SynLongIdent of id: LongIdent * dotRanges: range list * trivia: IdentTrivia option list
+  member Dots: range list
+  member IdentsWithTrivia: SynIdent list
+  member LongIdent: LongIdent
+  member Range: range
+  member RangeWithoutAnyExtraDot: range
+  member ThereIsAnExtraDotAtTheEnd: bool
+  member Trivia: IdentTrivia list<br /><em>&lt;summary&gt;
+ Represents a long identifier with possible &#39;.&#39; at end.
+
+ Typically dotRanges.Length = lid.Length-1, but they may be same if (incomplete) code ends in a dot, e.g. &quot;Foo.Bar.&quot;
+ The dots mostly matter for parsing, and are typically ignored by the typechecker, but
+ if dotRanges.Length = lid.Length, then the parser must have reported an error, so the typechecker is allowed
+ more freedom about typechecking these expressions.
+ LongIdent can be empty list - it is used to denote that name of some AST element is absent (i.e. empty type name in inherit)
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs84">val id: x: &#39;T -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs85">val ident: Ident</div>
+<div popover class="fsdocs-tip" id="fs86">union case SyntaxNode.SynBinding: SynBinding -&gt; SyntaxNode</div>
+<div popover class="fsdocs-tip" id="fs87">property Ident.idText: string with get</div>
+<div popover class="fsdocs-tip" id="fs88">val multipleLetsInModule: string</div>
+<div popover class="fsdocs-tip" id="fs89">val posInLastLet: pos</div>
+<div popover class="fsdocs-tip" id="fs90">val bodyOfLetContainingPos: SynExpr option</div>
+<div popover class="fsdocs-tip" id="fs91">Multiple items<br />union case SynBinding.SynBinding: accessibility: SynAccess option * kind: SynBindingKind * isInline: bool * isMutable: bool * attributes: SynAttributes * xmlDoc: FSharp.Compiler.Xml.PreXmlDoc * valData: SynValData * headPat: SynPat * returnInfo: SynBindingReturnInfo option * expr: SynExpr * range: range * debugPoint: DebugPointAtBinding * trivia: FSharp.Compiler.SyntaxTrivia.SynBindingTrivia -&gt; SynBinding<br /><br />--------------------<br />type SynBinding =
+  | SynBinding of accessibility: SynAccess option * kind: SynBindingKind * isInline: bool * isMutable: bool * attributes: SynAttributes * xmlDoc: PreXmlDoc * valData: SynValData * headPat: SynPat * returnInfo: SynBindingReturnInfo option * expr: SynExpr * range: range * debugPoint: DebugPointAtBinding * trivia: SynBindingTrivia
+  member RangeOfBindingWithRhs: range
+  member RangeOfBindingWithoutRhs: range
+  member RangeOfHeadPattern: range
+  member Trivia: SynBindingTrivia<br /><em>&lt;summary&gt;
+ Represents a binding for a &#39;let&#39; or &#39;member&#39; declaration
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs92">val e: SynExpr</div>
+<div popover class="fsdocs-tip" id="fs93">val nestedModules: string</div>
+<div popover class="fsdocs-tip" id="fs94">val posInsideOfInnermostNestedModule: pos</div>
+<div popover class="fsdocs-tip" id="fs95">val outermostNestedModule: string list option</div>
+<div popover class="fsdocs-tip" id="fs96">union case SyntaxNode.SynModule: SynModuleDecl -&gt; SyntaxNode</div>
+<div popover class="fsdocs-tip" id="fs97">type SynModuleDecl =
+  | ModuleAbbrev of ident: Ident * longId: LongIdent * range: range
+  | NestedModule of moduleInfo: SynComponentInfo * isRecursive: bool * decls: SynModuleDecl list * isContinuing: bool * range: range * trivia: SynModuleDeclNestedModuleTrivia
+  | Let of isRecursive: bool * bindings: SynBinding list * range: range * trivia: SynModuleDeclLetTrivia
+  | Expr of expr: SynExpr * range: range
+  | Types of typeDefns: SynTypeDefn list * range: range
+  | Exception of exnDefn: SynExceptionDefn * range: range
+  | Open of target: SynOpenDeclTarget * range: range
+  | Attributes of attributes: SynAttributes * range: range
+  | HashDirective of hashDirective: ParsedHashDirective * range: range
+  | NamespaceFragment of fragment: SynModuleOrNamespace
+  member Range: range<br /><em>&lt;summary&gt;
+ Represents a definition within a module
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs98">union case SynModuleDecl.NestedModule: moduleInfo: SynComponentInfo * isRecursive: bool * decls: SynModuleDecl list * isContinuing: bool * range: range * trivia: FSharp.Compiler.SyntaxTrivia.SynModuleDeclNestedModuleTrivia -&gt; SynModuleDecl<br /><em>&lt;summary&gt;
+ A nested module definition &#39;module X = ...&#39;
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs99">Multiple items<br />union case SynComponentInfo.SynComponentInfo: attributes: SynAttributes * typeParams: SynTyparDecls option * constraints: SynTypeConstraint list * longId: LongIdent * xmlDoc: FSharp.Compiler.Xml.PreXmlDoc * preferPostfix: bool * accessibility: SynAccess option * range: range -&gt; SynComponentInfo<br /><br />--------------------<br />type SynComponentInfo =
+  | SynComponentInfo of attributes: SynAttributes * typeParams: SynTyparDecls option * constraints: SynTypeConstraint list * longId: LongIdent * xmlDoc: PreXmlDoc * preferPostfix: bool * accessibility: SynAccess option * range: range
+  member Range: range<br /><em>&lt;summary&gt;
+ Represents the syntax tree associated with the name of a type definition or module
+ in signature or implementation.
+
+ This includes the name, attributes, type parameters, constraints, documentation and accessibility
+ for a type definition or module. For modules, entries such as the type parameters are
+ always empty.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs100">val longId: LongIdent</div>
+<div popover class="fsdocs-tip" id="fs101">val innermostNestedModule: string list option</div>
+<div popover class="fsdocs-tip" id="fs102">val tryPickLast: chooser: (SyntaxVisitorPath -&gt; SyntaxNode -&gt; &#39;T option) -&gt; position: pos -&gt; parsedInput: ParsedInput -&gt; &#39;T option<br /><em>&lt;summary&gt;
+ Applies the given function to each node of the AST and its context (path)
+ down to a given position, returning &lt;c&gt;Some x&lt;/c&gt; for the last (deepest) node
+ for which the function returns &lt;c&gt;Some x&lt;/c&gt; for some value &lt;c&gt;x&lt;/c&gt;, otherwise &lt;c&gt;None&lt;/c&gt;.
+ Traversal is short-circuited if no matching node is found through the given position.
+ &lt;/summary&gt;<br />&lt;param name=&quot;chooser&quot;&gt;The function to apply to each node and its context to derive an optional value.&lt;/param&gt;<br />&lt;param name=&quot;position&quot;&gt;The position in the input file down to which to apply the function.&lt;/param&gt;<br />&lt;param name=&quot;parsedInput&quot;&gt;The AST to search.&lt;/param&gt;<br />&lt;returns&gt;The last (deepest) value for which the function returns &lt;c&gt;Some&lt;/c&gt;, or &lt;c&gt;None&lt;/c&gt; if no matching node is found.&lt;/returns&gt;<br />&lt;example&gt;&lt;code lang=&quot;fsharp&quot;&gt;
+ let range =
+     (pos, parsedInput)
+     ||&amp;gt; ParsedInput.tryPickLast (fun path node -&amp;gt;
+         match node, path with
+         | FuncIdent range -&amp;gt; Some range
+         | _ -&amp;gt; None)
+ &lt;/code&gt;&lt;/example&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs103">val nextToInnermostNestedModule: string list option</div>
+<div popover class="fsdocs-tip" id="fs104">val visitor: SyntaxVisitorBase&lt;string&gt;</div>
+<div popover class="fsdocs-tip" id="fs105">Multiple items<br />type SyntaxVisitorBase&lt;&#39;T&gt; =
+  new: unit -&gt; SyntaxVisitorBase&lt;&#39;T&gt;
+  abstract VisitAttributeApplication: path: SyntaxVisitorPath * attributes: SynAttributeList -&gt; &#39;T option + 1 overload
+  abstract VisitBinding: path: SyntaxVisitorPath * defaultTraverse: (SynBinding -&gt; &#39;T option) * synBinding: SynBinding -&gt; &#39;T option + 1 overload
+  abstract VisitComponentInfo: path: SyntaxVisitorPath * synComponentInfo: SynComponentInfo -&gt; &#39;T option + 1 overload
+  abstract VisitEnumDefn: path: SyntaxVisitorPath * cases: SynEnumCase list * range -&gt; &#39;T option + 1 overload
+  abstract VisitExpr: path: SyntaxVisitorPath * traverseSynExpr: (SynExpr -&gt; &#39;T option) * defaultTraverse: (SynExpr -&gt; &#39;T option) * synExpr: SynExpr -&gt; &#39;T option + 1 overload
+  abstract VisitHashDirective: path: SyntaxVisitorPath * hashDirective: ParsedHashDirective * range: range -&gt; &#39;T option + 1 overload
+  abstract VisitImplicitInherit: path: SyntaxVisitorPath * defaultTraverse: (SynExpr -&gt; &#39;T option) * inheritedType: SynType * synArgs: SynExpr * range: range -&gt; &#39;T option + 1 overload
+  abstract VisitInheritSynMemberDefn: path: SyntaxVisitorPath * componentInfo: SynComponentInfo * typeDefnKind: SynTypeDefnKind * synType: SynType * members: SynMemberDefns * range: range -&gt; &#39;T option + 1 overload
+  abstract VisitInterfaceSynMemberDefnType: path: SyntaxVisitorPath * synType: SynType -&gt; &#39;T option + 1 overload
+  ...<br /><br />--------------------<br />new: unit -&gt; SyntaxVisitorBase&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs106">val this: SyntaxVisitorBase&lt;string&gt;</div>
+<div popover class="fsdocs-tip" id="fs107">override SyntaxVisitorBase.VisitPat: path: SyntaxVisitorPath * defaultTraverse: (SynPat -&gt; &#39;T option) * synPat: SynPat -&gt; &#39;T option</div>
+<div popover class="fsdocs-tip" id="fs108">val defaultTraverse: (SynPat -&gt; string option)</div>
+<div popover class="fsdocs-tip" id="fs109">val synPat: SynPat</div>
+<div popover class="fsdocs-tip" id="fs110">val result: string option</div>
+<div popover class="fsdocs-tip" id="fs111">module SyntaxTraversal
+
+from FSharp.Compiler.Syntax</div>
+<div popover class="fsdocs-tip" id="fs112">val Traverse: pos: pos * parseTree: ParsedInput * visitor: SyntaxVisitorBase&lt;&#39;T&gt; -&gt; &#39;T option</div>
+<div popover class="fsdocs-tip" id="fs113">val secondCodeSample: string</div>
+<div popover class="fsdocs-tip" id="fs114">val secondVisitor: SyntaxVisitorBase&lt;SynExpr&gt;</div>
+<div popover class="fsdocs-tip" id="fs115">val this: SyntaxVisitorBase&lt;SynExpr&gt;</div>
+<div popover class="fsdocs-tip" id="fs116">override SyntaxVisitorBase.VisitBinding: path: SyntaxVisitorPath * defaultTraverse: (SynBinding -&gt; &#39;T option) * synBinding: SynBinding -&gt; &#39;T option</div>
+<div popover class="fsdocs-tip" id="fs117">val defaultTraverse: (SynBinding -&gt; SynExpr option)</div>
+<div popover class="fsdocs-tip" id="fs118">val binding: SynBinding</div>
+<div popover class="fsdocs-tip" id="fs119">val cursorPos: pos</div>
+<div popover class="fsdocs-tip" id="fs120">val secondResult: SynExpr option</div>
+<div popover class="fsdocs-tip" id="fs121">val thirdCodeSample: string</div>
+<div popover class="fsdocs-tip" id="fs122">val thirdCursorPos: pos</div>
+<div popover class="fsdocs-tip" id="fs123">val thirdVisitor: SyntaxVisitorBase&lt;int&gt;</div>
+<div popover class="fsdocs-tip" id="fs124">val this: SyntaxVisitorBase&lt;int&gt;</div>
+<div popover class="fsdocs-tip" id="fs125">override SyntaxVisitorBase.VisitExpr: path: SyntaxVisitorPath * traverseSynExpr: (SynExpr -&gt; &#39;T option) * defaultTraverse: (SynExpr -&gt; &#39;T option) * synExpr: SynExpr -&gt; &#39;T option</div>
+<div popover class="fsdocs-tip" id="fs126">val traverseSynExpr: (SynExpr -&gt; int option)</div>
+<div popover class="fsdocs-tip" id="fs127">val defaultTraverse: (SynExpr -&gt; int option)</div>
+<div popover class="fsdocs-tip" id="fs128">val synExpr: SynExpr</div>
+<div popover class="fsdocs-tip" id="fs129">union case SynExpr.Const: constant: SynConst * range: range -&gt; SynExpr<br /><em>&lt;summary&gt;
+ F# syntax: 1, 1.3, () etc.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs130">type SynConst =
+  | Unit
+  | Bool of bool
+  | SByte of sbyte
+  | Byte of byte
+  | Int16 of int16
+  | UInt16 of uint16
+  | Int32 of int32
+  | UInt32 of uint32
+  | Int64 of int64
+  | UInt64 of uint64
+  ...
+  member Range: dflt: range -&gt; range<br /><em>&lt;summary&gt;
+ The unchecked abstract syntax tree of constants in F# types and expressions.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs131">union case SynConst.Int32: int32 -&gt; SynConst<br /><em>&lt;summary&gt;
+ F# syntax: 13, 0x4000, 0o0777
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs132">val v: int32</div>
+<div popover class="fsdocs-tip" id="fs133">val otherExpr: SynExpr</div>
+<div popover class="fsdocs-tip" id="fs134">val thirdResult: int option</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Compiler-Services-APIs-for-the-untyped-AST">
+      Compiler Services: APIs for the untyped AST
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#The-ParsedInput-module">
+      The ParsedInput module
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#SyntaxVisitorBase-amp-SyntaxTraversal-Traverse">
+      SyntaxVisitorBase &amp; SyntaxTraversal.Traverse
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Examples">
+      Examples
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#ParsedInput-exists">
+      ParsedInput.exists
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#ParsedInput-fold">
+      ParsedInput.fold
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#ParsedInput-tryNode">
+      ParsedInput.tryNode
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#ParsedInput-tryPick">
+      ParsedInput.tryPick
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#ParsedInput-tryPickLast">
+      ParsedInput.tryPickLast
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#SyntaxTraversal-Traverse">
+      SyntaxTraversal.Traverse
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#SyntaxTraversal-Traverse-using-position">
+      SyntaxTraversal.Traverse: using position
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#SyntaxTraversal-Traverse-using-defaultTraverse">
+      SyntaxTraversal.Traverse: using defaultTraverse
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-search.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-copy-button.js"></script>
+
+</body>
+</html>

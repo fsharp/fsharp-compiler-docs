@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsharp.github.io/fsharp-compiler-docs/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/postmortems/regression-fs0229-bstream-misalignment.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+">
+    
+    <title>Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+ | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header active">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/PENDING_BREAKING_CHANGES.html">
+    Breaking Changes in Query Expression Fixes
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/README.html">
+    Postmortems
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/regression-fs0229-bstream-misalignment.html">
+    Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="https://fsharp.github.io/fsharp-compiler-docs/img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header active">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/PENDING_BREAKING_CHANGES.html">
+    Breaking Changes in Query Expression Fixes
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/README.html">
+    Postmortems
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/regression-fs0229-bstream-misalignment.html">
+    Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <h1><a name="Regression-FS0229-B-Stream-Misalignment-in-TypedTreePickle" class="anchor" href="#Regression-FS0229-B-Stream-Misalignment-in-TypedTreePickle">Regression: FS0229 B-Stream Misalignment in TypedTreePickle</a></h1>
+<h2><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
+<p>A metadata unpickling regression causes <code>FS0229</code> errors when the F# compiler (post-nullness-checking merge) reads metadata from assemblies compiled with <code>LangVersion &lt; 9.0</code>. The root cause is a stream alignment bug in <code>TypedTreePickle.fs</code> where the secondary metadata stream ("B-stream") gets out of sync between writer and reader.</p>
+<h2><a name="Error-Manifestation" class="anchor" href="#Error-Manifestation">Error Manifestation</a></h2>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">error</span> <span class="id">FS0229</span><span class="pn">:</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">Error</span> <span class="id">reading</span><span class="o">/</span><span class="id">writing</span> <span class="id">metadata</span> <span class="k">for</span> <span class="id">assembly</span> <span class="id">&#39;</span><span class="pn">&lt;</span><span class="id">AssemblyName</span><span class="pn">&gt;</span><span class="id">&#39;</span><span class="pn">:</span> 
+  <span class="id">The</span> <span class="id">data</span> <span class="id">read</span> <span class="id">from</span> <span class="id">the</span> <span class="id">stream</span> <span class="id">is</span> <span class="id">inconsistent</span><span class="pn">,</span> <span class="id">reading</span> <span class="id">past</span> <span class="k">end</span> <span class="k">of</span> <span class="id">resource</span><span class="pn">,</span> 
+  <span class="id">u_ty</span> <span class="o">-</span> <span class="n">4</span><span class="o">/</span><span class="id">B</span>  <span class="id">OR</span>  <span class="id">u_ty</span> <span class="o">-</span> <span class="n">1</span><span class="o">/</span><span class="id">B</span><span class="pn">,</span> <span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">byte</span> <span class="o">=</span> <span class="pn">&lt;</span><span class="id">N</span><span class="pn">&gt;</span>
+</code></pre>
+<p>This error occurs when consuming metadata from an assembly where:
+1. The assembly was compiled by the current compiler (which writes B-stream data)
+2. The compilation used <code>LangVersion 8.0</code> or earlier (which disables <code>langFeatureNullness</code>)
+3. The assembly references BCL types whose type parameters carry <code>NotSupportsNull</code> or <code>AllowsRefStruct</code> constraints</p>
+<p><strong>Affected real-world library</strong>: <a href="https://github.com/demystifyfp/FsToolkit.ErrorHandling">FsToolkit.ErrorHandling</a>, which uses <code>&lt;LangVersion&gt;8.0&lt;/LangVersion&gt;</code> for <code>netstandard2.0</code>/<code>netstandard2.1</code> TFMs.</p>
+<h2><a name="Root-Cause" class="anchor" href="#Root-Cause">Root Cause</a></h2>
+<h3><a name="Dual-Stream-Metadata-Format" class="anchor" href="#Dual-Stream-Metadata-Format">Dual-Stream Metadata Format</a></h3>
+<p>F# compiler metadata uses two serialization streams:
+- <strong>Stream A</strong> (main): Type tags, type constructor references, type parameter references, etc.
+- <strong>Stream B</strong> (secondary): Nullness information per type + newer constraint data (e.g., <code>NotSupportsNull</code>, <code>AllowsRefStruct</code>)</p>
+<p>These streams are written in parallel during pickling and read in parallel during unpickling. The invariant is: <strong>every byte written to stream B by the writer must have a corresponding read in the reader</strong>.</p>
+<h3><a name="The-Bug" class="anchor" href="#The-Bug">The Bug</a></h3>
+<p>In <code>p_ty2</code> (the type pickle function), nullness information is written to stream B <strong>conditionally</strong>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// BEFORE FIX (buggy)</span>
+<span class="pn">|</span> <span class="id">TType_app</span><span class="pn">(</span><span class="id">tc</span><span class="pn">,</span> <span class="id">tinst</span><span class="pn">,</span> <span class="id">nullness</span><span class="pn">)</span> <span class="k">-&gt;</span>
+    <span class="k">if</span> <span class="id">st</span><span class="pn">.</span><span class="id">oglobals</span><span class="pn">.</span><span class="id">langFeatureNullness</span> <span class="k">then</span>
+        <span class="k">match</span> <span class="id">nullness</span><span class="pn">.</span><span class="id">Evaluate</span><span class="pn">(</span><span class="pn">)</span> <span class="k">with</span>
+        <span class="pn">|</span> <span class="id">NullnessInfo</span><span class="pn">.</span><span class="id">WithNull</span> <span class="k">-&gt;</span> <span class="id">p_byteB</span> <span class="n">12</span> <span class="id">st</span>
+        <span class="pn">|</span> <span class="id">NullnessInfo</span><span class="pn">.</span><span class="id">WithoutNull</span> <span class="k">-&gt;</span> <span class="id">p_byteB</span> <span class="n">13</span> <span class="id">st</span>
+        <span class="pn">|</span> <span class="id">NullnessInfo</span><span class="pn">.</span><span class="id">AmbivalentToNull</span> <span class="k">-&gt;</span> <span class="id">p_byteB</span> <span class="n">14</span> <span class="id">st</span>
+    <span class="c">// No else branch - B-stream byte skipped when langFeatureNullness = false!</span>
+    <span class="id">p_byte</span> <span class="n">2</span> <span class="id">st</span>
+    <span class="id">p_tcref</span> <span class="s">&quot;typ&quot;</span> <span class="id">tc</span> <span class="id">st</span>
+    <span class="id">p_tys</span> <span class="id">tinst</span> <span class="id">st</span>
+</code></pre>
+<p>But in <code>u_ty</code> (the type unpickle function), the B-stream byte is read <strong>unconditionally</strong>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">|</span> <span class="n">2</span> <span class="k">-&gt;</span>
+    <span class="k">let</span> <span class="id">tagB</span> <span class="o">=</span> <span class="id">u_byteB</span> <span class="id">st</span>   <span class="c">// Always reads, regardless of langFeatureNullness at compile time</span>
+    <span class="k">let</span> <span class="id">tcref</span> <span class="o">=</span> <span class="id">u_tcref</span> <span class="id">st</span>
+    <span class="k">let</span> <span class="id">tinst</span> <span class="o">=</span> <span class="id">u_tys</span> <span class="id">st</span>
+    <span class="k">match</span> <span class="id">tagB</span> <span class="k">with</span>
+    <span class="pn">|</span> <span class="n">0</span> <span class="k">-&gt;</span> <span class="id">TType_app</span><span class="pn">(</span><span class="id">tcref</span><span class="pn">,</span> <span class="id">tinst</span><span class="pn">,</span> <span class="id">KnownAmbivalentToNull</span><span class="pn">)</span>
+    <span class="pn">|</span> <span class="n">12</span> <span class="k">-&gt;</span> <span class="id">TType_app</span><span class="pn">(</span><span class="id">tcref</span><span class="pn">,</span> <span class="id">tinst</span><span class="pn">,</span> <span class="id">KnownWithNull</span><span class="pn">)</span>
+    <span class="o">..</span><span class="pn">.</span>
+</code></pre>
+<p>This affects type tags 1 (TType_app no args), 2 (TType_app), 3 (TType_fun), and 4 (TType_var).</p>
+<p>Meanwhile, <code>p_tyar_constraints</code> <strong>unconditionally</strong> writes constraint data to B-stream:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="id">p_tyar_constraints</span> <span class="id">cxs</span> <span class="id">st</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="id">cxs1</span><span class="pn">,</span> <span class="id">cxs2</span> <span class="o">=</span> <span class="id">cxs</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="id">List</span><span class="pn">.</span><span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="4" class="id">partition</span> <span class="pn">(</span><span class="k">function</span>
+        <span class="pn">|</span> <span class="id">TyparConstraint</span><span class="pn">.</span><span class="id">NotSupportsNull</span> <span class="id">_</span> <span class="pn">|</span> <span class="id">TyparConstraint</span><span class="pn">.</span><span class="id">AllowsRefStruct</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="k">false</span>
+        <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="k">true</span><span class="pn">)</span>
+    <span class="id">p_list</span> <span class="id">p_tyar_constraint</span> <span class="id">cxs1</span> <span class="id">st</span>
+    <span class="id">p_listB</span> <span class="id">p_tyar_constraintB</span> <span class="id">cxs2</span> <span class="id">st</span>  <span class="c">// Always writes to B, regardless of langFeatureNullness</span>
+</code></pre>
+<h3><a name="Misalignment-Cascade" class="anchor" href="#Misalignment-Cascade">Misalignment Cascade</a></h3>
+<p>When <code>langFeatureNullness = false</code>:</p>
+<ol>
+<li>Writer processes types → skips B-bytes for each type tag 1-4</li>
+<li>Writer processes type parameter constraints → writes <code>NotSupportsNull</code> data to B-stream (value <code>0x01</code>)</li>
+<li>Reader processes types → reads B-stream expecting nullness tags → gets constraint data instead</li>
+<li>Constraint byte <code>0x01</code> is not a valid nullness tag (valid values: 0, 9-20) → <code>ufailwith "u_ty - 4/B"</code> or similar</li>
+</ol>
+<p>The misalignment cascades: once one byte is read from the wrong position, all subsequent B-stream reads are shifted.</p>
+<h2><a name="Fix" class="anchor" href="#Fix">Fix</a></h2>
+<p>Added <code>else p_byteB 0 st</code> to all four type cases in <code>p_ty2</code>, ensuring a B-byte is always written regardless of <code>langFeatureNullness</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// AFTER FIX</span>
+<span class="pn">|</span> <span class="id">TType_app</span><span class="pn">(</span><span class="id">tc</span><span class="pn">,</span> <span class="id">tinst</span><span class="pn">,</span> <span class="id">nullness</span><span class="pn">)</span> <span class="k">-&gt;</span>
+    <span class="k">if</span> <span class="id">st</span><span class="pn">.</span><span class="id">oglobals</span><span class="pn">.</span><span class="id">langFeatureNullness</span> <span class="k">then</span>
+        <span class="k">match</span> <span class="id">nullness</span><span class="pn">.</span><span class="id">Evaluate</span><span class="pn">(</span><span class="pn">)</span> <span class="k">with</span>
+        <span class="pn">|</span> <span class="id">NullnessInfo</span><span class="pn">.</span><span class="id">WithNull</span> <span class="k">-&gt;</span> <span class="id">p_byteB</span> <span class="n">12</span> <span class="id">st</span>
+        <span class="pn">|</span> <span class="id">NullnessInfo</span><span class="pn">.</span><span class="id">WithoutNull</span> <span class="k">-&gt;</span> <span class="id">p_byteB</span> <span class="n">13</span> <span class="id">st</span>
+        <span class="pn">|</span> <span class="id">NullnessInfo</span><span class="pn">.</span><span class="id">AmbivalentToNull</span> <span class="k">-&gt;</span> <span class="id">p_byteB</span> <span class="n">14</span> <span class="id">st</span>
+    <span class="k">else</span>
+        <span class="id">p_byteB</span> <span class="n">0</span> <span class="id">st</span>  <span class="c">// Keep B-stream aligned</span>
+    <span class="id">p_byte</span> <span class="n">2</span> <span class="id">st</span>
+    <span class="id">p_tcref</span> <span class="s">&quot;typ&quot;</span> <span class="id">tc</span> <span class="id">st</span>
+    <span class="id">p_tys</span> <span class="id">tinst</span> <span class="id">st</span>
+</code></pre>
+<p>Value <code>0</code> means "no nullness info / AmbivalentToNull" and is already handled by all reader match cases.</p>
+<h2><a name="Timeline" class="anchor" href="#Timeline">Timeline</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Date</p></th>
+<th><p>PR</p></th>
+<th><p>Change</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>Jul 2024</p></td>
+<td><p><a href="https://github.com/dotnet/fsharp/pull/15181">#15181</a></p></td>
+<td><p>Nullness checking: introduced B-stream for nullness bytes, conditional write in <code>p_ty2</code></p></td>
+</tr>
+<tr class="even">
+<td><p>Aug 2024</p></td>
+<td><p><a href="https://github.com/dotnet/fsharp/pull/15310">#15310</a></p></td>
+<td><p>Nullness checking applied to codebase</p></td>
+</tr>
+<tr class="odd">
+<td><p>Sep 2024</p></td>
+<td><p><a href="https://github.com/dotnet/fsharp/pull/17706">#17706</a></p></td>
+<td><p><code>AllowsRefStruct</code>: added constraint data to B-stream unconditionally via <code>p_listB</code></p></td>
+</tr>
+</tbody>
+</table>
+
+<p>The bug was latent from #15181 but only manifested when #17706 added unconditional B-stream writes for constraints. Before #17706, the B-stream was empty when <code>langFeatureNullness = false</code>, so the reader's unconditional reads would hit the end-of-stream sentinel (returning 0) harmlessly. After #17706, constraint data appeared in the B-stream even without nullness, causing the misalignment.</p>
+<h2><a name="Regression-Tests" class="anchor" href="#Regression-Tests">Regression Tests</a></h2>
+<p>Two tests added in <code>tests/FSharp.Compiler.ComponentTests/Import/ImportTests.fs</code>:</p>
+<ol>
+<li><p><strong>Basic test</strong>: Compiles a library with <code>LangVersion=8.0</code> containing generic types with BCL constraints (e.g., <code>IEquatable&lt;'T&gt;</code>), then references it from another compilation and verifies no FS0229 error.</p></li>
+<li><p><strong>Stress test</strong>: Multiple type parameters with various constraint patterns, function types, and nested generics — all compiled at <code>LangVersion=8.0</code> and successfully consumed.</p></li>
+</ol>
+<h2><a name="Reproduction" class="anchor" href="#Reproduction">Reproduction</a></h2>
+<p>To reproduce the original bug (before fix):</p>
+<ol>
+<li>Clone <a href="https://github.com/demystifyfp/FsToolkit.ErrorHandling">FsToolkit.ErrorHandling</a></li>
+<li>Inject the pre-fix compiler via <code>UseLocalCompiler.Directory.Build.props</code></li>
+<li>Build <code>netstandard2.0</code> TFM (uses <code>LangVersion=8.0</code>)</li>
+<li>Build <code>net9.0</code> TFM that references the <code>netstandard2.0</code> output</li>
+<li>The <code>net9.0</code> build fails with <code>FS0229: u_ty - 4/B</code></li>
+</ol>
+<h2><a name="Files-Changed" class="anchor" href="#Files-Changed">Files Changed</a></h2>
+<ul>
+<li><code>src/Compiler/TypedTree/TypedTreePickle.fs</code> — Added <code>else p_byteB 0 st</code> to four locations in <code>p_ty2</code></li>
+<li><code>tests/FSharp.Compiler.ComponentTests/Import/ImportTests.fs</code> — Two regression tests</li>
+<li><code>tests/FSharp.Compiler.ComponentTests/FSharp.Compiler.ComponentTests.fsproj</code> — Added <code>ImportTests.fs</code> include (was missing since migration)</li>
+</ul>
+
+        <div popover class="fsdocs-tip" id="fs1">union case Result.Error: ErrorValue: &#39;TError -&gt; Result&lt;&#39;T,&#39;TError&gt;</div>
+<div popover class="fsdocs-tip" id="fs2">Multiple items<br />val byte: value: &#39;T -&gt; byte (requires member op_Explicit)<br /><br />--------------------<br />type byte = System.Byte<br /><br />--------------------<br />type byte&lt;&#39;Measure&gt; =
+  byte</div>
+<div popover class="fsdocs-tip" id="fs3">Multiple items<br />module List
+
+from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =
+  | op_Nil
+  | op_ColonColon of Head: &#39;T * Tail: &#39;T list
+  interface IReadOnlyList&lt;&#39;T&gt;
+  interface IReadOnlyCollection&lt;&#39;T&gt;
+  interface IEnumerable
+  interface IEnumerable&lt;&#39;T&gt;
+  member GetReverseIndex: rank: int * offset: int -&gt; int
+  member GetSlice: startIndex: int option * endIndex: int option -&gt; &#39;T list
+  static member Cons: head: &#39;T * tail: &#39;T list -&gt; &#39;T list
+  member Head: &#39;T
+  member IsEmpty: bool
+  member Item: index: int -&gt; &#39;T with get
+  ...</div>
+<div popover class="fsdocs-tip" id="fs4">val partition: predicate: (&#39;T -&gt; bool) -&gt; list: &#39;T list -&gt; &#39;T list * &#39;T list</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Regression-FS0229-B-Stream-Misalignment-in-TypedTreePickle">
+      Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Summary">
+      Summary
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Error-Manifestation">
+      Error Manifestation
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Root-Cause">
+      Root Cause
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Dual-Stream-Metadata-Format">
+      Dual-Stream Metadata Format
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#The-Bug">
+      The Bug
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Misalignment-Cascade">
+      Misalignment Cascade
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Fix">
+      Fix
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Timeline">
+      Timeline
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Regression-Tests">
+      Regression Tests
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Reproduction">
+      Reproduction
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Files-Changed">
+      Files Changed
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-search.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-copy-button.js"></script>
+
+</body>
+</html>

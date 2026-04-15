@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsharp.github.io/fsharp-compiler-docs/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Tutorial: Tokenizing" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Tutorial: Tokenizing">
+    
+    <title>Tutorial: Tokenizing | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/PENDING_BREAKING_CHANGES.html">
+    Breaking Changes in Query Expression Fixes
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/README.html">
+    Postmortems
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/regression-fs0229-bstream-misalignment.html">
+    Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="https://fsharp.github.io/fsharp-compiler-docs/img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/lsp.html">
+    F# LSP
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/optimizations-equality.html">
+    Compiling Equality
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/perf-discussions-archive.html">
+    Comparisons
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/regression-testing-pipeline.html">
+    F# Compiler Regression Testing
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/release-notes/PENDING_BREAKING_CHANGES.html">
+    Breaking Changes in Query Expression Fixes
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/README.html">
+    Postmortems
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/postmortems/regression-fs0229-bstream-misalignment.html">
+    Regression: FS0229 B-Stream Misalignment in TypedTreePickle
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsharp.github.io/fsharp-compiler-docs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1><a name="Compiler-Services-Using-the-F-tokenizer" class="anchor" href="#Compiler-Services-Using-the-F-tokenizer">Compiler Services: Using the F# tokenizer</a></h1>
+<p>This tutorial demonstrates how to call the F# language tokenizer. Given F#
+source code, the tokenizer generates a list of source code lines that contain
+information about tokens on each line. For each token, you can get the type
+of the token, exact location as well as color kind of the token (keyword,
+identifier, number, operator, etc.).</p>
+<blockquote>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published</p>
+</blockquote>
+<h2><a name="Creating-the-tokenizer" class="anchor" href="#Creating-the-tokenizer">Creating the tokenizer</a></h2>
+<p>To use the tokenizer, reference <code>FSharp.Compiler.Service.dll</code> and open the
+<code>FSharp.Compiler.Tokenization</code> namespace:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pp">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">Compiler</span><span class="pn">.</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="id">Tokenization</span>
+</code></pre>
+<p>Now you can create an instance of <code>FSharpSourceTokenizer</code>. The class takes two
+arguments - the first is the list of defined symbols and the second is the
+file name of the source code. The defined symbols are required because the
+tokenizer handles <code>#if</code> directives. The file name is required only to specify
+locations of the source code (and it does not have to exist):</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="4" class="id">sourceTok</span> <span class="o">=</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="5" class="fn">FSharpSourceTokenizer</span><span class="pn">(</span><span class="pn">[</span><span class="pn">]</span><span class="pn">,</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="6" class="uc">Some</span> <span class="s">&quot;C:\\test.fsx&quot;</span><span class="pn">,</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="7" class="uc">Some</span> <span class="s">&quot;PREVIEW&quot;</span><span class="pn">,</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="8" class="uc">None</span><span class="pn">)</span>
+</code></pre>
+<p>Using the <code>sourceTok</code> object, we can now (repeatedly) tokenize lines of
+F# source code.</p>
+<h2><a name="Tokenizing-F-code" class="anchor" href="#Tokenizing-F-code">Tokenizing F# code</a></h2>
+<p>The tokenizer operates on individual lines rather than on the entire source
+file. After getting a token, the tokenizer also returns new state (as <code>int64</code> value).
+This can be used to tokenize F# code more efficiently. When source code changes,
+you do not need to re-tokenize the entire file - only the parts that have changed.</p>
+<h3><a name="Tokenizing-single-line" class="anchor" href="#Tokenizing-single-line">Tokenizing single line</a></h3>
+<p>To tokenize a single line, we create a <code>FSharpLineTokenizer</code> by calling <code>CreateLineTokenizer</code>
+on the <code>FSharpSourceTokenizer</code> object that we created earlier:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="9" class="id">tokenizer</span> <span class="o">=</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="10" class="id">sourceTok</span><span class="pn">.</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="11" class="id">CreateLineTokenizer</span><span class="pn">(</span><span class="s">&quot;let answer=42&quot;</span><span class="pn">)</span>
+</code></pre>
+<p>Now, we can write a simple recursive function that calls <code>ScanToken</code> on the <code>tokenizer</code>
+until it returns <code>None</code> (indicating the end of line). When the function succeeds, it
+returns an <code>FSharpTokenInfo</code> object with all the interesting details:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Tokenize a single line of F# code</span>
+<span class="k">let</span> <span class="k">rec</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="12" class="fn">tokenizeLine</span> <span class="pn">(</span><span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="13" class="fn">tokenizer</span><span class="pn">:</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="14" class="rt">FSharpLineTokenizer</span><span class="pn">)</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="15" class="fn">state</span> <span class="o">=</span>
+  <span class="k">match</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="16" class="fn">tokenizer</span><span class="pn">.</span><span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="17" class="id">ScanToken</span><span class="pn">(</span><span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="18" class="fn">state</span><span class="pn">)</span> <span class="k">with</span>
+  <span class="pn">|</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="19" class="uc">Some</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="20" class="fn">tok</span><span class="pn">,</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="21" class="fn">state</span> <span class="k">-&gt;</span>
+      <span class="c">// Print token name</span>
+      <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="22" class="fn">printf</span> <span class="s">&quot;</span><span class="pf">%s</span><span class="s"> &quot;</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="23" class="fn">tok</span><span class="pn">.</span><span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="24" class="id">TokenName</span>
+      <span class="c">// Tokenize the rest, in the new state</span>
+      <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="25" class="fn">tokenizeLine</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="26" class="fn">tokenizer</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="27" class="fn">state</span>
+  <span class="pn">|</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="28" class="uc">None</span><span class="pn">,</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="29" class="fn">state</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="30" class="fn">state</span>
+</code></pre>
+<p>The function returns the new state, which is needed if you need to tokenize multiple lines
+and an earlier line ends with a multi-line comment. As an initial state, we can use <code>0L</code>:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="31" class="fn">tokenizeLine</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="32" class="id">tokenizer</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="33" class="vt">FSharpTokenizerLexState</span><span class="pn">.</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="34" class="id">Initial</span>
+</code></pre>
+<p>The result is a sequence of tokens with names LET, WHITESPACE, IDENT, EQUALS and INT32.
+There is a number of interesting properties on <code>FSharpTokenInfo</code> including:</p>
+<ul>
+<li>
+<code>CharClass</code> and <code>ColorClass</code> return information about the token category that
+can be used for colorizing F# code.
+</li>
+<li><code>LeftColumn</code> and <code>RightColumn</code> return the location of the token inside the line.</li>
+<li><code>TokenName</code> is the name of the token (as defined in the F# lexer)</li>
+</ul>
+<p>Note that the tokenizer is stateful - if you want to tokenize single line multiple times,
+you need to call <code>CreateLineTokenizer</code> again.</p>
+<h3><a name="Tokenizing-sample-code" class="anchor" href="#Tokenizing-sample-code">Tokenizing sample code</a></h3>
+<p>To run the tokenizer on a longer sample code or an entire file, you need to read the
+sample input as a collection of <code>string</code> values:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="35" class="id">lines</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">  // Hello world</span>
+<span class="s">  let hello() =</span>
+<span class="s">     printfn &quot;Hello world!&quot; &quot;&quot;&quot;</span><span class="pn">.</span><span class="id">Split</span><span class="pn">(</span><span class="s">&#39;\r&#39;</span><span class="pn">,</span><span class="s">&#39;\n&#39;</span><span class="pn">)</span>
+</code></pre>
+<p>To tokenize multi-line input, we again need a recursive function that keeps the current
+state. The following function takes the lines as a list of strings (together with line number
+and the current state). We create a new tokenizer for each line and call <code>tokenizeLine</code>
+using the state from the <em>end</em> of the previous line:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Print token names for multiple lines of code</span>
+<span class="k">let</span> <span class="k">rec</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="36" class="fn">tokenizeLines</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="37" class="fn">state</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="38" class="fn">count</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="39" class="fn">lines</span> <span class="o">=</span> 
+  <span class="k">match</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="40" class="fn">lines</span> <span class="k">with</span>
+  <span class="pn">|</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="41" class="fn">line</span><span class="uc">::</span><span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="42" class="fn">lines</span> <span class="k">-&gt;</span>
+      <span class="c">// Create tokenizer &amp; tokenize single line</span>
+      <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="43" class="fn">printfn</span> <span class="s">&quot;\nLine </span><span class="pf">%d</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="44" class="fn">count</span>
+      <span class="k">let</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="45" class="fn">tokenizer</span> <span class="o">=</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="46" class="id">sourceTok</span><span class="pn">.</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="47" class="id">CreateLineTokenizer</span><span class="pn">(</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="48" class="fn">line</span><span class="pn">)</span>
+      <span class="k">let</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="49" class="fn">state</span> <span class="o">=</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="50" class="fn">tokenizeLine</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="51" class="fn">tokenizer</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="52" class="fn">state</span>
+      <span class="c">// Tokenize the rest using new state</span>
+      <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="53" class="fn">tokenizeLines</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="54" class="fn">state</span> <span class="pn">(</span><span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="55" class="fn">count</span><span class="o">+</span><span class="n">1</span><span class="pn">)</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="56" class="fn">lines</span>
+  <span class="pn">|</span> <span class="pn">[</span><span class="pn">]</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="pn">)</span>
+</code></pre>
+<p>The function simply calls <code>tokenizeLine</code> (defined earlier) to print the names of all
+the tokens on each line. We can call it on the previous input with <code>0L</code> as the initial
+state and <code>1</code> as the number of the first line:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="57" class="id">lines</span>
+<span class="o">|&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="58" class="m">List</span><span class="pn">.</span><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="59" class="id">ofSeq</span>
+<span class="o">|&gt;</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="60" class="fn">tokenizeLines</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="61" class="vt">FSharpTokenizerLexState</span><span class="pn">.</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="62" class="id">Initial</span> <span class="n">1</span>
+</code></pre>
+<p>Ignoring some unimportant details (like whitespace at the beginning of each line and
+the first line which is just whitespace), the code generates the following output:</p>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">Line 1
+  LINE_COMMENT LINE_COMMENT (...) LINE_COMMENT 
+Line 2
+  LET WHITESPACE IDENT LPAREN RPAREN WHITESPACE EQUALS 
+Line 3
+  IDENT WHITESPACE STRING_TEXT (...) STRING_TEXT STRING 
+</code></pre></td></tr></table>
+<p>It is worth noting that the tokenizer yields multiple <code>LINE_COMMENT</code> tokens and multiple
+<code>STRING_TEXT</code> tokens for each single comment or string (roughly, one for each word), so
+if you want to get the entire text of a comment/string, you need to concatenate the
+tokens.</p>
+
+        <div popover class="fsdocs-tip" id="fs1">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp</div>
+<div popover class="fsdocs-tip" id="fs2">namespace FSharp.Compiler</div>
+<div popover class="fsdocs-tip" id="fs3">namespace FSharp.Compiler.Tokenization</div>
+<div popover class="fsdocs-tip" id="fs4">val sourceTok: FSharpSourceTokenizer</div>
+<div popover class="fsdocs-tip" id="fs5">Multiple items<br />type FSharpSourceTokenizer =
+  new: conditionalDefines: string list * fileName: string option * langVersion: string option * strictIndentation: bool option -&gt; FSharpSourceTokenizer
+  member CreateBufferTokenizer: bufferFiller: (char array * int * int -&gt; int) -&gt; FSharpLineTokenizer
+  member CreateLineTokenizer: lineText: string -&gt; FSharpLineTokenizer<br /><em>&lt;summary&gt;
+ Tokenizer for a source file. Holds some expensive-to-compute resources at the scope of the file.
+&lt;/summary&gt;</em><br /><br />--------------------<br />new: conditionalDefines: string list * fileName: string option * langVersion: string option * strictIndentation: bool option -&gt; FSharpSourceTokenizer</div>
+<div popover class="fsdocs-tip" id="fs6">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs7">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div popover class="fsdocs-tip" id="fs8">val tokenizer: FSharpLineTokenizer</div>
+<div popover class="fsdocs-tip" id="fs9">member FSharpSourceTokenizer.CreateLineTokenizer: lineText: string -&gt; FSharpLineTokenizer</div>
+<div popover class="fsdocs-tip" id="fs10">val tokenizeLine: tokenizer: FSharpLineTokenizer -&gt; state: FSharpTokenizerLexState -&gt; FSharpTokenizerLexState<br /><em>&#160;Tokenize a single line of F# code</em></div>
+<div popover class="fsdocs-tip" id="fs11">type FSharpLineTokenizer =
+  member ScanToken: lexState: FSharpTokenizerLexState -&gt; FSharpTokenInfo option * FSharpTokenizerLexState
+  static member ColorStateOfLexState: FSharpTokenizerLexState -&gt; FSharpTokenizerColorState
+  static member LexStateOfColorState: FSharpTokenizerColorState -&gt; FSharpTokenizerLexState<br /><em>&lt;summary&gt;
+ Object to tokenize a line of F# source code, starting with the given lexState.  The lexState should be FSharpTokenizerLexState.Initial for
+ the first line of text. Returns an array of ranges of the text and two enumerations categorizing the
+ tokens and characters covered by that range, i.e. FSharpTokenColorKind and FSharpTokenCharKind.  The enumerations
+ are somewhat adhoc but useful enough to give good colorization options to the user in an IDE.
+
+ A new lexState is also returned.  An IDE-plugin should in general cache the lexState
+ values for each line of the edited code.
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs12">val state: FSharpTokenizerLexState</div>
+<div popover class="fsdocs-tip" id="fs13">member FSharpLineTokenizer.ScanToken: lexState: FSharpTokenizerLexState -&gt; FSharpTokenInfo option * FSharpTokenizerLexState</div>
+<div popover class="fsdocs-tip" id="fs14">val tok: FSharpTokenInfo</div>
+<div popover class="fsdocs-tip" id="fs15">val printf: format: Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs16">FSharpTokenInfo.TokenName: string<br /><em>&lt;summary&gt;
+ Provides additional information about the token
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs17">
+type FSharpTokenizerLexState =
+  {
+    PosBits: int64
+    OtherBits: int64
+  }
+  member Equals: FSharpTokenizerLexState -&gt; bool
+  static member Initial: FSharpTokenizerLexState<br /><em>&lt;summary&gt;
+ Represents encoded information for the end-of-line continuation of lexing
+&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs18">property FSharpTokenizerLexState.Initial: FSharpTokenizerLexState with get</div>
+<div popover class="fsdocs-tip" id="fs19">val lines: string array</div>
+<div popover class="fsdocs-tip" id="fs20">val tokenizeLines: state: FSharpTokenizerLexState -&gt; count: int -&gt; lines: string list -&gt; unit<br /><em>&#160;Print token names for multiple lines of code</em></div>
+<div popover class="fsdocs-tip" id="fs21">val count: int</div>
+<div popover class="fsdocs-tip" id="fs22">val lines: string list</div>
+<div popover class="fsdocs-tip" id="fs23">val line: string</div>
+<div popover class="fsdocs-tip" id="fs24">val printfn: format: Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+<div popover class="fsdocs-tip" id="fs25">Multiple items<br />module List
+
+from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =
+  | op_Nil
+  | op_ColonColon of Head: &#39;T * Tail: &#39;T list
+  interface IReadOnlyList&lt;&#39;T&gt;
+  interface IReadOnlyCollection&lt;&#39;T&gt;
+  interface IEnumerable
+  interface IEnumerable&lt;&#39;T&gt;
+  member GetReverseIndex: rank: int * offset: int -&gt; int
+  member GetSlice: startIndex: int option * endIndex: int option -&gt; &#39;T list
+  static member Cons: head: &#39;T * tail: &#39;T list -&gt; &#39;T list
+  member Head: &#39;T
+  member IsEmpty: bool
+  member Item: index: int -&gt; &#39;T with get
+  ...</div>
+<div popover class="fsdocs-tip" id="fs26">val ofSeq: source: &#39;T seq -&gt; &#39;T list</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1">
+    <a href="#Compiler-Services-Using-the-F-tokenizer">
+      Compiler Services: Using the F# tokenizer
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Creating-the-tokenizer">
+      Creating the tokenizer
+    </a>
+  </li>
+  <li class="level-2">
+    <a href="#Tokenizing-F-code">
+      Tokenizing F# code
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Tokenizing-single-line">
+      Tokenizing single line
+    </a>
+  </li>
+  <li class="level-3">
+    <a href="#Tokenizing-sample-code">
+      Tokenizing sample code
+    </a>
+  </li>
+</ul>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-search.js"></script>
+<script type="module" src="https://fsharp.github.io/fsharp-compiler-docs/content/fsdocs-copy-button.js"></script>
+
+</body>
+</html>
